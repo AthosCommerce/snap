@@ -59,7 +59,11 @@ let config: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+			},
 		},
 	},
 	recommendation: {

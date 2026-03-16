@@ -28,7 +28,7 @@ export default {
 	},
 	decorators: [
 		(Story: any) => (
-			<div style={{ maxWidth: '800px' }}>
+			<div style={{ maxWidth: '750px' }}>
 				<Story />
 			</div>
 		),
@@ -152,6 +152,15 @@ export default {
 				defaultValue: { summary: 4 },
 			},
 			control: { type: 'number', min: 1, max: 8, step: 1 },
+		},
+		slideWidth: {
+			description: 'Width of each slide in Number of px',
+			table: {
+				type: {
+					summary: 'number',
+				},
+			},
+			control: { type: 'number' },
 		},
 		slidesToMove: {
 			description: 'Number of slides to move on each navigation',
