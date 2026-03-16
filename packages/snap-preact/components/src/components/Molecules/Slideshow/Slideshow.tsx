@@ -585,7 +585,7 @@ export function Slideshow(properties: SlideshowProps) {
 
 	if (slideWidth) {
 		// Fixed-width mode: translate by pixel amounts (slideWidth + gap per slide)
-		const slideStepPx = slideWidth + gap;
+		const slideStepPx = slideWidth + (gap ?? 0);
 		translateX = -(currentIndex * slideStepPx);
 		translateUnit = 'px';
 
