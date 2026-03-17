@@ -48,6 +48,7 @@ export type DefaultCacheConfig = {
 	enabled: boolean;
 	ttl: number;
 	maxSize: number;
+	memoryOnly?: boolean;
 	purgeable: boolean;
 	entries?: { [key: string]: Response };
 };
