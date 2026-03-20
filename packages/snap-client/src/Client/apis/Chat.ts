@@ -2,6 +2,28 @@ import { API } from './Abstract';
 import { HTTPHeaders } from '../../types';
 import { ChatRequestModel, FeedbackRequestModel, transformChatResponse } from '../transforms/chatResponse';
 
+export type ChatInitRequestModel = {
+	siteId: string;
+	userId: string;
+	languageCode: string;
+	searchConfig: {
+		sessionId: string;
+		bgFilters?: {
+			name: string;
+			value: string;
+		}[];
+		landingPage?: string;
+		tag?: string;
+		includeFacets?: string;
+		excludeFacets?: string;
+		shopper?: string;
+	};
+};
+
+export type ChatInitResponseModel = {
+	chatSessionId: string;
+};
+
 export type UploadImageRequestModel = {
 	context: {
 		widgetId: string;
@@ -27,17 +49,12 @@ export type UploadImageResponseModel = {
 
 // DISCRIMINATOR: "requestType" === general, productQuery, productComparison, productSearch, inspiration, imageSearch, content
 export type MoiRequestModel =
-	| MoiRequestModelInitChat
 	| MoiRequestModelGeneral
 	| MoiRequestModelProductQuery
 	| MoiRequestModelProductSearch
 	| MoiRequestModelProductComparison
 	| MoiRequestModelImageSearch
 	| MoiRequestModelProductSimilar;
-
-export type MoiRequestModelInitChat = {
-	requestType: 'initChat';
-};
 
 export type MoiRequestModelGeneral = {
 	requestType: 'general';
@@ -100,13 +117,16 @@ export type MoiResponseModel = {
 export type MoiResponseModelText = {
 	messageType: 'text';
 	id: string;
+	note: string;
 	collectFeedback: true;
 	text: string;
+	explanation: string;
 };
 
 export type MoiResponseModelContent = {
 	messageType: 'content';
 	id: string;
+	note: string;
 	collectFeedback: true;
 	text: string;
 };
@@ -114,7 +134,9 @@ export type MoiResponseModelContent = {
 export type MoiResponseModelProductSearchResult = {
 	messageType: 'productSearchResult';
 	id: string;
+	note: string;
 	text: string;
+	filtersApplied: unknown[]; // TODO: type this
 	totalResultsFound: number;
 	collectFeedback: boolean;
 	facets: {
@@ -126,23 +148,26 @@ export type MoiResponseModelProductSearchResult = {
 			count: number;
 		}[];
 	}[];
-	products: MoiResponseModelProduct[];
+	searchResult: MoiResponseModelSearchResult[];
 };
 
 export type MoiResponseModelInspirationResult = {
 	messageType: 'inspirationResult';
 	id: string;
+	note: string;
 	text: string;
 	collectFeedback: boolean;
-	products: MoiResponseModelProduct[];
+	topic: string;
+	searchResult: MoiResponseModelSearchResult[];
 };
 
 export type MoiResponseModelProductAnswer = {
 	messageType: 'productAnswer';
 	id: string;
+	note: string;
 	text: string;
 	collectFeedback: boolean;
-	product: MoiResponseModelProduct;
+	product: MoiResponseModelSearchResult;
 };
 
 export type MoiResponseModelSuggestedQuestions = {
@@ -152,25 +177,14 @@ export type MoiResponseModelSuggestedQuestions = {
 export type MoiResponseModelProductComparison = {
 	messageType: 'productComparison';
 	id: string;
+	note: string;
 	text: string;
 	collectFeedback: boolean;
-	products: MoiResponseModelProduct[];
+	searchResult: MoiResponseModelSearchResult[];
 };
 
-export type MoiResponseModelProduct = {
-	id: string;
-	itemGroupId: string;
-	name: string;
-	url: string;
-	image: string;
-	price: string;
-	salePrice: string;
-	currency: string;
-	shortDesc: string;
-	options: {
-		name: string;
-		values: string[];
-	}[];
+export type MoiResponseModelSearchResult = {
+	[key: string]: any;
 };
 
 export type MoiResponseModelActions = {
@@ -185,9 +199,11 @@ export type MoiResponseModelActions = {
 export type MoiResponseModelProductRecommendation = {
 	messageType: 'productRecommendation';
 	id: string;
+	note: string;
 	text: string;
 	collectFeedback: boolean;
-	products: MoiResponseModelProduct[];
+	product: MoiResponseModelSearchResult;
+	products: MoiResponseModelSearchResult[];
 };
 
 export class ChatAPI extends API<any> {
@@ -227,6 +243,22 @@ export class ChatAPI extends API<any> {
 			},
 			JSON.stringify(queryParameters)
 		);
+
+		return response;
+	}
+
+	async chatInit(queryParameters: ChatInitRequestModel): Promise<ChatInitResponseModel> {
+		const headerParameters: HTTPHeaders = {};
+
+		headerParameters['Content-Type'] = 'application/json';
+		headerParameters['x-site-id'] = queryParameters.siteId;
+
+		const response = await this.request<ChatInitResponseModel>({
+			path: '/chat/init',
+			method: 'POST',
+			headers: headerParameters,
+			body: queryParameters,
+		});
 
 		return response;
 	}

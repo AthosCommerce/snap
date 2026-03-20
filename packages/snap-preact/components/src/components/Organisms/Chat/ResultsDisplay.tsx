@@ -7,19 +7,19 @@ export const ResultsDisplay = observer((props: ResultsDisplayProps) => {
 	const { chatItem, controller, scrollToBottom } = props;
 	const carouselProps: Partial<CarouselProps> = {
 		breakpoints: undefined,
-		slidesPerView: 4,
+		slidesPerView: 2.8,
 		slidesPerGroup: 1,
 		loop: false,
 		hideButtons: true,
-		pagination: true,
+		pagination: false,
 		centerInsufficientSlides: false,
 		freeMode: true,
 	};
 
-	return chatItem.results?.length > 0 ? (
+	return chatItem.products?.length > 0 ? (
 		<div className="ss__chat__message-text__results" style={{ width: '100%' }}>
 			<Carousel {...carouselProps}>
-				{chatItem.results.map((result: any) => (
+				{chatItem.products.map((result: any) => (
 					<div key={result.id} className="ss__chat__message-text__results__result">
 						<ChatResult result={result} controller={controller} scrollToBottom={scrollToBottom} />
 					</div>

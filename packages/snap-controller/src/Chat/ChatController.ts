@@ -34,8 +34,16 @@ import { AbstractController } from '../Abstract/AbstractController';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
 import { ErrorType, ChatStore, ChatMessage } from '@athoscommerce/snap-store-mobx';
 import { ChatRequestModel, MoiRequestModel } from '@athoscommerce/snap-client';
-import type { ChatAttachmentImage, ChatAttachmentProduct, ChatAttachmentFacet, Product, Banner } from '@athoscommerce/snap-store-mobx';
+import type {
+	ChatAttachmentImage,
+	ChatAttachmentProduct,
+	ChatAttachmentFacet,
+	Product,
+	Banner,
+	ChatSessionStore,
+} from '@athoscommerce/snap-store-mobx';
 import { AddtocartSchemaData, type Product as BeaconProduct } from '@athoscommerce/beacon';
+import { Next } from '@athoscommerce/snap-event-manager';
 
 const KEY_ENTER = 13;
 
@@ -73,13 +81,113 @@ export class ChatController extends AbstractController {
 		this.use(this.config);
 
 		// initialization - check widget status
-		this.eventManager.on('init', async () => {
-			// TODO: verify status to ensure widget is enabled
-			// const { removeAskloBranding, status } = await this.client.chatStatus();
-			// removeAskloBranding: false
-			// status: "ENABLED"
+		this.eventManager.on('init', async (_, next) => {
+			if (this.store.chatEnabled === null) {
+				await this.checkChatStatus();
+			}
+			next();
 		});
+
+		this.eventManager.on('beforeSearch', async (data: { controller: ChatController; request: ChatRequestModel }, next: Next) => {
+			// TODO: test this
+			if (this.store.chatEnabled === false) {
+				this.log.warn('Chat is disabled, preventing search request');
+				this.store.error = {
+					type: ErrorType.WARNING,
+					message: 'Chat is currently unavailable. Please try again later.',
+				};
+				// stop search
+				return;
+			}
+
+			if (this.store.currentChat?.sessionId && this.store.currentChat?.sessionId === data.request.context.sessionId) {
+				return next();
+			}
+
+			// new chat
+			try {
+				const chat: ChatSessionStore | undefined = await this.startNewChat();
+				if (chat?.sessionId) {
+					data.request.context.sessionId = chat?.sessionId;
+				}
+				next();
+			} catch {
+				// stop middleware if startNewChat throws (chat is disabled)
+				return false;
+			}
+		});
+
+		this.init();
 	}
+
+	checkChatStatus = async (): Promise<boolean> => {
+		// @ts-ignore - globals is private
+		let siteId = this.client.globals.siteId;
+		if (siteId == 'ck4bj7') {
+			// TODO: temporary - remove
+			siteId = 'test-mattel-demo';
+		}
+		const { removeAskloBranding, status } = await this.client.chatStatus({ siteId });
+		this.store.chatEnabled = status === 'ENABLED';
+		this.store.removeBranding = removeAskloBranding;
+		this.store.storage.set('chatStatusResponse', JSON.stringify({ status, removeAskloBranding, checkTime: Date.now() }));
+		return this.store.chatEnabled;
+	};
+	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
+		const enabled = await this.checkChatStatus();
+		if (!enabled) {
+			const message = 'Chat is currently unavailable. Please try again later.';
+			this.log.warn(message);
+			this.store.error = {
+				type: ErrorType.WARNING,
+				message,
+			};
+			throw new Error(message);
+		}
+
+		const { userId, sessionId, shopperId } = this.tracker.getContext();
+		// @ts-ignore - globals is private
+		let siteId = this.client.globals.siteId; // TODO: get siteId from middleware request.siteId?
+		let chat: ChatSessionStore | undefined;
+
+		// TODO: temporary - remove
+		if (siteId == 'ck4bj7') {
+			siteId = 'test-mattel-demo';
+		}
+
+		try {
+			this.store.initChatLoading = true;
+			// TODO: add store loading indicator for this api request
+			const response = await this.client.chatInit({
+				siteId,
+				userId,
+				languageCode: navigator.language, // TODO: get language from templates config? Or currency from tracker?
+				searchConfig: {
+					sessionId,
+					shopper: shopperId,
+					// TODO: add these
+					// bgFilters: [],
+					// landingPage: '',
+					// tag: '',
+					// includeFacets: '',
+					// excludeFacets: '',
+				},
+			});
+			// TODO: handle if chatInit fails or denies new chat
+			if (response) {
+				chat = this.store.createChat({ sessionId: response.chatSessionId });
+			}
+		} catch (e) {
+			this.log.error('Error starting new chat:', e);
+			this.store.error = {
+				message: 'Failed to start new chat.',
+				type: ErrorType.ERROR,
+			};
+		} finally {
+			this.store.initChatLoading = false;
+		}
+		return chat;
+	};
 
 	get params(): ChatRequestModel {
 		const { userId, shopperId, sessionId, pageLoadId } = this.tracker.getContext();
@@ -124,11 +232,11 @@ export class ChatController extends AbstractController {
 			message: this.store.inputValue,
 		};
 
-		if (this.store.currentChat?.chat.length === 0) {
-			chatRequest = {
-				requestType: 'initChat',
-			};
-		}
+		// if (this.store.currentChat?.chat.length === 0) {
+		// 	chatRequest = {
+		// 		requestType: 'initChat',
+		// 	};
+		// }
 
 		if (attachedImageId) {
 			chatRequest = {
@@ -281,11 +389,6 @@ export class ChatController extends AbstractController {
 		}
 	};
 
-	startNewChat = (): void => {
-		this.store.createChat();
-		this.search();
-	};
-
 	handlers = {
 		input: {
 			enterKey: async (e: KeyboardEvent): Promise<void> => {
@@ -302,13 +405,6 @@ export class ChatController extends AbstractController {
 		button: {
 			click: () => {
 				this.store.open = !this.store.open;
-
-				if (this.store.open) {
-					// if there is no current chat sessionId make a new request to get one
-					if (!this.store.currentChat?.sessionId) {
-						this.search();
-					}
-				}
 			},
 		},
 	};
@@ -318,9 +414,9 @@ export class ChatController extends AbstractController {
 
 		if (initialMessage) {
 			this.store.inputValue = initialMessage;
-			this.search();
+			this.startNewChat();
 		} else if (!this.store.currentChat?.sessionId) {
-			this.search();
+			this.startNewChat();
 		}
 		if (!initialMessage) {
 			setTimeout(() => {
@@ -339,10 +435,6 @@ export class ChatController extends AbstractController {
 	search = async (): Promise<void> => {
 		this.store.error = undefined;
 		try {
-			if (!this.initialized) {
-				await this.init();
-			}
-
 			// TODO: add middleware
 			const params = this.params;
 

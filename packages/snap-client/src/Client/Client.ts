@@ -25,7 +25,7 @@ import type {
 import deepmerge from 'deepmerge';
 import { transformSuggestResponse } from './transforms';
 
-import { ChatAPI, UploadImageRequestModel, UploadImageResponseModel } from './apis/Chat';
+import { ChatAPI, ChatInitRequestModel, ChatInitResponseModel, UploadImageRequestModel, UploadImageResponseModel } from './apis/Chat';
 import { ChatRequestModel, ChatResponseModel, FeedbackRequestModel } from './transforms';
 
 const defaultConfig: ClientConfig = {
@@ -190,8 +190,12 @@ export class Client {
 		return this.requesters.chat.postUploadImage(params);
 	}
 
-	async chatStatus(params: any = {}): Promise<{ status: any }> {
+	async chatStatus(params: any = {}): Promise<{ status: 'ENABLED' | 'DOES_NOT_EXIST'; removeAskloBranding: boolean }> {
 		return this.requesters.chat.postStatus(params);
+	}
+
+	async chatInit(params: ChatInitRequestModel): Promise<ChatInitResponseModel> {
+		return this.requesters.chat.chatInit(params);
 	}
 
 	async chat(params: ChatRequestModel): Promise<{ meta: MetaResponseModel; chat: ChatResponseModel }> {

@@ -5,7 +5,7 @@ import type {
 	MoiResponseModelActions,
 	MoiResponseModelContent,
 	MoiResponseModelInspirationResult,
-	MoiResponseModelProduct,
+	MoiResponseModelSearchResult,
 	MoiResponseModelProductAnswer,
 	MoiResponseModelProductComparison,
 	MoiResponseModelProductRecommendation,
@@ -34,13 +34,16 @@ export type ChatResponseModel = {
 export type ChatResponseTextData = {
 	messageType: 'text';
 	id: string;
+	note: string;
 	collectFeedback: boolean;
 	text: string;
+	explanation: string;
 };
 
 export type ChatResponseContentData = {
 	messageType: 'content';
 	id: string;
+	note: string;
 	collectFeedback: boolean;
 	text: string;
 };
@@ -48,26 +51,32 @@ export type ChatResponseContentData = {
 export type ChatResponseProductSearchResultData = {
 	messageType: 'productSearchResult';
 	id: string;
-	results: SearchResponseModelResult[];
-	facets: MoiResponseModelProductSearchResult['facets'];
+	note: string;
 	collectFeedback: boolean;
 	text: string;
+	products: SearchResponseModelResult[];
+	facets: MoiResponseModelProductSearchResult['facets'];
+	filtersApplied: unknown[]; // TODO: type this
+	totalResultsFound: number;
 };
 
 export type ChatResponseInspirationResultData = {
 	messageType: 'inspirationResult';
 	id: string;
-	results: SearchResponseModelResult[];
+	note: string;
 	collectFeedback: boolean;
 	text: string;
+	topic: string;
+	products: SearchResponseModelResult[];
 };
 
 export type ChatResponseProductAnswerData = {
 	messageType: 'productAnswer';
 	id: string;
-	result: SearchResponseModelResult;
+	note: string;
 	collectFeedback: boolean;
 	text: string;
+	product: SearchResponseModelResult;
 };
 
 export type ChatResponseSuggestedQuestionsData = {
@@ -78,9 +87,10 @@ export type ChatResponseSuggestedQuestionsData = {
 export type ChatResponseProductComparisonData = {
 	messageType: 'productComparison';
 	id: string;
+	note: string;
 	collectFeedback: boolean;
 	text: string;
-	results: SearchResponseModelResult[];
+	products: SearchResponseModelResult[];
 };
 
 export type ChatResponseActionsData = {
@@ -91,9 +101,11 @@ export type ChatResponseActionsData = {
 export type ChatResponseProductRecommendationData = {
 	messageType: 'productRecommendation';
 	id: string;
+	note: string;
 	collectFeedback: boolean;
 	text: string;
-	results: SearchResponseModelResult[];
+	product: SearchResponseModelResult;
+	products: SearchResponseModelResult[];
 };
 
 export type ChatRequestModel = {
@@ -171,10 +183,13 @@ transformChatResponse.productData = (data: MoiResponseModelProductSearchResult):
 	return {
 		messageType: data.messageType,
 		id: data.id,
+		note: data.note,
 		collectFeedback: data.collectFeedback,
 		text: data.text,
 		facets: data.facets,
-		results: data.products.map(mapProductToSearchResultProduct),
+		filtersApplied: data.filtersApplied || [],
+		totalResultsFound: data.totalResultsFound,
+		products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
 	};
 };
 
@@ -182,9 +197,11 @@ transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResu
 	return {
 		messageType: data.messageType,
 		id: data.id,
+		note: data.note,
 		collectFeedback: data.collectFeedback,
 		text: data.text,
-		results: data.products.map(mapProductToSearchResultProduct),
+		topic: data.topic,
+		products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
 	};
 };
 
@@ -192,9 +209,10 @@ transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): Cha
 	return {
 		messageType: data.messageType,
 		id: data.id,
+		note: data.note,
 		collectFeedback: data.collectFeedback,
 		text: data.text,
-		result: mapProductToSearchResultProduct(data.product),
+		product: mapProductToSearchResultProduct(data.product),
 	};
 };
 
@@ -215,9 +233,10 @@ transformChatResponse.productComparison = (data: MoiResponseModelProductComparis
 	return {
 		messageType: data.messageType,
 		id: data.id,
+		note: data.note,
 		collectFeedback: data.collectFeedback,
 		text: data.text,
-		results: data.products.map(mapProductToSearchResultProduct),
+		products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
 	};
 };
 
@@ -234,21 +253,23 @@ transformChatResponse.productRecommendation = (data: MoiResponseModelProductReco
 		id: data.id,
 		collectFeedback: data.collectFeedback,
 		text: data.text,
-		results: data.products.map(mapProductToSearchResultProduct),
+		note: data.note,
+		product: mapProductToSearchResultProduct(data.product),
+		products: data.products.map(mapProductToSearchResultProduct),
 	};
 };
 
-const mapProductToSearchResultProduct = (product: MoiResponseModelProduct): SearchResponseModelResult => ({
-	id: product.id,
+const mapProductToSearchResultProduct = (product: MoiResponseModelSearchResult): SearchResponseModelResult => ({
+	...product,
 	mappings: {
 		core: {
 			uid: product.id,
 			name: product.name,
 			url: product.url,
-			imageUrl: product.image,
+			imageUrl: product.imageUrl,
 			price: typeof product.price !== 'undefined' ? +product.price : undefined,
 			msrp: typeof product.salePrice !== 'undefined' ? +product.salePrice : undefined,
-			description: product.shortDesc,
+			description: product.description,
 		},
 	},
 	attributes: {

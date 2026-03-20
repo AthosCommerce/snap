@@ -78,7 +78,6 @@ export class ChatSessionStore {
 	constructor(params: ChatSessionStoreConfig) {
 		const { id, sessionId, chat, attachments, actions, feedbacks, createdAt } = params.data || {};
 		const { stores } = params;
-
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
 		this.storage = stores.storage;
@@ -162,7 +161,7 @@ export class ChatSessionStore {
 					text: `Filter by ${filterTextArray.join('and ')}`,
 				});
 			}
-		} else if (request.data?.requestType !== 'initChat' && request.data.message) {
+		} else if (request.data.message) {
 			if (request.data.requestType === 'imageSearch') {
 				const imageId = request.data.attachedImageId;
 				const attachedImage = this.attachments.attached.find((item) => item.type == 'image' && item.imageId == imageId);

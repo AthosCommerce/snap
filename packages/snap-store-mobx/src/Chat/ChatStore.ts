@@ -8,6 +8,8 @@ import { StorageStore } from '../Storage/StorageStore';
 import { ChatSessionStore } from './Stores/ChatSessionStore';
 import { ChatAttachmentFacet, ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
 
+const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 60 * 12; // 12 hours
+
 export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public meta?: MetaStore = undefined;
 	public inputValue: string = '';
@@ -16,6 +18,9 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public chats: ChatSessionStore[] = [];
 	public currentChatId: string;
 	public quickViewResult: any = {};
+	public chatEnabled: boolean | null = null;
+	public removeBranding: boolean | null = null;
+	public initChatLoading: boolean = false;
 
 	constructor(config: ChatStoreConfig) {
 		super(config);
@@ -24,6 +29,22 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			type: 'local',
 			key: `ss-${this.config.id}-${this.config.widgetId}`,
 		});
+
+		const storedChatStatusResponse = this.storage.get('chatStatusResponse');
+		if (storedChatStatusResponse) {
+			try {
+				const storedChatStatus = JSON.parse(storedChatStatusResponse);
+				if (storedChatStatus.checkTime && Date.now() - storedChatStatus.checkTime > CHAT_STATUS_EXPIRATION_TIME) {
+					// chat status is expired, remove from storage to trigger a new check
+					this.storage.set('chatStatusResponse', null);
+				} else {
+					this.chatEnabled = storedChatStatus.status === 'ENABLED';
+					this.removeBranding = storedChatStatus.removeAskloBranding;
+				}
+			} catch {
+				this.storage.set('chatStatusResponse', null);
+			}
+		}
 
 		// check for entries in storage
 		let latestChatId = '';
@@ -45,15 +66,21 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 					latestChatId = chatId;
 				}
 			});
+		const storedMeta = this.storage.get('meta');
+		if (storedMeta) {
+			try {
+				const metaData = JSON.parse(storedMeta);
+				this.meta = new MetaStore({
+					data: {
+						meta: metaData,
+					},
+				});
+			} catch {
+				this.storage.set('meta', null);
+			}
+		}
 
 		this.currentChatId = latestChatId;
-
-		if (!this.currentChatId) {
-			// create initial chat session
-			const newChat = this.createChat();
-
-			this.currentChatId = newChat.id;
-		}
 
 		makeObservable(this, {
 			meta: observable,
@@ -62,6 +89,9 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			chats: observable,
 			currentChatId: observable,
 			quickViewResult: observable,
+			chatEnabled: observable,
+			removeBranding: observable,
+			initChatLoading: observable,
 			blocked: computed,
 			currentChat: computed,
 			chatsIds: computed,
@@ -96,8 +126,11 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.createChat();
 	}
 
-	public createChat(): ChatSessionStore {
+	public createChat(data?: { sessionId: string }): ChatSessionStore {
 		const newChat = new ChatSessionStore({
+			data: {
+				sessionId: data?.sessionId,
+			},
 			stores: {
 				storage: this.storage,
 			},
@@ -162,5 +195,13 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 	public update(data: { chat: ChatResponseModel; meta: MetaResponseModel }): void {
 		this.currentChat?.update(data);
+		if (!this.meta) {
+			this.storage.set('meta', JSON.stringify(data.meta));
+		}
+		this.meta = new MetaStore({
+			data: {
+				meta: data.meta,
+			},
+		});
 	}
 }
