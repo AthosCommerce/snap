@@ -71,7 +71,7 @@ describe('Abstract Api', () => {
 				ttl: 300000, // ms
 				maxSize: 1000, // KB
 				purgeable: true,
-				memoryOnly: false,
+				type: 'sessionStorage',
 			},
 			memoryCache: {},
 		});
@@ -109,7 +109,7 @@ describe('Abstract Api', () => {
 		enabled: false,
 		maxSize: 4, // KB
 		purgeable: false,
-		memoryOnly: false,
+		type: 'sessionStorage' as const,
 	};
 
 	// set up
