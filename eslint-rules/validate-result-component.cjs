@@ -138,14 +138,20 @@ module.exports = {
 		 * e.g., ['overrides', 'default', 'facet.size'] -> 'facet'
 		 * e.g., ['overrides', 'default', 'result'] -> 'result'
 		 * e.g., ['theme', 'overrides', 'mobile', 'sidebar'] -> 'sidebar'
+		 * e.g., ['overrides', 'search result'] -> 'result'
+		 * e.g., ['overrides', 'recommendationBundle result'] -> 'result'
 		 */
 		function extractComponentTypeFromPath(path) {
 			// Look at the last meaningful segment of the path
 			for (let i = path.length - 1; i >= 0; i--) {
-				const segment = path[i];
+				let segment = path[i];
 				// Skip common structural keys
 				if (['overrides', 'default', 'desktop', 'tablet', 'mobile', 'theme', 'components'].includes(segment)) {
 					continue;
+				}
+				// Handle space-delimited keys like 'search result' -> 'result'
+				if (segment.includes(' ')) {
+					segment = segment.split(' ').pop();
 				}
 				// Handle dot-notation like 'facet.size' -> 'facet'
 				if (segment.includes('.')) {
