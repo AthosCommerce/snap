@@ -8,12 +8,13 @@ import { Icon, IconProps } from '../../Atoms/Icon/Icon';
 import { Button, ButtonProps } from '../../Atoms/Button/Button';
 import { defined, Colour, mergeProps, mergeStyles } from '../../../utilities';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
 import type { AbstractController } from '@athoscommerce/snap-controller';
-import { Lang, useLang } from '../../../hooks';
+import { Lang, useComponent, useLang } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
 const warnColour = new Colour('#ecaa15');
@@ -120,6 +121,7 @@ const defaultStyles: StyleScript<ErrorHandlerProps> = ({ theme }) => {
 
 export const ErrorHandler = observer((properties: ErrorHandlerProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ErrorHandlerProps> = {
@@ -128,7 +130,14 @@ export const ErrorHandler = observer((properties: ErrorHandlerProps) => {
 
 	const props = mergeProps('errorHandler', globalTheme, defaultProps, properties);
 
-	const { controller, error, disableStyles, onRetryClick, className, internalClassName, treePath } = props;
+	const { controller, error, disableStyles, onRetryClick, className, internalClassName, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.errorHandler || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: ErrorHandlerSubProps = {
 		icon: {

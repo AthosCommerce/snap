@@ -223,6 +223,7 @@ interface AutocompleteModalSubProps {
 
 export type AutocompleteModalProps = {
 	controller: AutocompleteController;
+	resultComponent?: JSX.Element;
 } & AutocompleteModalTemplatesLegalProps &
 	ComponentProps<AutocompleteModalProps>;
 

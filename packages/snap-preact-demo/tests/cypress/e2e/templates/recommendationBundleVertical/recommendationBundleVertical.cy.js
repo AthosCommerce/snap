@@ -174,6 +174,9 @@ describe('BundledRecommendations', () => {
 										},
 										speed: 0,
 									},
+									'recommendationBundleVertical result': {
+										customComponent: 'CustomResult',
+									},
 								},
 							},
 						},
@@ -181,7 +184,6 @@ describe('BundledRecommendations', () => {
 							bundle: {
 								Bundle: {
 									component: 'RecommendationBundleVertical',
-									resultComponent: 'CustomResult',
 								},
 							},
 						},

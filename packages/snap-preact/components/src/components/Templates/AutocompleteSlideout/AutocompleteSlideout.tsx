@@ -193,6 +193,7 @@ interface AutocompleteSlideoutSubProps {
 
 export type AutocompleteSlideoutProps = {
 	controller: AutocompleteController;
+	resultComponent?: JSX.Element;
 } & AutocompleteSlideoutTemplatesLegalProps &
 	ComponentProps<AutocompleteSlideoutProps>;
 

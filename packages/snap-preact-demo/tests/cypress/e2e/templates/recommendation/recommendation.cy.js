@@ -211,6 +211,9 @@ describe('Recommendations', () => {
 												},
 												speed: 0,
 											},
+											'recommendation result': {
+												customComponent: 'CustomResult',
+											},
 										},
 									},
 								},
@@ -218,7 +221,6 @@ describe('Recommendations', () => {
 									default: {
 										Default: {
 											component: 'Recommendation',
-											resultComponent: 'CustomResult',
 										},
 									},
 								},

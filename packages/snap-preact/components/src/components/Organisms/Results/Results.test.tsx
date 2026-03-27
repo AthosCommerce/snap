@@ -153,7 +153,7 @@ describe('Results Component', () => {
 
 	it('renders with custom resultComponent', async () => {
 		const customResultClass = 'customResult';
-		const customResultComponent = (props: any) => {
+		const CustomResultComponent = (props: any) => {
 			const { result } = props;
 			return <div className={customResultClass}>{result.id}</div>;
 		};
@@ -173,7 +173,7 @@ describe('Results Component', () => {
 
 		await controller.search();
 
-		const rendered = render(<Results controller={controller} results={mockResults} resultComponent={customResultComponent} />);
+		const rendered = render(<Results controller={controller} results={mockResults} resultComponent={<CustomResultComponent />} />);
 
 		const element = rendered.container.querySelector('.ss__results');
 		const results = rendered.container.querySelectorAll(`.${customResultClass}`);

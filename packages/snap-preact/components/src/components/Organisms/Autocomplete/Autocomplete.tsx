@@ -16,17 +16,12 @@ import { Banner, BannerProps } from '../../Atoms/Banner';
 import { Facets, FacetsProps } from '../Facets';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { ComponentProps, FacetDisplay, BreakpointsProps, ResultComponent, StyleScript } from '../../../types';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { ComponentProps, FacetDisplay, BreakpointsProps, StyleScript } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
-import { Lang, useA11y, useLang } from '../../../hooks';
+import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import { IconType } from '../../Atoms/Icon';
-
-// import { useSnap } from '../../../providers';
-// import { useComponent } from '../../../hooks';
-// import { useCreateController } from '../../../hooks/useCreateController';
-// import type { RecommendationController } from '@athoscommerce/snap-controller';
-// import type { FunctionalComponent } from 'preact';
 // import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<AutocompleteProps> = ({
@@ -201,6 +196,7 @@ const defaultStyles: StyleScript<AutocompleteProps> = ({
 
 export const Autocomplete = observer((properties: AutocompleteProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<AutocompleteProps> = {
@@ -215,6 +211,15 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 	};
 
 	let props = mergeProps('autocomplete', globalTheme, defaultProps, properties);
+
+	const { customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.autocomplete || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const valueProps = createHoverProps();
 
@@ -855,6 +860,7 @@ export type AutocompleteProps = {
 	lang?: Partial<AutocompleteLang>;
 	controller: AutocompleteController;
 	breakpoints?: BreakpointsProps;
+	resultComponent?: JSX.Element;
 } & AutocompleteTemplatesLegalProps &
 	ComponentProps<AutocompleteProps>;
 
@@ -886,7 +892,6 @@ export type AutocompleteTemplatesLegalProps = {
 	noResultsSlot?: JSX.Element | JSX.Element[];
 	linkSlot?: JSX.Element | JSX.Element[];
 	width?: string;
-	resultComponent?: ResultComponent;
 	onFacetOptionClick?: (e: React.MouseEvent<Element, MouseEvent>) => void;
 	onTermClick?: (e: React.MouseEvent<Element, MouseEvent>) => void;
 	templates?: {

@@ -15,14 +15,7 @@ import { Facets, FacetsProps } from '../Facets';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
-import {
-	ComponentProps,
-	FacetDisplay,
-	RecommendationComponentNames,
-	RecommendationComponentProps,
-	ResultComponent,
-	StyleScript,
-} from '../../../types';
+import { ComponentProps, FacetDisplay, RecommendationComponentNames, RecommendationComponentProps, StyleScript } from '../../../types';
 import { Lang, useA11y, useLang } from '../../../hooks';
 import { TermsList, TermsListProps } from '../TermsList';
 import { Terms, TermsProps } from '../../Molecules/Terms';
@@ -515,14 +508,14 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 	let recsController: RecommendationController | undefined;
 	let RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
 
-	let RecommendationTemplateResultComponent: ResultComponent | undefined;
+	let RecommendationTemplateResultComponent: JSX.Element | undefined;
 
 	const noresults = Boolean(controller.store.search?.query?.string && controller.store.results.length === 0);
 
 	if (templates?.recommendation?.enabled && noresults) {
-		const recs = createRecommendationTemplate(templates, properties.theme);
+		const recs = createRecommendationTemplate(templates);
 		RecommendationTemplateComponent = recs.RecommendationTemplateComponent;
-		RecommendationTemplateResultComponent = recs.RecommendationTemplateResultComponent;
+		RecommendationTemplateResultComponent = recs.RecommendationTemplateResultComponent as JSX.Element | undefined;
 		recsController = recs.recsController;
 	}
 
@@ -816,7 +809,7 @@ type Column = {
 
 export type AutocompleteLayoutProps = {
 	input: Element | string;
-	resultComponent?: ResultComponent;
+	resultComponent?: JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
 } & AutocompleteLayoutTemplatesLegalProps &

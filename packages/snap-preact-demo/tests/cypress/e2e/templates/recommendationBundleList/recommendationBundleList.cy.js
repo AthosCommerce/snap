@@ -180,6 +180,9 @@ describe('BundledRecommendations', () => {
 										},
 										speed: 0,
 									},
+									'recommendationBundleList result': {
+										customComponent: 'CustomResult',
+									},
 								},
 							},
 						},
@@ -187,7 +190,6 @@ describe('BundledRecommendations', () => {
 							bundle: {
 								Bundle: {
 									component: 'RecommendationBundleList',
-									resultComponent: 'CustomResult',
 								},
 							},
 						},

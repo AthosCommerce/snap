@@ -4,13 +4,14 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Select, SelectProps } from '../Select';
 import { List, ListProps } from '../List';
 import { RadioList, RadioListProps } from '../RadioList';
-import { Lang } from '../../../hooks';
+import { Lang, useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<LayoutSelectorProps> = ({}) => {
@@ -24,6 +25,7 @@ const defaultStyles: StyleScript<LayoutSelectorProps> = ({}) => {
 
 export const LayoutSelector = observer((properties: LayoutSelectorProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<LayoutSelectorProps> = {
 		label: 'Layout',
@@ -35,9 +37,28 @@ export const LayoutSelector = observer((properties: LayoutSelectorProps) => {
 
 	const props = mergeProps('layoutSelector', globalTheme, defaultProps, properties);
 
-	const { options, selected, type, onSelect, showSingleOption, hideLabel, hideOptionLabels, disableStyles, className, internalClassName, treePath } =
-		props;
+	const {
+		options,
+		selected,
+		type,
+		onSelect,
+		showSingleOption,
+		hideLabel,
+		hideOptionLabels,
+		disableStyles,
+		className,
+		internalClassName,
+		treePath,
+		customComponent,
+	} = props;
 	let label = props.label;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.layoutSelector || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: SelectSubProps = {
 		Select: {

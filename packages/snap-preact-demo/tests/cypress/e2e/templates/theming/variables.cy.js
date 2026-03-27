@@ -295,6 +295,7 @@ describe('Theme variables work', () => {
 							},
 							result: {
 								detailSlot: () => <div>'jjjj'</div>,
+								customComponent: 'CustomResult',
 							},
 						},
 					},
@@ -309,7 +310,6 @@ describe('Theme variables work', () => {
 						{
 							selector: '#athos-layout',
 							component: 'Search',
-							resultComponent: 'CustomResult',
 						},
 					],
 				},

@@ -9,7 +9,7 @@ import { AutocompleteController, SearchController } from '@athoscommerce/snap-co
 import type { AbstractionGroup } from '../../../types';
 import { ThemeVariables, ThemeVariablesPartial } from '../../../../components/src';
 import { TargetStore } from '../TargetStore';
-import { AutocompleteTargetConfig, SearchTargetConfig, SnapTemplatesConfig } from '../../SnapTemplates';
+import { AutocompleteTargetConfig, SearchTargetConfig, SnapTemplatesConfig, SnapTemplatesConfigLocked } from '../../SnapTemplates';
 import { configUI, themeUI, searchControllerUI, autocompleteControllerUI, updateAutocompleteControllerState } from './uiAbstractions';
 import { CurrencyCodes, LanguageCodes } from '../LibraryStore';
 
@@ -348,15 +348,15 @@ export class TemplateEditorStore {
 	}
 
 	generateTemplatesConfig(): SnapTemplatesConfig {
-		const originalConfig = JSON.parse(JSON.stringify(this.templatesStore.config)) as SnapTemplatesConfig;
+		const originalConfig = JSON.parse(JSON.stringify(this.templatesStore.config)) as SnapTemplatesConfigLocked;
 		delete originalConfig.search;
 		delete originalConfig.autocomplete;
 		delete originalConfig.recommendation;
 		delete originalConfig.components;
 
-		const storageConfigData = (this.storage.get('overrides.config') || {}) as SnapTemplatesConfig['config'];
-		const themeConfigData = (this.storage.get('overrides.theme') || {}) as SnapTemplatesConfig['theme'];
-		const overrideConfig: SnapTemplatesConfig = { config: storageConfigData, theme: themeConfigData };
+		const storageConfigData = (this.storage.get('overrides.config') || {}) as SnapTemplatesConfigLocked['config'];
+		const themeConfigData = (this.storage.get('overrides.theme') || {}) as SnapTemplatesConfigLocked['theme'];
+		const overrideConfig: SnapTemplatesConfig = { config: storageConfigData, theme: themeConfigData, unlocked: false };
 
 		const targets = this.getTargets();
 		const searchTargets = targets
@@ -366,7 +366,6 @@ export class TemplateEditorStore {
 					({
 						selector: target.selector,
 						component: target.template.component,
-						resultComponent: target.template.resultComponent,
 					} as SearchTargetConfig)
 			);
 		const autocompleteTargets = targets
@@ -376,7 +375,6 @@ export class TemplateEditorStore {
 					({
 						selector: target.selector,
 						component: target.template.component,
-						resultComponent: target.template.resultComponent,
 					} as AutocompleteTargetConfig)
 			);
 

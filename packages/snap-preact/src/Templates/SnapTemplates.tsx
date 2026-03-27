@@ -18,7 +18,13 @@ import type {
 } from '../Instantiators/RecommendationInstantiator';
 import type { SnapFeatures } from '../types';
 import type { SnapConfig, ExtendedTarget } from '../Snap';
-import type { PluginsConfigs, RecsTemplateTypes, TemplateStoreConfigConfig, TemplateTypes } from './Stores/TemplateStore';
+import type {
+	PluginsConfigs,
+	RecsTemplateTypes,
+	TemplateStoreConfigConfig,
+	TemplateStoreConfigConfigFull,
+	TemplateTypes,
+} from './Stores/TemplateStore';
 import { LibraryImports } from './Stores/LibraryStore';
 import {
 	pluginBackgroundFilters,
@@ -54,36 +60,34 @@ import {
 } from '@athoscommerce/snap-platforms/magento2';
 
 export const TEMPLATE_EDIT_COOKIE = 'athosEditor';
-const TEMPLATE_EDITOR_PARAM = 'athos-editor';
+export const TEMPLATE_EDITOR_PARAM = 'athos-editor';
 
 // TODO: tabbing, finder
 export type SearchTargetConfig = {
 	selector: string;
 	component: keyof LibraryImports['component']['search'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type AutocompleteTargetConfig = {
 	selector: string;
 	inputSelector?: string;
 	component: keyof LibraryImports['component']['autocomplete'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type RecommendationDefaultTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['default'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 export type RecommendationEmailTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['email'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 export type RecommendationBundleTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['bundle'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
-export type SnapTemplatesConfig = TemplateStoreConfigConfig & {
+export type SnapTemplatesConfig = SnapTemplatesConfigUnlocked | SnapTemplatesConfigLocked;
+
+export type SnapTemplatesConfigUnlocked = TemplateStoreConfigConfig & {
+	unlocked: false;
 	url?: UrlTranslatorConfig;
 	features?: SnapFeatures;
 	search?: {
@@ -116,6 +120,13 @@ export type SnapTemplatesConfig = TemplateStoreConfigConfig & {
 		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 };
+
+// Full version that allows all component props in theme overrides (for Snap integration migration path)
+export type SnapTemplatesConfigLocked = Omit<SnapTemplatesConfigUnlocked, 'unlocked'> &
+	TemplateStoreConfigConfigFull & {
+		// _configType: 'integration';
+		unlocked: true;
+	};
 
 type TemplatePlugins =
 	// common
@@ -256,10 +267,6 @@ export function mapBreakpoints<ControllerConfigSettings>(
 export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] => {
 	const targets = templateConfig.search?.targets || [];
 	return targets.map((target) => {
-		// use theme provided resultComponent if specified
-		if (!target.resultComponent && templateConfig.theme.resultComponent) {
-			target.resultComponent = templateConfig.theme.resultComponent;
-		}
 		const targetId = templatesStore.addTarget('search', target);
 		const targeter: ExtendedTarget = {
 			selector: target.selector,
@@ -267,9 +274,6 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.search[target.component]());
-				if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-					componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
-				}
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
 			},
@@ -283,20 +287,12 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
 	const targets = templateConfig.autocomplete?.targets || [];
 	return targets.map((target) => {
-		// use theme provided resultComponent if specified
-		if (!target.resultComponent && templateConfig.theme.resultComponent) {
-			target.resultComponent = templateConfig.theme.resultComponent;
-		}
-
 		const targetId = templatesStore.addTarget('autocomplete', target);
 		const targeter: ExtendedTarget = {
 			selector: target.selector,
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.autocomplete[target.component]());
-				if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-					componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
-				}
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
 			},
@@ -324,11 +320,6 @@ export function createRecommendationComponentMapping(
 				const type: TemplateTypes = `recommendation/${recsType}`;
 				const target = templateConfig.recommendation![recsType]![targetName] as TemplateTarget;
 
-				// use theme provided resultComponent if specified
-				if (!target.resultComponent && templateConfig.theme.resultComponent) {
-					target.resultComponent = templateConfig.theme.resultComponent;
-				}
-
 				const mappedConfig: RecommendationComponentObject = {
 					component: async () => {
 						const componentImportPromises = [];
@@ -348,9 +339,6 @@ export function createRecommendationComponentMapping(
 								componentImportPromises.push(importLocation[target.component as keyof typeof importLocation]());
 								break;
 							}
-						}
-						if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-							componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
 						}
 						await Promise.all(componentImportPromises);
 						return TemplateSelect;

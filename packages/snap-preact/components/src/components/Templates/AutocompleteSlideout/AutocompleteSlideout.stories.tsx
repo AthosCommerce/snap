@@ -249,6 +249,16 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		resultComponent: {
+			description: 'Custom result component for the autocomplete',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'JSX.Element',
+				},
+			},
+			control: { type: 'JSX.Element' },
+		},
 		...componentArgs,
 	},
 };

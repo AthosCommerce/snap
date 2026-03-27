@@ -15,12 +15,21 @@ describe('Custom Result Compnent', () => {
 	beforeEach(() => {
 		cy.on('window:before:load', (win) => {
 			win.mergeSnapConfig = {
+				theme: {
+					extends: 'base',
+					overrides: {
+						default: {
+							'search result': {
+								customComponent: 'CustomResult',
+							},
+						},
+					},
+				},
 				search: {
 					targets: [
 						{
 							selector: '#athos-layout',
 							component: 'Search',
-							resultComponent: 'CustomResult',
 						},
 					],
 				},

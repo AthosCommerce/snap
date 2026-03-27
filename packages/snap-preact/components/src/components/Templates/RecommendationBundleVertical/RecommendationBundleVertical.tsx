@@ -3,7 +3,7 @@ import { css, useTheme } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
 
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { ComponentProps, ResultComponent, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript } from '../../../types';
 import { RecommendationBundle, RecommendationBundleLang, RecommendationBundleProps } from '../RecommendationBundle';
 import { Product } from '@athoscommerce/snap-store-mobx';
 import { AbstractController, RecommendationController } from '@athoscommerce/snap-controller';
@@ -59,14 +59,6 @@ export const RecommendationBundleVertical = observer((properties: Recommendation
 
 export type RecommendationBundleVerticalProps = {
 	controller: RecommendationController & AbstractController;
-	resultComponent?:
-		| ResultComponent<{
-				controller: RecommendationController;
-				seed?: boolean;
-				selected?: boolean;
-				onProductSelect?: (product: Product) => void;
-		  }>
-		| undefined;
 	alias?: string | undefined;
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
@@ -75,7 +67,7 @@ export type RecommendationBundleVerticalProps = {
 
 export type RecommendationBundleVerticalTemplatesLegalProps = Omit<
 	RecommendationBundleProps,
-	'controller' | 'resultComponent' | 'alias' | 'lang' | 'results' | 'vertical' | 'ctaInline' | 'carousel' | 'slidesPerView'
+	'controller' | 'alias' | 'lang' | 'results' | 'vertical' | 'ctaInline' | 'carousel' | 'slidesPerView'
 >;
 
 interface RecommendationBundleVerticalSubProps {

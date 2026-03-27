@@ -3,7 +3,7 @@ import { css, useTheme } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
 
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { ComponentProps, ResultComponent, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript } from '../../../types';
 import { RecommendationBundle, RecommendationBundleLang, RecommendationBundleProps } from '../RecommendationBundle';
 import { Product } from '@athoscommerce/snap-store-mobx';
 import { AbstractController, RecommendationController } from '@athoscommerce/snap-controller';
@@ -62,14 +62,6 @@ export const RecommendationBundleEasyAdd = observer((properties: RecommendationB
 
 export type RecommendationBundleEasyAddProps = {
 	controller: RecommendationController & AbstractController;
-	resultComponent?:
-		| ResultComponent<{
-				controller: RecommendationController;
-				seed?: boolean;
-				selected?: boolean;
-				onProductSelect?: (product: Product) => void;
-		  }>
-		| undefined;
 	alias?: string | undefined;
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
@@ -79,7 +71,6 @@ export type RecommendationBundleEasyAddProps = {
 export type RecommendationBundleEasyAddTemplatesLegalProps = Omit<
 	RecommendationBundleProps,
 	| 'controller'
-	| 'resultComponent'
 	| 'alias'
 	| 'lang'
 	| 'results'

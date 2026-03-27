@@ -90,7 +90,7 @@ export type SnapConfig = {
 	};
 };
 
-type SnapServices = {
+export type SnapServices = {
 	client?: Client;
 	tracker?: Tracker;
 	logger?: Logger;

@@ -11,7 +11,7 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { useComponent } from '../../../hooks/useComponent';
 import { useCreateController } from '../../../hooks/useCreateController';
 import type { RecommendationController, RecommendationControllerConfig } from '@athoscommerce/snap-controller';
-import type { RecommendationGridProps, RecommendationProps, ResultComponent, StyleScript } from '../../../';
+import type { RecommendationGridProps, RecommendationProps, StyleScript } from '../../../';
 import type { SnapTemplates } from '../../../../../src';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import deepmerge from 'deepmerge';
@@ -25,6 +25,7 @@ const defaultStyles: StyleScript<NoResultsProps> = ({}) => {
 
 export const NoResults = observer((properties: NoResultsProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<NoResultsProps> = {
@@ -59,7 +60,15 @@ export const NoResults = observer((properties: NoResultsProps) => {
 		className,
 		internalClassName,
 		treePath,
+		customComponent,
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.noResults || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const styling = mergeStyles<NoResultsProps>(props, defaultStyles);
 
@@ -67,7 +76,7 @@ export const NoResults = observer((properties: NoResultsProps) => {
 	const contactsExist = contactsList && Array.isArray(contactsList) && contactsList.length !== 0;
 
 	let recommendationTemplateComponent: ((props: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null) | undefined;
-	let recommendationTemplateResultComponent: ResultComponent | undefined;
+	let recommendationTemplateResultComponent: JSX.Element | undefined;
 	let recsController: RecommendationController | undefined;
 
 	if (templates?.recommendation?.enabled) {
@@ -75,12 +84,7 @@ export const NoResults = observer((properties: NoResultsProps) => {
 		const snap = useSnap() as SnapTemplates;
 
 		if (snap?.templates) {
-			const themeName = properties.theme?.name;
-			let defaultResultComponentFromTheme;
-			if (themeName) {
-				defaultResultComponentFromTheme = snap?.templates?.config.theme?.resultComponent;
-			}
-
+			const defaultResultComponentFromTheme = 'result';
 			const resultComponentName = (templates?.recommendation?.resultComponent || defaultResultComponentFromTheme) as string;
 			const mergedConfig = Object.assign(
 				{
@@ -98,7 +102,9 @@ export const NoResults = observer((properties: NoResultsProps) => {
 			}
 
 			if (resultComponentName && snap?.templates?.library.import.component.result) {
-				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName);
+				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName) as
+					| JSX.Element
+					| undefined;
 			}
 
 			if (componentName && snap?.templates?.library.import.component.recommendation.default) {

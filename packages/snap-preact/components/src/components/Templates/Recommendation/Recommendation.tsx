@@ -12,10 +12,10 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 
 import { Carousel, CarouselProps, defaultCarouselBreakpoints, defaultVerticalCarouselBreakpoints } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useIntersection } from '../../../hooks';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { ComponentProps, BreakpointsProps, ResultComponent, StyleScript } from '../../../types';
+import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { Lang, useLang } from '../../../hooks';
@@ -191,8 +191,11 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 										<ResultTracker controller={controller} result={result}>
 											{(() => {
 												if (resultComponent && controller) {
-													const ResultComponent = resultComponent;
-													return <ResultComponent controller={controller} result={result} treePath={subProps.result.treePath} />;
+													return cloneWithProps(resultComponent, {
+														controller,
+														result,
+														treePath: subProps.result.treePath,
+													});
 												} else {
 													return <Result key={result.id} {...subProps.result} controller={controller} result={result} />;
 												}
@@ -225,7 +228,7 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 
 export type RecommendationProps = {
 	controller: RecommendationController;
-	resultComponent?: ResultComponent;
+	resultComponent?: JSX.Element;
 	lang?: Partial<RecommendationLang>;
 	breakpoints?: BreakpointsProps;
 } & RecommendationTemplatesLegalProps &

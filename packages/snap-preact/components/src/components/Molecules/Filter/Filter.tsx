@@ -5,13 +5,14 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import type { Filter as FilterType } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
-import { Lang, useLang } from '../../../hooks';
+import { Lang, useComponent, useLang } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<FilterProps> = ({}) => {
@@ -35,6 +36,7 @@ const defaultStyles: StyleScript<FilterProps> = ({}) => {
 // TODO: look into urlManager and how it connects in this case, left the href out for the time being
 export const Filter = observer((properties: FilterProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<FilterProps> = {
 		treePath: globalTreePath,
@@ -42,8 +44,28 @@ export const Filter = observer((properties: FilterProps) => {
 
 	const props = mergeProps('filter', globalTheme, defaultProps, properties);
 
-	const { filter, facetLabel, valueLabel, url, hideFacetLabel, onClick, icon, separator, disableStyles, className, internalClassName, treePath } =
-		props;
+	const {
+		filter,
+		facetLabel,
+		valueLabel,
+		url,
+		hideFacetLabel,
+		onClick,
+		icon,
+		separator,
+		disableStyles,
+		className,
+		internalClassName,
+		treePath,
+		customComponent,
+	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.filter || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const link = filter?.url?.link || url?.link;
 	const value = filter?.value.label || valueLabel;

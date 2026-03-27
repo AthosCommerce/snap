@@ -3,8 +3,10 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, withTracking, withController } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, withTracking, withController, useSnap } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 import { BannerContent, ContentType } from '@athoscommerce/snap-store-mobx';
 import type { AutocompleteController, SearchController } from '@athoscommerce/snap-controller';
@@ -26,6 +28,7 @@ const defaultStyles: StyleScript<BannerProps> = () => {
 export const Banner = withController<any>(
 	observer((properties: BannerProps) => {
 		const globalTheme: Theme = useTheme();
+		const snap = useSnap();
 		const globalTreePath = useTreePath();
 		const defaultProps: Partial<BannerProps> = {
 			treePath: globalTreePath,
@@ -33,8 +36,15 @@ export const Banner = withController<any>(
 
 		const props = mergeProps('banner', globalTheme, defaultProps, properties);
 
-		const { controller, type, className, internalClassName } = props;
+		const { controller, type, className, internalClassName, customComponent } = props;
 		const content = props.content || controller?.store?.merchandising.content;
+
+		if (customComponent) {
+			const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.banner || {}, customComponent);
+			if (ComponentOverride) {
+				return <ComponentOverride {...props} />;
+			}
+		}
 
 		if (type === ContentType.INLINE) {
 			console.warn(`BannerType '${ContentType.INLINE}' is not supported in <Banner /> component`);

@@ -1,6 +1,5 @@
 import { observable, makeObservable } from 'mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-store-mobx';
-import { SnapTemplatesConfig } from '../SnapTemplates';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
@@ -27,19 +26,86 @@ import type {
 } from '@athoscommerce/snap-platforms/common';
 import type {
 	ThemeResponsiveComplete,
+	ThemeResponsiveCompleteFull,
 	LangComponentOverrides,
-	ResultComponent,
 	ThemeComponents,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
+	JSXComponent,
 } from '../../../components/src';
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
-export type TemplateCustomComponentTypes = 'result' | 'badge';
+
+export type TemplateDefaultComponentTypes = 'result' | 'badge';
+
+export type TemplateCustomComponentTypes =
+	| TemplateDefaultComponentTypes
+	/* atoms */
+	| 'badgeImage'
+	| 'badgePill'
+	| 'badgeRectangle'
+	| 'badgeText'
+	| 'breadcrumbs'
+	| 'button'
+	| 'dropdown'
+	| 'formattedNumber'
+	| 'icon'
+	| 'image'
+	| 'loadingBar'
+	| 'banner'
+	| 'inlineBanner'
+	| 'overlay'
+	| 'paginationInfo'
+	| 'slideshow'
+	| 'price'
+	| 'skeleton'
+	/* molecules */
+	| 'modal'
+	| 'calloutBadge'
+	| 'carousel'
+	| 'checkbox'
+	| 'grid'
+	| 'layoutSelector'
+	| 'list'
+	| 'radio'
+	| 'errorHandler'
+	| 'facetGridOptions'
+	| 'facetHierarchyOptions'
+	| 'facetListOptions'
+	| 'facetPaletteOptions'
+	| 'facetSlider'
+	| 'filter'
+	| 'loadMore'
+	| 'overlayBadge'
+	| 'pagination'
+	| 'perPage'
+	| 'radioList'
+	| 'rating'
+	| 'searchInput'
+	| 'select'
+	| 'slideout'
+	| 'sortBy'
+	| 'swatches'
+	| 'variantSelection'
+	| 'terms'
+	/* organisms */
+	| 'branchOverride'
+	| 'facet'
+	| 'facets'
+	| 'facetsHorizontal'
+	| 'filterSummary'
+	| 'noResults'
+	| 'results'
+	| 'searchHeader'
+	| 'sidebar'
+	| 'mobileSidebar'
+	| 'toolbar'
+	| 'termsList';
+
 export type RecsTemplateTypes = 'bundle' | 'default' | 'email';
 
 export type TargetMap = { [targetId: string]: TargetStore };
@@ -54,7 +120,6 @@ type ComponentLibraryType =
 export type TemplateTarget = {
 	selector?: string;
 	component: ComponentLibraryType | (string & NonNullable<unknown>);
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type TemplatesStoreConfigSettings = {
@@ -72,14 +137,23 @@ type WindowProperties = {
 type TemplateStoreThemeConfig = {
 	extends: keyof LibraryImports['theme'];
 	style?: GlobalThemeStyleScript;
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 	variables?: ThemeVariablesPartial;
 	overrides?: ThemeResponsiveComplete;
 };
 
+type TemplateStoreThemeConfigFull = Omit<TemplateStoreThemeConfig, 'overrides'> & {
+	overrides?: ThemeResponsiveCompleteFull;
+};
+
 export type TemplateStoreComponentConfig = {
+	[key in TemplateDefaultComponentTypes]?: {
+		[componentName: string]: (args?: any) => Promise<JSXComponent> | JSXComponent;
+	};
+};
+
+export type TemplateStoreComponentConfigFull = {
 	[key in TemplateCustomComponentTypes]?: {
-		[componentName: string]: (args?: any) => Promise<ResultComponent> | ResultComponent;
+		[componentName: string]: (args?: any) => Promise<JSXComponent> | JSXComponent;
 	};
 };
 
@@ -114,6 +188,7 @@ export type PluginsConfigs = {
 };
 
 export type TemplateStoreConfigConfig = {
+	unlocked?: boolean;
 	components?: TemplateStoreComponentConfig;
 	config: {
 		siteId?: string;
@@ -129,6 +204,11 @@ export type TemplateStoreConfigConfig = {
 	theme: TemplateStoreThemeConfig;
 };
 
+export type TemplateStoreConfigConfigFull = Omit<TemplateStoreConfigConfig, 'theme' | 'components'> & {
+	theme: TemplateStoreThemeConfigFull;
+	components?: TemplateStoreComponentConfigFull;
+};
+
 const RESIZE_DEBOUNCE = 100;
 export const TEMPLATE_STORE_KEY = 'athos-templates';
 
@@ -139,7 +219,7 @@ export type TemplateStoreConfig = {
 
 export class TemplatesStore {
 	loading = false;
-	config: SnapTemplatesConfig;
+	config: TemplateStoreConfigConfig;
 	storage: StorageStore;
 	language: LanguageCodes;
 	currency: CurrencyCodes;
@@ -195,8 +275,7 @@ export class TemplatesStore {
 			local: {},
 			library: {},
 		};
-
-		this.library = new LibraryStore({ components: config.components });
+		this.library = new LibraryStore({ components: config.components, unlocked: config.unlocked });
 
 		this.language =
 			(this.settings.editMode && this.storage.get('overrides.config.language')) ||
@@ -230,11 +309,6 @@ export class TemplatesStore {
 		// add promise
 		const themeDefer = new Deferred();
 		themePromises.push(themeDefer.promise);
-
-		// import component if defined
-		if (themeConfiguration.resultComponent && this.library.import.component.result[themeConfiguration.resultComponent]) {
-			this.library.import.component.result[themeConfiguration.resultComponent]();
-		}
 
 		// import theme dependencies
 		const themeImports = [importCurrency, importLanguage, this.library.import.theme[themeConfiguration.extends]()];

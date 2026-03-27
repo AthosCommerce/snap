@@ -72,6 +72,15 @@ export type ThemeResponsive = {
 
 export type ThemeResponsiveComplete = ThemeResponsive & { default?: ThemeComponentsRestricted };
 
+// Full versions that allow all component props (for Snap integration migration path)
+export type ThemeResponsiveFull = {
+	mobile?: ThemeComponents;
+	tablet?: ThemeComponents;
+	desktop?: ThemeComponents;
+};
+
+export type ThemeResponsiveCompleteFull = ThemeResponsiveFull & { default?: ThemeComponents };
+
 export type ResponsiveKeys = 'default' | 'desktop' | 'tablet' | 'mobile';
 
 export type ThemePartial = Omit<Theme, 'variables' | 'name' | 'components'> & {

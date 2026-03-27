@@ -17,14 +17,15 @@ import { ComponentProps, FacetDisplay, StyleScript } from '../../../types';
 import type { ValueFacet, RangeFacet, FacetHierarchyValue, FacetValue, FacetRangeValue } from '@athoscommerce/snap-store-mobx';
 
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { useA11y } from '../../../hooks/useA11y';
 // import { FacetToggle, FacetToggleProps } from '../../Molecules/FacetToggle';
-import { Lang, useLang } from '../../../hooks';
+import { Lang, useComponent, useLang } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 import { LangAttributesObj } from '../../../hooks/useLang';
+import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme }) => {
 	return css({
@@ -124,6 +125,7 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 
 export const Facet = observer((properties: FacetProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetProps> = {
@@ -183,7 +185,15 @@ export const Facet = observer((properties: FacetProps) => {
 		className,
 		internalClassName,
 		treePath,
+		customComponent,
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facet || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: FacetSubProps = {
 		dropdown: {

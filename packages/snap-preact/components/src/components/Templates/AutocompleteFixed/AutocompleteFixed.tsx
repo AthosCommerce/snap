@@ -269,6 +269,7 @@ interface AutocompleteFixedSubProps {
 
 export type AutocompleteFixedProps = {
 	controller: AutocompleteController;
+	resultComponent?: JSX.Element;
 } & AutocompleteFixedTemplatesLegalProps &
 	ComponentProps<AutocompleteFixedProps>;
 

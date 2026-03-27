@@ -182,12 +182,14 @@ describe('RecommendationGrid Component', () => {
 
 	it('renders with custom resultComponent', () => {
 		const customResultClass = 'customResult';
-		const customResultComponent = (props: any) => {
+		const CustomResultComponent = (props: any) => {
 			const { result } = props;
 			return <div className={customResultClass}>{result.id}</div>;
 		};
 
-		const rendered = render(<RecommendationGrid controller={controller} resultComponent={customResultComponent} lazyRender={{ enabled: false }} />);
+		const rendered = render(
+			<RecommendationGrid controller={controller} resultComponent={<CustomResultComponent />} lazyRender={{ enabled: false }} />
+		);
 
 		const element = rendered.container.querySelector('.ss__recommendation-grid');
 		const results = rendered.container.querySelectorAll(`.${customResultClass}`);

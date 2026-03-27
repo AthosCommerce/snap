@@ -76,6 +76,7 @@ export * from './components/Templates/RecommendationGrid';
 export * from './components/Templates/RecommendationEmail';
 export * from './components/Templates/Search';
 export * from './components/Templates/SearchHorizontal';
+export * from './components/Templates/SearchCollapsible';
 
 // TYPES
 export * from './types';
