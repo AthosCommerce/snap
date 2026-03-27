@@ -253,7 +253,7 @@ export default {
 					summary: 'JSX.Element',
 				},
 			},
-			control: { type: 'JSX.Element' },
+			control: { type: 'object' },
 		},
 		...componentArgs,
 	},
