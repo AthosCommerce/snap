@@ -294,7 +294,6 @@ describe('Theme variables work', () => {
 								toggleSidebarStartClosed: false,
 							},
 							result: {
-								detailSlot: () => <div>'jjjj'</div>,
 								customComponent: 'CustomResult',
 							},
 						},

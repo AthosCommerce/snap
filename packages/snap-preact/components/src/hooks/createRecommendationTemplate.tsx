@@ -31,7 +31,7 @@ export function createRecommendationTemplate(templates: TemplatesType): ReturnTy
 		const snap = useSnap() as SnapTemplates;
 
 		if (snap?.templates) {
-			const defaultResultComponentFromTheme = 'result';
+			const defaultResultComponentFromTheme = 'Result';
 
 			const resultComponentName = (templates?.recommendation?.resultComponent || defaultResultComponentFromTheme) as string;
 			const mergedConfig = Object.assign(
