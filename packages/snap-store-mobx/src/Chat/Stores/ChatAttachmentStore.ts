@@ -17,11 +17,19 @@ export class ChatAttachmentStore {
 		makeObservable(this, {
 			items: observable,
 			attached: computed,
+			compared: computed,
 		});
 	}
 
 	get attached() {
 		return this.items.filter((item) => item.state !== 'saved');
+	}
+
+	get compared() {
+		return this.items
+			.filter((item) => item.state !== 'saved')
+			.filter((item) => item.type === 'product')
+			.filter((item) => (item as ChatAttachmentProduct).requestType === 'productComparison');
 	}
 
 	add<T extends ChatAttachments>(attachment: ChatAttachmentAddAttachment): T {

@@ -122,16 +122,19 @@ export class ChatController extends AbstractController {
 
 	checkChatStatus = async (): Promise<boolean> => {
 		// @ts-ignore - globals is private
-		let siteId = this.client.globals.siteId;
-		if (siteId == 'ck4bj7') {
-			// TODO: temporary - remove
-			siteId = 'test-mattel-demo';
-		}
-		const { removeAskloBranding, status } = await this.client.chatStatus({ siteId });
-		this.store.chatEnabled = status === 'ENABLED';
-		this.store.removeBranding = removeAskloBranding;
-		this.store.storage.set('chatStatusResponse', JSON.stringify({ status, removeAskloBranding, checkTime: Date.now() }));
-		return this.store.chatEnabled;
+		// let siteId = this.client.globals.siteId;
+		// if (siteId == 'ck4bj7') {
+		// 	// TODO: temporary - remove
+		// 	siteId = 'test-mattel-demo';
+		// }
+		// const { removeAskloBranding, status } = await this.client.chatStatus({ siteId });
+		// this.store.chatEnabled = status === 'ENABLED';
+		// this.store.removeBranding = removeAskloBranding;
+		// this.store.storage.set('chatStatusResponse', JSON.stringify({ status, removeAskloBranding, checkTime: Date.now() }));
+		// return this.store.chatEnabled;
+		this.store.chatEnabled = true;
+		this.store.storage.set('chatStatusResponse', JSON.stringify({ status: 'ENABLED', removeAskloBranding: false, checkTime: Date.now() }));
+		return true;
 	};
 	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
 		const enabled = await this.checkChatStatus();
@@ -144,6 +147,7 @@ export class ChatController extends AbstractController {
 			};
 			throw new Error(message);
 		}
+		this.store.error = undefined;
 
 		const { userId, sessionId, shopperId } = this.tracker.getContext();
 		// @ts-ignore - globals is private
@@ -374,6 +378,10 @@ export class ChatController extends AbstractController {
 
 	viewProduct = (result: Product): void => {
 		this.store.setQuickViewResult(result);
+	};
+
+	compareProduct = (result: Product): void => {
+		this.store.compareProduct(result);
 	};
 
 	discussProduct = (result: Product, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void => {

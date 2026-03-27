@@ -1,6 +1,7 @@
 import { API } from './Abstract';
 import { HTTPHeaders } from '../../types';
 import { ChatRequestModel, FeedbackRequestModel, transformChatResponse } from '../transforms/chatResponse';
+import { RawResult } from '../transforms/searchResponse';
 
 export type ChatInitRequestModel = {
 	siteId: string;
@@ -114,96 +115,115 @@ export type MoiResponseModel = {
 	)[];
 };
 
-export type MoiResponseModelText = {
-	messageType: 'text';
+type BaseResponseProperties = {
 	id: string;
-	note: string;
-	collectFeedback: true;
-	text: string;
+	collectFeedback: boolean;
+};
+
+export type MoiResponseModelText = BaseResponseProperties & {
+	messageType: 'text';
 	explanation: string;
 };
 
-export type MoiResponseModelContent = {
+export type MoiResponseModelContent = BaseResponseProperties & {
 	messageType: 'content';
-	id: string;
-	note: string;
-	collectFeedback: true;
-	text: string;
 };
 
-export type MoiResponseModelProductSearchResult = {
+export type MoiResponseModelProductSearchResult = BaseResponseProperties & {
 	messageType: 'productSearchResult';
-	id: string;
-	note: string;
 	text: string;
-	filtersApplied: unknown[]; // TODO: type this
-	totalResultsFound: number;
-	collectFeedback: boolean;
-	facets: {
-		key: string;
-		label: string;
-		options: {
-			key: string;
-			label: string;
-			count: number;
-		}[];
-	}[];
-	searchResult: MoiResponseModelSearchResult[];
+	searchResult: MoiResponseModelSearchResult;
+	note?: string;
 };
 
-export type MoiResponseModelInspirationResult = {
+export type MoiResponseModelInspirationResult = BaseResponseProperties & {
 	messageType: 'inspirationResult';
-	id: string;
-	note: string;
-	text: string;
-	collectFeedback: boolean;
-	topic: string;
-	searchResult: MoiResponseModelSearchResult[];
+	overallSummary: string;
+	inspirationSections: {
+		clusterTitle: string;
+		clusterDescription: string;
+		searchQueries: string[];
+		products: RawResult[];
+	}[];
+	note?: string;
 };
 
-export type MoiResponseModelProductAnswer = {
+export type MoiResponseModelProductAnswer = BaseResponseProperties & {
 	messageType: 'productAnswer';
-	id: string;
-	note: string;
-	text: string;
-	collectFeedback: boolean;
-	product: MoiResponseModelSearchResult;
+	// id: string;
+	// note: string;
+	// text: string;
+	// collectFeedback: boolean;
+	// product: MoiResponseModelSearchResult;
 };
 
-export type MoiResponseModelSuggestedQuestions = {
+export type MoiResponseModelSuggestedQuestions = BaseResponseProperties & {
 	messageType: 'suggestedQuestions';
-	questions: string[];
+	// questions: string[];
 };
-export type MoiResponseModelProductComparison = {
+export type MoiResponseModelProductComparison = BaseResponseProperties & {
 	messageType: 'productComparison';
-	id: string;
-	note: string;
-	text: string;
-	collectFeedback: boolean;
-	searchResult: MoiResponseModelSearchResult[];
+	// note: string;
+	// text: string;
+	// searchResult: MoiResponseModelSearchResult[];
 };
 
 export type MoiResponseModelSearchResult = {
-	[key: string]: any;
-};
-
-export type MoiResponseModelActions = {
-	messageType: 'actions';
-	id: string;
-	actions: {
-		message: string;
-		request: MoiRequestModelGeneral;
+	results: RawResult[];
+	pagination: {
+		totalResults: number;
+	};
+	facets: {
+		field: string;
+		label: string;
+		type: string;
+		multiple: string;
+		values: {
+			value: string;
+			type: string;
+			label: string;
+			count: number;
+			active: boolean;
+		}[];
+	}[];
+	sorting: {
+		options: {
+			field: string;
+			direction: string;
+			label: string;
+		}[];
+	};
+	filterSummary: {
+		field: string;
+		value: any;
+		label: string;
+		filterLabel: string;
+		filterValue: string;
 	}[];
 };
 
-export type MoiResponseModelProductRecommendation = {
+export type MoiResponseModelActions = BaseResponseProperties & {
+	messageType: 'actions';
+	// actions: {
+	// 	message: string;
+	// 	request: MoiRequestModelGeneral;
+	// }[];
+};
+
+export type MoiResponseModelProductRecommendation = BaseResponseProperties & {
 	messageType: 'productRecommendation';
-	id: string;
-	note: string;
+	recommendationResult: {
+		results: RawResult[];
+		profile: {
+			name: string;
+			tag: string;
+			type: string;
+			limit: number;
+		};
+	}[];
+	sourceProduct: RawResult;
 	text: string;
-	collectFeedback: boolean;
-	product: MoiResponseModelSearchResult;
-	products: MoiResponseModelSearchResult[];
+	note?: string;
 };
 
 export class ChatAPI extends API<any> {

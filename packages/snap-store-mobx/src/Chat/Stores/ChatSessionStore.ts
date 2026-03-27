@@ -10,14 +10,13 @@ import type {
 	ChatResponseContentData,
 	ChatResponseProductAnswerData,
 	FeedbackRequestModel,
-	ChatResponseActionsData,
-	MoiResponseModelProductSearchResult,
 	ChatResponseProductComparisonData,
 	ChatResponseProductRecommendationData,
 } from '@athoscommerce/snap-client';
 import { ChatAttachmentAddAttachment, ChatAttachmentFacet, ChatAttachmentProduct, ChatAttachmentStore } from '../Stores/ChatAttachmentStore';
 import type { StorageStore } from '../../Storage/StorageStore';
 import { MetaResponseModel } from '@athoscommerce/snapi-types';
+import { ChatCompareStore } from './ChatCompareStore';
 
 export type ChatFeedbacks = { messageId: string; rating: 'UP' | 'DOWN' };
 
@@ -56,12 +55,14 @@ type ChatSessionStoreConfig = {
 
 export type FacetsData = {
 	type: 'facets';
-	data: MoiResponseModelProductSearchResult['facets'];
+	// data: MoiResponseModelProductSearchResult['facets'];
+	data: any;
 };
 
 export type ActionsData = {
 	type: 'actions';
-	data: ChatResponseActionsData['actions'];
+	// data: ChatResponseActionsData['actions'];
+	data: any;
 };
 export type ChatActions = (FacetsData | ActionsData)[];
 
@@ -71,6 +72,7 @@ export class ChatSessionStore {
 	public id: string;
 	public sessionId?: string;
 	public attachments: ChatAttachmentStore = new ChatAttachmentStore();
+	public comparisons: ChatCompareStore = new ChatCompareStore();
 	public storage: StorageStore;
 	public feedbacks: ChatFeedbacks[] = [];
 	public createdAt: Date = new Date();

@@ -133,7 +133,6 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 	};
 
 	const styling = mergeStyles<ChatResultProps>(properties, defaultStyles);
-
 	return (
 		<div className="ss__chat__result" {...styling}>
 			<div className="ss__chat__result__image">
@@ -160,7 +159,7 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 						className={'ss__chat__result__image__buttons__compare'}
 						content={'Compare'}
 						onClick={() => {
-							controller.discussProduct(result, { requestType: 'productComparison' });
+							controller.compareProduct(result);
 						}}
 					/>
 				</div>

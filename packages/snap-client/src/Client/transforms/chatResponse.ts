@@ -1,4 +1,9 @@
-import { SearchResponseModelResult } from '@athoscommerce/snapi-types';
+import {
+	SearchResponseModelResult,
+	SearchResponseModelFacet,
+	SearchResponseModelResultCoreMappings,
+	SearchResponseModelFacetValueAllOfValues,
+} from '@athoscommerce/snapi-types';
 import type {
 	MoiRequestModel,
 	MoiResponseModel,
@@ -13,6 +18,12 @@ import type {
 	MoiResponseModelSuggestedQuestions,
 	MoiResponseModelText,
 } from '../apis/Chat';
+import { CORE_FIELDS, decodeProperty, RawResult, Result } from './searchResponse';
+
+type BaseResponseProperties = {
+	id: string;
+	collectFeedback: boolean;
+};
 
 export type ChatResponseModel = {
 	data: (
@@ -48,28 +59,6 @@ export type ChatResponseContentData = {
 	text: string;
 };
 
-export type ChatResponseProductSearchResultData = {
-	messageType: 'productSearchResult';
-	id: string;
-	note: string;
-	collectFeedback: boolean;
-	text: string;
-	products: SearchResponseModelResult[];
-	facets: MoiResponseModelProductSearchResult['facets'];
-	filtersApplied: unknown[]; // TODO: type this
-	totalResultsFound: number;
-};
-
-export type ChatResponseInspirationResultData = {
-	messageType: 'inspirationResult';
-	id: string;
-	note: string;
-	collectFeedback: boolean;
-	text: string;
-	topic: string;
-	products: SearchResponseModelResult[];
-};
-
 export type ChatResponseProductAnswerData = {
 	messageType: 'productAnswer';
 	id: string;
@@ -81,7 +70,8 @@ export type ChatResponseProductAnswerData = {
 
 export type ChatResponseSuggestedQuestionsData = {
 	messageType: 'actions';
-	actions: MoiResponseModelActions['actions'];
+	// actions: MoiResponseModelActions['actions'];
+	actions: any;
 };
 
 export type ChatResponseProductComparisonData = {
@@ -95,17 +85,8 @@ export type ChatResponseProductComparisonData = {
 
 export type ChatResponseActionsData = {
 	messageType: 'actions';
-	actions: MoiResponseModelActions['actions'];
-};
-
-export type ChatResponseProductRecommendationData = {
-	messageType: 'productRecommendation';
-	id: string;
-	note: string;
-	collectFeedback: boolean;
-	text: string;
-	product: SearchResponseModelResult;
-	products: SearchResponseModelResult[];
+	// actions: MoiResponseModelActions['actions'];
+	actions: any;
 };
 
 export type ChatRequestModel = {
@@ -169,82 +150,136 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 	};
 }
 
-transformChatResponse.text = (data: MoiResponseModelText): ChatResponseTextData => {
+// transformChatResponse.text = (data: MoiResponseModelText): ChatResponseTextData => {
+transformChatResponse.text = (data: MoiResponseModelText): any => {
 	// nothing to transform here yet
 	return data;
 };
 
-transformChatResponse.content = (data: MoiResponseModelContent): ChatResponseContentData => {
+// transformChatResponse.content = (data: MoiResponseModelContent): ChatResponseContentData => {
+transformChatResponse.content = (data: MoiResponseModelContent): any => {
 	// nothing to transform here yet
 	return data;
 };
 
+export type ChatResponseProductSearchResultData = BaseResponseProperties & {
+	messageType: 'productSearchResult';
+
+	note?: string;
+
+	text: string;
+	results: SearchResponseModelResult[];
+	facets: SearchResponseModelFacet[];
+};
 transformChatResponse.productData = (data: MoiResponseModelProductSearchResult): ChatResponseProductSearchResultData => {
 	return {
+		// base
 		messageType: data.messageType,
 		id: data.id,
-		note: data.note,
 		collectFeedback: data.collectFeedback,
+
+		// optional
+		note: data.note,
+
+		// specific
 		text: data.text,
-		facets: data.facets,
-		filtersApplied: data.filtersApplied || [],
-		totalResultsFound: data.totalResultsFound,
-		products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
+		results: data.searchResult.results.map(mapProductToSearchResultProduct),
+		facets: mapFacetToSearchResultFacets(data.searchResult),
 	};
 };
 
+export type ChatResponseInspirationResultData = BaseResponseProperties & {
+	messageType: 'inspirationResult';
+
+	note?: string;
+
+	overallSummary: string;
+	inspirationSections: {
+		clusterDescription: string;
+		clusterTitle: string;
+		products: SearchResponseModelResult[];
+		searchQueries: string[];
+	}[];
+};
 transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResult): ChatResponseInspirationResultData => {
 	return {
+		// base
 		messageType: data.messageType,
 		id: data.id,
-		note: data.note,
 		collectFeedback: data.collectFeedback,
-		text: data.text,
-		topic: data.topic,
-		products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
-	};
-};
 
-transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): ChatResponseProductAnswerData => {
-	return {
-		messageType: data.messageType,
-		id: data.id,
+		// optional
 		note: data.note,
-		collectFeedback: data.collectFeedback,
-		text: data.text,
-		product: mapProductToSearchResultProduct(data.product),
-	};
-};
 
-transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): ChatResponseSuggestedQuestionsData => {
-	return {
-		messageType: 'actions',
-		actions: data.questions.map((question) => ({
-			message: question,
-			request: {
-				requestType: 'general',
-				message: question,
-			},
+		// specific
+		overallSummary: data.overallSummary,
+		inspirationSections: data.inspirationSections?.map((section) => ({
+			clusterDescription: section.clusterDescription,
+			clusterTitle: section.clusterTitle,
+			products: section.products.map(mapProductToSearchResultProduct),
+			searchQueries: section.searchQueries,
 		})),
 	};
 };
 
-transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): ChatResponseProductComparisonData => {
-	return {
-		messageType: data.messageType,
-		id: data.id,
-		note: data.note,
-		collectFeedback: data.collectFeedback,
-		text: data.text,
-		products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
-	};
+// transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): ChatResponseProductAnswerData => {
+transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): any => {
+	return data;
 };
 
-transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
-	return {
-		messageType: data.messageType,
-		actions: data.actions,
-	};
+// transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): ChatResponseSuggestedQuestionsData => {
+transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): any => {
+	return data;
+	// {
+	// 	messageType: 'actions',
+	// 	actions: data.questions.map((question) => ({
+	// 		message: question,
+	// 		request: {
+	// 			requestType: 'general',
+	// 			message: question,
+	// 		},
+	// 	})),
+	// };
+};
+
+// transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): ChatResponseProductComparisonData => {
+transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): any => {
+	return data;
+	// {
+	// 	messageType: data.messageType,
+	// 	id: data.id,
+	// 	note: data.note,
+	// 	collectFeedback: data.collectFeedback,
+	// 	text: data.text,
+	// 	products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
+	// };
+};
+
+// transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
+transformChatResponse.actions = (data: MoiResponseModelActions): any => {
+	return data;
+	// {
+	// 	messageType: data.messageType,
+	// 	actions: data.actions,
+	// };
+};
+
+export type ChatResponseProductRecommendationData = BaseResponseProperties & {
+	messageType: 'productRecommendation';
+
+	note?: string;
+
+	recommendationResult: {
+		results: SearchResponseModelResult[];
+		profile: {
+			name: string;
+			tag: string;
+			type: string;
+			limit: number;
+		};
+	}[];
+	sourceProduct: SearchResponseModelResult;
+	text: string;
 };
 
 transformChatResponse.productRecommendation = (data: MoiResponseModelProductRecommendation): ChatResponseProductRecommendationData => {
@@ -252,27 +287,89 @@ transformChatResponse.productRecommendation = (data: MoiResponseModelProductReco
 		messageType: data.messageType,
 		id: data.id,
 		collectFeedback: data.collectFeedback,
-		text: data.text,
+
 		note: data.note,
-		product: mapProductToSearchResultProduct(data.product),
-		products: data.products.map(mapProductToSearchResultProduct),
+
+		recommendationResult: data.recommendationResult,
+		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct),
+		text: data.text,
 	};
 };
 
-const mapProductToSearchResultProduct = (product: MoiResponseModelSearchResult): SearchResponseModelResult => ({
-	...product,
-	mappings: {
-		core: {
-			uid: product.id,
-			name: product.name,
-			url: product.url,
-			imageUrl: product.imageUrl,
-			price: typeof product.price !== 'undefined' ? +product.price : undefined,
-			msrp: typeof product.salePrice !== 'undefined' ? +product.salePrice : undefined,
-			description: product.description,
+const mapProductToSearchResultProduct = (product: RawResult): SearchResponseModelResult => {
+	const coreFieldValues: SearchResponseModelResultCoreMappings = CORE_FIELDS.reduce((coreFields, key) => {
+		if (typeof product[key as keyof RawResult] != 'undefined') {
+			return {
+				...coreFields,
+				[key]: decodeProperty(product[key as keyof RawResult] || ''),
+			};
+		}
+		return coreFields;
+	}, {});
+
+	if (coreFieldValues.price) coreFieldValues.price = +coreFieldValues.price;
+	if (coreFieldValues.msrp) coreFieldValues.msrp = +coreFieldValues.msrp;
+	if (coreFieldValues.available?.toString() === 'true') {
+		coreFieldValues.available = true;
+	} else if (coreFieldValues.available?.toString() === 'false') {
+		coreFieldValues.available = false;
+	}
+	const attributes = Object.keys(product)
+		.filter((k) => CORE_FIELDS.indexOf(k) == -1)
+		// remove 'badges' from attributes - but only if it is an object
+		.filter((k) => !(k == 'badges' && Array.isArray(product[k]) && typeof product[k]?.[0] == 'object'))
+		.filter((k) => !(k == 'variants'))
+		.reduce((attributes, key) => {
+			return {
+				...attributes,
+				[key]: decodeProperty(product[key as keyof RawResult] || ''),
+			};
+		}, {});
+
+	return new Result({
+		id: product.uid,
+		responseId: '',
+		mappings: {
+			core: coreFieldValues,
 		},
-	},
-	attributes: {
-		currency: product.currency as any,
-	},
-});
+		attributes,
+		// badges: Array.isArray(product.badges) && typeof product.badges[0] == 'object' ? product.badges : [],
+		// variants: product.variants,
+	});
+};
+
+const mapFacetToSearchResultFacets = (searchResult: MoiResponseModelSearchResult): SearchResponseModelFacet[] => {
+	const facets = searchResult?.facets || [];
+	const transformedFacets = facets.map((facet) => {
+		const transformedFacet: any = {
+			field: facet.field,
+			type: 'value',
+		};
+
+		if (facet.values instanceof Array) {
+			if (facet.type == 'hierarchy') {
+				transformedFacet.type = 'value';
+				transformedFacet.values = (facet.values || []).map((value): SearchResponseModelFacetValueAllOfValues => {
+					return {
+						filtered: Boolean(value.active),
+						value: value.value,
+						label: value.label,
+						count: value.count,
+					};
+				});
+			} else if (facet.values[0].type == 'value') {
+				transformedFacet.type = 'value';
+				transformedFacet.values = facet.values.map((value): SearchResponseModelFacetValueAllOfValues => {
+					return {
+						filtered: value.active,
+						value: value.value,
+						label: value.label,
+						count: value.count,
+					};
+				});
+			}
+		}
+		return transformedFacet;
+	});
+	return transformedFacets;
+};

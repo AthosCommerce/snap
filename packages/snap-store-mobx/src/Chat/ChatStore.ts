@@ -163,6 +163,12 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		});
 	}
 
+	public compareProduct(result: any): void {
+		this.currentChat?.comparisons.add({
+			result,
+		});
+	}
+
 	public addFacet(facet: any): void {
 		this.currentChat?.attachments.add<ChatAttachmentFacet>({
 			type: 'facet',

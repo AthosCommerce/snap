@@ -25,13 +25,18 @@ const defaultStyles: StyleScript<MessageTextProps> = () => {
 				alignSelf: 'flex-end',
 			},
 		},
-		'.ss__chat__message-text__text-wrapper__feedback': {
+		'.ss__chat__message-text__feedback': {
 			display: 'flex',
 			alignItems: 'flex-end',
 			gap: '10px',
 			svg: {
 				cursor: 'pointer',
 			},
+		},
+		'.ss__chat__message-text__note': {
+			fontStyle: 'italic',
+			fontSize: '0.9em',
+			color: '#555',
 		},
 		'.ss__chat__message-text__results': {
 			marginTop: '12px',
@@ -84,18 +89,16 @@ export const MessageText = observer((props: MessageTextProps) => {
 
 	const styling = mergeStyles<MessageTextProps>(props, defaultStyles);
 
+	const text = chatItem.overallSummary || chatItem.text || '';
 	return (
 		<div className="ss__chat__message-text" {...styling}>
-			{chatItem.text && (
+			{text && (
 				<div className="ss__chat__message-text__text-wrapper">
-					<div
-						className="ss__chat__message-text__text-wrapper__text"
-						dangerouslySetInnerHTML={{ __html: marked.parse(chatItem.text) as string }}
-					></div>
+					<div className="ss__chat__message-text__text-wrapper__text" dangerouslySetInnerHTML={{ __html: marked.parse(text) as string }}></div>
 				</div>
 			)}
 			{chatItem?.collectFeedback ? (
-				<div className="ss__chat__message-text__text-wrapper__feedback">
+				<div className="ss__chat__message-text__feedback">
 					<span onClick={() => controller.feedback(chatItem, 'UP')}>
 						<Icon icon={'thumbs-up'} title={'Thumbs Up'} color={feedbackEntry?.rating === 'UP' ? '#000' : '#aaa'} />
 					</span>
@@ -104,6 +107,7 @@ export const MessageText = observer((props: MessageTextProps) => {
 					</span>
 				</div>
 			) : null}
+			{chatItem?.note ? <div className={'ss__chat__message-text__note'}>{chatItem?.note}</div> : null}
 			{chatItem && <ResultsDisplay controller={controller} chatItem={chatItem} scrollToBottom={scrollToBottom} />}
 			{/* <FacetsDisplay controller={controller} chatItem={chatItem} scrollToBottom={scrollToBottom} /> */}
 		</div>

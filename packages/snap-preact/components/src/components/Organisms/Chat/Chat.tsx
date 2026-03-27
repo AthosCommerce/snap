@@ -15,11 +15,14 @@ import { Quickview } from './Quickview';
 import { MessageUser } from './MessageUser';
 import { MessageText } from './MessageText';
 import { Attachment } from './Attachment';
-import { ActionsData, FacetsData } from '@athoscommerce/snap-store-mobx';
-import { filters } from '@athoscommerce/snap-toolbox';
+import { Image } from '../../Atoms/Image';
+import { FacetsData } from '@athoscommerce/snap-store-mobx';
+
 import { Dropdown, Icon, Overlay, useMediaQuery } from '../../..';
+import { ChatInspirationResultMessage } from '../../Molecules/ChatInspirationResultMessage/ChatInspirationResultMessage';
 
 const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
+	const colorPrimary = '#253B80';
 	return css({
 		position: 'fixed',
 		right: '20px',
@@ -28,6 +31,14 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 		color: '#333',
 		transformOrigin: mobile ? 'center center' : 'bottom right',
 		transition: mobile ? 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+
+		'.ss__chat__primary': {},
+		'.ss__chat__secondary': {
+			'.ss__chat__messages': {
+				background: '#fff!important', // TODO: refactor styling to remove important
+			},
+		},
+
 		'.ss__button': {
 			border: 'none',
 			background: 'none',
@@ -36,8 +47,8 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				background: '#dfeaf6',
 			},
 			svg: {
-				fill: '#0066cc',
-				stroke: '#0066cc',
+				fill: colorPrimary,
+				stroke: colorPrimary,
 			},
 		},
 		'.ss__chat__bubble': {
@@ -47,7 +58,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			width: '60px',
 			height: '60px',
 			borderRadius: '50%',
-			background: '#0066cc',
+			background: colorPrimary,
 			color: 'white',
 			display: 'flex',
 			alignItems: 'center',
@@ -259,7 +270,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			position: 'relative',
 			padding: '10px 15px',
 			color: '#fff',
-			background: '#000',
+			background: colorPrimary,
 			animation: 'ss-chat-header-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s backwards',
 			borderTopLeftRadius: mobile ? 0 : '12px',
 			borderTopRightRadius: mobile ? 0 : '12px',
@@ -373,11 +384,108 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			flexGrow: 1,
 			animation: 'ss-chat-content-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.12s backwards',
 			'.ss__chat__content__header': {
-				'.ss__chat__attachments': {
-					'.ss__chat__attachment': {
-						borderRadius: 0,
-						borderLeft: 0,
-						borderRight: 0,
+				// '.ss__chat__attachments': {
+				// 	'.ss__chat__attachment': {
+				// 		borderRadius: 0,
+				// 		borderLeft: 0,
+				// 		borderRight: 0,
+				// 	},
+				// },
+				'.ss__chat__content__header__comparisons': {
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '1em',
+					background: '#f4f4ff',
+					padding: '1em',
+
+					'.ss__chat__content__header__comparisons__header': {
+						display: 'flex',
+						justifyContent: 'space-between',
+
+						'.ss__chat__content__header__comparisons__header__title': {
+							fontWeight: 'bold',
+							fontSize: '1.2em',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5em',
+							'.ss__chat__content__header__comparisons__header__title__icon': {
+								background: colorPrimary,
+								borderRadius: '50%',
+								padding: '5px',
+								fill: '#fff',
+								height: '25px',
+								width: '25px',
+							},
+						},
+						'.ss__chat__content__header__comparisons__header__actions': {
+							'.ss__button': {
+								border: 'none',
+								background: 'none',
+							},
+						},
+					},
+					'.ss__chat__content__header__comparisons__content': {
+						display: 'flex',
+						gap: '1em',
+
+						'.ss__chat__content__header__comparisons__content__comparison': {
+							background: '#fff',
+							padding: '0.5em',
+							borderRadius: '1em',
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '0.5em',
+							flex: '1 0 0%',
+							position: 'relative',
+
+							'&.ss__chat__content__header__comparisons__content__comparison--placeholder': {
+								border: '2px dashed #ddd',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								'.ss__chat__content__header__comparisons__content__comparison--placeholder__text': {
+									color: '#999',
+									fontStyle: 'italic',
+								},
+							},
+
+							'.ss__chat__content__header__comparisons__content__comparison__remove': {
+								position: 'absolute',
+								top: '-3px',
+								right: '-3px',
+								cursor: 'pointer',
+								background: 'red',
+								borderRadius: '50%',
+								padding: '0.4em',
+								height: 20,
+								width: 20,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								svg: {
+									fill: '#fff',
+									stroke: '#fff',
+								},
+							},
+						},
+					},
+
+					'.ss__chat__content__header__comparisons__action': {
+						display: 'flex',
+						justifyContent: 'center',
+						'.ss__button': {
+							flexDirection: 'row-reverse',
+							width: '100%',
+							borderRadius: '1em',
+							padding: '0.5em 1em',
+							background: colorPrimary,
+							color: '#fff',
+							textAlign: 'center',
+							svg: {
+								fill: '#fff',
+								stroke: '#fff',
+							},
+						},
 					},
 				},
 			},
@@ -714,10 +822,13 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 							backgroundColor: 'transparent',
 						},
 					},
+					'input[type="file"]': {
+						display: 'none',
+					},
 				},
 				'.ss__chat__input__actions': {
 					'.ss__button': {
-						backgroundColor: '#000',
+						backgroundColor: colorPrimary,
 						borderRadius: '50%',
 						height: '3em',
 						width: '3em',
@@ -831,7 +942,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 								disabled={chat.id === store.currentChatId}
 							>
 								<div className="ss__chat__history__chat__button__text">
-									{chat.chat.length > 1 ? filters.truncate(chat.chat[1].text, 50) : `New Chat`}
+									{/* {chat.chat.length > 1 ? filters.truncate(chat.chat[1].text, 50) : `New Chat`} */}
 								</div>
 								<div className="ss__chat__history__chat__button__date">{chat.createdAt.toLocaleString()}</div>
 							</Button>
@@ -842,7 +953,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 		</div>
 	);
 
-	const FacetButton = (props: { label: string; open?: boolean }) => <Button icon={props.open ? 'angle-down' : 'angle-up'}>{props.label}</Button>;
+	// const FacetButton = (props: { label: string; open?: boolean }) => <Button icon={props.open ? 'angle-down' : 'angle-up'}>{props.label}</Button>;
 
 	const FacetsPopup = (props: { action: FacetsData; toggleOpen?: () => void }) => (
 		<div className="ss__chat__facets">
@@ -853,7 +964,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 				<div className="ss__chat__facets__header__title">Filter Results</div>
 			</div>
 			<div className="ss__chat__facets__wrapper">
-				{props.action.data.map((facet, idx) => (
+				{/* {props.action.data.map((facet, idx) => (
 					<div className="ss__chat__facets__facet" key={idx}>
 						<div className="ss__chat__facets__facet__label">{facet.label}</div>
 						<div className="ss__chat__facets__facet__options">
@@ -877,7 +988,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 							))}
 						</div>
 					</div>
-				))}
+				))} */}
 			</div>
 		</div>
 	);
@@ -886,6 +997,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	if (!controller.store.chatEnabled) {
 		return <></>;
 	}
+
+	const activeMessage = store.currentChat?.chat[store.currentChat?.chat.length - 1];
+	const shouldShowSideChat = activeMessage?.messageType === 'inspirationResult';
 
 	return (
 		<CacheProvider>
@@ -905,8 +1019,41 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					<div className={'ss__chat__bubble'} onClick={() => controller.handlers.button.click()}>
 						<Icon icon="chat" title="Open Chat" />
 					</div>
-					{store.open && (
-						<>
+					{store.open && shouldShowSideChat && activeMessage ? (
+						<div className={classnames('ss__chat__secondary')}>
+							<div className={'ss__chat__header'}>
+								<div className="ss__chat__header__title">
+									<div className="ss__chat__header__title__primary">
+										{{
+											inspirationResult: 'Inspiration Scenarios',
+										}[activeMessage.messageType] || null}
+									</div>
+									<div className="ss__chat__header__title__secondary">
+										{{
+											inspirationResult: 'Choose a style direction to explore',
+										}[activeMessage.messageType] || null}
+									</div>
+								</div>
+								<div className="ss__chat__header__buttons">
+									<Button
+										className="ss__chat__header__button--close"
+										icon={{ icon: 'close2', title: 'Close Chat' }}
+										onClick={() => console.log('TODO: Close side chat action')}
+									/>
+								</div>
+							</div>
+							<div className="ss__chat__content">
+								<div className={'ss__chat__messages'}>
+									{/* TODO add ref? */}
+									{{
+										inspirationResult: <ChatInspirationResultMessage chatItem={activeMessage} controller={controller} />,
+									}[activeMessage.messageType] || null}
+								</div>
+							</div>
+						</div>
+					) : null}
+					{store.open ? (
+						<div className={classnames('ss__chat__primary')}>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
 									<div className="ss__chat__header__title__primary">Personal Style Advisor</div>
@@ -926,13 +1073,15 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 										onClick={() => controller.startNewChat()}
 										content={'New Chat'}
 									/>
-									<Dropdown
-										disabled={store.chats.length == 1 && store.currentChat && store.currentChat.chat.length <= 1}
-										className="ss__chat__header__dropdown-history"
-										button={<HistoryButton />}
-									>
-										<HistoryPopup />
-									</Dropdown>
+									{store.chats.length > 1 && (
+										<Dropdown
+											disabled={store.chats.length == 1 && store.currentChat && store.currentChat.chat.length <= 1}
+											className="ss__chat__header__dropdown-history"
+											button={<HistoryButton />}
+										>
+											<HistoryPopup />
+										</Dropdown>
+									)}
 									<Button
 										className="ss__chat__header__button--new"
 										icon={{ icon: 'shrink', title: 'Shrink Chat' }}
@@ -947,13 +1096,74 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 							</div>
 							<div className="ss__chat__content">
 								<div className="ss__chat__content__header">
-									<div className="ss__chat__attachments">
-										{store.currentChat?.attachments.attached
-											.filter((item) => item.state === 'active')
-											.map((item) => (
-												<Attachment key={item.id} attachment={item} controller={controller} />
-											))}
-									</div>
+									{/* <div className="ss__chat__attachments">
+									{store.currentChat?.attachments.attached
+										.filter((item) => item.state === 'active')
+										.map((item) => (
+											<Attachment key={item.id} attachment={item} controller={controller} />
+										))}
+								</div> */}
+									{store.currentChat?.comparisons.compared && store.currentChat.comparisons.compared.length > 0 && (
+										<div className={'ss__chat__content__header__comparisons'}>
+											<div className={'ss__chat__content__header__comparisons__header'}>
+												<div className={'ss__chat__content__header__comparisons__header__title'}>
+													<Icon className={'ss__chat__content__header__comparisons__header__title__icon'} icon={'clipboard'} />
+													<span className={'ss__chat__content__header__comparisons__header__title__text'}>
+														Compare Products ({store.currentChat?.comparisons.compared.length}/{store.currentChat?.comparisons.maxItems})
+													</span>
+												</div>
+												<div className={'ss__chat__content__header__comparisons__header__actions'}>
+													<Button onClick={() => store.currentChat?.comparisons.reset()}>clear</Button>
+												</div>
+											</div>
+											<div className={'ss__chat__content__header__comparisons__content'}>
+												{Array.from({ length: store.currentChat?.comparisons.maxItems }).map((_, index) => {
+													const comparisonItem = store.currentChat?.comparisons.compared[index];
+													console.log('comparisonItem', comparisonItem);
+													return (
+														<div
+															className={classnames('ss__chat__content__header__comparisons__content__comparison', {
+																'ss__chat__content__header__comparisons__content__comparison--placeholder': !comparisonItem,
+															})}
+															key={index}
+														>
+															{comparisonItem ? (
+																<>
+																	<Image
+																		// onClick={() => {
+																		// 	controller?.viewProduct(product as any);
+																		// }}
+																		alt={comparisonItem?.result.mappings?.core?.name || ''}
+																		src={comparisonItem?.result.mappings?.core?.imageUrl || ''}
+																	/>
+																	<div
+																		className="ss__chat__content__header__comparisons__content__comparison__remove"
+																		onClick={() => {
+																			store.currentChat?.comparisons.remove(comparisonItem.result.id);
+																		}}
+																	>
+																		<Icon icon={'close-thin'} size={'12px'} />
+																	</div>
+																</>
+															) : (
+																<>
+																	<Icon icon={'plus-thin'} />
+																	<div className={'ss__chat__content__header__comparisons__content__comparison--placeholder__text'}>Add</div>
+																</>
+															)}
+														</div>
+													);
+												})}
+											</div>
+											{store.currentChat?.comparisons.compared.length > 1 ? (
+												<div className={'ss__chat__content__header__comparisons__action'}>
+													<Button onClick={() => console.log('TODO: Compare action')} icon={{ icon: 'compare', title: 'Compare' }}>
+														Compare
+													</Button>
+												</div>
+											) : null}
+										</div>
+									)}
 								</div>
 								<div className={'ss__chat__messages'} ref={messagesContainerRef}>
 									{store.currentChat?.chat.map((chatItem, index) => (
@@ -1001,46 +1211,46 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																	>
 																		<FacetsPopup action={action as FacetsData} />
 																	</Dropdown>
-																	{(action as FacetsData).data.map((facet, idx) => (
-																		<div className="ss__chat__actions__facet" key={idx}>
-																			<Dropdown key={facet.key} button={<FacetButton label={facet.label} />}>
-																				<div className="ss__chat__actions__facet__options">
-																					{facet.options?.map((option) => (
-																						<Button
-																							key={option.key}
-																							onClick={() => {
-																								controller.store.addFacet({
-																									key: facet.key,
-																									facetLabel: facet.label,
-																									value: option.key,
-																									label: option.label,
-																									count: option.count,
-																								});
-																								controller.search();
-																							}}
-																						>
-																							{option.label}
-																						</Button>
-																					))}
-																				</div>
-																			</Dropdown>
-																		</div>
-																	))}
+																	{/* {(action as FacetsData).data.map((facet, idx) => (
+																	<div className="ss__chat__actions__facet" key={idx}>
+																		<Dropdown key={facet.key} button={<FacetButton label={facet.label} />}>
+																			<div className="ss__chat__actions__facet__options">
+																				{facet.options?.map((option) => (
+																					<Button
+																						key={option.key}
+																						onClick={() => {
+																							controller.store.addFacet({
+																								key: facet.key,
+																								facetLabel: facet.label,
+																								value: option.key,
+																								label: option.label,
+																								count: option.count,
+																							});
+																							controller.search();
+																						}}
+																					>
+																						{option.label}
+																					</Button>
+																				))}
+																			</div>
+																		</Dropdown>
+																	</div>
+																))} */}
 																</div>
 															),
 															actions: (
 																<div className="ss__chat__actions--suggested">
-																	{(action as ActionsData).data.map((act, idx) => (
-																		<Button
-																			key={idx}
-																			onClick={() => {
-																				controller.store.inputValue = act.message;
-																				controller.search();
-																			}}
-																		>
-																			{act.message}
-																		</Button>
-																	))}
+																	{/* {(action as ActionsData).data.map((act, idx) => (
+																	<Button
+																		key={idx}
+																		onClick={() => {
+																			controller.store.inputValue = act.message;
+																			controller.search();
+																		}}
+																	>
+																		{act.message}
+																	</Button>
+																))} */}
 																</div>
 															),
 														}[action.type] || null}
@@ -1085,7 +1295,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													onClick={() => fileInputRef.current?.click()}
 													icon={{ icon: 'image', title: 'Upload Image' }}
 												/>
-												{/* <input
+												<input
 													ref={fileInputRef}
 													onChange={async (e) => {
 														await controller.upload(e.target.files);
@@ -1095,9 +1305,8 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													multiple={true}
 													type="file"
 													accept="image/*"
-													id="ss-image-upload"
-													className="ss__autocomplete__visual-modal__content__body__file-input"
-												/> */}
+													className="ss__chat__input__input__file"
+												/>
 											</div>
 											<div className={'ss__chat__input__actions'}>
 												<Button
@@ -1116,8 +1325,8 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									<div>This chat is expired. Please start a new chat.</div>
 								)}
 							</div>
-						</>
-					)}
+						</div>
+					) : null}
 				</div>
 				<Overlay style={{ zIndex: 1001 }} color="transparent" active={store.open} onClick={() => controller.handlers.button.click()} />
 				<Slideout

@@ -7,6 +7,7 @@ import { css, StyleScript } from '../../..';
 import { mergeStyles } from '../../../utilities';
 
 const defaultStyles: StyleScript<MessageUserProps> = () => {
+	const colorPrimary = '#253B80';
 	return css({
 		display: 'flex',
 		flexDirection: 'row',
@@ -18,7 +19,7 @@ const defaultStyles: StyleScript<MessageUserProps> = () => {
 			padding: '0.5em 1em',
 			borderRadius: '12px',
 			borderBottomRightRadius: '3px',
-			backgroundColor: '#000',
+			backgroundColor: colorPrimary,
 			color: '#fff',
 			alignSelf: 'flex-end',
 		},
