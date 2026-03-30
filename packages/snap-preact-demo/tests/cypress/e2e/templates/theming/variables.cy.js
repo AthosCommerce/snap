@@ -318,7 +318,7 @@ describe('Theme variables work', () => {
 		cy.visit('https://localhost:2222/templates/');
 
 		cy.snapController().then(({ store }) => {
-			cy.get('.ss__result-tracker div')
+			cy.get('div[ss-name="CustomResult"]')
 				.first()
 				.should('have.text', '{"text":"custom stuff","numbers":33,"arrays":["hi","mom"],"obj":{"test":true},"bool":true}');
 		});

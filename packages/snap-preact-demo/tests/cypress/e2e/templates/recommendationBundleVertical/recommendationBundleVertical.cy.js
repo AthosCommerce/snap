@@ -168,7 +168,7 @@ describe('BundledRecommendations', () => {
 							extends: 'base',
 							overrides: {
 								default: {
-									recommendationBundle: {
+									recommendationBundleVertical: {
 										lazyRender: {
 											enabled: false,
 										},

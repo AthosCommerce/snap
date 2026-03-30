@@ -140,13 +140,13 @@ describe('BundledRecommendations', () => {
 							extends: 'base',
 							overrides: {
 								default: {
-									recommendationBundle: {
+									recommendationBundleEasyAdd: {
 										lazyRender: {
 											enabled: false,
 										},
 										speed: 0,
 									},
-									'recommendationBundle result': {
+									'recommendationBundleEasyAdd result': {
 										customComponent: 'CustomResult',
 									},
 								},
