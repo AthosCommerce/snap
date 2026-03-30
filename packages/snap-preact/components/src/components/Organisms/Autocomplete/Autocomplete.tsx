@@ -17,7 +17,7 @@ import { Facets, FacetsProps } from '../Facets';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { ComponentProps, FacetDisplay, BreakpointsProps, StyleScript } from '../../../types';
+import { ComponentProps, FacetDisplay, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
@@ -860,7 +860,7 @@ export type AutocompleteProps = {
 	lang?: Partial<AutocompleteLang>;
 	controller: AutocompleteController;
 	breakpoints?: BreakpointsProps;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 } & AutocompleteTemplatesLegalProps &
 	ComponentProps<AutocompleteProps>;
 

@@ -6,7 +6,7 @@ import { css } from '@emotion/react';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
-import { ComponentProps, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { AutocompleteLayout, AutocompleteLayoutProps } from '../../Organisms/AutocompleteLayout';
 import { Modal, ModalProps } from '../../Molecules/Modal';
 import classNames from 'classnames';
@@ -269,7 +269,7 @@ interface AutocompleteFixedSubProps {
 
 export type AutocompleteFixedProps = {
 	controller: AutocompleteController;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 } & AutocompleteFixedTemplatesLegalProps &
 	ComponentProps<AutocompleteFixedProps>;
 

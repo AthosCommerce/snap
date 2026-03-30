@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import { Theme, useTheme, useSnap, useTreePath } from '../../../providers';
 import { cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
-import { ComponentProps } from '../../../types';
+import { ComponentProps, JSXComponent } from '../../../types';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { useComponent } from '../../../hooks/useComponent';
 import { useCreateController } from '../../../hooks/useCreateController';
@@ -76,7 +76,7 @@ export const NoResults = observer((properties: NoResultsProps) => {
 	const contactsExist = contactsList && Array.isArray(contactsList) && contactsList.length !== 0;
 
 	let recommendationTemplateComponent: ((props: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null) | undefined;
-	let recommendationTemplateResultComponent: JSX.Element | undefined;
+	let recommendationTemplateResultComponent: JSXComponent | undefined;
 	let recsController: RecommendationController | undefined;
 
 	if (templates?.recommendation?.enabled) {
@@ -102,9 +102,7 @@ export const NoResults = observer((properties: NoResultsProps) => {
 			}
 
 			if (resultComponentName && snap?.templates?.library.import.component.result) {
-				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName) as
-					| JSX.Element
-					| undefined;
+				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName);
 			}
 
 			if (componentName && snap?.templates?.library.import.component.recommendation.default) {

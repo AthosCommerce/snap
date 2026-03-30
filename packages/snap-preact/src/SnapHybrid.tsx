@@ -1,6 +1,7 @@
 import { cookies, url } from '@athoscommerce/snap-toolbox';
-import { Snap, SnapConfig, SnapIntegrationConfig, TEMPLATE_EDIT_COOKIE, TEMPLATE_EDITOR_PARAM, TemplatesStore } from '.';
-import { SnapServices } from './Snap';
+import { Snap, SnapConfig, SnapServices } from './Snap';
+import { TEMPLATE_EDIT_COOKIE, TEMPLATE_EDITOR_PARAM, SnapTemplatesConfigLocked as SnapIntegrationConfig } from './Templates/SnapTemplates';
+import { TemplatesStore } from './Templates/Stores/TemplateStore';
 
 type HybridIntegrationConfig = {
 	templatesConfig: SnapIntegrationConfig;

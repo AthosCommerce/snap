@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { Results, ResultsProps } from '../../Organisms/Results';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { ComponentProps, ListOption, StyleScript } from '../../../types';
+import { ComponentProps, ListOption, StyleScript, JSXComponent } from '../../../types';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { Sidebar, SidebarProps } from '../../Organisms/Sidebar';
 import { Toolbar, ToolbarProps } from '../../Organisms/Toolbar';
@@ -250,7 +250,7 @@ export type SearchProps = {
 	controller: SearchController;
 	lang?: Partial<SearchLang>;
 	alias?: 'searchCollapsible' | 'searchHorizontal';
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 } & SearchTemplatesLegalProps &
 	ComponentProps<SearchProps>;
 

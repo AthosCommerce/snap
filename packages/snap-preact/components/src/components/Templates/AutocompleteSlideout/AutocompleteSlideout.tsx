@@ -6,7 +6,7 @@ import { css } from '@emotion/react';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
-import { ComponentProps, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { AutocompleteLayout, AutocompleteLayoutProps } from '../../Organisms/AutocompleteLayout';
 import { SlideDirectionType, Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import classNames from 'classnames';
@@ -193,7 +193,7 @@ interface AutocompleteSlideoutSubProps {
 
 export type AutocompleteSlideoutProps = {
 	controller: AutocompleteController;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 } & AutocompleteSlideoutTemplatesLegalProps &
 	ComponentProps<AutocompleteSlideoutProps>;
 

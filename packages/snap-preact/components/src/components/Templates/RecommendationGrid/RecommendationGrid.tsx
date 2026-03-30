@@ -6,7 +6,7 @@ import deepmerge from 'deepmerge';
 import type { RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';
+import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
@@ -168,7 +168,7 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 export type RecommendationGridProps = {
 	controller: RecommendationController;
 	breakpoints?: BreakpointsProps;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 	results?: Product[];
 } & RecommendationGridTemplatesLegalProps &
 	ComponentProps<RecommendationGridProps>;

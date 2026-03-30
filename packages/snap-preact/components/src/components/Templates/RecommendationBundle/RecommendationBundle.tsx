@@ -8,7 +8,7 @@ import { Carousel, CarouselProps as CarouselProps } from '../../Molecules/Carous
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry } from '../../../types';
+import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { ResultTracker } from '../../Trackers/ResultTracker';
@@ -683,7 +683,7 @@ type BundleCarouselProps = {
 export type RecommendationBundleProps = {
 	controller: RecommendationController;
 	breakpoints?: BreakpointsProps;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 	alias?: string;
 	lang?: Partial<RecommendationBundleLang>;
 	results?: Product[];

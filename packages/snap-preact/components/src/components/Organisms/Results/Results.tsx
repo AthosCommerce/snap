@@ -10,7 +10,7 @@ import type { SearchResultStore, Product, Banner } from '@athoscommerce/snap-sto
 import { ContentType } from '@athoscommerce/snap-store-mobx';
 import { InlineBanner, InlineBannerProps } from '../../Atoms/InlineBanner';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { ComponentProps, ResultsLayout, BreakpointsProps, StyleScript } from '../../../types';
+import { ComponentProps, ResultsLayout, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, withTracking, useSnap, useTreePath } from '../../../providers';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
@@ -180,7 +180,7 @@ export const Results = observer((properties: ResultsProps) => {
 export type ResultsProps = {
 	breakpoints?: BreakpointsProps;
 	controller?: SearchController | AutocompleteController | RecommendationController;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 	results?: SearchResultStore;
 } & ResultsTemplatesLegalProps &
 	ComponentProps<ResultsProps>;

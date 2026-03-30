@@ -15,7 +15,7 @@ import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useIntersection } from '../../../hooks';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';
+import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { Lang, useLang } from '../../../hooks';
@@ -228,7 +228,7 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 
 export type RecommendationProps = {
 	controller: RecommendationController;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 	lang?: Partial<RecommendationLang>;
 	breakpoints?: BreakpointsProps;
 } & RecommendationTemplatesLegalProps &

@@ -15,7 +15,7 @@ import { Facets, FacetsProps } from '../Facets';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
-import { ComponentProps, FacetDisplay, RecommendationComponentNames, RecommendationComponentProps, StyleScript } from '../../../types';
+import { ComponentProps, FacetDisplay, RecommendationComponentNames, RecommendationComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { Lang, useA11y, useLang } from '../../../hooks';
 import { TermsList, TermsListProps } from '../TermsList';
 import { Terms, TermsProps } from '../../Molecules/Terms';
@@ -809,7 +809,7 @@ type Column = {
 
 export type AutocompleteLayoutProps = {
 	input: Element | string;
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
 } & AutocompleteLayoutTemplatesLegalProps &

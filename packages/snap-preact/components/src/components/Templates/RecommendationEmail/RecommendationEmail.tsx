@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, ThemeComponent, useTheme, useTreePath } from '../../../providers';
-import { ComponentProps, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 
 export const recommendationEmailThemeComponentProps: ThemeComponent<
 	'recommendationEmailThemeComponentProps',
@@ -104,7 +104,7 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 export type RecommendationEmailProps = {
 	controller?: RecommendationController;
 	results?: Product[];
-	resultComponent?: JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element;
 } & RecommendationEmailTemplatesLegalProps &
 	ComponentProps<RecommendationEmailProps>;
 
