@@ -4,6 +4,7 @@ Snap templates is entirely configuration based. The configuration defines which 
 
 | Configuration Key | Description |
 |----|-----------------------|
+| `unlocked` | Enable advanced configuration options (default: `false`) |
 | `config` | Global configuration options |
 | `plugins` | Plugins configuration options |
 | `components` | Custom component registration |
@@ -71,6 +72,137 @@ If a `siteId` is not provided, the siteId found on the `bundle.js` url path will
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
 - `window.athos.templates.setCurrency('eud')`
 - `window.athos.templates.setLanguage('fr')`
+
+
+### Unlocked Configuration
+
+The `unlocked` property controls the level of customization available in your Snap Templates configuration. By default, Snap Templates operates in "locked" mode (`unlocked: false`), which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode.
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `unlocked` | Enable advanced configuration options | Boolean | `false` |
+
+#### Locked Mode (Default)
+
+When `unlocked: false` (or omitted), the configuration is restricted to the standard set of options. This mode is recommended for most integrations as it ensures type safety and prevents configuration errors.
+
+```jsx
+new SnapTemplates({
+	unlocked: false, // or simply omit this property
+	config: {
+		siteId: '8uyt2m',
+		platform: 'shopify',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	// ... standard configuration options
+});
+```
+
+#### Unlocked Mode
+
+When `unlocked: true`, additional configuration capabilities become available:
+
+1. **Full Component Props in Theme Overrides** - Access to all component props when customizing theme overrides, not just the curated subset.
+
+2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
+
+```jsx
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	// ... configuration with advanced options
+});
+```
+
+
+### Custom Plugins (Unlocked Only)
+
+When `unlocked: true`, you can define custom plugins under `plugins.custom`. Custom plugins allow you to hook into controller events and extend functionality beyond the built-in platform plugins.
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `plugins.custom` | Custom plugin definitions | Object | ➖ |
+| `plugins.custom[pluginName]` | A custom plugin configuration | Object | ➖ |
+| `plugins.custom[pluginName].function` | The plugin function | PluginFunction | Required |
+
+Each custom plugin requires a `function` property that receives the controller instance and can register event handlers:
+
+```jsx
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	plugins: {
+		custom: {
+			myLoggingPlugin: {
+				function: (controller) => {
+					controller.on('afterStore', async ({ controller }, next) => {
+						console.log('Search completed:', controller.store.results);
+						await next();
+					});
+				},
+			},
+			myAnalyticsPlugin: {
+				function: (controller) => {
+					controller.on('afterSearch', async ({ controller }, next) => {
+						// Send analytics event
+						analytics.track('search', { query: controller.store.search?.query?.string });
+						await next();
+					});
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	// ...
+});
+```
+
+Custom plugins can also be defined at the feature level (search, autocomplete, recommendation) to only apply to specific controllers:
+
+```jsx
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	plugins: {
+		custom: {
+			globalPlugin: {
+				function: (controller) => {
+					// Applied to all controllers
+				},
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+		plugins: {
+			custom: {
+				searchOnlyPlugin: {
+					function: (controller) => {
+						// Only applied to search controller
+					},
+				},
+			},
+		},
+	},
+	// ...
+});
+```
 
 
 ### Plugins
