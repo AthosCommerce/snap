@@ -1204,7 +1204,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																	<Dropdown
 																		className="ss__chat__actions__facets-dropdown"
 																		button={
-																			<Button className="ss__chat__actions__facets" icon="filters">
+																			<Button className="ss__chat__actions__facets" icon="filters2">
 																				Filters
 																			</Button>
 																		}

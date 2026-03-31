@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { InlineBannerProps } from '../../../../components/Atoms/InlineBanner';
+import type { InlineBannerProps, InlineBannerTemplatesLegalProps } from '../../../../components/Atoms/InlineBanner';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -25,7 +25,7 @@ const inlineBannerStyleScript = (props: InlineBannerProps) => {
 };
 
 // InlineBanner component props
-export const inlineBanner: ThemeComponent<'inlineBanner', InlineBannerProps> = {
+export const inlineBanner: ThemeComponent<'inlineBanner', InlineBannerProps, InlineBannerTemplatesLegalProps> = {
 	default: {
 		inlineBanner: {
 			themeStyleScript: inlineBannerStyleScript,

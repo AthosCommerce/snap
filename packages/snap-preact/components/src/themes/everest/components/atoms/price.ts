@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { PriceProps } from '../../../../components/Atoms/Price';
+import type { PriceProps, PriceTemplatesLegalProps } from '../../../../components/Atoms/Price';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -18,7 +18,7 @@ const priceStyleScript = (props: PriceProps) => {
 };
 
 // Price component props
-export const price: ThemeComponent<'price', PriceProps> = {
+export const price: ThemeComponent<'price', PriceProps, PriceTemplatesLegalProps> = {
 	default: {
 		price: {
 			themeStyleScript: priceStyleScript,

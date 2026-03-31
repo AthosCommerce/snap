@@ -1,5 +1,5 @@
 // import { css } from '@emotion/react';
-import type { SearchProps } from '../../../../components/Templates/Search';
+import type { SearchProps, SearchTemplatesLegalProps } from '../../../../components/Templates/Search';
 import { searchThemeComponentProps } from '../../../themeComponents/search';
 import { ThemeComponent } from '../../../../providers';
 
@@ -12,4 +12,4 @@ import { ThemeComponent } from '../../../../providers';
 // };
 
 // Search component props come from Template export
-export const search: ThemeComponent<'search', SearchProps> = searchThemeComponentProps;
+export const search: ThemeComponent<'search', SearchProps, SearchTemplatesLegalProps> = searchThemeComponentProps;

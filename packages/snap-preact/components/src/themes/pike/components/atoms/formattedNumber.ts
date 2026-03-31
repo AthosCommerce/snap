@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FormattedNumberProps } from '../../../../components/Atoms/FormattedNumber';
+import type { FormattedNumberProps, FormattedNumberTemplatesLegalProps } from '../../../../components/Atoms/FormattedNumber';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -17,7 +17,7 @@ const formattedNumberStyleScript = (props: FormattedNumberProps) => {
 };
 
 // FormattedNumber component props
-export const formattedNumber: ThemeComponent<'formattedNumber', FormattedNumberProps> = {
+export const formattedNumber: ThemeComponent<'formattedNumber', FormattedNumberProps, FormattedNumberTemplatesLegalProps> = {
 	default: {
 		formattedNumber: {
 			themeStyleScript: formattedNumberStyleScript,

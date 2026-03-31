@@ -1,5 +1,8 @@
 import { css } from '@emotion/react';
-import type { RecommendationBundleVerticalProps } from '../../../../components/Templates/RecommendationBundleVertical';
+import type {
+	RecommendationBundleVerticalProps,
+	RecommendationBundleVerticalTemplatesLegalProps,
+} from '../../../../components/Templates/RecommendationBundleVertical';
 import { recommendationBundleVerticalThemeComponentProps } from '../../../themeComponents/recommendationBundleVertical';
 import { ThemeComponent } from '../../../../providers';
 import { recommendationCTAStyleScript } from './recommendationCTA';
@@ -119,7 +122,11 @@ const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVert
 };
 
 // RecommendationBundleVertical component props come from Template export
-export const recommendationBundleVertical: ThemeComponent<'recommendationBundleVertical', RecommendationBundleVerticalProps> = {
+export const recommendationBundleVertical: ThemeComponent<
+	'recommendationBundleVertical',
+	RecommendationBundleVerticalProps,
+	RecommendationBundleVerticalTemplatesLegalProps
+> = {
 	default: {
 		...recommendationBundleVerticalThemeComponentProps.default,
 		recommendationBundleVertical: {

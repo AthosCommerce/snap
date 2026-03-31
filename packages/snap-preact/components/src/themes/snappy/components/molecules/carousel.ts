@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { CarouselProps } from '../../../../components/Molecules/Carousel';
+import type { CarouselProps, CarouselTemplatesLegalProps } from '../../../../components/Molecules/Carousel';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the Carousel component
 const carouselStyleScript = ({ theme }: CarouselProps) => {
@@ -18,7 +18,7 @@ const carouselStyleScript = ({ theme }: CarouselProps) => {
 };
 
 // Carousel component props
-export const carousel: ThemeComponent<'carousel', CarouselProps> = {
+export const carousel: ThemeComponent<'carousel', CarouselProps, CarouselTemplatesLegalProps> = {
 	default: {
 		carousel: {
 			themeStyleScript: carouselStyleScript,

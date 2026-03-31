@@ -31,6 +31,7 @@ const devServer = {
 			publicPath: '/',
 		},
 		client: {
+			logging: 'error',
 			overlay: {
 				errors: true,
 				warnings: false,

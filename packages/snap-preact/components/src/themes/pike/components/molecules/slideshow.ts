@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SlideshowProps } from '../../../../components/Molecules/Slideshow';
+import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../../../../components/Molecules/Slideshow';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -92,7 +92,7 @@ const slideshowStyleScript = (props: SlideshowProps) => {
 };
 
 // Slideshow component props
-export const slideshow: ThemeComponent<'slideshow', SlideshowProps> = {
+export const slideshow: ThemeComponent<'slideshow', SlideshowProps, SlideshowTemplatesLegalProps> = {
 	default: {
 		slideshow: {
 			themeStyleScript: slideshowStyleScript,

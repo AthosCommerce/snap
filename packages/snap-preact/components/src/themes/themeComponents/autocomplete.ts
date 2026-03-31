@@ -1,7 +1,7 @@
-import { AutocompleteProps } from '../../components/Organisms/Autocomplete';
+import { AutocompleteProps, AutocompleteTemplatesLegalProps } from '../../components/Organisms/Autocomplete';
 import { ThemeComponent } from '../../providers';
 
-export const autocompleteThemeComponentProps: ThemeComponent<'autocomplete', AutocompleteProps> = {
+export const autocompleteThemeComponentProps: ThemeComponent<'autocomplete', AutocompleteProps, AutocompleteTemplatesLegalProps> = {
 	default: {
 		'autocomplete facet': {
 			// valueProps,

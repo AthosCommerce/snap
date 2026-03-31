@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { autocompleteSlideoutThemeComponentProps } from '../../../themeComponents/autocompleteSlideout';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteSlideoutProps } from '../../../../components/Templates/AutocompleteSlideout';
+import { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps } from '../../../../components/Templates/AutocompleteSlideout';
 
 // CSS in JS style script for the Search component
 const autocompleteSlideoutStyleScript = ({}: AutocompleteSlideoutProps) => {
@@ -13,7 +13,7 @@ const autocompleteSlideoutStyleScript = ({}: AutocompleteSlideoutProps) => {
 	});
 };
 
-export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', AutocompleteSlideoutProps> = {
+export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps> = {
 	default: {
 		...autocompleteSlideoutThemeComponentProps.default,
 		autocompleteSlideout: {

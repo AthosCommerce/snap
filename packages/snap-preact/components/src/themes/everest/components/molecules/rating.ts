@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { RatingProps } from '../../../../components/Molecules/Rating';
+import type { RatingProps, RatingTemplatesLegalProps } from '../../../../components/Molecules/Rating';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -40,7 +40,7 @@ const ratingStyleScript = (props: RatingProps) => {
 };
 
 // Rating component props
-export const rating: ThemeComponent<'rating', RatingProps> = {
+export const rating: ThemeComponent<'rating', RatingProps, RatingTemplatesLegalProps> = {
 	default: {
 		rating: {
 			themeStyleScript: ratingStyleScript,

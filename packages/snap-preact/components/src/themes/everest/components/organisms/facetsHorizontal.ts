@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FacetsHorizontalProps } from '../../../../components/Organisms/FacetsHorizontal';
+import type { FacetsHorizontalProps, FacetsHorizontalTemplatesLegalProps } from '../../../../components/Organisms/FacetsHorizontal';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -178,7 +178,7 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 };
 
 // FacetsHorizontal component props
-export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizontalProps> = {
+export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizontalProps, FacetsHorizontalTemplatesLegalProps> = {
 	default: {
 		facetsHorizontal: {
 			themeStyleScript: facetsHorizontalStyleScript,

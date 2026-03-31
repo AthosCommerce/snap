@@ -67,7 +67,7 @@ This example assumes a `recently-viewed` profile has been configured in the Atho
 
 
 ### Recommendation Component
-In this example, the `Recs` component is a wrapper around the `Recommendation` component from the `@athoscommerce/snap-preact/components` package. See [Components Preact > Recommendation](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Forganisms-recommendation--default) for more details.
+In this example, the `Recs` component is a wrapper around the `Recommendation` component from the `@athoscommerce/snap-preact/components` package. See [Components Preact > Recommendation](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Ftemplates-recommendation--default) for more details.
 
 ```jsx
 // components/Recommendations/Recs.jsx
@@ -154,7 +154,7 @@ The `products` global context variable is required for bundle recommendations to
 ```
 
 ### Bundle Component
-The example `Bundled` component below uses the `RecommendationBundle` component imported from the snap component library. See [Components Preact > RecommendationBundle](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Forganisms-recommendationbundle--default) for more details. 
+The example `Bundled` component below uses the `RecommendationBundle` component imported from the snap component library. See [Components Preact > RecommendationBundle](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Ftemplates-recommendationbundle--default) for more details. 
 
 ```jsx
 // components/Recommendations/Bundled.jsx

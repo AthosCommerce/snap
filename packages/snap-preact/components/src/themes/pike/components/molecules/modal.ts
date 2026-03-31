@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { ModalProps } from '../../../../components/Molecules/Modal';
+import type { ModalProps, ModalTemplatesLegalProps } from '../../../../components/Molecules/Modal';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -18,7 +18,7 @@ const modalStyleScript = (props: ModalProps) => {
 };
 
 // Modal component props
-export const modal: ThemeComponent<'modal', ModalProps> = {
+export const modal: ThemeComponent<'modal', ModalProps, ModalTemplatesLegalProps> = {
 	default: {
 		modal: {
 			themeStyleScript: modalStyleScript,

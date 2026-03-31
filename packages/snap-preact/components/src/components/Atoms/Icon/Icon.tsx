@@ -10,6 +10,7 @@ import { mergeProps, mergeStyles } from '../../../utilities';
 
 const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, width, height, size }) => {
 	return css({
+		color: color || fill || theme?.variables?.colors?.primary,
 		fill: fill || color || theme?.variables?.colors?.primary,
 		stroke: stroke,
 		width: isNaN(Number(width || size)) ? width || size : `${width || size}px`,

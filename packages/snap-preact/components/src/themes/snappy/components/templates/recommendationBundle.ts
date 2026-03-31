@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { RecommendationBundleProps } from '../../../../components/Templates/RecommendationBundle';
+import type { RecommendationBundleProps, RecommendationBundleTemplatesLegalProps } from '../../../../components/Templates/RecommendationBundle';
 import { recommendationBundleThemeComponentProps } from '../../../themeComponents/recommendationBundle';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the RecommendationBundle component
@@ -20,7 +20,7 @@ const recommendationBundleStyleScript = ({ theme }: any) => {
 };
 
 // RecommendationBundle component props come from Template export
-export const recommendationBundle: ThemeComponent<'recommendationBundle', RecommendationBundleProps> = {
+export const recommendationBundle: ThemeComponent<'recommendationBundle', RecommendationBundleProps, RecommendationBundleTemplatesLegalProps> = {
 	default: {
 		...recommendationBundleThemeComponentProps.default,
 		recommendationBundle: {

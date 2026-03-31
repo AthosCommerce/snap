@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SidebarProps } from '../../../../components/Organisms/Sidebar';
+import type { SidebarProps, SidebarTemplatesLegalProps } from '../../../../components/Organisms/Sidebar';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the Sidebar component
 const sidebarStyleScript = ({ theme }: SidebarProps) => {
@@ -31,7 +31,7 @@ const sidebarStyleScript = ({ theme }: SidebarProps) => {
 };
 
 // Sidebar component props
-export const sidebar: ThemeComponent<'sidebar', SidebarProps> = {
+export const sidebar: ThemeComponent<'sidebar', SidebarProps, SidebarTemplatesLegalProps> = {
 	default: {
 		sidebar: {
 			themeStyleScript: sidebarStyleScript,

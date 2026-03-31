@@ -44,7 +44,7 @@ Example:
 }
 ```
 
-At this point, you can customize the `.jsx` template to your requirements. By default it will utilize our [Recommendation](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Forganisms-recommendation--default) component. 
+At this point, you can customize the `.jsx` template to your requirements. By default it will utilize our [Recommendation](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Ftemplates-recommendation--default) component. 
 
 ### Syncing Templates
 

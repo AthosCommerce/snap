@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { VariantSelectionProps } from '../../../../components/Molecules/VariantSelection';
+import type { VariantSelectionProps, VariantSelectionTemplatesLegalProps } from '../../../../components/Molecules/VariantSelection';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -133,7 +133,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 };
 
 // VariantSelection component props
-export const variantSelection: ThemeComponent<'variantSelection', VariantSelectionProps> = {
+export const variantSelection: ThemeComponent<'variantSelection', VariantSelectionProps, VariantSelectionTemplatesLegalProps> = {
 	default: {
 		variantSelection: {
 			themeStyleScript: variantSelectionStyleScript,

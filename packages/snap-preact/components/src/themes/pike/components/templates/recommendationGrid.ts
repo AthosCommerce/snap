@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { RecommendationGridProps } from '../../../../components/Templates/RecommendationGrid';
+import type { RecommendationGridProps, RecommendationGridTemplatesLegalProps } from '../../../../components/Templates/RecommendationGrid';
 import { recommendationGridThemeComponentProps } from '../../../themeComponents/recommendationGrid';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
@@ -39,7 +39,7 @@ const recommendationGridStyleScript = (props: RecommendationGridProps) => {
 };
 
 // RecommendationGrid component props come from Template export
-export const recommendationGrid: ThemeComponent<'recommendationGrid', RecommendationGridProps> = {
+export const recommendationGrid: ThemeComponent<'recommendationGrid', RecommendationGridProps, RecommendationGridTemplatesLegalProps> = {
 	default: {
 		...recommendationGridThemeComponentProps.default,
 		recommendationGrid: {

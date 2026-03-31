@@ -7,8 +7,8 @@ Vertically renders a recommended bundle of products with seed, recommendations a
 
 ## Usage
 
-Additional [Swiper Component Props](https://swiperjs.com/react#swiper-props) can be specified, but may need to be camelCased where appropriate.
-Additional [Swiper Modules](https://swiperjs.com/swiper-api#modules) can be provided via the `modules` prop; these may need additional props and or stylesheets.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper Component Props</a> can be specified, but may need to be camelCased where appropriate.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via the `modules` prop; these may need additional props and or stylesheets.
 
 ### controller
 The required `controller` prop specifies a reference to the RecommendationController
@@ -141,7 +141,7 @@ The `hideCheckboxes` prop specifies if the bundle checkboxes should be rendered.
 ```
 
 ### modules
-The `modules` prop accepts additional [Swiper Modules](https://swiperjs.com/swiper-api#modules) - these may need additional props and or stylesheets to function. We include `Navigation` and `Pagination` modules by default.
+The `modules` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include `Navigation` and `Pagination` modules by default.
 
 ```jsx
 import { Scrollbar } from 'swiper';

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { BadgeTextProps } from '../../../../components/Atoms/BadgeText';
+import type { BadgeTextProps, BadgeTextTemplatesLegalProps } from '../../../../components/Atoms/BadgeText';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -21,7 +21,7 @@ const badgeTextStyleScript = (props: BadgeTextProps) => {
 };
 
 // BadgeText component props
-export const badgeText: ThemeComponent<'badgeText', BadgeTextProps> = {
+export const badgeText: ThemeComponent<'badgeText', BadgeTextProps, BadgeTextTemplatesLegalProps> = {
 	default: {
 		badgeText: {
 			themeStyleScript: badgeTextStyleScript,
