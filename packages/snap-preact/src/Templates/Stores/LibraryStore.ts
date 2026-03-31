@@ -57,6 +57,9 @@ export type LibraryImports = {
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
 		};
+		custom?: {
+			[name: string]: PluginFunction;
+		};
 	};
 	component: {
 		search: {

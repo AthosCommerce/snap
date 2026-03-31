@@ -10,7 +10,7 @@ import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { type SearchStoreConfigSettings, type AutocompleteStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type { AutocompleteController, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
+import type { AutocompleteController, PluginFunction, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
 import type {
 	RecommendationInstantiatorConfigSettings,
 	RecommendationComponentObject,
@@ -19,7 +19,9 @@ import type {
 import type { SnapFeatures } from '../types';
 import type { SnapConfig, ExtendedTarget } from '../Snap';
 import type {
+	CustomPlugins,
 	PluginsConfigs,
+	PluginsConfigsFull,
 	RecsTemplateTypes,
 	TemplateStoreConfigConfig,
 	TemplateStoreConfigConfigFull,
@@ -122,10 +124,19 @@ export type SnapTemplatesConfigUnlocked = TemplateStoreConfigConfig & {
 };
 
 // Full version that allows all component props in theme overrides (for Snap integration migration path)
-export type SnapTemplatesConfigLocked = Omit<SnapTemplatesConfigUnlocked, 'unlocked'> &
+export type SnapTemplatesConfigLocked = Omit<SnapTemplatesConfigUnlocked, 'unlocked' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'> &
 	TemplateStoreConfigConfigFull & {
 		// _configType: 'integration';
 		unlocked: true;
+		search?: Omit<NonNullable<SnapTemplatesConfigUnlocked['search']>, 'plugins'> & {
+			plugins?: PluginsConfigsFull;
+		};
+		autocomplete?: Omit<NonNullable<SnapTemplatesConfigUnlocked['autocomplete']>, 'plugins'> & {
+			plugins?: PluginsConfigsFull;
+		};
+		recommendation?: Omit<NonNullable<SnapTemplatesConfigUnlocked['recommendation']>, 'plugins'> & {
+			plugins?: PluginsConfigsFull;
+		};
 	};
 
 type TemplatePlugins =
@@ -144,7 +155,9 @@ type TemplatePlugins =
 	// magento2
 	| [typeof pluginMagento2Base, PluginMagento2BaseConfig]
 	| [typeof pluginMagento2BackgroundFilters, PluginMagento2BackgroundFiltersConfig]
-	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig];
+	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig]
+	// custom
+	| [PluginFunction];
 
 type TemplatePluginGrouping = TemplatePlugins[];
 
@@ -497,8 +510,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesS
 	return snapConfig;
 }
 
-// TODO: DRY up and support dynamic imports
-function createPlugins(
+export function createPlugins(
 	templateConfig: SnapTemplatesConfig,
 	templatesStore: TemplatesStore,
 	controllerType?: 'autocomplete' | 'search' | 'recommendation'
@@ -570,6 +582,19 @@ function createPlugins(
 		default:
 			break;
 	}
+
+	// Handle custom plugins (only available when unlocked: true)
+	const customPlugins: CustomPlugins = deepmerge(
+		(templateConfig as { plugins?: PluginsConfigsFull }).plugins?.custom || {},
+		(controllerConfig as { plugins?: PluginsConfigsFull })?.plugins?.custom || {}
+	);
+
+	Object.keys(customPlugins).forEach((pluginName) => {
+		const customPlugin = customPlugins[pluginName];
+		if (customPlugin?.function) {
+			plugins.push([customPlugin.function]);
+		}
+	});
 
 	return plugins as PluginGrouping[];
 }

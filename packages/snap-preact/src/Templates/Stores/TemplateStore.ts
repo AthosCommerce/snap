@@ -4,6 +4,7 @@ import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
+import type { PluginFunction } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -180,11 +181,23 @@ export type Magento2Plugins = {
 	addToCart?: PluginMagento2AddToCartConfig;
 };
 
+export type CustomPluginConfig = {
+	function: PluginFunction;
+};
+
+export type CustomPlugins = {
+	[key: string]: CustomPluginConfig;
+};
+
 export type PluginsConfigs = {
 	common?: CommonPlugins;
 	shopify?: ShopifyPlugins;
 	bigCommerce?: BigCommercePlugins;
 	magento2?: Magento2Plugins;
+};
+
+export type PluginsConfigsFull = PluginsConfigs & {
+	custom?: CustomPlugins;
 };
 
 export type TemplateStoreConfigConfig = {
@@ -204,9 +217,10 @@ export type TemplateStoreConfigConfig = {
 	theme: TemplateStoreThemeConfig;
 };
 
-export type TemplateStoreConfigConfigFull = Omit<TemplateStoreConfigConfig, 'theme' | 'components'> & {
+export type TemplateStoreConfigConfigFull = Omit<TemplateStoreConfigConfig, 'theme' | 'components' | 'plugins'> & {
 	theme: TemplateStoreThemeConfigFull;
 	components?: TemplateStoreComponentConfigFull;
+	plugins?: PluginsConfigsFull;
 };
 
 const RESIZE_DEBOUNCE = 100;
