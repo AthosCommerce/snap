@@ -89,7 +89,7 @@ export const MessageText = observer((props: MessageTextProps) => {
 
 	const styling = mergeStyles<MessageTextProps>(props, defaultStyles);
 
-	const text = chatItem.overallSummary || chatItem.text || '';
+	const text = chatItem.overallSummary || chatItem.text || chatItem.errorMessage || '';
 	return (
 		<div className="ss__chat__message-text" {...styling}>
 			{text && (

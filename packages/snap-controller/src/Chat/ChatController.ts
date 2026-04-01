@@ -122,19 +122,30 @@ export class ChatController extends AbstractController {
 
 	checkChatStatus = async (): Promise<boolean> => {
 		// @ts-ignore - globals is private
-		// let siteId = this.client.globals.siteId;
-		// if (siteId == 'ck4bj7') {
-		// 	// TODO: temporary - remove
-		// 	siteId = 'test-mattel-demo';
-		// }
-		// const { removeAskloBranding, status } = await this.client.chatStatus({ siteId });
-		// this.store.chatEnabled = status === 'ENABLED';
-		// this.store.removeBranding = removeAskloBranding;
-		// this.store.storage.set('chatStatusResponse', JSON.stringify({ status, removeAskloBranding, checkTime: Date.now() }));
-		// return this.store.chatEnabled;
-		this.store.chatEnabled = true;
-		this.store.storage.set('chatStatusResponse', JSON.stringify({ status: 'ENABLED', removeAskloBranding: false, checkTime: Date.now() }));
-		return true;
+		let siteId = this.client.globals.siteId;
+		if (siteId == 'ck4bj7') {
+			// TODO: temporary - remove
+			siteId = 'test-mattel-demo';
+		}
+		const response = await this.client.chatStatus({ siteId });
+		// const response = {
+		// 	chatbot: {
+		// 		status: {
+		// 			enabled: true,
+		// 		},
+		// 		suggestedQuestions: [
+		// 			'I want to buy barbie dolls',
+		// 			'Do you have Formula 1 cars?',
+		// 			'I am looking for toys from Toy Story'
+		// 		],
+		// 		welcomeMessage: 'Hi there! How can I assist you today?',
+		// 	},
+		// 	features: {
+		// 		imageSearch: { enabled: true },
+		// 		similarProducts: { enabled: true },
+		// 	},
+		// };
+		return this.store.handleChatStatusResponse(response);
 	};
 	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
 		const enabled = await this.checkChatStatus();
@@ -196,6 +207,8 @@ export class ChatController extends AbstractController {
 	get params(): ChatRequestModel {
 		const { userId, shopperId, sessionId, pageLoadId } = this.tracker.getContext();
 
+		const productsToCompare = (this.store.currentChat?.comparisons.compared || []).map((item) => item.result.mappings.core.uid);
+
 		const attachedImageIds = (this.store.currentChat?.attachments.attached || [])
 			.filter((attachment) => attachment.type === 'image')
 			.map((attachment) => (attachment as ChatAttachmentImage).imageId);
@@ -236,12 +249,6 @@ export class ChatController extends AbstractController {
 			message: this.store.inputValue,
 		};
 
-		// if (this.store.currentChat?.chat.length === 0) {
-		// 	chatRequest = {
-		// 		requestType: 'initChat',
-		// 	};
-		// }
-
 		if (attachedImageId) {
 			chatRequest = {
 				requestType: 'imageSearch',
@@ -256,11 +263,13 @@ export class ChatController extends AbstractController {
 				message: this.store.inputValue,
 				productId: attachedProductIds[0],
 			};
-		} else if (attachedProductIds.length > 1) {
+		}
+
+		if (productsToCompare.length > 1) {
 			chatRequest = {
 				requestType: 'productComparison',
 				message: this.store.inputValue,
-				productIds: attachedProductIds,
+				productIds: productsToCompare,
 			};
 		}
 
@@ -384,6 +393,10 @@ export class ChatController extends AbstractController {
 		this.store.compareProduct(result);
 	};
 
+	inspirationRequest = (): void => {
+		this.search({ data: { requestType: 'inspiration', message: this.store.inputValue } });
+	};
+
 	discussProduct = (result: Product, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void => {
 		this.store.sendProductQuery(result, options);
 		if (options.requestType === 'productSimilar') {
@@ -422,7 +435,7 @@ export class ChatController extends AbstractController {
 
 		if (initialMessage) {
 			this.store.inputValue = initialMessage;
-			this.startNewChat();
+			this.search();
 		} else if (!this.store.currentChat?.sessionId) {
 			this.startNewChat();
 		}
@@ -440,11 +453,11 @@ export class ChatController extends AbstractController {
 		}
 	};
 
-	search = async (): Promise<void> => {
+	search = async (overrides?: Partial<ChatRequestModel>): Promise<void> => {
 		this.store.error = undefined;
 		try {
 			// TODO: add middleware
-			const params = this.params;
+			const params = deepmerge(this.params, overrides || {});
 
 			try {
 				await this.eventManager.fire('beforeSearch', {

@@ -12,6 +12,7 @@ import type {
 	FeedbackRequestModel,
 	ChatResponseProductComparisonData,
 	ChatResponseProductRecommendationData,
+	ChatResponseErrorData,
 } from '@athoscommerce/snap-client';
 import { ChatAttachmentAddAttachment, ChatAttachmentFacet, ChatAttachmentProduct, ChatAttachmentStore } from '../Stores/ChatAttachmentStore';
 import type { StorageStore } from '../../Storage/StorageStore';
@@ -34,7 +35,8 @@ export type ChatSystemMessage =
 	| ChatResponseInspirationResultData
 	| ChatResponseProductAnswerData
 	| ChatResponseProductComparisonData
-	| ChatResponseProductRecommendationData;
+	| ChatResponseProductRecommendationData
+	| ChatResponseErrorData;
 
 export type ChatMessage = ChatUserMessage | ChatSystemMessage;
 

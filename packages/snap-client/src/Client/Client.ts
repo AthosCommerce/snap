@@ -23,9 +23,16 @@ import type {
 } from '@athoscommerce/snapi-types';
 
 import deepmerge from 'deepmerge';
-import { transformSuggestResponse } from './transforms';
+import { ChatStatusResponse, transformSuggestResponse } from './transforms';
 
-import { ChatAPI, ChatInitRequestModel, ChatInitResponseModel, UploadImageRequestModel, UploadImageResponseModel } from './apis/Chat';
+import {
+	ChatAPI,
+	ChatInitRequestModel,
+	ChatInitResponseModel,
+	ChatStatusRequestModel,
+	UploadImageRequestModel,
+	UploadImageResponseModel,
+} from './apis/Chat';
 import { ChatRequestModel, ChatResponseModel, FeedbackRequestModel } from './transforms';
 
 const defaultConfig: ClientConfig = {
@@ -190,7 +197,7 @@ export class Client {
 		return this.requesters.chat.postUploadImage(params);
 	}
 
-	async chatStatus(params: any = {}): Promise<{ status: 'ENABLED' | 'DOES_NOT_EXIST'; removeAskloBranding: boolean }> {
+	async chatStatus(params: ChatStatusRequestModel): Promise<ChatStatusResponse> {
 		return this.requesters.chat.postStatus(params);
 	}
 

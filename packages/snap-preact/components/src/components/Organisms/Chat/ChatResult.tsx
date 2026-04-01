@@ -148,13 +148,15 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 					/>
 				</OverlayBadge>
 				<div className="ss__chat__result__image__buttons">
-					<Button
-						className={'ss__chat__result__image__buttons__similar'}
-						content={'Similar'}
-						onClick={() => {
-							controller.discussProduct(result, { requestType: 'productSimilar' });
-						}}
-					/>
+					{controller.store.features.similarProducts.enabled && (
+						<Button
+							className={'ss__chat__result__image__buttons__similar'}
+							content={'Similar'}
+							onClick={() => {
+								controller.discussProduct(result, { requestType: 'productSimilar' });
+							}}
+						/>
+					)}
 					<Button
 						className={'ss__chat__result__image__buttons__compare'}
 						content={'Compare'}

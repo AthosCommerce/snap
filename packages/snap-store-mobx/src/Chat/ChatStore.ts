@@ -7,6 +7,7 @@ import type { ChatResponseModel, ChatRequestModel, FeedbackRequestModel } from '
 import { StorageStore } from '../Storage/StorageStore';
 import { ChatSessionStore } from './Stores/ChatSessionStore';
 import { ChatAttachmentFacet, ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
+import { ChatStatusResponse } from '@athoscommerce/snap-client/dist/cjs/Client/transforms';
 
 const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 60 * 12; // 12 hours
 
@@ -19,8 +20,10 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public currentChatId: string;
 	public quickViewResult: any = {};
 	public chatEnabled: boolean | null = null;
-	public removeBranding: boolean | null = null;
 	public initChatLoading: boolean = false;
+	public suggestedQuestions: string[] = [];
+	public welcomeMessage: string = '';
+	public features: ChatStatusResponse['features'] = { imageSearch: { enabled: false }, similarProducts: { enabled: false } };
 
 	constructor(config: ChatStoreConfig) {
 		super(config);
@@ -38,8 +41,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 					// chat status is expired, remove from storage to trigger a new check
 					this.storage.set('chatStatusResponse', null);
 				} else {
-					this.chatEnabled = storedChatStatus.status === 'ENABLED';
-					this.removeBranding = storedChatStatus.removeAskloBranding;
+					this.handleChatStatusResponse(storedChatStatus.response);
 				}
 			} catch {
 				this.storage.set('chatStatusResponse', null);
@@ -90,11 +92,13 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			currentChatId: observable,
 			quickViewResult: observable,
 			chatEnabled: observable,
-			removeBranding: observable,
 			initChatLoading: observable,
 			blocked: computed,
 			currentChat: computed,
 			chatsIds: computed,
+			features: observable,
+			suggestedQuestions: observable,
+			welcomeMessage: observable,
 		});
 	}
 
@@ -118,6 +122,17 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 	public feedback(data: { response: any; request: FeedbackRequestModel }): void {
 		this.currentChat?.feedback(data);
+	}
+
+	public handleChatStatusResponse(response: ChatStatusResponse): boolean {
+		const { chatbot, features } = response;
+		const { status, suggestedQuestions, welcomeMessage } = chatbot;
+		this.chatEnabled = status.enabled === true;
+		this.features = features;
+		this.suggestedQuestions = suggestedQuestions || [];
+		this.welcomeMessage = welcomeMessage || '';
+		this.storage.set('chatStatusResponse', JSON.stringify({ response, checkTime: Date.now() }));
+		return this.chatEnabled;
 	}
 
 	public reset(): void {

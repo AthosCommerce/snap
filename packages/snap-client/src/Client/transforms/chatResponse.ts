@@ -17,6 +17,7 @@ import type {
 	MoiResponseModelProductSearchResult,
 	MoiResponseModelSuggestedQuestions,
 	MoiResponseModelText,
+	MoiResponseModelError,
 } from '../apis/Chat';
 import { CORE_FIELDS, decodeProperty, RawResult, Result } from './searchResponse';
 
@@ -36,6 +37,7 @@ export type ChatResponseModel = {
 		| ChatResponseActionsData
 		| ChatResponseProductComparisonData
 		| ChatResponseProductRecommendationData
+		| ChatResponseErrorData
 	)[];
 	context: {
 		sessionId: string;
@@ -74,15 +76,6 @@ export type ChatResponseSuggestedQuestionsData = {
 	actions: any;
 };
 
-export type ChatResponseProductComparisonData = {
-	messageType: 'productComparison';
-	id: string;
-	note: string;
-	collectFeedback: boolean;
-	text: string;
-	products: SearchResponseModelResult[];
-};
-
 export type ChatResponseActionsData = {
 	messageType: 'actions';
 	// actions: MoiResponseModelActions['actions'];
@@ -119,6 +112,20 @@ export type FeedbackRequestModel = {
 	};
 };
 
+export type ChatStatusResponse = {
+	chatbot: {
+		status: {
+			enabled: boolean;
+		};
+		suggestedQuestions: string[];
+		welcomeMessage: string;
+	};
+	features: {
+		imageSearch: { enabled: boolean };
+		similarProducts: { enabled: boolean };
+	};
+};
+
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
 	const transformedData = response.data
 		.map((data) => {
@@ -140,6 +147,8 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 				return transformChatResponse.actions(data);
 			} else if (data.messageType === 'productRecommendation') {
 				return transformChatResponse.productRecommendation(data);
+			} else if (data.messageType === 'error_response') {
+				return transformChatResponse.error(data);
 			}
 		})
 		.filter((data) => data !== undefined);
@@ -242,17 +251,34 @@ transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuest
 	// };
 };
 
-// transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): ChatResponseProductComparisonData => {
-transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): any => {
-	return data;
-	// {
-	// 	messageType: data.messageType,
-	// 	id: data.id,
-	// 	note: data.note,
-	// 	collectFeedback: data.collectFeedback,
-	// 	text: data.text,
-	// 	products: (Array.isArray(data.searchResult) ? data.searchResult : [data.searchResult]).map(mapProductToSearchResultProduct),
-	// };
+export type ChatResponseProductComparisonData = BaseResponseProperties & {
+	messageType: 'productComparison';
+
+	note?: string;
+
+	searchResults: SearchResponseModelResult[];
+	comparisonData: {
+		features: {
+			featureName: string;
+			values: {
+				[heading: string]: string;
+			};
+		}[];
+		summary: string;
+	};
+};
+
+transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): ChatResponseProductComparisonData => {
+	return {
+		messageType: data.messageType,
+		id: data.id,
+		collectFeedback: data.collectFeedback,
+
+		note: data.note,
+
+		searchResults: (Array.isArray(data.searchResults) ? data.searchResults : [data.searchResults]).map(mapProductToSearchResultProduct),
+		comparisonData: data.comparisonData,
+	};
 };
 
 // transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
@@ -293,6 +319,21 @@ transformChatResponse.productRecommendation = (data: MoiResponseModelProductReco
 		recommendationResult: data.recommendationResult,
 		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct),
 		text: data.text,
+	};
+};
+
+export type ChatResponseErrorData = BaseResponseProperties & {
+	messageType: 'error_response';
+	errorMessage: string;
+};
+
+transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorData => {
+	return {
+		messageType: data.messageType,
+		collectFeedback: data.collectFeedback ?? false,
+		id: data.id,
+
+		errorMessage: data.errorMessage,
 	};
 };
 

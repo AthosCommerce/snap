@@ -1,7 +1,11 @@
 import { API } from './Abstract';
 import { HTTPHeaders } from '../../types';
-import { ChatRequestModel, FeedbackRequestModel, transformChatResponse } from '../transforms/chatResponse';
+import { ChatRequestModel, ChatStatusResponse, FeedbackRequestModel, transformChatResponse } from '../transforms/chatResponse';
 import { RawResult } from '../transforms/searchResponse';
+
+export type ChatStatusRequestModel = {
+	siteId: string;
+};
 
 export type ChatInitRequestModel = {
 	siteId: string;
@@ -55,7 +59,8 @@ export type MoiRequestModel =
 	| MoiRequestModelProductSearch
 	| MoiRequestModelProductComparison
 	| MoiRequestModelImageSearch
-	| MoiRequestModelProductSimilar;
+	| MoiRequestModelProductSimilar
+	| MoiRequestModelInspiration;
 
 export type MoiRequestModelGeneral = {
 	requestType: 'general';
@@ -97,6 +102,11 @@ export type MoiRequestModelProductSimilar = {
 	productId: string;
 };
 
+export type MoiRequestModelInspiration = {
+	requestType: 'inspiration';
+	message: string;
+};
+
 // DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, suggestedQuestions, content
 export type MoiResponseModel = {
 	context: {
@@ -112,6 +122,7 @@ export type MoiResponseModel = {
 		| MoiResponseModelProductComparison
 		| MoiResponseModelActions
 		| MoiResponseModelProductRecommendation
+		| MoiResponseModelError
 	)[];
 };
 
@@ -163,9 +174,19 @@ export type MoiResponseModelSuggestedQuestions = BaseResponseProperties & {
 };
 export type MoiResponseModelProductComparison = BaseResponseProperties & {
 	messageType: 'productComparison';
-	// note: string;
-	// text: string;
-	// searchResult: MoiResponseModelSearchResult[];
+
+	searchResults: RawResult[];
+	comparisonData: {
+		features: {
+			featureName: string;
+			values: {
+				[heading: string]: string;
+			};
+		}[];
+		summary: string;
+	};
+
+	note?: string;
 };
 
 export type MoiResponseModelSearchResult = {
@@ -226,6 +247,11 @@ export type MoiResponseModelProductRecommendation = BaseResponseProperties & {
 	note?: string;
 };
 
+export type MoiResponseModelError = BaseResponseProperties & {
+	messageType: 'error_response';
+	errorMessage: string;
+};
+
 export class ChatAPI extends API<any> {
 	async postMessage(requestParameters: ChatRequestModel): Promise<any> {
 		const headerParameters: HTTPHeaders = {
@@ -249,12 +275,13 @@ export class ChatAPI extends API<any> {
 		return transformChatResponse(response);
 	}
 
-	async postStatus(queryParameters: any): Promise<any> {
+	async postStatus(queryParameters: ChatStatusRequestModel): Promise<ChatStatusResponse> {
 		const headerParameters: HTTPHeaders = {};
 
 		headerParameters['Content-Type'] = 'application/json';
+		headerParameters['x-site-id'] = queryParameters.siteId;
 
-		const response = await this.request<any>(
+		const response = await this.request<ChatStatusResponse>(
 			{
 				path: '/chat/status',
 				method: 'GET',

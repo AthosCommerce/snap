@@ -19,23 +19,56 @@ import { Image } from '../../Atoms/Image';
 import { FacetsData } from '@athoscommerce/snap-store-mobx';
 
 import { Dropdown, Icon, Overlay, useMediaQuery } from '../../..';
-import { ChatInspirationResultMessage } from '../../Molecules/ChatInspirationResultMessage/ChatInspirationResultMessage';
+import { ChatInspirationResultMessage } from '../../Molecules/ChatInspirationResultMessage';
+import { ChatProductComparisonMessage } from '../../Molecules/ChatProductComparisonMessage/ChatProductComparisonMessage';
+import {
+	ChatResponseInspirationResultData,
+	ChatResponseProductComparisonData,
+} from '@athoscommerce/snap-client/dist/cjs/Client/transforms/chatResponse';
 
 const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 	const colorPrimary = '#253B80';
 	return css({
 		position: 'fixed',
-		right: '20px',
+		left: '20px',
 		bottom: '20px',
 		zIndex: 1002,
 		color: '#333',
-		transformOrigin: mobile ? 'center center' : 'bottom right',
-		transition: mobile ? 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
 
-		'.ss__chat__primary': {},
+		'.ss__chat__primary': {
+			width: mobile ? '100%' : '60%',
+			maxWidth: 700,
+			height: mobile ? '100%' : 'auto',
+			maxHeight: mobile ? '100%' : 'calc(100vh - 40px)',
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'flex-end',
+			overflow: 'hidden',
+			order: 1,
+		},
 		'.ss__chat__secondary': {
+			width: mobile ? '100%' : '40%',
+			maxWidth: mobile ? '100%' : 600,
+			maxHeight: mobile ? '80%' : 'calc(100vh - 40px)',
+			display: 'flex',
+			flexDirection: 'column',
+			overflow: 'hidden',
+			order: 2,
+			...(mobile
+				? {
+						position: 'absolute',
+						bottom: 0,
+						left: 0,
+						right: 0,
+						zIndex: 10,
+						borderTopLeftRadius: '12px',
+						borderTopRightRadius: '12px',
+						overflow: 'hidden',
+						boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+				  }
+				: {}),
 			'.ss__chat__messages': {
-				background: '#fff!important', // TODO: refactor styling to remove important
+				background: '#fff!important',
 			},
 		},
 
@@ -54,7 +87,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 		'.ss__chat__bubble': {
 			position: mobile ? 'fixed' : 'absolute',
 			bottom: mobile ? '20px' : 0,
-			right: mobile ? '20px' : 0,
+			left: mobile ? '20px' : 0,
 			width: '60px',
 			height: '60px',
 			borderRadius: '50%',
@@ -66,9 +99,6 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			cursor: 'pointer',
 			fontSize: '24px',
 			boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-			transition: 'background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-			opacity: 1,
-			pointerEvents: 'all',
 			zIndex: 10,
 			'&:hover': {
 				background: '#0052a3',
@@ -81,185 +111,53 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				stroke: '#fff',
 			},
 		},
+		'.ss__chat__suggested-questions': {
+			position: mobile ? 'fixed' : 'absolute',
+			bottom: mobile ? '90px' : '70px',
+			left: mobile ? '20px' : 0,
+			display: 'flex',
+			flexDirection: 'column',
+			gap: '8px',
+			width: '250px',
+			zIndex: 10,
+			'.ss__chat__suggested-questions__item': {
+				background: '#fff',
+				borderRadius: '12px',
+				padding: '12px 16px',
+				fontSize: '14px',
+				color: '#333',
+				boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+				cursor: 'pointer',
+				lineHeight: 1.4,
+				'&:hover': {
+					boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+				},
+			},
+		},
 		'&.ss__chat--minimized': {
 			width: '60px',
 			height: '60px',
 			minHeight: '60px',
-			opacity: 1,
-			transform: 'scale(1)',
-			animation: mobile
-				? 'ss-chat-close-mobile 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards'
-				: 'ss-chat-close-desktop 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-			'.ss__chat__bubble': {
-				animation: 'ss-chat-bubble-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-				opacity: 1,
-				pointerEvents: 'all',
-				'.ss__icon': {
-					animation: 'ss-chat-icon-spin 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-				},
-			},
 		},
 		'&.ss__chat--open': {
-			right: mobile ? '0' : '20px',
-			bottom: mobile ? '0' : '20px',
-			left: mobile ? '0' : 'auto',
-			top: mobile ? '0' : 'auto',
-			width: mobile ? '100%' : '600px',
 			display: 'flex',
-			flexDirection: 'column',
-			maxHeight: mobile ? '100vh' : '90vh',
-			minHeight: mobile ? '100vh' : '50vh',
-			maxWidth: mobile ? undefined : 'calc(100vw - 1em - 20px - 20px)',
-			boxSizing: 'border-box',
-			justifyContent: 'flex-end',
-			opacity: 1,
-			transform: 'scale(1)',
-			animation: mobile
-				? 'ss-chat-open-mobile 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards'
-				: 'ss-chat-open-desktop 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-		},
-		...(mobile
-			? {
-					'&.ss__chat--open .ss__chat__bubble': {
-						display: 'none',
-					},
-			  }
-			: {
-					'&.ss__chat--open .ss__chat__bubble': {
-						animation: 'ss-chat-bubble-disappear-desktop 0.1s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-						pointerEvents: 'none',
-					},
-			  }),
-		'@keyframes ss-chat-open-desktop': {
-			'0%': {
-				width: '60px',
-				height: '60px',
-				minHeight: '60px',
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-			'70%': {
-				opacity: 1,
-			},
-			'100%': {
-				width: '600px',
-				maxHeight: '90vh',
-				minHeight: '50vh',
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-		},
-		'@keyframes ss-chat-open-mobile': {
-			'0%': {
-				width: '60px',
-				height: '60px',
-				opacity: 1,
-				transform: 'scale(1)',
-				borderRadius: '50%',
-			},
-			'70%': {
-				opacity: 1,
-			},
-			'100%': {
-				width: '100%',
-				height: '100vh',
-				opacity: 1,
-				transform: 'scale(1)',
-				borderRadius: '0',
-			},
-		},
-		'@keyframes ss-chat-close-desktop': {
-			'0%': {
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-			'100%': {
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-		},
-		'@keyframes ss-chat-close-mobile': {
-			'0%': {
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-			'100%': {
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-		},
-		'@keyframes ss-chat-bubble-appear': {
-			'0%': {
-				opacity: 0,
-				transform: 'scale(0.3) rotate(-180deg)',
-			},
-			'50%': {
-				transform: 'scale(1.1) rotate(10deg)',
-			},
-			'100%': {
-				opacity: 1,
-				transform: 'scale(1) rotate(0deg)',
-			},
-		},
-		'@keyframes ss-chat-icon-spin': {
-			'0%': {
-				transform: 'rotate(-180deg) scale(0.5)',
-				opacity: 0,
-			},
-			'50%': {
-				transform: 'rotate(10deg) scale(1.1)',
-			},
-			'100%': {
-				transform: 'rotate(0deg) scale(1)',
-				opacity: 1,
-			},
-		},
-		'@keyframes ss-chat-bubble-disappear-desktop': {
-			'0%': {
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-			'100%': {
-				opacity: 0,
-				transform: 'scale(0.8)',
-			},
-		},
-		'@keyframes ss-chat-bubble-fade-only': {
-			'0%': {
-				opacity: 1,
-			},
-			'100%': {
-				opacity: 0,
-			},
-		},
-		'@keyframes ss-chat-bubble-disappear-mobile': {
-			'0%': {
-				opacity: 1,
-				transform: 'scale(1)',
-			},
-			'100%': {
-				opacity: 0,
-				transform: 'scale(0.8)',
-			},
-		},
-		'@keyframes ss-chat-header-fade-in': {
-			'0%': {
-				opacity: 0,
-				transform: 'translateY(-10px)',
-			},
-			'100%': {
-				opacity: 1,
-				transform: 'translateY(0)',
-			},
-		},
-		'@keyframes ss-chat-content-fade-in': {
-			'0%': {
-				opacity: 0,
-				transform: 'translateY(10px)',
-			},
-			'100%': {
-				opacity: 1,
-				transform: 'translateY(0)',
+			flexDirection: mobile ? 'column' : 'row',
+			gap: mobile ? 0 : '12px',
+			...(mobile
+				? {
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						width: '100%',
+						height: '100%',
+				  }
+				: {
+						width: 'calc(100vw - 60px)',
+						maxHeight: 'calc(100vh - 40px)',
+				  }),
+			'.ss__chat__bubble': {
+				display: 'none',
 			},
 		},
 		'.ss__chat__header': {
@@ -271,7 +169,6 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			padding: '10px 15px',
 			color: '#fff',
 			background: colorPrimary,
-			animation: 'ss-chat-header-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s backwards',
 			borderTopLeftRadius: mobile ? 0 : '12px',
 			borderTopRightRadius: mobile ? 0 : '12px',
 
@@ -379,10 +276,10 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			flexDirection: 'column',
 			border: '1px solid #0066cc',
 			borderTop: 'none',
+			marginTop: '-1px',
 			borderBottomRightRadius: mobile ? 0 : '12px',
 			borderBottomLeftRadius: mobile ? 0 : '12px',
 			flexGrow: 1,
-			animation: 'ss-chat-content-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.12s backwards',
 			'.ss__chat__content__header': {
 				// '.ss__chat__attachments': {
 				// 	'.ss__chat__attachment': {
@@ -521,6 +418,51 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 					'table + h3': {
 						margin: '1em 0 0 0',
 						fontSize: '1.3em',
+					},
+				},
+				'.ss__chat__welcome': {
+					display: 'flex',
+					flexDirection: 'column',
+					height: '100%',
+					'.ss__chat__welcome__message': {
+						fontSize: '15px',
+						lineHeight: 1.5,
+						color: '#333',
+						marginBottom: '20px',
+					},
+					'.ss__chat__welcome__questions': {
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '10px',
+						marginTop: 'auto',
+						'.ss__chat__welcome__questions__item': {
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							gap: '12px',
+							background: '#fff',
+							border: '1px solid #eee',
+							borderRadius: '12px',
+							padding: '14px 16px',
+							cursor: 'pointer',
+							fontSize: '14px',
+							color: '#333',
+							'&:hover': {
+								borderColor: '#ccc',
+								boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+							},
+							'.ss__chat__welcome__questions__item__text': {
+								flex: 1,
+								fontWeight: 500,
+							},
+							'.ss__chat__welcome__questions__item__icon': {
+								flexShrink: 0,
+								width: '28px',
+								height: '28px',
+								fill: '#29b6f6',
+								stroke: '#29b6f6',
+							},
+						},
 					},
 				},
 			},
@@ -798,11 +740,13 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				justifyContent: 'space-between',
 				gap: '8px',
 				'.ss__chat__input__input': {
-					flex: '1 0 auto',
+					flex: '1 1 0%',
+					minWidth: 0,
 					border: '1px solid #ccc',
 					borderRadius: '2em',
 					display: 'flex',
 					justifyContent: 'space-between',
+					overflow: 'auto',
 					'input[type="text"]': {
 						padding: '0.5em 0',
 						margin: '0 0 0 1em',
@@ -999,7 +943,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	}
 
 	const activeMessage = store.currentChat?.chat[store.currentChat?.chat.length - 1];
-	const shouldShowSideChat = activeMessage?.messageType === 'inspirationResult';
+	const shouldShowSideChat = activeMessage && ['inspirationResult', 'productComparison'].includes(activeMessage?.messageType);
 
 	return (
 		<CacheProvider>
@@ -1016,6 +960,21 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					)}
 					{...styling}
 				>
+					{!store.open && store.suggestedQuestions?.length > 0 && (
+						<div className="ss__chat__suggested-questions">
+							{store.suggestedQuestions.map((question, index) => (
+								<div
+									key={index}
+									className="ss__chat__suggested-questions__item"
+									onClick={() => {
+										controller.openChat(question);
+									}}
+								>
+									{question}
+								</div>
+							))}
+						</div>
+					)}
 					<div className={'ss__chat__bubble'} onClick={() => controller.handlers.button.click()}>
 						<Icon icon="chat" title="Open Chat" />
 					</div>
@@ -1024,14 +983,22 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
 									<div className="ss__chat__header__title__primary">
-										{{
-											inspirationResult: 'Inspiration Scenarios',
-										}[activeMessage.messageType] || null}
+										{(
+											{
+												inspirationResult: 'Inspiration Scenarios',
+												productComparison: 'Product Comparison',
+											} as any
+										)[activeMessage.messageType] || null}
 									</div>
 									<div className="ss__chat__header__title__secondary">
-										{{
-											inspirationResult: 'Choose a style direction to explore',
-										}[activeMessage.messageType] || null}
+										{(
+											{
+												inspirationResult: 'Choose a style direction to explore',
+												productComparison: `Comparing ${
+													(activeMessage as ChatResponseProductComparisonData).comparisonData.features.length
+												} products`,
+											} as any
+										)[activeMessage.messageType] || null}
 									</div>
 								</div>
 								<div className="ss__chat__header__buttons">
@@ -1045,9 +1012,16 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 							<div className="ss__chat__content">
 								<div className={'ss__chat__messages'}>
 									{/* TODO add ref? */}
-									{{
-										inspirationResult: <ChatInspirationResultMessage chatItem={activeMessage} controller={controller} />,
-									}[activeMessage.messageType] || null}
+									{(
+										{
+											inspirationResult: (
+												<ChatInspirationResultMessage chatItem={activeMessage as ChatResponseInspirationResultData} controller={controller} />
+											),
+											productComparison: (
+												<ChatProductComparisonMessage chatItem={activeMessage as ChatResponseProductComparisonData} controller={controller} />
+											),
+										} as any
+									)[activeMessage.messageType] || null}
 								</div>
 							</div>
 						</div>
@@ -1063,7 +1037,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									<Button
 										className="ss__chat__header__button--new"
 										icon={{ icon: 'inspire', title: 'New Chat' }}
-										onClick={() => console.log('// TODO: Inspire action')}
+										onClick={() => {
+											controller.inspirationRequest();
+										}}
 										content={'Inspire'}
 									/>
 									<Button
@@ -1157,7 +1133,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											</div>
 											{store.currentChat?.comparisons.compared.length > 1 ? (
 												<div className={'ss__chat__content__header__comparisons__action'}>
-													<Button onClick={() => console.log('TODO: Compare action')} icon={{ icon: 'compare', title: 'Compare' }}>
+													<Button onClick={() => controller.search()} icon={{ icon: 'compare', title: 'Compare' }}>
 														Compare
 													</Button>
 												</div>
@@ -1166,6 +1142,27 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									)}
 								</div>
 								<div className={'ss__chat__messages'} ref={messagesContainerRef}>
+									{(!store.currentChat?.chat || store.currentChat.chat.length === 0) && store.welcomeMessage && (
+										<div className="ss__chat__welcome">
+											<div className="ss__chat__welcome__message">{store.welcomeMessage}</div>
+											{store.suggestedQuestions?.length > 0 && (
+												<div className="ss__chat__welcome__questions">
+													{store.suggestedQuestions.map((question, index) => (
+														<div
+															key={index}
+															className="ss__chat__welcome__questions__item"
+															onClick={() => {
+																controller.openChat(question);
+															}}
+														>
+															<span className="ss__chat__welcome__questions__item__text">{question}</span>
+															<Icon icon="send" className="ss__chat__welcome__questions__item__icon" />
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									)}
 									{store.currentChat?.chat.map((chatItem, index) => (
 										<div key={index} className="ss__chat__message">
 											{{
@@ -1177,6 +1174,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 												productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 												productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 											}[chatItem.messageType] || null}
 										</div>
 									))}
@@ -1289,24 +1287,28 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
 													value={controller.store.inputValue}
 												/>
-												<Button
-													className={'ss__chat__upload-button'}
-													disabled={store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked}
-													onClick={() => fileInputRef.current?.click()}
-													icon={{ icon: 'image', title: 'Upload Image' }}
-												/>
-												<input
-													ref={fileInputRef}
-													onChange={async (e) => {
-														await controller.upload(e.target.files);
-														// reset value
-														e.target.value = '';
-													}}
-													multiple={true}
-													type="file"
-													accept="image/*"
-													className="ss__chat__input__input__file"
-												/>
+												{store.features.imageSearch.enabled && (
+													<>
+														<Button
+															className={'ss__chat__upload-button'}
+															disabled={store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked}
+															onClick={() => fileInputRef.current?.click()}
+															icon={{ icon: 'image', title: 'Upload Image' }}
+														/>
+														<input
+															ref={fileInputRef}
+															onChange={async (e) => {
+																await controller.upload(e.target.files);
+																// reset value
+																e.target.value = '';
+															}}
+															multiple={true}
+															type="file"
+															accept="image/*"
+															className="ss__chat__input__input__file"
+														/>
+													</>
+												)}
 											</div>
 											<div className={'ss__chat__input__actions'}>
 												<Button
