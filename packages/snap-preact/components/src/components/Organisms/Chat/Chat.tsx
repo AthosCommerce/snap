@@ -456,11 +456,18 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 								fontWeight: 500,
 							},
 							'.ss__chat__welcome__questions__item__icon': {
-								flexShrink: 0,
-								width: '28px',
-								height: '28px',
-								fill: '#29b6f6',
-								stroke: '#29b6f6',
+								width: '30px',
+								height: '30px',
+								background: colorPrimary,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								borderRadius: '50%',
+								paddingLeft: '0.33em',
+								svg: {
+									fill: '#fff',
+									stroke: '#fff',
+								},
 							},
 						},
 					},
@@ -1156,7 +1163,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 															}}
 														>
 															<span className="ss__chat__welcome__questions__item__text">{question}</span>
-															<Icon icon="send" className="ss__chat__welcome__questions__item__icon" />
+															<span className="ss__chat__welcome__questions__item__icon">
+																<Icon icon="arrow-up" />
+															</span>
 														</div>
 													))}
 												</div>

@@ -127,25 +127,25 @@ export class ChatController extends AbstractController {
 			// TODO: temporary - remove
 			siteId = 'test-mattel-demo';
 		}
-		const response = await this.client.chatStatus({ siteId });
-		// const response = {
-		// 	chatbot: {
-		// 		status: {
-		// 			enabled: true,
-		// 		},
-		// 		suggestedQuestions: [
-		// 			'I want to buy barbie dolls',
-		// 			'Do you have Formula 1 cars?',
-		// 			'I am looking for toys from Toy Story'
-		// 		],
-		// 		welcomeMessage: 'Hi there! How can I assist you today?',
-		// 	},
-		// 	features: {
-		// 		imageSearch: { enabled: true },
-		// 		similarProducts: { enabled: true },
-		// 	},
-		// };
-		return this.store.handleChatStatusResponse(response);
+		try {
+			const response = await this.client.chatStatus({ siteId });
+			return this.store.handleChatStatusResponse(response);
+		} catch {
+			const response = {
+				chatbot: {
+					status: {
+						enabled: true,
+					},
+					suggestedQuestions: ['I want to buy barbie dolls', 'Do you have Formula 1 cars?', 'I am looking for toys from Toy Story'],
+					welcomeMessage: 'Hi there! How can I assist you today?',
+				},
+				features: {
+					imageSearch: { enabled: true },
+					similarProducts: { enabled: true },
+				},
+			};
+			return this.store.handleChatStatusResponse(response);
+		}
 	};
 	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
 		const enabled = await this.checkChatStatus();
