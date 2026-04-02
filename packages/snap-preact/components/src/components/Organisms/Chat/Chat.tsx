@@ -21,9 +21,11 @@ import { FacetsData } from '@athoscommerce/snap-store-mobx';
 import { Dropdown, Icon, Overlay, useMediaQuery } from '../../..';
 import { ChatInspirationResultMessage } from '../../Molecules/ChatInspirationResultMessage';
 import { ChatProductComparisonMessage } from '../../Molecules/ChatProductComparisonMessage/ChatProductComparisonMessage';
+import { ChatProductAnswerMessage } from '../../Molecules/ChatProductAnswerMessage/ChatProductAnswerMessage';
 import {
 	ChatResponseInspirationResultData,
 	ChatResponseProductComparisonData,
+	ChatResponseProductAnswerData,
 } from '@athoscommerce/snap-client/dist/cjs/Client/transforms/chatResponse';
 
 const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
@@ -39,6 +41,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			width: mobile ? '100%' : '60%',
 			maxWidth: 700,
 			height: mobile ? '100%' : 'auto',
+			minHeight: '60vh',
 			maxHeight: mobile ? '100%' : 'calc(100vh - 40px)',
 			display: 'flex',
 			flexDirection: 'column',
@@ -158,6 +161,14 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				  }),
 			'.ss__chat__bubble': {
 				display: 'none',
+			},
+		},
+		'&.ss__chat--open-minimized': {
+			'.ss__chat__bubble': {
+				display: 'none',
+			},
+			'.ss__chat__primary': {
+				width: mobile ? '100%' : 700,
 			},
 		},
 		'.ss__chat__header': {
@@ -950,7 +961,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	}
 
 	const activeMessage = store.currentChat?.chat[store.currentChat?.chat.length - 1];
-	const shouldShowSideChat = activeMessage && ['inspirationResult', 'productComparison'].includes(activeMessage?.messageType);
+	const shouldShowSideChat = activeMessage && ['inspirationResult', 'productComparison', 'productAnswer'].includes(activeMessage?.messageType);
 
 	return (
 		<CacheProvider>
@@ -959,7 +970,8 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					className={classnames(
 						'ss__chat',
 						{
-							'ss__chat--open': store.open,
+							'ss__chat--open': store.open && !store.minimized,
+							'ss__chat--open-minimized': store.open && store.minimized,
 							'ss__chat--minimized': !store.open,
 						},
 						className,
@@ -967,7 +979,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					)}
 					{...styling}
 				>
-					{!store.open && store.suggestedQuestions?.length > 0 && (
+					{!store.open && !store.currentChat && store.suggestedQuestions?.length > 0 && (
 						<div className="ss__chat__suggested-questions">
 							{store.suggestedQuestions.map((question, index) => (
 								<div
@@ -985,7 +997,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					<div className={'ss__chat__bubble'} onClick={() => controller.handlers.button.click()}>
 						<Icon icon="chat" title="Open Chat" />
 					</div>
-					{store.open && shouldShowSideChat && activeMessage ? (
+					{store.open && !store.minimized && shouldShowSideChat && activeMessage ? (
 						<div className={classnames('ss__chat__secondary')}>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
@@ -994,6 +1006,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											{
 												inspirationResult: 'Inspiration Scenarios',
 												productComparison: 'Product Comparison',
+												productAnswer: 'Product Information',
 											} as any
 										)[activeMessage.messageType] || null}
 									</div>
@@ -1004,6 +1017,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												productComparison: `Comparing ${
 													(activeMessage as ChatResponseProductComparisonData).comparisonData.features.length
 												} products`,
+												productAnswer: 'Complete product details',
 											} as any
 										)[activeMessage.messageType] || null}
 									</div>
@@ -1027,6 +1041,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											productComparison: (
 												<ChatProductComparisonMessage chatItem={activeMessage as ChatResponseProductComparisonData} controller={controller} />
 											),
+											productAnswer: <ChatProductAnswerMessage chatItem={activeMessage as ChatResponseProductAnswerData} controller={controller} />,
 										} as any
 									)[activeMessage.messageType] || null}
 								</div>
@@ -1034,7 +1049,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 						</div>
 					) : null}
 					{store.open ? (
-						<div className={classnames('ss__chat__primary')}>
+						<div className={classnames('ss__chat__primary', { 'ss__chat__primary--minimized': store.minimized })}>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
 									<div className="ss__chat__header__title__primary">Personal Style Advisor</div>
@@ -1066,9 +1081,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 										</Dropdown>
 									)}
 									<Button
-										className="ss__chat__header__button--new"
-										icon={{ icon: 'shrink', title: 'Shrink Chat' }}
-										onClick={() => console.log('// TODO: Shrink action')}
+										className="ss__chat__header__button--minimize"
+										icon={{ icon: 'minimize', title: 'Minimize Chat' }}
+										onClick={() => (store.minimized = !store.minimized)}
 									/>
 									<Button
 										className="ss__chat__header__button--close"
@@ -1077,148 +1092,149 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									/>
 								</div>
 							</div>
-							<div className="ss__chat__content">
-								<div className="ss__chat__content__header">
-									{/* <div className="ss__chat__attachments">
+							{!store.minimized && (
+								<div className="ss__chat__content">
+									<div className="ss__chat__content__header">
+										{/* <div className="ss__chat__attachments">
 									{store.currentChat?.attachments.attached
 										.filter((item) => item.state === 'active')
 										.map((item) => (
 											<Attachment key={item.id} attachment={item} controller={controller} />
 										))}
 								</div> */}
-									{store.currentChat?.comparisons.compared && store.currentChat.comparisons.compared.length > 0 && (
-										<div className={'ss__chat__content__header__comparisons'}>
-											<div className={'ss__chat__content__header__comparisons__header'}>
-												<div className={'ss__chat__content__header__comparisons__header__title'}>
-													<Icon className={'ss__chat__content__header__comparisons__header__title__icon'} icon={'clipboard'} />
-													<span className={'ss__chat__content__header__comparisons__header__title__text'}>
-														Compare Products ({store.currentChat?.comparisons.compared.length}/{store.currentChat?.comparisons.maxItems})
-													</span>
+										{store.currentChat?.comparisons.compared && store.currentChat.comparisons.compared.length > 0 && (
+											<div className={'ss__chat__content__header__comparisons'}>
+												<div className={'ss__chat__content__header__comparisons__header'}>
+													<div className={'ss__chat__content__header__comparisons__header__title'}>
+														<Icon className={'ss__chat__content__header__comparisons__header__title__icon'} icon={'clipboard'} />
+														<span className={'ss__chat__content__header__comparisons__header__title__text'}>
+															Compare Products ({store.currentChat?.comparisons.compared.length}/{store.currentChat?.comparisons.maxItems})
+														</span>
+													</div>
+													<div className={'ss__chat__content__header__comparisons__header__actions'}>
+														<Button onClick={() => store.currentChat?.comparisons.reset()}>clear</Button>
+													</div>
 												</div>
-												<div className={'ss__chat__content__header__comparisons__header__actions'}>
-													<Button onClick={() => store.currentChat?.comparisons.reset()}>clear</Button>
+												<div className={'ss__chat__content__header__comparisons__content'}>
+													{Array.from({ length: store.currentChat?.comparisons.maxItems }).map((_, index) => {
+														const comparisonItem = store.currentChat?.comparisons.compared[index];
+														console.log('comparisonItem', comparisonItem);
+														return (
+															<div
+																className={classnames('ss__chat__content__header__comparisons__content__comparison', {
+																	'ss__chat__content__header__comparisons__content__comparison--placeholder': !comparisonItem,
+																})}
+																key={index}
+															>
+																{comparisonItem ? (
+																	<>
+																		<Image
+																			// onClick={() => {
+																			// 	controller?.viewProduct(product as any);
+																			// }}
+																			alt={comparisonItem?.result.mappings?.core?.name || ''}
+																			src={comparisonItem?.result.mappings?.core?.imageUrl || ''}
+																		/>
+																		<div
+																			className="ss__chat__content__header__comparisons__content__comparison__remove"
+																			onClick={() => {
+																				store.currentChat?.comparisons.remove(comparisonItem.result.id);
+																			}}
+																		>
+																			<Icon icon={'close-thin'} size={'12px'} />
+																		</div>
+																	</>
+																) : (
+																	<>
+																		<Icon icon={'plus-thin'} />
+																		<div className={'ss__chat__content__header__comparisons__content__comparison--placeholder__text'}>Add</div>
+																	</>
+																)}
+															</div>
+														);
+													})}
 												</div>
+												{store.currentChat?.comparisons.compared.length > 1 ? (
+													<div className={'ss__chat__content__header__comparisons__action'}>
+														<Button onClick={() => controller.search()} icon={{ icon: 'compare', title: 'Compare' }}>
+															Compare
+														</Button>
+													</div>
+												) : null}
 											</div>
-											<div className={'ss__chat__content__header__comparisons__content'}>
-												{Array.from({ length: store.currentChat?.comparisons.maxItems }).map((_, index) => {
-													const comparisonItem = store.currentChat?.comparisons.compared[index];
-													console.log('comparisonItem', comparisonItem);
-													return (
-														<div
-															className={classnames('ss__chat__content__header__comparisons__content__comparison', {
-																'ss__chat__content__header__comparisons__content__comparison--placeholder': !comparisonItem,
-															})}
-															key={index}
-														>
-															{comparisonItem ? (
-																<>
-																	<Image
-																		// onClick={() => {
-																		// 	controller?.viewProduct(product as any);
-																		// }}
-																		alt={comparisonItem?.result.mappings?.core?.name || ''}
-																		src={comparisonItem?.result.mappings?.core?.imageUrl || ''}
-																	/>
-																	<div
-																		className="ss__chat__content__header__comparisons__content__comparison__remove"
-																		onClick={() => {
-																			store.currentChat?.comparisons.remove(comparisonItem.result.id);
-																		}}
-																	>
-																		<Icon icon={'close-thin'} size={'12px'} />
-																	</div>
-																</>
-															) : (
-																<>
-																	<Icon icon={'plus-thin'} />
-																	<div className={'ss__chat__content__header__comparisons__content__comparison--placeholder__text'}>Add</div>
-																</>
-															)}
-														</div>
-													);
-												})}
-											</div>
-											{store.currentChat?.comparisons.compared.length > 1 ? (
-												<div className={'ss__chat__content__header__comparisons__action'}>
-													<Button onClick={() => controller.search()} icon={{ icon: 'compare', title: 'Compare' }}>
-														Compare
-													</Button>
-												</div>
-											) : null}
-										</div>
-									)}
-								</div>
-								<div className={'ss__chat__messages'} ref={messagesContainerRef}>
-									{(!store.currentChat?.chat || store.currentChat.chat.length === 0) && store.welcomeMessage && (
-										<div className="ss__chat__welcome">
-											<div className="ss__chat__welcome__message">{store.welcomeMessage}</div>
-											{store.suggestedQuestions?.length > 0 && (
-												<div className="ss__chat__welcome__questions">
-													{store.suggestedQuestions.map((question, index) => (
-														<div
-															key={index}
-															className="ss__chat__welcome__questions__item"
-															onClick={() => {
-																controller.openChat(question);
-															}}
-														>
-															<span className="ss__chat__welcome__questions__item__text">{question}</span>
-															<span className="ss__chat__welcome__questions__item__icon">
-																<Icon icon="arrow-up" />
-															</span>
-														</div>
-													))}
-												</div>
-											)}
-										</div>
-									)}
-									{store.currentChat?.chat.map((chatItem, index) => (
-										<div key={index} className="ss__chat__message">
-											{{
-												user: <MessageUser chatItem={chatItem} controller={controller} />,
-												text: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												content: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productSearchResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												inspirationResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-											}[chatItem.messageType] || null}
-										</div>
-									))}
-									<div className="ss__chat__messages__end" ref={messagesEndRef} />
-								</div>
-								{store.loading ? (
-									<div className={'ss__chat__loading'}>
-										<div className={'ss__chat__loading__dots'}>
-											<div className={'ss__chat__loading__dot'}></div>
-											<div className={'ss__chat__loading__dot'}></div>
-											<div className={'ss__chat__loading__dot'}></div>
-										</div>
+										)}
 									</div>
-								) : null}
-								{!store.currentChat?.isExpired ? (
-									<div className="ss__chat__content__footer">
-										{store.error && <div className="ss__chat__error">{store.error.message}</div>}
-										{store.currentChat?.actions && store.currentChat.actions.length > 0 && (
-											<div className={'ss__chat__actions'}>
-												{store.currentChat?.actions.map((action, index) => (
-													<div className="ss__chat__actions__wrap" key={index}>
-														{{
-															facets: (
-																<div className="ss__chat__actions--facets">
-																	<Dropdown
-																		className="ss__chat__actions__facets-dropdown"
-																		button={
-																			<Button className="ss__chat__actions__facets" icon="filters2">
-																				Filters
-																			</Button>
-																		}
-																	>
-																		<FacetsPopup action={action as FacetsData} />
-																	</Dropdown>
-																	{/* {(action as FacetsData).data.map((facet, idx) => (
+									<div className={'ss__chat__messages'} ref={messagesContainerRef}>
+										{(!store.currentChat?.chat || store.currentChat.chat.length === 0) && store.welcomeMessage && (
+											<div className="ss__chat__welcome">
+												<div className="ss__chat__welcome__message">{store.welcomeMessage}</div>
+												{store.suggestedQuestions?.length > 0 && (
+													<div className="ss__chat__welcome__questions">
+														{store.suggestedQuestions.map((question, index) => (
+															<div
+																key={index}
+																className="ss__chat__welcome__questions__item"
+																onClick={() => {
+																	controller.openChat(question);
+																}}
+															>
+																<span className="ss__chat__welcome__questions__item__text">{question}</span>
+																<span className="ss__chat__welcome__questions__item__icon">
+																	<Icon icon="arrow-up" />
+																</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+										)}
+										{store.currentChat?.chat.map((chatItem, index) => (
+											<div key={index} className="ss__chat__message">
+												{{
+													user: <MessageUser chatItem={chatItem} controller={controller} />,
+													text: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													content: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productSearchResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													inspirationResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												}[chatItem.messageType] || null}
+											</div>
+										))}
+										<div className="ss__chat__messages__end" ref={messagesEndRef} />
+									</div>
+									{store.loading ? (
+										<div className={'ss__chat__loading'}>
+											<div className={'ss__chat__loading__dots'}>
+												<div className={'ss__chat__loading__dot'}></div>
+												<div className={'ss__chat__loading__dot'}></div>
+												<div className={'ss__chat__loading__dot'}></div>
+											</div>
+										</div>
+									) : null}
+									{!store.currentChat?.isExpired ? (
+										<div className="ss__chat__content__footer">
+											{store.error && <div className="ss__chat__error">{store.error.message}</div>}
+											{store.currentChat?.actions && store.currentChat.actions.length > 0 && (
+												<div className={'ss__chat__actions'}>
+													{store.currentChat?.actions.map((action, index) => (
+														<div className="ss__chat__actions__wrap" key={index}>
+															{{
+																facets: (
+																	<div className="ss__chat__actions--facets">
+																		<Dropdown
+																			className="ss__chat__actions__facets-dropdown"
+																			button={
+																				<Button className="ss__chat__actions__facets" icon="filters2">
+																					Filters
+																				</Button>
+																			}
+																		>
+																			<FacetsPopup action={action as FacetsData} />
+																		</Dropdown>
+																		{/* {(action as FacetsData).data.map((facet, idx) => (
 																	<div className="ss__chat__actions__facet" key={idx}>
 																		<Dropdown key={facet.key} button={<FacetButton label={facet.label} />}>
 																			<div className="ss__chat__actions__facet__options">
@@ -1243,11 +1259,11 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																		</Dropdown>
 																	</div>
 																))} */}
-																</div>
-															),
-															actions: (
-																<div className="ss__chat__actions--suggested">
-																	{/* {(action as ActionsData).data.map((act, idx) => (
+																	</div>
+																),
+																actions: (
+																	<div className="ss__chat__actions--suggested">
+																		{/* {(action as ActionsData).data.map((act, idx) => (
 																	<Button
 																		key={idx}
 																		onClick={() => {
@@ -1258,88 +1274,96 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																		{act.message}
 																	</Button>
 																))} */}
-																</div>
-															),
-														}[action.type] || null}
-													</div>
-												))}
-											</div>
-										)}
-										{store.currentChat?.attachments.attached && store.currentChat.attachments.attached.length > 0 && (
-											<div className={'ss__chat__attachments'}>
-												{store.currentChat?.attachments.attached
-													.filter((item) => item.state === 'attached' || item.state === 'loading')
-													.map((item) => (
-														<Attachment key={item.id} attachment={item} controller={controller} />
+																	</div>
+																),
+															}[action.type] || null}
+														</div>
 													))}
-												{store.currentChat?.attachments.attached.length === 2 &&
-												store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
-													<div className={'ss__chat__attachments__info'}>Compare products (max: 2)</div>
-												) : null}
-												{store.currentChat?.attachments.attached.length === 1 &&
-												store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
-													<div className={'ss__chat__attachments__info'}>Ask questions about this product</div>
-												) : null}
-												{store.currentChat?.attachments.attached.length === 1 &&
-												store.currentChat?.attachments.attached.every((item) => item.type === 'image' && !item.error) ? (
-													<div className={'ss__chat__attachments__info'}>Find products similar to this image</div>
-												) : null}
+												</div>
+											)}
+											{store.currentChat?.attachments.attached && store.currentChat.attachments.attached.length > 0 && (
+												<div className={'ss__chat__attachments'}>
+													{store.currentChat?.attachments.attached
+														.filter((item) => item.state === 'attached' || item.state === 'loading')
+														.map((item) => (
+															<Attachment key={item.id} attachment={item} controller={controller} />
+														))}
+													{store.currentChat?.attachments.attached.length === 2 &&
+													store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
+														<div className={'ss__chat__attachments__info'}>Compare products (max: 2)</div>
+													) : null}
+													{store.currentChat?.attachments.attached.length === 1 &&
+													store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
+														<div className={'ss__chat__attachments__info'}>Ask questions about this product</div>
+													) : null}
+													{store.currentChat?.attachments.attached.length === 1 &&
+													store.currentChat?.attachments.attached.every((item) => item.type === 'image' && !item.error) ? (
+														<div className={'ss__chat__attachments__info'}>Find products similar to this image</div>
+													) : null}
+												</div>
+											)}
+											<div className={'ss__chat__input'}>
+												<div className={'ss__chat__input__input'}>
+													<input
+														type="text"
+														name="ss-chat-input"
+														placeholder="Type your message..."
+														onKeyUp={(e) => controller.handlers.input.input(e as any)}
+														onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
+														value={controller.store.inputValue}
+													/>
+													{store.features.imageSearch.enabled && (
+														<>
+															<Button
+																className={'ss__chat__upload-button'}
+																disabled={
+																	store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked
+																}
+																onClick={() => fileInputRef.current?.click()}
+																icon={{ icon: 'image', title: 'Upload Image' }}
+															/>
+															<input
+																ref={fileInputRef}
+																onChange={async (e) => {
+																	await controller.upload(e.target.files);
+																	// reset value
+																	e.target.value = '';
+																}}
+																multiple={true}
+																type="file"
+																accept="image/*"
+																className="ss__chat__input__input__file"
+															/>
+														</>
+													)}
+												</div>
+												<div className={'ss__chat__input__actions'}>
+													<Button
+														className="ss__chat__send-button"
+														icon={{ icon: 'send', title: 'Send Message' }}
+														disabled={store.blocked}
+														onClick={() => controller.search()}
+													/>
+												</div>
 											</div>
-										)}
-										<div className={'ss__chat__input'}>
-											<div className={'ss__chat__input__input'}>
-												<input
-													type="text"
-													name="ss-chat-input"
-													placeholder="Type your message..."
-													onKeyUp={(e) => controller.handlers.input.input(e as any)}
-													onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
-													value={controller.store.inputValue}
-												/>
-												{store.features.imageSearch.enabled && (
-													<>
-														<Button
-															className={'ss__chat__upload-button'}
-															disabled={store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked}
-															onClick={() => fileInputRef.current?.click()}
-															icon={{ icon: 'image', title: 'Upload Image' }}
-														/>
-														<input
-															ref={fileInputRef}
-															onChange={async (e) => {
-																await controller.upload(e.target.files);
-																// reset value
-																e.target.value = '';
-															}}
-															multiple={true}
-															type="file"
-															accept="image/*"
-															className="ss__chat__input__input__file"
-														/>
-													</>
-												)}
-											</div>
-											<div className={'ss__chat__input__actions'}>
-												<Button
-													className="ss__chat__send-button"
-													icon={{ icon: 'send', title: 'Send Message' }}
-													disabled={store.blocked}
-													onClick={() => controller.search()}
-												/>
+											<div className={'ss__chat__disclaimer'}>
+												<i>AI-powered assistant. Responses are generated automatically and may occasionally be inaccurate or inappropriate.</i>
 											</div>
 										</div>
-										<div className={'ss__chat__disclaimer'}>
-											<i>AI-powered assistant. Responses are generated automatically and may occasionally be inaccurate or inappropriate.</i>
-										</div>
-									</div>
-								) : (
-									<div>This chat is expired. Please start a new chat.</div>
-								)}
-							</div>
+									) : (
+										<div>This chat is expired. Please start a new chat.</div>
+									)}
+								</div>
+							)}
 						</div>
 					) : null}
 				</div>
-				<Overlay style={{ zIndex: 1001 }} color="transparent" active={store.open} onClick={() => controller.handlers.button.click()} />
+				<Overlay
+					style={{ zIndex: 1001 }}
+					color="transparent"
+					active={store.open && !store.minimized}
+					onClick={() => controller.handlers.button.click()}
+				/>
 				<Slideout
 					slideDirection="right"
 					buttonSelector={'.ss__chat__result__detail-slot__more-info-button, .ss__chat__result__detail-slot__image'}

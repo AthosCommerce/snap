@@ -23,7 +23,6 @@ import type {
 } from '@athoscommerce/snapi-types';
 
 import deepmerge from 'deepmerge';
-import { ChatStatusResponse, transformSuggestResponse } from './transforms';
 
 import {
 	ChatAPI,
@@ -32,8 +31,12 @@ import {
 	ChatStatusRequestModel,
 	UploadImageRequestModel,
 	UploadImageResponseModel,
+	ChatRequestModel,
+	FeedbackRequestModel,
+	ChatStatusResponse,
 } from './apis/Chat';
-import { ChatRequestModel, ChatResponseModel, FeedbackRequestModel } from './transforms';
+
+import { ChatResponseModel, transformSuggestResponse } from './transforms';
 
 const defaultConfig: ClientConfig = {
 	mode: AppMode.production,

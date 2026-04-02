@@ -7,7 +7,7 @@ import type { ChatResponseModel, ChatRequestModel, FeedbackRequestModel } from '
 import { StorageStore } from '../Storage/StorageStore';
 import { ChatSessionStore } from './Stores/ChatSessionStore';
 import { ChatAttachmentFacet, ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
-import { ChatStatusResponse } from '@athoscommerce/snap-client/dist/cjs/Client/transforms';
+import { ChatStatusResponse } from '@athoscommerce/snap-client';
 
 const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 60 * 12; // 12 hours
 
@@ -15,6 +15,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public meta?: MetaStore = undefined;
 	public inputValue: string = '';
 	public open: boolean = false;
+	public minimized: boolean = false;
 	public storage: StorageStore;
 	public chats: ChatSessionStore[] = [];
 	public currentChatId: string;
@@ -88,6 +89,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			meta: observable,
 			inputValue: observable,
 			open: observable,
+			minimized: observable,
 			chats: observable,
 			currentChatId: observable,
 			quickViewResult: observable,

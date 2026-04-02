@@ -5,7 +5,6 @@ import {
 	SearchResponseModelFacetValueAllOfValues,
 } from '@athoscommerce/snapi-types';
 import type {
-	MoiRequestModel,
 	MoiResponseModel,
 	MoiResponseModelActions,
 	MoiResponseModelContent,
@@ -24,17 +23,18 @@ import { CORE_FIELDS, decodeProperty, RawResult, Result } from './searchResponse
 type BaseResponseProperties = {
 	id: string;
 	collectFeedback: boolean;
+	note?: string;
 };
 
 export type ChatResponseModel = {
 	data: (
 		| ChatResponseTextData
 		| ChatResponseContentData
+		| ChatResponseSuggestedQuestionsData
+		| ChatResponseActionsData
 		| ChatResponseProductSearchResultData
 		| ChatResponseInspirationResultData
 		| ChatResponseProductAnswerData
-		| ChatResponseSuggestedQuestionsData
-		| ChatResponseActionsData
 		| ChatResponseProductComparisonData
 		| ChatResponseProductRecommendationData
 		| ChatResponseErrorData
@@ -61,15 +61,6 @@ export type ChatResponseContentData = {
 	text: string;
 };
 
-export type ChatResponseProductAnswerData = {
-	messageType: 'productAnswer';
-	id: string;
-	note: string;
-	collectFeedback: boolean;
-	text: string;
-	product: SearchResponseModelResult;
-};
-
 export type ChatResponseSuggestedQuestionsData = {
 	messageType: 'actions';
 	// actions: MoiResponseModelActions['actions'];
@@ -80,50 +71,6 @@ export type ChatResponseActionsData = {
 	messageType: 'actions';
 	// actions: MoiResponseModelActions['actions'];
 	actions: any;
-};
-
-export type ChatRequestModel = {
-	context: {
-		sessionId?: string;
-		widgetId: string;
-	};
-	data: MoiRequestModel;
-	tracking: {
-		userId: string;
-		domain: string;
-		sessionId?: string;
-		pageLoadId?: string;
-	};
-	personalization?: {
-		shopper: string;
-	};
-};
-
-export type FeedbackRequestModel = {
-	context: {
-		pqaWidgetId: string;
-		sessionId?: string;
-		visitorId: string;
-	};
-	feedback: {
-		messageId: string;
-		thumbs: 'UP' | 'DOWN';
-		reason?: string;
-	};
-};
-
-export type ChatStatusResponse = {
-	chatbot: {
-		status: {
-			enabled: boolean;
-		};
-		suggestedQuestions: string[];
-		welcomeMessage: string;
-	};
-	features: {
-		imageSearch: { enabled: boolean };
-		similarProducts: { enabled: boolean };
-	};
 };
 
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
@@ -171,11 +118,32 @@ transformChatResponse.content = (data: MoiResponseModelContent): any => {
 	return data;
 };
 
+// transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): ChatResponseSuggestedQuestionsData => {
+transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): any => {
+	return data;
+	// {
+	// 	messageType: 'actions',
+	// 	actions: data.questions.map((question) => ({
+	// 		message: question,
+	// 		request: {
+	// 			requestType: 'general',
+	// 			message: question,
+	// 		},
+	// 	})),
+	// };
+};
+
+// transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
+transformChatResponse.actions = (data: MoiResponseModelActions): any => {
+	return data;
+	// {
+	// 	messageType: data.messageType,
+	// 	actions: data.actions,
+	// };
+};
+
 export type ChatResponseProductSearchResultData = BaseResponseProperties & {
 	messageType: 'productSearchResult';
-
-	note?: string;
-
 	text: string;
 	results: SearchResponseModelResult[];
 	facets: SearchResponseModelFacet[];
@@ -199,9 +167,6 @@ transformChatResponse.productData = (data: MoiResponseModelProductSearchResult):
 
 export type ChatResponseInspirationResultData = BaseResponseProperties & {
 	messageType: 'inspirationResult';
-
-	note?: string;
-
 	overallSummary: string;
 	inspirationSections: {
 		clusterDescription: string;
@@ -231,31 +196,26 @@ transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResu
 	};
 };
 
-// transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): ChatResponseProductAnswerData => {
-transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): any => {
-	return data;
+export type ChatResponseProductAnswerData = BaseResponseProperties & {
+	messageType: 'productAnswer';
+	text: string;
+	sourceProduct: SearchResponseModelResult;
 };
+transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer): ChatResponseProductAnswerData => {
+	return {
+		messageType: data.messageType,
+		id: data.id,
+		collectFeedback: data.collectFeedback,
 
-// transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): ChatResponseSuggestedQuestionsData => {
-transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): any => {
-	return data;
-	// {
-	// 	messageType: 'actions',
-	// 	actions: data.questions.map((question) => ({
-	// 		message: question,
-	// 		request: {
-	// 			requestType: 'general',
-	// 			message: question,
-	// 		},
-	// 	})),
-	// };
+		note: data.note,
+
+		text: data.text,
+		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct),
+	};
 };
 
 export type ChatResponseProductComparisonData = BaseResponseProperties & {
 	messageType: 'productComparison';
-
-	note?: string;
-
 	searchResults: SearchResponseModelResult[];
 	comparisonData: {
 		features: {
@@ -267,7 +227,6 @@ export type ChatResponseProductComparisonData = BaseResponseProperties & {
 		summary: string;
 	};
 };
-
 transformChatResponse.productComparison = (data: MoiResponseModelProductComparison): ChatResponseProductComparisonData => {
 	return {
 		messageType: data.messageType,
@@ -281,20 +240,8 @@ transformChatResponse.productComparison = (data: MoiResponseModelProductComparis
 	};
 };
 
-// transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
-transformChatResponse.actions = (data: MoiResponseModelActions): any => {
-	return data;
-	// {
-	// 	messageType: data.messageType,
-	// 	actions: data.actions,
-	// };
-};
-
 export type ChatResponseProductRecommendationData = BaseResponseProperties & {
 	messageType: 'productRecommendation';
-
-	note?: string;
-
 	recommendationResult: {
 		results: SearchResponseModelResult[];
 		profile: {
@@ -307,7 +254,6 @@ export type ChatResponseProductRecommendationData = BaseResponseProperties & {
 	sourceProduct: SearchResponseModelResult;
 	text: string;
 };
-
 transformChatResponse.productRecommendation = (data: MoiResponseModelProductRecommendation): ChatResponseProductRecommendationData => {
 	return {
 		messageType: data.messageType,
@@ -326,7 +272,6 @@ export type ChatResponseErrorData = BaseResponseProperties & {
 	messageType: 'error_response';
 	errorMessage: string;
 };
-
 transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorData => {
 	return {
 		messageType: data.messageType,

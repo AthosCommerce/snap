@@ -1,6 +1,6 @@
 import { API } from './Abstract';
 import { HTTPHeaders } from '../../types';
-import { ChatRequestModel, ChatStatusResponse, FeedbackRequestModel, transformChatResponse } from '../transforms/chatResponse';
+import { transformChatResponse } from '../transforms/chatResponse';
 import { RawResult } from '../transforms/searchResponse';
 
 export type ChatStatusRequestModel = {
@@ -50,6 +50,50 @@ export type UploadImageResponseModel = {
 	imageId: string;
 	imageUrl: string;
 	thumbnailUrl: string;
+};
+
+export type ChatRequestModel = {
+	context: {
+		sessionId?: string;
+		widgetId: string;
+	};
+	data: MoiRequestModel;
+	tracking: {
+		userId: string;
+		domain: string;
+		sessionId?: string;
+		pageLoadId?: string;
+	};
+	personalization?: {
+		shopper: string;
+	};
+};
+
+export type FeedbackRequestModel = {
+	context: {
+		pqaWidgetId: string;
+		sessionId?: string;
+		visitorId: string;
+	};
+	feedback: {
+		messageId: string;
+		thumbs: 'UP' | 'DOWN';
+		reason?: string;
+	};
+};
+
+export type ChatStatusResponse = {
+	chatbot: {
+		status: {
+			enabled: boolean;
+		};
+		suggestedQuestions: string[];
+		welcomeMessage: string;
+	};
+	features: {
+		imageSearch: { enabled: boolean };
+		similarProducts: { enabled: boolean };
+	};
 };
 
 // DISCRIMINATOR: "requestType" === general, productQuery, productComparison, productSearch, inspiration, imageSearch, content
@@ -131,64 +175,6 @@ type BaseResponseProperties = {
 	collectFeedback: boolean;
 };
 
-export type MoiResponseModelText = BaseResponseProperties & {
-	messageType: 'text';
-	explanation: string;
-};
-
-export type MoiResponseModelContent = BaseResponseProperties & {
-	messageType: 'content';
-};
-
-export type MoiResponseModelProductSearchResult = BaseResponseProperties & {
-	messageType: 'productSearchResult';
-	text: string;
-	searchResult: MoiResponseModelSearchResult;
-	note?: string;
-};
-
-export type MoiResponseModelInspirationResult = BaseResponseProperties & {
-	messageType: 'inspirationResult';
-	overallSummary: string;
-	inspirationSections: {
-		clusterTitle: string;
-		clusterDescription: string;
-		searchQueries: string[];
-		products: RawResult[];
-	}[];
-	note?: string;
-};
-
-export type MoiResponseModelProductAnswer = BaseResponseProperties & {
-	messageType: 'productAnswer';
-	// id: string;
-	// note: string;
-	// text: string;
-	// collectFeedback: boolean;
-	// product: MoiResponseModelSearchResult;
-};
-
-export type MoiResponseModelSuggestedQuestions = BaseResponseProperties & {
-	messageType: 'suggestedQuestions';
-	// questions: string[];
-};
-export type MoiResponseModelProductComparison = BaseResponseProperties & {
-	messageType: 'productComparison';
-
-	searchResults: RawResult[];
-	comparisonData: {
-		features: {
-			featureName: string;
-			values: {
-				[heading: string]: string;
-			};
-		}[];
-		summary: string;
-	};
-
-	note?: string;
-};
-
 export type MoiResponseModelSearchResult = {
 	results: RawResult[];
 	pagination: {
@@ -221,6 +207,62 @@ export type MoiResponseModelSearchResult = {
 		filterLabel: string;
 		filterValue: string;
 	}[];
+};
+
+export type MoiResponseModelText = BaseResponseProperties & {
+	messageType: 'text';
+	explanation: string;
+};
+
+export type MoiResponseModelContent = BaseResponseProperties & {
+	messageType: 'content';
+};
+
+export type MoiResponseModelProductSearchResult = BaseResponseProperties & {
+	messageType: 'productSearchResult';
+	text: string;
+	searchResult: MoiResponseModelSearchResult;
+	note?: string;
+};
+
+export type MoiResponseModelInspirationResult = BaseResponseProperties & {
+	messageType: 'inspirationResult';
+	overallSummary: string;
+	inspirationSections: {
+		clusterTitle: string;
+		clusterDescription: string;
+		searchQueries: string[];
+		products: RawResult[];
+	}[];
+	note?: string;
+};
+
+export type MoiResponseModelProductAnswer = BaseResponseProperties & {
+	messageType: 'productAnswer';
+	note: string;
+	text: string;
+	sourceProduct: RawResult;
+};
+
+export type MoiResponseModelSuggestedQuestions = BaseResponseProperties & {
+	messageType: 'suggestedQuestions';
+	// questions: string[];
+};
+export type MoiResponseModelProductComparison = BaseResponseProperties & {
+	messageType: 'productComparison';
+
+	searchResults: RawResult[];
+	comparisonData: {
+		features: {
+			featureName: string;
+			values: {
+				[heading: string]: string;
+			};
+		}[];
+		summary: string;
+	};
+
+	note?: string;
 };
 
 export type MoiResponseModelActions = BaseResponseProperties & {

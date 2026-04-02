@@ -13,17 +13,15 @@ export {
 
 export {
 	ChatResponseModel,
-	ChatRequestModel,
 	ChatResponseTextData,
 	ChatResponseContentData,
 	ChatResponseProductSearchResultData,
 	ChatResponseInspirationResultData,
 	ChatResponseProductAnswerData,
 	ChatResponseSuggestedQuestionsData,
-	FeedbackRequestModel,
 	ChatResponseActionsData,
 	ChatResponseProductRecommendationData,
 	ChatResponseProductComparisonData,
 	ChatResponseErrorData,
 } from './Client/transforms';
-export { MoiRequestModel, MoiResponseModelProductSearchResult } from './Client/apis/Chat';
+export { MoiRequestModel, MoiResponseModelProductSearchResult, ChatRequestModel, FeedbackRequestModel, ChatStatusResponse } from './Client/apis/Chat';
