@@ -2,9 +2,9 @@
 	(self.webpackChunk_athoscommerce_snap_preact = self.webpackChunk_athoscommerce_snap_preact || []).push([
 		[3049],
 		{
-			'./components/src/components/Molecules/Carousel/Carousel.stories.tsx'(y, u, n) {
+			'./components/src/components/Molecules/Carousel/Carousel.stories.tsx'(_, u, n) {
 				'use strict';
-				n.r(u), n.d(u, { Colors: () => _, __namedExportsOrder: () => b, default: () => c });
+				n.r(u), n.d(u, { Colors: () => v, __namedExportsOrder: () => b, default: () => c });
 				var t = n('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					m = n('../../node_modules/@storybook/blocks/dist/index.mjs'),
 					h = n('./components/src/components/Molecules/Carousel/Carousel.tsx'),
@@ -13,7 +13,7 @@
 					o = n('./components/src/utilities/Colour/Colour.ts');
 				const l = `# Carousel
 
-Renders a carousel of slides using children, built with [Swiper v11](https://swiperjs.com/get-started)
+Renders a carousel of slides using children, built with <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/get-started">Swiper v11</a>
 
 ## Sub-components
 - Icon
@@ -23,8 +23,8 @@ Renders a carousel of slides using children, built with [Swiper v11](https://swi
 import { Carousel } from '@athoscommerce/snap-preact/components';
 \`\`\`
 
-Additional [Swiper Component Props](https://swiperjs.com/react#swiper-props) can be specified, but may need to be camelCased where appropriate.
-Additional [Swiper Modules](https://swiperjs.com/swiper-api#modules) can be provided via the \`modules\` prop; these may need additional props and or stylesheets.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper Component Props</a> can be specified, but may need to be camelCased where appropriate.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via the \`modules\` prop; these may need additional props and or stylesheets.
 
 \`\`\`jsx
 <Carousel>{children}</Carousel>
@@ -37,7 +37,7 @@ The \`loop\` prop enables 'infinite' looping through the result set when swiping
 \`\`\`
 
 ### pagination
-The \`pagination\` prop can take a bool to enable pagination dots, or an object containing a SwiperOptions.pagination config object. Types can be found in [swiper docs](https://swiperjs.com/swiper-api#pagination). 
+The \`pagination\` prop can take a bool to enable pagination dots, or an object containing a SwiperOptions.pagination config object. Types can be found in <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#pagination">swiper docs</a>.
 
 \`\`\`jsx
 <Carousel pagination={true}>{children}</Carousel>
@@ -113,7 +113,7 @@ The \`onInit\` prop can be used to tie into the initialization event for swiper.
 \`\`\`
 
 ### modules
-The \`modules\` prop accepts additional [Swiper Modules](https://swiperjs.com/swiper-api#modules) - these may need additional props and or stylesheets to function. We include \`Navigation\`, \`Pagination\` and \`A11y\` modules by default.
+The \`modules\` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include \`Navigation\`, \`Pagination\` and \`A11y\` modules by default.
 
 \`\`\`jsx
 import { Scrollbar } from 'swiper';
@@ -128,7 +128,7 @@ An object that modifies the responsive behavior of the carousel at various viewp
 
 The object key specifies the viewport for when the parameters will be applied. 
 
-The default configuration contains the following properties, however **\`any Carousel props\`** or [Swiper API parameters](https://swiperjs.com/react#swiper-props) can also be specified. 
+The default configuration contains the following properties, however **\`any Carousel props\`** or <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper API parameters</a> can also be specified. 
 
 \`slidesPerView\` - number of products to display per page (for a peekaboo effect use a decimal number here)
 
@@ -190,7 +190,7 @@ const defaultVerticalCarouselBreakpoints = {
 									}),
 							},
 						},
-						decorators: [(v) => (0, t.Y)('div', { style: { maxWidth: '900px', height: '300px' }, children: (0, t.Y)(v, {}) })],
+						decorators: [(x) => (0, t.Y)('div', { style: { maxWidth: '900px', height: '300px' }, children: (0, t.Y)(x, {}) })],
 						argTypes: {
 							loop: {
 								defaultValue: !0,
@@ -271,17 +271,17 @@ const defaultVerticalCarouselBreakpoints = {
 							...s.F,
 						},
 					},
-					r = 10,
-					a = Math.floor(180 / r),
-					d = Array.from(Array(r).keys()),
+					i = 10,
+					a = Math.floor(180 / i),
+					d = Array.from(Array(i).keys()),
 					f = new o.V('#3a23ad'),
-					_ = (v) =>
+					v = (x) =>
 						(0, t.Y)(h.FN, {
-							...v,
+							...x,
 							children: d.map((V, M) =>
 								(0, t.Y)('div', {
 									style: {
-										height: v?.vertical ? '100%' : '100px',
+										height: x?.vertical ? '100%' : '100px',
 										width: '100%',
 										minHeight: '1px',
 										minWidth: '1px',
@@ -291,11 +291,11 @@ const defaultVerticalCarouselBreakpoints = {
 								})
 							),
 						});
-				(_.args = { pagination: !0, hideButtons: !0, loop: !1 }),
-					(_.parameters = {
-						..._.parameters,
+				(v.args = { pagination: !0, hideButtons: !0, loop: !1 }),
+					(v.parameters = {
+						...v.parameters,
 						docs: {
-							..._.parameters?.docs,
+							...v.parameters?.docs,
 							source: {
 								originalSource: `(props: CarouselProps) => {
   return <Carousel {...props}>
@@ -309,13 +309,13 @@ const defaultVerticalCarouselBreakpoints = {
     }}></div>)}
         </Carousel>;
 }`,
-								..._.parameters?.docs?.source,
+								...v.parameters?.docs?.source,
 							},
 						},
 					});
 				const b = ['Colors'];
 			},
-			'./components/src/components/Molecules/Carousel/Carousel.tsx'(y, u, n) {
+			'./components/src/components/Molecules/Carousel/Carousel.tsx'(_, u, n) {
 				'use strict';
 				n.d(u, { FN: () => q, K: () => A, og: () => L });
 				var t = n('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
@@ -326,22 +326,22 @@ const defaultVerticalCarouselBreakpoints = {
 					o = n('../../node_modules/mobx-react-lite/es/index.js'),
 					l = n('../../node_modules/deepmerge/dist/cjs.js'),
 					c = n.n(l),
-					r = n('../../node_modules/swiper/swiper-react.mjs'),
+					i = n('../../node_modules/swiper/swiper-react.mjs'),
 					a = n('./components/src/utilities/cloneWithProps.tsx'),
 					d = n('./components/src/utilities/defined.ts'),
 					f = n('./components/src/utilities/mergeProps.ts'),
-					_ = n('./components/src/utilities/mergeStyles.ts'),
+					v = n('./components/src/utilities/mergeStyles.ts'),
 					b = n('../../node_modules/swiper/modules/index.mjs'),
-					v = n('./components/src/components/Atoms/Icon/Icon.tsx'),
+					x = n('./components/src/components/Atoms/Icon/Icon.tsx'),
 					V = n('./components/src/providers/cache.tsx'),
 					M = n('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					X = n('./components/src/providers/treePath.tsx'),
 					Z = n('./components/src/hooks/useDisplaySettings.tsx');
-				const Q = ({ vertical: w, theme: P }) =>
+				const Q = ({ vertical: y, theme: P }) =>
 						(0, h.AH)({
 							display: 'flex',
 							maxWidth: '100%',
-							maxHeight: w ? '100%' : void 0,
+							maxHeight: y ? '100%' : void 0,
 							margin: 0,
 							padding: 0,
 							overflow: 'hidden',
@@ -431,37 +431,37 @@ const defaultVerticalCarouselBreakpoints = {
 						1200: { slidesPerView: 5, slidesPerGroup: 5, spaceBetween: 10 },
 					},
 					L = { 0: { slidesPerView: 1, slidesPerGroup: 1, spaceBetween: 0 } },
-					q = (0, o.PA)((w) => {
+					q = (0, o.PA)((y) => {
 						const P = (0, M.u)(),
 							ee = (0, X.LU)(),
 							te = {
-								breakpoints: w.vertical ? JSON.parse(JSON.stringify(L)) : JSON.parse(JSON.stringify(A)),
+								breakpoints: y.vertical ? JSON.parse(JSON.stringify(L)) : JSON.parse(JSON.stringify(A)),
 								pagination: !1,
-								slidesPerGroup: 5,
-								slidesPerView: 5,
+								slidesPerGroup: !y.breakpoints || !Object.keys(y.breakpoints).length ? 5 : void 0,
+								slidesPerView: !y.breakpoints || !Object.keys(y.breakpoints).length ? 5 : void 0,
 								spaceBetween: 10,
 								loop: !0,
 								autoAdjustSlides: !1,
 								treePath: ee,
 							};
-						let g = (0, f.v6)('carousel', P, te, w),
-							x;
+						let g = (0, f.v6)('carousel', P, te, y),
+							w;
 						if (
-							!(w.theme?.name || P.name) &&
+							!(y.theme?.name || P.name) &&
 							g.breakpoints &&
-							(Object.keys(g.breakpoints).forEach((i) => {
-								const p = g.breakpoints[i];
+							(Object.keys(g.breakpoints).forEach((r) => {
+								const p = g.breakpoints[r];
 								p.slidesPerView && (p.slidesPerView = Number(p.slidesPerView) || 1),
 									p.slidesPerGroup && (p.slidesPerGroup = Number(p.slidesPerGroup) || 1);
 							}),
-							(x = (0, Z.X)(g.breakpoints)),
-							x && Object.keys(x).length)
+							(w = (0, Z.X)(g.breakpoints)),
+							w && Object.keys(w).length)
 						) {
-							const i = c()(g?.theme || {}, x?.theme || {}, { arrayMerge: (p, T) => T });
+							const r = c()(g?.theme || {}, w?.theme || {}, { arrayMerge: (p, T) => T });
 							g.autoAdjustSlides &&
-								g.children.length < x.slidesPerView &&
-								((x.slidesPerView = g.children.length), (x.slidesPerGroup = g.children.length)),
-								(g = { ...g, ...x, theme: i });
+								g.children.length < w.slidesPerView &&
+								((w.slidesPerView = g.children.length), (w.slidesPerGroup = g.children.length)),
+								(g = { ...g, ...w, theme: r });
 						}
 						const {
 							children: R,
@@ -469,50 +469,50 @@ const defaultVerticalCarouselBreakpoints = {
 							nextButton: se,
 							prevButton: oe,
 							hideButtons: N,
-							vertical: k,
+							vertical: j,
 							onInit: W,
 							onBeforeInit: U,
 							onAfterInit: K,
 							onNextButtonClick: $,
 							onPrevButtonClick: z,
 							onClick: G,
-							disableStyles: ie,
+							disableStyles: re,
 							style: pe,
 							styleScript: ue,
 							themeStyleScript: me,
 							modules: Y,
-							className: re,
+							className: ie,
 							internalClassName: ae,
 							treePath: H,
 							...C
 						} = g;
 						let E = g.pagination,
-							B = g.navigation,
-							D = g.scrollbar;
-						const J = { icon: { internalClassName: 'ss__carousel__icon', ...(0, d.s)({ disableStyles: ie }), theme: g.theme, treePath: H } },
+							k = g.navigation,
+							B = g.scrollbar;
+						const J = { icon: { internalClassName: 'ss__carousel__icon', ...(0, d.s)({ disableStyles: re }), theme: g.theme, treePath: H } },
 							F = Array.isArray(Y) ? [b.Vx, b.dK, b.Ze, b.Jq].concat(Y) : [b.Vx, b.dK, b.Ze, b.Jq],
-							le = F.filter((i, p) => F.indexOf(i) === p),
+							le = F.filter((r, p) => F.indexOf(r) === p),
 							I = (0, m.li)(null),
 							O = (0, m.li)(null),
-							j = (0, m.li)(null),
-							ce = (0, _.Z)(g, Q);
+							D = (0, m.li)(null),
+							ce = (0, v.Z)(g, Q);
 						(0, m.vJ)(() => {
-							if (j.current) {
-								const p = j.current.querySelector('.swiper');
+							if (D.current) {
+								const p = D.current.querySelector('.swiper');
 								p?.classList.add('swiper-container', 'swiper-container-pointer-events'),
 									p?.classList.contains('swiper-vertical') && p.classList.add('swiper-container-vertical'),
 									p?.classList.contains('swiper-horizontal') && p.classList.add('swiper-container-horizontal');
 							}
 							S();
-						}, [w]),
+						}, [y]),
 							E && (typeof E == 'object' ? (E = { clickable: !0, ...E }) : (E = { clickable: !0 })),
-							B && typeof B == 'object'
-								? (B = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE', ...B })
-								: (B = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE' }),
-							D && (typeof D == 'object' ? (D = { enabled: !0, ...D }) : (D = { enabled: !0 }));
+							k && typeof k == 'object'
+								? (k = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE', ...k })
+								: (k = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE' }),
+							B && (typeof B == 'object' ? (B = { enabled: !0, ...B }) : (B = { enabled: !0 }));
 						const S = () => {
-							if (j.current) {
-								const p = j.current?.querySelectorAll('.swiper-slide-visible');
+							if (D.current) {
+								const p = D.current?.querySelectorAll('.swiper-slide-visible');
 								p.forEach((T, de) => {
 									T.classList.remove('swiper-last-visible-slide'), de == p.length - 1 && T.classList.add('swiper-last-visible-slide');
 								});
@@ -523,67 +523,67 @@ const defaultVerticalCarouselBreakpoints = {
 							R?.length
 								? (0, t.Y)(V._, {
 										children: (0, t.FD)('div', {
-											ref: j,
+											ref: D,
 											...ce,
-											className: s()('ss__carousel', k ? 'ss__carousel-vertical' : '', re, ae),
+											className: s()('ss__carousel', j ? 'ss__carousel-vertical' : '', ie, ae),
 											children: [
 												(0, t.Y)('div', {
 													className: s()('ss__carousel__prev-wrapper', { 'ss__carousel__prev-wrapper--hidden': N }),
 													children: (0, t.Y)('div', {
 														className: 'ss__carousel__prev',
 														ref: I,
-														onClick: z && ((i) => z(i)),
-														children: oe || (0, t.Y)(v.I, { icon: k ? 'angle-up' : 'angle-left', ...J.icon, name: 'prev' }),
+														onClick: z && ((r) => z(r)),
+														children: oe || (0, t.Y)(x.I, { icon: j ? 'angle-up' : 'angle-left', ...J.icon, name: 'prev' }),
 													}),
 												}),
-												(0, t.Y)(r.RC, {
+												(0, t.Y)(i.RC, {
 													centerInsufficientSlides: !0,
-													onBeforeInit: (i) => {
-														(i.params.navigation.prevEl = I.current ? I.current : void 0),
-															(i.params.navigation.nextEl = O.current ? O.current : void 0),
-															U && U(i);
+													onBeforeInit: (r) => {
+														(r.params.navigation.prevEl = I.current ? I.current : void 0),
+															(r.params.navigation.nextEl = O.current ? O.current : void 0),
+															U && U(r);
 													},
-													onInit: (i) => {
-														W && W(i);
+													onInit: (r) => {
+														W && W(r);
 													},
-													onAfterInit: (i) => {
-														(i.navigation.onPrevClick = (p) => {
-															p.preventDefault(), !(i.isBeginning && !i.params.loop && !i.params.rewind) && (i.slidePrev(), i.emit('navigationPrev'));
+													onAfterInit: (r) => {
+														(r.navigation.onPrevClick = (p) => {
+															p.preventDefault(), !(r.isBeginning && !r.params.loop && !r.params.rewind) && (r.slidePrev(), r.emit('navigationPrev'));
 														}),
-															(i.navigation.onNextClick = (p) => {
-																p.preventDefault(), !(i.isEnd && !i.params.loop && !i.params.rewind) && (i.slideNext(), i.emit('navigationNext'));
+															(r.navigation.onNextClick = (p) => {
+																p.preventDefault(), !(r.isEnd && !r.params.loop && !r.params.rewind) && (r.slideNext(), r.emit('navigationNext'));
 															}),
-															K && K(i);
+															K && K(r);
 													},
-													onClick: (i, p) => {
-														G && G(i, p);
+													onClick: (r, p) => {
+														G && G(r, p);
 													},
-													direction: k ? 'vertical' : 'horizontal',
+													direction: j ? 'vertical' : 'horizontal',
 													loop: ne,
 													threshold: 7,
 													loopAddBlankSlides: !1,
 													modules: le,
 													...C,
-													...x,
+													...w,
 													controller: void 0,
-													navigation: B,
+													navigation: k,
 													pagination: E,
-													scrollbar: D,
-													onResize: (i) => {
-														C.onResize && C.onResize(), i.updateSlidesClasses(), S();
+													scrollbar: B,
+													onResize: (r) => {
+														C.onResize && C.onResize(), r.updateSlidesClasses(), S();
 													},
 													onTransitionEnd: () => {
 														C.onTransitionEnd && C.onTransitionEnd(), S();
 													},
-													children: R.map((i) => (i != null ? (0, t.Y)(r.qr, { children: (0, a.Y)(i, { treePath: H }) }) : null)),
+													children: R.map((r) => (r != null ? (0, t.Y)(i.qr, { children: (0, a.Y)(r, { treePath: H }) }) : null)),
 												}),
 												(0, t.Y)('div', {
 													className: s()('ss__carousel__next-wrapper', { 'ss__carousel__next-wrapper--hidden': N }),
 													children: (0, t.Y)('div', {
 														className: 'ss__carousel__next',
 														ref: O,
-														onClick: $ && ((i) => $(i)),
-														children: se || (0, t.Y)(v.I, { icon: k ? 'angle-down' : 'angle-right', ...J.icon, name: 'next' }),
+														onClick: $ && ((r) => $(r)),
+														children: se || (0, t.Y)(x.I, { icon: j ? 'angle-down' : 'angle-right', ...J.icon, name: 'next' }),
 													}),
 												}),
 											],
@@ -593,7 +593,7 @@ const defaultVerticalCarouselBreakpoints = {
 						);
 					});
 			},
-			'./components/src/hooks/useDeepCompareEffect.tsx'(y, u, n) {
+			'./components/src/hooks/useDeepCompareEffect.tsx'(_, u, n) {
 				'use strict';
 				n.d(u, { I: () => e, r: () => h });
 				var t = n('../../node_modules/preact/hooks/dist/hooks.module.js'),
@@ -607,7 +607,7 @@ const defaultVerticalCarouselBreakpoints = {
 					return (0, t.vJ)(s, [h(o)]);
 				}
 			},
-			'./components/src/hooks/useDisplaySettings.tsx'(y, u, n) {
+			'./components/src/hooks/useDisplaySettings.tsx'(_, u, n) {
 				'use strict';
 				n.d(u, { Q: () => s, X: () => e });
 				var t = n('../../node_modules/preact/hooks/dist/hooks.module.js'),
@@ -616,18 +616,18 @@ const defaultVerticalCarouselBreakpoints = {
 				function e(o) {
 					if (!o || !Object.keys(o).length) return;
 					const [l, c] = (0, t.J0)(s(o));
-					let r;
+					let i;
 					const a = () => {
 						function d() {
 							c(s(o));
 						}
-						(r = (0, m.s)(() => {
+						(i = (0, m.s)(() => {
 							d();
 						}, 50)),
-							window.addEventListener('resize', r);
+							window.addEventListener('resize', i);
 					};
 					return (
-						(0, t.vJ)(() => (a(), () => window.removeEventListener('resize', r)), []),
+						(0, t.vJ)(() => (a(), () => window.removeEventListener('resize', i)), []),
 						(0, h.I)(() => {
 							c(s(o)), a();
 						}, [o]),
@@ -637,21 +637,21 @@ const defaultVerticalCarouselBreakpoints = {
 				const s = (o) => {
 					let l;
 					const c = window.innerWidth,
-						r = Object.keys(o)
+						i = Object.keys(o)
 							.map((a) => +a)
 							.sort((a, d) => a - d)
 							.map((a) => ({ [a]: o[a] }));
-					if (r.length) {
-						for (let a = 0; a < r.length; a++) {
-							const d = r[a],
+					if (i.length) {
+						for (let a = 0; a < i.length; a++) {
+							const d = i[a],
 								f = parseInt(Object.keys(d)[0]);
-							if (a + 1 === r.length || (a === 0 && c < f)) {
-								l = r[a][f];
+							if (a + 1 === i.length || (a === 0 && c < f)) {
+								l = i[a][f];
 								break;
 							} else {
-								const v = parseInt(Object.keys(r[a + 1])[0]);
-								if (c >= f && c < v) {
-									l = r[a][f];
+								const x = parseInt(Object.keys(i[a + 1])[0]);
+								if (c >= f && c < x) {
+									l = i[a][f];
 									break;
 								}
 							}
@@ -661,7 +661,7 @@ const defaultVerticalCarouselBreakpoints = {
 					return l;
 				};
 			},
-			'./components/src/utilities/Colour/Colour.ts'(y, u, n) {
+			'./components/src/utilities/Colour/Colour.ts'(_, u, n) {
 				'use strict';
 				n.d(u, { V: () => t });
 				class t {
@@ -726,13 +726,13 @@ const defaultVerticalCarouselBreakpoints = {
 					}
 					static rgbToHex(e) {
 						if (!t.isRgb(e)) throw 'invalid rgb supplied';
-						const [s, o, l, c] = (e.match(/[0-9]?\.?[0-9]+%?/g) || []).map((r, a) => {
+						const [s, o, l, c] = (e.match(/[0-9]?\.?[0-9]+%?/g) || []).map((i, a) => {
 							if (a == 3) {
-								r.match(/%/) && (r = (Number(r.replace('%', '').trim()) / 100).toString());
-								let d = Number(r);
-								(Number.isNaN(d) || d > 1) && (d = 1), d < 0 && (d = 0), (r = Math.floor(d * 255).toString());
+								i.match(/%/) && (i = (Number(i.replace('%', '').trim()) / 100).toString());
+								let d = Number(i);
+								(Number.isNaN(d) || d > 1) && (d = 1), d < 0 && (d = 0), (i = Math.floor(d * 255).toString());
 							}
-							return Number(r).toString(16).padStart(2, '0');
+							return Number(i).toString(16).padStart(2, '0');
 						});
 						return `#${s}${o}${l}${c || ''}`;
 					}
@@ -741,9 +741,9 @@ const defaultVerticalCarouselBreakpoints = {
 						if ((e && t.isRgb(e) && ((o = !0), (e = t.rgbToHex(e))), !e || !t.isHex(e) || !Number.isInteger(s))) return e;
 						s > 255 && (s = 255), s < -255 && (s = -255);
 						const l = e.slice(7, 9) || 'ff';
-						let r = parseInt(l, 16) - s;
-						r > 255 ? (r = 255) : r < 0 && (r = 0);
-						const a = r.toString(16).padStart(2, '0'),
+						let i = parseInt(l, 16) - s;
+						i > 255 ? (i = 255) : i < 0 && (i = 0);
+						const a = i.toString(16).padStart(2, '0'),
 							d = `${e.slice(0, 7)}${a}`;
 						return o ? t.hexToRgb(d) : d;
 					}
@@ -753,13 +753,13 @@ const defaultVerticalCarouselBreakpoints = {
 						s > 255 && (s = 255), s < -255 && (s = -255);
 						const l = e.slice(1, 7),
 							c = parseInt(l, 16);
-						let r = (c & 255) + s;
-						r > 255 ? (r = 255) : r < 0 && (r = 0);
+						let i = (c & 255) + s;
+						i > 255 ? (i = 255) : i < 0 && (i = 0);
 						let a = ((c >> 8) & 255) + s;
 						a > 255 ? (a = 255) : a < 0 && (a = 0);
 						let d = (c >> 16) + s;
 						d > 255 ? (d = 255) : d < 0 && (d = 0);
-						const f = `#${(r | (a << 8) | (d << 16)).toString(16).padStart(6, '0')}${e.slice(7, 9)}`;
+						const f = `#${(i | (a << 8) | (d << 16)).toString(16).padStart(6, '0')}${e.slice(7, 9)}`;
 						return o ? t.hexToRgb(f) : f;
 					}
 				}
@@ -772,7 +772,7 @@ const defaultVerticalCarouselBreakpoints = {
 					return e + (o + l) / 100;
 				}
 			},
-			'./components/src/utilities/componentArgs.ts'(y, u, n) {
+			'./components/src/utilities/componentArgs.ts'(_, u, n) {
 				'use strict';
 				n.d(u, { F: () => t });
 				const t = {
@@ -799,7 +799,7 @@ const defaultVerticalCarouselBreakpoints = {
 					},
 				};
 			},
-			'./components/src/utilities/defined.ts'(y, u, n) {
+			'./components/src/utilities/defined.ts'(_, u, n) {
 				'use strict';
 				n.d(u, { s: () => t });
 				function t(m) {
@@ -812,7 +812,7 @@ const defaultVerticalCarouselBreakpoints = {
 					);
 				}
 			},
-			'./components/src/utilities/storybook.tsx'(y, u, n) {
+			'./components/src/utilities/storybook.tsx'(_, u, n) {
 				'use strict';
 				n.d(u, { Z: () => e });
 				var t = n('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
@@ -828,15 +828,15 @@ const defaultVerticalCarouselBreakpoints = {
 						);
 					};
 			},
-			'../../node_modules/memoizerific sync recursive'(y) {
+			'../../node_modules/memoizerific sync recursive'(_) {
 				function u(n) {
 					var t = new Error("Cannot find module '" + n + "'");
 					throw ((t.code = 'MODULE_NOT_FOUND'), t);
 				}
-				(u.keys = () => []), (u.resolve = u), (u.id = '../../node_modules/memoizerific sync recursive'), (y.exports = u);
+				(u.keys = () => []), (u.resolve = u), (u.id = '../../node_modules/memoizerific sync recursive'), (_.exports = u);
 			},
 		},
 	]);
 })();
 
-//# sourceMappingURL=components-Molecules-Carousel-Carousel-stories.97816293.iframe.bundle.js.map
+//# sourceMappingURL=components-Molecules-Carousel-Carousel-stories.1826eeb5.iframe.bundle.js.map

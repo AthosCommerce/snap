@@ -30,7 +30,7 @@
 					l = e('./components/src/utilities/storybook.tsx'),
 					t = e('./components/src/utilities/componentArgs.ts');
 				const a =
-						"# Formatted Number\n\nUtilizes `formatNumber` from [@athoscommerce/snap-preact/toolbox](https://athoscommerce.github.io/snap/#/package-toolbox) to render a `<span>` containing a formatted number.\n\n## Usage\n```jsx\nimport { FormattedNumber } from '@athoscommerce/snap-preact/components';\n```\n\n### value\nThe required `value` prop specifies the number to be formatted. \n\n```jsx\n<FormattedNumber value={99.99} />\n```\nFormatted output from above properties: `99.990`\n\n### symbol\nThe `symbol` prop specifies an optional symbol to be included. Typically used when adding a unit of measure to a number.\n\n```jsx\n<FormattedNumber value={99} symbol={' \xB0C'} /> \n```\nFormatted output from above properties: `99.000 \xB0C`\n\n### decimalPlaces\nThe `decimalPlaces` prop specifies how many decimal places to format.\n\n```jsx\n<FormattedNumber value={99} decimalPlaces={2} /> \n```\nFormatted output from above properties: `99.00`\n\n### padDecimalPlaces\nThe `padDecimalPlaces` prop pads excess decimal places with zeros.\n\n```jsx\n<FormattedNumber value={99.99} decimalPlaces={4} padDecimalPlaces={true} /> \n```\nFormatted output from above properties: `99.9900`\n\n```jsx\n<FormattedNumber value={99.99} decimalPlaces={4} padDecimalPlaces={false} /> \n```\nFormatted output from above properties: `99.99`\n\n### thousandsSeparator\nThe `thousandsSeparator` prop specifies the thousands separator character.\n\n```jsx\n<FormattedNumber value={10999.99} thousandsSeparator={','} /> \n```\nFormatted output from above properties: `10,999.990`\n\n### decimalSeparator\nThe `decimalSeparator` prop specifies the decimal separator character.\n\n```jsx\n<FormattedNumber value={10999.99} decimalSeparator={','} decimalPlaces={2} /> \n```\nFormatted output from above properties: `10999,99`\n\n### symbolAfter\nThe `symbolAfter` prop specifies if the provided `symbol` prop should be placed after the formatted `value`.\n\n```jsx\n<FormattedNumber value={999.999} symbol={'km'} symbolAfter={true} /> \n```\nFormatted output from above properties: `999.999km`",
+						"# Formatted Number\n\nUtilizes `formatNumber` from <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://athoscommerce.github.io/snap/reference-toolbox-filters\">@athoscommerce/snap-toolbox</a> to render a `<span>` containing a formatted number.\n\n## Usage\n```jsx\nimport { FormattedNumber } from '@athoscommerce/snap-preact/components';\n```\n\n### value\nThe required `value` prop specifies the number to be formatted. \n\n```jsx\n<FormattedNumber value={99.99} />\n```\nFormatted output from above properties: `99.990`\n\n### symbol\nThe `symbol` prop specifies an optional symbol to be included. Typically used when adding a unit of measure to a number.\n\n```jsx\n<FormattedNumber value={99} symbol={' \xB0C'} /> \n```\nFormatted output from above properties: `99.000 \xB0C`\n\n### decimalPlaces\nThe `decimalPlaces` prop specifies how many decimal places to format.\n\n```jsx\n<FormattedNumber value={99} decimalPlaces={2} /> \n```\nFormatted output from above properties: `99.00`\n\n### padDecimalPlaces\nThe `padDecimalPlaces` prop pads excess decimal places with zeros.\n\n```jsx\n<FormattedNumber value={99.99} decimalPlaces={4} padDecimalPlaces={true} /> \n```\nFormatted output from above properties: `99.9900`\n\n```jsx\n<FormattedNumber value={99.99} decimalPlaces={4} padDecimalPlaces={false} /> \n```\nFormatted output from above properties: `99.99`\n\n### thousandsSeparator\nThe `thousandsSeparator` prop specifies the thousands separator character.\n\n```jsx\n<FormattedNumber value={10999.99} thousandsSeparator={','} /> \n```\nFormatted output from above properties: `10,999.990`\n\n### decimalSeparator\nThe `decimalSeparator` prop specifies the decimal separator character.\n\n```jsx\n<FormattedNumber value={10999.99} decimalSeparator={','} decimalPlaces={2} /> \n```\nFormatted output from above properties: `10999,99`\n\n### symbolAfter\nThe `symbolAfter` prop specifies if the provided `symbol` prop should be placed after the formatted `value`.\n\n```jsx\n<FormattedNumber value={999.999} symbol={'km'} symbolAfter={true} /> \n```\nFormatted output from above properties: `999.999km`\n",
 					m = {
 						title: 'Atoms/FormattedNumber',
 						component: r.G,
@@ -140,7 +140,7 @@
 				const b = () => (0, n.AH)({});
 				function i(h) {
 					const g = (0, m.u)(),
-						P = {
+						_ = {
 							symbol: '',
 							decimalPlaces: 3,
 							padDecimalPlaces: !0,
@@ -149,9 +149,9 @@
 							symbolAfter: !0,
 							treePath: (0, c.LU)(),
 						},
-						y = (0, u.v6)('formattedNumber', g, P, h),
+						y = (0, u.v6)('formattedNumber', g, _, h),
 						{
-							value: _,
+							value: P,
 							symbol: v,
 							decimalPlaces: N,
 							padDecimalPlaces: x,
@@ -162,7 +162,7 @@
 							internalClassName: j,
 							raw: O,
 						} = y,
-						f = r.Z(_, { symbol: v, decimalPlaces: N, padDecimalPlaces: x, thousandsSeparator: E, decimalSeparator: D, symbolAfter: F }),
+						f = r.Z(P, { symbol: v, decimalPlaces: N, padDecimalPlaces: x, thousandsSeparator: E, decimalSeparator: D, symbolAfter: F }),
 						A = (0, d.Z)(y, b);
 					return O
 						? (0, o.Y)(o.FK, { children: f })

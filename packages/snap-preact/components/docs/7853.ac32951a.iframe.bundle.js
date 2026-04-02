@@ -3,32 +3,32 @@
 	(self.webpackChunk_athoscommerce_snap_preact = self.webpackChunk_athoscommerce_snap_preact || []).push([
 		[7853],
 		{
-			'./components/src/components/Molecules/Carousel/Carousel.tsx'(be, k, e) {
+			'./components/src/components/Molecules/Carousel/Carousel.tsx'(Ee, k, e) {
 				e.d(k, { FN: () => le, K: () => Pe, og: () => W });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					B = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
+					S = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
 					j = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					I = e('../../node_modules/classnames/index.js'),
 					g = e.n(I),
 					L = e('../../node_modules/mobx-react-lite/es/index.js'),
-					re = e('../../node_modules/deepmerge/dist/cjs.js'),
-					M = e.n(re),
+					ne = e('../../node_modules/deepmerge/dist/cjs.js'),
+					M = e.n(ne),
 					X = e('../../node_modules/swiper/swiper-react.mjs'),
 					Y = e('./components/src/utilities/cloneWithProps.tsx'),
 					V = e('./components/src/utilities/defined.ts'),
 					q = e('./components/src/utilities/mergeProps.ts'),
-					ne = e('./components/src/utilities/mergeStyles.ts'),
-					w = e('../../node_modules/swiper/modules/index.mjs'),
+					re = e('./components/src/utilities/mergeStyles.ts'),
+					b = e('../../node_modules/swiper/modules/index.mjs'),
 					K = e('./components/src/components/Atoms/Icon/Icon.tsx'),
 					_e = e('./components/src/providers/cache.tsx'),
 					ge = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					ie = e('./components/src/providers/treePath.tsx'),
 					he = e('./components/src/hooks/useDisplaySettings.tsx');
-				const ae = ({ vertical: D, theme: N }) =>
+				const ae = ({ vertical: w, theme: N }) =>
 						(0, j.AH)({
 							display: 'flex',
 							maxWidth: '100%',
-							maxHeight: D ? '100%' : void 0,
+							maxHeight: w ? '100%' : void 0,
 							margin: 0,
 							padding: 0,
 							overflow: 'hidden',
@@ -118,37 +118,37 @@
 						1200: { slidesPerView: 5, slidesPerGroup: 5, spaceBetween: 10 },
 					},
 					W = { 0: { slidesPerView: 1, slidesPerGroup: 1, spaceBetween: 0 } },
-					le = (0, L.PA)((D) => {
+					le = (0, L.PA)((w) => {
 						const N = (0, ge.u)(),
 							ee = (0, ie.LU)(),
 							fe = {
-								breakpoints: D.vertical ? JSON.parse(JSON.stringify(W)) : JSON.parse(JSON.stringify(Pe)),
+								breakpoints: w.vertical ? JSON.parse(JSON.stringify(W)) : JSON.parse(JSON.stringify(Pe)),
 								pagination: !1,
-								slidesPerGroup: 5,
-								slidesPerView: 5,
+								slidesPerGroup: !w.breakpoints || !Object.keys(w.breakpoints).length ? 5 : void 0,
+								slidesPerView: !w.breakpoints || !Object.keys(w.breakpoints).length ? 5 : void 0,
 								spaceBetween: 10,
 								loop: !0,
 								autoAdjustSlides: !1,
 								treePath: ee,
 							};
-						let u = (0, q.v6)('carousel', N, fe, D),
-							S;
+						let u = (0, q.v6)('carousel', N, fe, w),
+							D;
 						if (
-							!(D.theme?.name || N.name) &&
+							!(w.theme?.name || N.name) &&
 							u.breakpoints &&
 							(Object.keys(u.breakpoints).forEach((o) => {
 								const i = u.breakpoints[o];
 								i.slidesPerView && (i.slidesPerView = Number(i.slidesPerView) || 1),
 									i.slidesPerGroup && (i.slidesPerGroup = Number(i.slidesPerGroup) || 1);
 							}),
-							(S = (0, he.X)(u.breakpoints)),
-							S && Object.keys(S).length)
+							(D = (0, he.X)(u.breakpoints)),
+							D && Object.keys(D).length)
 						) {
-							const o = M()(u?.theme || {}, S?.theme || {}, { arrayMerge: (i, xe) => xe });
+							const o = M()(u?.theme || {}, D?.theme || {}, { arrayMerge: (i, xe) => xe });
 							u.autoAdjustSlides &&
-								u.children.length < S.slidesPerView &&
-								((S.slidesPerView = u.children.length), (S.slidesPerGroup = u.children.length)),
-								(u = { ...u, ...S, theme: o });
+								u.children.length < D.slidesPerView &&
+								((D.slidesPerView = u.children.length), (D.slidesPerGroup = u.children.length)),
+								(u = { ...u, ...D, theme: o });
 						}
 						const {
 							children: Te,
@@ -159,31 +159,31 @@
 							vertical: c,
 							onInit: R,
 							onBeforeInit: f,
-							onAfterInit: n,
+							onAfterInit: r,
 							onNextButtonClick: l,
 							onPrevButtonClick: p,
-							onClick: r,
+							onClick: n,
 							disableStyles: P,
 							style: a,
 							styleScript: U,
 							themeStyleScript: A,
-							modules: b,
+							modules: T,
 							className: v,
 							internalClassName: G,
 							treePath: z,
-							...T
+							...C
 						} = u;
-						let C = u.pagination,
+						let B = u.pagination,
 							y = u.navigation,
 							F = u.scrollbar;
-						const we = { icon: { internalClassName: 'ss__carousel__icon', ...(0, V.s)({ disableStyles: P }), theme: u.theme, treePath: z } },
-							se = Array.isArray(b) ? [w.Vx, w.dK, w.Ze, w.Jq].concat(b) : [w.Vx, w.dK, w.Ze, w.Jq],
+						const be = { icon: { internalClassName: 'ss__carousel__icon', ...(0, V.s)({ disableStyles: P }), theme: u.theme, treePath: z } },
+							se = Array.isArray(T) ? [b.Vx, b.dK, b.Ze, b.Jq].concat(T) : [b.Vx, b.dK, b.Ze, b.Jq],
 							Ce = se.filter((o, i) => se.indexOf(o) === i),
-							te = (0, B.li)(null),
-							ce = (0, B.li)(null),
-							J = (0, B.li)(null),
-							Be = (0, ne.Z)(u, ae);
-						(0, B.vJ)(() => {
+							te = (0, S.li)(null),
+							ce = (0, S.li)(null),
+							J = (0, S.li)(null),
+							Be = (0, re.Z)(u, ae);
+						(0, S.vJ)(() => {
 							if (J.current) {
 								const i = J.current.querySelector('.swiper');
 								i?.classList.add('swiper-container', 'swiper-container-pointer-events'),
@@ -191,8 +191,8 @@
 									i?.classList.contains('swiper-horizontal') && i.classList.add('swiper-container-horizontal');
 							}
 							ve();
-						}, [D]),
-							C && (typeof C == 'object' ? (C = { clickable: !0, ...C }) : (C = { clickable: !0 })),
+						}, [w]),
+							B && (typeof B == 'object' ? (B = { clickable: !0, ...B }) : (B = { clickable: !0 })),
 							y && typeof y == 'object'
 								? (y = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE', ...y })
 								: (y = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE' }),
@@ -206,7 +206,7 @@
 							}
 						};
 						return (
-							delete T.breakpoints,
+							delete C.breakpoints,
 							Te?.length
 								? (0, s.Y)(_e._, {
 										children: (0, s.FD)('div', {
@@ -220,7 +220,7 @@
 														className: 'ss__carousel__prev',
 														ref: te,
 														onClick: p && ((o) => p(o)),
-														children: _ || (0, s.Y)(K.I, { icon: c ? 'angle-up' : 'angle-left', ...we.icon, name: 'prev' }),
+														children: _ || (0, s.Y)(K.I, { icon: c ? 'angle-up' : 'angle-left', ...be.icon, name: 'prev' }),
 													}),
 												}),
 												(0, s.Y)(X.RC, {
@@ -240,27 +240,27 @@
 															(o.navigation.onNextClick = (i) => {
 																i.preventDefault(), !(o.isEnd && !o.params.loop && !o.params.rewind) && (o.slideNext(), o.emit('navigationNext'));
 															}),
-															n && n(o);
+															r && r(o);
 													},
 													onClick: (o, i) => {
-														r && r(o, i);
+														n && n(o, i);
 													},
 													direction: c ? 'vertical' : 'horizontal',
 													loop: Oe,
 													threshold: 7,
 													loopAddBlankSlides: !1,
 													modules: Ce,
-													...T,
-													...S,
+													...C,
+													...D,
 													controller: void 0,
 													navigation: y,
-													pagination: C,
+													pagination: B,
 													scrollbar: F,
 													onResize: (o) => {
-														T.onResize && T.onResize(), o.updateSlidesClasses(), ve();
+														C.onResize && C.onResize(), o.updateSlidesClasses(), ve();
 													},
 													onTransitionEnd: () => {
-														T.onTransitionEnd && T.onTransitionEnd(), ve();
+														C.onTransitionEnd && C.onTransitionEnd(), ve();
 													},
 													children: Te.map((o) => (o != null ? (0, s.Y)(X.qr, { children: (0, Y.Y)(o, { treePath: z }) }) : null)),
 												}),
@@ -270,7 +270,7 @@
 														className: 'ss__carousel__next',
 														ref: ce,
 														onClick: l && ((o) => l(o)),
-														children: d || (0, s.Y)(K.I, { icon: c ? 'angle-down' : 'angle-right', ...we.icon, name: 'next' }),
+														children: d || (0, s.Y)(K.I, { icon: c ? 'angle-down' : 'angle-right', ...be.icon, name: 'next' }),
 													}),
 												}),
 											],
@@ -280,22 +280,22 @@
 						);
 					});
 			},
-			'./components/src/components/Templates/RecommendationBundle/RecommendationBundle.tsx'(be, k, e) {
+			'./components/src/components/Templates/RecommendationBundle/RecommendationBundle.tsx'(Ee, k, e) {
 				e.d(k, { g: () => Oe });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					S = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					j = e('../../node_modules/classnames/index.js'),
 					I = e.n(j),
 					g = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
 					L = e('../../node_modules/mobx-react-lite/es/index.js'),
-					re = e('../../node_modules/deepmerge/dist/cjs.js'),
-					M = e.n(re),
+					ne = e('../../node_modules/deepmerge/dist/cjs.js'),
+					M = e.n(ne),
 					X = e('./components/src/components/Molecules/Carousel/Carousel.tsx'),
 					Y = e('./components/src/components/Molecules/Result/Result.tsx'),
 					V = e('./components/src/utilities/mergeProps.ts'),
 					q = e('./components/src/utilities/defined.ts'),
-					ne = e('./components/src/utilities/mergeStyles.ts'),
-					w = e('./components/src/utilities/cloneWithProps.tsx'),
+					re = e('./components/src/utilities/mergeStyles.ts'),
+					b = e('./components/src/utilities/cloneWithProps.tsx'),
 					K = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					_e = e('./components/src/providers/treePath.tsx'),
 					ge = e('./components/src/providers/cache.tsx'),
@@ -305,27 +305,27 @@
 					Pe = e('./components/src/components/Molecules/Checkbox/Checkbox.tsx'),
 					W = e('./components/src/components/Atoms/Icon/Icon.tsx'),
 					le = e('./components/src/hooks/useLang.tsx');
-				const D = (0, L.PA)((d) => {
+				const w = (0, L.PA)((d) => {
 					const _ = (0, K.u)(),
 						E = { hideCheckboxes: !1, classNamePrefix: 'ss__recommendation-bundle' },
 						c = (0, V.v6)('bundleSelector', _, E, d),
 						{
 							children: R,
 							checked: f,
-							icon: n,
+							icon: r,
 							seedText: l,
 							seed: p,
-							hideCheckboxes: r,
+							hideCheckboxes: n,
 							onCheck: P,
 							title: a,
 							className: U,
 							internalClassName: A,
-							treePath: b,
+							treePath: T,
 							classNamePrefix: v,
 						} = c,
-						G = b?.lastIndexOf(' '),
-						z = G !== -1 ? b?.slice(0, G) : b,
-						T = {
+						G = T?.lastIndexOf(' '),
+						z = G !== -1 ? T?.slice(0, G) : T,
+						C = {
 							icon: { name: 'bundle-selector', internalClassName: `${v}__wrapper__selector__icon`, size: 15, theme: c?.theme, treePath: z },
 							checkbox: {
 								internalClassName: `${v}__wrapper__selector__result-wrapper__checkbox`,
@@ -337,8 +337,8 @@
 								treePath: z,
 							},
 						},
-						C = M()({}, c.lang || {}),
-						y = (0, le.u)(C, {});
+						B = M()({}, c.lang || {}),
+						y = (0, le.u)(B, {});
 					return (0, s.FD)('div', {
 						className: I()(
 							`${v}__wrapper__selector`,
@@ -351,12 +351,12 @@
 							(0, s.FD)('div', {
 								className: `${v}__wrapper__selector__result-wrapper`,
 								children: [
-									!r && (0, s.Y)(Pe.S, { ...T.checkbox }),
+									!n && (0, s.Y)(Pe.S, { ...C.checkbox }),
 									l && (0, s.Y)('div', { className: `${v}__wrapper__selector__result-wrapper__seed-badge`, ...y.seedText?.all }),
 									R,
 								],
 							}),
-							n ? (0, s.Y)(W.I, { ...T.icon, ...(typeof n == 'string' ? { icon: n } : n) }) : void 0,
+							r ? (0, s.Y)(W.I, { ...C.icon, ...(typeof r == 'string' ? { icon: r } : r) }) : void 0,
 						],
 					});
 				});
@@ -372,50 +372,50 @@
 							cartStore: c,
 							onAddToCart: R,
 							ctaIcon: f,
-							ctaButtonText: n,
+							ctaButtonText: r,
 							ctaButtonSuccessText: l,
 							treePath: p,
-							classNamePrefix: r,
+							classNamePrefix: n,
 						} = _,
 						[P, a] = (0, g.J0)(!1);
 					_.addedToCart = P;
 					const U = {
-							icon: { name: 'bundle-cart', internalClassName: `${r}__wrapper__cta__icon`, size: 50, theme: _?.theme, treePath: p },
+							icon: { name: 'bundle-cart', internalClassName: `${n}__wrapper__cta__icon`, size: 50, theme: _?.theme, treePath: p },
 							subtotalStrike: { name: 'bundle-msrp', theme: _?.theme, treePath: p },
 							subtotalPrice: { name: 'bundle-price', theme: _?.theme, treePath: p },
 							button: { theme: _?.theme, treePath: p },
 						},
 						A = M()({}, _.lang || {}),
-						b = (0, le.u)(A, { cartStore: c });
+						T = (0, le.u)(A, { cartStore: c });
 					return (0, s.Y)('div', {
-						className: `${r}__wrapper__cta`,
+						className: `${n}__wrapper__cta`,
 						children: E
-							? (0, w.Y)(E, _)
+							? (0, b.Y)(E, _)
 							: (0, s.FD)(s.FK, {
 									children: [
 										(0, s.FD)('div', {
-											className: `${r}__wrapper__cta__subtotal`,
+											className: `${n}__wrapper__cta__subtotal`,
 											'aria-atomic': 'false',
 											'aria-live': 'polite',
 											children: [
 												f
 													? (0, s.Y)('div', {
-															className: `${r}__wrapper__cta__subtotal__icon__wrapper`,
+															className: `${n}__wrapper__cta__subtotal__icon__wrapper`,
 															children: (0, s.Y)(W.I, { ...U.icon, ...(typeof f == 'string' ? { icon: f } : f) }),
 													  })
 													: null,
-												(0, s.Y)('span', { className: `${r}__wrapper__cta__subtotal__title`, ...b.ctaSubtotalTitle?.all }),
+												(0, s.Y)('span', { className: `${n}__wrapper__cta__subtotal__title`, ...T.ctaSubtotalTitle?.all }),
 												(0, s.FD)('div', {
-													className: `${r}__wrapper__cta__subtotal__prices`,
+													className: `${n}__wrapper__cta__subtotal__prices`,
 													children: [
 														c.msrp && c.msrp !== c.price
 															? (0, s.FD)('label', {
-																	className: `${r}__wrapper__cta__subtotal__strike`,
+																	className: `${n}__wrapper__cta__subtotal__strike`,
 																	children: ['Was ', (0, s.Y)(ee.g, { ...U.subtotalStrike, lineThrough: !0, value: c.msrp })],
 															  })
 															: null,
 														(0, s.Y)('label', {
-															className: `${r}__wrapper__cta__subtotal__price`,
+															className: `${n}__wrapper__cta__subtotal__price`,
 															children: (0, s.Y)(ee.g, { ...U.subtotalPrice, value: c.price }),
 														}),
 													],
@@ -424,18 +424,18 @@
 										}),
 										(0, s.Y)(N.$, {
 											...U.button,
-											internalClassName: I()(`${r}__wrapper__cta__button`, { [`${r}__wrapper__cta__button--added`]: P }),
+											internalClassName: I()(`${n}__wrapper__cta__button`, { [`${n}__wrapper__cta__button--added`]: P }),
 											'aria-live': P,
 											onClick: (v) => R(v),
-											...(P ? b.ctaButtonSuccessText?.all : b.ctaButtonText?.all),
-											children: P ? l : n,
+											...(P ? T.ctaButtonSuccessText?.all : T.ctaButtonText?.all),
+											children: P ? l : r,
 										}),
 									],
 							  }),
 					});
 				});
 				var u = e('./components/src/hooks/useIntersection.tsx'),
-					S = e('./components/src/utilities/componentNameToClassName.ts');
+					D = e('./components/src/utilities/componentNameToClassName.ts');
 				const Te = ({
 						vertical: d,
 						separatorIcon: _,
@@ -443,49 +443,49 @@
 						ctaInline: c,
 						hasSeed: R,
 						hideSeed: f,
-						carouselEnabled: n,
+						carouselEnabled: r,
 						limit: l,
 						alias: p,
 					}) => {
-						let r = 'ss__recommendation-bundle';
-						p && (r = `ss__${(0, S.b)(p)}`);
+						let n = 'ss__recommendation-bundle';
+						p && (n = `ss__${(0, D.b)(p)}`);
 						const P = E?.slidesPerView;
-						return (0, B.AH)({
-							[`.${r}__wrapper`]: { display: 'flex', maxWidth: '100%', margin: '0', padding: '0' },
-							[`.${r}__wrapper__selector--seed`]: { width: `${d ? '100%' : 'auto'}`, margin: `${_ ? 'initial' : 'auto !important'}` },
-							[`.${r}__wrapper__seed-container`]: { width: d ? '100%' : `calc(100% / ${P + (c ? 1 : 0)})` },
-							[`.${r}__wrapper__cta`]: {
-								width: d ? '100%' : `${c ? `calc(100% / ${(n ? P : l || 0) + 1})` : '100%'}`,
+						return (0, S.AH)({
+							[`.${n}__wrapper`]: { display: 'flex', maxWidth: '100%', margin: '0', padding: '0' },
+							[`.${n}__wrapper__selector--seed`]: { width: `${d ? '100%' : 'auto'}`, margin: `${_ ? 'initial' : 'auto !important'}` },
+							[`.${n}__wrapper__seed-container`]: { width: d ? '100%' : `calc(100% / ${P + (c ? 1 : 0)})` },
+							[`.${n}__wrapper__cta`]: {
+								width: d ? '100%' : `${c ? `calc(100% / ${(r ? P : l || 0) + 1})` : '100%'}`,
 								textAlign: 'center',
-								[`.${r}__wrapper__cta__subtotal__prices`]: { display: 'block' },
-								[`.${r}__wrapper__cta__button--added`]: { cursor: 'none', pointerEvents: 'none', opacity: '.7' },
+								[`.${n}__wrapper__cta__subtotal__prices`]: { display: 'block' },
+								[`.${n}__wrapper__cta__button--added`]: { cursor: 'none', pointerEvents: 'none', opacity: '.7' },
 							},
-							[`.${r}__wrapper__carousel`]: {
+							[`.${n}__wrapper__carousel`]: {
 								boxSizing: 'border-box',
 								width: d ? '100%' : `calc(calc(100% / ${P + (c ? 1 : 0)}) * ${P - (R && !f ? 1 : 0)})`,
 							},
-							[`.${r}__wrapper--seed-in-carousel`]: {
-								[`.${r}__wrapper__cta`]: { width: d ? '100%' : `calc(100% / ${E?.slidesPerView + (c ? 1 : 0)})` },
-								[`.${r}__wrapper__carousel`]: {
+							[`.${n}__wrapper--seed-in-carousel`]: {
+								[`.${n}__wrapper__cta`]: { width: d ? '100%' : `calc(100% / ${E?.slidesPerView + (c ? 1 : 0)})` },
+								[`.${n}__wrapper__carousel`]: {
 									width: d ? '100%' : `calc(calc(100% / ${E?.slidesPerView + (c ? 1 : 0)}) * ${E?.slidesPerView})`,
 									padding: '0',
 								},
 							},
-							'.swiper-slide, .swiper-slide-visible.swiper-last-visible-slide': { [`.${r}__wrapper__selector__icon`]: { display: 'none' } },
-							'.swiper-slide-visible': { [`.${r}__wrapper__selector__icon`]: { display: 'block' } },
-							[`.${r}__wrapper--vertical`]: { flexDirection: 'column' },
-							[`.${r}__wrapper__selector`]: {
+							'.swiper-slide, .swiper-slide-visible.swiper-last-visible-slide': { [`.${n}__wrapper__selector__icon`]: { display: 'none' } },
+							'.swiper-slide-visible': { [`.${n}__wrapper__selector__icon`]: { display: 'block' } },
+							[`.${n}__wrapper--vertical`]: { flexDirection: 'column' },
+							[`.${n}__wrapper__selector`]: {
 								alignItems: 'baseline',
 								position: 'relative',
-								[`&.${r}__wrapper__selector--last`]: { [`.${r}__wrapper__selector__icon`]: { display: 'none' } },
-								[`.${r}__wrapper__selector__result-wrapper__seed-badge`]: { position: 'absolute', top: '0', left: '0', zIndex: '1' },
-								[`.${r}__wrapper__selector__icon`]: { position: 'absolute', right: '-1em', top: '140px' },
-								[`.${r}__wrapper__selector__result-wrapper`]: {
+								[`&.${n}__wrapper__selector--last`]: { [`.${n}__wrapper__selector__icon`]: { display: 'none' } },
+								[`.${n}__wrapper__selector__result-wrapper__seed-badge`]: { position: 'absolute', top: '0', left: '0', zIndex: '1' },
+								[`.${n}__wrapper__selector__icon`]: { position: 'absolute', right: '-1em', top: '140px' },
+								[`.${n}__wrapper__selector__result-wrapper`]: {
 									alignItems: 'center',
 									position: 'relative',
 									margin: `0px ${5 + (Number(E?.spaceBetween) || 0)}px`,
 								},
-								[`.${r}__wrapper__selector__result-wrapper__checkbox`]: {
+								[`.${n}__wrapper__selector__result-wrapper__checkbox`]: {
 									position: 'absolute',
 									top: '0',
 									right: '0',
@@ -521,29 +521,29 @@
 								treePath: E,
 							},
 							f = { name: d.controller?.store?.profile?.tag?.toLowerCase(), ...d };
-						let n = (0, V.v6)(f.alias || 'recommendationBundle', _, R, f),
+						let r = (0, V.v6)(f.alias || 'recommendationBundle', _, R, f),
 							l = 'ss__recommendation-bundle';
-						n.alias && (l = `ss__${(0, S.b)(n.alias)}`);
+						r.alias && (l = `ss__${(0, D.b)(r.alias)}`);
 						let p;
-						if (!(d.theme?.name || _.name) && ((p = (0, ie.X)(n.breakpoints)), p && Object.keys(p).length)) {
-							const t = M()(n?.theme || {}, p?.theme || {}, { arrayMerge: (m, h) => h });
-							n = { ...n, ...p, theme: t };
+						if (!(d.theme?.name || _.name) && ((p = (0, ie.X)(r.breakpoints)), p && Object.keys(p).length)) {
+							const t = M()(r?.theme || {}, p?.theme || {}, { arrayMerge: (m, h) => h });
+							r = { ...r, ...p, theme: t };
 						}
 						const {
-								title: r,
+								title: n,
 								description: P,
 								controller: a,
 								breakpoints: U,
 								results: A,
-								carousel: b,
+								carousel: T,
 								preselectedCount: v,
 								separatorIcon: G,
 								hideCheckboxes: z,
-								limit: T,
-								seedText: C,
+								limit: C,
+								seedText: B,
 								vertical: y,
 								onAddToCart: F,
-								separatorIconSeedOnly: we,
+								separatorIconSeedOnly: be,
 								resultComponent: se,
 								ctaSlot: Ce,
 								hideSeed: te,
@@ -559,18 +559,18 @@
 								internalClassName: Ue,
 								style: ts,
 								styleScript: os,
-								themeStyleScript: rs,
+								themeStyleScript: ns,
 								treePath: oe,
 								...Ge
-							} = n,
+							} = r,
 							Me = { enabled: !0, offset: '10%', ...Ie },
-							Ee = { enabled: !0, loop: !1, spaceBetween: 10, ...b },
-							{ seedInCarousel: de, prevButton: ze, nextButton: Fe, hideButtons: Je, loop: ke, spaceBetween: He, pagination: Ze } = Ee,
-							Se = Ee.enabled;
+							we = { enabled: !0, loop: !1, spaceBetween: 10, ...T },
+							{ seedInCarousel: de, prevButton: ze, nextButton: Fe, hideButtons: Je, loop: ke, spaceBetween: He, pagination: Ze } = we,
+							Se = we.enabled;
 						if (!a || a.type !== 'recommendation')
 							throw new Error("<RecommendationBundle> Component requires 'controller' prop with an instance of RecommendationController");
 						let x = A || a.store?.results;
-						T && (x = x.slice(0, te && x.filter((t) => t.bundleSeed == !0).length ? T + 1 : T));
+						C && (x = x.slice(0, te && x.filter((t) => t.bundleSeed == !0).length ? C + 1 : C));
 						const O = a.store.cart;
 						if (!O) throw new Error("<RecommendationBundle> Component requires 'cartStore' to exist in the recommendation store");
 						if (!(A && A.length) && !a.store?.results?.length) return a.log.error('<RecommendationBundle> Component has no results to render!'), null;
@@ -580,15 +580,15 @@
 									loop: ke,
 									internalClassName: 'ss__recommendation__carousel',
 									...(0, q.s)({ disableStyles: ve }),
-									theme: n?.theme,
+									theme: r?.theme,
 									treePath: oe,
 								},
-								result: { internalClassName: 'ss__recommendation__result', ...(0, q.s)({ disableStyles: ve }), theme: n?.theme, treePath: oe },
+								result: { internalClassName: 'ss__recommendation__result', ...(0, q.s)({ disableStyles: ve }), theme: r?.theme, treePath: oe },
 							},
 							Re = !!x.filter((t) => t.bundleSeed == !0).length;
-						let me = n.carousel?.slidesPerView || n.slidesPerView;
+						let me = r.carousel?.slidesPerView || r.slidesPerView;
 						me ? x.length < Number(me) && (me = x.length) : (me = 2);
-						const Qe = (0, ne.Z)({ ...n, carousel: { ...Ee, slidesPerView: me }, hasSeed: Re, carouselEnabled: Se }, Te),
+						const Qe = (0, re.Z)({ ...r, carousel: { ...we, slidesPerView: me }, hasSeed: Re, carouselEnabled: Se }, Te),
 							je = typeof v == 'number' ? v : Se ? me : x.length;
 						(0, g.vJ)(() => {
 							O.reset(),
@@ -612,14 +612,14 @@
 								);
 							};
 							if (!(d.theme?.name || _.name))
-								Object.keys(n.breakpoints).forEach((m) => {
-									const h = n.breakpoints[m],
+								Object.keys(r.breakpoints).forEach((m) => {
+									const h = r.breakpoints[m],
 										{ slidesPerView: Z, slidesPerGroup: Q } = t(h);
 									Ae[m] = { ...Ae[m], slidesPerView: Z, slidesPerGroup: Q };
 								});
 							else {
-								const { slidesPerView: m, slidesPerGroup: h } = t({ ...Ee, slidesPerView: me });
-								p = { ...Ee, slidesPerView: m, slidesPerGroup: h };
+								const { slidesPerView: m, slidesPerGroup: h } = t({ ...we, slidesPerView: me });
+								p = { ...we, slidesPerView: m, slidesPerGroup: h };
 							}
 						}
 						const De = (t) => {
@@ -641,12 +641,12 @@
 							Ve = (0, g.li)(null);
 						(!Me?.enabled || (0, u.v)(Ve, `${Me.offset} 0px ${Me.offset} 0px`, !0)) && es(!0);
 						const ss = {
-								seedText: { value: C },
+								seedText: { value: B },
 								ctaButtonText: { value: ce },
 								ctaButtonSuccessText: { value: J },
 								ctaSubtotalTitle: { value: `Subtotal for ${O.count} items` },
 							},
-							H = M()(ss, n.lang || {}),
+							H = M()(ss, r.lang || {}),
 							Ke = (0, g.Kr)(
 								() =>
 									x.map((t, m) => {
@@ -658,25 +658,25 @@
 											},
 											checked: Z,
 											hideCheckboxes: z,
-											theme: n.theme,
-											icon: we ? !1 : G,
+											theme: r.theme,
+											icon: be ? !1 : G,
 											className: m + 1 == x.length ? 'ss__recommendation-bundle__wrapper__selector--last' : '',
 											classNamePrefix: l,
 											treePath: oe,
 										};
 										return (
-											h && (Q = { ...Q, seedText: C, seed: !0, icon: G, lang: { seedText: H.seedText } }),
-											!h || ((de || b?.enabled == !1) && h && !te)
+											h && (Q = { ...Q, seedText: B, seed: !0, icon: G, lang: { seedText: H.seedText } }),
+											!h || ((de || T?.enabled == !1) && h && !te)
 												? (0, s.Y)(
 														ae.o,
 														{
 															controller: a,
 															result: t,
 															track: { impression: !h },
-															children: (0, s.Y)(D, {
+															children: (0, s.Y)(w, {
 																...Q,
 																children: se
-																	? (0, w.Y)(se, { controller: a, treePath: oe, result: t, seed: h, selected: Z, onProductSelect: De })
+																	? (0, b.Y)(se, { controller: a, treePath: oe, result: t, seed: h, selected: Z, onProductSelect: De })
 																	: (0, s.Y)(Y.Q, { ...Ne.result, controller: a, result: t }),
 															}),
 														},
@@ -685,7 +685,7 @@
 												: null
 										);
 									}),
-								[x, pe, z, we, G, de, te, se, n.theme, C]
+								[x, pe, z, be, G, de, te, se, r.theme, B]
 							);
 						return (
 							xe && delete H.seedText.value,
@@ -699,7 +699,7 @@
 												? (0, s.FD)(he.l, {
 														controller: a,
 														children: [
-															r && (0, s.Y)('h3', { className: `${l}__title`, children: (0, s.Y)('span', { children: r }) }),
+															n && (0, s.Y)('h3', { className: `${l}__title`, children: (0, s.Y)('span', { children: n }) }),
 															P &&
 																(0, s.Y)('p', { className: 'ss__recommendation-bundle__description', children: (0, s.Y)('span', { children: P }) }),
 															(0, s.FD)('div', {
@@ -717,8 +717,8 @@
 																								controller: a,
 																								result: $,
 																								track: { impression: !1 },
-																								children: (0, s.Y)(D, {
-																									seedText: C,
+																								children: (0, s.Y)(w, {
+																									seedText: B,
 																									seed: !0,
 																									title: $.display.mappings.core?.name,
 																									onCheck: (t) => {
@@ -727,7 +727,7 @@
 																									checked: pe.findIndex((t) => t.id == $.id) > -1,
 																									icon: G,
 																									hideCheckboxes: z,
-																									theme: n.theme,
+																									theme: r.theme,
 																									ref: $e,
 																									treePath: oe,
 																									classNamePrefix: l,
@@ -820,41 +820,41 @@
 						);
 					});
 			},
-			'./components/src/components/Trackers/Recommendation/ProfileTracker/RecommendationProfileTracker.tsx'(be, k, e) {
+			'./components/src/components/Trackers/Recommendation/ProfileTracker/RecommendationProfileTracker.tsx'(Ee, k, e) {
 				e.d(k, { l: () => X });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					B = e('../../node_modules/preact/dist/preact.module.js'),
+					S = e('../../node_modules/preact/dist/preact.module.js'),
 					j = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					I = e('../../node_modules/mobx-react-lite/es/index.js'),
 					g = e('../../node_modules/classnames/index.js'),
 					L = e.n(g),
-					re = e('./components/src/utilities/mergeStyles.ts');
+					ne = e('./components/src/utilities/mergeStyles.ts');
 				const M = () => (0, j.AH)({}),
 					X = (0, I.PA)((Y) => {
-						const { children: V, className: q, internalClassName: ne } = Y,
-							w = (0, B.v2)(V),
-							K = (0, re.Z)(Y, M);
-						return w.length ? (0, s.Y)('div', { className: L()('ss__recommendation-profile-tracker', q, ne), ...K, children: V }) : null;
+						const { children: V, className: q, internalClassName: re } = Y,
+							b = (0, S.v2)(V),
+							K = (0, ne.Z)(Y, M);
+						return b.length ? (0, s.Y)('div', { className: L()('ss__recommendation-profile-tracker', q, re), ...K, children: V }) : null;
 					});
 			},
-			'./components/src/components/Trackers/ResultTracker/ResultTracker.tsx'(be, k, e) {
+			'./components/src/components/Trackers/ResultTracker/ResultTracker.tsx'(Ee, k, e) {
 				e.d(k, { o: () => Y });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					S = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					j = e('../../node_modules/mobx-react-lite/es/index.js'),
 					I = e('../../node_modules/classnames/index.js'),
 					g = e.n(I),
 					L = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
-					re = e('./components/src/utilities/mergeProps.ts'),
+					ne = e('./components/src/utilities/mergeProps.ts'),
 					M = e('./components/src/utilities/createImpressionObserver.ts');
-				const X = { ResultTracker: () => (0, B.AH)({}) },
+				const X = { ResultTracker: () => (0, S.AH)({}) },
 					Y = (0, j.PA)((V) => {
 						const q = (0, L.u)(),
-							ne = (0, re.v6)('resultTracker', q, {}, V),
-							w = { impression: !0, click: !0 },
-							{ children: K, result: _e, track: ge, controller: ie, className: he, internalClassName: ae, disableStyles: Pe, style: W } = ne,
-							le = { ...w, ...ge },
-							{ ref: D, inViewport: N } = (0, M.Q)();
+							re = (0, ne.v6)('resultTracker', q, {}, V),
+							b = { impression: !0, click: !0 },
+							{ children: K, result: _e, track: ge, controller: ie, className: he, internalClassName: ae, disableStyles: Pe, style: W } = re,
+							le = { ...b, ...ge },
+							{ ref: w, inViewport: N } = (0, M.Q)();
 						N && le.impression && ie?.track.product.impression(_e);
 						const ee = {};
 						return (
@@ -864,16 +864,16 @@
 								onClick: (fe) => {
 									le.click && ie?.track.product.click(fe, _e);
 								},
-								ref: D,
+								ref: w,
 								...ee,
 								children: K,
 							})
 						);
 					});
 			},
-			'./components/src/utilities/componentNameToClassName.ts'(be, k, e) {
+			'./components/src/utilities/componentNameToClassName.ts'(Ee, k, e) {
 				e.d(k, { b: () => s });
-				const s = (B) => B.replace(/([A-Z])/g, (j) => '-' + j.toLowerCase());
+				const s = (S) => S.replace(/([A-Z])/g, (j) => '-' + j.toLowerCase());
 			},
 		},
 	]);

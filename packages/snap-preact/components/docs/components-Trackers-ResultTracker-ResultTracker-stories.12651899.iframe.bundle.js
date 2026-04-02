@@ -11,11 +11,11 @@
 					r = t('./components/src/utilities/storybook.tsx'),
 					e = t('./components/src/utilities/componentArgs.ts');
 				const s =
-					"# ResultTracker\n\nAdds impression, render and click tracking to an individual result within a controller. When using the Results component, it will already contain this component.\n\nThis component is used for Beacon 2.0 tracking and replaces the need for using the `RecommendationResultTracker` as well as the `RecommendationProfileTracker`.\n\n## Usage\n```jsx\nimport { ResultTracker } from '@athoscommerce/snap-preact/components';\n```\n\n### controller\nThe required `controller` prop specifies a reference to a Controller object.\n\n```jsx\n<ResultTracker controller={controller} result={result}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n\n### children\nThe required `children` prop specifies the contents of the result component (the tracker is a wrapper around this). \n\n```jsx\n<ResultTracker controller={controller} result={result}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n\n### result\nThe required `result` prop specifies a reference to a product object from the `results` store array. This reference is used when gathering the required data to track.\n\n```jsx\n<ResultTracker controller={controller} result={result}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n\n### track\nThe `track` prop is an object that allows for the disabling of parts of the tracking functionality. The keys are `render`, `impression` and `click` - setting them to false prevents the tracking event for the result. The following example would disable all events except for the click tracking.\n\n```jsx\n<ResultTracker controller={controller} result={result} track={{ render: false, impression: false }}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n";
+					"# ResultTracker\n\nAdds impression, render and click tracking to an individual result within a controller. When using the Results component, it will already contain this component.\n\nThis component is used for Beacon 2.0 tracking and replaces the need for using the `RecommendationResultTracker` as well as the `RecommendationProfileTracker`.\n\nAlternatively, the `withTracking` HoC can also be used to track the same events. It also removes the additional `div` element that ResultTracker adds.\n\n## Usage\n```jsx\nimport { ResultTracker } from '@athoscommerce/snap-preact/components';\n```\n\n### controller\nThe required `controller` prop specifies a reference to a Controller object.\n\n```jsx\n<ResultTracker controller={controller} result={result}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n\n### children\nThe required `children` prop specifies the contents of the result component (the tracker is a wrapper around this). \n\n```jsx\n<ResultTracker controller={controller} result={result}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n\n### result\nThe required `result` prop specifies a reference to a product object from the `results` store array. This reference is used when gathering the required data to track.\n\n```jsx\n<ResultTracker controller={controller} result={result}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n\n### track\nThe `track` prop is an object that allows for the disabling of parts of the tracking functionality. The keys are `render`, `impression` and `click` - setting them to false prevents the tracking event for the result. The following example would disable all events except for the click tracking.\n\n```jsx\n<ResultTracker controller={controller} result={result} track={{ render: false, impression: false }}>\n	<Result result={result}></Result>\n</ResultTracker>\n```\n";
 				var n = t('./components/src/utilities/snapify.ts'),
 					c = t('./components/src/components/Molecules/Result/Result.tsx');
 				const R = {
-						title: 'Trackers/Result',
+						title: 'Trackers/ResultTracker',
 						component: u.o,
 						tags: ['autodocs'],
 						parameters: {
@@ -90,17 +90,17 @@
 						const g = (0, s.u)(),
 							m = (0, n.v6)('resultTracker', g, {}, f),
 							v = { impression: !0, click: !0 },
-							{ children: P, result: E, track: I, controller: p, className: O, internalClassName: D, disableStyles: j, style: l } = m,
-							i = { ...v, ...I },
+							{ children: P, result: E, track: D, controller: p, className: O, internalClassName: k, disableStyles: j, style: l } = m,
+							i = { ...v, ...D },
 							{ ref: h, inViewport: T } = (0, c.Q)();
 						T && i.impression && p?.track.product.impression(E);
 						const d = {};
 						return (
 							j ? l && (d.css = [l]) : (d.css = [R.ResultTracker(), l]),
 							(0, o.Y)('div', {
-								className: e()('ss__result-tracker', `ss__${p?.type}-result-tracker`, O, D),
-								onClick: (k) => {
-									i.click && p?.track.product.click(k, E);
+								className: e()('ss__result-tracker', `ss__${p?.type}-result-tracker`, O, k),
+								onClick: (I) => {
+									i.click && p?.track.product.click(I, E);
 								},
 								ref: h,
 								...d,
@@ -120,7 +120,7 @@
 							m = (0, o.li)(null),
 							v = (0, o.li)(null),
 							[P, E] = (0, o.J0)(0),
-							I = (0, o.hb)((p) => {
+							D = (0, o.hb)((p) => {
 								(e.current = p), E((O) => O + 1);
 							}, []);
 						return (
@@ -129,7 +129,7 @@
 								let p = null,
 									O = null;
 								if (!window.IntersectionObserver || !e.current) return;
-								const D = () => {
+								const k = () => {
 										O && (window.clearInterval(O), (O = null));
 									},
 									j = () => {
@@ -149,27 +149,27 @@
 										([i]) => {
 											i.isIntersecting
 												? e.current && r(e.current)
-													? (D(), j())
+													? (k(), j())
 													: (l(),
 													  O ||
 															(O = window.setInterval(() => {
 																if (!e.current) {
-																	D();
+																	k();
 																	return;
 																}
-																r(e.current) && (D(), j());
+																r(e.current) && (k(), j());
 															}, _)))
-												: (D(), l());
+												: (k(), l());
 										},
 										{ rootMargin: n, threshold: R }
 									)),
 									e.current && p.observe(e.current),
 									() => {
-										g(!1), D(), m.current && window.clearTimeout(m.current), p && e.current && p.unobserve(e.current);
+										g(!1), k(), m.current && window.clearTimeout(m.current), p && e.current && p.unobserve(e.current);
 									}
 								);
 							}, [e, P]),
-							{ inViewport: f, updateRef: I }
+							{ inViewport: f, updateRef: D }
 						);
 					};
 				function r(e) {
@@ -236,15 +236,15 @@
 					P = t('../../node_modules/@athoscommerce/snap-tracker/dist/esm/Tracker.js');
 				(0, o.jK)({ useProxies: 'always', isolateGlobalState: !0, enforceActions: 'never' });
 				const E = {},
-					I = { globals: { siteId: 'atkzs2' } };
+					D = { globals: { siteId: 'atkzs2' } };
 				class p {
 					static recommendation(i) {
 						const h = i.id;
 						if (E[h]) return E[h];
-						const T = (E[h] = D({ client: I, controller: i }));
+						const T = (E[h] = k({ client: D, controller: i }));
 						return (
-							T.on('afterStore', async ({ controller: d }, k) => {
-								d.log.debug('controller', d), d.log.debug('store', d.store.toJSON()), await k();
+							T.on('afterStore', async ({ controller: d }, I) => {
+								d.log.debug('controller', d), d.log.debug('store', d.store.toJSON()), await I();
 							}),
 							T.init(),
 							T
@@ -253,10 +253,10 @@
 					static autocomplete(i) {
 						const h = i.id;
 						if (E[h]) return E[h];
-						const T = (E[h] = j({ client: I, controller: i }));
+						const T = (E[h] = j({ client: D, controller: i }));
 						return (
-							T.on('afterStore', async ({ controller: d }, k) => {
-								d.log.debug('controller', d), d.log.debug('store', d.store.toJSON()), await k();
+							T.on('afterStore', async ({ controller: d }, I) => {
+								d.log.debug('controller', d), d.log.debug('store', d.store.toJSON()), await I();
 							}),
 							T.init(),
 							T
@@ -265,10 +265,10 @@
 					static search(i) {
 						const h = i.id;
 						if (E[h]) return E[h];
-						const T = (E[h] = O({ client: I, controller: i }));
+						const T = (E[h] = O({ client: D, controller: i }));
 						return (
-							T.on('afterStore', async ({ controller: d }, k) => {
-								d.log.debug('controller', d), d.log.debug('store', d.store.toJSON()), await k();
+							T.on('afterStore', async ({ controller: d }, I) => {
+								d.log.debug('controller', d), d.log.debug('store', d.store.toJSON()), await I();
 							}),
 							T.init(),
 							T
@@ -287,7 +287,7 @@
 						tracker: new P.J(l.client.globals),
 					});
 				}
-				function D(l) {
+				function k(l) {
 					const i = new R.V(new f.E(), y.X).detach(!0);
 					return new r.c(l.controller, {
 						client: new e.K(l.client.globals, l.client.config),
@@ -384,4 +384,4 @@
 	]);
 })();
 
-//# sourceMappingURL=components-Trackers-ResultTracker-ResultTracker-stories.e38b7fbf.iframe.bundle.js.map
+//# sourceMappingURL=components-Trackers-ResultTracker-ResultTracker-stories.12651899.iframe.bundle.js.map

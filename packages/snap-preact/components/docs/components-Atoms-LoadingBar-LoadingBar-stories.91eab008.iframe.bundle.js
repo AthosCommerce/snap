@@ -1,12 +1,12 @@
 (() => {
 	(self.webpackChunk_athoscommerce_snap_preact = self.webpackChunk_athoscommerce_snap_preact || []).push([
-		[7573],
+		[1314],
 		{
-			'./components/src/components/Atoms/Loading/LoadingBar.stories.tsx'(c, t, e) {
+			'./components/src/components/Atoms/LoadingBar/LoadingBar.stories.tsx'(c, t, e) {
 				'use strict';
 				e.r(t), e.d(t, { Active: () => a, __namedExportsOrder: () => p, default: () => u });
 				var o = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					r = e('./components/src/components/Atoms/Loading/LoadingBar.tsx'),
+					r = e('./components/src/components/Atoms/LoadingBar/LoadingBar.tsx'),
 					i = e('./components/src/utilities/storybook.tsx'),
 					l = e('./components/src/utilities/componentArgs.ts'),
 					s = e('../../node_modules/@storybook/blocks/dist/index.mjs');
@@ -62,7 +62,7 @@
 					});
 				const p = ['Active'];
 			},
-			'./components/src/components/Atoms/Loading/LoadingBar.tsx'(c, t, e) {
+			'./components/src/components/Atoms/LoadingBar/LoadingBar.tsx'(c, t, e) {
 				'use strict';
 				e.d(t, { G: () => v });
 				var o = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),

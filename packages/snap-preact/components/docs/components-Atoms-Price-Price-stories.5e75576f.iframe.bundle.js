@@ -23,14 +23,14 @@
 			},
 			'./components/src/components/Atoms/Price/Price.stories.tsx'(p, r, e) {
 				'use strict';
-				e.r(r), e.d(r, { CustomCurrency: () => u, Default: () => m, __namedExportsOrder: () => h, default: () => l, lineThrough: () => i });
+				e.r(r), e.d(r, { CustomCurrency: () => u, Default: () => m, __namedExportsOrder: () => g, default: () => l, lineThrough: () => i });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					n = e('../../node_modules/@storybook/blocks/dist/index.mjs'),
 					a = e('./components/src/components/Atoms/Price/Price.tsx'),
 					c = e('./components/src/utilities/storybook.tsx'),
 					s = e('./components/src/utilities/componentArgs.ts');
 				const o =
-						"# Price\n\nUtilizes `currency` from [@athoscommerce/snap-preact/toolbox](https://athoscommerce.github.io/snap/#/package-toolbox) to render a `<span>` containing a formatted number.\n\n## Usage\n```jsx\nimport { Price } from '@athoscommerce/snap-preact/components';\n```\n\nThe `Price` component utilizes all props from the `FormattedNumber` component with the following additional prop:\n\n### lineThrough\nThe `lineThrough` prop will style the formatted number with a line-through.\n\n```jsx\n<Price value={1099.99} symbol=' \u20AC' lineThrough={true} thousandsSeparator='.' decimalSeparator=',' symbolAfter={true} />\n```\nFormatted output from above properties: ~~`1.099,99 \u20AC`~~\n",
+						"# Price\n\nUtilizes `currency` from <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://athoscommerce.github.io/snap/reference-toolbox-filters\">@athoscommerce/snap-toolbox</a> to render a `<span>` containing a formatted number.\n\n## Usage\n```jsx\nimport { Price } from '@athoscommerce/snap-preact/components';\n```\n\nThe `Price` component utilizes all props from the `FormattedNumber` component with the following additional prop:\n\n### lineThrough\nThe `lineThrough` prop will style the formatted number with a line-through.\n\n```jsx\n<Price value={1099.99} symbol=' \u20AC' lineThrough={true} thousandsSeparator='.' decimalSeparator=',' symbolAfter={true} />\n```\nFormatted output from above properties: ~~`1.099,99 \u20AC`~~\n",
 					l = {
 						title: 'Atoms/Price',
 						component: a.g,
@@ -119,7 +119,7 @@
 						...u.parameters,
 						docs: { ...u.parameters?.docs, source: { originalSource: '(args: PriceProps) => <Price {...args} />', ...u.parameters?.docs?.source } },
 					});
-				const h = ['Default', 'lineThrough', 'CustomCurrency'];
+				const g = ['Default', 'lineThrough', 'CustomCurrency'];
 			},
 			'./components/src/components/Atoms/Price/Price.tsx'(p, r, e) {
 				'use strict';
@@ -137,7 +137,7 @@
 					m = e('./components/src/providers/treePath.tsx'),
 					i = e('./components/src/providers/cache.tsx'),
 					u = e('./components/src/utilities/mergeProps.ts'),
-					h = e('./components/src/utilities/mergeStyles.ts');
+					g = e('./components/src/utilities/mergeStyles.ts');
 				const d = ({ theme: y }) =>
 					(0, c.AH)({ color: y?.variables?.colors?.primary, '&.ss__price--strike': { textDecoration: 'line-through', color: 'initial' } });
 				function j(y) {
@@ -166,19 +166,19 @@
 							className: Y,
 							internalClassName: E,
 						} = v;
-					let g;
-					x && (g = a(x, { symbol: '', decimalPlaces: C, padDecimalPlaces: A, thousandsSeparator: D, decimalSeparator: V }));
-					const O = (0, h.Z)(v, d);
-					return g
+					let h;
+					x && (h = a(x, { symbol: '', decimalPlaces: C, padDecimalPlaces: A, thousandsSeparator: D, decimalSeparator: V }));
+					const O = (0, g.Z)(v, d);
+					return h
 						? L
-							? (0, t.Y)(t.FK, { children: g })
+							? (0, t.Y)(t.FK, { children: h })
 							: (0, t.Y)(i._, {
 									children: (0, t.FD)('span', {
 										...O,
 										className: o()('ss__price', { 'ss__price--strike': N }, Y, E),
 										children: [
 											f && !T ? (0, t.Y)('span', { className: 'ss__price__symbol', children: f }) : (0, t.Y)(t.FK, {}),
-											(0, t.Y)('span', { className: 'ss__price__value', children: g }),
+											(0, t.Y)('span', { className: 'ss__price__value', children: h }),
 											f && T ? (0, t.Y)('span', { className: 'ss__price__symbol', children: f }) : (0, t.Y)(t.FK, {}),
 										],
 									}),

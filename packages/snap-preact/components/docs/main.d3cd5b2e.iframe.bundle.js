@@ -2,9 +2,9 @@
 	(self.webpackChunk_athoscommerce_snap_preact = self.webpackChunk_athoscommerce_snap_preact || []).push([
 		[8792],
 		{
-			'./components/.storybook/preview.tsx'(oe, L, o) {
+			'./components/.storybook/preview.tsx'(oe, W, o) {
 				'use strict';
-				o.r(L), o.d(L, { decorators: () => ot, globalTypes: () => xo, parameters: () => Kt });
+				o.r(W), o.d(W, { decorators: () => ot, globalTypes: () => xo, parameters: () => Kt });
 				var t = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					N = o('../../node_modules/@storybook/addon-themes/dist/index.mjs'),
 					p = o('@storybook/preview-api'),
@@ -17,7 +17,7 @@
 					E = o('../../node_modules/@athoscommerce/snap-client/dist/esm/Client/Client.js'),
 					J = o('../../node_modules/@athoscommerce/snap-logger/dist/esm/Logger.js'),
 					R = o('../../node_modules/@athoscommerce/snap-tracker/dist/esm/Tracker.js'),
-					ee = o('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/types.js'),
+					q = o('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/types.js'),
 					ne = o('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/getContext/getContext.js'),
 					de = o('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/url/url.js'),
 					te = o('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/cookies/cookies.js'),
@@ -37,11 +37,11 @@
 						return (
 							Object.keys(T).forEach((k) => {
 								const M = T[k].action || 'merge',
-									{ state: W } = T[k],
+									{ state: L } = T[k],
 									j = T[k].ignoreParameters || [],
 									ae = T[k].useGlobalIgnoreParameters ?? !0 ? m.concat(j) : j,
 									Y = Object.keys(c.state).filter((G) => !ae.includes(G)).length == 0;
-								W && Y && Te.includes(M) && (P = P[M](k, W));
+								L && Y && Te.includes(M) && (P = P[M](k, L));
 							}),
 							P
 						);
@@ -150,7 +150,7 @@ This usually happens when you pass a JSX Element, and not a function that return
 The error above happened in the following targeter in the Snap Config`;
 				class ft {
 					constructor(f, T) {
-						(this.mode = ee.$.production),
+						(this.mode = q.$.production),
 							(this._instantiatorPromises = {}),
 							(this._controllerPromises = {}),
 							(this.controllers = {}),
@@ -161,18 +161,18 @@ The error above happened in the following targeter in the Snap Config`;
 								const c = [];
 								return m.forEach((P) => c.push(this.getController(P))), Promise.all(c);
 							}),
-							(this.createController = async (m, c, P, k, M, W) => {
+							(this.createController = async (m, c, P, k, M, L) => {
 								if (typeof this._controllerPromises[c.id] < 'u') throw new Error(`Controller with id '${c.id}' is already defined`);
 								return (
 									(this._controllerPromises[c.id] = new Promise((j) =>
 										this._createController(m, c, P, k, M, async (y) => {
-											typeof W == 'function' && (await W(y)), j(y);
+											typeof L == 'function' && (await L(y)), j(y);
 										})
 									)),
 									this._controllerPromises[c.id]
 								);
 							}),
-							(this._createController = async (m, c, P, k, M, W) => {
+							(this._createController = async (m, c, P, k, M, L) => {
 								let j;
 								switch (m) {
 									case Be.k.autocomplete:
@@ -206,7 +206,7 @@ The error above happened in the following targeter in the Snap Config`;
 													tracker: P?.tracker || this.tracker,
 												}
 											))),
-									W && (await W(this.controllers[c.id])),
+									L && (await L(this.controllers[c.id])),
 									this.controllers[c.id]
 								);
 							}),
@@ -224,13 +224,13 @@ The error above happened in the following targeter in the Snap Config`;
 										],
 										k = {};
 									let M = 0,
-										W = null;
-									for (W = m && m.target; Object.keys(k).length == 0 && W !== null && M <= Yt; )
-										Object.values(W.attributes).forEach((j) => {
+										L = null;
+									for (L = m && m.target; Object.keys(k).length == 0 && L !== null && M <= Yt; )
+										Object.values(L.attributes).forEach((j) => {
 											const y = j.nodeName;
-											P.indexOf(y) != -1 && (k[y] = W && W.getAttribute(y));
+											P.indexOf(y) != -1 && (k[y] = L && L.getAttribute(y));
 										}),
-											(W = W.parentElement),
+											(L = L.parentElement),
 											M++;
 									if (k[`ss-${c}-cart-add`]) {
 										const j = k[`ss-${c}-cart-add`].split(',');
@@ -257,10 +257,10 @@ The error above happened in the following targeter in the Snap Config`;
 													colno: P,
 													lineno: k,
 													error: { stack: M },
-													message: W,
+													message: L,
 													timeStamp: j,
 												} = m,
-												ae = { href: window.location.href, filename: c, stack: M, message: W, colno: P, lineno: k, errortimestamp: j };
+												ae = { href: window.location.href, filename: c, stack: M, message: L, colno: P, lineno: k, errortimestamp: j };
 											this.tracker.track.error(ae);
 										}
 									} catch {}
@@ -302,12 +302,12 @@ The error above happened in the following targeter in the Snap Config`;
 							const m = (0, de.O)(window.location.href),
 								c = m?.params?.query[Se] || te.U.get(Vt),
 								P = (typeof window < 'u' && window.location.hostname && '.' + window.location.hostname.replace(/^www\./, '')) || void 0;
-							Object.values(ee.$).includes('production') && (this.mode = 'production'),
-								this.config.mode && Object.values(ee.$).includes(this.config.mode) && (this.mode = this.config.mode),
+							Object.values(q.$).includes('production') && (this.mode = 'production'),
+								this.config.mode && Object.values(q.$).includes(this.config.mode) && (this.mode = this.config.mode),
 								((m?.params?.query && 'dev' in m.params.query) || te.U.get(Bt)) &&
 									(m?.params.query?.dev == 'false' || m?.params.query?.dev == '0'
-										? (te.U.unset(Bt, P), (this.mode = ee.$.production))
-										: (te.U.set(Bt, '1', 'Lax', 0, P), (this.mode = ee.$.development))),
+										? (te.U.unset(Bt, P), (this.mode = q.$.production))
+										: (te.U.set(Bt, '1', 'Lax', 0, P), (this.mode = q.$.development))),
 								this.config.client &&
 									((this.config.client.config = this.config.client.config || {}),
 									(this.config.client.config.initiator = `snap/preact/${ce.r}`),
@@ -319,9 +319,9 @@ The error above happened in the following targeter in the Snap Config`;
 							this.context.currency?.code && (k = H()(k || {}, { currency: this.context.currency })),
 								this.context.shopper?.cart && (k = H()(k || {}, { cart: this.context.shopper.cart }));
 							const M = window?.athos?.managed ? 'managed/' : '',
-								W = H()(this.config.tracker?.config || {}, { framework: `${M}snap/preact`, mode: this.mode });
+								L = H()(this.config.tracker?.config || {}, { framework: `${M}snap/preact`, mode: this.mode });
 							if (
-								((this.tracker = T?.tracker || new R.J(k, W)),
+								((this.tracker = T?.tracker || new R.J(k, L)),
 								this.logger.imageText({
 									url: 'https://snapui.athoscommerce.io/favicon.svg',
 									text: `[${ce.r}]`,
@@ -359,7 +359,7 @@ The error above happened in the following targeter in the Snap Config`;
 												},
 											},
 										],
-										async (G, q) => {
+										async (G, ee) => {
 											const xe = {};
 											try {
 												const Ge = (await o.e(4340).then(o.bind(o, './src/getBundleDetails/getBundleDetails.ts'))).getBundleDetails;
@@ -380,7 +380,7 @@ The error above happened in the following targeter in the Snap Config`;
 														_t && _t != window.location.href ? (window.location.href = _t) : window.location.reload();
 													},
 												}),
-												q
+												ee
 											);
 											try {
 												delete window.athos;
@@ -443,7 +443,7 @@ The error above happened in the following targeter in the Snap Config`;
 													(window.athos.controller[k.config.id] = this.controllers[k.config.id] = k),
 													(this._controllerPromises[k.config.id] = new Promise((y) => y(k)));
 												let M = null;
-												const W = async () => (
+												const L = async () => (
 														M ||
 															(c.url?.initial && ke(c.url.initial, k.urlManager).go({ history: 'replace' }),
 															(M = this.controllers[c.config.id].search())),
@@ -451,9 +451,9 @@ The error above happened in the following targeter in the Snap Config`;
 													),
 													j = async (y, ae, Y) => {
 														const G = [];
-														y.renderAfterSearch ? G.push(W()) : (G.push(Promise.resolve()), W());
-														const q = y.onTarget;
-														q && (await q(y, ae, Y));
+														y.renderAfterSearch ? G.push(L()) : (G.push(Promise.resolve()), L());
+														const ee = y.onTarget;
+														ee && (await ee(y, ae, Y));
 														try {
 															G.push(y.component());
 															const [xe, pe] = await Promise.all(G);
@@ -468,15 +468,15 @@ The error above happened in the following targeter in the Snap Config`;
 													if (!y.selector) throw new Error(`Targets at index ${ae} missing selector value (string).`);
 													if (!y.component) throw new Error(`Targets at index ${ae} missing component value (Component).`);
 													const Y = this.context.pageType && `${this.context.pageType}`.toLowerCase().trim();
-													(y.prefetch || ['search', 'category'].includes(Y)) && (W(), y.component()),
-														k.createTargeter({ controller: k, ...y }, async (G, q, xe) => {
-															if (G && G.skeleton && q) {
+													(y.prefetch || ['search', 'category'].includes(Y)) && (L(), y.component()),
+														k.createTargeter({ controller: k, ...y }, async (G, ee, xe) => {
+															if (G && G.skeleton && ee) {
 																const pe = await G.skeleton();
 																setTimeout(() => {
-																	(0, A.XX)((0, t.Y)(pe, {}), q);
+																	(0, A.XX)((0, t.Y)(pe, {}), ee);
 																});
 															}
-															await j(G, q, xe);
+															await j(G, ee, xe);
 														});
 												});
 											} catch (k) {
@@ -494,7 +494,7 @@ The error above happened in the following targeter in the Snap Config`;
 											this._controllerPromises[c.config.id] = new Promise(async (k) => {
 												try {
 													let M = !1;
-													const W = () => {
+													const L = () => {
 															M ||
 																((M = !0),
 																setTimeout(() => {
@@ -505,21 +505,21 @@ The error above happened in the following targeter in the Snap Config`;
 															const G = y.onTarget;
 															G && (await G(y, ae, Y));
 															try {
-																const q = [];
-																q.push(y.component());
-																const pe = (await Promise.all(q))[0];
+																const ee = [];
+																ee.push(y.component());
+																const pe = (await Promise.all(ee))[0];
 																setTimeout(() => {
 																	(0, A.XX)((0, t.Y)(pe, { controller: this.controllers[c.config.id], input: Y, snap: this, ...y.props }), ae);
 																});
-															} catch (q) {
-																this.logger.error(q), this.logger.error(me, y);
+															} catch (ee) {
+																this.logger.error(ee), this.logger.error(me, y);
 															}
 														};
 													(!c?.targeters || c?.targeters.length === 0) &&
 														(await this._createController(Be.k.autocomplete, c.config, c.services, c.url, c.context, (y) => {
 															y && k(y);
 														}),
-														W()),
+														L()),
 														c?.targeters?.forEach((y, ae) => {
 															if (!y.selector) throw new Error(`Targets at index ${ae} missing selector value (string).`);
 															if (!y.component) throw new Error(`Targets at index ${ae} missing component value (Component).`);
@@ -532,8 +532,8 @@ The error above happened in the following targeter in the Snap Config`;
 																				const G = document.createElement('div');
 																				return (
 																					(G.className = 'ss__autocomplete--target'),
-																					G.addEventListener('click', (q) => {
-																						q.stopPropagation();
+																					G.addEventListener('click', (ee) => {
+																						ee.stopPropagation();
 																					}),
 																					G
 																				);
@@ -542,11 +542,11 @@ The error above happened in the following targeter in the Snap Config`;
 																		...y,
 																	},
 																],
-																async (G, q, xe) => {
+																async (G, ee, xe) => {
 																	const pe = await this._createController(Be.k.autocomplete, c.config, c.services, c.url, c.context, (Ge) => {
 																		Ge && k(Ge);
 																	});
-																	W(), j({ controller: pe, ...G }, q, xe), pe.addTargeter(Y);
+																	L(), j({ controller: pe, ...G }, ee, xe), pe.addTargeter(Y);
 																}
 															);
 														});
@@ -566,19 +566,19 @@ The error above happened in the following targeter in the Snap Config`;
 											this._controllerPromises[c.config.id] = new Promise((k) => {
 												try {
 													let M = !1;
-													const W = () => {
+													const L = () => {
 															M || (this.controllers[c.config.id].search(), (M = !0));
 														},
 														j = async (y, ae, Y) => {
 															const G = y.onTarget;
 															G && (await G(y, ae, Y));
 															try {
-																const q = await y.component();
+																const ee = await y.component();
 																setTimeout(() => {
-																	(0, A.XX)((0, t.Y)(q, { controller: this.controllers[c.config.id], snap: this, ...y.props }), ae);
+																	(0, A.XX)((0, t.Y)(ee, { controller: this.controllers[c.config.id], snap: this, ...y.props }), ae);
 																});
-															} catch (q) {
-																this.logger.error(q), this.logger.error(me, y);
+															} catch (ee) {
+																this.logger.error(ee), this.logger.error(me, y);
 															}
 														};
 													(!c?.targeters || c?.targeters.length === 0) &&
@@ -588,11 +588,11 @@ The error above happened in the following targeter in the Snap Config`;
 														c?.targeters?.forEach((y, ae) => {
 															if (!y.selector) throw new Error(`Targets at index ${ae} missing selector value (string).`);
 															if (!y.component) throw new Error(`Targets at index ${ae} missing component value (Component).`);
-															const Y = new _e.b([{ ...y }], async (G, q, xe) => {
+															const Y = new _e.b([{ ...y }], async (G, ee, xe) => {
 																const pe = await this._createController(Be.k.finder, c.config, c.services, c.url, c.context, (Ge) => {
 																	Ge && k(Ge);
 																});
-																W(), j({ controller: pe, ...G }, q, xe), pe.addTargeter(Y);
+																L(), j({ controller: pe, ...G }, ee, xe), pe.addTargeter(Y);
 															});
 														});
 												} catch (M) {
@@ -611,19 +611,19 @@ The error above happened in the following targeter in the Snap Config`;
 											this._controllerPromises[c.config.id] = new Promise((k) => {
 												try {
 													let M = !1;
-													const W = () => {
+													const L = () => {
 															M || (this.controllers[c.config.id].search(), (M = !0));
 														},
 														j = async (y, ae, Y) => {
 															const G = y.onTarget;
 															G && (await G(y, ae, Y));
 															try {
-																const q = await y.component();
+																const ee = await y.component();
 																setTimeout(() => {
-																	(0, A.XX)((0, t.Y)(q, { controller: this.controllers[c.config.id], snap: this, ...y.props }), ae);
+																	(0, A.XX)((0, t.Y)(ee, { controller: this.controllers[c.config.id], snap: this, ...y.props }), ae);
 																});
-															} catch (q) {
-																this.logger.error(q), this.logger.error(me, y);
+															} catch (ee) {
+																this.logger.error(ee), this.logger.error(me, y);
 															}
 														};
 													(!c?.targeters || c?.targeters.length === 0) &&
@@ -633,11 +633,11 @@ The error above happened in the following targeter in the Snap Config`;
 														c?.targeters?.forEach((y, ae) => {
 															if (!y.selector) throw new Error(`Targets at index ${ae} missing selector value (string).`);
 															if (!y.component) throw new Error(`Targets at index ${ae} missing component value (Component).`);
-															const Y = new _e.b([{ ...y }], async (G, q, xe) => {
+															const Y = new _e.b([{ ...y }], async (G, ee, xe) => {
 																const pe = await this._createController(Be.k.recommendation, c.config, c.services, c.url, c.context, (Ge) => {
 																	Ge && k(Ge);
 																});
-																W(), j({ controller: pe, ...G }, q, xe), pe.addTargeter(Y);
+																L(), j({ controller: pe, ...G }, ee, xe), pe.addTargeter(Y);
 															});
 														});
 												} catch (M) {
@@ -678,22 +678,22 @@ The error above happened in the following targeter in the Snap Config`;
 						{ loading: k } = T,
 						M = T.getTarget(m, $);
 					if (!M) return c.log.error(`Target "${$}" not found in store for type "${m}"`), null;
-					const W = T.library.getComponent(m, M.component);
+					const L = T.library.getComponent(m, M.component);
 					let j;
 					if (M.resultComponent && ((j = T.library.components.result[M.resultComponent]), !k && !j && !T.settings?.editMode)) {
-						const q = `Result component "${M.resultComponent}" not found in library for target "${$}"`;
-						c.log.error(q);
+						const ee = `Result component "${M.resultComponent}" not found in library for target "${$}"`;
+						c.log.error(ee);
 					}
 					const y = T?.themes?.[M.theme.location],
 						Y = (y && y[M.theme.name])?.theme;
 					if (!k && !Y && !T.settings?.editMode) {
-						const q = `Theme "${M.theme.name}" not found in library for target "${$}"`;
-						c.log.error(q);
+						const ee = `Theme "${M.theme.name}" not found in library for target "${$}"`;
+						c.log.error(ee);
 					}
 					let G = {};
 					return (
 						M.resultComponent && j && (G = { resultComponent: j }),
-						!k && Y && W
+						!k && Y && L
 							? (0, t.Y)(ue.Mz, {
 									snap: f,
 									children: (0, t.Y)(Et.a, {
@@ -702,7 +702,7 @@ The error above happened in the following targeter in the Snap Config`;
 											controller: c,
 											children: (0, t.Y)('div', {
 												className: `ss__template-select ss__theme__${Y.name}`,
-												children: (0, t.Y)(W, { controller: c, ...G, ...P }),
+												children: (0, t.Y)(L, { controller: c, ...G, ...P }),
 											}),
 										}),
 									}),
@@ -757,7 +757,7 @@ The error above happened in the following targeter in the Snap Config`;
 											],
 											async (k, M) => {
 												try {
-													const W = (
+													const L = (
 															await Promise.all([
 																o.e(6664),
 																o.e(5379),
@@ -780,7 +780,7 @@ The error above happened in the following targeter in the Snap Config`;
 													ae && y.registerController(ae),
 														Y && y.registerController(Y),
 														(0, A.XX)(
-															(0, t.Y)(W, {
+															(0, t.Y)(L, {
 																templatesStore: m,
 																editorStore: y,
 																snap: this,
@@ -788,14 +788,14 @@ The error above happened in the following targeter in the Snap Config`;
 																	te.U.unset(qt);
 																	const G = (0, de.O)(window.location.href);
 																	delete G?.params.query[Ce];
-																	const q = G?.url();
-																	q && q != window.location.href ? (window.location.href = q) : window.location.reload();
+																	const ee = G?.url();
+																	ee && ee != window.location.href ? (window.location.href = ee) : window.location.reload();
 																},
 															}),
 															M
 														);
-												} catch (W) {
-													console.error('Error rendering TemplateEditor:', W);
+												} catch (L) {
+													console.error('Error rendering TemplateEditor:', L);
 												}
 											}
 										);
@@ -861,34 +861,34 @@ The error above happened in the following targeter in the Snap Config`;
 									!k.resultComponent && v.theme.resultComponent && (k.resultComponent = v.theme.resultComponent);
 									const M = {
 										component: async () => {
-											const W = [];
+											const L = [];
 											switch (m) {
 												case 'default': {
 													const j = f.library.import.component.recommendation.default;
-													W.push(j[k.component]());
+													L.push(j[k.component]());
 													break;
 												}
 												case 'bundle': {
 													const j = f.library.import.component.recommendation.bundle;
-													W.push(j[k.component]());
+													L.push(j[k.component]());
 													break;
 												}
 												case 'email': {
 													const j = f.library.import.component.recommendation.email;
-													W.push(j[k.component]());
+													L.push(j[k.component]());
 													break;
 												}
 											}
 											return (
 												k.resultComponent &&
 													f.library.import.component.result[k.resultComponent] &&
-													W.push(f.library.import.component.result[k.resultComponent]()),
-												await Promise.all(W),
+													L.push(f.library.import.component.result[k.resultComponent]()),
+												await Promise.all(L),
 												Xt
 											);
 										},
 										props: { type: P, templatesStore: f },
-										onTarget: function (W, j, y, ae) {
+										onTarget: function (L, j, y, ae) {
 											k.selector = `#${ae.id}`;
 											const Y = f.addTarget(P, k);
 											(this.props = this.props || {}), (this.props.targetId = Y);
@@ -1017,7 +1017,7 @@ The error above happened in the following targeter in the Snap Config`;
 					ze = o('../../node_modules/style-loader/dist/runtime/insertBySelector.js'),
 					po = o.n(ze),
 					et = o('../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js'),
-					Lt = o.n(et),
+					Wt = o.n(et),
 					yt = o('../../node_modules/style-loader/dist/runtime/insertStyleElement.js'),
 					io = o.n(yt),
 					tt = o('../../node_modules/style-loader/dist/runtime/styleTagTransform.js'),
@@ -1025,21 +1025,21 @@ The error above happened in the following targeter in the Snap Config`;
 					lt = o('../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'),
 					ge = {};
 				(ge.styleTagTransform = lo()),
-					(ge.setAttributes = Lt()),
+					(ge.setAttributes = Wt()),
 					(ge.insert = po().bind(null, 'head')),
 					(ge.domAPI = Pt()),
 					(ge.insertStyleElement = io());
 				var we = Tt()(lt.A, ge);
 				const Je = lt.A && lt.A.locals ? lt.A.locals : void 0;
 				var je = o('./components/src/providers/treePath.tsx');
-				const Ye = new X({ config: { siteId: '8uyt2m', platform: 'other' }, theme: { extends: 'base' } });
-				Le(Ye, 'base', he.E),
-					Le(Ye, 'bocachica', ie.S),
-					Le(Ye, 'everest', Ze.H),
-					Le(Ye, 'matterhorn', Me.h),
-					Le(Ye, 'pike', pt.pike),
-					Le(Ye, 'snapnco', Oe.N),
-					Le(Ye, 'snappy', oo.m);
+				const Ye = new X({ config: { siteId: 'atkzs2', platform: 'other' }, theme: { extends: 'base' } });
+				We(Ye, 'base', he.E),
+					We(Ye, 'bocachica', ie.S),
+					We(Ye, 'everest', Ze.H),
+					We(Ye, 'matterhorn', Me.h),
+					We(Ye, 'pike', pt.pike),
+					We(Ye, 'snapnco', Oe.N),
+					We(Ye, 'snappy', oo.m);
 				const Qe = ['primary', 'secondary', 'accent', 'text'],
 					bo = 'themeColor_',
 					ct = 'themeDefaultColor_',
@@ -1076,21 +1076,21 @@ The error above happened in the following targeter in the Snap Config`;
 							const [T, $] = (0, p.useGlobals)(),
 								m = f.globals.theme || 'base';
 							(0, p.useEffect)(() => {
-								const W = Ye.templates.themes.library[m]?.theme?.variables?.colors;
-								if (W) {
+								const L = Ye.templates.themes.library[m]?.theme?.variables?.colors;
+								if (L) {
 									const j = {};
 									Qe.forEach((y) => {
-										j[`${ct}${y}`] = W[y] || '';
+										j[`${ct}${y}`] = L[y] || '';
 									}),
 										$(j);
 								}
 							}, [m]);
 							const c = {};
 							Qe.forEach((M) => {
-								const W = T[`${bo}${M}`];
-								W && (c[M] = W);
+								const L = T[`${bo}${M}`];
+								L && (c[M] = L);
 							});
-							const P = ({ theme: M, children: W }) => (0, t.Y)(wt, { theme: M, colorOverrides: c, children: W });
+							const P = ({ theme: M, children: L }) => (0, t.Y)(wt, { theme: M, colorOverrides: c, children: L });
 							return (0, N.gW)({
 								themes: {
 									snapnco: Ye.templates.themes.library.snapnco.theme,
@@ -1111,7 +1111,7 @@ The error above happened in the following targeter in the Snap Config`;
 						controls: { expanded: !0, disabled: !1 },
 						options: { showPanel: !0, storySort: { order: ['Documentation', 'Atoms', 'Molecules', 'Organisms', 'Templates', 'Trackers'] } },
 					};
-				function Le(v, f, T) {
+				function We(v, f, T) {
 					v.templates.addTheme({
 						name: f,
 						type: 'library',
@@ -1123,9 +1123,9 @@ The error above happened in the following targeter in the Snap Config`;
 					});
 				}
 			},
-			'./components/src/components/Atoms/Icon/Icon.tsx'(oe, L, o) {
+			'./components/src/components/Atoms/Icon/Icon.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { I: () => R });
+				o.d(W, { I: () => R });
 				var t = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					N = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					p = o('../../node_modules/classnames/index.js'),
@@ -1136,18 +1136,19 @@ The error above happened in the following targeter in the Snap Config`;
 					K = o('./components/src/components/Atoms/Icon/paths.tsx'),
 					D = o('./components/src/utilities/mergeProps.ts'),
 					E = o('./components/src/utilities/mergeStyles.ts');
-				const J = ({ color: ee, fill: ne, stroke: de, theme: te, width: ce, height: re, size: _e }) =>
+				const J = ({ color: q, fill: ne, stroke: de, theme: te, width: ce, height: re, size: _e }) =>
 					(0, N.AH)({
-						fill: ne || ee || te?.variables?.colors?.primary,
+						color: q || ne || te?.variables?.colors?.primary,
+						fill: ne || q || te?.variables?.colors?.primary,
 						stroke: de,
 						width: isNaN(Number(ce || _e)) ? ce || _e : `${ce || _e}px`,
 						height: isNaN(Number(re || _e)) ? re || _e : `${re || _e}px`,
 						position: 'relative',
 					});
-				function R(ee) {
+				function R(q) {
 					const ne = (0, e.u)(),
 						te = { size: '16px', viewBox: '0 0 56 56', treePath: (0, H.LU)() },
-						ce = (0, D.v6)('icon', ne, te, ee),
+						ce = (0, D.v6)('icon', ne, te, q),
 						{
 							color: re,
 							icon: _e,
@@ -1195,9 +1196,9 @@ The error above happened in the following targeter in the Snap Config`;
 						: null;
 				}
 			},
-			'./components/src/components/Atoms/Icon/paths.tsx'(oe, L, o) {
+			'./components/src/components/Atoms/Icon/paths.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { c: () => N });
+				o.d(W, { c: () => N });
 				const t = {
 						layoutGrid2:
 							'M25.846 34.461v12.923c0 2.356-1.952 4.308-4.308 4.308h-17.231c-2.356 0-4.308-1.952-4.308-4.308v-12.923c0-2.356 1.952-4.308 4.308-4.308h17.231c2.356 0 4.308 1.952 4.308 4.308zM25.846 8.615v12.923c0 2.356-1.952 4.308-4.308 4.308h-17.231c-2.356 0-4.308-1.952-4.308-4.308v-12.923c0-2.356 1.952-4.308 4.308-4.308h17.231c2.356 0 4.308 1.952 4.308 4.308zM56 34.461v12.923c0 2.356-1.952 4.308-4.308 4.308h-17.231c-2.356 0-4.308-1.952-4.308-4.308v-12.923c0-2.356 1.952-4.308 4.308-4.308h17.231c2.356 0 4.308 1.952 4.308 4.308zM56 8.615v12.923c0 2.356-1.952 4.308-4.308 4.308h-17.231c-2.356 0-4.308-1.952-4.308-4.308v-12.923c0-2.356 1.952-4.308 4.308-4.308h17.231c2.356 0 4.308 1.952 4.308 4.308z',
@@ -1244,10 +1245,41 @@ The error above happened in the following targeter in the Snap Config`;
 							'M52 28c-2.969-4.594-7.031-8.531-11.906-11.031 1.25 2.125 1.906 4.563 1.906 7.031 0 7.719-6.281 14-14 14s-14-6.281-14-14c0-2.469 0.656-4.906 1.906-7.031-4.875 2.5-8.938 6.437-11.906 11.031 5.344 8.25 13.969 14 24 14s18.656-5.75 24-14zM29.5 16c0-0.812-0.687-1.5-1.5-1.5-5.219 0-9.5 4.281-9.5 9.5 0 0.812 0.687 1.5 1.5 1.5s1.5-0.687 1.5-1.5c0-3.563 2.937-6.5 6.5-6.5 0.812 0 1.5-0.687 1.5-1.5zM56 28c0 0.781-0.25 1.5-0.625 2.156-5.75 9.469-16.281 15.844-27.375 15.844s-21.625-6.406-27.375-15.844c-0.375-0.656-0.625-1.375-0.625-2.156s0.25-1.5 0.625-2.156c5.75-9.437 16.281-15.844 27.375-15.844s21.625 6.406 27.375 15.844c0.375 0.656 0.625 1.375 0.625 2.156z',
 						filter:
 							'M25.519 21.889c0 0-0.241-4.089-0.241-4.089s0-13.471 0-13.471c0.002-1.162-0.005-2.636 0.825-3.553 1.104-1.224 3.156-0.929 4.022 0.435 0.498 0.787 0.443 1.744 0.445 2.636 0 0 0 25.258 0 25.258s-5.052 0-5.052 0c0 0 0-7.217 0-7.217zM42.358 3.848c0.019-1.576 0.281-3.476 2.165-3.794 2.798-0.471 3.125 2.24 3.127 4.275 0 0 0 11.546 0 11.546s-2.646-0.233-2.646-0.233c0 0-2.646 0.233-2.646 0.233s0-12.028 0-12.028zM8.44 3.848c0.014-1.181 0.147-2.442 1.229-3.163 1.484-0.986 3.286-0.156 3.825 1.479 0.322 0.984 0.238 2.545 0.238 3.608 0 0 0 6.014 0 6.014s-2.646-0.197-2.646-0.197c0 0-2.646 0.197-2.646 0.197s0-7.938 0-7.938zM13.010 13.556c5.509 1.855 5.477 10.377-1.203 11.551-5.121 0.902-8.455-5.015-5.867-9.23 0.907-1.475 2.314-2.151 3.943-2.535 1.176-0.166 1.985-0.171 3.127 0.214zM46.207 28.993c-5.564 1.051-8.874-4.833-6.348-9.028 1.046-1.737 2.533-2.357 4.424-2.774 7.57-0.883 9.36 10.399 1.924 11.802zM13.732 26.46c0 0 0 24.536 0 24.536-0.002 1.215-0.067 3.079-0.844 4.063-1.066 1.352-3.094 1.222-3.984-0.226-0.496-0.808-0.462-1.958-0.464-2.875 0 0 0-25.499 0-25.499s5.292 0 5.292 0zM33.219 33.436c1.936 3.286-0.019 8.15-3.851 8.821-1.169 0.207-3.019 0.135-4.089-0.402-4.71-2.355-4.39-9.803 1.443-11.193 2.673-0.375 5.056 0.33 6.497 2.774zM45.004 30.77c0 0 2.646-0.221 2.646-0.221s0 21.409 0 21.409c-0.002 1.034 0.034 2.215-0.649 3.074-0.977 1.224-3.017 1.224-3.993 0-0.637-0.799-0.645-1.867-0.649-2.834 0 0 0-21.65 0-21.65s2.646 0.221 2.646 0.221zM27.684 43.998c0 0 2.887-0.219 2.887-0.219s0 8.66 0 8.66c-0.022 1.758-0.654 3.861-2.887 3.517-1.912-0.296-2.384-2.114-2.406-3.757 0 0 0-8.419 0-8.419s2.406 0.219 2.406 0.219z',
-						filters:
-							'M 1 15 L 8 15 L 8 19 L 1 19 Z M 28 15 L 55 15 L 55 19 L 28 19 Z M 1 37 L 28 37 L 28 41 L 1 41 Z M 48 37 L 55 37 L 55 41 L 48 41 Z M 8 17 A 10 10 0 1 1 28 17 A 10 10 0 1 1 8 17 Z M 13 17 A 5 5 0 1 0 23 17 A 5 5 0 1 0 13 17 Z M 28 39 A 10 10 0 1 1 48 39 A 10 10 0 1 1 28 39 Z M 33 39 A 5 5 0 1 0 43 39 A 5 5 0 1 0 33 39 Z',
-						bullet: 'M8 28 A20 20 0 1 1 48 28 A20 20 0 1 1 8 28 Z',
-						'bullet-o': 'M8 28 A20 20 0 1 1 48 28 A20 20 0 1 1 8 28 Z M15 28 A13 13 0 1 0 41 28 A13 13 0 1 0 15 28 Z',
+						filters: [
+							{
+								type: 'path',
+								attributes: {
+									x1: '1',
+									y1: '17',
+									x2: '55',
+									y2: '17',
+									'stroke-width': '4',
+									'stroke-linecap': 'round',
+									'stroke-linejoin': 'round',
+									stroke: 'currentColor',
+								},
+							},
+							{
+								type: 'line',
+								attributes: {
+									x1: '1',
+									y1: '39',
+									x2: '55',
+									y2: '39',
+									'stroke-width': '4',
+									'stroke-linecap': 'round',
+									'stroke-linejoin': 'round',
+									stroke: 'currentColor',
+								},
+							},
+							{ type: 'circle', attributes: { cx: '18', cy: '17', r: '8', fill: 'white', 'stroke-width': '4', stroke: 'currentColor' } },
+							{ type: 'circle', attributes: { cx: '38', cy: '39', r: '8', fill: 'white', stroke: 'currentColor', 'stroke-width': '4' } },
+						],
+						bullet: [
+							{ type: 'circle', attributes: { cx: '28', cy: '28', r: '20', 'stroke-width': '3', fill: 'white', stroke: 'currentColor' } },
+							{ type: 'circle', attributes: { cx: '28', cy: '28', r: '13', 'stroke-width': '0' } },
+						],
+						'bullet-o': [{ type: 'circle', attributes: { cx: '28', cy: '28', r: '20', 'stroke-width': '3', fill: 'white', stroke: 'currentColor' } }],
 						heart:
 							'M28 52c-0.5 0-1-0.188-1.375-0.563l-19.5-18.813c-0.25-0.219-7.125-6.5-7.125-14 0-9.156 5.594-14.625 14.938-14.625 5.469 0 10.594 4.312 13.062 6.75 2.469-2.437 7.594-6.75 13.062-6.75 9.344 0 14.938 5.469 14.938 14.625 0 7.5-6.875 13.781-7.156 14.063l-19.469 18.75c-0.375 0.375-0.875 0.563-1.375 0.563z',
 						'heart-o':
@@ -1291,18 +1323,18 @@ The error above happened in the following targeter in the Snap Config`;
 							'M12.407 45.809c0-1.193-0.988-2.181-2.181-2.181s-2.181 0.988-2.181 2.181 0.988 2.181 2.181 2.181 2.181-0.988 2.181-2.181zM34.357 31.494l-23.245 23.245c-0.784 0.784-1.909 1.261-3.068 1.261s-2.284-0.477-3.102-1.261l-3.613-3.681c-0.818-0.784-1.295-1.909-1.295-3.068s0.477-2.284 1.295-3.102l23.211-23.211c1.772 4.465 5.351 8.044 9.816 9.816zM55.966 16.667c0 1.125-0.409 2.522-0.784 3.613-2.147 6.067-7.976 10.259-14.418 10.259-8.419 0-15.27-6.851-15.27-15.27s6.851-15.27 15.27-15.27c2.488 0 5.726 0.75 7.805 2.147 0.341 0.239 0.545 0.545 0.545 0.954 0 0.375-0.239 0.75-0.545 0.954l-9.987 5.76v7.635l6.578 3.647c1.125-0.648 9.032-5.624 9.714-5.624s1.091 0.511 1.091 1.193z',
 					};
 			},
-			'./components/src/providers/cache.tsx'(oe, L, o) {
+			'./components/src/providers/cache.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { _: () => A });
+				o.d(W, { _: () => A });
 				var t = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					N = o('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					p = o('../../node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js');
 				const Z = (0, p.A)({ key: 'ss', prepend: !0 }),
 					A = (e) => (0, t.Y)(N.C, { value: e.cache || Z, children: e.children });
 			},
-			'./components/src/providers/controller.tsx'(oe, L, o) {
+			'./components/src/providers/controller.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { Bk: () => K, as: () => H, e2: () => e });
+				o.d(W, { Bk: () => K, as: () => H, e2: () => e });
 				var t = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					N = o('../../node_modules/preact/dist/preact.module.js'),
 					p = o('../../node_modules/preact/hooks/dist/hooks.module.js');
@@ -1317,9 +1349,9 @@ The error above happened in the following targeter in the Snap Config`;
 					};
 				}
 			},
-			'./components/src/providers/snap.tsx'(oe, L, o) {
+			'./components/src/providers/snap.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { Mz: () => e, b$: () => K, uk: () => H });
+				o.d(W, { Mz: () => e, b$: () => K, uk: () => H });
 				var t = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					N = o('../../node_modules/preact/dist/preact.module.js'),
 					p = o('../../node_modules/preact/hooks/dist/hooks.module.js');
@@ -1334,9 +1366,9 @@ The error above happened in the following targeter in the Snap Config`;
 					};
 				}
 			},
-			'./components/src/providers/treePath.tsx'(oe, L, o) {
+			'./components/src/providers/treePath.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { LU: () => H, QE: () => K, p3: () => e });
+				o.d(W, { LU: () => H, QE: () => K, p3: () => e });
 				var t = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					N = o('../../node_modules/preact/dist/preact.module.js'),
 					p = o('../../node_modules/preact/hooks/dist/hooks.module.js');
@@ -1352,9 +1384,9 @@ The error above happened in the following targeter in the Snap Config`;
 					};
 				}
 			},
-			'./components/src/themes/base/base.ts'(oe, L, o) {
+			'./components/src/themes/base/base.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { E: () => Ae });
+				o.d(W, { E: () => Ae });
 				const t = { default: {}, mobile: {}, tablet: {}, desktop: {} },
 					N = { default: {}, mobile: {}, tablet: {}, desktop: {} };
 				var p = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
@@ -1380,8 +1412,8 @@ The error above happened in the following targeter in the Snap Config`;
 					};
 				var J = o('./components/src/themes/themeComponents/recommendationBundle.ts');
 				const R = J._;
-				var ee = o('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const ne = ee.j;
+				var q = o('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
+				const ne = q.j;
 				var de = o('./components/src/themes/themeComponents/recommendationBundleList.ts');
 				const te = de.e;
 				var ce = o('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
@@ -1508,9 +1540,9 @@ The error above happened in the following targeter in the Snap Config`;
 						responsive: { mobile: Xt, tablet: De, desktop: qt },
 					};
 			},
-			'./components/src/themes/bocachica/bocachica.ts'(oe, L, o) {
+			'./components/src/themes/bocachica/bocachica.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { S: () => b });
+				o.d(W, { S: () => b });
 				var t = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					N = o('../../node_modules/color/index.js'),
 					p = o.n(N);
@@ -1567,7 +1599,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					ee = {
+					q = {
 						default: {
 							loadingBar: {
 								themeStyleScript: ({ color: l, backgroundColor: d, theme: B }) => {
@@ -1605,10 +1637,10 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					re = { default: { skeleton: {} } },
 					_e = {
-						default: { ...A.default, ...H.default, ...D.default, ...J.default, ...ee.default, ...de.default, ...ce.default, ...re.default },
-						mobile: { ...A.mobile, ...H.mobile, ...D.mobile, ...J.mobile, ...ee.mobile, ...de.mobile, ...ce.mobile, ...re.mobile },
-						tablet: { ...H.tablet, ...D.tablet, ...J.tablet, ...ee.tablet, ...de.tablet, ...ce.tablet, ...re.tablet },
-						desktop: { ...A.desktop, ...H.desktop, ...D.desktop, ...J.desktop, ...ee.desktop, ...de.desktop, ...ce.desktop, ...re.desktop },
+						default: { ...A.default, ...H.default, ...D.default, ...J.default, ...q.default, ...de.default, ...ce.default, ...re.default },
+						mobile: { ...A.mobile, ...H.mobile, ...D.mobile, ...J.mobile, ...q.mobile, ...de.mobile, ...ce.mobile, ...re.mobile },
+						tablet: { ...H.tablet, ...D.tablet, ...J.tablet, ...q.tablet, ...de.tablet, ...ce.tablet, ...re.tablet },
+						desktop: { ...A.desktop, ...H.desktop, ...D.desktop, ...J.desktop, ...q.desktop, ...de.desktop, ...ce.desktop, ...re.desktop },
 					},
 					Te = {
 						default: {
@@ -2004,7 +2036,7 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					ze = { default: { swatches: {} } },
 					po = { default: { variantSelection: {} } },
-					Lt = {
+					Wt = {
 						default: {
 							terms: {
 								themeStyleScript: ({ theme: l }) => {
@@ -2042,7 +2074,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Pt.default,
 							...ze.default,
 							...po.default,
-							...Lt.default,
+							...Wt.default,
 						},
 						mobile: {
 							...Te.mobile,
@@ -2071,7 +2103,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Pt.mobile,
 							...ze.mobile,
 							...po.mobile,
-							...Lt.mobile,
+							...Wt.mobile,
 						},
 						tablet: {
 							...Te.tablet,
@@ -2100,7 +2132,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Pt.tablet,
 							...ze.tablet,
 							...po.tablet,
-							...Lt.tablet,
+							...Wt.tablet,
 						},
 						desktop: {
 							...Te.desktop,
@@ -2129,7 +2161,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Pt.desktop,
 							...ze.desktop,
 							...po.desktop,
-							...Lt.desktop,
+							...Wt.desktop,
 						},
 					},
 					tt = {
@@ -2271,9 +2303,9 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					ot = { default: { toolbar: { themeStyleScript: () => (0, t.AH)({}) } } };
 				var Kt = o('./components/src/themes/themeComponents/autocomplete.ts');
-				const Le = ({}) => (0, t.AH)({}),
+				const We = ({}) => (0, t.AH)({}),
 					v = {
-						default: { ...Kt.n.default, autocomplete: { ...(Kt.n.default?.autocomplete || {}), themeStyleScript: Le } },
+						default: { ...Kt.n.default, autocomplete: { ...(Kt.n.default?.autocomplete || {}), themeStyleScript: We } },
 						mobile: Kt.n.mobile,
 						desktop: Kt.n.desktop,
 						tablet: Kt.n.tablet,
@@ -2346,7 +2378,7 @@ The error above happened in the following targeter in the Snap Config`;
 						tablet: c._.tablet,
 					};
 				var M = o('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const W = ({ theme: l }) => {
+				const L = ({ theme: l }) => {
 						const d = l?.variables;
 						return (0, t.AH)({
 							border: `1px solid ${d?.colors.accent}`,
@@ -2358,7 +2390,7 @@ The error above happened in the following targeter in the Snap Config`;
 					j = {
 						default: {
 							...M.j.default,
-							recommendationBundleEasyAdd: { ...(M.j.default?.recommendationBundleEasyAdd || {}), ctaIcon: !1, themeStyleScript: W },
+							recommendationBundleEasyAdd: { ...(M.j.default?.recommendationBundleEasyAdd || {}), ctaIcon: !1, themeStyleScript: L },
 						},
 						mobile: M.j.mobile,
 						desktop: M.j.desktop,
@@ -2381,7 +2413,7 @@ The error above happened in the following targeter in the Snap Config`;
 						tablet: y.e.tablet,
 					};
 				var G = o('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
-				const q = ({ theme: l }) => {
+				const ee = ({ theme: l }) => {
 						const d = l?.variables;
 						return (0, t.AH)({
 							border: `1px solid ${d?.colors.accent}`,
@@ -2405,7 +2437,7 @@ The error above happened in the following targeter in the Snap Config`;
 								...(G.W.default?.recommendationBundleVertical || {}),
 								limit: 3,
 								separatorIcon: 'plus-thin',
-								themeStyleScript: q,
+								themeStyleScript: ee,
 							},
 						},
 						mobile: G.W.mobile,
@@ -2426,12 +2458,12 @@ The error above happened in the following targeter in the Snap Config`;
 				var Zt = o('./components/src/themes/themeComponents/recommendationEmail.ts');
 				const vt = Zt.O;
 				var at = o('./components/src/themes/themeComponents/search.ts');
-				const We = ({ theme: l }) => {
+				const Le = ({ theme: l }) => {
 						const d = l?.variables;
 						return (0, t.AH)({});
 					},
-					Wt = {
-						default: { ...at.D.default, search: { ...(at.D.default?.search || {}), themeStyleScript: We } },
+					Lt = {
+						default: { ...at.D.default, search: { ...(at.D.default?.search || {}), themeStyleScript: Le } },
 						mobile: at.D.mobile,
 						desktop: at.D.desktop,
 						tablet: at.D.tablet,
@@ -2509,7 +2541,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...xe.default,
 							..._t.default,
 							...vt.default,
-							...Wt.default,
+							...Lt.default,
 							...Ft.default,
 							...Rt.default,
 						},
@@ -2524,7 +2556,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...xe.mobile,
 							..._t.mobile,
 							...vt.mobile,
-							...Wt.mobile,
+							...Lt.mobile,
 							...Ft.mobile,
 							...Rt.mobile,
 						},
@@ -2539,7 +2571,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...xe.tablet,
 							..._t.tablet,
 							...vt.tablet,
-							...Wt.tablet,
+							...Lt.tablet,
 							...Ft.tablet,
 							...Rt.tablet,
 						},
@@ -2554,7 +2586,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...xe.desktop,
 							..._t.desktop,
 							...vt.desktop,
-							...Wt.desktop,
+							...Lt.desktop,
 							...Ft.desktop,
 							...Rt.desktop,
 						},
@@ -2573,9 +2605,9 @@ The error above happened in the following targeter in the Snap Config`;
 						responsive: { mobile: so, tablet: Ct, desktop: Jt },
 					};
 			},
-			'./components/src/themes/everest/everest.ts'(oe, L, o) {
+			'./components/src/themes/everest/everest.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { H: () => No });
+				o.d(W, { H: () => No });
 				var t = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					N = o('../../node_modules/color/index.js'),
 					p = o.n(N);
@@ -4539,7 +4571,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						});
 					},
-					Le = {
+					We = {
 						default: {
 							...ot.n.default,
 							autocomplete: { themeStyleScript: Kt, width: '900px' },
@@ -4982,7 +5014,7 @@ The error above happened in the following targeter in the Snap Config`;
 							'facetsHorizontal mobileSidebar facetPaletteOptions': { gridSize: '52px' },
 						},
 					},
-					W = {
+					L = {
 						default: {
 							filterSummary: {
 								themeStyleScript: (a) => {
@@ -5155,7 +5187,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					q = {
+					ee = {
 						default: {
 							results: {
 								themeStyleScript: (a) => {
@@ -5258,64 +5290,64 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					at = {
 						default: {
-							...Le.default,
+							...We.default,
 							...f.default,
 							...$.default,
 							...c.default,
 							...k.default,
-							...W.default,
+							...L.default,
 							...y.default,
 							...Y.default,
-							...q.default,
+							...ee.default,
 							...pe.default,
 							...vt.default,
 							..._t.default,
 						},
 						mobile: {
-							...Le.mobile,
+							...We.mobile,
 							...f.mobile,
 							...$.mobile,
 							...c.mobile,
 							...k.mobile,
-							...W.mobile,
+							...L.mobile,
 							...y.mobile,
 							...Y.mobile,
-							...q.mobile,
+							...ee.mobile,
 							...pe.mobile,
 							...vt.mobile,
 							..._t.mobile,
 						},
 						tablet: {
-							...Le.tablet,
+							...We.tablet,
 							...f.tablet,
 							...$.tablet,
 							...c.tablet,
 							...k.tablet,
-							...W.tablet,
+							...L.tablet,
 							...y.tablet,
 							...Y.tablet,
-							...q.tablet,
+							...ee.tablet,
 							...pe.tablet,
 							...vt.tablet,
 							..._t.tablet,
 						},
 						desktop: {
-							...Le.desktop,
+							...We.desktop,
 							...f.desktop,
 							...$.desktop,
 							...c.desktop,
 							...k.desktop,
-							...W.desktop,
+							...L.desktop,
 							...y.desktop,
 							...Y.desktop,
-							...q.desktop,
+							...ee.desktop,
 							...pe.desktop,
 							...vt.desktop,
 							..._t.desktop,
 						},
 					};
-				var We = o('./components/src/themes/themeComponents/autocompleteFixed.ts');
-				const Wt = (a) => {
+				var Le = o('./components/src/themes/themeComponents/autocompleteFixed.ts');
+				const Lt = (a) => {
 						const r = a?.theme?.variables?.breakpoints?.tablet || e.breakpoints.tablet;
 						return (0, t.AH)({
 							'.ss__modal': {
@@ -5364,12 +5396,12 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					kt = {
 						default: {
-							...We.f.default,
-							autocompleteFixed: { ...(We.f.default?.autocompleteFixed || {}), themeStyleScript: Wt, width: '900px', layout: 'standard' },
+							...Le.f.default,
+							autocompleteFixed: { ...(Le.f.default?.autocompleteFixed || {}), themeStyleScript: Lt, width: '900px', layout: 'standard' },
 							'autocompleteFixed facetPaletteOptions': { gridSize: '38px', hideLabel: !1 },
 							'autocompleteFixed facetGridOptions': { gridSize: '38px' },
 							'autocompleteFixed facet': {
-								...(We.f.default?.['autocompleteFixed facet'] || {}),
+								...(Le.f.default?.['autocompleteFixed facet'] || {}),
 								display: { list: { limit: 5 }, hierarchy: { limit: 5 }, grid: { limit: 6 }, palette: { limit: 6 } },
 							},
 							'autocompleteFixed results': { rows: 2, columns: 3 },
@@ -5377,21 +5409,21 @@ The error above happened in the following targeter in the Snap Config`;
 							'autocompleteFixed button.see-more icon': { icon: e.icons.arrowRight, size: `${e.sizes.icon12}px` },
 						},
 						mobile: {
-							...We.f.mobile,
-							autocompleteFixed: { ...(We.f.mobile?.autocompleteFixed || {}), width: 'auto', layout: 'mini' },
+							...Le.f.mobile,
+							autocompleteFixed: { ...(Le.f.mobile?.autocompleteFixed || {}), width: 'auto', layout: 'mini' },
 							'autocompleteFixed results': { rows: 1, columns: 3 },
 							'autocompleteFixed recommendationGrid': { rows: 1, columns: 3 },
 						},
 						tablet: {
-							...We.f.tablet,
-							autocompleteFixed: { ...(We.f.tablet?.autocompleteFixed || {}), width: 'auto', layout: 'standard' },
+							...Le.f.tablet,
+							autocompleteFixed: { ...(Le.f.tablet?.autocompleteFixed || {}), width: 'auto', layout: 'standard' },
 							'autocompleteFixed facet': { display: { list: { limit: 3 }, hierarchy: { limit: 3 }, grid: { limit: 4 }, palette: { limit: 4 } } },
 							'autocompleteFixed results': { rows: 1, columns: 4 },
 							'autocompleteFixed recommendationGrid': { rows: 1, columns: 4 },
 						},
 						desktop: {
-							...We.f.desktop,
-							autocompleteFixed: { ...(We.f.desktop?.autocompleteFixed || {}), layout: 'standard' },
+							...Le.f.desktop,
+							autocompleteFixed: { ...(Le.f.desktop?.autocompleteFixed || {}), layout: 'standard' },
 							'autocompleteFixed results': { rows: 2, columns: 3 },
 							'autocompleteFixed recommendationGrid': { rows: 2, columns: 4 },
 						},
@@ -6227,8 +6259,8 @@ The error above happened in the following targeter in the Snap Config`;
 							...rt.desktop,
 						},
 					},
-					Lo = { ...$e.default, ...wt.default, ...at.default, ...Qt.default },
-					Wo = { ...$e.mobile, ...wt.mobile, ...at.mobile, ...Qt.mobile },
+					Wo = { ...$e.default, ...wt.default, ...at.default, ...Qt.default },
+					Lo = { ...$e.mobile, ...wt.mobile, ...at.mobile, ...Qt.mobile },
 					Ro = { ...$e.tablet, ...wt.tablet, ...at.tablet, ...Qt.tablet },
 					Fo = { ...$e.desktop, ...wt.desktop, ...at.desktop, ...Qt.desktop },
 					No = {
@@ -6237,13 +6269,13 @@ The error above happened in the following targeter in the Snap Config`;
 							breakpoints: { mobile: 767, tablet: 991, desktop: 1199 },
 							colors: { text: '#515151', primary: '#d15120', secondary: '#94280b', accent: '#a8391c' },
 						},
-						components: Lo,
-						responsive: { mobile: Wo, tablet: Ro, desktop: Fo },
+						components: Wo,
+						responsive: { mobile: Lo, tablet: Ro, desktop: Fo },
 					};
 			},
-			'./components/src/themes/matterhorn/matterhorn.ts'(oe, L, o) {
+			'./components/src/themes/matterhorn/matterhorn.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { h: () => No });
+				o.d(W, { h: () => No });
 				var t = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					N = o('../../node_modules/color/index.js'),
 					p = o.n(N);
@@ -8193,7 +8225,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						});
 					},
-					Le = {
+					We = {
 						default: {
 							...ot.n.default,
 							autocomplete: { themeStyleScript: Kt, width: '900px' },
@@ -8636,7 +8668,7 @@ The error above happened in the following targeter in the Snap Config`;
 							'facetsHorizontal mobileSidebar facetPaletteOptions': { gridSize: '52px' },
 						},
 					},
-					W = {
+					L = {
 						default: {
 							filterSummary: {
 								themeStyleScript: (a) => {
@@ -8809,7 +8841,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					q = {
+					ee = {
 						default: {
 							results: {
 								themeStyleScript: (a) => {
@@ -8912,64 +8944,64 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					at = {
 						default: {
-							...Le.default,
+							...We.default,
 							...f.default,
 							...$.default,
 							...c.default,
 							...k.default,
-							...W.default,
+							...L.default,
 							...y.default,
 							...Y.default,
-							...q.default,
+							...ee.default,
 							...pe.default,
 							...vt.default,
 							..._t.default,
 						},
 						mobile: {
-							...Le.mobile,
+							...We.mobile,
 							...f.mobile,
 							...$.mobile,
 							...c.mobile,
 							...k.mobile,
-							...W.mobile,
+							...L.mobile,
 							...y.mobile,
 							...Y.mobile,
-							...q.mobile,
+							...ee.mobile,
 							...pe.mobile,
 							...vt.mobile,
 							..._t.mobile,
 						},
 						tablet: {
-							...Le.tablet,
+							...We.tablet,
 							...f.tablet,
 							...$.tablet,
 							...c.tablet,
 							...k.tablet,
-							...W.tablet,
+							...L.tablet,
 							...y.tablet,
 							...Y.tablet,
-							...q.tablet,
+							...ee.tablet,
 							...pe.tablet,
 							...vt.tablet,
 							..._t.tablet,
 						},
 						desktop: {
-							...Le.desktop,
+							...We.desktop,
 							...f.desktop,
 							...$.desktop,
 							...c.desktop,
 							...k.desktop,
-							...W.desktop,
+							...L.desktop,
 							...y.desktop,
 							...Y.desktop,
-							...q.desktop,
+							...ee.desktop,
 							...pe.desktop,
 							...vt.desktop,
 							..._t.desktop,
 						},
 					};
-				var We = o('./components/src/themes/themeComponents/autocompleteFixed.ts');
-				const Wt = (a) => {
+				var Le = o('./components/src/themes/themeComponents/autocompleteFixed.ts');
+				const Lt = (a) => {
 						const r = a?.theme?.variables?.breakpoints?.tablet || e.breakpoints.tablet;
 						return (0, t.AH)({
 							'.ss__modal': {
@@ -9018,12 +9050,12 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					kt = {
 						default: {
-							...We.f.default,
-							autocompleteFixed: { ...(We.f.default?.autocompleteFixed || {}), themeStyleScript: Wt, width: '900px', layout: 'standard' },
+							...Le.f.default,
+							autocompleteFixed: { ...(Le.f.default?.autocompleteFixed || {}), themeStyleScript: Lt, width: '900px', layout: 'standard' },
 							'autocompleteFixed facetPaletteOptions': { gridSize: '38px', hideLabel: !1 },
 							'autocompleteFixed facetGridOptions': { gridSize: '38px' },
 							'autocompleteFixed facet': {
-								...(We.f.default?.['autocompleteFixed facet'] || {}),
+								...(Le.f.default?.['autocompleteFixed facet'] || {}),
 								display: { list: { limit: 5 }, hierarchy: { limit: 5 }, grid: { limit: 6 }, palette: { limit: 6 } },
 							},
 							'autocompleteFixed results': { rows: 2, columns: 3 },
@@ -9031,21 +9063,21 @@ The error above happened in the following targeter in the Snap Config`;
 							'autocompleteFixed button.see-more icon': { icon: e.icons.arrowRight, size: `${e.sizes.icon12}px` },
 						},
 						mobile: {
-							...We.f.mobile,
-							autocompleteFixed: { ...(We.f.mobile?.autocompleteFixed || {}), width: 'auto', layout: 'mini' },
+							...Le.f.mobile,
+							autocompleteFixed: { ...(Le.f.mobile?.autocompleteFixed || {}), width: 'auto', layout: 'mini' },
 							'autocompleteFixed results': { rows: 1, columns: 3 },
 							'autocompleteFixed recommendationGrid': { rows: 1, columns: 3 },
 						},
 						tablet: {
-							...We.f.tablet,
-							autocompleteFixed: { ...(We.f.tablet?.autocompleteFixed || {}), width: 'auto', layout: 'standard' },
+							...Le.f.tablet,
+							autocompleteFixed: { ...(Le.f.tablet?.autocompleteFixed || {}), width: 'auto', layout: 'standard' },
 							'autocompleteFixed facet': { display: { list: { limit: 3 }, hierarchy: { limit: 3 }, grid: { limit: 4 }, palette: { limit: 4 } } },
 							'autocompleteFixed results': { rows: 1, columns: 4 },
 							'autocompleteFixed recommendationGrid': { rows: 1, columns: 4 },
 						},
 						desktop: {
-							...We.f.desktop,
-							autocompleteFixed: { ...(We.f.desktop?.autocompleteFixed || {}), layout: 'standard' },
+							...Le.f.desktop,
+							autocompleteFixed: { ...(Le.f.desktop?.autocompleteFixed || {}), layout: 'standard' },
 							'autocompleteFixed results': { rows: 2, columns: 3 },
 							'autocompleteFixed recommendationGrid': { rows: 2, columns: 4 },
 						},
@@ -9881,8 +9913,8 @@ The error above happened in the following targeter in the Snap Config`;
 							...rt.desktop,
 						},
 					},
-					Lo = { ...$e.default, ...wt.default, ...at.default, ...Qt.default },
-					Wo = { ...$e.mobile, ...wt.mobile, ...at.mobile, ...Qt.mobile },
+					Wo = { ...$e.default, ...wt.default, ...at.default, ...Qt.default },
+					Lo = { ...$e.mobile, ...wt.mobile, ...at.mobile, ...Qt.mobile },
 					Ro = { ...$e.tablet, ...wt.tablet, ...at.tablet, ...Qt.tablet },
 					Fo = { ...$e.desktop, ...wt.desktop, ...at.desktop, ...Qt.desktop },
 					No = {
@@ -9891,13 +9923,13 @@ The error above happened in the following targeter in the Snap Config`;
 							breakpoints: { mobile: 767, tablet: 991, desktop: 1199 },
 							colors: { text: '#515151', primary: '#00aeef', secondary: '#1d4990', accent: '#2154a5' },
 						},
-						components: Lo,
-						responsive: { mobile: Wo, tablet: Ro, desktop: Fo },
+						components: Wo,
+						responsive: { mobile: Lo, tablet: Ro, desktop: Fo },
 					};
 			},
-			'./components/src/themes/pike/pike.ts'(oe, L, o) {
+			'./components/src/themes/pike/pike.ts'(oe, W, o) {
 				'use strict';
-				o.r(L), o.d(L, { pike: () => pi });
+				o.r(W), o.d(W, { pike: () => pi });
 				var t = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					N = o('../../node_modules/color/index.js'),
 					p = o.n(N);
@@ -11055,8 +11087,8 @@ The error above happened in the following targeter in the Snap Config`;
 							'filter icon': { size: `${e.sizes.icon10}px` },
 						},
 					},
-					Le = 'ss__grid__option',
-					v = `&.${Le}--dark, &:has(.${Le}__inner--grey), &:has(.${Le}__inner--gray)`,
+					We = 'ss__grid__option',
+					v = `&.${We}--dark, &:has(.${We}__inner--grey), &:has(.${We}__inner--gray)`,
 					f = '&:has(.ss__image)',
 					T = '&[style*="url"]',
 					$ = '&[style], &:has(.ss__image)',
@@ -11180,9 +11212,9 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					W = e.utils.activeColors(),
-					j = W[0],
-					y = W[1],
+					L = e.utils.activeColors(),
+					j = L[0],
+					y = L[1],
 					Y = {
 						default: {
 							layoutSelector: {
@@ -11347,7 +11379,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					Wt = {
+					Lt = {
 						default: {
 							pagination: {
 								themeStyleScript: (s) => {
@@ -11841,8 +11873,8 @@ The error above happened in the following targeter in the Snap Config`;
 					yo = 28,
 					_o = 'ss__swatches__slideshow__swatch',
 					Qt = `&.${_o}--dark, &:has(.${_o}__inner--grey), &:has(.${_o}__inner--gray)`,
-					Lo = '&:has(.ss__image)',
-					Wo = '&[style*="url"]',
+					Wo = '&:has(.ss__image)',
+					Lo = '&[style*="url"]',
 					Ro = '&[style], &:has(.ss__image)',
 					Fo = e.utils.activeColors(),
 					Uo = Fo[0],
@@ -11902,13 +11934,13 @@ The error above happened in the following targeter in the Snap Config`;
 																			'&:after': { border: `1px solid ${e.colors.black}`, opacity: 0.15 },
 																			'.ss__swatches__slideshow__swatch__value': { ...e.styles.srOnly() },
 																		},
-																		[`${Wo}, ${Lo}`]: { '&:before': { margin: 0, borderWidth: '4px' } },
-																		[Wo]: {
+																		[`${Lo}, ${Wo}`]: { '&:before': { margin: 0, borderWidth: '4px' } },
+																		[Lo]: {
 																			backgroundRepeat: 'no-repeat !important',
 																			backgroundSize: 'cover !important',
 																			backgroundPosition: 'center !important',
 																		},
-																		[Lo]: {
+																		[Wo]: {
 																			'&:before, &:after': { zIndex: 3 },
 																			'.ss__image, .ss__swatches__slideshow__swatch__value': { position: 'absolute' },
 																			'.ss__image': {
@@ -12119,7 +12151,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ge.default,
 							...Zt.default,
 							...at.default,
-							...Wt.default,
+							...Lt.default,
 							...Re.default,
 							...Ve.default,
 							...Ue.default,
@@ -12151,7 +12183,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ge.mobile,
 							...Zt.mobile,
 							...at.mobile,
-							...Wt.mobile,
+							...Lt.mobile,
 							...Re.mobile,
 							...Ve.mobile,
 							...Ue.mobile,
@@ -12183,7 +12215,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ge.tablet,
 							...Zt.tablet,
 							...at.tablet,
-							...Wt.tablet,
+							...Lt.tablet,
 							...Re.tablet,
 							...Ve.tablet,
 							...Ue.tablet,
@@ -12215,7 +12247,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ge.desktop,
 							...Zt.desktop,
 							...at.desktop,
-							...Wt.desktop,
+							...Lt.desktop,
 							...Re.desktop,
 							...Ve.desktop,
 							...Ue.desktop,
@@ -13090,7 +13122,7 @@ The error above happened in the following targeter in the Snap Config`;
 									'.ss__autocomplete__content-inner': { padding: 0, '& > *': { margin: `0 0 ${e.spacing.x4}px 0` } },
 								},
 							}),
-							Ws = (0, t.AH)({
+							Ls = (0, t.AH)({
 								gap: `${e.spacing.x4}px`,
 								overflowY: Ot ? 'auto' : 'hidden',
 								overflowX: 'hidden',
@@ -13099,7 +13131,7 @@ The error above happened in the following targeter in the Snap Config`;
 							}),
 							Rs = (0, t.AH)({
 								'.ss__autocomplete__content__results': {
-									'.ss__results': { ...Ws },
+									'.ss__results': { ...Ls },
 									'.ss__results .ss__result.ss__result--grid': { ...e.styles.resultCompact('grid', '', 12) },
 									'.ss__results .ss__result.ss__result--list': { ...e.styles.resultCompact('', '0 0 80px', 12) },
 								},
@@ -13116,7 +13148,7 @@ The error above happened in the following targeter in the Snap Config`;
 									'.ss__autocomplete__content__no-results__recommendations': {
 										'.ss__recommendation-grid': { margin: `${e.spacing.x4}px 0 0 0` },
 										'.ss__recommendation-grid__title': { textAlign: 'left' },
-										'.ss__recommendation-grid__results': { ...Ws },
+										'.ss__recommendation-grid__results': { ...Ls },
 										'.ss__recommendation-grid__results .ss__result.ss__result--grid': { ...e.styles.resultCompact('grid', '', 12) },
 										'.ss__recommendation-grid__results .ss__result.ss__result--list': { ...e.styles.resultCompact('', '0 0 80px', 12) },
 									},
@@ -13872,7 +13904,7 @@ The error above happened in the following targeter in the Snap Config`;
 					qs = Es[0],
 					ei = Es[1],
 					ws = 22,
-					Ls = 16,
+					Ws = 16,
 					ti = (s) => {
 						const n = s?.theme?.variables,
 							_ = n?.breakpoints?.mobile || e.breakpoints.mobile,
@@ -13888,7 +13920,7 @@ The error above happened in the following targeter in the Snap Config`;
 										'&.ss__recommendation-bundle-vertical__wrapper__selector--seed': {
 											'.ss__recommendation-bundle-vertical__wrapper__selector__result-wrapper .ss__result': {
 												'&:has(.ss__overlay-badge__grid-wrapper__slot--right) .ss__overlay-badge .ss__overlay-badge__grid-wrapper .ss__overlay-badge__grid-wrapper__slot--right':
-													{ paddingTop: `${Ls + e.spacing.x2}px` },
+													{ paddingTop: `${Ws + e.spacing.x2}px` },
 												'&:has(.ss__overlay-badge__grid-wrapper__slot--left) .ss__overlay-badge .ss__overlay-badge__grid-wrapper .ss__overlay-badge__grid-wrapper__slot--left':
 													{ paddingTop: `${ws + e.spacing.x2}px` },
 											},
@@ -13914,7 +13946,7 @@ The error above happened in the following targeter in the Snap Config`;
 											},
 											'.ss__result': {
 												'&:has(.ss__overlay-badge__grid-wrapper__slot--right) .ss__overlay-badge .ss__overlay-badge__grid-wrapper .ss__overlay-badge__grid-wrapper__slot--right':
-													{ paddingTop: `${Ls + e.spacing.x2}px` },
+													{ paddingTop: `${Ws + e.spacing.x2}px` },
 											},
 											'.ss__result.ss__result--grid': { ...e.styles.resultCompact('grid') },
 											'.ss__result.ss__result--list': { ...e.styles.resultCompact() },
@@ -14257,9 +14289,9 @@ The error above happened in the following targeter in the Snap Config`;
 						responsive: di,
 					};
 			},
-			'./components/src/themes/snapnco/snapnco.ts'(oe, L, o) {
+			'./components/src/themes/snapnco/snapnco.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { N: () => Ut });
+				o.d(W, { N: () => Ut });
 				var t = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js');
 				const p = {
 						default: {
@@ -14324,7 +14356,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					ee = {
+					q = {
 						default: {
 							price: {
 								themeStyleScript: ({ theme: b }) => {
@@ -14358,10 +14390,10 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					te = { default: { skeleton: {} } },
 					ce = {
-						default: { ...p.default, ...A.default, ...H.default, ...D.default, ...J.default, ...ee.default, ...de.default, ...te.default },
-						mobile: { ...p.mobile, ...A.mobile, ...H.mobile, ...D.mobile, ...J.mobile, ...ee.mobile, ...de.mobile, ...te.mobile },
-						tablet: { ...A.tablet, ...H.tablet, ...D.tablet, ...J.tablet, ...ee.tablet, ...de.tablet, ...te.tablet },
-						desktop: { ...p.desktop, ...A.desktop, ...H.desktop, ...D.desktop, ...J.desktop, ...ee.desktop, ...de.desktop, ...te.desktop },
+						default: { ...p.default, ...A.default, ...H.default, ...D.default, ...J.default, ...q.default, ...de.default, ...te.default },
+						mobile: { ...p.mobile, ...A.mobile, ...H.mobile, ...D.mobile, ...J.mobile, ...q.mobile, ...de.mobile, ...te.mobile },
+						tablet: { ...A.tablet, ...H.tablet, ...D.tablet, ...J.tablet, ...q.tablet, ...de.tablet, ...te.tablet },
+						desktop: { ...p.desktop, ...A.desktop, ...H.desktop, ...D.desktop, ...J.desktop, ...q.desktop, ...de.desktop, ...te.desktop },
 					},
 					_e = {
 						default: {
@@ -14828,7 +14860,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					Lt = {
+					Wt = {
 						default: {
 							..._e.default,
 							...ke.default,
@@ -15120,7 +15152,7 @@ The error above happened in the following targeter in the Snap Config`;
 					wt = { default: { toolbar: { themeStyleScript: () => (0, t.AH)({ paddingBottom: '10px' }) } } };
 				var ot = o('./components/src/themes/themeComponents/autocomplete.ts');
 				const Kt = ({}) => (0, t.AH)({}),
-					Le = {
+					We = {
 						default: { ...ot.n.default, autocomplete: { ...(ot.n.default?.autocomplete || {}), themeStyleScript: Kt } },
 						mobile: ot.n.mobile,
 						desktop: ot.n.desktop,
@@ -15128,7 +15160,7 @@ The error above happened in the following targeter in the Snap Config`;
 					},
 					v = {
 						default: {
-							...Le.default,
+							...We.default,
 							...io.default,
 							...lo.default,
 							...ge.default,
@@ -15138,10 +15170,10 @@ The error above happened in the following targeter in the Snap Config`;
 							...wt.default,
 							...xo.default,
 						},
-						mobile: { ...Le.mobile, ...io.mobile, ...lo.mobile, ...ge.mobile, ...Je.mobile, ...Ye.mobile, ...bo.mobile, ...wt.mobile, ...xo.mobile },
-						tablet: { ...Le.tablet, ...io.tablet, ...lo.tablet, ...ge.tablet, ...Je.tablet, ...Ye.tablet, ...bo.tablet, ...wt.tablet, ...xo.tablet },
+						mobile: { ...We.mobile, ...io.mobile, ...lo.mobile, ...ge.mobile, ...Je.mobile, ...Ye.mobile, ...bo.mobile, ...wt.mobile, ...xo.mobile },
+						tablet: { ...We.tablet, ...io.tablet, ...lo.tablet, ...ge.tablet, ...Je.tablet, ...Ye.tablet, ...bo.tablet, ...wt.tablet, ...xo.tablet },
 						desktop: {
-							...Le.desktop,
+							...We.desktop,
 							...io.desktop,
 							...lo.desktop,
 							...ge.desktop,
@@ -15184,7 +15216,7 @@ The error above happened in the following targeter in the Snap Config`;
 						const l = b?.variables;
 						return (0, t.AH)({});
 					},
-					W = {
+					L = {
 						default: { ...k.j.default, recommendationBundleEasyAdd: { ...(k.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: M } },
 						mobile: k.j.mobile,
 						desktop: k.j.desktop,
@@ -15206,7 +15238,7 @@ The error above happened in the following targeter in the Snap Config`;
 						const l = b?.variables;
 						return (0, t.AH)({});
 					},
-					q = {
+					ee = {
 						default: { ...Y.W.default, recommendationBundleVertical: { ...(Y.W.default?.recommendationBundleVertical || {}), themeStyleScript: G } },
 						mobile: Y.W.mobile,
 						desktop: Y.W.desktop,
@@ -15230,22 +15262,22 @@ The error above happened in the following targeter in the Snap Config`;
 						const l = b?.variables;
 						return (0, t.AH)({});
 					},
-					We = {
+					Le = {
 						default: { ...vt.D.default, search: { ...(vt.D.default?.search || {}), themeStyleScript: at } },
 						mobile: vt.D.mobile,
 						desktop: vt.D.desktop,
 						tablet: vt.D.tablet,
 					};
-				var Wt = o('./components/src/themes/themeComponents/searchHorizontal.ts');
+				var Lt = o('./components/src/themes/themeComponents/searchHorizontal.ts');
 				const kt = ({ theme: b }) => {
 						const l = b?.variables;
 						return (0, t.AH)({});
 					},
 					Re = {
-						default: { ...Wt.X.default, searchHorizontal: { ...(Wt.X.default?.searchHorizontal || {}), themeStyleScript: kt } },
-						mobile: Wt.X.mobile,
-						desktop: Wt.X.desktop,
-						tablet: Wt.X.tablet,
+						default: { ...Lt.X.default, searchHorizontal: { ...(Lt.X.default?.searchHorizontal || {}), themeStyleScript: kt } },
+						mobile: Lt.X.mobile,
+						desktop: Lt.X.desktop,
+						tablet: Lt.X.tablet,
 					};
 				var Rt = o('./components/src/themes/themeComponents/searchCollapsible.ts');
 				const ht = ({ theme: b }) => {
@@ -15292,12 +15324,12 @@ The error above happened in the following targeter in the Snap Config`;
 							...jt.default,
 							...$.default,
 							...P.default,
-							...W.default,
+							...L.default,
 							...ae.default,
-							...q.default,
+							...ee.default,
 							...Ge.default,
 							...Zt.default,
-							...We.default,
+							...Le.default,
 							...Ve.default,
 							...Re.default,
 						},
@@ -15307,12 +15339,12 @@ The error above happened in the following targeter in the Snap Config`;
 							...jt.mobile,
 							...$.mobile,
 							...P.mobile,
-							...W.mobile,
+							...L.mobile,
 							...ae.mobile,
-							...q.mobile,
+							...ee.mobile,
 							...Ge.mobile,
 							...Zt.mobile,
-							...We.mobile,
+							...Le.mobile,
 							...Ve.mobile,
 							...Re.mobile,
 						},
@@ -15322,12 +15354,12 @@ The error above happened in the following targeter in the Snap Config`;
 							...jt.tablet,
 							...$.tablet,
 							...P.tablet,
-							...W.tablet,
+							...L.tablet,
 							...ae.tablet,
-							...q.tablet,
+							...ee.tablet,
 							...Ge.tablet,
 							...Zt.tablet,
-							...We.tablet,
+							...Le.tablet,
 							...Ve.tablet,
 							...Re.tablet,
 						},
@@ -15337,20 +15369,20 @@ The error above happened in the following targeter in the Snap Config`;
 							...jt.desktop,
 							...$.desktop,
 							...P.desktop,
-							...W.desktop,
+							...L.desktop,
 							...ae.desktop,
-							...q.desktop,
+							...ee.desktop,
 							...Ge.desktop,
 							...Zt.desktop,
-							...We.desktop,
+							...Le.desktop,
 							...Ve.desktop,
 							...Re.desktop,
 						},
 					},
-					ut = { ...ce.default, ...Lt.default, ...v.default, ...$t.default },
-					eo = { ...ce.mobile, ...Lt.mobile, ...v.mobile, ...$t.mobile },
-					so = { ...ce.tablet, ...Lt.tablet, ...v.tablet, ...$t.tablet },
-					Ct = { ...ce.desktop, ...Lt.desktop, ...v.desktop, ...$t.desktop },
+					ut = { ...ce.default, ...Wt.default, ...v.default, ...$t.default },
+					eo = { ...ce.mobile, ...Wt.mobile, ...v.mobile, ...$t.mobile },
+					so = { ...ce.tablet, ...Wt.tablet, ...v.tablet, ...$t.tablet },
+					Ct = { ...ce.desktop, ...Wt.desktop, ...v.desktop, ...$t.desktop },
 					Ut = {
 						name: 'snapnco',
 						variables: {
@@ -15361,9 +15393,9 @@ The error above happened in the following targeter in the Snap Config`;
 						responsive: { mobile: eo, tablet: so, desktop: Ct },
 					};
 			},
-			'./components/src/themes/snappy/snappy.ts'(oe, L, o) {
+			'./components/src/themes/snappy/snappy.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { m: () => qe });
+				o.d(W, { m: () => qe });
 				var t = o('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js');
 				const p = {
 						default: {
@@ -15428,7 +15460,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					ee = {
+					q = {
 						default: {
 							price: {
 								themeStyleScript: ({ theme: w }) => {
@@ -15461,20 +15493,20 @@ The error above happened in the following targeter in the Snap Config`;
 							...H.default,
 							...D.default,
 							...J.default,
-							...ee.default,
+							...q.default,
 							...de.default,
 							...te.default,
 							...re.default,
 						},
-						mobile: { ...p.mobile, ...A.mobile, ...H.mobile, ...D.mobile, ...J.mobile, ...ee.mobile, ...de.mobile, ...te.mobile, ...re.mobile },
-						tablet: { ...A.tablet, ...H.tablet, ...D.tablet, ...J.tablet, ...ee.tablet, ...de.tablet, ...te.tablet, ...re.tablet },
+						mobile: { ...p.mobile, ...A.mobile, ...H.mobile, ...D.mobile, ...J.mobile, ...q.mobile, ...de.mobile, ...te.mobile, ...re.mobile },
+						tablet: { ...A.tablet, ...H.tablet, ...D.tablet, ...J.tablet, ...q.tablet, ...de.tablet, ...te.tablet, ...re.tablet },
 						desktop: {
 							...p.desktop,
 							...A.desktop,
 							...H.desktop,
 							...D.desktop,
 							...J.desktop,
-							...ee.desktop,
+							...q.desktop,
 							...de.desktop,
 							...te.desktop,
 							...re.desktop,
@@ -16024,7 +16056,7 @@ The error above happened in the following targeter in the Snap Config`;
 						},
 						mobile: { 'perPage select': { separator: '' } },
 					},
-					Lt = { default: { rating: {} } },
+					Wt = { default: { rating: {} } },
 					io = {
 						default: {
 							sortBy: {
@@ -16105,7 +16137,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ne.default,
 							...ze.default,
 							...et.default,
-							...Lt.default,
+							...Wt.default,
 							...io.default,
 							...tt.default,
 							...lo.default,
@@ -16134,7 +16166,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ne.mobile,
 							...ze.mobile,
 							...et.mobile,
-							...Lt.mobile,
+							...Wt.mobile,
 							...io.mobile,
 							...tt.mobile,
 							...lo.mobile,
@@ -16163,7 +16195,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ne.tablet,
 							...ze.tablet,
 							...et.tablet,
-							...Lt.tablet,
+							...Wt.tablet,
 							...io.tablet,
 							...tt.tablet,
 							...lo.tablet,
@@ -16192,7 +16224,7 @@ The error above happened in the following targeter in the Snap Config`;
 							...Ne.desktop,
 							...ze.desktop,
 							...et.desktop,
-							...Lt.desktop,
+							...Wt.desktop,
 							...io.desktop,
 							...tt.desktop,
 							...lo.desktop,
@@ -16337,7 +16369,7 @@ The error above happened in the following targeter in the Snap Config`;
 							},
 						},
 					},
-					Le = {
+					We = {
 						default: {
 							sidebar: {
 								themeStyleScript: ({ theme: w }) => {
@@ -16384,12 +16416,12 @@ The error above happened in the following targeter in the Snap Config`;
 							...ct.default,
 							...St.default,
 							...ot.default,
-							...Le.default,
+							...We.default,
 							...$.default,
 							...f.default,
 						},
-						mobile: { ...P.mobile, ...je.mobile, ...Qe.mobile, ...ct.mobile, ...St.mobile, ...ot.mobile, ...Le.mobile, ...$.mobile, ...f.mobile },
-						tablet: { ...P.tablet, ...je.tablet, ...Qe.tablet, ...ct.tablet, ...St.tablet, ...ot.tablet, ...Le.tablet, ...$.tablet, ...f.tablet },
+						mobile: { ...P.mobile, ...je.mobile, ...Qe.mobile, ...ct.mobile, ...St.mobile, ...ot.mobile, ...We.mobile, ...$.mobile, ...f.mobile },
+						tablet: { ...P.tablet, ...je.tablet, ...Qe.tablet, ...ct.tablet, ...St.tablet, ...ot.tablet, ...We.tablet, ...$.tablet, ...f.tablet },
 						desktop: {
 							...P.desktop,
 							...je.desktop,
@@ -16397,18 +16429,18 @@ The error above happened in the following targeter in the Snap Config`;
 							...ct.desktop,
 							...St.desktop,
 							...ot.desktop,
-							...Le.desktop,
+							...We.desktop,
 							...$.desktop,
 							...f.desktop,
 						},
 					};
 				var M = o('./components/src/themes/themeComponents/recommendation.ts');
-				const W = ({ theme: w }) => {
+				const L = ({ theme: w }) => {
 						const S = w?.variables;
 						return (0, t.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: S?.colors?.primary } });
 					},
 					j = {
-						default: { ...M.C.default, recommendation: { ...(M.C.default?.recommendation || {}), themeStyleScript: W } },
+						default: { ...M.C.default, recommendation: { ...(M.C.default?.recommendation || {}), themeStyleScript: L } },
 						mobile: M.C.mobile,
 						desktop: M.C.desktop,
 						tablet: M.C.tablet,
@@ -16430,12 +16462,12 @@ The error above happened in the following targeter in the Snap Config`;
 						tablet: y._.tablet,
 					};
 				var G = o('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const q = ({ theme: w }) => {
+				const ee = ({ theme: w }) => {
 						const S = w?.variables;
 						return (0, t.AH)({});
 					},
 					xe = {
-						default: { ...G.j.default, recommendationBundleEasyAdd: { ...(G.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: q } },
+						default: { ...G.j.default, recommendationBundleEasyAdd: { ...(G.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: ee } },
 						mobile: G.j.mobile,
 						desktop: G.j.desktop,
 						tablet: G.j.tablet,
@@ -16465,16 +16497,16 @@ The error above happened in the following targeter in the Snap Config`;
 						desktop: Zt.W.desktop,
 						tablet: Zt.W.tablet,
 					};
-				var We = o('./components/src/themes/themeComponents/recommendationGrid.ts');
-				const Wt = ({ theme: w }) => {
+				var Le = o('./components/src/themes/themeComponents/recommendationGrid.ts');
+				const Lt = ({ theme: w }) => {
 						const S = w?.variables;
 						return (0, t.AH)({});
 					},
 					kt = {
-						default: { ...We.W.default, recommendationGrid: { ...(We.W.default?.recommendationGrid || {}), themeStyleScript: Wt } },
-						mobile: We.W.mobile,
-						desktop: We.W.desktop,
-						tablet: We.W.tablet,
+						default: { ...Le.W.default, recommendationGrid: { ...(Le.W.default?.recommendationGrid || {}), themeStyleScript: Lt } },
+						mobile: Le.W.mobile,
+						desktop: Le.W.desktop,
+						tablet: Le.W.tablet,
 					};
 				var Re = o('./components/src/themes/themeComponents/recommendationEmail.ts');
 				const Rt = Re.O;
@@ -16656,9 +16688,9 @@ The error above happened in the following targeter in the Snap Config`;
 						responsive: { mobile: l, tablet: d, desktop: B },
 					};
 			},
-			'./components/src/themes/themeComponents/autocomplete.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/autocomplete.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { n: () => t });
+				o.d(W, { n: () => t });
 				const t = {
 					default: {
 						'autocomplete facet': {
@@ -16687,9 +16719,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { 'autocomplete results': { columns: 2, rows: 2 }, 'autocomplete recommendationGrid': { columns: 3, rows: 2 } },
 				};
 			},
-			'./components/src/themes/themeComponents/autocompleteFixed.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/autocompleteFixed.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { f: () => t });
+				o.d(W, { f: () => t });
 				const t = {
 					default: {
 						'autocompleteFixed facet': {
@@ -16719,9 +16751,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { 'autocompleteFixed results': { columns: 2, rows: 2 }, 'autocompleteFixed recommendationGrid': { columns: 3, rows: 2 } },
 				};
 			},
-			'./components/src/themes/themeComponents/autocompleteModal.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/autocompleteModal.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { _: () => t });
+				o.d(W, { _: () => t });
 				const t = {
 					default: {
 						'autocompleteModal facet': {
@@ -16750,9 +16782,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { 'autocompleteModal results': { columns: 2, rows: 2 }, 'autocompleteModal recommendationGrid': { columns: 3, rows: 2 } },
 				};
 			},
-			'./components/src/themes/themeComponents/autocompleteSlideout.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/autocompleteSlideout.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { c: () => t });
+				o.d(W, { c: () => t });
 				const t = {
 					default: {
 						'autocompleteSlideout results': { columns: 2, rows: 2 },
@@ -16778,9 +16810,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { 'autocompleteSlideout recommendationGrid': { columns: 3, rows: 2 } },
 				};
 			},
-			'./components/src/themes/themeComponents/recommendation.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendation.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { C: () => t });
+				o.d(W, { C: () => t });
 				const t = {
 					default: { recommendation: { slidesPerView: 5, slidesPerGroup: 5 } },
 					mobile: { recommendation: { slidesPerView: 2, slidesPerGroup: 2 } },
@@ -16788,9 +16820,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { recommendation: { slidesPerView: 4, slidesPerGroup: 4 } },
 				};
 			},
-			'./components/src/themes/themeComponents/recommendationBundle.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendationBundle.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { _: () => t });
+				o.d(W, { _: () => t });
 				const t = {
 					default: { recommendationBundle: { carousel: { slidesPerView: 4, slidesPerGroup: 4, spaceBetween: 10 } } },
 					mobile: { recommendationBundle: { carousel: { slidesPerView: 2, slidesPerGroup: 2, spaceBetween: 10 }, ctaInline: !1 } },
@@ -16798,34 +16830,34 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { recommendationBundle: { carousel: { slidesPerView: 4, slidesPerGroup: 4, spaceBetween: 10 } } },
 				};
 			},
-			'./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { j: () => t });
+				o.d(W, { j: () => t });
 				const t = { default: {}, mobile: {}, tablet: {}, desktop: {} };
 			},
-			'./components/src/themes/themeComponents/recommendationBundleList.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendationBundleList.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { e: () => t });
+				o.d(W, { e: () => t });
 				const t = { default: {}, mobile: {}, tablet: {}, desktop: {} };
 			},
-			'./components/src/themes/themeComponents/recommendationBundleVertical.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendationBundleVertical.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { W: () => t });
+				o.d(W, { W: () => t });
 				const t = { default: {}, mobile: {}, tablet: {}, desktop: {} };
 			},
-			'./components/src/themes/themeComponents/recommendationEmail.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendationEmail.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { O: () => t });
+				o.d(W, { O: () => t });
 				const t = { default: {}, mobile: {}, tablet: {}, desktop: {} };
 			},
-			'./components/src/themes/themeComponents/recommendationGrid.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/recommendationGrid.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { W: () => t });
+				o.d(W, { W: () => t });
 				const t = { default: {}, mobile: {}, tablet: {}, desktop: {} };
 			},
-			'./components/src/themes/themeComponents/search.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/search.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { D: () => t });
+				o.d(W, { D: () => t });
 				const t = {
 					default: { 'search results': { columns: 4 } },
 					mobile: { 'search results': { columns: 2 } },
@@ -16833,9 +16865,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: {},
 				};
 			},
-			'./components/src/themes/themeComponents/searchCollapsible.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/searchCollapsible.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { D: () => t });
+				o.d(W, { D: () => t });
 				const t = {
 					default: {
 						searchCollapsible: {
@@ -16896,9 +16928,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: {},
 				};
 			},
-			'./components/src/themes/themeComponents/searchHorizontal.ts'(oe, L, o) {
+			'./components/src/themes/themeComponents/searchHorizontal.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { X: () => t });
+				o.d(W, { X: () => t });
 				const t = {
 					default: {
 						searchHorizontal: { hideSidebar: !0 },
@@ -16919,9 +16951,9 @@ The error above happened in the following targeter in the Snap Config`;
 					desktop: { 'searchHorizontal facetsHorizontal': { limit: 7 } },
 				};
 			},
-			'./components/src/utilities/cloneWithProps.tsx'(oe, L, o) {
+			'./components/src/utilities/cloneWithProps.tsx'(oe, W, o) {
 				'use strict';
-				o.d(L, { Y: () => N });
+				o.d(W, { Y: () => N });
 				var t = o('../../node_modules/preact/dist/preact.module.js');
 				const N = (p, Z) => {
 					if (p) {
@@ -16933,9 +16965,9 @@ The error above happened in the following targeter in the Snap Config`;
 					return (0, t.Ob)(p, Z, p.props?.children && N(p.props.children, Z));
 				};
 			},
-			'./components/src/utilities/mergeProps.ts'(oe, L, o) {
+			'./components/src/utilities/mergeProps.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { D0: () => Z, fX: () => p, v6: () => t });
+				o.d(W, { D0: () => Z, fX: () => p, v6: () => t });
 				function t(A, e, H, K) {
 					const D = K.theme,
 						E = K?.name || H.name;
@@ -16962,8 +16994,8 @@ The error above happened in the following targeter in the Snap Config`;
 							e.variables && R.theme && (R.theme.variables = e.variables),
 							J && (J.indexOf('customComponent') > -1 || J.startsWith('storybook')) && (R = { ...R, ...K, treePath: J });
 					else {
-						const ee = e?.components && e.components[A];
-						ee && (R = N(ee, R)), (R = { ...R, ...K, treePath: J });
+						const q = e?.components && e.components[A];
+						q && (R = N(q, R)), (R = { ...R, ...K, treePath: J });
 						const ne = D?.components && D.components[A];
 						ne && (R = N(ne, R));
 					}
@@ -16987,20 +17019,20 @@ The error above happened in the following targeter in the Snap Config`;
 					const K = e.split(' '),
 						D = K.slice(-1).pop() ?? '',
 						[E, J] = D.split('.'),
-						R = K.map((ee) => {
-							const [ne, de] = ee.split('.');
-							return { type: ne, name: de, path: ee };
+						R = K.map((q) => {
+							const [ne, de] = q.split('.');
+							return { type: ne, name: de, path: q };
 						});
 					return (
 						J
-							? (H = H.filter((ee) => {
-									const ne = ee.split(' '),
+							? (H = H.filter((q) => {
+									const ne = q.split(' '),
 										de = ne[ne.length - 1].replace(/\*?(\([MDT]\))?/g, '');
 									if (de == E || de == `${E}.${J}`) return !0;
 							  }))
-							: (H = H.filter((ee) => ee.endsWith(E))),
-						H.filter((ee) => {
-							const ne = ee
+							: (H = H.filter((q) => q.endsWith(E))),
+						H.filter((q) => {
+							const ne = q
 								.replace(/\*?(\([MDT]\))?/g, '')
 								.split(' ')
 								.slice(0, -1);
@@ -17022,18 +17054,18 @@ The error above happened in the following targeter in the Snap Config`;
 					);
 				}
 			},
-			'./components/src/utilities/mergeStyles.ts'(oe, L, o) {
+			'./components/src/utilities/mergeStyles.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { Z: () => t });
+				o.d(W, { Z: () => t });
 				function t(N, p) {
 					const { name: Z, treePath: A, style: e, styleScript: H, themeStyleScript: K, disableStyles: D } = N,
 						E = { 'ss-name': Z, 'ss-path': A, css: [] };
 					return D || E.css.push(p(N)), K && E.css.push(K(N)), H && E.css.push(H(N)), e && E.css.push(e), E.css?.length == 0 && delete E.css, E;
 				}
 			},
-			'./src/Templates/Stores/TemplateStore.ts'(oe, L, o) {
+			'./src/Templates/Stores/TemplateStore.ts'(oe, W, o) {
 				'use strict';
-				o.d(L, { NG: () => qt, nf: () => Ce, fu: () => ro });
+				o.d(W, { NG: () => qt, nf: () => Ce, fu: () => ro });
 				var t = o('../../node_modules/mobx/dist/mobx.esm.js'),
 					N = o('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Storage/StorageStore.js'),
 					p = o('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
@@ -17098,8 +17130,8 @@ The error above happened in the following targeter in the Snap Config`;
 							const Ne = (0, A.PA)((ze) => {
 									const { self: po } = ze,
 										et = po.theme,
-										Lt = (0, D.AH)({ [`.ss__theme__${et.name}`]: le({ name: et.name, variables: et.variables }) });
-									return (0, p.Y)(E._, { children: (0, p.Y)(D.mL, { styles: Lt }) });
+										Wt = (0, D.AH)({ [`.ss__theme__${et.name}`]: le({ name: et.name, variables: et.variables }) });
+									return (0, p.Y)(E._, { children: (0, p.Y)(D.mL, { styles: Wt }) });
 								}),
 								Pt = document.createElement('style');
 							(Pt.innerHTML = `<!-- athos style injection point for "${this.name}" theme -->`),
@@ -17118,8 +17150,8 @@ The error above happened in the following targeter in the Snap Config`;
 							I = de(x, this.base),
 							V = { ...this.base },
 							le = { ...this.overrides },
-							he = ee(le, z, { variables: (0, t.HO)(this.variables) });
-						let ie = ee(V, I, this.currency, this.language, this.languageOverrides, he, { activeBreakpoint: x });
+							he = q(le, z, { variables: (0, t.HO)(this.variables) });
+						let ie = q(V, I, this.currency, this.language, this.languageOverrides, he, { activeBreakpoint: x });
 						for (const Ze in ie.components) {
 							const pt = ie.components[Ze]?.theme?.components;
 							if (pt)
@@ -17134,7 +17166,7 @@ The error above happened in the following targeter in the Snap Config`;
 											}
 										});
 						}
-						return this.stored && (ie = ee(ie, this.stored)), this.editMode && (ie = ee(ie, this.editorOverrides)), (ie.name = this.name), ie;
+						return this.stored && (ie = q(ie, this.stored)), this.editMode && (ie = q(ie, this.editorOverrides)), (ie.name = this.name), ie;
 					}
 					setInnerWidth(u) {
 						this.innerWidth = u;
@@ -17153,13 +17185,13 @@ The error above happened in the following targeter in the Snap Config`;
 									.reverse()
 									.reduce((le, he) => (x.indexOf(he) === x.length - 1 ? { [he]: I } : { [he]: le }), {}),
 							};
-						(this.stored = ee(this.stored, V)), this.dependencies.storage.set(`themes.${this.type}.${this.name}.variables`, this.stored);
+						(this.stored = q(this.stored, V)), this.dependencies.storage.set(`themes.${this.type}.${this.name}.variables`, this.stored);
 					}
 					setEditorOverrides(u) {
 						this.editorOverrides = u;
 					}
 				}
-				function ee(...X) {
+				function q(...X) {
 					return H().all(X, { arrayMerge: te });
 				}
 				function ne(X, u) {
@@ -17646,9 +17678,9 @@ The error above happened in the following targeter in the Snap Config`;
 					}
 				}
 			},
-			'./src/create/createSearchController.ts'(oe, L, o) {
+			'./src/create/createSearchController.ts'(oe, W, o) {
 				'use strict';
-				o.r(L), o.d(L, { default: () => J });
+				o.r(W), o.d(W, { default: () => J });
 				var t = o('../../node_modules/@athoscommerce/snap-controller/dist/esm/Search/SearchController.js'),
 					N = o('../../node_modules/@athoscommerce/snap-client/dist/esm/Client/Client.js'),
 					p = o('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Search/SearchStore.js'),
@@ -17659,29 +17691,29 @@ The error above happened in the following targeter in the Snap Config`;
 					K = o('../../node_modules/@athoscommerce/snap-profiler/dist/esm/Profiler.js'),
 					D = o('../../node_modules/@athoscommerce/snap-logger/dist/esm/Logger.js'),
 					E = o('../../node_modules/@athoscommerce/snap-tracker/dist/esm/Tracker.js');
-				const J = (R, ee) => {
-					const ne = ee?.urlManager || new Z.V(new e.E(R.url), A.X);
+				const J = (R, q) => {
+					const ne = q?.urlManager || new Z.V(new e.E(R.url), A.X);
 					return (
 						R.mode && R.client && ((R.client.config = R.client.config || {}), (R.client.config.mode = R.mode)),
 						new t.Tp(
 							R.controller,
 							{
-								client: ee?.client || new N.K(R.client.globals, R.client.config),
-								store: ee?.store || new p.U(R.controller, { urlManager: ne }),
+								client: q?.client || new N.K(R.client.globals, R.client.config),
+								store: q?.store || new p.U(R.controller, { urlManager: ne }),
 								urlManager: ne,
-								eventManager: ee?.eventManager || new H.E(),
-								profiler: ee?.profiler || new K.U(),
-								logger: ee?.logger || new D.V({ mode: R.mode }),
-								tracker: ee?.tracker || new E.J(R.client.globals),
+								eventManager: q?.eventManager || new H.E(),
+								profiler: q?.profiler || new K.U(),
+								logger: q?.logger || new D.V({ mode: R.mode }),
+								tracker: q?.tracker || new E.J(R.client.globals),
 							},
 							R.context
 						)
 					);
 				};
 			},
-			'../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'(oe, L, o) {
+			'../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'(oe, W, o) {
 				'use strict';
-				o.d(L, { A: () => e });
+				o.d(W, { A: () => e });
 				var t = o('../../node_modules/css-loader/dist/runtime/sourceMaps.js'),
 					N = o.n(t),
 					p = o('../../node_modules/css-loader/dist/runtime/api.js'),
@@ -17791,7 +17823,7 @@ body.sb-show-main {
 			},
 			'./components/src lazy recursive ^\\.\\/.*$ include: (?:\\/components\\/src(?:\\/(?%21\\.)(?:(?:(?%21(?:^%7C\\/)\\.).)*?)\\/%7C\\/%7C$)(?%21\\.)(?=.)[^/]*?\\.mdx)$'(
 				oe,
-				L,
+				W,
 				o
 			) {
 				var t = {
@@ -17820,7 +17852,7 @@ body.sb-show-main {
 			},
 			'./components/src lazy recursive ^\\.\\/.*$ include: (?:\\/components\\/src(?:\\/(?%21\\.)(?:(?:(?%21(?:^%7C\\/)\\.).)*?)\\/%7C\\/%7C$)(?%21\\.)(?=.)[^/]*?\\.stories\\.(js%7Cjsx%7Cts%7Ctsx))$'(
 				oe,
-				L,
+				W,
 				o
 			) {
 				var t = {
@@ -17875,8 +17907,11 @@ body.sb-show-main {
 						'./components/src/components/Atoms/InlineBanner/InlineBanner.stories.tsx',
 						[6384, 2240, 9456, 54],
 					],
-					'./components/Atoms/Loading/LoadingBar.stories': ['./components/src/components/Atoms/Loading/LoadingBar.stories.tsx', [6384, 7573]],
-					'./components/Atoms/Loading/LoadingBar.stories.tsx': ['./components/src/components/Atoms/Loading/LoadingBar.stories.tsx', [6384, 7573]],
+					'./components/Atoms/LoadingBar/LoadingBar.stories': ['./components/src/components/Atoms/LoadingBar/LoadingBar.stories.tsx', [6384, 1314]],
+					'./components/Atoms/LoadingBar/LoadingBar.stories.tsx': [
+						'./components/src/components/Atoms/LoadingBar/LoadingBar.stories.tsx',
+						[6384, 1314],
+					],
 					'./components/Atoms/Overlay/Overlay.stories': ['./components/src/components/Atoms/Overlay/Overlay.stories.tsx', [6384, 8982]],
 					'./components/Atoms/Overlay/Overlay.stories.tsx': ['./components/src/components/Atoms/Overlay/Overlay.stories.tsx', [6384, 8982]],
 					'./components/Atoms/PaginationInfo/PaginationInfo.stories': [
@@ -18328,7 +18363,7 @@ body.sb-show-main {
 						'./components/src lazy recursive ^\\.\\/.*$ include: (?:\\/components\\/src(?:\\/(?%21\\.)(?:(?:(?%21(?:^%7C\\/)\\.).)*?)\\/%7C\\/%7C$)(?%21\\.)(?=.)[^/]*?\\.stories\\.(js%7Cjsx%7Cts%7Ctsx))$'),
 					(oe.exports = N);
 			},
-			'./storybook-config-entry.js'(oe, L, o) {
+			'./storybook-config-entry.js'(oe, W, o) {
 				'use strict';
 				var t = o('@storybook/global'),
 					N = o('@storybook/preview-api'),
@@ -18398,11 +18433,11 @@ body.sb-show-main {
 			},
 		},
 		(oe) => {
-			var L = (t) => oe((oe.s = t));
-			oe.O(0, [5949], () => L('./storybook-config-entry.js'));
+			var W = (t) => oe((oe.s = t));
+			oe.O(0, [5949], () => W('./storybook-config-entry.js'));
 			var o = oe.O();
 		},
 	]);
 })();
 
-//# sourceMappingURL=main.d2b2d758.iframe.bundle.js.map
+//# sourceMappingURL=main.d3cd5b2e.iframe.bundle.js.map

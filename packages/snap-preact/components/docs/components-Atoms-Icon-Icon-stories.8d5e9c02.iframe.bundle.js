@@ -2,16 +2,16 @@
 	(self.webpackChunk_athoscommerce_snap_preact = self.webpackChunk_athoscommerce_snap_preact || []).push([
 		[6634],
 		{
-			'./components/src/components/Atoms/Icon/Icon.stories.tsx'(d, t, n) {
+			'./components/src/components/Atoms/Icon/Icon.stories.tsx'(m, n, e) {
 				'use strict';
-				n.r(t), n.d(t, { Custom: () => l, CustomPath: () => p, Default: () => a, Gallery: () => m, __namedExportsOrder: () => f, default: () => g });
-				var e = n('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = n('../../node_modules/@storybook/blocks/dist/index.mjs'),
-					o = n('./components/src/components/Atoms/Icon/Icon.tsx'),
-					u = n('./components/src/components/Atoms/Icon/paths.tsx'),
-					s = n('./components/src/utilities/storybook.tsx'),
-					c = n('./components/src/utilities/componentArgs.ts');
-				const h = `# Icon
+				e.r(n), e.d(n, { CustomPath: () => a, Default: () => c, Gallery: () => l, __namedExportsOrder: () => g, default: () => h });
+				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
+					s = e('../../node_modules/@storybook/blocks/dist/index.mjs'),
+					r = e('./components/src/components/Atoms/Icon/Icon.tsx'),
+					d = e('./components/src/components/Atoms/Icon/paths.tsx'),
+					o = e('./components/src/utilities/storybook.tsx'),
+					i = e('./components/src/utilities/componentArgs.ts');
+				const y = `# Icon
 
 Renders an Icon either from our list of available icons or from a custom path. 
 
@@ -166,15 +166,15 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
 <Icon icon='cogs' viewBox={'0 0 20 20'} />
 \`\`\`
 `,
-					g = {
+					h = {
 						title: 'Atoms/Icon',
-						component: o.I,
+						component: r.I,
 						tags: ['autodocs'],
 						parameters: {
 							docs: {
 								page: () =>
-									(0, e.FD)('div', {
-										children: [(0, e.Y)(i.oz, { options: { overrides: { code: s.Z } }, children: h }), (0, e.Y)(i.uY, { story: i.h1 })],
+									(0, t.FD)('div', {
+										children: [(0, t.Y)(s.oz, { options: { overrides: { code: o.Z } }, children: y }), (0, t.Y)(s.uY, { story: s.h1 })],
 									}),
 							},
 							actions: { disabled: !0 },
@@ -183,7 +183,7 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
 							icon: {
 								description: 'Icon name',
 								table: { type: { summary: 'string' }, category: 'Templates Legal' },
-								options: [...Object.keys(u.c)],
+								options: [...Object.keys(d.c)],
 								control: { type: 'select' },
 							},
 							path: {
@@ -238,22 +238,45 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
 								table: { type: { summary: 'string' }, category: 'Templates Legal', defaultValue: { summary: '0 0 56 56' } },
 								control: { type: 'text' },
 							},
-							...c.F,
+							...i.F,
 						},
 					},
-					a = (r) => (0, e.Y)(o.I, { ...r });
-				a.args = { icon: 'cogs' };
-				const l = (r) => (0, e.Y)(o.I, { ...r });
-				l.args = { color: '#00cee1', icon: 'cog', size: '60px' };
-				const p = (r) => (0, e.Y)(o.I, { ...r });
-				p.args = {
-					path: 'M12.9,13.8C12.9,13.8,12.9,13.8,12.9,13.8c-0.1,0.1-0.3,0.2-0.5,0.2C4.5,17.9,1.9,28.8,6.6,38.5l28.6-13.8 c0,0,0,0,0,0c0.2-0.1,0.3-0.1,0.5-0.2C43.5,20.6,46.2,9.7,41.5,0L12.9,13.8zM8.6,42.1C8.6,42.1,8.6,42.1,8.6,42.1c-0.1,0.1-0.3,0.1-0.5,0.2C0.3,46.1-2.4,57,2.3,66.7l28.6-13.8 c0,0,0,0,0,0c0.2-0.1,0.3-0.1,0.5-0.2c7.9-3.8,10.5-14.8,5.8-24.4L8.6,42.1z',
+					c = (p) => (0, t.Y)(r.I, { ...p });
+				c.args = { icon: 'cogs' };
+				const a = (p) => (0, t.Y)(r.I, { ...p });
+				a.args = {
+					path: [
+						{
+							type: 'path',
+							attributes: {
+								d: 'M592.1,203.3c0,41.8-30.7,75.9-68.5,75.9h-151.9c-53.3,0-86.1-64.4-58.7-115.2l63.7-118.3c12.5-22.9,34.6-36.9,58.7-36.9h87.9c37.8,0,68.5,34.1,68.5,75.9l.3,118.6Z',
+							},
+						},
+						{
+							type: 'path',
+							attributes: {
+								d: 'M592.1,516.1c0,41.8-30.7,75.9-68.5,75.9h-151.9c-53.3,0-86.1-64.4-58.7-115.2l63.7-118.3c12.5-22.9,34.6-36.9,58.7-36.9h87.9c37.8,0,68.5,34.1,68.5,75.9l.3,118.6Z',
+							},
+						},
+						{
+							type: 'path',
+							attributes: {
+								d: 'M8.9,84.7C8.9,42.9,39.6,8.8,77.4,8.8h151.9c53.3,0,86.1,64.4,58.7,115.2l-63.7,118.3c-12.5,22.9-34.6,36.9-58.7,36.9h-87.9c-37.8,0-68.5-34.1-68.5-75.9l-.3-118.6Z',
+							},
+						},
+						{
+							type: 'path',
+							attributes: {
+								d: 'M8.9,397.6c0-41.8,30.7-75.9,68.5-75.9h151.9c53.3,0,86.1,64.4,58.7,115.2l-63.7,118.3c-12.5,22.9-34.6,36.9-58.7,36.9h-87.9c-37.8,0-68.5-34.1-68.5-75.9l-.3-118.6Z',
+							},
+						},
+					],
 					size: '70px',
-					viewBox: '0 0 70 70',
+					viewBox: '0 0 670 670',
 				};
-				const m = () => {
-					const r = ['layout-large', 'layout-grid'];
-					return (0, e.Y)('div', {
+				const l = () => {
+					const p = ['layout-large', 'layout-grid'];
+					return (0, t.Y)('div', {
 						style: {
 							display: 'flex',
 							flexWrap: 'wrap',
@@ -261,20 +284,27 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
 								'"Nunito Sans",-apple-system,".SFNSText-Regular","San Francisco",BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif',
 							fontSize: '10px',
 						},
-						children: Object.keys(u.c)
-							.filter((y) => !r.includes(y))
-							.map((y) =>
-								(0, e.FD)('div', {
+						children: Object.keys(d.c)
+							.filter((u) => !p.includes(u))
+							.map((u) =>
+								(0, t.FD)('div', {
 									style: { marginBottom: '40px' },
 									children: [
-										(0, e.Y)(o.I, { icon: y, size: '40px', style: { margin: '20px' } }),
-										(0, e.Y)('div', { style: { textAlign: 'center' }, children: y }),
+										(0, t.Y)(r.I, { icon: u, size: '40px', style: { margin: '20px' } }),
+										(0, t.Y)('div', { style: { textAlign: 'center' }, children: u }),
 									],
 								})
 							),
 					});
 				};
-				(m.parameters = { controls: { expanded: !1, disabled: !0 }, options: { showPanel: !1 } }),
+				(l.parameters = { controls: { expanded: !1, disabled: !0 }, options: { showPanel: !1 } }),
+					(c.parameters = {
+						...c.parameters,
+						docs: {
+							...c.parameters?.docs,
+							source: { originalSource: '(props: IconProps): JSX.Element => <Icon {...props} />', ...c.parameters?.docs?.source },
+						},
+					}),
 					(a.parameters = {
 						...a.parameters,
 						docs: {
@@ -286,20 +316,6 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
 						...l.parameters,
 						docs: {
 							...l.parameters?.docs,
-							source: { originalSource: '(props: IconProps): JSX.Element => <Icon {...props} />', ...l.parameters?.docs?.source },
-						},
-					}),
-					(p.parameters = {
-						...p.parameters,
-						docs: {
-							...p.parameters?.docs,
-							source: { originalSource: '(props: IconProps): JSX.Element => <Icon {...props} />', ...p.parameters?.docs?.source },
-						},
-					}),
-					(m.parameters = {
-						...m.parameters,
-						docs: {
-							...m.parameters?.docs,
 							source: {
 								originalSource: `() => {
   const legacyPaths = ['layout-large', 'layout-grid'];
@@ -323,16 +339,16 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
     })}
         </div>;
 }`,
-								...m.parameters?.docs?.source,
+								...l.parameters?.docs?.source,
 							},
 						},
 					});
-				const f = ['Default', 'Custom', 'CustomPath', 'Gallery'];
+				const g = ['Default', 'CustomPath', 'Gallery'];
 			},
-			'./components/src/utilities/componentArgs.ts'(d, t, n) {
+			'./components/src/utilities/componentArgs.ts'(m, n, e) {
 				'use strict';
-				n.d(t, { F: () => e });
-				const e = {
+				e.d(n, { F: () => t });
+				const t = {
 					className: {
 						description: 'Class name appended to root element of component',
 						table: { type: { summary: 'string' }, category: 'default Props', defaultValue: { summary: 'ss__${component-name}' } },
@@ -356,31 +372,31 @@ Format: \`\` \`\${min-x} \${min-y} \${width} \${height}\` \`\`
 					},
 				};
 			},
-			'./components/src/utilities/storybook.tsx'(d, t, n) {
+			'./components/src/utilities/storybook.tsx'(m, n, e) {
 				'use strict';
-				n.d(t, { Z: () => u });
-				var e = n('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = n('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const o = 'prism-block',
-					u = (s) => {
-						const c = (0, i.li)(null);
+				e.d(n, { Z: () => d });
+				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
+					s = e('../../node_modules/preact/hooks/dist/hooks.module.js');
+				const r = 'prism-block',
+					d = (o) => {
+						const i = (0, s.li)(null);
 						return (
-							(0, i.vJ)(() => {
-								c.current && s.className?.includes('lang-') && !s.className?.includes(o) && window?.Prism?.highlightElement(c.current);
-							}, [s.className, s.children, c]),
-							(0, e.Y)('code', { ...s, ref: c, 'data-prismjs-copy': 'Copy' })
+							(0, s.vJ)(() => {
+								i.current && o.className?.includes('lang-') && !o.className?.includes(r) && window?.Prism?.highlightElement(i.current);
+							}, [o.className, o.children, i]),
+							(0, t.Y)('code', { ...o, ref: i, 'data-prismjs-copy': 'Copy' })
 						);
 					};
 			},
-			'../../node_modules/memoizerific sync recursive'(d) {
-				function t(n) {
-					var e = new Error("Cannot find module '" + n + "'");
-					throw ((e.code = 'MODULE_NOT_FOUND'), e);
+			'../../node_modules/memoizerific sync recursive'(m) {
+				function n(e) {
+					var t = new Error("Cannot find module '" + e + "'");
+					throw ((t.code = 'MODULE_NOT_FOUND'), t);
 				}
-				(t.keys = () => []), (t.resolve = t), (t.id = '../../node_modules/memoizerific sync recursive'), (d.exports = t);
+				(n.keys = () => []), (n.resolve = n), (n.id = '../../node_modules/memoizerific sync recursive'), (m.exports = n);
 			},
 		},
 	]);
 })();
 
-//# sourceMappingURL=components-Atoms-Icon-Icon-stories.7b0ef405.iframe.bundle.js.map
+//# sourceMappingURL=components-Atoms-Icon-Icon-stories.8d5e9c02.iframe.bundle.js.map

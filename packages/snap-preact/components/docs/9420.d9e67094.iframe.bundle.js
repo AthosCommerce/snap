@@ -39,17 +39,17 @@
 				e.d(t, { G: () => W });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/filters/formatNumber.js'),
+					C = e('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/filters/formatNumber.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('./components/src/providers/cache.tsx'),
-					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					x = e('./components/src/providers/treePath.tsx'),
 					_ = e('./components/src/utilities/mergeProps.ts'),
 					P = e('./components/src/utilities/mergeStyles.ts');
 				const M = () => (0, v.AH)({});
 				function W(A) {
-					const b = (0, C.u)(),
+					const b = (0, B.u)(),
 						I = {
 							symbol: '',
 							decimalPlaces: 3,
@@ -72,7 +72,7 @@
 							internalClassName: K,
 							raw: O,
 						} = R,
-						l = B.Z(d, { symbol: i, decimalPlaces: E, padDecimalPlaces: m, thousandsSeparator: g, decimalSeparator: p, symbolAfter: c }),
+						l = C.Z(d, { symbol: i, decimalPlaces: E, padDecimalPlaces: m, thousandsSeparator: g, decimalSeparator: p, symbolAfter: c }),
 						U = (0, P.Z)(R, M);
 					return O
 						? (0, s.Y)(s.FK, { children: l })
@@ -96,20 +96,20 @@
 				e.d(t, { _: () => s._ });
 				var s = e('./components/src/components/Atoms/InlineBanner/InlineBanner.tsx');
 			},
-			'./components/src/components/Atoms/Loading/LoadingBar.tsx'(n, t, e) {
+			'./components/src/components/Atoms/LoadingBar/LoadingBar.tsx'(n, t, e) {
 				e.d(t, { G: () => W });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/mobx-react-lite/es/index.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('./components/src/providers/cache.tsx'),
-					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					x = e('./components/src/providers/treePath.tsx'),
 					_ = e('./components/src/utilities/mergeProps.ts'),
 					P = e('./components/src/utilities/mergeStyles.ts');
 				const M = ({ color: A, height: b, backgroundColor: S, theme: I }) => {
-						const R = (0, B.i7)({
+						const R = (0, C.i7)({
 							from: { left: '-200px', width: '30%' },
 							'50%': { width: '30%' },
 							'70%': { width: '70%' },
@@ -117,7 +117,7 @@
 							'95%': { left: '120%' },
 							to: { left: '100%' },
 						});
-						return (0, B.AH)({
+						return (0, C.AH)({
 							height: b,
 							position: 'fixed',
 							top: '0',
@@ -140,7 +140,7 @@
 						});
 					},
 					W = (0, v.PA)((A) => {
-						const b = (0, C.u)(),
+						const b = (0, B.u)(),
 							I = { height: '5px', treePath: (0, x.LU)() },
 							R = (0, _.v6)('loadingBar', b, I, A),
 							{ active: d, className: i, internalClassName: E } = R,
@@ -156,9 +156,9 @@
 							: null;
 					});
 			},
-			'./components/src/components/Atoms/Loading/index.ts'(n, t, e) {
+			'./components/src/components/Atoms/LoadingBar/index.ts'(n, t, e) {
 				e.d(t, { G: () => s.G });
-				var s = e('./components/src/components/Atoms/Loading/LoadingBar.tsx');
+				var s = e('./components/src/components/Atoms/LoadingBar/LoadingBar.tsx');
 			},
 			'./components/src/components/Atoms/Overlay/index.ts'(n, t, e) {
 				e.d(t, { h: () => s.h });
@@ -180,11 +180,11 @@
 				e.d(t, { E: () => W });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/classnames/index.js'),
-					o = e.n(B),
+					C = e('../../node_modules/classnames/index.js'),
+					o = e.n(C),
 					a = e('../../node_modules/mobx-react-lite/es/index.js'),
 					u = e('./components/src/providers/cache.tsx'),
-					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					x = e('./components/src/providers/treePath.tsx'),
 					_ = e('./components/src/utilities/mergeProps.ts'),
 					P = e('./components/src/utilities/mergeStyles.ts');
@@ -216,7 +216,7 @@
 						});
 					},
 					W = (0, a.PA)((A) => {
-						const b = (0, C.u)(),
+						const b = (0, B.u)(),
 							I = { backgroundColor: '#ebebeb', animatedColor: '#f5f5f5', treePath: (0, x.LU)() },
 							R = (0, _.v6)('skeleton', b, I, A),
 							{ className: d, internalClassName: i } = R,
@@ -244,11 +244,11 @@
 				e.d(t, { z: () => p });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/classnames/index.js'),
-					o = e.n(B),
+					C = e('../../node_modules/classnames/index.js'),
+					o = e.n(C),
 					a = e('../../node_modules/mobx-react-lite/es/index.js'),
 					u = e('./components/src/components/Atoms/Icon/Icon.tsx'),
-					C = e('./components/src/components/Atoms/Button/Button.tsx'),
+					B = e('./components/src/components/Atoms/Button/Button.tsx'),
 					x = e('./components/src/utilities/defined.ts'),
 					_ = e('./components/src/utilities/Colour/Colour.ts'),
 					P = e('./components/src/utilities/mergeProps.ts'),
@@ -362,7 +362,7 @@
 																],
 															}),
 															j?.code == 429
-																? (0, s.Y)(C.$, {
+																? (0, s.Y)(B.$, {
 																		...N.buttonRetry,
 																		onClick: (Z) => {
 																			L ? L(Z) : U?.search();
@@ -498,11 +498,11 @@
 				e.d(t, { j: () => I });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/classnames/index.js'),
-					o = e.n(B),
+					C = e('../../node_modules/classnames/index.js'),
+					o = e.n(C),
 					a = e('../../node_modules/mobx-react-lite/es/index.js'),
 					u = e('./components/src/providers/cache.tsx');
-				const C = () =>
+				const B = () =>
 					(0, s.Y)('svg', {
 						id: 'Layer_2',
 						className: 'athos-logo',
@@ -1045,7 +1045,7 @@
 									(0, s.FD)('div', {
 										className: 'ss__template-editor__header',
 										children: [
-											(0, s.Y)('div', { className: 'logo', children: (0, s.Y)(C, {}) }),
+											(0, s.Y)('div', { className: 'logo', children: (0, s.Y)(B, {}) }),
 											(0, s.FD)('div', {
 												className: 'header-actions',
 												onClick: (c) => {
@@ -1190,11 +1190,11 @@
 				e.d(t, { i: () => d });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/mobx-react-lite/es/index.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('./components/src/providers/cache.tsx'),
-					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					x = e('./components/src/providers/treePath.tsx'),
 					_ = e('./components/src/toolbox/createHoverProps/createHoverProps.ts'),
 					P = e('./components/src/utilities/mergeProps.ts'),
@@ -1203,7 +1203,7 @@
 					A = e('../../node_modules/deepmerge/dist/cjs.js'),
 					b = e.n(A);
 				const S = ({ vertical: i, theme: E }) =>
-						(0, B.AH)({
+						(0, C.AH)({
 							'.ss__terms__title': {
 								fontWeight: 'normal',
 								margin: 0,
@@ -1239,7 +1239,7 @@
 						return `<em>${i}</em>`;
 					},
 					d = (0, v.PA)((i) => {
-						const E = (0, C.u)(),
+						const E = (0, B.u)(),
 							g = { vertical: !0, previewOnHover: !0, treePath: (0, x.LU)() },
 							p = (0, P.v6)('terms', E, g, i),
 							{ title: c, onTermClick: r, limit: K, previewOnHover: O, emIfy: l, className: U, internalClassName: h, controller: T } = p,
@@ -1300,11 +1300,11 @@
 				e.d(t, { n: () => R });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/classnames/index.js'),
-					o = e.n(B),
+					C = e('../../node_modules/classnames/index.js'),
+					o = e.n(C),
 					a = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
 					u = e('./components/src/components/Atoms/Icon/Icon.tsx'),
-					C = e('./components/src/utilities/defined.ts'),
+					B = e('./components/src/utilities/defined.ts'),
 					x = e('./components/src/utilities/mergeProps.ts'),
 					_ = e('./components/src/utilities/mergeStyles.ts'),
 					P = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
@@ -1447,7 +1447,7 @@
 								icon: {
 									internalClassName: 'ss__branch-override__bottom__left__icon',
 									size: '12px',
-									...(0, C.s)({ disableStyles: U }),
+									...(0, B.s)({ disableStyles: U }),
 									theme: g?.theme,
 									treePath: T,
 								},
@@ -1548,18 +1548,18 @@
 				e.d(t, { G: () => b });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/mobx-react-lite/es/index.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('./components/src/providers/cache.tsx'),
-					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					x = e('./components/src/providers/treePath.tsx'),
 					_ = e('./components/src/utilities/defined.ts'),
 					P = e('./components/src/utilities/mergeProps.ts'),
 					M = e('./components/src/utilities/mergeStyles.ts'),
 					W = e('./components/src/components/Molecules/Terms/Terms.tsx');
 				const A = ({}) =>
-						(0, B.AH)({
+						(0, C.AH)({
 							display: 'flex',
 							flexDirection: 'row',
 							background: '#f8f8f8',
@@ -1570,7 +1570,7 @@
 							'.ss__terms-list__separator': { flexGrow: 1, flexShrink: 1 },
 						}),
 					b = (0, v.PA)((S) => {
-						const I = (0, C.u)(),
+						const I = (0, B.u)(),
 							R = (0, x.LU)(),
 							d = {
 								layout: [['Suggestions'], ['Trending'], ['History']],
@@ -1663,12 +1663,12 @@
 				e.d(t, { A: () => p });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('../../node_modules/mobx-react-lite/es/index.js'),
-					C = e('../../node_modules/deepmerge/dist/cjs.js'),
-					x = e.n(C),
+					B = e('../../node_modules/deepmerge/dist/cjs.js'),
+					x = e.n(B),
 					_ = e('./components/src/components/Molecules/Carousel/Carousel.tsx'),
 					P = e('./components/src/components/Molecules/Result/Result.tsx'),
 					M = e('./components/src/utilities/defined.ts'),
@@ -1682,7 +1682,7 @@
 					i = e('./components/src/components/Trackers/Recommendation/ProfileTracker/RecommendationProfileTracker.tsx'),
 					E = e('./components/src/hooks/useLang.tsx'),
 					m = e('./components/src/components/Trackers/ResultTracker/ResultTracker.tsx');
-				const g = ({ vertical: c }) => (0, B.AH)({ height: c ? '100%' : void 0, '.ss__result__image-wrapper': { height: c ? '85%' : void 0 } }),
+				const g = ({ vertical: c }) => (0, C.AH)({ height: c ? '100%' : void 0, '.ss__result__image-wrapper': { height: c ? '85%' : void 0 } }),
 					p = (0, u.PA)((c) => {
 						const r = (0, I.u)(),
 							K = (0, R.LU)(),
@@ -1811,16 +1811,16 @@
 				e.d(t, { F: () => M });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					o = e('../../node_modules/mobx-react-lite/es/index.js'),
 					a = e('./components/src/utilities/defined.ts'),
 					u = e('./components/src/utilities/mergeProps.ts'),
-					C = e('./components/src/utilities/mergeStyles.ts'),
+					B = e('./components/src/utilities/mergeStyles.ts'),
 					x = e('./components/src/components/Templates/RecommendationBundle/RecommendationBundle.tsx');
 				const _ = () => (0, v.AH)({ '.ss__recommendation-bundle-easy-add__wrapper__cta': { textAlign: 'center' } }),
 					P = 'recommendationBundleEasyAdd',
 					M = (0, o.PA)((W) => {
-						const A = (0, B.u)(),
+						const A = (0, C.u)(),
 							b = { name: W.controller?.store?.profile?.tag?.toLowerCase(), ...W },
 							{ treePath: S, disableStyles: I, controller: R, style: d, styleScript: i, themeStyleScript: E, ...m } = b,
 							g = {
@@ -1840,7 +1840,7 @@
 								},
 							},
 							p = (0, u.v6)(P, A, {}, b),
-							c = (0, C.Z)(p, _);
+							c = (0, B.Z)(p, _);
 						return (0, s.Y)(x.g, { controller: R, ...c, ...g.recommendationBundle, ...m });
 					});
 			},
@@ -1852,11 +1852,11 @@
 				e.d(t, { X: () => c, a: () => p });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					o = e('../../node_modules/mobx-react-lite/es/index.js'),
 					a = e('./components/src/utilities/defined.ts'),
 					u = e('./components/src/utilities/mergeProps.ts'),
-					C = e('./components/src/utilities/mergeStyles.ts'),
+					B = e('./components/src/utilities/mergeStyles.ts'),
 					x = e('./components/src/components/Templates/RecommendationBundle/RecommendationBundle.tsx'),
 					_ = e('./components/src/components/Atoms/Price/Price.tsx'),
 					P = e('./components/src/components/Atoms/Button/Button.tsx'),
@@ -1894,7 +1894,7 @@
 						}),
 					g = 'recommendationBundleList',
 					p = (0, o.PA)((r) => {
-						const K = (0, B.u)(),
+						const K = (0, C.u)(),
 							O = { name: r.controller?.store?.profile?.tag?.toLowerCase(), ...r },
 							{ treePath: l, disableStyles: U, controller: h, style: T, styleScript: L, themeStyleScript: f, ...D } = O,
 							$ = {
@@ -1915,7 +1915,7 @@
 								},
 							},
 							N = (0, u.v6)(g, K, {}, O),
-							j = (0, C.Z)(N, m);
+							j = (0, B.Z)(N, m);
 						return (0, s.Y)(x.g, { controller: h, ...j, ...$.recommendationBundle, ...D });
 					}),
 					c = (0, o.PA)((r) => {
@@ -2017,11 +2017,11 @@
 				e.d(t, { a: () => M });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					o = e('../../node_modules/mobx-react-lite/es/index.js'),
 					a = e('./components/src/utilities/defined.ts'),
 					u = e('./components/src/utilities/mergeProps.ts'),
-					C = e('./components/src/utilities/mergeStyles.ts'),
+					B = e('./components/src/utilities/mergeStyles.ts'),
 					x = e('./components/src/components/Templates/RecommendationBundle/RecommendationBundle.tsx');
 				const _ = () =>
 						(0, v.AH)({
@@ -2030,7 +2030,7 @@
 						}),
 					P = 'recommendationBundleVertical',
 					M = (0, o.PA)((W) => {
-						const A = (0, B.u)(),
+						const A = (0, C.u)(),
 							b = { name: W.controller?.store?.profile?.tag?.toLowerCase(), ...W },
 							{ treePath: S, disableStyles: I, controller: R, style: d, styleScript: i, themeStyleScript: E, ...m } = b,
 							g = {
@@ -2045,7 +2045,7 @@
 								},
 							},
 							p = (0, u.v6)(P, A, {}, b),
-							c = (0, C.Z)(p, _);
+							c = (0, B.Z)(p, _);
 						return (0, s.Y)(x.g, { controller: R, ...c, ...g.recommendationBundle, ...m });
 					});
 			},
@@ -2057,18 +2057,18 @@
 				e.d(t, { O: () => W, i: () => b });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					B = e('../../node_modules/mobx-react-lite/es/index.js'),
+					C = e('../../node_modules/mobx-react-lite/es/index.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('./components/src/components/Molecules/Result/Result.tsx'),
-					C = e('./components/src/utilities/defined.ts'),
+					B = e('./components/src/utilities/defined.ts'),
 					x = e('./components/src/utilities/mergeProps.ts'),
 					_ = e('./components/src/utilities/mergeStyles.ts'),
 					P = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					M = e('./components/src/providers/treePath.tsx');
 				const W = { default: {}, mobile: {}, tablet: {}, desktop: {} },
 					A = () => (0, v.AH)({}),
-					b = (0, B.PA)((S) => {
+					b = (0, C.PA)((S) => {
 						const I = (0, P.u)(),
 							R = (0, M.LU)(),
 							d = { resultWidth: '240px', name: S.controller?.store?.profile?.tag?.toLowerCase(), treePath: R },
@@ -2085,7 +2085,7 @@
 								className: l,
 							} = i,
 							U = {
-								result: { internalClassName: 'ss__recommendation-email__result', ...(0, C.s)({ disableStyles: K }), theme: i?.theme, treePath: r },
+								result: { internalClassName: 'ss__recommendation-email__result', ...(0, B.s)({ disableStyles: K }), theme: i?.theme, treePath: r },
 							},
 							h = (0, _.Z)(i, A),
 							T = m || E?.store?.results || [];
@@ -2123,11 +2123,11 @@
 				e.d(t, { q: () => g });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/mobx-react-lite/es/index.js'),
-					B = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					C = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					o = e('../../node_modules/classnames/index.js'),
 					a = e.n(o),
 					u = e('../../node_modules/deepmerge/dist/cjs.js'),
-					C = e.n(u),
+					B = e.n(u),
 					x = e('./components/src/components/Molecules/Result/Result.tsx'),
 					_ = e('./components/src/utilities/defined.ts'),
 					P = e('./components/src/utilities/mergeProps.ts'),
@@ -2142,7 +2142,7 @@
 					i = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
 					E = e('./components/src/hooks/useIntersection.tsx');
 				const m = ({ gapSize: p, columns: c }) =>
-						(0, B.AH)({
+						(0, C.AH)({
 							maxWidth: '100%',
 							maxHeight: '100%',
 							'.ss__recommendation-grid__results': {
@@ -2168,7 +2168,7 @@
 						let l = (0, P.v6)('recommendationGrid', c, K, O);
 						if (!p.theme?.name) {
 							const z = (0, S.X)(l?.breakpoints || {}),
-								k = C()(l?.theme || {}, z?.theme || {}, { arrayMerge: (q, se) => se });
+								k = B()(l?.theme || {}, z?.theme || {}, { arrayMerge: (q, se) => se });
 							l = { ...l, ...z, theme: k };
 						}
 						const {
@@ -2255,10 +2255,10 @@
 				e.d(t, { j: () => a });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/mobx-react-lite/es/index.js'),
-					B = e('./components/src/providers/cache.tsx'),
+					C = e('./components/src/providers/cache.tsx'),
 					o = e('./components/src/components/Templates/Search/Search.tsx');
 				const a = (0, v.PA)((u) =>
-					(0, s.Y)(B._, { children: (0, s.Y)(o.v, { ...u, alias: 'searchHorizontal', internalClassName: 'ss__search-horizontal' }) })
+					(0, s.Y)(C._, { children: (0, s.Y)(o.v, { ...u, alias: 'searchHorizontal', internalClassName: 'ss__search-horizontal' }) })
 				);
 			},
 			'./components/src/components/Templates/SearchHorizontal/index.ts'(n, t, e) {
@@ -2278,15 +2278,15 @@
 					aZ: () => _.aZ,
 					DH: () => _.DH,
 					JA: () => P.Lang,
-					QQ: () => C.Q,
+					QQ: () => B.Q,
 					iy: () => _.iy,
 					Ls: () => s.L,
 					xZ: () => A.x,
-					QH: () => B,
+					QH: () => C,
 					iG: () => W.i,
 					Ij: () => M.I,
 					rU: () => M.r,
-					Xs: () => C.X,
+					Xs: () => B.X,
 					dw: () => x.d,
 					v1: () => a.v,
 					vS: () => u.v,
@@ -2296,14 +2296,14 @@
 				});
 				var s = e('./components/src/hooks/useClickOutside.tsx'),
 					v = e('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const B = (R = () => {}) => {
+				const C = (R = () => {}) => {
 					const d = (0, v.li)(!1);
 					d.current || (R(), (d.current = !0));
 				};
 				var o = e('./components/src/hooks/useMediaQuery.tsx'),
 					a = e('./components/src/hooks/useIntersection.tsx'),
 					u = e('./components/src/hooks/useIntersectionAdvanced.tsx'),
-					C = e('./components/src/hooks/useDisplaySettings.tsx'),
+					B = e('./components/src/hooks/useDisplaySettings.tsx'),
 					x = e('./components/src/hooks/useFuncDebounce.tsx'),
 					_ = e('./components/src/hooks/useA11y.tsx'),
 					P = e('./components/src/hooks/useLang.tsx'),
@@ -2352,12 +2352,12 @@
 						Autocomplete: () => ce.j,
 						BadgeImage: () => s.z,
 						BadgePill: () => v.L,
-						BadgeRectangle: () => B.Z,
+						BadgeRectangle: () => C.Z,
 						BadgeText: () => o.p,
 						Banner: () => a.l,
 						BranchOverride: () => q.BranchOverride,
 						Breadcrumbs: () => u.B,
-						Button: () => C.$,
+						Button: () => B.$,
 						CTASlot: () => Q.X,
 						CalloutBadge: () => i.W,
 						Carousel: () => E.FN,
@@ -2406,7 +2406,7 @@
 						RecommendationEmail: () => Pe.i,
 						RecommendationGrid: () => ve.q,
 						RecommendationProfileTracker: () => Re.l,
-						RecommendationResultTracker: () => Ce.o,
+						RecommendationResultTracker: () => Be.o,
 						RecommendationResultTrackerProps: () => Oe.ResultTrackerProps,
 						Result: () => Y.Q,
 						ResultTracker: () => Oe.o,
@@ -2430,7 +2430,7 @@
 						VariantSelection: () => z.m,
 						base: () => oe.E3,
 						bocachica: () => oe.SE,
-						createHoverProps: () => Be.l,
+						createHoverProps: () => Ce.l,
 						defaultCarouselBreakpoints: () => E.K,
 						defaultVerticalCarouselBreakpoints: () => E.og,
 						everest: () => oe.Hg,
@@ -2458,17 +2458,17 @@
 					});
 				var s = e('./components/src/components/Atoms/BadgeImage/index.ts'),
 					v = e('./components/src/components/Atoms/BadgePill/index.ts'),
-					B = e('./components/src/components/Atoms/BadgeRectangle/index.ts'),
+					C = e('./components/src/components/Atoms/BadgeRectangle/index.ts'),
 					o = e('./components/src/components/Atoms/BadgeText/index.ts'),
 					a = e('./components/src/components/Atoms/Banner/index.ts'),
 					u = e('./components/src/components/Atoms/Breadcrumbs/index.ts'),
-					C = e('./components/src/components/Atoms/Button/index.ts'),
+					B = e('./components/src/components/Atoms/Button/index.ts'),
 					x = e('./components/src/components/Atoms/Dropdown/index.ts'),
 					_ = e('./components/src/components/Atoms/FormattedNumber/index.ts'),
 					P = e('./components/src/components/Atoms/Icon/index.ts'),
 					M = e('./components/src/components/Atoms/Image/index.ts'),
 					W = e('./components/src/components/Atoms/InlineBanner/index.ts'),
-					A = e('./components/src/components/Atoms/Loading/index.ts'),
+					A = e('./components/src/components/Atoms/LoadingBar/index.ts'),
 					b = e('./components/src/components/Atoms/Overlay/index.ts'),
 					S = e('./components/src/components/Atoms/PaginationInfo/index.ts'),
 					I = e('./components/src/components/Atoms/Price/index.ts'),
@@ -2528,7 +2528,7 @@
 					Me = e('./components/src/types.ts'),
 					Re = e('./components/src/components/Trackers/Recommendation/ProfileTracker/index.ts'),
 					Oe = e('./components/src/components/Trackers/ResultTracker/index.ts'),
-					Ce = e('./components/src/components/Trackers/ResultTracker/ResultTracker.tsx'),
+					Be = e('./components/src/components/Trackers/ResultTracker/ResultTracker.tsx'),
 					V = e('./components/src/hooks/index.ts'),
 					De = e('./components/src/providers/index.ts'),
 					ge = {};
@@ -2636,7 +2636,7 @@
 						'useTracking',
 					].indexOf(Ee) < 0 && (ge[Ee] = () => De[Ee]);
 				e.d(t, ge);
-				var Be = e('./components/src/toolbox/index.ts'),
+				var Ce = e('./components/src/toolbox/index.ts'),
 					oe = e('./components/src/themes/index.ts');
 			},
 			'./components/src/providers/index.ts'(n, t, e) {
@@ -2645,7 +2645,7 @@
 						CacheProvider: () => s._,
 						ControllerProvider: () => v.e2,
 						SnapProvider: () => M.Mz,
-						StoreProvider: () => B.tv,
+						StoreProvider: () => C.tv,
 						TRACKING_ATTRIBUTE: () => a.N,
 						ThemeProvider: () => o.NP,
 						TreePathProvider: () => W.p3,
@@ -2653,23 +2653,23 @@
 						defaultTheme: () => o.zQ,
 						useController: () => v.as,
 						useSnap: () => M.uk,
-						useStore: () => B.Pj,
+						useStore: () => C.Pj,
 						useTheme: () => o.DP,
 						useTreePath: () => W.LU,
 						withController: () => v.Bk,
 						withSnap: () => M.b$,
-						withStore: () => B.aH,
+						withStore: () => C.aH,
 						withTheme: () => o.SL,
 						withTracking: () => a.W,
 						withTreePath: () => W.QE,
 					});
 				var s = e('./components/src/providers/cache.tsx'),
 					v = e('./components/src/providers/controller.tsx'),
-					B = e('./components/src/providers/store.tsx'),
+					C = e('./components/src/providers/store.tsx'),
 					o = e('./components/src/providers/theme.ts'),
 					a = e('./components/src/providers/withTracking.tsx'),
 					u = e('./components/src/providers/themeComponents.ts'),
-					C = e.n(u),
+					B = e.n(u),
 					P = {};
 				for (const A in u)
 					[
@@ -2717,26 +2717,26 @@
 			},
 			'./components/src/providers/langComponents.ts'() {},
 			'./components/src/providers/store.tsx'(n, t, e) {
-				e.d(t, { Pj: () => C, aH: () => x, tv: () => u });
+				e.d(t, { Pj: () => B, aH: () => x, tv: () => u });
 				var s = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					v = e('../../node_modules/preact/dist/preact.module.js'),
-					B = e('../../node_modules/preact/hooks/dist/hooks.module.js');
+					C = e('../../node_modules/preact/hooks/dist/hooks.module.js');
 				const o = (0, v.q6)(null),
 					a = o.Provider,
 					u = ({ children: _, store: P }) => (0, s.Y)(a, { value: P, children: _ }),
-					C = () => (0, B.NT)(o);
+					B = () => (0, C.NT)(o);
 				function x(_) {
 					return (P) => {
 						const M = _;
-						return (0, s.Y)(M, { store: C(), ...P });
+						return (0, s.Y)(M, { store: B(), ...P });
 					};
 				}
 			},
 			'./components/src/providers/theme.ts'(n, t, e) {
-				e.d(t, { AH: () => s.AH, DP: () => v.u, NP: () => v.a, SL: () => v.b, zQ: () => B });
+				e.d(t, { AH: () => s.AH, DP: () => v.u, NP: () => v.a, SL: () => v.b, zQ: () => C });
 				var s = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					v = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js');
-				const B = {
+				const C = {
 					variables: {
 						breakpoints: { mobile: 540, tablet: 767, desktop: 1200 },
 						colors: { text: '#222222', primary: '#3A23AD', secondary: '#4c3ce2', accent: '#00cee1' },
@@ -2745,14 +2745,14 @@
 			},
 			'./components/src/providers/themeComponents.ts'() {},
 			'./components/src/themes/index.ts'(n, t, e) {
-				e.d(t, { Ct: () => a.pike, E3: () => s.E, Hg: () => B.H, NZ: () => u.N, SE: () => v.S, hU: () => o.h, mJ: () => C.m });
+				e.d(t, { Ct: () => a.pike, E3: () => s.E, Hg: () => C.H, NZ: () => u.N, SE: () => v.S, hU: () => o.h, mJ: () => B.m });
 				var s = e('./components/src/themes/base/base.ts'),
 					v = e('./components/src/themes/bocachica/bocachica.ts'),
-					B = e('./components/src/themes/everest/everest.ts'),
+					C = e('./components/src/themes/everest/everest.ts'),
 					o = e('./components/src/themes/matterhorn/matterhorn.ts'),
 					a = e('./components/src/themes/pike/pike.ts'),
 					u = e('./components/src/themes/snapnco/snapnco.ts'),
-					C = e('./components/src/themes/snappy/snappy.ts');
+					B = e('./components/src/themes/snappy/snappy.ts');
 			},
 			'./components/src/toolbox/index.ts'(n, t, e) {
 				e.d(t, { l: () => s.l });
@@ -2816,13 +2816,13 @@
 						if (!s.isHex(o)) throw 'invalid hex supplied';
 						const a = parseInt(o.slice(1, 3), 16),
 							u = parseInt(o.slice(3, 5), 16),
-							C = parseInt(o.slice(5, 7), 16),
+							B = parseInt(o.slice(5, 7), 16),
 							x = parseInt(o.slice(7, 9), 16);
-						return Number.isInteger(x) ? `rgba(${a}, ${u}, ${C}, ${v(x / 255)})` : `rgb(${a}, ${u}, ${C})`;
+						return Number.isInteger(x) ? `rgba(${a}, ${u}, ${B}, ${v(x / 255)})` : `rgb(${a}, ${u}, ${B})`;
 					}
 					static rgbToHex(o) {
 						if (!s.isRgb(o)) throw 'invalid rgb supplied';
-						const [a, u, C, x] = (o.match(/[0-9]?\.?[0-9]+%?/g) || []).map((_, P) => {
+						const [a, u, B, x] = (o.match(/[0-9]?\.?[0-9]+%?/g) || []).map((_, P) => {
 							if (P == 3) {
 								_.match(/%/) && (_ = (Number(_.replace('%', '').trim()) / 100).toString());
 								let M = Number(_);
@@ -2830,14 +2830,14 @@
 							}
 							return Number(_).toString(16).padStart(2, '0');
 						});
-						return `#${a}${u}${C}${x || ''}`;
+						return `#${a}${u}${B}${x || ''}`;
 					}
 					static opacity(o, a) {
 						let u = !1;
 						if ((o && s.isRgb(o) && ((u = !0), (o = s.rgbToHex(o))), !o || !s.isHex(o) || !Number.isInteger(a))) return o;
 						a > 255 && (a = 255), a < -255 && (a = -255);
-						const C = o.slice(7, 9) || 'ff';
-						let _ = parseInt(C, 16) - a;
+						const B = o.slice(7, 9) || 'ff';
+						let _ = parseInt(B, 16) - a;
 						_ > 255 ? (_ = 255) : _ < 0 && (_ = 0);
 						const P = _.toString(16).padStart(2, '0'),
 							M = `${o.slice(0, 7)}${P}`;
@@ -2847,8 +2847,8 @@
 						let u = !1;
 						if ((o && s.isRgb(o) && ((u = !0), (o = s.rgbToHex(o))), !o || !s.isHex(o) || !Number.isInteger(a))) return o;
 						a > 255 && (a = 255), a < -255 && (a = -255);
-						const C = o.slice(1, 7),
-							x = parseInt(C, 16);
+						const B = o.slice(1, 7),
+							x = parseInt(B, 16);
 						let _ = (x & 255) + a;
 						_ > 255 ? (_ = 255) : _ < 0 && (_ = 0);
 						let P = ((x >> 8) & 255) + a;
@@ -2859,13 +2859,13 @@
 						return u ? s.hexToRgb(W) : W;
 					}
 				}
-				function v(B) {
-					const o = Math.floor(B),
-						a = B - o;
-					if (!a) return B;
+				function v(C) {
+					const o = Math.floor(C),
+						a = C - o;
+					if (!a) return C;
 					const u = Math.floor(a * 10) * 10,
-						C = Math.round(B * 100 - u);
-					return o + (u + C) / 100;
+						B = Math.round(C * 100 - u);
+					return o + (u + B) / 100;
 				}
 			},
 		},

@@ -4,13 +4,13 @@
 		{
 			'./components/src/components/Templates/Recommendation/Recommendation.stories.tsx'(j, l, e) {
 				'use strict';
-				e.r(l), e.d(l, { Default: () => f, __namedExportsOrder: () => T, default: () => P });
+				e.r(l), e.d(l, { Default: () => E, __namedExportsOrder: () => b, default: () => P });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = e('../../node_modules/@storybook/blocks/dist/index.mjs'),
+					a = e('../../node_modules/@storybook/blocks/dist/index.mjs'),
 					u = e('./components/src/components/Templates/Recommendation/Recommendation.tsx'),
-					g = e('./components/src/utilities/storybook.tsx'),
+					v = e('./components/src/utilities/storybook.tsx'),
 					o = e('./components/src/utilities/componentArgs.ts'),
-					E = e('./components/src/utilities/snapify.ts');
+					f = e('./components/src/utilities/snapify.ts');
 				const D = `# Recommendation
 
 Renders a carousel of product recommendations, built using the Carousel Component.
@@ -30,8 +30,8 @@ Any modification to the results array and data are recommended to be made using 
 import { Recommendation } from '@athoscommerce/snap-preact/components';
 \`\`\`
 
-Additional [Swiper Component Props](https://swiperjs.com/react#swiper-props) can be specified, but may need to be camelCased where appropriate.
-Additional [Swiper Modules](https://swiperjs.com/swiper-api#modules) can be provided via the \`modules\` prop; these may need additional props and or stylesheets.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper Component Props</a> can be specified, but may need to be camelCased where appropriate.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via the \`modules\` prop; these may need additional props and or stylesheets.
 
 ### controller
 The required \`controller\` prop specifies a reference to the RecommendationController
@@ -127,7 +127,7 @@ The \`nextButton\` prop specifies the next button element of the carousel. This 
 \`\`\`
 
 ### modules
-The \`modules\` prop accepts additional [Swiper Modules](https://swiperjs.com/swiper-api#modules) - these may need additional props and or stylesheets to function. We include \`Navigation\`, \`Pagination\` and \`A11y\` modules by default.
+The \`modules\` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include \`Navigation\`, \`Pagination\` and \`A11y\` modules by default.
 
 \`\`\`jsx
 import { Scrollbar } from 'swiper';
@@ -151,7 +151,7 @@ An object that modifies the responsive behavior of the carousel at various viewp
 
 The object key specified the viewport for when the parameters will be applied. 
 
-The default configuration contains the following properties, however **\`any Recommendation props\`**, or [Swiper API parameters](https://swiperjs.com/react#swiper-props) can also be specified. 
+The default configuration contains the following properties, however **\`any Recommendation props\`**, or <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper API parameters</a> can also be specified. 
 
 \`slidesPerView\` - number of products to display per page (for a peekaboo effect use a decimal number here)
 
@@ -209,7 +209,7 @@ const defaultVerticalRecommendationBreakpoints = {
 							docs: {
 								page: () =>
 									(0, t.FD)('div', {
-										children: [(0, t.Y)(i.oz, { options: { overrides: { code: g.Z } }, children: D }), (0, t.Y)(i.uY, { story: i.h1 })],
+										children: [(0, t.Y)(a.oz, { options: { overrides: { code: v.Z } }, children: D }), (0, t.Y)(a.uY, { story: a.h1 })],
 									}),
 							},
 						},
@@ -298,9 +298,9 @@ const defaultVerticalRecommendationBreakpoints = {
 							...o.F,
 						},
 					},
-					d = E.p.recommendation({ id: 'Recommendation', tag: 'trending', globals: { siteId: 'atkzs2' } }),
-					f = (p, { loaded: { controller: m } }) => (0, t.Y)(u.A, { ...p, controller: m });
-				(f.loaders = [
+					d = f.p.recommendation({ id: 'Recommendation', tag: 'trending', globals: { siteId: 'atkzs2' } }),
+					E = (p, { loaded: { controller: m } }) => (0, t.Y)(u.A, { ...p, controller: m });
+				(E.loaders = [
 					async () => (
 						d.on('afterStore', async ({ controller: p }, m) => {
 							p.store.results.forEach((_) => (_.mappings.core.url = 'javascript:void(0);')), await m();
@@ -309,10 +309,10 @@ const defaultVerticalRecommendationBreakpoints = {
 						{ controller: d }
 					),
 				]),
-					(f.parameters = {
-						...f.parameters,
+					(E.parameters = {
+						...E.parameters,
 						docs: {
-							...f.parameters?.docs,
+							...E.parameters?.docs,
 							source: {
 								originalSource: `(props: RecommendationProps, {
   loaded: {
@@ -325,26 +325,26 @@ const defaultVerticalRecommendationBreakpoints = {
 }) => {
   return <Recommendation {...props} controller={controller} />;
 }`,
-								...f.parameters?.docs?.source,
+								...E.parameters?.docs?.source,
 							},
 						},
 					});
-				const T = ['Default'];
+				const b = ['Default'];
 			},
 			'./components/src/components/Molecules/Carousel/Carousel.tsx'(j, l, e) {
 				'use strict';
-				e.d(l, { FN: () => a, K: () => I, og: () => r });
+				e.d(l, { FN: () => i, K: () => I, og: () => r });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
+					a = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
 					u = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					g = e('../../node_modules/classnames/index.js'),
-					o = e.n(g),
-					E = e('../../node_modules/mobx-react-lite/es/index.js'),
+					v = e('../../node_modules/classnames/index.js'),
+					o = e.n(v),
+					f = e('../../node_modules/mobx-react-lite/es/index.js'),
 					D = e('../../node_modules/deepmerge/dist/cjs.js'),
 					P = e.n(D),
 					d = e('../../node_modules/swiper/swiper-react.mjs'),
-					f = e('./components/src/utilities/cloneWithProps.tsx'),
-					T = e('./components/src/utilities/defined.ts'),
+					E = e('./components/src/utilities/cloneWithProps.tsx'),
+					b = e('./components/src/utilities/defined.ts'),
 					p = e('./components/src/utilities/mergeProps.ts'),
 					m = e('./components/src/utilities/mergeStyles.ts'),
 					_ = e('../../node_modules/swiper/modules/index.mjs'),
@@ -352,7 +352,7 @@ const defaultVerticalRecommendationBreakpoints = {
 					M = e('./components/src/providers/cache.tsx'),
 					L = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					y = e('./components/src/providers/treePath.tsx'),
-					b = e('./components/src/hooks/useDisplaySettings.tsx');
+					T = e('./components/src/hooks/useDisplaySettings.tsx');
 				const B = ({ vertical: s, theme: h }) =>
 						(0, u.AH)({
 							display: 'flex',
@@ -447,18 +447,18 @@ const defaultVerticalRecommendationBreakpoints = {
 						1200: { slidesPerView: 5, slidesPerGroup: 5, spaceBetween: 10 },
 					},
 					r = { 0: { slidesPerView: 1, slidesPerGroup: 1, spaceBetween: 0 } },
-					a = (0, E.PA)((s) => {
+					i = (0, f.PA)((s) => {
 						const h = (0, L.u)(),
-							v = (0, y.LU)(),
+							g = (0, y.LU)(),
 							U = {
 								breakpoints: s.vertical ? JSON.parse(JSON.stringify(r)) : JSON.parse(JSON.stringify(I)),
 								pagination: !1,
-								slidesPerGroup: 5,
-								slidesPerView: 5,
+								slidesPerGroup: !s.breakpoints || !Object.keys(s.breakpoints).length ? 5 : void 0,
+								slidesPerView: !s.breakpoints || !Object.keys(s.breakpoints).length ? 5 : void 0,
 								spaceBetween: 10,
 								loop: !0,
 								autoAdjustSlides: !1,
-								treePath: v,
+								treePath: g,
 							};
 						let O = (0, p.v6)('carousel', h, U, s),
 							R;
@@ -470,7 +470,7 @@ const defaultVerticalRecommendationBreakpoints = {
 								c.slidesPerView && (c.slidesPerView = Number(c.slidesPerView) || 1),
 									c.slidesPerGroup && (c.slidesPerGroup = Number(c.slidesPerGroup) || 1);
 							}),
-							(R = (0, b.X)(O.breakpoints)),
+							(R = (0, T.X)(O.breakpoints)),
 							R && Object.keys(R).length)
 						) {
 							const n = P()(O?.theme || {}, R?.theme || {}, { arrayMerge: (c, A) => A });
@@ -498,21 +498,21 @@ const defaultVerticalRecommendationBreakpoints = {
 							themeStyleScript: pe,
 							modules: le,
 							className: me,
-							internalClassName: ie,
+							internalClassName: ae,
 							treePath: re,
-							...V
+							...k
 						} = O;
 						let K = O.pagination,
-							k = O.navigation,
+							V = O.navigation,
 							S = O.scrollbar;
-						const W = { icon: { internalClassName: 'ss__carousel__icon', ...(0, T.s)({ disableStyles: se }), theme: O.theme, treePath: re } },
+						const W = { icon: { internalClassName: 'ss__carousel__icon', ...(0, b.s)({ disableStyles: se }), theme: O.theme, treePath: re } },
 							G = Array.isArray(le) ? [_.Vx, _.dK, _.Ze, _.Jq].concat(le) : [_.Vx, _.dK, _.Ze, _.Jq],
-							ae = G.filter((n, c) => G.indexOf(n) === c),
-							H = (0, i.li)(null),
-							Z = (0, i.li)(null),
-							N = (0, i.li)(null),
+							ie = G.filter((n, c) => G.indexOf(n) === c),
+							H = (0, a.li)(null),
+							Z = (0, a.li)(null),
+							N = (0, a.li)(null),
 							ue = (0, m.Z)(O, B);
-						(0, i.vJ)(() => {
+						(0, a.vJ)(() => {
 							if (N.current) {
 								const c = N.current.querySelector('.swiper');
 								c?.classList.add('swiper-container', 'swiper-container-pointer-events'),
@@ -522,9 +522,9 @@ const defaultVerticalRecommendationBreakpoints = {
 							$();
 						}, [s]),
 							K && (typeof K == 'object' ? (K = { clickable: !0, ...K }) : (K = { clickable: !0 })),
-							k && typeof k == 'object'
-								? (k = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE', ...k })
-								: (k = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE' }),
+							V && typeof V == 'object'
+								? (V = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE', ...V })
+								: (V = { nextEl: '.ss_carousel_DNE', prevEl: '.ss_carousel_DNE' }),
 							S && (typeof S == 'object' ? (S = { enabled: !0, ...S }) : (S = { enabled: !0 }));
 						const $ = () => {
 							if (N.current) {
@@ -535,13 +535,13 @@ const defaultVerticalRecommendationBreakpoints = {
 							}
 						};
 						return (
-							delete V.breakpoints,
+							delete k.breakpoints,
 							Y?.length
 								? (0, t.Y)(M._, {
 										children: (0, t.FD)('div', {
 											ref: N,
 											...ue,
-											className: o()('ss__carousel', z ? 'ss__carousel-vertical' : '', me, ie),
+											className: o()('ss__carousel', z ? 'ss__carousel-vertical' : '', me, ae),
 											children: [
 												(0, t.Y)('div', {
 													className: o()('ss__carousel__prev-wrapper', { 'ss__carousel__prev-wrapper--hidden': w }),
@@ -578,20 +578,20 @@ const defaultVerticalRecommendationBreakpoints = {
 													loop: F,
 													threshold: 7,
 													loopAddBlankSlides: !1,
-													modules: ae,
-													...V,
+													modules: ie,
+													...k,
 													...R,
 													controller: void 0,
-													navigation: k,
+													navigation: V,
 													pagination: K,
 													scrollbar: S,
 													onResize: (n) => {
-														V.onResize && V.onResize(), n.updateSlidesClasses(), $();
+														k.onResize && k.onResize(), n.updateSlidesClasses(), $();
 													},
 													onTransitionEnd: () => {
-														V.onTransitionEnd && V.onTransitionEnd(), $();
+														k.onTransitionEnd && k.onTransitionEnd(), $();
 													},
-													children: Y.map((n) => (n != null ? (0, t.Y)(d.qr, { children: (0, f.Y)(n, { treePath: re }) }) : null)),
+													children: Y.map((n) => (n != null ? (0, t.Y)(d.qr, { children: (0, E.Y)(n, { treePath: re }) }) : null)),
 												}),
 												(0, t.Y)('div', {
 													className: o()('ss__carousel__next-wrapper', { 'ss__carousel__next-wrapper--hidden': w }),
@@ -611,18 +611,18 @@ const defaultVerticalRecommendationBreakpoints = {
 			},
 			'./components/src/components/Templates/Recommendation/Recommendation.tsx'(j, l, e) {
 				'use strict';
-				e.d(l, { A: () => a });
+				e.d(l, { A: () => i });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
+					a = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
 					u = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					g = e('../../node_modules/classnames/index.js'),
-					o = e.n(g),
-					E = e('../../node_modules/mobx-react-lite/es/index.js'),
+					v = e('../../node_modules/classnames/index.js'),
+					o = e.n(v),
+					f = e('../../node_modules/mobx-react-lite/es/index.js'),
 					D = e('../../node_modules/deepmerge/dist/cjs.js'),
 					P = e.n(D),
 					d = e('./components/src/components/Molecules/Carousel/Carousel.tsx'),
-					f = e('./components/src/components/Molecules/Result/Result.tsx'),
-					T = e('./components/src/utilities/defined.ts'),
+					E = e('./components/src/components/Molecules/Result/Result.tsx'),
+					b = e('./components/src/utilities/defined.ts'),
 					p = e('./components/src/utilities/mergeProps.ts'),
 					m = e('./components/src/utilities/mergeStyles.ts'),
 					_ = e('./components/src/hooks/useIntersection.tsx'),
@@ -630,20 +630,20 @@ const defaultVerticalRecommendationBreakpoints = {
 					M = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					L = e('./components/src/providers/treePath.tsx'),
 					y = e('./components/src/hooks/useDisplaySettings.tsx'),
-					b = e('./components/src/components/Trackers/Recommendation/ProfileTracker/RecommendationProfileTracker.tsx'),
+					T = e('./components/src/components/Trackers/Recommendation/ProfileTracker/RecommendationProfileTracker.tsx'),
 					B = e('./components/src/hooks/useLang.tsx'),
 					I = e('./components/src/components/Trackers/ResultTracker/ResultTracker.tsx');
 				const r = ({ vertical: s }) => (0, u.AH)({ height: s ? '100%' : void 0, '.ss__result__image-wrapper': { height: s ? '85%' : void 0 } }),
-					a = (0, E.PA)((s) => {
+					i = (0, f.PA)((s) => {
 						const h = (0, M.u)(),
-							v = (0, L.LU)(),
+							g = (0, L.LU)(),
 							U = {
 								breakpoints: s.vertical ? JSON.parse(JSON.stringify(d.og)) : JSON.parse(JSON.stringify(d.K)),
 								pagination: !1,
 								loop: !0,
 								title: s.controller?.store?.profile?.display?.templateParameters?.title,
 								description: s.controller?.store?.profile?.display?.templateParameters?.description,
-								treePath: v,
+								treePath: g,
 							},
 							O = { name: s.controller?.store?.profile?.tag?.toLowerCase(), ...s };
 						let R = (0, p.v6)('recommendation', h, U, O),
@@ -667,13 +667,13 @@ const defaultVerticalRecommendationBreakpoints = {
 								style: pe,
 								styleScript: le,
 								themeStyleScript: me,
-								lazyRender: ie,
+								lazyRender: ae,
 								vertical: re,
-								hideTitle: V,
+								hideTitle: k,
 								treePath: K,
-								...k
+								...V
 							} = R,
-							S = { enabled: !0, offset: '10%', ...ie };
+							S = { enabled: !0, offset: '10%', ...ae };
 						if (!x || x.type !== 'recommendation')
 							throw new Error("<Recommendation> Component requires 'controller' prop with an instance of RecommendationController");
 						const W = q || x.store?.results;
@@ -687,15 +687,15 @@ const defaultVerticalRecommendationBreakpoints = {
 						const G = {
 								carousel: {
 									internalClassName: 'ss__recommendation__Carousel',
-									...(0, T.s)({ disableStyles: se, vertical: re }),
+									...(0, b.s)({ disableStyles: se, vertical: re }),
 									theme: R?.theme,
 									treePath: K,
 								},
-								result: { internalClassName: 'ss__recommendation__result', ...(0, T.s)({ disableStyles: se }), theme: R?.theme, treePath: K },
+								result: { internalClassName: 'ss__recommendation__result', ...(0, b.s)({ disableStyles: se }), theme: R?.theme, treePath: K },
 							},
-							ae = (0, m.Z)(R, r),
-							[H, Z] = (0, i.J0)(!1),
-							N = (0, i.li)(null);
+							ie = (0, m.Z)(R, r),
+							[H, Z] = (0, a.J0)(!1),
+							N = (0, a.li)(null);
 						(!S?.enabled || (0, _.v)(N, `${S.offset} 0px ${S.offset} 0px`, !0)) && Z(!0);
 						const $ = { titleText: { value: `${F}` } },
 							n = P()($, R.lang || {}),
@@ -703,14 +703,14 @@ const defaultVerticalRecommendationBreakpoints = {
 						return (Array.isArray(w) && w.length) || W?.length
 							? (0, t.Y)(C._, {
 									children: (0, t.Y)('div', {
-										...ae,
+										...ie,
 										className: o()('ss__recommendation', ce, de),
 										ref: N,
 										children: H
-											? (0, t.FD)(b.l, {
+											? (0, t.FD)(T.l, {
 													controller: x,
 													children: [
-														F && !V && (0, t.Y)('h3', { className: 'ss__recommendation__title', ...c.titleText?.all, children: F }),
+														F && !k && (0, t.Y)('h3', { className: 'ss__recommendation__title', ...c.titleText?.all, children: F }),
 														Q && (0, t.Y)('p', { className: 'ss__recommendation__description', children: Q }),
 														(0, t.Y)(d.FN, {
 															prevButton: oe,
@@ -719,7 +719,7 @@ const defaultVerticalRecommendationBreakpoints = {
 															loop: z,
 															pagination: ee,
 															...G.carousel,
-															...k,
+															...V,
 															children:
 																Array.isArray(w) && w.length
 																	? w.map((A, J) => (0, t.Y)(I.o, { controller: x, result: W[J], children: A }))
@@ -731,14 +731,14 @@ const defaultVerticalRecommendationBreakpoints = {
 																					if (X && x) {
 																						const J = X;
 																						return (0, t.Y)(J, { controller: x, result: A, treePath: G.result.treePath });
-																					} else return (0, t.Y)(f.Q, { ...G.result, controller: x, result: A }, A.id);
+																					} else return (0, t.Y)(E.Q, { ...G.result, controller: x, result: A }, A.id);
 																				})(),
 																			})
 																	  ),
 														}),
 													],
 											  })
-											: (0, t.Y)(b.l, {
+											: (0, t.Y)(T.l, {
 													controller: x,
 													children:
 														Array.isArray(w) && w.length
@@ -754,50 +754,50 @@ const defaultVerticalRecommendationBreakpoints = {
 				'use strict';
 				e.d(l, { l: () => d });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = e('../../node_modules/preact/dist/preact.module.js'),
+					a = e('../../node_modules/preact/dist/preact.module.js'),
 					u = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					g = e('../../node_modules/mobx-react-lite/es/index.js'),
+					v = e('../../node_modules/mobx-react-lite/es/index.js'),
 					o = e('../../node_modules/classnames/index.js'),
-					E = e.n(o),
+					f = e.n(o),
 					D = e('./components/src/utilities/mergeStyles.ts');
 				const P = () => (0, u.AH)({}),
-					d = (0, g.PA)((f) => {
-						const { children: T, className: p, internalClassName: m } = f,
-							_ = (0, i.v2)(T),
-							C = (0, D.Z)(f, P);
-						return _.length ? (0, t.Y)('div', { className: E()('ss__recommendation-profile-tracker', p, m), ...C, children: T }) : null;
+					d = (0, v.PA)((E) => {
+						const { children: b, className: p, internalClassName: m } = E,
+							_ = (0, a.v2)(b),
+							C = (0, D.Z)(E, P);
+						return _.length ? (0, t.Y)('div', { className: f()('ss__recommendation-profile-tracker', p, m), ...C, children: b }) : null;
 					});
 			},
 			'./components/src/components/Trackers/ResultTracker/ResultTracker.tsx'(j, l, e) {
 				'use strict';
-				e.d(l, { o: () => f });
+				e.d(l, { o: () => E });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					a = e('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					u = e('../../node_modules/mobx-react-lite/es/index.js'),
-					g = e('../../node_modules/classnames/index.js'),
-					o = e.n(g),
-					E = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					v = e('../../node_modules/classnames/index.js'),
+					o = e.n(v),
+					f = e('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
 					D = e('./components/src/utilities/mergeProps.ts'),
 					P = e('./components/src/utilities/createImpressionObserver.ts');
-				const d = { ResultTracker: () => (0, i.AH)({}) },
-					f = (0, u.PA)((T) => {
-						const p = (0, E.u)(),
-							m = (0, D.v6)('resultTracker', p, {}, T),
+				const d = { ResultTracker: () => (0, a.AH)({}) },
+					E = (0, u.PA)((b) => {
+						const p = (0, f.u)(),
+							m = (0, D.v6)('resultTracker', p, {}, b),
 							_ = { impression: !0, click: !0 },
-							{ children: C, result: M, track: L, controller: y, className: b, internalClassName: B, disableStyles: I, style: r } = m,
-							a = { ..._, ...L },
+							{ children: C, result: M, track: L, controller: y, className: T, internalClassName: B, disableStyles: I, style: r } = m,
+							i = { ..._, ...L },
 							{ ref: s, inViewport: h } = (0, P.Q)();
-						h && a.impression && y?.track.product.impression(M);
-						const v = {};
+						h && i.impression && y?.track.product.impression(M);
+						const g = {};
 						return (
-							I ? r && (v.css = [r]) : (v.css = [d.ResultTracker(), r]),
+							I ? r && (g.css = [r]) : (g.css = [d.ResultTracker(), r]),
 							(0, t.Y)('div', {
-								className: o()('ss__result-tracker', `ss__${y?.type}-result-tracker`, b, B),
+								className: o()('ss__result-tracker', `ss__${y?.type}-result-tracker`, T, B),
 								onClick: (U) => {
-									a.click && y?.track.product.click(U, M);
+									i.click && y?.track.product.click(U, M);
 								},
 								ref: s,
-								...v,
+								...g,
 								children: C,
 							})
 						);
@@ -805,17 +805,17 @@ const defaultVerticalRecommendationBreakpoints = {
 			},
 			'./components/src/hooks/useIntersection.tsx'(j, l, e) {
 				'use strict';
-				e.d(l, { v: () => i });
+				e.d(l, { v: () => a });
 				var t = e('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const i = (u, g = '0px', o = !1) => {
-					const [E, D] = (0, t.J0)(!1);
+				const a = (u, v = '0px', o = !1) => {
+					const [f, D] = (0, t.J0)(!1);
 					return (
 						(0, t.vJ)(() => {
 							const P = new IntersectionObserver(
 								([d]) => {
 									D(d.isIntersecting), o && d.isIntersecting && P.unobserve(u.current);
 								},
-								{ rootMargin: g }
+								{ rootMargin: v }
 							);
 							return (
 								u.current && P.observe(u.current),
@@ -824,7 +824,7 @@ const defaultVerticalRecommendationBreakpoints = {
 								}
 							);
 						}, []),
-						E
+						f
 					);
 				};
 			},
@@ -832,32 +832,32 @@ const defaultVerticalRecommendationBreakpoints = {
 				'use strict';
 				e.d(l, { v: () => u });
 				var t = e('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const i = 250,
-					u = (o, E = {}) => {
-						const { rootMargin: D = '0px', fireOnce: P = !1, threshold: d = 0, minVisibleTime: f = 0 } = E,
-							[T, p] = (0, t.J0)(!1),
+				const a = 250,
+					u = (o, f = {}) => {
+						const { rootMargin: D = '0px', fireOnce: P = !1, threshold: d = 0, minVisibleTime: E = 0 } = f,
+							[b, p] = (0, t.J0)(!1),
 							m = (0, t.li)(null),
 							_ = (0, t.li)(null),
 							[C, M] = (0, t.J0)(0),
 							L = (0, t.hb)((y) => {
-								(o.current = y), M((b) => b + 1);
+								(o.current = y), M((T) => T + 1);
 							}, []);
 						return (
 							(0, t.vJ)(() => {
 								p(!1);
 								let y = null,
-									b = null;
+									T = null;
 								if (!window.IntersectionObserver || !o.current) return;
 								const B = () => {
-										b && (window.clearInterval(b), (b = null));
+										T && (window.clearInterval(T), (T = null));
 									},
 									I = () => {
-										f > 0
+										E > 0
 											? ((_.current = Date.now()),
 											  m.current && window.clearTimeout(m.current),
 											  (m.current = window.setTimeout(() => {
 													p(!0), P && o.current && y && y.unobserve(o.current);
-											  }, f)))
+											  }, E)))
 											: (p(!0), P && o.current && y && y.unobserve(o.current));
 									},
 									r = () => {
@@ -865,19 +865,19 @@ const defaultVerticalRecommendationBreakpoints = {
 									};
 								return (
 									(y = new IntersectionObserver(
-										([a]) => {
-											a.isIntersecting
-												? o.current && g(o.current)
+										([i]) => {
+											i.isIntersecting
+												? o.current && v(o.current)
 													? (B(), I())
 													: (r(),
-													  b ||
-															(b = window.setInterval(() => {
+													  T ||
+															(T = window.setInterval(() => {
 																if (!o.current) {
 																	B();
 																	return;
 																}
-																g(o.current) && (B(), I());
-															}, i)))
+																v(o.current) && (B(), I());
+															}, a)))
 												: (B(), r());
 										},
 										{ rootMargin: D, threshold: d }
@@ -888,10 +888,10 @@ const defaultVerticalRecommendationBreakpoints = {
 									}
 								);
 							}, [o, C]),
-							{ inViewport: T, updateRef: L }
+							{ inViewport: b, updateRef: L }
 						);
 					};
-				function g(o) {
+				function v(o) {
 					return o && 'checkVisibility' in o ? o.checkVisibility({ contentVisibilityAuto: !0, opacityProperty: !0, visibilityProperty: !0 }) : !0;
 				}
 			},
@@ -926,12 +926,12 @@ const defaultVerticalRecommendationBreakpoints = {
 				'use strict';
 				e.d(l, { Q: () => o });
 				var t = e('../../node_modules/preact/hooks/dist/hooks.module.js'),
-					i = e('./components/src/hooks/useIntersectionAdvanced.tsx');
+					a = e('./components/src/hooks/useIntersectionAdvanced.tsx');
 				const u = 0.7,
-					g = 1e3;
-				function o(E) {
+					v = 1e3;
+				function o(f) {
 					const D = (0, t.li)(null),
-						{ inViewport: P, updateRef: d } = (0, i.v)(D, { ...E, fireOnce: !0, threshold: u, minVisibleTime: g });
+						{ inViewport: P, updateRef: d } = (0, a.v)(D, { ...f, fireOnce: !0, threshold: u, minVisibleTime: v });
 					return { ref: D, inViewport: P, updateRef: d };
 				}
 			},
@@ -939,16 +939,16 @@ const defaultVerticalRecommendationBreakpoints = {
 				'use strict';
 				e.d(l, { p: () => y });
 				var t = e('../../node_modules/mobx/dist/mobx.esm.js'),
-					i = e('../../node_modules/@athoscommerce/snap-controller/dist/esm/Search/SearchController.js'),
+					a = e('../../node_modules/@athoscommerce/snap-controller/dist/esm/Search/SearchController.js'),
 					u = e('../../node_modules/@athoscommerce/snap-controller/dist/esm/Autocomplete/AutocompleteController.js'),
-					g = e('../../node_modules/@athoscommerce/snap-controller/dist/esm/Recommendation/RecommendationController.js'),
+					v = e('../../node_modules/@athoscommerce/snap-controller/dist/esm/Recommendation/RecommendationController.js'),
 					o = e('../../node_modules/@athoscommerce/snap-client/dist/esm/Client/Client.js'),
-					E = e('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Autocomplete/AutocompleteStore.js'),
+					f = e('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Autocomplete/AutocompleteStore.js'),
 					D = e('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Search/SearchStore.js'),
 					P = e('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Recommendation/RecommendationStore.js'),
 					d = e('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/UrlManager/UrlManager.js'),
-					f = e('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/linkers/react/react.js'),
-					T = e('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/Translators/Url/UrlTranslator.js'),
+					E = e('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/linkers/react/react.js'),
+					b = e('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/Translators/Url/UrlTranslator.js'),
 					p = e('../../node_modules/@athoscommerce/snap-event-manager/dist/esm/EventManager.js'),
 					m = e('../../node_modules/@athoscommerce/snap-profiler/dist/esm/Profiler.js'),
 					_ = e('../../node_modules/@athoscommerce/snap-logger/dist/esm/Logger.js'),
@@ -957,49 +957,49 @@ const defaultVerticalRecommendationBreakpoints = {
 				const M = {},
 					L = { globals: { siteId: 'atkzs2' } };
 				class y {
-					static recommendation(a) {
-						const s = a.id;
+					static recommendation(i) {
+						const s = i.id;
 						if (M[s]) return M[s];
-						const h = (M[s] = B({ client: L, controller: a }));
+						const h = (M[s] = B({ client: L, controller: i }));
 						return (
-							h.on('afterStore', async ({ controller: v }, U) => {
-								v.log.debug('controller', v), v.log.debug('store', v.store.toJSON()), await U();
+							h.on('afterStore', async ({ controller: g }, U) => {
+								g.log.debug('controller', g), g.log.debug('store', g.store.toJSON()), await U();
 							}),
 							h.init(),
 							h
 						);
 					}
-					static autocomplete(a) {
-						const s = a.id;
+					static autocomplete(i) {
+						const s = i.id;
 						if (M[s]) return M[s];
-						const h = (M[s] = I({ client: L, controller: a }));
+						const h = (M[s] = I({ client: L, controller: i }));
 						return (
-							h.on('afterStore', async ({ controller: v }, U) => {
-								v.log.debug('controller', v), v.log.debug('store', v.store.toJSON()), await U();
+							h.on('afterStore', async ({ controller: g }, U) => {
+								g.log.debug('controller', g), g.log.debug('store', g.store.toJSON()), await U();
 							}),
 							h.init(),
 							h
 						);
 					}
-					static search(a) {
-						const s = a.id;
+					static search(i) {
+						const s = i.id;
 						if (M[s]) return M[s];
-						const h = (M[s] = b({ client: L, controller: a }));
+						const h = (M[s] = T({ client: L, controller: i }));
 						return (
-							h.on('afterStore', async ({ controller: v }, U) => {
-								v.log.debug('controller', v), v.log.debug('store', v.store.toJSON()), await U();
+							h.on('afterStore', async ({ controller: g }, U) => {
+								g.log.debug('controller', g), g.log.debug('store', g.store.toJSON()), await U();
 							}),
 							h.init(),
 							h
 						);
 					}
 				}
-				function b(r) {
-					const a = new d.V(new T.E({ settings: { coreType: 'query', corePrefix: r.controller.id } }), f.X);
-					return new i.Tp(r.controller, {
+				function T(r) {
+					const i = new d.V(new b.E({ settings: { coreType: 'query', corePrefix: r.controller.id } }), E.X);
+					return new a.Tp(r.controller, {
 						client: new o.K(r.client.globals, r.client.config),
-						store: new D.U(r.controller, { urlManager: a }),
-						urlManager: a,
+						store: new D.U(r.controller, { urlManager: i }),
+						urlManager: i,
 						eventManager: new p.E(),
 						profiler: new m.U(),
 						logger: new _.V(),
@@ -1007,11 +1007,11 @@ const defaultVerticalRecommendationBreakpoints = {
 					});
 				}
 				function B(r) {
-					const a = new d.V(new T.E(), f.X).detach(!0);
-					return new g.c(r.controller, {
+					const i = new d.V(new b.E(), E.X).detach(!0);
+					return new v.c(r.controller, {
 						client: new o.K(r.client.globals, r.client.config),
-						store: new P.t(r.controller, { urlManager: a }),
-						urlManager: a,
+						store: new P.t(r.controller, { urlManager: i }),
+						urlManager: i,
 						eventManager: new p.E(),
 						profiler: new m.U(),
 						logger: new _.V(),
@@ -1019,11 +1019,11 @@ const defaultVerticalRecommendationBreakpoints = {
 					});
 				}
 				function I(r) {
-					const a = new d.V(new T.E(), f.X).detach();
+					const i = new d.V(new b.E(), E.X).detach();
 					return new u.Z(r.controller, {
 						client: new o.K(r.client.globals, r.client.config),
-						store: new E.Y(r.controller, { urlManager: a }),
-						urlManager: a,
+						store: new f.Y(r.controller, { urlManager: i }),
+						urlManager: i,
 						eventManager: new p.E(),
 						profiler: new m.U(),
 						logger: new _.V(),
@@ -1033,17 +1033,17 @@ const defaultVerticalRecommendationBreakpoints = {
 			},
 			'./components/src/utilities/storybook.tsx'(j, l, e) {
 				'use strict';
-				e.d(l, { Z: () => g });
+				e.d(l, { Z: () => v });
 				var t = e('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					i = e('../../node_modules/preact/hooks/dist/hooks.module.js');
+					a = e('../../node_modules/preact/hooks/dist/hooks.module.js');
 				const u = 'prism-block',
-					g = (o) => {
-						const E = (0, i.li)(null);
+					v = (o) => {
+						const f = (0, a.li)(null);
 						return (
-							(0, i.vJ)(() => {
-								E.current && o.className?.includes('lang-') && !o.className?.includes(u) && window?.Prism?.highlightElement(E.current);
-							}, [o.className, o.children, E]),
-							(0, t.Y)('code', { ...o, ref: E, 'data-prismjs-copy': 'Copy' })
+							(0, a.vJ)(() => {
+								f.current && o.className?.includes('lang-') && !o.className?.includes(u) && window?.Prism?.highlightElement(f.current);
+							}, [o.className, o.children, f]),
+							(0, t.Y)('code', { ...o, ref: f, 'data-prismjs-copy': 'Copy' })
 						);
 					};
 			},
@@ -1058,4 +1058,4 @@ const defaultVerticalRecommendationBreakpoints = {
 	]);
 })();
 
-//# sourceMappingURL=components-Templates-Recommendation-Recommendation-stories.f70554b0.iframe.bundle.js.map
+//# sourceMappingURL=components-Templates-Recommendation-Recommendation-stories.21797326.iframe.bundle.js.map
