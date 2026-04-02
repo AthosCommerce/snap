@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SwatchesProps } from '../../../../components/Molecules/Swatches';
+import type { SwatchesProps, SwatchesTemplatesLegalProps } from '../../../../components/Molecules/Swatches';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 import Color from 'color';
@@ -226,7 +226,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 };
 
 // Swatches component props
-export const swatches: ThemeComponent<'swatches', SwatchesProps> = {
+export const swatches: ThemeComponent<'swatches', SwatchesProps, SwatchesTemplatesLegalProps> = {
 	default: {
 		swatches: {
 			themeStyleScript: swatchesStyleScript,

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { BadgeImageProps } from '../../../../components/Atoms/BadgeImage';
+import type { BadgeImageProps, BadgeImageTemplatesLegalProps } from '../../../../components/Atoms/BadgeImage';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -18,7 +18,7 @@ const badgeImageStyleScript = (props: BadgeImageProps) => {
 };
 
 // BadgeImage component props
-export const badgeImage: ThemeComponent<'badgeImage', BadgeImageProps> = {
+export const badgeImage: ThemeComponent<'badgeImage', BadgeImageProps, BadgeImageTemplatesLegalProps> = {
 	default: {
 		badgeImage: {
 			themeStyleScript: badgeImageStyleScript,

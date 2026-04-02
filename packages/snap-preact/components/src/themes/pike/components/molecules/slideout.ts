@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SlideoutProps } from '../../../../components/Molecules/Slideout';
+import type { SlideoutProps, SlideoutTemplatesLegalProps } from '../../../../components/Molecules/Slideout';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -17,7 +17,7 @@ const slideoutStyleScript = (props: SlideoutProps) => {
 };
 
 // Slideout component props
-export const slideout: ThemeComponent<'slideout', SlideoutProps> = {
+export const slideout: ThemeComponent<'slideout', SlideoutProps, SlideoutTemplatesLegalProps> = {
 	default: {
 		slideout: {
 			themeStyleScript: slideoutStyleScript,

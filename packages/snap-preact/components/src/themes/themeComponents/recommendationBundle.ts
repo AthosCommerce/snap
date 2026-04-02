@@ -1,7 +1,11 @@
-import { RecommendationBundleProps } from '../../components/Templates/RecommendationBundle';
+import { RecommendationBundleProps, RecommendationBundleTemplatesLegalProps } from '../../components/Templates/RecommendationBundle';
 import { ThemeComponent } from '../../providers';
 
-export const recommendationBundleThemeComponentProps: ThemeComponent<'recommendationBundle', RecommendationBundleProps> = {
+export const recommendationBundleThemeComponentProps: ThemeComponent<
+	'recommendationBundle',
+	RecommendationBundleProps,
+	RecommendationBundleTemplatesLegalProps
+> = {
 	default: {
 		recommendationBundle: {
 			carousel: {

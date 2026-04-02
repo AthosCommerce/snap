@@ -22,6 +22,11 @@ export default {
 		new webpack.DefinePlugin({
 			BRANCHNAME: `"${branchName}"`,
 		}),
+		new webpack.BannerPlugin({
+			banner: 'window.athos = window.athos || {};\nwindow.athos.managed = true;',
+			raw: true,
+			entryOnly: true,
+		}),
 		// to disable code splitting, include the following:
 		// new webpack.optimize.LimitChunkCountPlugin({
 		// 	maxChunks: 1,

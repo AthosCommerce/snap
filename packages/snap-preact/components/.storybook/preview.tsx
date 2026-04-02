@@ -14,7 +14,7 @@ import { SnapProvider, Theme, TreePathProvider } from '../src';
 // snap instance for theming and templates functionality
 const snapTemplates = new SnapTemplates({
 	config: {
-		siteId: '8uyt2m',
+		siteId: 'atkzs2',
 		platform: 'other',
 	},
 	theme: {

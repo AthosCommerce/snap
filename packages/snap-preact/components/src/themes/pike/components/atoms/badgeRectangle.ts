@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { BadgeRectangleProps } from '../../../../components/Atoms/BadgeRectangle';
+import type { BadgeRectangleProps, BadgeRectangleTemplatesLegalProps } from '../../../../components/Atoms/BadgeRectangle';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -21,7 +21,7 @@ const badgeRectangleStyleScript = (props: BadgeRectangleProps) => {
 };
 
 // BadgeRectangle component props
-export const badgeRectangle: ThemeComponent<'badgeRectangle', BadgeRectangleProps> = {
+export const badgeRectangle: ThemeComponent<'badgeRectangle', BadgeRectangleProps, BadgeRectangleTemplatesLegalProps> = {
 	default: {
 		badgeRectangle: {
 			themeStyleScript: badgeRectangleStyleScript,

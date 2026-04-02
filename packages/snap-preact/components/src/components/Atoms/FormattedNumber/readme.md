@@ -1,6 +1,6 @@
 # Formatted Number
 
-Utilizes `formatNumber` from [@athoscommerce/snap-preact/toolbox](https://athoscommerce.github.io/snap/#/package-toolbox) to render a `<span>` containing a formatted number.
+Utilizes `formatNumber` from <a target="_blank" rel="noopener noreferrer" href="https://athoscommerce.github.io/snap/reference-toolbox-filters">@athoscommerce/snap-toolbox</a> to render a `<span>` containing a formatted number.
 
 ## Usage
 ```jsx

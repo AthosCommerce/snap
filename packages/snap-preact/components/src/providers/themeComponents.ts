@@ -9,7 +9,7 @@ import type { DropdownProps, DropdownTemplatesLegalProps } from '../components/A
 import type { FormattedNumberProps, FormattedNumberTemplatesLegalProps } from '../components/Atoms/FormattedNumber';
 import type { IconProps, IconNames, IconTemplatesLegalProps } from '../components/Atoms/Icon';
 import type { ImageProps, ImageTemplatesLegalProps } from '../components/Atoms/Image';
-import type { LoadingBarProps, LoadingBarTemplatesLegalProps } from '../components/Atoms/Loading';
+import type { LoadingBarProps, LoadingBarTemplatesLegalProps } from '../components/Atoms/LoadingBar';
 import type { BannerNames, BannerProps, BannerTemplatesLegalProps } from '../components/Atoms/Banner';
 import type { InlineBannerProps, InlineBannerTemplatesLegalProps } from '../components/Atoms/InlineBanner';
 import type { OverlayProps, OverlayTemplatesLegalProps } from '../components/Atoms/Overlay';
@@ -86,6 +86,7 @@ import type { SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps } fro
 import type { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../components/Templates/AutocompleteModal';
 import type { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../components/Templates/AutocompleteFixed';
 import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../components/Molecules/Slideshow';
+import type { StyleScript } from '../types';
 
 export type ThemeComponentProps<ComponentProps> = {
 	default: Partial<ComponentProps>;
@@ -117,8 +118,8 @@ type ThemeComponentNamedSelectorsStartingWithTemplate<
 	| `${TemplateComponentType} ${string} ${SubComponentType}.${ComponentNames}`
 	| `${TemplateComponentType} ${SubComponentType}.${ComponentNames}`;
 
-export type ThemeComponentRestrictedProps<Props> = Partial<Omit<Props, ThemeComponentOmittedProps>>;
-type ThemeComponentOmittedProps = 'theme' | 'inherits' | 'disableStyles' | 'styleScript' | 'internalClassName' | 'className';
+export type ThemeComponentRestrictedProps<Props extends LegalProps, LegalProps> = Partial<LegalProps & ThemeComponentAllowedProps<Props>>;
+type ThemeComponentAllowedProps<Props> = { themeStyleScript?: StyleScript<Props> };
 
 /*
 
@@ -303,9 +304,9 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> };
 
 // prettier-ignore
-export type ThemeComponentTemplateOverrides<Template extends string, Props> =
+export type ThemeComponentTemplateOverrides<Template extends string, Props extends LegalProps, LegalProps> =
 	/* WITH TEMPLATE */
-	{ [K in ThemeComponentTemplateUnNamedSelectors<Template>]?: ThemeComponentRestrictedProps<Props> } &
+	{ [K in ThemeComponentTemplateUnNamedSelectors<Template>]?: ThemeComponentRestrictedProps<Props, LegalProps> } &
 
 	/* ATOMS */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template, 'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> } &

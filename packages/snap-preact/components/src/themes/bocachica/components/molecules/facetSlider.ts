@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FacetSliderProps } from '../../../../components/Molecules/FacetSlider';
+import type { FacetSliderProps, FacetSliderTemplatesLegalProps } from '../../../../components/Molecules/FacetSlider';
 import { ThemeComponent } from '../../../../providers';
 
 // CSS in JS style script for the FacetSlider component
@@ -48,7 +48,7 @@ const facetSliderStyleScript = ({
 };
 
 // FacetSlider component props
-export const facetSlider: ThemeComponent<'facetSlider', FacetSliderProps> = {
+export const facetSlider: ThemeComponent<'facetSlider', FacetSliderProps, FacetSliderTemplatesLegalProps> = {
 	default: {
 		facetSlider: {
 			themeStyleScript: facetSliderStyleScript,

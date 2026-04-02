@@ -1,14 +1,14 @@
 import { css } from '@emotion/react';
 import { autocompleteModalThemeComponentProps } from '../../../themeComponents/autocompleteModal';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteModalProps } from '../../../../components/Templates/AutocompleteModal';
+import { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../../../../components/Templates/AutocompleteModal';
 
 // CSS in JS style script for the Search component
 const autocompleteModalStyleScript = ({}: AutocompleteModalProps) => {
 	return css({});
 };
 
-export const autocompleteModal: ThemeComponent<'autocompleteModal', AutocompleteModalProps> = {
+export const autocompleteModal: ThemeComponent<'autocompleteModal', AutocompleteModalProps, AutocompleteModalTemplatesLegalProps> = {
 	default: {
 		...autocompleteModalThemeComponentProps.default,
 		autocompleteModal: {

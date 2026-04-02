@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { LayoutSelectorProps } from '../../../../components/Molecules/LayoutSelector';
+import type { LayoutSelectorProps, LayoutSelectorTemplatesLegalProps } from '../../../../components/Molecules/LayoutSelector';
 import { ThemeComponent } from '../../../../providers';
 
 // CSS in JS style script for the LayoutSelector component
@@ -29,7 +29,7 @@ const layoutSelectorStyleScript = ({ theme }: LayoutSelectorProps) => {
 };
 
 // LayoutSelector component props
-export const layoutSelector: ThemeComponent<'layoutSelector', LayoutSelectorProps> = {
+export const layoutSelector: ThemeComponent<'layoutSelector', LayoutSelectorProps, LayoutSelectorTemplatesLegalProps> = {
 	default: {
 		layoutSelector: {
 			themeStyleScript: layoutSelectorStyleScript,
