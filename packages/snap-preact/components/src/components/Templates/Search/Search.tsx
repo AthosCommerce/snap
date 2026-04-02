@@ -252,7 +252,7 @@ export type SearchProps = {
 	alias?: 'searchCollapsible' | 'searchHorizontal';
 	resultComponent?: JSXComponent | JSX.Element;
 } & SearchTemplatesLegalProps &
-	ComponentProps<SearchProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchTemplatesLegalProps = {
 	mobileDisplayAt?: string;

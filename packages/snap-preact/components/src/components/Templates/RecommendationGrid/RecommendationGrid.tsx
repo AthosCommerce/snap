@@ -171,7 +171,7 @@ export type RecommendationGridProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	results?: Product[];
 } & RecommendationGridTemplatesLegalProps &
-	ComponentProps<RecommendationGridProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationGridTemplatesLegalProps = {
 	title?: string;

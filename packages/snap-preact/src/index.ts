@@ -6,5 +6,5 @@ export { polyfills } from './polyfills/polyfills';
 export * from './create';
 
 export type { SnapConfig } from './Snap';
-export type { SnapTemplatesConfig, SnapIntegrationConfig, TemplateStoreConfigConfig, TemplateStoreConfigConfigFull } from './Templates';
+export type { SnapTemplatesConfig, SnapIntegrationConfig, TemplateStoreConfigConfig, TemplateStoreConfigConfigUnlocked } from './Templates';
 export type { GlobalThemeStyleScript } from './types';

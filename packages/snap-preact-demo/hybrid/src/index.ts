@@ -1,19 +1,111 @@
+import { SnapHybrid } from '@athoscommerce/snap-preact';
+import type { SnapTemplatesConfig, SnapIntegrationConfig, SnapConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
-
-// import { Snap, TemplatesStore } from '@athoscommerce/snap-preact';
-import { Snap } from '@athoscommerce/snap-preact';
-
+import { combineMerge } from '../../snap/src/middleware/functions';
+import { afterStore, mutateResultsURL } from '../../snap/src/middleware/plugins/afterStore';
+import { ContentSkel } from '../../snap/src/components/Content/Skel';
+import { SidebarSkel } from '../../snap/src/components/Sidebar/Skel';
+import { getContext, url } from '@athoscommerce/snap-toolbox';
+import { ClientConfig } from '@athoscommerce/snap-client';
+import { SearchRequestModelFilterTypeEnum } from '@athoscommerce/snapi-types';
 import { StorageStore } from '@athoscommerce/snap-store-mobx';
-import { url, getContext } from '@athoscommerce/snap-toolbox';
-// import { afterSearch } from './middleware/plugins/afterSearch';
-import { afterStore, mutateResultsURL } from './middleware/plugins/afterStore';
-import { combineMerge } from './middleware/functions';
-import { ContentSkel } from './components/Content/Skel';
-import { SidebarSkel } from './components/Sidebar/Skel';
+import { globalStyles } from '../../templates/src/styles';
 
-import './styles/custom.scss';
-import type { ClientConfig } from '@athoscommerce/snap-client';
-import type { SearchRequestModelFilterTypeEnum } from '@athoscommerce/snapi-types';
+let siteId = 'atkzs2';
+
+let templatesConfig: SnapTemplatesConfig = {
+	unlocked: true,
+	config: {
+		siteId: siteId,
+		language: 'en',
+		currency: 'usd',
+		platform: 'other',
+		// client: clientConfig
+	},
+
+	plugins: {
+		common: {
+			addToCart: {
+				function: (data: any) => console.log('added to cart!', data),
+			},
+		},
+	},
+	components: {
+		result: {
+			CustomResult: async () => (await import('../../templates/src/components/Result')).CustomResult,
+		},
+	},
+	theme: {
+		extends: 'pike',
+		variables: {
+			// breakpoints: {
+			// 	mobile: 767,
+			// 	tablet: 1024,
+			// 	desktop: 1280,
+			// },
+			// colors: {
+			// 	primary: '#6d7175',
+			// 	secondary: '#202223',
+			// 	accent: '#333333',
+			// },
+		},
+		style: globalStyles,
+		overrides: {
+			default: {},
+		},
+	},
+	recommendation: {
+		email: {
+			Email: {
+				component: 'RecommendationEmail',
+			},
+		},
+		default: {
+			Default: {
+				component: 'Recommendation',
+			},
+		},
+		bundle: {
+			Bundle: {
+				component: 'RecommendationBundle',
+			},
+		},
+	},
+	search: {
+		targets: [
+			{
+				selector: '#athos-layout',
+				component: 'SearchCollapsible',
+			},
+		],
+		settings: {
+			variants: {
+				showDisabledSelectionValues: true,
+			},
+			// infinite: {
+			// 	backfill: 5,
+			// },
+		},
+	},
+	autocomplete: {
+		targets: [
+			{
+				selector: 'input.athos-ac',
+				component: 'AutocompleteFixed',
+			},
+		],
+		settings: {
+			history: {
+				limit: 6,
+				showResults: true,
+			},
+			trending: {
+				limit: 6,
+				showResults: true,
+			},
+		},
+	},
+};
 
 // storage for custom configuration
 const configStore = new StorageStore({ type: 'local', key: 'athos-demo-config' });
@@ -35,10 +127,9 @@ if (context.collection?.handle) {
 }
 
 /*
-	configuration and instantiation
+    configuration and instantiation
  */
 
-let siteId = 'atkzs2';
 let customOrigin = '';
 let clientConfig: ClientConfig = {};
 
@@ -89,7 +180,7 @@ if (customOrigin) {
 	};
 }
 
-export let config: SnapConfig = {
+let snapConfig: SnapConfig = {
 	mode: 'development', // should be removed for 'production' usage
 	url: {
 		parameters: {
@@ -108,19 +199,19 @@ export let config: SnapConfig = {
 		recommendation: {
 			components: {
 				Recs: async () => {
-					return (await import('./components/Recommendations/Recs/Recs')).Recs;
+					return (await import('../../snap/src/components/Recommendations/Recs/Recs')).Recs;
 				},
 				Carousel: async () => {
-					return (await import('./components/Recommendations/Recs/Recs')).Recs;
+					return (await import('../../snap/src/components/Recommendations/Recs/Recs')).Recs;
 				},
 				Bundle: async () => {
-					return (await import('./components/Recommendations/Bundles/Bundles')).Bundles;
+					return (await import('../../snap/src/components/Recommendations/Bundles/Bundles')).Bundles;
 				},
 				Default: async () => {
-					return (await import('./components/Recommendations/Recs/Recs')).Recs;
+					return (await import('../../snap/src/components/Recommendations/Recs/Recs')).Recs;
 				},
 				Email: async () => {
-					return (await import('./components/Recommendations/Email/Email')).Email;
+					return (await import('../../snap/src/components/Recommendations/Email/Email')).Email;
 				},
 			},
 
@@ -179,7 +270,7 @@ export let config: SnapConfig = {
 						renderAfterSearch: true,
 						skeleton: () => ContentSkel,
 						component: async () => {
-							return (await import('./components/Content/Content')).Content;
+							return (await import('../../snap/src/components/Content/Content')).Content;
 						},
 					},
 					{
@@ -188,7 +279,7 @@ export let config: SnapConfig = {
 						renderAfterSearch: true,
 						skeleton: () => SidebarSkel,
 						component: async () => {
-							return (await import('./components/Sidebar/Sidebar')).Sidebar;
+							return (await import('../../snap/src/components/Sidebar/Sidebar')).Sidebar;
 						},
 					},
 				],
@@ -214,7 +305,7 @@ export let config: SnapConfig = {
 						selector: 'input.athos-ac',
 						hideTarget: true,
 						component: async () => {
-							return (await import('./components/Autocomplete/Autocomplete')).Autocomplete;
+							return (await import('../../snap/src/components/Autocomplete/Autocomplete')).Autocomplete;
 						},
 					},
 				],
@@ -241,7 +332,7 @@ export let config: SnapConfig = {
 						name: 'finder',
 						selector: '#athos-finder',
 						component: async () => {
-							return (await import('./components/Finder/Finder')).Finder;
+							return (await import('../../snap/src/components/Finder/Finder')).Finder;
 						},
 					},
 				],
@@ -261,7 +352,7 @@ export let config: SnapConfig = {
 						name: 'finder_hierarchy',
 						selector: '#athos-finder-hierarchy',
 						component: async () => {
-							return (await import('./components/Finder/Finder')).Finder;
+							return (await import('../../snap/src/components/Finder/Finder')).Finder;
 						},
 					},
 				],
@@ -270,9 +361,12 @@ export let config: SnapConfig = {
 	},
 };
 
-// used to add config settings from cypress e2e tests
 if (window.mergeSnapConfig) {
-	config = deepmerge(config, window.mergeSnapConfig, { arrayMerge: combineMerge });
+	templatesConfig = deepmerge(templatesConfig as object, window.mergeSnapConfig, { arrayMerge: combineMerge });
+	snapConfig = deepmerge(snapConfig, window.mergeSnapConfig, { arrayMerge: combineMerge });
 }
 
-new Snap(config);
+new SnapHybrid({
+	templatesConfig: templatesConfig as SnapIntegrationConfig,
+	snapConfig: snapConfig as SnapConfig,
+});

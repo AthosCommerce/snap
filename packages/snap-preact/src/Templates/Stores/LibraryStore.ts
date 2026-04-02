@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 import type { JSXComponent, Theme, ThemeComplete, ThemeMinimal } from '../../../components/src';
 import { transformTranslationsToTheme, type TemplateCustomComponentTypes, type TemplateTypes } from './TemplateStore';
-import type { TemplateStoreComponentConfigFull } from './TemplateStore';
+import type { TemplateStoreComponentConfigUnlocked } from './TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
@@ -227,7 +227,7 @@ const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
 ];
 
 type LibraryStoreConfig = {
-	components?: TemplateStoreComponentConfigFull;
+	components?: TemplateStoreComponentConfigUnlocked;
 	unlocked?: boolean;
 };
 

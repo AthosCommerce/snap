@@ -225,7 +225,7 @@ export type AutocompleteModalProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
 } & AutocompleteModalTemplatesLegalProps &
-	ComponentProps<AutocompleteModalProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type AutocompleteModalTemplatesLegalProps = {
 	buttonSelector?: string | Element;

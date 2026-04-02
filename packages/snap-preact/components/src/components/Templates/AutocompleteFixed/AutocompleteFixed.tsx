@@ -271,7 +271,7 @@ export type AutocompleteFixedProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
 } & AutocompleteFixedTemplatesLegalProps &
-	ComponentProps<AutocompleteFixedProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type AutocompleteFixedTemplatesLegalProps = {
 	buttonSelector?: string | Element;

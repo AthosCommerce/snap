@@ -242,7 +242,6 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
-		customComponent: ____,
 		treePath,
 		...additionalProps
 	} = props;
@@ -688,7 +687,7 @@ export type RecommendationBundleProps = {
 	lang?: Partial<RecommendationBundleLang>;
 	results?: Product[];
 } & RecommendationBundleTemplatesLegalProps &
-	ComponentProps<RecommendationBundleProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleTemplatesLegalProps = {
 	limit?: number;

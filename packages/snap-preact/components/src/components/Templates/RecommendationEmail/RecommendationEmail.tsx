@@ -106,7 +106,7 @@ export type RecommendationEmailProps = {
 	results?: Product[];
 	resultComponent?: JSXComponent | JSX.Element;
 } & RecommendationEmailTemplatesLegalProps &
-	ComponentProps<RecommendationEmailProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationEmailTemplatesLegalProps = {
 	resultProps?: Partial<ResultProps> | Record<string, any>;

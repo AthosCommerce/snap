@@ -17,6 +17,6 @@ export type SearchHorizontalProps = {
 	controller: SearchController;
 } & SearchProps &
 	SearchHorizontalTemplatesLegalProps &
-	ComponentProps<SearchHorizontalProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchHorizontalTemplatesLegalProps = SearchTemplatesLegalProps;

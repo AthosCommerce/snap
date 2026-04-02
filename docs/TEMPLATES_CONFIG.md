@@ -132,8 +132,9 @@ When `unlocked: true`, you can define custom plugins under `plugins.custom`. Cus
 | `plugins.custom` | Custom plugin definitions | Object | ➖ |
 | `plugins.custom[pluginName]` | A custom plugin configuration | Object | ➖ |
 | `plugins.custom[pluginName].function` | The plugin function | PluginFunction | Required |
+| `plugins.custom[pluginName].args` | Arguments to pass to the plugin function | any[] | ➖ |
 
-Each custom plugin requires a `function` property that receives the controller instance and can register event handlers:
+Each custom plugin requires a `function` property that receives the controller instance and can register event handlers. You can optionally pass additional arguments via the `args` array:
 
 ```jsx
 new SnapTemplates({
@@ -167,6 +168,46 @@ new SnapTemplates({
 		extends: 'pike',
 	},
 	// ...
+});
+```
+
+#### Passing Arguments to Custom Plugins
+
+You can pass additional arguments to your plugin function using the `args` array. These arguments are spread after the controller when the plugin is invoked:
+
+```jsx
+// Define a reusable plugin factory that accepts configuration
+const createFilterPlugin = (controller, filterField, filterValues) => {
+	controller.on('beforeSearch', async ({ controller }, next) => {
+		controller.store.filters.push({
+			field: filterField,
+			values: filterValues,
+		});
+		await next();
+	});
+};
+
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	plugins: {
+		custom: {
+			categoryFilter: {
+				function: createFilterPlugin,
+				args: ['category', ['Electronics', 'Computers']],
+			},
+			brandFilter: {
+				function: createFilterPlugin,
+				args: ['brand', ['Apple', 'Samsung']],
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
 });
 ```
 

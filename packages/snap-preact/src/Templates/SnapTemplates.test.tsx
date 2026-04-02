@@ -83,6 +83,60 @@ describe('createPlugins with custom plugins', () => {
 		expect(plugins.find((plugin) => plugin[0] === customPluginFn3)).toBeDefined();
 	});
 
+	it('should pass args to custom plugin function', () => {
+		const customPluginFn: PluginFunction = jest.fn();
+		const pluginArgs = ['arg1', { key: 'value' }, 42];
+
+		const config: SnapTemplatesConfigLocked = {
+			...baseConfig,
+			plugins: {
+				custom: {
+					myPluginWithArgs: {
+						function: customPluginFn,
+						args: pluginArgs,
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const plugins = createPlugins(config, templatesStore);
+
+		// Find the custom plugin in the plugins array
+		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
+		expect(customPluginEntry).toBeDefined();
+		expect(customPluginEntry![0]).toBe(customPluginFn);
+		// Args should be spread after the function
+		expect(customPluginEntry![1]).toBe('arg1');
+		expect(customPluginEntry![2]).toEqual({ key: 'value' });
+		expect(customPluginEntry![3]).toBe(42);
+	});
+
+	it('should handle custom plugin without args', () => {
+		const customPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigLocked = {
+			...baseConfig,
+			plugins: {
+				custom: {
+					myPluginNoArgs: {
+						function: customPluginFn,
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const plugins = createPlugins(config, templatesStore);
+
+		// Find the custom plugin in the plugins array
+		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
+		expect(customPluginEntry).toBeDefined();
+		expect(customPluginEntry![0]).toBe(customPluginFn);
+		// Should only have the function, no additional args
+		expect(customPluginEntry!.length).toBe(1);
+	});
+
 	it('should include custom plugins from controller-specific config', () => {
 		const globalPluginFn: PluginFunction = jest.fn();
 		const searchPluginFn: PluginFunction = jest.fn();

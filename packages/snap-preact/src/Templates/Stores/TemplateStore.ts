@@ -1,3 +1,4 @@
+import { h } from 'preact';
 import { observable, makeObservable } from 'mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-store-mobx';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
@@ -27,13 +28,72 @@ import type {
 } from '@athoscommerce/snap-platforms/common';
 import type {
 	ThemeResponsiveComplete,
-	ThemeResponsiveCompleteFull,
+	ThemeResponsiveCompleteUnlocked,
 	LangComponentOverrides,
 	ThemeComponents,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
-	JSXComponent,
+	// Component Props for typed component config
+	ResultProps,
+	OverlayBadgeProps,
+	BadgeImageProps,
+	BadgePillProps,
+	BadgeRectangleProps,
+	BadgeTextProps,
+	BreadcrumbsProps,
+	ButtonProps,
+	DropdownProps,
+	FormattedNumberProps,
+	IconProps,
+	ImageProps,
+	LoadingBarProps,
+	BannerProps,
+	InlineBannerProps,
+	OverlayProps,
+	PaginationInfoProps,
+	SlideshowProps,
+	PriceProps,
+	SkeletonProps,
+	ModalProps,
+	CalloutBadgeProps,
+	CarouselProps,
+	CheckboxProps,
+	GridProps,
+	LayoutSelectorProps,
+	ListProps,
+	RadioProps,
+	ErrorHandlerProps,
+	FacetGridOptionsProps,
+	FacetHierarchyOptionsProps,
+	FacetListOptionsProps,
+	FacetPaletteOptionsProps,
+	FacetSliderProps,
+	FilterProps,
+	LoadMoreProps,
+	PaginationProps,
+	PerPageProps,
+	RadioListProps,
+	RatingProps,
+	SearchInputProps,
+	SelectProps,
+	SlideoutProps,
+	SortByProps,
+	SwatchesProps,
+	VariantSelectionProps,
+	TermsProps,
+	BranchOverrideProps,
+	FacetProps,
+	FacetsProps,
+	FacetsHorizontalProps,
+	FilterSummaryProps,
+	NoResultsProps,
+	ResultsProps,
+	SearchHeaderProps,
+	SidebarProps,
+	MobileSidebarProps,
+	ToolbarProps,
+	TermsListProps,
 } from '../../../components/src';
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
@@ -142,19 +202,86 @@ type TemplateStoreThemeConfig = {
 	overrides?: ThemeResponsiveComplete;
 };
 
-type TemplateStoreThemeConfigFull = Omit<TemplateStoreThemeConfig, 'overrides'> & {
-	overrides?: ThemeResponsiveCompleteFull;
+type TemplateStoreThemeConfigUnlocked = Omit<TemplateStoreThemeConfig, 'overrides'> & {
+	overrides?: ThemeResponsiveCompleteUnlocked;
 };
 
+// Component type to props mapping for typed component config
+export type ComponentTypePropsMap = {
+	result: ResultProps;
+	badge: OverlayBadgeProps;
+	badgeImage: BadgeImageProps;
+	badgePill: BadgePillProps;
+	badgeRectangle: BadgeRectangleProps;
+	badgeText: BadgeTextProps;
+	breadcrumbs: BreadcrumbsProps;
+	button: ButtonProps;
+	dropdown: DropdownProps;
+	formattedNumber: FormattedNumberProps;
+	icon: IconProps;
+	image: ImageProps;
+	loadingBar: LoadingBarProps;
+	banner: BannerProps;
+	inlineBanner: InlineBannerProps;
+	overlay: OverlayProps;
+	paginationInfo: PaginationInfoProps;
+	slideshow: SlideshowProps;
+	price: PriceProps;
+	skeleton: SkeletonProps;
+	modal: ModalProps;
+	calloutBadge: CalloutBadgeProps;
+	carousel: CarouselProps;
+	checkbox: CheckboxProps;
+	grid: GridProps;
+	layoutSelector: LayoutSelectorProps;
+	list: ListProps;
+	radio: RadioProps;
+	errorHandler: ErrorHandlerProps;
+	facetGridOptions: FacetGridOptionsProps;
+	facetHierarchyOptions: FacetHierarchyOptionsProps;
+	facetListOptions: FacetListOptionsProps;
+	facetPaletteOptions: FacetPaletteOptionsProps;
+	facetSlider: FacetSliderProps;
+	filter: FilterProps;
+	loadMore: LoadMoreProps;
+	overlayBadge: OverlayBadgeProps;
+	pagination: PaginationProps;
+	perPage: PerPageProps;
+	radioList: RadioListProps;
+	rating: RatingProps;
+	searchInput: SearchInputProps;
+	select: SelectProps;
+	slideout: SlideoutProps;
+	sortBy: SortByProps;
+	swatches: SwatchesProps;
+	variantSelection: VariantSelectionProps;
+	terms: TermsProps;
+	branchOverride: BranchOverrideProps;
+	facet: FacetProps;
+	facets: FacetsProps;
+	facetsHorizontal: FacetsHorizontalProps;
+	filterSummary: FilterSummaryProps;
+	noResults: NoResultsProps;
+	results: ResultsProps;
+	searchHeader: SearchHeaderProps;
+	sidebar: SidebarProps;
+	mobileSidebar: MobileSidebarProps;
+	toolbar: ToolbarProps;
+	termsList: TermsListProps;
+};
+
+// Typed component function: returns a component that accepts the mapped props type
+type TypedComponentFunction<P> = () => Promise<(props: P) => h.JSX.Element | null> | ((props: P) => h.JSX.Element | null);
+
 export type TemplateStoreComponentConfig = {
-	[key in TemplateDefaultComponentTypes]?: {
-		[componentName: string]: (args?: any) => Promise<JSXComponent> | JSXComponent;
+	[K in TemplateDefaultComponentTypes]?: {
+		[componentName: string]: TypedComponentFunction<ComponentTypePropsMap[K]>;
 	};
 };
 
-export type TemplateStoreComponentConfigFull = {
-	[key in TemplateCustomComponentTypes]?: {
-		[componentName: string]: (args?: any) => Promise<JSXComponent> | JSXComponent;
+export type TemplateStoreComponentConfigUnlocked = {
+	[K in TemplateCustomComponentTypes]?: {
+		[componentName: string]: TypedComponentFunction<ComponentTypePropsMap[K]>;
 	};
 };
 
@@ -183,6 +310,7 @@ export type Magento2Plugins = {
 
 export type CustomPluginConfig = {
 	function: PluginFunction;
+	args?: any[];
 };
 
 export type CustomPlugins = {
@@ -196,7 +324,7 @@ export type PluginsConfigs = {
 	magento2?: Magento2Plugins;
 };
 
-export type PluginsConfigsFull = PluginsConfigs & {
+export type PluginsConfigsUnlocked = PluginsConfigs & {
 	custom?: CustomPlugins;
 };
 
@@ -217,10 +345,10 @@ export type TemplateStoreConfigConfig = {
 	theme: TemplateStoreThemeConfig;
 };
 
-export type TemplateStoreConfigConfigFull = Omit<TemplateStoreConfigConfig, 'theme' | 'components' | 'plugins'> & {
-	theme: TemplateStoreThemeConfigFull;
-	components?: TemplateStoreComponentConfigFull;
-	plugins?: PluginsConfigsFull;
+export type TemplateStoreConfigConfigUnlocked = Omit<TemplateStoreConfigConfig, 'theme' | 'components' | 'plugins'> & {
+	theme: TemplateStoreThemeConfigUnlocked;
+	components?: TemplateStoreComponentConfigUnlocked;
+	plugins?: PluginsConfigsUnlocked;
 };
 
 const RESIZE_DEBOUNCE = 100;

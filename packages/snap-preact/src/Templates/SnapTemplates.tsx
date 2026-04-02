@@ -21,10 +21,10 @@ import type { SnapConfig, ExtendedTarget } from '../Snap';
 import type {
 	CustomPlugins,
 	PluginsConfigs,
-	PluginsConfigsFull,
+	PluginsConfigsUnlocked,
 	RecsTemplateTypes,
 	TemplateStoreConfigConfig,
-	TemplateStoreConfigConfigFull,
+	TemplateStoreConfigConfigUnlocked,
 	TemplateTypes,
 } from './Stores/TemplateStore';
 import { LibraryImports } from './Stores/LibraryStore';
@@ -88,7 +88,7 @@ export type RecommendationBundleTargetConfig = {
 
 export type SnapTemplatesConfig = SnapTemplatesConfigUnlocked | SnapTemplatesConfigLocked;
 
-export type SnapTemplatesConfigUnlocked = TemplateStoreConfigConfig & {
+export type SnapTemplatesConfigLocked = TemplateStoreConfigConfig & {
 	unlocked: false;
 	url?: UrlTranslatorConfig;
 	features?: SnapFeatures;
@@ -96,15 +96,11 @@ export type SnapTemplatesConfigUnlocked = TemplateStoreConfigConfig & {
 		targets: SearchTargetConfig[];
 		settings?: SearchStoreConfigSettings;
 		plugins?: PluginsConfigs;
-		// breakpointSettings?: SearchStoreConfigSettings[];
-		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 	autocomplete?: {
 		targets: AutocompleteTargetConfig[];
 		settings?: AutocompleteStoreConfigSettings;
 		plugins?: PluginsConfigs;
-		// breakpointSettings?: AutocompleteStoreConfigSettings[];
-		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 	recommendation?: {
 		email?: {
@@ -118,24 +114,21 @@ export type SnapTemplatesConfigUnlocked = TemplateStoreConfigConfig & {
 		};
 		settings?: RecommendationInstantiatorConfigSettings;
 		plugins?: PluginsConfigs;
-		// breakpointSettings?: RecommendationInstantiatorConfigSettings[];
-		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 };
 
 // Full version that allows all component props in theme overrides (for Snap integration migration path)
-export type SnapTemplatesConfigLocked = Omit<SnapTemplatesConfigUnlocked, 'unlocked' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'> &
-	TemplateStoreConfigConfigFull & {
-		// _configType: 'integration';
+export type SnapTemplatesConfigUnlocked = Omit<SnapTemplatesConfigLocked, 'unlocked' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'> &
+	TemplateStoreConfigConfigUnlocked & {
 		unlocked: true;
-		search?: Omit<NonNullable<SnapTemplatesConfigUnlocked['search']>, 'plugins'> & {
-			plugins?: PluginsConfigsFull;
+		search?: Omit<NonNullable<SnapTemplatesConfigLocked['search']>, 'plugins'> & {
+			plugins?: PluginsConfigsUnlocked;
 		};
-		autocomplete?: Omit<NonNullable<SnapTemplatesConfigUnlocked['autocomplete']>, 'plugins'> & {
-			plugins?: PluginsConfigsFull;
+		autocomplete?: Omit<NonNullable<SnapTemplatesConfigLocked['autocomplete']>, 'plugins'> & {
+			plugins?: PluginsConfigsUnlocked;
 		};
-		recommendation?: Omit<NonNullable<SnapTemplatesConfigUnlocked['recommendation']>, 'plugins'> & {
-			plugins?: PluginsConfigsFull;
+		recommendation?: Omit<NonNullable<SnapTemplatesConfigLocked['recommendation']>, 'plugins'> & {
+			plugins?: PluginsConfigsUnlocked;
 		};
 	};
 
@@ -157,7 +150,7 @@ type TemplatePlugins =
 	| [typeof pluginMagento2BackgroundFilters, PluginMagento2BackgroundFiltersConfig]
 	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig]
 	// custom
-	| [PluginFunction];
+	| [PluginFunction, ...unknown[]];
 
 type TemplatePluginGrouping = TemplatePlugins[];
 
@@ -585,14 +578,14 @@ export function createPlugins(
 
 	// Handle custom plugins (only available when unlocked: true)
 	const customPlugins: CustomPlugins = deepmerge(
-		(templateConfig as { plugins?: PluginsConfigsFull }).plugins?.custom || {},
-		(controllerConfig as { plugins?: PluginsConfigsFull })?.plugins?.custom || {}
+		(templateConfig as { plugins?: PluginsConfigsUnlocked }).plugins?.custom || {},
+		(controllerConfig as { plugins?: PluginsConfigsUnlocked })?.plugins?.custom || {}
 	);
 
 	Object.keys(customPlugins).forEach((pluginName) => {
 		const customPlugin = customPlugins[pluginName];
 		if (customPlugin?.function) {
-			plugins.push([customPlugin.function]);
+			plugins.push([customPlugin.function, ...(customPlugin.args || [])]);
 		}
 	});
 

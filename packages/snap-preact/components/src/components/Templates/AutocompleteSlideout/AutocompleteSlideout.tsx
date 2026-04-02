@@ -195,7 +195,7 @@ export type AutocompleteSlideoutProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
 } & AutocompleteSlideoutTemplatesLegalProps &
-	ComponentProps<AutocompleteSlideoutProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type AutocompleteSlideoutTemplatesLegalProps = {
 	overlayColor?: string;

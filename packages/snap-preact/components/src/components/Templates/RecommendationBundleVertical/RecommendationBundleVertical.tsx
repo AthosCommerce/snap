@@ -63,7 +63,7 @@ export type RecommendationBundleVerticalProps = {
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
 } & RecommendationBundleVerticalTemplatesLegalProps &
-	ComponentProps<RecommendationBundleVerticalProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleVerticalTemplatesLegalProps = Omit<
 	RecommendationBundleProps,

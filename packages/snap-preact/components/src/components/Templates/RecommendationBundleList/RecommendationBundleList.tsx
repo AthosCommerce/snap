@@ -120,7 +120,7 @@ export type RecommendationBundleListProps = {
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
 } & RecommendationBundleListTemplatesLegalProps &
-	ComponentProps<RecommendationBundleListProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleListTemplatesLegalProps = Omit<
 	RecommendationBundleProps,

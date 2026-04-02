@@ -232,7 +232,7 @@ export type RecommendationProps = {
 	lang?: Partial<RecommendationLang>;
 	breakpoints?: BreakpointsProps;
 } & RecommendationTemplatesLegalProps &
-	ComponentProps<RecommendationProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationTemplatesLegalProps = {
 	title?: JSX.Element | string;
@@ -253,7 +253,7 @@ export type RecommendationTemplatesLegalProps = {
 	};
 	slidesPerView?: number | 'auto';
 } & Omit<SwiperOptions, 'breakpoints' | 'slidesPerView'> &
-	ComponentProps;
+	Omit<ComponentProps, 'customComponent'>;
 
 export interface RecommendationLang {
 	titleText?: Lang<{
