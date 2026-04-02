@@ -1,18 +1,22 @@
 import { createPlugins, createSnapConfig, DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS, DEFAULT_FEATURES } from './SnapTemplates';
-import type { SnapTemplatesConfig, SnapTemplatesConfigLocked } from './SnapTemplates';
+import type { SnapTemplatesConfig, SnapTemplatesConfigLocked, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
 
 describe('createPlugins with custom plugins', () => {
-	const baseConfig: SnapTemplatesConfigLocked = {
-		unlocked: true,
+	const baseConfigValues = {
 		config: {
-			platform: 'other',
+			platform: 'other' as const,
 			siteId: 'test123',
 		},
 		theme: {
-			extends: 'base',
+			extends: 'base' as const,
 		},
+	};
+
+	const baseConfig: SnapTemplatesConfigLocked = {
+		unlocked: false,
+		...baseConfigValues,
 	};
 
 	it('should handle empty custom plugins', () => {
@@ -32,8 +36,9 @@ describe('createPlugins with custom plugins', () => {
 	it('should include custom plugin function from global plugins config', () => {
 		const customPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					myCustomPlugin: {
@@ -57,8 +62,9 @@ describe('createPlugins with custom plugins', () => {
 		const customPluginFn2: PluginFunction = jest.fn();
 		const customPluginFn3: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					pluginOne: {
@@ -87,8 +93,9 @@ describe('createPlugins with custom plugins', () => {
 		const customPluginFn: PluginFunction = jest.fn();
 		const pluginArgs = ['arg1', { key: 'value' }, 42];
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					myPluginWithArgs: {
@@ -115,8 +122,9 @@ describe('createPlugins with custom plugins', () => {
 	it('should handle custom plugin without args', () => {
 		const customPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					myPluginNoArgs: {
@@ -141,8 +149,9 @@ describe('createPlugins with custom plugins', () => {
 		const globalPluginFn: PluginFunction = jest.fn();
 		const searchPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					globalPlugin: {
@@ -174,8 +183,9 @@ describe('createPlugins with custom plugins', () => {
 		const globalPluginFn: PluginFunction = jest.fn();
 		const autocompletePluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					globalPlugin: {
@@ -207,8 +217,9 @@ describe('createPlugins with custom plugins', () => {
 		const globalPluginFn: PluginFunction = jest.fn();
 		const recommendationPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					globalPlugin: {
@@ -241,8 +252,9 @@ describe('createPlugins with custom plugins', () => {
 	it('should skip custom plugin entries without a function property', () => {
 		const validPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
-			...baseConfig,
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
 			plugins: {
 				custom: {
 					validPlugin: {
@@ -300,7 +312,7 @@ describe('createSnapConfig with custom plugins', () => {
 	it('should pass custom plugins to search controller config', () => {
 		const customPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
+		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
 			config: {
 				platform: 'other',
@@ -337,7 +349,7 @@ describe('createSnapConfig with custom plugins', () => {
 	it('should pass custom plugins to autocomplete controller config', () => {
 		const customPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
+		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
 			config: {
 				platform: 'other',
@@ -374,7 +386,7 @@ describe('createSnapConfig with custom plugins', () => {
 	it('should pass custom plugins to recommendation instantiator config', () => {
 		const customPluginFn: PluginFunction = jest.fn();
 
-		const config: SnapTemplatesConfigLocked = {
+		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
 			config: {
 				platform: 'other',
@@ -413,7 +425,7 @@ describe('createSnapConfig with custom plugins', () => {
 
 describe('createPlugins with built-in plugins', () => {
 	const baseConfig: SnapTemplatesConfigLocked = {
-		unlocked: true,
+		unlocked: false,
 		config: {
 			platform: 'other',
 			siteId: 'test123',
@@ -526,7 +538,7 @@ describe('createPlugins with built-in plugins', () => {
 
 describe('createSnapConfig additional coverage', () => {
 	const baseConfig: SnapTemplatesConfigLocked = {
-		unlocked: true,
+		unlocked: false,
 		config: {
 			platform: 'other',
 			siteId: 'test123',
