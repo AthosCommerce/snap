@@ -1,7 +1,11 @@
-import { AutocompleteSlideoutProps } from '../../components/Templates/AutocompleteSlideout';
+import { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps } from '../../components/Templates/AutocompleteSlideout';
 import { ThemeComponent } from '../../providers';
 
-export const autocompleteSlideoutThemeComponentProps: ThemeComponent<'autocompleteSlideout', AutocompleteSlideoutProps> = {
+export const autocompleteSlideoutThemeComponentProps: ThemeComponent<
+	'autocompleteSlideout',
+	AutocompleteSlideoutProps,
+	AutocompleteSlideoutTemplatesLegalProps
+> = {
 	default: {
 		'autocompleteSlideout results': {
 			columns: 2,

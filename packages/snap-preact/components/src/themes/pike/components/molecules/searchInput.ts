@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SearchInputProps } from '../../../../components/Molecules/SearchInput';
+import type { SearchInputProps, SearchInputTemplatesLegalProps } from '../../../../components/Molecules/SearchInput';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -85,7 +85,7 @@ const searchInputStyleScript = (props: SearchInputProps) => {
 };
 
 // SearchInput component props
-export const searchInput: ThemeComponent<'searchInput', SearchInputProps> = {
+export const searchInput: ThemeComponent<'searchInput', SearchInputProps, SearchInputTemplatesLegalProps> = {
 	default: {
 		searchInput: {
 			themeStyleScript: searchInputStyleScript,

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { LoadMoreProps } from '../../../../components/Molecules/LoadMore';
+import type { LoadMoreProps, LoadMoreTemplatesLegalProps } from '../../../../components/Molecules/LoadMore';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 import Color from 'color';
@@ -44,7 +44,7 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 };
 
 // LoadMore component props
-export const loadMore: ThemeComponent<'loadMore', LoadMoreProps> = {
+export const loadMore: ThemeComponent<'loadMore', LoadMoreProps, LoadMoreTemplatesLegalProps> = {
 	default: {
 		loadMore: {
 			themeStyleScript: loadMoreStyleScript,

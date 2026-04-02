@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { ListProps } from '../../../../components/Molecules/List';
+import type { ListProps, ListTemplatesLegalProps } from '../../../../components/Molecules/List';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the List component
 const listStyleScript = ({ theme }: ListProps) => {
@@ -16,7 +16,7 @@ const listStyleScript = ({ theme }: ListProps) => {
 };
 
 // List component props
-export const list: ThemeComponent<'list', ListProps> = {
+export const list: ThemeComponent<'list', ListProps, ListTemplatesLegalProps> = {
 	default: {
 		list: {
 			themeStyleScript: listStyleScript,

@@ -55,11 +55,11 @@ export type Theme = {
 	activeBreakpoint?: ResponsiveKeys;
 };
 
-export type ThemeComponent<Template extends string, Props> = {
-	default?: ThemeComponentTemplateOverrides<Template, Props>;
-	mobile?: ThemeComponentTemplateOverrides<Template, Props>;
-	tablet?: ThemeComponentTemplateOverrides<Template, Props>;
-	desktop?: ThemeComponentTemplateOverrides<Template, Props>;
+export type ThemeComponent<Template extends string, Props extends LegalProps, LegalProps> = {
+	default?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
+	mobile?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
+	tablet?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
+	desktop?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
 };
 
 export type ThemeComplete = Required<Omit<Theme, 'overrides' | 'activeBreakpoint' | 'components'>> & { components: ThemeComponentsRestricted };

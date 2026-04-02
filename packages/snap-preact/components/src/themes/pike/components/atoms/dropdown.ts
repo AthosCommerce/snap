@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { DropdownProps } from '../../../../components/Atoms/Dropdown';
+import type { DropdownProps, DropdownTemplatesLegalProps } from '../../../../components/Atoms/Dropdown';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -77,7 +77,7 @@ const dropdownStyleScript = (props: DropdownProps) => {
 };
 
 // Dropdown component props
-export const dropdown: ThemeComponent<'dropdown', DropdownProps> = {
+export const dropdown: ThemeComponent<'dropdown', DropdownProps, DropdownTemplatesLegalProps> = {
 	default: {
 		dropdown: {
 			themeStyleScript: dropdownStyleScript,

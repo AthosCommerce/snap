@@ -15,7 +15,7 @@ import type {
 	ContextVariables,
 	RecommendationControllerConfig,
 } from '@athoscommerce/snap-controller';
-import type { VariantConfig } from '@athoscommerce/snap-store-mobx';
+import type { BeaconSettings, VariantConfig } from '@athoscommerce/snap-store-mobx';
 import type { Middleware } from '@athoscommerce/snap-event-manager';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { Snap } from '../Snap';
@@ -36,6 +36,7 @@ export type RecommendationInstantiatorConfigSettings = {
 	batched?: boolean;
 	limit?: number;
 	variants?: VariantConfig;
+	beacon?: BeaconSettings;
 };
 
 export type RecommendationInstantiatorConfig = {

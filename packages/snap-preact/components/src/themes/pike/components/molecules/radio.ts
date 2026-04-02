@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { RadioProps } from '../../../../components/Molecules/Radio';
+import type { RadioProps, RadioTemplatesLegalProps } from '../../../../components/Molecules/Radio';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -57,7 +57,7 @@ const radioStyleScript = (props: RadioProps) => {
 };
 
 // Radio component props
-export const radio: ThemeComponent<'radio', RadioProps> = {
+export const radio: ThemeComponent<'radio', RadioProps, RadioTemplatesLegalProps> = {
 	default: {
 		radio: {
 			themeStyleScript: radioStyleScript,

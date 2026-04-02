@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { autocompleteSlideoutThemeComponentProps } from '../../../themeComponents/autocompleteSlideout';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteSlideoutProps } from '../../../../components/Templates/AutocompleteSlideout';
+import { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps } from '../../../../components/Templates/AutocompleteSlideout';
 import { autocompleteSharedStyleScript } from '../templates/autocompleteShared';
 import { custom } from '../../custom';
 
@@ -53,7 +53,7 @@ const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutProps) => {
 	return autocompleteSlideoutStyles;
 };
 
-export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', AutocompleteSlideoutProps> = {
+export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps> = {
 	default: {
 		...autocompleteSlideoutThemeComponentProps.default,
 		autocompleteSlideout: {

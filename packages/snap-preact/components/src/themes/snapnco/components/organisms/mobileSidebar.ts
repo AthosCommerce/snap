@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { MobileSidebarProps } from '../../../../components/Organisms/MobileSidebar';
+import type { MobileSidebarProps, MobileSidebarTemplatesLegalProps } from '../../../../components/Organisms/MobileSidebar';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the MobileSidebar component
 const mobileSidebarStyleScript = ({ theme }: MobileSidebarProps) => {
@@ -54,7 +54,7 @@ const mobileSidebarStyleScript = ({ theme }: MobileSidebarProps) => {
 };
 
 // MobileSidebar component props
-export const mobileSidebar: ThemeComponent<'mobileSidebar', MobileSidebarProps> = {
+export const mobileSidebar: ThemeComponent<'mobileSidebar', MobileSidebarProps, MobileSidebarTemplatesLegalProps> = {
 	default: {
 		mobileSidebar: {
 			themeStyleScript: mobileSidebarStyleScript,

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { ErrorHandlerProps } from '../../../../components/Molecules/ErrorHandler';
+import type { ErrorHandlerProps, ErrorHandlerTemplatesLegalProps } from '../../../../components/Molecules/ErrorHandler';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -28,7 +28,7 @@ const errorHandlerStyleScript = (props: ErrorHandlerProps) => {
 };
 
 // ErrorHandler component props
-export const errorHandler: ThemeComponent<'errorHandler', ErrorHandlerProps> = {
+export const errorHandler: ThemeComponent<'errorHandler', ErrorHandlerProps, ErrorHandlerTemplatesLegalProps> = {
 	default: {
 		errorHandler: {
 			themeStyleScript: errorHandlerStyleScript,
