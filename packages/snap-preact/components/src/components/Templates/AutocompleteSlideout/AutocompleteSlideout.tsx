@@ -119,6 +119,9 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 				onClick: () => reset(),
 				icon: 'angle-left',
 			},
+			chatButton: {
+				onClick: () => controller.openChat(),
+			},
 			// inherited props
 			...defined({
 				disableStyles,

@@ -18,11 +18,13 @@ import type {
 	AbstractController,
 	AutocompleteController,
 	SearchControllerConfig,
+	ChatControllerConfig,
 	AutocompleteControllerConfig,
 	FinderControllerConfig,
 	RecommendationControllerConfig,
 	ControllerConfigs,
 	ContextVariables,
+	ChatController,
 } from '@athoscommerce/snap-controller';
 import type { TrackerConfig, TrackerGlobals, TrackErrorEvent } from '@athoscommerce/snap-tracker';
 import type { Target, OnTarget } from '@athoscommerce/snap-toolbox';
@@ -84,6 +86,7 @@ export type SnapConfig = {
 	};
 	controllers?: {
 		search?: SnapConfigControllerDefinition<SearchControllerConfig>[];
+		chat?: SnapConfigControllerDefinition<ChatControllerConfig>[];
 		autocomplete?: SnapConfigControllerDefinition<AutocompleteControllerConfig>[];
 		finder?: SnapConfigControllerDefinition<FinderControllerConfig>[];
 		recommendation?: SnapConfigControllerDefinition<RecommendationControllerConfig>[];
@@ -209,6 +212,9 @@ export class Snap {
 				break;
 			case ControllerTypes.recommendation:
 				importPromise = import('./create/createRecommendationController');
+				break;
+			case ControllerTypes.chat:
+				importPromise = import('./create/createChatController');
 				break;
 			case ControllerTypes.search:
 			default:
@@ -699,6 +705,79 @@ export class Snap {
 						} catch (err) {
 							this.logger.error(`Failed to instantiate ${type} controller at index ${index}.`, err);
 						}
+					});
+					break;
+				}
+				case 'chat': {
+					this.config.controllers![type]!.forEach((controller, index) => {
+						if (typeof this._controllerPromises[controller.config.id] != 'undefined') {
+							this.logger.error(`Controller with id '${controller.config.id}' is already defined`);
+							return;
+						}
+
+						this._controllerPromises[controller.config.id] = new Promise(async (resolve) => {
+							try {
+								const targetFunction = async (target: ExtendedTarget, elem: Element, originalElem: Element) => {
+									const onTarget = target.onTarget as OnTarget;
+									onTarget && (await onTarget(target, elem, originalElem));
+
+									try {
+										const importPromises = [];
+										// dynamically import the component
+										importPromises.push(target.component!());
+
+										const importResolutions = await Promise.all(importPromises);
+										const Component = importResolutions[0];
+
+										setTimeout(() => {
+											render(<Component controller={this.controllers[controller.config.id] as ChatController} snap={this} {...target.props} />, elem);
+										});
+									} catch (err) {
+										this.logger.error(err);
+										this.logger.error(COMPONENT_ERROR, target);
+									}
+								};
+
+								if (!controller?.targeters || controller?.targeters.length === 0) {
+									await this._createController(
+										ControllerTypes.chat,
+										controller.config,
+										controller.services,
+										controller.url,
+										controller.context,
+										(cntrlr) => {
+											if (cntrlr) resolve(cntrlr);
+										}
+									);
+								}
+
+								controller?.targeters?.forEach((target, target_index) => {
+									if (!target.selector) {
+										throw new Error(`Targets at index ${target_index} missing selector value (string).`);
+									}
+									if (!target.component) {
+										throw new Error(`Targets at index ${target_index} missing component value (Component).`);
+									}
+
+									const targeter = new DomTargeter([{ ...target }], async (target: Target, elem: Element, originalElem?: Element) => {
+										const cntrlr = await this._createController(
+											ControllerTypes.chat,
+											controller.config,
+											controller.services,
+											controller.url,
+											controller.context,
+											(cntrlr) => {
+												if (cntrlr) resolve(cntrlr);
+											}
+										);
+										targetFunction({ controller: cntrlr, ...target }, elem, originalElem!);
+										cntrlr.addTargeter(targeter);
+									});
+								});
+							} catch (err) {
+								this.logger.error(`Failed to instantiate ${type} controller at index ${index}.`, err);
+							}
+						});
 					});
 					break;
 				}

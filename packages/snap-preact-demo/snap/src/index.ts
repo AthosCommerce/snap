@@ -38,12 +38,14 @@ if (context.collection?.handle) {
 
 let siteId = 'atkzs2';
 let customOrigin = '';
+let chatWidgetId = 'test-ss-demo';
 let clientConfig: ClientConfig;
 
 // grab siteId out of the URL
 const urlObj = url(window.location.href);
 const urlSiteIdParam = urlObj.params.query.siteId || urlObj.params.query.siteid;
 const urlOriginParam = urlObj.params.query.origin;
+const urlChatWidgetIdParam = urlObj.params.query.chatWidgetId;
 
 // custom siteId
 if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
@@ -60,12 +62,22 @@ if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
 	if (storedSiteId) siteId = storedSiteId;
 }
 
+// custom origin
 if (urlOriginParam) {
 	customOrigin = urlOriginParam;
 	configStore.set('origin', urlOriginParam);
 } else {
 	const storedOrigin = configStore.get('origin');
 	if (storedOrigin) customOrigin = storedOrigin;
+}
+
+// custom chat widget id
+if (urlChatWidgetIdParam) {
+	chatWidgetId = urlChatWidgetIdParam;
+	configStore.set('chatWidgetId', chatWidgetId);
+} else {
+	const storedChatWidgetId = configStore.get('chatWidgetId');
+	if (storedChatWidgetId) chatWidgetId = storedChatWidgetId;
 }
 
 // if there is a custom origin set clientConfig
@@ -130,6 +142,25 @@ let config: SnapConfig = {
 		},
 	},
 	controllers: {
+		chat: [
+			{
+				config: {
+					id: 'chat',
+					settings: {
+						widgetId: chatWidgetId,
+					},
+				},
+				targeters: [
+					{
+						selector: '#searchspring-chat',
+						hideTarget: true,
+						component: async () => {
+							return (await import('./components/Chat/Chat')).Chat;
+						},
+					},
+				],
+			},
+		],
 		search: [
 			{
 				config: {

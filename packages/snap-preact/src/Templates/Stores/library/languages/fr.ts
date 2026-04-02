@@ -88,6 +88,11 @@ export const fr: LangComponents = {
 				'aria-label': 'Soumettre Rechercher',
 			},
 		},
+		chatButton: {
+			attributes: {
+				'aria-label': 'Ouvrir le chat',
+			},
+		},
 	},
 	recommendationBundle: {
 		seedText: {

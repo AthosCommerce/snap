@@ -144,6 +144,9 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 			closeSearchButton: {
 				onClick: () => reset(),
 			},
+			chatButton: {
+				onClick: () => controller.openChat(),
+			},
 			inputName: inputName,
 			// inherited props
 			...defined({

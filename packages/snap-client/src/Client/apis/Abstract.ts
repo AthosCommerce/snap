@@ -52,7 +52,17 @@ export class API<PathConfigurationType> {
 
 		try {
 			response = await this.fetchApi(url, init);
+
 			responseJSON = await response?.json();
+
+			// get headers off of response (for chat API)
+			const headers = response.headers;
+			const sessionId = headers.get('x-session-id');
+
+			if (sessionId) {
+				// @ts-ignore - add sessionId to response context
+				responseJSON.context = response.context || { sessionId };
+			}
 
 			if (response.status >= 200 && response.status < 300) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
@@ -90,9 +100,9 @@ export class API<PathConfigurationType> {
 	private createFetchParams(context: RequestOpts) {
 		// grab siteID out of context to generate apiHost fo URL
 		const siteId = context?.body?.siteId || context?.query?.siteId;
-		if (!siteId) {
-			throw new Error(`Request failed. Missing "siteId" parameter.`);
-		}
+		// if (!siteId && !(context.body instanceof FormData) && !(context.origin || this.configuration.origin || '').includes('ksearchnet.com')) {
+		// 	throw new Error(`Request failed. Missing "siteId" parameter.`);
+		// }
 
 		const siteIdHost = `https://${siteId}.a${context.subDomain ? `.${context.subDomain}` : ''}.athoscommerce.net`;
 		const origin = (context.origin || this.configuration.origin || siteIdHost).replace(/\/$/, '');
