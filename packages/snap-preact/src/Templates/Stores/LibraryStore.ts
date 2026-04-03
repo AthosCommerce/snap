@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 import type { JSXComponent, Theme, ThemeComplete, ThemeMinimal } from '../../../components/src';
 import { transformTranslationsToTheme, type TemplateCustomComponentTypes, type TemplateTypes } from './TemplateStore';
-import type { TemplateStoreComponentConfig } from './TemplateStore';
+import type { TemplateStoreComponentConfigUnlocked } from './TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
@@ -57,6 +57,9 @@ export type LibraryImports = {
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
 		};
+		custom?: {
+			[name: string]: PluginFunction;
+		};
 	};
 	component: {
 		search: {
@@ -84,13 +87,69 @@ export type LibraryImports = {
 				RecommendationEmail: (args?: any) => Promise<JSXComponent>;
 			};
 		};
-		badge: {
-			[componentName: string]: (args?: any) => Promise<JSXComponent>;
-		};
-		result: {
+		badge: LibraryComponentImport;
+		result: LibraryComponentImport & {
 			Result: (args?: any) => Promise<JSXComponent>;
-			[componentName: string]: (args?: any) => Promise<JSXComponent>;
 		};
+		/* individual library components */
+		badgeImage: LibraryComponentImport;
+		badgePill: LibraryComponentImport;
+		badgeRectangle: LibraryComponentImport;
+		badgeText: LibraryComponentImport;
+		breadcrumbs: LibraryComponentImport;
+		button: LibraryComponentImport;
+		dropdown: LibraryComponentImport;
+		formattedNumber: LibraryComponentImport;
+		icon: LibraryComponentImport;
+		image: LibraryComponentImport;
+		loadingBar: LibraryComponentImport;
+		banner: LibraryComponentImport;
+		inlineBanner: LibraryComponentImport;
+		overlay: LibraryComponentImport;
+		paginationInfo: LibraryComponentImport;
+		slideshow: LibraryComponentImport;
+		price: LibraryComponentImport;
+		skeleton: LibraryComponentImport;
+		modal: LibraryComponentImport;
+		calloutBadge: LibraryComponentImport;
+		carousel: LibraryComponentImport;
+		checkbox: LibraryComponentImport;
+		grid: LibraryComponentImport;
+		layoutSelector: LibraryComponentImport;
+		list: LibraryComponentImport;
+		radio: LibraryComponentImport;
+		errorHandler: LibraryComponentImport;
+		facetGridOptions: LibraryComponentImport;
+		facetHierarchyOptions: LibraryComponentImport;
+		facetListOptions: LibraryComponentImport;
+		facetPaletteOptions: LibraryComponentImport;
+		facetSlider: LibraryComponentImport;
+		filter: LibraryComponentImport;
+		loadMore: LibraryComponentImport;
+		overlayBadge: LibraryComponentImport;
+		pagination: LibraryComponentImport;
+		perPage: LibraryComponentImport;
+		radioList: LibraryComponentImport;
+		rating: LibraryComponentImport;
+		searchInput: LibraryComponentImport;
+		select: LibraryComponentImport;
+		slideout: LibraryComponentImport;
+		sortBy: LibraryComponentImport;
+		swatches: LibraryComponentImport;
+		variantSelection: LibraryComponentImport;
+		terms: LibraryComponentImport;
+		branchOverride: LibraryComponentImport;
+		facet: LibraryComponentImport;
+		facets: LibraryComponentImport;
+		facetsHorizontal: LibraryComponentImport;
+		filterSummary: LibraryComponentImport;
+		noResults: LibraryComponentImport;
+		results: LibraryComponentImport;
+		searchHeader: LibraryComponentImport;
+		sidebar: LibraryComponentImport;
+		mobileSidebar: LibraryComponentImport;
+		toolbar: LibraryComponentImport;
+		termsList: LibraryComponentImport;
 	};
 	language: {
 		[languageName in LanguageCodes]: () => Promise<ThemeMinimal>;
@@ -99,10 +158,77 @@ export type LibraryImports = {
 		[currencyName in CurrencyCodes]: () => Promise<ThemeMinimal>;
 	};
 };
-const ALLOWED_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge'];
+const DEFAULT_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge'];
+
+const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
+	'result',
+	'badge',
+	/* atoms */
+	'badgeImage',
+	'badgePill',
+	'badgeRectangle',
+	'badgeText',
+	'breadcrumbs',
+	'button',
+	'dropdown',
+	'formattedNumber',
+	'icon',
+	'image',
+	'loadingBar',
+	'banner',
+	'inlineBanner',
+	'overlay',
+	'paginationInfo',
+	'slideshow',
+	'price',
+	'skeleton',
+	/* molecules */
+	'modal',
+	'calloutBadge',
+	'carousel',
+	'checkbox',
+	'grid',
+	'layoutSelector',
+	'list',
+	'radio',
+	'errorHandler',
+	'facetGridOptions',
+	'facetHierarchyOptions',
+	'facetListOptions',
+	'facetPaletteOptions',
+	'facetSlider',
+	'filter',
+	'loadMore',
+	'overlayBadge',
+	'pagination',
+	'perPage',
+	'radioList',
+	'rating',
+	'searchInput',
+	'select',
+	'slideout',
+	'sortBy',
+	'swatches',
+	'variantSelection',
+	'terms',
+	/* organisms */
+	'branchOverride',
+	'facet',
+	'facets',
+	'facetsHorizontal',
+	'filterSummary',
+	'noResults',
+	'results',
+	'searchHeader',
+	'sidebar',
+	'mobileSidebar',
+	'toolbar',
+	'termsList',
+];
 
 type LibraryStoreConfig = {
-	components?: TemplateStoreComponentConfig;
+	components?: TemplateStoreComponentConfigUnlocked;
+	unlocked?: boolean;
 };
 
 export type CurrencyCodes = 'usd' | 'eur' | 'aud';
@@ -123,6 +249,65 @@ export class LibraryStore {
 		};
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
+		/* individual library components */
+		badgeImage: LibraryComponentMap;
+		badgePill: LibraryComponentMap;
+		badgeRectangle: LibraryComponentMap;
+		badgeText: LibraryComponentMap;
+		breadcrumbs: LibraryComponentMap;
+		button: LibraryComponentMap;
+		dropdown: LibraryComponentMap;
+		formattedNumber: LibraryComponentMap;
+		icon: LibraryComponentMap;
+		image: LibraryComponentMap;
+		loadingBar: LibraryComponentMap;
+		banner: LibraryComponentMap;
+		inlineBanner: LibraryComponentMap;
+		overlay: LibraryComponentMap;
+		paginationInfo: LibraryComponentMap;
+		slideshow: LibraryComponentMap;
+		price: LibraryComponentMap;
+		skeleton: LibraryComponentMap;
+		modal: LibraryComponentMap;
+		calloutBadge: LibraryComponentMap;
+		carousel: LibraryComponentMap;
+		checkbox: LibraryComponentMap;
+		grid: LibraryComponentMap;
+		layoutSelector: LibraryComponentMap;
+		list: LibraryComponentMap;
+		radio: LibraryComponentMap;
+		errorHandler: LibraryComponentMap;
+		facetGridOptions: LibraryComponentMap;
+		facetHierarchyOptions: LibraryComponentMap;
+		facetListOptions: LibraryComponentMap;
+		facetPaletteOptions: LibraryComponentMap;
+		facetSlider: LibraryComponentMap;
+		filter: LibraryComponentMap;
+		loadMore: LibraryComponentMap;
+		overlayBadge: LibraryComponentMap;
+		pagination: LibraryComponentMap;
+		perPage: LibraryComponentMap;
+		radioList: LibraryComponentMap;
+		rating: LibraryComponentMap;
+		searchInput: LibraryComponentMap;
+		select: LibraryComponentMap;
+		slideout: LibraryComponentMap;
+		sortBy: LibraryComponentMap;
+		swatches: LibraryComponentMap;
+		variantSelection: LibraryComponentMap;
+		terms: LibraryComponentMap;
+		branchOverride: LibraryComponentMap;
+		facet: LibraryComponentMap;
+		facets: LibraryComponentMap;
+		facetsHorizontal: LibraryComponentMap;
+		filterSummary: LibraryComponentMap;
+		noResults: LibraryComponentMap;
+		results: LibraryComponentMap;
+		searchHeader: LibraryComponentMap;
+		sidebar: LibraryComponentMap;
+		mobileSidebar: LibraryComponentMap;
+		toolbar: LibraryComponentMap;
+		termsList: LibraryComponentMap;
 	} = {
 		search: {},
 		autocomplete: {},
@@ -133,6 +318,65 @@ export class LibraryStore {
 		},
 		badge: {},
 		result: {},
+		/* individual library components */
+		badgeImage: {},
+		badgePill: {},
+		badgeRectangle: {},
+		badgeText: {},
+		breadcrumbs: {},
+		button: {},
+		dropdown: {},
+		formattedNumber: {},
+		icon: {},
+		image: {},
+		loadingBar: {},
+		banner: {},
+		inlineBanner: {},
+		overlay: {},
+		paginationInfo: {},
+		slideshow: {},
+		price: {},
+		skeleton: {},
+		modal: {},
+		calloutBadge: {},
+		carousel: {},
+		checkbox: {},
+		grid: {},
+		layoutSelector: {},
+		list: {},
+		radio: {},
+		errorHandler: {},
+		facetGridOptions: {},
+		facetHierarchyOptions: {},
+		facetListOptions: {},
+		facetPaletteOptions: {},
+		facetSlider: {},
+		filter: {},
+		loadMore: {},
+		overlayBadge: {},
+		pagination: {},
+		perPage: {},
+		radioList: {},
+		rating: {},
+		searchInput: {},
+		select: {},
+		slideout: {},
+		sortBy: {},
+		swatches: {},
+		variantSelection: {},
+		terms: {},
+		branchOverride: {},
+		facet: {},
+		facets: {},
+		facetsHorizontal: {},
+		filterSummary: {},
+		noResults: {},
+		results: {},
+		searchHeader: {},
+		sidebar: {},
+		mobileSidebar: {},
+		toolbar: {},
+		termsList: {},
 	};
 
 	locales: {
@@ -299,6 +543,65 @@ export class LibraryStore {
 					return this.components.result.Result || (this.components.result.Result = (await import('./library/components/Result')).Result);
 				},
 			},
+			/* individual library components */
+			badgeImage: {},
+			badgePill: {},
+			badgeRectangle: {},
+			badgeText: {},
+			breadcrumbs: {},
+			button: {},
+			dropdown: {},
+			formattedNumber: {},
+			icon: {},
+			image: {},
+			loadingBar: {},
+			banner: {},
+			inlineBanner: {},
+			overlay: {},
+			paginationInfo: {},
+			slideshow: {},
+			price: {},
+			skeleton: {},
+			modal: {},
+			calloutBadge: {},
+			carousel: {},
+			checkbox: {},
+			grid: {},
+			layoutSelector: {},
+			list: {},
+			radio: {},
+			errorHandler: {},
+			facetGridOptions: {},
+			facetHierarchyOptions: {},
+			facetListOptions: {},
+			facetPaletteOptions: {},
+			facetSlider: {},
+			filter: {},
+			loadMore: {},
+			overlayBadge: {},
+			pagination: {},
+			perPage: {},
+			radioList: {},
+			rating: {},
+			searchInput: {},
+			select: {},
+			slideout: {},
+			sortBy: {},
+			swatches: {},
+			variantSelection: {},
+			terms: {},
+			branchOverride: {},
+			facet: {},
+			facets: {},
+			facetsHorizontal: {},
+			filterSummary: {},
+			noResults: {},
+			results: {},
+			searchHeader: {},
+			sidebar: {},
+			mobileSidebar: {},
+			toolbar: {},
+			termsList: {},
 		},
 		language: {
 			en: async () => {
@@ -324,8 +627,12 @@ export class LibraryStore {
 		},
 	};
 
+	allowedComponentTypes: TemplateCustomComponentTypes[];
+
 	constructor(params?: LibraryStoreConfig) {
-		const { components } = params || {};
+		const { components, unlocked } = params || {};
+		this.allowedComponentTypes = unlocked ? ALL_CUSTOM_COMPONENT_TYPES : DEFAULT_CUSTOM_COMPONENT_TYPES;
+
 		// allow for configuration to supply custom component imports
 		if (components) {
 			Object.keys(components).forEach((type) => {
@@ -353,8 +660,8 @@ export class LibraryStore {
 	}
 
 	async addComponentImport(type: TemplateCustomComponentTypes, name: string, componentFn: (args?: any) => Promise<JSXComponent> | JSXComponent) {
-		// only allow certain types: 'results' and 'badges' - otherwise section components could be added (eg: 'search')
-		if (ALLOWED_CUSTOM_COMPONENT_TYPES.includes(type) && this.components[type]) {
+		// only allow certain types based on unlocked status
+		if (this.allowedComponentTypes.includes(type) && this.components[type]) {
 			this.import.component[type][name] = async () => {
 				return (
 					this.components[type][name] ||

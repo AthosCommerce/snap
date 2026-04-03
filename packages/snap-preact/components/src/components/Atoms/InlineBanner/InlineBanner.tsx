@@ -2,13 +2,15 @@ import { h } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
-import { Theme, useTheme, CacheProvider, useTreePath, withController, withTracking } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, withController, withTracking, useSnap } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import type { Banner } from '@athoscommerce/snap-store-mobx';
 import { useA11y } from '../../../hooks/useA11y';
 import { ComponentProps, StyleScript, ResultsLayout } from '../../../types';
 import { observer } from 'mobx-react-lite';
 import { AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<InlineBannerProps> = ({ width }) => {
 	return css({
@@ -36,6 +38,7 @@ export const InlineBanner = withController<any>(
 	withTracking(
 		observer((properties: InlineBannerProps) => {
 			const globalTheme: Theme = useTheme();
+			const snap = useSnap();
 			const globalTreePath = useTreePath();
 
 			const defaultProps: Partial<InlineBannerProps> = {
@@ -46,7 +49,14 @@ export const InlineBanner = withController<any>(
 
 			const props = mergeProps('inlineBanner', globalTheme, defaultProps, properties);
 
-			const { banner, className, internalClassName, disableA11y, layout, onClick } = props;
+			const { banner, className, internalClassName, disableA11y, layout, onClick, customComponent } = props;
+
+			if (customComponent) {
+				const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.inlineBanner || {}, customComponent);
+				if (ComponentOverride) {
+					return <ComponentOverride {...props} />;
+				}
+			}
 
 			const styling = mergeStyles<InlineBannerProps>(props, defaultStyles);
 

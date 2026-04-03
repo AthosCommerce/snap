@@ -17,6 +17,8 @@ export const useComponent = (map: ComponentMap, name: string): JSXComponent | un
 			} else {
 				setImportedComponent(() => componentFn as JSXComponent);
 			}
+		} else {
+			console.warn(`Component "${name}" not found in component map.`);
 		}
 	}, []);
 

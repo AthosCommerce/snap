@@ -2,13 +2,13 @@ import { h } from 'preact';
 import { css } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
 
-import type { AbstractController, RecommendationController } from '@athoscommerce/snap-controller';
+import type { RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import classnames from 'classnames';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, ThemeComponent, useTheme, useTreePath } from '../../../providers';
-import { ComponentProps, ResultComponent, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 
 export const recommendationEmailThemeComponentProps: ThemeComponent<
 	'recommendationEmailThemeComponentProps',
@@ -68,10 +68,13 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 				>
 					{(() => {
 						if (resultComponent) {
-							const ResultComponent = resultComponent;
-							return (
-								<ResultComponent controller={controller as AbstractController} result={result} {...resultProps} email={true} treePath={treePath} />
-							);
+							return cloneWithProps(resultComponent, {
+								controller,
+								result,
+								...resultProps,
+								email: true,
+								treePath,
+							});
 						} else {
 							return (
 								<Result
@@ -101,9 +104,9 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 export type RecommendationEmailProps = {
 	controller?: RecommendationController;
 	results?: Product[];
-	resultComponent?: ResultComponent<{ email: boolean }>;
+	resultComponent?: JSXComponent | JSX.Element;
 } & RecommendationEmailTemplatesLegalProps &
-	ComponentProps<RecommendationEmailProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationEmailTemplatesLegalProps = {
 	resultProps?: Partial<ResultProps> | Record<string, any>;

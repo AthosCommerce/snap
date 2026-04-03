@@ -9,11 +9,12 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Icon, IconProps } from '../../Atoms/Icon';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { createHoverProps } from '../../../toolbox';
 import type { FacetValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
 import { Checkbox, CheckboxProps } from '../Checkbox';
-import { Lang, useLang } from '../../../hooks';
+import { Lang, useComponent, useLang } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 import Color from 'color';
 import { Image, ImageProps } from '../../Atoms/Image';
@@ -161,6 +162,7 @@ const defaultStyles: StyleScript<FacetPaletteOptionsProps> = ({ columns, gridSiz
 
 export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<FacetPaletteOptionsProps> = {
 		columns: 4,
@@ -191,7 +193,15 @@ export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProp
 		className,
 		internalClassName,
 		treePath,
+		customComponent,
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facetPaletteOptions || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	if (horizontal) {
 		props.columns = 0;

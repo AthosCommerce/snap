@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Select, withController } from '@athoscommerce/snap-preact/components';
 
 type SortByProps = {
-	controller?: SearchController;
+	controller: SearchController;
 };
 
 export const SortBy = withController(

@@ -1,8 +1,8 @@
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import { globalStyles } from './styles';
+import { SnapTemplates, SnapTemplatesConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { globalStyles } from './styles';
+
 const siteId = 'atkzs2';
 
 // const siteId = '8uyt2m';
@@ -21,7 +21,9 @@ const siteId = 'atkzs2';
 // 		origin: `https://${siteId}.a.searchspring.io`,
 // 	},
 // };
-let config: SnapTemplatesConfig = {
+
+export let templatesConfig: SnapTemplatesConfig = {
+	unlocked: false,
 	config: {
 		siteId: siteId,
 		language: 'en',
@@ -44,7 +46,6 @@ let config: SnapTemplatesConfig = {
 	},
 	theme: {
 		extends: 'pike',
-		//resultComponent: 'CustomResult',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,
@@ -66,7 +67,6 @@ let config: SnapTemplatesConfig = {
 		email: {
 			Email: {
 				component: 'RecommendationEmail',
-				//resultComponent: 'EmailResult',
 			},
 		},
 		default: {
@@ -117,32 +117,7 @@ let config: SnapTemplatesConfig = {
 };
 
 if (window.mergeSnapConfig) {
-	config = deepmerge(config, window.mergeSnapConfig, { arrayMerge: combineMerge });
+	templatesConfig = deepmerge(templatesConfig as object, window.mergeSnapConfig, { arrayMerge: combineMerge }) as SnapTemplatesConfig;
 }
 
-new SnapTemplates(config);
-
-/*
-
-
-Overrides are taking priority over the theme layouts (responsive) specified within the Search component - but they shouldn't be.
-Look into:
-			overrides: {
-				'toolbar.top': {
-					layout: [
-						['Banner.header'],
-					]
-				},
-				'toolbar.middle': {
-					layout: [
-						['_', 'Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Banner.banner']
-					]
-				},
-			},
-
-*/
+new SnapTemplates(templatesConfig);

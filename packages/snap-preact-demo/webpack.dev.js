@@ -180,4 +180,74 @@ const universalTemplates = {
 	devtool: 'source-map',
 };
 
-export default [devServer, modern, modernTemplates, universal, universalTemplates];
+import universalHybridProd from './hybrid/webpack.universal.js';
+const universalHybrid = {
+	...merge(universalHybridProd, {
+		module: {
+			rules: [
+				{
+					test: /\.(js|jsx)$/,
+					include: [/node_modules\/\@athoscommerce/, path.resolve(__dirname, 'src'), path.resolve(__dirname, '../')],
+					use: {
+						loader: 'babel-loader',
+						options: {
+							presets: [
+								[
+									'@babel/preset-env',
+									{
+										browserslistEnv: 'universal',
+									},
+								],
+							],
+						},
+					},
+				},
+			],
+		},
+	}),
+	// development overrides
+	mode: 'development',
+	output: {
+		path: path.resolve(__dirname, 'dist/hybrid'),
+		filename: 'universal.bundle.js',
+		chunkFilename: 'universal.bundle.chunk.[fullhash:8].[id].js',
+	},
+	devtool: 'source-map',
+};
+
+import modernHybridProd from './hybrid/webpack.modern.js';
+const modernHybrid = {
+	...merge(modernHybridProd, {
+		module: {
+			rules: [
+				{
+					test: /\.(js|jsx)$/,
+					exclude: /node_modules/,
+					use: {
+						loader: 'babel-loader',
+						options: {
+							presets: [
+								[
+									'@babel/preset-env',
+									{
+										browserslistEnv: 'modern',
+									},
+								],
+							],
+						},
+					},
+				},
+			],
+		},
+	}),
+	// development overrides
+	mode: 'development',
+	output: {
+		path: path.resolve(__dirname, 'dist/hybrid'),
+		filename: 'bundle.js',
+		chunkFilename: 'bundle.chunk.[fullhash:8].[id].js',
+	},
+	devtool: 'source-map',
+};
+
+export default [devServer, modern, modernTemplates, universal, universalTemplates, modernHybrid, universalHybrid];

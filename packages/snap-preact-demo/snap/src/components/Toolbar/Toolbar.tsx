@@ -9,7 +9,7 @@ import { Button, Pagination, Slideout, withController, useMediaQuery } from '@at
 
 type ToolBarProps = {
 	store?: SearchStore;
-	controller?: SearchController;
+	controller: SearchController;
 };
 
 const mobileMediaQuery = '(max-width: 991px)';

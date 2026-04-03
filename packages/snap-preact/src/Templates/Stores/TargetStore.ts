@@ -11,7 +11,6 @@ type TargetStoreConfig = {
 export class TargetStore {
 	public selector: string;
 	public component: string;
-	public resultComponent: string;
 	public theme: {
 		location: TemplateThemeTypes;
 		name: string;
@@ -23,8 +22,6 @@ export class TargetStore {
 		this.dependencies = dependencies;
 		this.selector = target.selector || '';
 		this.component = (settings.editMode && this.dependencies.storage.get(`templates.${this.selector}.component`)) || target.component;
-		this.resultComponent =
-			(settings.editMode && this.dependencies.storage.get(`templates.${this.selector}.resultComponent`)) || target.resultComponent;
 		this.theme = (settings.editMode && this.dependencies.storage.get(`templates.${this.selector}.theme`)) || {
 			location: 'local',
 			name: GLOBAL_THEME_NAME,
@@ -32,7 +29,6 @@ export class TargetStore {
 
 		makeObservable(this, {
 			component: observable,
-			resultComponent: observable,
 			selector: observable,
 			theme: observable,
 		});
@@ -41,11 +37,6 @@ export class TargetStore {
 	public setComponent(componentName: string) {
 		this.component = componentName;
 		this.dependencies.storage.set(['templates', this.selector, 'component'], this.component);
-	}
-
-	public setResultComponent(resultComponentName: string) {
-		this.resultComponent = resultComponentName;
-		this.dependencies.storage.set(['templates', this.selector, 'resultComponent'], this.resultComponent);
 	}
 
 	public setTheme(themeName: string, location: TemplateThemeTypes) {

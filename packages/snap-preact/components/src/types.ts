@@ -3,7 +3,6 @@ import { h } from 'preact';
 import type { ThemeMinimal, Theme } from './providers/theme';
 import type { AbstractController } from '@athoscommerce/snap-controller';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
-import type { Product } from '@athoscommerce/snap-store-mobx';
 import { IconProps, IconType } from './components/Atoms/Icon';
 import { MutableRef } from 'preact/hooks';
 import type { Snap, SnapTemplates } from '../../src';
@@ -29,6 +28,7 @@ export interface ComponentProps<Props = any> {
 	ref?: MutableRef<any> | React.RefObject<any> | ((e: any) => void);
 	name?: string;
 	treePath?: string;
+	customComponent?: string;
 }
 
 export type ListOption = {
@@ -41,15 +41,6 @@ export type ListOption = {
 	url?: UrlManager;
 	available?: boolean;
 };
-
-export type ResultComponent<Props extends Record<string, any> = object> = (
-	props: {
-		controller: AbstractController;
-		result: Product;
-		theme?: Theme;
-		treePath?: string;
-	} & Props
-) => h.JSX.Element | null;
 
 export type RecommendationBundleComponentNames =
 	| 'RecommendationBundle'

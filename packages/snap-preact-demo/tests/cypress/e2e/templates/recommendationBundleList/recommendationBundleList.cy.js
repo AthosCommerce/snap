@@ -174,11 +174,14 @@ describe('BundledRecommendations', () => {
 							extends: 'base',
 							overrides: {
 								default: {
-									recommendationBundle: {
+									recommendationBundleList: {
 										lazyRender: {
 											enabled: false,
 										},
 										speed: 0,
+									},
+									'recommendationBundleList result': {
+										customComponent: 'CustomResult',
 									},
 								},
 							},
@@ -187,7 +190,6 @@ describe('BundledRecommendations', () => {
 							bundle: {
 								Bundle: {
 									component: 'RecommendationBundleList',
-									resultComponent: 'CustomResult',
 								},
 							},
 						},

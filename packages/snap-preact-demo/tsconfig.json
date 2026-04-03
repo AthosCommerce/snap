@@ -5,13 +5,15 @@
 		"sourceMap": true,
 		"declaration": false,
 		"declarationMap": false,
-		"strict": false,
+		"strict": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@emotion/react",
 	},
 	"include": [
 		"snap/src",
-		"templates/src", 
-		"types.ts"	
+		"templates/src",
+		"hybrid/src",
+		"types.ts",
+		"modules.d.ts"
 	],
 }

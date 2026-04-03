@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { withStore, withController, useA11y } from '@athoscommerce/snap-preact/components';
 
 type FilterSummaryProps = {
-	store?: SearchStore;
+	store: SearchStore;
 	filters: Filter[];
 	controller?: SearchController;
 };
@@ -32,7 +32,7 @@ export const FilterSummary = withStore(
 								))}
 
 							<div className="ss-list-option ss-summary-reset">
-								<a {...removeAll.link} className="ss-list-link" ref={(e) => useA11y(e)}>
+								<a {...removeAll?.link} className="ss-list-link" ref={(e) => useA11y(e)}>
 									Clear All
 								</a>
 								<a className="ss-list-link">Clear All</a>

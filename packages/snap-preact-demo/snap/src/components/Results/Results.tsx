@@ -18,7 +18,7 @@ import { Toolbar } from '../Toolbar/Toolbar';
 
 type ResultsProps = {
 	store?: SearchStore;
-	controller?: SearchController;
+	controller: SearchController;
 };
 
 const resultsBreakpoints = {
@@ -53,8 +53,8 @@ export const Results = withController(
 
 				<div className="clear"></div>
 
-				<div className={`ss-toolbar ${controller.config.settings.infinite?.enabled ? 'ss-toolbar-bottom-infinite' : 'ss-toolbar-bottom'}`}>
-					{controller.config.settings.infinite?.enabled ? (
+				<div className={`ss-toolbar ${controller.config.settings?.infinite?.enabled ? 'ss-toolbar-bottom-infinite' : 'ss-toolbar-bottom'}`}>
+					{controller.config.settings?.infinite?.enabled ? (
 						<LoadMore controller={controller} />
 					) : (
 						pagination.totalPages > 1 && <Pagination pagination={pagination} />
@@ -67,9 +67,13 @@ export const Results = withController(
 	})
 );
 
+type NoResultsProps = {
+	controller: SearchController;
+	snap: Snap;
+};
 export const NoResults = withSnap(
 	withController(
-		observer(({ controller, snap }) => {
+		observer(({ controller, snap }: NoResultsProps) => {
 			const store = controller.store;
 			const dym = store.search.didYouMean;
 

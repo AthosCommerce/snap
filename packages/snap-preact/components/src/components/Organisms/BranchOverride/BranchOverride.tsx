@@ -7,7 +7,9 @@ import { Icon, IconProps } from '../../Atoms/Icon/Icon';
 
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, useTreePath } from '../../../providers';
+import { Theme, useTheme, useTreePath, useSnap } from '../../../providers';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 export type BranchOverrideTheme = {
 	class: string;
@@ -243,6 +245,7 @@ const componentThemes = {
 
 export const BranchOverride = (properties: BranchOverrideProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<BranchOverrideProps> = {
@@ -251,7 +254,14 @@ export const BranchOverride = (properties: BranchOverrideProps) => {
 
 	const props = mergeProps('branchOverride', globalTheme, defaultProps, properties);
 
-	const { branch, details, error, className, internalClassName, darkMode, disableStyles, onRemoveClick, treePath } = props;
+	const { branch, details, error, className, internalClassName, darkMode, disableStyles, onRemoveClick, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.branchOverride || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: BranchOverrideSubProps = {
 		icon: {

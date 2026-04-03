@@ -13,6 +13,7 @@ import { SidebarSkel } from './components/Sidebar/Skel';
 
 import './styles/custom.scss';
 import type { ClientConfig } from '@athoscommerce/snap-client';
+import type { SearchRequestModelFilterTypeEnum } from '@athoscommerce/snapi-types';
 
 // storage for custom configuration
 const configStore = new StorageStore({ type: 'local', key: 'athos-demo-config' });
@@ -26,7 +27,8 @@ if (context.collection?.handle) {
 		backgroundFilters.push({
 			field: 'collection_handle',
 			value: context.collection.handle,
-			type: 'value',
+			//todo should we kill this enum?
+			type: 'value' as SearchRequestModelFilterTypeEnum,
 			background: true,
 		});
 	}
@@ -38,12 +40,12 @@ if (context.collection?.handle) {
 
 let siteId = 'atkzs2';
 let customOrigin = '';
-let clientConfig: ClientConfig;
+let clientConfig: ClientConfig = {};
 
 // grab siteId out of the URL
 const urlObj = url(window.location.href);
-const urlSiteIdParam = urlObj.params.query.siteId || urlObj.params.query.siteid;
-const urlOriginParam = urlObj.params.query.origin;
+const urlSiteIdParam = urlObj?.params.query.siteId || urlObj?.params.query.siteid;
+const urlOriginParam = urlObj?.params.query.origin;
 
 // custom siteId
 if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
@@ -87,7 +89,7 @@ if (customOrigin) {
 	};
 }
 
-let config: SnapConfig = {
+export let config: SnapConfig = {
 	mode: 'development', // should be removed for 'production' usage
 	url: {
 		parameters: {

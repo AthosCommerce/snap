@@ -19,6 +19,6 @@ export type SearchCollapsibleProps = {
 	controller: SearchController;
 } & SearchProps &
 	SearchCollapsibleTemplatesLegalProps &
-	ComponentProps<SearchCollapsibleProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchCollapsibleTemplatesLegalProps = SearchTemplatesLegalProps;
