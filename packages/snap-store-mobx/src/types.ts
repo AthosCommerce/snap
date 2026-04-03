@@ -8,12 +8,14 @@ import type {
 	SearchResponseModelResultBadges,
 } from '@athoscommerce/snapi-types';
 
+export type BeaconSettings = {
+	enabled: boolean;
+};
+
 // Abstract
 export type StoreConfig = {
 	id: string;
-	beacon?: {
-		enabled: boolean;
-	};
+	beacon?: BeaconSettings;
 	[any: string]: unknown;
 };
 

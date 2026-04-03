@@ -11,7 +11,7 @@ import { Result } from '../../Molecules/Result';
 import { Product } from '@athoscommerce/snap-store-mobx';
 
 export default {
-	title: 'Trackers/Result',
+	title: 'Trackers/ResultTracker',
 	component: ResultTracker,
 	tags: ['autodocs'],
 	parameters: {
