@@ -9,6 +9,7 @@ import {
 } from './Templates/SnapTemplates';
 import { TemplatesStore } from './Templates/Stores/TemplateStore';
 import deepmerge from 'deepmerge';
+import { isPlainObject } from 'is-plain-object';
 
 type HybridIntegrationConfig = {
 	templatesConfig: SnapIntegrationConfig;
@@ -23,7 +24,10 @@ export class SnapHybrid extends Snap {
 
 		const templatesStore = new TemplatesStore({ config: config.templatesConfig, settings: { editMode } });
 		const convertedTemplatesConfig = createSnapConfig({ ...config.templatesConfig, unlocked: true } as SnapTemplatesConfigUnlocked, templatesStore);
-		const mergedConfig = deepmerge(convertedTemplatesConfig, config.snapConfig, { arrayMerge: (_, sourceArray) => sourceArray });
+		const mergedConfig = deepmerge(convertedTemplatesConfig, config.snapConfig, {
+			isMergeableObject: (value: unknown) => isPlainObject(value) || Array.isArray(value),
+			arrayMerge: (target: any[], source: any[]) => [...target, ...source],
+		});
 
 		super(mergedConfig, { ...config.services, templatesStore });
 	}

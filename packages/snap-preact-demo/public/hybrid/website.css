@@ -1733,3 +1733,10 @@ fieldset {
 		flex: 0 0 200px;
 	}
 }
+
+
+
+.ss-toolbar-col {
+    display: inline-block;
+    margin: 10px 20px 10px 0;
+}
