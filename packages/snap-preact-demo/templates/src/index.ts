@@ -22,7 +22,7 @@ const siteId = 'atkzs2';
 // 	},
 // };
 
-export let templatesConfig: SnapTemplatesConfig = {
+let templatesConfig: SnapTemplatesConfig = {
 	unlocked: false,
 	config: {
 		siteId: siteId,

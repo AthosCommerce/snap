@@ -226,7 +226,7 @@ let snapConfig: SnapConfig = {
 		search: [
 			{
 				config: {
-					id: 'search',
+					id: 'search_snap',
 					plugins: [[afterStore], [mutateResultsURL]],
 					settings: {
 						infinite: {
@@ -288,7 +288,7 @@ let snapConfig: SnapConfig = {
 		autocomplete: [
 			{
 				config: {
-					id: 'autocomplete',
+					id: 'autocomplete_snap',
 					selector: 'input.athos-ac',
 					plugins: [[mutateResultsURL]],
 					settings: {

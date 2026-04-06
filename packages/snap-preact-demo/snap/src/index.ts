@@ -27,7 +27,6 @@ if (context.collection?.handle) {
 		backgroundFilters.push({
 			field: 'collection_handle',
 			value: context.collection.handle,
-			//todo should we kill this enum?
 			type: 'value' as SearchRequestModelFilterTypeEnum,
 			background: true,
 		});
@@ -89,7 +88,7 @@ if (customOrigin) {
 	};
 }
 
-export let config: SnapConfig = {
+let config: SnapConfig = {
 	mode: 'development', // should be removed for 'production' usage
 	url: {
 		parameters: {

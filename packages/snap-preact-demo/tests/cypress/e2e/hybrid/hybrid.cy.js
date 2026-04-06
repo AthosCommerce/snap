@@ -2,14 +2,16 @@
  * End to end tests for Hybrid Integration config merging
  *
  * The SnapHybrid class merges templatesConfig and snapConfig via:
- *   deepmerge(convertedTemplatesConfig, snapConfig, { arrayMerge: (_, sourceArray) => sourceArray })
+ *   deepmerge(convertedTemplatesConfig, snapConfig, { arrayMerge: (target, source) => [...target, ...source] })
  *
  * This means:
- *   - For arrays (like controller targeters), snapConfig completely replaces templatesConfig
+ *   - For arrays (like controller definitions), both configs are concatenated (templates first, then snap)
  *   - For objects, snapConfig values take precedence over templatesConfig values
+ *   - All controllers from both configs are preserved as separate instances
  *
- * These tests verify the merge order is correct by checking that overlapping
- * configuration from the snap config overwrites the templates config.
+ * The templates config creates controllers with ids 'search' and 'autocomplete'.
+ * The snap config creates controllers with ids 'search_snap' and 'autocomplete_snap'.
+ * Both sets of controllers are instantiated independently.
  */
 
 describe('Hybrid tests', () => {
@@ -24,49 +26,68 @@ describe('Hybrid tests', () => {
 			});
 		});
 
-		it('has a search controller with snap config targeters (not templates)', () => {
-			// Templates config targets: #athos-layout (SearchCollapsible)
-			// Snap config targeters: #athos-content, #athos-sidebar
-			// Since targeters are arrays, snap config should completely replace templates
+		it('has a templates search controller with templates targeters', () => {
+			// Templates config creates a search controller (id: 'search') targeting #athos-layout
 			cy.snapController('search').then((controller) => {
 				const targeterIds = Object.keys(controller.targeters);
 				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
 
-				// snap config targeters should be present
+				expect(allSelectors).to.include('#athos-layout');
+			});
+		});
+
+		it('has a snap search controller with snap targeters', () => {
+			// Snap config creates a search controller (id: 'search_snap') targeting #athos-content and #athos-sidebar
+			cy.snapController('search_snap').then((controller) => {
+				const targeterIds = Object.keys(controller.targeters);
+				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
+
 				expect(allSelectors).to.include('#athos-content');
 				expect(allSelectors).to.include('#athos-sidebar');
-
-				// templates config targeter should NOT be present (replaced by snap)
-				expect(allSelectors).to.not.include('#athos-layout');
 			});
 		});
 
-		it('has search controller with snap config settings overriding templates', () => {
-			// Snap config sets infinite.backfill: 5 and redirects.singleResult: false
-			// Templates config does not set these (or sets different values)
+		it('has templates search controller with templates settings', () => {
+			// Templates config sets variants.showDisabledSelectionValues: true
 			cy.snapController('search').then((controller) => {
-				const targeterIds = Object.keys(controller.targeters);
-				const allTargets = targeterIds.flatMap((id) => controller.targeters[id].targets);
+				expect(controller.config.settings.variants?.showDisabledSelectionValues).to.equal(true);
+			});
+		});
+
+		it('has snap search controller with snap settings', () => {
+			// Snap config sets infinite.backfill: 5 and redirects.singleResult: false
+			cy.snapController('search_snap').then((controller) => {
 				expect(controller.config.settings.infinite?.backfill).to.equal(5);
 				expect(controller.config.settings.redirects?.singleResult).to.equal(false);
-				// Snap config sets hideTarget: true on autocomplete targeter
-				expect(allTargets[0].hideTarget).to.equal(true);
 			});
 		});
 
-		it('has autocomplete controller with snap config settings overriding templates', () => {
+		it('has templates autocomplete controller with templates settings', () => {
 			// Templates config: trending.limit: 6, history.limit: 6
-			// Snap config: trending.limit: 5, history.limit: 5
-			// Since controllers.autocomplete is an array, snap completely replaces templates
 			cy.snapController('autocomplete').then((controller) => {
+				expect(controller.config.settings.trending.limit).to.equal(6);
+				expect(controller.config.settings.history.limit).to.equal(6);
+			});
+		});
+
+		it('has snap autocomplete controller with snap settings', () => {
+			// Snap config: trending.limit: 5, history.limit: 5
+			cy.snapController('autocomplete_snap').then((controller) => {
 				expect(controller.config.settings.trending.limit).to.equal(5);
 				expect(controller.config.settings.history.limit).to.equal(5);
 			});
 		});
 
-		it('has autocomplete controller with snap config targeter selector', () => {
-			// Both configs target input.athos-ac but snap should be the source
+		it('has autocomplete controllers with targeter selectors', () => {
+			// Both configs target input.athos-ac on their respective controllers
 			cy.snapController('autocomplete').then((controller) => {
+				const targeterIds = Object.keys(controller.targeters);
+				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
+
+				expect(allSelectors).to.include('input.athos-ac');
+			});
+
+			cy.snapController('autocomplete_snap').then((controller) => {
 				const targeterIds = Object.keys(controller.targeters);
 				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
 
@@ -74,32 +95,15 @@ describe('Hybrid tests', () => {
 			});
 		});
 
-		it('has exactly 1 autocomplete targeter from snap config', () => {
-			// Both configs define 1 autocomplete target each for input.athos-ac
-			// Snap replaces templates array, so we get exactly snap's 1
-			cy.snapController('autocomplete').then((controller) => {
-				const targeterIds = Object.keys(controller.targeters);
-				const allTargets = targeterIds.flatMap((id) => controller.targeters[id].targets);
-
-				expect(allTargets).to.have.length(1);
-				expect(allTargets[0].selector).to.equal('input.athos-ac');
-				// Snap config sets hideTarget: true on autocomplete targeter
-				expect(allTargets[0].hideTarget).to.equal(true);
-			});
-		});
-
-		it('snap config search targets render content into DOM', () => {
-			// Verify the snap config target selectors have rendered content
+		it('all search targets render content into DOM', () => {
+			// Verify all target selectors have rendered content
 			cy.snapController('search').then(() => {
+				cy.get('#athos-layout').should('exist').and('not.be.empty');
+			});
+
+			cy.snapController('search_snap').then(() => {
 				cy.get('#athos-content').should('exist').and('not.be.empty');
 				cy.get('#athos-sidebar').should('exist').and('not.be.empty');
-			});
-		});
-
-		it('templates config search target selector is not rendered', () => {
-			// #athos-layout does not exist in the hybrid HTML since snap config targeters replaced it
-			cy.snapController('search').then(() => {
-				cy.get('#athos-layout').should('not.exist');
 			});
 		});
 
@@ -115,26 +119,23 @@ describe('Hybrid tests', () => {
 
 	describe('mergeSnapConfig overrides verify merge order', () => {
 		/**
-		 * This test suite uses window.mergeSnapConfig to set up a scenario where:
-		 * - Templates config gets: recommendation config + autocomplete targets
-		 * - Snap config gets: autocomplete + search targets (with specific settings)
+		 * This test suite uses window.mergeSnapConfig to set up a scenario where
+		 * additional config is merged into both templatesConfig and snapConfig
+		 * before SnapHybrid merges them.
 		 *
-		 * Since mergeSnapConfig is applied to BOTH configs, we set values that will
-		 * be different in the final merged output to prove snap config wins.
-		 *
-		 * The key insight: since SnapHybrid does arrayMerge: (_, source) => source,
-		 * the snap config's controller arrays completely replace templates' arrays.
-		 * We set a unique snap config setting to verify it's the one that survives.
+		 * Since controllers have distinct ids ('search' vs 'search_snap'),
+		 * both are instantiated independently. mergeSnapConfig can target
+		 * either config shape to modify settings.
 		 */
 
-		it('snap config search settings override templates search settings', () => {
+		it('snap config search settings are applied via mergeSnapConfig', () => {
 			cy.on('window:before:load', (win) => {
 				win.mergeSnapConfig = {
 					controllers: {
 						search: [
 							{
 								config: {
-									id: 'search',
+									id: 'search_snap',
 									settings: {
 										pagination: {
 											pageSize: 48,
@@ -149,20 +150,16 @@ describe('Hybrid tests', () => {
 
 			cy.visit('https://localhost:2222/hybrid/');
 
-			cy.snapController('search').then((controller) => {
-				// The mergeSnapConfig is applied to the snap config (and templates config)
-				// But since snap config arrays replace templates arrays in SnapHybrid,
-				// the final search controller should have the snap config's merged value
+			cy.snapController('search_snap').then((controller) => {
+				// mergeSnapConfig is applied to snapConfig which contains the search_snap controller
+				// The pagination.pageSize should be merged into the snap search controller
 				expect(controller.config.settings.pagination?.pageSize).to.equal(48);
 			});
 		});
 
-		it('snap config autocomplete settings win over templates when mergeSnapConfig only affects templates format', () => {
+		it('templates autocomplete settings are applied via mergeSnapConfig', () => {
 			// mergeSnapConfig uses templates config shape (autocomplete.settings...)
-			// This merges into the templates config but NOT into the snap config's
-			// controllers.autocomplete (different shape). Since SnapHybrid replaces
-			// arrays from templates with snap arrays, the snap config's original
-			// trending.limit: 5 should still win over the templates' merged value.
+			// This merges into the templates config which creates the 'autocomplete' controller
 			cy.on('window:before:load', (win) => {
 				win.mergeSnapConfig = {
 					autocomplete: {
@@ -179,24 +176,27 @@ describe('Hybrid tests', () => {
 
 			cy.snapController('autocomplete').then((controller) => {
 				// Templates config gets trending.limit: 3 via mergeSnapConfig
-				// But snap config keeps trending.limit: 5 (mergeSnapConfig doesn't match snap shape)
-				// SnapHybrid's arrayMerge means snap's autocomplete array replaces templates'
-				// So the final value should be 5 (snap wins)
+				expect(controller.config.settings.trending.limit).to.equal(3);
+			});
+
+			cy.snapController('autocomplete_snap').then((controller) => {
+				// Snap config keeps trending.limit: 5 (mergeSnapConfig doesn't match snap shape)
 				expect(controller.config.settings.trending.limit).to.equal(5);
 			});
 		});
 
-		it('templates-only config values do not leak into snap controller arrays', () => {
-			// When snap config defines a controller, its array completely replaces
-			// the templates array. This means templates-specific settings for that
-			// controller type are NOT preserved.
+		it('both templates and snap controllers are independently preserved', () => {
+			// With array concatenation and distinct IDs, all controllers are kept
 			cy.visit('https://localhost:2222/hybrid/');
 
+			// Templates controllers exist
 			cy.snapController('search').then((controller) => {
-				// Templates config had variants.showDisabledSelectionValues: true in search settings
-				// Snap config's search controller replaces the templates' search controller entirely
-				// So this template-specific setting should NOT be present
-				expect(controller.config.settings.variants?.showDisabledSelectionValues).to.not.equal(true);
+				expect(controller.config.settings.variants?.showDisabledSelectionValues).to.equal(true);
+			});
+
+			// Snap controllers also exist independently
+			cy.snapController('search_snap').then((controller) => {
+				expect(controller.config.settings.infinite?.backfill).to.equal(5);
 			});
 		});
 	});
