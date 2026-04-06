@@ -4,7 +4,7 @@ import deepmerge from 'deepmerge';
 import { Snap } from '../Snap';
 import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSelect';
 
-import { DomTargeter, url, cookies, getContext, version } from '@athoscommerce/snap-toolbox';
+import { DomTargeter, url, cookies, version } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
 
 import type { Target } from '@athoscommerce/snap-toolbox';
@@ -171,23 +171,6 @@ export class SnapTemplates extends Snap {
 		const templatesStore = new TemplatesStore({ config, settings: { editMode } });
 
 		const snapConfig = createSnapConfig(config, templatesStore);
-
-		// get more context (all the things needed for the platform of choice as well as generic backgroundFilters)
-		let contextParams = ['backgroundFilters'];
-		switch (templatesStore.platform) {
-			case 'shopify':
-				contextParams = contextParams.concat(['collection', 'tags']);
-				break;
-			case 'bigCommerce':
-				contextParams = contextParams.concat(['category', 'brand']);
-				break;
-			case 'magento2':
-				contextParams = contextParams.concat(['category']);
-				break;
-			default:
-				break;
-		}
-		snapConfig.context = getContext(contextParams);
 
 		super(snapConfig, { templatesStore });
 
