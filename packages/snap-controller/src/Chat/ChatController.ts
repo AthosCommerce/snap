@@ -393,9 +393,10 @@ export class ChatController extends AbstractController {
 		this.store.compareProduct(result);
 	};
 
-	inspirationRequest = (): void => {
-		this.search({ data: { requestType: 'inspiration', message: this.store.inputValue } });
-	};
+	// TODO: to be added in future
+	// inspirationRequest = (): void => {
+	// 	this.search({ data: { requestType: 'inspiration', message: this.store.inputValue } });
+	// };
 
 	discussProduct = (result: Product, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void => {
 		this.store.sendProductQuery(result, options);

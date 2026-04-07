@@ -13,6 +13,7 @@ import type {
 	ChatResponseProductComparisonData,
 	ChatResponseProductRecommendationData,
 	ChatResponseErrorData,
+	ChatResponseTopicDriftData,
 } from '@athoscommerce/snap-client';
 import { ChatAttachmentAddAttachment, ChatAttachmentFacet, ChatAttachmentProduct, ChatAttachmentStore } from '../Stores/ChatAttachmentStore';
 import type { StorageStore } from '../../Storage/StorageStore';
@@ -36,7 +37,8 @@ export type ChatSystemMessage =
 	| ChatResponseProductAnswerData
 	| ChatResponseProductComparisonData
 	| ChatResponseProductRecommendationData
-	| ChatResponseErrorData;
+	| ChatResponseErrorData
+	| ChatResponseTopicDriftData;
 
 export type ChatMessage = ChatUserMessage | ChatSystemMessage;
 
@@ -78,6 +80,7 @@ export class ChatSessionStore {
 	public storage: StorageStore;
 	public feedbacks: ChatFeedbacks[] = [];
 	public createdAt: Date = new Date();
+	public requestType: string = '';
 
 	constructor(params: ChatSessionStoreConfig) {
 		const { id, sessionId, chat, attachments, actions, feedbacks, createdAt } = params.data || {};
@@ -101,6 +104,7 @@ export class ChatSessionStore {
 
 		makeObservable(this, {
 			chat: observable,
+			requestType: observable,
 			actions: observable,
 			attachments: observable,
 			feedbacks: observable,
@@ -114,9 +118,44 @@ export class ChatSessionStore {
 		return diff > ONE_DAY;
 	}
 
+	// get topicDrift(): ChatResponseTopicDriftData | null {
+	// 	const lastMessage = this.chat[this.chat.length - 1];
+	// 	return lastMessage?.messageType === 'topic_drift' ? lastMessage : null;
+	// }
+
+	get activeMessage(): ChatMessage | null {
+		const EXCLUDED_MESSAGE_TYPES = ['topic_drift'];
+		const messages = this.chat.filter((message) => !EXCLUDED_MESSAGE_TYPES.includes(message.messageType));
+		const lastMessage = messages[messages.length - 1];
+		return lastMessage || null;
+	}
+
+	// public handleTopicDrift(message: ChatResponseTopicDriftData | null): void {
+	// 	// driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
+	// 	// messageForDrift: string;
+	// 	// recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
+
+	// 	if(message?.driftType === 'NO_DRIFT') {
+	// 		// if no drift, do nothing but remove the topic drift message from the chat
+	// 		this.chat = this.chat.filter(m => m.messageType !== 'topic_drift');
+	// 		this.save();
+	// 		return;
+	// 	}
+	// 	if(message?.driftType === 'SCOPE_DRIFT' || message?.driftType === 'CATEGORY_DRIFT') {
+	// 		const lastUserMessageIndex = this.chat.map((message, index) => ({ message, index })).filter(({ message }) => message.messageType === 'user').map(({ index }) => index).pop();
+	// 		if (lastUserMessageIndex !== undefined) {
+	// 			this.chat = this.chat.slice(0, lastUserMessageIndex + 1);
+	// 		} else {
+	// 			this.reset();
+	// 		}
+	// 		this.save();
+	// 	}
+	// }
+
 	public reset(): void {
 		this.attachments.reset();
 		this.chat = [];
+		this.actions = [];
 		this.feedbacks = [];
 	}
 
@@ -141,6 +180,7 @@ export class ChatSessionStore {
 	public request(request: ChatRequestModel): void {
 		// clear the questions on new request
 		this.actions = [];
+		this.requestType = request.data.requestType;
 
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {

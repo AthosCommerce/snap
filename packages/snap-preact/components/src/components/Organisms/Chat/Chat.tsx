@@ -9,13 +9,15 @@ import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { Button } from '../../Atoms/Button';
-import { useRef, useEffect } from 'preact/hooks';
+import { useRef, useEffect, useMemo } from 'preact/hooks';
 import { Slideout } from '../../Molecules/Slideout';
 import { Quickview } from './Quickview';
 import { MessageUser } from './MessageUser';
 import { MessageText } from './MessageText';
+import { SuggestedQuestions } from './SuggestedQuestions';
 import { Attachment } from './Attachment';
 import { Image } from '../../Atoms/Image';
+import { ChatLoadingIndicator } from '../../Atoms/ChatLoadingIndicator';
 import { FacetsData } from '@athoscommerce/snap-store-mobx';
 
 import { Dropdown, Icon, Overlay, useMediaQuery } from '../../..';
@@ -26,6 +28,7 @@ import {
 	ChatResponseInspirationResultData,
 	ChatResponseProductComparisonData,
 	ChatResponseProductAnswerData,
+	ChatResponseActionsData,
 } from '@athoscommerce/snap-client/dist/cjs/Client/transforms/chatResponse';
 
 const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
@@ -38,8 +41,8 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 		color: '#333',
 
 		'.ss__chat__primary': {
-			width: mobile ? '100%' : '60%',
-			maxWidth: 700,
+			width: mobile ? '100%' : '40%',
+			maxWidth: 600,
 			height: mobile ? '100%' : 'auto',
 			minHeight: '60vh',
 			maxHeight: mobile ? '100%' : 'calc(100vh - 40px)',
@@ -48,6 +51,9 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			justifyContent: 'flex-end',
 			overflow: 'hidden',
 			order: 1,
+			'.ss__chat__header__title': {
+				gap: '22px',
+			},
 		},
 		'.ss__chat__secondary': {
 			width: mobile ? '100%' : '40%',
@@ -70,6 +76,17 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 						boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
 				  }
 				: {}),
+			'.ss__chat__header__title': {
+				flexDirection: 'column',
+				gap: '2px',
+				'.ss__chat__header__title__primary': {
+					fontWeight: 'bold',
+				},
+				'.ss__chat__header__title__secondary': {
+					fontSize: '80%',
+					opacity: 0.85,
+				},
+			},
 			'.ss__chat__messages': {
 				background: '#fff!important',
 			},
@@ -163,14 +180,6 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				display: 'none',
 			},
 		},
-		'&.ss__chat--open-minimized': {
-			'.ss__chat__bubble': {
-				display: 'none',
-			},
-			'.ss__chat__primary': {
-				width: mobile ? '100%' : 700,
-			},
-		},
 		'.ss__chat__header': {
 			display: 'flex',
 			justifyContent: 'space-between',
@@ -184,11 +193,19 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			borderTopRightRadius: mobile ? 0 : '12px',
 
 			'.ss__chat__header__title': {
-				'.ss__chat__header__title__primary': {
-					fontWeight: 'bold',
+				display: 'flex',
+				'.ss__chat__header__title__logo': {
+					height: '44px',
 				},
-				'.ss__chat__header__title__secondary': {
-					fontSize: '80%',
+				'.ss__chat__header__title__text': {
+					display: 'flex',
+					flexDirection: 'column',
+					'.ss__chat__header__title__text__primary': {
+						fontWeight: 'bold',
+					},
+					'.ss__chat__header__title__text__secondary': {
+						fontSize: '80%',
+					},
 				},
 			},
 
@@ -304,7 +321,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 					flexDirection: 'column',
 					gap: '1em',
 					background: '#f4f4ff',
-					padding: '1em',
+					padding: '0.5em 1em',
 
 					'.ss__chat__content__header__comparisons__header': {
 						display: 'flex',
@@ -335,6 +352,14 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 					'.ss__chat__content__header__comparisons__content': {
 						display: 'flex',
 						gap: '1em',
+						alignItems: 'stretch',
+
+						'.ss__chat__content__header__comparisons__content__items': {
+							display: 'flex',
+							gap: '1em',
+							flex: '1 1 calc(100% - 100px)',
+							justifyContent: 'space-between',
+						},
 
 						'.ss__chat__content__header__comparisons__content__comparison': {
 							background: '#fff',
@@ -343,7 +368,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 							display: 'flex',
 							flexDirection: 'column',
 							gap: '0.5em',
-							flex: '1 0 0%',
+							flex: '0 1 20%',
 							position: 'relative',
 
 							'&.ss__chat__content__header__comparisons__content__comparison--placeholder': {
@@ -376,22 +401,28 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 								},
 							},
 						},
-					},
 
-					'.ss__chat__content__header__comparisons__action': {
-						display: 'flex',
-						justifyContent: 'center',
-						'.ss__button': {
-							flexDirection: 'row-reverse',
-							width: '100%',
-							borderRadius: '1em',
-							padding: '0.5em 1em',
-							background: colorPrimary,
-							color: '#fff',
-							textAlign: 'center',
-							svg: {
-								fill: '#fff',
-								stroke: '#fff',
+						'.ss__chat__content__header__comparisons__action': {
+							display: 'flex',
+							alignItems: 'center',
+							marginLeft: 'auto',
+							flex: '1 1 auto',
+
+							'&.ss__chat__content__header__comparisons__action--hidden': {
+								visibility: 'hidden',
+							},
+
+							'.ss__button': {
+								flexDirection: 'row-reverse',
+								borderRadius: '1em',
+								padding: '0.5em 1em',
+								background: colorPrimary,
+								color: '#fff',
+								textAlign: 'center',
+								svg: {
+									fill: '#fff',
+									stroke: '#fff',
+								},
 							},
 						},
 					},
@@ -441,46 +472,8 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 						color: '#333',
 						marginBottom: '20px',
 					},
-					'.ss__chat__welcome__questions': {
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '10px',
+					'.ss__chat__suggestions': {
 						marginTop: 'auto',
-						'.ss__chat__welcome__questions__item': {
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							gap: '12px',
-							background: '#fff',
-							border: '1px solid #eee',
-							borderRadius: '12px',
-							padding: '14px 16px',
-							cursor: 'pointer',
-							fontSize: '14px',
-							color: '#333',
-							'&:hover': {
-								borderColor: '#ccc',
-								boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-							},
-							'.ss__chat__welcome__questions__item__text': {
-								flex: 1,
-								fontWeight: 500,
-							},
-							'.ss__chat__welcome__questions__item__icon': {
-								width: '30px',
-								height: '30px',
-								background: colorPrimary,
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								borderRadius: '50%',
-								paddingLeft: '0.33em',
-								svg: {
-									fill: '#fff',
-									stroke: '#fff',
-								},
-							},
-						},
 					},
 				},
 			},
@@ -583,31 +576,6 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 							'.ss__chat__facets__facet__options__option': {
 								flexGrow: 0,
 							},
-						},
-					},
-				},
-			},
-			'.ss__chat__loading': {
-				padding: '1em',
-				display: 'flex',
-				alignItems: 'center',
-				gap: '8px',
-				color: '#666',
-				fontSize: '14px',
-				'.ss__chat__loading__dots': {
-					display: 'flex',
-					gap: '4px',
-					'.ss__chat__loading__dot': {
-						width: '6px',
-						height: '6px',
-						borderRadius: '50%',
-						backgroundColor: '#999',
-						animation: 'ss-chat-dot-pulse 1.4s infinite ease-in-out both',
-						'&:nth-of-type(1)': {
-							animationDelay: '-0.32s',
-						},
-						'&:nth-of-type(2)': {
-							animationDelay: '-0.16s',
 						},
 					},
 				},
@@ -753,6 +721,64 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				flexDirection: 'column',
 				gap: '8px',
 			},
+			// TODO: to be added in future
+			// '.ss__chat__topic-drift': {
+			// 	display: 'flex',
+			// 	alignItems: 'center',
+			// 	gap: '12px',
+			// 	padding: '12px 16px',
+			// 	border: '1px solid #93C5FD',
+			// 	borderRadius: '8px',
+			// 	backgroundColor: '#fff',
+			// 	'.ss__chat__topic-drift__icon--info': {
+			// 		flex: '0 0 auto',
+			// 		fill: colorPrimary,
+			// 		stroke: colorPrimary,
+			// 		svg: {
+			// 			fill: colorPrimary,
+			// 			stroke: colorPrimary,
+			// 		},
+			// 	},
+			// 	'.ss__chat__topic-drift__text': {
+			// 		flex: '1 1 0%',
+			// 		display: 'flex',
+			// 		flexDirection: 'column',
+			// 		gap: '2px',
+			// 		'span:first-of-type': {
+			// 			fontWeight: 'bold',
+			// 			color: colorPrimary,
+			// 			fontSize: '14px',
+			// 		},
+			// 		'span:last-of-type': {
+			// 			color: '#6A7282',
+			// 			fontSize: '13px',
+			// 		},
+			// 	},
+			// 	'.ss__chat__topic-drift__button': {
+			// 		flex: '0 0 auto',
+			// 		backgroundColor: colorPrimary,
+			// 		color: '#fff',
+			// 		borderRadius: '6px',
+			// 		padding: '8px 14px',
+			// 		fontSize: '13px',
+			// 		fontWeight: 500,
+			// 		cursor: 'pointer',
+			// 		whiteSpace: 'nowrap',
+			// 		'&:not(.ss__button--disabled):hover': {
+			// 			background: '#1a2a5c',
+			// 		},
+			// 	},
+			// 	'.ss__chat__topic-drift__icon--close': {
+			// 		flex: '0 0 auto',
+			// 		cursor: 'pointer',
+			// 		fill: '#6A7282',
+			// 		stroke: '#6A7282',
+			// 		svg: {
+			// 			fill: '#6A7282',
+			// 			stroke: '#6A7282',
+			// 		},
+			// 	},
+			// },
 			'.ss__chat__input': {
 				display: 'flex',
 				justifyContent: 'space-between',
@@ -808,7 +834,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				},
 			},
 			'.ss__chat__disclaimer': {
-				fontSize: '11px',
+				fontSize: '10px',
 				color: '#6A7282',
 				textAlign: 'center',
 			},
@@ -824,11 +850,14 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 	const defaultProps: Partial<ChatProps> = {
 		treePath: globalTreePath,
+		logo: 'https://cdn.athoscommerce.net/snap/images/Athos%20Commerce_Icon_white.svg',
+		title: 'Athos AI Assistant',
+		subtitle: 'Ready to assist you',
 	};
 
 	let props = mergeProps('facets', globalTheme, defaultProps, properties);
 
-	const { className, internalClassName, controller } = props;
+	const { className, internalClassName, controller, logo, title, subtitle } = props;
 	const { store } = controller;
 
 	const themeDefaults: Theme = {
@@ -960,8 +989,28 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 		return <></>;
 	}
 
-	const activeMessage = store.currentChat?.chat[store.currentChat?.chat.length - 1];
+	const activeMessage = store.currentChat?.activeMessage;
 	const shouldShowSideChat = activeMessage && ['inspirationResult', 'productComparison', 'productAnswer'].includes(activeMessage?.messageType);
+	const requestType = store.currentChat?.requestType;
+	const loadingVerbs = useMemo(() => {
+		switch (requestType) {
+			case 'productQuery':
+				return ['Thinking', 'Searching', 'Analyzing', 'Gathering details'];
+			case 'productSearch':
+				return ['Searching', 'Browsing catalog', 'Finding products', 'Curating results'];
+			case 'productComparison':
+				return ['Comparing', 'Analyzing', 'Evaluating', 'Weighing options'];
+			case 'imageSearch':
+				return ['Analyzing image', 'Identifying', 'Searching', 'Matching'];
+			case 'productSimilar':
+				return ['Finding similar items', 'Searching', 'Matching', 'Curating'];
+			case 'inspirationRequest':
+				return ['Brainstorming', 'Imagining', 'Curating', 'Inspiring'];
+			case 'general':
+			default:
+				return undefined;
+		}
+	}, [requestType]);
 
 	return (
 		<CacheProvider>
@@ -970,8 +1019,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					className={classnames(
 						'ss__chat',
 						{
-							'ss__chat--open': store.open && !store.minimized,
-							'ss__chat--open-minimized': store.open && store.minimized,
+							'ss__chat--open': store.open,
 							'ss__chat--minimized': !store.open,
 						},
 						className,
@@ -997,7 +1045,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					<div className={'ss__chat__bubble'} onClick={() => controller.handlers.button.click()}>
 						<Icon icon="chat" title="Open Chat" />
 					</div>
-					{store.open && !store.minimized && shouldShowSideChat && activeMessage ? (
+					{store.open && shouldShowSideChat && activeMessage ? (
 						<div className={classnames('ss__chat__secondary')}>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
@@ -1015,7 +1063,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											{
 												inspirationResult: 'Choose a style direction to explore',
 												productComparison: `Comparing ${
-													(activeMessage as ChatResponseProductComparisonData).comparisonData.features.length
+													(activeMessage as ChatResponseProductComparisonData)?.comparisonData?.features.length
 												} products`,
 												productAnswer: 'Complete product details',
 											} as any
@@ -1049,27 +1097,29 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 						</div>
 					) : null}
 					{store.open ? (
-						<div className={classnames('ss__chat__primary', { 'ss__chat__primary--minimized': store.minimized })}>
+						<div className={'ss__chat__primary'}>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
-									<div className="ss__chat__header__title__primary">Personal Style Advisor</div>
-									<div className="ss__chat__header__title__secondary">Ready to assist you</div>
+									{logo ? <img className="ss__chat__header__title__logo" src={logo} /> : null}
+									<div className="ss__chat__header__title__text">
+										{title ? <div className="ss__chat__header__title__text__primary">{title}</div> : null}
+										{subtitle ? <div className="ss__chat__header__title__text__secondary">{subtitle}</div> : null}
+									</div>
 								</div>
 								<div className="ss__chat__header__buttons">
-									<Button
+									{/* <Button
 										className="ss__chat__header__button--new"
-										icon={{ icon: 'inspire', title: 'New Chat' }}
+										icon={{ icon: 'inspire', title: 'Inspire' }}
 										onClick={() => {
 											controller.inspirationRequest();
 										}}
 										content={'Inspire'}
-									/>
+									/> */}
 									<Button
 										// disabled={store.currentChat?.chat && store.currentChat.chat.length <= 1}
 										className="ss__chat__header__button--new"
 										icon={{ icon: controller.store.initChatLoading ? 'spinner' : 'plus2', title: 'New Chat' }}
 										onClick={() => controller.startNewChat()}
-										content={'New Chat'}
 									/>
 									{store.chats.length > 1 && (
 										<Dropdown
@@ -1081,41 +1131,36 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 										</Dropdown>
 									)}
 									<Button
-										className="ss__chat__header__button--minimize"
-										icon={{ icon: 'minimize', title: 'Minimize Chat' }}
-										onClick={() => (store.minimized = !store.minimized)}
-									/>
-									<Button
 										className="ss__chat__header__button--close"
 										icon={{ icon: 'close2', title: 'Close Chat' }}
 										onClick={() => controller.handlers.button.click()}
 									/>
 								</div>
 							</div>
-							{!store.minimized && (
-								<div className="ss__chat__content">
-									<div className="ss__chat__content__header">
-										{/* <div className="ss__chat__attachments">
+							<div className="ss__chat__content">
+								<div className="ss__chat__content__header">
+									{/* <div className="ss__chat__attachments">
 									{store.currentChat?.attachments.attached
 										.filter((item) => item.state === 'active')
 										.map((item) => (
 											<Attachment key={item.id} attachment={item} controller={controller} />
 										))}
 								</div> */}
-										{store.currentChat?.comparisons.compared && store.currentChat.comparisons.compared.length > 0 && (
-											<div className={'ss__chat__content__header__comparisons'}>
-												<div className={'ss__chat__content__header__comparisons__header'}>
-													<div className={'ss__chat__content__header__comparisons__header__title'}>
-														<Icon className={'ss__chat__content__header__comparisons__header__title__icon'} icon={'clipboard'} />
-														<span className={'ss__chat__content__header__comparisons__header__title__text'}>
-															Compare Products ({store.currentChat?.comparisons.compared.length}/{store.currentChat?.comparisons.maxItems})
-														</span>
-													</div>
-													<div className={'ss__chat__content__header__comparisons__header__actions'}>
-														<Button onClick={() => store.currentChat?.comparisons.reset()}>clear</Button>
-													</div>
+									{store.currentChat?.comparisons.compared && store.currentChat.comparisons.compared.length > 0 && (
+										<div className={'ss__chat__content__header__comparisons'}>
+											<div className={'ss__chat__content__header__comparisons__header'}>
+												<div className={'ss__chat__content__header__comparisons__header__title'}>
+													<Icon className={'ss__chat__content__header__comparisons__header__title__icon'} icon={'clipboard'} />
+													<span className={'ss__chat__content__header__comparisons__header__title__text'}>
+														Compare Products ({store.currentChat?.comparisons.compared.length}/{store.currentChat?.comparisons.maxItems})
+													</span>
 												</div>
-												<div className={'ss__chat__content__header__comparisons__content'}>
+												<div className={'ss__chat__content__header__comparisons__header__actions'}>
+													<Button onClick={() => store.currentChat?.comparisons.reset()}>clear</Button>
+												</div>
+											</div>
+											<div className={'ss__chat__content__header__comparisons__content'}>
+												<div className={'ss__chat__content__header__comparisons__content__items'}>
 													{Array.from({ length: store.currentChat?.comparisons.maxItems }).map((_, index) => {
 														const comparisonItem = store.currentChat?.comparisons.compared[index];
 														console.log('comparisonItem', comparisonItem);
@@ -1154,87 +1199,67 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														);
 													})}
 												</div>
-												{store.currentChat?.comparisons.compared.length > 1 ? (
-													<div className={'ss__chat__content__header__comparisons__action'}>
-														<Button onClick={() => controller.search()} icon={{ icon: 'compare', title: 'Compare' }}>
-															Compare
-														</Button>
-													</div>
-												) : null}
-											</div>
-										)}
-									</div>
-									<div className={'ss__chat__messages'} ref={messagesContainerRef}>
-										{(!store.currentChat?.chat || store.currentChat.chat.length === 0) && store.welcomeMessage && (
-											<div className="ss__chat__welcome">
-												<div className="ss__chat__welcome__message">{store.welcomeMessage}</div>
-												{store.suggestedQuestions?.length > 0 && (
-													<div className="ss__chat__welcome__questions">
-														{store.suggestedQuestions.map((question, index) => (
-															<div
-																key={index}
-																className="ss__chat__welcome__questions__item"
-																onClick={() => {
-																	controller.openChat(question);
-																}}
-															>
-																<span className="ss__chat__welcome__questions__item__text">{question}</span>
-																<span className="ss__chat__welcome__questions__item__icon">
-																	<Icon icon="arrow-up" />
-																</span>
-															</div>
-														))}
-													</div>
-												)}
-											</div>
-										)}
-										{store.currentChat?.chat.map((chatItem, index) => (
-											<div key={index} className="ss__chat__message">
-												{{
-													user: <MessageUser chatItem={chatItem} controller={controller} />,
-													text: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													content: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													productSearchResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													inspirationResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												}[chatItem.messageType] || null}
-											</div>
-										))}
-										<div className="ss__chat__messages__end" ref={messagesEndRef} />
-									</div>
-									{store.loading ? (
-										<div className={'ss__chat__loading'}>
-											<div className={'ss__chat__loading__dots'}>
-												<div className={'ss__chat__loading__dot'}></div>
-												<div className={'ss__chat__loading__dot'}></div>
-												<div className={'ss__chat__loading__dot'}></div>
+												<div
+													className={classnames('ss__chat__content__header__comparisons__action', {
+														'ss__chat__content__header__comparisons__action--hidden': (store.currentChat?.comparisons.compared.length || 0) < 2,
+													})}
+												>
+													<Button onClick={() => controller.search()} icon={{ icon: 'compare', title: 'Compare' }}>
+														Compare
+													</Button>
+												</div>
 											</div>
 										</div>
-									) : null}
-									{!store.currentChat?.isExpired ? (
-										<div className="ss__chat__content__footer">
-											{store.error && <div className="ss__chat__error">{store.error.message}</div>}
-											{store.currentChat?.actions && store.currentChat.actions.length > 0 && (
-												<div className={'ss__chat__actions'}>
-													{store.currentChat?.actions.map((action, index) => (
-														<div className="ss__chat__actions__wrap" key={index}>
-															{{
-																facets: (
-																	<div className="ss__chat__actions--facets">
-																		<Dropdown
-																			className="ss__chat__actions__facets-dropdown"
-																			button={
-																				<Button className="ss__chat__actions__facets" icon="filters2">
-																					Filters
-																				</Button>
-																			}
-																		>
-																			<FacetsPopup action={action as FacetsData} />
-																		</Dropdown>
-																		{/* {(action as FacetsData).data.map((facet, idx) => (
+									)}
+								</div>
+								<div className={'ss__chat__messages'} ref={messagesContainerRef}>
+									{(!store.currentChat?.chat || store.currentChat.chat.length === 0) && store.welcomeMessage && (
+										<div className="ss__chat__welcome">
+											<div className="ss__chat__welcome__message">{store.welcomeMessage}</div>
+											<SuggestedQuestions questions={store.suggestedQuestions} controller={controller} />
+										</div>
+									)}
+									{store.currentChat?.chat.map((chatItem, index) => (
+										<div key={index} className="ss__chat__message">
+											{{
+												user: <MessageUser chatItem={chatItem} controller={controller} />,
+												text: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												content: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												productSearchResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												inspirationResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												actions: <SuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />,
+												error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+												topic_drift: null,
+											}[chatItem.messageType] || null}
+										</div>
+									))}
+									<div className="ss__chat__messages__end" ref={messagesEndRef} />
+								</div>
+								<ChatLoadingIndicator loading={store.loading} verbs={loadingVerbs} />
+								{!store.currentChat?.isExpired ? (
+									<div className="ss__chat__content__footer">
+										{store.error && <div className="ss__chat__error">{store.error.message}</div>}
+										{store.currentChat?.actions && store.currentChat.actions.length > 0 && (
+											<div className={'ss__chat__actions'}>
+												{store.currentChat?.actions.map((action, index) => (
+													<div className="ss__chat__actions__wrap" key={index}>
+														{{
+															facets: (
+																<div className="ss__chat__actions--facets">
+																	<Dropdown
+																		className="ss__chat__actions__facets-dropdown"
+																		button={
+																			<Button className="ss__chat__actions__facets" icon="filters2">
+																				Filters
+																			</Button>
+																		}
+																	>
+																		<FacetsPopup action={action as FacetsData} />
+																	</Dropdown>
+																	{/* {(action as FacetsData).data.map((facet, idx) => (
 																	<div className="ss__chat__actions__facet" key={idx}>
 																		<Dropdown key={facet.key} button={<FacetButton label={facet.label} />}>
 																			<div className="ss__chat__actions__facet__options">
@@ -1259,11 +1284,11 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																		</Dropdown>
 																	</div>
 																))} */}
-																	</div>
-																),
-																actions: (
-																	<div className="ss__chat__actions--suggested">
-																		{/* {(action as ActionsData).data.map((act, idx) => (
+																</div>
+															),
+															actions: (
+																<div className="ss__chat__actions--suggested">
+																	{/* {(action as ActionsData).data.map((act, idx) => (
 																	<Button
 																		key={idx}
 																		onClick={() => {
@@ -1274,96 +1299,108 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																		{act.message}
 																	</Button>
 																))} */}
-																	</div>
-																),
-															}[action.type] || null}
-														</div>
-													))}
-												</div>
-											)}
-											{store.currentChat?.attachments.attached && store.currentChat.attachments.attached.length > 0 && (
-												<div className={'ss__chat__attachments'}>
-													{store.currentChat?.attachments.attached
-														.filter((item) => item.state === 'attached' || item.state === 'loading')
-														.map((item) => (
-															<Attachment key={item.id} attachment={item} controller={controller} />
-														))}
-													{store.currentChat?.attachments.attached.length === 2 &&
-													store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
-														<div className={'ss__chat__attachments__info'}>Compare products (max: 2)</div>
-													) : null}
-													{store.currentChat?.attachments.attached.length === 1 &&
-													store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
-														<div className={'ss__chat__attachments__info'}>Ask questions about this product</div>
-													) : null}
-													{store.currentChat?.attachments.attached.length === 1 &&
-													store.currentChat?.attachments.attached.every((item) => item.type === 'image' && !item.error) ? (
-														<div className={'ss__chat__attachments__info'}>Find products similar to this image</div>
-													) : null}
-												</div>
-											)}
-											<div className={'ss__chat__input'}>
-												<div className={'ss__chat__input__input'}>
-													<input
-														type="text"
-														name="ss-chat-input"
-														placeholder="Type your message..."
-														onKeyUp={(e) => controller.handlers.input.input(e as any)}
-														onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
-														value={controller.store.inputValue}
-													/>
-													{store.features.imageSearch.enabled && (
-														<>
-															<Button
-																className={'ss__chat__upload-button'}
-																disabled={
-																	store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked
-																}
-																onClick={() => fileInputRef.current?.click()}
-																icon={{ icon: 'image', title: 'Upload Image' }}
-															/>
-															<input
-																ref={fileInputRef}
-																onChange={async (e) => {
-																	await controller.upload(e.target.files);
-																	// reset value
-																	e.target.value = '';
-																}}
-																multiple={true}
-																type="file"
-																accept="image/*"
-																className="ss__chat__input__input__file"
-															/>
-														</>
-													)}
-												</div>
-												<div className={'ss__chat__input__actions'}>
-													<Button
-														className="ss__chat__send-button"
-														icon={{ icon: 'send', title: 'Send Message' }}
-														disabled={store.blocked}
-														onClick={() => controller.search()}
-													/>
-												</div>
+																</div>
+															),
+														}[action.type] || null}
+													</div>
+												))}
 											</div>
-											<div className={'ss__chat__disclaimer'}>
-												<i>AI-powered assistant. Responses are generated automatically and may occasionally be inaccurate or inappropriate.</i>
+										)}
+										{store.currentChat?.attachments.attached && store.currentChat.attachments.attached.length > 0 && (
+											<div className={'ss__chat__attachments'}>
+												{store.currentChat?.attachments.attached
+													.filter((item) => item.state === 'attached' || item.state === 'loading')
+													.map((item) => (
+														<Attachment key={item.id} attachment={item} controller={controller} />
+													))}
+												{store.currentChat?.attachments.attached.length === 2 &&
+												store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
+													<div className={'ss__chat__attachments__info'}>Compare products (max: 2)</div>
+												) : null}
+												{store.currentChat?.attachments.attached.length === 1 &&
+												store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
+													<div className={'ss__chat__attachments__info'}>Ask questions about this product</div>
+												) : null}
+												{store.currentChat?.attachments.attached.length === 1 &&
+												store.currentChat?.attachments.attached.every((item) => item.type === 'image' && !item.error) ? (
+													<div className={'ss__chat__attachments__info'}>Find products similar to this image</div>
+												) : null}
+											</div>
+										)}
+
+										{/* {store.currentChat?.topicDrift ? (
+												<div className={'ss__chat__topic-drift'}>
+													<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'}/>
+													<div className={'ss__chat__topic-drift__text'}>
+														<span>It seems you're asking a different question</span>
+														<span>{store.currentChat?.topicDrift.messageForDrift || 'Would you like to start a new session for better assistance?'}</span>
+													</div>
+													<Button 
+														className={'ss__chat__topic-drift__button'}
+														onClick={() => store.currentChat?.handleTopicDrift(store.currentChat?.topicDrift)}
+													>New Session</Button>
+													<Icon icon="close-thin" size="14px" className={'ss__chat__topic-drift__icon--close'}/>
+												</div>
+											) : null} */}
+										<div className={'ss__chat__input'}>
+											<div className={'ss__chat__input__input'}>
+												<input
+													type="text"
+													name="ss-chat-input"
+													placeholder="Type your message..."
+													onKeyUp={(e) => controller.handlers.input.input(e as any)}
+													onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
+													value={controller.store.inputValue}
+												/>
+												{store.features.imageSearch.enabled && (
+													<>
+														<Button
+															className={'ss__chat__upload-button'}
+															disabled={store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked}
+															onClick={() => fileInputRef.current?.click()}
+															icon={{ icon: 'image', title: 'Upload Image' }}
+														/>
+														<input
+															ref={fileInputRef}
+															onChange={async (e) => {
+																await controller.upload(e.target.files);
+																// reset value
+																e.target.value = '';
+															}}
+															multiple={true}
+															type="file"
+															accept="image/*"
+															className="ss__chat__input__input__file"
+														/>
+													</>
+												)}
+											</div>
+											<div className={'ss__chat__input__actions'}>
+												<Button
+													className="ss__chat__send-button"
+													icon={{ icon: 'send', title: 'Send Message' }}
+													disabled={store.blocked}
+													onClick={() => controller.search()}
+												/>
 											</div>
 										</div>
-									) : (
-										<div>This chat is expired. Please start a new chat.</div>
-									)}
-								</div>
-							)}
+										<div className={'ss__chat__disclaimer'}>
+											<i>
+												Powered by Athos Commerce. AI-powered assistant. It sometimes make mistakes. Avoid sharing personal data.{' '}
+												<a href="https://athoscommerce.com/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">
+													Privacy Policy
+												</a>
+											</i>
+										</div>
+									</div>
+								) : (
+									<div>This chat is expired. Please start a new chat.</div>
+								)}
+							</div>
 						</div>
 					) : null}
 				</div>
-				<Overlay
-					style={{ zIndex: 1001 }}
-					color="transparent"
-					active={store.open && !store.minimized}
-					onClick={() => controller.handlers.button.click()}
-				/>
+				<Overlay style={{ zIndex: 1001 }} color="transparent" active={store.open} onClick={() => controller.handlers.button.click()} />
 				<Slideout
 					slideDirection="right"
 					buttonSelector={'.ss__chat__result__detail-slot__more-info-button, .ss__chat__result__detail-slot__image'}
@@ -1378,4 +1415,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 export interface ChatProps extends ComponentProps {
 	controller: ChatController;
+	logo: string;
+	title: string;
+	subtitle?: string;
 }

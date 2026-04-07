@@ -15,7 +15,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public meta?: MetaStore = undefined;
 	public inputValue: string = '';
 	public open: boolean = false;
-	public minimized: boolean = false;
 	public storage: StorageStore;
 	public chats: ChatSessionStore[] = [];
 	public currentChatId: string;
@@ -89,7 +88,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			meta: observable,
 			inputValue: observable,
 			open: observable,
-			minimized: observable,
 			chats: observable,
 			currentChatId: observable,
 			quickViewResult: observable,

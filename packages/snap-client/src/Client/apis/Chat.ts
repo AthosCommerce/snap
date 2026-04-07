@@ -151,7 +151,7 @@ export type MoiRequestModelInspiration = {
 	message: string;
 };
 
-// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, suggestedQuestions, content
+// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, suggestedQuestions, content, error_response, topic_drift, actions
 export type MoiResponseModel = {
 	context: {
 		sessionId: string;
@@ -166,6 +166,7 @@ export type MoiResponseModel = {
 		| MoiResponseModelProductComparison
 		| MoiResponseModelActions
 		| MoiResponseModelProductRecommendation
+		| MoiResponseModelTopicDrift
 		| MoiResponseModelError
 	)[];
 };
@@ -265,12 +266,20 @@ export type MoiResponseModelProductComparison = BaseResponseProperties & {
 	note?: string;
 };
 
-export type MoiResponseModelActions = BaseResponseProperties & {
+export type MoiResponseModelTopicDrift = {
+	messageType: 'topic_drift';
+	id: string;
+	driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
+	messageForDrift: string;
+	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
+};
+
+export type MoiResponseModelActions = {
 	messageType: 'actions';
-	// actions: {
-	// 	message: string;
-	// 	request: MoiRequestModelGeneral;
-	// }[];
+	actions: {
+		message: string;
+		request: MoiRequestModelGeneral;
+	}[];
 };
 
 export type MoiResponseModelProductRecommendation = BaseResponseProperties & {

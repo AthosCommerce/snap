@@ -25,7 +25,11 @@ export const ResultsDisplay = observer((props: ResultsDisplayProps) => {
 							<Carousel {...carouselProps}>
 								{recommendation.results.map((result: any) => {
 									return (
-										<div key={result.id} className="ss__chat__message-text__results__result">
+										<div
+											key={result.id}
+											className="ss__chat__message-text__results__result"
+											style={{ height: '100%', width: '100%', display: 'flex' }}
+										>
 											<ChatResult result={result} controller={controller} scrollToBottom={scrollToBottom} />
 										</div>
 									);
@@ -43,7 +47,7 @@ export const ResultsDisplay = observer((props: ResultsDisplayProps) => {
 			<Carousel {...carouselProps}>
 				{chatItem.results.map((result: any) => {
 					return (
-						<div key={result.id} className="ss__chat__message-text__results__result">
+						<div key={result.id} className="ss__chat__message-text__results__result" style={{ height: '100%', width: '100%', display: 'flex' }}>
 							<ChatResult result={result} controller={controller} scrollToBottom={scrollToBottom} />
 						</div>
 					);

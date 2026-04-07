@@ -17,6 +17,7 @@ import type {
 	MoiResponseModelSuggestedQuestions,
 	MoiResponseModelText,
 	MoiResponseModelError,
+	MoiResponseModelTopicDrift,
 } from '../apis/Chat';
 import { CORE_FIELDS, decodeProperty, RawResult, Result } from './searchResponse';
 
@@ -67,12 +68,6 @@ export type ChatResponseSuggestedQuestionsData = {
 	actions: any;
 };
 
-export type ChatResponseActionsData = {
-	messageType: 'actions';
-	// actions: MoiResponseModelActions['actions'];
-	actions: any;
-};
-
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
 	const transformedData = response.data
 		.map((data) => {
@@ -94,6 +89,10 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 				return transformChatResponse.actions(data);
 			} else if (data.messageType === 'productRecommendation') {
 				return transformChatResponse.productRecommendation(data);
+			} else if (data.messageType === 'topic_drift') {
+				// To be added in future
+				// return transformChatResponse.topicDrift(data);
+				return;
 			} else if (data.messageType === 'error_response') {
 				return transformChatResponse.error(data);
 			}
@@ -133,13 +132,32 @@ transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuest
 	// };
 };
 
-// transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
-transformChatResponse.actions = (data: MoiResponseModelActions): any => {
-	return data;
-	// {
-	// 	messageType: data.messageType,
-	// 	actions: data.actions,
-	// };
+export type ChatResponseTopicDriftData = {
+	messageType: 'topic_drift';
+	id: string;
+	driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
+	messageForDrift: string;
+	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
+};
+transformChatResponse.topicDrift = (data: MoiResponseModelTopicDrift): ChatResponseTopicDriftData => {
+	return {
+		messageType: data.messageType,
+		id: data.id,
+		driftType: data.driftType,
+		messageForDrift: data.messageForDrift,
+		recommendedAction: data.recommendedAction,
+	};
+};
+
+export type ChatResponseActionsData = {
+	messageType: 'actions';
+	actions: MoiResponseModelActions['actions']; // no change
+};
+transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
+	return {
+		messageType: data.messageType,
+		actions: data.actions,
+	};
 };
 
 export type ChatResponseProductSearchResultData = BaseResponseProperties & {

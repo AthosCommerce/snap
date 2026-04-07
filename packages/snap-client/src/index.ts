@@ -23,5 +23,6 @@ export {
 	ChatResponseProductRecommendationData,
 	ChatResponseProductComparisonData,
 	ChatResponseErrorData,
+	ChatResponseTopicDriftData,
 } from './Client/transforms';
 export { MoiRequestModel, MoiResponseModelProductSearchResult, ChatRequestModel, FeedbackRequestModel, ChatStatusResponse } from './Client/apis/Chat';

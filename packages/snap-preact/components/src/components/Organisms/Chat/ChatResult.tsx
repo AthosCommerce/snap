@@ -12,13 +12,17 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 	return css({
 		display: 'flex',
 		flexDirection: 'column',
+		height: '100%',
+		width: '100%',
+		boxSizing: 'border-box',
+		border: '1px solid #e5e7eb',
+		borderRadius: '1em',
+		overflow: 'hidden',
 
 		'.ss__chat__result__image': {
 			width: '100%',
 			position: 'relative',
 			overflow: 'hidden',
-			borderTopLeftRadius: '1em',
-			borderTopRightRadius: '1em',
 
 			'.ss__chat__result__image__buttons': {
 				position: 'absolute',
@@ -43,13 +47,15 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 			'.ss__chat__result__image__icons': {
 				position: 'absolute',
 				top: 0,
+				left: 0,
 				right: 0,
 				display: 'flex',
-				flexDirection: 'column',
+				flexDirection: 'row',
+				justifyContent: 'space-between',
 				gap: '0.5em',
 				padding: '0.5em',
 				flex: '0 0 auto',
-				alignItems: 'flex-end',
+				alignItems: 'flex-start',
 
 				'.ss__button': {
 					height: '2.5em',
@@ -65,10 +71,6 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 							stroke: '#000',
 						},
 					},
-					'&.ss__chat__result__image__icons__icon--inquire': {
-						height: '2em',
-						width: '2em',
-					},
 					svg: {
 						fill: '#fff',
 						stroke: '#fff',
@@ -81,8 +83,8 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '0.5em',
-			borderBottomLeftRadius: '1em',
-			borderBottomRightRadius: '1em',
+			flex: '1 1 auto',
+			padding: '0.5em 0',
 
 			'.ss__chat__result__content__title--primary': {
 				padding: '0 0.5em',
@@ -97,6 +99,7 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 				color: '#000',
 				fontWeight: 'bold',
 				fontSize: '1.2em',
+				marginTop: 'auto',
 			},
 		},
 	});
@@ -167,18 +170,18 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 				</div>
 				<div className="ss__chat__result__image__icons">
 					<Button
+						className={'ss__chat__result__image__icons__icon--inquire'}
+						icon={{ icon: 'chat', title: 'Discuss Product' }}
+						onClick={() => {
+							controller.discussProduct(result, { requestType: 'productQuery' });
+						}}
+					/>
+					<Button
 						className={'ss__chat__result__image__icons__icon--cart'}
 						icon={{ icon: 'cart', title: 'Add to Cart' }}
 						onClick={() => {
 							// controller.addToCart(result);
 							controller.viewProduct(result);
-						}}
-					/>
-					<Button
-						className={'ss__chat__result__image__icons__icon--inquire'}
-						icon={{ icon: 'chat', title: 'Discuss Product' }}
-						onClick={() => {
-							controller.discussProduct(result, { requestType: 'productQuery' });
 						}}
 					/>
 				</div>
