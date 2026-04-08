@@ -176,6 +176,13 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			name: result.mappings.core?.name,
 			thumbnailUrl: result.mappings.core?.thumbnailImageUrl || result.mappings.core?.imageUrl,
 		});
+
+		// for the productQuery flow we want the secondary chat to immediately
+		// show the product details panel — push a productQuery message so it
+		// becomes the active side-chat message until a productAnswer arrives
+		if (options.requestType === 'productQuery' && this.currentChat) {
+			this.currentChat.pushProductQueryMessage(result);
+		}
 	}
 
 	public compareProduct(result: any): void {

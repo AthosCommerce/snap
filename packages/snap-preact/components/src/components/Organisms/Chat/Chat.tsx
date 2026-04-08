@@ -15,7 +15,7 @@ import { Quickview } from './Quickview';
 import { MessageUser } from './MessageUser';
 import { MessageText } from './MessageText';
 import { SuggestedQuestions } from './SuggestedQuestions';
-import { Attachment } from './Attachment';
+import { ChatAttachmentContext, ChatAttachmentContextItem } from './ChatAttachmentContext';
 import { Image } from '../../Atoms/Image';
 import { ChatLoadingIndicator } from '../../Atoms/ChatLoadingIndicator';
 import { FacetsData } from '@athoscommerce/snap-store-mobx';
@@ -24,6 +24,7 @@ import { Dropdown, Icon, Overlay, useMediaQuery } from '../../..';
 import { ChatInspirationResultMessage } from '../../Molecules/ChatInspirationResultMessage';
 import { ChatProductComparisonMessage } from '../../Molecules/ChatProductComparisonMessage/ChatProductComparisonMessage';
 import { ChatProductAnswerMessage } from '../../Molecules/ChatProductAnswerMessage/ChatProductAnswerMessage';
+import { ChatProductQueryMessage, ChatProductQueryMessageItem } from '../../Molecules/ChatProductQueryMessage/ChatProductQueryMessage';
 import {
 	ChatResponseInspirationResultData,
 	ChatResponseProductComparisonData,
@@ -321,7 +322,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 					flexDirection: 'column',
 					gap: '1em',
 					background: '#f4f4ff',
-					padding: '0.5em 1em',
+					padding: '1em',
 
 					'.ss__chat__content__header__comparisons__header': {
 						display: 'flex',
@@ -590,78 +591,100 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 					opacity: 1,
 				},
 			},
-			'.ss__chat__attachments': {
+			'.ss__chat__attachment-context': {
 				display: 'flex',
-				gap: '8px',
-				flexWrap: 'wrap',
-				'.ss__chat__attachment': {
-					position: 'relative',
+				flexDirection: 'column',
+				gap: '6px',
+				padding: '8px 10px',
+				background: '#f4f4ff',
+				border: '1px solid #e3e3f5',
+				borderRadius: '8px',
+				'.ss__chat__attachment-context__label': {
+					fontSize: '14px',
 					display: 'flex',
 					alignItems: 'center',
-					justifyContent: 'flex-start',
-					border: '1px solid #ddd',
-					borderRadius: '12px',
-					padding: '4px',
-					backgroundColor: '#f9f9f9',
-					'&.ss__chat__attachment--facet': {
-						paddingRight: '15px',
-					},
-					'&.ss__chat__attachment--product': {
-						width: '100%',
-					},
-					'&.ss__chat__attachment--image': {
-						width: '100%',
-					},
-					'&.error': {
-						border: '1px solid #dc3545',
-						backgroundColor: '#fff5f5',
-						width: '100%',
-						'.ss__chat__attachment__error-icon': {
-							fontSize: '24px',
-							margin: '0 6px',
-							color: '#dc3545',
-						},
-						'.ss__chat__attachment__error-message': {
-							fontSize: '11px',
-							color: '#dc3545',
-							textAlign: 'center',
-							lineHeight: 1.2,
-							flexGrow: 1,
-						},
-						'.ss__button': {
-							svg: {
-								fill: '#dc3545',
-								stroke: '#dc3545',
-							},
-						},
-					},
-					'.ss__chat__attachment__info': {
-						padding: '0.5em 1em',
-						flexGrow: 1,
-					},
-					'.ss__chat__attachment__content': {
-						position: 'relative',
+					justifyContent: 'space-between',
+					gap: '8px',
+					'.ss__chat__attachment-context__label__close': {
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'center',
+						cursor: 'pointer',
+						flex: '0 0 auto',
+					},
+				},
+				'.ss__chat__attachment-context__items': {
+					display: 'flex',
+					flexWrap: 'wrap',
+					gap: '6px',
+				},
+				'.ss__chat__attachment-context__item': {
+					display: 'flex',
+					alignItems: 'center',
+					gap: '6px',
+					padding: '3px 8px 3px 3px',
+					background: '#fff',
+					border: '1px solid #ddd',
+					borderRadius: '999px',
+					maxWidth: 'calc(50% - 3px)',
+					position: 'relative',
+					'.ss__chat__attachment-context__item__content': {
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flex: '0 0 auto',
 						'.ss__image': {
-							margin: '0 10px',
+							width: '30px',
+							height: '30px',
+							margin: 0,
+							img: {
+								width: '30px',
+								height: '30px',
+								borderRadius: '50%',
+								objectFit: 'cover',
+							},
 						},
 					},
-					'.ss__chat__attachment__error': {
-						display: 'flex',
-						flexDirection: 'row',
-						alignItems: 'center',
-						gap: '4px',
-						padding: '8px',
+					'.ss__chat__attachment-context__item__name': {
+						fontSize: '14px',
+						color: '#333',
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						flex: '1 1 auto',
+						minWidth: 0,
 					},
-					'.ss__chat__attachment__loading': {
-						margin: '0 10px',
+					'.ss__chat__attachment-context__item__remove': {
+						width: '18px',
+						height: '18px',
+						minWidth: 'auto',
+						margin: 0,
+						padding: 0,
+						background: 'none',
+						border: 'none',
 						display: 'flex',
-						gap: '4px',
+						alignItems: 'center',
+						justifyContent: 'center',
+						cursor: 'pointer',
+						flex: '0 0 auto',
+						svg: {
+							fill: '#6A7282',
+							stroke: '#6A7282',
+						},
+						'&:hover': {
+							svg: {
+								fill: '#000',
+								stroke: '#000',
+							},
+						},
+					},
+					'.ss__chat__attachment-context__item__loading': {
+						display: 'flex',
+						gap: '3px',
+						margin: 0,
 						'.ss__chat__loading__dot': {
-							width: '8px',
-							height: '8px',
+							width: '5px',
+							height: '5px',
 							borderRadius: '50%',
 							backgroundColor: '#ccc',
 							animation: 'ss-chat-dot-pulse 1.4s infinite ease-in-out both',
@@ -673,46 +696,36 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 							},
 						},
 					},
+					'&.error': {
+						border: '1px solid #dc3545',
+						background: '#fff5f5',
+						'.ss__chat__attachment-context__item__error-icon': {
+							fontSize: '14px',
+							color: '#dc3545',
+							margin: '0 4px',
+							flex: '0 0 auto',
+						},
+						'.ss__chat__attachment-context__item__error-message': {
+							fontSize: '12px',
+							color: '#dc3545',
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							flex: '1 1 auto',
+							minWidth: 0,
+						},
+						'.ss__button': {
+							svg: {
+								fill: '#dc3545',
+								stroke: '#dc3545',
+							},
+						},
+					},
 					img: {
-						borderRadius: '12px',
 						'&.loading': {
 							opacity: 0.3,
 						},
 					},
-					'.ss__chat__attachment__remove': {
-						width: '33px',
-						height: '33px',
-						background: 'none',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						cursor: 'pointer',
-						padding: '0',
-						margin: '16px',
-						minWidth: 'auto',
-						svg: {
-							fill: '#333',
-							stroke: '#333',
-						},
-						'&:hover': {
-							svg: {
-								fill: '#000',
-								stroke: '#000',
-							},
-						},
-					},
-				},
-				'.ss__chat__error': {
-					fontSize: '12px',
-					color: '#666',
-					width: '100%',
-					textAlign: 'right',
-				},
-				'.ss__chat__attachments__info': {
-					fontSize: '12px',
-					color: '#666',
-					width: '100%',
-					textAlign: 'right',
 				},
 			},
 			'.ss__chat__content__footer': {
@@ -990,7 +1003,10 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	}
 
 	const activeMessage = store.currentChat?.activeMessage;
-	const shouldShowSideChat = activeMessage && ['inspirationResult', 'productComparison', 'productAnswer'].includes(activeMessage?.messageType);
+	const shouldShowSideChat =
+		activeMessage &&
+		['inspirationResult', 'productComparison', 'productAnswer', 'productQuery'].includes(activeMessage?.messageType) &&
+		store.currentChat?.dismissedSideChatMessageId !== activeMessage.id;
 	const requestType = store.currentChat?.requestType;
 	const loadingVerbs = useMemo(() => {
 		switch (requestType) {
@@ -1055,6 +1071,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												inspirationResult: 'Inspiration Scenarios',
 												productComparison: 'Product Comparison',
 												productAnswer: 'Product Information',
+												productQuery: 'Product Information',
 											} as any
 										)[activeMessage.messageType] || null}
 									</div>
@@ -1063,9 +1080,11 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											{
 												inspirationResult: 'Choose a style direction to explore',
 												productComparison: `Comparing ${
-													(activeMessage as ChatResponseProductComparisonData)?.comparisonData?.features.length
+													(activeMessage as ChatResponseProductComparisonData)?.comparisonData?.features.length ||
+													(activeMessage as ChatResponseProductComparisonData)?.searchResults?.length
 												} products`,
 												productAnswer: 'Complete product details',
+												productQuery: 'Complete product details',
 											} as any
 										)[activeMessage.messageType] || null}
 									</div>
@@ -1074,7 +1093,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									<Button
 										className="ss__chat__header__button--close"
 										icon={{ icon: 'close2', title: 'Close Chat' }}
-										onClick={() => console.log('TODO: Close side chat action')}
+										onClick={() => store.currentChat?.dismissSideChat()}
 									/>
 								</div>
 							</div>
@@ -1090,6 +1109,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												<ChatProductComparisonMessage chatItem={activeMessage as ChatResponseProductComparisonData} controller={controller} />
 											),
 											productAnswer: <ChatProductAnswerMessage chatItem={activeMessage as ChatResponseProductAnswerData} controller={controller} />,
+											productQuery: (
+												<ChatProductQueryMessage chatItem={activeMessage as unknown as ChatProductQueryMessageItem} controller={controller} />
+											),
 										} as any
 									)[activeMessage.messageType] || null}
 								</div>
@@ -1219,23 +1241,26 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											<SuggestedQuestions questions={store.suggestedQuestions} controller={controller} />
 										</div>
 									)}
-									{store.currentChat?.chat.map((chatItem, index) => (
-										<div key={index} className="ss__chat__message">
-											{{
-												user: <MessageUser chatItem={chatItem} controller={controller} />,
-												text: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												content: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productSearchResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												inspirationResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												actions: <SuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />,
-												error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-												topic_drift: null,
-											}[chatItem.messageType] || null}
-										</div>
-									))}
+									{store.currentChat?.chat
+										.filter((chatItem) => chatItem.messageType !== 'productQuery')
+										.map((chatItem, index) => (
+											<div key={index} className={`ss__chat__message ss__chat__message--${chatItem.messageType}`}>
+												{{
+													user: <MessageUser chatItem={chatItem} controller={controller} />,
+													text: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													content: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productSearchResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													inspirationResult: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productAnswer: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													actions: <SuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />,
+													error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													topic_drift: null,
+													productQuery: null,
+												}[chatItem.messageType] || null}
+											</div>
+										))}
 									<div className="ss__chat__messages__end" ref={messagesEndRef} />
 								</div>
 								<ChatLoadingIndicator loading={store.loading} verbs={loadingVerbs} />
@@ -1306,27 +1331,66 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												))}
 											</div>
 										)}
-										{store.currentChat?.attachments.attached && store.currentChat.attachments.attached.length > 0 && (
-											<div className={'ss__chat__attachments'}>
-												{store.currentChat?.attachments.attached
-													.filter((item) => item.state === 'attached' || item.state === 'loading')
-													.map((item) => (
-														<Attachment key={item.id} attachment={item} controller={controller} />
-													))}
-												{store.currentChat?.attachments.attached.length === 2 &&
-												store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
-													<div className={'ss__chat__attachments__info'}>Compare products (max: 2)</div>
-												) : null}
-												{store.currentChat?.attachments.attached.length === 1 &&
-												store.currentChat?.attachments.attached.every((item) => item.type === 'product') ? (
-													<div className={'ss__chat__attachments__info'}>Ask questions about this product</div>
-												) : null}
-												{store.currentChat?.attachments.attached.length === 1 &&
-												store.currentChat?.attachments.attached.every((item) => item.type === 'image' && !item.error) ? (
-													<div className={'ss__chat__attachments__info'}>Find products similar to this image</div>
-												) : null}
-											</div>
-										)}
+										{(() => {
+											const showCommittedComparisons =
+												store.currentChat?.comparisons.committed &&
+												store.currentChat.comparisons.committed.length > 0 &&
+												(activeMessage?.messageType === 'productComparison' || activeMessage?.messageType === 'user');
+
+											const visibleAttachments =
+												store.currentChat?.attachments.attached.filter((item) => item.state === 'attached' || item.state === 'loading') || [];
+
+											const productAttachments = visibleAttachments.filter(
+												(item) => item.type === 'product' && (item as any).requestType !== 'productSimilar'
+											);
+											const imageAttachments = visibleAttachments.filter((item) => item.type === 'image');
+
+											const comparisonItems: ChatAttachmentContextItem[] = showCommittedComparisons
+												? (store.currentChat?.comparisons.committed || []).map((comparisonItem: any) => ({
+														id: comparisonItem.result?.id,
+														name: comparisonItem?.result?.mappings?.core?.name || '',
+														imageUrl:
+															comparisonItem?.result?.mappings?.core?.thumbnailImageUrl || comparisonItem?.result?.mappings?.core?.imageUrl || '',
+												  }))
+												: [];
+
+											const productItems: ChatAttachmentContextItem[] = productAttachments.map((item: any) => ({
+												id: item.id,
+												name: item.name || '',
+												imageUrl: item.thumbnailUrl || '',
+												onRemove: () => store.currentChat?.attachments.remove(item.id),
+											}));
+
+											const imageItems: ChatAttachmentContextItem[] = imageAttachments.map((item: any) => ({
+												id: item.id,
+												name: item.fileName || 'Image',
+												imageUrl: item.base64 || item.thumbnailUrl || '',
+												isLoading: item.state === 'loading',
+												hasError: !!item.error,
+												errorMessage: item.error?.message,
+												onRemove: () => store.currentChat?.attachments.remove(item.id),
+											}));
+
+											const productTitle = productItems.length > 1 ? 'Comparing these products:' : 'Asking about this product:';
+											const imageTitle = imageItems.length > 1 ? 'Find products similar to these images:' : 'Find products similar to this image:';
+
+											return (
+												<>
+													{comparisonItems.length > 0 && (
+														<ChatAttachmentContext
+															title={'Asking about compared products:'}
+															items={comparisonItems}
+															onClose={() => {
+																store.currentChat?.comparisons.resetCommitted();
+																store.currentChat?.dismissSideChat();
+															}}
+														/>
+													)}
+													{productItems.length > 0 && <ChatAttachmentContext title={productTitle} items={productItems} />}
+													{imageItems.length > 0 && <ChatAttachmentContext title={imageTitle} items={imageItems} />}
+												</>
+											);
+										})()}
 
 										{/* {store.currentChat?.topicDrift ? (
 												<div className={'ss__chat__topic-drift'}>
@@ -1347,7 +1411,31 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												<input
 													type="text"
 													name="ss-chat-input"
-													placeholder="Type your message..."
+													disabled={store.loading || store.blocked}
+													placeholder={(() => {
+														const comparedCount = store.currentChat?.comparisons.compared.length || 0;
+														const committedCount = store.currentChat?.comparisons.committed.length || 0;
+														const attached = store.currentChat?.attachments.attached.filter((item) => item.state === 'attached') || [];
+														const attachedProducts = attached.filter((item) => item.type === 'product');
+														const attachedImages = attached.filter((item) => item.type === 'image' && !item.error);
+
+														if (comparedCount > 1 || attachedProducts.length > 1) {
+															return 'What would you like to compare?';
+														}
+														if (committedCount > 0) {
+															return 'Ask about the compared products...';
+														}
+														if (attachedProducts.length === 1) {
+															return 'Ask about this product...';
+														}
+														if (attachedImages.length > 0) {
+															return 'Ask about this image...';
+														}
+														if (comparedCount === 1) {
+															return 'Add another product to compare...';
+														}
+														return 'Type your message...';
+													})()}
 													onKeyUp={(e) => controller.handlers.input.input(e as any)}
 													onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
 													value={controller.store.inputValue}
@@ -1356,7 +1444,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													<>
 														<Button
 															className={'ss__chat__upload-button'}
-															disabled={store.currentChat?.attachments.attached.some((attachment) => attachment.state === 'loading') || store.blocked}
+															disabled={store.loading || store.blocked}
 															onClick={() => fileInputRef.current?.click()}
 															icon={{ icon: 'image', title: 'Upload Image' }}
 														/>
@@ -1415,7 +1503,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 export interface ChatProps extends ComponentProps {
 	controller: ChatController;
-	logo: string;
-	title: string;
+	logo?: string;
+	title?: string;
 	subtitle?: string;
 }

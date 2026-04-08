@@ -271,6 +271,19 @@ export class ChatController extends AbstractController {
 				message: this.store.inputValue,
 				productIds: productsToCompare,
 			};
+		} else {
+			// if no new comparison is being assembled but a committed comparison
+			// is still on-screen (last message is a productComparison), keep the
+			// conversation scoped to those products
+			const committedComparisons = this.store.currentChat?.comparisons.committed || [];
+			const activeMessageType = this.store.currentChat?.activeMessage?.messageType;
+			if (committedComparisons.length > 1 && activeMessageType === 'productComparison') {
+				chatRequest = {
+					requestType: 'productComparison',
+					message: this.store.inputValue,
+					productIds: committedComparisons.map((item: any) => item.result.mappings.core.uid),
+				};
+			}
 		}
 
 		if (searchFilters.length > 0) {

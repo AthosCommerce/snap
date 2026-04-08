@@ -107,46 +107,48 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 	const allProductsHaveImage =
 		headings.length > 0 && headings.every((heading) => !!searchResults.find((r) => r?.id === heading)?.mappings?.core?.imageUrl);
 
-	return comparisonData.features.length ? (
+	return comparisonData.features.length || comparisonData.summary ? (
 		<CacheProvider>
 			<div className={classnames('ss__chat-product-comparison-message', className, internalClassName)} {...styling}>
-				<div className={classnames('ss__chat-product-comparison-message__table-wrapper')}>
-					<table className={classnames('ss__chat-product-comparison-message__table')}>
-						<thead>
-							<tr>
-								<th />
-								{headings.map((heading) => {
-									const product = searchResults.find((r) => r?.id === heading);
-									const productName = (product?.mappings?.core?.name as string) ?? heading;
-									return (
-										<th key={heading} className={classnames('ss__chat-product-comparison-message__table__product-header')}>
-											{allProductsHaveImage && (
-												<img
-													className={classnames('ss__chat-product-comparison-message__table__product-header__image')}
-													src={product!.mappings!.core!.imageUrl as string}
-													alt={productName}
-												/>
-											)}
-											<div className={classnames('ss__chat-product-comparison-message__table__product-header__name')}>{productName}</div>
-										</th>
-									);
-								})}
-							</tr>
-						</thead>
-						<tbody>
-							{comparisonData.features.map((feature, index) => (
-								<tr key={index}>
-									<td className={classnames('ss__chat-product-comparison-message__table__feature-name')}>{feature.featureName}</td>
-									{headings.map((heading) => (
-										<td key={heading} className={classnames('ss__chat-product-comparison-message__table__value')}>
-											{feature.values[heading] ?? '—'}
-										</td>
-									))}
+				{comparisonData.features.length ? (
+					<div className={classnames('ss__chat-product-comparison-message__table-wrapper')}>
+						<table className={classnames('ss__chat-product-comparison-message__table')}>
+							<thead>
+								<tr>
+									<th />
+									{headings.map((heading) => {
+										const product = searchResults.find((r) => r?.id === heading);
+										const productName = (product?.mappings?.core?.name as string) ?? heading;
+										return (
+											<th key={heading} className={classnames('ss__chat-product-comparison-message__table__product-header')}>
+												{allProductsHaveImage && (
+													<img
+														className={classnames('ss__chat-product-comparison-message__table__product-header__image')}
+														src={product!.mappings!.core!.imageUrl as string}
+														alt={productName}
+													/>
+												)}
+												<div className={classnames('ss__chat-product-comparison-message__table__product-header__name')}>{productName}</div>
+											</th>
+										);
+									})}
 								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
+							</thead>
+							<tbody>
+								{comparisonData.features.map((feature, index) => (
+									<tr key={index}>
+										<td className={classnames('ss__chat-product-comparison-message__table__feature-name')}>{feature.featureName}</td>
+										{headings.map((heading) => (
+											<td key={heading} className={classnames('ss__chat-product-comparison-message__table__value')}>
+												{feature.values[heading] ?? '—'}
+											</td>
+										))}
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				) : null}
 				{comparisonData.summary && <div className={classnames('ss__chat-product-comparison-message__summary')}>{comparisonData.summary}</div>}
 			</div>
 		</CacheProvider>

@@ -29,6 +29,12 @@ export type ChatUserMessage = {
 	attachments?: string[];
 };
 
+export type ChatProductQueryMessageData = {
+	id: string;
+	messageType: 'productQuery';
+	sourceProduct: any;
+};
+
 export type ChatSystemMessage =
 	| ChatResponseTextData
 	| ChatResponseContentData
@@ -38,7 +44,8 @@ export type ChatSystemMessage =
 	| ChatResponseProductComparisonData
 	| ChatResponseProductRecommendationData
 	| ChatResponseErrorData
-	| ChatResponseTopicDriftData;
+	| ChatResponseTopicDriftData
+	| ChatProductQueryMessageData;
 
 export type ChatMessage = ChatUserMessage | ChatSystemMessage;
 
@@ -51,6 +58,7 @@ type ChatSessionStoreConfig = {
 		actions?: ChatActions;
 		feedbacks?: ChatFeedbacks[];
 		createdAt?: Date;
+		committedComparisons?: any[];
 	};
 	stores: {
 		storage: StorageStore;
@@ -81,9 +89,10 @@ export class ChatSessionStore {
 	public feedbacks: ChatFeedbacks[] = [];
 	public createdAt: Date = new Date();
 	public requestType: string = '';
+	public dismissedSideChatMessageId: string | null = null;
 
 	constructor(params: ChatSessionStoreConfig) {
-		const { id, sessionId, chat, attachments, actions, feedbacks, createdAt } = params.data || {};
+		const { id, sessionId, chat, attachments, actions, feedbacks, createdAt, committedComparisons } = params.data || {};
 		const { stores } = params;
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
@@ -94,12 +103,28 @@ export class ChatSessionStore {
 
 		// if chat and attachments are passed, load them
 		if (chat && chat.length > 0) {
-			this.chat = chat;
+			// productQuery messages only exist to drive the side-chat panel for an
+			// in-flight discussProduct click; they must not be rehydrated on reload
+			// or the side chat would re-open without the matching primary-chat state
+			this.chat = chat.filter((message) => message.messageType !== 'productQuery');
 		}
 		if (attachments && attachments.length > 0) {
 			attachments.forEach((attachment) => {
 				this.attachments.add(attachment);
 			});
+		}
+
+		// restore committed comparisons only if the thread is still anchored
+		// to a product comparison — either the last response was a
+		// productComparison or the user sent a follow-up before a response
+		// arrived (pending state)
+		if (committedComparisons && committedComparisons.length > 0) {
+			const EXCLUDED_MESSAGE_TYPES = ['topic_drift'];
+			const visibleMessages = this.chat.filter((message) => !EXCLUDED_MESSAGE_TYPES.includes(message.messageType));
+			const lastMessage = visibleMessages[visibleMessages.length - 1];
+			if (lastMessage?.messageType === 'productComparison' || lastMessage?.messageType === 'user') {
+				this.comparisons.committedItems = committedComparisons;
+			}
 		}
 
 		makeObservable(this, {
@@ -108,7 +133,31 @@ export class ChatSessionStore {
 			actions: observable,
 			attachments: observable,
 			feedbacks: observable,
+			dismissedSideChatMessageId: observable,
 		});
+	}
+
+	public dismissSideChat(): void {
+		const active = this.activeMessage;
+		if (active) {
+			this.dismissedSideChatMessageId = active.id;
+		}
+	}
+
+	public pushProductQueryMessage(result: any): void {
+		// drop any trailing productQuery so a fresh discussProduct click replaces
+		// the side-chat target rather than stacking up
+		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
+			this.chat.pop();
+		}
+		this.chat.push({
+			id: uuidv4(),
+			messageType: 'productQuery',
+			sourceProduct: result,
+		});
+		// re-show the side chat in case the user previously dismissed it
+		this.dismissedSideChatMessageId = null;
+		this.save();
 	}
 
 	get isExpired(): boolean {
@@ -168,6 +217,7 @@ export class ChatSessionStore {
 			actions: this.actions,
 			feedbacks: this.feedbacks,
 			createdAt: this.createdAt,
+			committedComparisons: this.comparisons.committedItems,
 		});
 	}
 
@@ -252,6 +302,13 @@ export class ChatSessionStore {
 				});
 			}
 		}
+
+		// snapshot the comparison list into the committed list so the
+		// header section can clear and the footer can display them
+		if (request.data.requestType === 'productComparison') {
+			this.comparisons.commit();
+		}
+
 		this.save();
 	}
 
