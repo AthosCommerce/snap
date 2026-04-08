@@ -9,7 +9,8 @@
   "scripts": {
     "commit": "cz",
     "build": "lerna run build",
-    "build:docs": "lerna exec --stream --parallel 'npm run build:docs' && npm run build:feed",
+    "build:crawler": "node ./docs/generateCrawlerFiles.js",
+    "build:docs": "lerna exec --stream --parallel 'npm run build:docs' && npm run build:feed && npm run build:crawler",
     "build:feed": "node ./docs/generateFeed.js",
     "build:metrics": "node ./metrics/generate",
     "test": "jest",
