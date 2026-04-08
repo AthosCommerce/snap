@@ -2,7 +2,7 @@
 
 ## Project
 
-Athos Commerce **Snap** — e-commerce search/discovery SDK. Monorepo of 14 TypeScript packages under `packages/*`, published as `@athoscommerce/snap-*` to NPM.
+Athos Commerce **Snap** — e-commerce search/discovery SDK. Monorepo of TypeScript packages under `packages/*`, using the `@athoscommerce/snap-*` naming convention, with some packages published to npm.
 
 ## Stack
 
@@ -10,16 +10,16 @@ TypeScript 5.6 (strict), Preact 10, MobX 6, Emotion CSS-in-JS, Lerna 9 + Nx 22 +
 
 ## Commands
 
-| Task            | Command                    | Notes                                                                                            |
-| --------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
-| Install         | `npm ci`                   | Always use `ci`, not `install` — lockfile is source of truth                                     |
-| Build all       | `npm run build`            | Lerna delegates to each package; Nx caches with `dependsOn: ["^build"]`                          |
-| Test all        | `npm run test`             | Root Jest (`bail: true`), then `posttest` runs demo Cypress E2E + preact Cypress component tests |
-| Lint all        | `npm run lint`             | ESLint via Lerna; also Nx-cached                                                                 |
-| Format all      | `npm run format`           | Prettier via Lerna                                                                               |
-| Dev (all watch) | `npm run dev`              | All packages `tsc --watch` in parallel; demo at `https://localhost:2222`                         |
-| Storybook       | `npm run storybook:preact` | Port 6006                                                                                        |
-| Commit          | `npm run commit`           | Commitizen, conventional-changelog, 150 char max header                                          |
+| Task            | Command                    | Notes                                                                                                  |
+| --------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Install         | `npm ci`                   | Always use `ci`, not `install` — lockfile is source of truth                                           |
+| Build all       | `npm run build`            | Lerna delegates to each package; Nx caches with `dependsOn: ["^build"]`                                |
+| Test all        | `npm run test`             | Root Jest (`bail: true`), then `posttest` runs demo Cypress E2E + preact Cypress component tests       |
+| Lint all        | `npm run lint`             | ESLint via Lerna; also Nx-cached                                                                       |
+| Format all      | `npm run format`           | Prettier via Lerna                                                                                     |
+| Dev (all watch) | `npm run dev`              | Runs each workspace's `dev` script in parallel (watchers/dev servers); demo at `https://localhost:2222` |
+| Storybook       | `npm run storybook:preact` | Port 6006                                                                                              |
+| Commit          | `npm run commit`           | Commitizen, conventional-changelog, 150 char max header                                                |
 
 ### Single-package operations
 
@@ -55,7 +55,7 @@ snap-preact          ← top-level SDK, Preact components, themes, Storybook
 
 snap-preact-demo     ← Private demo store (Webpack); E2E/Cypress tests live here
 snap-shared          ← Private internal shared code
-snapps/              ← Gitignored; local co-development area
+snapps/              ← gitignored; local co-development area
 ```
 
 ### Key entry points
