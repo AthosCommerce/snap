@@ -9,7 +9,7 @@ import { AutocompleteController, SearchController } from '@athoscommerce/snap-co
 import type { AbstractionGroup } from '../../../types';
 import { ThemeVariables, ThemeVariablesPartial } from '../../../../components/src';
 import { TargetStore } from '../TargetStore';
-import { AutocompleteTargetConfig, SearchTargetConfig, SnapTemplatesConfig, SnapTemplatesConfigLocked } from '../../SnapTemplates';
+import { AutocompleteTargetConfig, SearchTargetConfig, SnapTemplatesConfig } from '../../SnapTemplates';
 import { configUI, themeUI, searchControllerUI, autocompleteControllerUI, updateAutocompleteControllerState } from './uiAbstractions';
 import { CurrencyCodes, LanguageCodes } from '../LibraryStore';
 
@@ -348,15 +348,15 @@ export class TemplateEditorStore {
 	}
 
 	generateTemplatesConfig(): SnapTemplatesConfig {
-		const originalConfig = JSON.parse(JSON.stringify(this.templatesStore.config)) as SnapTemplatesConfigLocked;
+		const originalConfig = JSON.parse(JSON.stringify(this.templatesStore.config)) as SnapTemplatesConfig;
 		delete originalConfig.search;
 		delete originalConfig.autocomplete;
 		delete originalConfig.recommendation;
 		delete originalConfig.components;
 
-		const storageConfigData = (this.storage.get('overrides.config') || {}) as SnapTemplatesConfigLocked['config'];
-		const themeConfigData = (this.storage.get('overrides.theme') || {}) as SnapTemplatesConfigLocked['theme'];
-		const overrideConfig: SnapTemplatesConfig = { config: storageConfigData, theme: themeConfigData, unlocked: false };
+		const storageConfigData = (this.storage.get('overrides.config') || {}) as SnapTemplatesConfig['config'];
+		const themeConfigData = (this.storage.get('overrides.theme') || {}) as SnapTemplatesConfig['theme'];
+		const overrideConfig: Omit<SnapTemplatesConfig, 'unlocked'> = { config: storageConfigData, theme: themeConfigData };
 
 		const targets = this.getTargets();
 		const searchTargets = targets
@@ -394,9 +394,9 @@ export class TemplateEditorStore {
 			};
 		}
 
-		const config: SnapTemplatesConfig = deepmerge(originalConfig, overrideConfig);
+		const config: Omit<SnapTemplatesConfig, 'unlocked'> = deepmerge(originalConfig, overrideConfig);
 
-		return config;
+		return { ...config, unlocked: false };
 	}
 }
 

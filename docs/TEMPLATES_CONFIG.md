@@ -84,11 +84,12 @@ The `unlocked` property controls the level of customization available in your Sn
 
 #### Locked Mode (Default)
 
-When `unlocked: false` (or omitted), the configuration is restricted to the standard set of options. This mode is recommended for most integrations as it ensures type safety and prevents configuration errors.
+
+In locked mode, the configuration is restricted to a curated set of standard options. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates across all components.
 
 ```jsx
 new SnapTemplates({
-	unlocked: false, // or simply omit this property
+	unlocked: false,
 	config: {
 		siteId: '8uyt2m',
 		platform: 'shopify',
@@ -104,7 +105,7 @@ new SnapTemplates({
 
 When `unlocked: true`, additional configuration capabilities become available:
 
-1. **Full Component Props in Theme Overrides** - Access to all component props when customizing theme overrides, not just the curated subset.
+1. **Custom Component Prop in Theme Overrides for all components** - Ability to use the customComponent prop when customizing theme overrides, to completly replace what renders for a specific component.
 
 2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
 
@@ -147,7 +148,7 @@ new SnapTemplates({
 		custom: {
 			myLoggingPlugin: {
 				function: (controller) => {
-					controller.on('afterStore', async ({ controller }, next) => {
+					controller.on('afterStore', async ({ controller }: { controller: SearchController }, next) => {
 						console.log('Search completed:', controller.store.results);
 						await next();
 					});
@@ -155,7 +156,7 @@ new SnapTemplates({
 			},
 			myAnalyticsPlugin: {
 				function: (controller) => {
-					controller.on('afterSearch', async ({ controller }, next) => {
+					controller.on('afterSearch', async ({ controller }: { controller: AutocompleteController }, next) => {
 						// Send analytics event
 						analytics.track('search', { query: controller.store.search?.query?.string });
 						await next();
@@ -394,6 +395,15 @@ See [Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THE
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `theme` | Theme configurations | Object | Required |
+
+
+### Templates Legal Props
+
+When customizing components via theme overrides, not all component props are available. Each component defines a subset of its props as "templates legal" — these are the props that are safe and supported for use within theme configuration. Props that are not templates legal are restricted to internal use and cannot be configured through the theme.
+
+This distinction exists to provide a stable, supported API surface for template customization while preventing access to internal props that could lead to unexpected behavior or break compatibility with future updates.
+
+To see the full list of templates legal props for each component, refer to the **Storybook component library**. Each component's documentation in Storybook will indicate which props are available for use in theme overrides.
 
 
 ### Feature Targets

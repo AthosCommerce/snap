@@ -444,7 +444,9 @@ export class Snap {
 			// client mode uses client config over snap config
 			if (this.config.client) {
 				this.config.client.config = this.config.client.config || {};
-				this.config.client.config.initiator = `snap/preact/${version}`;
+				if (!this.config.client.config.initiator) {
+					this.config.client.config.initiator = `snap/preact/${version}`;
+				}
 				this.config.client.config.mode = this.config.client.config.mode || this.mode;
 			}
 
@@ -452,7 +454,18 @@ export class Snap {
 			configureSnapFeatures(this.config);
 
 			this.client = services?.client || new Client(this.config.client!.globals as ClientGlobals, this.config.client!.config);
-			this.logger = services?.logger || new Logger({ prefix: 'Snap Preact ', mode: this.mode });
+			this.logger =
+				services?.logger ||
+				new Logger({
+					prefix: `${
+						this.config.tracker?.config?.framework == 'snap/templates'
+							? 'Snap Preact Templates '
+							: this.config.tracker?.config?.framework == 'snap/hybrid'
+							? 'Snap Preact Hybrid '
+							: 'Snap Preact '
+					}`,
+					mode: this.mode,
+				});
 
 			// create tracker
 			let trackerGlobals = this.config.tracker?.globals || (this.config.client!.globals as ClientGlobals);
@@ -469,7 +482,10 @@ export class Snap {
 			}
 
 			const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
-			const trackerConfig = deepmerge(this.config.tracker?.config || {}, { framework: `${initiatorPrefix}snap/preact`, mode: this.mode });
+			const trackerConfig = deepmerge(this.config.tracker?.config || {}, {
+				framework: `${initiatorPrefix}${this.config.tracker?.config?.framework || 'snap'}/preact`,
+				mode: this.mode,
+			});
 			this.tracker = services?.tracker || new Tracker(trackerGlobals, trackerConfig);
 
 			// log version

@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="ss__pike">
 <head>
-	<meta charset="utf-8">
-	<title>Search Results</title>
-	<meta name="robots" content="noindex, nofollow">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-
-	<link rel="icon" href="https://snapui.athoscommerce.io/favicon.svg">
-	<link href="//fonts.googleapis.com/css?family=Fjalla+One|Roboto:400,700,700i" rel="stylesheet">
-	<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
-	<link rel="stylesheet" href="website.css">
-
-	<script id="athos-context" src="/hybrid/bundle.js">
+	<meta charset="utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<link rel="icon" href="https://snapui.athoscommerce.io/favicon.svg" />
+	<title>Category Results</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" />
+	<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&amp;family=Montserrat:ital,wght@0,400;0,600;1,400;1,600&amp;family=Poppins:ital,wght@0,300;0,600;1,300;1,600&amp;family=Roboto:ital,wght@0,400;0,700;1,400;1,700&amp;family=Source+Sans+3:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="website.css" />
+	<script src="website.js"></script>
+	<script src="/hybrid/bundle.js" id="athos-context">
 		shopper = {
 			id: 'snapdev'
 		};
@@ -24,198 +23,221 @@
 			code: 'EUR'
 		};
 	</script>
-
-	<style>
-		.skipto-button {
-			position: absolute; 
-			top:-1000000000; 
-			left: -1000000000;
-			background-color: #3a23ad;
-			color:white;
-			font-size: 16px;
-			font-weight: bold;
-			text-transform: uppercase;
-			padding: 5px 10px;
-		}
-		.skipto-button:focus {
-			position: absolute; 
-			top:0; 
-			left: 0;
-			z-index: 1;
-		
-		}
-	</style>
 </head>
-
-<body class="ss-lite-site">
-	<a href="#ss_results" class="skipto-button">Skip to main content</a>
-
-	<header class="ss-lite-header">
-		<div class="ss-lite-wrapper">
-			<div class="ss-lite-flex-wrap-center ss-lite-row-20">
-				<div class="ss-lite-col ss-lite-header-logo">
-					<a>
-						<span>
-							<svg version="1.1" id="SearchSpring-logo" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 345.5 66.7" xml:space="preserve">
-								<g id="icon">
-									<g>
-										<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="4.2528" y1="48.76" x2="43.8016" y2="48.76" gradientTransform="matrix(1 0 0 -1 0 68)">
-											<stop offset="0" style="stop-color:#3A23AD"></stop>
-											<stop offset="1" style="stop-color:#4C3CE2"></stop>
-										</linearGradient>
-										<path class="st0" d="M12.9,13.8C12.9,13.8,12.9,13.8,12.9,13.8c-0.1,0.1-0.3,0.2-0.5,0.2C4.5,17.9,1.9,28.8,6.6,38.5l28.6-13.8 c0,0,0,0,0,0c0.2-0.1,0.3-0.1,0.5-0.2C43.5,20.6,46.2,9.7,41.5,0L12.9,13.8z"></path>
-									</g>
-									<g>
-										<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="2.800827e-03" y1="20.51" x2="39.5472" y2="20.51" gradientTransform="matrix(1 0 0 -1 0 68)">
-											<stop offset="0" style="stop-color:#3A23AD"></stop>
-											<stop offset="1" style="stop-color:#4C3CE2"></stop>
-										</linearGradient>
-										<path class="st1" d="M8.6,42.1C8.6,42.1,8.6,42.1,8.6,42.1c-0.1,0.1-0.3,0.1-0.5,0.2C0.3,46.1-2.4,57,2.3,66.7l28.6-13.8 c0,0,0,0,0,0c0.2-0.1,0.3-0.1,0.5-0.2c7.9-3.8,10.5-14.8,5.8-24.4L8.6,42.1z"></path>
-									</g>
-								</g>
-								<g id="wordmark">
-									<g>
-										<path class="st2" d="M69.2,38.2c1.7,1.5,5.2,3,7.9,3c2.1,0,3-0.7,3-1.7c0-1.2-1.5-1.6-3.8-1.9c-3.8-0.7-9.2-1.4-9.2-7.1 c0-3.9,3.4-7.4,9.6-7.4c3.8,0,6.9,1.2,9.3,3l-2.7,4.7c-1.3-1.3-3.9-2.5-6.6-2.5c-1.7,0-2.8,0.6-2.8,1.5c0,1,1.2,1.4,3.6,1.8 c3.8,0.7,9.4,1.6,9.4,7.5c0,4.2-3.8,7.4-10.2,7.4c-4,0-8.1-1.3-10.4-3.4L69.2,38.2z"></path>
-										<path class="st2" d="M100,23.1c6.6,0,11.4,4.9,11.4,12.4V37H95.5c0.4,2.1,2.4,4,5.7,4c2,0,4.2-0.8,5.5-1.9l3,4.4 c-2.2,2-5.9,3-9.3,3c-6.9,0-12.2-4.5-12.2-11.8C88.1,28.3,93,23.1,100,23.1z M95.4,32.4h9.2c-0.2-1.6-1.3-3.8-4.6-3.8 C96.9,28.6,95.7,30.8,95.4,32.4z"></path>
-										<path class="st2" d="M127.2,43.7c-1.4,1.7-4.1,2.8-6.9,2.8c-3.4,0-7.7-2.3-7.7-7.3c0-5.4,4.2-7,7.7-7c3,0,5.6,0.9,6.9,2.6v-2.8 c0-1.9-1.7-3.2-4.5-3.2c-2.2,0-4.5,0.8-6.3,2.4l-2.5-4.5c2.9-2.5,6.7-3.5,10.1-3.5c5.4,0,10.4,2,10.4,8.9v14h-7.1L127.2,43.7 L127.2,43.7z M127.2,38.2c-0.7-1-2.4-1.6-4-1.6c-1.9,0-3.6,0.8-3.6,2.6s1.7,2.6,3.6,2.6c1.6,0,3.2-0.6,4-1.6V38.2z"></path>
-										<path class="st2" d="M138.6,23.6h7.1v2.8c1.5-1.8,4.3-3.4,7-3.4V30c-0.4-0.1-1-0.2-1.8-0.2c-1.9,0-4.3,0.8-5.2,2.1V46h-7.1 L138.6,23.6L138.6,23.6z"></path>
-										<path class="st2" d="M165.7,23.1c4.8,0,7.8,2.1,9.2,4.1l-4.6,4.3c-0.9-1.3-2.3-2.1-4.2-2.1c-3,0-5.2,2-5.2,5.4s2.3,5.5,5.2,5.5 c1.9,0,3.3-0.9,4.2-2.2l4.6,4.3c-1.3,1.9-4.4,4.1-9.2,4.1c-7,0-12.2-4.7-12.2-11.8C153.5,27.8,158.7,23.1,165.7,23.1z"></path>
-										<path class="st2" d="M192.4,33c0-2.7-1.4-3.6-3.7-3.6c-2.1,0-3.5,1.2-4.3,2.2v14.4h-7.1V15l7.1-3.3v14.6c1.3-1.6,4-3.3,7.7-3.3 c5.1,0,7.4,2.9,7.4,7V46h-7.1V33z"></path>
-										<path class="st2" d="M204.8,38.2c1.7,1.5,5.2,3,7.9,3c2.1,0,3-0.7,3-1.7c0-1.2-1.5-1.6-3.8-1.9c-3.8-0.7-9.2-1.4-9.2-7.1 c0-3.9,3.4-7.4,9.6-7.4c3.8,0,6.9,1.2,9.3,3l-2.7,4.7c-1.3-1.3-3.9-2.5-6.6-2.5c-1.7,0-2.8,0.6-2.8,1.5c0,1,1.2,1.4,3.6,1.8 c3.8,0.7,9.4,1.6,9.4,7.5c0,4.2-3.8,7.4-10.2,7.4c-4,0-8.1-1.3-10.4-3.4L204.8,38.2z"></path>
-										<path class="st2" d="M225.2,54.5V23.6h7.1v2.6c1.8-2.1,4.1-3.1,6.6-3.1c5.6,0,9.8,4.2,9.8,11.7c0,7.6-4.2,11.8-9.8,11.8 c-2.5,0-4.8-1-6.6-3.2v11.1L225.2,54.5L225.2,54.5z M236.6,29.4c-1.5,0-3.4,0.8-4.2,2v6.8c0.9,1.2,2.7,2,4.2,2 c2.8,0,4.9-2.1,4.9-5.5C241.5,31.4,239.3,29.4,236.6,29.4z"></path>
-										<path class="st2" d="M251.6,23.6h7.1v2.8c1.5-1.8,4.3-3.4,7-3.4V30c-0.4-0.1-1-0.2-1.8-0.2c-1.9,0-4.3,0.8-5.2,2.1V46h-7.1 L251.6,23.6L251.6,23.6z"></path>
-										<path class="st2" d="M267.5,16.7c0-2.3,1.8-4.1,4.1-4.1c2.3,0,4.1,1.8,4.1,4.1s-1.8,4.1-4.1,4.1S267.5,19,267.5,16.7z M268,23.6h7.1V46H268V23.6z"></path>
-										<path class="st2" d="M294.5,33c0-2.7-1.4-3.7-3.6-3.7c-2.1,0-3.5,1.2-4.4,2.2v14.4h-7.1V23.6h7.1v2.7c1.3-1.6,4-3.3,7.7-3.3 c5.1,0,7.4,3,7.4,7.1V46h-7.1V33z"></path>
-										<path class="st2" d="M308.4,46.6c1.7,1.8,4.2,2.6,6.8,2.6c2.4,0,5.7-1,5.7-5.1v-1.7c-1.9,2.2-4.1,3.2-6.6,3.2 c-5.5,0-9.9-3.8-9.9-11.3c0-7.4,4.2-11.2,9.9-11.2c2.5,0,4.8,1,6.6,3.2v-2.6h7.1V44c0,9.1-7.2,11-12.8,11c-3.8,0-7-1-9.9-3.3 L308.4,46.6z M320.8,31.3c-0.9-1.2-2.8-2-4.2-2c-2.8,0-4.9,1.7-4.9,4.9c0,3.3,2.1,5,4.9,5c1.5,0,3.4-0.8,4.2-2V31.3z"></path>
-									</g>
-									<g>
-										<path class="st2" d="M335.4,24.4h-1.8v-1.1h4.8v1.1h-1.8v4.9h-1.3L335.4,24.4L335.4,24.4z"></path>
-										<path class="st2" d="M344.2,25l-1.7,4.3H342l-1.7-4.3v4.3H339v-6h1.8l1.5,3.7l1.5-3.7h1.8v6h-1.3L344.2,25L344.2,25z"></path>
-									</g>
-								</g>
-							</svg>
-						</span>
-
-						<span class="ss-lite-subheader">PREACT DEMO</span>
-					</a>
+<body id="ss__search__demo" class="ss-shop">
+	<div class="ss__demo">
+		<div class="ss__demo__theme">
+			<a href="#athos-layout" class="ss__skip-to__button">Skip to main content</a>
+	
+			<header class="ss__demo__header">
+				<div class="ss__demo__background ss__demo__background--header">
+					<svg class="ss__demo__svg" preserveAspectRatio="xMinYMin slice" viewBox="0 0 1440 240" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="ss__demo__svg__background" width="1440" height="240" clip-path="url(#clip0_584_19749)" /><g style="mix-blend-mode:overlay" opacity="0.12" clip-path="url(#clip0_584_19749)"><path d="M1256.69 51.2421C1256.69 51.2421 1256.81 51.2421 1256.81 51.1204L885.073 -128.333C824.416 -2.77657 858.399 139.083 961.078 188.722C963.027 189.817 965.098 190.669 967.168 191.52C967.168 191.52 967.046 191.52 967.046 191.642L1338.79 371.096C1399.44 245.539 1365.58 103.558 1262.9 54.0404L1262.9 54.0364C1260.83 53.0644 1258.76 52.0926 1256.69 51.2421Z" fill="url(#paint0_linear_584_19749)" /><path d="M1311.94 417.789C1311.97 417.772 1311.99 417.742 1311.99 417.691L940.371 238.237C879.713 363.794 913.574 505.776 1016.25 555.293C1018.2 556.388 1020.27 557.239 1022.34 558.091C1022.34 558.091 1022.22 558.091 1022.22 558.213L1393.84 737.667C1454.62 612.11 1420.64 470.128 1317.96 420.611C1316.01 419.638 1313.94 418.664 1311.87 417.813C1311.87 417.813 1311.91 417.813 1311.94 417.789Z" fill="url(#paint1_linear_584_19749)" /></g><g style="mix-blend-mode:screen" opacity="0.1" clip-path="url(#clip0_584_19749)"><path d="M1268.25 6.17154C1268.25 6.24653 1268.17 6.24653 1268.17 6.24653C1269.45 6.77144 1270.72 7.37133 1272 7.97122C1335.2 38.4909 1356.04 126.001 1318.7 203.387L1089.9 92.7814C1089.9 92.7064 1089.97 92.7064 1089.97 92.7064C1088.7 92.1815 1087.42 91.6566 1086.22 90.9817C1023.03 60.387 1002.11 -27.0476 1039.44 -104.434L1268.25 6.17154Z" stroke="url(#paint2_linear_584_19749)" stroke-width="2" /></g><g style="mix-blend-mode:screen" opacity="0.1" clip-path="url(#clip0_584_19749)"><path d="M1268.25 251.268C1268.25 251.343 1268.17 251.343 1268.17 251.343C1269.45 251.868 1270.72 252.467 1272 253.066C1335.2 283.553 1356.04 370.97 1318.7 448.275L1089.9 337.786C1089.9 337.711 1089.97 337.711 1089.97 337.711C1088.7 337.187 1087.42 336.663 1086.22 335.989C1023.03 305.426 1002.11 218.084 1039.44 140.78L1268.25 251.268Z" stroke="url(#paint3_linear_584_19749)" stroke-width="2" /></g><defs><linearGradient id="paint0_linear_584_19749" x1="1139.5" y1="-128.333" x2="1139.5" y2="737.667" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><linearGradient id="paint1_linear_584_19749" x1="1139.5" y1="-128.333" x2="1139.5" y2="737.667" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><linearGradient id="paint2_linear_584_19749" x1="1337.23" y1="49.4765" x2="1020.93" y2="49.4765" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><linearGradient id="paint3_linear_584_19749" x1="1337.23" y1="294.527" x2="1020.93" y2="294.527" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><clipPath id="clip0_584_19749"><rect width="1440" height="240" fill="white"></rect></clipPath></defs></svg>
 				</div>
-				<div class="ss-lite-col ss-lite-header-buttons">
-					<div class="ss-lite-flex-nowrap-center">
-						<form class="ss-lite-search-bar" action="index.html" method="get">
-							<div class="ss-lite-search-form-hidden"></div>
-
-							<input class="ss-lite-input athos-ac" type="text" name="q" placeholder="Search for Brand, Color, Size..." value="" />
-							<button class="ss-lite-button" type="submit" aria-label="search">
-								<i class="ss-lite-icon fas fa-search"></i>
-							</button>
-						</form>
-						<div class="ss-lite-store-icons">
-							<a>
-								<i class="ss-lite-icon fas fa-shopping-bag"></i>
-								<span class="ss-lite-cart-count">0</span>
+				<div class="ss__demo__wrapper">
+					<div class="ss__demo__flex__wrap--center ss__demo__row--20">
+						<div class="ss__demo__column ss__demo__logo">
+							<a href="./">
+								<img src="./images-logo.svg" alt="Demo Logo" title="Demo Logo">
 							</a>
 						</div>
+	
+						<div class="ss__demo__column ss__demo__search">
+							<form class="ss__demo__search__form" action="index.html" method="get">
+								<input class="ss__demo__search__input ss__demo__search__input--default ss__autocomplete__input athos-ac" type="text" name="q" placeholder="Search for products" />
+								<button class="ss__demo__search__button" type="submit">
+									<span class="ss__demo__icon">
+										<svg class="ss__icon ss__icon--search" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+											<path d="M38.769 23.692c0-8.313-6.764-15.077-15.077-15.077s-15.077 6.764-15.077 15.077 6.764 15.077 15.077 15.077 15.077-6.764 15.077-15.077zM56 51.692c0 2.356-1.952 4.308-4.308 4.308-1.144 0-2.255-0.471-3.029-1.279l-11.543-11.51c-3.937 2.726-8.649 4.173-13.428 4.173-13.091 0-23.692-10.601-23.692-23.692s10.601-23.692 23.692-23.692 23.692 10.601 23.692 23.692c0 4.779-1.447 9.49-4.173 13.428l11.543 11.543c0.774 0.774 1.245 1.885 1.245 3.029z" />
+										</svg>
+									</span>
+								</button>
+							</form>
+						</div>
+	
+						<div class="ss__demo__column ss__demo__store-icons">
+							<div class="ss__demo__flex__nowrap--center ss__demo__row--10">
+								<div class="ss__demo__column ss__demo__column--cart">
+									<div class="ss__demo__slideout__default">
+										<button class="ss__demo__button ss__demo__slideout__button" type="button">
+											<span class="ss__demo__icon">
+												<svg class="ss__icon ss__icon--bag" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56">
+													<path d="M54.906 44 56 53.781a2.053 2.053 0 0 1-.5 1.562 2.083 2.083 0 0 1-1.5.656H2c-.563 0-1.125-.25-1.5-.656-.375-.438-.563-1-.5-1.562L1.094 44h53.813zM52 17.781 54.688 42H1.313l2.688-24.219c.125-1 .969-1.781 2-1.781h8v4c0 2.219 1.781 4 4 4s4-1.781 4-4v-4h12v4c0 2.219 1.781 4 4 4s4-1.781 4-4v-4h8c1.031 0 1.875.781 2 1.781zM40 12v8c0 1.094-.906 2-2 2s-2-.906-2-2v-8c0-4.406-3.594-8-8-8s-8 3.594-8 8v8c0 1.094-.906 2-2 2s-2-.906-2-2v-8c0-6.625 5.375-12 12-12s12 5.375 12 12z" />
+												</svg>
+											</span>
+	
+											<span class="ss__demo__cart__count">0</span>
+										</button>
+									</div>
+								</div>
+								<div class="ss__demo__column ss__demo__column--user">
+									<a class="ss__demo__pointer" onClick="toggleModal()">
+										<span class="ss__demo__icon">
+											<svg class="ss__icon ss__icon--user" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 56">
+												<path d="M40 43.719C40 48.282 37 52 33.344 52H6.656C3 52 0 48.281 0 43.719 0 35.5 2.031 26 10.219 26c2.531 2.469 5.969 4 9.781 4s7.25-1.531 9.781-4C37.968 26 40 35.5 40 43.719zM32 16c0 6.625-5.375 12-12 12S8 22.625 8 16 13.375 4 20 4s12 5.375 12 12z" />
+											</svg>
+										</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+	
+					<nav class="ss__demo__navigation">
+						<ul class="ss__demo__list">
+							<li><a href="//athoscommerce.com/products" target="_blank">Products</a></li>
+							<li><a href="//athoscommerce.com/ecommerce-platforms" target="_blank">Platforms</a></li>
+							<li><a href="//athoscommerce.com/industry" target="_blank">Who We Serve</a></li>
+							<li><a href="//athoscommerce.com/pricing" target="_blank">Plans</a></li>
+							<li><a href="//athoscommerce.com/partners" target="_blank">Partners</a></li>
+							<li><a href="//athoscommerce.com/resources" target="_blank">Resources</a></li>
+							<li><a href="//athoscommerce.com/our-story" target="_blank">About</a></li>
+						</ul>
+					</nav>
+				</div>
+			</header>
+		</div>
+
+		<section class="ss__demo__main">
+			<div class="ss__demo__wrapper">
+				<div class="ss__demo__theme">
+					<div class="ss__demo__breadcrumbs">
+						<div class="ss__breadcrumbs">
+							<ul class="ss__demo__list">
+								<li><a href="index.html">Home</a></li>
+								<li>
+									<span class="ss__demo__icon">
+										<svg class="ss__icon ss__icon--chevron-right ss-1v72vbw" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+											<path d="M45.34 29.564l-25.785 25.785c-0.869 0.869-2.259 0.869-3.128 0l-5.768-5.768c-0.869-0.869-0.869-2.259 0-3.128l18.452-18.452-18.452-18.452c-0.869-0.869-0.869-2.259 0-3.128l5.768-5.768c0.869-0.869 2.259-0.869 3.128 0l25.785 25.785c0.869 0.869 0.869 2.259 0 3.128z" />
+										</svg>
+									</span>
+								</li>
+								<li>Search results</li>
+							</ul>
+						</div>
+					</div>
+
+					<div class="ss__demo__layout ss__demo__flex__nowrap">
+						<aside class="ss__demo__layout__sidebar">
+							<div id="athos-sidebar">
+								<h2>Sidebar to be hidden!</h2>
+							</div>
+						</aside>
+	
+						<section class="ss__demo__layout__content">
+							<div id="athos-content">
+								<h2>Content to be hidden!</h2>
+							</div>
+						</section>
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 
-		<nav class="ss-lite-navigation">
-			<div class="ss-lite-wrapper">
-				<ul class="ss-lite-list">
-					<li><a href="//searchspring.com/search-experience" target="_blank">Products</a></li>
-					<li><a href="//searchspring.com/others" target="_blank">Integrations</a></li>
-					<li><a href="//searchspring.com/blog" target="_blank">Resources</a></li>
-					<li><a href="//searchspring.com/price-quote-request" target="_blank">Pricing</a></li>
-					<li><a href="//searchspring.zendesk.com/hc/en-us/requests/new" target="_blank">Support</a></li>
-					<li><a id="login" >Login</a></li>
-				</ul>
-			</div>
-		</nav>
-	</header>
-
-	<main class="ss-lite-main">
-		<div class="ss-lite-wrapper">
-			<div class="ss-lite-breadcrumbs">
-				<ul class="ss-lite-list">
-					<li><a href="/">Home</a></li>
-					<li><i class="ss-lite-icon fas fa-chevron-right"></i></li>
-					<li>Search Results</li>
-				</ul>
-			</div>
-			<div class="ss-lite-main-layout">
-				<div id="athos-layout">Content to be hidden!</div>
-			</div>
-		</div>
-	</main>
-
-	<footer class="ss-lite-footer">
-		<div class="ss-lite-wrapper">
-			<div class="ss-lite-flex-wrap ss-lite-row-20 ss-lite-footer-row">
-				<div class="ss-lite-col ss-lite-footer-categories">
-					<div class="ss-lite-title"><i class="ss-lite-icon fas fa-tag"></i>Categories</div>
-					<ul class="ss-lite-list">
-						<li><a href="//searchspring.com" target="_blank">Category 1</a></li>
-						<li><a href="//searchspring.com" target="_blank">Category 2</a></li>
-						<li><a href="//searchspring.com" target="_blank">Category 3</a></li>
-						<li><a href="//searchspring.com" target="_blank">Category 4</a></li>
-						<li><a href="//searchspring.com" target="_blank">Category 5</a></li>
-						<li><a href="//searchspring.com" target="_blank">Category 6</a></li>
-					</ul>
+		<div class="ss__demo__theme">
+			<footer class="ss__demo__footer">
+				<div class="ss__demo__background ss__demo__background--footer">
+					<svg class="ss__demo__svg" preserveAspectRatio="xMinYMin slice" viewBox="0 0 1440 240" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="ss__demo__svg__background" width="1440" height="240" clip-path="url(#clip0_584_19749)" /><g style="mix-blend-mode:overlay" opacity="0.12" clip-path="url(#clip0_584_19749)"><path d="M1256.69 51.2421C1256.69 51.2421 1256.81 51.2421 1256.81 51.1204L885.073 -128.333C824.416 -2.77657 858.399 139.083 961.078 188.722C963.027 189.817 965.098 190.669 967.168 191.52C967.168 191.52 967.046 191.52 967.046 191.642L1338.79 371.096C1399.44 245.539 1365.58 103.558 1262.9 54.0404L1262.9 54.0364C1260.83 53.0644 1258.76 52.0926 1256.69 51.2421Z" fill="url(#paint0_linear_584_19749)" /><path d="M1311.94 417.789C1311.97 417.772 1311.99 417.742 1311.99 417.691L940.371 238.237C879.713 363.794 913.574 505.776 1016.25 555.293C1018.2 556.388 1020.27 557.239 1022.34 558.091C1022.34 558.091 1022.22 558.091 1022.22 558.213L1393.84 737.667C1454.62 612.11 1420.64 470.128 1317.96 420.611C1316.01 419.638 1313.94 418.664 1311.87 417.813C1311.87 417.813 1311.91 417.813 1311.94 417.789Z" fill="url(#paint1_linear_584_19749)" /></g><g style="mix-blend-mode:screen" opacity="0.1" clip-path="url(#clip0_584_19749)"><path d="M1268.25 6.17154C1268.25 6.24653 1268.17 6.24653 1268.17 6.24653C1269.45 6.77144 1270.72 7.37133 1272 7.97122C1335.2 38.4909 1356.04 126.001 1318.7 203.387L1089.9 92.7814C1089.9 92.7064 1089.97 92.7064 1089.97 92.7064C1088.7 92.1815 1087.42 91.6566 1086.22 90.9817C1023.03 60.387 1002.11 -27.0476 1039.44 -104.434L1268.25 6.17154Z" stroke="url(#paint2_linear_584_19749)" stroke-width="2" /></g><g style="mix-blend-mode:screen" opacity="0.1" clip-path="url(#clip0_584_19749)"><path d="M1268.25 251.268C1268.25 251.343 1268.17 251.343 1268.17 251.343C1269.45 251.868 1270.72 252.467 1272 253.066C1335.2 283.553 1356.04 370.97 1318.7 448.275L1089.9 337.786C1089.9 337.711 1089.97 337.711 1089.97 337.711C1088.7 337.187 1087.42 336.663 1086.22 335.989C1023.03 305.426 1002.11 218.084 1039.44 140.78L1268.25 251.268Z" stroke="url(#paint3_linear_584_19749)" stroke-width="2" /></g><defs><linearGradient id="paint0_linear_584_19749" x1="1139.5" y1="-128.333" x2="1139.5" y2="737.667" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><linearGradient id="paint1_linear_584_19749" x1="1139.5" y1="-128.333" x2="1139.5" y2="737.667" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><linearGradient id="paint2_linear_584_19749" x1="1337.23" y1="49.4765" x2="1020.93" y2="49.4765" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><linearGradient id="paint3_linear_584_19749" x1="1337.23" y1="294.527" x2="1020.93" y2="294.527" gradientUnits="userSpaceOnUse"><stop stop-color="white" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><clipPath id="clip0_584_19749"><rect width="1440" height="240" fill="white"></rect></clipPath></defs></svg>
 				</div>
-
-				<div class="ss-lite-col ss-lite-footer-contact">
-					<div class="ss-lite-title"><i class="ss-lite-icon fas fa-hands-helping"></i>Support</div>
-					<ul class="ss-lite-list">
-						<li><a href="//searchspring.com/about-searchspring" target="_blank">About Us</a></li>
-						<li><a href="//searchspring.com/contact" target="_blank">Contact</a></li>
-						<li><a href="//searchspring.zendesk.com/hc/en-us/requests/new" target="_blank">Submit a Ticket</a></li>
-					</ul>
+				<div class="ss__demo__wrapper">
+					<div class="ss__demo__flex__wrap ss__demo__row--20">
+						<div class="ss__demo__column ss__demo__categories">
+							<h5 class="ss__demo__title">
+								<span class="ss__demo__icon">
+									<svg class="ss__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 47 56">
+										<path d="M14 14c0-2.219-1.781-4-4-4s-4 1.781-4 4 1.781 4 4 4 4-1.781 4-4zm33.344 18a4.027 4.027 0 0 1-1.156 2.813L30.844 50.188c-.75.719-1.781 1.156-2.844 1.156s-2.094-.438-2.813-1.156L2.843 27.813c-1.594-1.562-2.844-4.594-2.844-6.812v-13c0-2.188 1.813-4 4-4h13c2.219 0 5.25 1.25 6.844 2.844l22.344 22.313a4.154 4.154 0 0 1 1.156 2.844z" />
+									</svg>
+								</span>
+								Categories
+							</h5>
+							<ul class="ss__demo__list">
+								<li><a href="./">Category 1</a></li>
+								<li><a href="./">Category 2</a></li>
+								<li><a href="./">Category 3</a></li>
+								<li><a href="./">Category 4</a></li>
+								<li><a href="./">Category 5</a></li>
+								<li><a href="./">Category 6</a></li>
+							</ul>
+						</div>
+	
+						<div class="ss__demo__column ss__demo__brands">
+							<h5 class="ss__demo__title">
+								<span class="ss__demo__icon">
+									<svg class="ss__icon ss__icon--heart" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+										<path d="M28 52c-0.5 0-1-0.188-1.375-0.563l-19.5-18.813c-0.25-0.219-7.125-6.5-7.125-14 0-9.156 5.594-14.625 14.938-14.625 5.469 0 10.594 4.312 13.062 6.75 2.469-2.437 7.594-6.75 13.062-6.75 9.344 0 14.938 5.469 14.938 14.625 0 7.5-6.875 13.781-7.156 14.063l-19.469 18.75c-0.375 0.375-0.875 0.563-1.375 0.563z" />
+									</svg>
+								</span>
+								Brands
+							</h5>
+							<ul class="ss__demo__list">
+								<li><a href="./">Brand 1</a></li>
+								<li><a href="./">Brand 2</a></li>
+								<li><a href="./">Brand 3</a></li>
+								<li><a href="./">Brand 4</a></li>
+							</ul>
+						</div>
+	
+						<div class="ss__demo__column ss__demo__contact">
+							<h5 class="ss__demo__title">
+								<span class="ss__demo__icon">
+									<svg class="ss__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+										<path d="M544 248v3.3l69.7-69.7c21.9-21.9 21.9-57.3 0-79.2l-78.1-78c-21.9-21.9-57.3-21.9-79.2 0l-40.1 40.1c-2.7-.3-5.5-.5-8.3-.5H296c-37.1 0-67.6 28-71.6 64h-.4v120c0 22.1 17.9 40 40 40s40-17.9 40-40v-88h160c44.2 0 80 35.8 80 80v8zm-208-56v56c0 39.8-32.2 72-72 72s-72-32.2-72-72V129.4c-35.9 6.2-65.8 32.3-76 68.2l-16.5 57.6-73.2 73.2c-21.9 21.9-21.9 57.3 0 79.2l78.1 78.1c21.9 21.9 57.3 21.9 79.2 0l37.7-37.7c.9 0 1.8.1 2.7.1h160c26.5 0 48-21.5 48-48 0-5.6-1-11-2.7-16h2.7c26.5 0 48-21.5 48-48 0-12.8-5-24.4-13.2-33 25.7-5 45.1-27.6 45.2-54.8v-.4c-.1-30.8-25.1-55.8-56-55.8H336z" />
+									</svg>
+								</span>
+								About
+							</h5>
+							<ul class="ss__demo__list">
+								<li><a href="//athoscommerce.com/our-story">Our Story</a></li>
+								<li><a href="//athoscommerce.com/contact/">Contact</a></li>
+								<li><a href="//searchspring.zendesk.com/hc/en-us/requests/new">Support</a></li>
+							</ul>
+						</div>
+	
+						<div class="ss__demo__column ss__demo__information">
+							<p>This website is a demo meant to showcase Athos Commerce theme elements. We use local cookies to save selections such as theme style and site ids</p>
+	
+							<div class="ss__demo__social">
+								<a href="//www.linkedin.com/company/athos-commerce" target="_blank" title="LinkedIn">
+									<span class="ss__demo__icon">
+										<svg class="ss__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+											<path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z" />
+										</svg>
+									</span>
+								</a>
+								<a href="//www.instagram.com/athoscommerce" target="_blank" title="Instagram">
+									<span class="ss__demo__icon">
+										<svg class="ss__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+											<path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
+										</svg>
+									</span>
+								</a>
+							</div>
+						</div>
+					</div>
+	
+					<div class="ss__demo__copyright">
+						<p>
+							<span>&copy; 2026</span><a href="//athoscommerce.com" target="_blank">Athos Commerce</a><span class="ss__demo__bullet">&bull;</span><span>All rights reserved</span><span class="ss__demo__bullet">&bull;</span><a href="//athoscommerce.com/legal" target="_blank">Privacy &amp; Terms</a>
+						</p>
+					</div>
 				</div>
-
-				<div class="ss-lite-col ss-lite-footer-visit">
-					<div class="ss-lite-title"><i class="ss-lite-icon fas fa-heart"></i>Visit Us</div>
-					<ul class="ss-lite-list">
-						<li><a href="//www.facebook.com/SearchSpring" target="_blank" aria-label="facebook link"><i class="ss-lite-icon fab fa-facebook-f"></i></a></li>
-						<li><a href="//twitter.com/SearchSpring" target="_blank" aria-label="twitter link"><i class="ss-lite-icon fab fa-twitter"></i></a></li>
-						<li><a href="//www.linkedin.com/company/searchspring" target="_blank" aria-label="linkedin link"><i class="ss-lite-icon fab fa-linkedin-in"></i></a></li>
-					</ul>
+			</footer>
+	
+			<div id="ss__demo__login__modal">
+				<div class="ss__demo__login__header">
+					<h4 class="ss__demo__title">Login</h4>
+	
+					<button class="ss__demo__close ss__demo__icon ss__demo__pointer" onClick="toggleModal()">
+						<svg class="ss__icon ss__icon--close ss-1v72vbw" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><path d="M56 45.064c0 1.178-0.471 2.357-1.32 3.205l-6.411 6.411c-0.849 0.849-2.027 1.32-3.205 1.32s-2.357-0.471-3.205-1.32l-13.859-13.859-13.859 13.859c-0.849 0.849-2.027 1.32-3.205 1.32s-2.357-0.471-3.205-1.32l-6.411-6.411c-0.849-0.849-1.32-2.027-1.32-3.205s0.471-2.357 1.32-3.205l13.859-13.859-13.859-13.859c-0.849-0.849-1.32-2.027-1.32-3.205s0.471-2.357 1.32-3.205l6.411-6.411c0.849-0.849 2.027-1.32 3.205-1.32s2.357 0.471 3.205 1.32l13.859 13.859 13.859-13.859c0.849-0.849 2.027-1.32 3.205-1.32s2.357 0.471 3.205 1.32l6.411 6.411c0.849 0.849 1.32 2.027 1.32 3.205s-0.471 2.357-1.32 3.205l-13.859 13.859 13.859 13.859c0.849 0.849 1.32 2.027 1.32 3.205z"></path></svg>
+					</button>
 				</div>
+	
+				<div class="ss__demo__input">
+					<label class="ss__demo__input__label" for="ss__demo__input__shopper-id">Shopper ID:</label>
+					<input id="ss__demo__input__shopper-id" class="ss__demo__input__input" autofocus type="text" />
+				</div>
+				<button class="ss__demo__button" onClick="setShopperID()">Set Shopper ID</button>
 			</div>
 		</div>
-
-		<div class="ss-lite-footer-copyright">
-			<div class="ss-lite-wrapper">
-				<p>
-					&copy; 2022 <a href="//searchspring.com" target="_blank">Searchspring</a> - All rights reserved.
-				</p>
-			</div>
-		</div>
-	</footer>
-	<div id="login-modal" style="display: none;">
-		<h3>Login</h3>
-		<label>
-			Shopper ID: 
-			<input autofocus type="text"/>
-		</label>
-		
-		<button onClick="setShopperID()">Set Shopper ID</button>
 	</div>
-	<script>
-		document.getElementById("login").addEventListener("click", function(e) {
-			document.getElementById("login-modal").style.display = "block";
-			document.querySelector("#login-modal input").focus();
-		})
-		function setShopperID(){
-			var id = document.querySelector("#login-modal input").value;
-			if(id) {
-				window.searchspring.tracker.track.shopper.login({
-					id: id
-				});
-				document.getElementById("login-modal").style.display = "none";
-			}
-		}
-	</script>
 </body>
-
 </html>

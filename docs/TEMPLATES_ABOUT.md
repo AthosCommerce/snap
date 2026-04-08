@@ -146,20 +146,7 @@ The `SnapHybrid` constructor accepts an object with the following properties:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `templatesConfig` | `SnapIntegrationConfig` | Your existing Snap Templates configuration (must have `unlocked: true`) |
+| `templatesConfig` | `SnapTemplatesConfig` | Your existing Snap Templates configuration |
 | `snapConfig` | `SnapConfig` | Standard Snap configuration for controllers, targets, etc. |
 | `services` | `SnapServices` (optional) | Custom services to override defaults |
 
-### What Transfers from Templates Config
-
-When using SnapHybrid, the following from your `templatesConfig` are available:
-
-| Config Section | What's Preserved |
-|----------------|------------------|
-| `config` | Site ID, language, currency, platform settings |
-| `theme.extends` | Base theme selection |
-| `theme.variables` | Colors, breakpoints, custom variables |
-| `theme.overrides` | Component prop overrides (default and responsive) |
-| `theme.style` | Global style function |
-| `translations` | All language translations |
-| `components` | Custom registered components |

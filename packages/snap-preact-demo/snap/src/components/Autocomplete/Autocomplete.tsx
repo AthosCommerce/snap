@@ -45,5 +45,5 @@ export const Autocomplete = observer(({ controller, snap }: AutocompleteProps) =
 		},
 	};
 
-	return <LibraryAutocomplete controller={controller} snap={snap} input={controller?.config?.selector} breakpoints={breakpoints} theme={theme} />;
+	return <LibraryAutocomplete controller={controller} snap={snap} input={controller.config.selector} breakpoints={breakpoints} theme={theme} />;
 });

@@ -201,7 +201,7 @@ new SnapTemplates({
 	config: { ... },
 	components: {
 		result: {
-			MyCustomResult: () => MyCustomResult,
+			CustomResult: async () => (await import('./components/Result')).CustomResult,
 		},
 	},
 	theme: {
@@ -219,14 +219,14 @@ new SnapTemplates({
 });
 ```
 
-You can also target specific instances using cascading selectors:
+You can also target specific instances using more specific selectors:
 
 ```jsx
 new SnapTemplates({
 	config: { ... },
 	components: {
 		result: {
-			SearchResult: () => SearchResult,
+			SearchResult: async () => (await import('./components/Result')).SearchResult,,
 			AutocompleteResult: () => AutocompleteResult,
 		},
 	},
@@ -260,7 +260,8 @@ Your custom component will receive all the same props that the original componen
 
 ```jsx
 // MyCustomResult.tsx
-export const MyCustomResult = (props) => {
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
+export const MyCustomResult = (props: ResultProps) => {
 	const { result, controller, onClick } = props;
 	const core = result?.display?.mappings.core || result?.mappings?.core;
 	

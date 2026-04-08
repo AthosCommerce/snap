@@ -3,15 +3,15 @@ import { Price, Image, OverlayBadge, CalloutBadge, Rating, ResultProps } from '@
 import type { SearchController } from '@athoscommerce/snap-controller';
 
 export const CustomResult = (props: ResultProps) => {
-	const { result, controller } = props;
+	const { result, controller, treePath } = props;
 	const core = result.mappings.core;
 
 	return (
 		<article className="ss__custom-result">
 			<div className="ss__custom-result__image-wrapper">
 				<a href={core?.url}>
-					<OverlayBadge controller={controller as SearchController} result={result}>
-						<Image src={core?.thumbnailImageUrl || ''} alt={core?.name || ''} />
+					<OverlayBadge controller={controller as SearchController} result={result} treePath={treePath}>
+						<Image treePath={treePath} src={core?.thumbnailImageUrl || ''} alt={core?.name || ''} />
 					</OverlayBadge>
 				</a>
 			</div>
@@ -28,16 +28,16 @@ export const CustomResult = (props: ResultProps) => {
 				<div className="ss__custom-result__details__pricing">
 					{core?.price && core?.msrp && core?.price < core?.msrp ? (
 						<>
-							<Price value={core?.msrp} lineThrough={true} />
-							<Price value={core?.price} />
+							<Price value={core?.msrp} lineThrough={true} treePath={treePath} />
+							<Price value={core?.price} treePath={treePath} />
 						</>
 					) : (
-						<Price value={core?.price} />
+						<Price value={core?.price} treePath={treePath} />
 					)}
 				</div>
-				<Rating value={4.35} count={70} />
+				<Rating value={4.35} count={70} treePath={treePath} />
 
-				<CalloutBadge result={result}></CalloutBadge>
+				<CalloutBadge result={result} treePath={treePath}></CalloutBadge>
 			</div>
 		</article>
 	);

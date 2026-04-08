@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import type { h } from 'preact';
 import { observable, makeObservable } from 'mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-store-mobx';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';

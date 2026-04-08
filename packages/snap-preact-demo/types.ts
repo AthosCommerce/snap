@@ -34,6 +34,7 @@ declare global {
 
 	// component types
 	type Theme = ComponentTypes.Theme;
+	type ThemeVariables = ComponentTypes.ThemeVariables;
 
 	// window globals
 	interface Window {

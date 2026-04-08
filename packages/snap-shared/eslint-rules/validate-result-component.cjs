@@ -22,7 +22,7 @@ module.exports = {
 	},
 	create(context) {
 		return {
-			// Find variable declarations typed as SnapTemplatesConfig or SnapIntegrationConfig
+			// Find variable declarations typed as SnapTemplatesConfig
 			VariableDeclarator(node) {
 				const typeAnnotation = node.id?.typeAnnotation?.typeAnnotation;
 				if (!typeAnnotation) return;
@@ -32,9 +32,7 @@ module.exports = {
 					typeAnnotation.typeName?.right?.name;
 
 				if (
-					typeName === 'SnapTemplatesConfig' ||
-					typeName === 'SnapIntegrationConfig'
-				) {
+					typeName === 'SnapTemplatesConfig') {
 					const init = node.init;
 					if (!init || init.type !== 'ObjectExpression') return;
 

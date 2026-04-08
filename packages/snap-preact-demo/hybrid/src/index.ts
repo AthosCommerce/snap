@@ -1,17 +1,16 @@
 import { SnapHybrid } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig, SnapIntegrationConfig, SnapConfig } from '@athoscommerce/snap-preact';
+import type { SnapTemplatesConfig, SnapConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { afterStore, mutateResultsURL } from '../../snap/src/middleware/plugins/afterStore';
 import { ContentSkel } from '../../snap/src/components/Content/Skel';
 import { SidebarSkel } from '../../snap/src/components/Sidebar/Skel';
-import { getContext, url } from '@athoscommerce/snap-toolbox';
-import { ClientConfig } from '@athoscommerce/snap-client';
+import { getContext } from '@athoscommerce/snap-toolbox';
 import { SearchRequestModelFilterTypeEnum } from '@athoscommerce/snapi-types';
-import { StorageStore } from '@athoscommerce/snap-store-mobx';
 import { globalStyles } from '../../templates/src/styles';
+import { getDemoConfig } from '../../shared/demoConfig';
 
-let siteId = 'atkzs2';
+const { siteId, clientConfig } = getDemoConfig();
 
 let templatesConfig: SnapTemplatesConfig = {
 	unlocked: true,
@@ -20,7 +19,7 @@ let templatesConfig: SnapTemplatesConfig = {
 		language: 'en',
 		currency: 'usd',
 		platform: 'other',
-		// client: clientConfig
+		client: clientConfig,
 	},
 
 	plugins: {
@@ -36,7 +35,7 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 	},
 	theme: {
-		extends: 'pike',
+		extends: 'base',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,
@@ -107,9 +106,6 @@ let templatesConfig: SnapTemplatesConfig = {
 	},
 };
 
-// storage for custom configuration
-const configStore = new StorageStore({ type: 'local', key: 'athos-demo-config' });
-
 const context = getContext(['collection']);
 const backgroundFilters = [];
 
@@ -129,56 +125,6 @@ if (context.collection?.handle) {
 /*
     configuration and instantiation
  */
-
-let customOrigin = '';
-let clientConfig: ClientConfig = {};
-
-// grab siteId out of the URL
-const urlObj = url(window.location.href);
-const urlSiteIdParam = urlObj?.params.query.siteId || urlObj?.params.query.siteid;
-const urlOriginParam = urlObj?.params.query.origin;
-
-// custom siteId
-if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
-	siteId = urlSiteIdParam;
-	configStore.set('siteId', siteId);
-
-	// clear previously stored storage
-	window.localStorage.removeItem('athos-history');
-	window.sessionStorage.removeItem('athos-controller-search');
-	window.sessionStorage.removeItem('athos-controller-autocomplete');
-} else {
-	// use siteId from storage
-	const storedSiteId = configStore.get('siteId');
-	if (storedSiteId) siteId = storedSiteId;
-}
-
-if (urlOriginParam) {
-	customOrigin = urlOriginParam;
-	configStore.set('origin', urlOriginParam);
-} else {
-	const storedOrigin = configStore.get('origin');
-	if (storedOrigin) customOrigin = storedOrigin;
-}
-
-// if there is a custom origin set clientConfig
-
-if (customOrigin) {
-	clientConfig = {
-		meta: {
-			origin: customOrigin,
-		},
-		search: {
-			origin: customOrigin,
-		},
-		// recommend: {
-		// 	origin: recommendOrigin,
-		// },
-		suggest: {
-			origin: customOrigin,
-		},
-	};
-}
 
 let snapConfig: SnapConfig = {
 	mode: 'development', // should be removed for 'production' usage
@@ -315,7 +261,7 @@ let snapConfig: SnapConfig = {
 			{
 				config: {
 					id: 'finder',
-					url: '/snap/',
+					url: '/hybrid/',
 					fields: [
 						{
 							field: 'collection_name',
@@ -340,7 +286,7 @@ let snapConfig: SnapConfig = {
 			{
 				config: {
 					id: 'finder_hierarchy',
-					url: '/snap/',
+					url: '/hybrid/',
 					fields: [
 						{
 							field: 'ss_category_hierarchy',
@@ -367,6 +313,6 @@ if (window.mergeSnapConfig) {
 }
 
 new SnapHybrid({
-	templatesConfig: templatesConfig as SnapIntegrationConfig,
+	templatesConfig: templatesConfig as SnapTemplatesConfig,
 	snapConfig: snapConfig as SnapConfig,
 });

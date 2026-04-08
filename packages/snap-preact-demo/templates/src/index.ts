@@ -2,34 +2,18 @@ import { SnapTemplates, SnapTemplatesConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
+import { getDemoConfig } from '../../shared/demoConfig';
 
-const siteId = 'atkzs2';
-
-// const siteId = '8uyt2m';
-
-// const clientConfig = {
-// 	meta: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	search: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	recommend: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	suggest: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// };
+const { siteId, clientConfig } = getDemoConfig();
 
 let templatesConfig: SnapTemplatesConfig = {
-	unlocked: false,
+	unlocked: true,
 	config: {
 		siteId: siteId,
 		language: 'en',
 		currency: 'usd',
 		platform: 'other',
-		// client: clientConfig
+		client: clientConfig,
 	},
 
 	plugins: {
@@ -45,7 +29,7 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 	},
 	theme: {
-		extends: 'pike',
+		extends: 'base',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,

@@ -22,11 +22,28 @@ const devServer = {
 		headers: {
 			'Access-Control-Allow-Origin': '*',
 		},
-		static: {
-			directory: path.join(__dirname, 'public'),
-			publicPath: ['/'],
-			watch: true,
-		},
+		static: [
+			{
+				directory: path.join(__dirname, 'public'),
+				publicPath: '/',
+				watch: true,
+			},
+			{
+				directory: path.join(__dirname, 'public/shared'),
+				publicPath: '/snap',
+				watch: true,
+			},
+			{
+				directory: path.join(__dirname, 'public/shared'),
+				publicPath: '/hybrid',
+				watch: true,
+			},
+			{
+				directory: path.join(__dirname, 'public/shared'),
+				publicPath: '/templates',
+				watch: true,
+			},
+		],
 		devMiddleware: {
 			publicPath: '/',
 		},
