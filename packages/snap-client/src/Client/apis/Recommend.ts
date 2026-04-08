@@ -130,6 +130,9 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 					new Set((batch.request.filters || []).concat(transformRecommendationFiltersPost(filters) || []).map((filter) => JSON.stringify(filter)))
 				).map((stringyFilter) => JSON.parse(stringyFilter));
 
+				// withRecInfo is enabled if any batched request sets it to true
+				const mergedWithRecInfo = batch.request.withRecInfo || withRecInfo || undefined;
+
 				batch.request = {
 					...batch.request,
 					...defined({
@@ -141,7 +144,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 						cart,
 						lastViewed,
 						shopper,
-						withRecInfo,
+						withRecInfo: mergedWithRecInfo,
 					}),
 				};
 				if (this.configuration.mode == AppMode.development) {
