@@ -43,6 +43,7 @@
 		"dequal": "2.0.3",
 		"intersection-observer": "0.12.2",
 		"is-plain-object": "5.0.0",
+		"marked": "^17.0.1",
 		"mobx-react-lite": "4.1.1",
 		"preact": "10.28.4",
 		"react-ranger": "2.1.0",

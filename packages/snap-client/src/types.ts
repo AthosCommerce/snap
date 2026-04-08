@@ -36,6 +36,7 @@ export type ClientConfig = {
 	mode?: keyof typeof AppMode | AppMode;
 	initiator?: string;
 	fetchApi?: WindowOrWorkerGlobalScope['fetch'];
+	chat?: RequesterConfig<any, any>;
 	meta?: RequesterConfig<MetaRequestModel, MetaRequesterPaths>;
 	search?: RequesterConfig<SearchRequestModel, SearchRequesterPaths>;
 	recommend?: RequesterConfig<RecommendRequestModel, RecommendRequesterPaths>;

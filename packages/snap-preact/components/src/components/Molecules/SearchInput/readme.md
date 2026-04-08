@@ -101,6 +101,19 @@ const buttonProps = {
 <SearchInput closeSearchButton={buttonProps} />
 ```
 
+### chatbutton
+The `chatbutton` prop specifies props to pass to the open chat button component. Takes any `Button` component props. 
+
+```jsx
+
+const buttonProps = {
+    icon: 'chat',
+    onClick: () => func
+};
+
+<SearchInput chatbutton={buttonProps} />
+```
+
 ### inputRef
 The `inputRef` prop specifies a ref to set on the input element. To be accessed in a parent component.
 
