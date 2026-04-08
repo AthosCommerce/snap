@@ -78,13 +78,13 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 - **Unused vars**: Error, but `h`, `jsx`, and underscore-prefixed vars are allowed (`varsIgnorePattern: "^(h|jsx|_+)$"`).
 - **No debugger statements** (`no-debugger: error`).
 - **Preact, not React**: JSX pragma is `h`. React is aliased to Preact in bundler configs. Do not import from `react`.
-- **Test files are excluded from lint and build** (see `tsconfig.json` excludes and `.eslintignore`).
+- **Test files are excluded from lint and build** (see `tsconfig.json` excludes and `.eslintrc.cjs` `ignorePatterns`).
 
 ## Testing
 
 - Jest 29 with ts-jest, jsdom environment. Config at `jest.config.json` + `jest.base.config.json`.
 - Tests live in `src/` alongside source as `*.test.ts` / `*.test.tsx`.
-- Root Jest is `bail: true` and `silent: true` — stops on first failure.
+- Root Jest uses `bail: true` to stop on the first failure and `silent: true` to reduce test output verbosity.
 - `posttest` triggers Cypress: demo E2E (`snap-preact-demo/tests/`) and component tests (`snap-preact/components/tests/`).
 - Demo Cypress needs the dev server running (`start-server-and-test` handles this automatically).
 - CI sets `NODE_OPTIONS="--max-old-space-size=4096"` for tests.
