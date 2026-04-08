@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { AutocompleteProps } from '../../../../components/Organisms/Autocomplete';
+import type { AutocompleteProps, AutocompleteTemplatesLegalProps } from '../../../../components/Organisms/Autocomplete';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 import { autocompleteThemeComponentProps } from '../../../themeComponents/autocomplete';
@@ -311,7 +311,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 };
 
 // Autocomplete component props
-export const autocomplete: ThemeComponent<'autocomplete', AutocompleteProps> = {
+export const autocomplete: ThemeComponent<'autocomplete', AutocompleteProps, AutocompleteTemplatesLegalProps> = {
 	default: {
 		...autocompleteThemeComponentProps.default,
 		autocomplete: {

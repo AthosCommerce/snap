@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { IconProps } from '../../../../components/Atoms/Icon';
+import type { IconProps, IconTemplatesLegalProps } from '../../../../components/Atoms/Icon';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -36,7 +36,7 @@ const iconStyleScript = (props: IconProps) => {
 };
 
 // Icon component props
-export const icon: ThemeComponent<'icon', IconProps> = {
+export const icon: ThemeComponent<'icon', IconProps, IconTemplatesLegalProps> = {
 	default: {
 		icon: {
 			themeStyleScript: iconStyleScript,

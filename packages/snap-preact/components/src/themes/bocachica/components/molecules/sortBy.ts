@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SortByProps } from '../../../../components/Molecules/SortBy';
+import type { SortByProps, SortByTemplatesLegalProps } from '../../../../components/Molecules/SortBy';
 import { ThemeComponent } from '../../../../providers';
 
 // CSS in JS style script for the SortBy component
@@ -12,7 +12,7 @@ const sortByStyleScript = () => {
 };
 
 // SortBy component props
-export const sortBy: ThemeComponent<'sortBy', SortByProps> = {
+export const sortBy: ThemeComponent<'sortBy', SortByProps, SortByTemplatesLegalProps> = {
 	default: {
 		sortBy: {
 			themeStyleScript: sortByStyleScript,

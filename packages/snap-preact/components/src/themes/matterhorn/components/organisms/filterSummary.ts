@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FilterSummaryProps } from '../../../../components/Organisms/FilterSummary';
+import type { FilterSummaryProps, FilterSummaryTemplatesLegalProps } from '../../../../components/Organisms/FilterSummary';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -78,7 +78,7 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 };
 
 // FilterSummary component props
-export const filterSummary: ThemeComponent<'filterSummary', FilterSummaryProps> = {
+export const filterSummary: ThemeComponent<'filterSummary', FilterSummaryProps, FilterSummaryTemplatesLegalProps> = {
 	default: {
 		filterSummary: {
 			themeStyleScript: filterSummaryStyleScript,

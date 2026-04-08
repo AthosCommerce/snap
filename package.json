@@ -59,6 +59,9 @@
     "uuid": "9.0.1",
     "whatwg-fetch": "3.6.2"
   },
+  "overrides": {
+    "preact": "10.28.4"
+  },
   "lint-staged": {
     "*.{js,ts,tsx}": [
       "prettier --write",

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { TermsListProps } from '../../../../components/Organisms/TermsList';
+import type { TermsListProps, TermsListTemplatesLegalProps } from '../../../../components/Organisms/TermsList';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -20,7 +20,7 @@ const termsListStyleScript = (props: TermsListProps) => {
 };
 
 // TermsList component props
-export const termsList: ThemeComponent<'termsList', TermsListProps> = {
+export const termsList: ThemeComponent<'termsList', TermsListProps, TermsListTemplatesLegalProps> = {
 	default: {
 		termsList: {
 			themeStyleScript: termsListStyleScript,

@@ -1,7 +1,11 @@
-import { RecommendationGridProps } from '../../components/Templates/RecommendationGrid';
+import { RecommendationGridProps, RecommendationGridTemplatesLegalProps } from '../../components/Templates/RecommendationGrid';
 import { ThemeComponent } from '../../providers';
 
-export const recommendationGridThemeComponentProps: ThemeComponent<'recommendationGrid', RecommendationGridProps> = {
+export const recommendationGridThemeComponentProps: ThemeComponent<
+	'recommendationGrid',
+	RecommendationGridProps,
+	RecommendationGridTemplatesLegalProps
+> = {
 	default: {},
 	mobile: {},
 	tablet: {},

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { AutocompleteLayoutProps } from '../../../../components/Organisms/AutocompleteLayout';
+import type { AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps } from '../../../../components/Organisms/AutocompleteLayout';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -441,7 +441,7 @@ const autocompleteLayoutStyleScript = (props: AutocompleteLayoutProps) => {
 };
 
 // Autocomplete Layout component props
-export const autocompleteLayout: ThemeComponent<'autocompleteLayout', AutocompleteLayoutProps> = {
+export const autocompleteLayout: ThemeComponent<'autocompleteLayout', AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps> = {
 	default: {
 		autocompleteLayout: {
 			themeStyleScript: autocompleteLayoutStyleScript,

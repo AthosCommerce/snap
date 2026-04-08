@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SearchHeaderProps } from '../../../../components/Atoms/SearchHeader';
+import type { SearchHeaderProps, SearchHeaderTemplatesLegalProps } from '../../../../components/Atoms/SearchHeader';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -39,7 +39,7 @@ const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 };
 
 // SearchHeader component props
-export const searchHeader: ThemeComponent<'searchHeader', SearchHeaderProps> = {
+export const searchHeader: ThemeComponent<'searchHeader', SearchHeaderProps, SearchHeaderTemplatesLegalProps> = {
 	default: {
 		searchHeader: {
 			themeStyleScript: searchHeaderStyleScript,

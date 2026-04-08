@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { PaginationProps } from '../../../../components/Molecules/Pagination';
+import type { PaginationProps, PaginationTemplatesLegalProps } from '../../../../components/Molecules/Pagination';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -50,7 +50,7 @@ const paginationStyleScript = (props: PaginationProps) => {
 };
 
 // Pagination component props
-export const pagination: ThemeComponent<'pagination', PaginationProps> = {
+export const pagination: ThemeComponent<'pagination', PaginationProps, PaginationTemplatesLegalProps> = {
 	default: {
 		pagination: {
 			themeStyleScript: paginationStyleScript,

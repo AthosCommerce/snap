@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { BadgePillProps } from '../../../../components/Atoms/BadgePill';
+import type { BadgePillProps, BadgePillTemplatesLegalProps } from '../../../../components/Atoms/BadgePill';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -21,7 +21,7 @@ const badgePillStyleScript = (props: BadgePillProps) => {
 };
 
 // BadgePill component props
-export const badgePill: ThemeComponent<'badgePill', BadgePillProps> = {
+export const badgePill: ThemeComponent<'badgePill', BadgePillProps, BadgePillTemplatesLegalProps> = {
 	default: {
 		badgePill: {
 			themeStyleScript: badgePillStyleScript,

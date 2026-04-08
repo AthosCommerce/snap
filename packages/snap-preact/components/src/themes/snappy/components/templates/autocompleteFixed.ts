@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { autocompleteFixedThemeComponentProps } from '../../../themeComponents/autocompleteFixed';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteSlideoutProps } from '../../../../components/Templates/AutocompleteSlideout';
+import { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps } from '../../../../components/Templates/AutocompleteSlideout';
 
 // CSS in JS style script for the Search component
 const autocompleteFixedStyleScript = ({}: AutocompleteSlideoutProps) => {
@@ -31,7 +31,7 @@ const autocompleteFixedStyleScript = ({}: AutocompleteSlideoutProps) => {
 	});
 };
 
-export const autocompleteFixed: ThemeComponent<'autocompleteFixed', AutocompleteSlideoutProps> = {
+export const autocompleteFixed: ThemeComponent<'autocompleteFixed', AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps> = {
 	default: {
 		...autocompleteFixedThemeComponentProps.default,
 		autocompleteFixed: {

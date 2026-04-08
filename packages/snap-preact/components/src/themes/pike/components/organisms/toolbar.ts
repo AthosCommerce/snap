@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import { ThemeComponent } from '../../../../providers';
-import { ToolbarProps } from '../../../../components/Organisms/Toolbar';
+import type { ToolbarProps, ToolbarTemplatesLegalProps } from '../../../../components/Organisms/Toolbar';
 import { custom } from '../../custom';
 
 // CSS in JS style script for the Toolbar component
@@ -39,7 +39,7 @@ const toolbarStyleScript = (props: ToolbarProps) => {
 };
 
 // Toolbar component props
-export const toolbar: ThemeComponent<'toolbar', ToolbarProps> = {
+export const toolbar: ThemeComponent<'toolbar', ToolbarProps, ToolbarTemplatesLegalProps> = {
 	default: {
 		toolbar: {
 			themeStyleScript: toolbarStyleScript,
