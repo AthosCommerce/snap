@@ -59,6 +59,10 @@ jobs:
         run: |
           npm run build:feed
 
+      - name: Build Crawler
+        run: |
+          npm run build:crawler
+
       - name: Build docs
         run: |
           npm run build:docs 
