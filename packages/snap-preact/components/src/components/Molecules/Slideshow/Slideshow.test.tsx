@@ -4,6 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { Slideshow, SlideshowProps, SlideshowSlide } from './Slideshow';
 import { ThemeProvider } from '@emotion/react';
 
+// Mock ResizeObserver for jsdom
+global.ResizeObserver = class ResizeObserver {
+	callback: ResizeObserverCallback;
+	constructor(callback: ResizeObserverCallback) {
+		this.callback = callback;
+	}
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+};
+
 // Mock images for testing
 const mockImages = [
 	'https://example.com/image1.jpg',
