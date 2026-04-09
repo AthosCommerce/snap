@@ -25,7 +25,6 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 		'&.ss__result--grid': {
 			display: 'flex',
 			flexDirection: 'column',
-			height: '100%',
 			'& .ss__result__image-wrapper': {
 				flex: '1 0 auto',
 				minHeight: '0%',
