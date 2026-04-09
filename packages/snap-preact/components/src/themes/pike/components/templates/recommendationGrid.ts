@@ -8,20 +8,17 @@ import { custom } from '../../custom';
 const recommendationGridStyleScript = (props: RecommendationGridProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
+	const tabletBp = variables?.breakpoints?.tablet as number;
+	const hasOverflow = props?.rows == 1 ? true : false;
 
-	// recommendation grid styles
-	const recommendationGridStyles = css({
+	// shared styles
+	const sharedStyles = css({
 		margin: `${custom.spacing.x8}px 0`,
 		maxHeight: 'none',
 		...custom.styles.boxSizing('recommendationGrid', props?.treePath, props?.name),
 		'.ss__recommendation-grid__title': {
 			margin: `0 0 ${custom.spacing.x4}px 0`,
 			...custom.styles.headerText(variables?.colors?.secondary, '18px'),
-		},
-		'.ss__recommendation-grid__results': {
-			overflowX: 'auto',
-			...custom.styles.scrollbar(),
 		},
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__recommendation-grid__title': {
@@ -35,7 +32,25 @@ const recommendationGridStyleScript = (props: RecommendationGridProps) => {
 		},
 	});
 
-	return recommendationGridStyles;
+	// recommendation grid styles
+	const recommendationGridStyles = css([sharedStyles]);
+
+	// recommendation grid overflow styles
+	const recommendationGridOverflowStyles = css([
+		sharedStyles,
+		{
+			'.ss__recommendation-grid__results': {
+				overflowX: 'auto',
+				paddingBottom: `${custom.spacing.x2}px`,
+				...custom.styles.scrollbar(),
+				'& > div': {
+					minWidth: '175px',
+				},
+			},
+		},
+	]);
+
+	return hasOverflow ? recommendationGridOverflowStyles : recommendationGridStyles;
 };
 
 // RecommendationGrid component props come from Template export
@@ -46,7 +61,7 @@ export const recommendationGrid: ThemeComponent<'recommendationGrid', Recommenda
 			...(recommendationGridThemeComponentProps.default?.['recommendationGrid'] || {}),
 			themeStyleScript: recommendationGridStyleScript,
 			gapSize: `${custom.spacing.x4}px`,
-			columns: 4,
+			columns: 5,
 		},
 	},
 	mobile: {
@@ -68,6 +83,7 @@ export const recommendationGrid: ThemeComponent<'recommendationGrid', Recommenda
 		...recommendationGridThemeComponentProps.desktop,
 		recommendationGrid: {
 			...(recommendationGridThemeComponentProps.desktop?.['recommendationGrid'] || {}),
+			columns: 4,
 		},
 	},
 };

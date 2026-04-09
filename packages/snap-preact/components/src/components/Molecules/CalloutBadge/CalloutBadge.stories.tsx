@@ -192,7 +192,7 @@ Default.loaders = [
 							priority: 1,
 							enabled: true,
 							parameters: {
-								color: '#3A23AD',
+								color: '#1d4990',
 								colorText: '#FFFFFF',
 							},
 						},

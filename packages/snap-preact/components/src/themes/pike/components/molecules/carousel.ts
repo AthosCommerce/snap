@@ -18,16 +18,7 @@ const fontColor = activeColors[1];
 const carouselStyleScript = (props: CarouselProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-
-	// spacing and position variables for features
-	let spacing = 0;
-	if (props?.pagination && props?.scrollbar) {
-		spacing = carouselOptions.spacing * 2 + carouselOptions.pagination + carouselOptions.scrollbar;
-	} else if (props?.pagination && !props?.scrollbar) {
-		spacing = carouselOptions.spacing + carouselOptions.pagination;
-	} else if (!props?.pagination && props?.scrollbar) {
-		spacing = carouselOptions.spacing + carouselOptions.scrollbar;
-	}
+	const isDraggable = typeof props?.scrollbar == 'object' && props?.scrollbar?.draggable ? true : false;
 
 	// carousel styles
 	const carouselStyles = css({
@@ -44,7 +35,7 @@ const carouselStyleScript = (props: CarouselProps) => {
 			display: 'block',
 			position: 'absolute',
 			top: 0,
-			bottom: spacing ? `${spacing}px` : 0,
+			bottom: 0,
 			zIndex: 2,
 			margin: 'auto',
 			'& > div': {
@@ -77,7 +68,6 @@ const carouselStyleScript = (props: CarouselProps) => {
 		},
 		'.swiper-container': {
 			margin: '0 auto',
-			paddingBottom: spacing ? `${spacing}px` : '',
 			'& > .swiper-wrapper': {
 				'& > .swiper-slide': {
 					'& > *, .ss__result': {
@@ -89,11 +79,8 @@ const carouselStyleScript = (props: CarouselProps) => {
 				},
 			},
 			'& > .swiper-pagination': {
-				position: 'absolute',
-				bottom: props?.scrollbar ? `${carouselOptions.scrollbar + custom.spacing.x2}px` : 0,
-				left: 0,
-				right: 0,
-				margin: 'auto',
+				position: 'relative',
+				margin: `${custom.spacing.x2}px 0 0 0`,
 				gap: `${custom.spacing.x1}px`,
 				'.swiper-pagination-bullet': {
 					opacity: 1,
@@ -111,9 +98,12 @@ const carouselStyleScript = (props: CarouselProps) => {
 				},
 			},
 			'& > .swiper-scrollbar': {
+				position: 'relative',
+				margin: `${custom.spacing.x2}px 0 0 0`,
 				height: `${carouselOptions.scrollbar}px`,
 				overflow: 'hidden',
 				backgroundColor: custom.colors.gray01,
+				cursor: isDraggable ? 'pointer' : '',
 				...custom.styles.borderRadius(carouselOptions.scrollbar, 'px'),
 				'&:after': {
 					content: '""',

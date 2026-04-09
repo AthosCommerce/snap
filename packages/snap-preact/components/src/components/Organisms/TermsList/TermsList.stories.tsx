@@ -37,7 +37,7 @@ export default {
 		(Story: any) => (
 			<div
 				style={{
-					maxWidth: '900px',
+					maxWidth: '1200px',
 					position: 'relative',
 				}}
 			>
@@ -50,7 +50,7 @@ export default {
 						width: '100%',
 						padding: '10px',
 						boxSizing: 'border-box',
-						border: '1px solid #3a23ad',
+						border: '1px solid #ebebeb',
 						marginBottom: '20px',
 					}}
 				/>

@@ -31,13 +31,7 @@ export default {
 			),
 		},
 	},
-	decorators: [
-		(Story: any) => (
-			<div style={{ maxWidth: '500px' }}>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [(Story: any) => <Story />],
 	argTypes: {
 		values: {
 			description: 'Facet.values store reference',
@@ -148,7 +142,12 @@ const snapInstance = Snapify.search({ id: 'FacetGridOptions', globals: { siteId:
 
 const ObservableFacetGridOptions = observer(({ args, controller }: { args: FacetGridOptionsProps; controller: SearchController }) => {
 	const sizeFacet = controller?.store?.facets.filter((facet) => facet.field == 'size').pop();
-	return <FacetGridOptions {...args} values={sizeFacet.values} />;
+
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<FacetGridOptions {...args} values={sizeFacet.values} />
+		</div>
+	);
 });
 
 export const Default = (args: FacetGridOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {

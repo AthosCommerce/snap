@@ -1,104 +1,862 @@
-<html lang="en">
-
+<html class="ss__pike">
 <head>
 	<meta charset="utf-8">
 	<title>Email Recs</title>
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="https://snapui.athoscommerce.io/favicon.svg">
+	<link href="//fonts.googleapis.com/css?family=Fjalla+One|Roboto:400,700,700i" rel="stylesheet">
+	<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.4.2/css/all.css"
+		integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+	<link rel="stylesheet" href="website.css">
 
+	<script>
+		// clear our cookies to remove from the request
+		document.cookie = 'ssShopperId=; Max-Age=-99999999;';
+		document.cookie = 'ssViewedProducts=; Max-Age=-99999999';
+		document.cookie = 'ssCartProducts=; Max-Age=-9999999';
 
-    <link rel="icon" href="https://snapui.athoscommerce.io/favicon.svg">
-    <link href="//fonts.googleapis.com/css?family=Fjalla+One|Roboto:400,700,700i" rel="stylesheet">
-    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.4.2/css/all.css"
-        integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
-    <link rel="stylesheet" href="website.css">
+		const siteID = 'atkzs2';
+		const profile = "email";
+		const component = "Email";
+		const results = [
+			{
+				id: "52955932557678",
+				mappings: {
+					core: {
+						uid: "52955932557678",
+						sku: "VW1982-XBO-IN",
+						available: true,
+						name: "Apex Bottle",
+						url: "/products/apex-bottle?variant=52955932557678",
+						parentId: "14870399189358",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-bottle-indigo.png?v=1762823848",
+						price: 20,
+						msrp: 25.50,
+						rating: 5,
+						ratingCount: 237,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-bottle-indigo_600x600.png?v=1762823848",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-bottle-indigo.png?v=1762823848",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-bottle-indigo_600x600.png?v=1762823848",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"studio",
+						"accessories",
+						"bottles",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Indigo"
+					],
+					product_type_unigram: "bottle",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-bottle-indigo_600x600.png?v=1762823848",
+					title: "Apex Bottle"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955932492142",
+				mappings: {
+					core: {
+						uid: "52955932492142",
+						sku: "VW1982-IBO-LA",
+						available: true,
+						name: "Revive Bottle",
+						url: "/products/revive-bottle?variant=52955932492142",
+						parentId: "14870399156590",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-bottle-lavender.png?v=1762823984",
+						price: 20,
+						msrp: 25.50,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-bottle-lavender_600x600.png?v=1762823984",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-bottle-lavender.png?v=1762823984",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-bottle-lavender_600x600.png?v=1762823984",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"studio",
+						"running",
+						"accessories",
+						"bottles",
+						"all"
+					],
+					color: [
+						"Lavender"
+					],
+					product_type_unigram: "bottle",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-bottle-lavender_600x600.png?v=1762823984",
+					title: "Revive Bottle"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "53297940300142",
+				mappings: {
+					core: {
+						uid: "53297940300142",
+						sku: "VW1982-ABO-LA",
+						available: true,
+						name: "Align Bottle - Central Store Arrival",
+						url: "/products/align-bottle-central-store-arrival?variant=53297940300142",
+						parentId: "14959520219502",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender.png?v=1762813057",
+						price: 24,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender.png?v=1762813057",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"frontpage",
+						"outdoor",
+						"studio",
+						"yoga",
+						"accessories",
+						"bottles",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Lavender"
+					],
+					product_type_unigram: "bottle",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+					title: "Align Bottle - Central Store Arrival"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955933737326",
+				mappings: {
+					core: {
+						uid: "52955933737326",
+						sku: "VW1982-MSO-SA",
+						available: true,
+						name: "Momentum Sock",
+						url: "/products/momentum-sock?variant=52955933737326",
+						parentId: "14870399582574",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-sock-sandstone.png?v=1762810225",
+						price: 24,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-sock-sandstone_600x600.png?v=1762810225",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-sock-sandstone.png?v=1762810225",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-sock-sandstone_600x600.png?v=1762810225",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"running",
+						"socks",
+						"all"
+					],
+					color: [
+						"Sandstone"
+					],
+					product_type_unigram: "sock",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-sock-sandstone_600x600.png?v=1762810225",
+					title: "Momentum Sock"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955933278574",
+				mappings: {
+					core: {
+						uid: "52955933278574",
+						sku: "VW1982-VSO-BL",
+						available: true,
+						name: "Elevation Trail Sock",
+						url: "/products/elevation-trail-sock?variant=52955933278574",
+						parentId: "14870399451502",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-trail-sock-black.png?v=1762811553",
+						price: 24,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-trail-sock-black_600x600.png?v=1762811553",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-trail-sock-black.png?v=1762811553",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-trail-sock-black_600x600.png?v=1762811553",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"hiking",
+						"socks",
+						"all"
+					],
+					color: [
+						"Black"
+					],
+					product_type_unigram: "sock",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-trail-sock-black_600x600.png?v=1762811553",
+					title: "Elevation Trail Sock"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955932983662",
+				mappings: {
+					core: {
+						uid: "52955932983662",
+						sku: "VW1982-ABO-LA",
+						available: true,
+						name: "Align Bottle",
+						url: "/products/align-bottle?variant=52955932983662",
+						parentId: "14870399353198",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender.png?v=1762813057",
+						price: 24,
+						msrp: 28,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender.png?v=1762813057",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"studio",
+						"yoga",
+						"accessories",
+						"bottles",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Lavender"
+					],
+					product_type_unigram: "bottle",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+					title: "Align Bottle"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955932623214",
+				mappings: {
+					core: {
+						uid: "52955932623214",
+						sku: "VW1982-XHE-BL",
+						available: true,
+						name: "Apex Headband",
+						url: "/products/apex-headband?variant=52955932623214",
+						parentId: "14870399222126",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-headband-black.png?v=1762823561",
+						price: 24,
+						rating: 4.5,
+						ratingCount: 28,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-headband-black_600x600.png?v=1762823561",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-headband-black.png?v=1762823561",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-headband-black_600x600.png?v=1762823561",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"hiking",
+						"running",
+						"workout",
+						"accessories",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Black"
+					],
+					product_type_unigram: "headband",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/apex-headband-black_600x600.png?v=1762823561",
+					title: "Apex Headband"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955932066158",
+				mappings: {
+					core: {
+						uid: "52955932066158",
+						sku: "VW1982-ISO-SA",
+						available: true,
+						name: "Revive Sock",
+						url: "/products/revive-sock?variant=52955932066158",
+						parentId: "14870399058286",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-sock-sandstone.png?v=1762824828",
+						price: 24,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-sock-sandstone_600x600.png?v=1762824828",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-sock-sandstone.png?v=1762824828",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-sock-sandstone_600x600.png?v=1762824828",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"studio",
+						"hiking",
+						"running",
+						"socks",
+						"all"
+					],
+					color: [
+						"Sandstone"
+					],
+					product_type_unigram: "sock",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-sock-sandstone_600x600.png?v=1762824828",
+					title: "Revive Sock"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955931509102",
+				mappings: {
+					core: {
+						uid: "52955931509102",
+						sku: "VW1982-RSO-WH",
+						available: true,
+						name: "Stride Sock",
+						url: "/products/stride-sock?variant=52955931509102",
+						parentId: "14870398861678",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-sock-white.png?v=1762800072",
+						price: 24,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-sock-white_600x600.png?v=1762800072",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-sock-white.png?v=1762800072",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-sock-white_600x600.png?v=1762800072",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"hiking",
+						"running",
+						"socks",
+						"all"
+					],
+					color: [
+						"White"
+					],
+					product_type_unigram: "sock",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-sock-white_600x600.png?v=1762800072",
+					title: "Stride Sock"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "53266048254318",
+				mappings: {
+					core: {
+						uid: "53266048254318",
+						available: true,
+						name: "Yoga Bundle (combined)",
+						url: "/products/combined-listing-test?variant=53266048254318",
+						parentId: "14947788128622",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Jogger_-_Indigo_3a782b8b-63e0-46ab-9d36-362adb3cd157.png?v=1747685137",
+						price: 24,
+						rating: 3,
+						ratingCount: 182,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender.png?v=1762813057",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"his",
+						"accessories",
+						"all"
+					],
+					product_type_unigram: "bundle",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-bottle-lavender_600x600.png?v=1762813057",
+					title: "Yoga Bundle (combined)"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955932361070",
+				mappings: {
+					core: {
+						uid: "52955932361070",
+						sku: "VW1982-IBE-AS",
+						available: true,
+						name: "Revive Beanie",
+						url: "/products/revive-beanie?variant=52955932361070",
+						parentId: "14870399123822",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-beanie-ash-grey.png?v=1762824459",
+						price: 29,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-beanie-ash-grey_600x600.png?v=1762824459",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-beanie-ash-grey.png?v=1762824459",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-beanie-ash-grey_600x600.png?v=1762824459",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"hiking",
+						"running",
+						"accessories",
+						"hats",
+						"all"
+					],
+					color: [
+						"Ash Grey"
+					],
+					product_type_unigram: "beanie",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/revive-beanie-ash-grey_600x600.png?v=1762824459",
+					title: "Revive Beanie"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955931902318",
+				mappings: {
+					core: {
+						uid: "52955931902318",
+						sku: "VW1982-RRG-LA",
+						available: true,
+						name: "Stride Run Gloves",
+						url: "/products/stride-run-gloves?variant=52955931902318",
+						parentId: "14870398992750",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-run-gloves-lavender.png?v=1762825177",
+						price: 34,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-run-gloves-lavender_600x600.png?v=1762825177",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-run-gloves-lavender.png?v=1762825177",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-run-gloves-lavender_600x600.png?v=1762825177",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"running",
+						"accessories",
+						"gloves",
+						"all"
+					],
+					color: [
+						"Lavender"
+					],
+					product_type_unigram: "gloves",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-run-gloves-lavender_600x600.png?v=1762825177",
+					title: "Stride Run Gloves"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955933507950",
+				mappings: {
+					core: {
+						uid: "52955933507950",
+						sku: "VW1982-MYM-IN",
+						available: true,
+						name: "Momentum Yoga Mat",
+						url: "/products/momentum-yoga-mat?variant=52955933507950",
+						parentId: "14870399517038",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-yoga-mat-indigo.png?v=1762810596",
+						price: 39,
+						msrp: 44,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-yoga-mat-indigo_600x600.png?v=1762810596",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-yoga-mat-indigo.png?v=1762810596",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-yoga-mat-indigo_600x600.png?v=1762810596",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"studio",
+						"yoga",
+						"accessories",
+						"yoga-mats",
+						"all"
+					],
+					color: [
+						"Indigo"
+					],
+					product_type_unigram: "mat",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/momentum-yoga-mat-indigo_600x600.png?v=1762810596",
+					title: "Momentum Yoga Mat"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955933049198",
+				mappings: {
+					core: {
+						uid: "52955933049198",
+						sku: "VW1982-VCA-OL",
+						available: true,
+						name: "Elevation Cap",
+						url: "/products/elevation-cap?variant=52955933049198",
+						parentId: "14870399385966",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-cap-olive.png?v=1762812661",
+						price: 39,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-cap-olive_600x600.png?v=1762812661",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-cap-olive.png?v=1762812661",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-cap-olive_600x600.png?v=1762812661",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"new-arrivals",
+						"outdoor",
+						"hiking",
+						"accessories",
+						"hats",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Olive"
+					],
+					product_type_unigram: "cap",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-cap-olive_600x600.png?v=1762812661",
+					title: "Elevation Cap"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955932787054",
+				mappings: {
+					core: {
+						uid: "52955932787054",
+						sku: "VW1982-AYM-LA",
+						available: true,
+						name: "Align Yoga Mat",
+						url: "/products/align-yoga-mat?variant=52955932787054",
+						parentId: "14870399287662",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-yoga-mat-lavender.png?v=1762822746",
+						price: 39,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-yoga-mat-lavender_600x600.png?v=1762822746",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-yoga-mat-lavender.png?v=1762822746",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-yoga-mat-lavender_600x600.png?v=1762822746",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"studio",
+						"yoga",
+						"accessories",
+						"yoga-mats",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Lavender"
+					],
+					product_type_unigram: "mat",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/align-yoga-mat-lavender_600x600.png?v=1762822746",
+					title: "Align Yoga Mat"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955931640174",
+				mappings: {
+					core: {
+						uid: "52955931640174",
+						sku: "VW1982-RCA-AS",
+						available: true,
+						name: "Stride Cap",
+						url: "/products/stride-cap?variant=52955931640174",
+						parentId: "14870398894446",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-cap-grey.png?v=1762800059",
+						price: 39,
+						rating: 5,
+						ratingCount: 54,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-cap-grey_600x600.png?v=1762800059",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-cap-grey.png?v=1762800059",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-cap-grey_600x600.png?v=1762800059",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"outdoor",
+						"running",
+						"accessories",
+						"hats",
+						"all"
+					],
+					color: [
+						"Ash Grey"
+					],
+					product_type_unigram: "cap",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/stride-cap-grey_600x600.png?v=1762800059",
+					title: "Stride Cap"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52955933376878",
+				mappings: {
+					core: {
+						uid: "52955933376878",
+						sku: "VW1982-VGL-SA",
+						available: true,
+						name: "Elevation Gloves",
+						url: "/products/elevation-gloves?variant=52955933376878",
+						parentId: "14870399484270",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-gloves-sandstone_3631880e-e566-4ef9-8dcc-d13df666ad8c.png?v=1762811122",
+						price: 44,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-gloves-sandstone_3631880e-e566-4ef9-8dcc-d13df666ad8c_600x600.png?v=1762811122",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-gloves-sandstone_3631880e-e566-4ef9-8dcc-d13df666ad8c.png?v=1762811122",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-gloves-sandstone_3631880e-e566-4ef9-8dcc-d13df666ad8c_600x600.png?v=1762811122",
+						brand: "VersaFitCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"new-arrivals",
+						"outdoor",
+						"hiking",
+						"accessories",
+						"gloves",
+						"all"
+					],
+					color: [
+						"Sandstone"
+					],
+					product_type_unigram: "gloves",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/elevation-gloves-sandstone_3631880e-e566-4ef9-8dcc-d13df666ad8c_600x600.png?v=1762811122",
+					title: "Elevation Gloves"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52079547777390",
+				mappings: {
+					core: {
+						uid: "52079547777390",
+						sku: "VW1982-CQZ-BL",
+						available: true,
+						name: "CoreMotion Quarter-Zip",
+						url: "/products/coremotion-quarter-zip?variant=52079547777390",
+						parentId: "14725172396398",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Men_s_Apparel_CoreMotion_Quarter-Zip_-_Black_50309846-9427-409b-b945-eb4db81c0c19.png?v=1747685222",
+						price: 45,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Men_s_Apparel_CoreMotion_Quarter-Zip_-_Black_50309846-9427-409b-b945-eb4db81c0c19_600x600.png?v=1747685222",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Men_s_Apparel_CoreMotion_Quarter-Zip_-_Black_50309846-9427-409b-b945-eb4db81c0c19.png?v=1747685222",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Men_s_Apparel_CoreMotion_Quarter-Zip_-_Black_50309846-9427-409b-b945-eb4db81c0c19_600x600.png?v=1747685222",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"his",
+						"theirs",
+						"workout",
+						"tops",
+						"sweaters",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Black"
+					],
+					product_type_unigram: "quarterzip",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Men_s_Apparel_CoreMotion_Quarter-Zip_-_Black_50309846-9427-409b-b945-eb4db81c0c19_600x600.png?v=1747685222",
+					title: "CoreMotion Quarter-Zip"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52079545057646",
+				mappings: {
+					core: {
+						uid: "52079545057646",
+						sku: "VW1982-AQZ-AS",
+						available: true,
+						name: "Align Quarter-Zip",
+						url: "/products/align-quarter-zip?variant=52079545057646",
+						parentId: "14725170823534",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Quarter-Zip_-_Ash_Grey_6d644d3e-7956-417f-90a3-5290b2764e78.png?v=1747685144",
+						price: 45,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Quarter-Zip_-_Ash_Grey_6d644d3e-7956-417f-90a3-5290b2764e78_600x600.png?v=1747685144",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Quarter-Zip_-_Ash_Grey_6d644d3e-7956-417f-90a3-5290b2764e78.png?v=1747685144",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Quarter-Zip_-_Ash_Grey_6d644d3e-7956-417f-90a3-5290b2764e78_600x600.png?v=1747685144",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"hers",
+						"theirs",
+						"winter-warmth",
+						"tops",
+						"sweaters",
+						"best-sellers",
+						"all"
+					],
+					color: [
+						"Ash Grey"
+					],
+					product_type_unigram: "quarterzip",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Quarter-Zip_-_Ash_Grey_6d644d3e-7956-417f-90a3-5290b2764e78_600x600.png?v=1747685144",
+					title: "Align Quarter-Zip"
+				},
+				custom: {},
+				quantity: 1
+			},
+			{
+				id: "52079573696878",
+				mappings: {
+					core: {
+						uid: "52079573696878",
+						sku: "VW1982-ULE-CH",
+						available: true,
+						name: "Studio Legging",
+						url: "/products/studio-legging?variant=52079573696878",
+						parentId: "14725184192878",
+						parentImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Studio_Legging_-_Charcoal_86731d52-9ef2-4663-802a-8935249c5a7c.png?v=1747685734",
+						price: 46,
+						imageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Studio_Legging_-_Charcoal_86731d52-9ef2-4663-802a-8935249c5a7c_600x600.png?v=1747685734",
+						secureImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Studio_Legging_-_Charcoal_86731d52-9ef2-4663-802a-8935249c5a7c.png?v=1747685734",
+						thumbnailImageUrl: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Studio_Legging_-_Charcoal_86731d52-9ef2-4663-802a-8935249c5a7c_600x600.png?v=1747685734",
+						brand: "VersaWearCo",
+						caption: "Captions!"
+					}
+				},
+				attributes: {
+					collection_handle: [
+						"hers",
+						"winter-warmth",
+						"studio",
+						"yoga",
+						"pants-bottoms",
+						"leggings",
+						"all"
+					],
+					color: [
+						"Charcoal"
+					],
+					product_type_unigram: "legging",
+					ss_image: "https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Studio_Legging_-_Charcoal_86731d52-9ef2-4663-802a-8935249c5a7c_600x600.png?v=1747685734",
+					title: "Studio Legging"
+				},
+				custom: {},
+				quantity: 1
+			},
+			
+		];
 
-    
-    <script>
-        // clear our cookies to remove from the request
-        document.cookie = 'ssShopperId=; Max-Age=-99999999;';
-        document.cookie = 'ssViewedProducts=; Max-Age=-99999999';
-        document.cookie = 'ssCartProducts=; Max-Age=-9999999';
+		const recommendResponse = [{"results":results,"profile":{"tag":profile}}];
+		const profileResponse = {"profile":{"tag":profile,"display":{"template":{"component":component},"templateParameters":{}}}};
 
-        const siteID = 'atkzs2';
-        const profile = "email";
-        const component = "Email";
-        const results = [{"id":"175547","mappings":{"core":{"uid":"175547","name":"Off She Goes White Skinny Jeans","sku":"C-JU-W1-P1034","msrp":75,"price":58,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/use_3_thumb_med.jpg","url":"/product/C-JU-W1-P1034","rating":"5","brand":"Just USA","popularity":4455,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/use_3_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"182022","mappings":{"core":{"uid":"182022","name":"Stripe Out Blue Off-The-Shoulder Dress","sku":"C-AD-I2-69PST","msrp":50,"price":48,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2950_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-AD-I2-69PST","rating":"5","brand":"Adrienne","popularity":1135,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2950_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"177035","mappings":{"core":{"uid":"177035","name":"Spring Ahead White Print Off-The-Shoulder Dress","sku":"C-AD-W1-906FP","msrp":50,"price":48,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/copyright_rdb_studio_2_4758_thumb_med.jpg","url":"/product/C-AD-W1-906FP","rating":"5","brand":"Adrienne","popularity":3052,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/copyright_rdb_studio_2_4758_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"182818","mappings":{"core":{"uid":"182818","name":"Take Me To Havana White Print Off-The-Shoulder Dress","sku":"C-AD-W1-924FP","msrp":50,"price":42,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/4303_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-AD-W1-924FP","rating":"5","brand":"Adrienne","popularity":752,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/4303_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"180178","mappings":{"core":{"uid":"180178","name":"For The Romantic White Off-The-Shoulder Dress","sku":"C-DB-W1-14107","msrp":50,"price":48,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/17_03_20_studio_26619_thumb_med.jpg","url":"/product/C-DB-W1-14107","rating":"5","brand":"Ever After","popularity":1404,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/17_03_20_studio_26619_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"181323","mappings":{"core":{"uid":"181323","name":"As Cute As They Come Purple Off-The-Shoulder Dress","sku":"C-EN-V2-D7422","msrp":50,"price":44,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2940_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-EN-V2-D7422","rating":"5","brand":"Aura L\u0027atiste","popularity":4213,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2940_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"183818","mappings":{"core":{"uid":"183818","name":"Artist\u0027s Touch Blue Print Off-The-Shoulder Dress","sku":"C-FT-I4-D5340","msrp":50,"price":42,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/5-31-17adventureswithcarolineandhollyn0624_thumb_med.jpg","url":"/product/C-FT-I4-D5340","rating":"5","brand":"Flying Tomato","popularity":1342,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/5-31-17adventureswithcarolineandhollyn0624_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"181825","mappings":{"core":{"uid":"181825","name":"Downtown Romantic Red Floral Print Dress","sku":"C-IL-R4-955BO","msrp":50,"price":49,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/4180_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-IL-R4-955BO","rating":"5","brand":"Illa Illa","popularity":900,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/4180_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"183040","mappings":{"core":{"uid":"183040","name":"Fringe Airy Feeling White Print Dress","sku":"C-MIT-W1-41080","msrp":50,"price":39,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/5237_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-MIT-W1-41080","rating":"5","brand":"Mitto Shop","popularity":2471,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/5237_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"178222","mappings":{"core":{"uid":"178222","name":"Salt And Sun White Open Shoulder Cover-Up","sku":"C-VL-W1-D460S","msrp":50,"price":44,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2m4a5824-2_thumb_med.jpg","url":"/product/C-VL-W1-D460S","rating":"5","brand":"Velzera","popularity":2677,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2m4a5824-2_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"180422","mappings":{"core":{"uid":"180422","name":"Beach To Boardwalk Blue Tie Dye Maxi Dress","sku":"C-LS-I3-65NLP","msrp":50,"price":48,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2931_copyright_reddressboutique_2017_thumb_med.jpg","url":"/product/C-LS-I3-65NLP","rating":"5","brand":"Love Stitch","popularity":2639,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2931_copyright_reddressboutique_2017_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"180940","mappings":{"core":{"uid":"180940","name":"Beach Babe White Off-The-Shoulder Cover-Up","sku":"C-VL-W1-D411S","msrp":50,"price":42,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2m4a9284_thumb_med.jpg","url":"/product/C-VL-W1-D411S","rating":"5","brand":"Velzera","popularity":1323,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2m4a9284_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"180944","mappings":{"core":{"uid":"180944","name":"Everlasting Sun White Cover-Up","sku":"C-VL-W1-D480S","msrp":50,"price":44,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2m4a8074_thumb_med.jpg","url":"/product/C-VL-W1-D480S","rating":"5","brand":"Velzera","popularity":1067,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2m4a8074_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"181887","mappings":{"core":{"uid":"181887","name":"Pure Happiness White Print Dress","sku":"C-ST-I3-12370","msrp":50,"price":44,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/1505_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-ST-I3-12370","rating":"5","brand":"Aura L\u0027atiste","popularity":299,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/1505_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"176815","mappings":{"core":{"uid":"176815","name":"Spring To Mind Coral Off-The-Shoulder Dress","sku":"C-TCE-O1-D8349","msrp":50,"price":38,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/copyright_rdb_studio_2_5457_thumb_med.jpg","url":"/product/C-TCE-O1-D8349","rating":"5","brand":"TCEC","popularity":3607,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/copyright_rdb_studio_2_5457_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"177983","mappings":{"core":{"uid":"177983","name":"Putting Class In Classic White Striped Dress","sku":"C-TCE-W1-D8326","msrp":50,"price":38,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/17_02_22_studio_set_02_15200951_thumb_med.jpg","url":"/product/C-TCE-W1-D8326","rating":"5","brand":"TCEC","popularity":1073,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/17_02_22_studio_set_02_15200951_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"181845","mappings":{"core":{"uid":"181845","name":"Escape To Mexico Red Off-The-Shoulder Dress","sku":"C-US-R4-94464","msrp":50,"price":42,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2457_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-US-R4-94464","rating":"5","brand":"Under Skies","popularity":2034,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2457_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"176982","mappings":{"core":{"uid":"176982","name":"Fancy Femme White Off-The-Shoulder Dress","sku":"C-MB-W1-16589","msrp":50,"price":50,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/copyright_rdb_studio_2_5602_thumb_med.jpg","url":"/product/C-MB-W1-16589","rating":"5","brand":"Marine","popularity":6,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/copyright_rdb_studio_2_5602_large.jpg","ratingCount":1111}},"attributes":{}},{"id":"181642","mappings":{"core":{"uid":"181642","name":"Spring Ahead Mint Print Off-The-Shoulder Dress","sku":"C-AD-E2-906FP","msrp":50,"price":48,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/2429_copyright_reddressboutique_2017__thumb_med.jpg","url":"/product/C-AD-E2-906FP","rating":"5","brand":"Adrienne","popularity":465,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/2429_copyright_reddressboutique_2017__large.jpg","ratingCount":1111}},"attributes":{}},{"id":"178432","mappings":{"core":{"uid":"178432","name":"Spring Ahead Powder Blue Off-The-Shoulder Dress","sku":"C-AD-I1-1906P","msrp":50,"price":48,"thumbnailImageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/copyright_rdb_studio_2_5021_thumb_med.jpg","url":"/product/C-AD-I1-1906P","rating":"5","brand":"Adrienne","popularity":897,"imageUrl":"https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_large/copyright_rdb_studio_2_5021_large.jpg","ratingCount":1111}},"attributes":{}}];
+		const profileKey = `/v1/profile{"tag":"${profile}","siteId":"${siteID}","branch":"production"}`;
+		const recommendKey = `/v1/recommend{"tags":["${profile}"],"limits":[20],"siteId":"${siteID}"}`;
 
-        const recommendResponse = [{"results":results,"profile":{"tag":profile}}];
-        const profileResponse = {"profile":{"tag":profile,"display":{"template":{"component":component},"templateParameters":{}}}};
+		const profileWildCardKey = `/v1/profile/*`;
+		const recommendWildCardKey = `/v1/recommend/*`;
 
-        const profileKey = `/v1/profile{"tag":"${profile}","siteId":"${siteID}","branch":"production"}`;
-        const recommendKey = `/v1/recommend{"tags":["${profile}"],"limits":[20],"siteId":"${siteID}"}`;
+		document.addEventListener('RecsReady', () => {
+			console.log('take the pic now');
+			window.RecsReady = true;
+		});
+	</script>
 
-        const profileWildCardKey = `/v1/profile/*`;
-        const recommendWildCardKey = `/v1/recommend/*`;
+	<script id="athos-context" src="bundle.js">
+		config = {
+			mode: 'production',
+			instantiators: {
+				recommendation: {
+					config: {
+						branch: "production"
+					}
+				}
+			},
+			client: {
+				config: {
+					recommend: {
+						cache: {
+							entries: {
+								[profileKey]: profileResponse,
+								[recommendKey]: recommendResponse,
+								[profileWildCardKey]: profileResponse,
+								[recommendWildCardKey]: recommendResponse,
+							}
+						},
+						
+					}
+				}
+			}
+		}
+	</script>
 
+	<script>
+		let ImagesLoadedEvent = new CustomEvent("RecsReady");
+		document.addEventListener('DOMContentLoaded', () => {
+			setTimeout(() => {Promise.all(Array.from(document.images).map(img => {
+				if (img.complete)
+					return Promise.resolve(img.naturalHeight !== 0);
+				return new Promise(resolve => {
+						img.addEventListener('load', () => resolve(true));
+						img.addEventListener('error', () => resolve(false));
+					});
+				})).then(results => {
+					if (results.every(res => res)) {
+						console.log(`all ${document.images.length} images loaded successfully`);
+						document.dispatchEvent(ImagesLoadedEvent);
 
+					}else {
+						console.log(`some images failed to load, all ${document.images.length} are finished`);
+						document.dispatchEvent(ImagesLoadedEvent);
 
-        document.addEventListener('RecsReady', () => {
-            console.log('take the pic now');
-            window.RecsReady = true;
-        });
-    </script>
-
-    <script id="athos-context" src="bundle.js">
-        config = {
-            mode: 'production',
-            instantiators: {
-		        recommendation: {
-                    config: {
-                        branch: "production"
-                    }
-                }
-            },
-            client: {
-                config: {
-                    recommend: {
-                        cache: {
-                            entries: {
-                                [profileKey]: profileResponse,
-                                [recommendKey]: recommendResponse,
-                                [profileWildCardKey]: profileResponse,
-                                [recommendWildCardKey]: recommendResponse,
-                            }
-                        },
-                        
-                    }
-                }
-            }
-        }
-    </script>
-
-    <script>
-        let ImagesLoadedEvent = new CustomEvent("RecsReady");
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {Promise.all(Array.from(document.images).map(img => {
-                if (img.complete)
-                    return Promise.resolve(img.naturalHeight !== 0);
-                return new Promise(resolve => {
-                        img.addEventListener('load', () => resolve(true));
-                        img.addEventListener('error', () => resolve(false));
-                    });
-                })).then(results => {
-                    if (results.every(res => res)) {
-                        console.log(`all ${document.images.length} images loaded successfully`);
-                        document.dispatchEvent(ImagesLoadedEvent);
-
-                    }else {
-                        console.log(`some images failed to load, all ${document.images.length} are finished`);
-                        document.dispatchEvent(ImagesLoadedEvent);
-
-                    }
-                });
-            },500)});          
-    </script>
+					}
+				});
+			},500)});
+	</script>
 </head>
 
 <body class="ss-lite-site">
-    
-    <script type="athos/recommend" profile="email"></script>
-       
+	<script type="athos/recommend" profile="email"></script>
 </body>
 
 </html>

@@ -88,7 +88,7 @@ let config: SnapTemplatesConfig = {
 		targets: [
 			{
 				selector: '#athos-layout',
-				component: 'SearchCollapsible',
+				component: 'Search',
 			},
 		],
 		settings: {

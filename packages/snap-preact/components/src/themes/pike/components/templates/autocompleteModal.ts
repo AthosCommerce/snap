@@ -12,7 +12,7 @@ const searchInputHeight = 40;
 const autocompleteModalStyleScript = (props: AutocompleteModalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const desktopBp = variables?.breakpoints?.desktop || custom.breakpoints.desktop;
+	const desktopBp = variables?.breakpoints?.desktop as number;
 
 	// autocomplete shared styles
 	const sharedStyles = css({
@@ -54,6 +54,7 @@ const autocompleteModalStyleScript = (props: AutocompleteModalProps) => {
 						flex: '1 1 0%',
 						overflowY: 'auto',
 						overflowX: 'hidden',
+						borderTopWidth: 0,
 						...custom.styles.scrollbar(),
 					},
 				},
@@ -127,7 +128,6 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		'autocompleteModal recommendationGrid': {
 			rows: 2,
 			columns: 4,
-			gapSize: `${custom.spacing.x4}px`,
 		},
 		'autocompleteModal button.see-more icon': {
 			size: `${custom.sizes.icon12}px`,
@@ -149,6 +149,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		'autocompleteModal results': {
 			rows: 1,
 			columns: 3,
+			gapSize: `${custom.spacing.x4}px ${custom.spacing.x2}px`,
 		},
 		'autocompleteModal recommendationGrid': {
 			rows: 1,
@@ -186,6 +187,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		'autocompleteModal results': {
 			rows: 1,
 			columns: 4,
+			gapSize: `${custom.spacing.x4}px`,
 		},
 		'autocompleteModal recommendationGrid': {
 			rows: 1,
@@ -207,6 +209,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		'autocompleteModal results': {
 			rows: 2,
 			columns: 3,
+			gapSize: `${custom.spacing.x4}px`,
 		},
 		'autocompleteModal recommendationGrid': {
 			rows: 2,

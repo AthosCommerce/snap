@@ -30,7 +30,17 @@ export default {
 			),
 		},
 	},
-	decorators: [(Story: any) => <Story />],
+	decorators: [
+		(Story: any) => (
+			<div
+				style={{
+					maxWidth: '1200px',
+				}}
+			>
+				<Story />
+			</div>
+		),
+	],
 	argTypes: {
 		controller: {
 			description: 'Search Controller Reference',

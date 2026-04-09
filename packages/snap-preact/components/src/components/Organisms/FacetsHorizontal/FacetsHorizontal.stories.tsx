@@ -31,6 +31,13 @@ export default {
 			),
 		},
 	},
+	decorators: [
+		(Story: any) => (
+			<div style={{ maxWidth: '1200px' }}>
+				<Story />
+			</div>
+		),
+	],
 	argTypes: {
 		facets: {
 			description: 'Facets store reference',

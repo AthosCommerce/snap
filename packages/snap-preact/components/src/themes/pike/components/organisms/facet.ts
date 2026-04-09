@@ -134,9 +134,6 @@ const facetStyleScript = (props: FacetProps) => {
 			lineHeight: 1,
 			'.ss__facet__show-more-less__icon': {
 				margin: 0,
-				width: `${custom.sizes.icon10}px`,
-				height: `${custom.sizes.icon10}px`,
-				flex: `0 0 ${custom.sizes.icon10}px`,
 			},
 		},
 	});
@@ -156,14 +153,17 @@ export const facet: ThemeComponent<'facet', FacetProps, FacetTemplatesLegalProps
 			color: custom.colors.secondary,
 			iconColor: custom.colors.primary,
 		},
-		'facet icon.collapse': {
+		'facet dropdown icon.collapse': {
 			size: `${custom.sizes.icon12}px`,
 		},
-		'facet icon.expand': {
+		'facet dropdown icon.expand': {
 			size: `${custom.sizes.icon12}px`,
 		},
 		'facet button.reset-facet icon': {
 			size: `${custom.sizes.icon08}px`,
+		},
+		'facet icon.overflow-more': {
+			size: `${custom.sizes.icon10}px`,
 		},
 	},
 };

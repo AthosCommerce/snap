@@ -156,6 +156,7 @@ export default {
 		slideWidth: {
 			description: 'Width of each slide in Number of px',
 			table: {
+				category: 'Templates Legal',
 				type: {
 					summary: 'number',
 				},

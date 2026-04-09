@@ -16,8 +16,8 @@ const paletteColors = {
 const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
+	const mobileBp = variables?.breakpoints?.mobile as number;
+	const tabletBp = variables?.breakpoints?.tablet as number;
 	const hasCheckbox = !props?.hideCheckbox ? true : false;
 	const isList = props?.layout == 'list' ? true : false;
 	const innerBorder = isList ? 3 : 5;
@@ -132,7 +132,7 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 	// facet palette shared list styles
 	const sharedListStyles = css({
 		'.ss__facet-palette-options__option': {
-			lineHeight: 1.5,
+			...custom.styles.baseText(variables?.colors?.text),
 			minHeight: hasCheckbox ? '' : `${listSize + 2}px`,
 			position: 'relative',
 			gap: `${custom.spacing.x1}px`,

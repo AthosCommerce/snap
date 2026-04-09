@@ -19,7 +19,7 @@ const checkboxHeight = 16;
 const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVerticalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+
 	// bundle vertical shared styles
 	const sharedStyles = css({
 		'.ss__recommendation-bundle-vertical__wrapper__cta': {
@@ -106,7 +106,7 @@ const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVert
 				display: 'none',
 			},
 		},
-		[`${custom.utils.getBp(mobileBp - 100)}`]: {
+		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__recommendation-bundle-vertical__wrapper .ss__recommendation-bundle-vertical__wrapper__selector .ss__recommendation-bundle-vertical__wrapper__selector__result-wrapper:has(.ss__result--list) .ss__checkbox':
 				{
 					right: 'auto',
