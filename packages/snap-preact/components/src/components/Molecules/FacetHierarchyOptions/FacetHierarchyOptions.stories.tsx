@@ -136,7 +136,11 @@ const ObservableFacetHierarchyOptions = observer(({ args, controller }: { args: 
 		.shift()
 		.values.slice(0, 12);
 
-	return <FacetHierarchyOptions {...args} values={hierarchyValues} />;
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<FacetHierarchyOptions {...args} values={hierarchyValues} />
+		</div>
+	);
 });
 
 export const Default = (args: FacetHierarchyOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {

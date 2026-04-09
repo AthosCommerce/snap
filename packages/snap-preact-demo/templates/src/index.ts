@@ -44,7 +44,11 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+			},
 		},
 	},
 	recommendation: {
@@ -68,7 +72,7 @@ let templatesConfig: SnapTemplatesConfig = {
 		targets: [
 			{
 				selector: '#athos-layout',
-				component: 'SearchCollapsible',
+				component: 'Search',
 			},
 		],
 		settings: {

@@ -15,7 +15,8 @@ const mobileSidebarStyleScript = (props: MobileSidebarProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
 	const hideHeader = typeof props?.hideHeader == 'boolean' ? props.hideHeader : false;
-	const hideFooter = typeof props?.hideFooter == 'boolean' ? props.hideFooter : false;
+	let hideFooter = typeof props?.hideFooter == 'boolean' ? props.hideFooter : false;
+	hideFooter = props?.hideApplyButton && props?.hideClearButton ? true : hideFooter;
 
 	// determine inner content height
 	let innerHeight = 100;

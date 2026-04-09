@@ -21,8 +21,8 @@ const carouselOptions = {
 const recommendationStyleScript = (props: RecommendationProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+	const tabletBp = variables?.breakpoints?.tablet as number;
+	const mobileBp = variables?.breakpoints?.mobile as number;
 
 	// spacing and position variables for features
 	let spacing = 0;
@@ -48,9 +48,7 @@ const recommendationStyleScript = (props: RecommendationProps) => {
 			...custom.styles.textOverflow(),
 		},
 		'.ss__recommendation__description': {
-			fontSize: '14px',
-			fontWeight: 'normal',
-			color: variables?.colors?.text,
+			...custom.styles.baseText(variables?.colors?.text),
 		},
 		'.ss__carousel': {
 			position: 'static',
@@ -96,12 +94,15 @@ const recommendationStyleScript = (props: RecommendationProps) => {
 			'.ss__recommendation__title, .ss__recommendation__description': {
 				textAlign: 'center',
 			},
+			'.ss__recommendation__title': {
+				padding: 0,
+			},
 			'.ss__carousel': {
 				position: 'relative',
 				padding: `0 ${custom.spacing.x4 + arrowSizes.tablet}px`,
 				'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
 					top: 0,
-					bottom: `calc(10.15rem + ${spacing - custom.spacing.x4}px)`,
+					bottom: `calc(10.40rem + ${spacing - custom.spacing.x4}px)`,
 					width: `${arrowSizes.tablet}px`,
 					height: `${arrowSizes.tablet}px`,
 				},

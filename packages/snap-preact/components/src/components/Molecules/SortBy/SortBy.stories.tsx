@@ -91,7 +91,11 @@ export default {
 const snapInstance = Snapify.search({ id: 'SortBy', globals: { siteId: 'atkzs2' } });
 
 export const Default = (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SortBy {...args} sorting={controller?.store?.sorting} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+			<SortBy {...args} sorting={controller?.store?.sorting} />
+		</div>
+	);
 };
 
 Default.loaders = [
@@ -107,7 +111,11 @@ Default.args = {
 };
 
 export const List = (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SortBy {...args} sorting={controller?.store?.sorting} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+			<SortBy {...args} sorting={controller?.store?.sorting} />
+		</div>
+	);
 };
 
 List.loaders = [
@@ -124,7 +132,11 @@ List.args = {
 };
 
 export const Radio = (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SortBy {...args} sorting={controller?.store?.sorting} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+			<SortBy {...args} sorting={controller?.store?.sorting} />
+		</div>
+	);
 };
 
 Radio.loaders = [

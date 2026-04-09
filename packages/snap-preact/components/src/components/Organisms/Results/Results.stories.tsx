@@ -32,17 +32,7 @@ export default {
 			),
 		},
 	},
-	decorators: [
-		(Story: any) => (
-			<div
-				style={{
-					maxWidth: '900px',
-				}}
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [(Story: any) => <Story />],
 	argTypes: {
 		results: {
 			description: 'Results store reference',
@@ -135,7 +125,11 @@ export default {
 const snapInstance = Snapify.search({ id: 'Results', globals: { siteId: 'atkzs2' } });
 
 export const Grid = (args: ResultsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Results {...args} controller={controller} results={controller?.store?.results} />;
+	return (
+		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '800px' }}>
+			<Results {...args} controller={controller} results={controller?.store?.results} />
+		</div>
+	);
 };
 
 Grid.loaders = [
@@ -146,9 +140,16 @@ Grid.loaders = [
 		};
 	},
 ];
+Grid.args = {
+	layout: 'grid',
+};
 
 export const List = (args: ResultsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Results {...args} controller={controller} results={controller?.store?.results} layout={ResultsLayout.list} />;
+	return (
+		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '800px' }}>
+			<Results {...args} controller={controller} results={controller?.store?.results} layout={ResultsLayout.list} />
+		</div>
+	);
 };
 
 List.loaders = [
@@ -159,3 +160,6 @@ List.loaders = [
 		};
 	},
 ];
+List.args = {
+	layout: 'list',
+};
