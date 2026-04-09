@@ -1,13 +1,13 @@
 # Migration Guide: Searchspring Snap to Athos Snap
 
 > [!NOTE]
-> Athos Snap requires an Athos siteId (prefixed with `at`). Searchspring siteIds are **NOT** compatible with Athos Snap. Your account must be provisioned in the [Athos Search & Discovery Console](https://console.athoscommerce.net) before beginning this migration.
+> Athos Snap requires an Athos siteId (prefixed with `at`). Searchspring siteIds are **NOT** compatible with Athos Snap. Your account must be provisioned in the [Athos Search & Product Discovery Console (ASD)](https://console.athoscommerce.net) before beginning this migration.
 
 ## Prerequisites
 
 Before starting the migration, ensure the following:
 
-- Your account has been set up in the [Athos Search & Discovery Console (ASD)](https://console.athoscommerce.net)
+- Your account has been set up in the [Athos Search & Product Discovery Console (ASD)](https://console.athoscommerce.net)
 - You have a valid Athos siteId (starts with `at`)
 - You have access to the site's Snap integration repository
 
@@ -96,7 +96,7 @@ window?.athos;
 
 This includes any usage in custom scripts, middleware, Cypress tests, or external integrations that reference the global object.
 
-**package.json configuration key** *(Snapfu scaffolding only)*:**
+**package.json configuration key** *(Snapfu scaffolding only)*:
 
 ```json
 // Before

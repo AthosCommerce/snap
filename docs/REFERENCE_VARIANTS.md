@@ -9,7 +9,7 @@ Product variants allow you to represent different versions of the same base prod
 
 Snap's variants functionality helps manage these product variations by providing tools to configure, display and interact with variant data in your components.
 
-Variants are configured in the [Athos Search & Discovery Console](https://console.athoscommerce.net). When variants are configured in the console, the API will return a `variants` property on each result object, and variants are automatically enabled in Snap — no code configuration is required.
+Variants are configured in the [Athos Search & Product Discovery Console (ASD)](https://console.athoscommerce.net). When variants are configured in the console, the API will return a `variants` property on each result object, and variants are automatically enabled in Snap — no code configuration is required.
 
 Configuration in Snap is only needed when additional variant settings are required, such as realtime variant syncing or per-field option customization (see below).
 
