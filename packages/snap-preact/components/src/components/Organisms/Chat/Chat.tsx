@@ -288,10 +288,10 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 							display: 'flex',
 							flexDirection: 'column',
 							boxSizing: 'border-box',
-							'.ss__chat__history__chat__button__text': {},
-							'.ss__chat__history__chat__button__date': {
-								fontSize: '70%',
+							'.ss__chat__history__chat__button__text': {
+								fontWeight: 'bold',
 							},
+							'.ss__chat__history__chat__button__date': {},
 						},
 					},
 				},
@@ -479,18 +479,41 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				},
 			},
 			'.ss__chat__actions': {
-				'.ss__button': {
-					border: '1px solid #eee',
-					borderRadius: '12px',
+				display: 'flex',
+				flexDirection: 'column',
+				gap: '6px',
+				'.ss__chat__actions__wrap': {
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '6px',
+					padding: '8px 10px',
+					background: '#f4f4ff',
+					border: '1px solid #e3e3f5',
+					borderRadius: '8px',
+				},
+				'.ss__chat__actions--title': {
+					fontSize: '14px',
+					color: '#333',
 				},
 				'.ss__chat__actions--facets, .ss__chat__actions--suggested': {
-					display: 'inline-flex',
-					gap: 5,
+					display: 'flex',
 					flexDirection: 'row',
-					paddingBottom: '10px',
+					gap: '6px',
 					'.ss__button': {
-						flex: '1 0 auto',
+						flex: '0 0 auto',
+						background: '#fff',
+						border: '1px solid #ddd',
+						borderRadius: '999px',
+						padding: '3px 10px',
+						fontSize: '14px',
+						color: '#333',
+						'&:hover': {
+							background: '#f9f9ff',
+						},
 					},
+				},
+				'.ss__chat__actions--facets': {
+					flexWrap: 'wrap',
 				},
 				'.ss__chat__actions--suggested': {
 					overflowX: 'scroll',
@@ -504,11 +527,16 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 						background: 'white',
 						boxShadow: '0px 3px 6px 0px rgba(0, 0, 0, 0.2)',
 						borderRadius: '6px',
+						overflow: 'hidden',
 						'.ss__button': {
 							width: '100%',
 							border: 'none',
 							borderRadius: 0,
 							boxSizing: 'border-box',
+							background: '#fff',
+							'&:hover': {
+								background: '#f4f4ff',
+							},
 						},
 					},
 				},
@@ -927,8 +955,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					<Button
 						content="clear"
 						onClick={() => {
-							controller.store.reset();
-							controller.search();
+							controller.store.clearHistory();
 							props.toggleOpen && props.toggleOpen();
 						}}
 					/>
@@ -946,7 +973,12 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 								disabled={chat.id === store.currentChatId}
 							>
 								<div className="ss__chat__history__chat__button__text">
-									{/* {chat.chat.length > 1 ? filters.truncate(chat.chat[1].text, 50) : `New Chat`} */}
+									{(() => {
+										const lastUserMessage = [...chat.chat].reverse().find((message) => message.messageType === 'user');
+										if (!lastUserMessage) return 'New Chat';
+										const text = lastUserMessage.text;
+										return text.length > 50 ? `${text.slice(0, 50)}...` : text;
+									})()}
 								</div>
 								<div className="ss__chat__history__chat__button__date">{chat.createdAt.toLocaleString()}</div>
 							</Button>
@@ -957,45 +989,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 		</div>
 	);
 
-	// const FacetButton = (props: { label: string; open?: boolean }) => <Button icon={props.open ? 'angle-down' : 'angle-up'}>{props.label}</Button>;
-
-	const FacetsPopup = (props: { action: FacetsData; toggleOpen?: () => void }) => (
-		<div className="ss__chat__facets">
-			<div className="ss__chat__facets__header">
-				<div className="ss__chat__facets__close">
-					<Button icon="close-thin" className="ss__chat__facets__close__button" onClick={props.toggleOpen} />
-				</div>
-				<div className="ss__chat__facets__header__title">Filter Results</div>
-			</div>
-			<div className="ss__chat__facets__wrapper">
-				{/* {props.action.data.map((facet, idx) => (
-					<div className="ss__chat__facets__facet" key={idx}>
-						<div className="ss__chat__facets__facet__label">{facet.label}</div>
-						<div className="ss__chat__facets__facet__options">
-							{facet.options?.map((option) => (
-								<Button
-									className="ss__chat__facets__facet__options__option"
-									key={option.key}
-									onClick={() => {
-										controller.store.addFacet({
-											key: facet.key,
-											facetLabel: facet.label,
-											value: option.key,
-											label: option.label,
-											count: option.count,
-										});
-										controller.search();
-									}}
-								>
-									{option.label}
-								</Button>
-							))}
-						</div>
-					</div>
-				))} */}
-			</div>
-		</div>
-	);
+	const FacetButton = (props: { label: string; open?: boolean }) => <Button icon={props.open ? 'angle-down' : 'angle-up'}>{props.label}</Button>;
 
 	// TODO: if starting a new chat and it's expired, this button would then disappear
 	if (!controller.store.chatEnabled) {
@@ -1093,7 +1087,20 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									<Button
 										className="ss__chat__header__button--close"
 										icon={{ icon: 'close2', title: 'Close Chat' }}
-										onClick={() => store.currentChat?.dismissSideChat()}
+										onClick={() => {
+											// clear any product attachments tied to the side chat (discuss product flow)
+											// so the attachments bar disappears alongside the secondary panel
+											const productAttachmentsToRemove = (store.currentChat?.attachments.attached || []).filter(
+												(item) => item.type === 'product' && (item as any).requestType !== 'productSimilar'
+											);
+											productAttachmentsToRemove.forEach((item) => store.currentChat?.attachments.remove(item.id));
+											// clear committed comparison products when closing a productComparison side chat
+											// so the "Asking about compared products" bar disappears alongside the secondary panel
+											if (activeMessage?.messageType === 'productComparison') {
+												store.currentChat?.comparisons.resetCommitted();
+											}
+											store.currentChat?.dismissSideChat();
+										}}
 									/>
 								</div>
 							</div>
@@ -1185,7 +1192,6 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												<div className={'ss__chat__content__header__comparisons__content__items'}>
 													{Array.from({ length: store.currentChat?.comparisons.maxItems }).map((_, index) => {
 														const comparisonItem = store.currentChat?.comparisons.compared[index];
-														console.log('comparisonItem', comparisonItem);
 														return (
 															<div
 																className={classnames('ss__chat__content__header__comparisons__content__comparison', {
@@ -1272,45 +1278,62 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												{store.currentChat?.actions.map((action, index) => (
 													<div className="ss__chat__actions__wrap" key={index}>
 														{{
-															facets: (
-																<div className="ss__chat__actions--facets">
-																	<Dropdown
-																		className="ss__chat__actions__facets-dropdown"
-																		button={
-																			<Button className="ss__chat__actions__facets" icon="filters2">
-																				Filters
-																			</Button>
-																		}
-																	>
-																		<FacetsPopup action={action as FacetsData} />
-																	</Dropdown>
-																	{/* {(action as FacetsData).data.map((facet, idx) => (
-																	<div className="ss__chat__actions__facet" key={idx}>
-																		<Dropdown key={facet.key} button={<FacetButton label={facet.label} />}>
-																			<div className="ss__chat__actions__facet__options">
-																				{facet.options?.map((option) => (
-																					<Button
-																						key={option.key}
-																						onClick={() => {
-																							controller.store.addFacet({
-																								key: facet.key,
-																								facetLabel: facet.label,
-																								value: option.key,
-																								label: option.label,
-																								count: option.count,
-																							});
-																							controller.search();
-																						}}
-																					>
-																						{option.label}
-																					</Button>
-																				))}
-																			</div>
-																		</Dropdown>
+															facets: (action as FacetsData).data.length ? (
+																<>
+																	<div className="ss__chat__actions--title">Filter by:</div>
+																	<div className="ss__chat__actions--facets">
+																		{(action as FacetsData).data.slice(0, 10).map((facet: any, idx: number) => {
+																			if (!facet.values?.length) return null;
+																			return (
+																				<div className={`ss__chat__actions__facet ss__chat__actions__facet--${facet.type}`} key={idx}>
+																					<Dropdown key={facet.field} button={<FacetButton label={facet.label || facet.field} />}>
+																						<div className="ss__chat__actions__facet__options">
+																							{facet.type === 'range-buckets'
+																								? facet.values.map((option: any) => {
+																										const optionValue = `${option.low ?? '*'}:${option.high ?? '*'}`;
+																										return (
+																											<Button
+																												key={optionValue}
+																												onClick={() => {
+																													controller.store.addFacet({
+																														key: facet.field,
+																														facetLabel: facet.label,
+																														value: optionValue,
+																														label: option.label,
+																														count: option.count,
+																													});
+																													controller.search();
+																												}}
+																											>
+																												{option.label}
+																											</Button>
+																										);
+																								  })
+																								: facet.values.map((option: any) => (
+																										<Button
+																											key={option.value}
+																											onClick={() => {
+																												controller.store.addFacet({
+																													key: facet.field,
+																													facetLabel: facet.label,
+																													value: option.value,
+																													label: option.label,
+																													count: option.count,
+																												});
+																												controller.search();
+																											}}
+																										>
+																											{option.label}
+																										</Button>
+																								  ))}
+																						</div>
+																					</Dropdown>
+																				</div>
+																			);
+																		})}
 																	</div>
-																))} */}
-																</div>
-															),
+																</>
+															) : null,
 															actions: (
 																<div className="ss__chat__actions--suggested">
 																	{/* {(action as ActionsData).data.map((act, idx) => (
@@ -1358,7 +1381,10 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												id: item.id,
 												name: item.name || '',
 												imageUrl: item.thumbnailUrl || '',
-												onRemove: () => store.currentChat?.attachments.remove(item.id),
+												onRemove: () => {
+													store.currentChat?.attachments.remove(item.id);
+													store.currentChat?.dismissSideChat();
+												},
 											}));
 
 											const imageItems: ChatAttachmentContextItem[] = imageAttachments.map((item: any) => ({
@@ -1371,14 +1397,14 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												onRemove: () => store.currentChat?.attachments.remove(item.id),
 											}));
 
-											const productTitle = productItems.length > 1 ? 'Comparing these products:' : 'Asking about this product:';
-											const imageTitle = imageItems.length > 1 ? 'Find products similar to these images:' : 'Find products similar to this image:';
+											const productTitle = productItems.length > 1 ? 'Compare these products' : 'Ask about this product';
+											const imageTitle = imageItems.length > 0 ? 'Find products similar to this image:' : '';
 
 											return (
 												<>
 													{comparisonItems.length > 0 && (
 														<ChatAttachmentContext
-															title={'Asking about compared products:'}
+															title={'Compare these products'}
 															items={comparisonItems}
 															onClose={() => {
 																store.currentChat?.comparisons.resetCommitted();
@@ -1386,7 +1412,16 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 															}}
 														/>
 													)}
-													{productItems.length > 0 && <ChatAttachmentContext title={productTitle} items={productItems} />}
+													{productItems.length > 0 && (
+														<ChatAttachmentContext
+															title={productTitle}
+															items={productItems}
+															onClose={() => {
+																productAttachments.forEach((item: any) => store.currentChat?.attachments.remove(item.id));
+																store.currentChat?.dismissSideChat();
+															}}
+														/>
+													)}
 													{imageItems.length > 0 && <ChatAttachmentContext title={imageTitle} items={imageItems} />}
 												</>
 											);
@@ -1419,15 +1454,16 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														const attachedProducts = attached.filter((item) => item.type === 'product');
 														const attachedImages = attached.filter((item) => item.type === 'image' && !item.error);
 
+														if (attachedProducts.length === 1) {
+															return 'Ask about this product...';
+														}
 														if (comparedCount > 1 || attachedProducts.length > 1) {
 															return 'What would you like to compare?';
 														}
 														if (committedCount > 0) {
 															return 'Ask about the compared products...';
 														}
-														if (attachedProducts.length === 1) {
-															return 'Ask about this product...';
-														}
+
 														if (attachedImages.length > 0) {
 															return 'Ask about this image...';
 														}

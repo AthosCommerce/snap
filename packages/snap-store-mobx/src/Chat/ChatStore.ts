@@ -141,6 +141,26 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.createChat();
 	}
 
+	public clearHistory(): void {
+		// drop previous chats while keeping the conversation the user is currently in;
+		// if there is no current chat, fall back to a full reset
+		const currentChat = this.currentChat;
+
+		if (!currentChat) {
+			this.reset();
+			return;
+		}
+
+		const storedChats = this.storage.get('chats') || {};
+		const filtered: Record<string, any> = {};
+		if (storedChats[currentChat.id]) {
+			filtered[currentChat.id] = storedChats[currentChat.id];
+		}
+		this.storage.set('chats', filtered);
+
+		this.chats = [currentChat];
+	}
+
 	public createChat(data?: { sessionId: string }): ChatSessionStore {
 		const newChat = new ChatSessionStore({
 			data: {

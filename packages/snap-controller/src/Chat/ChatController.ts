@@ -357,6 +357,21 @@ export class ChatController extends AbstractController {
 	upload = async (files: FileList | null) => {
 		if (!files || files.length === 0) return;
 
+		// uploading a photo starts a fresh context — abandon any in-progress or committed comparisons
+		// (previous attachments are already cleared by attachments.add for type 'image')
+		if ((this.store.currentChat?.comparisons.compared.length || 0) > 0) {
+			this.store.currentChat?.comparisons.reset();
+		}
+		if ((this.store.currentChat?.comparisons.committed.length || 0) > 0) {
+			this.store.currentChat?.comparisons.resetCommitted();
+		}
+
+		// dismiss any side-chat tied to the previous context (productQuery/productAnswer/productComparison)
+		const activeMessageType = this.store.currentChat?.activeMessage?.messageType;
+		if (activeMessageType === 'productQuery' || activeMessageType === 'productAnswer' || activeMessageType === 'productComparison') {
+			this.store.currentChat?.dismissSideChat();
+		}
+
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
 			const fileName = file.name.toLowerCase();
@@ -374,7 +389,7 @@ export class ChatController extends AbstractController {
 			if (attachment) {
 				try {
 					const response = await this.client.uploadImage(params);
-					if (response.success) {
+					if (response.imageId) {
 						attachment.update({
 							imageId: response.imageId,
 							imageUrl: response.imageUrl,
@@ -403,6 +418,20 @@ export class ChatController extends AbstractController {
 	};
 
 	compareProduct = (result: Product): void => {
+		// remove any 'discuss product' (productQuery) attachments so the previous product context disappears
+		const productQueryAttachments = (this.store.currentChat?.attachments.attached || []).filter(
+			(item) => item.type === 'product' && (item as ChatAttachmentProduct).requestType === 'productQuery'
+		);
+		productQueryAttachments.forEach((item) => {
+			this.store.currentChat?.attachments.remove(item.id);
+		});
+
+		// dismiss the side-chat if it's currently showing a productQuery/productAnswer from a previous 'discuss product'
+		const activeMessageType = this.store.currentChat?.activeMessage?.messageType;
+		if (activeMessageType === 'productQuery' || activeMessageType === 'productAnswer') {
+			this.store.currentChat?.dismissSideChat();
+		}
+
 		this.store.compareProduct(result);
 	};
 
@@ -412,6 +441,11 @@ export class ChatController extends AbstractController {
 	// };
 
 	discussProduct = (result: Product, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void => {
+		// discard any uncommitted comparison products — discussing or finding similar products abandons an in-progress comparison
+		if (options.requestType !== 'productComparison' && (this.store.currentChat?.comparisons.compared.length || 0) > 0) {
+			this.store.currentChat?.comparisons.reset();
+		}
+
 		this.store.sendProductQuery(result, options);
 		if (options.requestType === 'productSimilar') {
 			this.search();

@@ -213,7 +213,7 @@ export class ChatSessionStore {
 		this.storage.set(`chats.${this.id}`, {
 			sessionId: this.sessionId,
 			chat: this.chat,
-			attachments: this.attachments.items,
+			// attachments: this.attachments.items,
 			actions: this.actions,
 			feedbacks: this.feedbacks,
 			createdAt: this.createdAt,

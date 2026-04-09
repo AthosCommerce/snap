@@ -13,7 +13,7 @@ const MAX_INTERVAL = 5000;
 
 const defaultStyles: StyleScript<ChatLoadingIndicatorProps> = () => {
 	return css({
-		padding: '1em',
+		padding: '1em 2em 0 2em',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '8px',

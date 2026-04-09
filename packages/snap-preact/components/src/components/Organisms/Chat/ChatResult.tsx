@@ -37,6 +37,7 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 					padding: '0.25em 1em',
 					background: 'rgba(255, 255, 255, 0.9)',
 					textAlign: 'center',
+					justifyContent: 'center',
 					borderRadius: '2em',
 					boxShadow: 'inset 0 0 1px 0px rgba(0, 0, 0, 0.5)',
 					flex: '1 0 50%',
@@ -116,9 +117,7 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 
 	const { controller, result, scrollToBottom } = props;
 
-	// const shouldCompare = controller.store.currentChat?.attachments.items.some(
-	// 	(attachment) => attachment.type === 'product' && attachment.state === 'active' && (attachment as any).productId !== result.id
-	// );
+	const isInComparison = controller.store.currentChat?.comparisons.items.some((item) => item.result?.id === result.id);
 
 	const subProps: ChatResultSubProps = {
 		button: {
@@ -162,7 +161,8 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 					)}
 					<Button
 						className={'ss__chat__result__image__buttons__compare'}
-						content={'Compare'}
+						content={isInComparison ? undefined : 'Compare'}
+						icon={isInComparison ? { icon: 'check-thin', title: 'Added to comparison' } : undefined}
 						onClick={() => {
 							controller.compareProduct(result);
 						}}

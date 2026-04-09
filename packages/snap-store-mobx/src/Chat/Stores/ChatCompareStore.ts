@@ -17,6 +17,10 @@ export class ChatCompareStore {
 
 	// add, remove, reset methods
 	add(item: any) {
+		// prevent adding the same product to the comparison twice
+		if (item.result?.id && this.items.some((existing) => existing.result?.id === item.result.id)) {
+			return;
+		}
 		if (this.items.length >= this.maxItems) {
 			// handle max items reached, e.g. remove the oldest item
 			this.items.shift();

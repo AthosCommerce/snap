@@ -3,6 +3,7 @@ import {
 	SearchResponseModelFacet,
 	SearchResponseModelResultCoreMappings,
 	SearchResponseModelFacetValueAllOfValues,
+	SearchResponseModelFacetRangeBucketsAllOfValues,
 } from '@athoscommerce/snapi-types';
 import type {
 	MoiResponseModel,
@@ -347,9 +348,9 @@ const mapFacetToSearchResultFacets = (searchResult: MoiResponseModelSearchResult
 	const transformedFacets = facets.map((facet) => {
 		const transformedFacet: any = {
 			field: facet.field,
+			label: facet.label,
 			type: 'value',
 		};
-
 		if (facet.values instanceof Array) {
 			if (facet.type == 'hierarchy') {
 				transformedFacet.type = 'value';
@@ -361,12 +362,23 @@ const mapFacetToSearchResultFacets = (searchResult: MoiResponseModelSearchResult
 						count: value.count,
 					};
 				});
-			} else if (facet.values[0].type == 'value') {
+			} else if (facet.values.length && facet.values[0].type == 'value') {
 				transformedFacet.type = 'value';
 				transformedFacet.values = facet.values.map((value): SearchResponseModelFacetValueAllOfValues => {
 					return {
 						filtered: value.active,
 						value: value.value,
+						label: value.label,
+						count: value.count,
+					};
+				});
+			} else if (facet.values.length && facet.values[0].type == 'range') {
+				transformedFacet.type = 'range-buckets';
+				transformedFacet.values = facet.values.map((value: any): SearchResponseModelFacetRangeBucketsAllOfValues => {
+					return {
+						filtered: value.active,
+						low: value.low == '*' ? undefined : value.low != null ? +value.low : undefined,
+						high: value.high == '*' ? undefined : value.high != null ? +value.high : undefined,
 						label: value.label,
 						count: value.count,
 					};
