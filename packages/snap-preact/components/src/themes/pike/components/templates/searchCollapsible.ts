@@ -8,7 +8,7 @@ import { custom } from '../../custom';
 const searchCollapsibleStyleScript = (props: SearchCollapsibleProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
+	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// search collapsible styles
 	const searchCollapsibleStyles = css({

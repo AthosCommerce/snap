@@ -4,7 +4,7 @@ import { LoadingBar, LoadingBarProps } from './LoadingBar';
 import { componentArgs, highlightedCode } from '../../../utilities';
 import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 
-import Readme from '../Loading/readme.md';
+import Readme from './readme.md';
 
 export default {
 	title: 'Atoms/LoadingBar',
@@ -80,7 +80,9 @@ export default {
 	},
 };
 
-export const Active = (args: LoadingBarProps) => <LoadingBar {...args} />;
+export const Active = (args: LoadingBarProps) => {
+	return <LoadingBar {...args} style={{ maxWidth: '1200px', margin: '1rem', overflow: 'hidden' }} />;
+};
 Active.args = {
 	active: true,
 };

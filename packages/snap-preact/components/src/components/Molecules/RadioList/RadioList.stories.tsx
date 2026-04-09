@@ -157,7 +157,13 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'RadioList', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: RadioListProps) => <RadioList {...args} />;
+export const Default = (args: RadioListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<RadioList {...args} />
+		</div>
+	);
+};
 Default.args = {
 	options: [
 		{
@@ -175,7 +181,13 @@ Default.args = {
 	],
 } as RadioListProps;
 
-export const Icons = (args: RadioListProps) => <RadioList {...args} />;
+export const Icons = (args: RadioListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<RadioList {...args} />
+		</div>
+	);
+};
 Icons.args = {
 	options: [
 		{
@@ -200,7 +212,13 @@ Icons.args = {
 	],
 } as RadioListProps;
 
-export const Native = (args: RadioListProps) => <RadioList {...args} />;
+export const Native = (args: RadioListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<RadioList {...args} />
+		</div>
+	);
+};
 Native.args = {
 	native: true,
 	options: [
@@ -220,7 +238,11 @@ Native.args = {
 } as RadioListProps;
 
 export const PerPage = (args: RadioListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <RadioList {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />;
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<RadioList {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />
+		</div>
+	);
 };
 
 PerPage.loaders = [
@@ -237,7 +259,11 @@ PerPage.args = {
 } as RadioListProps;
 
 export const SortBy = (args: RadioListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <RadioList {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />;
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<RadioList {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />
+		</div>
+	);
 };
 
 SortBy.loaders = [

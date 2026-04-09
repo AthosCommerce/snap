@@ -10,8 +10,8 @@ const checkboxSpacing = custom.sizes.icon16 + custom.spacing.x2;
 const listStyleScript = (props: ListProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
+	const mobileBp = variables?.breakpoints?.mobile as number;
+	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// shared styles
 	const sharedStyles = css({
@@ -32,8 +32,7 @@ const listStyleScript = (props: ListProps) => {
 		'.ss__list__options': {
 			'.ss__list__option': {
 				position: 'relative',
-				lineHeight: 1.5,
-				color: variables?.colors?.text,
+				...custom.styles.baseText(variables?.colors?.text),
 				gap: `${custom.spacing.x2}px`,
 				padding: props?.hideOptionCheckboxes ? `` : `0 0 0 ${checkboxSpacing}px`,
 				'.ss__list__option__label, .ss__list__option__icon': {

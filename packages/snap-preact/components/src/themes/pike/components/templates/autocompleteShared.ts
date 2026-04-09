@@ -12,9 +12,9 @@ const activeSelectors =
 export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, template: string) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const desktopBp = variables?.breakpoints?.desktop || custom.breakpoints.desktop;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+	const desktopBp = variables?.breakpoints?.desktop as number;
+	const tabletBp = variables?.breakpoints?.tablet as number;
+	const mobileBp = variables?.breakpoints?.mobile as number;
 
 	// determine template being used
 	const isFixed = template == 'autocompleteFixed';
@@ -107,12 +107,6 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 					margin: 0,
 					'.ss__facet__header': {
 						borderBottom: 0,
-						'.ss__facet__header__inner': {
-							fontSize: 'inherit',
-							fontWeight: 'inherit',
-							color: 'inherit',
-							lineHeight: 'inherit',
-						},
 					},
 					'.ss__facet__options': {
 						'.ss__facet-hierarchy-options .ss__facet-hierarchy-options__option, .ss__facet-list-options .ss__facet-list-options__option': {
@@ -151,7 +145,6 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 
 	// results layout styles
 	const resultsLayoutStyles = css({
-		gap: `${custom.spacing.x4}px`,
 		overflowY: isFixed ? 'auto' : 'hidden',
 		overflowX: 'hidden',
 		maxHeight: isFixed ? '54vh' : '',
@@ -280,6 +273,13 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 		noResultsStyles,
 		seeMoreStyles,
 		{
+			[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
+				'.ss__autocomplete__content__results .ss__results.ss__results-list': {
+					gap: `${custom.spacing.x2}px`,
+				},
+			},
+		},
+		{
 			[`${custom.utils.getBp(custom.breakpoints.small, 'max')}`]: {
 				...resultsSmallStyles,
 			},
@@ -359,6 +359,13 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 		resultsStyles,
 		noResultsStyles,
 		seeMoreStyles,
+		{
+			[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
+				'.ss__autocomplete__content__results .ss__results.ss__results-list': {
+					gap: `${custom.spacing.x2}px`,
+				},
+			},
+		},
 		{
 			[`${custom.utils.getBp(custom.breakpoints.small, 'max')}`]: {
 				...resultsSmallStyles,

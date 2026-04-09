@@ -33,18 +33,7 @@ export default {
 			),
 		},
 	},
-	decorators: [
-		(Story: any) => (
-			<div
-				style={{
-					maxWidth: '900px',
-					position: 'relative',
-				}}
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [(Story: any) => <Story />],
 	argTypes: {
 		controller: {
 			description: 'autocomplete controller reference',
@@ -206,7 +195,11 @@ export const Default = (args: TermsProps, { loaded: { controller } }: { loaded: 
 		controller.bind();
 	});
 
-	return <Terms {...args} controller={controller} terms={mockTerms} />;
+	return (
+		<div style={{ maxWidth: args?.vertical ? '500px' : '1200px' }}>
+			<Terms {...args} controller={controller} terms={mockTerms} />
+		</div>
+	);
 };
 
 Default.loaders = [

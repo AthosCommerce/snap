@@ -10,7 +10,6 @@ const lightGray = custom.utils.lightenColor();
 const resultStyleScript = (props: ResultProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
 
 	// result styles
 	const resultStyles = css({
@@ -68,6 +67,10 @@ const resultStyleScript = (props: ResultProps) => {
 				gap: `${custom.spacing.x2}px`,
 				padding: 0,
 				margin: 0,
+				...custom.styles.baseText(variables?.colors?.text),
+				a: {
+					color: 'inherit',
+				},
 				'& > *, .ss__result__details__title, .ss__result__details__title, .ss__result__details__pricing': {
 					margin: 0,
 				},
@@ -77,9 +80,6 @@ const resultStyleScript = (props: ResultProps) => {
 				},
 				'.ss__result__details__title': {
 					order: -2,
-					a: {
-						color: variables?.colors?.text,
-					},
 				},
 				'.ss__result__details__pricing': {
 					order: -1,
@@ -107,6 +107,13 @@ const resultStyleScript = (props: ResultProps) => {
 					{
 						marginTop: 0,
 					},
+				'.ss__result__details__variant-selection': {
+					'.ss__variant-selection': {
+						'.ss__slideshow:not(:has(.ss__slideshow__navigation)) .ss__slideshow__container .ss__slideshow__track, .ss__grid .ss__grid__options': {
+							justifyContent: 'center',
+						},
+					},
+				},
 			},
 		},
 		'&.ss__result--list': {
@@ -118,7 +125,7 @@ const resultStyleScript = (props: ResultProps) => {
 				},
 			},
 		},
-		[`${custom.utils.getBp(mobileBp - 100)}`]: {
+		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'&.ss__result--list': {
 				'&, .ss__result__details': {
 					flexFlow: 'row wrap',
@@ -159,7 +166,7 @@ const resultStyleScript = (props: ResultProps) => {
 						'.ss__variant-selection': {
 							width: `calc((100% - ${custom.spacing.x2}px) / 2)`,
 							margin: 0,
-							'.ss__slideshow .ss__slideshow__container .ss__slideshow__track': {
+							'.ss__slideshow:not(:has(.ss__slideshow__navigation)) .ss__slideshow__container .ss__slideshow__track, .ss__grid .ss__grid__options': {
 								justifyContent: 'flex-start',
 							},
 						},

@@ -34,8 +34,7 @@ const dropdownStyleScript = (props: DropdownProps) => {
 					backgroundColor: 'transparent',
 				},
 				'.ss__select__select .ss__select__select__option, .ss__variant-selection__options .ss__variant-selection__option': {
-					color: 'inherit',
-					lineHeight: 1.5,
+					...custom.styles.baseText('inherit'),
 					gap: `${custom.spacing.x2}px`,
 					padding: 0,
 					margin: `0 0 ${custom.spacing.x1}px 0`,

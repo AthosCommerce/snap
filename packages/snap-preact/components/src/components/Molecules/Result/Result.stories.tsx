@@ -247,7 +247,7 @@ export const Default = (args: ResultProps, { loaded: { controller } }: { loaded:
 		rating: 4.5,
 	};
 	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '700px' : '250px' }}>
+		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '300px' }}>
 			<Result {...args} result={resultToUse} />
 		</div>
 	);
@@ -270,7 +270,7 @@ export const hideSections = (args: ResultProps, { loaded: { controller } }: { lo
 		rating: 4.5,
 	};
 	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '700px' : '250px' }}>
+		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '300px' }}>
 			<Result {...args} result={resultToUse} />
 		</div>
 	);
@@ -298,7 +298,7 @@ export const truncateTitle = (args: ResultProps, { loaded: { controller } }: { l
 		rating: 4.5,
 	};
 	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '700px' : '250px' }}>
+		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '300px' }}>
 			<Result {...args} result={resultToUse} />
 		</div>
 	);

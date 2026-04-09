@@ -20,6 +20,7 @@ const errorHandlerStyleScript = (props: ErrorHandlerProps) => {
 			padding: 0,
 			flexFlow: 'row wrap',
 			flex: `1 1 0%`,
+			fontSize: '14px',
 			color: variables?.colors?.text,
 			'span, .ss__icon, .ss__error-handler__message__type': {
 				margin: 0,

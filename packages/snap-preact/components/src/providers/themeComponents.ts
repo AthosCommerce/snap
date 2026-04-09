@@ -9,7 +9,7 @@ import type { DropdownProps, DropdownTemplatesLegalProps } from '../components/A
 import type { FormattedNumberProps, FormattedNumberTemplatesLegalProps } from '../components/Atoms/FormattedNumber';
 import type { IconProps, IconNames, IconTemplatesLegalProps } from '../components/Atoms/Icon';
 import type { ImageProps, ImageTemplatesLegalProps } from '../components/Atoms/Image';
-import type { LoadingBarProps, LoadingBarTemplatesLegalProps } from '../components/Atoms/Loading';
+import type { LoadingBarProps, LoadingBarTemplatesLegalProps } from '../components/Atoms/LoadingBar';
 import type { BannerNames, BannerProps, BannerTemplatesLegalProps } from '../components/Atoms/Banner';
 import type { InlineBannerProps, InlineBannerTemplatesLegalProps } from '../components/Atoms/InlineBanner';
 import type { OverlayProps, OverlayTemplatesLegalProps } from '../components/Atoms/Overlay';

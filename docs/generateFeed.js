@@ -262,13 +262,15 @@ const OUTPUT_FILE = 'snap-docs.json';
 				}
 			}
 
-			const encodedParams = encodeURIComponent(`?path=/docs/${type || grouping}-${componentName}`);
+			const params = `?path=/docs/${next.toLowerCase()}-${componentName.toLowerCase()}`;
+			const encodedParams = encodeURIComponent(params);
+			const routeWithParams = `/${route}?params=${encodedParams}`;
 
 			return {
 				label,
 				displayName: componentName,
 				hierarchyLabel,
-				route: `/${route}?params=${encodedParams}`,
+				route: routeWithParams,
 				type: 'iframe',
 				url,
 				searchable: true,

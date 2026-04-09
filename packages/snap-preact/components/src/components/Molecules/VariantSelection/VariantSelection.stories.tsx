@@ -32,13 +32,7 @@ export default {
 			),
 		},
 	},
-	decorators: [
-		(Story: any) => (
-			<div style={{ maxWidth: '350px' }}>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [(Story: any) => <Story />],
 	argTypes: {
 		selection: {
 			description: 'Variant Selection reference',
@@ -79,7 +73,11 @@ export default {
 };
 
 const ObservableSelection = observer(({ args }: { args: VariantSelectionProps }) => {
-	return <VariantSelection {...args} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' ? '500px' : '300px' }}>
+			<VariantSelection {...args} />
+		</div>
+	);
 });
 
 export const List = (args: VariantSelectionProps) => {
@@ -133,8 +131,12 @@ const config: SearchControllerConfig = {
 
 const snapInstance = Snapify.search(config);
 
-export const Dropdown = (props: VariantSelectionProps, { loaded: {} }: { loaded: { controller: SearchController } }) => {
-	return <VariantSelection {...props} />;
+export const Dropdown = (args: VariantSelectionProps, { loaded: {} }: { loaded: { controller: SearchController } }) => {
+	return (
+		<div style={{ maxWidth: args?.type == 'list' ? '500px' : '300px' }}>
+			<VariantSelection {...args} />
+		</div>
+	);
 };
 
 Dropdown.loaders = [

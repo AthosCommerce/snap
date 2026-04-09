@@ -102,6 +102,7 @@ export const searchInput: ThemeComponent<'searchInput', SearchInputProps, Search
 		},
 		'searchInput button.submit-search icon': {
 			icon: custom.icons.search,
+			size: `${custom.sizes.icon16}px`,
 		},
 	},
 };

@@ -15,6 +15,7 @@ const plusIconSize = custom.sizes.icon12;
 const recommendationBundleListStyleScript = (props: RecommendationBundleListProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+
 	// bundle list shared styles
 	const sharedStyles = css({
 		'.ss__recommendation-bundle-list__wrapper__cta': {

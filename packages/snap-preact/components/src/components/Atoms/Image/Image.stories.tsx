@@ -7,13 +7,14 @@ import { componentArgs, highlightedCode } from '../../../utilities';
 
 const searchResponse = {
 	product1: {
-		image: 'https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/12_14_reddress11531_thumb_med.jpg',
-		name: 'Elevated Classic White Shirt Dress',
+		image:
+			'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Hoodie_-_Sandstone_4354a6ad-5db0-4d69-91b1-65e7d7ebe647.png?v=1747685130&width=1920',
+		name: 'Align Hoodie',
 	},
 	product2: {
 		image:
-			'https://searchspring-demo-content.s3.amazonaws.com/demo/fashion/product_images_thumb_med/110_lcp_9262_copyright_loganpotterf_2016_thumb_med.jpg',
-		name: 'Cambridge Classic White Shirt Dress',
+			'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Zip_Jacket_-_Black_74fc7521-257b-44bb-9908-97b105126ee7.png?v=1747685170&width=1920',
+		name: 'Align Zip Jacket',
 	},
 };
 

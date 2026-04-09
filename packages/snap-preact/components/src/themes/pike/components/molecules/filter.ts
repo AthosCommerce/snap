@@ -20,15 +20,14 @@ const filterStyleScript = (props: FilterProps) => {
 		'.ss__filter__button': {
 			position: 'relative',
 			height: 'auto',
-			lineHeight: 1.5,
-			fontWeight: 'normal',
-			color: variables?.colors?.text,
 			'&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled': {
 				backgroundColor: 'transparent',
 				borderColor: 'transparent',
 			},
 			'.ss__button__content': {
 				position: 'relative',
+				...custom.styles.baseText(variables?.colors?.text),
+				fontWeight: 'normal',
 				'.ss__filter__button__icon, .ss__filter__label, .ss__filter__value': {
 					margin: 0,
 				},

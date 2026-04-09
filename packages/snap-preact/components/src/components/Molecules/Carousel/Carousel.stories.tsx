@@ -28,18 +28,6 @@ export default {
 			),
 		},
 	},
-	decorators: [
-		(Story: any) => (
-			<div
-				style={{
-					maxWidth: '900px',
-					height: '300px',
-				}}
-			>
-				<Story />
-			</div>
-		),
-	],
 	argTypes: {
 		loop: {
 			defaultValue: true,
@@ -195,24 +183,26 @@ export default {
 const count = 10;
 const carouselStep = Math.floor(180 / count);
 const colors = Array.from(Array(count).keys());
-const color = new Colour('#3a23ad');
+const color = new Colour('#00aeef');
 
 export const Colors = (props: CarouselProps) => {
 	return (
-		<Carousel {...props}>
-			{colors.map((number, index) => (
-				<div
-					style={{
-						height: props?.vertical ? '100%' : '100px',
-						width: '100%',
-						minHeight: '1px',
-						minWidth: '1px',
-						background: color.lighten(index * carouselStep).hex,
-						margin: '0 auto',
-					}}
-				></div>
-			))}
-		</Carousel>
+		<div style={{ maxWidth: '800px', height: props?.vertical ? '300px' : undefined }}>
+			<Carousel {...props}>
+				{colors.map((number, index) => (
+					<div
+						style={{
+							height: props?.vertical ? '100%' : '100px',
+							width: '100%',
+							minHeight: '1px',
+							minWidth: '1px',
+							background: color.lighten(index * carouselStep).hex,
+							margin: '0 auto',
+						}}
+					></div>
+				))}
+			</Carousel>
+		</div>
 	);
 };
 Colors.args = {
