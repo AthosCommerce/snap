@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { autocompleteModalThemeComponentProps } from '../../../themeComponents/autocompleteModal';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteModalProps } from '../../../../components/Templates/AutocompleteModal';
+import { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../../../../components/Templates/AutocompleteModal';
 import { autocompleteSharedStyleScript } from '../templates/autocompleteShared';
 import { custom } from '../../custom';
 
@@ -77,7 +77,7 @@ const autocompleteModalStyleScript = (props: AutocompleteModalProps) => {
 	return autocompleteModalStyles;
 };
 
-export const autocompleteModal: ThemeComponent<'autocompleteModal', AutocompleteModalProps> = {
+export const autocompleteModal: ThemeComponent<'autocompleteModal', AutocompleteModalProps, AutocompleteModalTemplatesLegalProps> = {
 	default: {
 		...autocompleteModalThemeComponentProps.default,
 		autocompleteModal: {

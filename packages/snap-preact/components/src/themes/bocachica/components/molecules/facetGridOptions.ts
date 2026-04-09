@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FacetGridOptionsProps } from '../../../../components/Molecules/FacetGridOptions';
+import type { FacetGridOptionsProps, FacetGridOptionsTemplatesLegalProps } from '../../../../components/Molecules/FacetGridOptions';
 import { ThemeComponent } from '../../../../providers';
 import Color from 'color';
 
@@ -29,7 +29,7 @@ const facetGridOptionsStyleScript = ({ theme }: FacetGridOptionsProps) => {
 };
 
 // FacetGridOptions component props
-export const facetGridOptions: ThemeComponent<'facetGridOptions', FacetGridOptionsProps> = {
+export const facetGridOptions: ThemeComponent<'facetGridOptions', FacetGridOptionsProps, FacetGridOptionsTemplatesLegalProps> = {
 	default: {
 		facetGridOptions: {
 			themeStyleScript: facetGridOptionsStyleScript,

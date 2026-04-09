@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FacetProps } from '../../../../components/Organisms/Facet';
+import type { FacetProps, FacetTemplatesLegalProps } from '../../../../components/Organisms/Facet';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -142,7 +142,7 @@ const facetStyleScript = (props: FacetProps) => {
 };
 
 // Facet component props
-export const facet: ThemeComponent<'facet', FacetProps> = {
+export const facet: ThemeComponent<'facet', FacetProps, FacetTemplatesLegalProps> = {
 	default: {
 		facet: {
 			themeStyleScript: facetStyleScript,

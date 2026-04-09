@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { LoadingBarProps } from '../../../../components/Atoms/Loading';
+import type { LoadingBarProps, LoadingBarTemplatesLegalProps } from '../../../../components/Atoms/LoadingBar';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -17,7 +17,7 @@ const loadingBarStyleScript = (props: LoadingBarProps) => {
 };
 
 // LoadingBar component props
-export const loadingBar: ThemeComponent<'loadingBar', LoadingBarProps> = {
+export const loadingBar: ThemeComponent<'loadingBar', LoadingBarProps, LoadingBarTemplatesLegalProps> = {
 	default: {
 		loadingBar: {
 			themeStyleScript: loadingBarStyleScript,

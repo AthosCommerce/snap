@@ -1,7 +1,11 @@
-import { RecommendationEmailProps } from '../../components/Templates/RecommendationEmail';
+import { RecommendationEmailProps, RecommendationEmailTemplatesLegalProps } from '../../components/Templates/RecommendationEmail';
 import { ThemeComponent } from '../../providers';
 
-export const recommendationEmailThemeComponentProps: ThemeComponent<'recommendationEmail', RecommendationEmailProps> = {
+export const recommendationEmailThemeComponentProps: ThemeComponent<
+	'recommendationEmail',
+	RecommendationEmailProps,
+	RecommendationEmailTemplatesLegalProps
+> = {
 	default: {},
 	mobile: {},
 	tablet: {},

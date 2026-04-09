@@ -158,13 +158,7 @@ export default {
 export const Default = (props: IconProps): JSX.Element => <Icon {...props} />;
 Default.args = {
 	icon: 'cogs',
-};
-
-export const Custom = (props: IconProps): JSX.Element => <Icon {...props} />;
-Custom.args = {
-	color: '#00cee1',
-	icon: 'cog',
-	size: '60px',
+	size: '70px',
 };
 
 export const CustomPath = (props: IconProps): JSX.Element => <Icon {...props} />;

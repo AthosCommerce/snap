@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { BreadcrumbsProps } from '../../../../components/Atoms/Breadcrumbs';
+import type { BreadcrumbsProps, BreadcrumbsTemplatesLegalProps } from '../../../../components/Atoms/Breadcrumbs';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -39,7 +39,7 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 };
 
 // Breadcrumbs component props
-export const breadcrumbs: ThemeComponent<'breadcrumbs', BreadcrumbsProps> = {
+export const breadcrumbs: ThemeComponent<'breadcrumbs', BreadcrumbsProps, BreadcrumbsTemplatesLegalProps> = {
 	default: {
 		breadcrumbs: {
 			themeStyleScript: breadcrumbsStyleScript,

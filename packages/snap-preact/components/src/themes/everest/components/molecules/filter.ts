@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FilterProps } from '../../../../components/Molecules/Filter';
+import type { FilterProps, FilterTemplatesLegalProps } from '../../../../components/Molecules/Filter';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -31,7 +31,7 @@ const filterStyleScript = (props: FilterProps) => {
 };
 
 // Filter component props
-export const filter: ThemeComponent<'filter', FilterProps> = {
+export const filter: ThemeComponent<'filter', FilterProps, FilterTemplatesLegalProps> = {
 	default: {
 		filter: {
 			themeStyleScript: filterStyleScript,

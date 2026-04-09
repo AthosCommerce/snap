@@ -1,7 +1,7 @@
-import { RecommendationProps } from '../../components/Templates/Recommendation';
+import { RecommendationProps, RecommendationTemplatesLegalProps } from '../../components/Templates/Recommendation';
 import { ThemeComponent } from '../../providers';
 
-export const recommendationThemeComponentProps: ThemeComponent<'recommendation', RecommendationProps> = {
+export const recommendationThemeComponentProps: ThemeComponent<'recommendation', RecommendationProps, RecommendationTemplatesLegalProps> = {
 	default: {
 		recommendation: {
 			slidesPerView: 5,

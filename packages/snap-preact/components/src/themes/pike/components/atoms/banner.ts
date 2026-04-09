@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { BannerProps } from '../../../../components/Atoms/Banner';
+import type { BannerProps, BannerTemplatesLegalProps } from '../../../../components/Atoms/Banner';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -18,7 +18,7 @@ const bannerStyleScript = (props: BannerProps) => {
 };
 
 // Banner component props
-export const banner: ThemeComponent<'banner', BannerProps> = {
+export const banner: ThemeComponent<'banner', BannerProps, BannerTemplatesLegalProps> = {
 	default: {
 		banner: {
 			themeStyleScript: bannerStyleScript,

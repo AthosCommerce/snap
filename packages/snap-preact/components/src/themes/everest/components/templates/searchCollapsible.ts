@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { SearchCollapsibleProps } from '../../../../components/Templates/SearchCollapsible';
+import type { SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps } from '../../../../components/Templates/SearchCollapsible';
 import { searchCollapsibleThemeComponentProps } from '../../../themeComponents/searchCollapsible';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
@@ -59,7 +59,7 @@ const searchCollapsibleStyleScript = (props: SearchCollapsibleProps) => {
 	});
 };
 
-export const searchCollapsible: ThemeComponent<'searchCollapsible', SearchCollapsibleProps> = {
+export const searchCollapsible: ThemeComponent<'searchCollapsible', SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps> = {
 	default: {
 		...searchCollapsibleThemeComponentProps.default,
 		searchCollapsible: {

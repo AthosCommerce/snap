@@ -1,7 +1,7 @@
-import { SearchHorizontalProps } from '../../components/Templates/SearchHorizontal';
+import { SearchHorizontalProps, SearchHorizontalTemplatesLegalProps } from '../../components/Templates/SearchHorizontal';
 import { ThemeComponent } from '../../providers';
 
-export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizontal', SearchHorizontalProps> = {
+export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizontal', SearchHorizontalProps, SearchHorizontalTemplatesLegalProps> = {
 	default: {
 		searchHorizontal: {
 			hideSidebar: true,

@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import { ThemeComponent } from '../../../../providers';
-import { CalloutBadgeProps } from '../../../../components/Molecules/CalloutBadge';
+import { CalloutBadgeProps, CalloutBadgeTemplatesLegalProps } from '../../../../components/Molecules/CalloutBadge';
 
 // CSS in JS style script for the CalloutBadge component
 const calloutBadgeStyleScript = ({}: CalloutBadgeProps) => {
@@ -12,7 +12,7 @@ const calloutBadgeStyleScript = ({}: CalloutBadgeProps) => {
 };
 
 // CalloutBadge component props
-export const calloutBadge: ThemeComponent<'calloutBadge', CalloutBadgeProps> = {
+export const calloutBadge: ThemeComponent<'calloutBadge', CalloutBadgeProps, CalloutBadgeTemplatesLegalProps> = {
 	default: {
 		calloutBadge: {
 			themeStyleScript: calloutBadgeStyleScript,

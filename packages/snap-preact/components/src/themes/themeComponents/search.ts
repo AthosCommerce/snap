@@ -1,7 +1,7 @@
-import { SearchProps } from '../../components/Templates/Search';
+import { SearchProps, SearchTemplatesLegalProps } from '../../components/Templates/Search';
 import { ThemeComponent } from '../../providers';
 
-export const searchThemeComponentProps: ThemeComponent<'search', SearchProps> = {
+export const searchThemeComponentProps: ThemeComponent<'search', SearchProps, SearchTemplatesLegalProps> = {
 	default: {
 		'search results': {
 			columns: 4,

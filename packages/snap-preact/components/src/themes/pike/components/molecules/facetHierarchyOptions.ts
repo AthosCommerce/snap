@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FacetHierarchyOptionsProps } from '../../../../components/Molecules/FacetHierarchyOptions';
+import type { FacetHierarchyOptionsProps, FacetHierarchyOptionsTemplatesLegalProps } from '../../../../components/Molecules/FacetHierarchyOptions';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -104,7 +104,7 @@ const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => 
 };
 
 // FacetHierarchyOptions component props
-export const facetHierarchyOptions: ThemeComponent<'facetHierarchyOptions', FacetHierarchyOptionsProps> = {
+export const facetHierarchyOptions: ThemeComponent<'facetHierarchyOptions', FacetHierarchyOptionsProps, FacetHierarchyOptionsTemplatesLegalProps> = {
 	default: {
 		facetHierarchyOptions: {
 			themeStyleScript: facetHierarchyOptionsStyleScript,

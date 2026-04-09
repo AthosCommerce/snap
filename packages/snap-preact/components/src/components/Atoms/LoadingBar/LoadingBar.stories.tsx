@@ -4,7 +4,7 @@ import { LoadingBar, LoadingBarProps } from './LoadingBar';
 import { componentArgs, highlightedCode } from '../../../utilities';
 import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 
-import Readme from '../Loading/readme.md';
+import Readme from './readme.md';
 
 export default {
 	title: 'Atoms/LoadingBar',

@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { autocompleteFixedThemeComponentProps } from '../../../themeComponents/autocompleteFixed';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteFixedProps } from '../../../../components/Templates/AutocompleteFixed';
+import { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../../../../components/Templates/AutocompleteFixed';
 import { custom } from '../../custom';
 
 // CSS in JS style script for the Search component
@@ -75,7 +75,7 @@ const autocompleteFixedStyleScript = (props: AutocompleteFixedProps) => {
 	});
 };
 
-export const autocompleteFixed: ThemeComponent<'autocompleteFixed', AutocompleteFixedProps> = {
+export const autocompleteFixed: ThemeComponent<'autocompleteFixed', AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps> = {
 	default: {
 		...autocompleteFixedThemeComponentProps.default,
 		autocompleteFixed: {

@@ -1,5 +1,8 @@
 import { css } from '@emotion/react';
-import type { RecommendationBundleListProps } from '../../../../components/Templates/RecommendationBundleList';
+import type {
+	RecommendationBundleListProps,
+	RecommendationBundleListTemplatesLegalProps,
+} from '../../../../components/Templates/RecommendationBundleList';
 import { recommendationBundleListThemeComponentProps } from '../../../themeComponents/recommendationBundleList';
 import { ThemeComponent } from '../../../../providers';
 
@@ -27,7 +30,11 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 };
 
 // RecommendationBundleList component props come from Template export
-export const recommendationBundleList: ThemeComponent<'recommendationBundleList', RecommendationBundleListProps> = {
+export const recommendationBundleList: ThemeComponent<
+	'recommendationBundleList',
+	RecommendationBundleListProps,
+	RecommendationBundleListTemplatesLegalProps
+> = {
 	default: {
 		...recommendationBundleListThemeComponentProps.default,
 		recommendationBundleList: {

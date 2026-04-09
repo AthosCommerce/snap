@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { FacetListOptionsProps } from '../../../../components/Molecules/FacetListOptions';
+import type { FacetListOptionsProps, FacetListOptionsTemplatesLegalProps } from '../../../../components/Molecules/FacetListOptions';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -97,7 +97,7 @@ const facetListOptionsStyleScript = (props: FacetListOptionsProps) => {
 };
 
 // FacetListOptions component props
-export const facetListOptions: ThemeComponent<'facetListOptions', FacetListOptionsProps> = {
+export const facetListOptions: ThemeComponent<'facetListOptions', FacetListOptionsProps, FacetListOptionsTemplatesLegalProps> = {
 	default: {
 		facetListOptions: {
 			themeStyleScript: facetListOptionsStyleScript,

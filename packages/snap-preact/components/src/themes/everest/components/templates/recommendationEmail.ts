@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { RecommendationEmailProps } from '../../../../components/Templates/RecommendationEmail';
+import type { RecommendationEmailProps, RecommendationEmailTemplatesLegalProps } from '../../../../components/Templates/RecommendationEmail';
 import { recommendationEmailThemeComponentProps } from '../../../themeComponents/recommendationEmail';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
@@ -29,7 +29,7 @@ const recommendationEmailStyleScript = (props: RecommendationEmailProps) => {
 };
 
 // RecommendationEmail component props come from Template export
-export const recommendationEmail: ThemeComponent<'recommendationEmail', RecommendationEmailProps> = {
+export const recommendationEmail: ThemeComponent<'recommendationEmail', RecommendationEmailProps, RecommendationEmailTemplatesLegalProps> = {
 	default: {
 		...recommendationEmailThemeComponentProps.default,
 		recommendationEmail: {

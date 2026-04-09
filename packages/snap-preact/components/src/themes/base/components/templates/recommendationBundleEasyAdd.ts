@@ -1,6 +1,12 @@
-import type { RecommendationBundleEasyAddProps } from '../../../../components/Templates/RecommendationBundleEasyAdd';
+import type {
+	RecommendationBundleEasyAddProps,
+	RecommendationBundleEasyAddTemplatesLegalProps,
+} from '../../../../components/Templates/RecommendationBundleEasyAdd';
 import { recommendationBundleEasyAddThemeComponentProps } from '../../../themeComponents/recommendationBundleEasyAdd';
 import { ThemeComponent } from '../../../../providers';
 
-export const recommendationBundleEasyAdd: ThemeComponent<'recommendationBundleEasyAdd', RecommendationBundleEasyAddProps> =
-	recommendationBundleEasyAddThemeComponentProps;
+export const recommendationBundleEasyAdd: ThemeComponent<
+	'recommendationBundleEasyAdd',
+	RecommendationBundleEasyAddProps,
+	RecommendationBundleEasyAddTemplatesLegalProps
+> = recommendationBundleEasyAddThemeComponentProps;

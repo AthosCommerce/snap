@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { NoResultsProps } from '../../../../components/Organisms/NoResults';
+import type { NoResultsProps, NoResultsTemplatesLegalProps } from '../../../../components/Organisms/NoResults';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -60,7 +60,7 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 };
 
 // NoResults component props
-export const noResults: ThemeComponent<'noResults', NoResultsProps> = {
+export const noResults: ThemeComponent<'noResults', NoResultsProps, NoResultsTemplatesLegalProps> = {
 	default: {
 		noResults: {
 			themeStyleScript: noResultsStyleScript,

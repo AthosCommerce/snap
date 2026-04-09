@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { OverlayBadgeProps } from '../../../../components/Molecules/OverlayBadge';
+import type { OverlayBadgeProps, OverlayBadgeTemplatesLegalProps } from '../../../../components/Molecules/OverlayBadge';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -25,7 +25,7 @@ const overlayBadgeStyleScript = (props: OverlayBadgeProps) => {
 };
 
 // OverlayBadge component props
-export const overlayBadge: ThemeComponent<'overlayBadge', OverlayBadgeProps> = {
+export const overlayBadge: ThemeComponent<'overlayBadge', OverlayBadgeProps, OverlayBadgeTemplatesLegalProps> = {
 	default: {
 		overlayBadge: {
 			themeStyleScript: overlayBadgeStyleScript,

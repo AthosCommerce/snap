@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { CheckboxProps } from '../../../../components/Molecules/Checkbox';
+import type { CheckboxProps, CheckboxTemplatesLegalProps } from '../../../../components/Molecules/Checkbox';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -54,7 +54,7 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 };
 
 // Checkbox component props
-export const checkbox: ThemeComponent<'checkbox', CheckboxProps> = {
+export const checkbox: ThemeComponent<'checkbox', CheckboxProps, CheckboxTemplatesLegalProps> = {
 	default: {
 		checkbox: {
 			themeStyleScript: checkboxStyleScript,

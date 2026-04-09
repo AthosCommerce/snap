@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { RecommendationProps } from '../../../../components/Templates/Recommendation';
+import type { RecommendationProps, RecommendationTemplatesLegalProps } from '../../../../components/Templates/Recommendation';
 import { recommendationThemeComponentProps } from '../../../themeComponents/recommendation';
 import { ThemeComponent } from '../../../../providers';
 
@@ -17,7 +17,7 @@ const recommendationStyleScript = ({ theme }: RecommendationProps) => {
 };
 
 // Recommendation component props come from Template export
-export const recommendation: ThemeComponent<'recommendation', RecommendationProps> = {
+export const recommendation: ThemeComponent<'recommendation', RecommendationProps, RecommendationTemplatesLegalProps> = {
 	default: {
 		...recommendationThemeComponentProps.default,
 		recommendation: {

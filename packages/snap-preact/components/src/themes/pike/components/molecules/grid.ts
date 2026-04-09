@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { GridProps } from '../../../../components/Molecules/Grid';
+import type { GridProps, GridTemplatesLegalProps } from '../../../../components/Molecules/Grid';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -199,7 +199,7 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 };
 
 // Grid component props
-export const grid: ThemeComponent<'grid', GridProps> = {
+export const grid: ThemeComponent<'grid', GridProps, GridTemplatesLegalProps> = {
 	default: {
 		grid: {
 			themeStyleScript: gridStyleScript,
