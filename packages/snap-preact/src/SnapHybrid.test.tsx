@@ -533,7 +533,7 @@ describe('SnapHybrid merge', () => {
 
 			// @ts-ignore - accessing private property
 			const config: SnapConfig = snap.config;
-			expect(config.client?.config?.initiator).toBe(`snap/hybrid/${version}`);
+			expect(config.client?.config?.initiator).toBe(`athos/snap/preact/hybrid/${version}`);
 		});
 
 		it('sets hybrid initiator on tracker config', () => {
@@ -544,7 +544,7 @@ describe('SnapHybrid merge', () => {
 
 			// @ts-ignore - accessing private property
 			const config: SnapConfig = snap.config;
-			expect(config.tracker?.config?.initiator).toBe(`snap/hybrid/${version}`);
+			expect(config.tracker?.config?.initiator).toBe(`athos/snap/preact/hybrid/${version}`);
 			expect(config.tracker?.config?.framework).toBe('snap/hybrid');
 		});
 
@@ -749,7 +749,7 @@ describe('SnapHybrid merge', () => {
 			const templatesStore = new TemplatesStore({ config: baseTemplatesConfig });
 			const snapConfig = createSnapConfig(baseTemplatesConfig, templatesStore);
 
-			expect(snapConfig.client?.config?.initiator).toContain('snap/templates/');
+			expect(snapConfig.client?.config?.initiator).toContain(`athos/snap/preact/templates/${version}`);
 			expect(snapConfig.tracker?.config?.framework).toBe('snap/templates');
 		});
 	});

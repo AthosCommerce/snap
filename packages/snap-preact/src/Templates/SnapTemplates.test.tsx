@@ -1,3 +1,4 @@
+import { version } from '@athoscommerce/snap-toolbox';
 import { createPlugins, createSnapConfig, DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS, DEFAULT_FEATURES } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigLocked, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
@@ -573,7 +574,7 @@ describe('createSnapConfig additional coverage', () => {
 		const snapConfig = createSnapConfig(baseConfig, templatesStore);
 
 		expect(snapConfig.client?.globals?.siteId).toBe('test123');
-		expect(snapConfig.client?.config?.initiator).toContain('snap/templates/');
+		expect(snapConfig.client?.config?.initiator).toContain(`athos/snap/preact/templates/${version}`);
 	});
 
 	it('should pass through client config when provided', () => {
