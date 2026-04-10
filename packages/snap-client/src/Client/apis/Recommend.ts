@@ -121,7 +121,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 				}
 
 				// parameters used globally
-				const { products, blockedItems, filters, test, cart, lastViewed, shopper } = entry.request;
+				const { products, blockedItems, filters, test, cart, lastViewed, shopper, withRecInfo } = entry.request;
 
 				// merge and de-dupe global array fields
 				const dedupedProducts = Array.from(new Set((batch.request.products || []).concat(products || [])));
@@ -129,6 +129,9 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 				const dedupedFilters = Array.from(
 					new Set((batch.request.filters || []).concat(transformRecommendationFiltersPost(filters) || []).map((filter) => JSON.stringify(filter)))
 				).map((stringyFilter) => JSON.parse(stringyFilter));
+
+				// withRecInfo is enabled if any batched request sets it to true
+				const mergedWithRecInfo = batch.request.withRecInfo || withRecInfo || undefined;
 
 				batch.request = {
 					...batch.request,
@@ -141,6 +144,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 						cart,
 						lastViewed,
 						shopper,
+						withRecInfo: mergedWithRecInfo,
 					}),
 				};
 				if (this.configuration.mode == AppMode.development) {
