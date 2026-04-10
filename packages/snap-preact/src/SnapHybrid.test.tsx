@@ -749,7 +749,7 @@ describe('SnapHybrid merge', () => {
 			const templatesStore = new TemplatesStore({ config: baseTemplatesConfig });
 			const snapConfig = createSnapConfig(baseTemplatesConfig, templatesStore);
 
-			expect(snapConfig.client?.config?.initiator).toContain(`athos/snap/preact/templates/${version}`);
+			expect(snapConfig.client?.config?.initiator).toBe(`athos/snap/preact/templates/${version}`);
 			expect(snapConfig.tracker?.config?.framework).toBe('snap/templates');
 		});
 	});

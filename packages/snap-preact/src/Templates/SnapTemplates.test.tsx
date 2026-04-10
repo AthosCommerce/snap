@@ -574,7 +574,7 @@ describe('createSnapConfig additional coverage', () => {
 		const snapConfig = createSnapConfig(baseConfig, templatesStore);
 
 		expect(snapConfig.client?.globals?.siteId).toBe('test123');
-		expect(snapConfig.client?.config?.initiator).toContain(`athos/snap/preact/templates/${version}`);
+		expect(snapConfig.client?.config?.initiator).toBe(`athos/snap/preact/templates/${version}`);
 	});
 
 	it('should pass through client config when provided', () => {
