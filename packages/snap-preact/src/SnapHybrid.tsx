@@ -18,14 +18,15 @@ export class SnapHybrid extends Snap {
 			isMergeableObject: (value: unknown) => isPlainObject(value) || Array.isArray(value),
 			arrayMerge: (target: any[], source: any[]) => [...target, ...source],
 		});
+		const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 
 		mergedConfig.client.config = {
 			...mergedConfig.client.config,
-			initiator: `snap/hybrid/${version}`,
+			initiator: `athos/${initiatorPrefix}snap/preact/hybrid/${version}`,
 		};
 		mergedConfig.tracker.config = {
 			...mergedConfig.tracker.config,
-			initiator: `snap/hybrid/${version}`,
+			initiator: `athos/${initiatorPrefix}snap/preact/hybrid/${version}`,
 			framework: 'snap/hybrid',
 		};
 

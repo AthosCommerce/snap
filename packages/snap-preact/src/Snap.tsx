@@ -441,11 +441,13 @@ export class Snap {
 				}
 			}
 
+			const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
+
 			// client mode uses client config over snap config
 			if (this.config.client) {
 				this.config.client.config = this.config.client.config || {};
 				if (!this.config.client.config.initiator) {
-					this.config.client.config.initiator = `snap/preact/${version}`;
+					this.config.client.config.initiator = `athos/${initiatorPrefix}snap/preact/${version}`;
 				}
 				this.config.client.config.mode = this.config.client.config.mode || this.mode;
 			}
@@ -481,7 +483,6 @@ export class Snap {
 				});
 			}
 
-			const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 			const trackerConfig = deepmerge(this.config.tracker?.config || {}, {
 				framework: `${initiatorPrefix}${this.config.tracker?.config?.framework || 'snap'}/preact`,
 				mode: this.mode,

@@ -348,6 +348,7 @@ export function createRecommendationComponentMapping(
 }
 
 export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): SnapConfig {
+	const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 	const snapConfig: SnapConfig = {
 		features: templateConfig.features || DEFAULT_FEATURES,
 		client: {
@@ -356,11 +357,12 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesS
 			},
 			config: {
 				...(templateConfig.config?.client || {}),
-				initiator: `snap/templates/${version}`,
+				initiator: `athos/${initiatorPrefix}snap/preact/templates/${version}`,
 			},
 		},
 		tracker: {
 			config: {
+				initiator: `athos/${initiatorPrefix}snap/preact/templates/${version}`,
 				framework: 'snap/templates',
 			},
 		},
