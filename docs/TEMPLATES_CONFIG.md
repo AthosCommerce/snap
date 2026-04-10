@@ -4,6 +4,7 @@ Snap templates is entirely configuration based. The configuration defines which 
 
 | Configuration Key | Description |
 |----|-----------------------|
+| `unlocked` | Enable advanced configuration options (default: `false`) |
 | `config` | Global configuration options |
 | `plugins` | Plugins configuration options |
 | `components` | Custom component registration |
@@ -71,6 +72,179 @@ If a `siteId` is not provided, the siteId found on the `bundle.js` url path will
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
 - `window.athos.templates.setCurrency('eud')`
 - `window.athos.templates.setLanguage('fr')`
+
+
+### Unlocked Configuration
+
+The `unlocked` property controls the level of customization available in your Snap Templates configuration. By default, Snap Templates operates in "locked" mode (`unlocked: false`), which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode.
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `unlocked` | Enable advanced configuration options | Boolean | `false` |
+
+#### Locked Mode (Default)
+
+
+In locked mode, the configuration is restricted to a curated set of standard options. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates across all components.
+
+```jsx
+new SnapTemplates({
+	unlocked: false,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'shopify',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	// ... standard configuration options
+});
+```
+
+#### Unlocked Mode
+
+When `unlocked: true`, additional configuration capabilities become available:
+
+1. **Custom Component Prop in Theme Overrides for all components** - Ability to use the customComponent prop when customizing theme overrides, to completly replace what renders for a specific component.
+
+2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
+
+```jsx
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	// ... configuration with advanced options
+});
+```
+
+
+### Custom Plugins (Unlocked Only)
+
+When `unlocked: true`, you can define custom plugins under `plugins.custom`. Custom plugins allow you to hook into controller events and extend functionality beyond the built-in platform plugins.
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `plugins.custom` | Custom plugin definitions | Object | ➖ |
+| `plugins.custom[pluginName]` | A custom plugin configuration | Object | ➖ |
+| `plugins.custom[pluginName].function` | The plugin function | PluginFunction | Required |
+| `plugins.custom[pluginName].args` | Arguments to pass to the plugin function | any[] | ➖ |
+
+Each custom plugin requires a `function` property that receives the controller instance and can register event handlers. You can optionally pass additional arguments via the `args` array:
+
+```jsx
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	plugins: {
+		custom: {
+			myLoggingPlugin: {
+				function: (controller) => {
+					controller.on('afterStore', async ({ controller }: { controller: SearchController }, next) => {
+						console.log('Search completed:', controller.store.results);
+						await next();
+					});
+				},
+			},
+			myAnalyticsPlugin: {
+				function: (controller) => {
+					controller.on('afterSearch', async ({ controller }: { controller: AutocompleteController }, next) => {
+						// Send analytics event
+						analytics.track('search', { query: controller.store.search?.query?.string });
+						await next();
+					});
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	// ...
+});
+```
+
+#### Passing Arguments to Custom Plugins
+
+You can pass additional arguments to your plugin function using the `args` array. These arguments are spread after the controller when the plugin is invoked:
+
+```jsx
+// Define a reusable plugin factory that accepts configuration
+const createFilterPlugin = (controller, filterField, filterValues) => {
+	controller.on('beforeSearch', async ({ controller }, next) => {
+		controller.store.filters.push({
+			field: filterField,
+			values: filterValues,
+		});
+		await next();
+	});
+};
+
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	plugins: {
+		custom: {
+			categoryFilter: {
+				function: createFilterPlugin,
+				args: ['category', ['Electronics', 'Computers']],
+			},
+			brandFilter: {
+				function: createFilterPlugin,
+				args: ['brand', ['Apple', 'Samsung']],
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+});
+```
+
+Custom plugins can also be defined at the feature level (search, autocomplete, recommendation) to only apply to specific controllers:
+
+```jsx
+new SnapTemplates({
+	unlocked: true,
+	config: {
+		siteId: '8uyt2m',
+		platform: 'other',
+	},
+	plugins: {
+		custom: {
+			globalPlugin: {
+				function: (controller) => {
+					// Applied to all controllers
+				},
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+		plugins: {
+			custom: {
+				searchOnlyPlugin: {
+					function: (controller) => {
+						// Only applied to search controller
+					},
+				},
+			},
+		},
+	},
+	// ...
+});
+```
 
 
 ### Plugins
@@ -221,6 +395,15 @@ See [Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THE
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `theme` | Theme configurations | Object | Required |
+
+
+### Templates Legal Props
+
+When customizing components via theme overrides, not all component props are available. Each component defines a subset of its props as "templates legal" — these are the props that are safe and supported for use within theme configuration. Props that are not templates legal are restricted to internal use and cannot be configured through the theme.
+
+This distinction exists to provide a stable, supported API surface for template customization while preventing access to internal props that could lead to unexpected behavior or break compatibility with future updates.
+
+To see the full list of templates legal props for each component, refer to the **Storybook component library**. Each component's documentation in Storybook will indicate which props are available for use in theme overrides.
 
 
 ### Feature Targets

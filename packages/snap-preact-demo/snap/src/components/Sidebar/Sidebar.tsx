@@ -12,7 +12,7 @@ import {
 } from '@athoscommerce/snap-preact/components';
 
 type SidebarProps = {
-	controller?: SearchController;
+	controller: SearchController;
 };
 
 export const Sidebar = observer(({ controller }: SidebarProps) => {
@@ -30,7 +30,7 @@ export const Sidebar = observer(({ controller }: SidebarProps) => {
 });
 
 type SidebarContentsProps = {
-	controller?: SearchController;
+	controller: SearchController;
 	store?: SearchStore;
 };
 

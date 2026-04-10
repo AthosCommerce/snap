@@ -6,8 +6,9 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
 import { ComponentProps, StyleScript } from '../../../types';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { useClickOutside } from '../../../hooks';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { useClickOutside, useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useA11y } from '../../../hooks/useA11y';
 import { Overlay, OverlayProps } from '../../Atoms/Overlay';
@@ -46,6 +47,7 @@ const defaultStyles: StyleScript<ModalProps> = () => {
 
 export const Modal = observer((properties: ModalProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ModalProps> = {
@@ -76,7 +78,15 @@ export const Modal = observer((properties: ModalProps) => {
 		overlayColor,
 		onOverlayClick,
 		treePath,
+		customComponent,
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.modal || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: ModalSubProps = {
 		overlay: {

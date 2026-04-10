@@ -6,7 +6,11 @@ import { useEffect } from 'preact/hooks';
 
 import './Bundles.scss';
 
-export const Bundles = observer((props) => {
+type BundlesProps = {
+	controller: RecommendationController;
+};
+
+export const Bundles = observer((props: BundlesProps) => {
 	const { controller } = props;
 
 	useEffect(() => {

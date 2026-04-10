@@ -6,8 +6,8 @@ import deepmerge from 'deepmerge';
 import type { RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { ComponentProps, BreakpointsProps, ResultComponent, StyleScript } from '../../../types';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
+import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
@@ -128,8 +128,12 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 							{results.map((result) =>
 								(() => {
 									if (resultComponent && controller) {
-										const ResultComponent = resultComponent;
-										return <ResultComponent controller={controller} result={result as Product} theme={theme} treePath={treePath} />;
+										return cloneWithProps(resultComponent, {
+											controller,
+											result: result as Product,
+											theme,
+											treePath,
+										});
 									} else {
 										return (
 											<ResultTracker result={result as Product} controller={controller}>
@@ -164,10 +168,10 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 export type RecommendationGridProps = {
 	controller: RecommendationController;
 	breakpoints?: BreakpointsProps;
-	resultComponent?: ResultComponent;
+	resultComponent?: JSXComponent | JSX.Element;
 	results?: Product[];
 } & RecommendationGridTemplatesLegalProps &
-	ComponentProps<RecommendationGridProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationGridTemplatesLegalProps = {
 	title?: string;

@@ -1,83 +1,43 @@
 import { h } from 'preact';
-import { Price, Image, OverlayBadge, CalloutBadge, Rating } from '@athoscommerce/snap-preact/components';
-import { Product } from '@athoscommerce/snap-store-mobx';
+import { Price, Image, OverlayBadge, CalloutBadge, Rating, ResultProps } from '@athoscommerce/snap-preact/components';
 import type { SearchController } from '@athoscommerce/snap-controller';
 
-export const CustomResult = (props: { result: Product; controller: SearchController }) => {
-	const { result, controller } = props;
+export const CustomResult = (props: ResultProps) => {
+	const { result, controller, treePath } = props;
 	const core = result.mappings.core;
 
 	return (
 		<article className="ss__custom-result">
 			<div className="ss__custom-result__image-wrapper">
-				<a href={core.url}>
-					<OverlayBadge controller={controller as SearchController} result={result}>
-						<Image src={core.thumbnailImageUrl} alt={core.name} />
+				<a href={core?.url}>
+					<OverlayBadge controller={controller as SearchController} result={result} treePath={treePath}>
+						<Image treePath={treePath} src={core?.thumbnailImageUrl || ''} alt={core?.name || ''} />
 					</OverlayBadge>
 				</a>
 			</div>
 			<div className="ss__custom-result__details">
 				<div className="ss__custom-result__details__title">
 					<a
-						href={core.url}
+						href={core?.url}
 						dangerouslySetInnerHTML={{
-							__html: core.name,
+							__html: core?.name || '',
 						}}
 					/>
 				</div>
 
 				<div className="ss__custom-result__details__pricing">
-					{core.price < core.msrp ? (
+					{core?.price && core?.msrp && core?.price < core?.msrp ? (
 						<>
-							<Price value={core.msrp} lineThrough={true} />
-							<Price value={core.price} />
+							<Price value={core?.msrp} lineThrough={true} treePath={treePath} />
+							<Price value={core?.price} treePath={treePath} />
 						</>
 					) : (
-						<Price value={core.price} />
+						<Price value={core?.price} treePath={treePath} />
 					)}
 				</div>
-				<Rating value={4.35} count={70} />
+				<Rating value={4.35} count={70} treePath={treePath} />
 
-				<CalloutBadge result={result}></CalloutBadge>
-			</div>
-		</article>
-	);
-};
-
-export const CustomResultSecondary = (props) => {
-	const { result, controller } = props;
-	const core = result.mappings.core;
-
-	return (
-		<article className="ss__custom-result-secondary">
-			<div className="ss__custom-result-secondary__details">
-				<div className="ss__custom-result-secondary__details__title">
-					<a
-						href={core.url}
-						dangerouslySetInnerHTML={{
-							__html: core.name,
-						}}
-					/>
-				</div>
-
-				<div className="ss__custom-result-secondary__details__pricing">
-					{core.price < core.msrp ? (
-						<>
-							<Price value={core.msrp} lineThrough={true} />
-							<Price value={core.price} />
-						</>
-					) : (
-						<Price value={core.price} />
-					)}
-				</div>
-				<CalloutBadge result={result}></CalloutBadge>
-			</div>
-			<div className="ss__custom-result-secondary__image-wrapper">
-				<a href={core.url}>
-					<OverlayBadge controller={controller as SearchController} result={result}>
-						<Image src={core.thumbnailImageUrl} alt={core.name} />
-					</OverlayBadge>
-				</a>
+				<CalloutBadge result={result} treePath={treePath}></CalloutBadge>
 			</div>
 		</article>
 	);

@@ -242,7 +242,7 @@ describe('Snap Preact', () => {
 		// snap passes the app mode down to the client config
 		const extendedBaseConfig = { ...baseConfig };
 		extendedBaseConfig.client!.config = {
-			initiator: `snap/preact/${version}`,
+			initiator: `athos/snap/preact/${version}`,
 			mode: 'production',
 		};
 
@@ -295,7 +295,7 @@ describe('Snap Preact', () => {
 		// snap passes the app mode down to the client config
 		const extendedBaseConfig = { ...baseConfig };
 		extendedBaseConfig.client!.config = {
-			initiator: `snap/preact/${version}`,
+			initiator: `athos/snap/preact/${version}`,
 			mode: 'development',
 		};
 

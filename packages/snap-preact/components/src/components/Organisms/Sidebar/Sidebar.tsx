@@ -3,13 +3,14 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SearchController } from '@athoscommerce/snap-controller';
 import { Layout, LayoutProps } from '../Layout';
 import deepmerge from 'deepmerge';
-import { Lang, useLang } from '../../../hooks/useLang';
+import { Lang, useLang, useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 	return css({
@@ -27,6 +28,7 @@ const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 
 export const Sidebar = observer((properties: SidebarProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<SidebarProps> = {
@@ -37,7 +39,14 @@ export const Sidebar = observer((properties: SidebarProps) => {
 
 	const props = mergeProps('sidebar', globalTheme, defaultProps, properties);
 
-	const { controller, layout, hideTitleText, titleText, sticky, disableStyles, className, internalClassName, treePath } = props;
+	const { controller, layout, hideTitleText, titleText, sticky, disableStyles, className, internalClassName, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.sidebar || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const styling = mergeStyles<SidebarProps>(props, defaultStyles);
 
