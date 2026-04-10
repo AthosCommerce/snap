@@ -500,6 +500,13 @@ var documents = [
 				searchable: true,
 			},
 			{
+				label: 'Migration Guide',
+				route: '/reference-migration',
+				type: 'markdown',
+				url: './docs/REFERENCE_MIGRATION.md',
+				searchable: true,
+			},
+			{
 				label: 'Build & Deploy',
 				route: '/build-deploy',
 				type: 'markdown',
