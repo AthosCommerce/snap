@@ -709,6 +709,66 @@ describe('mergeProps function with theme name - prop merge order (templates beha
 		expect((overlayResult as any).color).toBe('orange');
 	});
 
+	it('responsive mobile theme overrides take priority over default theme overrides', () => {
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*slideout': { otherProp: true },
+				'*(M)slideout': { otherProp: false },
+			},
+		};
+		const defaultProps: Partial<SlideoutProps> = {};
+
+		// @ts-ignore
+		const slideoutResult = mergeProps('slideout', globalTheme, defaultProps, {});
+		expect((slideoutResult as any).otherProp).toBe(false);
+	});
+
+	it('responsive tablet theme overrides take priority over default theme overrides', () => {
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*slideout': { otherProp: true },
+				'*(T)slideout': { otherProp: false },
+			},
+		};
+		const defaultProps: Partial<SlideoutProps> = {};
+
+		// @ts-ignore
+		const slideoutResult = mergeProps('slideout', globalTheme, defaultProps, {});
+		expect((slideoutResult as any).otherProp).toBe(false);
+	});
+
+	it('responsive desktop theme overrides take priority over default theme overrides', () => {
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*slideout': { otherProp: true },
+				'*(D)slideout': { otherProp: false },
+			},
+		};
+		const defaultProps: Partial<SlideoutProps> = {};
+
+		// @ts-ignore
+		const slideoutResult = mergeProps('slideout', globalTheme, defaultProps, {});
+		expect((slideoutResult as any).otherProp).toBe(false);
+	});
+
+	it('user provided overrides take priority over responsive theme overrides', () => {
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				slideout: { otherProp: true },
+				'*(M)slideout': { otherProp: false },
+			},
+		};
+		const defaultProps: Partial<SlideoutProps> = {};
+
+		// @ts-ignore
+		const slideoutResult = mergeProps('slideout', globalTheme, defaultProps, {});
+		expect((slideoutResult as any).otherProp).toBe(true);
+	});
+
 	it('specific selector (*facet dropdown icon.collapse) beats general base theme (*icon) via sortSelectors weight', () => {
 		// *icon sets icon:'cog' — general, low specificity weight
 		// *facet dropdown icon.collapse sets icon:'ban' — specific multi-segment path, higher weight
