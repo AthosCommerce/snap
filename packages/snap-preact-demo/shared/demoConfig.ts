@@ -15,7 +15,7 @@ export function getDemoConfig() {
 	// grab siteId out of the URL
 	const urlObj = url(window.location.href);
 	const urlSiteIdParam = urlObj?.params.query.siteId || urlObj?.params.query.siteid;
-	const urlOriginParam = urlObj?.params.query.origin;
+	const urlOriginParam = urlObj?.params.query.origin || urlObj?.params.query.searchOrigin;
 	const urlChatOriginParam = urlObj?.params.query.chatOrigin;
 
 	// custom siteId
