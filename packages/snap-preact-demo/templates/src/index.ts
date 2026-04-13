@@ -4,16 +4,12 @@ import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
 
-const { clientConfig } = getDemoConfig();
-
-const siteId = 'ck4bj7';
+const { siteId, clientConfig } = getDemoConfig();
 const chatWidgetId = 'test-mattel-demo';
-
 let templatesConfig: SnapTemplatesConfig = {
 	unlocked: true,
 	config: {
-		siteId,
-		mode: 'development', // should be removed for 'production' usage
+		siteId: siteId,
 		language: 'en',
 		currency: 'usd',
 		platform: 'other',
@@ -40,11 +36,11 @@ let templatesConfig: SnapTemplatesConfig = {
 			// 	tablet: 1024,
 			// 	desktop: 1280,
 			// },
-			colors: {
-				primary: '#1d498f',
-				secondary: '#202223',
-				accent: '#333333',
-			},
+			// colors: {
+			// 	primary: '#6d7175',
+			// 	secondary: '#202223',
+			// 	accent: '#333333',
+			// },
 		},
 		style: globalStyles,
 		overrides: {
@@ -79,6 +75,14 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+		settings: {
+			variants: {
+				showDisabledSelectionValues: true,
+			},
+			// infinite: {
+			// 	backfill: 5,
+			// },
+		},
 	},
 	chat: {
 		settings: {

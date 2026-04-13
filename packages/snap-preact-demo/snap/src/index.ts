@@ -18,7 +18,6 @@ const { siteId, clientConfig } = getDemoConfig();
 
 const context = getContext(['collection']);
 const backgroundFilters = [];
-const chatWidgetId = 'test-mattel-demo';
 
 if (context.collection?.handle) {
 	// set background filter
@@ -79,25 +78,6 @@ let config: SnapConfig = {
 		},
 	},
 	controllers: {
-		chat: [
-			{
-				config: {
-					id: 'chat',
-					settings: {
-						widgetId: chatWidgetId,
-					},
-				},
-				targeters: [
-					{
-						selector: '#searchspring-chat',
-						hideTarget: true,
-						component: async () => {
-							return (await import('./components/Chat/Chat')).Chat;
-						},
-					},
-				],
-			},
-		],
 		search: [
 			{
 				config: {
