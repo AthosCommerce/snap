@@ -3,22 +3,22 @@ import deepmerge from 'deepmerge';
 // import { Snap, TemplatesStore } from '@athoscommerce/snap-preact';
 import { Snap } from '@athoscommerce/snap-preact';
 
-import { StorageStore } from '@athoscommerce/snap-store-mobx';
-import { url, getContext } from '@athoscommerce/snap-toolbox';
+import { getContext } from '@athoscommerce/snap-toolbox';
 // import { afterSearch } from './middleware/plugins/afterSearch';
 import { afterStore, mutateResultsURL } from './middleware/plugins/afterStore';
 import { combineMerge } from './middleware/functions';
 import { ContentSkel } from './components/Content/Skel';
 import { SidebarSkel } from './components/Sidebar/Skel';
+import { getDemoConfig } from '../../shared/demoConfig';
 
 import './styles/custom.scss';
-import type { ClientConfig } from '@athoscommerce/snap-client';
+import type { SearchRequestModelFilterTypeEnum } from '@athoscommerce/snapi-types';
 
-// storage for custom configuration
-const configStore = new StorageStore({ type: 'local', key: 'athos-demo-config' });
+const { siteId, clientConfig } = getDemoConfig();
 
 const context = getContext(['collection']);
 const backgroundFilters = [];
+const chatWidgetId = 'test-mattel-demo';
 
 if (context.collection?.handle) {
 	// set background filter
@@ -26,7 +26,7 @@ if (context.collection?.handle) {
 		backgroundFilters.push({
 			field: 'collection_handle',
 			value: context.collection.handle,
-			type: 'value',
+			type: 'value' as SearchRequestModelFilterTypeEnum,
 			background: true,
 		});
 	}
@@ -35,69 +35,6 @@ if (context.collection?.handle) {
 /*
 	configuration and instantiation
  */
-
-let siteId = 'atkzs2';
-let customOrigin = '';
-let chatWidgetId = 'test-ss-demo';
-let clientConfig: ClientConfig;
-
-// grab siteId out of the URL
-const urlObj = url(window.location.href);
-const urlSiteIdParam = urlObj.params.query.siteId || urlObj.params.query.siteid;
-const urlOriginParam = urlObj.params.query.origin;
-const urlChatWidgetIdParam = urlObj.params.query.chatWidgetId;
-
-// custom siteId
-if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
-	siteId = urlSiteIdParam;
-	configStore.set('siteId', siteId);
-
-	// clear previously stored storage
-	window.localStorage.removeItem('athos-history');
-	window.sessionStorage.removeItem('athos-controller-search');
-	window.sessionStorage.removeItem('athos-controller-autocomplete');
-} else {
-	// use siteId from storage
-	const storedSiteId = configStore.get('siteId');
-	if (storedSiteId) siteId = storedSiteId;
-}
-
-// custom origin
-if (urlOriginParam) {
-	customOrigin = urlOriginParam;
-	configStore.set('origin', urlOriginParam);
-} else {
-	const storedOrigin = configStore.get('origin');
-	if (storedOrigin) customOrigin = storedOrigin;
-}
-
-// custom chat widget id
-if (urlChatWidgetIdParam) {
-	chatWidgetId = urlChatWidgetIdParam;
-	configStore.set('chatWidgetId', chatWidgetId);
-} else {
-	const storedChatWidgetId = configStore.get('chatWidgetId');
-	if (storedChatWidgetId) chatWidgetId = storedChatWidgetId;
-}
-
-// if there is a custom origin set clientConfig
-
-if (customOrigin) {
-	clientConfig = {
-		meta: {
-			origin: customOrigin,
-		},
-		search: {
-			origin: customOrigin,
-		},
-		// recommend: {
-		// 	origin: recommendOrigin,
-		// },
-		suggest: {
-			origin: customOrigin,
-		},
-	};
-}
 
 let config: SnapConfig = {
 	mode: 'development', // should be removed for 'production' usage

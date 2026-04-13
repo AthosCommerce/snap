@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Select, SelectProps } from '../Select';
@@ -13,7 +13,8 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 import { RadioList, RadioListProps } from '../RadioList';
 import { List, ListProps } from '../List';
 import deepmerge from 'deepmerge';
-import { Lang } from '../../../hooks';
+import { Lang, useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<PerPageProps> = () => {
 	return css({
@@ -26,6 +27,7 @@ const defaultStyles: StyleScript<PerPageProps> = () => {
 
 export const PerPage = observer((properties: PerPageProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<PerPageProps> = {
@@ -36,7 +38,14 @@ export const PerPage = observer((properties: PerPageProps) => {
 
 	const props = mergeProps('perPage', globalTheme, defaultProps, properties);
 
-	const { pagination, type, controller, label, disableStyles, className, internalClassName, treePath } = props;
+	const { pagination, type, controller, label, disableStyles, className, internalClassName, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.perPage || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const store = pagination || controller?.store?.pagination;
 

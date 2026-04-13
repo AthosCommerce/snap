@@ -72,6 +72,21 @@ export type ThemeResponsive = {
 
 export type ThemeResponsiveComplete = ThemeResponsive & { default?: ThemeComponentsRestricted };
 
+// Utility type that adds customComponent to every component entry in ThemeComponentsRestricted
+type WithCustomComponent<T> = {
+	[K in keyof T]: T[K] & { customComponent?: string };
+};
+export type ThemeComponentsRestrictedWithCustomComponent = WithCustomComponent<ThemeComponentsRestricted>;
+
+// Unlocked versions that allow all component props (for Snap integration migration path)
+export type ThemeResponsiveUnlocked = {
+	mobile?: ThemeComponentsRestrictedWithCustomComponent;
+	tablet?: ThemeComponentsRestrictedWithCustomComponent;
+	desktop?: ThemeComponentsRestrictedWithCustomComponent;
+};
+
+export type ThemeResponsiveCompleteUnlocked = ThemeResponsiveUnlocked & { default?: ThemeComponentsRestrictedWithCustomComponent };
+
 export type ResponsiveKeys = 'default' | 'desktop' | 'tablet' | 'mobile';
 
 export type ThemePartial = Omit<Theme, 'variables' | 'name' | 'components'> & {

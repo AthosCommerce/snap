@@ -436,7 +436,7 @@ describe('Autocomplete Component', () => {
 
 	it('renders with custom resultComponent', async () => {
 		const customResultClass = 'customResult';
-		const customResultComponent = (props: any) => {
+		const CustomResultComponent = (props: any) => {
 			const { result } = props;
 			return <div className={customResultClass}>{result.id}</div>;
 		};
@@ -447,7 +447,7 @@ describe('Autocomplete Component', () => {
 		const args = {
 			controller,
 			input: controller.config.selector,
-			resultComponent: customResultComponent,
+			resultComponent: <CustomResultComponent />,
 		};
 
 		const input = document.querySelector('.athos-ac');

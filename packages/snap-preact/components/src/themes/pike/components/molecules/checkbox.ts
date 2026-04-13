@@ -25,6 +25,7 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 			...custom.styles.boxSizing('checkbox', props?.treePath, props?.name),
 			'&.ss__checkbox--active': {
 				borderColor: darkGray,
+				backgroundColor: custom.colors.white,
 			},
 			'&.ss__checkbox--disabled': {
 				...custom.styles.disabled(),

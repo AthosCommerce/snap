@@ -4,9 +4,11 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<BadgeImageProps> = () => {
 	return css({
@@ -17,6 +19,7 @@ const defaultStyles: StyleScript<BadgeImageProps> = () => {
 
 export const BadgeImage = observer((properties: BadgeImageProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<BadgeImageProps> = {
@@ -26,7 +29,14 @@ export const BadgeImage = observer((properties: BadgeImageProps) => {
 
 	const props = mergeProps('badgeImage', globalTheme, defaultProps, properties);
 
-	const { label, url, tag, className, internalClassName } = props;
+	const { label, url, tag, className, internalClassName, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.badgeImage || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const styling = mergeStyles<BadgeImageProps>(props, defaultStyles);
 

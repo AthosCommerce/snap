@@ -7,8 +7,8 @@ import { Results, NoResults } from '../Results/Results';
 import type { Snap } from '@athoscommerce/snap-preact';
 
 type ContentProps = {
-	controller?: SearchController;
-	snap?: Snap;
+	controller: SearchController;
+	snap: Snap;
 };
 
 export const Content = observer(({ controller, snap }: ContentProps) => {

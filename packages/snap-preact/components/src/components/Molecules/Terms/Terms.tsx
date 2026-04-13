@@ -7,11 +7,12 @@ import classnames from 'classnames';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import type { AutocompleteTermStore } from '@athoscommerce/snap-store-mobx';
 import { ComponentProps, StyleScript } from '../../../types';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { createHoverProps } from '../../../toolbox';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { Term } from '@athoscommerce/snap-store-mobx';
-import { useLang } from '../../../hooks';
+import { useComponent, useLang } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
@@ -80,6 +81,7 @@ const emIfyTerm = (term: string, search: string): string => {
 
 export const Terms = observer((properties: TermsProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<TermsProps> = {
@@ -89,9 +91,16 @@ export const Terms = observer((properties: TermsProps) => {
 	};
 
 	const props = mergeProps('terms', globalTheme, defaultProps, properties);
-	const { title, onTermClick, limit, previewOnHover, emIfy, className, internalClassName, controller } = props;
+	const { title, onTermClick, limit, previewOnHover, emIfy, className, internalClassName, controller, customComponent } = props;
 	const currentInput = controller?.store?.state?.input;
 	const terms = props.terms;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.terms || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const styling = mergeStyles<TermsProps>(props, defaultStyles);
 

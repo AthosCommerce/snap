@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Recommendation, Result } from '@athoscommerce/snap-preact/components';
 
 type RecsProps = {
-	controller?: RecommendationController;
+	controller: RecommendationController;
 };
 
 export const Recs = observer((props: RecsProps) => {

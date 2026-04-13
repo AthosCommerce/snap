@@ -356,7 +356,7 @@ export class TemplateEditorStore {
 
 		const storageConfigData = (this.storage.get('overrides.config') || {}) as SnapTemplatesConfig['config'];
 		const themeConfigData = (this.storage.get('overrides.theme') || {}) as SnapTemplatesConfig['theme'];
-		const overrideConfig: SnapTemplatesConfig = { config: storageConfigData, theme: themeConfigData };
+		const overrideConfig: Omit<SnapTemplatesConfig, 'unlocked'> = { config: storageConfigData, theme: themeConfigData };
 
 		const targets = this.getTargets();
 		const searchTargets = targets
@@ -366,7 +366,6 @@ export class TemplateEditorStore {
 					({
 						selector: target.selector,
 						component: target.template.component,
-						resultComponent: target.template.resultComponent,
 					} as SearchTargetConfig)
 			);
 		const autocompleteTargets = targets
@@ -376,7 +375,6 @@ export class TemplateEditorStore {
 					({
 						selector: target.selector,
 						component: target.template.component,
-						resultComponent: target.template.resultComponent,
 					} as AutocompleteTargetConfig)
 			);
 
@@ -396,9 +394,9 @@ export class TemplateEditorStore {
 			};
 		}
 
-		const config: SnapTemplatesConfig = deepmerge(originalConfig, overrideConfig);
+		const config: Omit<SnapTemplatesConfig, 'unlocked'> = deepmerge(originalConfig, overrideConfig);
 
-		return config;
+		return { ...config, unlocked: false };
 	}
 }
 

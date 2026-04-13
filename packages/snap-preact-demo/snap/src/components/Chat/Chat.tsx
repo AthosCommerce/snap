@@ -13,8 +13,8 @@ import type { Snap } from '@athoscommerce/snap-preact';
 import { ChatController } from '@athoscommerce/snap-controller';
 
 type ChatProps = {
-	controller?: ChatController;
-	snap?: Snap;
+	controller: ChatController;
+	snap: Snap;
 };
 
 export const Chat = observer(({ controller, snap }: ChatProps) => {

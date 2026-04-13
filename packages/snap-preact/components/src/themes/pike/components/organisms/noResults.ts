@@ -19,9 +19,7 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 				...custom.styles.headerText(variables?.colors?.secondary, '20px'),
 			},
 			'ul li, p': {
-				fontSize: '14px',
-				color: variables?.colors?.text,
-				lineHeight: 1.5,
+				...custom.styles.baseText(variables?.colors?.text),
 			},
 			a: {
 				color: variables?.colors?.primary,
@@ -44,10 +42,8 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 		},
 		'.ss__no-results__contact': {
 			'.ss__no-results__contact__title': {
+				...custom.styles.baseText(variables?.colors?.text),
 				fontWeight: 'normal',
-				fontSize: '14px',
-				color: variables?.colors?.text,
-				lineHeight: 1.5,
 			},
 		},
 		'.ss__no-results__recommendations': {

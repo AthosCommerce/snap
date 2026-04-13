@@ -7,7 +7,7 @@ import { custom } from '../../custom';
 const termsStyleScript = (props: TermsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const desktopBp = variables?.breakpoints?.desktop || custom.breakpoints.desktop;
+	const desktopBp = variables?.breakpoints?.desktop as number;
 
 	// shared styles
 	const sharedStyles = css({

@@ -217,7 +217,7 @@ const ObservableFacetPaletteOptions = observer(({ args, controller }: { args: Fa
 
 export const Default = (args: FacetPaletteOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
 	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '100%' : '500px' }}>
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
 			<ObservableFacetPaletteOptions args={args} controller={controller} />
 		</div>
 	);
@@ -234,7 +234,7 @@ Default.loaders = [
 
 export const List = (args: FacetPaletteOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
 	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '100%' : '500px' }}>
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
 			<ObservableFacetPaletteOptions args={args} controller={controller} />
 		</div>
 	);

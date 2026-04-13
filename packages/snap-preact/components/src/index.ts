@@ -35,6 +35,7 @@ export * from './components/Molecules/List';
 export * from './components/Molecules/LoadMore';
 export * from './components/Molecules/Grid';
 export * from './components/Molecules/List';
+export * from './components/Molecules/Modal';
 export * from './components/Molecules/OverlayBadge';
 export * from './components/Molecules/Pagination';
 export * from './components/Molecules/PerPage';
@@ -77,6 +78,7 @@ export * from './components/Templates/RecommendationGrid';
 export * from './components/Templates/RecommendationEmail';
 export * from './components/Templates/Search';
 export * from './components/Templates/SearchHorizontal';
+export * from './components/Templates/SearchCollapsible';
 
 // TYPES
 export * from './types';

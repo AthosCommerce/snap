@@ -117,7 +117,7 @@ export type SnapRecommendationControllerConfig = {
 	context?: ContextVariables;
 };
 
-export type GlobalThemeStyleScript = (props: { name?: string; variables?: ThemeVariables }) => CSSInterpolation;
+export type GlobalThemeStyleScript = (props: { name?: string; variables: ThemeVariables }) => CSSInterpolation;
 
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
 

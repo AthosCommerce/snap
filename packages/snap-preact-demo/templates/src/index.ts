@@ -1,128 +1,16 @@
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import { globalStyles } from './styles';
+import { SnapTemplates, SnapTemplatesConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
-import { url } from '@athoscommerce/snap-toolbox';
-import { StorageStore } from '@athoscommerce/snap-store-mobx';
-import { getContext } from '@athoscommerce/snap-toolbox';
+import { globalStyles } from './styles';
+import { getDemoConfig } from '../../shared/demoConfig';
 
-// storage for custom configuration
-const configStore = new StorageStore({ type: 'local', key: 'ss-demo-config' });
+const { clientConfig } = getDemoConfig();
 
-/*
-	configuration and instantiation
- */
+const siteId = 'ck4bj7';
+const chatWidgetId = 'test-mattel-demo';
 
-let siteId = 'ck4bj7';
-let chatWidgetId = 'test-mattel-demo';
-
-const context = getContext(['siteId', 'searchOrigin', 'chatOrigin', 'chatWidgetId']);
-
-// grab siteId out of the URL
-const urlObj = url(window.location.href);
-const urlSiteIdParam = urlObj.params.query.siteId || urlObj.params.query.siteid;
-const urlSearchOriginParam = urlObj.params.query.searchOrigin;
-const urlChatOriginParam = urlObj.params.query.chatOrigin;
-const urlChatWidgetIdParam = urlObj.params.query.chatWidgetId;
-
-// custom siteId
-if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
-	siteId = urlSiteIdParam;
-	configStore.set('siteId', siteId);
-
-	// clear previously stored storage
-	window.localStorage.removeItem('ss-history');
-	window.sessionStorage.removeItem('ss-controller-search');
-	window.sessionStorage.removeItem('ss-controller-autocomplete');
-} else if (context.siteId) {
-	siteId = context.siteId;
-} else {
-	// use siteId from storage
-	const storedSiteId = configStore.get('siteId');
-	if (storedSiteId) siteId = storedSiteId;
-}
-
-// custom search origin
-let customSearchOrigin = `https://${siteId}.a.searchspring.io`;
-if (urlSearchOriginParam) {
-	customSearchOrigin = urlSearchOriginParam;
-	configStore.set('origin', urlSearchOriginParam);
-} else if (context.searchOrigin) {
-	customSearchOrigin = context.searchOrigin;
-} else {
-	const storedOrigin = configStore.get('origin');
-	if (storedOrigin) customSearchOrigin = storedOrigin;
-}
-
-// custom chat origin
-let customChatOrigin;
-if (urlChatOriginParam) {
-	customChatOrigin = urlChatOriginParam;
-	configStore.set('chatOrigin', urlChatOriginParam);
-} else if (context.chatOrigin) {
-	customChatOrigin = context.chatOrigin;
-} else {
-	const storedOrigin = configStore.get('chatOrigin');
-	if (storedOrigin) customChatOrigin = storedOrigin;
-}
-
-// custom chat widget id
-if (urlChatWidgetIdParam) {
-	chatWidgetId = urlChatWidgetIdParam;
-	configStore.set('chatWidgetId', chatWidgetId);
-} else if (context.chatWidgetId) {
-	chatWidgetId = context.chatWidgetId;
-} else {
-	const storedChatWidgetId = configStore.get('chatWidgetId');
-	if (storedChatWidgetId) chatWidgetId = storedChatWidgetId;
-}
-
-const clientConfig = {
-	meta: {
-		origin: customSearchOrigin,
-	},
-	search: {
-		origin: customSearchOrigin,
-	},
-	recommend: {
-		origin: customSearchOrigin,
-	},
-	suggest: {
-		origin: customSearchOrigin,
-		paths: {
-			suggest: '/api/suggest/query',
-			trending: '/api/suggest/trending',
-		},
-	},
-	chat: {
-		origin: 'https://asklo-backend.service-qa.ksearchnet.com',
-	},
-};
-
-if (customChatOrigin) {
-	clientConfig.chat = {
-		origin: customChatOrigin,
-	};
-}
-
-// const siteId = '8uyt2m';
-
-// const clientConfig = {
-// 	meta: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	search: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	recommend: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	suggest: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// };
-let config: SnapTemplatesConfig = {
+let templatesConfig: SnapTemplatesConfig = {
+	unlocked: true,
 	config: {
 		siteId,
 		mode: 'development', // should be removed for 'production' usage
@@ -146,7 +34,6 @@ let config: SnapTemplatesConfig = {
 	},
 	theme: {
 		extends: 'base',
-		resultComponent: 'CustomResult',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,
@@ -161,7 +48,28 @@ let config: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+			},
+		},
+	},
+	recommendation: {
+		email: {
+			Email: {
+				component: 'RecommendationEmail',
+			},
+		},
+		default: {
+			Default: {
+				component: 'Recommendation',
+			},
+		},
+		bundle: {
+			Bundle: {
+				component: 'RecommendationBundle',
+			},
 		},
 	},
 	search: {
@@ -204,32 +112,7 @@ let config: SnapTemplatesConfig = {
 };
 
 if (window.mergeSnapConfig) {
-	config = deepmerge(config, window.mergeSnapConfig, { arrayMerge: combineMerge });
+	templatesConfig = deepmerge(templatesConfig as object, window.mergeSnapConfig, { arrayMerge: combineMerge }) as SnapTemplatesConfig;
 }
 
-new SnapTemplates(config);
-
-/*
-
-
-Overrides are taking priority over the theme layouts (responsive) specified within the Search component - but they shouldn't be.
-Look into:
-			overrides: {
-				'toolbar.top': {
-					layout: [
-						['Banner.header'],
-					]
-				},
-				'toolbar.middle': {
-					layout: [
-						['_', 'Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Banner.banner']
-					]
-				},
-			},
-
-*/
+new SnapTemplates(templatesConfig);

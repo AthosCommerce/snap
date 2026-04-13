@@ -12,6 +12,7 @@ import { custom } from '../../custom';
 const recommendationBundleEasyAddStyleScript = (props: RecommendationBundleEasyAddProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+
 	// bundle easy add shared styles
 	const sharedStyles = css({
 		'.ss__recommendation-bundle-easy-add__wrapper__cta': {

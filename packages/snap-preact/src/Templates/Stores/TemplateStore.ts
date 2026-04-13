@@ -1,10 +1,11 @@
+import type { h } from 'preact';
 import { observable, makeObservable } from 'mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-store-mobx';
-import { SnapTemplatesConfig } from '../SnapTemplates';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
 import { AppMode, debounce } from '@athoscommerce/snap-toolbox';
+import type { PluginFunction } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -27,19 +28,145 @@ import type {
 } from '@athoscommerce/snap-platforms/common';
 import type {
 	ThemeResponsiveComplete,
+	ThemeResponsiveCompleteUnlocked,
 	LangComponentOverrides,
-	ResultComponent,
 	ThemeComponents,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
+	// Component Props for typed component config
+	ResultProps,
+	OverlayBadgeProps,
+	BadgeImageProps,
+	BadgePillProps,
+	BadgeRectangleProps,
+	BadgeTextProps,
+	BreadcrumbsProps,
+	ButtonProps,
+	DropdownProps,
+	FormattedNumberProps,
+	IconProps,
+	ImageProps,
+	LoadingBarProps,
+	BannerProps,
+	InlineBannerProps,
+	OverlayProps,
+	PaginationInfoProps,
+	SlideshowProps,
+	PriceProps,
+	SkeletonProps,
+	ModalProps,
+	CalloutBadgeProps,
+	CarouselProps,
+	CheckboxProps,
+	GridProps,
+	LayoutSelectorProps,
+	ListProps,
+	RadioProps,
+	ErrorHandlerProps,
+	FacetGridOptionsProps,
+	FacetHierarchyOptionsProps,
+	FacetListOptionsProps,
+	FacetPaletteOptionsProps,
+	FacetSliderProps,
+	FilterProps,
+	LoadMoreProps,
+	PaginationProps,
+	PerPageProps,
+	RadioListProps,
+	RatingProps,
+	SearchInputProps,
+	SelectProps,
+	SlideoutProps,
+	SortByProps,
+	SwatchesProps,
+	VariantSelectionProps,
+	TermsProps,
+	BranchOverrideProps,
+	FacetProps,
+	FacetsProps,
+	FacetsHorizontalProps,
+	FilterSummaryProps,
+	NoResultsProps,
+	ResultsProps,
+	SearchHeaderProps,
+	SidebarProps,
+	MobileSidebarProps,
+	ToolbarProps,
+	TermsListProps,
 } from '../../../components/src';
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}` | 'chat';
-export type TemplateCustomComponentTypes = 'result' | 'badge';
+
+export type TemplateDefaultComponentTypes = 'result' | 'badge';
+
+export type TemplateCustomComponentTypes =
+	| TemplateDefaultComponentTypes
+	/* atoms */
+	| 'badgeImage'
+	| 'badgePill'
+	| 'badgeRectangle'
+	| 'badgeText'
+	| 'breadcrumbs'
+	| 'button'
+	| 'dropdown'
+	| 'formattedNumber'
+	| 'icon'
+	| 'image'
+	| 'loadingBar'
+	| 'banner'
+	| 'inlineBanner'
+	| 'overlay'
+	| 'paginationInfo'
+	| 'slideshow'
+	| 'price'
+	| 'skeleton'
+	/* molecules */
+	| 'modal'
+	| 'calloutBadge'
+	| 'carousel'
+	| 'checkbox'
+	| 'grid'
+	| 'layoutSelector'
+	| 'list'
+	| 'radio'
+	| 'errorHandler'
+	| 'facetGridOptions'
+	| 'facetHierarchyOptions'
+	| 'facetListOptions'
+	| 'facetPaletteOptions'
+	| 'facetSlider'
+	| 'filter'
+	| 'loadMore'
+	| 'overlayBadge'
+	| 'pagination'
+	| 'perPage'
+	| 'radioList'
+	| 'rating'
+	| 'searchInput'
+	| 'select'
+	| 'slideout'
+	| 'sortBy'
+	| 'swatches'
+	| 'variantSelection'
+	| 'terms'
+	/* organisms */
+	| 'branchOverride'
+	| 'facet'
+	| 'facets'
+	| 'facetsHorizontal'
+	| 'filterSummary'
+	| 'noResults'
+	| 'results'
+	| 'searchHeader'
+	| 'sidebar'
+	| 'mobileSidebar'
+	| 'toolbar'
+	| 'termsList';
+
 export type RecsTemplateTypes = 'bundle' | 'default' | 'email';
 
 export type TargetMap = { [targetId: string]: TargetStore };
@@ -55,7 +182,6 @@ type ComponentLibraryType =
 export type TemplateTarget = {
 	selector?: string;
 	component: ComponentLibraryType | (string & NonNullable<unknown>);
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type TemplatesStoreConfigSettings = {
@@ -73,14 +199,90 @@ type WindowProperties = {
 type TemplateStoreThemeConfig = {
 	extends: keyof LibraryImports['theme'];
 	style?: GlobalThemeStyleScript;
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 	variables?: ThemeVariablesPartial;
 	overrides?: ThemeResponsiveComplete;
 };
 
+type TemplateStoreThemeConfigUnlocked = Omit<TemplateStoreThemeConfig, 'overrides'> & {
+	overrides?: ThemeResponsiveCompleteUnlocked;
+};
+
+// Component type to props mapping for typed component config
+export type ComponentTypePropsMap = {
+	result: ResultProps;
+	badge: OverlayBadgeProps;
+	badgeImage: BadgeImageProps;
+	badgePill: BadgePillProps;
+	badgeRectangle: BadgeRectangleProps;
+	badgeText: BadgeTextProps;
+	breadcrumbs: BreadcrumbsProps;
+	button: ButtonProps;
+	dropdown: DropdownProps;
+	formattedNumber: FormattedNumberProps;
+	icon: IconProps;
+	image: ImageProps;
+	loadingBar: LoadingBarProps;
+	banner: BannerProps;
+	inlineBanner: InlineBannerProps;
+	overlay: OverlayProps;
+	paginationInfo: PaginationInfoProps;
+	slideshow: SlideshowProps;
+	price: PriceProps;
+	skeleton: SkeletonProps;
+	modal: ModalProps;
+	calloutBadge: CalloutBadgeProps;
+	carousel: CarouselProps;
+	checkbox: CheckboxProps;
+	grid: GridProps;
+	layoutSelector: LayoutSelectorProps;
+	list: ListProps;
+	radio: RadioProps;
+	errorHandler: ErrorHandlerProps;
+	facetGridOptions: FacetGridOptionsProps;
+	facetHierarchyOptions: FacetHierarchyOptionsProps;
+	facetListOptions: FacetListOptionsProps;
+	facetPaletteOptions: FacetPaletteOptionsProps;
+	facetSlider: FacetSliderProps;
+	filter: FilterProps;
+	loadMore: LoadMoreProps;
+	overlayBadge: OverlayBadgeProps;
+	pagination: PaginationProps;
+	perPage: PerPageProps;
+	radioList: RadioListProps;
+	rating: RatingProps;
+	searchInput: SearchInputProps;
+	select: SelectProps;
+	slideout: SlideoutProps;
+	sortBy: SortByProps;
+	swatches: SwatchesProps;
+	variantSelection: VariantSelectionProps;
+	terms: TermsProps;
+	branchOverride: BranchOverrideProps;
+	facet: FacetProps;
+	facets: FacetsProps;
+	facetsHorizontal: FacetsHorizontalProps;
+	filterSummary: FilterSummaryProps;
+	noResults: NoResultsProps;
+	results: ResultsProps;
+	searchHeader: SearchHeaderProps;
+	sidebar: SidebarProps;
+	mobileSidebar: MobileSidebarProps;
+	toolbar: ToolbarProps;
+	termsList: TermsListProps;
+};
+
+// Typed component function: returns a component that accepts the mapped props type
+type TypedComponentFunction<P> = () => Promise<(props: P) => h.JSX.Element | null> | ((props: P) => h.JSX.Element | null);
+
 export type TemplateStoreComponentConfig = {
-	[key in TemplateCustomComponentTypes]?: {
-		[componentName: string]: (args?: any) => Promise<ResultComponent> | ResultComponent;
+	[K in TemplateDefaultComponentTypes]?: {
+		[componentName: string]: TypedComponentFunction<ComponentTypePropsMap[K]>;
+	};
+};
+
+export type TemplateStoreComponentConfigUnlocked = {
+	[K in TemplateCustomComponentTypes]?: {
+		[componentName: string]: TypedComponentFunction<ComponentTypePropsMap[K]>;
 	};
 };
 
@@ -107,6 +309,15 @@ export type Magento2Plugins = {
 	addToCart?: PluginMagento2AddToCartConfig;
 };
 
+export type CustomPluginConfig = {
+	function: PluginFunction;
+	args?: any[];
+};
+
+export type CustomPlugins = {
+	[key: string]: CustomPluginConfig;
+};
+
 export type PluginsConfigs = {
 	common?: CommonPlugins;
 	shopify?: ShopifyPlugins;
@@ -114,7 +325,12 @@ export type PluginsConfigs = {
 	magento2?: Magento2Plugins;
 };
 
+export type PluginsConfigsUnlocked = PluginsConfigs & {
+	custom?: CustomPlugins;
+};
+
 export type TemplateStoreConfigConfig = {
+	unlocked?: boolean;
 	components?: TemplateStoreComponentConfig;
 	config: {
 		siteId?: string;
@@ -131,6 +347,12 @@ export type TemplateStoreConfigConfig = {
 	theme: TemplateStoreThemeConfig;
 };
 
+export type TemplateStoreConfigConfigUnlocked = Omit<TemplateStoreConfigConfig, 'theme' | 'components' | 'plugins'> & {
+	theme: TemplateStoreThemeConfigUnlocked;
+	components?: TemplateStoreComponentConfigUnlocked;
+	plugins?: PluginsConfigsUnlocked;
+};
+
 const RESIZE_DEBOUNCE = 100;
 export const TEMPLATE_STORE_KEY = 'athos-templates';
 
@@ -141,7 +363,7 @@ export type TemplateStoreConfig = {
 
 export class TemplatesStore {
 	loading = false;
-	config: SnapTemplatesConfig;
+	config: TemplateStoreConfigConfig;
 	storage: StorageStore;
 	language: LanguageCodes;
 	currency: CurrencyCodes;
@@ -199,8 +421,7 @@ export class TemplatesStore {
 			local: {},
 			library: {},
 		};
-
-		this.library = new LibraryStore({ components: config.components });
+		this.library = new LibraryStore({ components: config.components, unlocked: config.unlocked });
 
 		this.language =
 			(this.settings.editMode && this.storage.get('overrides.config.language')) ||
@@ -234,11 +455,6 @@ export class TemplatesStore {
 		// add promise
 		const themeDefer = new Deferred();
 		themePromises.push(themeDefer.promise);
-
-		// import component if defined
-		if (themeConfiguration.resultComponent && this.library.import.component.result[themeConfiguration.resultComponent]) {
-			this.library.import.component.result[themeConfiguration.resultComponent]();
-		}
 
 		// import theme dependencies
 		const themeImports = [importCurrency, importLanguage, this.library.import.theme[themeConfiguration.extends]()];
@@ -295,7 +511,7 @@ export class TemplatesStore {
 	}
 
 	public addTarget(type: TemplateTypes, target: TemplateTarget): string | undefined {
-		const targetId = target.selector || target.component;
+		const targetId = target.selector || (target.component as string);
 		if (targetId) {
 			const path = type.split('/');
 			let targetPath: any = this.targets;

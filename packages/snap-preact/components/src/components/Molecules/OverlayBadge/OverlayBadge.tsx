@@ -76,7 +76,14 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 
 	const props = mergeProps('overlayBadge', globalTheme, defaultProps, properties);
 
-	const { result, children, controller, renderEmpty, limit, className, internalClassName, treePath } = props;
+	const { result, children, controller, renderEmpty, limit, className, internalClassName, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlayBadge || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	if (!children) {
 		controller?.log?.warn('OverlayBadge component must have children');

@@ -1590,12 +1590,12 @@ fieldset {
 		flex: 1 1 0%;
 	}
 
-	.ss__demo .ss__demo__theme .ss__result .ss__result__inner {
+	.ss__demo .ss__demo__theme .ss__demo__result .ss__result .ss__result__inner {
 		-ms-gap: 20px;
 		gap: 20px;
 	}
 
-	.ss__demo .ss__demo__theme .ss__result .ss__result__inner .ss__result__image {
+	.ss__demo .ss__demo__theme .ss__demo__result .ss__result .ss__result__inner .ss__result__image {
 		-webkit-flex: 0 1 auto;
 		-ms-flex: 0 1 auto;
 		-moz-flex: 0 1 auto;
@@ -1603,14 +1603,14 @@ fieldset {
 		width: 200px;
 	}
 
-	.ss__demo .ss__demo__theme .ss__result .ss__result__inner .ss__result__details {
+	.ss__demo .ss__demo__theme .ss__demo__result .ss__result .ss__result__inner .ss__result__details {
 		-webkit-flex: 1 1 0%;
 		-ms-flex: 1 1 0%;
 		-moz-flex: 1 1 0%;
 		flex: 1 1 0%;
 	}
 
-	.ss__demo .ss__demo__theme .ss__result__side {
+	.ss__demo .ss__demo__theme .ss__demo__result .ss__result__side {
 		-webkit-flex: 0 1 auto;
 		-ms-flex: 0 1 auto;
 		-moz-flex: 0 1 auto;

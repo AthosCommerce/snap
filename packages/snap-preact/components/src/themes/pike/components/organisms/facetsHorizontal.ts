@@ -10,8 +10,8 @@ const dropdownButtonHeight = custom.sizes.height;
 const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
+	const mobileBp = variables?.breakpoints?.mobile as number;
+	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// facets horizontal styles
 	const facetsHorizontalStyles = css({
@@ -123,11 +123,8 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 						marginRight: 'auto',
 					},
 					'.ss__facet__show-more-less': {
-						margin: `${custom.spacing.x2}px 0 0 0`,
+						margin: `${custom.spacing.x4}px 0 0 0`,
 						justifyContent: 'center',
-						'.ss__facet__show-more-less__icon': {
-							margin: 0,
-						},
 					},
 				},
 			},
@@ -166,6 +163,9 @@ export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizont
 		},
 		'facetsHorizontal button.reset-facet icon': {
 			size: `${custom.sizes.icon08}px`,
+		},
+		'facetsHorizontal icon.overflow-more': {
+			size: `${custom.sizes.icon10}px`,
 		},
 		'facetsHorizontal dropdown facet': {
 			statefulOverflow: true,

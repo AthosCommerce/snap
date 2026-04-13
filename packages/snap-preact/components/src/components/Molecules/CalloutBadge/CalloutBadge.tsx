@@ -34,7 +34,14 @@ export const CalloutBadge = observer((properties: CalloutBadgeProps) => {
 
 	const props = mergeProps('calloutBadge', globalTheme, defaultProps, properties);
 
-	const { result, tag, renderEmpty, limit, className, internalClassName, treePath } = props;
+	const { result, tag, renderEmpty, limit, className, internalClassName, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.calloutBadge || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const badgeComponentMap = {
 		...defaultBadgeComponentMap,

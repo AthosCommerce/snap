@@ -6,7 +6,9 @@ import deepmerge from 'deepmerge';
 import { observer } from 'mobx-react-lite';
 
 import { Facet, FacetProps } from '../Facet';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchController, AutocompleteController } from '@athoscommerce/snap-controller';
@@ -18,6 +20,7 @@ const defaultStyles: StyleScript<FacetsProps> = () => {
 
 export const Facets = observer((properties: FacetsProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetsProps> = {
@@ -27,7 +30,14 @@ export const Facets = observer((properties: FacetsProps) => {
 
 	let props = mergeProps('facets', globalTheme, defaultProps, properties);
 
-	const { limit, onFacetOptionClick, disableStyles, className, internalClassName, controller, treePath } = props;
+	const { limit, onFacetOptionClick, disableStyles, className, internalClassName, controller, treePath, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facets || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const facetClickEvent = (e: React.MouseEvent<Element, MouseEvent>) => {
 		onFacetOptionClick && onFacetOptionClick(e);

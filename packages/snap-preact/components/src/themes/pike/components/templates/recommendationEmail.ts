@@ -11,23 +11,41 @@ const recommendationEmailStyleScript = (props: RecommendationEmailProps) => {
 
 	const recommendationEmailStyles = css({
 		...custom.styles.boxSizing('recommendationEmail', props?.treePath, props?.name),
+		padding: `0 0 ${custom.spacing.x6}px 0`,
+		'&:has(.ss__rating)': {
+			'.ss__recommendation-email__result-wrapper': {
+				height: '465px',
+			},
+		},
+		'&:has(.ss__callout-badge)': {
+			'.ss__recommendation-email__result-wrapper': {
+				height: '475px',
+			},
+		},
+		'&:has(.ss__callout-badge):has(.ss__rating)': {
+			'.ss__recommendation-email__result-wrapper': {
+				height: '500px',
+			},
+		},
 		'.ss__recommendation-email__result-wrapper': {
 			width: '400px !important',
-			height: '475px',
+			height: '440px',
 			margin: `0 0 ${custom.spacing.x6}px 0`,
 			padding: `0 ${custom.spacing.x2}px`,
 			overflow: 'hidden',
 		},
 		'.ss__result': {
 			'&, &*': {
-				fontSize: '14px',
-				lineHeight: 1.4,
 				textAlign: 'center',
+			},
+			'.ss__result__image-wrapper': {
+				overflow: 'hidden',
 			},
 			'.ss__result__details': {
 				'.ss__result__details__title a': {
 					display: 'block',
 					height: '20px',
+					lineHeight: '20px',
 					...custom.styles.textOverflow(),
 				},
 			},
@@ -44,9 +62,6 @@ export const recommendationEmail: ThemeComponent<'recommendationEmail', Recommen
 		recommendationEmail: {
 			...(recommendationEmailThemeComponentProps.default?.['recommendationEmail'] || {}),
 			themeStyleScript: recommendationEmailStyleScript,
-		},
-		'recommendationEmail result': {
-			hideBadge: false,
 		},
 		'recommendationEmail result image': {
 			lazy: false,

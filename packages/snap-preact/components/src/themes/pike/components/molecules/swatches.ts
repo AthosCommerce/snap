@@ -2,7 +2,6 @@ import { css } from '@emotion/react';
 import type { SwatchesProps, SwatchesTemplatesLegalProps } from '../../../../components/Molecules/Swatches';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
-//import Color from 'color';
 
 // static variables
 const swatchesSpacing = custom.spacing.x1;
@@ -48,7 +47,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 						'.ss__slideshow__slide': {
 							'.ss__swatches__slideshow__swatch': {
 								position: 'relative',
-								height: `${swatchesSize}px`,
+								height: `100%`,
 								aspectRatio: 1,
 								border: 0,
 								'.ss__swatches__slideshow__swatch__inner': {
@@ -198,7 +197,14 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 	]);
 
 	// swatches grid styles
-	const swatchesGridStyles = css([sharedStyles]);
+	const swatchesGridStyles = css([
+		sharedStyles,
+		{
+			'.ss__grid .ss__grid__options .ss__grid__option:not(.ss__grid__show-more-wrapper)': {
+				maxWidth: `${swatchesSize}px`,
+			},
+		},
+	]);
 
 	return props?.type == 'grid' ? swatchesGridStyles : swatchesCarouselStyles;
 };
@@ -211,9 +217,9 @@ export const swatches: ThemeComponent<'swatches', SwatchesProps, SwatchesTemplat
 			hideLabels: false,
 		},
 		'swatches slideshow': {
-			slidesToShow: 4,
+			slideWidth: swatchesSize,
 			gap: swatchesSpacing,
-			centerInsufficientSlides: true,
+			centerInsufficientSlides: false,
 		},
 		'swatches grid': {
 			columns: 4,

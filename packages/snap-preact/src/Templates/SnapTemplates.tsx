@@ -4,13 +4,13 @@ import deepmerge from 'deepmerge';
 import { Snap } from '../Snap';
 import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSelect';
 
-import { DomTargeter, url, cookies, getContext, version } from '@athoscommerce/snap-toolbox';
+import { DomTargeter, url, cookies, version } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
 
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { type SearchStoreConfigSettings, type AutocompleteStoreConfigSettings, ChatStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type { AutocompleteController, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
+import type { AutocompleteController, PluginFunction, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
 import type {
 	RecommendationInstantiatorConfigSettings,
 	RecommendationComponentObject,
@@ -18,7 +18,15 @@ import type {
 } from '../Instantiators/RecommendationInstantiator';
 import type { SnapFeatures } from '../types';
 import type { SnapConfig, ExtendedTarget } from '../Snap';
-import type { PluginsConfigs, RecsTemplateTypes, TemplateStoreConfigConfig, TemplateTypes } from './Stores/TemplateStore';
+import type {
+	CustomPlugins,
+	PluginsConfigs,
+	PluginsConfigsUnlocked,
+	RecsTemplateTypes,
+	TemplateStoreConfigConfig,
+	TemplateStoreConfigConfigUnlocked,
+	TemplateTypes,
+} from './Stores/TemplateStore';
 import { LibraryImports } from './Stores/LibraryStore';
 import {
 	pluginBackgroundFilters,
@@ -54,33 +62,28 @@ import {
 } from '@athoscommerce/snap-platforms/magento2';
 
 export const TEMPLATE_EDIT_COOKIE = 'athosEditor';
-const TEMPLATE_EDITOR_PARAM = 'athos-editor';
+export const TEMPLATE_EDITOR_PARAM = 'athos-editor';
 
 // TODO: tabbing, finder
 export type SearchTargetConfig = {
 	selector: string;
 	component: keyof LibraryImports['component']['search'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type AutocompleteTargetConfig = {
 	selector: string;
 	inputSelector?: string;
 	component: keyof LibraryImports['component']['autocomplete'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type RecommendationDefaultTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['default'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 export type RecommendationEmailTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['email'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 export type RecommendationBundleTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['bundle'];
-	resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type ChatTargetConfig = {
@@ -89,22 +92,21 @@ export type ChatTargetConfig = {
 	// resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
-export type SnapTemplatesConfig = TemplateStoreConfigConfig & {
+export type SnapTemplatesConfig = SnapTemplatesConfigUnlocked | SnapTemplatesConfigLocked;
+
+export type SnapTemplatesConfigLocked = TemplateStoreConfigConfig & {
+	unlocked: false;
 	url?: UrlTranslatorConfig;
 	features?: SnapFeatures;
 	search?: {
 		targets: SearchTargetConfig[];
 		settings?: SearchStoreConfigSettings;
 		plugins?: PluginsConfigs;
-		// breakpointSettings?: SearchStoreConfigSettings[];
-		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 	autocomplete?: {
 		targets: AutocompleteTargetConfig[];
 		settings?: AutocompleteStoreConfigSettings;
 		plugins?: PluginsConfigs;
-		// breakpointSettings?: AutocompleteStoreConfigSettings[];
-		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 	recommendation?: {
 		email?: {
@@ -118,8 +120,6 @@ export type SnapTemplatesConfig = TemplateStoreConfigConfig & {
 		};
 		settings?: RecommendationInstantiatorConfigSettings;
 		plugins?: PluginsConfigs;
-		// breakpointSettings?: RecommendationInstantiatorConfigSettings[];
-		/* controller settings breakpoints work with caveat of having settings locked to initialized breakpoint */
 	};
 	chat?: {
 		targets: ChatTargetConfig[];
@@ -127,6 +127,21 @@ export type SnapTemplatesConfig = TemplateStoreConfigConfig & {
 		plugins?: PluginsConfigs;
 	};
 };
+
+// Full version that allows all component props in theme overrides (for Snap integration migration path)
+export type SnapTemplatesConfigUnlocked = Omit<SnapTemplatesConfigLocked, 'unlocked' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'> &
+	TemplateStoreConfigConfigUnlocked & {
+		unlocked: true;
+		search?: Omit<NonNullable<SnapTemplatesConfigLocked['search']>, 'plugins'> & {
+			plugins?: PluginsConfigsUnlocked;
+		};
+		autocomplete?: Omit<NonNullable<SnapTemplatesConfigLocked['autocomplete']>, 'plugins'> & {
+			plugins?: PluginsConfigsUnlocked;
+		};
+		recommendation?: Omit<NonNullable<SnapTemplatesConfigLocked['recommendation']>, 'plugins'> & {
+			plugins?: PluginsConfigsUnlocked;
+		};
+	};
 
 type TemplatePlugins =
 	// common
@@ -144,7 +159,9 @@ type TemplatePlugins =
 	// magento2
 	| [typeof pluginMagento2Base, PluginMagento2BaseConfig]
 	| [typeof pluginMagento2BackgroundFilters, PluginMagento2BackgroundFiltersConfig]
-	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig];
+	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig]
+	// custom
+	| [PluginFunction, ...unknown[]];
 
 type TemplatePluginGrouping = TemplatePlugins[];
 
@@ -165,23 +182,6 @@ export class SnapTemplates extends Snap {
 		const templatesStore = new TemplatesStore({ config, settings: { editMode } });
 
 		const snapConfig = createSnapConfig(config, templatesStore);
-
-		// get more context (all the things needed for the platform of choice as well as generic backgroundFilters)
-		let contextParams = ['backgroundFilters'];
-		switch (templatesStore.platform) {
-			case 'shopify':
-				contextParams = contextParams.concat(['collection', 'tags']);
-				break;
-			case 'bigCommerce':
-				contextParams = contextParams.concat(['category', 'brand']);
-				break;
-			case 'magento2':
-				contextParams = contextParams.concat(['category']);
-				break;
-			default:
-				break;
-		}
-		snapConfig.context = getContext(contextParams);
 
 		super(snapConfig, { templatesStore });
 
@@ -267,10 +267,6 @@ export function mapBreakpoints<ControllerConfigSettings>(
 export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] => {
 	const targets = templateConfig.search?.targets || [];
 	return targets.map((target) => {
-		// use theme provided resultComponent if specified
-		if (!target.resultComponent && templateConfig.theme.resultComponent) {
-			target.resultComponent = templateConfig.theme.resultComponent;
-		}
 		const targetId = templatesStore.addTarget('search', target);
 		const targeter: ExtendedTarget = {
 			selector: target.selector,
@@ -278,9 +274,6 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.search[target.component]());
-				if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-					componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
-				}
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
 			},
@@ -334,20 +327,12 @@ export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templat
 export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
 	const targets = templateConfig.autocomplete?.targets || [];
 	return targets.map((target) => {
-		// use theme provided resultComponent if specified
-		if (!target.resultComponent && templateConfig.theme.resultComponent) {
-			target.resultComponent = templateConfig.theme.resultComponent;
-		}
-
 		const targetId = templatesStore.addTarget('autocomplete', target);
 		const targeter: ExtendedTarget = {
 			selector: target.selector,
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.autocomplete[target.component]());
-				if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-					componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
-				}
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
 			},
@@ -375,11 +360,6 @@ export function createRecommendationComponentMapping(
 				const type: TemplateTypes = `recommendation/${recsType}`;
 				const target = templateConfig.recommendation![recsType]![targetName] as TemplateTarget;
 
-				// use theme provided resultComponent if specified
-				if (!target.resultComponent && templateConfig.theme.resultComponent) {
-					target.resultComponent = templateConfig.theme.resultComponent;
-				}
-
 				const mappedConfig: RecommendationComponentObject = {
 					component: async () => {
 						const componentImportPromises = [];
@@ -400,9 +380,6 @@ export function createRecommendationComponentMapping(
 								break;
 							}
 						}
-						if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-							componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
-						}
 						await Promise.all(componentImportPromises);
 						return TemplateSelect;
 					},
@@ -422,6 +399,7 @@ export function createRecommendationComponentMapping(
 }
 
 export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): SnapConfig {
+	const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 	const snapConfig: SnapConfig = {
 		mode: templateConfig.config.mode,
 		features: templateConfig.features || DEFAULT_FEATURES,
@@ -431,11 +409,12 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesS
 			},
 			config: {
 				...(templateConfig.config?.client || {}),
-				initiator: `snap/templates/${version}`,
+				initiator: `athos/${initiatorPrefix}snap/preact/templates/${version}`,
 			},
 		},
 		tracker: {
 			config: {
+				initiator: `athos/${initiatorPrefix}snap/preact/templates/${version}`,
 				framework: 'snap/templates',
 			},
 		},
@@ -576,8 +555,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesS
 	return snapConfig;
 }
 
-// TODO: DRY up and support dynamic imports
-function createPlugins(
+export function createPlugins(
 	templateConfig: SnapTemplatesConfig,
 	templatesStore: TemplatesStore,
 	controllerType?: 'autocomplete' | 'search' | 'recommendation' | 'chat'
@@ -649,6 +627,19 @@ function createPlugins(
 		default:
 			break;
 	}
+
+	// Handle custom plugins (only available when unlocked: true)
+	const customPlugins: CustomPlugins = deepmerge(
+		(templateConfig as { plugins?: PluginsConfigsUnlocked }).plugins?.custom || {},
+		(controllerConfig as { plugins?: PluginsConfigsUnlocked })?.plugins?.custom || {}
+	);
+
+	Object.keys(customPlugins).forEach((pluginName) => {
+		const customPlugin = customPlugins[pluginName];
+		if (customPlugin?.function) {
+			plugins.push([customPlugin.function, ...(customPlugin.args || [])]);
+		}
+	});
 
 	return plugins as PluginGrouping[];
 }

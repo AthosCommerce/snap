@@ -180,7 +180,13 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'List', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: ListProps) => <List {...args} />;
+export const Default = (args: ListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<List {...args} />
+		</div>
+	);
+};
 Default.args = {
 	options: [
 		{
@@ -198,7 +204,13 @@ Default.args = {
 	],
 } as ListProps;
 
-export const DisabledOption = (args: ListProps) => <List {...args} />;
+export const DisabledOption = (args: ListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<List {...args} />
+		</div>
+	);
+};
 DisabledOption.args = {
 	options: [
 		{
@@ -239,7 +251,13 @@ const viewOptions = [
 	},
 ];
 
-export const Icons = (args: ListProps) => <List {...args} />;
+export const Icons = (args: ListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<List {...args} />
+		</div>
+	);
+};
 Icons.args = {
 	requireSelection: true,
 	options: viewOptions,
@@ -247,7 +265,11 @@ Icons.args = {
 } as ListProps;
 
 export const PerPage = (args: ListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <List {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />;
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<List {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />
+		</div>
+	);
 };
 
 PerPage.loaders = [
@@ -265,7 +287,11 @@ PerPage.args = {
 } as Partial<ListProps>;
 
 export const SortBy = (args: ListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <List {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />;
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<List {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />
+		</div>
+	);
 };
 
 SortBy.loaders = [
