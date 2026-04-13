@@ -105,16 +105,6 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			}
 		});
 
-		// og theme prop in default components
-		// add theme props for components with selector matches if they exist
-		const themeApplicableSelectors = filterSelectors(theme?.components || {}, treePath).sort(sortSelectors);
-		themeApplicableSelectors.forEach((selector) => {
-			const componentProps = theme?.components?.[selector as keyof typeof globalTheme.components];
-			if (componentProps) {
-				mergedProps = mergeThemeProps(componentProps, mergedProps) as Partial<GenericComponentProps>;
-			}
-		});
-
 		// 2. Respread props whose VALUES originated from a parent's theme.
 		// This ensures theme-derived props from parent beat child's base theme,
 		// BUT skip props that were set by SPECIFIC selectors (like 'facet icon.collapse')
@@ -146,9 +136,24 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			}
 		}
 
-		// 3. Apply user overrides last (they always win)
+		// 3. Apply user overrides.
+		// Pass preserveExistingMapKeys=true so that props already tracked in the theme map
+		// (e.g. from baseThemeSelectors) keep their theme-derived value in the map.
+		// New props introduced only by user overrides are still added to the map.
 		userOverrideSelectors.forEach((selector) => {
 			const componentProps = globalTheme.components?.[selector as keyof typeof globalTheme.components];
+			if (componentProps) {
+				mergedProps = mergeThemeProps(componentProps, mergedProps, true) as Partial<GenericComponentProps>;
+			}
+		});
+
+		// 4. Apply props.theme component overrides last.
+		// These come from parent-injected theme data (e.g. layout option overrides set by useLayoutOptions)
+		// and must win over global user overrides because they represent a more specific context.
+		// e.g. `searchCollapsible results: { columns: 6 }` beats a global `results: { columns: 5 }` override.
+		const themeApplicableSelectors = filterSelectors(theme?.components || {}, treePath).sort(sortSelectors);
+		themeApplicableSelectors.forEach((selector) => {
+			const componentProps = theme?.components?.[selector as keyof typeof globalTheme.components];
 			if (componentProps) {
 				mergedProps = mergeThemeProps(componentProps, mergedProps) as Partial<GenericComponentProps>;
 			}
@@ -199,15 +204,24 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 	return mergedProps as GenericComponentProps;
 }
 
-function mergeThemeProps(componentThemeProps: Partial<ComponentProps>, mergedProps: Partial<ComponentProps>): Partial<ComponentProps> {
+function mergeThemeProps(
+	componentThemeProps: Partial<ComponentProps>,
+	mergedProps: Partial<ComponentProps>,
+	preserveExistingMapKeys = false
+): Partial<ComponentProps> {
 	// add theme props if they exist
 	if (componentThemeProps) {
-		// Track prop-value pairs that came from theme (for detecting theme-derived props in children)
+		// Track prop-value pairs that came from theme (for detecting theme-derived props in children).
+		// When preserveExistingMapKeys is true (used for user overrides), existing map entries are not
+		// overwritten — only new keys are added. This preserves original theme-derived values in the
+		// map so child components can correctly identify which props came from the theme.
 		const existingThemePropsMap: Map<string, any> = (mergedProps as any)[THEME_PROPS_MAP_SYMBOL] || new Map();
 		for (const [key, value] of Object.entries(componentThemeProps)) {
 			// Only track primitive values and non-null objects (skip functions, undefined, etc.)
 			if (value !== undefined && value !== null && typeof value !== 'function') {
-				existingThemePropsMap.set(key, value);
+				if (!preserveExistingMapKeys || !existingThemePropsMap.has(key)) {
+					existingThemePropsMap.set(key, value);
+				}
 			}
 		}
 
