@@ -190,7 +190,13 @@ export class ChatController extends AbstractController {
 			});
 			// TODO: handle if chatInit fails or denies new chat
 			if (response) {
-				chat = this.store.createChat({ sessionId: response.chatSessionId });
+				if (this.store.currentChat && !this.store.currentChat.sessionId) {
+					this.store.currentChat.sessionId = response.chatSessionId;
+					this.store.currentChat.save();
+					chat = this.store.currentChat;
+				} else {
+					chat = this.store.createChat({ sessionId: response.chatSessionId });
+				}
 			}
 		} catch (e) {
 			this.log.error('Error starting new chat:', e);
@@ -210,7 +216,7 @@ export class ChatController extends AbstractController {
 		const productsToCompare = (this.store.currentChat?.comparisons.compared || []).map((item) => item.result.mappings.core.uid);
 
 		const attachedImageIds = (this.store.currentChat?.attachments.attached || [])
-			.filter((attachment) => attachment.type === 'image')
+			.filter((attachment) => attachment.type === 'image' && attachment.state !== 'error')
 			.map((attachment) => (attachment as ChatAttachmentImage).imageId);
 
 		const attachedProductIds = (this.store.currentChat?.attachments.attached || [])
@@ -357,6 +363,11 @@ export class ChatController extends AbstractController {
 	upload = async (files: FileList | null) => {
 		if (!files || files.length === 0) return;
 
+		// ensure a chat exists (fresh session opened via bubble has no currentChat yet)
+		if (!this.store.currentChat) {
+			this.store.createChat();
+		}
+
 		// uploading a photo starts a fresh context — abandon any in-progress or committed comparisons
 		// (previous attachments are already cleared by attachments.add for type 'image')
 		if ((this.store.currentChat?.comparisons.compared.length || 0) > 0) {
@@ -375,6 +386,7 @@ export class ChatController extends AbstractController {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
 			const fileName = file.name.toLowerCase();
+
 			const base64Image = await convertToBase64(file);
 			const image = await base64ToBlob(base64Image);
 			const params = {
@@ -402,16 +414,41 @@ export class ChatController extends AbstractController {
 							},
 						});
 					}
-				} catch (err) {
+				} catch (err: any) {
+					const errorMessage = this.getUploadErrorMessage(err);
 					attachment.update({
 						error: {
-							message: 'Upload Failed',
+							message: errorMessage,
 						},
 					});
 				}
 			}
 		}
 	};
+
+	private getUploadErrorMessage(err: any): string {
+		const errorCode = err?.responseBody?.errorCode;
+		switch (errorCode) {
+			case 'VS_001':
+				return 'Image file is too small';
+			case 'VS_002':
+				return 'Image file is too large';
+			case 'VS_003':
+				return 'Image format is not supported';
+			case 'VS_004':
+				return 'Image dimensions are too small';
+			case 'VS_005':
+				return 'Image file is corrupted';
+			case 'VS_007':
+				return 'Image search is not available';
+			case 'VS_006':
+			case 'VS_101':
+			case 'VS_102':
+				return 'An error occurred processing the image. Please try again.';
+			default:
+				return 'Upload failed. Please try again.';
+		}
+	}
 
 	viewProduct = (result: Product): void => {
 		this.store.setQuickViewResult(result);
@@ -444,6 +481,12 @@ export class ChatController extends AbstractController {
 		// discard any uncommitted comparison products — discussing or finding similar products abandons an in-progress comparison
 		if (options.requestType !== 'productComparison' && (this.store.currentChat?.comparisons.compared.length || 0) > 0) {
 			this.store.currentChat?.comparisons.reset();
+		}
+
+		// also discard any committed comparison products so they don't persist in the UI
+		if (options.requestType !== 'productComparison' && (this.store.currentChat?.comparisons.committed.length || 0) > 0) {
+			this.store.currentChat?.comparisons.resetCommitted();
+			this.store.currentChat?.dismissSideChat();
 		}
 
 		this.store.sendProductQuery(result, options);
@@ -484,8 +527,8 @@ export class ChatController extends AbstractController {
 		if (initialMessage) {
 			this.store.inputValue = initialMessage;
 			this.search();
-		} else if (!this.store.currentChat?.sessionId) {
-			this.startNewChat();
+		} else if (!this.store.currentChat) {
+			this.store.createChat();
 		}
 		if (!initialMessage) {
 			setTimeout(() => {

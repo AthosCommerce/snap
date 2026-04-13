@@ -93,7 +93,7 @@ export class API<PathConfigurationType> {
 			}
 
 			// throw an object with fetch details
-			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init } };
+			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init }, responseBody: responseJSON };
 		}
 	}
 

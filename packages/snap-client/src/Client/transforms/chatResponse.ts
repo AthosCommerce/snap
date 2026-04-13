@@ -94,7 +94,7 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 				// To be added in future
 				// return transformChatResponse.topicDrift(data);
 				return;
-			} else if (data.messageType === 'error_response') {
+			} else if (data.messageType === 'errorResponse') {
 				return transformChatResponse.error(data);
 			}
 		})
@@ -288,7 +288,7 @@ transformChatResponse.productRecommendation = (data: MoiResponseModelProductReco
 };
 
 export type ChatResponseErrorData = BaseResponseProperties & {
-	messageType: 'error_response';
+	messageType: 'errorResponse';
 	errorMessage: string;
 };
 transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorData => {

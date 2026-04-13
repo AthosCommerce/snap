@@ -1,5 +1,5 @@
 import { API } from './Abstract';
-import { HTTPHeaders } from '../../types';
+import { ClientGlobals, HTTPHeaders } from '../../types';
 import { transformChatResponse } from '../transforms/chatResponse';
 import { RawResult } from '../transforms/searchResponse';
 
@@ -151,7 +151,7 @@ export type MoiRequestModelInspiration = {
 	message: string;
 };
 
-// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, suggestedQuestions, content, error_response, topic_drift, actions
+// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, suggestedQuestions, content, errorResponse, topic_drift, actions
 export type MoiResponseModel = {
 	context: {
 		sessionId: string;
@@ -299,24 +299,29 @@ export type MoiResponseModelProductRecommendation = BaseResponseProperties & {
 };
 
 export type MoiResponseModelError = BaseResponseProperties & {
-	messageType: 'error_response';
+	messageType: 'errorResponse';
 	errorMessage: string;
 };
 
 export class ChatAPI extends API<any> {
-	async postMessage(requestParameters: ChatRequestModel): Promise<any> {
+	async postMessage(requestParameters: ChatRequestModel & ClientGlobals): Promise<any> {
 		const headerParameters: HTTPHeaders = {
 			'Content-Type': 'application/json',
-			'x-visitor-id': requestParameters.personalization?.shopper || requestParameters.tracking.userId,
-			'x-pqa-widget-id': requestParameters.context.widgetId,
 		};
 
-		if (requestParameters.context.sessionId) {
-			headerParameters['x-session-id'] = requestParameters.context.sessionId;
+		if (requestParameters.siteId == 'ck4bj7') {
+			// TODO: temporary - remove
+			requestParameters.siteId = 'test-mattel-demo';
+		}
+
+		let queryStringParams = `?siteId=${requestParameters.siteId}&chatSessionId=${requestParameters.context.sessionId}`;
+		const userId = requestParameters.personalization?.shopper || requestParameters.tracking.userId;
+		if (userId) {
+			queryStringParams += `&userId=${userId}`;
 		}
 
 		const response = await this.request<MoiResponseModel>({
-			path: '/chat/v2/send',
+			path: `/chat/send${queryStringParams}`,
 			method: 'POST',
 			headers: headerParameters,
 			body: requestParameters.data,
@@ -327,10 +332,10 @@ export class ChatAPI extends API<any> {
 	}
 
 	async postStatus(queryParameters: ChatStatusRequestModel): Promise<ChatStatusResponse> {
-		const headerParameters: HTTPHeaders = {};
-
-		headerParameters['Content-Type'] = 'application/json';
-		headerParameters['x-site-id'] = queryParameters.siteId;
+		const headerParameters: HTTPHeaders = {
+			'Content-Type': 'application/json',
+		};
+		headerParameters['x-site-id'] = queryParameters.siteId; // TODO: should be removed once api fix to support siteId as query param
 
 		const response = await this.request<ChatStatusResponse>(
 			{
@@ -346,13 +351,13 @@ export class ChatAPI extends API<any> {
 	}
 
 	async chatInit(queryParameters: ChatInitRequestModel): Promise<ChatInitResponseModel> {
-		const headerParameters: HTTPHeaders = {};
-
-		headerParameters['Content-Type'] = 'application/json';
-		headerParameters['x-site-id'] = queryParameters.siteId;
+		const headerParameters: HTTPHeaders = {
+			'Content-Type': 'application/json',
+		};
+		const queryStringParams = `?siteId=${queryParameters.siteId}`;
 
 		const response = await this.request<ChatInitResponseModel>({
-			path: '/chat/init',
+			path: `/chat/init${queryStringParams}`,
 			method: 'POST',
 			headers: headerParameters,
 			body: queryParameters,
@@ -375,18 +380,21 @@ export class ChatAPI extends API<any> {
 		return response;
 	}
 
-	async postUploadImage(requestParameters: UploadImageRequestModel): Promise<UploadImageResponseModel> {
-		const headerParameters: HTTPHeaders = {
-			'X-Widget-Id': requestParameters.context.widgetId,
-		};
+	async postUploadImage(requestParameters: UploadImageRequestModel & ClientGlobals): Promise<UploadImageResponseModel> {
 		const formData = new FormData();
 		formData.append('file', requestParameters.image, 'image.jpg');
 
+		if (requestParameters.siteId == 'ck4bj7') {
+			// TODO: temporary - remove
+			requestParameters.siteId = 'test-mattel-demo';
+		}
+		const queryStringParams = `?siteId=${requestParameters.siteId}`;
+
 		const response = await this.request<UploadImageResponseModel>(
 			{
-				path: '/visual-search/upload-image',
+				path: `/visual-search/upload-image${queryStringParams}`,
 				method: 'POST',
-				headers: headerParameters,
+				headers: {},
 				body: formData,
 			}
 			// TODO: cache?

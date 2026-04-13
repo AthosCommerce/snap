@@ -34,14 +34,18 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 				padding: '0.5em',
 
 				'.ss__button': {
-					padding: '0.25em 1em',
+					padding: '0.25em 0.5em',
 					background: 'rgba(255, 255, 255, 0.9)',
 					textAlign: 'center',
 					justifyContent: 'center',
 					borderRadius: '2em',
 					boxShadow: 'inset 0 0 1px 0px rgba(0, 0, 0, 0.5)',
-					flex: '1 0 50%',
+					flex: '1 1 0',
+					minWidth: 0,
 					fontWeight: 'bold',
+					whiteSpace: 'nowrap',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
 				},
 			},
 

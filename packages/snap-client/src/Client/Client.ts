@@ -197,7 +197,8 @@ export class Client {
 	}
 
 	async uploadImage(params: UploadImageRequestModel): Promise<UploadImageResponseModel> {
-		return this.requesters.chat.postUploadImage(params);
+		const mergedParams = { ...this.globals, ...params };
+		return this.requesters.chat.postUploadImage(mergedParams);
 	}
 
 	async chatStatus(params: ChatStatusRequestModel): Promise<ChatStatusResponse> {
@@ -209,9 +210,9 @@ export class Client {
 	}
 
 	async chat(params: ChatRequestModel): Promise<{ meta: MetaResponseModel; chat: ChatResponseModel }> {
-		params = deepmerge<ChatRequestModel & ClientGlobals>(this.globals, params);
+		const mergedParams = deepmerge<ChatRequestModel & ClientGlobals>(this.globals, params);
 
-		const [meta, chat] = await Promise.all([this.meta({ siteId: this.globals.siteId || '' }), this.requesters.chat.postMessage(params)]);
+		const [meta, chat] = await Promise.all([this.meta({ siteId: this.globals.siteId || '' }), this.requesters.chat.postMessage(mergedParams)]);
 		return { meta, chat };
 	}
 

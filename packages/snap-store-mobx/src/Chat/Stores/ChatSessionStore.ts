@@ -173,9 +173,21 @@ export class ChatSessionStore {
 	// }
 
 	get activeMessage(): ChatMessage | null {
-		const EXCLUDED_MESSAGE_TYPES = ['topic_drift'];
+		const EXCLUDED_MESSAGE_TYPES = ['topic_drift', 'productAnswer'];
 		const messages = this.chat.filter((message) => !EXCLUDED_MESSAGE_TYPES.includes(message.messageType));
 		const lastMessage = messages[messages.length - 1];
+
+		// When the user sends a follow-up while in a productQuery flow (e.g. "discuss product"),
+		// the last visible message becomes a 'user' message which would close the secondary panel.
+		// Instead, keep the productQuery message as the active side-chat target so the product
+		// information panel stays open during and after the request.
+		if (lastMessage?.messageType === 'user' && this.requestType === 'productQuery') {
+			const lastProductQuery = [...messages].reverse().find((m) => m.messageType === 'productQuery');
+			if (lastProductQuery) {
+				return lastProductQuery;
+			}
+		}
+
 		return lastMessage || null;
 	}
 
@@ -231,6 +243,10 @@ export class ChatSessionStore {
 		// clear the questions on new request
 		this.actions = [];
 		this.requestType = request.data.requestType;
+
+		// remove any attachments that failed to upload
+		const errorAttachments = this.attachments.items.filter((item) => item.state === 'error');
+		errorAttachments.forEach((item) => this.attachments.items.splice(this.attachments.items.indexOf(item), 1));
 
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {

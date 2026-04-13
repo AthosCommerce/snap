@@ -10,8 +10,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { Button } from '../../Atoms/Button';
 import { useRef, useEffect, useMemo } from 'preact/hooks';
-import { Slideout } from '../../Molecules/Slideout';
-import { Quickview } from './Quickview';
+import { ChatProductQuickviewModal } from './ChatProductQuickviewModal';
 import { MessageUser } from './MessageUser';
 import { MessageText } from './MessageText';
 import { SuggestedQuestions } from './SuggestedQuestions';
@@ -23,12 +22,10 @@ import { FacetsData } from '@athoscommerce/snap-store-mobx';
 import { Dropdown, Icon, Overlay, useMediaQuery } from '../../..';
 import { ChatInspirationResultMessage } from '../../Molecules/ChatInspirationResultMessage';
 import { ChatProductComparisonMessage } from '../../Molecules/ChatProductComparisonMessage/ChatProductComparisonMessage';
-import { ChatProductAnswerMessage } from '../../Molecules/ChatProductAnswerMessage/ChatProductAnswerMessage';
 import { ChatProductQueryMessage, ChatProductQueryMessageItem } from '../../Molecules/ChatProductQueryMessage/ChatProductQueryMessage';
 import {
 	ChatResponseInspirationResultData,
 	ChatResponseProductComparisonData,
-	ChatResponseProductAnswerData,
 	ChatResponseActionsData,
 } from '@athoscommerce/snap-client/dist/cjs/Client/transforms/chatResponse';
 
@@ -736,9 +733,8 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 						'.ss__chat__attachment-context__item__error-message': {
 							fontSize: '12px',
 							color: '#dc3545',
-							whiteSpace: 'nowrap',
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
+							whiteSpace: 'normal',
+							wordBreak: 'break-word',
 							flex: '1 1 auto',
 							minWidth: 0,
 						},
@@ -999,7 +995,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	const activeMessage = store.currentChat?.activeMessage;
 	const shouldShowSideChat =
 		activeMessage &&
-		['inspirationResult', 'productComparison', 'productAnswer', 'productQuery'].includes(activeMessage?.messageType) &&
+		['inspirationResult', 'productComparison', 'productQuery'].includes(activeMessage?.messageType) &&
 		store.currentChat?.dismissedSideChatMessageId !== activeMessage.id;
 	const requestType = store.currentChat?.requestType;
 	const loadingVerbs = useMemo(() => {
@@ -1064,7 +1060,6 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											{
 												inspirationResult: 'Inspiration Scenarios',
 												productComparison: 'Product Comparison',
-												productAnswer: 'Product Information',
 												productQuery: 'Product Information',
 											} as any
 										)[activeMessage.messageType] || null}
@@ -1077,7 +1072,6 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													(activeMessage as ChatResponseProductComparisonData)?.comparisonData?.features.length ||
 													(activeMessage as ChatResponseProductComparisonData)?.searchResults?.length
 												} products`,
-												productAnswer: 'Complete product details',
 												productQuery: 'Complete product details',
 											} as any
 										)[activeMessage.messageType] || null}
@@ -1115,7 +1109,6 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											productComparison: (
 												<ChatProductComparisonMessage chatItem={activeMessage as ChatResponseProductComparisonData} controller={controller} />
 											),
-											productAnswer: <ChatProductAnswerMessage chatItem={activeMessage as ChatResponseProductAnswerData} controller={controller} />,
 											productQuery: (
 												<ChatProductQueryMessage chatItem={activeMessage as unknown as ChatProductQueryMessageItem} controller={controller} />
 											),
@@ -1148,7 +1141,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 										// disabled={store.currentChat?.chat && store.currentChat.chat.length <= 1}
 										className="ss__chat__header__button--new"
 										icon={{ icon: controller.store.initChatLoading ? 'spinner' : 'plus2', title: 'New Chat' }}
-										onClick={() => controller.startNewChat()}
+										onClick={() => controller.store.createChat()}
 									/>
 									{store.chats.length > 1 && (
 										<Dropdown
@@ -1261,7 +1254,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													productComparison: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 													productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 													actions: <SuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />,
-													error_response: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
+													errorResponse: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 													topic_drift: null,
 													productQuery: null,
 												}[chatItem.messageType] || null}
@@ -1361,7 +1354,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												(activeMessage?.messageType === 'productComparison' || activeMessage?.messageType === 'user');
 
 											const visibleAttachments =
-												store.currentChat?.attachments.attached.filter((item) => item.state === 'attached' || item.state === 'loading') || [];
+												store.currentChat?.attachments.attached.filter(
+													(item) => item.state === 'attached' || item.state === 'loading' || item.state === 'error'
+												) || [];
 
 											const productAttachments = visibleAttachments.filter(
 												(item) => item.type === 'product' && (item as any).requestType !== 'productSimilar'
@@ -1398,7 +1393,8 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											}));
 
 											const productTitle = productItems.length > 1 ? 'Compare these products' : 'Ask about this product';
-											const imageTitle = imageItems.length > 0 ? 'Find products similar to this image:' : '';
+											const hasImageError = imageItems.some((item) => item.hasError);
+											const imageTitle = imageItems.length > 0 && !hasImageError ? 'Find products similar to this image:' : '';
 
 											return (
 												<>
@@ -1525,13 +1521,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					) : null}
 				</div>
 				<Overlay style={{ zIndex: 1001 }} color="transparent" active={store.open} onClick={() => controller.handlers.button.click()} />
-				<Slideout
-					slideDirection="right"
-					buttonSelector={'.ss__chat__result__detail-slot__more-info-button, .ss__chat__result__detail-slot__image'}
-					width="450px"
-				>
-					<Quickview result={store.quickViewResult} controller={controller} />
-				</Slideout>
+				<ChatProductQuickviewModal result={store.quickViewResult} controller={controller} onClose={() => store.setQuickViewResult({})} />
 			</>
 		</CacheProvider>
 	);

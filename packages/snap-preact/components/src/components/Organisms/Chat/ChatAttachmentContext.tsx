@@ -45,9 +45,7 @@ export const ChatAttachmentContext = observer((props: ChatAttachmentContextProps
 						{item.hasError ? (
 							<>
 								<div className={'ss__chat__attachment-context__item__error-icon'}>⚠</div>
-								<div className={'ss__chat__attachment-context__item__error-message'}>
-									{item.errorMessage || 'Upload Failed'} - {item.name}
-								</div>
+								<div className={'ss__chat__attachment-context__item__error-message'}>{item.errorMessage || `Upload Failed - ${item.name}`}</div>
 							</>
 						) : (
 							<>
@@ -64,7 +62,7 @@ export const ChatAttachmentContext = observer((props: ChatAttachmentContextProps
 								<div className={'ss__chat__attachment-context__item__name'} title={item.name} dangerouslySetInnerHTML={{ __html: item.name }} />
 							</>
 						)}
-						{item.onRemove && items.length > 1 && (
+						{item.onRemove && (items.length > 1 || !onClose) && (
 							<Button
 								className={'ss__chat__attachment-context__item__remove'}
 								onClick={() => !item.isLoading && item.onRemove?.()}
