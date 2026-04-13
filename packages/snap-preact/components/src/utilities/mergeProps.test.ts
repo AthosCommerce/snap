@@ -1,4 +1,4 @@
-import { Theme } from '..';
+import { OverlayProps, SlideoutProps, Theme } from '..';
 import { GLOBAL_THEME_NAME } from '../../../src/Templates/Stores/TargetStore';
 import { SelectProps } from '../components/Molecules/Select';
 import { sortSelectors, filterSelectors, mergeProps } from './mergeProps';
@@ -617,7 +617,7 @@ describe('mergeProps function with theme name - prop merge order (templates beha
 				'*overlay': { color: 'blue' },
 			},
 		};
-		const defaultProps: Partial<SelectProps> = {};
+		const defaultProps: Partial<SlideoutProps> = {};
 
 		// Step 1: slideout mergeProps — base theme sets overlayColor:'red', tracked in THEME_PROPS_MAP_SYMBOL
 		// @ts-ignore
@@ -640,6 +640,39 @@ describe('mergeProps function with theme name - prop merge order (templates beha
 		);
 
 		expect((overlayResult as any).color).toBe('red');
+	});
+
+	it('parent theme props do not override other child theme props if values match', () => {
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*slideout': { otherProp: true },
+				'*overlay': { prop: false },
+			},
+		};
+		const defaultProps: Partial<SlideoutProps> = {};
+
+		// @ts-ignore
+		const slideoutResult = mergeProps('slideout', globalTheme, defaultProps, {});
+		expect((slideoutResult as any).otherProp).toBe(true);
+		expect((slideoutResult.theme as any)?.[THEME_PROPS_MAP_SYMBOL]?.get('otherProp')).toBe(true);
+
+		const overlayDefaults: any = {
+			prop: true,
+		};
+
+		// @ts-ignore
+		const overlayResult = mergeProps('overlay', globalTheme, overlayDefaults, {
+			propY: true,
+			propX: false,
+			otherProp: (slideoutResult as any).otherProp,
+			theme: slideoutResult.theme,
+		});
+
+		expect((overlayResult as any).prop).toBe(false);
+
+		expect((overlayResult as any).propY).toBe(true);
+		expect((overlayResult as any).propX).toBe(false);
 	});
 
 	it('user override on child (overlay: {color: orange}) beats base theme and parent-theme-derived respread', () => {
@@ -779,6 +812,162 @@ describe('mergeProps function with theme name - prop merge order (templates beha
 		expect(props.separator).toBe('user-override');
 		// iconClose: only in defaultProps, not overridden anywhere
 		expect(props.iconClose).toBe('angle-up');
+	});
+});
+
+describe('respread logic - primitive value collision regression', () => {
+	it('does NOT misclassify a non-theme boolean prop as theme-derived when the value collides with a parent theme value', () => {
+		// Bug: the old respread logic checked `parentThemeValuesArray.indexOf(propValue)`,
+		// so ANY prop with value `true` was treated as theme-derived if ANY parent theme
+		// prop happened to be `true` — even for unrelated keys.
+		const componentType = 'icon';
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				// child's base theme sets `icon` to 'ban'
+				'*icon': { icon: 'ban' },
+			},
+		};
+		const defaultProps = {};
+
+		// Parent theme had `startOpen: true` tracked in its theme map.
+		// The child receives `visible: true` as a directly-passed prop (NOT from theme).
+		// Because both are `true`, the old value-only indexOf check would misclassify
+		// `visible` as theme-derived and respread it, potentially overriding the child's
+		// base theme for unrelated props.
+		const parentThemePropsMap = new Map<string, any>([['startOpen', true]]);
+		const properties = {
+			visible: true,
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+
+		// `visible` was NOT in the parent theme map (only `startOpen` was), so it should
+		// not be respread. The child's base theme `icon: 'ban'` should remain intact.
+		expect((props as any).icon).toBe('ban');
+		// `visible` should still be present from the normal props spread
+		expect((props as any).visible).toBe(true);
+	});
+
+	it('does NOT misclassify a non-theme number prop when the value collides with a parent theme number', () => {
+		const componentType = 'select';
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*select': { separator: 'base-sep' },
+			},
+		};
+		const defaultProps: Partial<SelectProps> = {};
+
+		// Parent theme had `columns: 3` tracked in its theme map.
+		// The child receives `limit: 3` as a directly-passed prop (NOT from theme).
+		const parentThemePropsMap = new Map<string, any>([['columns', 3]]);
+		const properties: Partial<SelectProps> = {
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+		(properties as any).limit = 3;
+
+		// @ts-ignore
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+
+		// `limit` was NOT a key in the parent theme map — only `columns` was.
+		// Even though both have value 3, `limit` must not be respread.
+		expect(props.separator).toBe('base-sep');
+	});
+
+	it('correctly identifies theme-derived props by key match even for primitive values', () => {
+		// When the parent theme map contains key `startOpen` with value `true`,
+		// and the child also receives `startOpen: true`, it IS theme-derived (key+value match).
+		const componentType = 'icon';
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*icon': { icon: 'ban' },
+			},
+		};
+		const defaultProps = {};
+
+		const parentThemePropsMap = new Map<string, any>([['startOpen', true]]);
+		const properties = {
+			startOpen: true,
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+
+		// `startOpen` is in the parent theme map with the same value, so it IS theme-derived
+		// and should be respread (winning over child's base theme).
+		expect((props as any).startOpen).toBe(true);
+	});
+
+	it('correctly identifies theme-derived object props by reference equality', () => {
+		// Object references are safe to match by value — they are unique references.
+		const componentType = 'icon';
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*icon': { icon: 'ban' },
+			},
+		};
+		const defaultProps = {};
+
+		const sharedStyleObj = { color: 'red', fontSize: 14 };
+		// Parent theme tracked `style` pointing to the same object reference.
+		// Even though the child receives it under a DIFFERENT key (`customStyle`),
+		// object reference matching should detect it as theme-derived.
+		const parentThemePropsMap = new Map<string, any>([['style', sharedStyleObj]]);
+		const properties = {
+			customStyle: sharedStyleObj,
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+
+		// Object reference match — the same object was in the parent theme map
+		expect((props as any).customStyle).toBe(sharedStyleObj);
+	});
+
+	it('does NOT match different objects with identical content as theme-derived', () => {
+		// Two different object instances with the same content should NOT match
+		// via reference equality (they are separate allocations).
+		const componentType = 'icon';
+		const globalTheme = {
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*icon': { icon: 'ban' },
+			},
+		};
+		const defaultProps = {};
+
+		const parentStyleObj = { color: 'red', fontSize: 14 };
+		const childStyleObj = { color: 'red', fontSize: 14 }; // same content, different reference
+		const parentThemePropsMap = new Map<string, any>([['style', parentStyleObj]]);
+		const properties = {
+			style: childStyleObj,
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+
+		// Key matches ('style' === 'style') but value does NOT match (different reference).
+		// So `style` is NOT theme-derived. The child's base theme should apply normally.
+		expect((props as any).icon).toBe('ban');
+		expect((props as any).style).toBe(childStyleObj);
 	});
 });
 
