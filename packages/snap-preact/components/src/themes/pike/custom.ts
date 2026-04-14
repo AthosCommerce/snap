@@ -73,7 +73,7 @@ export const custom: CustomThemeType = {
 			return {
 				'&, &:hover': {
 					fontWeight: custom?.fonts?.weight01,
-					color: color ? color : '',
+					color: color || undefined,
 				},
 			};
 		},
@@ -83,6 +83,14 @@ export const custom: CustomThemeType = {
 				display: 'block',
 				fontSize: fontSize,
 				lineHeight: 1.2,
+			};
+		},
+		baseText: (color?: string) => {
+			// header text styles
+			return {
+				fontSize: '14px',
+				lineHeight: 1.5,
+				color: color || undefined,
 			};
 		},
 		borderRadius: (value?: number, unit?: string) => {
@@ -117,7 +125,7 @@ export const custom: CustomThemeType = {
 				border: `1px solid ${custom.colors.gray02}`,
 				...radiusStyle,
 				backgroundColor: custom.colors.gray01,
-				color: color ? color : '',
+				color: color || undefined,
 				padding: padding,
 			};
 		},
@@ -158,7 +166,7 @@ export const custom: CustomThemeType = {
 				fontSize: fontSize ? fontSize : '',
 				fontWeight: custom?.fonts?.weight02,
 				textTransform: custom?.fonts?.transform,
-				color: color ? color : '',
+				color: color || undefined,
 			};
 		},
 		resultCompact: (layout?: string, imageWidth?: string, fontSize?: number) => {
@@ -170,7 +178,7 @@ export const custom: CustomThemeType = {
 				'&': {
 					gap: `${custom.spacing.x1}px`,
 				},
-				'.ss__result__details__title a, .ss__result__details__pricing .ss__price--strike, .ss__result__details__pricing .ss__price--strike span': {
+				'.ss__result__details__title a, .ss__result__details__pricing .ss__price, .ss__result__details__pricing .ss__price span': {
 					fontSize: `${fontSize}px`,
 				},
 				'.ss__result__details__pricing .ss__result__price': {
@@ -182,7 +190,7 @@ export const custom: CustomThemeType = {
 					overflow: 'hidden',
 					WebkitLineClamp: '2',
 				},
-				'.ss__result__add-to-cart-wrapper': {
+				'.ss__result__details__variant-selection, .ss__result__add-to-cart-wrapper': {
 					marginTop: '2.5px',
 				},
 			};
@@ -293,7 +301,7 @@ type ObjectIconType = {
 };
 
 type ObjectNestedType = {
-	[key: string]: ObjectNumberOrStringType | ObjectNestedType;
+	[key: string]: ObjectNumberOrStringType | ObjectNestedType | undefined;
 };
 
 type ObjectNumberType = {
@@ -301,7 +309,7 @@ type ObjectNumberType = {
 };
 
 type ObjectNumberOrStringType = {
-	[key: string]: number | string;
+	[key: string]: number | string | undefined;
 };
 
 type ObjectStringType = {
@@ -318,6 +326,7 @@ type CustomThemeType = {
 	styles: {
 		activeText: (color?: string) => ObjectNestedType;
 		badgeText: (fontSize: number) => ObjectNumberOrStringType;
+		baseText: (color?: string) => ObjectNumberOrStringType;
 		borderRadius: (value?: number, unit?: string) => ObjectStringType | null;
 		box: (color?: string, padding?: number | string, radius?: boolean) => ObjectNumberOrStringType;
 		boxSizing: (component: string, treePath?: string, name?: string) => ObjectNestedType | null;

@@ -4,11 +4,21 @@ module.exports = {
 		ecmaVersion: 2020,
 		sourceType: 'module',
 	},
+	plugins: ['@typescript-eslint'],
 	extends: [
 		'plugin:@typescript-eslint/recommended', // uses the recommended rules from the @typescript-eslint/eslint-plugin
 		'prettier', // disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
 	],
 	ignorePatterns: ["**/docs", "**/dist", "*.test.ts", "*.test.tsx", "./packages/snapps"],
+	overrides: [
+		{
+			files: ['**/config.tsx', '**/config.ts'],
+			plugins: ['snap-config'],
+			rules: {
+				'snap-config/validate-result-component': 'error',
+			},
+		},
+	],
 	rules: {
 		// add rules... or dont...
 		'no-debugger': 'error',

@@ -34,7 +34,7 @@ export default {
 		(Story: any) => (
 			<div
 				style={{
-					maxWidth: '900px',
+					maxWidth: '1200px',
 				}}
 			>
 				<Story />
@@ -98,3 +98,6 @@ Default.loaders = [
 		};
 	},
 ];
+Default.args = {
+	layout: [['mobileSidebar', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']],
+};

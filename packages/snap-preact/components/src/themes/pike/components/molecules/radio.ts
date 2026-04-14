@@ -24,6 +24,7 @@ const radioStyleScript = (props: RadioProps) => {
 			},
 			'&.ss__radio--active': {
 				borderColor: darkGray,
+				backgroundColor: custom.colors.white,
 				'.ss__icon': {
 					opacity: 1,
 				},

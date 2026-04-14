@@ -3,9 +3,11 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<BadgeTextProps> = ({ colorText }) => {
 	return css({
@@ -22,6 +24,7 @@ const defaultStyles: StyleScript<BadgeTextProps> = ({ colorText }) => {
 
 export const BadgeText = observer((properties: BadgeTextProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<BadgeTextProps> = {
@@ -32,7 +35,14 @@ export const BadgeText = observer((properties: BadgeTextProps) => {
 
 	const props = mergeProps('badgeText', globalTheme, defaultProps, properties);
 
-	const { value, tag, className, internalClassName } = props;
+	const { value, tag, className, internalClassName, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.badgeText || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const styling = mergeStyles<BadgeTextProps>(props, defaultStyles);
 

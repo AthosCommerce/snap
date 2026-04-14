@@ -6,12 +6,13 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { useRanger } from 'react-ranger';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { sprintf } from '../../../utilities';
 import type { RangeFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useA11y, useLang } from '../../../hooks';
+import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<FacetSliderProps> = ({
@@ -149,6 +150,7 @@ const defaultStyles: StyleScript<FacetSliderProps> = ({
 
 export const FacetSlider = observer((properties: FacetSliderProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetSliderProps> = {
@@ -158,7 +160,14 @@ export const FacetSlider = observer((properties: FacetSliderProps) => {
 
 	const props = mergeProps('facetSlider', globalTheme, defaultProps, properties);
 
-	const { showTicks, facet, stickyHandleLabel, separateHandles, onChange, onDrag, className, internalClassName } = props;
+	const { showTicks, facet, stickyHandleLabel, separateHandles, onChange, onDrag, className, internalClassName, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facetSlider || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	let { tickSize } = props;
 

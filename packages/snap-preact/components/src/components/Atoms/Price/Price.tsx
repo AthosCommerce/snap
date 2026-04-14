@@ -4,10 +4,12 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { FormattedNumberProps } from '../FormattedNumber/FormattedNumber';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<PriceProps> = ({ theme }) => {
 	return css({
@@ -21,6 +23,7 @@ const defaultStyles: StyleScript<PriceProps> = ({ theme }) => {
 
 export function Price(properties: PriceProps) {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<PriceProps> = {
@@ -48,7 +51,15 @@ export function Price(properties: PriceProps) {
 		raw,
 		className,
 		internalClassName,
+		customComponent,
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.price || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	let formattedPrice: string | undefined;
 	if (value) {

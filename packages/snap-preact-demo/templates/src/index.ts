@@ -1,33 +1,19 @@
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import { globalStyles } from './styles';
+import { SnapTemplates, SnapTemplatesConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
-const siteId = 'atkzs2';
+import { globalStyles } from './styles';
+import { getDemoConfig } from '../../shared/demoConfig';
 
-// const siteId = '8uyt2m';
+const { siteId, clientConfig } = getDemoConfig();
 
-// const clientConfig = {
-// 	meta: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	search: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	recommend: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// 	suggest: {
-// 		origin: `https://${siteId}.a.searchspring.io`,
-// 	},
-// };
-let config: SnapTemplatesConfig = {
+let templatesConfig: SnapTemplatesConfig = {
+	unlocked: true,
 	config: {
 		siteId: siteId,
 		language: 'en',
 		currency: 'usd',
 		platform: 'other',
-		// client: clientConfig
+		client: clientConfig,
 	},
 
 	plugins: {
@@ -43,8 +29,7 @@ let config: SnapTemplatesConfig = {
 		},
 	},
 	theme: {
-		extends: 'pike',
-		//resultComponent: 'CustomResult',
+		extends: 'base',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,
@@ -59,14 +44,17 @@ let config: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+			},
 		},
 	},
 	recommendation: {
 		email: {
 			Email: {
 				component: 'RecommendationEmail',
-				//resultComponent: 'EmailResult',
 			},
 		},
 		default: {
@@ -84,7 +72,7 @@ let config: SnapTemplatesConfig = {
 		targets: [
 			{
 				selector: '#athos-layout',
-				component: 'SearchCollapsible',
+				component: 'Search',
 			},
 		],
 		settings: {
@@ -117,32 +105,7 @@ let config: SnapTemplatesConfig = {
 };
 
 if (window.mergeSnapConfig) {
-	config = deepmerge(config, window.mergeSnapConfig, { arrayMerge: combineMerge });
+	templatesConfig = deepmerge(templatesConfig as object, window.mergeSnapConfig, { arrayMerge: combineMerge }) as SnapTemplatesConfig;
 }
 
-new SnapTemplates(config);
-
-/*
-
-
-Overrides are taking priority over the theme layouts (responsive) specified within the Search component - but they shouldn't be.
-Look into:
-			overrides: {
-				'toolbar.top': {
-					layout: [
-						['Banner.header'],
-					]
-				},
-				'toolbar.middle': {
-					layout: [
-						['_', 'Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Pagination'],
-						['Banner.banner']
-					]
-				},
-			},
-
-*/
+new SnapTemplates(templatesConfig);

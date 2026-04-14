@@ -183,11 +183,11 @@ describe('RecommendationBundle Component', async () => {
 			);
 		};
 
-		mount(<RecommendationBundle controller={controller} resultComponent={ResultSlot} onAddToCart={cy.stub().as('onAddToCart')} />);
+		mount(<RecommendationBundle controller={controller} resultComponent={<ResultSlot />} onAddToCart={cy.stub().as('onAddToCart')} />);
 
 		cy.get('.ss__recommendation-bundle').should('exist');
 		cy.get('.ss__recommendation-bundle .findMe .ss__result').should('have.length', 5);
-		cy.get('.ss__recommendation-bundle .findMe .ss__result .ss__result__details__title a').should('satisfy', ($el) => {
+		cy.get('.ss__recommendation-bundle .findMe .ss__result .ss__result__details__title a').should('satisfy', ($el: JQuery<HTMLElement>) => {
 			return Array.from($el).map((titleElem: any, idx) => {
 				return titleElem.innerHTML == controller.store.results[idx].mappings.core?.name;
 			});
@@ -260,7 +260,7 @@ describe('RecommendationBundle Component', async () => {
 			<RecommendationBundle
 				controller={controller}
 				ctaSlot={<CtaSlot />}
-				resultComponent={ResultComponent}
+				resultComponent={<ResultComponent />}
 				onAddToCart={cy.stub().as('onAddToCart')}
 			/>
 		);

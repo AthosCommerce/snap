@@ -57,7 +57,7 @@ describe('RecommendationEmail Template Component', () => {
 	});
 
 	it('renders with a custom result component', () => {
-		const rendered = render(<RecommendationEmail controller={controller} resultComponent={() => <div>Custom Result</div>} />);
+		const rendered = render(<RecommendationEmail controller={controller} resultComponent={<div>Custom Result</div>} />);
 		const element = rendered.container.querySelector('#ss-emailrec0');
 		expect(element).toBeInTheDocument();
 		expect(element).toHaveTextContent('Custom Result');
@@ -75,9 +75,8 @@ describe('RecommendationEmail Template Component', () => {
 		const key = 'testProp';
 		const value = 'testValue';
 		const customProps = { [key]: value };
-		const rendered = render(
-			<RecommendationEmail controller={controller} resultProps={customProps} resultComponent={(props) => <div {...props}>Custom Result</div>} />
-		);
+		const CustomResult = (props: any) => <div {...props}>Custom Result</div>;
+		const rendered = render(<RecommendationEmail controller={controller} resultProps={customProps} resultComponent={<CustomResult />} />);
 		const element = rendered.container.querySelector('#ss-emailrec0 div');
 		expect(element).toBeInTheDocument();
 		expect(element).toHaveAttribute(key, value);

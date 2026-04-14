@@ -1,10 +1,10 @@
 import { h } from 'preact';
 import { RecommendationController, RecommendationControllerConfig } from '@athoscommerce/snap-controller';
 import { SnapTemplates } from '../../../src';
-import { Theme, useSnap } from '../providers';
+import { useSnap } from '../providers';
 import { useCreateController } from './useCreateController';
 import { useComponent } from './useComponent';
-import { ResultComponent, RecommendationComponentNames, RecommendationComponentProps } from '../types';
+import { JSXComponent, RecommendationComponentNames, RecommendationComponentProps } from '../types';
 
 export type TemplatesType = {
 	recommendation?: {
@@ -17,13 +17,13 @@ export type TemplatesType = {
 
 type ReturnType = {
 	RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
-	RecommendationTemplateResultComponent: ResultComponent | undefined;
+	RecommendationTemplateResultComponent: JSXComponent | undefined;
 	recsController: RecommendationController | undefined;
 };
 
-export function createRecommendationTemplate(templates: TemplatesType, theme?: Theme): ReturnType {
+export function createRecommendationTemplate(templates: TemplatesType): ReturnType {
 	let recommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
-	let recommendationTemplateResultComponent: ResultComponent | undefined;
+	let recommendationTemplateResultComponent: JSXComponent | undefined;
 	let recsController: RecommendationController | undefined;
 
 	if (templates?.recommendation?.enabled) {
@@ -31,11 +31,7 @@ export function createRecommendationTemplate(templates: TemplatesType, theme?: T
 		const snap = useSnap() as SnapTemplates;
 
 		if (snap?.templates) {
-			const themeName = theme?.name;
-			let defaultResultComponentFromTheme;
-			if (themeName) {
-				defaultResultComponentFromTheme = snap?.templates?.config.theme?.resultComponent;
-			}
+			const defaultResultComponentFromTheme = 'Result';
 
 			const resultComponentName = (templates?.recommendation?.resultComponent || defaultResultComponentFromTheme) as string;
 			const mergedConfig = Object.assign(

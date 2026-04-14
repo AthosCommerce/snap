@@ -128,6 +128,7 @@ export type RecommendRequestGlobalsModel = {
 	blockedItems?: string[];
 	batchId?: number;
 	test?: boolean;
+	withRecInfo?: boolean;
 };
 
 export type RecommendRequestOptionsModel = {

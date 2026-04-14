@@ -4,13 +4,14 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchPaginationStore } from '@athoscommerce/snap-store-mobx';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import deepmerge from 'deepmerge';
-import { Lang, useLang } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<PaginationInfoProps> = ({}) => {
 	return css({});
@@ -18,6 +19,7 @@ const defaultStyles: StyleScript<PaginationInfoProps> = ({}) => {
 
 export const PaginationInfo = observer((properties: PaginationInfoProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const pagination = properties.controller?.store.pagination || properties.pagination;
@@ -31,7 +33,14 @@ export const PaginationInfo = observer((properties: PaginationInfoProps) => {
 
 	const props = mergeProps('paginationInfo', globalTheme, defaultProps, properties);
 
-	const { controller, infoText, className, internalClassName } = props;
+	const { controller, infoText, className, internalClassName, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.paginationInfo || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const store = pagination || controller?.store?.pagination;
 

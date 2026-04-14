@@ -1,14 +1,13 @@
 import { h } from 'preact';
 import { css, useTheme } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
-import { ComponentProps, ResultComponent, StyleScript } from '../../../types';
+import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { RecommendationBundle, RecommendationBundleLang, RecommendationBundleProps } from '../RecommendationBundle';
 import { Price, PriceProps } from '../../Atoms/Price';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import { Image, ImageProps } from '../../Atoms/Image';
-import { Result } from '../../Molecules/Result';
 import { BundledCTAProps } from '../RecommendationBundle/BundleCTA';
 import { componentNameToClassName } from '../../../utilities/componentNameToClassName';
 import classNames from 'classnames';
@@ -95,7 +94,6 @@ export const RecommendationBundleList = observer((properties: RecommendationBund
 				seedInCarousel: true,
 			},
 			ctaSlot: (props) => <CTASlot {...props} />,
-			resultComponent: (props) => <Result hideImage={true} hideBadge={true} {...props} />,
 			vertical: true,
 			separatorIcon: false,
 			alias: alias,
@@ -118,34 +116,15 @@ export const RecommendationBundleList = observer((properties: RecommendationBund
 
 export type RecommendationBundleListProps = {
 	controller: RecommendationController & AbstractController;
-	resultComponent?:
-		| ResultComponent<{
-				controller: RecommendationController;
-				seed?: boolean;
-				selected?: boolean;
-				onProductSelect?: (product: Product) => void;
-		  }>
-		| undefined;
 	alias?: string | undefined;
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
 } & RecommendationBundleListTemplatesLegalProps &
-	ComponentProps<RecommendationBundleListProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleListTemplatesLegalProps = Omit<
 	RecommendationBundleProps,
-	| 'controller'
-	| 'resultComponent'
-	| 'alias'
-	| 'lang'
-	| 'results'
-	| 'seedText'
-	| 'ctaInline'
-	| 'ctaIcon'
-	| 'vertical'
-	| 'slidesPerView'
-	| 'carousel'
-	| 'breakpoints'
+	'controller' | 'alias' | 'lang' | 'results' | 'seedText' | 'ctaInline' | 'ctaIcon' | 'vertical' | 'slidesPerView' | 'carousel' | 'breakpoints'
 >;
 
 interface RecommendationBundleListSubProps {

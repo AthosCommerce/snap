@@ -19,7 +19,7 @@ export const Email = observer((props: EmailProps) => {
 	};
 	return (
 		<div>
-			{store.results.map((result, idx) => (
+			{store?.results.map((result, idx) => (
 				//****** IMPORTANT  *******//
 				// THIS OUTER "ss-emailrec" WRAPPER IS REQUIRED FOR EMAIL RECS TO WORK PROPERLY.
 				// DO NOT REMOVE OR EDIT IT

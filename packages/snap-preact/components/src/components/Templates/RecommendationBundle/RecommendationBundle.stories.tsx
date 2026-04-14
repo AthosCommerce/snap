@@ -39,8 +39,7 @@ export default {
 		(Story: any) => (
 			<div
 				style={{
-					maxWidth: '900px',
-					height: '500px',
+					maxWidth: '1200px',
 				}}
 			>
 				<Story />
