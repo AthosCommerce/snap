@@ -1,9 +1,10 @@
 import { h } from 'preact';
 import classnames from 'classnames';
 import { css } from '@emotion/react';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, SwatchOption, BreakpointsProps, StyleScript } from '../../../types';
-import { useA11y, useDisplaySettings } from '../../../hooks';
+import { useA11y, useComponent, useDisplaySettings } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Grid, GridProps } from '../Grid';
 import { ImageProps, Image } from '../../Atoms/Image';
@@ -71,6 +72,7 @@ const defaultStyles: StyleScript<SwatchesProps> = ({ theme }) => {
 
 export function Swatches(properties: SwatchesProps) {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultCarouselBreakpoints = {
@@ -118,7 +120,15 @@ export function Swatches(properties: SwatchesProps) {
 		};
 	}
 
-	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath } = props;
+	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath, customComponent } =
+		props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.swatches || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: SwatchesSubProps = {
 		slideshow: {

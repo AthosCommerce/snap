@@ -8,7 +8,7 @@ import { custom } from '../../custom';
 const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+	const mobileBp = variables?.breakpoints?.mobile ?? custom.breakpoints.mobile;
 
 	// search horizontal styles
 	const searchHorizontalStyles = css({
@@ -28,18 +28,14 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 			},
 			'.ss__toolbar': {
 				'.ss__layout__row': {
-					'&:has(.ss__mobile-sidebar)': {
-						'.ss__mobile-sidebar': {
-							minWidth: '1px',
-							'.ss__mobile-sidebar__slideout__button': {
-								width: '100%',
-							},
+					'.ss__mobile-sidebar': {
+						minWidth: '1px',
+						'.ss__mobile-sidebar__slideout__button': {
+							width: '100%',
 						},
 					},
-					'&:has(.ss__select)': {
-						'.ss__select': {
-							flex: '1 1 0%',
-						},
+					'.ss__select': {
+						flex: '1 1 0%',
 					},
 				},
 			},
@@ -47,10 +43,8 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__search-horizontal__main-section': {
 				'.ss__toolbar': {
-					'.ss__layout__row:has(.ss__mobile-sidebar)': {
-						'.ss__mobile-sidebar': {
-							minWidth: '200px',
-						},
+					'.ss__mobile-sidebar': {
+						minWidth: '200px',
 					},
 				},
 			},
@@ -58,7 +52,10 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 		[`${custom.utils.getBp(mobileBp)}`]: {
 			'.ss__search-horizontal__main-section': {
 				'.ss__toolbar': {
-					'.ss__layout__row:has(.ss__select)': {
+					'.ss__layout__row': {
+						'.ss__mobile-sidebar': {
+							minWidth: '1px',
+						},
 						'.ss__select': {
 							flex: '0 1 auto',
 						},

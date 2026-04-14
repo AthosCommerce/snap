@@ -23,7 +23,6 @@ describe('TargetStore', () => {
 		expect(store).toBeDefined();
 		expect(store.selector).toStrictEqual('');
 		expect(store.component).toStrictEqual('');
-		expect(store.resultComponent).toBeUndefined();
 		expect(store.theme).toStrictEqual({
 			location: 'local',
 			name: GLOBAL_THEME_NAME,
@@ -36,34 +35,27 @@ describe('TargetStore', () => {
 		const target = {
 			selector: '.test',
 			component: 'Search',
-			resultComponent: 'CustomResult',
 		};
 		const store = new TargetStore({ target, dependencies, settings });
 		expect(store).toBeDefined();
 		expect(store.selector).toStrictEqual(target.selector);
 		expect(store.component).toStrictEqual(target.component);
-		expect(store.resultComponent).toStrictEqual(target.resultComponent);
 		expect(store.theme).toStrictEqual({
 			location: 'local',
 			name: GLOBAL_THEME_NAME,
 		});
 	});
 
-	it('can setComponent, setResultComponent, setTheme', () => {
+	it('can setComponent, setTheme', () => {
 		const target = {
 			selector: '.test',
 			component: 'Search',
-			resultComponent: 'CustomResult',
 		};
 		const store = new TargetStore({ target, dependencies, settings });
 
 		expect(store.component).toStrictEqual('Search');
 		store.setComponent('NewSearch');
 		expect(store.component).toStrictEqual('NewSearch');
-
-		expect(store.resultComponent).toStrictEqual('CustomResult');
-		store.setResultComponent('NewResult');
-		expect(store.resultComponent).toStrictEqual('NewResult');
 
 		expect(store.theme).toStrictEqual({
 			location: 'local',

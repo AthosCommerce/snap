@@ -3,14 +3,15 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useState } from 'react';
 import { Radio, RadioProps } from '../Radio/Radio';
-import { Lang, useA11y, useLang } from '../../../hooks';
+import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RadioListProps> = ({ horizontal }) => {
 	return css({
@@ -57,6 +58,7 @@ const defaultStyles: StyleScript<RadioListProps> = ({ horizontal }) => {
 
 export function RadioList(properties: RadioListProps) {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<RadioListProps> = {
 		treePath: globalTreePath,
@@ -78,7 +80,15 @@ export function RadioList(properties: RadioListProps) {
 		className,
 		internalClassName,
 		treePath,
+		customComponent,
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.radioList || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: RadioListSubProps = {
 		Radio: {

@@ -81,7 +81,11 @@ export default {
 const snapInstance = Snapify.search({ id: 'PerPage', globals: { siteId: 'atkzs2' } });
 
 export const Default = (args: PerPageProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <PerPage {...args} pagination={controller?.store?.pagination} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+			<PerPage {...args} pagination={controller?.store?.pagination} />
+		</div>
+	);
 };
 
 Default.loaders = [
@@ -111,7 +115,11 @@ const snapInstanceList = Snapify.search({
 });
 
 export const List = (args: PerPageProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <PerPage {...args} pagination={controller?.store?.pagination} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+			<PerPage {...args} pagination={controller?.store?.pagination} />
+		</div>
+	);
 };
 
 List.loaders = [
@@ -128,7 +136,11 @@ List.args = {
 };
 
 export const Radio = (args: PerPageProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <PerPage {...args} pagination={controller?.store?.pagination} />;
+	return (
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+			<PerPage {...args} pagination={controller?.store?.pagination} />
+		</div>
+	);
 };
 
 Radio.loaders = [

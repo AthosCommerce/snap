@@ -34,7 +34,6 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 			display: 'flex',
 			flexFlow: 'row wrap',
 			alignItems: 'center',
-			justifyContent: 'center',
 			'&:before': {
 				display: 'none',
 			},
@@ -47,6 +46,7 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 			},
 			'.ss__grid__option:not(.ss__grid__show-more-wrapper)': {
 				position: 'relative',
+				maxWidth: '40px',
 				width: `calc((100% - (${props?.gapSize ? props.gapSize : custom.spacing.x1} * ${columns - 1})) / ${columns})`,
 				'.ss__grid__option__inner': {
 					position: 'relative',

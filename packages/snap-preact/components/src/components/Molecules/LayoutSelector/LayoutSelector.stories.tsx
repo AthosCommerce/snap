@@ -154,12 +154,14 @@ const layoutOptions: ListOption[] = [
 ];
 export const Default = (args: LayoutSelectorProps) => {
 	return (
-		<LayoutSelector
-			{...args}
-			onSelect={() => {
-				console.log('');
-			}}
-		/>
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
+			<LayoutSelector
+				{...args}
+				onSelect={() => {
+					console.log('');
+				}}
+			/>
+		</div>
 	);
 };
 
@@ -170,12 +172,14 @@ Default.args = {
 
 export const List = (args: LayoutSelectorProps) => {
 	return (
-		<LayoutSelector
-			{...args}
-			onSelect={() => {
-				console.log('');
-			}}
-		/>
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
+			<LayoutSelector
+				{...args}
+				onSelect={() => {
+					console.log('');
+				}}
+			/>
+		</div>
 	);
 };
 
@@ -187,12 +191,14 @@ List.args = {
 
 export const Radio = (args: LayoutSelectorProps) => {
 	return (
-		<LayoutSelector
-			{...args}
-			onSelect={() => {
-				console.log('');
-			}}
-		/>
+		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
+			<LayoutSelector
+				{...args}
+				onSelect={() => {
+					console.log('');
+				}}
+			/>
+		</div>
 	);
 };
 

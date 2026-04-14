@@ -31,17 +31,7 @@ export default {
 			),
 		},
 	},
-	decorators: [
-		(Story: any) => (
-			<div
-				style={{
-					maxWidth: '900px',
-				}}
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [(Story: any) => <Story />],
 	argTypes: {
 		controller: {
 			description: 'Controller reference',
@@ -157,7 +147,16 @@ export default {
 const snapInstance = Snapify.recommendation({ id: 'RecommendationList', tag: 'trending', globals: { siteId: 'atkzs2' } });
 
 export const List = (args: RecommendationGridProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return <RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />;
+	return (
+		<div style={{ maxWidth: '1200px' }}>
+			<RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />
+		</div>
+	);
+};
+
+List.args = {
+	columns: 10,
+	rows: 1,
 };
 
 List.loaders = [
@@ -170,7 +169,11 @@ List.loaders = [
 ];
 
 export const Grid = (args: RecommendationGridProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return <RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />;
+	return (
+		<div style={{ maxWidth: '1200px' }}>
+			<RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />
+		</div>
+	);
 };
 
 Grid.args = {

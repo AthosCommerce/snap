@@ -154,7 +154,11 @@ const snapInstance = Snapify.search({ id: 'FacetListOptions', globals: { siteId:
 const ObservableFacetListOptions = observer(({ args, controller }: { args: FacetListOptionsProps; controller: SearchController }) => {
 	const brandFacet = controller?.store?.facets.filter((facet) => facet.field == 'color').pop();
 
-	return <FacetListOptions {...args} values={brandFacet.values} />;
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<FacetListOptions {...args} values={brandFacet.values} />
+		</div>
+	);
 });
 
 export const Default = (args: FacetListOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {

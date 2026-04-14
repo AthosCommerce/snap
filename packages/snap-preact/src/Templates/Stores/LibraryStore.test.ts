@@ -1,4 +1,4 @@
-import { ResultComponent } from '../../../components/src/types';
+import { JSXComponent } from '../../../components/src';
 import { LibraryStore } from './LibraryStore';
 
 describe('LibraryStore', () => {
@@ -15,7 +15,65 @@ describe('LibraryStore', () => {
 				email: {},
 			},
 			badge: {},
+			badgeImage: {},
+			badgePill: {},
+			badgeRectangle: {},
+			badgeText: {},
+			banner: {},
+			branchOverride: {},
+			breadcrumbs: {},
+			button: {},
+			calloutBadge: {},
+			carousel: {},
+			checkbox: {},
+			dropdown: {},
+			errorHandler: {},
+			facet: {},
+			facetGridOptions: {},
+			facetHierarchyOptions: {},
+			facetListOptions: {},
+			facetPaletteOptions: {},
+			facetSlider: {},
+			facets: {},
+			facetsHorizontal: {},
+			filter: {},
+			filterSummary: {},
+			formattedNumber: {},
+			grid: {},
+			icon: {},
+			image: {},
+			inlineBanner: {},
+			layoutSelector: {},
+			list: {},
+			loadMore: {},
+			loadingBar: {},
+			mobileSidebar: {},
+			modal: {},
+			noResults: {},
+			overlay: {},
+			overlayBadge: {},
+			pagination: {},
+			paginationInfo: {},
+			perPage: {},
+			price: {},
+			radio: {},
+			radioList: {},
+			rating: {},
 			result: {},
+			results: {},
+			searchHeader: {},
+			searchInput: {},
+			select: {},
+			sidebar: {},
+			skeleton: {},
+			slideout: {},
+			slideshow: {},
+			sortBy: {},
+			swatches: {},
+			terms: {},
+			termsList: {},
+			toolbar: {},
+			variantSelection: {},
 		});
 		expect(store.locales).toStrictEqual({
 			currencies: {},
@@ -26,13 +84,13 @@ describe('LibraryStore', () => {
 	it('can define custom components and register them when imported', async () => {
 		const components = {
 			result: {
-				Result: async () => ({} as ResultComponent),
+				Result: async () => ({} as JSXComponent),
 			},
 			badge: {
-				Badge: async () => ({} as ResultComponent),
+				Badge: async () => ({} as JSXComponent),
 			},
 			dne: {
-				Dne: async () => ({} as ResultComponent),
+				Dne: async () => ({} as JSXComponent),
 			},
 		};
 		const store = new LibraryStore({ components });

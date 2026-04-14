@@ -1,4 +1,4 @@
-export const globalStyles = (theme: Theme) => {
+export const globalStyles = (theme: { name?: string; variables: ThemeVariables }) => {
 	const { variables } = theme;
 	return {
 		'.ss__result': {

@@ -37,7 +37,7 @@ export default {
 		(Story: any) => (
 			<div
 				style={{
-					maxWidth: '960px',
+					maxWidth: '1200px',
 					position: 'relative',
 				}}
 			>
@@ -50,7 +50,7 @@ export default {
 						width: '100%',
 						padding: '10px',
 						boxSizing: 'border-box',
-						border: '1px solid #3a23ad',
+						border: '1px solid #ebebeb',
 					}}
 				/>
 				<span style={{ margin: '15px', textAlign: 'center', display: 'block' }}>
@@ -257,7 +257,16 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
-
+		resultComponent: {
+			description: 'Custom result component for the autocomplete',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'JSX.Element',
+				},
+			},
+			control: { type: 'object' },
+		},
 		...componentArgs,
 	},
 };

@@ -7,7 +7,7 @@ import { custom } from '../../custom';
 const paginationStyleScript = (props: PaginationProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+	const mobileBp = variables?.breakpoints?.mobile as number;
 
 	const paginationStyles = css({
 		...custom.styles.boxSizing('pagination', props?.treePath, props?.name),

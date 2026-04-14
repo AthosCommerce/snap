@@ -5,7 +5,7 @@ import { Autocomplete as LibraryAutocomplete } from '@athoscommerce/snap-preact/
 import type { Snap, SnapTemplates } from '@athoscommerce/snap-preact';
 
 type AutocompleteProps = {
-	controller?: AutocompleteController;
+	controller: AutocompleteController;
 	snap?: Snap | SnapTemplates;
 };
 

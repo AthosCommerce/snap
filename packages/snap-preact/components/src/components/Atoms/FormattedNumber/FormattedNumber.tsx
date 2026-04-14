@@ -4,9 +4,11 @@ import { jsx, css } from '@emotion/react';
 import { filters } from '@athoscommerce/snap-toolbox';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<FormattedNumberProps> = () => {
 	return css({});
@@ -14,6 +16,7 @@ const defaultStyles: StyleScript<FormattedNumberProps> = () => {
 
 export function FormattedNumber(properties: FormattedNumberProps) {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FormattedNumberProps> = {
@@ -28,8 +31,26 @@ export function FormattedNumber(properties: FormattedNumberProps) {
 
 	const props = mergeProps('formattedNumber', globalTheme, defaultProps, properties);
 
-	const { value, symbol, decimalPlaces, padDecimalPlaces, thousandsSeparator, decimalSeparator, symbolAfter, className, internalClassName, raw } =
-		props;
+	const {
+		value,
+		symbol,
+		decimalPlaces,
+		padDecimalPlaces,
+		thousandsSeparator,
+		decimalSeparator,
+		symbolAfter,
+		className,
+		internalClassName,
+		raw,
+		customComponent,
+	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.formattedNumber || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const formattedNumber = filters.formatNumber(value, {
 		symbol,

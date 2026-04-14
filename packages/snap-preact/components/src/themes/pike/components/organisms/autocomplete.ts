@@ -14,9 +14,9 @@ const activeSelectors =
 const autocompleteStyleScript = (props: AutocompleteProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const desktopBp = variables?.breakpoints?.desktop || custom.breakpoints.desktop;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+	const desktopBp = variables?.breakpoints?.desktop as number;
+	const tabletBp = variables?.breakpoints?.tablet as number;
+	const mobileBp = variables?.breakpoints?.mobile as number;
 
 	// shared styles
 	const sharedStyles = css({
@@ -117,12 +117,6 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						margin: 0,
 						'.ss__facet__header': {
 							borderBottom: 0,
-							'.ss__facet__header__inner': {
-								fontSize: 'inherit',
-								fontWeight: 'inherit',
-								lineHeight: 'inherit',
-								color: 'inherit',
-							},
 						},
 						'.ss__facet__options': {
 							'.ss__facet-hierarchy-options .ss__facet-hierarchy-options__option, .ss__facet-list-options .ss__facet-list-options__option': {
@@ -204,6 +198,13 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 							paddingLeft: '4px',
 						},
 					},
+				},
+			},
+		},
+		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
+			'&.ss__autocomplete': {
+				'.ss__autocomplete__content__results .ss__results.ss__results-list': {
+					gap: `${custom.spacing.x2}px`,
 				},
 			},
 		},
@@ -315,6 +316,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 		sharedStyles,
 		{
 			'.ss__autocomplete__terms': {
+				gap: `${custom.spacing.x4}px`,
 				'& > div': {
 					'.ss__autocomplete__title h5': {
 						margin: `0 0 ${custom.spacing.x2}px 0`,

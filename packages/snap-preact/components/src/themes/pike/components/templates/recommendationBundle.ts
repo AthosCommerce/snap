@@ -16,8 +16,8 @@ const checkboxHeight = 16;
 const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
+	const tabletBp = variables?.breakpoints?.tablet as number;
+	const mobileBp = variables?.breakpoints?.mobile as number;
 	// bundle shared styles
 	const sharedStyles = css({
 		'.ss__recommendation-bundle__wrapper__cta': {
@@ -36,9 +36,7 @@ const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 			...custom.styles.headerText(variables?.colors?.secondary, '18px'),
 		},
 		'.ss__recommendation-bundle__description': {
-			fontSize: '14px',
-			fontWeight: 'normal',
-			color: variables?.colors?.text,
+			...custom.styles.baseText(variables?.colors?.text),
 		},
 		'.ss__recommendation-bundle__wrapper': {
 			flexFlow: 'row wrap',
@@ -61,7 +59,7 @@ const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 			'.ss__recommendation-bundle__wrapper__carousel': {
 				'.ss__recommendation__carousel >': {
 					'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
-						bottom: `calc(10.15rem - ${custom.spacing.x4}px)`,
+						bottom: `calc(10.40rem - ${custom.spacing.x4}px)`,
 					},
 				},
 			},

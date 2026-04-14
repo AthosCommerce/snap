@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/AthosCommerce/snap/compare/v1.1.5...v1.2.0) (2026-04-14)
+
+### Bug Fixes
+
+- **controller/autocomplete:** preventing additional render events from being sent to beacon on repeated searches ([ad0d632](https://github.com/AthosCommerce/snap/commit/ad0d632887173770eaaf0dfb11efc63f15b84bbd))
+
+### Features
+
+- **slideshow:** adding a new prop sideWidth to optionally be used in place of slidestoShow ([d3228e0](https://github.com/AthosCommerce/snap/commit/d3228e06da80f71a66608883d349cf250a7ccb59))
+- **templates:** lots of changes, templates custom plugins, hybrid e2e tests and other various fixes and clean up ([9065eba](https://github.com/AthosCommerce/snap/commit/9065eba2c1af433c27d6d30db94016b673022c33))
+
 ## [1.1.5](https://github.com/AthosCommerce/snap/compare/v1.1.4...v1.1.5) (2026-04-02)
 
 ### Bug Fixes

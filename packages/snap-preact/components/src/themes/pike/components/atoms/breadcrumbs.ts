@@ -13,6 +13,8 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 		...custom.styles.boxSizing('breadcrumbs', props?.treePath, props?.name),
 		'.ss__breadcrumbs__crumbs': {
 			gap: `${custom.spacing.x2}px`,
+			margin: 0,
+			padding: 0,
 			'&, li': {
 				listStyle: 'none',
 			},
@@ -22,8 +24,12 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 			li: {
 				display: 'block',
 				padding: 0,
+				fontSize: '14px',
 				'&:last-child': {
 					...custom.styles.activeText(variables?.colors?.primary),
+				},
+				a: {
+					fontSize: 'inherit',
 				},
 			},
 		},

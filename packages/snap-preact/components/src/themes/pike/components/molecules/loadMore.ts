@@ -29,6 +29,7 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 					},
 				},
 				'.ss__load-more__progress__text': {
+					fontSize: '14px',
 					color: variables?.colors?.text,
 				},
 			},

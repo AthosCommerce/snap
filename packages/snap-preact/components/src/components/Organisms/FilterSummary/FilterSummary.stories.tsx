@@ -32,6 +32,13 @@ export default {
 			),
 		},
 	},
+	decorators: [
+		(Story: any) => (
+			<div style={{ maxWidth: '300px' }}>
+				<Story />
+			</div>
+		),
+	],
 	argTypes: {
 		controller: {
 			description: 'Controller reference',

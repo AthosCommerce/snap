@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
 type FinderProps = {
-	controller?: FinderController;
+	controller: FinderController;
 };
 
 export const Finder = observer(({ controller }: FinderProps) => {

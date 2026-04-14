@@ -80,7 +80,9 @@ export default {
 	},
 };
 
-export const Active = (args: LoadingBarProps) => <LoadingBar {...args} />;
+export const Active = (args: LoadingBarProps) => {
+	return <LoadingBar {...args} style={{ maxWidth: '1200px', margin: '1rem', overflow: 'hidden' }} />;
+};
 Active.args = {
 	active: true,
 };

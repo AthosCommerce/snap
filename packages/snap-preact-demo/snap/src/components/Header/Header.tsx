@@ -5,7 +5,7 @@ import { withController, Banner } from '@athoscommerce/snap-preact/components';
 import { ContentType } from '@athoscommerce/snap-store-mobx';
 
 type HeaderProps = {
-	controller?: SearchController;
+	controller: SearchController;
 };
 
 export const Header = withController(
@@ -39,7 +39,7 @@ export const Header = withController(
 								)}
 								{search?.originalQuery && (
 									<div className="ss-oq">
-										No results found for <em>"{search.originalQuery.string}"</em>, showing results for <em>"{search.query.string}"</em> instead.
+										No results found for <em>"{search.originalQuery.string}"</em>, showing results for <em>"{search.query?.string}"</em> instead.
 									</div>
 								)}
 							</h3>

@@ -5,6 +5,7 @@ import { GLOBAL_THEME_NAME } from './TargetStore';
 describe('TemplateStore', () => {
 	it('has expected defaults', () => {
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			config: {
 				platform: 'other',
 			},
@@ -23,6 +24,7 @@ describe('TemplateStore', () => {
 
 	it('can define config', () => {
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			theme: {
 				extends: 'base',
 			},
@@ -41,6 +43,7 @@ describe('TemplateStore', () => {
 
 	it("fallsback if language and currency doesn't exist", () => {
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			theme: {
 				extends: 'base',
 			},
@@ -60,6 +63,7 @@ describe('TemplateStore', () => {
 
 	it('can change language and currency', async () => {
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			theme: {
 				extends: 'base',
 			},
@@ -81,6 +85,7 @@ describe('TemplateStore', () => {
 
 	it('can change innerWidth', () => {
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			theme: {
 				extends: 'base',
 			},
@@ -102,6 +107,7 @@ describe('TemplateStore', () => {
 	it('can addTheme', async () => {
 		const theme = GLOBAL_THEME_NAME;
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			config: {
 				platform: 'other',
 			},
@@ -155,6 +161,7 @@ describe('TemplateStore', () => {
 	it('can addTarget', async () => {
 		const theme = GLOBAL_THEME_NAME;
 		const config: SnapTemplatesConfig = {
+			unlocked: false,
 			config: {
 				platform: 'other',
 			},
@@ -168,7 +175,6 @@ describe('TemplateStore', () => {
 			selector: '.test',
 			theme: GLOBAL_THEME_NAME,
 			component: 'Search',
-			resultComponent: 'Result',
 		};
 		const targetId = store.addTarget(type, target);
 		expect(targetId).toBeDefined();

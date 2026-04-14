@@ -452,13 +452,20 @@ const TemplateTargetSettings = observer((props: TemplateTargetSettingsProps) => 
 
 	const libraryComponents = templatesStore.library.components as any;
 	const libraryTemplates = recsType ? libraryComponents[type]?.[recsType] : libraryComponents[type];
-	const libraryResultComponents = libraryComponents?.result;
+	// const libraryResultComponents = libraryComponents?.result;
 
-	const DEAFULT_RESULT_COMPONENT = 'Result';
+	// const DEFAULT_RESULT_COMPONENT = 'Result';
 	const activeTarget = templatesStore.getTarget(feature, configTarget.selector);
 	const showTemplateReset = Boolean(activeTarget?.component) && activeTarget?.component !== configTarget?.component;
-	const showResultTemplateReset =
-		(activeTarget?.resultComponent || DEAFULT_RESULT_COMPONENT) != (configTarget?.resultComponent || DEAFULT_RESULT_COMPONENT);
+
+	// const firstLetterOfComponent = configTarget.component.charAt(0).toLowerCase();
+	// const restOfComponent = configTarget.component.slice(1);
+	// const camelCaseComponent = firstLetterOfComponent + restOfComponent;
+
+	// const currentTargetActiveResultComponent = config?.theme?.overrides[`${camelCaseComponent} result`]?.customComponent || config?.theme?.overrides[`result`]?.customComponent || DEFAULT_RESULT_COMPONENT;
+
+	// const showResultTemplateReset =
+	// 	(currentTargetActiveResultComponent || DEFAULT_RESULT_COMPONENT) != (currentTargetActiveResultComponent ||DEFAULT_RESULT_COMPONENT);
 
 	return (
 		<div className="template-target-settings">
@@ -486,17 +493,43 @@ const TemplateTargetSettings = observer((props: TemplateTargetSettingsProps) => 
 				onChange={(value) => activeTarget?.setComponent(`${value}`)}
 			/>
 
-			<DropdownControl
+			{/* <DropdownControl
 				key={`${idPrefix}-result-template`}
 				label={'Result Template'}
 				description={''}
 				showReset={showResultTemplateReset}
 				options={Object.keys(libraryResultComponents)}
-				onReset={() => activeTarget?.setResultComponent(configTarget?.resultComponent || DEAFULT_RESULT_COMPONENT)} // TODO: fetch first library.components.result[0] key
+				onReset={() => {
+					const overrideKey = `${camelCaseComponent} result`;
+					
+					config.theme.editorOverrides = { 
+						...config.theme.editorOverrides,
+						default: {
+							...config.theme.editorOverrides?.default,
+							[overrideKey]: { 
+								...config.theme.editorOverrides?.default?.[overrideKey],
+								customComponent: DEFAULT_RESULT_COMPONENT 
+							}
+						}
+					}
+				}}
 				disabled={false}
-				value={activeTarget?.resultComponent}
-				onChange={(value) => activeTarget?.setResultComponent(`${value}`)}
-			/>
+				value={currentTargetActiveResultComponent}
+				onChange={(value) => {
+					const overrideKey = `${camelCaseComponent} result`;
+					debugger
+					config.theme.editorOverrides = {
+						...config.theme.editorOverrides,
+						default: {
+							...config.theme.editorOverrides?.default,
+							[overrideKey]: { 
+								...config.theme.editorOverrides?.default?.[overrideKey],
+								customComponent: `${value}` 
+							}
+						}		
+					}	
+				}}
+			/> */}
 		</div>
 	);
 });

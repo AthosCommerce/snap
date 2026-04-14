@@ -8,7 +8,7 @@ import { Carousel, CarouselProps as CarouselProps } from '../../Molecules/Carous
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { ComponentProps, BreakpointsProps, ResultComponent, StyleScript, BreakpointsEntry } from '../../../types';
+import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { ResultTracker } from '../../Trackers/ResultTracker';
@@ -238,6 +238,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		lazyRender,
 		className,
 		internalClassName,
+		alias,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -286,6 +287,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		? results.filter((result) => result.bundleSeed == true).pop()
 		: controller.store?.results?.filter((result) => result.bundleSeed == true).pop();
 
+	const resultSubProps: Partial<ResultProps> = alias == 'recommendationBundleList' ? { hideImage: true, hideBadge: true } : {};
+
 	const subProps: RecommendationBundleSubProps = {
 		carousel: {
 			loop: loop,
@@ -302,6 +305,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		result: {
 			// default props
 			internalClassName: 'ss__recommendation__result',
+			...resultSubProps,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -575,17 +579,14 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 												>
 													{(() => {
 														if (resultComponent && controller) {
-															const ResultComponent = resultComponent;
-															return (
-																<ResultComponent
-																	controller={controller}
-																	seed={true}
-																	selected={selectedItems.findIndex((item) => item.id == seed.id) > -1}
-																	onProductSelect={onProductSelect}
-																	result={seed}
-																	treePath={treePath}
-																/>
-															);
+															return cloneWithProps(resultComponent, {
+																controller,
+																seed: true,
+																selected: selectedItems.findIndex((item) => item.id == seed.id) > -1,
+																onProductSelect,
+																result: seed,
+																treePath,
+															});
 														} else {
 															return <Result {...subProps.result} controller={controller} result={seed} />;
 														}
@@ -681,17 +682,12 @@ type BundleCarouselProps = {
 export type RecommendationBundleProps = {
 	controller: RecommendationController;
 	breakpoints?: BreakpointsProps;
-	resultComponent?: ResultComponent<{
-		controller: RecommendationController;
-		seed?: boolean;
-		selected?: boolean;
-		onProductSelect?: (product: Product) => void;
-	}>;
+	resultComponent?: JSXComponent | JSX.Element;
 	alias?: string;
 	lang?: Partial<RecommendationBundleLang>;
 	results?: Product[];
 } & RecommendationBundleTemplatesLegalProps &
-	ComponentProps<RecommendationBundleProps>;
+	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleTemplatesLegalProps = {
 	limit?: number;

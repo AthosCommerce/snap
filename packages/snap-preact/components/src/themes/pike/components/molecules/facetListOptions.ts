@@ -11,15 +11,14 @@ const checkboxSpacing = custom.sizes.icon16 + custom.spacing.x2;
 const facetListOptionsStyleScript = (props: FacetListOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile || custom.breakpoints.mobile;
-	const tabletBp = variables?.breakpoints?.tablet || custom.breakpoints.tablet;
+	const mobileBp = variables?.breakpoints?.mobile as number;
+	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// shared styles
 	const sharedStyles = css({
 		...custom.styles.boxSizing('facetListOptions', props?.treePath, props?.name),
 		'.ss__facet-list-options__option': {
-			lineHeight: 1.5,
-			color: variables?.colors?.text,
+			...custom.styles.baseText(variables?.colors?.text),
 			position: 'relative',
 			gap: `${custom.spacing.x1}px`,
 			padding: props?.hideCheckbox ? 0 : `0 0 0 ${checkboxSpacing}px`,

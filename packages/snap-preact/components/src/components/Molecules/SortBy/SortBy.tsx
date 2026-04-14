@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Select, SelectProps } from '../Select';
@@ -11,7 +11,8 @@ import { SearchSortingStore } from '@athoscommerce/snap-store-mobx';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { RadioList, RadioListProps } from '../RadioList';
 import { List, ListProps } from '../List';
-import { Lang } from '../../../hooks';
+import { Lang, useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<SortByProps> = () => {
@@ -25,6 +26,7 @@ const defaultStyles: StyleScript<SortByProps> = () => {
 
 export const SortBy = observer((properties: SortByProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<SortByProps> = {
@@ -35,8 +37,15 @@ export const SortBy = observer((properties: SortByProps) => {
 
 	const props = mergeProps('sortBy', globalTheme, defaultProps, properties);
 
-	const { sorting, type, controller, hideLabel, disableStyles, className, internalClassName, treePath } = props;
+	const { sorting, type, controller, hideLabel, disableStyles, className, internalClassName, treePath, customComponent } = props;
 	let label = props.label;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.sortBy || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const store = sorting || controller?.store?.sorting;
 

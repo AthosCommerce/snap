@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Select, withController } from '@athoscommerce/snap-preact/components';
 
 type PerPageProps = {
-	controller?: SearchController;
+	controller: SearchController;
 };
 
 export const PerPage = withController(
@@ -19,7 +19,7 @@ export const PerPage = withController(
 					options={pagination.pageSizeOptions}
 					selected={{ label: `Show ${pagination.pageSize}`, value: pagination.pageSize }}
 					onSelect={(e, option) => {
-						pagination.setPageSize(+option.value);
+						pagination.setPageSize(option?.value == null ? pagination.pageSize : +option.value);
 					}}
 				/>
 			</div>

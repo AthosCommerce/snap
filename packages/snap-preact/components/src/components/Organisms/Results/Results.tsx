@@ -10,8 +10,8 @@ import type { SearchResultStore, Product, Banner } from '@athoscommerce/snap-sto
 import { ContentType } from '@athoscommerce/snap-store-mobx';
 import { InlineBanner, InlineBannerProps } from '../../Atoms/InlineBanner';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { ComponentProps, ResultsLayout, BreakpointsProps, ResultComponent, StyleScript } from '../../../types';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { ComponentProps, ResultsLayout, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
+import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, withTracking, useSnap, useTreePath } from '../../../providers';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { ResultTracker } from '../../Trackers/ResultTracker';
@@ -56,6 +56,7 @@ const TrackedResultComponent = withTracking<ResultProps>(Result);
 
 export const Results = observer((properties: ResultsProps) => {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultBreakpointsProps = {
 		0: {
@@ -94,8 +95,14 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, controller, treePath } = props;
-	let { resultComponent } = props;
+	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.results || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const subProps: ResultsSubProps = {
 		result: {
@@ -130,16 +137,6 @@ export const Results = observer((properties: ResultsProps) => {
 
 	const styling = mergeStyles<ResultsProps>({ ...props, columns: layout == ResultsLayout.list ? 1 : props.columns }, defaultStyles);
 
-	if (typeof resultComponent === 'string') {
-		const snap = useSnap() as SnapTemplates;
-		if (snap?.templates?.library.import.component.result) {
-			resultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponent);
-			if (!resultComponent) {
-				return null;
-			}
-		}
-	}
-
 	return results?.length ? (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__results', `ss__results-${props.layout}`, className, internalClassName)}>
@@ -150,16 +147,15 @@ export const Results = observer((properties: ResultsProps) => {
 								return <InlineBanner {...subProps.inlineBanner} key={result.id} banner={result as Banner} layout={props.layout} />;
 							default:
 								if (resultComponent && controller) {
-									const ResultComponent = resultComponent;
 									return (
 										<ResultTracker result={result as Product} controller={controller as SearchController}>
-											<ResultComponent
-												key={(result as Product).id}
-												controller={controller}
-												result={result as Product}
-												theme={theme}
-												treePath={treePath}
-											/>
+											{cloneWithProps(resultComponent, {
+												key: (result as Product).id,
+												controller,
+												result: result as Product,
+												theme,
+												treePath,
+											})}
 										</ResultTracker>
 									);
 								} else {
@@ -184,7 +180,7 @@ export const Results = observer((properties: ResultsProps) => {
 export type ResultsProps = {
 	breakpoints?: BreakpointsProps;
 	controller?: SearchController | AutocompleteController | RecommendationController;
-	resultComponent?: ResultComponent | string;
+	resultComponent?: JSXComponent | JSX.Element;
 	results?: SearchResultStore;
 } & ResultsTemplatesLegalProps &
 	ComponentProps<ResultsProps>;

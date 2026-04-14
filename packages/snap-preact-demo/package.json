@@ -1,7 +1,7 @@
 {
 	"name": "@athoscommerce/snap-preact-demo",
 	"private": true,
-	"version": "1.1.5",
+	"version": "1.2.0",
 	"description": "demo store for development and testing",
 	"author": "Athos Commerce",
 	"license": "MIT",
@@ -34,7 +34,7 @@
 		"scaffold": "snapfu-core"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-preact": "1.1.5"
+		"@athoscommerce/snap-preact": "1.2.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.23.7",

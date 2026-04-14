@@ -3,10 +3,12 @@ import { h, ComponentChildren } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { iconPaths, IconType } from './paths';
 import { mergeProps, mergeStyles } from '../../../utilities';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, width, height, size }) => {
 	return css({
@@ -21,6 +23,7 @@ const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, wid
 
 export function Icon(properties: IconProps) {
 	const globalTheme: Theme = useTheme();
+	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<IconProps> = {
@@ -45,6 +48,7 @@ export function Icon(properties: IconProps) {
 		disableStyles,
 		className,
 		internalClassName,
+		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -52,6 +56,13 @@ export function Icon(properties: IconProps) {
 		treePath: _____,
 		...otherProps
 	} = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.icon || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const iconPath = iconPaths[icon as IconType] || path;
 	const pathType = typeof iconPath;
