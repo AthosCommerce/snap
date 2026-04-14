@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/AthosCommerce/snap/compare/v1.1.5...v1.2.0) (2026-04-14)
+
+### Bug Fixes
+
+- **controller/autocomplete:** preventing additional render events from being sent to beacon on repeated searches ([ad0d632](https://github.com/AthosCommerce/snap/commit/ad0d632887173770eaaf0dfb11efc63f15b84bbd))
+
 ## [1.1.5](https://github.com/AthosCommerce/snap/compare/v1.1.4...v1.1.5) (2026-04-02)
 
 **Note:** Version bump only for package @athoscommerce/snap-controller

@@ -4,7 +4,7 @@ import { SnapTemplates } from '../../../src';
 import { useSnap } from '../providers';
 import { useCreateController } from './useCreateController';
 import { useComponent } from './useComponent';
-import { RecommendationComponentNames, RecommendationComponentProps } from '../types';
+import { JSXComponent, RecommendationComponentNames, RecommendationComponentProps } from '../types';
 
 export type TemplatesType = {
 	recommendation?: {
@@ -17,13 +17,13 @@ export type TemplatesType = {
 
 type ReturnType = {
 	RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
-	RecommendationTemplateResultComponent: JSX.Element | undefined;
+	RecommendationTemplateResultComponent: JSXComponent | undefined;
 	recsController: RecommendationController | undefined;
 };
 
 export function createRecommendationTemplate(templates: TemplatesType): ReturnType {
 	let recommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
-	let recommendationTemplateResultComponent: JSX.Element | undefined;
+	let recommendationTemplateResultComponent: JSXComponent | undefined;
 	let recsController: RecommendationController | undefined;
 
 	if (templates?.recommendation?.enabled) {
@@ -50,9 +50,7 @@ export function createRecommendationTemplate(templates: TemplatesType): ReturnTy
 			}
 
 			if (resultComponentName && snap?.templates?.library.import.component.result) {
-				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName) as
-					| JSX.Element
-					| undefined;
+				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName);
 			}
 
 			if (componentName && snap?.templates?.library.import.component.recommendation.default) {

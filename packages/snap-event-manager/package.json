@@ -1,6 +1,6 @@
 {
 	"name": "@athoscommerce/snap-event-manager",
-	"version": "1.1.5",
+	"version": "1.2.0",
 	"description": "Snap Event Manager",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",

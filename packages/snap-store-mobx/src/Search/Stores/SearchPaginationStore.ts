@@ -194,7 +194,7 @@ export class SearchPaginationStore {
 	}
 
 	public setPageSize(num?: number): void {
-		if (num) {
+		if (num !== undefined) {
 			this.services.urlManager.remove('page').set('pageSize', num).go();
 		}
 	}
