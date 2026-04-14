@@ -1,0 +1,97 @@
+# Snap SDK
+
+> Snap is an open source SDK for building e-commerce search, autocomplete, recommendations, and product discovery experiences powered by Athos Commerce.
+
+Documentation site: https://athoscommerce.github.io/snap
+Repository: https://github.com/athoscommerce/snap
+
+## Welcome
+
+- [About](https://athoscommerce.github.io/snap/docs/ABOUT.md)
+
+## Snap Integration
+
+- [Setup](https://athoscommerce.github.io/snap/docs/SNAP_SETUP.md)
+- [Overview](https://athoscommerce.github.io/snap/docs/SNAP_OVERVIEW.md)
+- [Search](https://athoscommerce.github.io/snap/docs/SNAP_SEARCH.md)
+- [Autocomplete](https://athoscommerce.github.io/snap/docs/SNAP_AUTOCOMPLETE.md)
+- [Recommendations](https://athoscommerce.github.io/snap/docs/SNAP_RECOMMENDATIONS.md)
+- [Integration](https://athoscommerce.github.io/snap/docs/SNAP_RECOMMENDATIONS_INTEGRATION.md)
+- [Recommendations (legacy)](https://athoscommerce.github.io/snap/docs/SNAP_RECOMMENDATIONS_LEGACY.md)
+- [Finder](https://athoscommerce.github.io/snap/docs/SNAP_FINDER.md)
+- [Tracking](https://athoscommerce.github.io/snap/docs/SNAP_TRACKING.md)
+- [Background Filters](https://athoscommerce.github.io/snap/docs/SNAP_BACKGROUND_FILTERS.md)
+- [Foreground Filters](https://athoscommerce.github.io/snap/docs/SNAP_FOREGROUND_FILTERS.md)
+- [Badges](https://athoscommerce.github.io/snap/docs/SNAP_BADGES.md)
+
+## Templates Integration
+
+- [About](https://athoscommerce.github.io/snap/docs/TEMPLATES_ABOUT.md)
+- [Config](https://athoscommerce.github.io/snap/docs/TEMPLATES_CONFIG.md)
+- [Theming](https://athoscommerce.github.io/snap/docs/TEMPLATES_THEMING.md)
+
+## API Integration
+
+- [Snap Client](https://athoscommerce.github.io/snap/docs/SNAP_CLIENT.md)
+
+## Reference
+
+- [Snap Preact](https://athoscommerce.github.io/snap/packages/snap-preact/README.md)
+- [Configuration](https://athoscommerce.github.io/snap/docs/REFERENCE_CONFIGURATION.md)
+- [Targeters](https://athoscommerce.github.io/snap/docs/REFERENCE_CONFIGURATION_TARGETERS.md)
+- [Middleware](https://athoscommerce.github.io/snap/docs/REFERENCE_CONFIGURATION_MIDDLEWARE.md)
+- [URL Translator](https://athoscommerce.github.io/snap/packages/snap-url-manager/src/Translators/Url/README.md)
+- [Instantiators](https://athoscommerce.github.io/snap/packages/snap-preact/src/Instantiators/README.md)
+- [Controllers](https://athoscommerce.github.io/snap/packages/snap-controller/README.md)
+- [SearchController](https://athoscommerce.github.io/snap/packages/snap-controller/src/Search/README.md)
+- [AutocompleteController](https://athoscommerce.github.io/snap/packages/snap-controller/src/Autocomplete/README.md)
+- [FinderController](https://athoscommerce.github.io/snap/packages/snap-controller/src/Finder/README.md)
+- [RecommendationController](https://athoscommerce.github.io/snap/packages/snap-controller/src/Recommendation/README.md)
+- [Recommendation Instantiator](https://athoscommerce.github.io/snap/packages/snap-preact/src/Instantiators/README.md)
+- [Store](https://athoscommerce.github.io/snap/packages/snap-store-mobx/README.md)
+- [AbstractStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Abstract/README.md)
+- [SearchStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Search/README.md)
+- [AutocompleteStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Autocomplete/README.md)
+- [RecommendationStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Recommendation/README.md)
+- [FinderStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Finder/README.md)
+- [StorageStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Storage/README.md)
+- [MetaStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Meta/README.md)
+- [CartStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Cart/README.md)
+- [Toolbox](https://athoscommerce.github.io/snap/packages/snap-toolbox/README.md)
+- [Filters](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/filters/README.md)
+- [DomTargeter](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/DomTargeter/README.md)
+- [CharsParams](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/charsParams/README.md)
+- [Until](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/until/README.md)
+- [Url](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/url/README.md)
+- [GetContext](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/getContext/README.md)
+- [FeatureFlags](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/featureFlags/README.md)
+- [Cookies](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/cookies/README.md)
+- [Logger](https://athoscommerce.github.io/snap/packages/snap-logger/README.md)
+- [Profiler](https://athoscommerce.github.io/snap/packages/snap-profiler/README.md)
+- [Platforms](https://athoscommerce.github.io/snap/packages/snap-platforms/README.md)
+- [Common](https://athoscommerce.github.io/snap/packages/snap-platforms/common/README.md)
+- [Shopify](https://athoscommerce.github.io/snap/packages/snap-platforms/shopify/README.md)
+- [BigCommerce](https://athoscommerce.github.io/snap/packages/snap-platforms/bigcommerce/README.md)
+- [Magento2](https://athoscommerce.github.io/snap/packages/snap-platforms/magento2/README.md)
+- [Url Manager](https://athoscommerce.github.io/snap/packages/snap-url-manager/README.md)
+- [Translators](https://athoscommerce.github.io/snap/packages/snap-url-manager/src/Translators/README.md)
+- [Url Translator](https://athoscommerce.github.io/snap/packages/snap-url-manager/src/Translators/Url/README.md)
+- [Query String Translator](https://athoscommerce.github.io/snap/packages/snap-url-manager/src/Translators/QueryString/README.md)
+- [Linkers](https://athoscommerce.github.io/snap/packages/snap-url-manager/src/linkers/README.md)
+- [React Linker](https://athoscommerce.github.io/snap/packages/snap-url-manager/src/linkers/react/README.md)
+- [Event Manager](https://athoscommerce.github.io/snap/packages/snap-event-manager/README.md)
+- [Tracker](https://athoscommerce.github.io/snap/packages/snap-tracker/README.md)
+- [Variants](https://athoscommerce.github.io/snap/docs/REFERENCE_VARIANTS.md)
+- [Custom Recommendation Templates](https://athoscommerce.github.io/snap/docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md)
+- [Custom Badge Templates](https://athoscommerce.github.io/snap/docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md)
+- [Build & Deploy](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY.md)
+- [Integration](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY_INTEGRATION.md)
+- [Shopify](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY_INTEGRATION_SHOPIFY.md)
+- [BigCommerce](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY_INTEGRATION_BIGCOMMERCE.md)
+- [Magento 2](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY_INTEGRATION_MAGENTO2.md)
+- [QA Checklist](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY_CHECKLIST.md)
+- [Performance Optimization](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md)
+
+## Other
+
+- [Accessibility Statement](https://athoscommerce.github.io/snap/docs/ACCESSIBILITY_STATEMENT.md)
