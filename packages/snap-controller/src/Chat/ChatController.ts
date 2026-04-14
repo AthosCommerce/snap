@@ -88,6 +88,13 @@ export class ChatController extends AbstractController {
 			next();
 		});
 
+		if (this.config.settings?.addToCart) {
+			this.eventManager.on('addToCart', async (data: { controller: ChatController; products: Product[] }, next: Next) => {
+				this.config.settings?.addToCart?.(data.products);
+				next();
+			});
+		}
+
 		this.eventManager.on('beforeSearch', async (data: { controller: ChatController; request: ChatRequestModel }, next: Next) => {
 			// TODO: test this
 			if (this.store.chatEnabled === false) {
@@ -310,7 +317,6 @@ export class ChatController extends AbstractController {
 		const request: ChatRequestModel = {
 			context: {
 				sessionId: this.store.currentChat?.sessionId,
-				widgetId: this.config.settings.widgetId,
 			},
 			data: chatRequest,
 			tracking: {
@@ -339,7 +345,6 @@ export class ChatController extends AbstractController {
 			const { userId, shopperId } = this.tracker.getContext();
 			const params = {
 				context: {
-					pqaWidgetId: this.config.settings.widgetId,
 					sessionId: this.store.currentChat?.sessionId,
 					visitorId: shopperId || userId,
 				},
@@ -390,9 +395,6 @@ export class ChatController extends AbstractController {
 			const base64Image = await convertToBase64(file);
 			const image = await base64ToBlob(base64Image);
 			const params = {
-				context: {
-					widgetId: this.config.settings.widgetId,
-				},
 				image,
 			};
 
@@ -401,19 +403,11 @@ export class ChatController extends AbstractController {
 			if (attachment) {
 				try {
 					const response = await this.client.uploadImage(params);
-					if (response.imageId) {
-						attachment.update({
-							imageId: response.imageId,
-							imageUrl: response.imageUrl,
-							thumbnailUrl: response.thumbnailUrl,
-						});
-					} else if (response.error) {
-						attachment.update({
-							error: {
-								message: response.error.errorMessage,
-							},
-						});
-					}
+					attachment.update({
+						imageId: response.imageId,
+						imageUrl: response.imageUrl,
+						thumbnailUrl: response.thumbnailUrl,
+					});
 				} catch (err: any) {
 					const errorMessage = this.getUploadErrorMessage(err);
 					attachment.update({
@@ -451,7 +445,10 @@ export class ChatController extends AbstractController {
 	}
 
 	viewProduct = (result: Product): void => {
-		this.store.setQuickViewResult(result);
+		if (!this.store.currentChat) {
+			this.store.createChat();
+		}
+		this.store.currentChat?.pushProductQueryMessage(result);
 	};
 
 	compareProduct = (result: Product): void => {
@@ -525,8 +522,7 @@ export class ChatController extends AbstractController {
 		this.store.open = true;
 
 		if (initialMessage) {
-			this.store.inputValue = initialMessage;
-			this.search();
+			this.search({ data: { message: initialMessage } } as Partial<ChatRequestModel>);
 		} else if (!this.store.currentChat) {
 			this.store.createChat();
 		}
@@ -702,10 +698,6 @@ export class ChatController extends AbstractController {
 	addToCart = async (_products: Product[] | Product): Promise<void> => {
 		const products = typeof (_products as Product[]).slice == 'function' ? (_products as Product[]).slice() : [_products];
 
-		//todo add tracking
-		// (products as Product[]).forEach((product) => {
-		// 	this.track.product.addToCart(product);
-		// });
 		if (products.length > 0) {
 			this.eventManager.fire('addToCart', { controller: this, products });
 		}

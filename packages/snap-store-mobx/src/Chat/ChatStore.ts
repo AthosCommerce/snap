@@ -18,7 +18,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public storage: StorageStore;
 	public chats: ChatSessionStore[] = [];
 	public currentChatId: string;
-	public quickViewResult: any = {};
 	public chatEnabled: boolean | null = null;
 	public initChatLoading: boolean = false;
 	public suggestedQuestions: string[] = [];
@@ -30,7 +29,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 		this.storage = new StorageStore({
 			type: 'local',
-			key: `ss-${this.config.id}-${this.config.widgetId}`,
+			key: `ss-${this.config.id}`,
 		});
 
 		const storedChatStatusResponse = this.storage.get('chatStatusResponse');
@@ -90,7 +89,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			open: observable,
 			chats: observable,
 			currentChatId: observable,
-			quickViewResult: observable,
 			chatEnabled: observable,
 			initChatLoading: observable,
 			blocked: computed,
@@ -181,10 +179,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		if (chatExists) {
 			this.currentChatId = id;
 		}
-	}
-
-	public setQuickViewResult(result: any): void {
-		this.quickViewResult = result;
 	}
 
 	public sendProductQuery(result: any, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void {

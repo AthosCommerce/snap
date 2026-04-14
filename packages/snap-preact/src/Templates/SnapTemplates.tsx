@@ -123,7 +123,7 @@ export type SnapTemplatesConfigLocked = TemplateStoreConfigConfig & {
 	};
 	chat?: {
 		targets: ChatTargetConfig[];
-		settings: ChatStoreConfigSettings;
+		settings?: ChatStoreConfigSettings;
 		plugins?: PluginsConfigs;
 	};
 };
@@ -542,7 +542,6 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig, templatesS
 		const chatControllerConfig = {
 			config: {
 				id: 'chat',
-				widgetId: templateConfig.chat.settings.widgetId,
 				plugins: createPlugins(templateConfig, templatesStore, 'chat'),
 				settings: templateConfig.chat.settings || {},
 			},

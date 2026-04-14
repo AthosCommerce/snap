@@ -251,7 +251,7 @@ export class ChatSessionStore {
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {
 			const searchFilters = request.data.searchFilters;
-			if (searchFilters.length > 0) {
+			if (searchFilters && searchFilters.length > 0) {
 				const filterTextArray: string[] = [];
 
 				searchFilters.forEach((filter) => {
@@ -271,7 +271,7 @@ export class ChatSessionStore {
 					text: `Filter by ${filterTextArray.join('and ')}`,
 				});
 			}
-		} else if (request.data.message) {
+		} else if ('message' in request.data && request.data.message) {
 			if (request.data.requestType === 'imageSearch') {
 				const imageId = request.data.attachedImageId;
 				const attachedImage = this.attachments.attached.find((item) => item.type == 'image' && item.imageId == imageId);

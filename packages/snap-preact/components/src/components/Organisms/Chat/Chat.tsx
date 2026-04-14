@@ -10,7 +10,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { Button } from '../../Atoms/Button';
 import { useRef, useEffect, useMemo } from 'preact/hooks';
-import { ChatProductQuickviewModal } from './ChatProductQuickviewModal';
+
 import { MessageUser } from './MessageUser';
 import { MessageText } from './MessageText';
 import { SuggestedQuestions } from './SuggestedQuestions';
@@ -1110,7 +1110,11 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												<ChatProductComparisonMessage chatItem={activeMessage as ChatResponseProductComparisonData} controller={controller} />
 											),
 											productQuery: (
-												<ChatProductQueryMessage chatItem={activeMessage as unknown as ChatProductQueryMessageItem} controller={controller} />
+												<ChatProductQueryMessage
+													chatItem={activeMessage as unknown as ChatProductQueryMessageItem}
+													controller={controller}
+													displayFields={controller.config.settings?.displayFields}
+												/>
 											),
 										} as any
 									)[activeMessage.messageType] || null}
@@ -1521,7 +1525,6 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 					) : null}
 				</div>
 				<Overlay style={{ zIndex: 1001 }} color="transparent" active={store.open} onClick={() => controller.handlers.button.click()} />
-				<ChatProductQuickviewModal result={store.quickViewResult} controller={controller} onClose={() => store.setQuickViewResult({})} />
 			</>
 		</CacheProvider>
 	);

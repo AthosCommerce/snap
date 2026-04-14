@@ -13,14 +13,11 @@ export type ChatInitRequestModel = {
 	languageCode: string;
 	searchConfig: {
 		sessionId: string;
-		bgFilters?: {
-			name: string;
-			value: string;
-		}[];
+		bgFilters?: Record<string, string>;
 		landingPage?: string;
 		tag?: string;
-		includeFacets?: string;
-		excludeFacets?: string;
+		includedFacets?: string;
+		excludedFacets?: string;
 		shopper?: string;
 	};
 };
@@ -30,23 +27,10 @@ export type ChatInitResponseModel = {
 };
 
 export type UploadImageRequestModel = {
-	context: {
-		widgetId: string;
-	};
 	image: Blob;
 };
 
 export type UploadImageResponseModel = {
-	success: boolean;
-	message: string;
-	error?: {
-		errorCode: string;
-		errorMessage: string;
-		field: string;
-		expectedValue: string;
-		actualValue: string;
-		httpStatus: number;
-	};
 	imageId: string;
 	imageUrl: string;
 	thumbnailUrl: string;
@@ -55,7 +39,6 @@ export type UploadImageResponseModel = {
 export type ChatRequestModel = {
 	context: {
 		sessionId?: string;
-		widgetId: string;
 	};
 	data: MoiRequestModel;
 	tracking: {
@@ -71,7 +54,6 @@ export type ChatRequestModel = {
 
 export type FeedbackRequestModel = {
 	context: {
-		pqaWidgetId: string;
 		sessionId?: string;
 		visitorId: string;
 	};
@@ -86,6 +68,10 @@ export type ChatStatusResponse = {
 	chatbot: {
 		status: {
 			enabled: boolean;
+			disableReason?: {
+				code: number;
+				message: string;
+			};
 		};
 		suggestedQuestions: string[];
 		welcomeMessage: string;
@@ -96,7 +82,7 @@ export type ChatStatusResponse = {
 	};
 };
 
-// DISCRIMINATOR: "requestType" === general, productQuery, productComparison, productSearch, inspiration, imageSearch, content
+// DISCRIMINATOR: "requestType" === general, productQuery, productComparison, productSearch, inspiration, imageSearch, content, productSimilar
 export type MoiRequestModel =
 	| MoiRequestModelGeneral
 	| MoiRequestModelProductQuery
@@ -104,7 +90,8 @@ export type MoiRequestModel =
 	| MoiRequestModelProductComparison
 	| MoiRequestModelImageSearch
 	| MoiRequestModelProductSimilar
-	| MoiRequestModelInspiration;
+	| MoiRequestModelInspiration
+	| MoiRequestModelContent;
 
 export type MoiRequestModelGeneral = {
 	requestType: 'general';
@@ -119,8 +106,9 @@ export type MoiRequestModelProductQuery = {
 
 export type MoiRequestModelProductSearch = {
 	requestType: 'productSearch';
-	// message: string;
-	searchFilters: {
+	message?: string;
+	searchTerm?: string;
+	searchFilters?: {
 		key: string;
 		options: {
 			key: string;
@@ -151,7 +139,12 @@ export type MoiRequestModelInspiration = {
 	message: string;
 };
 
-// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, suggestedQuestions, content, errorResponse, topic_drift, actions
+export type MoiRequestModelContent = {
+	requestType: 'content';
+	message: string;
+};
+
+// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, content, errorResponse, topic_drift, actions
 export type MoiResponseModel = {
 	context: {
 		sessionId: string;
@@ -162,7 +155,6 @@ export type MoiResponseModel = {
 		| MoiResponseModelProductSearchResult
 		| MoiResponseModelInspirationResult
 		| MoiResponseModelProductAnswer
-		| MoiResponseModelSuggestedQuestions
 		| MoiResponseModelProductComparison
 		| MoiResponseModelActions
 		| MoiResponseModelProductRecommendation
@@ -212,11 +204,12 @@ export type MoiResponseModelSearchResult = {
 
 export type MoiResponseModelText = BaseResponseProperties & {
 	messageType: 'text';
-	explanation: string;
+	text: string;
 };
 
 export type MoiResponseModelContent = BaseResponseProperties & {
 	messageType: 'content';
+	text: string;
 };
 
 export type MoiResponseModelProductSearchResult = BaseResponseProperties & {
@@ -245,10 +238,6 @@ export type MoiResponseModelProductAnswer = BaseResponseProperties & {
 	sourceProduct: RawResult;
 };
 
-export type MoiResponseModelSuggestedQuestions = BaseResponseProperties & {
-	messageType: 'suggestedQuestions';
-	// questions: string[];
-};
 export type MoiResponseModelProductComparison = BaseResponseProperties & {
 	messageType: 'productComparison';
 
@@ -278,7 +267,7 @@ export type MoiResponseModelActions = {
 	messageType: 'actions';
 	actions: {
 		message: string;
-		request: MoiRequestModelGeneral;
+		request: MoiRequestModel;
 	}[];
 };
 
@@ -303,78 +292,92 @@ export type MoiResponseModelError = BaseResponseProperties & {
 	errorMessage: string;
 };
 
-export class ChatAPI extends API<any> {
-	async postMessage(requestParameters: ChatRequestModel & ClientGlobals): Promise<any> {
-		const headerParameters: HTTPHeaders = {
-			'Content-Type': 'application/json',
-		};
+export type ChatBadRequestResponse = {
+	errors: string[];
+	errorMessage: string;
+};
 
+const JSON_HEADERS: HTTPHeaders = { 'Content-Type': 'application/json' };
+
+export class ChatAPI extends API<any> {
+	private handle400Error(err: any): never {
+		if (err?.fetchDetails?.status === 400) {
+			const body = err?.responseBody as ChatBadRequestResponse;
+			throw {
+				err: new Error(body?.errorMessage || 'Bad Request'),
+				fetchDetails: err.fetchDetails,
+				responseBody: err.responseBody,
+			};
+		}
+		throw err;
+	}
+
+	async postMessage(requestParameters: ChatRequestModel & ClientGlobals): Promise<any> {
 		if (requestParameters.siteId == 'ck4bj7') {
 			// TODO: temporary - remove
 			requestParameters.siteId = 'test-mattel-demo';
 		}
 
-		let queryStringParams = `?siteId=${requestParameters.siteId}&chatSessionId=${requestParameters.context.sessionId}`;
 		const userId = requestParameters.personalization?.shopper || requestParameters.tracking.userId;
-		if (userId) {
-			queryStringParams += `&userId=${userId}`;
+
+		try {
+			const response = await this.request<MoiResponseModel>({
+				path: '/chat/send',
+				method: 'POST',
+				headers: JSON_HEADERS,
+				query: {
+					siteId: requestParameters.siteId,
+					chatSessionId: requestParameters.context.sessionId || '',
+					...(userId ? { userId } : {}),
+				},
+				body: requestParameters.data,
+			});
+
+			return transformChatResponse(response);
+		} catch (err: any) {
+			this.handle400Error(err);
 		}
-
-		const response = await this.request<MoiResponseModel>({
-			path: `/chat/send${queryStringParams}`,
-			method: 'POST',
-			headers: headerParameters,
-			body: requestParameters.data,
-		});
-
-		// transfrorm respose to Snapi types
-		return transformChatResponse(response);
 	}
 
 	async postStatus(queryParameters: ChatStatusRequestModel): Promise<ChatStatusResponse> {
-		const headerParameters: HTTPHeaders = {
-			'Content-Type': 'application/json',
-		};
-		headerParameters['x-site-id'] = queryParameters.siteId; // TODO: should be removed once api fix to support siteId as query param
+		try {
+			const response = await this.request<ChatStatusResponse>(
+				{
+					path: '/chat/status',
+					method: 'GET',
+					headers: { ...JSON_HEADERS, 'x-site-id': queryParameters.siteId },
+					query: queryParameters,
+				},
+				JSON.stringify(queryParameters)
+			);
 
-		const response = await this.request<ChatStatusResponse>(
-			{
-				path: '/chat/status',
-				method: 'GET',
-				headers: headerParameters,
-				query: queryParameters,
-			},
-			JSON.stringify(queryParameters)
-		);
-
-		return response;
+			return response;
+		} catch (err: any) {
+			this.handle400Error(err);
+		}
 	}
 
 	async chatInit(queryParameters: ChatInitRequestModel): Promise<ChatInitResponseModel> {
-		const headerParameters: HTTPHeaders = {
-			'Content-Type': 'application/json',
-		};
-		const queryStringParams = `?siteId=${queryParameters.siteId}`;
+		try {
+			const response = await this.request<ChatInitResponseModel>({
+				path: '/chat/init',
+				method: 'POST',
+				headers: JSON_HEADERS,
+				query: { siteId: queryParameters.siteId },
+				body: queryParameters,
+			});
 
-		const response = await this.request<ChatInitResponseModel>({
-			path: `/chat/init${queryStringParams}`,
-			method: 'POST',
-			headers: headerParameters,
-			body: queryParameters,
-		});
-
-		return response;
+			return response;
+		} catch (err: any) {
+			this.handle400Error(err);
+		}
 	}
 
 	async postFeedback(requestParameters: FeedbackRequestModel): Promise<any> {
-		const headerParameters: HTTPHeaders = {
-			'Content-Type': 'application/json',
-		};
-
 		const response = await this.request<MoiResponseModel>({
 			path: '/chat/feedback',
 			method: 'POST',
-			headers: headerParameters,
+			headers: JSON_HEADERS,
 			body: requestParameters,
 		});
 		return response;
@@ -388,17 +391,14 @@ export class ChatAPI extends API<any> {
 			// TODO: temporary - remove
 			requestParameters.siteId = 'test-mattel-demo';
 		}
-		const queryStringParams = `?siteId=${requestParameters.siteId}`;
 
-		const response = await this.request<UploadImageResponseModel>(
-			{
-				path: `/visual-search/upload-image${queryStringParams}`,
-				method: 'POST',
-				headers: {},
-				body: formData,
-			}
-			// TODO: cache?
-		);
+		const response = await this.request<UploadImageResponseModel>({
+			path: '/visual-search/upload-image',
+			method: 'POST',
+			headers: {},
+			query: { siteId: requestParameters.siteId },
+			body: formData,
+		});
 
 		return response;
 	}

@@ -18,7 +18,6 @@ export {
 	ChatResponseProductSearchResultData,
 	ChatResponseInspirationResultData,
 	ChatResponseProductAnswerData,
-	ChatResponseSuggestedQuestionsData,
 	ChatResponseActionsData,
 	ChatResponseProductRecommendationData,
 	ChatResponseProductComparisonData,

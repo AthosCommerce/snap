@@ -3,9 +3,9 @@ import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
+// import { CustomResult } from './components/Result';
 
 const { siteId, clientConfig } = getDemoConfig();
-const chatWidgetId = 'test-mattel-demo';
 let templatesConfig: SnapTemplatesConfig = {
 	unlocked: true,
 	config: {
@@ -85,15 +85,18 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 	},
 	chat: {
-		settings: {
-			widgetId: chatWidgetId,
-		},
 		targets: [
 			{
 				selector: 'body',
 				component: 'Chat',
 			},
 		],
+		settings: {
+			displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+			addToCart: (products: any) => console.log('chat add to cart!', products),
+			// resultComponent: async () => (await import('./components/Result')).CustomResult,
+			// resultComponent: CustomResult,
+		},
 	},
 	autocomplete: {
 		targets: [

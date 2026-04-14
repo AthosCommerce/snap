@@ -36,10 +36,12 @@ const carouselStyleScript = () => {
 
 export const ResultsDisplay = observer((props: ResultsDisplayProps) => {
 	const { chatItem, controller, scrollToBottom } = props;
+	const ResultComponent = controller.config.settings?.resultComponent || ChatResult;
 	const isNarrow = typeof window !== 'undefined' && (window.innerWidth < 550 || (window.innerWidth >= 768 && window.innerWidth <= 1400));
+	const slidesPerView = isNarrow ? 1.9 : 2.9;
 	const carouselProps: Partial<CarouselProps> = {
 		breakpoints: undefined,
-		slidesPerView: isNarrow ? 1.9 : 2.9,
+		slidesPerView,
 		slidesPerGroup: isNarrow ? 2 : 3,
 		loop: false,
 		pagination: false,
@@ -48,21 +50,28 @@ export const ResultsDisplay = observer((props: ResultsDisplayProps) => {
 		styleScript: carouselStyleScript,
 	};
 
+	const handleResultClick = (e: MouseEvent, result: any) => {
+		// buttons should be able to be clicked without triggering the product click
+		if (e.composedPath().some((el) => el instanceof HTMLElement && el.matches('button, .ss__button, a'))) return;
+		controller.viewProduct(result);
+	};
+
 	if (chatItem.messageType === 'productRecommendation' && chatItem.recommendationResult?.length) {
 		return (
 			<>
 				{chatItem.recommendationResult.map((recommendation: any, index: number) => {
 					return recommendation.results?.length > 0 ? (
 						<div key={index} className="ss__chat__message-text__results" style={{ width: '100%' }}>
-							<Carousel {...carouselProps}>
+							<Carousel {...carouselProps} hideButtons={recommendation.results.length <= slidesPerView}>
 								{recommendation.results.map((result: any) => {
 									return (
 										<div
 											key={result.id}
 											className="ss__chat__message-text__results__result"
-											style={{ height: '100%', width: '100%', display: 'flex' }}
+											style={{ height: '100%', width: '100%', display: 'flex', cursor: 'pointer' }}
+											onClick={(e: any) => handleResultClick(e, result)}
 										>
-											<ChatResult result={result} controller={controller} scrollToBottom={scrollToBottom} />
+											<ResultComponent result={result} controller={controller} scrollToBottom={scrollToBottom} />
 										</div>
 									);
 								})}
@@ -76,11 +85,16 @@ export const ResultsDisplay = observer((props: ResultsDisplayProps) => {
 
 	return chatItem.results?.length > 0 ? (
 		<div className="ss__chat__message-text__results" style={{ width: '100%' }}>
-			<Carousel {...carouselProps}>
+			<Carousel {...carouselProps} hideButtons={chatItem.results.length <= slidesPerView}>
 				{chatItem.results.map((result: any) => {
 					return (
-						<div key={result.id} className="ss__chat__message-text__results__result" style={{ height: '100%', width: '100%', display: 'flex' }}>
-							<ChatResult result={result} controller={controller} scrollToBottom={scrollToBottom} />
+						<div
+							key={result.id}
+							className="ss__chat__message-text__results__result"
+							style={{ height: '100%', width: '100%', display: 'flex', cursor: 'pointer' }}
+							onClick={(e: any) => handleResultClick(e, result)}
+						>
+							<ResultComponent result={result} controller={controller} scrollToBottom={scrollToBottom} />
 						</div>
 					);
 				})}

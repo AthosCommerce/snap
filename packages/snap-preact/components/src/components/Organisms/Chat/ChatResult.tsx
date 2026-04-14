@@ -23,7 +23,6 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 			width: '100%',
 			position: 'relative',
 			overflow: 'hidden',
-
 			'.ss__chat__result__image__buttons': {
 				position: 'absolute',
 				bottom: 0,
@@ -144,9 +143,6 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 			<div className="ss__chat__result__image">
 				<OverlayBadge controller={controller as any} result={result} renderEmpty={true}>
 					<Image
-						onClick={() => {
-							controller.viewProduct(result);
-						}}
 						className={'ss__chat__result__detail-slot__image'}
 						alt={result.mappings.core?.name || ''}
 						src={result.mappings.core?.imageUrl || ''}
@@ -184,23 +180,13 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 						className={'ss__chat__result__image__icons__icon--cart'}
 						icon={{ icon: 'cart', title: 'Add to Cart' }}
 						onClick={() => {
-							// controller.addToCart(result);
-							controller.viewProduct(result);
+							controller.addToCart(result);
 						}}
 					/>
 				</div>
 			</div>
 			<div className="ss__chat__result__content">
-				{result.mappings.core?.name && (
-					<div
-						className="ss__chat__result__content__title--primary"
-						onClick={() => {
-							controller.viewProduct(result);
-						}}
-					>
-						{result.mappings.core?.name}
-					</div>
-				)}
+				{result.mappings.core?.name && <div className="ss__chat__result__content__title--primary">{result.mappings.core?.name}</div>}
 				{(result as any).brand && <div className="ss__chat__result__content__title--secondary">{(result as any).brand}</div>}
 				{result.mappings.core?.price && (
 					<div className="ss__chat__result__content__price">

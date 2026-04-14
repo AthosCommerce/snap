@@ -15,7 +15,6 @@ import type {
 	MoiResponseModelProductComparison,
 	MoiResponseModelProductRecommendation,
 	MoiResponseModelProductSearchResult,
-	MoiResponseModelSuggestedQuestions,
 	MoiResponseModelText,
 	MoiResponseModelError,
 	MoiResponseModelTopicDrift,
@@ -32,7 +31,6 @@ export type ChatResponseModel = {
 	data: (
 		| ChatResponseTextData
 		| ChatResponseContentData
-		| ChatResponseSuggestedQuestionsData
 		| ChatResponseActionsData
 		| ChatResponseProductSearchResultData
 		| ChatResponseInspirationResultData
@@ -52,7 +50,6 @@ export type ChatResponseTextData = {
 	note: string;
 	collectFeedback: boolean;
 	text: string;
-	explanation: string;
 };
 
 export type ChatResponseContentData = {
@@ -63,13 +60,21 @@ export type ChatResponseContentData = {
 	text: string;
 };
 
-export type ChatResponseSuggestedQuestionsData = {
-	messageType: 'actions';
-	// actions: MoiResponseModelActions['actions'];
-	actions: any;
-};
-
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
+	const unknownError: ChatResponseErrorData = {
+		messageType: 'errorResponse',
+		collectFeedback: false,
+		id: '',
+		errorMessage: 'An unknown error has occurred',
+	};
+
+	if (!response.data || response.data.length === 0) {
+		return {
+			data: [unknownError],
+			context: response.context,
+		};
+	}
+
 	const transformedData = response.data
 		.map((data) => {
 			if (data.messageType === 'text') {
@@ -82,20 +87,17 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 				return transformChatResponse.inspirationResult(data);
 			} else if (data.messageType === 'productAnswer') {
 				return transformChatResponse.productAnswer(data);
-			} else if (data.messageType === 'suggestedQuestions') {
-				return transformChatResponse.suggestedQuestions(data);
 			} else if (data.messageType === 'productComparison') {
 				return transformChatResponse.productComparison(data);
 			} else if (data.messageType === 'actions') {
 				return transformChatResponse.actions(data);
 			} else if (data.messageType === 'productRecommendation') {
 				return transformChatResponse.productRecommendation(data);
-			} else if (data.messageType === 'topic_drift') {
-				// To be added in future
-				// return transformChatResponse.topicDrift(data);
-				return;
 			} else if (data.messageType === 'errorResponse') {
 				return transformChatResponse.error(data);
+			} else {
+				// topic_drift, unknown messageTypes
+				return unknownError;
 			}
 		})
 		.filter((data) => data !== undefined);
@@ -116,21 +118,6 @@ transformChatResponse.text = (data: MoiResponseModelText): any => {
 transformChatResponse.content = (data: MoiResponseModelContent): any => {
 	// nothing to transform here yet
 	return data;
-};
-
-// transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): ChatResponseSuggestedQuestionsData => {
-transformChatResponse.suggestedQuestions = (data: MoiResponseModelSuggestedQuestions): any => {
-	return data;
-	// {
-	// 	messageType: 'actions',
-	// 	actions: data.questions.map((question) => ({
-	// 		message: question,
-	// 		request: {
-	// 			requestType: 'general',
-	// 			message: question,
-	// 		},
-	// 	})),
-	// };
 };
 
 export type ChatResponseTopicDriftData = {
@@ -339,7 +326,7 @@ const mapProductToSearchResultProduct = (product: RawResult): SearchResponseMode
 		},
 		attributes,
 		// badges: Array.isArray(product.badges) && typeof product.badges[0] == 'object' ? product.badges : [],
-		// variants: product.variants,
+		variants: product.variants,
 	});
 };
 

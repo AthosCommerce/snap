@@ -7,68 +7,163 @@ import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers'
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { ChatController } from '@athoscommerce/snap-controller';
+import { useState } from 'preact/hooks';
 import { Image } from '../../Atoms/Image';
 import { Button } from '../../Atoms/Button';
 import { Price } from '../../..';
 
 const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
+	const colorPrimary = '#253B80';
 	return css({
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '1em',
 
-		'.ss__chat-product-query-message__product-card': {
+		'.ss__chat-product-query-message__header': {
+			background: colorPrimary,
+			margin: '-20px -15px 0',
+			padding: '0 15px 15px',
 			display: 'flex',
-			gap: '1em',
-			alignItems: 'center',
-			padding: '1em',
-			background: '#F9FAFB',
-			borderRadius: '1em',
+			flexDirection: 'column',
 
-			'.ss__chat-product-query-message__product-card__image': {
-				width: '80px',
-				height: '80px',
-				objectFit: 'contain',
-				flexShrink: 0,
-				borderRadius: '0.5em',
+			'.ss__price': {
+				color: '#fff',
 			},
 
-			'.ss__chat-product-query-message__product-card__details': {
+			'.ss__chat-product-query-message__header__product': {
 				display: 'flex',
-				flexDirection: 'column',
-				gap: '0.25em',
-				flex: 1,
+				gap: '0.75em',
+				alignItems: 'center',
+				background: 'rgba(255, 255, 255, 0.1)',
+				borderRadius: '0.75em',
+				padding: '0.75em',
 
-				'.ss__chat-product-query-message__product-card__details__name': {
-					fontWeight: 'bold',
-					fontSize: '1em',
+				'.ss__chat-product-query-message__header__product__image': {
+					width: '25%',
+					objectFit: 'contain',
+					flexShrink: 0,
+					borderRadius: '0.33em',
+					overflow: 'hidden',
 				},
 
-				'.ss__chat-product-query-message__product-card__details__brand': {
-					fontSize: '0.85em',
-					color: '#6B7280',
-				},
+				'.ss__chat-product-query-message__header__product__details': {
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '0.2em',
+					flex: 1,
 
-				'.ss__chat-product-query-message__product-card__details__price': {
-					fontWeight: 'bold',
-					fontSize: '1.1em',
+					'.ss__chat-product-query-message__header__product__details__name': {
+						fontWeight: 'bold',
+						fontSize: '0.95em',
+
+						a: {
+							color: '#FFFFFF',
+							textDecoration: 'none',
+							'&:hover': {
+								textDecoration: 'underline',
+							},
+						},
+					},
+
+					'.ss__chat-product-query-message__header__product__details__brand': {
+						fontSize: '0.8em',
+						color: 'rgba(255, 255, 255, 0.7)',
+					},
+
+					'.ss__chat-product-query-message__header__product__details__price': {
+						fontWeight: 'bold',
+						fontSize: '1.1em',
+						color: '#D4A843',
+					},
+
+					'.ss__chat-product-query-message__header__product__details__actions': {
+						display: 'flex',
+						gap: '0.5em',
+						marginTop: '0.25em',
+
+						'.ss__button': {
+							borderRadius: '0.5em',
+							padding: '0.4em 0.75em',
+							fontWeight: 'bold',
+							border: 'none',
+							whiteSpace: 'nowrap',
+							cursor: 'pointer',
+							fontSize: '0.8em',
+						},
+
+						'.ss__chat-product-query-message__header__product__details__actions__add-to-cart .ss__button': {
+							background: '#D4A843',
+							color: '#1F2937',
+							'&:not(.ss__button--disabled):hover': {
+								background: '#c49a3a',
+							},
+						},
+
+						'.ss__chat-product-query-message__header__product__details__actions__more-info .ss__button': {
+							background: 'rgba(255, 255, 255, 0.15)',
+							color: '#FFFFFF',
+							'&:not(.ss__button--disabled):hover': {
+								background: 'rgba(255, 255, 255, 0.25)',
+							},
+						},
+					},
 				},
 			},
+		},
 
-			'.ss__chat-product-query-message__product-card__action': {
-				flexShrink: 0,
+		'.ss__chat-product-query-message__variants': {
+			'.ss__chat-product-query-message__variants__label': {
+				fontWeight: '600',
+				fontSize: '0.9em',
+				color: '#374151',
+				textTransform: 'uppercase',
+				marginBottom: '0.5em',
+			},
 
-				'.ss__button': {
-					background: '#253B80',
-					color: '#fff',
+			'.ss__chat-product-query-message__variants__swatches': {
+				display: 'flex',
+				flexWrap: 'wrap',
+				gap: '0.5em',
+
+				'.ss__chat-product-query-message__variants__swatch': {
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					gap: '0.25em',
+					cursor: 'pointer',
+					padding: '0.25em',
 					borderRadius: '0.5em',
-					padding: '0.5em 1em',
-					fontWeight: 'bold',
-					border: 'none',
-					whiteSpace: 'nowrap',
+					border: '2px solid transparent',
+					transition: 'border-color 0.15s ease',
 
-					'&:not(.ss__button--disabled):hover': {
-						background: '#1a2d66',
+					'&:hover': {
+						borderColor: '#253B80',
+					},
+
+					'&.ss__chat-product-query-message__variants__swatch--selected': {
+						borderColor: '#253B80',
+					},
+
+					'&.ss__chat-product-query-message__variants__swatch--unavailable': {
+						opacity: 0.4,
+					},
+
+					'.ss__chat-product-query-message__variants__swatch__image': {
+						width: '48px',
+						height: '48px',
+						objectFit: 'cover',
+						borderRadius: '50%',
+						border: '1px solid #E5E7EB',
+					},
+
+					'.ss__chat-product-query-message__variants__swatch__value': {
+						fontSize: '0.75em',
+						color: '#374151',
+						textAlign: 'center',
+						maxWidth: '60px',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						whiteSpace: 'nowrap',
 					},
 				},
 			},
@@ -174,14 +269,16 @@ const formatLabel = (key: string): string => {
 		.trim();
 };
 
+const stripHtml = (str: string): string => str.replace(/<[^>]*>/g, '');
+
 const formatValue = (value: unknown): string => {
 	if (Array.isArray(value)) {
-		return value.filter((v) => v != null && v !== '').join(', ');
+		return stripHtml(value.filter((v) => v != null && v !== '').join(', '));
 	}
 	if (value == null) {
 		return '';
 	}
-	return String(value);
+	return stripHtml(String(value));
 };
 
 const collectFeatures = (product: any): string[] => {
@@ -202,11 +299,22 @@ const collectFeatures = (product: any): string[] => {
 	return [];
 };
 
-const collectInfoRows = (product: any): { key: string; label: string; value: string; rawKey: string }[] => {
+const collectInfoRows = (product: any, displayFields?: string[]): { key: string; label: string; value: string; rawKey: string }[] => {
 	const core = product?.mappings?.core || {};
 	const attributes = product?.attributes || {};
+	const filterByDisplayFields = displayFields && displayFields.length > 0;
+	const displayFieldsLower = filterByDisplayFields ? displayFields.map((f) => f.toLowerCase()) : [];
 
 	const merged: Record<string, unknown> = {};
+
+	// when displayFields is specified, include matching core fields that are normally skipped
+	if (filterByDisplayFields) {
+		Object.entries(core).forEach(([key, value]) => {
+			if (displayFieldsLower.includes(key.toLowerCase()) && value != null) {
+				merged[key] = value;
+			}
+		});
+	}
 
 	// pull selected core fields (rating + availability)
 	if (core.rating != null) {
@@ -220,7 +328,7 @@ const collectInfoRows = (product: any): { key: string; label: string; value: str
 
 	// merge product attributes, skipping ones already shown on the card and feature lists
 	Object.entries(attributes).forEach(([key, value]) => {
-		if (CARD_FIELDS.has(key)) return;
+		if (!filterByDisplayFields && CARD_FIELDS.has(key)) return;
 		if (FEATURE_KEYS.includes(key)) return;
 		const formatted = formatValue(value);
 		if (!formatted) return;
@@ -244,6 +352,13 @@ const collectInfoRows = (product: any): { key: string; label: string; value: str
 		ordered.push({ key, rawKey: key, label: formatLabel(key), value: formatValue(merged[key]) });
 	});
 
+	// filter and sort by displayFields order
+	if (filterByDisplayFields) {
+		const filtered = ordered.filter((row) => displayFieldsLower.includes(row.rawKey.toLowerCase()));
+		filtered.sort((a, b) => displayFieldsLower.indexOf(a.rawKey.toLowerCase()) - displayFieldsLower.indexOf(b.rawKey.toLowerCase()));
+		return filtered;
+	}
+
 	return ordered;
 };
 
@@ -257,7 +372,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 	const props = mergeProps('chatProductQueryMessage', globalTheme, defaultProps, properties);
 
-	const { chatItem, controller, className, internalClassName } = props;
+	const { chatItem, controller, displayFields, className, internalClassName } = props;
 
 	const styling = mergeStyles<ChatProductQueryMessageProps>(props, defaultStyles);
 
@@ -270,34 +385,103 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const core = sourceProduct?.mappings?.core;
 	if (!core) return null;
 
-	const infoRows = collectInfoRows(sourceProduct);
+	const infoRows = collectInfoRows(sourceProduct, displayFields);
 	const features = collectFeatures(sourceProduct);
+	const variants = sourceProduct?.variants;
+	const variantData = variants?.data;
+	const optionConfig = variants?.optionConfig;
+
+	const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
+	const displayedCore =
+		selectedVariantIndex != null && variantData?.[selectedVariantIndex]?.mappings?.core ? variantData[selectedVariantIndex].mappings.core : core;
 
 	return (
 		<CacheProvider>
 			<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
-				<div className={classnames('ss__chat-product-query-message__product-card')}>
-					{core.imageUrl && (
-						<Image
-							className={classnames('ss__chat-product-query-message__product-card__image')}
-							src={core.imageUrl as string}
-							alt={(core.name as string) || ''}
-							onClick={() => controller?.viewProduct(sourceProduct as any)}
-						/>
-					)}
-					<div className={classnames('ss__chat-product-query-message__product-card__details')}>
-						{core.name && <div className={classnames('ss__chat-product-query-message__product-card__details__name')}>{core.name}</div>}
-						{core.brand && <div className={classnames('ss__chat-product-query-message__product-card__details__brand')}>{core.brand}</div>}
-						{core.price != null && (
-							<div className={classnames('ss__chat-product-query-message__product-card__details__price')}>
-								<Price value={core.price} />
-							</div>
+				<div className={classnames('ss__chat-product-query-message__header')}>
+					<div className={classnames('ss__chat-product-query-message__header__product')}>
+						{displayedCore.imageUrl && (
+							<Image
+								className={classnames('ss__chat-product-query-message__header__product__image')}
+								src={displayedCore.imageUrl as string}
+								alt={(displayedCore.name as string) || ''}
+							/>
 						)}
-					</div>
-					<div className={classnames('ss__chat-product-query-message__product-card__action')}>
-						<Button content={'Add to Cart'} onClick={() => controller?.viewProduct(sourceProduct as any)} />
+						<div className={classnames('ss__chat-product-query-message__header__product__details')}>
+							{displayedCore.name && (
+								<div className={classnames('ss__chat-product-query-message__header__product__details__name')}>
+									{displayedCore.url ? (
+										<a href={displayedCore.url as string} target="_blank" rel="noopener noreferrer">
+											{displayedCore.name}
+										</a>
+									) : (
+										displayedCore.name
+									)}
+								</div>
+							)}
+							{displayedCore.brand && (
+								<div className={classnames('ss__chat-product-query-message__header__product__details__brand')}>{displayedCore.brand}</div>
+							)}
+							{displayedCore.price != null && (
+								<div className={classnames('ss__chat-product-query-message__header__product__details__price')}>
+									<Price value={displayedCore.price} />
+								</div>
+							)}
+							<div className={classnames('ss__chat-product-query-message__header__product__details__actions')}>
+								<div className={classnames('ss__chat-product-query-message__header__product__details__actions__add-to-cart')}>
+									<Button content={'Add to Cart'} onClick={() => controller?.addToCart(sourceProduct as any)} />
+								</div>
+								{displayedCore.url && (
+									<div className={classnames('ss__chat-product-query-message__header__product__details__actions__more-info')}>
+										<Button content={'More Info'} onClick={() => window.open(displayedCore.url as string, '_blank')} />
+									</div>
+								)}
+							</div>
+						</div>
 					</div>
 				</div>
+
+				{optionConfig && variantData?.length > 0 && (
+					<div className={classnames('ss__chat-product-query-message__variants')}>
+						{Object.entries(optionConfig).map(([optionName, config]: [string, any]) => (
+							<div key={optionName}>
+								<div className={classnames('ss__chat-product-query-message__variants__label')}>
+									{formatLabel(optionName)} ({config.count})
+								</div>
+								<div className={classnames('ss__chat-product-query-message__variants__swatches')}>
+									{variantData.map((variant: any, idx: number) => {
+										const optionValue = variant.options?.[optionName]?.value;
+										if (!optionValue) return null;
+										const variantCore = variant.mappings?.core;
+										const isUnavailable = variant.attributes?.available === false;
+										const isSelected = selectedVariantIndex === idx;
+
+										return (
+											<div
+												key={variantCore?.id || idx}
+												className={classnames('ss__chat-product-query-message__variants__swatch', {
+													'ss__chat-product-query-message__variants__swatch--selected': isSelected,
+													'ss__chat-product-query-message__variants__swatch--unavailable': isUnavailable,
+												})}
+												title={optionValue}
+												onClick={() => setSelectedVariantIndex(isSelected ? null : idx)}
+											>
+												{config.type === 'swatches' && variantCore?.thumbnailImageUrl ? (
+													<Image
+														className={classnames('ss__chat-product-query-message__variants__swatch__image')}
+														src={variantCore.thumbnailImageUrl}
+														alt={optionValue}
+													/>
+												) : null}
+												<span className={classnames('ss__chat-product-query-message__variants__swatch__value')}>{optionValue}</span>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						))}
+					</div>
+				)}
 
 				{infoRows.length > 0 && (
 					<div className={classnames('ss__chat-product-query-message__section')}>
@@ -346,6 +530,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 export type ChatProductQueryMessageProps = {
 	chatItem: ChatProductQueryMessageItem;
 	controller?: ChatController;
+	displayFields?: string[];
 	lang?: Partial<ChatProductQueryMessageLang>;
 } & ChatProductQueryMessageTemplatesLegalProps &
 	ComponentProps<ChatProductQueryMessageProps>;
