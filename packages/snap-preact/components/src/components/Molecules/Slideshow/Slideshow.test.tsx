@@ -5,15 +5,21 @@ import { Slideshow, SlideshowProps, SlideshowSlide } from './Slideshow';
 import { ThemeProvider } from '@emotion/react';
 
 // Mock ResizeObserver for jsdom
-global.ResizeObserver = class ResizeObserver {
-	callback: ResizeObserverCallback;
-	constructor(callback: ResizeObserverCallback) {
-		this.callback = callback;
-	}
-	observe() {}
-	unobserve() {}
-	disconnect() {}
-};
+const OriginalResizeObserver = global.ResizeObserver;
+beforeAll(() => {
+	global.ResizeObserver = class ResizeObserver {
+		callback: ResizeObserverCallback;
+		constructor(callback: ResizeObserverCallback) {
+			this.callback = callback;
+		}
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	};
+});
+afterAll(() => {
+	global.ResizeObserver = OriginalResizeObserver;
+});
 
 // Mock images for testing
 const mockImages = [

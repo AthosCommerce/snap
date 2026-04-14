@@ -8,7 +8,7 @@ import { custom } from '../../custom';
 const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile as number;
+	const mobileBp = variables?.breakpoints?.mobile ?? custom.breakpoints.mobile;
 
 	// search horizontal styles
 	const searchHorizontalStyles = css({
