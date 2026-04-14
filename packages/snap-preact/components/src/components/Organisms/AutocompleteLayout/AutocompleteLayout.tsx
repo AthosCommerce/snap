@@ -508,14 +508,14 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 	let recsController: RecommendationController | undefined;
 	let RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
 
-	let RecommendationTemplateResultComponent: JSX.Element | undefined;
+	let RecommendationTemplateResultComponent: JSXComponent | undefined;
 
 	const noresults = Boolean(controller.store.search?.query?.string && controller.store.results.length === 0);
 
 	if (templates?.recommendation?.enabled && noresults) {
 		const recs = createRecommendationTemplate(templates);
 		RecommendationTemplateComponent = recs.RecommendationTemplateComponent;
-		RecommendationTemplateResultComponent = recs.RecommendationTemplateResultComponent as JSX.Element | undefined;
+		RecommendationTemplateResultComponent = recs.RecommendationTemplateResultComponent;
 		recsController = recs.recsController;
 	}
 

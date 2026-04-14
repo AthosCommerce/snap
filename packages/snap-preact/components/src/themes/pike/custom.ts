@@ -73,7 +73,7 @@ export const custom: CustomThemeType = {
 			return {
 				'&, &:hover': {
 					fontWeight: custom?.fonts?.weight01,
-					color: color ? color : '',
+					color: color || undefined,
 				},
 			};
 		},
@@ -90,7 +90,7 @@ export const custom: CustomThemeType = {
 			return {
 				fontSize: '14px',
 				lineHeight: 1.5,
-				color: color ? color : '',
+				color: color || undefined,
 			};
 		},
 		borderRadius: (value?: number, unit?: string) => {
@@ -125,7 +125,7 @@ export const custom: CustomThemeType = {
 				border: `1px solid ${custom.colors.gray02}`,
 				...radiusStyle,
 				backgroundColor: custom.colors.gray01,
-				color: color ? color : '',
+				color: color || undefined,
 				padding: padding,
 			};
 		},
@@ -166,7 +166,7 @@ export const custom: CustomThemeType = {
 				fontSize: fontSize ? fontSize : '',
 				fontWeight: custom?.fonts?.weight02,
 				textTransform: custom?.fonts?.transform,
-				color: color ? color : '',
+				color: color || undefined,
 			};
 		},
 		resultCompact: (layout?: string, imageWidth?: string, fontSize?: number) => {
@@ -301,7 +301,7 @@ type ObjectIconType = {
 };
 
 type ObjectNestedType = {
-	[key: string]: ObjectNumberOrStringType | ObjectNestedType;
+	[key: string]: ObjectNumberOrStringType | ObjectNestedType | undefined;
 };
 
 type ObjectNumberType = {
@@ -309,7 +309,7 @@ type ObjectNumberType = {
 };
 
 type ObjectNumberOrStringType = {
-	[key: string]: number | string;
+	[key: string]: number | string | undefined;
 };
 
 type ObjectStringType = {

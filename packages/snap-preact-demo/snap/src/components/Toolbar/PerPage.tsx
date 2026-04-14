@@ -19,7 +19,7 @@ export const PerPage = withController(
 					options={pagination.pageSizeOptions}
 					selected={{ label: `Show ${pagination.pageSize}`, value: pagination.pageSize }}
 					onSelect={(e, option) => {
-						pagination.setPageSize(typeof option?.value === undefined ? pagination.pageSize : +option?.value!);
+						pagination.setPageSize(option?.value == null ? pagination.pageSize : +option.value);
 					}}
 				/>
 			</div>
