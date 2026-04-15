@@ -9,7 +9,6 @@ import type {
 	ChatResponseInspirationResultData,
 	ChatResponseContentData,
 	ChatResponseProductAnswerData,
-	FeedbackRequestModel,
 	ChatResponseProductComparisonData,
 	ChatResponseProductRecommendationData,
 	ChatResponseErrorData,
@@ -22,6 +21,8 @@ import { ChatCompareStore } from './ChatCompareStore';
 
 export type ChatFeedbacks = { messageId: string; rating: 'UP' | 'DOWN' };
 
+export type ChatSessionFeedback = { rating: 'UP' | 'DOWN' };
+
 export type ChatUserMessage = {
 	id: string;
 	messageType: 'user';
@@ -33,6 +34,7 @@ export type ChatProductQueryMessageData = {
 	id: string;
 	messageType: 'productQuery';
 	sourceProduct: any;
+	sourceMessageId?: string;
 };
 
 export type ChatSystemMessage =
@@ -57,6 +59,8 @@ type ChatSessionStoreConfig = {
 		attachments?: ChatAttachmentAddAttachment[];
 		actions?: ChatActions;
 		feedbacks?: ChatFeedbacks[];
+		sessionFeedback?: ChatSessionFeedback | null;
+		feedbackDismissed?: boolean;
 		createdAt?: Date;
 		committedComparisons?: any[];
 	};
@@ -87,12 +91,17 @@ export class ChatSessionStore {
 	public comparisons: ChatCompareStore = new ChatCompareStore();
 	public storage: StorageStore;
 	public feedbacks: ChatFeedbacks[] = [];
+	public sessionFeedback: ChatSessionFeedback | null = null;
+	public feedbackDismissed: boolean = false;
+	public feedbackJustGiven: boolean = false;
 	public createdAt: Date = new Date();
 	public requestType: string = '';
 	public dismissedSideChatMessageId: string | null = null;
+	public activeMessageId: string | null = null;
 
 	constructor(params: ChatSessionStoreConfig) {
-		const { id, sessionId, chat, attachments, actions, feedbacks, createdAt, committedComparisons } = params.data || {};
+		const { id, sessionId, chat, attachments, actions, feedbacks, sessionFeedback, feedbackDismissed, createdAt, committedComparisons } =
+			params.data || {};
 		const { stores } = params;
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
@@ -100,6 +109,8 @@ export class ChatSessionStore {
 		this.actions = actions || [];
 		this.createdAt = createdAt ? new Date(createdAt) : new Date();
 		this.feedbacks = feedbacks || [];
+		this.sessionFeedback = sessionFeedback || null;
+		this.feedbackDismissed = feedbackDismissed || false;
 
 		// if chat and attachments are passed, load them
 		if (chat && chat.length > 0) {
@@ -119,7 +130,7 @@ export class ChatSessionStore {
 		// productComparison or the user sent a follow-up before a response
 		// arrived (pending state)
 		if (committedComparisons && committedComparisons.length > 0) {
-			const EXCLUDED_MESSAGE_TYPES = ['topic_drift'];
+			const EXCLUDED_MESSAGE_TYPES = ['topicDrift'];
 			const visibleMessages = this.chat.filter((message) => !EXCLUDED_MESSAGE_TYPES.includes(message.messageType));
 			const lastMessage = visibleMessages[visibleMessages.length - 1];
 			if (lastMessage?.messageType === 'productComparison' || lastMessage?.messageType === 'user') {
@@ -133,7 +144,11 @@ export class ChatSessionStore {
 			actions: observable,
 			attachments: observable,
 			feedbacks: observable,
+			sessionFeedback: observable,
+			feedbackDismissed: observable,
+			feedbackJustGiven: observable,
 			dismissedSideChatMessageId: observable,
+			activeMessageId: observable,
 		});
 	}
 
@@ -142,9 +157,18 @@ export class ChatSessionStore {
 		if (active) {
 			this.dismissedSideChatMessageId = active.id;
 		}
+		this.activeMessageId = null;
+	}
+
+	public setActiveMessage(id: string): void {
+		this.activeMessageId = id;
+		this.dismissedSideChatMessageId = null;
 	}
 
 	public pushProductQueryMessage(result: any): void {
+		// capture the side-chat message that was active at click time so a back action
+		// can restore it even when it's not the last message in the chat
+		const sourceMessageId = this.activeMessage?.id;
 		// drop any trailing productQuery so a fresh discussProduct click replaces
 		// the side-chat target rather than stacking up
 		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
@@ -154,9 +178,19 @@ export class ChatSessionStore {
 			id: uuidv4(),
 			messageType: 'productQuery',
 			sourceProduct: result,
+			sourceMessageId,
 		});
 		// re-show the side chat in case the user previously dismissed it
 		this.dismissedSideChatMessageId = null;
+		this.activeMessageId = null;
+		this.save();
+	}
+
+	public popProductQueryMessage(restoreActiveMessageId?: string): void {
+		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
+			this.chat.pop();
+		}
+		this.activeMessageId = restoreActiveMessageId || null;
 		this.save();
 	}
 
@@ -167,14 +201,20 @@ export class ChatSessionStore {
 		return diff > ONE_DAY;
 	}
 
-	// get topicDrift(): ChatResponseTopicDriftData | null {
-	// 	const lastMessage = this.chat[this.chat.length - 1];
-	// 	return lastMessage?.messageType === 'topic_drift' ? lastMessage : null;
-	// }
+	get topicDrift(): ChatResponseTopicDriftData | null {
+		const lastMessage = this.chat[this.chat.length - 1];
+		return lastMessage?.messageType === 'topicDrift' ? lastMessage : null;
+	}
 
 	get activeMessage(): ChatMessage | null {
-		const EXCLUDED_MESSAGE_TYPES = ['topic_drift', 'productAnswer'];
+		const EXCLUDED_MESSAGE_TYPES = ['topicDrift', 'productAnswer'];
 		const messages = this.chat.filter((message) => !EXCLUDED_MESSAGE_TYPES.includes(message.messageType));
+
+		if (this.activeMessageId) {
+			const override = messages.find((m) => m.id === this.activeMessageId);
+			if (override) return override;
+		}
+
 		const lastMessage = messages[messages.length - 1];
 
 		// When the user sends a follow-up while in a productQuery flow (e.g. "discuss product"),
@@ -191,33 +231,33 @@ export class ChatSessionStore {
 		return lastMessage || null;
 	}
 
-	// public handleTopicDrift(message: ChatResponseTopicDriftData | null): void {
-	// 	// driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
-	// 	// messageForDrift: string;
-	// 	// recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
+	public dismissTopicDrift(): void {
+		this.chat = this.chat.filter((m) => m.messageType !== 'topicDrift');
+		this.save();
+	}
 
-	// 	if(message?.driftType === 'NO_DRIFT') {
-	// 		// if no drift, do nothing but remove the topic drift message from the chat
-	// 		this.chat = this.chat.filter(m => m.messageType !== 'topic_drift');
-	// 		this.save();
-	// 		return;
-	// 	}
-	// 	if(message?.driftType === 'SCOPE_DRIFT' || message?.driftType === 'CATEGORY_DRIFT') {
-	// 		const lastUserMessageIndex = this.chat.map((message, index) => ({ message, index })).filter(({ message }) => message.messageType === 'user').map(({ index }) => index).pop();
-	// 		if (lastUserMessageIndex !== undefined) {
-	// 			this.chat = this.chat.slice(0, lastUserMessageIndex + 1);
-	// 		} else {
-	// 			this.reset();
-	// 		}
-	// 		this.save();
-	// 	}
-	// }
+	public handleTopicDrift(): string | undefined {
+		const lastUserMessage = [...this.chat].reverse().find((m) => m.messageType === 'user') as ChatUserMessage | undefined;
+		const messageText = lastUserMessage?.text;
+
+		// remove all topicDrift messages and the last user message that triggered the drift
+		if (lastUserMessage) {
+			const lastUserIndex = this.chat.lastIndexOf(lastUserMessage);
+			this.chat = this.chat.slice(0, lastUserIndex);
+		} else {
+			this.chat = this.chat.filter((m) => m.messageType !== 'topicDrift');
+		}
+		this.save();
+
+		return messageText;
+	}
 
 	public reset(): void {
 		this.attachments.reset();
 		this.chat = [];
 		this.actions = [];
 		this.feedbacks = [];
+		this.sessionFeedback = null;
 	}
 
 	public save(): void {
@@ -228,21 +268,18 @@ export class ChatSessionStore {
 			// attachments: this.attachments.items,
 			actions: this.actions,
 			feedbacks: this.feedbacks,
+			sessionFeedback: this.sessionFeedback,
+			feedbackDismissed: this.feedbackDismissed,
 			createdAt: this.createdAt,
 			committedComparisons: this.comparisons.committedItems,
 		});
-	}
-
-	public feedback(data: { request: FeedbackRequestModel; response: unknown }): void {
-		const messageId = data.request.feedback.messageId;
-		this.feedbacks.push({ messageId, rating: data.request.feedback.thumbs });
-		this.save();
 	}
 
 	public request(request: ChatRequestModel): void {
 		// clear the questions on new request
 		this.actions = [];
 		this.requestType = request.data.requestType;
+		this.activeMessageId = null;
 
 		// remove any attachments that failed to upload
 		const errorAttachments = this.attachments.items.filter((item) => item.state === 'error');

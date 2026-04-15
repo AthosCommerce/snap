@@ -95,8 +95,10 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 				return transformChatResponse.productRecommendation(data);
 			} else if (data.messageType === 'errorResponse') {
 				return transformChatResponse.error(data);
+			} else if (data.messageType === 'topicDrift') {
+				return transformChatResponse.topicDrift(data);
 			} else {
-				// topic_drift, unknown messageTypes
+				// unknown messageTypes
 				return unknownError;
 			}
 		})
@@ -121,7 +123,7 @@ transformChatResponse.content = (data: MoiResponseModelContent): any => {
 };
 
 export type ChatResponseTopicDriftData = {
-	messageType: 'topic_drift';
+	messageType: 'topicDrift';
 	id: string;
 	driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
 	messageForDrift: string;
@@ -166,7 +168,7 @@ transformChatResponse.productData = (data: MoiResponseModelProductSearchResult):
 
 		// specific
 		text: data.text,
-		results: data.searchResult.results.map(mapProductToSearchResultProduct),
+		results: data.searchResult.results?.map(mapProductToSearchResultProduct) || [],
 		facets: mapFacetToSearchResultFacets(data.searchResult),
 	};
 };

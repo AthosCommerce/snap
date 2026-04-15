@@ -52,18 +52,6 @@ export type ChatRequestModel = {
 	};
 };
 
-export type FeedbackRequestModel = {
-	context: {
-		sessionId?: string;
-		visitorId: string;
-	};
-	feedback: {
-		messageId: string;
-		thumbs: 'UP' | 'DOWN';
-		reason?: string;
-	};
-};
-
 export type ChatStatusResponse = {
 	chatbot: {
 		status: {
@@ -144,7 +132,7 @@ export type MoiRequestModelContent = {
 	message: string;
 };
 
-// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, content, errorResponse, topic_drift, actions
+// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, content, errorResponse, topicDrift, actions
 export type MoiResponseModel = {
 	context: {
 		sessionId: string;
@@ -256,7 +244,7 @@ export type MoiResponseModelProductComparison = BaseResponseProperties & {
 };
 
 export type MoiResponseModelTopicDrift = {
-	messageType: 'topic_drift';
+	messageType: 'topicDrift';
 	id: string;
 	driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
 	messageForDrift: string;
@@ -371,16 +359,6 @@ export class ChatAPI extends API<any> {
 		} catch (err: any) {
 			this.handle400Error(err);
 		}
-	}
-
-	async postFeedback(requestParameters: FeedbackRequestModel): Promise<any> {
-		const response = await this.request<MoiResponseModel>({
-			path: '/chat/feedback',
-			method: 'POST',
-			headers: JSON_HEADERS,
-			body: requestParameters,
-		});
-		return response;
 	}
 
 	async postUploadImage(requestParameters: UploadImageRequestModel & ClientGlobals): Promise<UploadImageResponseModel> {

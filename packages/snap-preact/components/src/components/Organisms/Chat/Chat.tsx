@@ -294,6 +294,60 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				},
 			},
 		},
+		'.ss__chat__session-feedback': {
+			display: 'flex',
+			alignItems: 'center',
+			gap: '10px',
+			padding: '8px 15px',
+			background: colorPrimary,
+			color: '#fff',
+			fontSize: '14px',
+			'.ss__chat__session-feedback__icon': {
+				flex: '0 0 auto',
+				display: 'flex',
+				alignItems: 'center',
+				svg: {
+					fill: '#fff',
+					stroke: '#fff',
+				},
+			},
+			'.ss__chat__session-feedback__label': {
+				flex: '1 1 auto',
+				whiteSpace: 'nowrap',
+			},
+			'.ss__chat__session-feedback__actions': {
+				display: 'flex',
+				gap: '10px',
+				alignItems: 'center',
+				svg: {
+					cursor: 'pointer',
+					fill: '#fff',
+					stroke: '#fff',
+					opacity: 0.7,
+					'&:hover': {
+						opacity: 1,
+					},
+				},
+				'&.ss__chat__session-feedback__actions--rated svg': {
+					opacity: 1,
+					cursor: 'default',
+				},
+			},
+			'.ss__chat__session-feedback__close': {
+				flex: '0 0 auto',
+				display: 'flex',
+				alignItems: 'center',
+				cursor: 'pointer',
+				svg: {
+					fill: '#fff',
+					stroke: '#fff',
+					opacity: 0.7,
+					'&:hover': {
+						opacity: 1,
+					},
+				},
+			},
+		},
 		'.ss__chat__content': {
 			background: '#fff',
 			maxHeight: mobile ? undefined : '90vh',
@@ -758,64 +812,63 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				flexDirection: 'column',
 				gap: '8px',
 			},
-			// TODO: to be added in future
-			// '.ss__chat__topic-drift': {
-			// 	display: 'flex',
-			// 	alignItems: 'center',
-			// 	gap: '12px',
-			// 	padding: '12px 16px',
-			// 	border: '1px solid #93C5FD',
-			// 	borderRadius: '8px',
-			// 	backgroundColor: '#fff',
-			// 	'.ss__chat__topic-drift__icon--info': {
-			// 		flex: '0 0 auto',
-			// 		fill: colorPrimary,
-			// 		stroke: colorPrimary,
-			// 		svg: {
-			// 			fill: colorPrimary,
-			// 			stroke: colorPrimary,
-			// 		},
-			// 	},
-			// 	'.ss__chat__topic-drift__text': {
-			// 		flex: '1 1 0%',
-			// 		display: 'flex',
-			// 		flexDirection: 'column',
-			// 		gap: '2px',
-			// 		'span:first-of-type': {
-			// 			fontWeight: 'bold',
-			// 			color: colorPrimary,
-			// 			fontSize: '14px',
-			// 		},
-			// 		'span:last-of-type': {
-			// 			color: '#6A7282',
-			// 			fontSize: '13px',
-			// 		},
-			// 	},
-			// 	'.ss__chat__topic-drift__button': {
-			// 		flex: '0 0 auto',
-			// 		backgroundColor: colorPrimary,
-			// 		color: '#fff',
-			// 		borderRadius: '6px',
-			// 		padding: '8px 14px',
-			// 		fontSize: '13px',
-			// 		fontWeight: 500,
-			// 		cursor: 'pointer',
-			// 		whiteSpace: 'nowrap',
-			// 		'&:not(.ss__button--disabled):hover': {
-			// 			background: '#1a2a5c',
-			// 		},
-			// 	},
-			// 	'.ss__chat__topic-drift__icon--close': {
-			// 		flex: '0 0 auto',
-			// 		cursor: 'pointer',
-			// 		fill: '#6A7282',
-			// 		stroke: '#6A7282',
-			// 		svg: {
-			// 			fill: '#6A7282',
-			// 			stroke: '#6A7282',
-			// 		},
-			// 	},
-			// },
+			'.ss__chat__topic-drift': {
+				display: 'flex',
+				alignItems: 'center',
+				gap: '12px',
+				padding: '12px 16px',
+				border: '1px solid #93C5FD',
+				borderRadius: '8px',
+				backgroundColor: '#fff',
+				'.ss__chat__topic-drift__icon--info': {
+					flex: '0 0 auto',
+					fill: colorPrimary,
+					stroke: colorPrimary,
+					svg: {
+						fill: colorPrimary,
+						stroke: colorPrimary,
+					},
+				},
+				'.ss__chat__topic-drift__text': {
+					flex: '1 1 0%',
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '2px',
+					'span:first-of-type': {
+						fontWeight: 'bold',
+						color: colorPrimary,
+						fontSize: '14px',
+					},
+					'span:last-of-type': {
+						color: '#6A7282',
+						fontSize: '13px',
+					},
+				},
+				'.ss__chat__topic-drift__button': {
+					flex: '0 0 auto',
+					backgroundColor: colorPrimary,
+					color: '#fff',
+					borderRadius: '6px',
+					padding: '8px 14px',
+					fontSize: '13px',
+					fontWeight: 500,
+					cursor: 'pointer',
+					whiteSpace: 'nowrap',
+					'&:not(.ss__button--disabled):hover': {
+						background: '#1a2a5c',
+					},
+				},
+				'.ss__chat__topic-drift__icon--close': {
+					flex: '0 0 auto',
+					cursor: 'pointer',
+					fill: '#6A7282',
+					stroke: '#6A7282',
+					svg: {
+						fill: '#6A7282',
+						stroke: '#6A7282',
+					},
+				},
+			},
 			'.ss__chat__input': {
 				display: 'flex',
 				justifyContent: 'space-between',
@@ -1163,6 +1216,55 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 									/>
 								</div>
 							</div>
+							{(() => {
+								const feedbackAfterMessages = controller.config.settings?.feedbackAfterMessages;
+								const systemMessages = (store.currentChat?.chat || []).filter(
+									(msg) => msg.messageType !== 'user' && msg.messageType !== 'productQuery'
+								);
+								const currentRating = store.currentChat?.sessionFeedback?.rating;
+								const hasRated = !!currentRating;
+								const shouldShowFeedback =
+									feedbackAfterMessages &&
+									systemMessages.length >= feedbackAfterMessages &&
+									!store.currentChat?.feedbackDismissed &&
+									(!hasRated || store.currentChat?.feedbackJustGiven);
+
+								return shouldShowFeedback ? (
+									<div className="ss__chat__session-feedback">
+										<div className="ss__chat__session-feedback__icon">
+											<Icon icon="chat" size="16px" />
+										</div>
+										<span className="ss__chat__session-feedback__label">
+											{hasRated ? 'Thank you for your feedback' : "How's your experience so far?"}
+										</span>
+										<div className={`ss__chat__session-feedback__actions${hasRated ? ' ss__chat__session-feedback__actions--rated' : ''}`}>
+											{(!hasRated || currentRating === 'UP') && (
+												<span onClick={() => !hasRated && controller.handleFeedback('UP')}>
+													<Icon icon={'thumbs-up'} title={'Thumbs Up'} />
+												</span>
+											)}
+											{(!hasRated || currentRating === 'DOWN') && (
+												<span onClick={() => !hasRated && controller.handleFeedback('DOWN')}>
+													<Icon icon={'thumbs-down'} title={'Thumbs Down'} />
+												</span>
+											)}
+										</div>
+										{!hasRated && (
+											<span
+												className="ss__chat__session-feedback__close"
+												onClick={() => {
+													if (store.currentChat) {
+														store.currentChat.feedbackDismissed = true;
+														store.currentChat.save();
+													}
+												}}
+											>
+												<Icon icon="close-thin" size="14px" />
+											</span>
+										)}
+									</div>
+								) : null;
+							})()}
 							<div className="ss__chat__content">
 								<div className="ss__chat__content__header">
 									{/* <div className="ss__chat__attachments">
@@ -1259,7 +1361,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 													actions: <SuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />,
 													errorResponse: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													topic_drift: null,
+													topicDrift: null,
 													productQuery: null,
 												}[chatItem.messageType] || null}
 											</div>
@@ -1352,14 +1454,20 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											</div>
 										)}
 										{(() => {
+											const activeComparisonSearchResults =
+												activeMessage?.messageType === 'productComparison'
+													? (activeMessage as ChatResponseProductComparisonData).searchResults || []
+													: null;
+
 											const showCommittedComparisons =
+												!activeComparisonSearchResults &&
 												store.currentChat?.comparisons.committed &&
 												store.currentChat.comparisons.committed.length > 0 &&
-												(activeMessage?.messageType === 'productComparison' || activeMessage?.messageType === 'user');
+												activeMessage?.messageType === 'user';
 
 											const visibleAttachments =
 												store.currentChat?.attachments.attached.filter(
-													(item) => item.state === 'attached' || item.state === 'loading' || item.state === 'error'
+													(item) => item.state === 'attached' || item.state === 'active' || item.state === 'loading' || item.state === 'error'
 												) || [];
 
 											const productAttachments = visibleAttachments.filter(
@@ -1367,7 +1475,13 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											);
 											const imageAttachments = visibleAttachments.filter((item) => item.type === 'image');
 
-											const comparisonItems: ChatAttachmentContextItem[] = showCommittedComparisons
+											const comparisonItems: ChatAttachmentContextItem[] = activeComparisonSearchResults
+												? activeComparisonSearchResults.map((result: any) => ({
+														id: result?.id,
+														name: result?.mappings?.core?.name || '',
+														imageUrl: result?.mappings?.core?.thumbnailImageUrl || result?.mappings?.core?.imageUrl || '',
+												  }))
+												: showCommittedComparisons
 												? (store.currentChat?.comparisons.committed || []).map((comparisonItem: any) => ({
 														id: comparisonItem.result?.id,
 														name: comparisonItem?.result?.mappings?.core?.name || '',
@@ -1407,7 +1521,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 															title={'Compare these products'}
 															items={comparisonItems}
 															onClose={() => {
-																store.currentChat?.comparisons.resetCommitted();
+																if (!activeComparisonSearchResults) {
+																	store.currentChat?.comparisons.resetCommitted();
+																}
 																store.currentChat?.dismissSideChat();
 															}}
 														/>
@@ -1427,20 +1543,37 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											);
 										})()}
 
-										{/* {store.currentChat?.topicDrift ? (
-												<div className={'ss__chat__topic-drift'}>
-													<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'}/>
-													<div className={'ss__chat__topic-drift__text'}>
-														<span>It seems you're asking a different question</span>
-														<span>{store.currentChat?.topicDrift.messageForDrift || 'Would you like to start a new session for better assistance?'}</span>
-													</div>
-													<Button 
-														className={'ss__chat__topic-drift__button'}
-														onClick={() => store.currentChat?.handleTopicDrift(store.currentChat?.topicDrift)}
-													>New Session</Button>
-													<Icon icon="close-thin" size="14px" className={'ss__chat__topic-drift__icon--close'}/>
+										{store.currentChat?.topicDrift ? (
+											<div className={'ss__chat__topic-drift'}>
+												<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'} />
+												<div className={'ss__chat__topic-drift__text'}>
+													<span>It seems you're asking a different question</span>
+													<span>
+														{store.currentChat?.topicDrift.messageForDrift || 'Would you like to start a new session for better assistance?'}
+													</span>
 												</div>
-											) : null} */}
+												<Button
+													className={'ss__chat__topic-drift__button'}
+													onClick={() => {
+														const messageText = store.currentChat?.handleTopicDrift();
+														if (messageText) {
+															controller.store.createChat();
+														}
+													}}
+												>
+													New Session
+												</Button>
+												<span
+													onClick={() => {
+														if (store.currentChat) {
+															store.currentChat.dismissTopicDrift();
+														}
+													}}
+												>
+													<Icon icon="close-thin" size="14px" className={'ss__chat__topic-drift__icon--close'} />
+												</span>
+											</div>
+										) : null}
 										<div className={'ss__chat__input'}>
 											<div className={'ss__chat__input__input'}>
 												<input
@@ -1450,7 +1583,8 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													placeholder={(() => {
 														const comparedCount = store.currentChat?.comparisons.compared.length || 0;
 														const committedCount = store.currentChat?.comparisons.committed.length || 0;
-														const attached = store.currentChat?.attachments.attached.filter((item) => item.state === 'attached') || [];
+														const attached =
+															store.currentChat?.attachments.attached.filter((item) => item.state === 'attached' || item.state === 'active') || [];
 														const attachedProducts = attached.filter((item) => item.type === 'product');
 														const attachedImages = attached.filter((item) => item.type === 'image' && !item.error);
 

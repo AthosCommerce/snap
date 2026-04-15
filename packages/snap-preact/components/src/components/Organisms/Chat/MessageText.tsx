@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite';
-import { Icon } from '../../Atoms/Icon';
+import classnames from 'classnames';
 import { ResultsDisplay } from './ResultsDisplay';
 import { marked } from 'marked';
 import { ChatController } from '@athoscommerce/snap-controller';
 import { css, StyleScript } from '../../..';
 import { mergeStyles } from '../../../utilities';
+import { Button } from '../../Atoms/Button';
 
 const defaultStyles: StyleScript<MessageTextProps> = () => {
 	return css({
@@ -21,16 +22,35 @@ const defaultStyles: StyleScript<MessageTextProps> = () => {
 			display: 'flex',
 			flexDirection: 'row',
 			justifyContent: 'flex-start',
+			alignItems: 'center',
+			gap: '8px',
 			'.ss__chat__message-text__text-wrapper__text': {
 				alignSelf: 'flex-end',
 			},
-		},
-		'.ss__chat__message-text__feedback': {
-			display: 'flex',
-			alignItems: 'flex-end',
-			gap: '10px',
-			svg: {
+			'.ss__chat__message-text__view-side-chat': {
+				marginLeft: 'auto',
+				flex: '0 0 auto',
+				width: '2em',
+				height: '2em',
+				padding: 0,
+				borderRadius: '50%',
+				border: '1px solid #253B80',
+				background: '#fff',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
 				cursor: 'pointer',
+				svg: {
+					fill: '#253B80',
+					stroke: '#253B80',
+				},
+				'&.ss__chat__message-text__view-side-chat--active': {
+					background: '#253B80',
+					svg: {
+						fill: '#fff',
+						stroke: '#fff',
+					},
+				},
 			},
 		},
 		'.ss__chat__message-text__note': {
@@ -85,28 +105,43 @@ const defaultStyles: StyleScript<MessageTextProps> = () => {
 export const MessageText = observer((props: MessageTextProps) => {
 	const { controller, chatItem, scrollToBottom } = props;
 
-	const feedbackEntry = controller.store.currentChat?.feedbacks.find((fb) => fb.messageId === chatItem.id);
-
 	const styling = mergeStyles<MessageTextProps>(props, defaultStyles);
 
-	const text = chatItem.overallSummary || chatItem.text || chatItem.errorMessage || '';
+	const text = chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || '';
+	const currentChat = controller.store.currentChat;
+	const sideChatLabels: Record<string, { open: string; close: string }> = {
+		inspirationResult: { open: 'View inspiration', close: 'Close inspiration' },
+		productComparison: { open: 'View comparison', close: 'Close comparison' },
+	};
+	const sideChatLabel = sideChatLabels[chatItem?.messageType as string];
+	const hasSideChatView = !!sideChatLabel && !!chatItem?.id;
+	const isSideChatActive =
+		hasSideChatView && currentChat?.activeMessage?.id === chatItem.id && currentChat?.dismissedSideChatMessageId !== chatItem.id;
 	return (
 		<div className="ss__chat__message-text" {...styling}>
 			{text && (
 				<div className="ss__chat__message-text__text-wrapper">
 					<div className="ss__chat__message-text__text-wrapper__text" dangerouslySetInnerHTML={{ __html: marked.parse(text) as string }}></div>
+					{hasSideChatView ? (
+						<Button
+							className={classnames('ss__chat__message-text__view-side-chat', {
+								'ss__chat__message-text__view-side-chat--active': isSideChatActive,
+							})}
+							icon={{
+								icon: isSideChatActive ? 'close-thin' : 'angle-right',
+								title: isSideChatActive ? sideChatLabel.close : sideChatLabel.open,
+							}}
+							onClick={() => {
+								if (isSideChatActive) {
+									currentChat?.dismissSideChat();
+								} else {
+									currentChat?.setActiveMessage(chatItem.id);
+								}
+							}}
+						/>
+					) : null}
 				</div>
 			)}
-			{chatItem?.collectFeedback ? (
-				<div className="ss__chat__message-text__feedback">
-					<span onClick={() => controller.feedback(chatItem, 'UP')}>
-						<Icon icon={'thumbs-up'} title={'Thumbs Up'} color={feedbackEntry?.rating === 'UP' ? '#000' : '#aaa'} />
-					</span>
-					<span onClick={() => controller.feedback(chatItem, 'DOWN')}>
-						<Icon icon={'thumbs-down'} title={'Thumbs Down'} color={feedbackEntry?.rating === 'DOWN' ? '#000' : '#aaa'} />
-					</span>
-				</div>
-			) : null}
 			{chatItem?.note ? <div className={'ss__chat__message-text__note'}>{chatItem?.note}</div> : null}
 			{chatItem && <ResultsDisplay controller={controller} chatItem={chatItem} scrollToBottom={scrollToBottom} />}
 			{/* <FacetsDisplay controller={controller} chatItem={chatItem} scrollToBottom={scrollToBottom} /> */}

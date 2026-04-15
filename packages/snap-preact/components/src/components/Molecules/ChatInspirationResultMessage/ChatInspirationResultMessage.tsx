@@ -8,7 +8,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { ChatController } from '@athoscommerce/snap-controller';
 // import { Lang } from '../../../hooks';
-import { ChatResponseInspirationResultData } from '@athoscommerce/snap-client';
+import { ChatRequestModel, ChatResponseInspirationResultData } from '@athoscommerce/snap-client';
 import { Image } from '../../Atoms/Image';
 import { Carousel, CarouselProps } from '../../..';
 
@@ -40,6 +40,7 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 						border: '1px solid #E5E7EB',
 						padding: '0.25em 0.5em',
 						borderRadius: '0.5em',
+						cursor: 'pointer',
 					},
 				},
 				'.ss__chat-inspiration-result-message__inspiration-sections__section__products': {},
@@ -117,7 +118,13 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 							</div>
 							<div className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__queries')}>
 								{section.searchQueries.map((searchQuery, index) => (
-									<div key={index} className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__queries__query')}>
+									<div
+										key={index}
+										className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__queries__query')}
+										onClick={() => {
+											controller?.search({ data: { message: searchQuery } } as Partial<ChatRequestModel>);
+										}}
+									>
 										{searchQuery}
 									</div>
 								))}

@@ -3,7 +3,7 @@ import { ChatStoreConfig } from '../types';
 import { MetaStore } from '../Meta/MetaStore';
 import { MetaResponseModel } from '@athoscommerce/snapi-types';
 import { AbstractStore } from '../Abstract/AbstractStore';
-import type { ChatResponseModel, ChatRequestModel, FeedbackRequestModel } from '@athoscommerce/snap-client';
+import type { ChatResponseModel, ChatRequestModel } from '@athoscommerce/snap-client';
 import { StorageStore } from '../Storage/StorageStore';
 import { ChatSessionStore } from './Stores/ChatSessionStore';
 import { ChatAttachmentFacet, ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
@@ -116,10 +116,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			isBlocked = true;
 		}
 		return isBlocked;
-	}
-
-	public feedback(data: { response: any; request: FeedbackRequestModel }): void {
-		this.currentChat?.feedback(data);
 	}
 
 	public handleChatStatusResponse(response: ChatStatusResponse): boolean {

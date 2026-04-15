@@ -32,7 +32,6 @@ import {
 	UploadImageRequestModel,
 	UploadImageResponseModel,
 	ChatRequestModel,
-	FeedbackRequestModel,
 	ChatStatusResponse,
 } from './apis/Chat';
 
@@ -214,10 +213,6 @@ export class Client {
 
 		const [meta, chat] = await Promise.all([this.meta({ siteId: this.globals.siteId || '' }), this.requesters.chat.postMessage(mergedParams)]);
 		return { meta, chat };
-	}
-
-	async chatFeedback(params: FeedbackRequestModel): Promise<void> {
-		return this.requesters.chat.postFeedback(params);
 	}
 
 	async category(params: SearchRequestModel = {}): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {

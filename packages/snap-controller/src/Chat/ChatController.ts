@@ -6,9 +6,6 @@
 	 * Add more icons that are needed
 	 * Beautify?
 
-	Feedback UI
-		* state not updating after feedback given
-
 	Quickview (more info CTA)
 		* add more display
 		* add "add to cart" button
@@ -32,7 +29,7 @@
 import deepmerge from 'deepmerge';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
-import { ErrorType, ChatStore, ChatMessage } from '@athoscommerce/snap-store-mobx';
+import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
 import { ChatRequestModel, MoiRequestModel } from '@athoscommerce/snap-client';
 import type {
 	ChatAttachmentImage,
@@ -49,6 +46,9 @@ const KEY_ENTER = 13;
 
 const defaultConfig: Partial<ChatControllerConfig> = {
 	id: 'chat',
+	settings: {
+		feedbackAfterMessages: 3,
+	},
 };
 
 type chatTrackMethods = {
@@ -287,10 +287,25 @@ export class ChatController extends AbstractController {
 		} else {
 			// if no new comparison is being assembled but a committed comparison
 			// is still on-screen (last message is a productComparison), keep the
-			// conversation scoped to those products
+			// conversation scoped to those products. when the user has navigated
+			// back to a historical productComparison message, use that message's
+			// own products instead of the latest committed snapshot
+			const activeMessage = this.store.currentChat?.activeMessage;
+			const activeMessageType = activeMessage?.messageType;
+			const activeComparisonProductIds =
+				activeMessageType === 'productComparison'
+					? ((activeMessage as any)?.searchResults || [])
+							.map((result: any) => result?.mappings?.core?.uid)
+							.filter((uid: string | undefined): uid is string => !!uid)
+					: [];
 			const committedComparisons = this.store.currentChat?.comparisons.committed || [];
-			const activeMessageType = this.store.currentChat?.activeMessage?.messageType;
-			if (committedComparisons.length > 1 && activeMessageType === 'productComparison') {
+			if (activeComparisonProductIds.length > 1) {
+				chatRequest = {
+					requestType: 'productComparison',
+					message: this.store.inputValue,
+					productIds: activeComparisonProductIds,
+				};
+			} else if (committedComparisons.length > 1 && activeMessageType === 'productComparison') {
 				chatRequest = {
 					requestType: 'productComparison',
 					message: this.store.inputValue,
@@ -336,33 +351,20 @@ export class ChatController extends AbstractController {
 		return request;
 	}
 
-	feedback = async (chatItem: ChatMessage, thumbs: 'UP' | 'DOWN', reason?: string) => {
-		try {
-			const existingFeedback = this.store.currentChat?.feedbacks.find((fb) => fb.messageId === chatItem.id);
-			if (existingFeedback?.rating === thumbs) {
-				return;
-			}
-			const { userId, shopperId } = this.tracker.getContext();
-			const params = {
-				context: {
-					sessionId: this.store.currentChat?.sessionId,
-					visitorId: shopperId || userId,
-				},
-				feedback: {
-					messageId: chatItem.id,
-					thumbs,
-					reason,
-				},
-			};
-			await this.client.chatFeedback(params);
-			if (existingFeedback) {
-				existingFeedback.rating = thumbs;
-			} else {
-				this.store.currentChat?.feedbacks.push({ messageId: chatItem.id, rating: thumbs });
-			}
-		} catch (err) {
-			this.log.error('Feedback Error:', err);
-		}
+	handleFeedback = (thumbs: 'UP' | 'DOWN') => {
+		const currentChat = this.store.currentChat;
+		if (!currentChat) return;
+
+		console.log(`Chat session feedback: ${thumbs}`, { sessionId: currentChat.sessionId });
+		currentChat.sessionFeedback = { rating: thumbs };
+		currentChat.feedbackJustGiven = true;
+		currentChat.save();
+
+		// auto-dismiss the feedback bar after 3 seconds
+		setTimeout(() => {
+			currentChat.feedbackDismissed = true;
+			currentChat.save();
+		}, 3000);
 	};
 
 	upload = async (files: FileList | null) => {

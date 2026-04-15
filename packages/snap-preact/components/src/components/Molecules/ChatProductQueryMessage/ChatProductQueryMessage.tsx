@@ -10,7 +10,7 @@ import type { ChatController } from '@athoscommerce/snap-controller';
 import { useState } from 'preact/hooks';
 import { Image } from '../../Atoms/Image';
 import { Button } from '../../Atoms/Button';
-import { Price } from '../../..';
+import { Icon, Price } from '../../..';
 
 const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 	const colorPrimary = '#253B80';
@@ -25,6 +25,25 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 			padding: '0 15px 15px',
 			display: 'flex',
 			flexDirection: 'column',
+
+			'.ss__chat-product-query-message__header__back': {
+				display: 'flex',
+				alignItems: 'center',
+				gap: '0.35em',
+				color: '#fff',
+				cursor: 'pointer',
+				alignSelf: 'flex-start',
+				padding: '0.5em 0',
+				fontSize: '0.85em',
+				opacity: 0.85,
+				'&:hover': {
+					opacity: 1,
+				},
+				svg: {
+					fill: '#fff',
+					stroke: '#fff',
+				},
+			},
 
 			'.ss__price': {
 				color: '#fff',
@@ -385,6 +404,10 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const core = sourceProduct?.mappings?.core;
 	if (!core) return null;
 
+	const chatMessages = controller?.store.currentChat?.chat || [];
+	const sourceMessage = chatItem.sourceMessageId ? chatMessages.find((m) => m.id === chatItem.sourceMessageId) : null;
+	const cameFromInspiration = sourceMessage?.messageType === 'inspirationResult';
+
 	const infoRows = collectInfoRows(sourceProduct, displayFields);
 	const features = collectFeatures(sourceProduct);
 	const variants = sourceProduct?.variants;
@@ -399,6 +422,15 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		<CacheProvider>
 			<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
 				<div className={classnames('ss__chat-product-query-message__header')}>
+					{cameFromInspiration && (
+						<div
+							className={classnames('ss__chat-product-query-message__header__back')}
+							onClick={() => controller?.store.currentChat?.popProductQueryMessage(chatItem.sourceMessageId)}
+						>
+							<Icon icon="angle-left" size="14px" />
+							<span>Back to inspiration</span>
+						</div>
+					)}
 					<div className={classnames('ss__chat-product-query-message__header__product')}>
 						{displayedCore.imageUrl && (
 							<Image
@@ -539,6 +571,7 @@ export type ChatProductQueryMessageItem = {
 	id: string;
 	messageType: 'productQuery';
 	sourceProduct: any;
+	sourceMessageId?: string;
 };
 
 export type ChatProductQueryMessageTemplatesLegalProps = {
