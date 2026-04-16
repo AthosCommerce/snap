@@ -153,11 +153,14 @@ export class ChatSessionStore {
 	}
 
 	public dismissSideChat(): void {
-		const active = this.activeMessage;
-		if (active) {
-			this.dismissedSideChatMessageId = active.id;
-		}
+		// clear the override first so the fallback (last eligible message) is what we
+		// dismiss — otherwise closing while viewing an older message would leave the
+		// last message undismissed and the side chat would auto-reopen on it
 		this.activeMessageId = null;
+		const fallback = this.activeMessage;
+		if (fallback) {
+			this.dismissedSideChatMessageId = fallback.id;
+		}
 	}
 
 	public setActiveMessage(id: string): void {

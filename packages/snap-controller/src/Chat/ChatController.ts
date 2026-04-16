@@ -468,6 +468,13 @@ export class ChatController extends AbstractController {
 			this.store.currentChat?.dismissSideChat();
 		}
 
+		// starting a new comparison — drop the previous committed set and close any
+		// productComparison side chat so the old comparison doesn't stay active
+		if (activeMessageType === 'productComparison') {
+			this.store.currentChat?.comparisons.resetCommitted();
+			this.store.currentChat?.dismissSideChat();
+		}
+
 		this.store.compareProduct(result);
 	};
 

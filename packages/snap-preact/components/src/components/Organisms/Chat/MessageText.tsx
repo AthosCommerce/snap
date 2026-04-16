@@ -107,7 +107,8 @@ export const MessageText = observer((props: MessageTextProps) => {
 
 	const styling = mergeStyles<MessageTextProps>(props, defaultStyles);
 
-	const text = chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || '';
+	const text =
+		chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || chatItem.messageForDrift || '';
 	const currentChat = controller.store.currentChat;
 	const sideChatLabels: Record<string, { open: string; close: string }> = {
 		inspirationResult: { open: 'View inspiration', close: 'Close inspiration' },

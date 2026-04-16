@@ -21,8 +21,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 
 		'.ss__chat-product-query-message__header': {
 			background: colorPrimary,
-			margin: '-20px -15px 0',
-			padding: '0 15px 15px',
+			padding: '1em',
 			display: 'flex',
 			flexDirection: 'column',
 
@@ -53,7 +52,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 				display: 'flex',
 				gap: '0.75em',
 				alignItems: 'center',
-				background: 'rgba(255, 255, 255, 0.1)',
+				background: '#40528e',
 				borderRadius: '0.75em',
 				padding: '0.75em',
 
@@ -94,36 +93,41 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 						fontSize: '1.1em',
 						color: '#D4A843',
 					},
+				},
 
-					'.ss__chat-product-query-message__header__product__details__actions': {
-						display: 'flex',
-						gap: '0.5em',
-						marginTop: '0.25em',
+				'.ss__chat-product-query-message__header__product__actions': {
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'flex-end',
+					alignSelf: 'stretch',
+					justifyContent: 'center',
+					gap: '0.35em',
+					flexShrink: 0,
 
-						'.ss__button': {
-							borderRadius: '0.5em',
-							padding: '0.4em 0.75em',
-							fontWeight: 'bold',
-							border: 'none',
-							whiteSpace: 'nowrap',
-							cursor: 'pointer',
+					'.ss__chat-product-query-message__header__product__actions__go-to-product': {
+						a: {
+							color: 'rgba(255, 255, 255, 0.85)',
 							fontSize: '0.8em',
-						},
-
-						'.ss__chat-product-query-message__header__product__details__actions__add-to-cart .ss__button': {
-							background: '#D4A843',
-							color: '#1F2937',
-							'&:not(.ss__button--disabled):hover': {
-								background: '#c49a3a',
+							textDecoration: 'underline',
+							cursor: 'pointer',
+							'&:hover': {
+								color: '#FFFFFF',
 							},
 						},
+					},
 
-						'.ss__chat-product-query-message__header__product__details__actions__more-info .ss__button': {
-							background: 'rgba(255, 255, 255, 0.15)',
-							color: '#FFFFFF',
-							'&:not(.ss__button--disabled):hover': {
-								background: 'rgba(255, 255, 255, 0.25)',
-							},
+					'.ss__chat-product-query-message__header__product__actions__add-to-cart .ss__button': {
+						borderRadius: '0.5em',
+						padding: '0.4em 0.75em',
+						fontWeight: 'bold',
+						border: 'none',
+						whiteSpace: 'nowrap',
+						cursor: 'pointer',
+						fontSize: '0.8em',
+						background: '#D4A843',
+						color: '#1F2937',
+						'&:not(.ss__button--disabled):hover': {
+							background: '#c49a3a',
 						},
 					},
 				},
@@ -131,6 +135,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 		},
 
 		'.ss__chat-product-query-message__variants': {
+			padding: '0 2em',
 			'.ss__chat-product-query-message__variants__label': {
 				fontWeight: '600',
 				fontSize: '0.9em',
@@ -189,6 +194,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 		},
 
 		'.ss__chat-product-query-message__section': {
+			padding: '0 1em',
 			'.ss__chat-product-query-message__section__title': {
 				background: '#253B80',
 				color: '#fff',
@@ -204,6 +210,8 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 				tableLayout: 'fixed',
 				borderCollapse: 'collapse',
 				fontSize: '0.9em',
+				border: '0.33em solid #253B80',
+				borderTop: 'none',
 
 				tr: {
 					borderBottom: '1px solid #E5E7EB',
@@ -238,6 +246,15 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 					color: '#DC2626',
 					fontWeight: '600',
 				},
+			},
+
+			'.ss__chat-product-query-message__section__description': {
+				padding: '0.75em',
+				fontSize: '0.9em',
+				color: '#374151',
+				lineHeight: '1.5',
+				border: '0.33em solid #253B80',
+				borderTop: 'none',
 			},
 
 			'.ss__chat-product-query-message__section__features': {
@@ -408,7 +425,9 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const sourceMessage = chatItem.sourceMessageId ? chatMessages.find((m) => m.id === chatItem.sourceMessageId) : null;
 	const cameFromInspiration = sourceMessage?.messageType === 'inspirationResult';
 
-	const infoRows = collectInfoRows(sourceProduct, displayFields);
+	const allInfoRows = collectInfoRows(sourceProduct, displayFields);
+	const descriptionRow = allInfoRows.find((row) => row.rawKey.toLowerCase() === 'description');
+	const infoRows = allInfoRows.filter((row) => row.rawKey.toLowerCase() !== 'description');
 	const features = collectFeatures(sourceProduct);
 	const variants = sourceProduct?.variants;
 	const variantData = variants?.data;
@@ -459,15 +478,17 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 									<Price value={displayedCore.price} />
 								</div>
 							)}
-							<div className={classnames('ss__chat-product-query-message__header__product__details__actions')}>
-								<div className={classnames('ss__chat-product-query-message__header__product__details__actions__add-to-cart')}>
-									<Button content={'Add to Cart'} onClick={() => controller?.addToCart(sourceProduct as any)} />
+						</div>
+						<div className={classnames('ss__chat-product-query-message__header__product__actions')}>
+							{displayedCore.url && (
+								<div className={classnames('ss__chat-product-query-message__header__product__actions__go-to-product')}>
+									<a href={displayedCore.url as string} target="_blank" rel="noopener noreferrer">
+										Go to product
+									</a>
 								</div>
-								{displayedCore.url && (
-									<div className={classnames('ss__chat-product-query-message__header__product__details__actions__more-info')}>
-										<Button content={'More Info'} onClick={() => window.open(displayedCore.url as string, '_blank')} />
-									</div>
-								)}
+							)}
+							<div className={classnames('ss__chat-product-query-message__header__product__actions__add-to-cart')}>
+								<Button content={'Add to Cart'} onClick={() => controller?.addToCart(sourceProduct as any)} />
 							</div>
 						</div>
 					</div>
@@ -541,6 +562,13 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 								))}
 							</tbody>
 						</table>
+					</div>
+				)}
+
+				{descriptionRow && (
+					<div className={classnames('ss__chat-product-query-message__section')}>
+						<div className={classnames('ss__chat-product-query-message__section__title')}>Description</div>
+						<div className={classnames('ss__chat-product-query-message__section__description')}>{descriptionRow.value}</div>
 					</div>
 				)}
 

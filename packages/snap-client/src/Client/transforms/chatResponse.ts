@@ -168,7 +168,7 @@ transformChatResponse.productData = (data: MoiResponseModelProductSearchResult):
 
 		// specific
 		text: data.text,
-		results: data.searchResult.results?.map(mapProductToSearchResultProduct) || [],
+		results: data.searchResult?.results?.map(mapProductToSearchResultProduct) || [],
 		facets: mapFacetToSearchResultFacets(data.searchResult),
 	};
 };

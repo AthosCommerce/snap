@@ -41,9 +41,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 		'.ss__chat__primary': {
 			width: mobile ? '100%' : '40%',
 			maxWidth: 600,
-			height: mobile ? '100%' : 'auto',
-			minHeight: '60vh',
-			maxHeight: mobile ? '100%' : 'calc(100vh - 40px)',
+			height: mobile ? '100%' : '70vh',
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'flex-end',
@@ -56,7 +54,8 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 		'.ss__chat__secondary': {
 			width: mobile ? '100%' : '40%',
 			maxWidth: mobile ? '100%' : 600,
-			maxHeight: mobile ? '80%' : 'calc(100vh - 40px)',
+			height: mobile ? undefined : '70vh',
+			maxHeight: mobile ? '80%' : '70vh',
 			display: 'flex',
 			flexDirection: 'column',
 			overflow: 'hidden',
@@ -299,7 +298,7 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			alignItems: 'center',
 			gap: '10px',
 			padding: '8px 15px',
-			background: colorPrimary,
+			background: '#40528e',
 			color: '#fff',
 			fontSize: '14px',
 			'.ss__chat__session-feedback__icon': {
@@ -484,7 +483,6 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				flex: '1 1 auto',
 				overflowY: 'auto',
 				margin: 0,
-				padding: '20px',
 				maxHeight: '100%',
 				background: '#f9fafc',
 
@@ -1361,7 +1359,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													productRecommendation: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 													actions: <SuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />,
 													errorResponse: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
-													topicDrift: null,
+													topicDrift: <MessageText chatItem={chatItem} controller={controller} scrollToBottom={scrollToBottom} />,
 													productQuery: null,
 												}[chatItem.messageType] || null}
 											</div>
@@ -1455,7 +1453,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 										)}
 										{(() => {
 											const activeComparisonSearchResults =
-												activeMessage?.messageType === 'productComparison'
+												shouldShowSideChat && activeMessage?.messageType === 'productComparison'
 													? (activeMessage as ChatResponseProductComparisonData).searchResults || []
 													: null;
 
@@ -1521,9 +1519,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 															title={'Compare these products'}
 															items={comparisonItems}
 															onClose={() => {
-																if (!activeComparisonSearchResults) {
-																	store.currentChat?.comparisons.resetCommitted();
-																}
+																store.currentChat?.comparisons.resetCommitted();
 																store.currentChat?.dismissSideChat();
 															}}
 														/>
@@ -1543,37 +1539,52 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											);
 										})()}
 
-										{store.currentChat?.topicDrift ? (
-											<div className={'ss__chat__topic-drift'}>
-												<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'} />
-												<div className={'ss__chat__topic-drift__text'}>
-													<span>It seems you're asking a different question</span>
-													<span>
-														{store.currentChat?.topicDrift.messageForDrift || 'Would you like to start a new session for better assistance?'}
+										{(() => {
+											const drift = store.currentChat?.topicDrift;
+											if (!drift) return null;
+											// recommendedAction is the prescription; driftType is the diagnosis.
+											// Hide the banner when the backend says to keep flowing, or when no drift was detected.
+											if (drift.recommendedAction === 'CONTINUE' || drift.driftType === 'NO_DRIFT') return null;
+
+											const isScopeRedirect = drift.recommendedAction === 'SCOPE_REDIRECT';
+											const primaryText = isScopeRedirect ? "I'm here to help with shopping" : 'Looking for something new?';
+											const secondaryText = isScopeRedirect
+												? 'Try asking about products, comparisons, or recommendations'
+												: 'Start a fresh session for better assistance, or keep going in this one?';
+											const buttonText = isScopeRedirect ? 'Ignore' : 'New Session';
+
+											return (
+												<div className={'ss__chat__topic-drift'}>
+													<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'} />
+													<div className={'ss__chat__topic-drift__text'}>
+														<span>{primaryText}</span>
+														<span>{secondaryText}</span>
+													</div>
+													<Button
+														className={'ss__chat__topic-drift__button'}
+														onClick={() => {
+															if (isScopeRedirect) {
+																store.currentChat?.dismissTopicDrift();
+																return;
+															}
+															const messageText = store.currentChat?.handleTopicDrift();
+															if (messageText) {
+																controller.store.createChat();
+															}
+														}}
+													>
+														{buttonText}
+													</Button>
+													<span
+														onClick={() => {
+															store.currentChat?.dismissTopicDrift();
+														}}
+													>
+														<Icon icon="close-thin" size="14px" className={'ss__chat__topic-drift__icon--close'} />
 													</span>
 												</div>
-												<Button
-													className={'ss__chat__topic-drift__button'}
-													onClick={() => {
-														const messageText = store.currentChat?.handleTopicDrift();
-														if (messageText) {
-															controller.store.createChat();
-														}
-													}}
-												>
-													New Session
-												</Button>
-												<span
-													onClick={() => {
-														if (store.currentChat) {
-															store.currentChat.dismissTopicDrift();
-														}
-													}}
-												>
-													<Icon icon="close-thin" size="14px" className={'ss__chat__topic-drift__icon--close'} />
-												</span>
-											</div>
-										) : null}
+											);
+										})()}
 										<div className={'ss__chat__input'}>
 											<div className={'ss__chat__input__input'}>
 												<input
@@ -1606,7 +1617,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														}
 														return 'Type your message...';
 													})()}
-													onKeyUp={(e) => controller.handlers.input.input(e as any)}
+													onInput={(e) => controller.handlers.input.input(e as any)}
 													onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
 													value={controller.store.inputValue}
 												/>

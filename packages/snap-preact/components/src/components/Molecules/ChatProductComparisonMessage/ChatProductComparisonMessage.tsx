@@ -12,6 +12,7 @@ import { ChatResponseProductComparisonData } from '@athoscommerce/snap-client';
 
 const defaultStyles: StyleScript<ChatProductComparisonMessageProps> = () => {
 	return css({
+		padding: '1em',
 		'.ss__chat-product-comparison-message__table-wrapper': {
 			overflowX: 'auto',
 		},
