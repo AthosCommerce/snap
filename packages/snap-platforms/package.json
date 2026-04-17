@@ -1,6 +1,6 @@
 {
 	"name": "@athoscommerce/snap-platforms",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Snap Platforms Library",
 	"author": "Athos Commerce",
 	"license": "MIT",
@@ -21,11 +21,11 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-toolbox": "1.2.0"
+		"@athoscommerce/snap-toolbox": "1.2.1"
 	},
 	"devDependencies": {
-		"@athoscommerce/snap-controller": "1.2.0",
-		"@athoscommerce/snap-store-mobx": "1.2.0"
+		"@athoscommerce/snap-controller": "1.2.1",
+		"@athoscommerce/snap-store-mobx": "1.2.1"
 	},
 	"sideEffects": false,
 	"files": [

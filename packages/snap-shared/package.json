@@ -1,7 +1,7 @@
 {
 	"name": "@athoscommerce/snap-shared",
 	"private": true,
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "library of shared code utilized by snap packages",
 	"author": "Athos Commerce",
 	"license": "MIT",
@@ -15,7 +15,7 @@
 		"test:watch": "jest --watch"
 	},
 	"devDependencies": {
-		"@athoscommerce/snap-client": "1.2.0"
+		"@athoscommerce/snap-client": "1.2.1"
 	},
 	"sideEffects": false,
 	"files": [
