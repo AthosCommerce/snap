@@ -673,11 +673,12 @@ export class AutocompleteController extends AbstractController {
 		document: {
 			click: (e: MouseEvent): void => {
 				const inputs = document.querySelectorAll(this.config.selector);
-				// if the click is on an input or a form with inputs, stop propagation
-				if (
-					Array.from(inputs).includes(e.target as Element) ||
-					((e.target as Element)?.nodeName == 'FORM' && (e.target as Element).querySelectorAll(this.config.selector).length)
-				) {
+				const isClickOnInput = Array.from(inputs).some((input) => {
+					if (input === e.target || input.contains(e.target as Node)) return true;
+					const rect = input.getBoundingClientRect();
+					return e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+				});
+				if (isClickOnInput) {
 					e.stopPropagation();
 				} else {
 					this.setFocused();
