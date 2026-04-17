@@ -1,6 +1,6 @@
 {
 	"name": "@athoscommerce/snap-store-mobx",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Snap MobX Store",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
@@ -23,12 +23,12 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-toolbox": "1.2.0",
+		"@athoscommerce/snap-toolbox": "1.2.1",
 		"mobx": "6.15.0"
 	},
 	"devDependencies": {
-		"@athoscommerce/snap-client": "1.2.0",
-		"@athoscommerce/snap-url-manager": "1.2.0"
+		"@athoscommerce/snap-client": "1.2.1",
+		"@athoscommerce/snap-url-manager": "1.2.1"
 	},
 	"sideEffects": false,
 	"files": [
