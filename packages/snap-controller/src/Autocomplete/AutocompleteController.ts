@@ -789,28 +789,32 @@ export class AutocompleteController extends AbstractController {
 
 	searchTrending = async (options?: { limit?: number }): Promise<void> => {
 		let trending;
-		const storedTerms = this.storage.get('terms');
-		if (storedTerms && !options?.limit) {
-			// terms exist in storage, update store
-			trending = JSON.parse(storedTerms);
-		} else {
-			// query for trending terms, save to storage, update store
-			const trendingParams = {
-				limit: options?.limit || this.config.settings?.trending?.limit || 5,
-			};
+		try {
+			const storedTerms = this.storage.get('terms');
+			if (storedTerms && !options?.limit) {
+				// terms exist in storage, update store
+				trending = JSON.parse(storedTerms);
+			} else {
+				// query for trending terms, save to storage, update store
+				const trendingParams = {
+					limit: options?.limit || this.config.settings?.trending?.limit || 5,
+				};
 
-			const trendingProfile = this.profiler.create({ type: 'event', name: 'trending', context: trendingParams }).start();
+				const trendingProfile = this.profiler.create({ type: 'event', name: 'trending', context: trendingParams }).start();
 
-			trending = await this.client.trending(trendingParams);
+				trending = await this.client.trending(trendingParams);
 
-			trendingProfile.stop();
-			this.log.profile(trendingProfile);
-			if (trending?.trending.queries?.length) {
-				this.storage.set('terms', JSON.stringify(trending));
+				trendingProfile.stop();
+				this.log.profile(trendingProfile);
+				if (trending?.trending.queries?.length) {
+					this.storage.set('terms', JSON.stringify(trending));
+				}
 			}
-		}
 
-		this.store.updateTrendingTerms(trending);
+			this.store.updateTrendingTerms(trending);
+		} catch (err) {
+			this.log.error('Error fetching trending terms', err);
+		}
 	};
 
 	openChat = (): void => {

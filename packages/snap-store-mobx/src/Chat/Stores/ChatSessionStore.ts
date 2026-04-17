@@ -327,12 +327,17 @@ export class ChatSessionStore {
 					attachedProduct.activate();
 				}
 			} else if (request.data.requestType === 'productComparison') {
-				const productIds = request.data.productIds;
-				productIds.forEach((productId) => {
-					const attachedProduct = this.attachments.attached.find((item) => item.type == 'product' && item.productId == productId);
-					if (attachedProduct) {
-						attachments.push(attachedProduct.id);
-						attachedProduct.activate();
+				this.comparisons.compared.forEach((item) => {
+					const attachment = this.attachments.add<ChatAttachmentProduct>({
+						type: 'product',
+						requestType: 'productComparison',
+						productId: item.result.id,
+						name: item.result.mappings?.core?.name,
+						thumbnailUrl: item.result.mappings?.core?.thumbnailImageUrl || item.result.mappings?.core?.imageUrl,
+					});
+					if (attachment) {
+						attachments.push(attachment.id);
+						attachment.activate();
 					}
 				});
 			}
@@ -355,6 +360,31 @@ export class ChatSessionStore {
 					text: `Show similar products to "${
 						(attachedSimilarProduct as ChatAttachmentProduct).name || (attachedSimilarProduct as ChatAttachmentProduct).productId
 					}"`,
+				});
+			}
+		} else if (request.data?.requestType === 'productComparison') {
+			const productNames: string[] = [];
+			this.comparisons.compared.forEach((item) => {
+				const attachment = this.attachments.add<ChatAttachmentProduct>({
+					type: 'product',
+					requestType: 'productComparison',
+					productId: item.result.id,
+					name: item.result.mappings?.core?.name,
+					thumbnailUrl: item.result.mappings?.core?.thumbnailImageUrl || item.result.mappings?.core?.imageUrl,
+				});
+				if (attachment) {
+					attachments.push(attachment.id);
+					attachment.activate();
+					productNames.push(attachment.name || attachment.productId);
+				}
+			});
+
+			if (attachments.length > 0) {
+				this.chat.push({
+					id: uuidv4(),
+					messageType: 'user',
+					attachments: attachments,
+					text: `Compare ${productNames.map((name) => `"${name}"`).join(' and ')}`,
 				});
 			}
 		}

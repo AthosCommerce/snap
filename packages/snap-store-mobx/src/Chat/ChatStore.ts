@@ -178,7 +178,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	}
 
 	public sendProductQuery(result: any, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void {
-		this.currentChat && (this.currentChat.actions = []);
 		this.currentChat?.attachments.add<ChatAttachmentProduct>({
 			type: 'product',
 			requestType: options.requestType,

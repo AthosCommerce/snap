@@ -4,9 +4,11 @@ import { observer } from 'mobx-react-lite';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { css, Theme, useTheme, useTreePath } from '../../../providers';
+import { css, Theme, useTheme, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { CalloutBadge, OverlayBadge, Price } from '../../..';
+import { useComponent } from '../../../hooks';
+import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ChatResultProps> = () => {
 	return css({
@@ -111,6 +113,7 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 export const ChatResult = observer((properties: ChatResultProps): JSX.Element => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
+	const snap = useSnap();
 
 	const defaultProps: Partial<ChatResultProps> = {
 		treePath: globalTreePath,
@@ -118,7 +121,14 @@ export const ChatResult = observer((properties: ChatResultProps): JSX.Element =>
 
 	const props = mergeProps('chatResult', globalTheme, defaultProps, properties);
 
-	const { controller, result, scrollToBottom } = props;
+	const { controller, result, scrollToBottom, customComponent } = props;
+
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
+	}
 
 	const isInComparison = controller.store.currentChat?.comparisons.items.some((item) => item.result?.id === result.id);
 
@@ -203,7 +213,7 @@ interface ChatResultSubProps {
 	button: Partial<ButtonProps>;
 	image: Partial<ImageProps>;
 }
-interface ChatResultProps extends ComponentProps {
+export interface ChatResultProps extends ComponentProps {
 	result: Product;
 	controller: ChatController;
 	scrollToBottom: () => void;

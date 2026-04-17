@@ -292,8 +292,10 @@ export class ChatController extends AbstractController {
 			// own products instead of the latest committed snapshot
 			const activeMessage = this.store.currentChat?.activeMessage;
 			const activeMessageType = activeMessage?.messageType;
+			// Don't reuse a dismissed productComparison — the user intentionally closed it
+			const isDismissedComparison = activeMessage && this.store.currentChat?.dismissedSideChatMessageId === activeMessage.id;
 			const activeComparisonProductIds =
-				activeMessageType === 'productComparison'
+				activeMessageType === 'productComparison' && !isDismissedComparison
 					? ((activeMessage as any)?.searchResults || [])
 							.map((result: any) => result?.mappings?.core?.uid)
 							.filter((uid: string | undefined): uid is string => !!uid)
@@ -305,7 +307,7 @@ export class ChatController extends AbstractController {
 					message: this.store.inputValue,
 					productIds: activeComparisonProductIds,
 				};
-			} else if (committedComparisons.length > 1 && activeMessageType === 'productComparison') {
+			} else if (committedComparisons.length > 1 && activeMessageType === 'productComparison' && !isDismissedComparison) {
 				chatRequest = {
 					requestType: 'productComparison',
 					message: this.store.inputValue,

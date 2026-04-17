@@ -92,7 +92,6 @@ export type ChatStoreConfig = StoreConfig & {
 export type ChatStoreConfigSettings = {
 	displayFields?: string[];
 	addToCart?: (products: any) => void;
-	resultComponent?: any;
 	feedbackAfterMessages?: number;
 	[key: string]: unknown;
 };

@@ -13,6 +13,7 @@ export type ChatAttachmentContextItem = {
 	isLoading?: boolean;
 	hasError?: boolean;
 	errorMessage?: string;
+	onClick?: () => void;
 	onRemove?: () => void;
 };
 
@@ -41,7 +42,12 @@ export const ChatAttachmentContext = observer((props: ChatAttachmentContextProps
 			</div>
 			<div className={'ss__chat__attachment-context__items'}>
 				{items.map((item) => (
-					<div key={item.id} className={classnames('ss__chat__attachment-context__item', { error: item.hasError })}>
+					<div
+						key={item.id}
+						className={classnames('ss__chat__attachment-context__item', { error: item.hasError, clickable: !!item.onClick })}
+						onClick={item.onClick}
+						style={item.onClick ? { cursor: 'pointer' } : undefined}
+					>
 						{item.hasError ? (
 							<>
 								<div className={'ss__chat__attachment-context__item__error-icon'}>⚠</div>

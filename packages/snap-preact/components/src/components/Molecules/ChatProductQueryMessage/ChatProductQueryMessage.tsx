@@ -208,10 +208,14 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 				width: '100%',
 				maxWidth: '100%',
 				tableLayout: 'fixed',
-				borderCollapse: 'collapse',
+				borderCollapse: 'separate',
+				borderSpacing: 0,
 				fontSize: '0.9em',
-				border: '0.33em solid #253B80',
+				border: '3px solid #253B80',
 				borderTop: 'none',
+				borderBottomLeftRadius: '0.5em',
+				borderBottomRightRadius: '0.5em',
+				overflow: 'hidden',
 
 				tr: {
 					borderBottom: '1px solid #E5E7EB',
@@ -253,8 +257,10 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = () => {
 				fontSize: '0.9em',
 				color: '#374151',
 				lineHeight: '1.5',
-				border: '0.33em solid #253B80',
+				border: '3px solid #253B80',
 				borderTop: 'none',
+				borderBottomLeftRadius: '0.5em',
+				borderBottomRightRadius: '0.5em',
 			},
 
 			'.ss__chat-product-query-message__section__features': {

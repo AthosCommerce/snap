@@ -13,7 +13,7 @@ import { cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { useA11y } from '../../../hooks/useA11y';
 import type { SnapTemplates } from '../../../../../src';
 
-const defaultStyles: StyleScript<DropdownProps> = ({ disableOverlay }) => {
+const defaultStyles: StyleScript<DropdownProps> = ({ disableOverlay, dropUp }) => {
 	return css({
 		position: 'relative',
 		'&.ss__dropdown--open, &.ss__dropdown__portal--open': {
@@ -32,7 +32,8 @@ const defaultStyles: StyleScript<DropdownProps> = ({ disableOverlay }) => {
 			minWidth: '100%',
 			visibility: 'hidden',
 			opacity: 0,
-			top: 'auto',
+			top: dropUp ? undefined : 'auto',
+			bottom: dropUp ? '100%' : undefined,
 			left: 0,
 		},
 	});
@@ -71,6 +72,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 		internalClassName,
 		treePath,
 		usePortal,
+		dropUp,
 		customComponent,
 	} = props;
 
@@ -118,7 +120,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 				if (buttonRef.current) {
 					const rect = buttonRef.current.getBoundingClientRect();
 					setCoords({
-						top: rect.bottom + window.scrollY,
+						top: dropUp ? rect.top + window.scrollY : rect.bottom + window.scrollY,
 						left: rect.left + window.scrollX,
 						width: rect.width,
 					});
@@ -248,6 +250,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 									left: coords.left,
 									width: coords.width,
 									zIndex: 9999,
+									...(dropUp ? { transform: 'translateY(-100%)' } : {}),
 								}}
 							>
 								{contentElement}
@@ -278,4 +281,5 @@ export type DropdownTemplatesLegalProps = {
 	focusTrapContent?: boolean;
 	disableA11y?: boolean;
 	usePortal?: boolean;
+	dropUp?: boolean;
 };

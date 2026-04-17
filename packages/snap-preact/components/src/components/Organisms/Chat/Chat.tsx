@@ -9,7 +9,7 @@ import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { Button } from '../../Atoms/Button';
-import { useRef, useEffect, useMemo } from 'preact/hooks';
+import { useRef, useEffect, useMemo, useState } from 'preact/hooks';
 
 import { MessageUser } from './MessageUser';
 import { MessageText } from './MessageText';
@@ -38,6 +38,11 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 		zIndex: 1002,
 		color: '#333',
 
+		'@keyframes ss-chat-slide-up': {
+			from: { transform: 'translateY(100%)' },
+			to: { transform: 'translateY(0)' },
+		},
+
 		'.ss__chat__primary': {
 			width: mobile ? '100%' : '40%',
 			maxWidth: 600,
@@ -50,12 +55,15 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 			'.ss__chat__header__title': {
 				gap: '22px',
 			},
+			'.ss__chat__messages': {
+				padding: '1em',
+			},
 		},
 		'.ss__chat__secondary': {
 			width: mobile ? '100%' : '40%',
 			maxWidth: mobile ? '100%' : 600,
-			height: mobile ? undefined : '70vh',
-			maxHeight: mobile ? '80%' : '70vh',
+			height: mobile ? 'calc(100% - 70px)' : '70vh',
+			maxHeight: mobile ? 'calc(100% - 70px)' : '70vh',
 			display: 'flex',
 			flexDirection: 'column',
 			overflow: 'hidden',
@@ -71,6 +79,32 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 						borderTopRightRadius: '12px',
 						overflow: 'hidden',
 						boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+						background: '#fff',
+						willChange: 'transform',
+						animation: 'ss-chat-slide-up 0.3s ease-out',
+				  }
+				: {}),
+			'.ss__chat__secondary__drag-handle': {
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				padding: '10px 0 2px',
+				background: colorPrimary,
+				touchAction: 'none',
+				cursor: 'grab',
+				'.ss__chat__secondary__drag-handle__indicator': {
+					width: '36px',
+					height: '4px',
+					borderRadius: '2px',
+					background: 'rgba(255, 255, 255, 0.4)',
+				},
+			},
+			...(mobile
+				? {
+						'.ss__chat__header': {
+							touchAction: 'none',
+							cursor: 'grab',
+						},
 				  }
 				: {}),
 			'.ss__chat__header__title': {
@@ -562,33 +596,12 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 					},
 				},
 				'.ss__chat__actions--facets': {
-					flexWrap: 'wrap',
+					overflowX: 'auto',
 				},
 				'.ss__chat__actions--suggested': {
 					overflowX: 'scroll',
 				},
-				'.ss__chat__actions__facet': {
-					'.ss__dropdown__content': {
-						width: '150px',
-						bottom: '33px',
-						top: 'auto',
-						zIndex: 100,
-						background: 'white',
-						boxShadow: '0px 3px 6px 0px rgba(0, 0, 0, 0.2)',
-						borderRadius: '6px',
-						overflow: 'hidden',
-						'.ss__button': {
-							width: '100%',
-							border: 'none',
-							borderRadius: 0,
-							boxSizing: 'border-box',
-							background: '#fff',
-							'&:hover': {
-								background: '#f4f4ff',
-							},
-						},
-					},
-				},
+				'.ss__chat__actions__facet': {},
 				'.ss__chat__actions__facets-dropdown': {
 					'.ss__dropdown__content': {
 						bottom: '0',
@@ -809,6 +822,13 @@ const defaultStyles: StyleScript<{ mobile: boolean }> = ({ mobile }) => {
 				display: 'flex',
 				flexDirection: 'column',
 				gap: '8px',
+				...(mobile
+					? {
+							position: 'relative' as const,
+							zIndex: 11,
+							background: '#fff',
+					  }
+					: {}),
 			},
 			'.ss__chat__topic-drift': {
 				display: 'flex',
@@ -964,6 +984,21 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+	// Swipe-to-dismiss state for mobile secondary panel
+	const secondaryRef = useRef<HTMLDivElement>(null);
+	const swipeStartY = useRef(0);
+	const swipeStartTime = useRef(0);
+	const swipeActive = useRef(false);
+	const swipeOffsetRef = useRef(0);
+	const [swipeOffset, setSwipeOffsetRaw] = useState(0);
+	const [swipeAnimating, setSwipeAnimating] = useState(false);
+	const [mobileProductInfoOpen, setMobileProductInfoOpen] = useState(false);
+
+	const updateSwipeOffset = (value: number) => {
+		swipeOffsetRef.current = value;
+		setSwipeOffsetRaw(value);
+	};
+
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	};
@@ -1044,10 +1079,79 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 	}
 
 	const activeMessage = store.currentChat?.activeMessage;
+	const sideChatTypes = isMobile
+		? ['inspirationResult', 'productComparison', ...(mobileProductInfoOpen ? ['productQuery'] : [])]
+		: ['inspirationResult', 'productComparison', 'productQuery'];
 	const shouldShowSideChat =
-		activeMessage &&
-		['inspirationResult', 'productComparison', 'productQuery'].includes(activeMessage?.messageType) &&
-		store.currentChat?.dismissedSideChatMessageId !== activeMessage.id;
+		activeMessage && sideChatTypes.includes(activeMessage?.messageType) && store.currentChat?.dismissedSideChatMessageId !== activeMessage.id;
+
+	// Reset swipe state when secondary panel opens/closes or active message changes
+	useEffect(() => {
+		updateSwipeOffset(0);
+		setSwipeAnimating(false);
+		swipeActive.current = false;
+	}, [shouldShowSideChat, activeMessage?.id]);
+
+	const onSwipeStart = (e: any) => {
+		swipeStartY.current = e.touches[0].clientY;
+		swipeStartTime.current = Date.now();
+		swipeActive.current = false; // only activate after dead-zone threshold
+		setSwipeAnimating(false);
+	};
+
+	const onSwipeMove = (e: any) => {
+		const diff = e.touches[0].clientY - swipeStartY.current;
+		// Require a minimum drag distance before activating the swipe,
+		// so taps on buttons (e.g. close) still fire their click events.
+		if (!swipeActive.current) {
+			if (Math.abs(diff) < 8) return; // still within dead-zone
+			swipeActive.current = true;
+		}
+		if (diff > 0) {
+			e.preventDefault();
+			updateSwipeOffset(diff);
+		} else {
+			updateSwipeOffset(0);
+		}
+	};
+
+	const onSwipeEnd = () => {
+		if (!swipeActive.current) return;
+		swipeActive.current = false;
+
+		const offset = swipeOffsetRef.current;
+		const height = secondaryRef.current?.offsetHeight || 400;
+		const elapsed = Date.now() - swipeStartTime.current;
+		const velocity = offset / (elapsed || 1); // px per ms
+
+		// Dismiss if dragged past 25% threshold OR a quick flick (>0.5 px/ms with >50px travel)
+		const shouldDismiss = offset > height * 0.25 || (velocity > 0.5 && offset > 50);
+
+		if (shouldDismiss) {
+			// Animate out then dismiss
+			setSwipeAnimating(true);
+			updateSwipeOffset(height);
+			setTimeout(() => {
+				const attachments = store.currentChat?.attachments.attached || [];
+				const productAttachments = attachments.filter((item: any) => item.type === 'product' && item.requestType !== 'productSimilar');
+				productAttachments.forEach((item) => store.currentChat?.attachments.remove(item.id));
+				const currentActive = store.currentChat?.activeMessage;
+				if (currentActive?.messageType === 'productComparison') {
+					store.currentChat?.comparisons.resetCommitted();
+				}
+				setMobileProductInfoOpen(false);
+				store.currentChat?.dismissSideChat();
+				updateSwipeOffset(0);
+				setSwipeAnimating(false);
+			}, 300);
+		} else {
+			// Snap back
+			setSwipeAnimating(true);
+			updateSwipeOffset(0);
+			setTimeout(() => setSwipeAnimating(false), 300);
+		}
+	};
+
 	const requestType = store.currentChat?.requestType;
 	const loadingVerbs = useMemo(() => {
 		switch (requestType) {
@@ -1103,8 +1207,29 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 						<Icon icon="chat" title="Open Chat" />
 					</div>
 					{store.open && shouldShowSideChat && activeMessage ? (
-						<div className={classnames('ss__chat__secondary')}>
-							<div className={'ss__chat__header'}>
+						<div
+							ref={secondaryRef}
+							className={classnames('ss__chat__secondary')}
+							style={
+								isMobile
+									? {
+											transform: swipeOffset > 0 ? `translateY(${swipeOffset}px)` : undefined,
+											transition: swipeAnimating ? 'transform 0.3s ease-out' : 'none',
+									  }
+									: undefined
+							}
+						>
+							{isMobile && (
+								<div className="ss__chat__secondary__drag-handle" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd}>
+									<div className="ss__chat__secondary__drag-handle__indicator" />
+								</div>
+							)}
+							<div
+								className={'ss__chat__header'}
+								onTouchStart={isMobile ? onSwipeStart : undefined}
+								onTouchMove={isMobile ? onSwipeMove : undefined}
+								onTouchEnd={isMobile ? onSwipeEnd : undefined}
+							>
 								<div className="ss__chat__header__title">
 									<div className="ss__chat__header__title__primary">
 										{(
@@ -1144,6 +1269,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											if (activeMessage?.messageType === 'productComparison') {
 												store.currentChat?.comparisons.resetCommitted();
 											}
+											setMobileProductInfoOpen(false);
 											store.currentChat?.dismissSideChat();
 										}}
 									/>
@@ -1383,7 +1509,32 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 																			if (!facet.values?.length) return null;
 																			return (
 																				<div className={`ss__chat__actions__facet ss__chat__actions__facet--${facet.type}`} key={idx}>
-																					<Dropdown key={facet.field} button={<FacetButton label={facet.label || facet.field} />}>
+																					<Dropdown
+																						key={facet.field}
+																						usePortal
+																						dropUp
+																						button={<FacetButton label={facet.label || facet.field} />}
+																						style={{
+																							'.ss__dropdown__content': {
+																								width: '150px',
+																								maxHeight: '200px',
+																								overflowY: 'auto',
+																								background: 'white',
+																								boxShadow: '0px 3px 6px 0px rgba(0, 0, 0, 0.2)',
+																								borderRadius: '6px',
+																								'.ss__button': {
+																									width: '100%',
+																									border: 'none',
+																									borderRadius: 0,
+																									boxSizing: 'border-box',
+																									background: '#fff',
+																									'&:hover': {
+																										background: '#f4f4ff',
+																									},
+																								},
+																							},
+																						}}
+																					>
 																						<div className="ss__chat__actions__facet__options">
 																							{facet.type === 'range-buckets'
 																								? facet.values.map((option: any) => {
@@ -1469,7 +1620,10 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												) || [];
 
 											const productAttachments = visibleAttachments.filter(
-												(item) => item.type === 'product' && (item as any).requestType !== 'productSimilar'
+												(item) =>
+													item.type === 'product' &&
+													(item as any).requestType !== 'productSimilar' &&
+													(item as any).requestType !== 'productComparison'
 											);
 											const imageAttachments = visibleAttachments.filter((item) => item.type === 'image');
 
@@ -1478,6 +1632,12 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														id: result?.id,
 														name: result?.mappings?.core?.name || '',
 														imageUrl: result?.mappings?.core?.thumbnailImageUrl || result?.mappings?.core?.imageUrl || '',
+														onClick: isMobile
+															? () => {
+																	controller.viewProduct(result);
+																	setMobileProductInfoOpen(true);
+															  }
+															: undefined,
 												  }))
 												: showCommittedComparisons
 												? (store.currentChat?.comparisons.committed || []).map((comparisonItem: any) => ({
@@ -1485,6 +1645,12 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														name: comparisonItem?.result?.mappings?.core?.name || '',
 														imageUrl:
 															comparisonItem?.result?.mappings?.core?.thumbnailImageUrl || comparisonItem?.result?.mappings?.core?.imageUrl || '',
+														onClick: isMobile
+															? () => {
+																	controller.viewProduct(comparisonItem.result);
+																	setMobileProductInfoOpen(true);
+															  }
+															: undefined,
 												  }))
 												: [];
 
@@ -1492,8 +1658,14 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												id: item.id,
 												name: item.name || '',
 												imageUrl: item.thumbnailUrl || '',
+												onClick: isMobile
+													? () => {
+															setMobileProductInfoOpen(true);
+													  }
+													: undefined,
 												onRemove: () => {
 													store.currentChat?.attachments.remove(item.id);
+													setMobileProductInfoOpen(false);
 													store.currentChat?.dismissSideChat();
 												},
 											}));
@@ -1508,7 +1680,8 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 												onRemove: () => store.currentChat?.attachments.remove(item.id),
 											}));
 
-											const productTitle = productItems.length > 1 ? 'Compare these products' : 'Ask about this product';
+											const productTitle =
+												productItems.length > 1 ? 'Compare these products' : 'Ask about this product' + (isMobile ? '' : ' (click for details)');
 											const hasImageError = imageItems.some((item) => item.hasError);
 											const imageTitle = imageItems.length > 0 && !hasImageError ? 'Find products similar to this image:' : '';
 
@@ -1530,6 +1703,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 															items={productItems}
 															onClose={() => {
 																productAttachments.forEach((item: any) => store.currentChat?.attachments.remove(item.id));
+																setMobileProductInfoOpen(false);
 																store.currentChat?.dismissSideChat();
 															}}
 														/>
@@ -1551,7 +1725,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 											const secondaryText = isScopeRedirect
 												? 'Try asking about products, comparisons, or recommendations'
 												: 'Start a fresh session for better assistance, or keep going in this one?';
-											const buttonText = isScopeRedirect ? 'Ignore' : 'New Session';
+											const buttonText = isScopeRedirect ? '' : 'New Session';
 
 											return (
 												<div className={'ss__chat__topic-drift'}>
@@ -1560,21 +1734,23 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														<span>{primaryText}</span>
 														<span>{secondaryText}</span>
 													</div>
-													<Button
-														className={'ss__chat__topic-drift__button'}
-														onClick={() => {
-															if (isScopeRedirect) {
-																store.currentChat?.dismissTopicDrift();
-																return;
-															}
-															const messageText = store.currentChat?.handleTopicDrift();
-															if (messageText) {
-																controller.store.createChat();
-															}
-														}}
-													>
-														{buttonText}
-													</Button>
+													{buttonText && (
+														<Button
+															className={'ss__chat__topic-drift__button'}
+															onClick={() => {
+																if (isScopeRedirect) {
+																	store.currentChat?.dismissTopicDrift();
+																	return;
+																}
+																const messageText = store.currentChat?.handleTopicDrift();
+																if (messageText) {
+																	controller.store.createChat();
+																}
+															}}
+														>
+															{buttonText}
+														</Button>
+													)}
 													<span
 														onClick={() => {
 															store.currentChat?.dismissTopicDrift();
@@ -1618,7 +1794,12 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 														return 'Type your message...';
 													})()}
 													onInput={(e) => controller.handlers.input.input(e as any)}
-													onKeyDown={(e) => controller.handlers.input.enterKey(e as any)}
+													onKeyDown={(e) => {
+														controller.handlers.input.enterKey(e as any);
+														if ((e as any).keyCode === 13 && isMobile && mobileProductInfoOpen) {
+															setMobileProductInfoOpen(false);
+														}
+													}}
 													value={controller.store.inputValue}
 												/>
 												{store.features.imageSearch.enabled && (
@@ -1649,7 +1830,12 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 													className="ss__chat__send-button"
 													icon={{ icon: 'send', title: 'Send Message' }}
 													disabled={store.blocked}
-													onClick={() => controller.search()}
+													onClick={() => {
+														controller.search();
+														if (isMobile && mobileProductInfoOpen) {
+															setMobileProductInfoOpen(false);
+														}
+													}}
 												/>
 											</div>
 										</div>

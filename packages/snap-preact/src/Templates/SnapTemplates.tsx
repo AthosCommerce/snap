@@ -89,7 +89,6 @@ export type RecommendationBundleTargetConfig = {
 export type ChatTargetConfig = {
 	selector: string;
 	component: keyof LibraryImports['component']['chat'];
-	// resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
 };
 
 export type SnapTemplatesConfig = SnapTemplatesConfigUnlocked | SnapTemplatesConfigLocked;
@@ -287,10 +286,6 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] => {
 	const targets = templateConfig.chat?.targets || [];
 	return targets.map((target) => {
-		// use theme provided resultComponent if specified
-		// if (!target.resultComponent && templateConfig.theme.resultComponent) {
-		// 	target.resultComponent = templateConfig.theme.resultComponent;
-		// }
 		const targetId = templatesStore.addTarget('chat', target);
 		const targeter: ExtendedTarget = {
 			selector: target.selector,
@@ -298,9 +293,6 @@ export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templat
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.chat[target.component]());
-				// if (target.resultComponent && templatesStore.library.import.component.result[target.resultComponent]) {
-				// 	componentImportPromises.push(templatesStore.library.import.component.result[target.resultComponent]());
-				// }
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
 			},
