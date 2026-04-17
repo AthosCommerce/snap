@@ -101,17 +101,30 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	const [isActive, setActive] = useState(Boolean(active));
 	const [renderContent, setRenderContent] = useState(Boolean(active));
 
-	const toggleActive = () => {
-		if (isActive) {
-			setActive(false);
-			if (rerender) {
-				setTimeout(() => {
-					setRenderContent(false);
-				}, 250);
+	const toggleActive = (force?: boolean) => {
+		if (typeof force !== 'undefined') {
+			setActive(force);
+			if (force == false) {
+				if (rerender) {
+					setTimeout(() => {
+						setRenderContent(false);
+					}, 250);
+				}
+			} else {
+				setRenderContent(true);
 			}
 		} else {
-			setActive(true);
-			setRenderContent(true);
+			if (isActive) {
+				setActive(false);
+				if (rerender) {
+					setTimeout(() => {
+						setRenderContent(false);
+					}, 250);
+				}
+			} else {
+				setActive(true);
+				setRenderContent(true);
+			}
 		}
 
 		document.body.style.overflow = isActive ? 'hidden' : '';
@@ -136,8 +149,11 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	useEffect(() => {
 		if (buttonSelector) {
 			let button;
+			let buttons;
 			if (typeof buttonSelector == 'string') {
-				button = document.querySelector(buttonSelector);
+				buttons = document.querySelectorAll(buttonSelector);
+				// for quickview should this be "setActive" instead of toggle?
+				buttons.forEach((button) => button.addEventListener('click', () => toggleActive(true)));
 			} else {
 				button = buttonSelector;
 			}
@@ -145,7 +161,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 				button.addEventListener('click', () => toggleActive());
 			}
 		}
-	}, []);
+	});
 
 	return isVisible || !rerender ? (
 		<CacheProvider>
@@ -165,7 +181,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 			>
 				{renderContent && cloneWithProps(children, { toggleActive, active: isActive, treePath })}
 			</div>
-			<Overlay {...subProps.overlay} active={isActive} onClick={toggleActive} />
+			<Overlay {...subProps.overlay} active={isActive} onClick={() => toggleActive(false)} />
 		</CacheProvider>
 	) : null;
 });

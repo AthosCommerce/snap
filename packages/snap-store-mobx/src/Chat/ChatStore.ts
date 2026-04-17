@@ -1,0 +1,244 @@
+import { makeObservable, observable, computed } from 'mobx';
+import { ChatStoreConfig } from '../types';
+import { MetaStore } from '../Meta/MetaStore';
+import { MetaResponseModel } from '@athoscommerce/snapi-types';
+import { AbstractStore } from '../Abstract/AbstractStore';
+import type { ChatResponseModel, ChatRequestModel } from '@athoscommerce/snap-client';
+import { StorageStore } from '../Storage/StorageStore';
+import { ChatSessionStore } from './Stores/ChatSessionStore';
+import { ChatAttachmentFacet, ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
+import { ChatStatusResponse } from '@athoscommerce/snap-client';
+
+const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 60 * 12; // 12 hours
+
+export class ChatStore extends AbstractStore<ChatStoreConfig> {
+	public meta?: MetaStore = undefined;
+	public inputValue: string = '';
+	public open: boolean = false;
+	public storage: StorageStore;
+	public chats: ChatSessionStore[] = [];
+	public currentChatId: string;
+	public chatEnabled: boolean | null = null;
+	public initChatLoading: boolean = false;
+	public suggestedQuestions: string[] = [];
+	public welcomeMessage: string = '';
+	public features: ChatStatusResponse['features'] = { imageSearch: { enabled: false }, similarProducts: { enabled: false } };
+
+	constructor(config: ChatStoreConfig) {
+		super(config);
+
+		this.storage = new StorageStore({
+			type: 'local',
+			key: `ss-${this.config.id}`,
+		});
+
+		const storedChatStatusResponse = this.storage.get('chatStatusResponse');
+		if (storedChatStatusResponse) {
+			try {
+				const storedChatStatus = JSON.parse(storedChatStatusResponse);
+				if (storedChatStatus.checkTime && Date.now() - storedChatStatus.checkTime > CHAT_STATUS_EXPIRATION_TIME) {
+					// chat status is expired, remove from storage to trigger a new check
+					this.storage.set('chatStatusResponse', null);
+				} else {
+					this.handleChatStatusResponse(storedChatStatus.response);
+				}
+			} catch {
+				this.storage.set('chatStatusResponse', null);
+			}
+		}
+
+		// check for entries in storage
+		let latestChatId = '';
+		const storedChats = this.storage.get('chats');
+		storedChats &&
+			Object.keys(storedChats || {}).forEach((chatId) => {
+				const chatData = storedChats[chatId];
+				if (chatData) {
+					const restoredChat = new ChatSessionStore({
+						data: {
+							...chatData,
+							id: chatId,
+						},
+						stores: {
+							storage: this.storage,
+						},
+					});
+					this.chats.push(restoredChat);
+					latestChatId = chatId;
+				}
+			});
+		const storedMeta = this.storage.get('meta');
+		if (storedMeta) {
+			try {
+				const metaData = JSON.parse(storedMeta);
+				this.meta = new MetaStore({
+					data: {
+						meta: metaData,
+					},
+				});
+			} catch {
+				this.storage.set('meta', null);
+			}
+		}
+
+		this.currentChatId = latestChatId;
+
+		makeObservable(this, {
+			meta: observable,
+			inputValue: observable,
+			open: observable,
+			chats: observable,
+			currentChatId: observable,
+			chatEnabled: observable,
+			initChatLoading: observable,
+			blocked: computed,
+			currentChat: computed,
+			chatsIds: computed,
+			features: observable,
+			suggestedQuestions: observable,
+			welcomeMessage: observable,
+		});
+	}
+
+	get currentChat(): ChatSessionStore | undefined {
+		return this.chats.find((chat) => chat.id === this.currentChatId);
+	}
+
+	get chatsIds(): string[] {
+		return this.chats.map((chat) => chat.id);
+	}
+
+	get blocked(): boolean {
+		let isBlocked = false;
+
+		const blockedAttachments = this.currentChat?.attachments.items.some((item) => item.type === 'image' && item.state === 'loading');
+		if (this.loading || blockedAttachments) {
+			isBlocked = true;
+		}
+		return isBlocked;
+	}
+
+	public handleChatStatusResponse(response: ChatStatusResponse): boolean {
+		const { chatbot, features } = response;
+		const { status, suggestedQuestions, welcomeMessage } = chatbot;
+		this.chatEnabled = status.enabled === true;
+		this.features = features;
+		this.suggestedQuestions = suggestedQuestions || [];
+		this.welcomeMessage = welcomeMessage || '';
+		this.storage.set('chatStatusResponse', JSON.stringify({ response, checkTime: Date.now() }));
+		return this.chatEnabled;
+	}
+
+	public reset(): void {
+		this.chats = [];
+		this.storage.clear();
+		this.createChat();
+	}
+
+	public clearHistory(): void {
+		// drop previous chats while keeping the conversation the user is currently in;
+		// if there is no current chat, fall back to a full reset
+		const currentChat = this.currentChat;
+
+		if (!currentChat) {
+			this.reset();
+			return;
+		}
+
+		const storedChats = this.storage.get('chats') || {};
+		const filtered: Record<string, any> = {};
+		if (storedChats[currentChat.id]) {
+			filtered[currentChat.id] = storedChats[currentChat.id];
+		}
+		this.storage.set('chats', filtered);
+
+		this.chats = [currentChat];
+	}
+
+	public createChat(data?: { sessionId: string }): ChatSessionStore {
+		const newChat = new ChatSessionStore({
+			data: {
+				sessionId: data?.sessionId,
+			},
+			stores: {
+				storage: this.storage,
+			},
+		});
+
+		this.currentChatId = newChat.id;
+		this.chats.push(newChat);
+		return newChat;
+	}
+
+	public switchChat(id: string): void {
+		const chatExists = this.chats.find((chat) => chat.id === id);
+		if (chatExists) {
+			this.currentChatId = id;
+		}
+	}
+
+	public sendProductQuery(result: any, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void {
+		this.currentChat?.attachments.add<ChatAttachmentProduct>({
+			type: 'product',
+			requestType: options.requestType,
+			productId: result.id,
+			name: result.mappings.core?.name,
+			thumbnailUrl: result.mappings.core?.thumbnailImageUrl || result.mappings.core?.imageUrl,
+		});
+
+		// for the productQuery flow we want the secondary chat to immediately
+		// show the product details panel — push a productQuery message so it
+		// becomes the active side-chat message until a productAnswer arrives
+		if (options.requestType === 'productQuery' && this.currentChat) {
+			this.currentChat.pushProductQueryMessage(result);
+		}
+	}
+
+	public compareProduct(result: any): void {
+		this.currentChat?.comparisons.add({
+			result,
+		});
+	}
+
+	public addFacet(facet: any): void {
+		this.currentChat?.attachments.add<ChatAttachmentFacet>({
+			type: 'facet',
+			key: facet.key,
+			facetLabel: facet.facetLabel,
+			value: facet.value,
+			label: facet.label,
+			count: facet.count,
+		});
+	}
+
+	public request(request: ChatRequestModel): void {
+		this.currentChat?.request(request);
+
+		// remove any facet attachments after request
+		const facetAttachments = this.currentChat?.attachments.attached.filter((item) => item.type === 'facet') || [];
+		facetAttachments.forEach((item) => {
+			this.currentChat?.attachments.remove(item.id);
+		});
+
+		// remove any productSimilar attachments after request
+		const productSimilarAttachments =
+			this.currentChat?.attachments.attached.filter(
+				(item) => item.type === 'product' && (item as ChatAttachmentProduct).requestType === 'productSimilar'
+			) || [];
+		productSimilarAttachments.forEach((item) => {
+			this.currentChat?.attachments.remove(item.id);
+		});
+	}
+
+	public update(data: { chat: ChatResponseModel; meta: MetaResponseModel }): void {
+		this.currentChat?.update(data);
+		if (!this.meta) {
+			this.storage.set('meta', JSON.stringify(data.meta));
+		}
+		this.meta = new MetaStore({
+			data: {
+				meta: data.meta,
+			},
+		});
+	}
+}

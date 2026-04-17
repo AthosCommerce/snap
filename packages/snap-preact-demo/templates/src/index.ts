@@ -3,9 +3,9 @@ import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
+// import { CustomResult } from './components/Result';
 
 const { siteId, clientConfig } = getDemoConfig();
-
 let templatesConfig: SnapTemplatesConfig = {
 	unlocked: true,
 	config: {
@@ -82,6 +82,18 @@ let templatesConfig: SnapTemplatesConfig = {
 			// infinite: {
 			// 	backfill: 5,
 			// },
+		},
+	},
+	chat: {
+		targets: [
+			{
+				selector: 'body',
+				component: 'Chat',
+			},
+		],
+		settings: {
+			displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+			addToCart: (products: any) => console.log('chat add to cart!', products),
 		},
 	},
 	autocomplete: {

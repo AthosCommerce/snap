@@ -115,7 +115,7 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 					name: slot.name,
 					top: index == 0,
 					bottom: index == sectionSlots.length - 1,
-					badges: result?.display.badges?.atLocation(`${section}/${slot.tag}`).slice(0, limit),
+					badges: result?.display?.badges?.atLocation(`${section}/${slot.tag}`).slice(0, limit),
 				}))
 				.filter((slot) => slot.badges?.length);
 

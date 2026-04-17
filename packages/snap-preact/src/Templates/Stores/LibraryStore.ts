@@ -87,6 +87,9 @@ export type LibraryImports = {
 				RecommendationEmail: (args?: any) => Promise<JSXComponent>;
 			};
 		};
+		chat: LibraryComponentImport & {
+			Chat: (args?: any) => Promise<JSXComponent>;
+		};
 		badge: LibraryComponentImport;
 		result: LibraryComponentImport & {
 			Result: (args?: any) => Promise<JSXComponent>;
@@ -247,6 +250,7 @@ export class LibraryStore {
 			default: LibraryComponentMap;
 			email: LibraryComponentMap;
 		};
+		chat: LibraryComponentMap;
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
 		/* individual library components */
@@ -316,6 +320,7 @@ export class LibraryStore {
 			default: {},
 			email: {},
 		},
+		chat: {},
 		badge: {},
 		result: {},
 		/* individual library components */
@@ -535,6 +540,11 @@ export class LibraryStore {
 							).RecommendationEmail)
 						);
 					},
+				},
+			},
+			chat: {
+				Chat: async () => {
+					return this.components.chat.Chat || (this.components.chat.Chat = (await import('./library/components/Chat')).Chat);
 				},
 			},
 			badge: {},

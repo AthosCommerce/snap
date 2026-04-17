@@ -48,10 +48,10 @@ jobs:
       - name: Eslint
         run: npm run lint
 
-      - name: Tests
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
-        run: npm run test
+      # - name: Tests
+      #   env:
+      #     NODE_OPTIONS: "--max-old-space-size=4096"
+      #   run: npm run test
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

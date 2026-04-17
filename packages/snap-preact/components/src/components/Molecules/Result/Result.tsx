@@ -12,7 +12,7 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { ComponentProps, ResultsLayout, StyleScript } from '../../../types';
 import { CalloutBadge, CalloutBadgeProps } from '../../Molecules/CalloutBadge';
 import { OverlayBadge, OverlayBadgeProps } from '../../Molecules/OverlayBadge';
-import type { SearchController, AutocompleteController, RecommendationController } from '@athoscommerce/snap-controller';
+import type { SearchController, AutocompleteController, RecommendationController, ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -177,7 +177,7 @@ export const Result = observer((properties: ResultProps) => {
 			// default props
 			internalClassName: 'ss__result__image',
 			alt: core?.name || '',
-			src: core?.imageUrl || '',
+			src: core?.imageUrl || core?.thumbnailImageUrl || '',
 			// inherited props
 			...defined({
 				disableStyles,
@@ -314,7 +314,7 @@ export const Result = observer((properties: ResultProps) => {
 
 					{cloneWithProps(detailSlot, { result, treePath })}
 
-					{!hideVariantSelections && result.variants?.selections.length && (
+					{!hideVariantSelections && result.variants?.selections?.length && (
 						<div className="ss__result__details__variant-selection">
 							{result.variants?.selections.map((selection) => {
 								return <VariantSelection {...subProps.variantSelection} selection={selection} />;
@@ -349,7 +349,7 @@ export interface TruncateTitleProps {
 
 export type ResultProps = {
 	result: Product;
-	controller?: SearchController | AutocompleteController | RecommendationController;
+	controller?: SearchController | AutocompleteController | RecommendationController | ChatController;
 	lang?: Partial<ResultLang>;
 	trackingRef?: MutableRef<HTMLElement | null>;
 } & ResultTemplatesLegalProps &
@@ -382,7 +382,7 @@ export interface ResultLang {
 
 interface ResultPropData {
 	result: Product;
-	controller?: SearchController | AutocompleteController | RecommendationController;
+	controller?: SearchController | AutocompleteController | RecommendationController | ChatController;
 }
 
 export type ResultNames = 'seed';

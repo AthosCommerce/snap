@@ -4,7 +4,7 @@ import { StorageStore, StorageType } from '@athoscommerce/snap-store-mobx';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
-import { debounce } from '@athoscommerce/snap-toolbox';
+import { AppMode, debounce } from '@athoscommerce/snap-toolbox';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
@@ -99,7 +99,7 @@ import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 
 export type TemplateThemeTypes = 'library' | 'local';
-export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
+export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}` | 'chat';
 
 export type TemplateDefaultComponentTypes = 'result' | 'badge';
 
@@ -174,6 +174,7 @@ export type TargetMap = { [targetId: string]: TargetStore };
 type ComponentLibraryType =
 	| keyof LibraryImports['component']['autocomplete']
 	| keyof LibraryImports['component']['search']
+	| keyof LibraryImports['component']['chat']
 	| keyof LibraryImports['component']['recommendation']['default']
 	| keyof LibraryImports['component']['recommendation']['bundle']
 	| keyof LibraryImports['component']['recommendation']['email'];
@@ -333,6 +334,7 @@ export type TemplateStoreConfigConfig = {
 	components?: TemplateStoreComponentConfig;
 	config: {
 		siteId?: string;
+		mode?: keyof typeof AppMode | AppMode;
 		currency?: CurrencyCodes;
 		language?: LanguageCodes;
 		platform?: IntegrationPlatforms;
@@ -372,6 +374,7 @@ export class TemplatesStore {
 	targets: {
 		search: TargetMap;
 		autocomplete: TargetMap;
+		chat: TargetMap;
 		recommendation: {
 			[key in RecsTemplateTypes]: TargetMap;
 		};
@@ -406,6 +409,7 @@ export class TemplatesStore {
 		this.targets = {
 			search: {},
 			autocomplete: {},
+			chat: {},
 			recommendation: {
 				bundle: {},
 				default: {},
@@ -507,7 +511,7 @@ export class TemplatesStore {
 	}
 
 	public addTarget(type: TemplateTypes, target: TemplateTarget): string | undefined {
-		const targetId = target.selector || target.component;
+		const targetId = target.selector || (target.component as string);
 		if (targetId) {
 			const path = type.split('/');
 			let targetPath: any = this.targets;

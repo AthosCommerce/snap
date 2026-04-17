@@ -156,6 +156,9 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 				onClick: () => reset(),
 				icon: 'angle-left',
 			},
+			chatButton: {
+				onClick: () => controller.openChat(),
+			},
 			inputName: inputName,
 			// inherited props
 			...defined({

@@ -23,7 +23,19 @@ import type {
 } from '@athoscommerce/snapi-types';
 
 import deepmerge from 'deepmerge';
-import { transformSuggestResponse } from './transforms';
+
+import {
+	ChatAPI,
+	ChatInitRequestModel,
+	ChatInitResponseModel,
+	ChatStatusRequestModel,
+	UploadImageRequestModel,
+	UploadImageResponseModel,
+	ChatRequestModel,
+	ChatStatusResponse,
+} from './apis/Chat';
+
+import { ChatResponseModel, transformSuggestResponse } from './transforms';
 
 const defaultConfig: ClientConfig = {
 	mode: AppMode.production,
@@ -43,6 +55,7 @@ export class Client {
 		search: SearchAPI;
 		recommend: RecommendAPI;
 		suggest: SuggestAPI;
+		chat: ChatAPI;
 	};
 
 	constructor(globals: ClientGlobals, config: ClientConfig = {}) {
@@ -104,6 +117,17 @@ export class Client {
 					cache: this.config.suggest?.cache,
 					globals: this.config.suggest?.globals,
 					paths: this.config.suggest?.paths,
+				})
+			),
+			chat: new ChatAPI(
+				new ApiConfiguration({
+					fetchApi: this.config.fetchApi,
+					initiator: this.config.initiator,
+					mode: this.mode,
+					origin: this.config.chat?.origin,
+					headers: this.config.chat?.headers,
+					cache: this.config.chat?.cache,
+					globals: this.config.chat?.globals,
 				})
 			),
 		};
@@ -169,6 +193,26 @@ export class Client {
 
 		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getSearch(params)]);
 		return { meta, search };
+	}
+
+	async uploadImage(params: UploadImageRequestModel): Promise<UploadImageResponseModel> {
+		const mergedParams = { ...this.globals, ...params };
+		return this.requesters.chat.postUploadImage(mergedParams);
+	}
+
+	async chatStatus(params: ChatStatusRequestModel): Promise<ChatStatusResponse> {
+		return this.requesters.chat.postStatus(params);
+	}
+
+	async chatInit(params: ChatInitRequestModel): Promise<ChatInitResponseModel> {
+		return this.requesters.chat.chatInit(params);
+	}
+
+	async chat(params: ChatRequestModel): Promise<{ meta: MetaResponseModel; chat: ChatResponseModel }> {
+		const mergedParams = deepmerge<ChatRequestModel & ClientGlobals>(this.globals, params);
+
+		const [meta, chat] = await Promise.all([this.meta({ siteId: this.globals.siteId || '' }), this.requesters.chat.postMessage(mergedParams)]);
+		return { meta, chat };
 	}
 
 	async category(params: SearchRequestModel = {}): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
