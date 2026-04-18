@@ -4,12 +4,11 @@ import { observer } from 'mobx-react-lite';
 import { RootNodeProperties } from '../../../types';
 import { CacheProvider } from '../../../providers';
 import { TemplateEditorStore } from '../../../../../src/Templates/Stores/TemplateEditor/TemplateEditorStore';
-import { TemplatesStore, TemplateTypes } from '../../../../../src/Templates/Stores/TemplateStore';
+import { TemplatesStore } from '../../../../../src/Templates/Stores/TemplateStore';
 import { SnapTemplates } from '../../../../../src';
 import { AutocompleteController, SearchController } from '@athoscommerce/snap-controller';
 import { AthosCommerceLogo } from './Assets';
 import { AbstractedControls } from './Components/AbstractedControls';
-import { DropdownControl } from './Controls/Dropdown';
 
 const CSS = {
 	TemplatesEditor: ({}: Partial<TemplatesEditorProps>) =>
@@ -316,16 +315,16 @@ const CSS = {
 };
 
 export const TemplatesEditor = observer((properties: TemplatesEditorProps) => {
-	const { onRemoveClick, templatesStore, editorStore, snap } = properties;
+	const { onRemoveClick, editorStore, snap } = properties;
 
 	const styling: RootNodeProperties = {
-		css: [CSS.TemplatesEditor({ ...properties })],
+		css: [CSS.TemplatesEditor(properties)],
 	};
 
 	return (
 		<CacheProvider>
 			<div
-				className={classnames('ss__template-editor', { 'ss__template-editor--collapsed': editorStore.state.hidden })}
+				className={classnames('ss__template-editor', { 'ss__template-editor--collapsed': editorStore.storedState.hidden })}
 				{...styling}
 				onClick={(e) => {
 					e.stopPropagation();
@@ -333,7 +332,13 @@ export const TemplatesEditor = observer((properties: TemplatesEditorProps) => {
 				}}
 			>
 				<div className="ss__template-editor__header">
-					<div className={'logo'}>
+					<div
+						className={'logo'}
+						onClick={(e) => {
+							e.stopPropagation();
+							editorStore.toggleHide(false);
+						}}
+					>
 						<AthosCommerceLogo />
 					</div>
 
@@ -345,23 +350,39 @@ export const TemplatesEditor = observer((properties: TemplatesEditorProps) => {
 							editorStore.toggleHide(true);
 						}}
 					>
-						<button
-							onClick={(e) => {
-								e.stopPropagation();
-								if (confirm('Closing the editor will disable modification.')) {
-									onRemoveClick();
-								}
-							}}
-						>
-							Close
-						</button>
-						<button
-							onClick={() => {
-								editorStore.toggleHide(true);
-							}}
-						>
-							Hide
-						</button>
+						<div className="">
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									if (confirm('Closing the editor will disable modification.')) {
+										onRemoveClick();
+									}
+								}}
+							>
+								Close
+							</button>
+						</div>
+						<div className="">
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									const config = editorStore.generateTemplatesConfig();
+									navigator.clipboard.writeText(JSON.stringify(config, null, 4));
+									alert('Configuration copied to clipboard');
+								}}
+							>
+								Copy
+							</button>
+						</div>
+						<div className="">
+							<button
+								onClick={() => {
+									editorStore.toggleHide(true);
+								}}
+							>
+								Hide
+							</button>
+						</div>
 					</div>
 				</div>
 
@@ -371,7 +392,7 @@ export const TemplatesEditor = observer((properties: TemplatesEditorProps) => {
 							return (
 								<div
 									key={i}
-									className={classnames('tab', { active: editorStore.state.activeTab === tab })}
+									className={classnames('tab', { active: editorStore.storedState.activeTab === tab })}
 									onClick={() => {
 										editorStore.switchTabs(tab);
 									}}
@@ -384,23 +405,30 @@ export const TemplatesEditor = observer((properties: TemplatesEditorProps) => {
 					<div className="tab-view">
 						<div className="tab-view-shadow"></div>
 						<div className="tab-view-content">
-							{editorStore.state.activeTab === 'templates' ? (
+							{editorStore.storedState.activeTab === 'templates' ? (
 								<>
-									<TemplateTargetSettings feature="search" templatesStore={templatesStore} />
+									<h1>Search</h1>
+									<AbstractedControls editorStore={editorStore} data={0} feature="targets/search" />
 									<AbstractedControls editorStore={editorStore} data={snap.controllers.search as SearchController} feature="controllers/search" />
-									<TemplateTargetSettings feature="autocomplete" templatesStore={templatesStore} />
+
+									<h1>Autocomplete</h1>
+									<AbstractedControls editorStore={editorStore} data={0} feature="targets/autocomplete" />
 									<AbstractedControls
 										editorStore={editorStore}
 										data={snap.controllers.autocomplete as AutocompleteController}
 										feature="controllers/autocomplete"
 									/>
-									<TemplateTargetSettings feature="recommendation/default" templatesStore={templatesStore} />
-									<TemplateTargetSettings feature="recommendation/bundle" templatesStore={templatesStore} />
+
+									{/* 
+										// TODO: implement recommendation AbstractedControls
+										<TemplateTargetSettings feature="recommendation/default" editorStore={editorStore} />
+										<TemplateTargetSettings feature="recommendation/bundle" editorStore={editorStore} />
+									*/}
 								</>
 							) : (
 								''
 							)}
-							{editorStore.state.activeTab === 'configuration' ? (
+							{editorStore.storedState.activeTab === 'configuration' ? (
 								<>
 									<AbstractedControls title="Project Configuration" editorStore={editorStore} feature="templates/config" />
 									<AbstractedControls title="Theme Configuration" editorStore={editorStore} feature="templates/theme" />
@@ -436,100 +464,3 @@ export interface TemplatesEditorProps {
 	editorStore: TemplateEditorStore;
 	snap: SnapTemplates;
 }
-
-type TemplateTargetSettingsProps = {
-	feature: TemplateTypes;
-	templatesStore: TemplatesStore;
-};
-
-const TemplateTargetSettings = observer((props: TemplateTargetSettingsProps) => {
-	const { feature, templatesStore } = props;
-	const [type, recsType = ''] = feature.split('/');
-	const idPrefix = `${type}${recsType ? `-${recsType}` : ''}`;
-
-	const config = templatesStore.config as any;
-	const configTarget = config[type]?.[recsType]?.[`${recsType.charAt(0).toUpperCase() + recsType.slice(1)}`] || config[type]?.targets?.[0];
-
-	const libraryComponents = templatesStore.library.components as any;
-	const libraryTemplates = recsType ? libraryComponents[type]?.[recsType] : libraryComponents[type];
-	// const libraryResultComponents = libraryComponents?.result;
-
-	// const DEFAULT_RESULT_COMPONENT = 'Result';
-	const activeTarget = templatesStore.getTarget(feature, configTarget.selector);
-	const showTemplateReset = Boolean(activeTarget?.component) && activeTarget?.component !== configTarget?.component;
-
-	// const firstLetterOfComponent = configTarget.component.charAt(0).toLowerCase();
-	// const restOfComponent = configTarget.component.slice(1);
-	// const camelCaseComponent = firstLetterOfComponent + restOfComponent;
-
-	// const currentTargetActiveResultComponent = config?.theme?.overrides[`${camelCaseComponent} result`]?.customComponent || config?.theme?.overrides[`result`]?.customComponent || DEFAULT_RESULT_COMPONENT;
-
-	// const showResultTemplateReset =
-	// 	(currentTargetActiveResultComponent || DEFAULT_RESULT_COMPONENT) != (currentTargetActiveResultComponent ||DEFAULT_RESULT_COMPONENT);
-
-	return (
-		<div className="template-target-settings">
-			<h3>{type.charAt(0).toUpperCase() + type.slice(1) + (recsType ? ` (${recsType})` : '')}</h3>
-
-			{!recsType && (
-				<div className="option">
-					<label htmlFor={`${idPrefix}-target`}>Target</label>
-					<div className="reset"></div>
-					<div className="value">
-						<input id={`${idPrefix}-target`} type="text" placeholder={''} disabled={true} value={configTarget.selector} />
-					</div>
-				</div>
-			)}
-
-			<DropdownControl
-				key={`${idPrefix}-template`}
-				label={'Template'}
-				description={''}
-				showReset={showTemplateReset}
-				options={Object.keys(libraryTemplates)}
-				onReset={() => activeTarget?.setComponent(configTarget?.component)}
-				disabled={false}
-				value={activeTarget?.component}
-				onChange={(value) => activeTarget?.setComponent(`${value}`)}
-			/>
-
-			{/* <DropdownControl
-				key={`${idPrefix}-result-template`}
-				label={'Result Template'}
-				description={''}
-				showReset={showResultTemplateReset}
-				options={Object.keys(libraryResultComponents)}
-				onReset={() => {
-					const overrideKey = `${camelCaseComponent} result`;
-					
-					config.theme.editorOverrides = { 
-						...config.theme.editorOverrides,
-						default: {
-							...config.theme.editorOverrides?.default,
-							[overrideKey]: { 
-								...config.theme.editorOverrides?.default?.[overrideKey],
-								customComponent: DEFAULT_RESULT_COMPONENT 
-							}
-						}
-					}
-				}}
-				disabled={false}
-				value={currentTargetActiveResultComponent}
-				onChange={(value) => {
-					const overrideKey = `${camelCaseComponent} result`;
-					debugger
-					config.theme.editorOverrides = {
-						...config.theme.editorOverrides,
-						default: {
-							...config.theme.editorOverrides?.default,
-							[overrideKey]: { 
-								...config.theme.editorOverrides?.default?.[overrideKey],
-								customComponent: `${value}` 
-							}
-						}		
-					}	
-				}}
-			/> */}
-		</div>
-	);
-});

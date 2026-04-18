@@ -54,7 +54,10 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 						return store.overrides.theme.variables?.breakpoints?.mobile ?? store.initial.theme.variables?.breakpoints?.mobile ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.theme.variables?.breakpoints?.mobile !== 'undefined';
+						// if the override differs from the initial state, show reset
+						const initialMobile = store.initial.theme.variables?.breakpoints?.mobile;
+						const overrideMobile = store.overrides.theme.variables?.breakpoints?.mobile;
+						return typeof overrideMobile !== 'undefined' && initialMobile != overrideMobile;
 					},
 					onValueChange: (value) => {
 						store.setThemeOverride({ path: ['variables', 'breakpoints', 'mobile'], value });
@@ -73,7 +76,10 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 						return store.overrides.theme.variables?.breakpoints?.tablet ?? store.initial.theme.variables?.breakpoints?.tablet ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.theme.variables?.breakpoints?.tablet !== 'undefined';
+						// if the override differs from the initial state, show reset
+						const initialTablet = store.initial.theme.variables?.breakpoints?.tablet;
+						const overrideTablet = store.overrides.theme.variables?.breakpoints?.tablet;
+						return typeof overrideTablet !== 'undefined' && initialTablet != overrideTablet;
 					},
 					onValueChange: (value) => {
 						store.setThemeOverride({ path: ['variables', 'breakpoints', 'tablet'], value });
@@ -92,7 +98,10 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 						return store.overrides.theme.variables?.breakpoints?.desktop ?? store.initial.theme.variables?.breakpoints?.desktop ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.theme.variables?.breakpoints?.desktop !== 'undefined';
+						// if the override differs from the initial state, show reset
+						const initialDesktop = store.initial.theme.variables?.breakpoints?.desktop;
+						const overrideDesktop = store.overrides.theme.variables?.breakpoints?.desktop;
+						return typeof overrideDesktop !== 'undefined' && initialDesktop != overrideDesktop;
 					},
 					onValueChange: (value) => {
 						store.setThemeOverride({ path: ['variables', 'breakpoints', 'desktop'], value });
@@ -116,7 +125,10 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 						return store.overrides.theme.variables?.colors?.text ?? store.initial.theme.variables?.colors?.text ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.theme.variables?.colors?.text !== 'undefined';
+						// if the override differs from the initial state, show reset
+						const initialText = store.initial.theme.variables?.colors?.text?.toUpperCase();
+						const overrideText = store.overrides.theme.variables?.colors?.text?.toUpperCase();
+						return typeof overrideText !== 'undefined' && initialText != overrideText;
 					},
 					onValueChange: debounce((value) => {
 						store.setThemeOverride({ path: ['variables', 'colors', 'text'], value });
@@ -135,7 +147,10 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 						return store.overrides.theme.variables?.colors?.primary ?? store.initial.theme.variables?.colors?.primary ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.theme.variables?.colors?.primary !== 'undefined';
+						// if the override differs from the initial state, show reset
+						const initialPrimary = store.initial.theme.variables?.colors?.primary?.toUpperCase();
+						const overridePrimary = store.overrides.theme.variables?.colors?.primary?.toUpperCase();
+						return typeof overridePrimary !== 'undefined' && initialPrimary != overridePrimary;
 					},
 					onValueChange: debounce((value) => {
 						store.setThemeOverride({ path: ['variables', 'colors', 'primary'], value });
@@ -154,7 +169,10 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 						return store.overrides.theme.variables?.colors?.secondary ?? store.initial.theme.variables?.colors?.secondary ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.theme.variables?.colors?.secondary !== 'undefined';
+						// if the override differs from the initial state, show reset
+						const initialSecondary = store.initial.theme.variables?.colors?.secondary?.toUpperCase();
+						const overrideSecondary = store.overrides.theme.variables?.colors?.secondary?.toUpperCase();
+						return typeof overrideSecondary !== 'undefined' && initialSecondary != overrideSecondary;
 					},
 					onValueChange: debounce((value) => {
 						store.setThemeOverride({ path: ['variables', 'colors', 'secondary'], value });
@@ -174,10 +192,9 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 					},
 					shouldShowReset: () => {
 						// if the override differs from the initial state, show reset
-						return (
-							Boolean(store.overrides.theme.variables?.colors?.accent) &&
-							store.overrides.theme.variables?.colors?.accent !== store.initial.theme.variables?.colors?.accent
-						);
+						const initialAccent = store.initial.theme.variables?.colors?.accent?.toUpperCase();
+						const overrideAccent = store.overrides.theme.variables?.colors?.accent?.toUpperCase();
+						return typeof overrideAccent !== 'undefined' && initialAccent != overrideAccent;
 					},
 					onValueChange: debounce((value) => {
 						store.setThemeOverride({ path: ['variables', 'colors', 'accent'], value });

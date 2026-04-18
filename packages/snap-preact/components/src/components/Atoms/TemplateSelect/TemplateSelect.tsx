@@ -3,23 +3,25 @@ import { observer } from 'mobx-react-lite';
 import { Controllers } from '@athoscommerce/snap-controller';
 import { ThemeProvider, ControllerProvider, SnapProvider, Theme } from '../../../providers';
 import type { SnapTemplates } from '../../../../../src';
-import type { TemplatesStore, TemplateThemeTypes, TemplateTypes } from '../../../../../src/Templates/Stores/TemplateStore';
+import type { TemplatesStore, TemplateThemeTypes } from '../../../../../src/Templates/Stores/TemplateStore';
+import { TargetStore } from '../../../../../src/Templates/Stores/TargetStore';
 
 export const TemplateSelect = observer((properties: TemplateSelectProps) => {
-	const { snap, templatesStore, targetId, type, controller, ...otherProps } = properties;
+	const { snap, templatesStore, target, controller, ...otherProps } = properties;
 	const { loading } = templatesStore;
-	const targeter = templatesStore.getTarget(type, targetId);
-	if (!targeter) {
-		controller.log.error(`Target "${targetId}" not found in store for type "${type}"`);
+
+	if (!target) {
+		controller.log.error(`Target was not provided!`);
 		return null;
 	}
-	const Component = templatesStore.library.getComponent(type, targeter.component);
-	const themeLocation = templatesStore?.themes?.[targeter.theme.location as TemplateThemeTypes];
-	const themeStore = themeLocation && themeLocation[targeter.theme.name];
+
+	const Component = templatesStore.library.getComponent(target.type, target.component);
+	const themeLocation = templatesStore?.themes?.[target.theme.location as TemplateThemeTypes];
+	const themeStore = themeLocation && themeLocation[target.theme.name];
 	const theme = themeStore?.theme;
 
 	if (!loading && !theme && !templatesStore.settings?.editMode) {
-		const error = `Theme "${targeter.theme.name}" not found in library for target "${targetId}"`;
+		const error = `Theme "${target.theme.name}" not found in library for target "${target.selector}"`;
 		controller.log.error(error);
 	}
 
@@ -38,8 +40,7 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 });
 export interface TemplateSelectProps {
 	templatesStore: TemplatesStore;
-	targetId: string;
-	type: TemplateTypes;
+	target: TargetStore;
 	controller: Controllers;
 	snap: SnapTemplates;
 	theme?: Theme;

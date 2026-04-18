@@ -1,28 +1,29 @@
 import { observable, makeObservable } from 'mobx';
-import { TemplateTarget, type TemplatesStoreConfigSettings, type TemplatesStoreDependencies, type TemplateThemeTypes } from './TemplateStore';
+import { TemplateTarget, type TemplateTypes, type TemplateThemeTypes } from './TemplateStore';
 
 export const GLOBAL_THEME_NAME = 'global';
 
 type TargetStoreConfig = {
 	target: TemplateTarget;
-	dependencies: TemplatesStoreDependencies;
-	settings: TemplatesStoreConfigSettings;
 };
 export class TargetStore {
+	public index: number;
+	public type: TemplateTypes;
 	public selector: string;
 	public component: string;
 	public theme: {
 		location: TemplateThemeTypes;
 		name: string;
 	};
-	private dependencies: TemplatesStoreDependencies;
 
 	constructor(params: TargetStoreConfig) {
-		const { target, dependencies, settings } = params;
-		this.dependencies = dependencies;
+		const { target } = params;
+
+		this.index = target.index;
+		this.type = target.type;
 		this.selector = target.selector || '';
-		this.component = (settings.editMode && this.dependencies.storage.get(`templates.${this.selector}.component`)) || target.component;
-		this.theme = (settings.editMode && this.dependencies.storage.get(`templates.${this.selector}.theme`)) || {
+		this.component = target.component || '';
+		this.theme = {
 			location: 'local',
 			name: GLOBAL_THEME_NAME,
 		};
@@ -34,9 +35,9 @@ export class TargetStore {
 		});
 	}
 
-	public setComponent(componentName: string) {
-		this.component = componentName;
-		this.dependencies.storage.set(['templates', this.selector, 'component'], this.component);
+	public setValue(name: string, value: string) {
+		if (!['selector', 'triggerSelector', 'component', 'resultComponent'].includes(name)) return;
+		this[name as 'selector' | 'component'] = value;
 	}
 
 	public setTheme(themeName: string, location: TemplateThemeTypes) {
@@ -44,6 +45,5 @@ export class TargetStore {
 			location,
 			name: themeName,
 		};
-		this.dependencies.storage.set(['templates', this.selector, 'theme'], this.theme);
 	}
 }

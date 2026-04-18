@@ -3,7 +3,7 @@ import { observable, makeObservable, toJS, computed } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import deepmerge from 'deepmerge';
 import { isPlainObject } from 'is-plain-object';
-import { TemplateThemeTypes, type TemplatesStoreConfigSettings, type TemplatesStoreDependencies } from './TemplateStore';
+import { TemplateThemeTypes, type TemplatesStoreSettings, type TemplatesStoreDependencies } from './TemplateStore';
 import { Global, css } from '@emotion/react';
 
 import {
@@ -38,7 +38,7 @@ export type ThemeStoreThemeConfig = {
 type ThemeStoreConfig = {
 	config: ThemeStoreThemeConfig;
 	dependencies: TemplatesStoreDependencies;
-	settings: TemplatesStoreConfigSettings;
+	settings: TemplatesStoreSettings;
 };
 
 export class ThemeStore {

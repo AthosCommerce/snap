@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/preact';
 
 import { ThemeStore, ThemeStoreThemeConfig, mergeThemeLayers } from './ThemeStore';
 import { StorageStore } from '@athoscommerce/snap-store-mobx';
-import type { TemplatesStoreDependencies, TemplateThemeTypes, TemplatesStoreConfigSettings } from './TemplateStore';
+import type { TemplatesStoreDependencies, TemplateThemeTypes, TemplatesStoreSettings } from './TemplateStore';
 import type { ThemeComplete, ThemeVariables, ThemePartial } from '../../../components/src/providers/theme';
 import { GLOBAL_THEME_NAME } from './TargetStore';
 
@@ -29,7 +29,7 @@ let testTheme: ThemeComplete = {
 
 describe('ThemeStore', () => {
 	let dependencies: TemplatesStoreDependencies;
-	let settings: TemplatesStoreConfigSettings;
+	let settings: TemplatesStoreSettings;
 
 	beforeEach(() => {
 		dependencies = {

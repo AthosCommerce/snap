@@ -2,6 +2,88 @@ import { AutocompleteController } from '@athoscommerce/snap-controller';
 import { AbstractionGroup } from '../../../../types';
 import { TemplateEditorStore } from '../TemplateEditorStore';
 
+export function autocompleteTargetUI(store: TemplateEditorStore): AbstractionGroup<number>[] {
+	return [
+		{
+			// title: 'Autocomplete',
+			description: '',
+			collapsible: true,
+			controls: [
+				{
+					type: 'dropdown',
+					label: 'Component',
+					description: 'Template component to render',
+					getValue: (index) => {
+						// all autocomplete targeters are in store.templatesStore.targets.autocomplete
+
+						// TODO: need to handle case where there are no targets
+						const targetAtIndex = store.templatesStore.targets?.autocomplete[index as number];
+						return targetAtIndex?.component;
+					},
+					getOptions: () => {
+						// return list of available templates
+						const templateList = Object.keys(store.templatesStore.library.components.autocomplete).map((name) => ({ value: name }));
+						return [{ options: templateList }];
+					},
+					shouldShowReset: (index) => {
+						// if the override differs from the initial state, show reset
+						const initialTargetAtIndex = store.initial.targets?.autocomplete?.[index as number];
+						const overrideTargetAtIndex = store.overrides.targets?.autocomplete?.[index as number];
+						return (
+							Boolean(initialTargetAtIndex?.component) &&
+							Boolean(overrideTargetAtIndex?.component) &&
+							initialTargetAtIndex.component != overrideTargetAtIndex.component
+						);
+					},
+					onValueChange: (value, index) => {
+						store.setTargetOverride({ path: ['autocomplete', `[${index}]`, 'component'], value: value as string });
+					},
+					onReset: (index) => {
+						store.setTargetOverride({ path: ['autocomplete', `[${index}]`, 'component'], value: undefined });
+					},
+				},
+				// {
+				// 	type: 'dropdown',
+				// 	label: 'Result Component',
+				// 	description: 'Template component to render',
+				// 	getValue: (index) => {
+				// 		// all autocomplete targeters are in store.templatesStore.targets.autocomplete
+
+				// 		// TODO: need to handle case where there are no targets
+				// 		const targetAtIndex = store.templatesStore.targets?.autocomplete[index as number];
+				// 		return targetAtIndex?.resultComponent;
+				// 	},
+				// 	getOptions: () => {
+				// 		// return list of available templates
+				// 		const templateList = Object.keys(store.templatesStore.library.components.result).map((name) => ({ value: name }));
+				// 		return [{ options: templateList }];
+				// 	},
+				// 	shouldShowReset: (index) => {
+				// 		// if the override differs from the initial state, show reset
+				// 		const initialTargetAtIndex = store.initial.targets?.autocomplete?.[index as number];
+				// 		const overrideTargetAtIndex = store.overrides.targets?.autocomplete?.[index as number];
+				// 		return initialTargetAtIndex && overrideTargetAtIndex && initialTargetAtIndex.resultComponent != overrideTargetAtIndex.resultComponent;
+				// 	},
+				// 	onValueChange: (value, index) => {
+				// 		store.setTargetOverride({ path: ['autocomplete', `[${index}]`, 'resultComponent'], value: value as string });
+				// 	},
+				// 	onReset: (index) => {
+				// 		store.setTargetOverride({ path: ['autocomplete', `[${index}]`, 'resultComponent'], value: undefined });
+
+				// 		// if no initial value
+				// 		const initialTargetAtIndex = store.initial.targets?.autocomplete?.[index as number];
+
+				// 		if (!initialTargetAtIndex.resultComponent) {
+				// 			const targetAtIndex = store.templatesStore.targets?.autocomplete[index as number];
+				// 			targetAtIndex?.setValue('resultComponent', 'Result');
+				// 		}
+				// 	},
+				// },
+			],
+		},
+	];
+}
+
 export function autocompleteControllerUI(store: TemplateEditorStore): AbstractionGroup<AutocompleteController>[] {
 	return [
 		{
@@ -40,7 +122,7 @@ export function autocompleteControllerUI(store: TemplateEditorStore): Abstractio
 						const overrideConfig = store.overrides.controller.autocomplete?.history;
 						const overrideEnabled = Boolean(overrideConfig?.enabled !== undefined);
 
-						return (overrideEnabled && initialEnabled !== overrideEnabled) || initialConfig?.limit !== overrideConfig?.limit;
+						return overrideEnabled && (initialEnabled !== overrideEnabled || initialConfig?.limit !== overrideConfig?.limit);
 					},
 					onValueChange: (value, controller) => {
 						if (typeof value === 'undefined' || !controller) return;
@@ -48,16 +130,12 @@ export function autocompleteControllerUI(store: TemplateEditorStore): Abstractio
 						const initialConfig = store.initial.controller.autocomplete?.history;
 						const initialValue = initialConfig?.enabled ? initialConfig?.limit : 'Disabled';
 
-						if (value === 'Disabled' && initialValue !== 'Disabled') {
+						if (value === initialValue) {
+							store.setControllerOverride({ path: ['history'], controller });
+						} else if (value === 'Disabled') {
 							store.setControllerOverride({ path: ['history'], value: { enabled: false, limit: undefined, showResults: undefined }, controller });
-						} else if (value !== 'Disabled' && initialValue === 'Disabled') {
-							store.setControllerOverride({ path: ['history'], value: { enabled: true, limit: Number(value) }, controller });
 						} else {
-							store.setControllerOverride({
-								path: ['history'],
-								value: { enabled: undefined, limit: undefined, showResults: undefined },
-								controller,
-							});
+							store.setControllerOverride({ path: ['history'], value: { enabled: true, limit: Number(value) }, controller });
 						}
 
 						updateAutocompleteControllerState(controller);
@@ -65,11 +143,7 @@ export function autocompleteControllerUI(store: TemplateEditorStore): Abstractio
 					onReset: (controller) => {
 						if (!controller) return;
 
-						const resetValues = { enabled: undefined, limit: undefined, showResults: undefined };
-						if (store.initial.controller.autocomplete?.history?.enabled) {
-							delete resetValues.showResults;
-						}
-						store.setControllerOverride({ path: ['history'], value: resetValues, controller });
+						store.setControllerOverride({ path: ['history'], controller });
 						updateAutocompleteControllerState(controller);
 					},
 				},
@@ -113,18 +187,12 @@ export function autocompleteControllerUI(store: TemplateEditorStore): Abstractio
 						const initialConfig = store.initial.controller.autocomplete?.trending;
 						const initialValue = initialConfig?.enabled ? initialConfig?.limit : 'Disabled';
 
-						if (value === 'Disabled' && initialValue !== 'Disabled') {
+						if (value === initialValue) {
+							store.setControllerOverride({ path: ['trending'], controller });
+						} else if (value === 'Disabled') {
 							store.setControllerOverride({ path: ['trending'], value: { enabled: false, limit: undefined, showResults: undefined }, controller });
-						} else if (value !== 'Disabled' && initialValue === 'Disabled') {
-							store.setControllerOverride({ path: ['trending'], value: { enabled: true, limit: Number(value) }, controller });
-						} else if (value !== 'Disabled' && initialValue !== value) {
-							store.setControllerOverride({ path: ['trending'], value: { enabled: true, limit: Number(value) }, controller });
 						} else {
-							store.setControllerOverride({
-								path: ['trending'],
-								value: { enabled: undefined, limit: undefined, showResults: undefined },
-								controller,
-							});
+							store.setControllerOverride({ path: ['trending'], value: { enabled: true, limit: Number(value) }, controller });
 						}
 
 						updateAutocompleteControllerState(controller);
@@ -132,11 +200,7 @@ export function autocompleteControllerUI(store: TemplateEditorStore): Abstractio
 					onReset: (controller) => {
 						if (!controller) return;
 
-						const resetValues = { enabled: undefined, limit: undefined, showResults: undefined };
-						if (store.initial.controller.autocomplete?.trending?.enabled) {
-							delete resetValues.showResults;
-						}
-						store.setControllerOverride({ path: ['trending'], value: resetValues, controller });
+						store.setControllerOverride({ path: ['trending'], controller });
 						updateAutocompleteControllerState(controller);
 					},
 				},
@@ -158,44 +222,44 @@ export function autocompleteControllerUI(store: TemplateEditorStore): Abstractio
 						return [{ options: opts }];
 					},
 					getValue: (controller) => {
-						if (controller?.store.config.settings?.trending?.showResults) return 'Trending';
-						if (controller?.store.config.settings?.history?.showResults) return 'History';
+						// controller can have both history and trending enabled - in that case we prioritize showing 'Trending'
+
+						const historyEnabled = controller?.store.config.settings?.history?.enabled;
+						const trendingEnabled = controller?.store.config.settings?.trending?.enabled;
+
+						if (trendingEnabled && controller?.store.config.settings?.trending?.showResults) return 'Trending';
+						if (historyEnabled && controller?.store.config.settings?.history?.showResults) return 'History';
 						return 'Disabled';
 					},
 					shouldShowReset: () => {
-						// see what the initial state is
-						let initialValue = 'Disabled';
 						const initialConfig = store.initial.controller.autocomplete;
-						if (initialConfig?.trending?.showResults && initialConfig?.trending?.enabled !== false) {
-							initialValue = 'Trending';
-						} else if (initialConfig?.history?.showResults && initialConfig?.history?.enabled !== false) {
-							initialValue = 'History';
-						}
+						const initialHistoryShowResults = initialConfig?.history?.enabled && initialConfig?.history?.showResults;
+						const initialTrendingShowResults = initialConfig?.trending?.enabled && initialConfig?.trending?.showResults;
+						const initialValue = initialTrendingShowResults ? 'Trending' : initialHistoryShowResults ? 'History' : 'Disabled';
 
-						// see what the override state is
-						let overrideValue = 'Disabled';
 						const overrideConfig = store.overrides.controller.autocomplete;
-						if (overrideConfig?.trending?.showResults && overrideConfig?.trending?.enabled !== false) {
-							overrideValue = 'Trending';
-						} else if (overrideConfig?.history?.showResults && overrideConfig?.history?.enabled !== false) {
-							overrideValue = 'History';
-						}
+						const overrideHistoryShowResults = overrideConfig?.history?.enabled !== false && overrideConfig?.history?.showResults;
+						const overrideTrendingShowResults = overrideConfig?.trending?.enabled !== false && overrideConfig?.trending?.showResults;
+						const bothOverriddenToDisabled =
+							overrideConfig?.history?.showResults === false &&
+							overrideConfig?.trending?.showResults === false &&
+							(initialHistoryShowResults || initialTrendingShowResults);
+						const overrideValue = bothOverriddenToDisabled
+							? 'Disabled'
+							: overrideTrendingShowResults
+							? 'Trending'
+							: overrideHistoryShowResults
+							? 'History'
+							: undefined;
 
-						return initialValue !== overrideValue;
+						return overrideValue !== undefined && initialValue !== overrideValue;
 					},
 					onValueChange: (value, controller) => {
 						if (typeof value === 'undefined' || !controller) return;
 
-						if (value === 'Disabled') {
-							store.setControllerOverride({ path: ['history', 'showResults'], controller });
-							store.setControllerOverride({ path: ['trending', 'showResults'], controller });
-						} else if (value === 'History') {
-							store.setControllerOverride({ path: ['history', 'showResults'], value: true, controller });
-							store.setControllerOverride({ path: ['trending', 'showResults'], controller });
-						} else if (value === 'Trending') {
-							store.setControllerOverride({ path: ['history', 'showResults'], controller });
-							store.setControllerOverride({ path: ['trending', 'showResults'], value: true, controller });
-						}
+						store.setControllerOverride({ path: ['history', 'showResults'], value: value === 'History', controller });
+
+						store.setControllerOverride({ path: ['trending', 'showResults'], value: value === 'Trending', controller });
 
 						updateAutocompleteControllerState(controller);
 					},

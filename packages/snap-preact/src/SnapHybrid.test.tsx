@@ -7,10 +7,10 @@ import { createSnapConfig } from './Templates/SnapTemplates';
 import { TemplatesStore } from './Templates/Stores/TemplateStore';
 
 import type { SnapConfig } from './Snap';
-import type { SnapTemplatesConfigUnlocked } from './Templates/SnapTemplates';
+import type { SnapTemplatesConfig } from './Templates/SnapTemplates';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
 
-const baseTemplatesConfig: SnapTemplatesConfigUnlocked = {
+const baseTemplatesConfig: SnapTemplatesConfig = {
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -573,7 +573,7 @@ describe('SnapHybrid merge', () => {
 		});
 
 		it('templates features are present in merged config', () => {
-			const templatesConfigWithFeatures: SnapTemplatesConfigUnlocked = {
+			const templatesConfigWithFeatures: SnapTemplatesConfig = {
 				...baseTemplatesConfig,
 				features: {
 					integratedSpellCorrection: true,
@@ -616,7 +616,7 @@ describe('SnapHybrid merge', () => {
 		});
 
 		it('handles templates config with no controllers', () => {
-			const templatesConfigMinimal: SnapTemplatesConfigUnlocked = {
+			const templatesConfigMinimal: SnapTemplatesConfig = {
 				unlocked: true,
 				config: {
 					siteId: '8uyt2m',
@@ -642,7 +642,7 @@ describe('SnapHybrid merge', () => {
 		});
 
 		it('handles empty controllers objects from both sides', () => {
-			const templatesConfigMinimal: SnapTemplatesConfigUnlocked = {
+			const templatesConfigMinimal: SnapTemplatesConfig = {
 				unlocked: true,
 				config: {
 					siteId: '8uyt2m',
@@ -672,7 +672,7 @@ describe('SnapHybrid merge', () => {
 		});
 
 		it('url config from snap overrides templates url config', () => {
-			const templatesConfigWithUrl: SnapTemplatesConfigUnlocked = {
+			const templatesConfigWithUrl: SnapTemplatesConfig = {
 				...baseTemplatesConfig,
 				url: {
 					parameters: {

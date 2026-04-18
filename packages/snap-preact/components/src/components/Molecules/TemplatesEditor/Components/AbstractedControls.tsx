@@ -33,12 +33,12 @@ export const AbstractedControls = observer(<Params,>(properties: AbstractedContr
 		return null;
 	}
 
-	const showGroupReset = enableGroupReset && controlGroups.some((group) => group.controls.some((control) => control.shouldShowReset()));
+	const showGroupReset = enableGroupReset && controlGroups.some((group) => group.controls.some((control) => control.shouldShowReset(data)));
 
 	const resetAll = () => {
 		controlGroups.forEach((group) => {
 			group.controls.forEach((control) => {
-				if (control.shouldShowReset()) {
+				if (control.shouldShowReset(data)) {
 					control.onReset(data);
 				}
 			});
@@ -65,11 +65,11 @@ export const AbstractedControls = observer(<Params,>(properties: AbstractedContr
 				</div>
 			)}
 			{controlGroups.map((group) => {
-				const showGroupReset = group.showReset && group.controls.some((control) => control.shouldShowReset());
+				const showGroupReset = group.showReset && group.controls.some((control) => control.shouldShowReset(data));
 
 				const resetGroup = () => {
 					group.controls.forEach((control) => {
-						if (control.shouldShowReset()) {
+						if (control.shouldShowReset(data)) {
 							control.onReset(data);
 						} else {
 						}
@@ -104,7 +104,7 @@ export const AbstractedControls = observer(<Params,>(properties: AbstractedContr
 									type={control.type}
 									label={control.label}
 									description={control.description}
-									showReset={control.shouldShowReset()}
+									showReset={control.shouldShowReset(data)}
 									onChange={(value) => control.onValueChange(value, data)}
 									onReset={() => control.onReset(data)}
 									display={control.getDisplayState ? control.getDisplayState(data) : 'visible'}

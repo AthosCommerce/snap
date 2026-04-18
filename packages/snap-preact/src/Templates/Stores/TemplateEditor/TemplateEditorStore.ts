@@ -1,17 +1,28 @@
 import { AutocompleteStoreConfigSettings, SearchStoreConfigSettings, StorageStore, StorageType } from '@athoscommerce/snap-store-mobx';
-import { observable, makeObservable } from 'mobx';
+import { observable, makeObservable, toJS } from 'mobx';
 import Color from 'color';
 import deepmerge from 'deepmerge';
 
-import { TemplatesStore, TEMPLATE_STORE_KEY, TargetMap, RecsTemplateTypes } from '../TemplateStore';
+import { TemplatesStore, TEMPLATE_STORE_KEY, TemplateTarget, SearchTargetConfig, AutocompleteTargetConfig } from '../TemplateStore';
 import { AutocompleteController, SearchController } from '@athoscommerce/snap-controller';
 
 import type { AbstractionGroup } from '../../../types';
 import { ThemeVariables, ThemeVariablesPartial } from '../../../../components/src';
 import { TargetStore } from '../TargetStore';
-import { AutocompleteTargetConfig, SearchTargetConfig, SnapTemplatesConfig } from '../../SnapTemplates';
-import { configUI, themeUI, searchControllerUI, autocompleteControllerUI, updateAutocompleteControllerState } from './uiAbstractions';
+import { SnapTemplatesConfig } from '../../SnapTemplates';
+import {
+	configUI,
+	themeUI,
+	searchControllerUI,
+	// searchTargetUI,
+	autocompleteControllerUI,
+	// autocompleteTargetUI,
+	updateAutocompleteControllerState,
+	searchTargetUI,
+	autocompleteTargetUI,
+} from './uiAbstractions';
 import { CurrencyCodes, LanguageCodes } from '../LibraryStore';
+import { combineMerge } from '../../../utils';
 
 const THEME_VARIABLE_DEFAULTS: ThemeVariables = {
 	breakpoints: {
@@ -29,14 +40,23 @@ const THEME_VARIABLE_DEFAULTS: ThemeVariables = {
 
 export type EditorTabs = 'templates' | 'configuration';
 
-type EditorState = {
+type EditorStoredState = {
 	hidden: boolean;
 	activeTab: EditorTabs;
+};
+
+type EditorState = {
+	activeDomSelector: string;
 };
 
 type EditorControllerConfigs = {
 	search?: SearchStoreConfigSettings;
 	autocomplete?: AutocompleteStoreConfigSettings;
+};
+
+type EditorTargets = {
+	search: Partial<TemplateTarget>[];
+	autocomplete: Partial<TemplateTarget>[];
 };
 
 type EditorInitialThemeConfig = {
@@ -51,27 +71,40 @@ type EditorOverridesThemeConfig = {
 
 export class TemplateEditorStore {
 	storage: StorageStore;
-	state: EditorState = {
+	storedState: EditorStoredState = {
 		hidden: false,
 		activeTab: 'configuration',
+	};
+	state: EditorState = {
+		activeDomSelector: '',
 	};
 	overrides: {
 		config: SnapTemplatesConfig['config'];
 		controller: EditorControllerConfigs;
 		theme: EditorOverridesThemeConfig;
+		targets: EditorTargets;
 	} = {
 		config: {},
 		controller: {},
 		theme: {},
+		targets: {
+			search: [],
+			autocomplete: [],
+		},
 	};
 	initial: {
 		config: SnapTemplatesConfig['config'] & { language: LanguageCodes; currency: CurrencyCodes };
 		controller: EditorControllerConfigs;
 		theme: EditorInitialThemeConfig;
+		targets: EditorTargets;
 	} = {
 		config: {
 			language: 'en',
 			currency: 'usd',
+		},
+		targets: {
+			search: [],
+			autocomplete: [],
 		},
 		controller: {},
 		theme: {
@@ -93,6 +126,10 @@ export class TemplateEditorStore {
 			search: AbstractionGroup<SearchController>[];
 			autocomplete: AbstractionGroup<AutocompleteController>[];
 		};
+		targets: {
+			search?: AbstractionGroup<number>[];
+			autocomplete?: AbstractionGroup<number>[];
+		};
 	} = {
 		templates: {
 			config: configUI(this),
@@ -102,21 +139,35 @@ export class TemplateEditorStore {
 			search: searchControllerUI(this),
 			autocomplete: autocompleteControllerUI(this),
 		},
+		targets: {
+			search: searchTargetUI(this),
+			autocomplete: autocompleteTargetUI(this),
+		},
 	};
 
 	constructor({ templatesStore }: { templatesStore: TemplatesStore }) {
 		this.templatesStore = templatesStore;
 		this.storage = new StorageStore({ type: StorageType.local, key: TEMPLATE_STORE_KEY });
-		this.state = this.storage.get('editor') || this.state;
+		this.storedState = this.storage.get('editor') || this.storedState;
+
+		// TODO: could be better to not have to redifine everything here in "prevent empty objects in overrides"
 		this.overrides = this.storage.get('overrides') || this.overrides;
 
 		// prevent empty objects in overrides
 		this.overrides.config = this.overrides.config || {};
 		this.overrides.controller = this.overrides.controller || {};
 		this.overrides.theme = this.overrides.theme || {};
+		this.overrides.targets = this.overrides.targets || {
+			search: [],
+			autocomplete: [],
+		};
 
 		this.initial.config = deepmerge(this.initial.config, templatesStore.config.config);
 		this.initial.controller = {}; // set when registering controllers
+
+		// set initial targets
+		if (templatesStore.config.search?.targets) this.initial.targets.search = templatesStore.config.search?.targets;
+		if (templatesStore.config.autocomplete?.targets) this.initial.targets.autocomplete = templatesStore.config.autocomplete?.targets;
 
 		const themeConfig = JSON.parse(JSON.stringify(templatesStore.config.theme || {})) as SnapTemplatesConfig['theme'];
 		delete themeConfig.style;
@@ -137,6 +188,7 @@ export class TemplateEditorStore {
 		this.storage.set('initial', this.initial);
 
 		makeObservable(this, {
+			storedState: observable,
 			state: observable,
 			overrides: observable,
 			initial: observable,
@@ -150,13 +202,23 @@ export class TemplateEditorStore {
 	}
 
 	switchTabs(tab: EditorTabs) {
-		this.state.activeTab = tab;
-		this.storage.set('editor', this.state);
+		this.storedState.activeTab = tab;
+		this.storage.set('editor', this.storedState);
 	}
 
 	toggleHide(hide: boolean) {
-		this.state.hidden = hide;
-		this.storage.set('editor', this.state);
+		this.storedState.hidden = hide;
+		this.storage.set('editor', this.storedState);
+	}
+
+	setActiveDomSelector(selectorId: string | null) {
+		if (selectorId?.length) {
+			this.state.activeDomSelector = selectorId;
+			this.toggleHide(true);
+		} else {
+			this.state.activeDomSelector = '';
+			this.toggleHide(false);
+		}
 	}
 
 	setConfigOverride(obj: { path: string[]; value: unknown }) {
@@ -167,7 +229,7 @@ export class TemplateEditorStore {
 			return acc && acc[key as keyof typeof acc];
 		}, this.initial.config);
 
-		const configOverrides = generateObject(path, value == initialValue ? undefined : value);
+		const configOverrides = generateObject<SnapTemplatesConfig['config']>(path, value == initialValue ? undefined : value);
 
 		const updatedOverrides = removeEmptyObjects(deepmerge(this.overrides.config || {}, configOverrides));
 		this.overrides.config = updatedOverrides;
@@ -199,21 +261,17 @@ export class TemplateEditorStore {
 		Object.keys(this.templatesStore.targets).forEach((feature) => {
 			// loop through all the features (search, autocomplete, recommendations)
 			if (feature == 'recommendation') {
-				const recommendationObj = this.templatesStore.targets[feature as keyof typeof this.templatesStore.targets] as {
-					[key in RecsTemplateTypes]: TargetMap;
-				};
-				Object.keys(recommendationObj).forEach((recType) => {
-					const targetMap = recommendationObj[recType as keyof typeof recommendationObj];
-					Object.keys(targetMap).forEach((target) => {
-						const targetStore = targetMap[target as keyof typeof targetMap] as TargetStore;
-						targetStore.setTheme(themeName, 'library');
+				const recommendationTargetObject = this.templatesStore.targets.recommendation;
+				Object.keys(recommendationTargetObject).forEach((recType) => {
+					const featureTargets = recommendationTargetObject[recType as keyof typeof recommendationTargetObject];
+					featureTargets.forEach((target) => {
+						target.setTheme(themeName, 'library');
 					});
 				});
 			} else {
-				const targetMap = this.templatesStore.targets[feature as keyof typeof this.templatesStore.targets] as TargetMap;
-				Object.keys(targetMap).forEach((target) => {
-					const targetStore = targetMap[target as keyof typeof targetMap] as TargetStore;
-					targetStore.setTheme(themeName, 'library');
+				const featureTargets = this.templatesStore.targets[feature as keyof typeof this.templatesStore.targets] as TargetStore[];
+				featureTargets.forEach((target) => {
+					target.setTheme(themeName, 'library');
 				});
 			}
 		});
@@ -227,9 +285,9 @@ export class TemplateEditorStore {
 			return acc && acc[key as keyof typeof acc];
 		}, this.initial.theme);
 
-		const themeConfigOverrides = generateObject(path, value == initialValue ? undefined : value);
+		const themeConfigOverrides = generateObject<EditorOverridesThemeConfig>(path, value == initialValue ? undefined : value);
 
-		this.overrides.theme = removeEmptyObjects(deepmerge(this.overrides.theme || {}, themeConfigOverrides));
+		this.overrides.theme = removeEmptyObjects(deepmerge(this.overrides.theme || {}, themeConfigOverrides || {}));
 		this.storage.set('overrides.theme', this.overrides.theme);
 
 		const mergedOverrides = deepmerge(this.initial.theme || {}, this.overrides.theme || {});
@@ -272,6 +330,135 @@ export class TemplateEditorStore {
 		controller?.setConfig(mergedConfig);
 	}
 
+	// ['variables', 'colors', 'primary']
+	// store.setThemeOverride({ path: ['variables', 'breakpoints', 'mobile'], value });
+	// ['search', '[0]', 'selector']
+	// store.setTargetOverride({ path: ['search', '[0]'], value });
+	// store.setTargetOverride({ path: ['search', '[0]', 'selector'], value });
+	// store.setTargetOverride({ path: ['search', '[0]'], value });  --- value = {...}
+	setTargetOverride = (obj: { path: string[]; value: string | undefined }) => {
+		const path = obj.path;
+		let value = obj.value;
+
+		/*
+		this.initial.targets = {
+			search: [
+				{...},
+				{...},
+			]
+		}
+		*/
+
+		const targetFeature = path[0] as 'search' | 'autocomplete';
+		// const lastPath = path[path.length - 1];
+		let targetIndex = -1;
+		// grab the initial config value using the path provided
+		const initialValue = path.reduce((acc: any, key) => {
+			// handle array index access
+			// e.g., [0], [1], etc.
+			// if the key is in the format of [index], convert it to a number and access the array
+			// otherwise, access the object property as usual
+			try {
+				const keyIndex = Number(key.replace(/^\[(\d+)\]$/, '$1'));
+				if (Number.isNaN(keyIndex)) {
+					// not an index position
+					return acc && acc[key as keyof typeof acc];
+				} else {
+					// we have a string key - use it to set the accumulator
+					targetIndex = keyIndex;
+					return acc && acc[keyIndex];
+				}
+			} catch (error) {
+				// handle error
+				console.error('Error accessing path in initial targets:', error);
+				return undefined;
+			}
+		}, this.initial.targets);
+
+		const targetOverrides = generateObject<EditorTargets>(path, value == initialValue ? undefined : value);
+		const merged = deepmerge(toJS(this.overrides.targets) || {}, toJS(targetOverrides) || {}, { arrayMerge: combineMerge });
+		this.overrides.targets = removeEmptyObjects(merged);
+		this.storage.set('overrides.targets', this.overrides.targets);
+
+		// const plainInitial = convertObservableToPlain(this.initial.targets);
+		// const plainOverrides = convertObservableToPlain(this.overrides.targets);
+		const mergedOverrides = deepmerge<EditorTargets>(toJS(this.initial.targets) || {}, toJS(this.overrides.targets) || {}, {
+			arrayMerge: combineMerge,
+		});
+
+		const finalPath = path[path.length - 1];
+
+		if (finalPath == 'selector' && targetIndex > -1) {
+			// if reset button was clicked value will be undefined
+			if (typeof value == 'undefined') {
+				value = initialValue;
+			}
+
+			// needs to have a value and some actual elem to find
+			if (typeof value == 'string' && value.length > 1 && document.querySelector(value)) {
+				const activeTargeterKey = Object.keys(window.athos.controller[targetFeature].targeters)[targetIndex];
+				if (activeTargeterKey) {
+					const oldSelector = window.athos.controller[targetFeature].targeters[activeTargeterKey].targets[0].selector;
+					const elem = document.querySelector(oldSelector || '');
+
+					if (targetFeature == 'search' && elem) {
+						//create clone of elem with all attributes
+						const clonedElement = elem.cloneNode(true);
+						clonedElement.innerHTML = '';
+
+						//inject clone right after elem
+						elem.insertAdjacentElement('afterend', clonedElement);
+
+						//delete elem so targeter can retarget an element thats already been targeted
+						elem.remove();
+					}
+
+					window.athos.controller[targetFeature].targeters[activeTargeterKey].targets[0].selector = value;
+
+					/*
+						selector
+						inputSelector
+					
+						targetSelector -> selector
+						triggerSelector (optional) -> inputSelector
+						DomTargeter
+							* selector = selector
+							* props.input = inputSelector (optional)
+					*/
+
+					window.athos.controller[targetFeature].retarget();
+				} else {
+					console.log('no active targeter key');
+				}
+			}
+		} else if (finalPath == 'triggerSelector' && targetIndex > -1) {
+			const activeTargeterKey = Object.keys(window.athos.controller[targetFeature].targeters)[targetIndex];
+			window.athos.controller[targetFeature].targeters[activeTargeterKey].targets[0].props.input = value;
+			window.athos.controller[targetFeature].retarget();
+		}
+
+		// if the component or resultComponent changed we need to tell the targetStore about it via:
+		const targetFeatureSet = this.templatesStore.targets[targetFeature];
+		if (targetFeatureSet && targetIndex != -1) {
+			const target = targetFeatureSet[targetIndex as keyof typeof targetFeatureSet] as TargetStore;
+
+			// if (target && lastPath) {
+			// 	const finalValue = mergedOverrides[targetFeature][targetIndex]?.selector;
+			// 	finalValue && target.setValue(lastPath, finalValue);
+			// }
+
+			// update values in target
+			const mergedTarget = mergedOverrides[targetFeature][targetIndex];
+
+			Object.keys(mergedTarget).forEach((key) => {
+				const value = mergedTarget[key as keyof typeof mergedTarget] as string;
+				target.setValue(key, value);
+			});
+		}
+		// target.setComponent
+		// target.setResultComponent
+	};
+
 	registerController<ControllerType extends SearchController | AutocompleteController>(controller: ControllerType) {
 		const settingsCopy = JSON.parse(JSON.stringify(controller.config.settings)) as SearchStoreConfigSettings | AutocompleteStoreConfigSettings;
 
@@ -306,35 +493,35 @@ export class TemplateEditorStore {
 
 	getTargets() {
 		const storeTargets = this.templatesStore.targets;
-		const searchTargets = Object.keys(storeTargets.search || {}).map((target) => ({
+		const searchTargets = storeTargets.search.map((target) => ({
 			type: 'search',
 			target,
-			template: storeTargets.search[target],
-			selector: storeTargets.search[target].selector,
+			template: target.component,
+			selector: target.selector,
 		}));
-		const autocompleteTargets = Object.keys(storeTargets.autocomplete || {}).map((target) => ({
+		const autocompleteTargets = storeTargets.autocomplete.map((target) => ({
 			type: 'autocomplete',
 			target,
-			template: storeTargets.autocomplete[target],
-			selector: storeTargets.autocomplete[target].selector,
+			template: target.component,
+			selector: target.selector,
 		}));
-		const recommendationBundleTargets = Object.keys(storeTargets.recommendation.bundle || {}).map((target) => ({
+		const recommendationBundleTargets = storeTargets.recommendation.bundle.map((target) => ({
 			type: 'recommendation/bundle',
 			target,
-			template: storeTargets.recommendation.bundle[target],
-			selector: storeTargets.recommendation.bundle[target].selector,
+			template: target.component,
+			selector: target.selector,
 		}));
-		const recommendationDefaultTargets = Object.keys(storeTargets.recommendation.default || {}).map((target) => ({
+		const recommendationDefaultTargets = storeTargets.recommendation.default.map((target) => ({
 			type: 'recommendation/default',
 			target,
-			template: storeTargets.recommendation.default[target],
-			selector: storeTargets.recommendation.default[target].selector,
+			template: target.component,
+			selector: target.selector,
 		}));
-		const recommendationEmailTargets = Object.keys(storeTargets.recommendation.email || {}).map((target) => ({
+		const recommendationEmailTargets = storeTargets.recommendation.email.map((target) => ({
 			type: 'recommendation/email',
 			target,
-			template: storeTargets.recommendation.email[target],
-			selector: storeTargets.recommendation.email[target].selector,
+			template: target.component,
+			selector: target.selector,
 		}));
 		const targets = [
 			...searchTargets,
@@ -365,7 +552,7 @@ export class TemplateEditorStore {
 				(target) =>
 					({
 						selector: target.selector,
-						component: target.template.component,
+						component: target.target.component,
 					} as SearchTargetConfig)
 			);
 		const autocompleteTargets = targets
@@ -374,7 +561,7 @@ export class TemplateEditorStore {
 				(target) =>
 					({
 						selector: target.selector,
-						component: target.template.component,
+						component: target.target.component,
 					} as AutocompleteTargetConfig)
 			);
 
@@ -407,6 +594,23 @@ function removeEmptyObjects(object: any) {
 			return obj;
 		}
 
+		// Handle arrays differently from objects
+		if (Array.isArray(obj)) {
+			return obj
+				.map((item) => cleanObj(item))
+				.filter((item) => {
+					// Keep non-null/undefined items
+					if (item === null || item === undefined) return false;
+					// Keep non-empty objects/arrays
+					if (typeof item === 'object') {
+						return Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0;
+					}
+					// Keep primitive values
+					return true;
+				});
+		}
+
+		// Handle regular objects
 		const result: Record<string, any> = {};
 
 		Object.entries(obj).forEach(([key, value]) => {
@@ -414,11 +618,11 @@ function removeEmptyObjects(object: any) {
 			if (value === undefined) return;
 
 			if (value !== null && typeof value === 'object') {
-				// Recursively clean nested objects
+				// Recursively clean nested objects/arrays
 				const cleanedValue = cleanObj(value);
 
-				// Only add non-empty objects
-				if (Object.keys(cleanedValue).length > 0) {
+				// Only add non-empty objects/arrays
+				if (Array.isArray(cleanedValue) ? cleanedValue.length > 0 : Object.keys(cleanedValue).length > 0) {
 					result[key] = cleanedValue;
 				}
 			} else {
@@ -426,26 +630,51 @@ function removeEmptyObjects(object: any) {
 				result[key] = value;
 			}
 		});
-
 		return result;
 	};
-
 	// Apply the cleaning function to our controller object
 	return cleanObj(object);
 }
 
-function generateObject(path: string[], value: unknown): Record<string, unknown> {
+function generateObject<T>(path: string[], value: unknown): T {
+	// modify this function to handle array index access
+	// e.g., [0], [1], etc.
+	// if the key is in the format of [index], convert it to a number and create an array
+	// otherwise, create an object property as usual
+	// Example:
+	// path = ['search', '[0]', 'selector'], value = '#new-selector'
+	// returns { search: [ { selector: '#new-selector' } ] }
+	// Example:
+	// path = ['search', '[0]'], value = { selector: '#new-selector', component: 'Search' }
+	// returns { search: [ { selector: '#new-selector', component: 'Search' } ] }
+	// Example:
+	// path = ['search', 'stuff', 'thing'], value = 'whatever'
+	// returns { search: { stuff: { thing: 'whatever' } } }
+
+	// Example:
+	// path = ['[0]'], value = { selector: '#new-selector', component: 'Search' }
+	// returns [ { selector: '#new-selector', component: 'Search' } ]
+	// if (typeof value == 'undefined') return {} as T;
+
 	return path
 		.slice()
 		.reverse()
-		.reduce((res, key, index) => {
-			if (index === 0) {
-				return {
-					[key]: value,
-				};
+		.reduce((res, key) => {
+			// Check if key is array index notation like [0], [1], etc.
+			const arrayIndexMatch = key.match(/^\[(\d+)\]$/);
+
+			if (arrayIndexMatch) {
+				// Extract the index number
+				const index = parseInt(arrayIndexMatch[1], 10);
+				// Create an array with the element at the specified index
+				const arr: unknown[] = [];
+				arr[index] = res;
+				return arr;
 			}
+
+			// Regular object property
 			return {
 				[key]: res,
 			};
-		}, {});
+		}, value) as T;
 }

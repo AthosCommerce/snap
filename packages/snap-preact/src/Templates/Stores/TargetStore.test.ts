@@ -1,25 +1,18 @@
 import { StorageStore } from '@athoscommerce/snap-store-mobx';
 import { GLOBAL_THEME_NAME, TargetStore } from './TargetStore';
-import { TemplatesStoreDependencies, TemplatesStoreConfigSettings, TemplateThemeTypes } from './TemplateStore';
+import { TemplatesStoreDependencies, TemplatesStoreSettings, TemplateTarget, TemplateThemeTypes } from './TemplateStore';
 
 describe('TargetStore', () => {
 	let dependencies: TemplatesStoreDependencies;
-	let settings: TemplatesStoreConfigSettings;
-
-	beforeEach(() => {
-		dependencies = {
-			storage: new StorageStore(),
-		};
-		settings = {
-			editMode: false,
-		};
-	});
+	let settings: TemplatesStoreSettings;
 
 	it('has expected defaults', () => {
-		const target = {
+		const target: TemplateTarget = {
+			index: 0,
+			type: 'search',
 			component: '',
 		};
-		const store = new TargetStore({ target, dependencies, settings });
+		const store = new TargetStore({ target });
 		expect(store).toBeDefined();
 		expect(store.selector).toStrictEqual('');
 		expect(store.component).toStrictEqual('');
@@ -32,11 +25,13 @@ describe('TargetStore', () => {
 	});
 
 	it('can create a TargetStore', () => {
-		const target = {
+		const target: TemplateTarget = {
+			index: 0,
+			type: 'search',
 			selector: '.test',
 			component: 'Search',
 		};
-		const store = new TargetStore({ target, dependencies, settings });
+		const store = new TargetStore({ target });
 		expect(store).toBeDefined();
 		expect(store.selector).toStrictEqual(target.selector);
 		expect(store.component).toStrictEqual(target.component);
@@ -47,14 +42,16 @@ describe('TargetStore', () => {
 	});
 
 	it('can setComponent, setTheme', () => {
-		const target = {
+		const target: TemplateTarget = {
+			index: 0,
+			type: 'search',
 			selector: '.test',
 			component: 'Search',
 		};
-		const store = new TargetStore({ target, dependencies, settings });
+		const store = new TargetStore({ target });
 
 		expect(store.component).toStrictEqual('Search');
-		store.setComponent('NewSearch');
+		store.setValue('component', 'NewSearch');
 		expect(store.component).toStrictEqual('NewSearch');
 
 		expect(store.theme).toStrictEqual({

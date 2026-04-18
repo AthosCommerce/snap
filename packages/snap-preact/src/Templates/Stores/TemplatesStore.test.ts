@@ -1,6 +1,6 @@
-import { TemplatesStore } from './TemplateStore';
+import { TemplatesStore, TemplateTarget } from './TemplateStore';
 import type { SnapTemplatesConfig } from '../SnapTemplates';
-import { GLOBAL_THEME_NAME } from './TargetStore';
+import { GLOBAL_THEME_NAME, TargetStore } from './TargetStore';
 //todo - these tests sometimes take over 10 seconds to run, currently unclear why.
 describe('TemplateStore', () => {
 	it('has expected defaults', () => {
@@ -171,16 +171,22 @@ describe('TemplateStore', () => {
 		};
 		const store = new TemplatesStore({ config });
 		const type = 'search';
-		const target = {
+		const target: TemplateTarget = {
+			index: 0,
+			type,
 			selector: '.test',
-			theme: GLOBAL_THEME_NAME,
 			component: 'Search',
 		};
-		const targetId = store.addTarget(type, target);
-		expect(targetId).toBeDefined();
-		expect([target.selector, target.component]).toContain(targetId);
-		expect(store.targets[type][targetId!]).toBeDefined();
-		expect(store.getTarget(type, targetId!)).toBe(store.targets[type][targetId!]);
+		const targetObject = store.addTarget(target);
+		expect(targetObject).toBeDefined();
+		// need to expect that targetObject is an instance of TargetStore
+		expect(targetObject).toBeInstanceOf(TargetStore);
+		// need to expect it has the correct values
+		expect(targetObject?.selector).toBe(target.selector);
+		expect(targetObject?.component).toBe(target.component);
+
+		expect(store.targets[type][target.index]).toBeDefined();
+		expect(store.getTarget(target.type, target.index)).toBe(targetObject);
 	});
 });
 
