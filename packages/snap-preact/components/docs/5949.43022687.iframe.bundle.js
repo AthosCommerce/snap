@@ -3910,7 +3910,7 @@
 			'../../node_modules/@athoscommerce/snap-toolbox/dist/esm/version/version.js'(_e, J, w) {
 				'use strict';
 				w.d(J, { r: () => y });
-				const m = { rE: '1.2.0' },
+				const m = { rE: '1.2.1' },
 					{ rE: y } = m;
 			},
 			'../../node_modules/@athoscommerce/snap-tracker/dist/esm/Tracker.js'(_e, J, w) {
@@ -16341,4 +16341,4 @@ The dependencies for this derivation are:
 	]);
 })();
 
-//# sourceMappingURL=5949.1b325880.iframe.bundle.js.map
+//# sourceMappingURL=5949.43022687.iframe.bundle.js.map
