@@ -9,44 +9,9 @@ Product variants allow you to represent different versions of the same base prod
 
 Snap's variants functionality helps manage these product variations by providing tools to configure, display and interact with variant data in your components.
 
-Configure variants by setting the variant field in either:
-- Controller config: `controllers[controller].config.settings.variants.field`
-- Recommendation config: `instantiators.recommendation.config.settings.variants.field`
+Variants are configured in the [Athos Search & Product Discovery Console (ASD)](https://console.athoscommerce.net). When variants are configured in the console, the API will return a `variants` property on each result object, and variants are automatically enabled in Snap — no code configuration is required.
 
-```js
-const config = {
-	instantiators: {
-		recommendation: {
-			components: {
-				Bundle: async () => (await import('./components/Recommendations/Bundle/Bundle')).Bundle,
-			},
-			config: {
-				settings: {
-					variants: {
-						field: 'ss_variants',
-					},
-				},
-			},
-		},
-	},
-	controllers: {
-		search: [
-			{
-				config: {
-					id: 'search',
-					settings: {
-						variants: {
-							field: 'ss_variants',
-						},
-					},
-				},
-			},
-		],
-	},
-};
-
-const snap = new Snap(config);
-```
+Configuration in Snap is only needed when additional variant settings are required, such as realtime variant syncing or per-field option customization (see below).
 
 Once configured, each result that has variants in `controller.store.results` should include a `variants` object with:
 
@@ -171,7 +136,6 @@ const config = {
 			config: {
 				settings: {
 					variants: {
-						field: 'ss_variants',
 						realtime: {
 							enabled: true,
 						},
@@ -225,7 +189,6 @@ You can filter which results update in realtime by adding filters to your config
 
 ```js
 variants: {
-    field: 'ss_variants',
     realtime: {
         enabled: true,
         filters: ['first']
@@ -251,7 +214,6 @@ Configure individual variant fields using `controllers[controller].config.settin
 const config = {
 	settings:  {
 		variants: {
-			field: "ss_variants",
 			options: {
 				color: {
 					label: "Colour",
