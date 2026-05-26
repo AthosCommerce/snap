@@ -1,9 +1,14 @@
 /**
- * ESLint rule: validate-result-component
+ * ESLint rule: validate-config
  *
  * Validates `customComponent` string values against the appropriate
  * section in `components` based on the property path context.
  */
+
+const PROVIDED_COMPONENT_KEYS = {
+	result: ['Result', 'OverlayResult'],
+	overlayResult: ['OverlayResult'],
+};
 
 module.exports = {
 	meta: {
@@ -73,19 +78,34 @@ module.exports = {
 		 */
 		function extractAllComponentKeys(objectExpression) {
 			const componentsProp = findProperty(objectExpression, 'components');
-			if (!componentsProp || componentsProp.value.type !== 'ObjectExpression')
-				return {};
+			if (!componentsProp || componentsProp.value.type !== 'ObjectExpression') {
+				return cloneProvidedComponentKeys();
+			}
 
-			const result = {};
+			const result = cloneProvidedComponentKeys();
 			for (const prop of componentsProp.value.properties) {
 				if (prop.type === 'Property' && prop.value.type === 'ObjectExpression') {
 					const sectionName = getPropertyName(prop);
-					result[sectionName] = prop.value.properties
+					result[sectionName] = Array.from(
+						new Set([
+							...(result[sectionName] || []),
+							...prop.value.properties
 						.filter((p) => p.type === 'Property')
-						.map((p) => getPropertyName(p));
+						.map((p) => getPropertyName(p)),
+						])
+					);
 				}
 			}
 			return result;
+		}
+
+		function cloneProvidedComponentKeys() {
+			return Object.fromEntries(
+				Object.entries(PROVIDED_COMPONENT_KEYS).map(([componentType, keys]) => [
+					componentType,
+					[...keys],
+				])
+			);
 		}
 
 		/**
