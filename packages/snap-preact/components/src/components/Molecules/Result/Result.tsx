@@ -116,7 +116,9 @@ export const Result = observer((properties: ResultProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
+	// Check for custom component override
+	// ignore Result custom component to prevent infinite loop since this is the default result component
+	if (customComponent && customComponent !== 'Result') {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
 		if (ComponentOverride) {
 			return <ComponentOverride {...props} />;
