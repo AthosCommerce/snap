@@ -15,6 +15,7 @@ describe('LibraryStore', () => {
 				email: {},
 			},
 			badge: {},
+			overlayResult: {},
 			badgeImage: {},
 			badgePill: {},
 			badgeRectangle: {},
@@ -166,9 +167,17 @@ describe('LibraryStore', () => {
 		for (let index = 0; index < resultComponents.length; index++) {
 			const componentName = resultComponents[index];
 			expect(store.import.component.result[componentName]).toBeDefined();
-			expect(store.components.result[componentName]).not.toBeDefined();
+			if (componentName === 'OverlayResult') {
+				expect(store.components.overlayResult[componentName]).not.toBeDefined();
+			} else {
+				expect(store.components.result[componentName]).not.toBeDefined();
+			}
 			await store.import.component.result[componentName]();
-			expect(store.components.result[componentName]).toBeDefined();
+			if (componentName === 'OverlayResult') {
+				expect(store.components.overlayResult[componentName]).toBeDefined();
+			} else {
+				expect(store.components.result[componentName]).toBeDefined();
+			}
 		}
 
 		const languages = Object.keys(store.import.language);
