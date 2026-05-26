@@ -29,7 +29,6 @@ const autocompleteModalStyleScript = (props: AutocompleteModalProps) => {
 
 	// autocomplete modal styles
 	const modalStyles = css({
-		...custom.styles.boxSizing('autocompleteModal', props?.treePath, props?.name),
 		'.ss__modal': {
 			'.ss__modal__content': {
 				'.ss__autocomplete-modal__inner': {

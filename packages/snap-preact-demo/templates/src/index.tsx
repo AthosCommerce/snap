@@ -6,6 +6,38 @@ import { getDemoConfig } from '../../shared/demoConfig';
 
 const { siteId, clientConfig } = getDemoConfig();
 
+// const siteId = '8uyt2m';
+// const clientConfig = {
+// 	meta: {
+// 		origin: `https://${siteId}.a.searchspring.io`,
+// 	},
+// 	search: {
+// 		origin: `https://${siteId}.a.searchspring.io`,
+// 	},
+// 	autocomplete: {
+// 		requesters: {
+// 			suggest: {
+// 				origin: `https://${siteId}.a.searchspring.io`,
+// 			},
+// 			legacy: {
+// 				origin: `https://${siteId}.a.searchspring.io`,
+// 			},
+// 		},
+// 	},
+// 	finder: {
+// 		origin: `https://${siteId}.a.searchspring.io`,
+// 	},
+// 	recommend: {
+// 		origin: `https://${siteId}.a.searchspring.io`,
+// 		paths: {
+// 			recommend: `/boost/${siteId}/recommend`,
+// 		},
+// 	},
+// 	suggest: {
+// 		origin: `https://${siteId}.a.searchspring.io`,
+// 	},
+// };
+
 let templatesConfig: SnapTemplatesConfig = {
 	config: {
 		siteId: siteId,
@@ -28,24 +60,34 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 	},
 	theme: {
-		extends: 'base',
+		extends: 'pike',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,
 			// 	tablet: 1024,
 			// 	desktop: 1280,
 			// },
-			// colors: {
-			// 	primary: '#6d7175',
-			// 	secondary: '#202223',
-			// 	accent: '#333333',
-			// },
+			colors: {
+				primary: '#1D4990',
+				secondary: '#1D4990',
+				accent: '#5ED1B3', // #CDE9DF
+			},
 		},
 		style: globalStyles,
 		overrides: {
 			default: {
-				facet: {
+				autocompleteFixed: {
+					width: '1000px',
+					// column1: {
+					// 	width: '200px',
+					// }
+				},
+				'search facet': {
+					rangeInputs: true,
+				},
+				'facet.collection-name': {
 					// iconColor: 'red'
+					searchable: true,
 				},
 			},
 		},
@@ -76,7 +118,7 @@ let templatesConfig: SnapTemplatesConfig = {
 		],
 		settings: {
 			variants: {
-				showDisabledSelectionValues: true,
+				// showDisabledSelectionValues: true,
 			},
 			// infinite: {
 			// 	backfill: 5,

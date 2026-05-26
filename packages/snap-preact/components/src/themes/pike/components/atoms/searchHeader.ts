@@ -10,7 +10,6 @@ const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 
 	// search header styles
 	const searchHeaderStyles = css({
-		...custom.styles.boxSizing('searchHeader', props?.treePath, props?.name),
 		em: {
 			fontStyle: 'normal',
 		},
@@ -25,7 +24,6 @@ const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 			margin: 0,
 			fontSize: '16px',
 			fontWeight: 400,
-			color: variables?.colors?.text,
 			a: {
 				color: variables?.colors?.primary,
 			},

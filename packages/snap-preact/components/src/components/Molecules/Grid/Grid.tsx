@@ -11,7 +11,7 @@ import { ComponentProps, ListOption, SwatchOption, StyleScript } from '../../../
 import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import Color from 'color';
+import { colord } from 'colord';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<GridProps> = ({ gapSize, columns, theme, disableOverflowAction }) => {
@@ -298,7 +298,7 @@ export function Grid(properties: GridProps) {
 
 						let isDark = false;
 						try {
-							const color = new Color(
+							const color = colord(
 								option.background ? option.background.toLowerCase() : option.backgroundImageUrl ? `` : option.value.toString().toLowerCase()
 							);
 							isDark = color.isDark();

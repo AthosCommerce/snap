@@ -1,5 +1,5 @@
 import { IconType } from '../../components/Atoms/Icon';
-import Color from 'color';
+import { colord } from 'colord';
 
 // calculate spacing
 const spacing = 5;
@@ -17,10 +17,9 @@ export const custom: CustomThemeType = {
 		desktop: 1199,
 	},
 	colors: {
-		text: '#515151', // theme color
-		primary: '#00aeef', // theme color
-		secondary: '#1d4990', // theme color
-		accent: '#2154a5', // theme color
+		primary: 'currentColor', // theme color
+		secondary: 'currentColor', // theme color
+		accent: 'currentColor', // theme color
 		white: '#ffffff',
 		black: '#000000',
 		gray01: '#f8f8f8', // lighter gray: bg color under terms, dropdown, checkboxes
@@ -128,24 +127,6 @@ export const custom: CustomThemeType = {
 				color: color || undefined,
 				padding: padding,
 			};
-		},
-		boxSizing: (component: string, treePath?: string, name?: string) => {
-			treePath = treePath ? treePath : component;
-			component = name ? `${component}.${name}` : component; // if name is present, add to component
-			component = treePath.includes('storybook') ? `storybook ${component}` : component; // or if component is in storybook, add it
-
-			// box-sizing rules for uniform sizing
-			// if path and component are same, apply box-sizing
-			// if they are not the same, this means some parent component will have the box sizing rules
-			if (treePath == component) {
-				return {
-					'&, *, *:before, *:after': {
-						boxSizing: 'border-box',
-					},
-				};
-			} else {
-				return null;
-			}
 		},
 		disabled: () => {
 			// disabled styles
@@ -260,20 +241,19 @@ export const custom: CustomThemeType = {
 		},
 	},
 	utils: {
-		activeColors: (color?: string) => {
+		activeColors: (color: string) => {
 			// get active color and related font color
-			color = color ? color : custom.colors.primary;
-			const whiteColor = new Color(custom.colors.white);
-			const blackColor = new Color(custom.colors.black);
-			const activeColor = new Color(color);
-			const accentColor = activeColor.isDark() || activeColor.hex().toLowerCase() == custom.colors.primary ? whiteColor : blackColor;
-			return [activeColor.hex().toLowerCase(), accentColor.hex().toLowerCase()];
+			const whiteColor = colord(custom.colors.white);
+			const blackColor = colord(custom.colors.black);
+			const activeColor = colord(color);
+			const accentColor = activeColor.isDark() || activeColor.toHex().toLowerCase() == custom.colors.primary ? whiteColor : blackColor;
+			return [activeColor.toHex().toLowerCase(), accentColor.toHex().toLowerCase()];
 		},
 		darkenColor: (color?: string, amount?: number) => {
 			// darken a color
 			amount = amount ? amount : 0.075;
 			color = color ? color : custom.colors.gray02;
-			const darkColor = new Color(color).darken(amount).hex().toLowerCase();
+			const darkColor = colord(color).darken(amount).toHex().toLowerCase();
 			return darkColor;
 		},
 		getBp: (bp: number, rule?: string) => {
@@ -285,7 +265,7 @@ export const custom: CustomThemeType = {
 			// lighten a color
 			amount = amount ? amount : 0.42;
 			color = color ? color : custom.colors.text;
-			const lightColor = new Color(color).lighten(amount).hex().toLowerCase();
+			const lightColor = colord(color).lighten(amount).toHex().toLowerCase();
 			return lightColor;
 		},
 	},
@@ -329,7 +309,6 @@ type CustomThemeType = {
 		baseText: (color?: string) => ObjectNumberOrStringType;
 		borderRadius: (value?: number, unit?: string) => ObjectStringType | null;
 		box: (color?: string, padding?: number | string, radius?: boolean) => ObjectNumberOrStringType;
-		boxSizing: (component: string, treePath?: string, name?: string) => ObjectNestedType | null;
 		disabled: () => ObjectNumberOrStringType | ObjectNestedType;
 		headerText: (color?: string, fontSize?: string) => ObjectNumberOrStringType;
 		resultCompact: (layout?: string, imageWidth?: string, fontSize?: number) => ObjectNumberOrStringType | ObjectNestedType;
@@ -338,7 +317,7 @@ type CustomThemeType = {
 		textOverflow: () => ObjectNumberOrStringType;
 	};
 	utils: {
-		activeColors: (color?: string) => string[];
+		activeColors: (color: string) => string[];
 		darkenColor: (color?: string, amount?: number) => string;
 		getBp: (bp: number, rule?: string) => string;
 		lightenColor: (color?: string, amount?: number) => string;

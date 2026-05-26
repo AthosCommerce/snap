@@ -1,13 +1,12 @@
-import { h, render } from 'preact';
+import { h } from 'preact';
 import { observable, makeObservable, toJS, computed } from 'mobx';
-import { observer } from 'mobx-react-lite';
 import deepmerge from 'deepmerge';
 import { isPlainObject } from 'is-plain-object';
 import { TemplateThemeTypes, type TemplatesStoreSettings, type TemplatesStoreDependencies } from './TemplateStore';
-import { Global, css } from '@emotion/react';
 
 import {
 	ThemeMinimal,
+	type ThemeGlobalStyleScript,
 	ThemeVariablesPartial,
 	type Theme,
 	ThemePartial,
@@ -17,7 +16,6 @@ import {
 	ResponsiveKeys,
 	ThemeComplete,
 } from '../../../components/src';
-import { CacheProvider } from '../../../components/src/providers/cache';
 import { sortSelectors, filterSelectors } from '../../../components/src/utilities/mergeProps';
 import type { GlobalThemeStyleScript } from '../../types';
 
@@ -44,6 +42,7 @@ type ThemeStoreConfig = {
 export class ThemeStore {
 	public name: string;
 	public type: string;
+	private style?: GlobalThemeStyleScript;
 
 	private dependencies: TemplatesStoreDependencies;
 	private base: ThemeComplete;
@@ -87,6 +86,7 @@ export class ThemeStore {
 		this.language = language;
 		this.languageOverrides = languageOverrides;
 		this.innerWidth = innerWidth;
+		this.style = style;
 
 		makeObservable(this, {
 			name: observable,
@@ -97,26 +97,6 @@ export class ThemeStore {
 			innerWidth: observable,
 			theme: computed, // make theme getter a computed property (memoized)
 		});
-
-		// handle adding the style to the document (should only happen once per theme)
-		if (style) {
-			const GlobalStyle = observer((props: any) => {
-				const { self } = props;
-				const theme = self.theme;
-				const styles = css({
-					[`.ss__theme__${theme.name}`]: style({ name: theme.name, variables: theme.variables }),
-				});
-				return (
-					<CacheProvider>
-						<Global styles={styles} />
-					</CacheProvider>
-				);
-			});
-			const styleElem = document.createElement('style');
-			styleElem.innerHTML = `<!-- athos style injection point for "${this.name}" theme -->`;
-			document.head.appendChild(styleElem);
-			render(<GlobalStyle theme={this.theme} self={this} themeName={this.name} />, styleElem);
-		}
 	}
 
 	public get theme(): Theme {
@@ -197,6 +177,11 @@ export class ThemeStore {
 
 			const editorOverrideBreakpoint = getOverridesAtActiveBreakpoint(activeBreakpoint, this.editorOverrides);
 			theme = mergeThemeLayers(theme, editorOverrideBreakpoint) as Theme;
+		}
+
+		const activeStyleFns = [this.base.globalStyle, this.style].filter(Boolean) as ThemeGlobalStyleScript[];
+		if (activeStyleFns.length > 0) {
+			theme.globalStyle = ({ name, variables }) => Object.assign({}, ...activeStyleFns.map((fn) => fn({ name, variables })));
 		}
 
 		// change the theme name to match the ThemeStore theme name

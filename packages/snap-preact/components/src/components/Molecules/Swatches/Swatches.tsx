@@ -10,7 +10,7 @@ import { Grid, GridProps } from '../Grid';
 import { ImageProps, Image } from '../../Atoms/Image';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
-import Color from 'color';
+import { colord } from 'colord';
 import { Slideshow, SlideshowSlide, SlideshowProps } from '../Slideshow';
 import { useState } from 'preact/hooks';
 
@@ -204,7 +204,7 @@ export function Swatches(properties: SwatchesProps) {
 				const selected = selection?.value == option.value;
 				let isDark = false;
 				try {
-					const color = new Color(
+					const color = colord(
 						option.background ? option.background.toLowerCase() : option.backgroundImageUrl ? `` : option.value.toString().toLowerCase()
 					);
 					isDark = color.isDark();

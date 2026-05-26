@@ -24,9 +24,7 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 
 	// shared styles
 	const sharedStyles = css({
-		...custom.styles.boxSizing('facetPaletteOptions', props?.treePath, props?.name),
 		'.ss__facet-palette-options__option': {
-			color: variables?.colors?.text,
 			'&.ss__facet-palette-options__option--filtered': {
 				'.ss__facet-palette-options__option__wrapper .ss__facet-palette-options__option__palette': {
 					'&:before': {
@@ -132,7 +130,7 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 	// facet palette shared list styles
 	const sharedListStyles = css({
 		'.ss__facet-palette-options__option': {
-			...custom.styles.baseText(variables?.colors?.text),
+			...custom.styles.baseText(),
 			minHeight: hasCheckbox ? '' : `${listSize + 2}px`,
 			position: 'relative',
 			gap: `${custom.spacing.x1}px`,
@@ -251,9 +249,6 @@ export const facetPaletteOptions: ThemeComponent<'facetPaletteOptions', FacetPal
 					background: paletteColors.rainbow,
 				},
 			},
-		},
-		'facetPaletteOptions checkbox icon': {
-			color: custom.colors.primary,
 		},
 	},
 };

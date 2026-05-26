@@ -117,28 +117,6 @@ export function themeUI(store: TemplateEditorStore): AbstractionGroup[] {
 			controls: [
 				{
 					type: 'color',
-					label: 'Text Color',
-					description: 'Text color for the theme',
-					getDisplayState: () => 'visible',
-					getValue: () => {
-						// value is derived in the editorstore at construction time
-						return store.overrides.theme.variables?.colors?.text ?? store.initial.theme.variables?.colors?.text ?? '';
-					},
-					shouldShowReset: () => {
-						// if the override differs from the initial state, show reset
-						const initialText = store.initial.theme.variables?.colors?.text?.toUpperCase();
-						const overrideText = store.overrides.theme.variables?.colors?.text?.toUpperCase();
-						return typeof overrideText !== 'undefined' && initialText != overrideText;
-					},
-					onValueChange: debounce((value) => {
-						store.setThemeOverride({ path: ['variables', 'colors', 'text'], value });
-					}, 50),
-					onReset: () => {
-						store.setThemeOverride({ path: ['variables', 'colors', 'text'], value: undefined });
-					},
-				},
-				{
-					type: 'color',
 					label: 'Primary Color',
 					description: 'Primary color for the theme',
 					getDisplayState: () => 'visible',

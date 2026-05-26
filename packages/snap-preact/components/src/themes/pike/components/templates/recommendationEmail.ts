@@ -10,7 +10,6 @@ const recommendationEmailStyleScript = (props: RecommendationEmailProps) => {
 	const variables = props?.theme?.variables;
 
 	const recommendationEmailStyles = css({
-		...custom.styles.boxSizing('recommendationEmail', props?.treePath, props?.name),
 		padding: `0 0 ${custom.spacing.x6}px 0`,
 		'&:has(.ss__rating)': {
 			'.ss__recommendation-email__result-wrapper': {

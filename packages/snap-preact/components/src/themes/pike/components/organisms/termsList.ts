@@ -13,7 +13,6 @@ const termsListStyleScript = (props: TermsListProps) => {
 		backgroundColor: 'transparent',
 		alignContent: 'flex-start',
 		gap: `${custom.spacing.x4}px`,
-		...custom.styles.boxSizing('termsList', props?.treePath, props?.name),
 	});
 
 	// terms list horizontal styles

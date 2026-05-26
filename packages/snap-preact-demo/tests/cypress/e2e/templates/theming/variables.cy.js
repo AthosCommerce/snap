@@ -167,7 +167,6 @@ describe('Theme variables work', () => {
 					extends: 'pike',
 					// variables: {
 					// colors: {
-					// text: '#222222',
 					// primary: '#202223',
 					// secondary: '#6d7175',
 					// accent: '#3a23ad',
@@ -201,15 +200,13 @@ describe('Theme variables work', () => {
 
 		cy.snapController().then(({ store }) => {
 			//accent
-			cy.get('.ss__select .ss__dropdown .ss__icon').should('have.css', 'fill', 'rgb(81, 81, 81)');
+			cy.get('.ss__select .ss__dropdown .ss__icon').should('have.css', 'fill', 'rgb(0, 0, 0)');
 
 			// cypress converts all css colors to rgb...
 			//secondary
-			cy.get('.ss__select .ss__select__select .ss__select__select__option').should('have.css', 'color', 'rgb(0, 174, 239)');
+			cy.get('.ss__select .ss__select__select .ss__select__select__option').should('have.css', 'color', 'rgb(29, 73, 144)');
 			//primary
-			cy.get('.ss__button').should('have.css', 'color', 'rgb(81, 81, 81)');
-			//text
-			cy.get('.ss__facet-grid-options a').should('have.css', 'color', 'rgb(81, 81, 81)');
+			cy.get('.ss__button').should('have.css', 'color', 'rgb(255, 255, 255)');
 		});
 	});
 

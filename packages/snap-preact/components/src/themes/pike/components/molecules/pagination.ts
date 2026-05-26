@@ -10,7 +10,6 @@ const paginationStyleScript = (props: PaginationProps) => {
 	const mobileBp = variables?.breakpoints?.mobile as number;
 
 	const paginationStyles = css({
-		...custom.styles.boxSizing('pagination', props?.treePath, props?.name),
 		nav: {
 			display: 'flex',
 			flexFlow: 'row wrap',
@@ -20,7 +19,6 @@ const paginationStyleScript = (props: PaginationProps) => {
 			'.ss__pagination__page, span': {
 				padding: 0,
 				fontSize: '16px',
-				color: variables?.colors?.text,
 			},
 			'.ss__pagination__page': {
 				minWidth: '1px',
@@ -54,7 +52,6 @@ export const pagination: ThemeComponent<'pagination', PaginationProps, Paginatio
 		},
 		'pagination icon': {
 			size: `${custom.sizes.icon12}px`,
-			color: custom.colors.primary,
 		},
 		'pagination icon.prev': {
 			icon: custom.icons.arrowLeft,

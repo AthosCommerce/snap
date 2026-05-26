@@ -13,7 +13,6 @@ const searchStyleScript = (props: SearchProps) => {
 
 	// search styles
 	const searchStyles = css({
-		...custom.styles.boxSizing('search', props?.treePath, props?.name),
 		'.ss__search__header-section, .ss__search__main-section': {
 			margin: `0 0 ${custom.spacing.x6}px 0`,
 		},
@@ -43,6 +42,9 @@ const searchStyleScript = (props: SearchProps) => {
 							width: '100%',
 						},
 					},
+				},
+				'&[ss-name="bottom"]': {
+					marginTop: `40px`,
 				},
 			},
 		},
