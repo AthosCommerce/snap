@@ -239,7 +239,66 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 			'.ss__chat__bubble': {
 				display: 'none',
 			},
+			// At constrained viewport heights (e.g. browser zoom-in) the fixed 70vh panels
+			// leave too little room for the messages view once sticky header/footer content
+			// is accounted for. Stretch the chat to fill the window minus the offset.
+			...(mobile
+				? {}
+				: {
+						'@media (max-height: 800px)': {
+							top: offsetValue || 0,
+							bottom: 0,
+							height: offsetValue ? `calc(100vh - ${offsetValue})` : '100vh',
+							maxHeight: offsetValue ? `calc(100vh - ${offsetValue})` : '100vh',
+							'.ss__chat__primary': {
+								height: '100%',
+							},
+							'.ss__chat__secondary': {
+								height: '100%',
+								maxHeight: '100%',
+							},
+							// The default 90vh cap on chat content would leave unfilled space when
+							// the chat stretches to 100vh; primary's justifyContent: flex-end then
+							// pushes its content down while secondary stays anchored to the top,
+							// making the panels appear misaligned.
+							'.ss__chat__content': {
+								maxHeight: '100%',
+							},
+						},
+				  }),
 		},
+		// Welcome state: only the greeting + suggested questions are shown, so let the
+		// chat hug its content instead of taking the full 70vh / 100vh used once a
+		// conversation has started. Mobile stays fullscreen by design.
+		...(mobile
+			? {}
+			: {
+					'&.ss__chat--welcome.ss__chat--open': {
+						'.ss__chat__primary': {
+							height: 'auto',
+						},
+						// With an auto-sized panel, the messages container's overflow/maxHeight
+						// constraints (and the welcome's minHeight: 100%) resolve against an
+						// undefined parent height and produce a stray scrollbar / clipped layout.
+						// Let everything flow at its natural size.
+						'.ss__chat__messages': {
+							overflow: 'visible',
+							maxHeight: 'none',
+						},
+						'.ss__chat__welcome': {
+							minHeight: 0,
+						},
+						'@media (max-height: 800px)': {
+							top: 'auto',
+							bottom: '20px',
+							height: 'auto',
+							maxHeight: 'calc(100vh - 40px)',
+							'.ss__chat__primary': {
+								height: 'auto',
+							},
+						},
+					},
+			  }),
 		'.ss__chat__header': {
 			display: 'flex',
 			justifyContent: 'space-between',
@@ -461,9 +520,9 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 				'.ss__chat__content__header__comparisons': {
 					display: 'flex',
 					flexDirection: 'column',
-					gap: '1em',
+					gap: '0.5em',
 					background: new Colour(colorPrimary).lightenHex(0.95),
-					padding: '1em',
+					padding: '0.5em 1em',
 
 					'.ss__chat__content__header__comparisons__header': {
 						display: 'flex',
@@ -576,7 +635,7 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 				overscrollBehavior: 'contain',
 				margin: 0,
 				maxHeight: '100%',
-				background: '#f9fafc',
+				background: new Colour(colorPrimary).lightenHex(0.95),
 
 				'.ss__chat__messages__end': {
 					height: '1px',
@@ -639,10 +698,13 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 						lineHeight: 1.5,
 						color: '#333',
 						padding: '2em',
-						textAlign: 'center',
+						textAlign: 'left',
 					},
-					'.ss__chat__suggestions': {
+					'.ss__chat-suggested-questions': {
 						marginTop: 'auto',
+						'.ss__chat-suggested-questions__item': {
+							padding: '8px 16px',
+						},
 					},
 				},
 			},

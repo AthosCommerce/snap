@@ -156,6 +156,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			urlVersion: observable,
 			hasPendingFacetChanges: computed,
 			pendingFacetCount: computed,
+			searchFilters: computed,
 		});
 
 		// Sync the root facets display with the active message. Only productSearchResult
@@ -320,6 +321,36 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			}
 		}
 		return count;
+	}
+
+	/** Current in-progress facet selection translated into the API's `searchFilters` shape.
+	 * Returned unconditionally (not gated on `hasPendingFacetChanges`) so callers that need
+	 * to explicitly force a `productSearch` request — e.g. the non-multiselect facet
+	 * click handlers — can attach the current filters without re-implementing the mapping. */
+	get searchFilters(): { key: string; options: ({ key: string } | { low: string; high: string })[] }[] {
+		void this.urlVersion;
+		const filterState = (this.urlManager.state as any)?.filter as Record<string, any> | undefined;
+		const result: { key: string; options: ({ key: string } | { low: string; high: string })[] }[] = [];
+		if (!filterState) return result;
+		Object.keys(filterState).forEach((field) => {
+			const raw = filterState[field];
+			const values = Array.isArray(raw) ? raw : [raw];
+			const options: ({ key: string } | { low: string; high: string })[] = [];
+			values.forEach((v) => {
+				if (typeof v === 'object' && v !== null) {
+					const low = v.low;
+					const high = v.high;
+					if (low == null && high == null) return;
+					options.push({ low: low == null ? '*' : String(low), high: high == null ? '*' : String(high) });
+				} else {
+					options.push({ key: String(v) });
+				}
+			});
+			if (options.length > 0) {
+				result.push({ key: field, options });
+			}
+		});
+		return result;
 	}
 
 	/** True when the in-progress facet selection differs from the filters that were applied

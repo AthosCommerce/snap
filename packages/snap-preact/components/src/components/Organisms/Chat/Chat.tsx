@@ -21,7 +21,7 @@ import { ChatSuggestedQuestions, ChatSuggestedQuestionsProps } from '../../Molec
 import { ChatAttachmentContext, ChatAttachmentContextItem, ChatAttachmentContextProps } from '../../Molecules/ChatAttachmentContext';
 import { Image } from '../../Atoms/Image';
 import { ChatLoadingIndicator, ChatLoadingIndicatorProps } from '../../Atoms/ChatLoadingIndicator';
-import { ValueFacet, RangeFacet, FacetValue, FacetRangeValue } from '@athoscommerce/snap-store-mobx';
+import { ValueFacet, RangeFacet, FacetValue, FacetRangeValue, ChatAttachmentImage } from '@athoscommerce/snap-store-mobx';
 
 import { Dropdown, FacetSlider, Icon, Overlay, useMediaQuery } from '../../..';
 import { ChatInspirationResultMessage, ChatInspirationResultMessageProps } from '../../Molecules/ChatInspirationResultMessage';
@@ -311,6 +311,110 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		return () => observer.disconnect();
 	}, [store.open, store.currentChat?.isExpired]);
 
+	// Prevent the background page from scrolling while the chat is open on touch
+	// devices. iOS Safari (real iPad/iPhone) rubber-band-scrolls the body when a
+	// touchmove inside `.ss__chat__messages` reaches the top/bottom — and
+	// `overscroll-behavior: contain` is ignored there.
+	//
+	// We don't touch body styles (locking via `position: fixed` on `<body>` leaves
+	// iPad Safari in a stuck viewport state where the page can't scroll after the
+	// lock is released). Instead we install a `touchmove` handler that:
+	//   - allows the touchmove if it's inside a scrollable region of the chat
+	//     and that region isn't at its scroll edge in the swipe direction;
+	//   - calls `preventDefault()` otherwise — which is what blocks both
+	//     background scrolling and iOS rubber-band overscroll.
+	// Cleanup just removes the listeners, so nothing can leak into the page.
+	useEffect(() => {
+		if (!store.open) return;
+		if (typeof document === 'undefined') return;
+
+		let startX = 0;
+		let startY = 0;
+		let scrollEl: HTMLElement | null = null;
+
+		// Walk up from the touch target to find the first ancestor inside the chat
+		// that is actually scrollable in either axis. Stop at the chat root so we
+		// never consider elements outside the chat.
+		const findScrollableInChat = (start: HTMLElement | null): HTMLElement | null => {
+			const chatRoot = chatRef.current;
+			if (!chatRoot) return null;
+			let el: HTMLElement | null = start;
+			while (el && chatRoot.contains(el)) {
+				const style = getComputedStyle(el);
+				const scrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && el.scrollHeight > el.clientHeight;
+				const scrollableX = (style.overflowX === 'auto' || style.overflowX === 'scroll') && el.scrollWidth > el.clientWidth;
+				if (scrollableY || scrollableX) {
+					return el;
+				}
+				if (el === chatRoot) break;
+				el = el.parentElement;
+			}
+			return null;
+		};
+
+		const onTouchStart = (e: TouchEvent) => {
+			if (!e.touches[0]) return;
+			startX = e.touches[0].clientX;
+			startY = e.touches[0].clientY;
+			scrollEl = findScrollableInChat(e.target as HTMLElement | null);
+		};
+
+		const onTouchMove = (e: TouchEvent) => {
+			const target = e.target as Node | null;
+			const chatRoot = chatRef.current;
+			const inChat = !!(chatRoot && target && chatRoot.contains(target));
+			// Touches outside the chat shouldn't scroll the background.
+			if (!inChat) {
+				if (e.cancelable) e.preventDefault();
+				return;
+			}
+			// Inside the chat but no scrollable container — block to prevent body scroll.
+			if (!scrollEl) {
+				if (e.cancelable) e.preventDefault();
+				return;
+			}
+			// Inside a scrollable container — only block when at the edge in the
+			// swipe direction, so internal scrolling continues to work. Detect the
+			// dominant axis so horizontally-scrollable rows (e.g. the facets row)
+			// also get to handle their own touch gestures.
+			const currentX = e.touches[0]?.clientX ?? startX;
+			const currentY = e.touches[0]?.clientY ?? startY;
+			const deltaX = currentX - startX;
+			const deltaY = currentY - startY;
+			const horizontal = Math.abs(deltaX) > Math.abs(deltaY);
+			if (horizontal) {
+				const scrollsX = scrollEl.scrollWidth > scrollEl.clientWidth;
+				if (!scrollsX) {
+					if (e.cancelable) e.preventDefault();
+					return;
+				}
+				const atLeft = scrollEl.scrollLeft <= 0;
+				const atRight = scrollEl.scrollLeft + scrollEl.clientWidth >= scrollEl.scrollWidth - 1;
+				if ((atLeft && deltaX > 0) || (atRight && deltaX < 0)) {
+					if (e.cancelable) e.preventDefault();
+				}
+			} else {
+				const scrollsY = scrollEl.scrollHeight > scrollEl.clientHeight;
+				if (!scrollsY) {
+					if (e.cancelable) e.preventDefault();
+					return;
+				}
+				const atTop = scrollEl.scrollTop <= 0;
+				const atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
+				if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
+					if (e.cancelable) e.preventDefault();
+				}
+			}
+		};
+
+		document.addEventListener('touchstart', onTouchStart, { passive: true });
+		document.addEventListener('touchmove', onTouchMove, { passive: false });
+		return () => {
+			document.removeEventListener('touchstart', onTouchStart);
+			document.removeEventListener('touchmove', onTouchMove);
+		};
+	}, [store.open]);
+
 	const HistoryButton = (props: { disabled?: boolean; open?: boolean }) => (
 		<Button
 			className="ss__chat__header__button--history"
@@ -444,9 +548,15 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 								onChange={() => {
 									if (!multiselectFacets) {
 										// FacetSlider fires onChange before its urlManager update; defer
-										// so controller.search() reads the updated filter state and
-										// promotes the request to productSearch.
-										queueMicrotask(() => controller.search());
+										// so controller.search() reads the updated filter state. Force
+										// productSearch with the current filters so a slider tweak doesn't
+										// fall through to `general` when hasPendingFacetChanges happens to
+										// be false (e.g. the slider returned to the seeded range).
+										queueMicrotask(() =>
+											controller.search({
+												data: { requestType: 'productSearch', searchFilters: controller.store.searchFilters },
+											} as any)
+										);
 									}
 								}}
 							/>
@@ -498,6 +608,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		}
 	}, [requestType]);
 
+	const isWelcomeState = (!store.currentChat?.chat || store.currentChat.chat.length === 0) && !!store.welcomeMessage && !store.currentChat?.isExpired;
+
 	return (
 		<CacheProvider>
 			<>
@@ -509,6 +621,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 							'ss__chat--open': store.open,
 							'ss__chat--minimized': !store.open,
 							'ss__chat--mobile': isMobile,
+							'ss__chat--welcome': isWelcomeState,
 						},
 						className,
 						internalClassName
@@ -1101,6 +1214,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 																								'&:hover': {
 																									background: new Colour(colorPrimary).lightenHex(0.95),
 																								},
+																								'&.ss__chat__actions__facet__option--selected': {
+																									fontWeight: 'bold',
+																								},
 																							},
 																					  }),
 																			},
@@ -1142,12 +1258,31 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 																						return (
 																							<Button
 																								key={optionValue}
+																								className={classnames({
+																									'ss__chat__actions__facet__option--selected': controller.store.isFacetSelected(
+																										facet.field,
+																										optionValue
+																									),
+																								})}
 																								onClick={() => {
-																									controller.store.addFacet({
-																										key: facet.field,
-																										value: optionValue,
-																									});
-																									controller.search();
+																									// Non-multiselect: clicking an already-selected value toggles it off.
+																									// `addFacet` is idempotent against an existing urlManager value, so without
+																									// the toggle the state wouldn't change, `hasPendingFacetChanges` would stay
+																									// false, and the params getter would fall through to `general`.
+																									if (controller.store.isFacetSelected(facet.field, optionValue)) {
+																										controller.store.removeFacet(facet.field, optionValue);
+																									} else {
+																										controller.store.addFacet({
+																											key: facet.field,
+																											value: optionValue,
+																										});
+																									}
+																									// Force productSearch with the current filter state rather than relying
+																									// on the params getter's hasPendingFacetChanges promotion — a facet click
+																									// in the chat is unambiguously a search intent.
+																									controller.search({
+																										data: { requestType: 'productSearch', searchFilters: controller.store.searchFilters },
+																									} as any);
 																								}}
 																							>
 																								{rangeOption.label}
@@ -1188,12 +1323,31 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 																						return (
 																							<Button
 																								key={optionValue}
+																								className={classnames({
+																									'ss__chat__actions__facet__option--selected': controller.store.isFacetSelected(
+																										facet.field,
+																										optionValue
+																									),
+																								})}
 																								onClick={() => {
-																									controller.store.addFacet({
-																										key: facet.field,
-																										value: optionValue,
-																									});
-																									controller.search();
+																									// Non-multiselect: clicking an already-selected value toggles it off.
+																									// `addFacet` is idempotent against an existing urlManager value, so without
+																									// the toggle the state wouldn't change, `hasPendingFacetChanges` would stay
+																									// false, and the params getter would fall through to `general`.
+																									if (controller.store.isFacetSelected(facet.field, optionValue)) {
+																										controller.store.removeFacet(facet.field, optionValue);
+																									} else {
+																										controller.store.addFacet({
+																											key: facet.field,
+																											value: optionValue,
+																										});
+																									}
+																									// Force productSearch with the current filter state rather than relying
+																									// on the params getter's hasPendingFacetChanges promotion — a facet click
+																									// in the chat is unambiguously a search intent.
+																									controller.search({
+																										data: { requestType: 'productSearch', searchFilters: controller.store.searchFilters },
+																									} as any);
 																								}}
 																							>
 																								{valueOption.label}
@@ -1244,12 +1398,10 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 															name: d?.mappings?.core?.name || '',
 															imageUrl:
 																d?.mappings?.core?.thumbnailImageUrl || d?.mappings?.core?.imageUrl || d?.mappings?.core?.parentImageUrl || '',
-															onClick: isMobile
-																? () => {
-																		controller.productQuickView(result);
-																		setMobileProductInfoOpen(true);
-																  }
-																: undefined,
+															onClick: () => {
+																controller.productQuickView(result);
+																if (isMobile) setMobileProductInfoOpen(true);
+															},
 														};
 												  })
 												: showCommittedComparisons
@@ -1260,12 +1412,10 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 															name: d?.mappings?.core?.name || '',
 															imageUrl:
 																d?.mappings?.core?.thumbnailImageUrl || d?.mappings?.core?.imageUrl || d?.mappings?.core?.parentImageUrl || '',
-															onClick: isMobile
-																? () => {
-																		controller.productQuickView(comparisonItem.result);
-																		setMobileProductInfoOpen(true);
-																  }
-																: undefined,
+															onClick: () => {
+																controller.productQuickView(comparisonItem.result);
+																if (isMobile) setMobileProductInfoOpen(true);
+															},
 														};
 												  })
 												: [];
@@ -1358,9 +1508,31 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 																	store.currentChat?.dismissTopicDrift();
 																	return;
 																}
+																// Capture image attachments from the current chat before handleTopicDrift /
+																// createChat tear down the conversation — an imageSearch that drifted needs
+																// the same image attached to the carried-over message in the new session,
+																// otherwise params would fall back to a `general` request without the image.
+																const previousImageAttachments = (store.currentChat?.attachments.attached || [])
+																	.filter((item) => item.type === 'image' && item.state !== 'error')
+																	.map((item) => {
+																		const img = item as ChatAttachmentImage;
+																		return {
+																			type: 'image' as const,
+																			base64: img.base64,
+																			fileName: img.fileName,
+																			imageId: img.imageId,
+																			imageUrl: img.imageUrl,
+																			thumbnailUrl: img.thumbnailUrl,
+																			// Already uploaded — skip the 'loading' default state.
+																			state: 'attached' as const,
+																		};
+																	});
 																const messageText = store.currentChat?.handleTopicDrift();
 																if (messageText) {
 																	controller.store.createChat();
+																	previousImageAttachments.forEach((cfg) => {
+																		controller.store.currentChat?.attachments.add(cfg);
+																	});
 																	controller.search({ data: { message: messageText } } as any);
 																}
 															}}

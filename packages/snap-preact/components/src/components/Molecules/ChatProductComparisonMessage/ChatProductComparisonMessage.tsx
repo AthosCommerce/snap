@@ -49,6 +49,21 @@ const defaultStyles: StyleScript<ChatProductComparisonMessageProps> = () => {
 				textAlign: 'center',
 				minWidth: '120px',
 
+				'.ss__chat-product-comparison-message__table__product-header__link': {
+					background: 'none',
+					border: 'none',
+					padding: 0,
+					font: 'inherit',
+					color: 'inherit',
+					display: 'block',
+					width: '100%',
+					cursor: 'pointer',
+					textAlign: 'center',
+					'&:hover .ss__chat-product-comparison-message__table__product-header__name': {
+						textDecoration: 'underline',
+					},
+				},
+
 				'.ss__chat-product-comparison-message__table__product-header__image': {
 					width: '80px',
 					height: '80px',
@@ -86,7 +101,7 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 
 	const props = mergeProps('chatProductComparisonMessage', globalTheme, defaultProps, properties);
 
-	const { chatItem, className, internalClassName } = props;
+	const { chatItem, controller, className, internalClassName } = props;
 
 	// const subProps: ChatProductComparisonMessageSubProps = {
 
@@ -132,16 +147,28 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 									const product = searchResults.find((r: any) => r?.id === heading);
 									const display = getDisplay(product);
 									const productName = (display?.mappings?.core?.name as string) ?? heading;
+									const handleOpenProduct = (e: any) => {
+										if (!controller || !product) return;
+										controller.track.product.click(e, product as any);
+										controller.productQuickView(product as any);
+									};
 									return (
 										<th key={heading} scope="col" className={classnames('ss__chat-product-comparison-message__table__product-header')}>
-											{allProductsHaveImage && (
-												<img
-													className={classnames('ss__chat-product-comparison-message__table__product-header__image')}
-													src={(display.mappings.core.imageUrl || display.mappings.core.parentImageUrl) as string}
-													alt={productName}
-												/>
-											)}
-											<div className={classnames('ss__chat-product-comparison-message__table__product-header__name')}>{productName}</div>
+											<button
+												type="button"
+												className={classnames('ss__chat-product-comparison-message__table__product-header__link')}
+												onClick={handleOpenProduct}
+												aria-label={`View details for ${productName}`}
+											>
+												{allProductsHaveImage && (
+													<img
+														className={classnames('ss__chat-product-comparison-message__table__product-header__image')}
+														src={(display.mappings.core.imageUrl || display.mappings.core.parentImageUrl) as string}
+														alt={productName}
+													/>
+												)}
+												<div className={classnames('ss__chat-product-comparison-message__table__product-header__name')}>{productName}</div>
+											</button>
 										</th>
 									);
 								})}
