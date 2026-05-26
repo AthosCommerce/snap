@@ -90,6 +90,10 @@ export type LibraryImports = {
 		badge: LibraryComponentImport;
 		result: LibraryComponentImport & {
 			Result: (args?: any) => Promise<JSXComponent>;
+			OverlayResult: (args?: any) => Promise<JSXComponent>;
+		};
+		overlayResult: LibraryComponentImport & {
+			OverlayResult: (args?: any) => Promise<JSXComponent>;
 		};
 		/* individual library components */
 		badgeImage: LibraryComponentImport;
@@ -249,6 +253,7 @@ export class LibraryStore {
 		};
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
+		overlayResult: LibraryComponentMap;
 		/* individual library components */
 		badgeImage: LibraryComponentMap;
 		badgePill: LibraryComponentMap;
@@ -318,6 +323,7 @@ export class LibraryStore {
 		},
 		badge: {},
 		result: {},
+		overlayResult: {},
 		/* individual library components */
 		badgeImage: {},
 		badgePill: {},
@@ -541,6 +547,20 @@ export class LibraryStore {
 			result: {
 				Result: async () => {
 					return this.components.result.Result || (this.components.result.Result = (await import('./library/components/Result')).Result);
+				},
+				OverlayResult: async () => {
+					return (
+						this.components.overlayResult.OverlayResult ||
+						(this.components.overlayResult.OverlayResult = (await import('./library/components/OverlayResult')).OverlayResult)
+					);
+				},
+			},
+			overlayResult: {
+				OverlayResult: async () => {
+					return (
+						this.components.overlayResult.OverlayResult ||
+						(this.components.overlayResult.OverlayResult = (await import('./library/components/OverlayResult')).OverlayResult)
+					);
 				},
 			},
 			/* individual library components */

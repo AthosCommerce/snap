@@ -1,0 +1,673 @@
+import { h } from 'preact';
+import { render } from '@testing-library/preact';
+import { OverlayResult } from './OverlayResult';
+import { FALLBACK_IMAGE_URL } from '../../Atoms/Image';
+import { ThemeProvider } from '../../../providers';
+import userEvent from '@testing-library/user-event';
+import { SearchResultStore } from '@athoscommerce/snap-store-mobx';
+import { MockData } from '@athoscommerce/snap-shared';
+
+import type { Product } from '@athoscommerce/snap-store-mobx';
+import { SearchResponseModelResultVariants } from '@athoscommerce/snapi-types';
+
+const wait = (time?: number) => {
+	return new Promise((resolve) => {
+		setTimeout(resolve, time);
+	});
+};
+
+const mockData = new MockData();
+const searchResponse = mockData.searchMeta();
+
+const mockResults = new SearchResultStore({
+	config: { id: 'test' },
+	state: { loaded: false },
+	data: {
+		search: searchResponse.search,
+		meta: searchResponse.meta,
+	},
+});
+
+describe('OverlayResult Component', () => {
+	beforeEach(() => {
+		// IntersectionObserver isn't available in test environment
+		const mockIntersectionObserver = jest.fn();
+		mockIntersectionObserver.mockReturnValue({
+			observe: () => null,
+			unobserve: () => null,
+			disconnect: () => null,
+		});
+		window.IntersectionObserver = mockIntersectionObserver;
+	});
+
+	it('renders', () => {
+		const rendered = render(<OverlayResult result={mockResults[0] as Product} />);
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		expect(resultElement).toBeInTheDocument();
+	});
+
+	it('renders with "sale" classname when on sale', () => {
+		const product = mockResults[0] as Product;
+		// force product to NOT be onsale
+		product.mappings.core!.price = 1.99;
+		product.mappings.core!.msrp = 1.99;
+
+		const rendered = render(<OverlayResult result={product} />);
+		const resultElement = rendered.container.querySelectorAll('.ss__overlay-result');
+		expect(resultElement[0]).toBeInTheDocument();
+		expect(resultElement[0]).not.toHaveClass('ss__overlay-result--sale');
+
+		// force product to be onsale
+		product.mappings.core!.price = 0.99;
+		product.mappings.core!.msrp = 1.99;
+		const reRendered = render(<OverlayResult result={product} />);
+		const resultSaleElement = reRendered.container.querySelectorAll('.ss__overlay-result');
+		expect(resultSaleElement[0]).toBeInTheDocument();
+		expect(resultSaleElement[0]).toHaveClass('ss__overlay-result--sale');
+	});
+
+	it('renders image', () => {
+		const rendered = render(<OverlayResult result={mockResults[0] as Product} />);
+		const imageElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__image-wrapper .ss__image img');
+		expect(imageElement).toBeInTheDocument();
+	});
+
+	it('renders title', () => {
+		const rendered = render(<OverlayResult result={mockResults[0] as Product} />);
+		const title = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__details .ss__overlay-result__details__title');
+		expect(title?.textContent).toBe(searchResponse.search.results![0].mappings?.core?.name);
+	});
+
+	it('renders pricing', () => {
+		const rendered = render(<OverlayResult result={mockResults[0] as Product} />);
+		const priceElement = rendered.container.querySelectorAll('.ss__overlay-result .ss__overlay-result__details__pricing .ss__price');
+		expect(priceElement[0]).toBeInTheDocument();
+		expect(priceElement.length).toBe(2);
+	});
+
+	it('renders details', () => {
+		const args = {
+			result: mockResults[0] as Product,
+			detailSlot: <div className="details">Add to cart'</div>,
+		};
+		const rendered = render(<OverlayResult {...args} />);
+		const detailsElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__details .details');
+		expect(detailsElement).toBeInTheDocument();
+		expect(detailsElement).toHaveTextContent('Add to cart');
+	});
+
+	it('hides various sections', () => {
+		const args = {
+			result: mockResults[0] as Product,
+			hideBadge: true,
+			hideTitle: true,
+			hidePricing: true,
+		};
+		const rendered = render(<OverlayResult {...args} />);
+		const badgeElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__overlay-badge');
+		const overlayBadgeElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__overlay-badge');
+		const calloutBadgeElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__callout-badge');
+		const titleElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__details .ss__overlay-result__details__title');
+		const priceElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__details__pricing .ss__price');
+		expect(badgeElement).not.toBeInTheDocument();
+		expect(overlayBadgeElement).not.toBeInTheDocument();
+		expect(calloutBadgeElement).not.toBeInTheDocument();
+		expect(titleElement).not.toBeInTheDocument();
+		expect(priceElement).not.toBeInTheDocument();
+	});
+
+	it('hides image section', () => {
+		const args = {
+			result: mockResults[0] as Product,
+			hideImage: true,
+		};
+		const rendered = render(<OverlayResult {...args} />);
+		const imageElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__image-wrapper .ss__image');
+		expect(imageElement).not.toBeInTheDocument();
+	});
+
+	it('should display a fallback image', () => {
+		mockResults[1].mappings!.core!.imageUrl = '';
+		const rendered = render(<OverlayResult result={mockResults[1] as Product} />);
+		const imageElement = rendered.container.querySelector('.ss__overlay-result .ss__overlay-result__image-wrapper .ss__image img');
+		expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);
+	});
+
+	it('can truncate the title', () => {
+		const args = {
+			result: mockResults[1] as Product,
+			truncateTitle: {
+				limit: 3,
+				append: '...',
+			},
+		};
+		const rendered = render(<OverlayResult {...args} />);
+		const Element = rendered.container.querySelector('.ss__overlay-result__details__title a');
+		expect(Element?.innerHTML.length).toBeLessThanOrEqual(6);
+		expect(Element).toHaveTextContent('...');
+	});
+
+	it('can set a custom onClick function', async () => {
+		const onClickFunc = jest.fn();
+
+		const rendered = render(<OverlayResult result={mockResults[1] as Product} onClick={onClickFunc} />);
+		const resultElement = rendered.container.querySelector('.ss__overlay-result a')!;
+		expect(resultElement).toBeInTheDocument();
+
+		await userEvent.click(resultElement);
+		expect(onClickFunc).toHaveBeenCalled();
+	});
+
+	it('can hide ratings and add to cart buttons', () => {
+		const rendered = render(<OverlayResult result={mockResults[1] as Product} hideRating={true} hideAddToCartButton={true} />);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		const ratingElement = rendered.container.querySelector('.ss__overlay-result__rating');
+		const addToCartElement = rendered.container.querySelector('.ss__overlay-result__button--addToCart');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(ratingElement).not.toBeInTheDocument();
+		expect(addToCartElement).not.toBeInTheDocument();
+	});
+
+	it('can render ratings', () => {
+		const rendered = render(<OverlayResult result={mockResults[1] as Product} hideRating={false} />);
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		const ratingElement = rendered.container.querySelector('.ss__overlay-result__rating');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(ratingElement).toBeInTheDocument();
+	});
+
+	it('can render addToCart button', async () => {
+		const controller = {
+			addToCart: jest.fn(),
+		};
+
+		// @ts-ignore
+		const rendered = render(<OverlayResult controller={controller} result={mockResults[1] as Product} hideAddToCartButton={false} />);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		const addToCartElement = rendered.container.querySelector('.ss__overlay-result__button--addToCart');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(addToCartElement).toBeInTheDocument();
+		expect(addToCartElement?.innerHTML).toContain('Add To Cart');
+
+		await userEvent.click(addToCartElement!);
+
+		expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
+		expect(addToCartElement?.innerHTML).toContain('Added!');
+
+		await wait(2000);
+
+		expect(addToCartElement?.innerHTML).toContain('Add To Cart');
+	});
+
+	it('can render addToCart button with custom text and timeout', async () => {
+		const normalText = 'normal atc';
+		const successText = 'success atc';
+		const timeout = 3000;
+		const controller = {
+			addToCart: jest.fn(),
+		};
+
+		const rendered = render(
+			<OverlayResult
+				// @ts-ignore
+				controller={controller}
+				result={mockResults[1] as Product}
+				hideAddToCartButton={false}
+				addToCartButtonText={normalText}
+				addToCartButtonSuccessText={successText}
+				addToCartButtonSuccessTimeout={timeout}
+			/>
+		);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		const addToCartElement = rendered.container.querySelector('.ss__overlay-result__button--addToCart');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(addToCartElement).toBeInTheDocument();
+		expect(addToCartElement?.innerHTML).toContain(normalText);
+
+		await userEvent.click(addToCartElement!);
+
+		expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
+		expect(addToCartElement?.innerHTML).toContain(successText);
+
+		await wait(timeout);
+
+		expect(addToCartElement?.innerHTML).toContain(normalText);
+	});
+
+	it('can pass additional function to call on addToCart button click', async () => {
+		const customFunc = jest.fn();
+
+		const controller = {
+			addToCart: jest.fn(),
+		};
+
+		const rendered = render(
+			// @ts-ignore
+			<OverlayResult onAddToCartClick={customFunc} controller={controller} result={mockResults[1] as Product} hideAddToCartButton={false} />
+		);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		const addToCartElement = rendered.container.querySelector('.ss__overlay-result__button--addToCart');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(addToCartElement).toBeInTheDocument();
+
+		await userEvent.click(addToCartElement!);
+
+		expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
+		expect(customFunc).toHaveBeenCalledWith(expect.any(Object), mockResults[1]);
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(<OverlayResult result={mockResults[1] as Product} className={className} />);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		expect(resultElement).toBeInTheDocument();
+		expect(resultElement).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(<OverlayResult result={mockResults[1] as Product} disableStyles />);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+
+		expect(resultElement?.classList).toHaveLength(2);
+	});
+
+	it('can show variant selections with hideVariantSelections false', () => {
+		const mockVariantData: SearchResponseModelResultVariants = {
+			data: [
+				{
+					mappings: {
+						core: {
+							uid: 'variant1',
+							available: true,
+							name: 'Blue Variant',
+							imageUrl: 'https://example.com/blue.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'blue',
+						},
+						size: {
+							value: 'large',
+						},
+					},
+				},
+				{
+					mappings: {
+						core: {
+							uid: 'variant2',
+							available: true,
+							name: 'Red Variant',
+							imageUrl: 'https://example.com/red.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'red',
+						},
+						size: {
+							value: 'medium',
+						},
+					},
+				},
+			],
+			optionConfig: {
+				color: {
+					id: 123,
+				},
+				size: {
+					id: 456,
+				},
+			},
+		};
+		const searchResponseClone = { ...searchResponse };
+		const resultWithVariants = searchResponseClone.search.results![0];
+		resultWithVariants.variants = mockVariantData;
+
+		const mockResultsWithVariants = new SearchResultStore({
+			config: { id: 'test' },
+			state: { loaded: false },
+			data: {
+				search: searchResponse.search,
+				meta: searchResponse.meta,
+			},
+		});
+
+		const rendered = render(<OverlayResult result={mockResultsWithVariants[0] as Product} hideVariantSelections={false} />);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		// By default, hideVariantSelections should be undefined, which means variant selections are shown
+		const variantSelectionContainer = rendered.container.querySelector('.ss__overlay-result__details__variant-selection');
+		const variantSelectionElements = rendered.container.querySelectorAll('.ss__overlay-result__details__variant-selection .ss__variant-selection');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(variantSelectionContainer).toBeInTheDocument();
+		expect(variantSelectionElements).toHaveLength(2);
+	});
+
+	it('renders variant selections by default', () => {
+		const mockVariantData: SearchResponseModelResultVariants = {
+			data: [
+				{
+					mappings: {
+						core: {
+							uid: 'variant1',
+							available: true,
+							name: 'Blue Variant',
+							imageUrl: 'https://example.com/blue.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'blue',
+						},
+						size: {
+							value: 'large',
+						},
+					},
+				},
+				{
+					mappings: {
+						core: {
+							uid: 'variant2',
+							available: true,
+							name: 'Red Variant',
+							imageUrl: 'https://example.com/red.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'red',
+						},
+						size: {
+							value: 'medium',
+						},
+					},
+				},
+			],
+			optionConfig: {
+				color: {
+					id: 123,
+				},
+				size: {
+					id: 456,
+				},
+			},
+		};
+		const searchResponseClone = { ...searchResponse };
+		const resultWithVariants = searchResponseClone.search.results![0];
+		resultWithVariants.variants = mockVariantData;
+
+		const mockResultsWithVariants = new SearchResultStore({
+			config: { id: 'test' },
+			state: { loaded: false },
+			data: {
+				search: searchResponse.search,
+				meta: searchResponse.meta,
+			},
+		});
+
+		const rendered = render(<OverlayResult result={mockResultsWithVariants[0] as Product} />);
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		// By default, hideVariantSelections should be undefined, which means variant selections are shown
+		const variantSelectionContainer = rendered.container.querySelector('.ss__overlay-result__details__variant-selection');
+		const variantSelectionElements = rendered.container.querySelectorAll('.ss__overlay-result__details__variant-selection .ss__variant-selection');
+
+		expect(resultElement).toBeInTheDocument();
+		expect(variantSelectionContainer).toBeInTheDocument();
+		expect(variantSelectionElements).toHaveLength(2);
+	});
+
+	it('hides variant selections when hideVariantSelections is true', () => {
+		const mockVariantData: SearchResponseModelResultVariants = {
+			data: [
+				{
+					mappings: {
+						core: {
+							uid: 'variant1',
+							available: true,
+							name: 'Blue Variant',
+							imageUrl: 'https://example.com/blue.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'blue',
+						},
+						size: {
+							value: 'large',
+						},
+					},
+				},
+				{
+					mappings: {
+						core: {
+							uid: 'variant2',
+							available: true,
+							name: 'Red Variant',
+							imageUrl: 'https://example.com/red.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'red',
+						},
+						size: {
+							value: 'medium',
+						},
+					},
+				},
+			],
+			optionConfig: {
+				color: {
+					id: 123,
+				},
+				size: {
+					id: 456,
+				},
+			},
+		};
+		const searchResponseClone = { ...searchResponse };
+		const resultWithVariants = searchResponseClone.search.results![0];
+		resultWithVariants.variants = mockVariantData;
+
+		const mockResultsWithVariants = new SearchResultStore({
+			config: { id: 'test' },
+			state: { loaded: false },
+			data: {
+				search: searchResponse.search,
+				meta: searchResponse.meta,
+			},
+		});
+
+		const rendered = render(<OverlayResult result={mockResultsWithVariants[0] as Product} hideVariantSelections={true} />);
+
+		const resultElement = rendered.container.querySelector('.ss__overlay-result');
+		const variantSelectionDropdownElement = rendered.container.querySelector('.ss__overlay-result__details__variant-selection');
+
+		expect(resultElement).toBeInTheDocument();
+		// Variant container might still exist but selections should be hidden
+		expect(variantSelectionDropdownElement).not.toBeInTheDocument();
+	});
+});
+
+describe('OverlayResult lang works', () => {
+	// need to mock `matchMedia` to ensure we are not using "mobile" experience
+	beforeAll(() => {
+		Object.defineProperty(window, 'matchMedia', {
+			writable: true,
+			value: jest.fn().mockImplementation((query) => ({
+				matches: false, // return false
+				media: query,
+				onchange: null,
+				addListener: jest.fn(), // Deprecated
+				removeListener: jest.fn(), // Deprecated
+				addEventListener: jest.fn(),
+				removeEventListener: jest.fn(),
+				dispatchEvent: jest.fn(),
+			})),
+		});
+	});
+
+	const selector = '.ss__overlay-result';
+
+	it('immediately available lang options', async () => {
+		const langOptions = ['addToCartButtonText'];
+
+		//text attributes/values
+		const value = 'custom value';
+		const altText = 'custom alt';
+		const ariaLabel = 'custom label';
+		const ariaValueText = 'custom value text';
+		const title = 'custom title';
+
+		const valueMock = jest.fn(() => value);
+		const altMock = jest.fn(() => altText);
+		const labelMock = jest.fn(() => ariaLabel);
+		const valueTextMock = jest.fn(() => ariaValueText);
+		const titleMock = jest.fn(() => title);
+
+		const langObjs = [
+			{
+				value: value,
+				attributes: {
+					alt: altText,
+					'aria-label': ariaLabel,
+					'aria-valuetext': ariaValueText,
+					title: title,
+				},
+			},
+			{
+				value: valueMock,
+				attributes: {
+					alt: altMock,
+					'aria-label': labelMock,
+					'aria-valuetext': valueTextMock,
+					title: titleMock,
+				},
+			},
+			{
+				value: `<div>${value}</div>`,
+				attributes: {
+					alt: altText,
+					'aria-label': ariaLabel,
+					'aria-valuetext': ariaValueText,
+					title: title,
+				},
+			},
+		];
+
+		langOptions.forEach((option) => {
+			langObjs.forEach((langObj) => {
+				const lang = {
+					[`${option}`]: langObj,
+				};
+				console.log(lang);
+				// @ts-ignore
+				const rendered = render(<OverlayResult result={mockResults[1] as Product} lang={lang} hideAddToCartButton={false} />);
+				rendered.debug();
+				const element = rendered.container.querySelector(selector);
+				expect(element).toBeInTheDocument();
+				const langElem = rendered.container.querySelector(`[ss-lang=${option}]`);
+
+				expect(langElem).toBeInTheDocument();
+
+				if (typeof langObj.value == 'function') {
+					expect(langElem?.innerHTML).toBe(value);
+					expect(valueMock).toHaveBeenCalledWith({ result: mockResults[1], controller: undefined });
+				} else {
+					expect(langElem?.innerHTML).toBe(langObj.value);
+				}
+
+				expect(langElem).toHaveAttribute('alt', altText);
+				expect(langElem).toHaveAttribute('aria-label', ariaLabel);
+				expect(langElem).toHaveAttribute('aria-valuetext', ariaValueText);
+				expect(langElem).toHaveAttribute('title', title);
+
+				jest.restoreAllMocks();
+			});
+		});
+	});
+});
+describe('OverlayResult theming works', () => {
+	it('is themeable with ThemeProvider', () => {
+		const globalTheme = {
+			components: {
+				overlayResult: {
+					hideTitle: true,
+				},
+			},
+		};
+		const rendered = render(
+			<ThemeProvider theme={globalTheme}>
+				<OverlayResult result={mockResults[0] as Product} />
+			</ThemeProvider>
+		);
+		const result = rendered.container.querySelector('.ss__overlay-result');
+		const title = rendered.container.querySelector('.ss__overlay-result__details__title');
+		expect(result).toBeInTheDocument();
+		expect(title).not.toBeInTheDocument();
+	});
+
+	it('is themeable with theme prop', () => {
+		const propTheme = {
+			components: {
+				overlayResult: {
+					hideTitle: true,
+				},
+			},
+		};
+		const rendered = render(<OverlayResult result={mockResults[0] as Product} theme={propTheme} />);
+		const result = rendered.container.querySelector('.ss__overlay-result');
+		const title = rendered.container.querySelector('.ss__overlay-result__details__title');
+		expect(result).toBeInTheDocument();
+		expect(title).not.toBeInTheDocument();
+	});
+
+	it('is themeable and theme prop overrides ThemeProvider', () => {
+		const globalTheme = {
+			components: {
+				overlayResult: {
+					hideTitle: true,
+					hideBadge: true,
+				},
+			},
+		};
+		const propTheme = {
+			components: {
+				overlayResult: {
+					hideTitle: false,
+				},
+			},
+		};
+		const rendered = render(
+			<ThemeProvider theme={globalTheme}>
+				<OverlayResult result={mockResults[0] as Product} theme={propTheme} />
+			</ThemeProvider>
+		);
+
+		const badge = rendered.container.querySelector('.ss__overlay-result__overlay-badge');
+		const result = rendered.container.querySelector('.ss__overlay-result');
+		const title = rendered.container.querySelector('.ss__overlay-result__details__title');
+		expect(result).toBeInTheDocument();
+		expect(title).toBeInTheDocument();
+		expect(badge).not.toBeInTheDocument();
+	});
+});
