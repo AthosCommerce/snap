@@ -348,7 +348,10 @@ export class TemplateEditorStore {
 			// normalize colors to hexadecimal format
 			Object.keys(this.initial.theme.variables.colors).forEach((key) => {
 				const color = this.initial.theme.variables.colors[key as keyof typeof this.initial.theme.variables.colors];
-				this.initial.theme.variables.colors[key as keyof typeof this.initial.theme.variables.colors] = colord(color || '#000').toHex();
+				const parsedColor = colord(color || '#000');
+				this.initial.theme.variables.colors[key as keyof typeof this.initial.theme.variables.colors] = parsedColor.isValid()
+					? parsedColor.toHex()
+					: color;
 			});
 			this.storage.set('initial', this.initial);
 		}
