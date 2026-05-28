@@ -272,42 +272,38 @@ export const custom: CustomThemeType = {
 };
 
 // types for custom theme object
-type ObjectAnyType = {
-	[key: string]: any;
-};
-
-type ObjectIconType = {
-	[key: string]: IconType;
-};
-
 type ObjectNestedType = {
 	[key: string]: ObjectNumberOrStringType | ObjectNestedType | undefined;
-};
-
-type ObjectNumberType = {
-	[key: string]: number;
 };
 
 type ObjectNumberOrStringType = {
 	[key: string]: number | string | undefined;
 };
 
-type ObjectStringType = {
-	[key: string]: string;
-};
-
 type CustomThemeType = {
-	breakpoints: ObjectNumberType;
-	colors: ObjectStringType;
-	fonts: ObjectAnyType;
-	icons: ObjectIconType;
-	sizes: ObjectNumberType;
-	spacing: ObjectNumberType;
+	breakpoints: {
+		[key: string]: number;
+	};
+	colors: {
+		[key: string]: string;
+	};
+	fonts: {
+		[key: string]: any;
+	};
+	icons: {
+		[key: string]: IconType;
+	};
+	sizes: {
+		[key: string]: number;
+	};
+	spacing: {
+		[key: string]: number;
+	};
 	styles: {
 		activeText: (color?: string) => ObjectNestedType;
 		badgeText: (fontSize: number) => ObjectNumberOrStringType;
 		baseText: (color?: string) => ObjectNumberOrStringType;
-		borderRadius: (value?: number, unit?: string) => ObjectStringType | null;
+		borderRadius: (value?: number, unit?: string) => { [key: string]: string } | null;
 		box: (color?: string, padding?: number | string, radius?: boolean) => ObjectNumberOrStringType;
 		disabled: () => ObjectNumberOrStringType | ObjectNestedType;
 		headerText: (color?: string, fontSize?: string) => ObjectNumberOrStringType;

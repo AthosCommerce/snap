@@ -43,9 +43,9 @@ const searchStyleScript = (props: SearchProps) => {
 						},
 					},
 				},
-				'&[ss-name="bottom"]': {
-					marginTop: `40px`,
-				},
+			},
+			'.ss__search__content__toolbar--bottom-toolbar': {
+				marginTop: `40px`,
 			},
 		},
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {

@@ -60,36 +60,22 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 	},
 	theme: {
-		extends: 'pike',
+		extends: 'base',
 		variables: {
 			// breakpoints: {
 			// 	mobile: 767,
 			// 	tablet: 1024,
 			// 	desktop: 1280,
 			// },
-			colors: {
-				primary: '#1D4990',
-				secondary: '#1D4990',
-				accent: '#5ED1B3', // #CDE9DF
-			},
+			// colors: {
+			// 	primary: '#1D4990',
+			// 	secondary: '#1D4990',
+			// 	accent: '#5ED1B3', // #CDE9DF
+			// },
 		},
 		style: globalStyles,
 		overrides: {
-			default: {
-				autocompleteFixed: {
-					width: '1000px',
-					// column1: {
-					// 	width: '200px',
-					// }
-				},
-				'search facet': {
-					rangeInputs: true,
-				},
-				'facet.collection-name': {
-					// iconColor: 'red'
-					searchable: true,
-				},
-			},
+			default: {},
 		},
 	},
 	recommendation: {
@@ -116,14 +102,6 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
-		settings: {
-			variants: {
-				// showDisabledSelectionValues: true,
-			},
-			// infinite: {
-			// 	backfill: 5,
-			// },
-		},
 	},
 	autocomplete: {
 		targets: [
