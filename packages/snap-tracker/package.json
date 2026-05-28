@@ -1,6 +1,6 @@
 {
 	"name": "@athoscommerce/snap-tracker",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"description": "Snap Tracker",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"@athoscommerce/beacon": "1.2.1",
-		"@athoscommerce/snap-toolbox": "1.5.0",
+		"@athoscommerce/snap-toolbox": "1.5.1",
 		"@types/uuid": "8.3.4",
 		"deepmerge": "4.3.1",
 		"uuid": "9.0.1"

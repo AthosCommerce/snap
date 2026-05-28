@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.5.1](https://github.com/AthosCommerce/snap/compare/v1.5.0...v1.5.1) (2026-05-28)
+
+### Bug Fixes
+
+- **searchinput:** fixing the ability to turn off input buttons by adding new props ([d855b26](https://github.com/AthosCommerce/snap/commit/d855b26e061e2ff125d6f6c64f9e3a4d3ae54a7f))
+- **store-mobx/searchresultstore:** adding guard on variant.options iteration ([6acff9e](https://github.com/AthosCommerce/snap/commit/6acff9ea68c65c21442a30b9ae13dcd5be49b3cc))
+- **templateeditorstore:** adding isValid check for colord ([f593efe](https://github.com/AthosCommerce/snap/commit/f593efedbe94c918104d1b9fbb5b244d66c09d4b))
+- **theme:** adding new required type field to themes for us to identify snap templates theme from a user specified theme ([ee875d6](https://github.com/AthosCommerce/snap/commit/ee875d617b48c858195bb920e64e511fd46bbb54))
+- **themecomponents:** update types to fix typescript issues ([71eae28](https://github.com/AthosCommerce/snap/commit/71eae287771c25b80cae577c1103c53c8f65bb80))
+- trackingRef incorrectly setting ref for inlineBanner ([b8e8c31](https://github.com/AthosCommerce/snap/commit/b8e8c319afb50fb351e1b6db8274a4b9ac012a6e))
+
 # [1.5.0](https://github.com/AthosCommerce/snap/compare/v1.4.0...v1.5.0) (2026-05-11)
 
 ### Bug Fixes

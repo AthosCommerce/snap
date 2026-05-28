@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.5.1](https://github.com/AthosCommerce/snap/compare/v1.5.0...v1.5.1) (2026-05-28)
+
+### Bug Fixes
+
+- **store-mobx/searchresultstore:** adding guard on variant.options iteration ([6acff9e](https://github.com/AthosCommerce/snap/commit/6acff9ea68c65c21442a30b9ae13dcd5be49b3cc))
+
 # [1.5.0](https://github.com/AthosCommerce/snap/compare/v1.4.0...v1.5.0) (2026-05-11)
 
 ### Bug Fixes
