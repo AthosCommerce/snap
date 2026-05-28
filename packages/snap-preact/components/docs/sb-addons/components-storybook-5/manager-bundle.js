@@ -979,7 +979,7 @@ To pass a single animation please supply them in simple values, e.g. animation('
 				unstable_renderSubtreeIntoContainer: d0,
 				version: f0,
 			} = __REACT_DOM__;
-		var S = ['primary', 'secondary', 'accent', 'text'],
+		var S = ['primary', 'secondary', 'accent'],
 			R = 'themeColor_',
 			C9 = 'themeDefaultColor_',
 			o2 = 150,

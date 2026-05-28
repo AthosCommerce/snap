@@ -30,6 +30,8 @@ Repository: https://github.com/athoscommerce/snap
 - [About](https://athoscommerce.github.io/snap/docs/TEMPLATES_ABOUT.md)
 - [Config](https://athoscommerce.github.io/snap/docs/TEMPLATES_CONFIG.md)
 - [Theming](https://athoscommerce.github.io/snap/docs/TEMPLATES_THEMING.md)
+- [Plugins](https://athoscommerce.github.io/snap/docs/TEMPLATES_PLUGINS.md)
+- [How Tos](https://athoscommerce.github.io/snap/docs/TEMPLATES_HOW_TO.md)
 
 ## API Integration
 
