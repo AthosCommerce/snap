@@ -70,7 +70,7 @@ export const InlineBanner = withController<any>(
 						ref={(e) => {
 							!disableA11y ? useA11y(e) : null;
 							// @ts-ignore - gets it from withTracking HOC
-							properties.trackingRef.current = e;
+							properties.trackingRef(e);
 						}}
 						className={classnames('ss__inline-banner', `ss__inline-banner--${layout}`, className, internalClassName)}
 						{...styling}
