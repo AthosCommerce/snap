@@ -12,7 +12,6 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 
 	// search horizontal styles
 	const searchHorizontalStyles = css({
-		...custom.styles.boxSizing('searchHorizontal', props?.treePath, props?.name),
 		'.ss__search-horizontal__header-section, .ss__search-horizontal__main-section': {
 			margin: `0 0 ${custom.spacing.x6}px 0`,
 		},

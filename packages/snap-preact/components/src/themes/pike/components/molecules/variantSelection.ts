@@ -14,7 +14,6 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 		'&:last-child': {
 			marginBottom: 0,
 		},
-		...custom.styles.boxSizing('variantSelection', props?.treePath, props?.name),
 	});
 
 	// variant selection dropdown styles
@@ -23,7 +22,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 		{
 			'.ss__dropdown': {
 				'.ss__dropdown__button, .ss__dropdown__content': {
-					...custom.styles.box(variables?.colors?.text),
+					...custom.styles.box(),
 				},
 				'.ss__dropdown__button': {
 					gap: `${custom.spacing.x1}px`,
@@ -102,7 +101,6 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 				},
 				'.ss__list__options': {
 					'.ss__list__option': {
-						color: variables?.colors?.text,
 						label: {
 							color: 'inherit',
 							cursor: 'inherit',

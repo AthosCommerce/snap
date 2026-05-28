@@ -11,7 +11,6 @@ const badgePillStyleScript = (props: BadgePillProps) => {
 	// badge pill styles
 	const badgePillStyles = css({
 		padding: `${custom.spacing.x1}px ${custom.spacing.x2}px`,
-		...custom.styles.boxSizing('badgePill', props?.treePath, props?.name),
 		span: {
 			...custom.styles.badgeText(12),
 		},

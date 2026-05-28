@@ -9,10 +9,9 @@ const baseVariables: ThemeVariables = {
 		desktop: 1400,
 	},
 	colors: {
-		text: '#333333',
-		primary: '#333333',
-		secondary: '#000000',
-		accent: '#cccccc',
+		primary: 'currentColor',
+		secondary: 'currentColor',
+		accent: 'currentColor',
 	},
 };
 
@@ -21,4 +20,5 @@ export const base: ThemeComplete = {
 	variables: baseVariables,
 	components,
 	responsive,
+	type: 'templates',
 };

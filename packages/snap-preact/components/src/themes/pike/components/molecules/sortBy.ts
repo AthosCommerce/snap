@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import type { SortByProps, SortByTemplatesLegalProps } from '../../../../components/Molecules/SortBy';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 
 // CSS in JS style script for the SortBy component
 const sortByStyleScript = (props: SortByProps) => {
@@ -9,9 +8,7 @@ const sortByStyleScript = (props: SortByProps) => {
 	const variables = props?.theme?.variables;
 
 	// sortBy styles
-	const sortByStyles = css({
-		...custom.styles.boxSizing('sortBy', props?.treePath, props?.name),
-	});
+	const sortByStyles = css({});
 
 	return sortByStyles;
 };

@@ -1,7 +1,17 @@
-import { ThemeComponents, ThemeComponentsRestricted, ThemeComponentTemplateOverrides } from './themeComponents';
+import { createContext, h, type ComponentChildren } from 'preact';
+import { useContext, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import {
+	ThemeComponents,
+	ThemeComponentsRestricted,
+	ThemeComponentsRestrictedWithCustomComponent,
+	ThemeComponentTemplateOverrides,
+} from './themeComponents';
+export type { ThemeComponentsRestrictedWithCustomComponent } from './themeComponents';
 import { ListOption } from '../types';
 
-export { css, useTheme, withTheme, ThemeProvider } from '@emotion/react';
+import { css, Global, useTheme, withTheme, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
+
+export { css, useTheme, withTheme };
 
 export const defaultTheme: Theme = {
 	variables: {
@@ -11,7 +21,6 @@ export const defaultTheme: Theme = {
 			desktop: 1200,
 		},
 		colors: {
-			text: '#222222',
 			primary: '#3A23AD',
 			secondary: '#4c3ce2',
 			accent: '#00cee1',
@@ -25,7 +34,6 @@ export type ThemeVariableBreakpoints = {
 	desktop: number;
 };
 type ThemeVaraibleColors = {
-	text?: string;
 	primary: string;
 	secondary: string;
 	accent: string;
@@ -37,8 +45,8 @@ export type ThemeVariables = {
 };
 
 export type ThemeVariablesPartial = {
-	breakpoints?: ThemeVariableBreakpoints;
-	colors?: ThemeVaraibleColors;
+	breakpoints?: Partial<ThemeVariableBreakpoints>;
+	colors?: Partial<ThemeVaraibleColors>;
 	custom?: {
 		[key: string]: any;
 	};
@@ -47,12 +55,13 @@ export type ThemeVariablesPartial = {
 export type ThemeLayoutOption = Omit<ListOption, 'overrides'> & { overrides?: ThemeMinimal };
 
 export type Theme = {
-	name?: string; // Used as a flag in components to provide backwards compatability
+	name?: string;
 	variables?: ThemeVariables;
 	responsive?: ThemeResponsive;
 	components?: ThemeComponents;
 	overrides?: ThemeOverrides;
 	activeBreakpoint?: ResponsiveKeys;
+	globalStyle?: ThemeGlobalStyleScript;
 };
 
 export type ThemeComponent<Template extends string, Props extends LegalProps, LegalProps> = {
@@ -62,7 +71,14 @@ export type ThemeComponent<Template extends string, Props extends LegalProps, Le
 	desktop?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
 };
 
-export type ThemeComplete = Required<Omit<Theme, 'overrides' | 'activeBreakpoint' | 'components'>> & { components: ThemeComponentsRestricted };
+// Global style function defined inside a theme — injected at the `.ss__theme__${name}` scope
+export type ThemeGlobalStyleScript = (props: { name?: string; variables: ThemeVariables }) => Record<string, any>;
+
+export type ThemeComplete = Required<Omit<Theme, 'overrides' | 'activeBreakpoint' | 'components' | 'globalStyle'>> & {
+	components: ThemeComponentsRestricted;
+	type: 'templates'; // Used as a flag in components to provide backwards compatibility
+	globalStyle?: ThemeGlobalStyleScript; // Optional global CSS injected at theme scope (alternative to per-component overrides in `components`)
+};
 
 export type ThemeResponsive = {
 	mobile?: ThemeComponentsRestricted;
@@ -71,14 +87,6 @@ export type ThemeResponsive = {
 };
 
 export type ThemeResponsiveComplete = ThemeResponsive & { default?: ThemeComponentsRestricted };
-
-// Utility type that adds customComponent to every component entry in ThemeComponentsRestricted.
-// For entries typed as `unknown` (open named selectors), we preserve `unknown` so they remain
-// permissive — intersecting unknown & { customComponent?: string } would narrow to only that prop.
-type WithCustomComponent<T> = {
-	[K in keyof T]: [unknown] extends [T[K]] ? T[K] : T[K] & { customComponent?: string };
-};
-export type ThemeComponentsRestrictedWithCustomComponent = WithCustomComponent<ThemeComponentsRestricted>;
 
 // Unlocked versions that allow all component props (for Snap integration migration path)
 export type ThemeResponsiveUnlocked = {
@@ -98,3 +106,111 @@ export type ThemePartial = Omit<Theme, 'variables' | 'name' | 'components'> & {
 export type ThemeOverrides = { components?: ThemeComponentsRestricted; responsive?: ThemeResponsive };
 
 export type ThemeMinimal = { components?: ThemeComponentsRestricted };
+
+type ThemeProviderTheme = Omit<Theme, 'variables'> & {
+	variables?: ThemeVariables | ThemeVariablesPartial;
+};
+
+type ThemeProviderProps = {
+	theme: ThemeProviderTheme;
+	children?: ComponentChildren;
+};
+
+const ThemeGlobalStyleContext = createContext<string[]>([]);
+const ThemeGlobalStyleRoots = new Map<string, Set<symbol>>();
+const ThemeGlobalStyleOwners = new Map<string, symbol>();
+const ThemeGlobalStyleListeners = new Set<() => void>();
+
+const notifyThemeGlobalStyleListeners = () => {
+	ThemeGlobalStyleListeners.forEach((listener) => listener());
+};
+
+export const ThemeProvider = ({ theme, children }: ThemeProviderProps) => {
+	const globalStyle = theme.globalStyle;
+	const themeName = theme.name;
+	const activeThemeGlobalStyles = useContext(ThemeGlobalStyleContext);
+	const rootId = useRef(Symbol(themeName || 'theme-provider'));
+	const [, setRegistryVersion] = useState(0);
+	const themeVariables: ThemeVariables = {
+		breakpoints: {
+			...defaultTheme.variables!.breakpoints,
+			...theme.variables?.breakpoints,
+		},
+		colors: {
+			...defaultTheme.variables!.colors,
+			...theme.variables?.colors,
+		},
+	};
+	const shouldWrapWithThemeScope = Boolean(globalStyle && themeName && !activeThemeGlobalStyles.includes(themeName));
+	const nextActiveThemeGlobalStyles = shouldWrapWithThemeScope && themeName ? [...activeThemeGlobalStyles, themeName] : activeThemeGlobalStyles;
+	if (shouldWrapWithThemeScope && themeName) {
+		// ensure theme global style root - register this provider and claim ownership when first for the theme name.
+		const roots = ThemeGlobalStyleRoots.get(themeName) || new Set<symbol>();
+		roots.add(rootId.current);
+		ThemeGlobalStyleRoots.set(themeName, roots);
+
+		if (!ThemeGlobalStyleOwners.has(themeName)) {
+			ThemeGlobalStyleOwners.set(themeName, rootId.current);
+		}
+	}
+	// is theme global style owner? - only the owner root injects the global style block.
+	const shouldRenderGlobalStyle = Boolean(shouldWrapWithThemeScope && themeName && ThemeGlobalStyleOwners.get(themeName) === rootId.current);
+
+	useLayoutEffect(() => {
+		if (!shouldWrapWithThemeScope || !themeName) {
+			return;
+		}
+
+		// subscribe to theme global style changes
+		const listener = () => setRegistryVersion((version) => version + 1);
+		ThemeGlobalStyleListeners.add(listener);
+
+		return () => {
+			ThemeGlobalStyleListeners.delete(listener);
+
+			// unregister theme global style root
+			const roots = ThemeGlobalStyleRoots.get(themeName);
+			if (!roots) {
+				return;
+			}
+
+			roots.delete(rootId.current);
+
+			if (!roots.size) {
+				ThemeGlobalStyleRoots.delete(themeName);
+				ThemeGlobalStyleOwners.delete(themeName);
+				notifyThemeGlobalStyleListeners();
+				return;
+			}
+
+			if (ThemeGlobalStyleOwners.get(themeName) === rootId.current) {
+				const nextOwner = roots.values().next().value;
+				if (nextOwner) {
+					ThemeGlobalStyleOwners.set(themeName, nextOwner);
+				}
+				notifyThemeGlobalStyleListeners();
+			}
+		};
+	}, [shouldWrapWithThemeScope, themeName]);
+
+	const scopedChildren = shouldWrapWithThemeScope && themeName ? h('div', { className: `ss__theme__${themeName}` }, children) : children;
+	const providerChildren =
+		shouldRenderGlobalStyle && globalStyle && themeName
+			? [
+					h(Global, {
+						styles: css({
+							[`.ss__theme__${themeName}`]: globalStyle({
+								name: themeName,
+								variables: themeVariables,
+							}),
+						}),
+					}),
+					scopedChildren,
+			  ]
+			: scopedChildren;
+
+	return h(EmotionThemeProvider, {
+		theme,
+		children: h(ThemeGlobalStyleContext.Provider, { value: nextActiveThemeGlobalStyles }, providerChildren),
+	});
+};

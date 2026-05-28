@@ -18,7 +18,6 @@ const radioStyleScript = (props: RadioProps) => {
 			top: '-1px',
 			...custom.styles.box('', 0),
 			...custom.styles.borderRadius(50, '%'),
-			...custom.styles.boxSizing('radio', props?.treePath, props?.name),
 			'&.ss__radio--disabled': {
 				...custom.styles.disabled(),
 			},
@@ -39,7 +38,6 @@ const radioStyleScript = (props: RadioProps) => {
 	const nativeRadiosStyles = css([
 		{
 			lineHeight: 0,
-			...custom.styles.boxSizing('radio', props?.treePath, props?.name),
 			'&.ss__radio--disabled .ss__radio__input': {
 				...custom.styles.disabled(),
 			},
@@ -65,7 +63,6 @@ export const radio: ThemeComponent<'radio', RadioProps, RadioTemplatesLegalProps
 			checkedIcon: 'circle',
 			unCheckedIcon: 'circle',
 			size: `${custom.sizes.icon16}px`,
-			color: custom.colors.primary,
 		},
 		'radio icon': {
 			width: `calc(50% + 1px)`,

@@ -213,6 +213,24 @@ describe('SearchInput Component', () => {
 		});
 	});
 
+	it('hides the submit search button with hideSubmitSearchButton', () => {
+		const rendered = render(<SearchInput value={''} hideSubmitSearchButton={true} />);
+		const submitButton = rendered.container.querySelector('.ss__search-input__button--submit-search-button');
+		expect(submitButton).not.toBeInTheDocument();
+	});
+
+	it('hides the clear search button with hideClearSearchButton', () => {
+		const rendered = render(<SearchInput value={'dress'} hideClearSearchButton={true} />);
+		const clearButton = rendered.container.querySelector('.ss__search-input__button--clear-search-button');
+		expect(clearButton).not.toBeInTheDocument();
+	});
+
+	it('hides the close search button with hideCloseSearchButton', () => {
+		const rendered = render(<SearchInput value={''} closeSearchButton={{ icon: 'angle-left' }} hideCloseSearchButton={true} />);
+		const closeButton = rendered.container.querySelector('.ss__search-input__button--close-search-button');
+		expect(closeButton).not.toBeInTheDocument();
+	});
+
 	it('is themeable with ThemeProvider', () => {
 		const rendered = render(
 			<ThemeProvider theme={theme}>

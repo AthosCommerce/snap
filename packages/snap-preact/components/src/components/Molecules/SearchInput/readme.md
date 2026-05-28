@@ -101,6 +101,27 @@ const buttonProps = {
 <SearchInput closeSearchButton={buttonProps} />
 ```
 
+### hideSubmitSearchButton
+The `hideSubmitSearchButton` prop hides the submit search button.
+
+```tsx
+<SearchInput hideSubmitSearchButton={true} />
+```
+
+### hideClearSearchButton
+The `hideClearSearchButton` prop hides the clear search button.
+
+```tsx
+<SearchInput hideClearSearchButton={true} />
+```
+
+### hideCloseSearchButton
+The `hideCloseSearchButton` prop hides the close search button.
+
+```tsx
+<SearchInput hideCloseSearchButton={true} />
+```
+
 ### inputRef
 The `inputRef` prop specifies a ref to set on the input element. To be accessed in a parent component.
 

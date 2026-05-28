@@ -11,12 +11,9 @@ import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utili
 import { Icon, IconProps, IconType } from '../Icon';
 import { Lang, useLang, useComponent } from '../../../hooks';
 import deepmerge from 'deepmerge';
-import Color from 'color';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ButtonProps> = ({ native, color, backgroundColor, borderColor, theme }) => {
-	const lightenedPrimaryColorObj = new Color(backgroundColor || color || theme?.variables?.colors?.primary || undefined).lightness(95);
-
 	// no styling on native
 	if (native) {
 		return css({});
@@ -34,7 +31,6 @@ const defaultStyles: StyleScript<ButtonProps> = ({ native, color, backgroundColo
 		border: `1px solid ${borderColor || color || theme?.variables?.colors?.primary || '#333'}`,
 		'&:not(.ss__button--disabled):hover': {
 			cursor: 'pointer',
-			backgroundColor: lightenedPrimaryColorObj.hex() || '#f8f8f8',
 		},
 		'&.ss__button--disabled': {
 			opacity: 0.7,

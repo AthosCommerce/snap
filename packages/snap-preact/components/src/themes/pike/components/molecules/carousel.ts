@@ -10,9 +10,6 @@ const carouselOptions = {
 	pagination: 12, // size of pagination bullets
 	scrollbar: 6, // size of scrollbar
 };
-const activeColors = custom.utils.activeColors();
-const buttonColor = activeColors[0];
-const fontColor = activeColors[1];
 
 // CSS in JS style script for the Carousel component
 const carouselStyleScript = (props: CarouselProps) => {
@@ -20,12 +17,15 @@ const carouselStyleScript = (props: CarouselProps) => {
 	const variables = props?.theme?.variables;
 	const isDraggable = typeof props?.scrollbar == 'object' && props?.scrollbar?.draggable ? true : false;
 
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const buttonColor = activeColors[0];
+	const fontColor = activeColors[1];
+
 	// carousel styles
 	const carouselStyles = css({
 		position: 'relative',
 		width: '100%',
 		minWidth: '1px',
-		...custom.styles.boxSizing('carousel', props?.treePath, props?.name),
 		'.ss__carousel__prev-wrapper--hidden > div, .ss__carousel__next-wrapper--hidden > div': {
 			...custom.styles.disabled(),
 		},

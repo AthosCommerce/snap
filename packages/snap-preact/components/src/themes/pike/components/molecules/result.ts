@@ -13,7 +13,6 @@ const resultStyleScript = (props: ResultProps) => {
 
 	// result styles
 	const resultStyles = css({
-		...custom.styles.boxSizing('result', props?.treePath, props?.name),
 		'&.ss__result--sale': {
 			'.ss__result__details': {
 				'.ss__result__details__pricing': {
@@ -67,7 +66,7 @@ const resultStyleScript = (props: ResultProps) => {
 				gap: `${custom.spacing.x2}px`,
 				padding: 0,
 				margin: 0,
-				...custom.styles.baseText(variables?.colors?.text),
+				...custom.styles.baseText(),
 				a: {
 					color: 'inherit',
 				},

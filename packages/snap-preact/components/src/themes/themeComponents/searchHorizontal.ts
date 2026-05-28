@@ -7,10 +7,10 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 			hideSidebar: true,
 		},
 		'searchHorizontal toolbar.top': {
-			layout: [['searchHeader'], ['banner.header']],
+			layout: [['_', 'searchHeader', '_'], ['banner.header']],
 		},
 		'searchHorizontal toolbar.middle': {
-			layout: [['filterSummary'], ['facetsHorizontal'], ['paginationInfo', '_', 'sortBy', 'perPage'], ['banner.banner']],
+			layout: [['filterSummary'], ['facetsHorizontal', '_', 'sortBy'], ['banner.banner'], ['paginationInfo', '_']],
 		},
 		'searchHorizontal toolbar.bottom': {
 			layout: [['banner.footer'], ['_', 'pagination', '_']],
@@ -24,11 +24,11 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 	},
 
 	mobile: {
-		'searchHorizontal toolbar.middle': {
-			layout: [['paginationInfo', '_', 'mobileSidebar'], ['sortBy', 'perPage'], ['banner.banner']],
+		'searchHorizontal toolbar.top': {
+			layout: [['banner.header'], ['searchHeader', '_']],
 		},
-		'searchHorizontal facetsHorizontal': {
-			limit: 4,
+		'searchHorizontal toolbar.middle': {
+			layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
 		},
 		'searchHorizontal results': {
 			columns: 2,

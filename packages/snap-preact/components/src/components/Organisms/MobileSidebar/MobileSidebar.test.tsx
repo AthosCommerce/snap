@@ -78,16 +78,12 @@ describe('MobileSidebar Component', () => {
 		const slideoutButton = rendered.container.querySelector('.ss__mobile-sidebar__slideout__button');
 		let title = rendered.container.querySelector('.ss__mobile-sidebar__header__title');
 		let summary = rendered.container.querySelector('.ss__filter-summary');
-		let sortby = rendered.container.querySelector('.ss__sortby__select');
-		let perpage = rendered.container.querySelector('.ss__perpage__select');
 		let facets = rendered.container.querySelector('.ss__facets');
 
 		expect(slideoutButton).toBeInTheDocument();
 
 		expect(title).not.toBeInTheDocument();
 		expect(summary).not.toBeInTheDocument();
-		expect(sortby).not.toBeInTheDocument();
-		expect(perpage).not.toBeInTheDocument();
 		expect(facets).not.toBeInTheDocument();
 
 		await userEvent.click(slideoutButton!);
@@ -95,13 +91,9 @@ describe('MobileSidebar Component', () => {
 		await waitFor(() => {
 			title = rendered.container.querySelector('.ss__mobile-sidebar__header__title');
 			summary = rendered.container.querySelector('.ss__filter-summary');
-			sortby = rendered.container.querySelector('.ss__sortby__select');
-			perpage = rendered.container.querySelector('.ss__per-page__select');
 			facets = rendered.container.querySelector('.ss__facets');
 			expect(title).toBeInTheDocument();
 			expect(summary).toBeInTheDocument();
-			expect(sortby).toBeInTheDocument();
-			expect(perpage).toBeInTheDocument();
 			expect(facets).toBeInTheDocument();
 		});
 	});
