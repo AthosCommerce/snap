@@ -172,7 +172,7 @@ export class TemplateEditorStore {
 		this.storage = new StorageStore({ type: StorageType.local, key: TEMPLATE_STORE_KEY });
 		this.storedState = this.storage.get('editor') || this.storedState;
 
-		this.initial.config = deepmerge(this.initial.config, templatesStore.config.config);
+		this.initial.config = deepmerge(this.initial.config, templatesStore.config?.config || {});
 		this.initial.controller = {}; // set when registering controllers
 
 		// set initial targets
@@ -315,7 +315,7 @@ export class TemplateEditorStore {
 
 		const configOverrides = generateObject<SnapTemplatesConfig['config']>(path, value == initialValue ? undefined : value);
 
-		const updatedOverrides = removeEmptyObjects(deepmerge(this.overrides.config || {}, configOverrides));
+		const updatedOverrides = removeEmptyObjects(deepmerge(this.overrides.config || {}, configOverrides || {}));
 		this.overrides.config = updatedOverrides;
 		this.storage.set('overrides.config', updatedOverrides);
 
@@ -587,7 +587,7 @@ export class TemplateEditorStore {
 			const clientGlobals = controller.client.config.globals || {};
 
 			// controller globals > client globals > templates config
-			const siteId = controller.config.globals?.siteId || clientGlobals?.siteId || this.templatesStore.config.config.siteId || '';
+			const siteId = controller.config.globals?.siteId || clientGlobals?.siteId || this.templatesStore.config.config?.siteId || '';
 
 			if (this.initial.config.siteId != siteId) {
 				this.storage.set('overrides.config.siteId', siteId);
