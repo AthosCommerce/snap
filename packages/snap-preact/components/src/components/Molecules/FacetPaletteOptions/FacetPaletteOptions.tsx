@@ -16,7 +16,7 @@ import { Checkbox, CheckboxProps } from '../Checkbox';
 import { Lang, useComponent, useLang } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
-import Color from 'color';
+import { colord } from 'colord';
 import { Image, ImageProps } from '../../Atoms/Image';
 
 const defaultStyles: StyleScript<FacetPaletteOptionsProps> = ({ columns, gridSize, gapSize, horizontal, theme }) => {
@@ -299,7 +299,7 @@ export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProp
 					let isDark = false;
 					if (background) {
 						try {
-							const color = new Color(background.toLowerCase());
+							const color = colord(background.toLowerCase());
 							isDark = color.isDark();
 						} catch (err) {}
 					}

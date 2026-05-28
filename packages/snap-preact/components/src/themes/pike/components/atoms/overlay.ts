@@ -11,7 +11,6 @@ const overlayStyleScript = (props: OverlayProps) => {
 	// overlay styles
 	const overlayStyles = css({
 		cursor: 'pointer',
-		...custom.styles.boxSizing('overlay', props?.treePath, props?.name),
 	});
 
 	return overlayStyles;

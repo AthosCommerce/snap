@@ -10,10 +10,6 @@ const priceStyleScript = (props: PriceProps) => {
 
 	// price styles
 	const priceStyles = css({
-		...custom.styles.boxSizing('price', props?.treePath, props?.name),
-		'&, span, &.ss__price, &.ss__price--strike': {
-			color: variables?.colors?.text,
-		},
 		'& ~ .ss__result__price': {
 			paddingLeft: `${custom.spacing.x1 / 2}px`,
 		},

@@ -29,7 +29,6 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 			overflow: 'hidden',
 			gap: `${custom.spacing.x4}px`,
 			padding: `${custom.spacing.x4}px`,
-			...custom.styles.boxSizing('autocomplete', props?.treePath, props?.name),
 			'&.ss__autocomplete--only-terms': {
 				width: '100%',
 			},
@@ -38,7 +37,6 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 			},
 			'a, div:not(.ss__button, .ss__rating__icons, .ss__rating__icons .ss__rating__stars .ss__rating__stars__star), p': {
 				lineHeight: 1.5,
-				color: variables?.colors?.text,
 			},
 			a: {
 				display: 'block',
@@ -93,7 +91,6 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						'.ss__autocomplete__terms__option a': {
 							fontSize: '14px',
 							em: {
-								color: variables?.colors?.text,
 								fontStyle: 'normal',
 								fontSize: 'inherit',
 								fontWeight: 'inherit',

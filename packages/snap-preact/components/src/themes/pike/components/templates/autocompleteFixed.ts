@@ -31,7 +31,6 @@ const autocompleteFixedStyleScript = (props: AutocompleteFixedProps) => {
 
 	// autocomplete fixed styles
 	const fixedStyles = css({
-		...custom.styles.boxSizing('autocompleteFixed', props?.treePath, props?.name),
 		'.ss__modal': {
 			'.ss__modal__content': {
 				'.ss__autocomplete-fixed__inner': {

@@ -16,9 +16,8 @@ const facetListOptionsStyleScript = (props: FacetListOptionsProps) => {
 
 	// shared styles
 	const sharedStyles = css({
-		...custom.styles.boxSizing('facetListOptions', props?.treePath, props?.name),
 		'.ss__facet-list-options__option': {
-			...custom.styles.baseText(variables?.colors?.text),
+			...custom.styles.baseText(),
 			position: 'relative',
 			gap: `${custom.spacing.x1}px`,
 			padding: props?.hideCheckbox ? 0 : `0 0 0 ${checkboxSpacing}px`,

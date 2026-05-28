@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 
 import { SnapTemplates, TemplatesStore } from '../../src';
 import { ThemeComplete, ThemeProvider } from '../src/providers/theme';
-import { base, bocachica, everest, matterhorn, pike, snappy, snapnco } from '../src/themes';
+import { base, bocachica, pike, snappy, snapnco } from '../src/themes';
 
 // custom styles for storybook
 import './styles.scss';
@@ -25,14 +25,12 @@ const snapTemplates = new SnapTemplates({
 // need to add each theme synchronously
 addTheme(snapTemplates, 'base', base);
 addTheme(snapTemplates, 'bocachica', bocachica);
-addTheme(snapTemplates, 'everest', everest);
-addTheme(snapTemplates, 'matterhorn', matterhorn);
 addTheme(snapTemplates, 'pike', pike);
 addTheme(snapTemplates, 'snapnco', snapnco);
 addTheme(snapTemplates, 'snappy', snappy);
 
 // color keys that map to theme variables.colors
-const COLOR_KEYS = ['primary', 'secondary', 'accent', 'text'] as const;
+const COLOR_KEYS = ['primary', 'secondary', 'accent'] as const;
 type ColorKey = typeof COLOR_KEYS[number];
 const GLOBAL_COLOR_PREFIX = 'themeColor_';
 const DEFAULT_COLOR_PREFIX = 'themeDefaultColor_';
@@ -42,11 +40,9 @@ export const globalTypes = {
 	themeColor_primary: { defaultValue: '' },
 	themeColor_secondary: { defaultValue: '' },
 	themeColor_accent: { defaultValue: '' },
-	themeColor_text: { defaultValue: '' },
 	themeDefaultColor_primary: { defaultValue: '' },
 	themeDefaultColor_secondary: { defaultValue: '' },
 	themeDefaultColor_accent: { defaultValue: '' },
-	themeDefaultColor_text: { defaultValue: '' },
 };
 
 const Providers = observer(
@@ -140,8 +136,6 @@ export const decorators = [
 				snappy: snapTemplates.templates.themes.library.snappy.theme,
 				bocachica: snapTemplates.templates.themes.library.bocachica.theme,
 				base: snapTemplates.templates.themes.library.base.theme,
-				everest: snapTemplates.templates.themes.library.everest.theme,
-				matterhorn: snapTemplates.templates.themes.library.matterhorn.theme,
 				pike: snapTemplates.templates.themes.library.pike.theme,
 			},
 			defaultTheme: 'base',

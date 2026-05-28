@@ -15,10 +15,8 @@ import { useA11y } from '../../../hooks/useA11y';
 import { Lang, useComponent, useLang } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
-import Color from 'color';
 
 const defaultStyles: StyleScript<SelectProps> = ({ color, backgroundColor, borderColor, theme, native }) => {
-	const lightenedPrimary = new Color(backgroundColor || color || theme?.variables?.colors?.primary || undefined).lightness(95);
 	if (!native) {
 		return css({
 			display: 'inline-flex',
@@ -62,7 +60,7 @@ const defaultStyles: StyleScript<SelectProps> = ({ color, backgroundColor, borde
 						fontWeight: 'bold',
 					},
 					'&:hover': {
-						backgroundColor: lightenedPrimary.hex() || '#f8f8f8',
+						backgroundColor: '#f8f8f8',
 					},
 				},
 			},

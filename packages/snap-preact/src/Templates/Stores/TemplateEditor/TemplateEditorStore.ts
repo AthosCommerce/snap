@@ -1,7 +1,7 @@
 import { AutocompleteStoreConfigSettings, SearchStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { observable, makeObservable, toJS } from 'mobx';
-import Color from 'color';
+import { colord } from 'colord';
 import deepmerge from 'deepmerge';
 
 import { TemplatesStore, TEMPLATE_STORE_KEY, TemplateTarget, SearchTargetConfig, AutocompleteTargetConfig } from '../TemplateStore';
@@ -32,7 +32,6 @@ const THEME_VARIABLE_DEFAULTS: ThemeVariables = {
 		desktop: 1200,
 	},
 	colors: {
-		text: '#333333',
 		primary: '#1D4990',
 		secondary: '#6187ae',
 		accent: '#00AEEF',
@@ -349,7 +348,10 @@ export class TemplateEditorStore {
 			// normalize colors to hexadecimal format
 			Object.keys(this.initial.theme.variables.colors).forEach((key) => {
 				const color = this.initial.theme.variables.colors[key as keyof typeof this.initial.theme.variables.colors];
-				this.initial.theme.variables.colors[key as keyof typeof this.initial.theme.variables.colors] = Color(color).hex();
+				const parsedColor = colord(color || '#000');
+				this.initial.theme.variables.colors[key as keyof typeof this.initial.theme.variables.colors] = parsedColor.isValid()
+					? parsedColor.toHex()
+					: color;
 			});
 			this.storage.set('initial', this.initial);
 		}

@@ -1,13 +1,19 @@
 import { css } from '@emotion/react';
 import type { LoadMoreProps, LoadMoreTemplatesLegalProps } from '../../../../components/Molecules/LoadMore';
-import Color from 'color';
+import { colord } from 'colord';
 import { ThemeComponent } from '../../../../providers';
+
+const setLightness = (colorValue: string, lightness: number) => {
+	const hsl = colord(colorValue).toHsl();
+	return colord({ ...hsl, l: lightness });
+};
+
 // CSS in JS style script for the LoadMore component
 const loadMoreStyleScript = ({ color, backgroundColor, theme }: LoadMoreProps) => {
 	const variables = theme?.variables;
 
-	const barColour = new Color(color || variables?.colors.accent || undefined);
-	const backgroundColour = backgroundColor ? new Color(backgroundColor || undefined) : barColour.lightness(90);
+	const barColour = colord(color || variables?.colors?.accent || '#000');
+	const backgroundColour = backgroundColor ? colord(backgroundColor || '#fff') : setLightness(barColour.toHex(), 90);
 
 	return css({
 		'.ss__button': {
@@ -20,9 +26,9 @@ const loadMoreStyleScript = ({ color, backgroundColor, theme }: LoadMoreProps) =
 
 		'.ss__load-more__progress': {
 			'.ss__load-more__progress__indicator': {
-				background: backgroundColour.hex(),
+				background: backgroundColour.toHex(),
 				'.ss__load-more__progress__indicator__bar': {
-					background: barColour.hex(),
+					background: barColour.toHex(),
 				},
 			},
 		},
