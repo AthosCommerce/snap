@@ -125,47 +125,6 @@ const notifyThemeGlobalStyleListeners = () => {
 	ThemeGlobalStyleListeners.forEach((listener) => listener());
 };
 
-const subscribeToThemeGlobalStyleChanges = (listener: () => void) => {
-	ThemeGlobalStyleListeners.add(listener);
-	return () => ThemeGlobalStyleListeners.delete(listener);
-};
-
-const ensureThemeGlobalStyleRoot = (themeName: string, rootId: symbol) => {
-	const roots = ThemeGlobalStyleRoots.get(themeName) || new Set<symbol>();
-	roots.add(rootId);
-	ThemeGlobalStyleRoots.set(themeName, roots);
-
-	if (!ThemeGlobalStyleOwners.has(themeName)) {
-		ThemeGlobalStyleOwners.set(themeName, rootId);
-	}
-};
-
-const unregisterThemeGlobalStyleRoot = (themeName: string, rootId: symbol) => {
-	const roots = ThemeGlobalStyleRoots.get(themeName);
-	if (!roots) {
-		return;
-	}
-
-	roots.delete(rootId);
-
-	if (!roots.size) {
-		ThemeGlobalStyleRoots.delete(themeName);
-		ThemeGlobalStyleOwners.delete(themeName);
-		notifyThemeGlobalStyleListeners();
-		return;
-	}
-
-	if (ThemeGlobalStyleOwners.get(themeName) === rootId) {
-		const nextOwner = roots.values().next().value;
-		if (nextOwner) {
-			ThemeGlobalStyleOwners.set(themeName, nextOwner);
-		}
-		notifyThemeGlobalStyleListeners();
-	}
-};
-
-const isThemeGlobalStyleOwner = (themeName: string, rootId: symbol) => ThemeGlobalStyleOwners.get(themeName) === rootId;
-
 export const ThemeProvider = ({ theme, children }: ThemeProviderProps) => {
 	const globalStyle = theme.globalStyle;
 	const themeName = theme.name;
@@ -185,20 +144,52 @@ export const ThemeProvider = ({ theme, children }: ThemeProviderProps) => {
 	const shouldWrapWithThemeScope = Boolean(globalStyle && themeName && !activeThemeGlobalStyles.includes(themeName));
 	const nextActiveThemeGlobalStyles = shouldWrapWithThemeScope && themeName ? [...activeThemeGlobalStyles, themeName] : activeThemeGlobalStyles;
 	if (shouldWrapWithThemeScope && themeName) {
-		ensureThemeGlobalStyleRoot(themeName, rootId.current);
+		// ensure theme global style root - register this provider and claim ownership when first for the theme name.
+		const roots = ThemeGlobalStyleRoots.get(themeName) || new Set<symbol>();
+		roots.add(rootId.current);
+		ThemeGlobalStyleRoots.set(themeName, roots);
+
+		if (!ThemeGlobalStyleOwners.has(themeName)) {
+			ThemeGlobalStyleOwners.set(themeName, rootId.current);
+		}
 	}
-	const shouldRenderGlobalStyle = Boolean(shouldWrapWithThemeScope && themeName && isThemeGlobalStyleOwner(themeName, rootId.current));
+	// is theme global style owner? - only the owner root injects the global style block.
+	const shouldRenderGlobalStyle = Boolean(shouldWrapWithThemeScope && themeName && ThemeGlobalStyleOwners.get(themeName) === rootId.current);
 
 	useLayoutEffect(() => {
 		if (!shouldWrapWithThemeScope || !themeName) {
 			return;
 		}
 
-		const unsubscribe = subscribeToThemeGlobalStyleChanges(() => setRegistryVersion((version) => version + 1));
+		// subscribe to theme global style changes
+		const listener = () => setRegistryVersion((version) => version + 1);
+		ThemeGlobalStyleListeners.add(listener);
 
 		return () => {
-			unsubscribe();
-			unregisterThemeGlobalStyleRoot(themeName, rootId.current);
+			ThemeGlobalStyleListeners.delete(listener);
+
+			// unregister theme global style root
+			const roots = ThemeGlobalStyleRoots.get(themeName);
+			if (!roots) {
+				return;
+			}
+
+			roots.delete(rootId.current);
+
+			if (!roots.size) {
+				ThemeGlobalStyleRoots.delete(themeName);
+				ThemeGlobalStyleOwners.delete(themeName);
+				notifyThemeGlobalStyleListeners();
+				return;
+			}
+
+			if (ThemeGlobalStyleOwners.get(themeName) === rootId.current) {
+				const nextOwner = roots.values().next().value;
+				if (nextOwner) {
+					ThemeGlobalStyleOwners.set(themeName, nextOwner);
+				}
+				notifyThemeGlobalStyleListeners();
+			}
 		};
 	}, [shouldWrapWithThemeScope, themeName]);
 
