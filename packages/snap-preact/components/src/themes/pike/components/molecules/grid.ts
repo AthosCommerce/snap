@@ -9,9 +9,6 @@ const darkSelector = `&.${gridSelector}--dark, &:has(.${gridSelector}__inner--gr
 const imageSelector = '&:has(.ss__image)';
 const urlSelector = '&[style*="url"]';
 const styleSelector = '&[style], &:has(.ss__image)';
-const activeColors = custom.utils.activeColors();
-const activeColor = activeColors[0];
-const fontColor = activeColors[1];
 
 // CSS in JS style script for the Grid component
 const gridStyleScript = (props: Partial<GridProps>) => {
@@ -19,9 +16,12 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 	const variables = props?.theme?.variables;
 	const columns = props?.columns ? props.columns : 4;
 
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColor = activeColors[0];
+	const fontColor = activeColors[1];
+
 	// grid styles
 	const gridStyles = css({
-		...custom.styles.boxSizing('grid', props?.treePath, props?.name),
 		'.ss__grid__title': {
 			margin: `0 0 ${custom.spacing.x2}px 0`,
 			...custom.styles.headerText(variables?.colors?.secondary, '14px'),
@@ -51,7 +51,7 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 				'.ss__grid__option__inner': {
 					position: 'relative',
 					width: '100%',
-					...custom.styles.box(variables?.colors?.text, `${custom.spacing.x1}px`),
+					...custom.styles.box(undefined, `${custom.spacing.x1}px`),
 					'&, .ss__grid__option__label': {
 						overflow: 'hidden',
 					},
@@ -154,7 +154,6 @@ const gridStyleScript = (props: Partial<GridProps>) => {
 						[styleSelector]: {
 							border: 0,
 							backgroundColor: 'transparent',
-							color: variables?.colors?.text,
 							'&:before': {
 								opacity: 1,
 							},

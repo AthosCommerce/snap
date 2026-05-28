@@ -11,7 +11,6 @@ const modalStyleScript = (props: ModalProps) => {
 	// modal styles
 	const modalStyles = css({
 		cursor: 'pointer',
-		...custom.styles.boxSizing('modal', props?.treePath, props?.name),
 	});
 
 	return modalStyles;

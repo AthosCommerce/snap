@@ -11,7 +11,6 @@ const toolbarStyleScript = (props: ToolbarProps) => {
 
 	// toolbar styles
 	const toolbarStyles = css({
-		...custom.styles.boxSizing('toolbar', props?.treePath, props?.name),
 		'.ss__button--sidebar-toggle-button-wrapper .ss__button': {
 			'.ss__button__content': {
 				textAlign: 'left',

@@ -38,7 +38,6 @@ const recommendationStyleScript = (props: RecommendationProps) => {
 	const recommendationStyles = css({
 		margin: `${custom.spacing.x8}px 0`,
 		position: 'relative',
-		...custom.styles.boxSizing('recommendation', props?.treePath, props?.name),
 		'.ss__recommendation__title, .ss__recommendation__description': {
 			margin: `0 0 ${custom.spacing.x4}px 0`,
 		},
@@ -48,7 +47,7 @@ const recommendationStyleScript = (props: RecommendationProps) => {
 			...custom.styles.textOverflow(),
 		},
 		'.ss__recommendation__description': {
-			...custom.styles.baseText(variables?.colors?.text),
+			...custom.styles.baseText(),
 		},
 		'.ss__carousel': {
 			position: 'static',

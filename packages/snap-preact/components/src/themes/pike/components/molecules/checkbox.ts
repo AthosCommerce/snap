@@ -22,7 +22,6 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 		sharedStyles,
 		{
 			...custom.styles.box('', 0),
-			...custom.styles.boxSizing('checkbox', props?.treePath, props?.name),
 			'&.ss__checkbox--active': {
 				borderColor: darkGray,
 				backgroundColor: custom.colors.white,
@@ -43,7 +42,6 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 			height: props?.size ? props.size : `${custom.sizes.icon16}px`,
 			lineHeight: 1,
 			cursor: 'pointer',
-			...custom.styles.boxSizing('checkbox', props?.treePath, props?.name),
 			'&.ss__checkbox--disabled': {
 				...custom.styles.disabled(),
 			},
@@ -60,7 +58,6 @@ export const checkbox: ThemeComponent<'checkbox', CheckboxProps, CheckboxTemplat
 			themeStyleScript: checkboxStyleScript,
 			icon: custom.icons.check,
 			size: `${custom.sizes.icon16}px`,
-			color: custom.colors.primary,
 		},
 		'checkbox icon': {
 			width: `calc(50% + 1px)`,

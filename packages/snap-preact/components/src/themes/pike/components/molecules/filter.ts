@@ -10,7 +10,6 @@ const filterStyleScript = (props: FilterProps) => {
 
 	// filter styles
 	const filterStyles = css({
-		...custom.styles.boxSizing('filter', props?.treePath, props?.name),
 		'&, .ss__filter__button': {
 			padding: 0,
 		},
@@ -20,13 +19,14 @@ const filterStyleScript = (props: FilterProps) => {
 		'.ss__filter__button': {
 			position: 'relative',
 			height: 'auto',
+			color: 'inherit',
 			'&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled': {
 				backgroundColor: 'transparent',
 				borderColor: 'transparent',
 			},
 			'.ss__button__content': {
 				position: 'relative',
-				...custom.styles.baseText(variables?.colors?.text),
+				...custom.styles.baseText(),
 				fontWeight: 'normal',
 				'.ss__filter__button__icon, .ss__filter__label, .ss__filter__value': {
 					margin: 0,

@@ -15,7 +15,6 @@ const radioListStyleScript = (props: RadioListProps) => {
 
 	// shared styles
 	const sharedStyles = css({
-		...custom.styles.boxSizing('radioList', props?.treePath, props?.name),
 		'&.ss__radio-list--disabled': {
 			...custom.styles.disabled(),
 		},
@@ -32,7 +31,7 @@ const radioListStyleScript = (props: RadioListProps) => {
 		'.ss__radio-list__options-wrapper': {
 			'.ss__radio-list__option': {
 				position: 'relative',
-				...custom.styles.baseText(variables?.colors?.text),
+				...custom.styles.baseText(),
 				gap: `${custom.spacing.x2}px`,
 				padding: props?.hideOptionRadios ? `` : `0 0 0 ${radioSpacing}px`,
 				'.ss__radio-list__option__label, .ss__radio-list__option__icon': {

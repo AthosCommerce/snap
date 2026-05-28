@@ -6,11 +6,9 @@ new SnapTemplates({
 	...
 	theme: {
 		extends: 'base',
-		styles: globalStyles,
-		resultComponent: 'Result',
+		style: globalStyles,
 		variables: { ... },
 		overrides: { ... },
-		responsive: { ... },
 	},
 	search: {
 		targets: [
@@ -24,7 +22,7 @@ new SnapTemplates({
 		targets: [
 			{
 				inputSelector: 'input#search-input',
-				component: 'Autocomplete',
+				component: 'AutocompleteFixed',
 			},
 		],
 	},
@@ -32,29 +30,24 @@ new SnapTemplates({
 });
 ```
 
-### Customizing The Theme
+### Theme Configuration Overview
 The project theme contains the following properties:
 
 | Configuration Option | Description | Type | Required |
 |----------------------|-------------|------|---------|
 | `theme` | Theme configurations | Object | ✔️ |
 | `theme.extends` | Base theme to extend | String | ✔️ |
-| `theme.resultComponent` | Custom result component | String | ✔️ |
 | `theme.variables` | Theme variables (colors, breakpoints, etc.) | Object | ➖ |
 | `theme.style` | Global styles | Function | ➖ |
 | `theme.overrides` | Component overrides | Object | ➖ |
 
 
-#### Theme `extends`
+### Theme `extends`
 The `extends` property is the base theme name to start from and will already contain variables, breakpoint overrides, and component props by default (unless choosing a blank theme)
 
 
-#### Theme `resultComponent`
-The `resultComponent` property allows you to specify a which product card component to use for rendering results within the theme. If using a custom component (not from the library), it must be declared in the `components` section of your configuration.
-
-
-#### Theme `variables`
-Each theme will have a common set of shared variables (ie. colors and breakpoints) that are compatible when switching between themes. Certain themes may contain additional variables.
+### Theme `variables`
+Each theme includes a common set of shared variables (for example, colors and breakpoints) that remain compatible when switching between themes.
 
 ```tsx
 new SnapTemplates({
@@ -74,19 +67,19 @@ new SnapTemplates({
 });
 ```
 
-#### Theme `style`
-Specifies a function that returns [emotion object styles](https://emotion.sh/docs/object-styles). This function receives theme variables as props and allows you to create styles that respond to specific breakpoints. The resulting styles are injected into the document's `<head>` element. It's important to note that these styles are scoped to the current theme by being prefixed with a class name derived from the theme's name. As a result, the styles will only affect elements that are using this particular theme.
+### Theme `style`
+Specifies a function that returns [emotion object styles](https://emotion.sh/docs/object-styles). This function receives theme variables as props and allows you to create styles that respond to specific breakpoints. The resulting styles are injected into the document's `<head>` element.
 
 ```tsx
 const globalStyles = (theme) => {
 	const { variables } = theme;
 	return {
 		'.ss__result': {
-			background: variables.color.primary,
+			background: variables.colors.primary,
 		},
-		[`@media (max-width: ${variables.breakpoints[1]}px)`]: {
+		[`@media (max-width: ${variables.breakpoints.tablet}px)`]: {
 			'.ss__result': {
-				background: variables.color.secondary,
+				background: variables.colors.secondary,
 			},
 		},
 	};
@@ -102,18 +95,22 @@ new SnapTemplates({
 });
 ```
 
-#### Theme `overrides`
-Themes and components provide prop their own default component prop configurations, the `overrides` property in a theme configuration allows you to customize these. It consists of three main sections:
+### Theme `overrides`
+Themes and components provide their own default component prop configurations. The `overrides` property in a theme configuration allows you to customize these defaults.
 
-1. `components`: Allows you to override properties of individual components.
-2. `responsive`: Lets you specify different overrides for various breakpoints.
+`overrides` is organized by breakpoint keys:
+
+1. `default`: Base component overrides that apply to all viewport sizes.
+2. Responsive keys such as `mobile`, `tablet`, and `desktop`: Breakpoint-specific overrides that are merged on top of `default`.
 
 
-##### Theme `overrides.components`
-The `components` section of `overrides` allows you to customize specific component prop overrides in your theme.
+#### Templates Legal Props
 
-> [!NOTE]
-> By default, only a curated subset of component props is available for overrides. To access the full set of component props in overrides, you must use an unlocked configuration. See [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
+When customizing components via theme overrides, not all component props are available. Each component defines a subset of its props as "templates legal" — these are the props that are safe and supported for use within theme configuration. Props that are not templates legal are restricted to internal use and cannot be configured through the theme.
+
+This distinction exists to provide a stable, supported API surface for template customization while preventing access to internal props that could lead to unexpected behavior or break compatibility with future updates.
+
+To see the full list of templates legal props for each component, refer to the **Storybook component library**. Each component's documentation in Storybook will indicate which props are available for use in theme overrides. To access the full set of component props in overrides, you must use an unlocked configuration. See [Unlocked Configuration](./templates-config#unlocked-configuration) for more details.
 
 
 ```tsx
@@ -142,10 +139,10 @@ new SnapTemplates({
 ```
 
 
-##### Theme `overrides` with Cascading Component Props
+#### Theme `overrides` with Cascading Component Props
 While the previous example demonstrated overriding all instances of image and button components, you may often need to target specific sub-components within a larger component or template. This is where cascading component props come into play.
 
-Cascading component props within `overrides.components` are available as TypeScript types. It's strongly recommended to use your IDE's IntelliSense (code completion) feature to explore available cascading component prop selectors and values.
+Cascading component props within override groups such as `overrides.default` (and breakpoint groups like `overrides.mobile`) are available as TypeScript types. It's strongly recommended to use your IDE's IntelliSense (code completion) feature to explore available cascading component prop selectors and values.
 
 Some components contain multiple subcomponents of the same type. For instance, the `<Pagination>` component includes icons for both `<Icon name='next'>` and `<Icon name='prev'>`. To target a specific icon, you can add a "class-like" suffix to the component selector, which will target that particular icon by its `name` attribute. When named, components will contain a `ss-name` attribute in the DOM with the available name to target.
 
@@ -164,13 +161,13 @@ new SnapTemplates({
 				'carousel icon.prev': {
 					icon: 'angle-left',
 				},
-				'autocomplete image': {
+				'autocompleteFixed image': {
 					lazy: false,
 					style: {
 						boxShadow: '2px 2px rgba(0,0,0,0.2)',
 					},
 				},
-				'autocomplete button': {
+				'autocompleteFixed button': {
 					native: true,
 				},
 			},
@@ -180,14 +177,14 @@ new SnapTemplates({
 });
 ```
 
-##### The `customComponent` Override Prop
+#### The `customComponent` Override Prop
 
 All Atom, Molecule, and Organism components support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 
 > [!NOTE]
-> When using a locked configuration (the default), only the `result` component supports the `customComponent` prop. To use `customComponent` with other components, you must use an unlocked configuration. See [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
+> When using a locked configuration (the default), only the `result` component supports the `customComponent` prop. To use `customComponent` with other components, you must use an unlocked configuration. See [Unlocked Configuration](./templates-config#unlocked-configuration) for more details.
 
 **Usage Example:**
 
@@ -225,7 +222,7 @@ new SnapTemplates({
 	config: { ... },
 	components: {
 		result: {
-			SearchResult: async () => (await import('./components/Result')).SearchResult,,
+			SearchResult: async () => (await import('./components/Result')).SearchResult,
 			AutocompleteResult: () => AutocompleteResult,
 		},
 	},
@@ -237,7 +234,7 @@ new SnapTemplates({
 				'search result': {
 					customComponent: 'SearchResult',
 				},
-				'autocomplete result': {
+				'autocompleteFixed result': {
 					customComponent: 'AutocompleteResult',
 				},
 			},
@@ -275,7 +272,7 @@ export const MyCustomResult = (props: ResultProps) => {
 ```
 
 
-##### Responsive Theme Overrides
+#### Responsive Theme Overrides
 Responsive overrides in the `overrides` property allow you to define theme configurations for different screen sizes, such as mobile, tablet, and desktop. These settings adapt your theme to various viewport sizes, enabling responsive designs.
 
 The breakpoints for these overrides are defined in `theme.variables.breakpoints`. For instance, if `theme.variables.breakpoints` is set to `{ mobile: 768, tablet: 1024, desktop: 1280 }`, the `mobile` overrides will apply for viewports between `0-768px`, `tablet` overrides for `769-1024px`, and `desktop` overrides for `1025-1280px`. Overrides specified in `default` apply across all screen sizes, while the active responsive overrides (based on the current viewport) take precedence.

@@ -14,7 +14,7 @@ import { Banner, BannerProps } from '../../Atoms/Banner';
 import { Facets, FacetsProps } from '../Facets';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
-import { Theme, useTheme, CacheProvider } from '../../../providers';
+import { Theme, useTheme, CacheProvider, ThemeComplete } from '../../../providers';
 import { ComponentProps, FacetDisplay, RecommendationComponentNames, RecommendationComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { Lang, useA11y, useLang } from '../../../hooks';
 import { TermsList, TermsListProps } from '../TermsList';
@@ -254,7 +254,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		},
 	};
 
-	if (!globalTheme?.name) {
+	if (!((globalTheme as ThemeComplete)?.type === 'templates')) {
 		const themeDefaults: Theme = {
 			components: {
 				facet: {

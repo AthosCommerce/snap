@@ -38,7 +38,7 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 			alignItems: 'center',
 			color: color || theme?.variables?.colors?.primary,
 			border: 'none',
-			borderBottom: `2px solid ${theme?.variables?.colors?.secondary || '#ccc'}`,
+			borderBottom: `2px solid ${theme?.variables?.colors?.primary || '#ccc'}`,
 			padding: '6px 0',
 
 			'& .ss__facet__header__inner': {

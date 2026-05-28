@@ -8,21 +8,21 @@ const slideshowSpacing = custom.spacing.x2;
 const slideshowButtonSize = 32;
 const slideshowPaginationSize = 12;
 const slideshowPaginationSpacing = slideshowSpacing + slideshowPaginationSize;
-const activeColors = custom.utils.activeColors();
-const buttonColor = activeColors[0];
-const fontColor = activeColors[1];
 
 // CSS in JS style script for the Slideshow component
 const slideshowStyleScript = (props: SlideshowProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
 
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const buttonColor = activeColors[0];
+	const fontColor = activeColors[1];
+
 	// slideshow styles
 	const slideshowStyles = css({
 		position: 'relative',
 		width: '100%',
 		minWidth: '1px',
-		...custom.styles.boxSizing('slideshow', props?.treePath, props?.name),
 		'&:has(.ss__slideshow__pagination)': {
 			paddingBottom: `${slideshowPaginationSpacing}px`,
 			'.ss__slideshow__navigation--prev, .ss__slideshow__navigation--next': {

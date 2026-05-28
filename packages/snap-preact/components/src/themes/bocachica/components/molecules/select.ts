@@ -1,12 +1,20 @@
 import { css } from '@emotion/react';
 import type { SelectProps, SelectTemplatesLegalProps } from '../../../../components/Molecules/Select';
 import { ThemeComponent } from '../../../../providers';
-import Color from 'color';
+import { colord } from 'colord';
+
+const setLightness = (colorValue: string, lightness: number) => {
+	const hsl = colord(colorValue).toHsl();
+	return colord({ ...hsl, l: lightness });
+};
 
 // CSS in JS style script for the Select component
+
 const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 	const variables = theme?.variables;
-	const transparentSecondary = new Color(theme?.variables?.colors?.secondary || undefined).opaquer(0.2);
+	const baseSecondary = colord(theme?.variables?.colors?.secondary || '#000');
+	const transparentSecondary = baseSecondary.alpha(Math.min(baseSecondary.alpha() + 0.2, 1));
+	const transparentSecondaryHover = setLightness(transparentSecondary.toHex(), 95).toRgbString();
 	return css({
 		'.ss__dropdown': {
 			'.ss__select__dropdown__button': {
@@ -59,10 +67,10 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 				gap: '6px',
 				color: variables?.colors?.secondary,
 				'&.ss__select__select__option--selected': {
-					backgroundColor: `${transparentSecondary.rgb().lightness(95)}` || `rgba(109,113,117,.06)`,
+					backgroundColor: transparentSecondaryHover || `rgba(109,113,117,.06)`,
 				},
 				'&:hover': {
-					backgroundColor: `${transparentSecondary.rgb().lightness(95)}` || `rgba(109,113,117,.06)`,
+					backgroundColor: transparentSecondaryHover || `rgba(109,113,117,.06)`,
 				},
 			},
 		},

@@ -155,6 +155,39 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		hideSubmitSearchButton: {
+			description: 'hides the submit search button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: 'false' },
+			},
+			control: { type: 'boolean' },
+		},
+		hideClearSearchButton: {
+			description: 'hides the clear search button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: 'false' },
+			},
+			control: { type: 'boolean' },
+		},
+		hideCloseSearchButton: {
+			description: 'hides the close search button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: 'false' },
+			},
+			control: { type: 'boolean' },
+		},
 		...componentArgs,
 	},
 };

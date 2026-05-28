@@ -10,7 +10,6 @@ const resultsStyleScript = (props: ResultsProps) => {
 
 	// results styles
 	const resultStyles = css({
-		...custom.styles.boxSizing('results', props?.treePath, props?.name),
 		'& > *': {
 			minWidth: '1px',
 		},

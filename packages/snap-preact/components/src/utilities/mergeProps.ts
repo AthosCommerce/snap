@@ -1,5 +1,5 @@
 import type { ComponentProps } from '../types';
-import type { Theme, ThemeComponents } from '../providers';
+import type { Theme, ThemeComplete, ThemeComponents } from '../providers';
 
 // Symbol to track prop-value pairs that originated from theme configuration
 const THEME_PROPS_MAP_SYMBOL = Symbol.for('__themePropsMap__');
@@ -42,7 +42,7 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 		...defaultProps,
 	};
 
-	if (!globalTheme?.name) {
+	if ((globalTheme as ThemeComplete)?.type !== 'templates') {
 		// add globalTheme props if they exist
 		const globalComponent = globalTheme?.components && globalTheme.components[componentType as keyof typeof globalTheme.components];
 

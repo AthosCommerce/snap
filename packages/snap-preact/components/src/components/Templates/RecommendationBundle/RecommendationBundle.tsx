@@ -7,7 +7,7 @@ import deepmerge from 'deepmerge';
 import { Carousel, CarouselProps as CarouselProps } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
@@ -198,7 +198,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 	}
 
 	let displaySettings: BreakpointsEntry | undefined;
-	if (!(properties.theme?.name || globalTheme.name)) {
+	if (!((properties.theme as ThemeComplete)?.type == 'templates' || (globalTheme as ThemeComplete)?.type == 'templates')) {
 		displaySettings = useDisplaySettings(props.breakpoints!);
 		if (displaySettings && Object.keys(displaySettings).length) {
 			const theme = deepmerge(props?.theme || {}, displaySettings?.theme || {}, { arrayMerge: (destinationArray, sourceArray) => sourceArray });
@@ -378,7 +378,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		};
 
 		//no breakpoint props allowed in templates
-		if (!(properties.theme?.name || globalTheme.name)) {
+		if (!((properties.theme as ThemeComplete)?.type == 'templates' || (globalTheme as ThemeComplete)?.type == 'templates')) {
 			Object.keys(props.breakpoints!).forEach((breakpoint) => {
 				const obj = props.breakpoints![breakpoint as keyof typeof props.breakpoints];
 

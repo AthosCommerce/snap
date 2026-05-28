@@ -12,7 +12,6 @@ const errorHandlerStyleScript = (props: ErrorHandlerProps) => {
 	const errorHandlerStyles = css({
 		gap: `${custom.spacing.x2}px`,
 		padding: `${custom.spacing.x2}px`,
-		...custom.styles.boxSizing('errorHandler', props?.treePath, props?.name),
 		'.ss__error-handler__message, .ss__error-handler__button': {
 			gap: `${custom.spacing.x1}px`,
 		},
@@ -21,7 +20,6 @@ const errorHandlerStyleScript = (props: ErrorHandlerProps) => {
 			flexFlow: 'row wrap',
 			flex: `1 1 0%`,
 			fontSize: '14px',
-			color: variables?.colors?.text,
 			'span, .ss__icon, .ss__error-handler__message__type': {
 				margin: 0,
 			},
