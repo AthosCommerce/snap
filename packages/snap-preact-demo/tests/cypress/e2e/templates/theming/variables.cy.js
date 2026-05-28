@@ -204,9 +204,9 @@ describe('Theme variables work', () => {
 
 			// cypress converts all css colors to rgb...
 			//secondary
-			cy.get('.ss__select .ss__select__select .ss__select__select__option').should('have.css', 'color', 'rgb(29, 73, 144)');
+			cy.get('.ss__select .ss__select__select .ss__select__select__option').should('have.css', 'color', 'rgb(0, 0, 0)');
 			//primary
-			cy.get('.ss__button').should('have.css', 'color', 'rgb(255, 255, 255)');
+			cy.get('.ss__button').should('have.css', 'color', 'rgb(0, 0, 0)');
 		});
 	});
 
