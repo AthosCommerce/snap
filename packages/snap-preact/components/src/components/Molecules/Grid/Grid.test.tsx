@@ -279,6 +279,60 @@ describe('Grid Component', () => {
 		expect(gridElement).toBeInTheDocument();
 		expect(gridElement).toHaveClass(className);
 	});
+
+	it('applies dark class for dark background colors and not for light background colors', () => {
+		const colorOptions = [
+			{ value: 'white', background: 'white' },
+			{ value: 'black', background: 'black' },
+			{ value: 'red', background: 'red' },
+			{ value: 'yellow', background: 'yellow' },
+			{ value: '#000000', background: '#000000' },
+			{ value: '#ffffff', background: '#ffffff' },
+		];
+
+		gridComponent = render(<Grid options={colorOptions} hideLabels={true} />);
+
+		const gridOptions = gridComponent.container.querySelectorAll('.ss__grid__option');
+
+		// white should NOT have dark class
+		expect(gridOptions[0]).not.toHaveClass('ss__grid__option--dark');
+
+		// black should have dark class
+		expect(gridOptions[1]).toHaveClass('ss__grid__option--dark');
+
+		// red is dark, should have dark class
+		expect(gridOptions[2]).toHaveClass('ss__grid__option--dark');
+
+		// yellow is light, should NOT have dark class
+		expect(gridOptions[3]).not.toHaveClass('ss__grid__option--dark');
+
+		// #000000 (black) should have dark class
+		expect(gridOptions[4]).toHaveClass('ss__grid__option--dark');
+
+		// #ffffff (white) should NOT have dark class
+		expect(gridOptions[5]).not.toHaveClass('ss__grid__option--dark');
+	});
+
+	it('does not apply dark class when background is an image URL', () => {
+		const imageOptions = [
+			{
+				value: 'Image 1',
+				backgroundImageUrl: 'https://example.com/light-image.jpg',
+			},
+			{
+				value: 'Image 2',
+				backgroundImageUrl: 'https://example.com/dark-image.jpg',
+			},
+		];
+
+		gridComponent = render(<Grid options={imageOptions} hideLabels={true} />);
+
+		const gridOptions = gridComponent.container.querySelectorAll('.ss__grid__option');
+
+		// Both should NOT have dark class since they have backgroundImageUrl but no background color
+		expect(gridOptions[0]).not.toHaveClass('ss__grid__option--dark');
+		expect(gridOptions[1]).not.toHaveClass('ss__grid__option--dark');
+	});
 });
 
 describe('Grid lang works', () => {

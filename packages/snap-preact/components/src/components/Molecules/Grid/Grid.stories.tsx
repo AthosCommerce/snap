@@ -298,6 +298,10 @@ backgroundColors.args = {
 			disabled: true,
 		},
 		{
+			value: 'black',
+			background: 'black',
+		},
+		{
 			value: 'green',
 			background: 'green',
 		},

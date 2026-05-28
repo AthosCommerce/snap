@@ -16,8 +16,11 @@ import { Checkbox, CheckboxProps } from '../Checkbox';
 import { Lang, useComponent, useLang } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
-import { colord } from 'colord';
+import { colord, extend } from 'colord';
+import namesPlugin from 'colord/plugins/names';
 import { Image, ImageProps } from '../../Atoms/Image';
+
+extend([namesPlugin]);
 
 const defaultStyles: StyleScript<FacetPaletteOptionsProps> = ({ columns, gridSize, gapSize, horizontal, theme }) => {
 	return css({

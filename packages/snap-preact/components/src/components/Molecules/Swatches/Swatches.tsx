@@ -10,7 +10,10 @@ import { Grid, GridProps } from '../Grid';
 import { ImageProps, Image } from '../../Atoms/Image';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
-import { colord } from 'colord';
+import { colord, extend } from 'colord';
+import namesPlugin from 'colord/plugins/names';
+
+extend([namesPlugin]);
 import { Slideshow, SlideshowSlide, SlideshowProps } from '../Slideshow';
 import { useState } from 'preact/hooks';
 
@@ -203,12 +206,14 @@ export function Swatches(properties: SwatchesProps) {
 				const label = option.label;
 				const selected = selection?.value == option.value;
 				let isDark = false;
-				try {
-					const color = colord(
-						option.background ? option.background.toLowerCase() : option.backgroundImageUrl ? `` : option.value.toString().toLowerCase()
-					);
-					isDark = color.isDark();
-				} catch (err) {}
+				const colorString = option.background?.toLowerCase() || (!option.backgroundImageUrl ? option.value.toString().toLowerCase() : null);
+
+				if (colorString) {
+					try {
+						const color = colord(colorString);
+						isDark = color.isDark();
+					} catch (err) {}
+				}
 
 				slidesArray.push({
 					onClick: (e) => !disabled && !option?.disabled && makeSelection(e as any, option),

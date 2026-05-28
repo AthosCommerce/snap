@@ -11,8 +11,11 @@ import { ComponentProps, ListOption, SwatchOption, StyleScript } from '../../../
 import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { colord } from 'colord';
+import { colord, extend } from 'colord';
+import namesPlugin from 'colord/plugins/names';
 import type { SnapTemplates } from '../../../../../src';
+
+extend([namesPlugin]);
 
 const defaultStyles: StyleScript<GridProps> = ({ gapSize, columns, theme, disableOverflowAction }) => {
 	return css({
@@ -297,12 +300,14 @@ export function Grid(properties: GridProps) {
 						const selected = selection.some((select: ListOption) => select.value == option.value);
 
 						let isDark = false;
-						try {
-							const color = colord(
-								option.background ? option.background.toLowerCase() : option.backgroundImageUrl ? `` : option.value.toString().toLowerCase()
-							);
-							isDark = color.isDark();
-						} catch (err) {}
+						const colorString = option.background?.toLowerCase() || (!option.backgroundImageUrl ? option.value.toString().toLowerCase() : null);
+
+						if (colorString) {
+							try {
+								const color = colord(colorString);
+								isDark = color.isDark();
+							} catch (err) {}
+						}
 
 						if (!limited || options.length == limit || idx < limit - (overflowButtonInGrid ? 1 : 0)) {
 							return (
