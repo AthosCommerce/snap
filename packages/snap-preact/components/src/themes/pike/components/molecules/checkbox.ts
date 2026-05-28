@@ -22,8 +22,9 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 		sharedStyles,
 		{
 			...custom.styles.box('', 0),
+			borderColor: props.color || custom.colors.gray02,
 			'&.ss__checkbox--active': {
-				borderColor: darkGray,
+				borderColor: props.color || darkGray,
 				backgroundColor: custom.colors.white,
 			},
 			'&.ss__checkbox--disabled': {
