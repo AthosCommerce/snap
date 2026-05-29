@@ -126,9 +126,15 @@ export const Dropdown = observer((properties: DropdownProps) => {
 			const updateCoords = () => {
 				if (buttonRef.current) {
 					const rect = buttonRef.current.getBoundingClientRect();
+					// Clamp the anchor to the boundary's horizontal range so the dropdown
+					// stays visible inside the boundary even when the button scrolls out
+					// of view (e.g. a horizontally-scrolling facets row). The right edge
+					// is handled by the flip-x logic below.
+					const boundaryRect = boundaryRef?.current?.getBoundingClientRect();
+					const left = boundaryRect ? Math.max(boundaryRect.left, Math.min(rect.left, boundaryRect.right)) : rect.left;
 					setCoords({
 						top: dropUp ? rect.top : rect.bottom,
-						left: rect.left,
+						left,
 						width: rect.width,
 					});
 				}
@@ -157,9 +163,14 @@ export const Dropdown = observer((properties: DropdownProps) => {
 	// useLayoutEffect fires before paint to avoid flash.
 	useLayoutEffect(() => {
 		if (usePortal && dropdownOpen && contentRef.current && coords.width > 0) {
-			const rect = contentRef.current.getBoundingClientRect();
+			// Measure against the would-be unflipped right edge so the check is
+			// stable regardless of the current flipX state. Reading rect.right
+			// after a flip reports the anchored edge instead of the natural one,
+			// which causes the dropdown to oscillate between flipped/unflipped on
+			// every scroll tick.
+			const contentWidth = contentRef.current.offsetWidth;
 			const limit = boundaryRef?.current?.getBoundingClientRect().right ?? window.innerWidth;
-			const shouldFlip = rect.right > limit;
+			const shouldFlip = coords.left + contentWidth > limit;
 			setFlipX(shouldFlip);
 			if (shouldFlip) setFlipRight(Math.max(0, window.innerWidth - limit));
 		}

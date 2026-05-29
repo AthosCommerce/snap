@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useEffect } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -19,38 +20,46 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '1em',
+		paddingBottom: '1em',
+
+		'.ss__chat-product-query-message__header__back': {
+			// Overlay banner pinned to the top of the secondary chat's scrollable messages
+			// container so it stays visible while the product details scroll underneath.
+			// Styling mirrors `.ss__chat__session-feedback` (dark primary bg, primary text,
+			// 8px/15px padding, 10px gap, 14px font). Rendered as a direct child of the
+			// component root (not the header) so sticky holds across the full scroll range.
+			// Negative marginBottom cancels the root's `gap: 1em` so the banner sits flush
+			// against the header below it.
+			position: 'sticky',
+			top: 0,
+			zIndex: 2,
+			marginBottom: '-1em',
+			display: 'flex',
+			alignItems: 'center',
+			gap: '10px',
+			padding: '8px 15px',
+			background: new Colour(colorPrimary).darkenHex(0.1),
+			color: colorPrimaryText,
+			fontSize: '14px',
+			cursor: 'pointer',
+			border: 'none',
+			font: 'inherit',
+			width: 'auto',
+			'&:focus-visible': {
+				outline: `2px solid ${colorPrimaryText}`,
+				outlineOffset: '-2px',
+			},
+			svg: {
+				fill: colorPrimaryText,
+				stroke: colorPrimaryText,
+			},
+		},
 
 		'.ss__chat-product-query-message__header': {
 			background: new Colour(colorPrimary).lightenHex(0.05),
 			padding: '1em',
 			display: 'flex',
 			flexDirection: 'column',
-
-			'.ss__chat-product-query-message__header__back': {
-				display: 'flex',
-				alignItems: 'center',
-				gap: '0.35em',
-				color: colorPrimaryText,
-				cursor: 'pointer',
-				alignSelf: 'flex-start',
-				padding: '0.5em 0',
-				fontSize: '0.85em',
-				opacity: 0.85,
-				background: 'transparent',
-				border: 'none',
-				font: 'inherit',
-				'&:hover': {
-					opacity: 1,
-				},
-				'&:focus-visible': {
-					outline: `2px solid ${colorPrimaryText}`,
-					outlineOffset: '2px',
-				},
-				svg: {
-					fill: colorPrimaryText,
-					stroke: colorPrimaryText,
-				},
-			},
 
 			'.ss__price': {
 				color: colorPrimaryText,
@@ -79,7 +88,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 
 					'.ss__chat-product-query-message__header__product__details__name': {
 						fontWeight: 'bold',
-						fontSize: '0.95em',
+						fontSize: '1.2em',
 
 						a: {
 							color: colorPrimaryText,
@@ -88,11 +97,6 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 								textDecoration: 'underline',
 							},
 						},
-					},
-
-					'.ss__chat-product-query-message__header__product__details__brand': {
-						fontSize: '0.8em',
-						color: 'rgba(255, 255, 255, 0.7)',
 					},
 
 					'.ss__chat-product-query-message__header__product__details__price': {
@@ -113,19 +117,6 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 					justifyContent: 'center',
 					gap: '0.35em',
 					flexShrink: 0,
-
-					'.ss__chat-product-query-message__header__product__actions__go-to-product': {
-						a: {
-							color: colorPrimaryText,
-							opacity: 0.85,
-							fontSize: '0.8em',
-							textDecoration: 'underline',
-							cursor: 'pointer',
-							'&:hover': {
-								opacity: 1,
-							},
-						},
-					},
 
 					'.ss__chat-product-query-message__header__product__actions__add-to-cart .ss__button': {
 						flexDirection: 'row-reverse',
@@ -175,6 +166,9 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 
 		'.ss__chat-product-query-message__variants': {
 			padding: '0 2em',
+			display: 'flex',
+			flexDirection: 'column',
+			gap: '1em',
 			'.ss__chat-product-query-message__variants__label': {
 				fontWeight: '600',
 				fontSize: '0.9em',
@@ -225,6 +219,17 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 						opacity: 0.4,
 					},
 
+					'&.ss__chat-product-query-message__variants__swatch--text-only': {
+						padding: '0.4em 0.75em',
+						'&.ss__chat-product-query-message__variants__swatch--selected': {
+							padding: '0.3em 0.65em',
+						},
+						'.ss__chat-product-query-message__variants__swatch__value': {
+							fontSize: '1em',
+							maxWidth: 'none',
+						},
+					},
+
 					'.ss__chat-product-query-message__variants__swatch__image': {
 						width: '48px',
 						height: '48px',
@@ -264,7 +269,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 				borderCollapse: 'separate',
 				borderSpacing: 0,
 				fontSize: '0.9em',
-				border: `3px solid ${colorPrimary}`,
+				border: `1px solid ${colorPrimary}`,
 				borderTop: 'none',
 				borderBottomLeftRadius: '0.5em',
 				borderBottomRightRadius: '0.5em',
@@ -313,17 +318,6 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 				},
 			},
 
-			'.ss__chat-product-query-message__section__description': {
-				padding: '0.75em',
-				fontSize: '0.9em',
-				color: '#374151',
-				lineHeight: '1.5',
-				border: `3px solid ${colorPrimary}`,
-				borderTop: 'none',
-				borderBottomLeftRadius: '0.5em',
-				borderBottomRightRadius: '0.5em',
-			},
-
 			'.ss__chat-product-query-message__section__features': {
 				margin: 0,
 				padding: '0.5em 1.25em',
@@ -334,6 +328,13 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 					color: '#374151',
 				},
 			},
+		},
+
+		'.ss__chat-product-query-message__description': {
+			padding: '0 1em',
+			fontSize: '0.9em',
+			color: '#374151',
+			lineHeight: '1.5',
 		},
 	});
 };
@@ -491,6 +492,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const chatMessages = controller?.store.currentChat?.chat || [];
 	const sourceMessage = chatItem.sourceMessageId ? chatMessages.find((m) => m.id === chatItem.sourceMessageId) : null;
 	const cameFromInspiration = sourceMessage?.messageType === 'inspirationResult';
+	const cameFromComparison = sourceMessage?.messageType === 'productComparison';
 
 	if (!product) {
 		return (
@@ -516,6 +518,25 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const variants = product.variants;
 	const selections = variants?.selections || [];
 
+	// Ensure every selection has an initial value picked. Without this, entering
+	// the quickview from inspiration leaves all selections empty, and the first
+	// variant click can't narrow `refineSelections` to a single variant — so the
+	// active variant (and hero image) doesn't update until a second selection is
+	// made. Pre-selecting the first available value for each selection on mount
+	// matches the carousel behavior. Single-value selections also get hidden from
+	// the UI (handled by `visibleSelections` below).
+	useEffect(() => {
+		selections.forEach((selection: VariantSelection) => {
+			if (selection.selected) return;
+			const target = selection.values.find((v) => v.available) || selection.values[0];
+			if (target) {
+				selection.select(target.value);
+			}
+		});
+	}, [selections]);
+
+	const visibleSelections = selections.filter((selection: VariantSelection) => selection.values.length > 1);
+
 	const displayedData = {
 		mappings: displayed.mappings,
 		attributes: displayed.attributes || {},
@@ -534,18 +555,18 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	return (
 		<CacheProvider>
 			<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
+				{(cameFromInspiration || cameFromComparison) && (
+					<button
+						type="button"
+						className={classnames('ss__chat-product-query-message__header__back')}
+						aria-label={cameFromComparison ? 'Back to comparison' : 'Back to inspiration'}
+						onClick={handleBack}
+					>
+						<Icon icon="angle-left" size="14px" />
+						<span>{cameFromComparison ? 'Back to comparison' : 'Back to inspiration'}</span>
+					</button>
+				)}
 				<div className={classnames('ss__chat-product-query-message__header')}>
-					{cameFromInspiration && (
-						<button
-							type="button"
-							className={classnames('ss__chat-product-query-message__header__back')}
-							aria-label="Back to inspiration"
-							onClick={handleBack}
-						>
-							<Icon icon="angle-left" size="14px" />
-							<span>Back to inspiration</span>
-						</button>
-					)}
 					<div className={classnames('ss__chat-product-query-message__header__product')}>
 						{(displayedCore.imageUrl || displayedCore.parentImageUrl) && (
 							<Image
@@ -571,9 +592,6 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 									)}
 								</div>
 							)}
-							{displayedCore.brand && (
-								<div className={classnames('ss__chat-product-query-message__header__product__details__brand')}>{displayedCore.brand}</div>
-							)}
 							{displayedCore.price != null && (
 								<div className={classnames('ss__chat-product-query-message__header__product__details__price')}>
 									{displayedCore.msrp != null && Number(displayedCore.msrp) > Number(displayedCore.price) && (
@@ -584,18 +602,6 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 							)}
 						</div>
 						<div className={classnames('ss__chat-product-query-message__header__product__actions')}>
-							{displayedCore.url && (
-								<div className={classnames('ss__chat-product-query-message__header__product__actions__go-to-product')}>
-									<a
-										href={displayedCore.url as string}
-										onClick={(e) => controller?.track.product.click(e as any, product)}
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										Go to product
-									</a>
-								</div>
-							)}
 							<div className={classnames('ss__chat-product-query-message__header__product__actions__add-to-cart')}>
 								<Button
 									icon="cart"
@@ -618,53 +624,63 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 					</div>
 				</div>
 
-				{selections.length > 0 && (
+				{visibleSelections.length > 0 && (
 					<div className={classnames('ss__chat-product-query-message__variants')} role="group" aria-label="Variant selection">
-						{selections.map((selection: VariantSelection) => (
-							<div key={selection.field}>
-								<div className={classnames('ss__chat-product-query-message__variants__label')} id={`ss__chat-pq-variant-${selection.field}`}>
-									{formatLabel(selection.field)} ({selection.values.length})
-								</div>
-								<div
-									className={classnames('ss__chat-product-query-message__variants__swatches')}
-									role="radiogroup"
-									aria-labelledby={`ss__chat-pq-variant-${selection.field}`}
-								>
-									{selection.values.map((selectionValue) => {
-										const isUnavailable = !selectionValue.available;
-										const isSelected = selection.selected?.value === selectionValue.value;
+						{visibleSelections.map((selection: VariantSelection) => {
+							// If every value in this selection shares the same thumbnail (or none have
+							// one), the image carries no signal — show text only.
+							const firstThumb = selection.values[0]?.thumbnailImageUrl;
+							const allSameThumb = selection.values.every((v) => v.thumbnailImageUrl === firstThumb);
+							const showThumbs = !allSameThumb;
+							return (
+								<div key={selection.field}>
+									<div className={classnames('ss__chat-product-query-message__variants__label')} id={`ss__chat-pq-variant-${selection.field}`}>
+										{formatLabel(selection.field)} ({selection.values.length})
+									</div>
+									<div
+										className={classnames('ss__chat-product-query-message__variants__swatches')}
+										role="radiogroup"
+										aria-labelledby={`ss__chat-pq-variant-${selection.field}`}
+									>
+										{selection.values.map((selectionValue) => {
+											const isUnavailable = !selectionValue.available;
+											const isSelected = selection.selected?.value === selectionValue.value;
 
-										return (
-											<button
-												type="button"
-												key={selectionValue.value}
-												className={classnames('ss__chat-product-query-message__variants__swatch', {
-													'ss__chat-product-query-message__variants__swatch--selected': isSelected,
-													'ss__chat-product-query-message__variants__swatch--unavailable': isUnavailable,
-												})}
-												title={selectionValue.value}
-												role="radio"
-												aria-checked={isSelected}
-												aria-disabled={isUnavailable}
-												aria-label={`${formatLabel(selection.field)}: ${selectionValue.value}${isUnavailable ? ' (unavailable)' : ''}`}
-												onClick={() => selection.select(selectionValue.value)}
-											>
-												{selectionValue.thumbnailImageUrl ? (
-													<Image
-														className={classnames('ss__chat-product-query-message__variants__swatch__image')}
-														src={selectionValue.thumbnailImageUrl}
-														alt={selectionValue.value}
-													/>
-												) : null}
-												<span className={classnames('ss__chat-product-query-message__variants__swatch__value')}>{selectionValue.value}</span>
-											</button>
-										);
-									})}
+											return (
+												<button
+													type="button"
+													key={selectionValue.value}
+													className={classnames('ss__chat-product-query-message__variants__swatch', {
+														'ss__chat-product-query-message__variants__swatch--selected': isSelected,
+														'ss__chat-product-query-message__variants__swatch--unavailable': isUnavailable,
+														'ss__chat-product-query-message__variants__swatch--text-only': !showThumbs,
+													})}
+													title={selectionValue.value}
+													role="radio"
+													aria-checked={isSelected}
+													aria-disabled={isUnavailable}
+													aria-label={`${formatLabel(selection.field)}: ${selectionValue.value}${isUnavailable ? ' (unavailable)' : ''}`}
+													onClick={() => selection.select(selectionValue.value)}
+												>
+													{showThumbs && selectionValue.thumbnailImageUrl ? (
+														<Image
+															className={classnames('ss__chat-product-query-message__variants__swatch__image')}
+															src={selectionValue.thumbnailImageUrl}
+															alt={selectionValue.value}
+														/>
+													) : null}
+													<span className={classnames('ss__chat-product-query-message__variants__swatch__value')}>{selectionValue.value}</span>
+												</button>
+											);
+										})}
+									</div>
 								</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 				)}
+
+				{descriptionRow && <div className={classnames('ss__chat-product-query-message__description')}>{descriptionRow.value}</div>}
 
 				{infoRows.length > 0 && (
 					<div className={classnames('ss__chat-product-query-message__section')}>
@@ -699,13 +715,6 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 								))}
 							</tbody>
 						</table>
-					</div>
-				)}
-
-				{descriptionRow && (
-					<div className={classnames('ss__chat-product-query-message__section')}>
-						<div className={classnames('ss__chat-product-query-message__section__title')}>Description</div>
-						<div className={classnames('ss__chat-product-query-message__section__description')}>{descriptionRow.value}</div>
 					</div>
 				)}
 
