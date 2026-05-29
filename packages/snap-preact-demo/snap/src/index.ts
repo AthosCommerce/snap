@@ -113,6 +113,9 @@ let config: SnapConfig = {
 								},
 							],
 						},
+						quickview: {
+							displayFields: ['color'],
+						},
 					},
 					globals: {
 						filters: backgroundFilters,

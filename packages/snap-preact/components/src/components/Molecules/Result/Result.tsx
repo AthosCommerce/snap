@@ -19,6 +19,7 @@ import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useComponent } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
+import { ProductQuickview } from '../ProductQuickview';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ResultProps> = () => {
@@ -84,8 +85,10 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: 'Add To Cart',
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
+		quickViewButtonText: 'Quick View',
 		hideAddToCartButton: true,
 		hideRating: true,
+		hideQuickViewButton: true,
 	};
 
 	const props = mergeProps('result', globalTheme, defaultProps, properties);
@@ -110,7 +113,9 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText,
 		addToCartButtonSuccessText,
 		addToCartButtonSuccessTimeout,
+		quickViewButtonText,
 		hideRating,
+		hideQuickViewButton,
 		trackingRef,
 		treePath,
 		customComponent,
@@ -236,6 +241,9 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
 		},
+		quickViewButtonText: {
+			value: quickViewButtonText,
+		},
 	};
 
 	//deep merge with props.lang
@@ -324,6 +332,20 @@ export const Result = observer((properties: ResultProps) => {
 						</div>
 					)}
 
+					{!hideQuickViewButton && controller && (
+						<div className="ss__result__quick-view-wrapper">
+							<Button
+								internalClassName="ss__result__button--quickView"
+								content={quickViewButtonText}
+								{...mergedLang.quickViewButtonText.all}
+								onClick={() => controller.setQuickView({ result })}
+								{...defined({ disableStyles })}
+								theme={props.theme}
+								treePath={treePath}
+							/>
+						</div>
+					)}
+
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
 							<Button {...subProps.button} content={addToCartButtonText} {...mergedLang.addToCartButtonText.all} />
@@ -331,6 +353,13 @@ export const Result = observer((properties: ResultProps) => {
 					)}
 				</div>
 			</article>
+			{!hideQuickViewButton &&
+				controller &&
+				controller.store?.quickview?.isOpen &&
+				(controller.store.quickview.product?.id === result.id ||
+					(controller.store.quickview.loading && controller.store.quickview.triggeringResultId === result.id)) && (
+					<ProductQuickview controller={controller} result={result} />
+				)}
 		</CacheProvider>
 	) : null;
 });
@@ -365,7 +394,9 @@ export type ResultTemplatesLegalProps = {
 	hideRating?: boolean;
 	hideVariantSelections?: boolean;
 	hideAddToCartButton?: boolean;
+	hideQuickViewButton?: boolean;
 	addToCartButtonText?: string;
+	quickViewButtonText?: string;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;
 	addToCartButtonSuccessTimeout?: number;
@@ -380,6 +411,7 @@ export type ResultTemplatesLegalProps = {
 export interface ResultLang {
 	addToCartButtonText: Lang<ResultPropData>;
 	addToCartButtonSuccessText: Lang<ResultPropData>;
+	quickViewButtonText: Lang<ResultPropData>;
 }
 
 interface ResultPropData {

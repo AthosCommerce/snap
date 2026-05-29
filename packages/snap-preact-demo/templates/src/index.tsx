@@ -75,7 +75,17 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+				results: {
+					hideQuickViewButton: false,
+				},
+				result: {
+					hideQuickViewButton: false,
+				},
+			},
 		},
 	},
 	recommendation: {

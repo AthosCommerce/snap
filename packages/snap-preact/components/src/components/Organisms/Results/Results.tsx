@@ -95,7 +95,8 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent } = props;
+	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent, hideQuickViewButton } =
+		props;
 
 	if (customComponent) {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.results || {}, customComponent);
@@ -111,6 +112,7 @@ export const Results = observer((properties: ResultsProps) => {
 			// inherited props
 			...defined({
 				disableStyles,
+				hideQuickViewButton,
 			}),
 			// component theme overrides
 			theme: props?.theme,
@@ -190,6 +192,7 @@ export type ResultsTemplatesLegalProps = {
 	rows?: number;
 	gapSize?: string;
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
+	hideQuickViewButton?: boolean;
 };
 
 interface ResultsSubProps {

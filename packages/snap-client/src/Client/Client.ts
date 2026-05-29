@@ -10,6 +10,8 @@ import type {
 	RecommendRequestModel,
 	RecommendCombinedResponseModel,
 	SuggestRequestModel,
+	ProductsRequestModel,
+	ProductsResponseModel,
 } from '../types';
 
 import type {
@@ -183,6 +185,13 @@ export class Client {
 
 		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getFinder(params)]);
 		return { meta, search };
+	}
+
+	async products(params: ProductsRequestModel): Promise<ProductsResponseModel> {
+		const mergedParams = deepmerge(this.globals, params);
+		const siteId = mergedParams.siteId || '';
+
+		return this.requesters.search.getProducts({ parentId: params.parentId, siteId });
 	}
 
 	async trending(params: Partial<TrendingRequestModel>): Promise<TrendingResponseModel> {

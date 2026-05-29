@@ -1,6 +1,8 @@
 import deepmerge from 'deepmerge';
 
 import { ErrorType, Product } from '@athoscommerce/snap-store-mobx';
+import type { QuickViewConfig } from '@athoscommerce/snap-store-mobx';
+import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ControllerTypes } from '../types';
 import {
@@ -15,7 +17,7 @@ import {
 } from '@athoscommerce/beacon';
 import type { Banner, RecommendationStore } from '@athoscommerce/snap-store-mobx';
 import type { RecommendRequestModel } from '@athoscommerce/snap-client';
-import type { RecommendationControllerConfig, ControllerServices, ContextVariables } from '../types';
+import type { RecommendationControllerConfig, ControllerServices, ContextVariables, ProductQuickviewObj } from '../types';
 import { CLICK_DUPLICATION_TIMEOUT, isClickWithinProductLink } from '../utils/isClickWithinProductLink';
 
 type RecommendationTrackMethods = {
@@ -403,6 +405,90 @@ export class RecommendationController extends AbstractController {
 		} finally {
 			this.store.loading = false;
 		}
+	};
+
+	public setQuickView = async ({
+		result,
+		productsData,
+		config,
+	}: {
+		result: Product;
+		productsData?: ProductsResponseModel;
+		config?: QuickViewConfig;
+	}): Promise<void> => {
+		if (!result) {
+			this.log.warn('No result provided to setQuickView');
+			return;
+		}
+
+		// Resolve effective config: caller-provided overrides controller-level default.
+		const effectiveConfig: QuickViewConfig = {
+			...(this.config?.settings?.quickview || {}),
+			...(config || {}),
+		};
+
+		// Open the modal immediately in loading state, scoped to the triggering result.
+		this.store.quickview.setLoading(true, result.id);
+
+		let resolvedProductsData: ProductsResponseModel | undefined = productsData;
+
+		// `config.fetchProductData` defaults to true. When explicitly false, skip the
+		// /v1/products call entirely and rely on whatever data is already on the source result.
+		if (!resolvedProductsData && effectiveConfig.fetchProductData !== false) {
+			try {
+				resolvedProductsData = await this.client.products({ parentId: result.id });
+			} catch (err) {
+				this.log.warn('Failed to load /v1/products for quickview', err);
+			}
+		}
+
+		// Even on fetch error, still update so the modal shows partial data and loading=false.
+		// Fire the 'productQuickview' middleware. Listeners can inspect/mutate
+		// productsData/config on the event, or throw `new Error('cancelled')` to
+		// short-circuit the quickview before the store update.
+		const eventObj: ProductQuickviewObj = {
+			controller: this,
+			result,
+			productsData: resolvedProductsData,
+			config: effectiveConfig,
+		};
+		try {
+			await this.eventManager.fire('productQuickview', eventObj);
+		} catch (err: any) {
+			if (err?.message == 'cancelled') {
+				this.log.warn(`'productQuickview' middleware cancelled`);
+				this.store.quickview.reset();
+				return;
+			}
+			this.log.error(`error in 'productQuickview' middleware`, err);
+			this.store.quickview.setError({
+				message: `'productQuickview' middleware error`,
+				cause: err,
+			});
+			return;
+		}
+
+		// Wrap update() itself in try/catch so a bad clone/variants payload doesn't
+		// leave the modal hanging in loading state — surface it via store.error instead.
+		try {
+			this.store.quickview.update({
+				result: eventObj.result,
+				productsData: eventObj.productsData,
+				config: eventObj.config,
+				storeConfig: this.config,
+				meta: this.store.meta?.data,
+			});
+		} catch (err) {
+			this.log.warn('quickview.update failed', err);
+			this.store.quickview.setError({
+				message: 'Failed to display quickview',
+				cause: err,
+			});
+		}
+	};
+
+	public closeQuickView = (): void => {
+		this.store.quickview.close();
 	};
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {

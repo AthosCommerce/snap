@@ -12,7 +12,10 @@ import type {
 	FinderStoreConfig,
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
+	Product,
+	QuickViewConfig,
 } from '@athoscommerce/snap-store-mobx';
+import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Tracker, ProductViewEvent } from '@athoscommerce/snap-tracker';
 import type { Profiler } from '@athoscommerce/snap-profiler';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
@@ -65,6 +68,12 @@ export type AfterStoreObj = {
 export type RestorePositionObj = {
 	controller: AbstractController;
 	element?: ElementPositionObj;
+};
+export type ProductQuickviewObj = {
+	controller: SearchController | AutocompleteController | RecommendationController;
+	result: Product;
+	productsData?: ProductsResponseModel;
+	config: QuickViewConfig;
 };
 
 export type ElementPositionObj = {

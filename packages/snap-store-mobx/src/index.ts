@@ -8,4 +8,6 @@ export { RecommendationStore } from './Recommendation/RecommendationStore';
 export { CartStore } from './Cart/CartStore';
 export { StorageStore, StorageConfig, StorageType } from '@athoscommerce/snap-toolbox';
 export { MetaStore } from './Meta/MetaStore';
+export { QuickViewStore } from './QuickView/QuickViewStore';
+export type { QuickViewConfig, QuickViewProductsData, QuickViewUpdateArgs, QuickViewError } from './QuickView/QuickViewStore';
 export * from './types';

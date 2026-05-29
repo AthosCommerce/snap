@@ -4,6 +4,33 @@ The search store is meant to hold the search API response and associated state. 
 ## `meta` property
 The meta property is an object containing the meta data retrieved from the Athos Meta API. The majority of this data is used elsewhere in constructing other SearchStore data like 'sorting' and 'facets'.
 
+## `quickview` property
+
+`store.quickview` is a `QuickViewStore` instance that holds the state for the product quickview modal. It is exposed on `SearchStore`, `AutocompleteStore`, and `RecommendationStore`. Consumers typically drive it through the controller's `setQuickView` / `closeQuickView` methods rather than calling these directly, but the observable surface is documented here for integrators who need to react to it.
+
+Observable fields:
+
+| field | type | description |
+|---|---|---|
+| `product` | `Product \| undefined` | The Product being previewed. By default this is a deep-cloned independent copy of the source result; with `config.clone = false` it is the source result by reference. |
+| `isOpen` | `boolean` | Whether the modal should be rendered. Set by `update`, `setLoading(true, ...)`, `setError(error)`; cleared by `close` and `reset`. |
+| `loading` | `boolean` | True while `setQuickView` is awaiting `/v1/products`. The modal renders a loading branch in this state. |
+| `config` | `QuickViewConfig \| undefined` | Effective config (controller defaults merged with the per-call override). |
+| `triggeringResultId` | `string \| undefined` | The id of the result that initiated the modal; used by `<ProductQuickview result={...}>` to scope the modal during loading/error before a product exists. |
+| `error` | `QuickViewError \| undefined` | When set, the modal renders an error branch with `role="alert"`. |
+
+Actions:
+
+| action | description |
+|---|---|
+| `update({ result, productsData?, config?, storeConfig?, meta? })` | Build (or reuse) the product, apply variants from `productsData`, and open the modal. Honors `config.clone` (default `true`). |
+| `close()` | Hide the modal but retain `product` in the store. |
+| `reset()` | Clear product, config, error, and close the modal. |
+| `setLoading(loading, resultId?)` | Open the modal in a loading state scoped to `resultId`. Also clears any prior error. |
+| `setError(error \| undefined)` | Surface a fatal error; flips `loading` off, leaves the modal open. |
+
+See the controller READMEs for usage examples of `setQuickView` and `closeQuickView`.
+
 ## `merchandising` property
 
 Contains redirect, banner, and campaigns merchandising data returned by the Search API.

@@ -74,4 +74,11 @@ describe('Search Store', () => {
 
 		expect(searchStore.sorting?.options).toHaveLength(searchData.meta.sortOptions?.filter((option) => option.type == 'field').length!);
 	});
+
+	it('exposes a QuickViewStore at .quickview', () => {
+		const searchStore = new SearchStore(searchConfig, services);
+		expect(searchStore.quickview).toBeDefined();
+		expect(searchStore.quickview.isOpen).toBe(false);
+		expect(searchStore.quickview.product).toBeUndefined();
+	});
 });

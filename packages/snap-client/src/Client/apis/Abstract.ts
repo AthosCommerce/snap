@@ -36,11 +36,11 @@ export class API<PathConfigurationType> {
 		return this.configuration.mode;
 	}
 
-	protected async request<T>(context: RequestOpts, cacheKey?: string): Promise<T> {
+	protected async request<T>(context: RequestOpts, cacheKey?: string, cache: NetworkCache = this.cache): Promise<T> {
 		const { url, init } = this.createFetchParams(context);
 
 		if (cacheKey) {
-			const cachedResponse = this.cache.get(`${context.path}/${cacheKey}`) || this.cache.get(`${context.path}/*`);
+			const cachedResponse = cache.get(`${context.path}/${cacheKey}`) || cache.get(`${context.path}/*`);
 			if (cachedResponse) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
 				this.retryDelay = 1000;
@@ -59,7 +59,7 @@ export class API<PathConfigurationType> {
 				this.retryDelay = 1000;
 				if (cacheKey) {
 					// save in the cache before returning
-					this.cache.set(`${context.path}/${cacheKey}`, responseJSON);
+					cache.set(`${context.path}/${cacheKey}`, responseJSON);
 				}
 				return responseJSON;
 			} else if (response.status == 429) {
@@ -90,7 +90,7 @@ export class API<PathConfigurationType> {
 	private createFetchParams(context: RequestOpts) {
 		// grab siteID out of context to generate apiHost fo URL
 		const siteId = context?.body?.siteId || context?.query?.siteId;
-		if (!siteId) {
+		if (!siteId && !context.path.startsWith('/v1/products/')) {
 			throw new Error(`Request failed. Missing "siteId" parameter.`);
 		}
 

@@ -15,6 +15,7 @@ import {
 } from './Stores';
 import { AbstractStore } from '../Abstract/AbstractStore';
 import { MetaStore } from '../Meta/MetaStore';
+import { QuickViewStore } from '../QuickView/QuickViewStore';
 
 export class SearchStore extends AbstractStore<SearchStoreConfig> {
 	private declare previousSearch?: SearchResponseModel;
@@ -29,6 +30,7 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 	public sorting!: SearchSortingStore;
 	public storage: StorageStore;
 	public history: SearchHistoryStore;
+	public quickview: QuickViewStore;
 
 	constructor(config: SearchStoreConfig, services: StoreServices) {
 		super(config);
@@ -46,6 +48,8 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 			config: this.config,
 		});
 
+		this.quickview = new QuickViewStore();
+
 		this.update();
 
 		makeObservable(this, {
@@ -56,6 +60,7 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 			results: observable,
 			pagination: observable,
 			sorting: observable,
+			quickview: observable,
 		});
 	}
 

@@ -148,6 +148,13 @@ describe('Autocomplete Store', () => {
 		resetSuggestionsSpy.mockClear();
 	});
 
+	it('exposes a QuickViewStore at .quickview', () => {
+		const autocompleteStore = new AutocompleteStore(autocompleteConfig, services);
+		expect(autocompleteStore.quickview).toBeDefined();
+		expect(autocompleteStore.quickview.isOpen).toBe(false);
+		expect(autocompleteStore.quickview.product).toBeUndefined();
+	});
+
 	it('reset functions actually reset data', () => {
 		const mockStorage: {
 			[key: string]: string;

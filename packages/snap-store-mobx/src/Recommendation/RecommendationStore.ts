@@ -3,6 +3,7 @@ import deepmerge from 'deepmerge';
 import { AbstractStore } from '../Abstract/AbstractStore';
 import { Product, SearchResultStore } from '../Search/Stores';
 import { CartStore } from '../Cart/CartStore';
+import { QuickViewStore } from '../QuickView/QuickViewStore';
 import { RecommendationProfileStore } from './Stores';
 import type { RecommendationStoreConfig, StoreServices } from '../types';
 import type { RecommendCombinedResponseModel } from '@athoscommerce/snap-client';
@@ -15,6 +16,7 @@ export class RecommendationStore extends AbstractStore<RecommendationStoreConfig
 	public profile: RecommendationProfileStore | Record<string, any> = {};
 	public results: Product[] = [];
 	public cart?: CartStore;
+	public quickview: QuickViewStore;
 
 	constructor(config: RecommendationStoreConfig, services: StoreServices) {
 		super(config);
@@ -25,9 +27,12 @@ export class RecommendationStore extends AbstractStore<RecommendationStoreConfig
 
 		this.services = services;
 
+		this.quickview = new QuickViewStore();
+
 		makeObservable(this, {
 			profile: observable,
 			results: observable,
+			quickview: observable,
 		});
 	}
 
