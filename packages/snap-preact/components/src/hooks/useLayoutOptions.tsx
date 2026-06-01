@@ -65,6 +65,9 @@ export const useLayoutOptions = (props: any, globalTheme: Theme) => {
 					paths[0] == `*(M)${templateComponent}` ||
 					paths[0] == `*(T)${templateComponent}` ||
 					paths[0] == `*(D)${templateComponent}` ||
+					paths[0] == `(M)${templateComponent}` ||
+					paths[0] == `(T)${templateComponent}` ||
+					paths[0] == `(D)${templateComponent}` ||
 					!paths.length)
 			) {
 				const toolbarConfig = globalTheme.components[key as keyof typeof globalTheme.components] as Partial<ToolbarProps>;
