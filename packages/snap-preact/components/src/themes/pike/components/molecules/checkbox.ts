@@ -3,9 +3,6 @@ import type { CheckboxProps, CheckboxTemplatesLegalProps } from '../../../../com
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
-// static variables
-const darkGray = custom.colors.gray02;
-
 // CSS in JS style script for the Checkbox component
 const checkboxStyleScript = (props: CheckboxProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -24,7 +21,6 @@ const checkboxStyleScript = (props: CheckboxProps) => {
 			...custom.styles.box('', 0),
 			borderColor: props.color || custom.colors.gray02,
 			'&.ss__checkbox--active': {
-				borderColor: props.color || darkGray,
 				backgroundColor: custom.colors.white,
 			},
 			'&.ss__checkbox--disabled': {
