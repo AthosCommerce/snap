@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const darkGray = custom.utils.darkenColor();
+const darkGray = custom.colors.gray02;
 
 // CSS in JS style script for the Checkbox component
 const checkboxStyleScript = (props: CheckboxProps) => {
