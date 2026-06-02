@@ -78,6 +78,9 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 		},
 		'& .ss__search-input': {
 			margin: '16px 0 0 0',
+			'.ss__search-input__button--submit-search-button': {
+				pointerEvents: 'none',
+			},
 		},
 		'& .ss__facet__header__selected-count': {
 			margin: '0px 5px',
