@@ -751,7 +751,7 @@ export class AutocompleteController extends AbstractController {
 					// set parameters as globals
 					this.store.setService('urlManager', this.urlManager.reset().withGlobals(formParameters));
 				}
-			} else {
+			} else if (this.config.settings?.bind?.submit) {
 				this.log.warn(
 					`Missing form action url! Input element "${this.config.selector}" is not inside a <form> and no 'action' URL is configured. Enter key will not submit. Set the 'action' url in the config to enable submission.`
 				);
