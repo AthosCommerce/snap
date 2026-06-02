@@ -753,7 +753,8 @@ export class AutocompleteController extends AbstractController {
 				}
 			} else if (this.config.settings?.bind?.submit) {
 				this.log.warn(
-					`Missing form action url! Input element "${this.config.selector}" is not inside a <form> and no 'action' URL is configured. Enter key will not submit. Set the 'action' url in the config to enable submission.`
+					`Missing form action url! Input element is not inside a <form> and no 'action' URL is configured. Enter key will not submit. Set the 'action' url in the config to enable submission.`,
+					input
 				);
 			}
 

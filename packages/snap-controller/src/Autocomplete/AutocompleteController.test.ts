@@ -865,7 +865,12 @@ describe('Autocomplete Controller', () => {
 
 		await controller.bind();
 
-		expect(warnFn).toHaveBeenCalledWith(expect.stringContaining("no 'action' URL is configured"));
+		expect(warnFn).toHaveBeenCalledWith(
+			expect.stringContaining(
+				"Missing form action url! Input element is not inside a <form> and no 'action' URL is configured. Enter key will not submit. Set the 'action' url in the config to enable submission."
+			),
+			expect.any(HTMLInputElement)
+		);
 
 		warnFn.mockClear();
 	});
