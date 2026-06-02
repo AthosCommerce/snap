@@ -450,6 +450,29 @@ describe('mergeProps function with theme type', () => {
 			treePath: `button ${componentType}.first-button`,
 		});
 	});
+
+	it('nested treePath and numeric named component', () => {
+		const componentType = 'select';
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+		};
+
+		const defaultProps: Partial<SelectProps> = {};
+		const properties: Partial<SelectProps> = {
+			treePath: 'button',
+			name: '1',
+		};
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+		expect(props).toStrictEqual({
+			...defaultProps,
+			...properties,
+			theme: {
+				name: globalTheme.name,
+			},
+			treePath: `button ${componentType}.1`,
+		});
+	});
 });
 describe('sortSelectors function', () => {
 	it('orders strings by spaces', () => {
