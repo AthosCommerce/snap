@@ -249,6 +249,7 @@ In addition to the common target properties, the following properties apply to t
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `search` | Search configuration | Object | ➖ |
+| `search.globals` | Search request globals | Object | ➖ |
 | `search.plugins` | Search specific plugins configurations | Object | ➖ |
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
@@ -266,6 +267,8 @@ In addition to the common target properties, the following properties apply to t
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `autocomplete` | Autocomplete configuration | Object | ➖ |
+| `autocomplete.action` | URL to navigate to on form submission (required if input is not inside a `<form>`) | String | ➖ |
+| `autocomplete.globals` | Autocomplete request globals | Object | ➖ |
 | `autocomplete.plugins` | Autocomplete specific plugins configurations | Object | ➖ |
 | `autocomplete.targets` | Autocomplete target configurations | Array | Required |
 | `autocomplete.targets[].inputSelector` | DOM selector for the autocomplete `<input>` element | String | Required |

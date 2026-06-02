@@ -383,6 +383,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 			config: {
 				id: 'search',
 				plugins: createPlugins(templateConfig, templatesStore, 'search'),
+				globals: templateConfig.search.globals || {},
 				settings: templateConfig.search.settings || {},
 			},
 			targeters: createSearchTargeters(templateConfig, templatesStore),
@@ -410,6 +411,8 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 				id: 'autocomplete',
 				plugins: createPlugins(templateConfig, templatesStore, 'autocomplete'),
 				selector: templateConfig.autocomplete.targets.map((target) => target.inputSelector).join(', '),
+				action: templateConfig.autocomplete.action || '',
+				globals: templateConfig.autocomplete.globals || {},
 				settings: autocompleteControllerSettings,
 			},
 			targeters: createAutocompleteTargeters(templateConfig, templatesStore),
