@@ -325,6 +325,17 @@ export const Facet = observer((properties: FacetProps) => {
 		searchInput: {
 			// default props
 			internalClassName: 'ss__facet__search-input',
+			clearSearchButton: {
+				onClick: () => {
+					if ((facet as ValueFacet)?.search) {
+						(facet as ValueFacet).search.input = '';
+					}
+				},
+			},
+			submitSearchButton: {
+				// to prevent focus styles and screenreaders
+				disableA11y: true,
+			},
 			// inherited props
 			...defined({
 				disableStyles,
