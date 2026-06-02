@@ -206,12 +206,14 @@ export function Swatches(properties: SwatchesProps) {
 				const label = option.label;
 				const selected = selection?.value == option.value;
 				let isDark = false;
-				const colorString = option.background?.toLowerCase() || (!option.backgroundImageUrl ? option.value.toString().toLowerCase() : null);
+				const colorString = option.background?.toLowerCase() || (!option.backgroundImageUrl ? option.value?.toString().toLowerCase() : null);
 
 				if (colorString) {
 					try {
 						const color = colord(colorString);
-						isDark = color.isDark();
+						if (color.isValid()) {
+							isDark = color.isDark();
+						}
 					} catch (err) {}
 				}
 

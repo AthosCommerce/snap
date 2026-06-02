@@ -305,7 +305,9 @@ export function Grid(properties: GridProps) {
 						if (colorString) {
 							try {
 								const color = colord(colorString);
-								isDark = color.isDark();
+								if (color.isValid()) {
+									isDark = color.isDark();
+								}
 							} catch (err) {}
 						}
 
