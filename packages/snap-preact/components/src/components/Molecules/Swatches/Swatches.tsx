@@ -12,10 +12,10 @@ import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
-
-extend([namesPlugin]);
 import { Slideshow, SlideshowSlide, SlideshowProps } from '../Slideshow';
 import { useState } from 'preact/hooks';
+
+extend([namesPlugin]);
 
 const defaultStyles: StyleScript<SwatchesProps> = ({ theme }) => {
 	return css({
