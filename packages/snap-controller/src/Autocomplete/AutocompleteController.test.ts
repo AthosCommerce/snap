@@ -848,6 +848,28 @@ describe('Autocomplete Controller', () => {
 		beforeSubmitfn.mockClear();
 	});
 
+	it('logs a warning when input is outside a form and no action is configured', async () => {
+		document.body.innerHTML = '<div><input type="text" id="search_query"></div>';
+
+		const controller = new AutocompleteController(acConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(acConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const warnFn = jest.spyOn(controller.log, 'warn');
+
+		await controller.bind();
+
+		expect(warnFn).toHaveBeenCalledWith(expect.stringContaining("no 'action' URL is configured"));
+
+		warnFn.mockClear();
+	});
+
 	it('adds fallback query', async () => {
 		document.body.innerHTML = '<div><form action="/search.html"><input type="text" id="search_query"></form></div>';
 		const controller = new AutocompleteController(acConfig, {
