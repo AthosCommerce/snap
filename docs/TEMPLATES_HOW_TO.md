@@ -462,7 +462,7 @@ new SnapTemplates({
 			mobile: {
 				// Collapse to a compact terms-only dropdown on mobile
 				autocompleteFixed: {
-					layout: 'mini',
+					layout: 'mobile',
 				},
 			},
 			tablet: {
