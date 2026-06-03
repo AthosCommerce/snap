@@ -373,9 +373,31 @@ Snap Templates ships three autocomplete variants — `AutocompleteFixed`, `Autoc
 
 #### How the `layout` Prop Works
 
-The `layout` prop on an autocomplete template component is a 2-D array of module names (same row/column semantics as the Search toolbar) **or** the string shorthand `'mini'` for a compact terms-only view.
+The `layout` prop on an autocomplete template component accepts either a **2-D array of module names** (same row/column semantics as the Search toolbar) or a **prebuilt layout string**.
 
-The special column tokens `c1`–`c4` represent flexible flex columns that each have their own inner `layout` array (configurable via `column1`–`column4` props). Use them to group sections side-by-side.
+##### Prebuilt Layouts
+
+Instead of constructing a custom module array, you can pass one of the following string values:
+
+| Prebuilt | Expands To | Description |
+|---|---|---|
+| `'terms'` | `[['termsList'], ['no-results'], ['_', 'button.see-more']]` | Terms list only — no product results grid |
+| `'mini'` | `[['termsList'], ['content'], ['_', 'button.see-more']]` | Compact view with terms and a small results section |
+| `'tablet'` | `[['c1', 'c3']]` | Two-column layout (terms + results, no facets) |
+| `'standard'` | `[['c1', 'c2', 'c3']]` | Full three-column layout (terms, facets, results) |
+
+```tsx
+// Use a prebuilt layout as a simple string
+autocompleteFixed: {
+    layout: 'terms',
+}
+```
+
+> **Note:** Prebuilt layout strings are only valid as the top-level `layout` value. They cannot be used inside a layout array (e.g., `['terms']` is **not** valid — use `layout: 'terms'` instead).
+
+##### Custom Layout Arrays
+
+For full control, pass a 2-D array of module names. The special column tokens `c1`–`c4` represent flexible flex columns that each have their own inner `layout` array (configurable via `column1`–`column4` props). Use them to group sections side-by-side.
 
 **Available modules:**
 

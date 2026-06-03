@@ -727,7 +727,9 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		if (props.layout === 'mini') {
 			layout = [['termsList'], ['content'], ['_', 'button.see-more']];
 		}
-
+		if (props.layout === 'tablet') {
+			layout = [['c1', 'c3']];
+		}
 		if (props.layout === 'standard') {
 			layout = [['c1', 'c2', 'c3']];
 		}
@@ -793,7 +795,7 @@ export type ModuleNames =
 	| 'banner.footer'
 	| 'banner.header';
 type ColumnsNames = 'c1' | 'c2' | 'c3' | 'c4';
-type PrebuiltLayouts = 'terms' | 'mini' | 'standard';
+type PrebuiltLayouts = 'terms' | 'mini' | 'standard' | 'tablet';
 type ModuleNamesWithColumns = ModuleNames | ColumnsNames | ModuleNames[] | ColumnsNames[];
 
 type Column = {

@@ -464,4 +464,128 @@ describe('AutocompleteLayout Component', () => {
 			expect(footerBanner).toBeInTheDocument();
 		});
 	});
+
+	it('renders prebuilt layout "terms"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'terms',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const terms = rendered.container.querySelector('.ss__autocomplete__terms-wrapper');
+			const seeMore = rendered.container.querySelector('.ss__autocomplete__button--see-more');
+			const results = rendered.container.querySelector('.ss__autocomplete__content__results');
+			const facets = rendered.container.querySelector('.ss__autocomplete__facets-wrapper');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).toHaveClass('ss__autocomplete--terms');
+			expect(terms).toBeInTheDocument();
+			expect(seeMore).toBeInTheDocument();
+			expect(results).not.toBeInTheDocument();
+			expect(facets).not.toBeInTheDocument();
+			expect(c1).not.toBeInTheDocument();
+		});
+	});
+
+	it('renders prebuilt layout "mini"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'mini',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const terms = rendered.container.querySelector('.ss__autocomplete__terms-wrapper');
+			const content = rendered.container.querySelector('.ss__autocomplete__content');
+			const seeMore = rendered.container.querySelector('.ss__autocomplete__button--see-more');
+			const facets = rendered.container.querySelector('.ss__autocomplete__facets-wrapper');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).toHaveClass('ss__autocomplete--mini');
+			expect(terms).toBeInTheDocument();
+			expect(content).toBeInTheDocument();
+			expect(seeMore).toBeInTheDocument();
+			expect(facets).not.toBeInTheDocument();
+			expect(c1).not.toBeInTheDocument();
+		});
+	});
+
+	it('renders prebuilt layout "tablet"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'tablet',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
+			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(c1).toBeInTheDocument();
+			expect(c2).not.toBeInTheDocument();
+			expect(c3).toBeInTheDocument();
+		});
+	});
+
+	it('renders prebuilt layout "standard"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'standard',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
+			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
+			const c4 = rendered.container.querySelector('.ss__autocomplete__column--c4');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(c1).toBeInTheDocument();
+			expect(c2).toBeInTheDocument();
+			expect(c3).toBeInTheDocument();
+			expect(c4).not.toBeInTheDocument();
+		});
+	});
 });
