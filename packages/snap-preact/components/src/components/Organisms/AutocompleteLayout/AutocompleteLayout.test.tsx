@@ -495,6 +495,13 @@ describe('AutocompleteLayout Component', () => {
 			expect(results).not.toBeInTheDocument();
 			expect(facets).not.toBeInTheDocument();
 			expect(c1).not.toBeInTheDocument();
+
+			// terms layout: [['termsList'], ['no-results'], ['_', 'button.see-more']]
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(3);
+			expect(rows[0].childNodes.length).toBe(1); // termsList
+			expect(rows[1].childNodes.length).toBe(1); // no-results
+			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
 		});
 	});
 
@@ -528,6 +535,13 @@ describe('AutocompleteLayout Component', () => {
 			expect(seeMore).toBeInTheDocument();
 			expect(facets).not.toBeInTheDocument();
 			expect(c1).not.toBeInTheDocument();
+
+			// mobile layout: [['termsList'], ['content'], ['_', 'button.see-more']]
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(3);
+			expect(rows[0].childNodes.length).toBe(1); // termsList
+			expect(rows[1].childNodes.length).toBe(1); // content
+			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
 		});
 	});
 
@@ -551,11 +565,18 @@ describe('AutocompleteLayout Component', () => {
 			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
 			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
 			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
+			const c4 = rendered.container.querySelector('.ss__autocomplete__column--c4');
 
 			expect(autocomplete).toBeInTheDocument();
 			expect(c1).toBeInTheDocument();
 			expect(c2).not.toBeInTheDocument();
 			expect(c3).toBeInTheDocument();
+			expect(c4).not.toBeInTheDocument();
+
+			// tablet layout: [['c1', 'c3']] = 1 row with 2 columns
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(1);
+			expect(rows[0].childNodes.length).toBe(2);
 		});
 	});
 
@@ -586,6 +607,11 @@ describe('AutocompleteLayout Component', () => {
 			expect(c2).toBeInTheDocument();
 			expect(c3).toBeInTheDocument();
 			expect(c4).not.toBeInTheDocument();
+
+			// desktop layout: [['c1', 'c2', 'c3']] = 1 row with 3 columns
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(1);
+			expect(rows[0].childNodes.length).toBe(3);
 		});
 	});
 });
