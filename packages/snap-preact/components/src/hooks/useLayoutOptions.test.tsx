@@ -191,5 +191,38 @@ describe('useLayoutOptions', () => {
 			runHook(props, globalTheme, { value: 1, label: 'grid' });
 			expect(props.theme.components.results).toEqual({ columns: 4 });
 		});
+
+		it('merges overrides when toolbar key uses user responsive prefix (M)', () => {
+			const props = makeProps({ treePath: 'searchCollapsible results result' });
+			const globalTheme = {
+				components: {
+					'(M)searchCollapsible toolbar.top': { layout: ['layoutSelector'] },
+				},
+			};
+			runHook(props, globalTheme, { value: 1, label: 'grid' });
+			expect(props.theme.components.results).toEqual({ columns: 4 });
+		});
+
+		it('merges overrides when toolbar key uses user responsive prefix (T)', () => {
+			const props = makeProps({ treePath: 'search results result' });
+			const globalTheme = {
+				components: {
+					'(T)search toolbar.middle': { layout: ['layoutSelector'] },
+				},
+			};
+			runHook(props, globalTheme, { value: 1, label: 'grid' });
+			expect(props.theme.components.results).toEqual({ columns: 4 });
+		});
+
+		it('merges overrides when toolbar key uses user responsive prefix (D)', () => {
+			const props = makeProps({ treePath: 'search results result' });
+			const globalTheme = {
+				components: {
+					'(D)search toolbar.top': { layout: ['layoutSelector'] },
+				},
+			};
+			runHook(props, globalTheme, { value: 1, label: 'grid' });
+			expect(props.theme.components.results).toEqual({ columns: 4 });
+		});
 	});
 });
