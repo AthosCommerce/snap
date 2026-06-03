@@ -69,7 +69,7 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			...props,
 		};
 
-		treePath += componentName?.match(/^[A-Z,a-z,-]+$/) ? `.${componentName}` : '';
+		treePath += componentName?.match(/^[A-Za-z0-9-]+$/) ? `.${componentName}` : '';
 
 		// component props from the theme
 		// add globalTheme props for components with selector matches if they exist
