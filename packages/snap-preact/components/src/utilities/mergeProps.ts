@@ -159,12 +159,13 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			}
 		});
 
-		// tacking on name and variables to `theme`
+		// tacking on name, variables, and activeBreakpoint to `theme`
 		mergedProps = {
 			...mergedProps,
 			theme: {
 				...mergedProps.theme,
 				name: globalTheme.name,
+				...(globalTheme.activeBreakpoint ? { activeBreakpoint: globalTheme.activeBreakpoint } : {}),
 			},
 			treePath,
 		};
