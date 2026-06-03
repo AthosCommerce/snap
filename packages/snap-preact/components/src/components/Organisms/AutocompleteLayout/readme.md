@@ -56,7 +56,7 @@ Instead of constructing a custom module array, you can pass one of the following
 
 For full control, pass a 2-D array of module names. The order of these module names determines the order in which they will be rendered. Additionally you can pass arrays of modules to the array to specify new rows in the display.
 
-There are also a few special module names - `C1`, `C2`, `C3`, `C4`, & `_` 
+There are also a few special module names - `c1`, `c2`, `c3`, `c4`, & `_`
 
 All of the `Cx` modules represent Columns which also have their own layout array by default, and can be overwrote via their own layout props. IE - `C1` module can be overwrote via the `column1` prop. 
 
