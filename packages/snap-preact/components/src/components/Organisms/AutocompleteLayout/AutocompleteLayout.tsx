@@ -735,6 +735,12 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		}
 	}
 
+	//fallback for unsupported layout values
+	if (typeof layout === 'string') {
+		controller.log.warn(`unsupported layout found. ${props.layout}`);
+		layout = [];
+	}
+
 	/***************************************/
 	return visible && layout?.length ? (
 		<CacheProvider>
