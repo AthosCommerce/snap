@@ -208,6 +208,7 @@ export const Carousel = observer((properties: CarouselProps) => {
 			? JSON.parse(JSON.stringify(defaultVerticalCarouselBreakpoints))
 			: JSON.parse(JSON.stringify(defaultCarouselBreakpoints)),
 		pagination: false,
+		navigation: true,
 		slidesPerGroup: !properties.breakpoints || !Object.keys(properties.breakpoints).length ? 5 : undefined,
 		slidesPerView: !properties.breakpoints || !Object.keys(properties.breakpoints).length ? 5 : undefined,
 		spaceBetween: 10,
@@ -333,18 +334,21 @@ export const Carousel = observer((properties: CarouselProps) => {
 		}
 	}
 
-	if (navigation && typeof navigation == 'object') {
-		navigation = {
-			nextEl: '.ss_carousel_DNE',
-			prevEl: '.ss_carousel_DNE',
-			...navigation,
-		};
-	} else {
-		navigation = {
-			nextEl: '.ss_carousel_DNE',
-			prevEl: '.ss_carousel_DNE',
-		};
+	if (navigation) {
+		if (typeof navigation == 'object') {
+			navigation = {
+				nextEl: '.ss_carousel_DNE',
+				prevEl: '.ss_carousel_DNE',
+				...navigation,
+			};
+		} else {
+			navigation = {
+				nextEl: '.ss_carousel_DNE',
+				prevEl: '.ss_carousel_DNE',
+			};
+		}
 	}
+
 	if (scrollbar) {
 		if (typeof scrollbar == 'object') {
 			scrollbar = {
@@ -381,15 +385,17 @@ export const Carousel = observer((properties: CarouselProps) => {
 				{...styling}
 				className={classnames('ss__carousel', vertical ? 'ss__carousel-vertical' : '', className, internalClassName)}
 			>
-				<div className={classnames('ss__carousel__prev-wrapper', { 'ss__carousel__prev-wrapper--hidden': hideButtons })}>
-					<div
-						className="ss__carousel__prev"
-						ref={navigationPrevRef as React.RefObject<HTMLDivElement>}
-						onClick={onPrevButtonClick && ((e) => onPrevButtonClick(e))}
-					>
-						{prevButton || <Icon icon={vertical ? 'angle-up' : 'angle-left'} {...subProps.icon} name={'prev'} />}
+				{navigation && (
+					<div className={classnames('ss__carousel__prev-wrapper', { 'ss__carousel__prev-wrapper--hidden': hideButtons })}>
+						<div
+							className="ss__carousel__prev"
+							ref={navigationPrevRef as React.RefObject<HTMLDivElement>}
+							onClick={onPrevButtonClick && ((e) => onPrevButtonClick(e))}
+						>
+							{prevButton || <Icon icon={vertical ? 'angle-up' : 'angle-left'} {...subProps.icon} name={'prev'} />}
+						</div>
 					</div>
-				</div>
+				)}
 
 				<Swiper
 					centerInsufficientSlides={true}
@@ -466,15 +472,17 @@ export const Carousel = observer((properties: CarouselProps) => {
 					})}
 				</Swiper>
 
-				<div className={classnames('ss__carousel__next-wrapper', { 'ss__carousel__next-wrapper--hidden': hideButtons })}>
-					<div
-						className="ss__carousel__next"
-						ref={navigationNextRef as React.RefObject<HTMLDivElement>}
-						onClick={onNextButtonClick && ((e) => onNextButtonClick(e))}
-					>
-						{nextButton || <Icon icon={vertical ? 'angle-down' : 'angle-right'} {...subProps.icon} name={'next'} />}
+				{navigation && (
+					<div className={classnames('ss__carousel__next-wrapper', { 'ss__carousel__next-wrapper--hidden': hideButtons })}>
+						<div
+							className="ss__carousel__next"
+							ref={navigationNextRef as React.RefObject<HTMLDivElement>}
+							onClick={onNextButtonClick && ((e) => onNextButtonClick(e))}
+						>
+							{nextButton || <Icon icon={vertical ? 'angle-down' : 'angle-right'} {...subProps.icon} name={'next'} />}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</CacheProvider>
 	) : null;
