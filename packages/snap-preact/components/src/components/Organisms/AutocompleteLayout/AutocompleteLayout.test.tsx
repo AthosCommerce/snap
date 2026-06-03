@@ -498,13 +498,13 @@ describe('AutocompleteLayout Component', () => {
 		});
 	});
 
-	it('renders prebuilt layout "mini"', async () => {
+	it('renders prebuilt layout "mobile"', async () => {
 		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
 		await controller.bind();
 		const args: AutocompleteLayoutProps = {
 			controller,
 			input: controller.config.selector,
-			layout: 'mini',
+			layout: 'mobile',
 		};
 
 		const input = document.querySelector('.athos-ac') as HTMLInputElement;
@@ -522,7 +522,7 @@ describe('AutocompleteLayout Component', () => {
 			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
 
 			expect(autocomplete).toBeInTheDocument();
-			expect(autocomplete).toHaveClass('ss__autocomplete--mini');
+			expect(autocomplete).toHaveClass('ss__autocomplete--mobile');
 			expect(terms).toBeInTheDocument();
 			expect(content).toBeInTheDocument();
 			expect(seeMore).toBeInTheDocument();
@@ -559,13 +559,13 @@ describe('AutocompleteLayout Component', () => {
 		});
 	});
 
-	it('renders prebuilt layout "standard"', async () => {
+	it('renders prebuilt layout "desktop"', async () => {
 		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
 		await controller.bind();
 		const args: AutocompleteLayoutProps = {
 			controller,
 			input: controller.config.selector,
-			layout: 'standard',
+			layout: 'desktop',
 		};
 
 		const input = document.querySelector('.athos-ac') as HTMLInputElement;
