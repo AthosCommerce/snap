@@ -385,7 +385,7 @@ export const Carousel = observer((properties: CarouselProps) => {
 				{...styling}
 				className={classnames('ss__carousel', vertical ? 'ss__carousel-vertical' : '', className, internalClassName)}
 			>
-				{navigation && (
+				{navigation !== false && (
 					<div className={classnames('ss__carousel__prev-wrapper', { 'ss__carousel__prev-wrapper--hidden': hideButtons })}>
 						<div
 							className="ss__carousel__prev"
@@ -400,10 +400,12 @@ export const Carousel = observer((properties: CarouselProps) => {
 				<Swiper
 					centerInsufficientSlides={true}
 					onBeforeInit={(swiper) => {
-						//@ts-ignore : someone should refactor this
-						swiper.params.navigation.prevEl = navigationPrevRef.current ? navigationPrevRef.current : undefined;
-						//@ts-ignore : someone should refactor this
-						swiper.params.navigation.nextEl = navigationNextRef.current ? navigationNextRef.current : undefined;
+						if (navigation && swiper.params.navigation) {
+							//@ts-ignore : someone should refactor this
+							swiper.params.navigation.prevEl = navigationPrevRef.current ? navigationPrevRef.current : undefined;
+							//@ts-ignore : someone should refactor this
+							swiper.params.navigation.nextEl = navigationNextRef.current ? navigationNextRef.current : undefined;
+						}
 
 						if (onBeforeInit) {
 							onBeforeInit(swiper);
@@ -415,21 +417,23 @@ export const Carousel = observer((properties: CarouselProps) => {
 						}
 					}}
 					onAfterInit={(swiper) => {
-						//@ts-ignore : someone should refactor this
-						swiper.navigation.onPrevClick = (e: any) => {
-							e.preventDefault();
-							if (swiper.isBeginning && !swiper.params.loop && !swiper.params.rewind) return;
-							swiper.slidePrev();
-							swiper.emit('navigationPrev');
-						};
+						if (navigation && swiper.navigation) {
+							//@ts-ignore : someone should refactor this
+							swiper.navigation.onPrevClick = (e: any) => {
+								e.preventDefault();
+								if (swiper.isBeginning && !swiper.params.loop && !swiper.params.rewind) return;
+								swiper.slidePrev();
+								swiper.emit('navigationPrev');
+							};
 
-						//@ts-ignore : someone should refactor this
-						swiper.navigation.onNextClick = (e: any) => {
-							e.preventDefault();
-							if (swiper.isEnd && !swiper.params.loop && !swiper.params.rewind) return;
-							swiper.slideNext();
-							swiper.emit('navigationNext');
-						};
+							//@ts-ignore : someone should refactor this
+							swiper.navigation.onNextClick = (e: any) => {
+								e.preventDefault();
+								if (swiper.isEnd && !swiper.params.loop && !swiper.params.rewind) return;
+								swiper.slideNext();
+								swiper.emit('navigationNext');
+							};
+						}
 
 						if (onAfterInit) {
 							onAfterInit(swiper);
@@ -472,7 +476,7 @@ export const Carousel = observer((properties: CarouselProps) => {
 					})}
 				</Swiper>
 
-				{navigation && (
+				{navigation !== false && (
 					<div className={classnames('ss__carousel__next-wrapper', { 'ss__carousel__next-wrapper--hidden': hideButtons })}>
 						<div
 							className="ss__carousel__next"

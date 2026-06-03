@@ -401,123 +401,121 @@ describe('Carousel Component', async () => {
 		cy.viewport(1200, 750);
 	});
 
-	describe('navigation prop', () => {
-		it('does not render navigation buttons when navigation={false}', () => {
-			mount(
-				<Carousel navigation={false}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('does not render navigation buttons when navigation={false}', () => {
+		mount(
+			<Carousel navigation={false}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			cy.get('.ss__carousel').should('exist');
-			cy.get('.ss__carousel__prev-wrapper').should('not.exist');
-			cy.get('.ss__carousel__next-wrapper').should('not.exist');
-			cy.get('.ss__carousel__prev').should('not.exist');
-			cy.get('.ss__carousel__next').should('not.exist');
-		});
+		cy.get('.ss__carousel').should('exist');
+		cy.get('.ss__carousel__prev-wrapper').should('not.exist');
+		cy.get('.ss__carousel__next-wrapper').should('not.exist');
+		cy.get('.ss__carousel__prev').should('not.exist');
+		cy.get('.ss__carousel__next').should('not.exist');
+	});
 
-		it('renders navigation buttons when navigation={true}', () => {
-			mount(
-				<Carousel navigation={true}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('renders navigation buttons when navigation={true}', () => {
+		mount(
+			<Carousel navigation={true}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			cy.get('.ss__carousel').should('exist');
-			cy.get('.ss__carousel__prev-wrapper').should('exist');
-			cy.get('.ss__carousel__next-wrapper').should('exist');
-			cy.get('.ss__carousel__prev').should('exist');
-			cy.get('.ss__carousel__next').should('exist');
-		});
+		cy.get('.ss__carousel').should('exist');
+		cy.get('.ss__carousel__prev-wrapper').should('exist');
+		cy.get('.ss__carousel__next-wrapper').should('exist');
+		cy.get('.ss__carousel__prev').should('exist');
+		cy.get('.ss__carousel__next').should('exist');
+	});
 
-		it('renders navigation buttons when navigation is an object', () => {
-			mount(
-				<Carousel navigation={{ nextEl: '.custom-next', prevEl: '.custom-prev' }}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('renders navigation buttons when next and prev are defined', () => {
+		mount(
+			<Carousel navigation={{ nextEl: '.custom-next', prevEl: '.custom-prev' }}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			cy.get('.ss__carousel').should('exist');
-			cy.get('.ss__carousel__prev-wrapper').should('exist');
-			cy.get('.ss__carousel__next-wrapper').should('exist');
-			cy.get('.ss__carousel__prev').should('exist');
-			cy.get('.ss__carousel__next').should('exist');
-		});
+		cy.get('.ss__carousel').should('exist');
+		cy.get('.ss__carousel__prev-wrapper').should('exist');
+		cy.get('.ss__carousel__next-wrapper').should('exist');
+		cy.get('.ss__carousel__prev').should('exist');
+		cy.get('.ss__carousel__next').should('exist');
+	});
 
-		it('navigation={false} differs from hideButtons (completely removes from DOM vs CSS hide)', () => {
-			mount(
-				<Carousel navigation={false}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('navigation={false} differs from hideButtons (completely removes from DOM vs CSS hide)', () => {
+		mount(
+			<Carousel navigation={false}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			// navigation={false} removes elements from the DOM entirely
-			cy.get('.ss__carousel__prev-wrapper').should('not.exist');
-			cy.get('.ss__carousel__next-wrapper').should('not.exist');
-		});
+		// navigation={false} removes elements from the DOM entirely
+		cy.get('.ss__carousel__prev-wrapper').should('not.exist');
+		cy.get('.ss__carousel__next-wrapper').should('not.exist');
+	});
 
-		it('hideButtons keeps navigation in DOM but hides with CSS class', () => {
-			mount(
-				<Carousel navigation={true} hideButtons={true}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('hideButtons keeps navigation in DOM but hides with CSS class', () => {
+		mount(
+			<Carousel navigation={true} hideButtons={true}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			// hideButtons keeps elements in the DOM but adds hidden class
-			cy.get('.ss__carousel__prev-wrapper').should('exist').should('have.class', 'ss__carousel__prev-wrapper--hidden');
-			cy.get('.ss__carousel__next-wrapper').should('exist').should('have.class', 'ss__carousel__next-wrapper--hidden');
-		});
+		// hideButtons keeps elements in the DOM but adds hidden class
+		cy.get('.ss__carousel__prev-wrapper').should('exist').should('have.class', 'ss__carousel__prev-wrapper--hidden');
+		cy.get('.ss__carousel__next-wrapper').should('exist').should('have.class', 'ss__carousel__next-wrapper--hidden');
+	});
 
-		it('navigation={false} still renders slides correctly', () => {
-			mount(
-				<Carousel navigation={false}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('navigation={false} still renders slides correctly', () => {
+		mount(
+			<Carousel navigation={false}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			cy.get('.ss__carousel').should('exist');
-			cy.get('.swiper-slide:not(.swiper-slide-duplicate) .findMe').should('have.length', children.length);
-		});
+		cy.get('.ss__carousel').should('exist');
+		cy.get('.swiper-slide:not(.swiper-slide-duplicate) .findMe').should('have.length', children.length);
+	});
 
-		it('navigation={false} with pagination still shows pagination', () => {
-			mount(
-				<Carousel navigation={false} pagination={true}>
-					{children.map((child, idx) => (
-						<div className={'findMe'} key={idx}>
-							{child}
-						</div>
-					))}
-				</Carousel>
-			);
+	it('navigation={false} with pagination still shows pagination', () => {
+		mount(
+			<Carousel navigation={false} pagination={true}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
 
-			cy.get('.ss__carousel').should('exist');
-			cy.get('.ss__carousel__prev-wrapper').should('not.exist');
-			cy.get('.ss__carousel__next-wrapper').should('not.exist');
-			cy.get('.swiper-pagination-bullets').should('exist');
-		});
+		cy.get('.ss__carousel').should('exist');
+		cy.get('.ss__carousel__prev-wrapper').should('not.exist');
+		cy.get('.ss__carousel__next-wrapper').should('not.exist');
+		cy.get('.swiper-pagination-bullets').should('exist');
 	});
 });
