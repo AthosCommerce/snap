@@ -113,7 +113,7 @@ The `column4` prop specifies a layout array to render in the `c4` module. Takes 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
-`layout` which specifies an array of modules to render in the column. Defaults to `[['Content'], ['_', 'Button.see-more']]`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+`layout` which specifies an array of modules to render in the column. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
 
 ```tsx
 <AutocompleteFixed controller={controller} input={'#searchInput'} column4={{
