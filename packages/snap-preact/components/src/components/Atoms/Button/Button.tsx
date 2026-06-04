@@ -121,7 +121,10 @@ export const Button = observer((properties: ButtonProps) => {
 	const langs = deepmerge(defaultLang, lang || {});
 	const mergedLang = useLang(langs as any, {});
 
-	return content || children || icon || lang?.button?.value ? (
+	// @ts-ignore - additionalProps may contain dangerouslySetInnerHTML which is fine to spread on the element, but doesn't fit the ButtonProps type definition so we need to ignore it here.
+	const hasDangerouslySetInnerHTML = Boolean(additionalProps.dangerouslySetInnerHTML);
+
+	return content || children || icon || lang?.button?.value || hasDangerouslySetInnerHTML ? (
 		<CacheProvider>
 			{native ? (
 				<button {...elementProps}>
@@ -153,6 +156,7 @@ interface ButtonSubProps {
 export type ButtonProps = {
 	lang?: Partial<ButtonLang>;
 	name?: ButtonNames;
+	content?: string | JSX.Element;
 } & ButtonTemplatesLegalProps &
 	ComponentProps<ButtonProps>;
 
@@ -161,7 +165,6 @@ export type ButtonTemplatesLegalProps = {
 	borderColor?: string;
 	color?: string;
 	icon?: IconType | Partial<IconProps> | boolean;
-	content?: string | JSX.Element;
 	children?: ComponentChildren;
 	disabled?: boolean;
 	native?: boolean;
