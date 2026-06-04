@@ -153,6 +153,7 @@ interface ButtonSubProps {
 export type ButtonProps = {
 	lang?: Partial<ButtonLang>;
 	name?: ButtonNames;
+	content?: string | JSX.Element;
 } & ButtonTemplatesLegalProps &
 	ComponentProps<ButtonProps>;
 
@@ -161,7 +162,6 @@ export type ButtonTemplatesLegalProps = {
 	borderColor?: string;
 	color?: string;
 	icon?: IconType | Partial<IconProps> | boolean;
-	content?: string | JSX.Element;
 	children?: ComponentChildren;
 	disabled?: boolean;
 	native?: boolean;
