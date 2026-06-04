@@ -30,7 +30,26 @@ The required `controller` prop specifies a reference to the autocomplete control
 ```
 
 ### layout
-The `layout` prop is used to specify which child components render and where. The prop takes an array of specific module names, the order of these module names determines the order in which they will be rendered. Additionally you can pass arrays of modules to the array to specify new rows in the display.
+The `layout` prop is used to specify which child components render and where. It accepts either a **prebuilt layout string** or an **array of module names**.
+
+#### Prebuilt Layouts
+
+Instead of constructing a custom module array, you can pass one of the following string values:
+
+| Prebuilt | Expands To | Description |
+|---|---|---|
+| `'terms'` | `[['termsList'], ['no-results'], ['_', 'button.see-more']]` | Terms list only — no product results grid |
+| `'mini'` | `[['termsList'], ['content'], ['_', 'button.see-more']]` | Compact view with terms and a small results section |
+| `'tablet'` | `[['c1', 'c3']]` | Two-column layout (terms + results, no facets) |
+| `'standard'` | `[['c1', 'c2', 'c3']]` | Full three-column layout (terms, facets, results) |
+
+```tsx
+<AutocompleteSlideout controller={controller} input={'#searchInput'} layout={'terms'} />
+```
+
+#### Custom Layout Arrays
+
+For full control, pass a 2-D array of module names. The order of these module names determines the order in which they will be rendered. Additionally you can pass arrays of modules to the array to specify new rows in the display.
 
 There are also a few special module names - `c1`, `c2`, `c3`, `c4`, & `_` 
 
@@ -93,7 +112,7 @@ The `column4` prop specifies a layout array to render in the `c4` module. Takes 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
-`layout` which specifies an array of modules to render in the column. Defaults to `[['Content'], ['_', 'Button.see-more']]`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+`layout` which specifies an array of modules to render in the column. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
 
 ```tsx
 <AutocompleteSlideout controller={controller} input={'#searchInput'} column4={{
