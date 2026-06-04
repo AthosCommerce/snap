@@ -225,4 +225,49 @@ describe('useLayoutOptions', () => {
 			expect(props.theme.components.results).toEqual({ columns: 4 });
 		});
 	});
+
+	/**
+	 * Preact/React tracks hooks by call order (positional, not named). If useLayoutOptions
+	 * skips its internal useState/useControllerStorage call when layoutOptions is absent,
+	 * all subsequent hooks in the parent component shift position on re-render. This corrupts
+	 * component state and can break sibling components sharing the same render queue.
+	 *
+	 * This was the root cause of recommendation carousels becoming unresponsive to screen
+	 * resizing when rendered alongside a search component that only defined layoutOptions
+	 * at certain breakpoints (e.g. mobile only).
+	 */
+	describe('hook ordering stability', () => {
+		it('calls useControllerStorage even when layoutOptions is empty (preserves hook order)', () => {
+			const props = makeProps({ layoutOptions: [] });
+			runHook(props, {}, undefined);
+			expect(mockUseControllerStorage).toHaveBeenCalledTimes(1);
+		});
+
+		it('calls useControllerStorage even when layoutOptions is undefined (preserves hook order)', () => {
+			const props = makeProps({ layoutOptions: undefined });
+			runHook(props, {}, undefined);
+			expect(mockUseControllerStorage).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not modify props.theme when layoutOptions is empty', () => {
+			const props = makeProps({ layoutOptions: [] });
+			const originalTheme = props.theme;
+			runHook(props, {}, undefined);
+			expect(props.theme).toBe(originalTheme);
+		});
+
+		it('hook call count is the same with and without layoutOptions (stable hook order across renders)', () => {
+			const propsWithOptions = makeProps();
+			runHook(propsWithOptions, {}, { value: 1, label: 'grid' });
+			const callCountWithOptions = mockUseControllerStorage.mock.calls.length;
+
+			jest.clearAllMocks();
+
+			const propsWithoutOptions = makeProps({ layoutOptions: [] });
+			runHook(propsWithoutOptions, {}, undefined);
+			const callCountWithoutOptions = mockUseControllerStorage.mock.calls.length;
+
+			expect(callCountWithOptions).toBe(callCountWithoutOptions);
+		});
+	});
 });
