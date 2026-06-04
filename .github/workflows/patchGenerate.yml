@@ -15,12 +15,12 @@ jobs:
         framework: [preact]
     steps:
       - name: Checkout Snap repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
-          ref: "main"
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Checkout snapfu-library repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           repository: "athoscommerce/snapfu-library"
           path: "snapfu-library"
@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.MACHINE_ACTION_WORKFLOW_PAT }}
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
@@ -40,9 +40,8 @@ jobs:
       - name: Generate ${{ matrix.framework }} patch file
         run: |
           node .github/workflows/scripts/generatePatchFile.js --version ${{ env.version }} --framework ${{ matrix.framework }}
-          mkdir -p snapfu-library/athos/${{ matrix.framework }}
-          mkdir -p snapfu-library/athos/${{ matrix.framework }}/${{ env.version }}
-          cp patch.${{ matrix.framework }}.${{ env.version }}.yml snapfu-library/athos/${{ matrix.framework }}/${{ env.version }}/
+          mkdir -p snapfu-library/athos/${{ matrix.framework }}/patches/${{ env.version }}
+          cp patch.${{ matrix.framework }}.${{ env.version }}.yml snapfu-library/athos/${{ matrix.framework }}/patches/${{ env.version }}/
 
       - name: Commit patch files
         working-directory: snapfu-library
