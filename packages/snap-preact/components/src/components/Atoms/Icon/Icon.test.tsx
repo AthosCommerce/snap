@@ -406,16 +406,17 @@ describe('Icon Component', () => {
 			/>
 		);
 
-		const wrapper = rendered.container.querySelector('.ss__icon');
-		expect(wrapper).toBeInTheDocument();
-		expect(wrapper?.tagName).toBe('DIV');
+		const svgElement = rendered.container.querySelector('svg.ss__icon');
+		expect(svgElement).toBeInTheDocument();
+		expect(svgElement?.tagName).toBe('svg');
+		expect(svgElement).toHaveAttribute('viewBox', '0 0 24 24');
 
-		const innerSvg = wrapper?.querySelector('svg');
-		expect(innerSvg).toBeInTheDocument();
-		expect(innerSvg).toHaveAttribute('viewBox', '0 0 24 24');
-
-		const path = innerSvg?.querySelector('path');
+		const path = svgElement?.querySelector('path');
 		expect(path).toHaveAttribute('d', 'M12 2L2 22h20L12 2z');
+
+		// no wrapping div
+		const div = rendered.container.querySelector('div.ss__icon');
+		expect(div).not.toBeInTheDocument();
 	});
 
 	it('renders svg prop with className and styling', () => {
@@ -434,11 +435,11 @@ describe('Icon Component', () => {
 			/>
 		);
 
-		const wrapper = rendered.container.querySelector('.ss__icon');
-		expect(wrapper).toBeInTheDocument();
-		expect(wrapper).toHaveClass(className);
+		const svgElement = rendered.container.querySelector('svg.ss__icon');
+		expect(svgElement).toBeInTheDocument();
+		expect(svgElement).toHaveClass(className);
 
-		const styles = getComputedStyle(wrapper!);
+		const styles = getComputedStyle(svgElement!);
 		expect(styles.width).toBe(size);
 		expect(styles.height).toBe(size);
 	});
@@ -455,14 +456,47 @@ describe('Icon Component', () => {
 			/>
 		);
 
-		const wrapper = rendered.container.querySelector('.ss__icon');
-		expect(wrapper?.tagName).toBe('DIV');
+		const svgElement = rendered.container.querySelector('svg.ss__icon');
+		expect(svgElement).toBeInTheDocument();
+		expect(svgElement).toHaveAttribute('viewBox', '0 0 24 24');
 
-		const innerSvg = wrapper?.querySelector('svg');
-		expect(innerSvg).toBeInTheDocument();
-
-		const rect = innerSvg?.querySelector('rect');
+		const rect = svgElement?.querySelector('rect');
 		expect(rect).toBeInTheDocument();
+
+		// should not render the cog path
+		const cogPath = svgElement?.querySelector('path');
+		expect(cogPath).not.toBeInTheDocument();
+	});
+
+	it('svg prop applies disableStyles sizing and title', () => {
+		const size = '48px';
+		const titleText = 'Custom icon';
+
+		const rendered = render(
+			<Icon
+				svg={
+					<svg viewBox="0 0 24 24">
+						<path d="M12 2L2 22h20L12 2z" />
+					</svg>
+				}
+				disableStyles
+				size={size}
+				title={titleText}
+			/>
+		);
+
+		const svgElement = rendered.container.querySelector('svg.ss__icon') as HTMLElement;
+		expect(svgElement).toBeInTheDocument();
+
+		// disableStyles applies width/height attributes
+		expect(svgElement).toHaveAttribute('width', size);
+		expect(svgElement).toHaveAttribute('height', size);
+
+		// title is forwarded
+		expect(svgElement).toHaveAttribute('title', titleText);
+
+		// preserves the original svg's viewBox
+		expect(svgElement).toHaveAttribute('viewBox', '0 0 24 24');
 	});
 
 	it('can disable styles', () => {

@@ -1,4 +1,4 @@
-import { h, ComponentChildren } from 'preact';
+import { h, ComponentChildren, JSX, VNode } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -65,20 +65,39 @@ export function Icon(properties: IconProps) {
 		}
 	}
 
-	const iconPath = iconPaths[icon as IconType] || path;
-	const pathType = typeof iconPath;
 	const styling = mergeStyles<IconProps>(props, defaultStyles);
 	const iconClassNames = classnames('ss__icon', icon && !svg ? `ss__icon--${icon}` : null, className, internalClassName);
 
 	if (svg) {
+		// if the provided svg already has a className or class prop, we need to merge it with the one generated from props
+		const existingSvgClassName = svg?.props?.className || svg?.props?.class;
+
+		const svgProps: Record<string, any> = {
+			...styling,
+			className: classnames(iconClassNames, existingSvgClassName),
+			...otherProps,
+		};
+
+		if (disableStyles) {
+			svgProps.width = width || size;
+			svgProps.height = height || size;
+		}
+
+		if (title) {
+			svgProps.title = title;
+		}
+
 		return (
 			<CacheProvider>
-				<div {...styling} className={iconClassNames} {...otherProps}>
-					{svg}
-				</div>
+				{/* Using Emotion's jsx() instead of cloneElement to ensure the `css` prop from mergeStyles is processed.
+					cloneElement bypasses Emotion's JSX pragma, which leaves styles unapplied. */}
+				{jsx(svg.type as any, { ...svg.props, ...svgProps, children: svg.props.children })}
 			</CacheProvider>
 		);
 	}
+
+	const iconPath = iconPaths[icon as IconType] || path;
+	const pathType = typeof iconPath;
 
 	return children || (iconPath && (pathType === 'string' || (pathType === 'object' && Array.isArray(iconPath)))) ? (
 		<CacheProvider>
@@ -125,7 +144,7 @@ export type IconTemplatesLegalProps = {
 	icon?: IconType | false;
 	title?: string;
 	path?: string | SVGPathElement[];
-	svg?: ComponentChildren;
+	svg?: VNode<JSX.SVGAttributes<SVGSVGElement>>;
 	children?: ComponentChildren;
 	size?: string | number;
 	width?: string | number;
