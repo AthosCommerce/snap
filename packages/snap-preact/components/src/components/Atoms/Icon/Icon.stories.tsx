@@ -80,7 +80,7 @@ export default {
 			description: 'SVG element to render directly',
 			table: {
 				type: {
-					summary: 'ComponentChildren',
+					summary: 'VNode<JSX.SVGAttributes<SVGSVGElement>>',
 				},
 				category: 'Templates Legal',
 			},
