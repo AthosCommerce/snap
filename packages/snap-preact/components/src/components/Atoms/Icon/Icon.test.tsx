@@ -395,6 +395,76 @@ describe('Icon Component', () => {
 		});
 	});
 
+	it('renders svg prop directly without wrapping svg element', () => {
+		const rendered = render(
+			<Icon
+				svg={
+					<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path d="M12 2L2 22h20L12 2z" />
+					</svg>
+				}
+			/>
+		);
+
+		const wrapper = rendered.container.querySelector('.ss__icon');
+		expect(wrapper).toBeInTheDocument();
+		expect(wrapper?.tagName).toBe('DIV');
+
+		const innerSvg = wrapper?.querySelector('svg');
+		expect(innerSvg).toBeInTheDocument();
+		expect(innerSvg).toHaveAttribute('viewBox', '0 0 24 24');
+
+		const path = innerSvg?.querySelector('path');
+		expect(path).toHaveAttribute('d', 'M12 2L2 22h20L12 2z');
+	});
+
+	it('renders svg prop with className and styling', () => {
+		const className = 'custom-svg-class';
+		const size = '32px';
+
+		const rendered = render(
+			<Icon
+				svg={
+					<svg viewBox="0 0 24 24">
+						<circle cx="12" cy="12" r="10" />
+					</svg>
+				}
+				className={className}
+				size={size}
+			/>
+		);
+
+		const wrapper = rendered.container.querySelector('.ss__icon');
+		expect(wrapper).toBeInTheDocument();
+		expect(wrapper).toHaveClass(className);
+
+		const styles = getComputedStyle(wrapper!);
+		expect(styles.width).toBe(size);
+		expect(styles.height).toBe(size);
+	});
+
+	it('svg prop takes priority over icon prop', () => {
+		const rendered = render(
+			<Icon
+				icon="cog"
+				svg={
+					<svg viewBox="0 0 24 24">
+						<rect width="24" height="24" />
+					</svg>
+				}
+			/>
+		);
+
+		const wrapper = rendered.container.querySelector('.ss__icon');
+		expect(wrapper?.tagName).toBe('DIV');
+
+		const innerSvg = wrapper?.querySelector('svg');
+		expect(innerSvg).toBeInTheDocument();
+
+		const rect = innerSvg?.querySelector('rect');
+		expect(rect).toBeInTheDocument();
+	});
+
 	it('can disable styles', () => {
 		const icon = 'cog';
 		const color = '#3a23ad';

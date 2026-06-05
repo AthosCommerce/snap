@@ -76,6 +76,16 @@ export default {
 			},
 			control: { type: 'none' },
 		},
+		svg: {
+			description: 'SVG element to render directly',
+			table: {
+				type: {
+					summary: 'ComponentChildren',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+		},
 		color: {
 			description: 'Icon color',
 			table: {

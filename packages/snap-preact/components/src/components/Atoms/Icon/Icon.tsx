@@ -45,6 +45,7 @@ export function Icon(properties: IconProps) {
 		title,
 		height,
 		viewBox,
+		svg,
 		disableStyles,
 		className,
 		internalClassName,
@@ -67,12 +68,23 @@ export function Icon(properties: IconProps) {
 	const iconPath = iconPaths[icon as IconType] || path;
 	const pathType = typeof iconPath;
 	const styling = mergeStyles<IconProps>(props, defaultStyles);
+	const iconClassNames = classnames('ss__icon', icon && !svg ? `ss__icon--${icon}` : null, className, internalClassName);
+
+	if (svg) {
+		return (
+			<CacheProvider>
+				<div {...styling} className={iconClassNames} {...otherProps}>
+					{svg}
+				</div>
+			</CacheProvider>
+		);
+	}
 
 	return children || (iconPath && (pathType === 'string' || (pathType === 'object' && Array.isArray(iconPath)))) ? (
 		<CacheProvider>
 			<svg
 				{...styling}
-				className={classnames('ss__icon', icon ? `ss__icon--${icon}` : null, className, internalClassName)}
+				className={iconClassNames}
 				viewBox={viewBox}
 				xmlns="http://www.w3.org/2000/svg"
 				width={disableStyles ? width || size : undefined}
@@ -113,6 +125,7 @@ export type IconTemplatesLegalProps = {
 	icon?: IconType | false;
 	title?: string;
 	path?: string | SVGPathElement[];
+	svg?: ComponentChildren;
 	children?: ComponentChildren;
 	size?: string | number;
 	width?: string | number;
