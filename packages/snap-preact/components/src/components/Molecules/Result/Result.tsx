@@ -338,7 +338,7 @@ export const Result = observer((properties: ResultProps) => {
 								internalClassName="ss__result__button--quickView"
 								content={quickViewButtonText}
 								{...mergedLang.quickViewButtonText.all}
-								onClick={() => controller.setQuickView({ result })}
+								onClick={() => controller.quickview({ result })}
 								{...defined({ disableStyles })}
 								theme={props.theme}
 								treePath={treePath}

@@ -40,6 +40,7 @@ export * from './components/Molecules/OverlayBadge';
 export * from './components/Molecules/Pagination';
 export * from './components/Molecules/PerPage';
 export * from './components/Molecules/ProductQuickview';
+export * from './components/Molecules/Gallery';
 export * from './components/Molecules/Radio';
 export * from './components/Molecules/RadioList';
 export * from './components/Molecules/Rating';

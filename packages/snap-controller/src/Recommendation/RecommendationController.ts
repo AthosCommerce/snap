@@ -407,7 +407,7 @@ export class RecommendationController extends AbstractController {
 		}
 	};
 
-	public setQuickView = async ({
+	public quickview = async ({
 		result,
 		productsData,
 		config,
@@ -417,7 +417,7 @@ export class RecommendationController extends AbstractController {
 		config?: QuickViewConfig;
 	}): Promise<void> => {
 		if (!result) {
-			this.log.warn('No result provided to setQuickView');
+			this.log.warn('No result provided to quickview');
 			return;
 		}
 
@@ -443,7 +443,7 @@ export class RecommendationController extends AbstractController {
 		}
 
 		// Even on fetch error, still update so the modal shows partial data and loading=false.
-		// Fire the 'productQuickview' middleware. Listeners can inspect/mutate
+		// Fire the 'quickview' middleware. Listeners can inspect/mutate
 		// productsData/config on the event, or throw `new Error('cancelled')` to
 		// short-circuit the quickview before the store update.
 		const eventObj: ProductQuickviewObj = {
@@ -453,16 +453,16 @@ export class RecommendationController extends AbstractController {
 			config: effectiveConfig,
 		};
 		try {
-			await this.eventManager.fire('productQuickview', eventObj);
+			await this.eventManager.fire('quickview', eventObj);
 		} catch (err: any) {
 			if (err?.message == 'cancelled') {
-				this.log.warn(`'productQuickview' middleware cancelled`);
+				this.log.warn(`'quickview' middleware cancelled`);
 				this.store.quickview.reset();
 				return;
 			}
-			this.log.error(`error in 'productQuickview' middleware`, err);
+			this.log.error(`error in 'quickview' middleware`, err);
 			this.store.quickview.setError({
-				message: `'productQuickview' middleware error`,
+				message: `'quickview' middleware error`,
 				cause: err,
 			});
 			return;
@@ -485,10 +485,6 @@ export class RecommendationController extends AbstractController {
 				cause: err,
 			});
 		}
-	};
-
-	public closeQuickView = (): void => {
-		this.store.quickview.close();
 	};
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {

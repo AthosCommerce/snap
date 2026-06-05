@@ -1,8 +1,8 @@
 # ProductQuickview
 
-The `ProductQuickview` molecule renders the active quickview product (`controller.store.quickview.product`) inside a `Modal`. It is a MobX `observer` that subscribes to `controller.store.quickview` and dismisses the modal by calling `controller.closeQuickView()`.
+The `ProductQuickview` molecule renders the active quickview product (`controller.store.quickview.product`) inside a `Modal`. It is a MobX `observer` that subscribes to `controller.store.quickview` and dismisses the modal by calling `controller.store.quickview.close()`.
 
-It is the rendering half of the QuickView feature. The state half lives on the controller: see `SearchController`, `AutocompleteController`, and `RecommendationController` for `setQuickView` / `closeQuickView`.
+It is the rendering half of the QuickView feature. The state half lives on the controller: see `SearchController`, `AutocompleteController`, and `RecommendationController` for `quickview` (which opens it) and `store.quickview.close()` (which dismisses it).
 
 ## Usage
 
@@ -28,9 +28,9 @@ When `result` is passed, the modal only mounts when its id matches the active qu
 
 | prop | type | required | description |
 |---|---|:---:|---|
-| `controller` | `SearchController \| AutocompleteController \| RecommendationController` | ✔️ | The component subscribes to `controller.store.quickview` and invokes `controller.closeQuickView()` on dismiss. |
+| `controller` | `SearchController \| AutocompleteController \| RecommendationController` | ✔️ | The component subscribes to `controller.store.quickview` and invokes `controller.store.quickview.close()` on dismiss. |
 | `result` | `Product` |   | Scopes the modal — only mounts when this result's id matches the active quickview's product id. Omit to mount on every open. |
-| `disableBadges` | `boolean` | | When `false` (default), badges are overlaid on the image/carousel via `OverlayBadge`. Set `true` to hide them. |
+| `showBadges` | `boolean` | | Opt-in (default `false`). When `true`, overlay badges are shown over the image/carousel via `OverlayBadge` and callout badges render below it via `CalloutBadge`. |
 | `customComponent` | `string` |   | Name of a custom template component to use as an override. Resolved via the Snap templates library. |
 | `className`, `internalClassName`, `disableStyles`, `theme`, `treePath` | inherited | | Standard `ComponentProps` for class/style/theme overrides. |
 
@@ -39,7 +39,7 @@ When `result` is passed, the modal only mounts when its id matches the active qu
 The molecule has three render branches, picked in priority order:
 
 1. **Error** — when `store.quickview.error` is set. Renders a red `role="alert"` div with the error message.
-2. **Loading** — when `store.quickview.loading` is true (typically while `setQuickView` is awaiting `/v1/products`). Renders a "Loading…" placeholder so the modal appears instantly on click.
+2. **Loading** — when `store.quickview.loading` is true (typically while `quickview` is awaiting `/v1/products`). Renders a "Loading…" placeholder so the modal appears instantly on click.
 3. **Product** — when `store.quickview.product` is set. Renders the product's image(s), name (from `mappings.core.name`), price (from `mappings.core.price`/`msrp`), variant selectors (each with a title), description (from `mappings.core.description`), an attributes table, and Add to Cart + Go to Product action buttons.
 
 All three branches include a close button (top-right `×` with `aria-label="Close quickview"`).
@@ -65,7 +65,7 @@ The gallery shows the same image set as the media region — the multi-image lis
 
 ## Badges
 
-Badges are overlaid on the image/carousel (via the `OverlayBadge` molecule) by default. The quickview carries the source product's `Badges` instance onto the cloned product so they render, and `OverlayBadge` reads `product.display.badges` (which reflects the active variant). Set `disableBadges={true}` to hide them.
+Badges are opt-in via `showBadges` (default `false`). When `showBadges={true}`, overlay badges are shown over the image/carousel (via the `OverlayBadge` molecule) and callout badges render directly below the media (via the `CalloutBadge` molecule). The quickview carries the source product's `Badges` instance onto the cloned product so they render, and both badge molecules read `product.display.badges` (which reflects the active variant).
 
 ## Price
 
@@ -90,9 +90,7 @@ By default the product branch renders a single image from `mappings.core.imageUr
 
 When `config.imagesField` is **omitted**, the molecule defaults to trying `'images'` then `'ss_images'`. If no candidate (configured or default) resolves to more than one image, the molecule falls back to the single core image (`mappings.core.imageUrl || thumbnailImageUrl`).
 
-Each field's value may be a real array, a MobX `observable.array`, a JSON-encoded array string (e.g. `'["a.jpg","b.jpg"]'`), or a single **delimited string** (e.g. `'a.jpg|b.jpg'`) — all are coerced to a list of URL strings.
-
-For delimited strings, the delimiter is auto-detected by trying, in order, `|`, newline, tab, `;`, then `,` — using the first that splits the value into more than one part. `|` is preferred because it cannot appear unencoded in a URL. Set `config.imagesDelimiter` to force a specific delimiter (recommended when the URLs themselves contain commas/semicolons in query params). Parts are trimmed of surrounding whitespace. Array and JSON-array values ignore `imagesDelimiter`.
+Each field's value is expected to be an array of image URLs (a real array or a MobX `observable.array`).
 
 ## Variant selection
 
@@ -120,10 +118,10 @@ The Modal is positioned `fixed` and centered (`top: 50%; left: 50%; transform: t
 
 - Error branch has `role="alert"` so screen readers announce failures.
 - Close button has `aria-label="Close quickview"`.
-- Clicking the overlay also invokes `controller.closeQuickView()`.
+- Clicking the overlay also invokes `controller.store.quickview.close()`.
 
 ## Notes
 
 - The modal is rendered inside a `CacheProvider` so emotion styles are scoped correctly when the component is portaled.
 - When a `result` prop is provided, the modal refuses to open (renders `null`) even when the store is open if the active quickview's product id does not match `result.id`. This is the mechanism that lets every `Result` tile include its own `<ProductQuickview />` without producing duplicate modals.
-- The molecule does not handle add-to-cart, image carousels, or other interactive controls; those are out of scope for v1 of the feature.
+- The molecule does not fetch its own data; the controller/store is responsible for loading product data, and the molecule renders whatever is provided (including the add-to-cart button, image carousel, variant selection, and fullscreen gallery).

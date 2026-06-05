@@ -1,6 +1,6 @@
 import { ComponentChildren, h } from 'preact';
 import { createPortal } from 'preact/compat';
-import { useState, StateUpdater, MutableRef, useRef, useEffect, useLayoutEffect, Dispatch } from 'preact/hooks';
+import { useState, StateUpdater, MutableRef, useRef, useLayoutEffect, Dispatch } from 'preact/hooks';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -113,24 +113,10 @@ export const Dropdown = observer((properties: DropdownProps) => {
 	}
 
 	// Position the portal BEFORE the browser paints, otherwise the dropdown options
-	// flash in the top-left of the viewport on first render (initial coords are 0/0/0
 	// until this effect runs and computes the real button position).
-	useLayoutEffect(() => {
-		if (usePortal && dropdownOpen) {
-			if (buttonRef.current) {
-				const rect = buttonRef.current.getBoundingClientRect();
-				setCoords({
-					top: rect.bottom + window.scrollY,
-					left: rect.left + window.scrollX,
-					width: rect.width,
-				});
-			}
-		}
-	}, [usePortal, dropdownOpen]);
-
 	// Resize / scroll listeners stay on a regular effect — they only need to run after
 	// the initial layout pass is committed.
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (usePortal && dropdownOpen) {
 			const updateCoords = () => {
 				if (buttonRef.current) {
@@ -142,6 +128,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 					});
 				}
 			};
+			updateCoords();
 			window.addEventListener('resize', updateCoords);
 			window.addEventListener('scroll', updateCoords, true);
 			return () => {

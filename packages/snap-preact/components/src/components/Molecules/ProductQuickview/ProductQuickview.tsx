@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 import { css } from '@emotion/react';
@@ -13,13 +13,16 @@ import { Modal } from '../Modal';
 import { VariantSelection } from '../VariantSelection';
 import { Carousel } from '../Carousel';
 import { Button } from '../../Atoms/Button';
+import { Image } from '../../Atoms/Image';
 import { Price } from '../../Atoms/Price';
 import { OverlayBadge } from '../OverlayBadge';
-import { Gallery } from './Gallery';
+import { CalloutBadge } from '../CalloutBadge';
+import { Gallery } from '../Gallery';
 
 import type { SearchController, AutocompleteController, RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
+import type { Swiper as SwiperType } from 'swiper';
 
 const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 	return css({
@@ -104,6 +107,11 @@ const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 			display: 'block',
 			maxWidth: '100%',
 			marginBottom: '12px',
+			cursor: 'zoom-in',
+			'& img': {
+				display: 'block',
+				maxWidth: '100%',
+			},
 		},
 		'& .ss__product-quickview__carousel': {
 			// Images inside carousel slides shouldn't carry the single-image bottom margin.
@@ -194,60 +202,12 @@ const renderAttributeValue = (value: unknown): string => {
 	return String(value);
 };
 
-// Candidate delimiters tried (in order) when auto-detecting how a single string value packs
-// multiple image URLs. `|` is first because it cannot appear unencoded in a URL, making it the
-// most reliable separator; the rest are common fallbacks. Comma is last since it can legitimately
-// appear inside URL query/matrix params.
-const IMAGE_DELIMITER_CANDIDATES = ['|', '\n', '\t', ';', ','];
-
-const splitNonEmpty = (value: string, delimiter: string): string[] =>
-	value
-		.split(delimiter)
-		.map((part) => part.trim())
-		.filter((part) => part.length > 0);
-
-// Split a single delimited string of image URLs into an array.
-// - With an explicit `delimiter`, split strictly on it (a single resulting part means one image).
-// - Without one, auto-detect: use the first candidate delimiter that's present AND yields >1 part.
-// - If nothing splits it, the string is treated as a single image URL.
-const splitImageString = (value: string, delimiter?: string): string[] => {
-	if (delimiter) {
-		return splitNonEmpty(value, delimiter);
-	}
-	for (const candidate of IMAGE_DELIMITER_CANDIDATES) {
-		if (value.includes(candidate)) {
-			const parts = splitNonEmpty(value, candidate);
-			if (parts.length > 1) return parts;
-		}
-	}
-	const trimmed = value.trim();
-	return trimmed.length ? [trimmed] : [];
-};
-
 // Coerce an image-list field value into an array of image URL strings.
-// Handles real arrays, MobX observable arrays, JSON-encoded array strings, and delimited strings
-// (e.g. 'a.jpg|b.jpg'). `delimiter` overrides delimiter auto-detection for the string case.
-// Anything else → [].
-const toImageArray = (value: unknown, delimiter?: string): string[] => {
-	if (value === null || value === undefined) return [];
-
+// Handles real arrays and MobX observable arrays; anything else → [].
+const toImageArray = (value: unknown): string[] => {
 	if (Array.isArray(value) || isObservableArray(value as any)) {
 		return Array.from(value as Iterable<unknown>).filter((v): v is string => typeof v === 'string' && v.length > 0);
 	}
-
-	if (typeof value === 'string') {
-		// A JSON-encoded array string takes precedence over delimiter splitting.
-		try {
-			const parsed = JSON.parse(value);
-			if (Array.isArray(parsed)) {
-				return parsed.filter((v): v is string => typeof v === 'string' && v.length > 0);
-			}
-		} catch {
-			// Not JSON — fall through to delimiter handling.
-		}
-		return splitImageString(value, delimiter);
-	}
-
 	return [];
 };
 
@@ -267,11 +227,10 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 
 	const defaultProps: Partial<ProductQuickviewProps> = {
 		treePath: globalTreePath,
-		disableBadges: false,
 	};
 
 	const props = mergeProps('productQuickview', globalTheme, defaultProps, properties);
-	const { controller, result, className, internalClassName, disableStyles, treePath, customComponent, disableBadges } = props;
+	const { controller, result, className, internalClassName, disableStyles, treePath, customComponent, showBadges } = props;
 
 	if (customComponent) {
 		const ComponentOverride = useComponent(
@@ -326,36 +285,66 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 			: [configuredImagesField]
 		: ['images', 'ss_images'];
 
-	const imagesDelimiter: string | undefined = quickview?.config?.imagesDelimiter;
 	const coreRecord = core as Record<string, unknown> | undefined;
-	let imageList: string[] = [];
-	for (const field of imageFieldCandidates) {
-		const candidate = toImageArray(coreRecord?.[field] ?? allAttributes[field], imagesDelimiter);
-		if (candidate.length > 1) {
-			imageList = candidate;
-			break;
+	const selections = product?.variants?.selections;
+	const activeVariant = product?.variants?.active;
+	const variantCore = activeVariant?.mappings?.core as Record<string, unknown> | undefined;
+	const variantAttributes = (activeVariant?.attributes as Record<string, unknown> | undefined) || {};
+
+	const resolveImages = (coreData?: Record<string, unknown>, attrs?: Record<string, unknown>): string[] => {
+		for (const field of imageFieldCandidates) {
+			const candidate = toImageArray(coreData?.[field] ?? attrs?.[field]);
+			if (candidate.length > 1) return candidate;
 		}
-	}
+		return [];
+	};
+
+	// Variant-aware image resolution. When a variant is active, use its own image array
+	// for the carousel. If the variant has no multi-image field, show just its single
+	// imageUrl (no carousel) rather than falling back to the parent's array — the parent
+	// images may depict other variants and would be misleading.
+	const variantImageList: string[] = activeVariant ? resolveImages(variantCore, variantAttributes) : [];
+	const parentImageList: string[] = resolveImages(coreRecord, allAttributes);
+	const imageList: string[] = activeVariant ? (variantImageList.length > 1 ? variantImageList : []) : parentImageList;
 	const hasMultipleImages = imageList.length > 1;
+
+	// When a variant is active, find its image in the carousel so we can navigate to the
+	// correct slide instead of always staying on slide 0.
+	let targetSlide = 0;
+	if (activeVariant && hasMultipleImages && image) {
+		const idx = imageList.indexOf(image);
+		if (idx >= 0) targetSlide = idx;
+	}
+
+	// Keep a ref to the Swiper instance so we can programmatically navigate slides when
+	// the active variant changes — avoids remounting the carousel (which causes a visible
+	// flash and layout shift while images reload).
+	const swiperRef = useRef<SwiperType | null>(null);
+
+	useEffect(() => {
+		if (swiperRef.current && !swiperRef.current.destroyed && hasMultipleImages) {
+			swiperRef.current.slideTo(targetSlide);
+		}
+	}, [targetSlide, hasMultipleImages]);
+
 	// Images shown in the fullscreen gallery: the multi-image list when present, otherwise the
 	// single core image (so clicking a lone image still opens the zoomable gallery).
 	const galleryImages: string[] = hasMultipleImages ? imageList : image ? [image] : [];
 	const displayedAttributes: Record<string, unknown> = displayFields
 		? Object.fromEntries(displayFields.filter((k) => k in allAttributes).map((k) => [k, allAttributes[k]]))
 		: allAttributes;
-	const selections = product?.variants?.selections;
 
-	const onClose = () => controller.closeQuickView();
+	const onClose = () => controller.store.quickview.close();
 
 	// The media region: a 1-per-view carousel when there are multiple images, otherwise the
 	// single core image. Clicking opens the fullscreen gallery at the clicked index.
 	const media = hasMultipleImages ? (
 		<Carousel
 			className="ss__product-quickview__carousel"
-			// Force a single slide at every viewport width. The Carousel defaults to a
-			// responsive breakpoints map (1→5 slides). Without an explicit `breakpoints`
-			// override, `useDisplaySettings` resolves the viewport breakpoint and spreads
-			// its `slidesPerView` over props — clobbering the top-level `slidesPerView={1}`.
+			initialSlide={targetSlide}
+			onAfterInit={(swiper) => {
+				swiperRef.current = swiper;
+			}}
 			slidesPerView={1}
 			slidesPerGroup={1}
 			breakpoints={{ 0: { slidesPerView: 1, slidesPerGroup: 1 } }}
@@ -366,18 +355,28 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 			{...defined({ disableStyles })}
 		>
 			{imageList.map((src, i) => (
-				<img
+				<Image
 					key={`${src}-${i}`}
 					className="ss__product-quickview__image"
 					src={src}
 					alt={name || ''}
-					style={{ cursor: 'zoom-in' }}
 					onClick={() => openGallery(i)}
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
 				/>
 			))}
 		</Carousel>
 	) : image ? (
-		<img className="ss__product-quickview__image" src={image} alt={name || ''} style={{ cursor: 'zoom-in' }} onClick={() => openGallery(0)} />
+		<Image
+			className="ss__product-quickview__image"
+			src={image}
+			alt={name || ''}
+			onClick={() => openGallery(0)}
+			theme={props.theme}
+			treePath={treePath}
+			{...defined({ disableStyles })}
+		/>
 	) : null;
 
 	// Render nothing at all when this instance isn't the active quickview. This is what lets
@@ -395,35 +394,55 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 				<Modal open={isOpen} lockScroll={false} onOverlayClick={onClose} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
 					{error ? (
 						<div className="ss__product-quickview__content">
-							<button type="button" className="ss__product-quickview__close" aria-label="Close quickview" onClick={onClose}>
-								×
-							</button>
+							<Button
+								internalClassName="ss__product-quickview__close"
+								icon="close"
+								aria-label="Close quickview"
+								onClick={onClose}
+								theme={props.theme}
+								treePath={treePath}
+								{...defined({ disableStyles })}
+							/>
 							<div className="ss__product-quickview__error" role="alert">
 								{error.message}
 							</div>
 						</div>
 					) : loading ? (
 						<div className="ss__product-quickview__content">
-							<button type="button" className="ss__product-quickview__close" aria-label="Close quickview" onClick={onClose}>
-								×
-							</button>
+							<Button
+								internalClassName="ss__product-quickview__close"
+								icon="close"
+								aria-label="Close quickview"
+								onClick={onClose}
+								theme={props.theme}
+								treePath={treePath}
+								{...defined({ disableStyles })}
+							/>
 							<div className="ss__product-quickview__loading">Loading…</div>
 						</div>
 					) : product ? (
 						<div className="ss__product-quickview__content">
-							<button type="button" className="ss__product-quickview__close" aria-label="Close quickview" onClick={onClose}>
-								×
-							</button>
+							<Button
+								internalClassName="ss__product-quickview__close"
+								icon="close"
+								aria-label="Close quickview"
+								onClick={onClose}
+								theme={props.theme}
+								treePath={treePath}
+								{...defined({ disableStyles })}
+							/>
 							<div className="ss__product-quickview__body">
-								{/* Left column: image or carousel only, with badges overlaid unless disabled. */}
+								{/* Left column: image or carousel. When showBadges is set, overlay badges sit
+								    over the media and callout badges render directly below it. */}
 								<div className="ss__product-quickview__media">
-									{media && !disableBadges ? (
+									{media && showBadges ? (
 										<OverlayBadge result={product} controller={controller} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
 											{media}
 										</OverlayBadge>
 									) : (
 										media
 									)}
+									{showBadges && <CalloutBadge result={product} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />}
 								</div>
 
 								{/* Right column: title, price, variants, description, attributes, actions. */}
@@ -520,6 +539,6 @@ export type ProductQuickviewProps = {
 	controller: SearchController | AutocompleteController | RecommendationController;
 	result?: Product;
 	customComponent?: string;
-	// When false (default), badges are overlaid on the image/carousel. Set true to hide them.
-	disableBadges?: boolean;
+	// When true, overlay badges are shown over the media and callout badges below it. Opt-in (default false).
+	showBadges?: boolean;
 } & ComponentProps<ProductQuickviewProps>;

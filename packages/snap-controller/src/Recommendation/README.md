@@ -21,8 +21,7 @@ The `RecommendationController` is used when making queries to the API `recommend
 | settings.quickview.displayFields | array of product attribute field names that should appear in the modal's attribute table (preserves order). When omitted, all attributes are shown. Field labels are looked up from `meta.facets[field].label` with a fallback to the raw field name. | ➖ |   |
 | settings.quickview.clone | when `false`, the source result is used by reference inside the modal — variant selection in the modal then mutates the source result tile. When `true` (default), the source is deep-cloned into an independent Product graph. | true |   |
 | settings.quickview.fetchProductData | when `false`, the `/v1/products` endpoint is NOT called and the modal renders whatever variants/attributes the source result already carries. When `true` (default), the controller fetches full product data (including variants) before the modal opens. | true |   |
-| settings.quickview.imagesField | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate that resolves to more than one image is rendered in a 1-per-view carousel instead of the single core image. When omitted, defaults to trying `images` then `ss_images`. Each field accepts arrays, MobX observable arrays, or JSON-encoded array strings. | `images`, `ss_images` |   |
-| settings.quickview.imagesDelimiter | delimiter used to split a single string value from `imagesField` into multiple image URLs (e.g. `a.jpg\|b.jpg`). When omitted, the delimiter is auto-detected (tries `\|`, newline, tab, `;`, then `,`). `\|` is preferred since it cannot appear unencoded in a URL. Array and JSON-array values ignore this. | auto-detect |   |
+| settings.quickview.imagesField | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate that resolves to more than one image is rendered in a 1-per-view carousel instead of the single core image. When omitted, defaults to trying `images` then `ss_images`. Each field is expected to be an array of image URLs (real array or MobX observable array). | `images`, `ss_images` |   |
 
 
 ## Initialize
@@ -48,11 +47,11 @@ recommendationController.addToCart([recommendationController.store.results[0]]);
 
 ## QuickView
 
-The Recommendation controller exposes two methods for driving the product quickview modal: `setQuickView` and `closeQuickView`. State lives on `controller.store.quickview`; consumers render the `<ProductQuickview controller={controller} />` molecule to display it.
+The Recommendation controller exposes a `quickview` method for opening the product quickview modal; closing is done via `controller.store.quickview.close()`. State lives on `controller.store.quickview`; consumers render the `<ProductQuickview controller={controller} />` molecule to display it.
 
-### `setQuickView({ result, productsData?, config? })`
+### `quickview({ result, productsData?, config? })`
 
-Opens the product quickview modal for the given result. Immediately flips the store into a loading state, optionally fetches `/v1/products` for the result (Recommendation uses `result.id` as the parent identifier), fires the `productQuickview` middleware event, then populates `controller.store.quickview` with the (cloned-by-default) Product. The method always resolves — errors surface via `store.quickview.error` rather than thrown.
+Opens the product quickview modal for the given result. Immediately flips the store into a loading state, optionally fetches `/v1/products` for the result (Recommendation uses `result.id` as the parent identifier), fires the `quickview` middleware event, then populates `controller.store.quickview` with the (cloned-by-default) Product. The method always resolves — errors surface via `store.quickview.error` rather than thrown.
 
 | param | type | description |
 |---|---|---|
@@ -61,10 +60,10 @@ Opens the product quickview modal for the given result. Immediately flips the st
 | `config` | `QuickViewConfig` (optional) | Per-call override; merged with `settings.quickview` from the controller config (caller wins). |
 
 ```tsx
-<button onClick={() => controller.setQuickView({ result })}>Quick View</button>
+<button onClick={() => controller.quickview({ result })}>Quick View</button>
 ```
 
-### `closeQuickView()`
+### `controller.store.quickview.close()`
 
 Hides the modal but retains `product` in the store, so reopening the same result is instant. Call `controller.store.quickview.reset()` if you also want to clear the product reference.
 
@@ -109,15 +108,15 @@ Hides the modal but retains `product` in the store, so reopening the same result
 - Called with `eventData` = { controller, products } 
 - Always invoked after `controller.addToCart()` method has been invoked
 
-### productQuickview
+### quickview
 - Called with `eventData` = `ProductQuickviewObj` = { controller, result, productsData?, config }
-- Fires inside `setQuickView`, after the optional `/v1/products` fetch resolves and before the store's `update` runs
+- Fires inside `quickview`, after the optional `/v1/products` fetch resolves and before the store's `update` runs
 - Middleware can mutate `result`, `productsData`, or `config` on the payload — the controller reads them back after the await and passes them to `store.quickview.update`
 - Throw `new Error('cancelled')` to short-circuit: `store.quickview.reset()` is called and no modal renders
 - Any other thrown error surfaces as `store.quickview.error` and the modal renders the error branch
 
 ```ts
-controller.on('productQuickview', async (eventObj, next) => {
+controller.on('quickview', async (eventObj, next) => {
     if (someCondition(eventObj.result)) {
         eventObj.config.displayFields = ['custom', 'fields', 'here'];
     }

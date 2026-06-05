@@ -31,10 +31,18 @@ jest.mock('../OverlayBadge', () => {
 	};
 });
 
+// Mock CalloutBadge to a simple element so we can assert whether callout badges render
+// below the media without standing up a full badges fixture.
+jest.mock('../CalloutBadge', () => {
+	const { h: hh } = require('preact');
+	return {
+		CalloutBadge: () => hh('div', { className: 'ss__callout-badge-mock' }),
+	};
+});
+
 import { ProductQuickview } from './ProductQuickview';
 
 function makeController(overrides: any = {}) {
-	const close = jest.fn();
 	const controller: any = {
 		store: {
 			quickview: {
@@ -43,11 +51,13 @@ function makeController(overrides: any = {}) {
 				loading: false,
 				config: undefined,
 				error: undefined,
+				close: jest.fn(),
 			},
 		},
-		closeQuickView: close,
 		...overrides,
 	};
+	controller.store.quickview.close ??= jest.fn();
+	const close = controller.store.quickview.close;
 	return { controller, close };
 }
 
@@ -70,7 +80,7 @@ describe('ProductQuickview', () => {
 		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.getByText('Widget')).toBeInTheDocument();
-		const img = rendered.container.querySelector('img.ss__product-quickview__image') as HTMLImageElement | null;
+		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
 		expect(img).not.toBeNull();
 		expect(img!.getAttribute('src')).toBe('http://example.com/widget.jpg');
 		expect(rendered.getByText('color')).toBeInTheDocument();
@@ -79,16 +89,16 @@ describe('ProductQuickview', () => {
 		expect(rendered.getByText('M')).toBeInTheDocument();
 	});
 
-	it('invokes controller.closeQuickView when the close button is clicked', () => {
+	it('invokes store.quickview.close when the close button is clicked', () => {
 		const product = { mappings: { core: { name: 'Widget' } }, attributes: {} };
 		const { controller, close } = makeController({
-			store: { quickview: { isOpen: true, product } },
+			store: { quickview: { isOpen: true, product, close: jest.fn() } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
 		const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
 		expect(closeButton).not.toBeNull();
-		closeButton.click();
+		fireEvent.click(closeButton);
 
 		expect(close).toHaveBeenCalledTimes(1);
 	});
@@ -345,7 +355,7 @@ describe('ProductQuickview', () => {
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
 		// One slide image per URL in the list.
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(3);
+		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(3);
 	});
 
 	it('reads imagesField from attributes when not present on mappings.core', () => {
@@ -363,7 +373,7 @@ describe('ProductQuickview', () => {
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
 	});
 
 	it('coerces a MobX observable array of images into carousel slides', () => {
@@ -381,7 +391,7 @@ describe('ProductQuickview', () => {
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
 	});
 
 	it('falls back to the single image when imagesField resolves to a single image', () => {
@@ -398,7 +408,7 @@ describe('ProductQuickview', () => {
 		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
-		const img = rendered.container.querySelector('img.ss__product-quickview__image') as HTMLImageElement | null;
+		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
 		expect(img).not.toBeNull();
 		expect(img!.getAttribute('src')).toBe('http://example.com/main.jpg');
 	});
@@ -419,7 +429,7 @@ describe('ProductQuickview', () => {
 		// No imagesField configured → default candidate 'images' has >1 → carousel.
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
 	});
 
 	it("defaults to the 'ss_images' field when no imagesField is configured and 'images' is absent", () => {
@@ -439,7 +449,7 @@ describe('ProductQuickview', () => {
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
 	});
 
 	it('accepts an array of candidate field names and uses the first that has multiple images', () => {
@@ -465,7 +475,7 @@ describe('ProductQuickview', () => {
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
 		// 'primaryImages' has only 1 → skipped; 'gallery' has 3 → used.
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(3);
+		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(3);
 	});
 
 	it('renders the single image when neither the configured nor default image fields have multiple images', () => {
@@ -483,15 +493,125 @@ describe('ProductQuickview', () => {
 
 		// No images/ss_images present → no carousel, single core image only.
 		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
-		const img = rendered.container.querySelector('img.ss__product-quickview__image') as HTMLImageElement | null;
+		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
 		expect(img!.getAttribute('src')).toBe('http://example.com/main.jpg');
 	});
 
-	it("auto-detects the '|' delimiter when imagesField resolves to a pipe-delimited string", () => {
+	it('renders each image in the array as a carousel slide in order', () => {
 		const storeProduct = {
 			id: 'mine',
-			mappings: { core: { name: 'Mine', images: 'http://example.com/a.jpg|http://example.com/b.jpg|http://example.com/c.jpg' } },
+			mappings: {
+				core: { name: 'Mine', images: ['http://example.com/a.jpg', 'http://example.com/b.jpg', 'http://example.com/c.jpg'] },
+			},
 			attributes: {},
+		};
+		const { controller } = makeController({
+			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+		});
+		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
+
+		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+
+		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
+		expect(imgs).toHaveLength(3);
+		expect(imgs[0].getAttribute('src')).toBe('http://example.com/a.jpg');
+		expect(imgs[1].getAttribute('src')).toBe('http://example.com/b.jpg');
+		expect(imgs[2].getAttribute('src')).toBe('http://example.com/c.jpg');
+	});
+
+	it('treats a single-element array as one image (no carousel)', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', images: ['http://example.com/only.jpg'] } },
+			attributes: {},
+		};
+		const { controller } = makeController({
+			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+		});
+		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
+
+		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+
+		// One image in the list → fall back to the single core image.
+		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
+		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
+		expect(img!.getAttribute('src')).toBe('http://example.com/main.jpg');
+	});
+
+	it('shows the active variant single image instead of the parent image array', () => {
+		// Parent carries a multi-image array; the active variant has its own distinct single
+		// imageUrl and NO own images array. The displayed media should be the variant image.
+		const storeProduct = {
+			id: 'mine',
+			mappings: {
+				core: {
+					name: 'Mine',
+					imageUrl: 'http://example.com/parent.jpg',
+					images: ['http://example.com/p1.jpg', 'http://example.com/p2.jpg', 'http://example.com/p3.jpg'],
+				},
+			},
+			attributes: {},
+			display: {
+				// Variant-merged: the variant's imageUrl wins, parent images array persists.
+				mappings: {
+					core: {
+						name: 'Mine',
+						imageUrl: 'http://example.com/variant.jpg',
+						images: ['http://example.com/p1.jpg', 'http://example.com/p2.jpg', 'http://example.com/p3.jpg'],
+					},
+				},
+				attributes: {},
+			},
+			variants: {
+				active: {
+					mappings: { core: { imageUrl: 'http://example.com/variant.jpg' } },
+					attributes: {},
+				},
+				selections: [{ field: 'color', label: 'Color', selected: { value: 'Blue' }, values: [], select: () => undefined }],
+			},
+		};
+		const { controller } = makeController({
+			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+		});
+		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
+
+		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+
+		// No carousel — the active variant has no own images array, so the single variant image renders.
+		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
+		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
+		expect(img).not.toBeNull();
+		expect(img!.getAttribute('src')).toBe('http://example.com/variant.jpg');
+	});
+
+	it('shows the active variant image array as a carousel when the variant provides one', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: {
+				core: {
+					name: 'Mine',
+					imageUrl: 'http://example.com/parent.jpg',
+					images: ['http://example.com/p1.jpg', 'http://example.com/p2.jpg', 'http://example.com/p3.jpg'],
+				},
+			},
+			attributes: {},
+			display: {
+				mappings: {
+					core: {
+						name: 'Mine',
+						imageUrl: 'http://example.com/variant.jpg',
+						images: ['http://example.com/v1.jpg', 'http://example.com/v2.jpg'],
+					},
+				},
+				attributes: {},
+			},
+			variants: {
+				active: {
+					mappings: { core: { imageUrl: 'http://example.com/variant.jpg', images: ['http://example.com/v1.jpg', 'http://example.com/v2.jpg'] } },
+					attributes: {},
+				},
+				selections: [{ field: 'color', label: 'Color', selected: { value: 'Blue' }, values: [], select: () => undefined }],
+			},
 		};
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
@@ -502,66 +622,10 @@ describe('ProductQuickview', () => {
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('img.ss__product-quickview__image')).toHaveLength(3);
-	});
-
-	it('auto-detects a comma delimiter and trims whitespace around parts', () => {
-		const storeProduct = {
-			id: 'mine',
-			mappings: { core: { name: 'Mine', images: 'http://example.com/a.jpg, http://example.com/b.jpg' } },
-			attributes: {},
-		};
-		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
-		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
-
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
-
-		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel img.ss__product-quickview__image');
+		const imgs = carousel!.querySelectorAll('.ss__product-quickview__image img');
 		expect(imgs).toHaveLength(2);
-		// Whitespace around the comma-split parts is trimmed.
-		expect(imgs[1].getAttribute('src')).toBe('http://example.com/b.jpg');
-	});
-
-	it('uses the explicitly configured imagesDelimiter over auto-detection', () => {
-		// The string contains commas inside each URL's query params; splitting on ',' would be wrong.
-		// An explicit '|' delimiter splits correctly.
-		const storeProduct = {
-			id: 'mine',
-			mappings: { core: { name: 'Mine', images: 'http://example.com/a.jpg?s=1,2|http://example.com/b.jpg?s=3,4' } },
-			attributes: {},
-		};
-		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images', imagesDelimiter: '|' } } },
-		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
-
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
-
-		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel img.ss__product-quickview__image');
-		expect(imgs).toHaveLength(2);
-		expect(imgs[0].getAttribute('src')).toBe('http://example.com/a.jpg?s=1,2');
-		expect(imgs[1].getAttribute('src')).toBe('http://example.com/b.jpg?s=3,4');
-	});
-
-	it('treats a single undelimited string as one image (no carousel)', () => {
-		const storeProduct = {
-			id: 'mine',
-			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', images: 'http://example.com/only.jpg' } },
-			attributes: {},
-		};
-		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
-		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
-
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
-
-		// One image after splitting → fall back to the single core image.
-		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
-		const img = rendered.container.querySelector('img.ss__product-quickview__image') as HTMLImageElement | null;
-		expect(img!.getAttribute('src')).toBe('http://example.com/main.jpg');
+		expect((imgs[0] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/v1.jpg');
+		expect((imgs[1] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/v2.jpg');
 	});
 
 	it('lays out the image in the media column and the rest in the details column', () => {
@@ -582,13 +646,13 @@ describe('ProductQuickview', () => {
 		expect(media).not.toBeNull();
 		expect(details).not.toBeNull();
 		// Image lives in the media column…
-		expect(media!.querySelector('img.ss__product-quickview__image')).not.toBeNull();
+		expect(media!.querySelector('.ss__product-quickview__image img')).not.toBeNull();
 		// …and the title, attributes table, and add-to-cart live in the details column.
 		expect(details!.querySelector('.ss__product-quickview__title')).not.toBeNull();
 		expect(details!.querySelector('.ss__product-quickview__attributes')).not.toBeNull();
 		expect(details!.querySelector('.ss__product-quickview__add-to-cart')).not.toBeNull();
 		// Image is NOT in the details column.
-		expect(details!.querySelector('img.ss__product-quickview__image')).toBeNull();
+		expect(details!.querySelector('.ss__product-quickview__image img')).toBeNull();
 	});
 
 	it('renders an Add to Cart button that calls controller.addToCart with the product', () => {
@@ -808,7 +872,7 @@ describe('ProductQuickview', () => {
 		expect((window.location as any).href).toBe('/products/apex-bottle');
 	});
 
-	it('overlays badges on the media by default (disableBadges defaults to false)', () => {
+	it('hides overlay and callout badges by default (showBadges defaults to false)', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
@@ -821,13 +885,14 @@ describe('ProductQuickview', () => {
 
 		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
 
-		const overlay = rendered.container.querySelector('.ss__product-quickview__media .ss__overlay-badge-mock');
-		expect(overlay).not.toBeNull();
-		// The image is rendered inside the badge overlay.
-		expect(overlay!.querySelector('img.ss__product-quickview__image')).not.toBeNull();
+		// Neither badge variant renders when showBadges is not set.
+		expect(rendered.container.querySelector('.ss__overlay-badge-mock')).toBeNull();
+		expect(rendered.container.querySelector('.ss__callout-badge-mock')).toBeNull();
+		// The image still renders, just not wrapped in the badge overlay.
+		expect(rendered.container.querySelector('.ss__product-quickview__media .ss__product-quickview__image img')).not.toBeNull();
 	});
 
-	it('does not overlay badges when disableBadges is true', () => {
+	it('shows overlay badges over the media and callout badges below it when showBadges is true', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
@@ -838,11 +903,14 @@ describe('ProductQuickview', () => {
 		});
 		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} disableBadges={true} />);
+		const rendered = render(<ProductQuickview controller={controller} result={myResult} showBadges={true} />);
 
-		expect(rendered.container.querySelector('.ss__overlay-badge-mock')).toBeNull();
-		// The image still renders, just not wrapped in the badge overlay.
-		expect(rendered.container.querySelector('.ss__product-quickview__media img.ss__product-quickview__image')).not.toBeNull();
+		// Overlay wraps the media.
+		const overlay = rendered.container.querySelector('.ss__product-quickview__media .ss__overlay-badge-mock');
+		expect(overlay).not.toBeNull();
+		expect(overlay!.querySelector('.ss__product-quickview__image img')).not.toBeNull();
+		// Callout badges render inside the media region.
+		expect(rendered.container.querySelector('.ss__product-quickview__media .ss__callout-badge-mock')).not.toBeNull();
 	});
 
 	it('omits the "Go to Product" button when the product has no url', () => {
@@ -877,7 +945,7 @@ describe('ProductQuickview', () => {
 		// Gallery not open initially.
 		expect(document.querySelector('.ss__gallery')).toBeNull();
 
-		const img = rendered.container.querySelector('.ss__product-quickview__media img.ss__product-quickview__image') as HTMLElement;
+		const img = rendered.container.querySelector('.ss__product-quickview__media .ss__product-quickview__image img') as HTMLElement;
 		fireEvent.click(img);
 
 		// Gallery (portaled to body) now shows the clicked image.
@@ -900,7 +968,7 @@ describe('ProductQuickview', () => {
 		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
 
 		// Click the third carousel image (index 2).
-		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel img.ss__product-quickview__image');
+		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
 		fireEvent.click(imgs[2] as HTMLElement);
 
 		const galleryImg = document.querySelector('img.ss__gallery__image') as HTMLImageElement;

@@ -17,10 +17,10 @@ function buildMockController(overrides: any = {}): any {
 				product: undefined,
 				config: undefined,
 				error: undefined,
+				close: () => {
+					base.store.quickview.isOpen = false;
+				},
 			},
-		},
-		closeQuickView: () => {
-			base.store.quickview.isOpen = false;
 		},
 	};
 	// Shallow-merge overrides onto base; merge store.quickview deep so partial overrides preserve defaults.
@@ -204,7 +204,8 @@ export default {
 	},
 	argTypes: {
 		controller: {
-			description: 'Controller exposing `store.quickview` ({ isOpen, product, loading, config, error }) and `closeQuickView()`',
+			description:
+				'Controller exposing `store.quickview` ({ isOpen, product, loading, config, error, close }); dismiss via `store.quickview.close()`',
 			table: {
 				type: {
 					summary: 'SearchController | AutocompleteController | RecommendationController',

@@ -23,11 +23,6 @@ export type QuickViewConfig = {
 	// the first that resolves to more than one image is rendered in a 1-per-view carousel instead
 	// of the single core image. When omitted, defaults to trying 'images' then 'ss_images'.
 	imagesField?: string | string[];
-	// Delimiter used to split a single string value from `imagesField` into multiple image URLs
-	// (e.g. 'a.jpg|b.jpg'). When omitted, common delimiters are auto-detected — '|' first (it
-	// cannot appear unencoded in a URL), then newline, tab, ';' and ',' . Values that are already
-	// arrays or JSON-encoded array strings ignore this setting.
-	imagesDelimiter?: string;
 };
 
 export type QuickViewUpdateArgs = {

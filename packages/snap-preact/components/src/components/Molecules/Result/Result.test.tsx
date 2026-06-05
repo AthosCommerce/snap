@@ -690,9 +690,8 @@ describe('Result quickview integration', () => {
 	const makeController = () => {
 		const set = jest.fn();
 		const controller: any = {
-			store: { quickview: { isOpen: false, product: undefined } },
-			setQuickView: set,
-			closeQuickView: jest.fn(),
+			store: { quickview: { isOpen: false, product: undefined, close: jest.fn() } },
+			quickview: set,
 		};
 		return { controller, set };
 	};
@@ -710,7 +709,7 @@ describe('Result quickview integration', () => {
 		expect(button).not.toBeNull();
 	});
 
-	it('calls controller.setQuickView when the button is clicked', () => {
+	it('calls controller.quickview when the button is clicked', () => {
 		const { controller, set } = makeController();
 		const rendered = render(<Result result={baseResult} controller={controller} hideQuickViewButton={false} />);
 		const button = rendered.container.querySelector('.ss__result__button--quickView') as HTMLElement;
@@ -722,9 +721,8 @@ describe('Result quickview integration', () => {
 	it('does not mount inline ProductQuickview when store quickview targets a different product', () => {
 		const otherProduct = { id: 'other', mappings: { core: { name: 'Other' } }, attributes: {} };
 		const controller: any = {
-			store: { quickview: { isOpen: true, product: otherProduct } },
-			setQuickView: jest.fn(),
-			closeQuickView: jest.fn(),
+			store: { quickview: { isOpen: true, product: otherProduct, close: jest.fn() } },
+			quickview: jest.fn(),
 		};
 
 		const rendered = render(<Result result={baseResult} controller={controller} hideQuickViewButton={false} />);
@@ -735,9 +733,8 @@ describe('Result quickview integration', () => {
 
 	it('inline ProductQuickview mounts and opens when store quickview targets this result', () => {
 		const controller: any = {
-			store: { quickview: { isOpen: true, product: { ...baseResult } } },
-			setQuickView: jest.fn(),
-			closeQuickView: jest.fn(),
+			store: { quickview: { isOpen: true, product: { ...baseResult }, close: jest.fn() } },
+			quickview: jest.fn(),
 		};
 
 		const rendered = render(<Result result={baseResult} controller={controller} hideQuickViewButton={false} />);

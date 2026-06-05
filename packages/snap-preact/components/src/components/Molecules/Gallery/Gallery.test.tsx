@@ -53,19 +53,40 @@ describe('Gallery', () => {
 		expect(img().getAttribute('src')).toBe(IMAGES[2]);
 	});
 
+	it('renders the controls via the Button atom (svg icons, not glyphs)', () => {
+		render(<Gallery images={IMAGES} open={true} />);
+		for (const hook of [
+			'.ss__gallery__zoom-out',
+			'.ss__gallery__zoom-in',
+			'.ss__gallery__close',
+			'.ss__gallery__nav--prev',
+			'.ss__gallery__nav--next',
+		]) {
+			const control = document.querySelector(hook)!;
+			expect(control).not.toBeNull();
+			expect(control.querySelector('svg')).not.toBeNull();
+		}
+	});
+
 	it('zooms in and out via the toolbar buttons (scale transform)', () => {
 		render(<Gallery images={IMAGES} open={true} />);
 		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
-		const zoomIn = document.querySelector('.ss__gallery__zoom-in') as HTMLButtonElement;
-		const zoomOut = document.querySelector('.ss__gallery__zoom-out') as HTMLButtonElement;
+		const zoomIn = document.querySelector('.ss__gallery__zoom-in')!;
+		const zoomOut = document.querySelector('.ss__gallery__zoom-out')!;
 
 		// Starts at scale(1); zoom-out disabled at minimum.
 		expect(img().style.transform).toContain('scale(1)');
-		expect(zoomOut.disabled).toBe(true);
+		expect(zoomOut.className).toContain('ss__button--disabled');
+
+		// Clicking the disabled zoom-out must not drop below the minimum scale.
+		const transformAtMin = img().style.transform;
+		fireEvent.click(zoomOut);
+		expect(img().style.transform).toBe(transformAtMin);
+		expect(img().style.transform).toContain('scale(1)');
 
 		fireEvent.click(zoomIn);
 		expect(img().style.transform).toContain('scale(1.5)');
-		expect(zoomOut.disabled).toBe(false);
+		expect(zoomOut.className).not.toContain('ss__button--disabled');
 
 		fireEvent.click(zoomOut);
 		expect(img().style.transform).toContain('scale(1)');
@@ -74,19 +95,27 @@ describe('Gallery', () => {
 	it('does not zoom past the maximum', () => {
 		render(<Gallery images={IMAGES} open={true} />);
 		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
-		const zoomIn = document.querySelector('.ss__gallery__zoom-in') as HTMLButtonElement;
+		const zoomIn = document.querySelector('.ss__gallery__zoom-in')!;
 
 		// MIN=1, MAX=4, STEP=0.5 → 6 clicks would be 4.0 (clamped). Click extra to ensure clamp.
 		for (let i = 0; i < 10; i++) fireEvent.click(zoomIn);
 		expect(img().style.transform).toContain('scale(4)');
-		expect(zoomIn.disabled).toBe(true);
+		expect(zoomIn.className).toContain('ss__button--disabled');
+
+		// Clicking the now-disabled zoom-in must not push past the maximum scale.
+		const transformAtMax = img().style.transform;
+		fireEvent.click(zoomIn);
+		expect(img().style.transform).toBe(transformAtMax);
+		expect(img().style.transform).toContain('scale(4)');
 	});
 
 	it('invokes onClose when the close button is clicked', () => {
 		const onClose = jest.fn();
 		render(<Gallery images={IMAGES} open={true} onClose={onClose} />);
 
-		fireEvent.click(document.querySelector('.ss__gallery__close')!);
+		const close = document.querySelector('.ss__gallery__close')!;
+		expect(close.querySelector('svg')).not.toBeNull();
+		fireEvent.click(close);
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 

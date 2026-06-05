@@ -7,7 +7,8 @@ import classnames from 'classnames';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { mergeProps, mergeStyles, defined } from '../../../utilities';
+import { Button } from '../../Atoms/Button';
 
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 4;
@@ -33,6 +34,10 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			padding: '12px 16px',
 		},
 		'& .ss__gallery__button': {
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			padding: 0,
 			background: 'rgba(255, 255, 255, 0.12)',
 			color: '#fff',
 			border: 'none',
@@ -42,7 +47,7 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			fontSize: '1.3em',
 			lineHeight: 1,
 			cursor: 'pointer',
-			'&:disabled': {
+			'&.ss__button--disabled': {
 				opacity: 0.4,
 				cursor: 'default',
 			},
@@ -70,7 +75,6 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			transition: 'transform 0.05s linear',
 		},
 		'& .ss__gallery__nav': {
-			// Full-height click strips down each edge, with the arrow vertically centered.
 			position: 'absolute',
 			top: 0,
 			bottom: 0,
@@ -79,6 +83,7 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center',
+			padding: 0,
 			background: 'rgba(255, 255, 255, 0.06)',
 			color: '#fff',
 			border: 'none',
@@ -236,34 +241,48 @@ export const Gallery = observer((properties: GalleryProps) => {
 							{index + 1} / {count}
 						</span>
 					)}
-					<button
-						type="button"
-						className="ss__gallery__button ss__gallery__zoom-out"
+					<Button
+						internalClassName="ss__gallery__button ss__gallery__zoom-out"
+						icon={{ icon: 'minus', color: '#fff' }}
 						aria-label="Zoom out"
 						disabled={zoom <= ZOOM_MIN}
 						onClick={zoomOut}
-					>
-						−
-					</button>
-					<button
-						type="button"
-						className="ss__gallery__button ss__gallery__zoom-in"
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
+					<Button
+						internalClassName="ss__gallery__button ss__gallery__zoom-in"
+						icon={{ icon: 'plus', color: '#fff' }}
 						aria-label="Zoom in"
 						disabled={zoom >= ZOOM_MAX}
 						onClick={zoomIn}
-					>
-						+
-					</button>
-					<button type="button" className="ss__gallery__button ss__gallery__close" aria-label="Close gallery" onClick={() => onClose && onClose()}>
-						×
-					</button>
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
+					<Button
+						internalClassName="ss__gallery__button ss__gallery__close"
+						icon={{ icon: 'close', color: '#fff' }}
+						aria-label="Close gallery"
+						onClick={() => onClose && onClose()}
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
 				</div>
 
 				<div className="ss__gallery__stage" onClick={onBackdropClick} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 					{count > 1 && (
-						<button type="button" className="ss__gallery__nav ss__gallery__nav--prev" aria-label="Previous image" onClick={showPrev}>
-							‹
-						</button>
+						<Button
+							internalClassName="ss__gallery__nav ss__gallery__nav--prev"
+							icon={{ icon: 'angle-left', color: '#fff' }}
+							aria-label="Previous image"
+							onClick={showPrev}
+							theme={props.theme}
+							treePath={props.treePath}
+							{...defined({ disableStyles: props.disableStyles })}
+						/>
 					)}
 
 					<img
@@ -282,9 +301,15 @@ export const Gallery = observer((properties: GalleryProps) => {
 					/>
 
 					{count > 1 && (
-						<button type="button" className="ss__gallery__nav ss__gallery__nav--next" aria-label="Next image" onClick={showNext}>
-							›
-						</button>
+						<Button
+							internalClassName="ss__gallery__nav ss__gallery__nav--next"
+							icon={{ icon: 'angle-right', color: '#fff' }}
+							aria-label="Next image"
+							onClick={showNext}
+							theme={props.theme}
+							treePath={props.treePath}
+							{...defined({ disableStyles: props.disableStyles })}
+						/>
 					)}
 				</div>
 			</div>

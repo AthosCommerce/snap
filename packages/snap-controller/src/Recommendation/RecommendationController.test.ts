@@ -636,7 +636,7 @@ describe('Recommendation Controller quickview', () => {
 		recommendConfig.id = uuidv4().split('-').join('');
 	});
 
-	it('setQuickView opens the store with a Product clone and fetches /v1/products for variants', async () => {
+	it('quickview opens the store with a Product clone and fetches /v1/products for variants', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -655,7 +655,7 @@ describe('Recommendation Controller quickview', () => {
 
 		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: { name: 'Widget' } } } as any;
 
-		await controller.setQuickView({ result });
+		await controller.quickview({ result });
 
 		expect(controller.store.quickview.isOpen).toBe(true);
 		expect(controller.store.quickview.loading).toBe(false);
@@ -670,7 +670,7 @@ describe('Recommendation Controller quickview', () => {
 		expect(result.attributes.color).toBe('red');
 	});
 
-	it('setQuickView stores displayFields config from caller', async () => {
+	it('quickview stores displayFields config from caller', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -688,12 +688,12 @@ describe('Recommendation Controller quickview', () => {
 
 		const result = { id: 'abc', attributes: { color: 'red', size: 'M' }, mappings: { core: {} } } as any;
 
-		await controller.setQuickView({ result, config: { displayFields: ['size'] } });
+		await controller.quickview({ result, config: { displayFields: ['size'] } });
 
 		expect(controller.store.quickview.config).toEqual({ displayFields: ['size'] });
 	});
 
-	it('setQuickView still resolves and updates store when /v1/products fetch fails', async () => {
+	it('quickview still resolves and updates store when /v1/products fetch fails', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -708,14 +708,14 @@ describe('Recommendation Controller quickview', () => {
 
 		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
 
-		await expect(controller.setQuickView({ result })).resolves.toBeUndefined();
+		await expect(controller.quickview({ result })).resolves.toBeUndefined();
 
 		expect(controller.store.quickview.loading).toBe(false);
 		expect(controller.store.quickview.product).toBeDefined();
 		expect(controller.store.quickview.isOpen).toBe(true);
 	});
 
-	it('setQuickView skips /v1/products fetch when config.fetchProductData is false', async () => {
+	it('quickview skips /v1/products fetch when config.fetchProductData is false', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -731,7 +731,7 @@ describe('Recommendation Controller quickview', () => {
 
 		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
 
-		await controller.setQuickView({ result, config: { fetchProductData: false } });
+		await controller.quickview({ result, config: { fetchProductData: false } });
 
 		expect(productsMock).not.toHaveBeenCalled();
 		expect(controller.store.quickview.isOpen).toBe(true);
@@ -739,7 +739,7 @@ describe('Recommendation Controller quickview', () => {
 		expect(controller.store.quickview.product).toBeDefined();
 	});
 
-	it("fires the 'productQuickview' middleware event with result, productsData, and config", async () => {
+	it("fires the 'quickview' middleware event with result, productsData, and config", async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -756,10 +756,10 @@ describe('Recommendation Controller quickview', () => {
 		const middlewareSpy = jest.fn(async (_eventObj: any, next: any) => {
 			await next();
 		});
-		controller.on('productQuickview', middlewareSpy);
+		controller.on('quickview', middlewareSpy);
 
 		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.setQuickView({ result, config: { displayFields: ['size'] } });
+		await controller.quickview({ result, config: { displayFields: ['size'] } });
 
 		expect(middlewareSpy).toHaveBeenCalledTimes(1);
 		const [eventObj] = middlewareSpy.mock.calls[0];
@@ -769,7 +769,7 @@ describe('Recommendation Controller quickview', () => {
 		expect(eventObj.config).toEqual({ displayFields: ['size'] });
 	});
 
-	it("'productQuickview' middleware can throw new Error('cancelled') to short-circuit", async () => {
+	it("'quickview' middleware can throw new Error('cancelled') to short-circuit", async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -782,14 +782,14 @@ describe('Recommendation Controller quickview', () => {
 
 		(controller.client as any).products = jest.fn().mockResolvedValue({ mappings: { core: {} }, variants: { data: [] } });
 
-		controller.on('productQuickview', async () => {
+		controller.on('quickview', async () => {
 			throw new Error('cancelled');
 		});
 
 		const updateSpy = jest.spyOn(controller.store.quickview, 'update');
 
 		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.setQuickView({ result });
+		await controller.quickview({ result });
 
 		expect(updateSpy).not.toHaveBeenCalled();
 		expect(controller.store.quickview.isOpen).toBe(false);
@@ -797,7 +797,7 @@ describe('Recommendation Controller quickview', () => {
 		expect(controller.store.quickview.product).toBeUndefined();
 	});
 
-	it("'productQuickview' middleware can mutate productsData before update runs", async () => {
+	it("'quickview' middleware can mutate productsData before update runs", async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -811,18 +811,18 @@ describe('Recommendation Controller quickview', () => {
 		(controller.client as any).products = jest.fn().mockResolvedValue({ mappings: { core: {} }, variants: { data: [] } });
 
 		const mutatedVariants = [{ attributes: { color: 'green' }, mappings: { core: { uid: 'v9' } } }];
-		controller.on('productQuickview', async (eventObj: any, next: any) => {
+		controller.on('quickview', async (eventObj: any, next: any) => {
 			eventObj.productsData = { mappings: { core: {} }, variants: { data: mutatedVariants } };
 			await next();
 		});
 
 		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.setQuickView({ result });
+		await controller.quickview({ result });
 
 		expect((controller.store.quickview.product?.variants as any)?.data?.length).toBe(1);
 	});
 
-	it('setQuickView uses source result by reference when config.clone is false', async () => {
+	it('quickview uses source result by reference when config.clone is false', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -840,12 +840,12 @@ describe('Recommendation Controller quickview', () => {
 
 		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: {} } } as any;
 
-		await controller.setQuickView({ result, config: { clone: false } });
+		await controller.quickview({ result, config: { clone: false } });
 
 		expect(controller.store.quickview.product).toBe(result);
 	});
 
-	it('closeQuickView closes the store but retains the product', async () => {
+	it('close closes the store but retains the product', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -862,9 +862,9 @@ describe('Recommendation Controller quickview', () => {
 		});
 
 		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.setQuickView({ result });
+		await controller.quickview({ result });
 
-		controller.closeQuickView();
+		controller.store.quickview.close();
 
 		expect(controller.store.quickview.isOpen).toBe(false);
 		expect(controller.store.quickview.product?.id).toBe('abc');
