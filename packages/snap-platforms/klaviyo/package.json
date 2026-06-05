@@ -1,0 +1,8 @@
+{
+	"name": "snap-platforms-klaviyo",
+	"private": true,
+	"description": "Snap Klaviyo Platform Library",
+	"main": "../dist/cjs/klaviyo/src/index.js",
+	"module": "../dist/esm/klaviyo/src/index.js",
+	"sideEffects": false
+}

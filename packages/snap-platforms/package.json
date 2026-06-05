@@ -51,6 +51,11 @@
 			"types": "./dist/esm/bigcommerce/src/index.d.ts",
 			"import": "./dist/esm/bigcommerce/src/index.js",
 			"require": "./dist/cjs/bigcommerce/src/index.js"
+		},
+		"./klaviyo": {
+			"types": "./dist/esm/klaviyo/src/index.d.ts",
+			"import": "./dist/esm/klaviyo/src/index.js",
+			"require": "./dist/cjs/klaviyo/src/index.js"
 		}
 	},
 	"gitHead": "c31d6fae1461ef16d593321c312c94b85dad7d96"
