@@ -353,13 +353,10 @@ export const Result = observer((properties: ResultProps) => {
 					)}
 				</div>
 			</article>
-			{!hideQuickViewButton &&
-				controller &&
-				controller.store?.quickview?.isOpen &&
-				(controller.store.quickview.product?.id === result.id ||
-					(controller.store.quickview.loading && controller.store.quickview.triggeringResultId === result.id)) && (
-					<ProductQuickview controller={controller} result={result} />
-				)}
+			{/* ProductQuickview decides whether to render anything based on the store state
+			    scoped to this `result` — it returns null when this result isn't the active
+			    quickview, so no stray DOM is added to the results grid. */}
+			{!hideQuickViewButton && controller && <ProductQuickview controller={controller} result={result} />}
 		</CacheProvider>
 	) : null;
 });

@@ -1,11 +1,12 @@
 import { action, makeObservable, observable } from 'mobx';
 
 import { Product } from '../Search/Stores';
+import type { StoreConfigs, SearchStoreConfig } from '../types';
 
 // Structural type — avoids a dependency on snap-client.
 export type QuickViewProductsData = {
 	mappings?: { core?: Record<string, any> };
-	variants?: { data?: any[] };
+	variants?: { data?: any[]; optionConfig?: Record<string, any> };
 };
 
 export type QuickViewConfig = {
@@ -17,6 +18,16 @@ export type QuickViewConfig = {
 	// data is already on the source result (any variants the search response carried).
 	// Default: true.
 	fetchProductData?: boolean;
+	// Field name(s) (looked up on the product's mappings.core, then attributes) holding a list
+	// of image URLs. Accepts a single field name or an array of candidate names tried in order;
+	// the first that resolves to more than one image is rendered in a 1-per-view carousel instead
+	// of the single core image. When omitted, defaults to trying 'images' then 'ss_images'.
+	imagesField?: string | string[];
+	// Delimiter used to split a single string value from `imagesField` into multiple image URLs
+	// (e.g. 'a.jpg|b.jpg'). When omitted, common delimiters are auto-detected — '|' first (it
+	// cannot appear unencoded in a URL), then newline, tab, ';' and ',' . Values that are already
+	// arrays or JSON-encoded array strings ignore this setting.
+	imagesDelimiter?: string;
 };
 
 export type QuickViewUpdateArgs = {
@@ -24,7 +35,7 @@ export type QuickViewUpdateArgs = {
 	productsData?: QuickViewProductsData;
 	config?: QuickViewConfig;
 	// Optional store-config passthrough, used when cloning so variants pick up the existing variants settings.
-	storeConfig?: any;
+	storeConfig?: StoreConfigs;
 	// Optional meta passthrough for badges processing.
 	meta?: any;
 };
@@ -39,7 +50,6 @@ export class QuickViewStore {
 	public isOpen = false;
 	public loading = false;
 	public config?: QuickViewConfig = undefined;
-	public triggeringResultId?: string = undefined;
 	public error?: QuickViewError = undefined;
 
 	constructor() {
@@ -48,7 +58,6 @@ export class QuickViewStore {
 			isOpen: observable,
 			loading: observable,
 			config: observable,
-			triggeringResultId: observable,
 			error: observable,
 			update: action,
 			close: action,
@@ -58,13 +67,15 @@ export class QuickViewStore {
 		});
 	}
 
-	// Open the modal in loading state. Used by setQuickView while it awaits productsData.
-	// Clears any prior error so a retry starts fresh.
-	public setLoading(loading: boolean, resultId?: string): void {
+	// Open the modal in a loading state for the given source product/result. The source is
+	// stored as `product` immediately so consumers can scope the modal by `product.id` during
+	// the fetch (only a spinner renders in this phase — no mutation risk). `update` later
+	// replaces it with the cloned product. Clears any prior error so a retry starts fresh.
+	public setLoading(loading: boolean, product?: Product): void {
 		this.loading = loading;
 		if (loading) {
 			this.isOpen = true;
-			this.triggeringResultId = resultId;
+			this.product = product;
 			this.error = undefined;
 		}
 	}
@@ -107,6 +118,14 @@ export class QuickViewStore {
 				position: result.position ?? 0,
 				responseId: result.responseId,
 			} as any);
+
+			// Carry the source product's Badges instance onto the clone (it was dropped above
+			// because it doesn't survive the JSON round-trip). Badges are display-only and not
+			// mutated by variant selection (which writes to the mask), so sharing the instance is
+			// safe — and `display` merges with `isPlainObject`, preserving its prototype/methods.
+			if ((result as any).badges) {
+				product.badges = (result as any).badges;
+			}
 		}
 
 		// Apply variants from /v1/products if available. Force autoSelect on so a default
@@ -114,8 +133,19 @@ export class QuickViewStore {
 		// the product has no Variants instance to update (e.g. clone=false on a result
 		// whose search response carried no variants).
 		if (productsData?.variants?.data && product.variants) {
+			// Carry the API's optionConfig onto the Variants instance before updating. `update`
+			// reads `this.optionConfig?.[field]` when (re)building each VariantSelection, which is
+			// what populates `selection.type` ('dropdown' | 'swatches') and `count`. Without this,
+			// the empty-seeded clone would have no optionConfig and every selection would fall back
+			// to a dropdown.
+			if (productsData.variants.optionConfig) {
+				product.variants.optionConfig = productsData.variants.optionConfig as any;
+			}
+			// Cast through SearchStoreConfig to read settings.variants: the StoreConfigs union
+			// includes FinderStoreConfig (which has no typed `settings`), so a bare access on
+			// the union won't compile. Mirrors how the Product constructor reads variants config.
 			product.variants.update(productsData.variants.data, {
-				...(storeConfig?.settings?.variants || {}),
+				...((storeConfig as SearchStoreConfig)?.settings?.variants || {}),
 				autoSelect: true,
 			});
 		}
@@ -125,8 +155,6 @@ export class QuickViewStore {
 		this.isOpen = true;
 		this.loading = false;
 		this.error = undefined;
-		// The product itself now scopes the modal; the triggering id is no longer needed.
-		this.triggeringResultId = undefined;
 	}
 
 	public close(): void {
@@ -138,7 +166,6 @@ export class QuickViewStore {
 		this.config = undefined;
 		this.isOpen = false;
 		this.loading = false;
-		this.triggeringResultId = undefined;
 		this.error = undefined;
 	}
 }

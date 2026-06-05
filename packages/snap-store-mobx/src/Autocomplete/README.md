@@ -115,7 +115,7 @@ Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap
 
 `store.quickview` is a `QuickViewStore` instance shared with `SearchStore` and `RecommendationStore`. It holds the state for the product quickview modal:
 
-- Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `config?: QuickViewConfig`, `triggeringResultId?: string`, `error?: QuickViewError`.
+- Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `config?: QuickViewConfig`, `error?: QuickViewError`.
 - Actions: `update({ result, productsData?, config?, storeConfig?, meta? })`, `close()`, `reset()`, `setLoading(loading, resultId?)`, `setError(error | undefined)`.
 
 Consumers should drive the store via `controller.setQuickView(...)` / `controller.closeQuickView()` rather than calling these actions directly. See the [AutocompleteController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete) for the full usage, and the [SearchStore quickview docs](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Search) for the complete observable surface.

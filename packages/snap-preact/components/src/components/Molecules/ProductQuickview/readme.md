@@ -22,14 +22,15 @@ Scoping the modal to a specific Result (`Result` does this automatically when `h
 ))}
 ```
 
-When `result` is passed, the modal only mounts when its id matches the active quickview's product id (or the `triggeringResultId` during loading/error). This prevents N modal copies from rendering when N tiles each include a `ProductQuickview`.
+When `result` is passed, the modal only mounts when its id matches the active quickview's product id. (The store sets `product` to the source result as soon as the modal opens — before the fetch resolves — so this scoping holds through the loading, error, and loaded phases.) This prevents N modal copies from rendering when N tiles each include a `ProductQuickview`.
 
 ## Props
 
 | prop | type | required | description |
 |---|---|:---:|---|
 | `controller` | `SearchController \| AutocompleteController \| RecommendationController` | ✔️ | The component subscribes to `controller.store.quickview` and invokes `controller.closeQuickView()` on dismiss. |
-| `result` | `Product` |   | Scopes the modal — only mounts when this result's id matches the active quickview's product id (or `triggeringResultId` during loading/error). Omit to mount on every open. |
+| `result` | `Product` |   | Scopes the modal — only mounts when this result's id matches the active quickview's product id. Omit to mount on every open. |
+| `disableBadges` | `boolean` | | When `false` (default), badges are overlaid on the image/carousel via `OverlayBadge`. Set `true` to hide them. |
 | `customComponent` | `string` |   | Name of a custom template component to use as an override. Resolved via the Snap templates library. |
 | `className`, `internalClassName`, `disableStyles`, `theme`, `treePath` | inherited | | Standard `ComponentProps` for class/style/theme overrides. |
 
@@ -39,13 +40,65 @@ The molecule has three render branches, picked in priority order:
 
 1. **Error** — when `store.quickview.error` is set. Renders a red `role="alert"` div with the error message.
 2. **Loading** — when `store.quickview.loading` is true (typically while `setQuickView` is awaiting `/v1/products`). Renders a "Loading…" placeholder so the modal appears instantly on click.
-3. **Product** — when `store.quickview.product` is set. Renders the product's name (from `mappings.core.name`), image (`mappings.core.imageUrl || thumbnailImageUrl`), variant selectors, and an attributes table.
+3. **Product** — when `store.quickview.product` is set. Renders the product's image(s), name (from `mappings.core.name`), price (from `mappings.core.price`/`msrp`), variant selectors (each with a title), description (from `mappings.core.description`), an attributes table, and Add to Cart + Go to Product action buttons.
 
 All three branches include a close button (top-right `×` with `aria-label="Close quickview"`).
+
+## Layout
+
+The product branch uses a responsive two-region layout inside `.ss__product-quickview__body`:
+
+- **Mobile (default):** single column — the media region (`.ss__product-quickview__media`) stacks above the details region (`.ss__product-quickview__details`).
+- **Desktop (`@media (min-width: 768px)`):** two columns — the **left** column (`.ss__product-quickview__media`, ~45% width) holds only the image or carousel; the **right** column (`.ss__product-quickview__details`) holds the title, variant selectors, description, attributes table, and Add to Cart button.
+
+## Fullscreen gallery (lightbox)
+
+Clicking the image (or any carousel image) opens a fullscreen gallery overlay (`Gallery`), portaled to `document.body` so it sits above the modal. It provides:
+
+- **Zoom** — `+` / `−` toolbar buttons step a CSS `scale` from 1× to 4×; when zoomed in, the image can be dragged to pan.
+- **Navigation** — full-height prev/next arrow strips down each edge (and a `n / total` counter) cycle through all images when there's more than one; navigation/counter are hidden for a single image.
+- **Touch swipe** — on touch devices, a horizontal swipe paginates (left → next, right → previous) when not zoomed in; while zoomed, dragging pans instead.
+- **Keyboard** — `Esc` closes, `←` / `→` navigate, `+` / `−` zoom.
+- **Close** — the `×` toolbar button, `Esc`, or clicking the dark backdrop around the image.
+
+The gallery shows the same image set as the media region — the multi-image list when present (see Images below), otherwise the single core image (so a lone image is still zoomable). `Gallery` is also exported for standalone use: `<Gallery images={[...]} open={open} startIndex={0} onClose={...} />`.
+
+## Badges
+
+Badges are overlaid on the image/carousel (via the `OverlayBadge` molecule) by default. The quickview carries the source product's `Badges` instance onto the cloned product so they render, and `OverlayBadge` reads `product.display.badges` (which reflects the active variant). Set `disableBadges={true}` to hide them.
+
+## Price
+
+The details column renders the product price using the `Price` atom, sourced from `mappings.core.price`. When `mappings.core.msrp` is greater than `price`, the MSRP is shown struck-through alongside the sale price (`.ss__product-quickview__pricing`).
+
+## Actions
+
+The details column renders two action buttons in `.ss__product-quickview__actions`:
+
+- **Add to Cart** (`.ss__product-quickview__add-to-cart`) — calls `controller.addToCart([product])` with the quickview's product. Because variant selection updates the same product instance, the currently selected variant is reflected in the call.
+- **Go to Product** (`.ss__product-quickview__go-to-product`) — navigates to `mappings.core.url`. Omitted when the product has no url.
+
+## Description
+
+When `mappings.core.description` is present it's rendered (as HTML) in `.ss__product-quickview__description`. The block is omitted when no description exists.
+
+## Images
+
+By default the product branch renders a single image from `mappings.core.imageUrl || thumbnailImageUrl`.
+
+`config.imagesField` controls which field(s) hold the **list** of image URLs to render as a gallery. It accepts a single field name (`string`) or an array of candidate names (`string[]`) tried in order. Each candidate is looked up on `mappings.core` first, then on the product's `attributes`; the first that resolves to **more than one** image is rendered in a `Carousel` with `slidesPerView={1}` (with pagination and prev/next navigation).
+
+When `config.imagesField` is **omitted**, the molecule defaults to trying `'images'` then `'ss_images'`. If no candidate (configured or default) resolves to more than one image, the molecule falls back to the single core image (`mappings.core.imageUrl || thumbnailImageUrl`).
+
+Each field's value may be a real array, a MobX `observable.array`, a JSON-encoded array string (e.g. `'["a.jpg","b.jpg"]'`), or a single **delimited string** (e.g. `'a.jpg|b.jpg'`) — all are coerced to a list of URL strings.
+
+For delimited strings, the delimiter is auto-detected by trying, in order, `|`, newline, tab, `;`, then `,` — using the first that splits the value into more than one part. `|` is preferred because it cannot appear unencoded in a URL. Set `config.imagesDelimiter` to force a specific delimiter (recommended when the URLs themselves contain commas/semicolons in query params). Parts are trimmed of surrounding whitespace. Array and JSON-array values ignore `imagesDelimiter`.
 
 ## Variant selection
 
 When `product.variants.selections` is non-empty, the modal renders one `VariantSelection` molecule per selection. Clicking a swatch/option calls `selection.select(...)` under the hood, which updates `product.mask`. Because the molecule reads `product.display.mappings.core` and `product.display.attributes` (which compose `mask` over the base data), the displayed name, image, and attributes refresh automatically.
+
+Each selection renders as **swatches** or a **dropdown** based on the field's `optionConfig.type` (`'swatches'` or `'dropdown'`) from the `/v1/products` response — the quickview carries `optionConfig` onto the cloned variants so `selection.type` is populated, and passes it through to `VariantSelection`'s `type` prop. Fields without a configured type fall back to `VariantSelection`'s own default (a dropdown).
 
 When `config.clone` is `true` (default), the quickview's `product` is an independent deep-clone of the source result — selecting a variant inside the modal does **not** affect the source tile. With `config.clone = false`, the source result is used by reference and modal interactions mutate the source.
 
@@ -72,5 +125,5 @@ The Modal is positioned `fixed` and centered (`top: 50%; left: 50%; transform: t
 ## Notes
 
 - The modal is rendered inside a `CacheProvider` so emotion styles are scoped correctly when the component is portaled.
-- When a `result` prop is provided, the modal will refuse to open even when the store is open if the active quickview's product id (or `triggeringResultId`) does not match `result.id`. This is the mechanism that lets every `Result` tile include its own `<ProductQuickview />` without producing duplicate modals.
+- When a `result` prop is provided, the modal refuses to open (renders `null`) even when the store is open if the active quickview's product id does not match `result.id`. This is the mechanism that lets every `Result` tile include its own `<ProductQuickview />` without producing duplicate modals.
 - The molecule does not handle add-to-cart, image carousels, or other interactive controls; those are out of scope for v1 of the feature.

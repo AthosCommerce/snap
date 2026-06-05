@@ -16,7 +16,6 @@ function buildMockController(overrides: any = {}): any {
 				loading: false,
 				product: undefined,
 				config: undefined,
-				triggeringResultId: undefined,
 				error: undefined,
 			},
 		},
@@ -35,8 +34,9 @@ const sampleProduct = {
 	mappings: {
 		core: {
 			name: 'Sample Widget',
-			imageUrl: 'https://placehold.co/200',
-			thumbnailImageUrl: 'https://placehold.co/200',
+			imageUrl: 'https://placehold.co/400x400',
+			thumbnailImageUrl: 'https://placehold.co/400x400',
+			description: '<p>A sample product description. Resize the viewport past 768px to see the two-column desktop layout.</p>',
 		},
 	},
 	attributes: {
@@ -55,8 +55,8 @@ const loadingController = buildMockController({
 		quickview: {
 			isOpen: true,
 			loading: true,
-			product: undefined,
-			triggeringResultId: 'sample',
+			// During loading the store holds the source result as `product` (set by setLoading).
+			product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
 		},
 	},
 });
@@ -66,8 +66,7 @@ const errorController = buildMockController({
 		quickview: {
 			isOpen: true,
 			loading: false,
-			product: undefined,
-			triggeringResultId: 'sample',
+			product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
 			error: { message: 'Failed to display quickview' },
 		},
 	},
@@ -161,6 +160,26 @@ const arrayAttrsController = buildMockController({
 	},
 });
 
+const imageCarouselController = buildMockController({
+	store: {
+		quickview: {
+			isOpen: true,
+			product: {
+				id: 'image-carousel',
+				mappings: {
+					core: {
+						name: 'Image Carousel Demo',
+						imageUrl: 'https://placehold.co/400x400?text=1',
+						images: ['https://placehold.co/400x400?text=1', 'https://placehold.co/400x400?text=2', 'https://placehold.co/400x400?text=3'],
+					},
+				},
+				attributes: { sku: 'IC-001' },
+			},
+			config: { imagesField: 'images' },
+		},
+	},
+});
+
 export default {
 	title: 'Molecules/ProductQuickview',
 	component: ProductQuickview,
@@ -185,7 +204,7 @@ export default {
 	},
 	argTypes: {
 		controller: {
-			description: 'Controller exposing `store.quickview` ({ isOpen, product, loading, config, triggeringResultId, error }) and `closeQuickView()`',
+			description: 'Controller exposing `store.quickview` ({ isOpen, product, loading, config, error }) and `closeQuickView()`',
 			table: {
 				type: {
 					summary: 'SearchController | AutocompleteController | RecommendationController',
@@ -224,3 +243,6 @@ WithDisplayFields.args = {};
 
 export const WithArrayAttributes = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={arrayAttrsController} />;
 WithArrayAttributes.args = {};
+
+export const WithImageCarousel = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={imageCarouselController} />;
+WithImageCarousel.args = {};

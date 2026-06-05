@@ -936,7 +936,7 @@ export class SearchController extends AbstractController {
 		};
 
 		// Open the modal immediately in loading state, scoped to the triggering result.
-		this.store.quickview.setLoading(true, result.id);
+		this.store.quickview.setLoading(true, result);
 
 		const parentId = (result.mappings?.core?.parentId as string) || result.id;
 

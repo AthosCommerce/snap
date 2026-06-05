@@ -16,7 +16,6 @@ Observable fields:
 | `isOpen` | `boolean` | Whether the modal should be rendered. Set by `update`, `setLoading(true, ...)`, `setError(error)`; cleared by `close` and `reset`. |
 | `loading` | `boolean` | True while `setQuickView` is awaiting `/v1/products`. The modal renders a loading branch in this state. |
 | `config` | `QuickViewConfig \| undefined` | Effective config (controller defaults merged with the per-call override). |
-| `triggeringResultId` | `string \| undefined` | The id of the result that initiated the modal; used by `<ProductQuickview result={...}>` to scope the modal during loading/error before a product exists. |
 | `error` | `QuickViewError \| undefined` | When set, the modal renders an error branch with `role="alert"`. |
 
 Actions:
