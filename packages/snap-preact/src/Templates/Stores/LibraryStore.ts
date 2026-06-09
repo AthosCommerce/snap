@@ -157,12 +157,11 @@ export type LibraryImports = {
 		[currencyName in CurrencyCodes]: () => Promise<ThemeMinimal>;
 	};
 };
-const DEFAULT_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge', 'overlayResult'];
+const DEFAULT_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge'];
 
 const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
 	'result',
 	'badge',
-	'overlayResult',
 	/* atoms */
 	'badgeImage',
 	'badgePill',
@@ -202,6 +201,7 @@ const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
 	'overlayBadge',
 	'pagination',
 	'perPage',
+	'overlayResult',
 	'radioList',
 	'rating',
 	'searchInput',
@@ -543,12 +543,6 @@ export class LibraryStore {
 			result: {
 				Result: async () => {
 					return this.components.result.Result || (this.components.result.Result = (await import('./library/components/Result')).Result);
-				},
-				OverlayResult: async () => {
-					return (
-						this.components.overlayResult.OverlayResult ||
-						(this.components.overlayResult.OverlayResult = (await import('./library/components/OverlayResult')).OverlayResult)
-					);
 				},
 			},
 			overlayResult: {

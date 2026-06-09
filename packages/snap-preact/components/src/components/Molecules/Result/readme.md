@@ -4,6 +4,10 @@ Renders a single product card.
 
 ## Sub-components
 - Badge
+- CalloutBadge
+- Rating
+- Button
+- VariantSelection
 - Price
 - Image
 

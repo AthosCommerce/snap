@@ -513,3 +513,68 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'search'>]?: Partial<SearchTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> };
+
+// Component type to props mapping for typed component config
+export type ComponentTypePropsMap = {
+	result: ResultProps;
+	badge: OverlayBadgeProps;
+	overlayResult: OverlayResultProps;
+	badgeImage: BadgeImageProps;
+	badgePill: BadgePillProps;
+	badgeRectangle: BadgeRectangleProps;
+	badgeText: BadgeTextProps;
+	breadcrumbs: BreadcrumbsProps;
+	button: ButtonProps;
+	dropdown: DropdownProps;
+	formattedNumber: FormattedNumberProps;
+	icon: IconProps;
+	image: ImageProps;
+	loadingBar: LoadingBarProps;
+	banner: BannerProps;
+	inlineBanner: InlineBannerProps;
+	overlay: OverlayProps;
+	paginationInfo: PaginationInfoProps;
+	slideshow: SlideshowProps;
+	price: PriceProps;
+	skeleton: SkeletonProps;
+	modal: ModalProps;
+	calloutBadge: CalloutBadgeProps;
+	carousel: CarouselProps;
+	checkbox: CheckboxProps;
+	grid: GridProps;
+	layoutSelector: LayoutSelectorProps;
+	list: ListProps;
+	radio: RadioProps;
+	errorHandler: ErrorHandlerProps;
+	facetGridOptions: FacetGridOptionsProps;
+	facetHierarchyOptions: FacetHierarchyOptionsProps;
+	facetListOptions: FacetListOptionsProps;
+	facetPaletteOptions: FacetPaletteOptionsProps;
+	facetSlider: FacetSliderProps;
+	filter: FilterProps;
+	loadMore: LoadMoreProps;
+	overlayBadge: OverlayBadgeProps;
+	pagination: PaginationProps;
+	perPage: PerPageProps;
+	radioList: RadioListProps;
+	rating: RatingProps;
+	searchInput: SearchInputProps;
+	select: SelectProps;
+	slideout: SlideoutProps;
+	sortBy: SortByProps;
+	swatches: SwatchesProps;
+	variantSelection: VariantSelectionProps;
+	terms: TermsProps;
+	branchOverride: BranchOverrideProps;
+	facet: FacetProps;
+	facets: FacetsProps;
+	facetsHorizontal: FacetsHorizontalProps;
+	filterSummary: FilterSummaryProps;
+	noResults: NoResultsProps;
+	results: ResultsProps;
+	searchHeader: SearchHeaderProps;
+	sidebar: SidebarProps;
+	mobileSidebar: MobileSidebarProps;
+	toolbar: ToolbarProps;
+	termsList: TermsListProps;
+};

@@ -4,6 +4,10 @@ Renders a single product card with details overlaid on top of the product image.
 
 ## Sub-components
 - Badge
+- CalloutBadge
+- Rating
+- Button
+- VariantSelection
 - Price
 - Image
 
@@ -26,13 +30,13 @@ The `disableSlide` prop disables the hover slide animation and always shows all 
 <OverlayResult result={controller.store.results[0]} disableSlide={true} />
 ```
 
-### overlayBackgroundColor
-The `overlayBackgroundColor` prop sets the background style for the overlay details panel.
+### overlayBackground
+The `overlayBackground` prop sets the background style for the overlay details panel.
 
 ```tsx
 <OverlayResult
 	result={controller.store.results[0]}
-	overlayBackgroundColor={'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 100%)'}
+	overlayBackground={'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 100%)'}
 />
 ```
 

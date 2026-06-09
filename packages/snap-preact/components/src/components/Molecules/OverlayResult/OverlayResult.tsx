@@ -22,7 +22,7 @@ import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
-	const { overlayBackgroundColor, disableSlide } = props;
+	const { overlayBackground: overlayBackgroundColor, disableSlide } = props;
 
 	return css({
 		position: 'relative',
@@ -141,7 +141,7 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
 		hideAddToCartButton: true,
-		overlayBackgroundColor: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)',
+		overlayBackground: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)',
 	};
 
 	const props = mergeProps('overlayResult', globalTheme, defaultProps, properties);
@@ -418,7 +418,7 @@ export type OverlayResultProps = {
 
 export type OverlayResultTemplatesLegalProps = {
 	disableSlide?: boolean;
-	overlayBackgroundColor?: string;
+	overlayBackground?: string;
 	hideBadge?: boolean;
 	hideTitle?: boolean;
 	hideImage?: boolean;

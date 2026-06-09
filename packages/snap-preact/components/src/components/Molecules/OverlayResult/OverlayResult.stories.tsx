@@ -140,7 +140,7 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
-		overlayBackgroundColor: {
+		overlayBackground: {
 			description: 'Background style for the details overlay panel',
 			table: {
 				category: 'Templates Legal',
