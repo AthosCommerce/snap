@@ -1,12 +1,12 @@
 # ProductQuickview
 
-The `ProductQuickview` molecule renders the active quickview product (`controller.store.quickview.product`) inside a `Modal`. It is a MobX `observer` that subscribes to `controller.store.quickview` and dismisses the modal by calling `controller.store.quickview.close()`.
+The `ProductQuickview` molecule renders the active quickview product (`controller.store.product`) inside a `Modal`. It is a MobX `observer` that subscribes to `controller.store` and dismisses the modal by calling `controller.store.close()`.
 
 It is the rendering half of the Quickview feature. The state half lives on the controller: see `SearchController`, `AutocompleteController`, and `RecommendationController` for `quickview` (which opens it) and `store.quickview.close()` (which dismisses it).
 
 ## Usage
 
-Place a single `<ProductQuickview controller={controller} />` somewhere in your tree alongside the consumer. The molecule renders nothing until `controller.store.quickview.isOpen` flips to `true`.
+Place a single `<ProductQuickview controller={controller} />` somewhere in your tree alongside the consumer. The molecule renders nothing until `controller.store.isOpen` flips to `true`.
 
 ```tsx
 <ProductQuickview controller={controller} />
@@ -28,7 +28,7 @@ When `result` is passed, the modal only mounts when its id matches the active qu
 
 | prop | type | required | description |
 |---|---|:---:|---|
-| `controller` | `SearchController \| AutocompleteController \| RecommendationController` | ✔️ | The component subscribes to `controller.store.quickview` and invokes `controller.store.quickview.close()` on dismiss. |
+| `controller` | `SearchController \| AutocompleteController \| RecommendationController` | ✔️ | The component subscribes to `controller.store` and invokes `controller.store.close()` on dismiss. |
 | `result` | `Product` |   | Scopes the modal — only mounts when this result's id matches the active quickview's product id. Omit to mount on every open. |
 | `showBadges` | `boolean` | | Opt-in (default `false`). When `true`, overlay badges are shown over the image/carousel via `OverlayBadge` and callout badges render below it via `CalloutBadge`. |
 | `customComponent` | `string` |   | Name of a custom template component to use as an override. Resolved via the Snap templates library. |
@@ -102,7 +102,7 @@ When `config.clone` is `true` (default), the quickview's `product` is an indepen
 
 ## `displayFields` and labels
 
-`controller.store.quickview.config.displayFields` is an optional `string[]` that filters which attributes appear in the attributes table. Order is preserved. When omitted, all attributes on the product are rendered.
+`controller.store.quickview.quickviewConfig.displayFields` is an optional `string[]` that filters which attributes appear in the attributes table. Order is preserved. When omitted, all attributes on the product are rendered.
 
 Field labels come from `controller.store.meta?.data?.facets[field]?.label` — the same labels used by facets. If no meta entry exists for a given field, the raw field name is used as the label.
 
@@ -118,7 +118,7 @@ The Modal is positioned `fixed` and centered (`top: 50%; left: 50%; transform: t
 
 - Error branch has `role="alert"` so screen readers announce failures.
 - Close button has `aria-label="Close quickview"`.
-- Clicking the overlay also invokes `controller.store.quickview.close()`.
+- Clicking the overlay also invokes `controller.store.close()`.
 
 ## Notes
 

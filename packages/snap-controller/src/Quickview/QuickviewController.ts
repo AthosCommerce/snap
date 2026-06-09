@@ -1,7 +1,7 @@
 import deepmerge from 'deepmerge';
 
 import { Product } from '@athoscommerce/snap-store-mobx';
-import type { QuickviewConfig, QuickviewControllerStore } from '@athoscommerce/snap-store-mobx';
+import type { QuickviewConfig, QuickviewStore } from '@athoscommerce/snap-store-mobx';
 import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ControllerTypes } from '../types';
@@ -19,7 +19,7 @@ type SourceController = {
 
 export class QuickviewController extends AbstractController {
 	public type = ControllerTypes.quickview;
-	declare store: QuickviewControllerStore;
+	declare store: QuickviewStore;
 	declare config: QuickviewControllerConfig;
 
 	// The controller that opened the current quickview, used to delegate add-to-cart.
@@ -89,7 +89,7 @@ export class QuickviewController extends AbstractController {
 		};
 
 		// Open the modal immediately in loading state, scoped to the triggering result.
-		this.store.quickview.setLoading(true, result);
+		this.store.setLoading(true, result);
 
 		const resolvedParentId = parentId || (result.mappings?.core?.parentId as string) || result.id;
 
@@ -118,11 +118,11 @@ export class QuickviewController extends AbstractController {
 		} catch (err: any) {
 			if (err?.message == 'cancelled') {
 				this.log.warn(`'quickview' middleware cancelled`);
-				this.store.quickview.reset();
+				this.store.reset();
 				return;
 			}
 			this.log.error(`error in 'quickview' middleware`, err);
-			this.store.quickview.setError({ message: `'quickview' middleware error`, cause: err });
+			this.store.setError({ message: `'quickview' middleware error`, cause: err });
 			return;
 		}
 
@@ -130,7 +130,7 @@ export class QuickviewController extends AbstractController {
 		// leaving the modal stuck in loading state. `meta?.data` is the raw meta the cloned
 		// Product needs for badge processing (the originating MetaStore was forwarded as `meta`).
 		try {
-			this.store.quickview.update({
+			this.store.update({
 				result: eventObj.result,
 				productsData: eventObj.productsData,
 				config: eventObj.config,
@@ -139,7 +139,7 @@ export class QuickviewController extends AbstractController {
 			});
 		} catch (err) {
 			this.log.warn('quickview.update failed', err);
-			this.store.quickview.setError({ message: 'Failed to display quickview', cause: err });
+			this.store.setError({ message: 'Failed to display quickview', cause: err });
 		}
 	};
 }

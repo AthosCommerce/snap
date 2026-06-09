@@ -14,13 +14,13 @@ import type {
 	AutocompleteStore,
 	FinderStore,
 	RecommendationStore,
-	QuickviewControllerStore,
+	QuickviewStore,
 	StoreConfig,
 	SearchStoreConfig,
 	FinderStoreConfig,
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
-	QuickviewControllerStoreConfig,
+	QuickviewStoreConfig,
 	Product,
 	QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
@@ -103,7 +103,7 @@ export type Controllers = SearchController | AutocompleteController | FinderCont
 
 export type ControllerServices = {
 	client: Client;
-	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | QuickviewControllerStore;
+	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | QuickviewStore;
 	urlManager: UrlManager;
 	eventManager: EventManager;
 	profiler: Profiler;
@@ -144,7 +144,7 @@ export type AutocompleteControllerConfig = ControllerConfig & AutocompleteStoreC
 // Recommendation config
 export type RecommendationControllerConfig = ControllerConfig & RecommendationStoreConfig;
 // Quickview config
-export type QuickviewControllerConfig = ControllerConfig & QuickviewControllerStoreConfig;
+export type QuickviewControllerConfig = ControllerConfig & QuickviewStoreConfig;
 
 export type ControllerConfigs =
 	| SearchControllerConfig

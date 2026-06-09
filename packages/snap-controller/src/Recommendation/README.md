@@ -65,7 +65,7 @@ Requests the product quickview modal for the given result. The Recommendation co
 
 ### Closing the modal
 
-Closing is handled by the `QuickviewController`'s store: call `quickviewController.store.quickview.close()` to hide the modal while retaining `product` (so reopening the same result is instant), or `quickviewController.store.quickview.reset()` to also clear the product reference.
+Closing is handled by the `QuickviewController`'s store: call `quickviewController.store.close()` to hide the modal while retaining `product` (so reopening the same result is instant), or `quickviewController.store.reset()` to also clear the product reference.
 
 ## Events
 ### init
@@ -111,10 +111,10 @@ Closing is handled by the `QuickviewController`'s store: call `quickviewControll
 ### quickview
 - This middleware fires on the dedicated `QuickviewController` (the controller that handles the global `controller/quickview` event), not on `RecommendationController`
 - Called with `eventData` = `ProductQuickviewObj` = { controller, result, productsData?, config }
-- Fires after the optional `/v1/products` fetch resolves and before the `QuickviewController`'s `store.quickview.update` runs
-- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewController` reads them back after the await and passes them to `store.quickview.update`
-- Throw `new Error('cancelled')` to short-circuit: `store.quickview.reset()` is called and no modal renders
-- Any other thrown error surfaces as `store.quickview.error` and the modal renders the error branch
+- Fires after the optional `/v1/products` fetch resolves and before the `QuickviewController`'s `store.update` runs
+- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewController` reads them back after the await and passes them to `store.update`
+- Throw `new Error('cancelled')` to short-circuit: `store.reset()` is called and no modal renders
+- Any other thrown error surfaces as `store.error` and the modal renders the error branch
 
 ```ts
 controller.on('quickview', async (eventObj, next) => {

@@ -267,18 +267,23 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 
 	const styling = mergeStyles<ProductQuickviewProps>(props, defaultStyles);
 
-	const quickview = controller.store?.quickview;
-	const product = quickview?.product as Product | undefined;
-	const loading = Boolean(quickview?.loading);
-	const displayFields: string[] | undefined = quickview?.config?.displayFields;
-	const error: { message: string; cause?: unknown } | undefined = quickview?.error;
+	if (!controller || controller.type !== 'quickview') {
+		console.warn(`[ProductQuickview] No controller provided; quickview cannot function without a QuickviewController instance.`);
+		return null;
+	}
+
+	const store = controller.store;
+	const product = store.product as Product | undefined;
+	const loading = Boolean(store.loading);
+	const displayFields: string[] | undefined = store.quickviewConfig?.displayFields;
+	const error: { message: string; cause?: unknown } | undefined = store.error;
 
 	// Look up the display label for a field name from meta.facets[field].label.
 	// Falls back to the raw field name when no meta entry exists.
-	const metaFacets = controller.store?.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
+	const metaFacets = controller.store.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
 	const labelFor = (field: string): string => metaFacets?.[field]?.label || field;
 
-	const isOpen = Boolean(quickview?.isOpen);
+	const isOpen = Boolean(store.isOpen);
 
 	// Prefer `product.display` so the displayed name/image/attributes reflect the
 	// currently active variant (Mask-merged), falling back to the base product data.
@@ -297,7 +302,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	// Each candidate is looked up on mappings.core first, then attributes; the first that
 	// resolves to MORE THAN ONE image wins and is rendered as a 1-per-view carousel. If none
 	// qualify, the modal falls back to the single core image below.
-	const configuredImagesField = quickview?.config?.imagesField;
+	const configuredImagesField = store.quickviewConfig?.imagesField;
 	const imageFieldCandidates: string[] = configuredImagesField
 		? Array.isArray(configuredImagesField)
 			? configuredImagesField
@@ -355,7 +360,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 		? Object.fromEntries(displayFields.filter((k) => k in allAttributes).map((k) => [k, allAttributes[k]]))
 		: {};
 
-	const onClose = () => controller.store.quickview.close();
+	const onClose = () => store.close();
 
 	// The media region: a 1-per-view carousel when there are multiple images, otherwise the
 	// single core image. Clicking opens the fullscreen gallery at the clicked index.

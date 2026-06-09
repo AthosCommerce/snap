@@ -1,7 +1,7 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { RecommendRequestModel } from '@athoscommerce/snap-client';
 
-import type { QuickviewConfig } from './Quickview/QuickviewStore';
+import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
 	SearchResponseModelFacetValueAllOfValues,
 	AutocompleteRequestModel,
@@ -187,7 +187,7 @@ export type RecommendationStoreConfig = StoreConfig & {
 
 export type StoreConfigs = SearchStoreConfig | AutocompleteStoreConfig | FinderStoreConfig | RecommendationStoreConfig;
 
-export type QuickviewControllerStoreConfig = StoreConfig & {
+export type QuickviewStoreConfig = StoreConfig & {
 	settings?: {
 		quickview?: QuickviewConfig;
 	};

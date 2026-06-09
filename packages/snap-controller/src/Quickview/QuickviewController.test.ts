@@ -1,9 +1,9 @@
 import { QuickviewController } from './QuickviewController';
-import { QuickviewControllerStore } from '@athoscommerce/snap-store-mobx';
+import { QuickviewStore } from '@athoscommerce/snap-store-mobx';
 import { ControllerTypes } from '../types';
 
 const services = () => {
-	const store = new QuickviewControllerStore({ id: 'quickview' });
+	const store = new QuickviewStore({ id: 'quickview' });
 	return {
 		store,
 		client: { search: jest.fn(), products: jest.fn().mockResolvedValue({ variants: { data: [] } }) } as any,
@@ -32,8 +32,8 @@ describe('QuickviewController', () => {
 
 		expect(svc.client.products).toHaveBeenCalledWith({ parentId: 'parent-1' });
 		expect(svc.eventManager.fire).toHaveBeenCalledWith('quickview', expect.objectContaining({ controller, result }));
-		expect(controller.store.quickview.isOpen).toBe(true);
-		expect(controller.store.quickview.loading).toBe(false);
+		expect(controller.store.isOpen).toBe(true);
+		expect(controller.store.loading).toBe(false);
 	});
 
 	it('skips the fetch when fetchProductData is false', async () => {
@@ -60,7 +60,7 @@ describe('QuickviewController', () => {
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 		await controller.quickview({ result: undefined as any });
 		expect(svc.client.products).not.toHaveBeenCalled();
-		expect(controller.store.quickview.isOpen).toBe(false);
+		expect(controller.store.isOpen).toBe(false);
 	});
 
 	it('resets the store when the quickview middleware cancels', async () => {
@@ -70,8 +70,8 @@ describe('QuickviewController', () => {
 
 		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any });
 
-		expect(controller.store.quickview.isOpen).toBe(false);
-		expect(controller.store.quickview.loading).toBe(false);
+		expect(controller.store.isOpen).toBe(false);
+		expect(controller.store.loading).toBe(false);
 	});
 
 	it('surfaces a store error when the quickview middleware throws a non-cancel error', async () => {
@@ -81,8 +81,8 @@ describe('QuickviewController', () => {
 
 		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any });
 
-		expect(controller.store.quickview.error?.message).toBe(`'quickview' middleware error`);
-		expect(controller.store.quickview.loading).toBe(false);
+		expect(controller.store.error?.message).toBe(`'quickview' middleware error`);
+		expect(controller.store.loading).toBe(false);
 	});
 
 	it('delegates addToCart to the originating controller and forwards its meta into the store', async () => {

@@ -8,7 +8,7 @@ import type {
 	QuickviewControllerConfig,
 	ContextVariables,
 } from '@athoscommerce/snap-controller';
-import type { SearchStore, AutocompleteStore, FinderStore, RecommendationStore, QuickviewControllerStore } from '@athoscommerce/snap-store-mobx';
+import type { SearchStore, AutocompleteStore, FinderStore, RecommendationStore, QuickviewStore } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager, UrlTranslatorConfig, UrlState } from '@athoscommerce/snap-url-manager';
 import type { EventManager } from '@athoscommerce/snap-event-manager';
 import type { Profiler } from '@athoscommerce/snap-profiler';
@@ -22,7 +22,7 @@ export type IntegrationPlatforms = 'shopify' | 'bigCommerce' | 'magento2' | 'oth
 
 export type SnapControllerServices = {
 	client?: Client;
-	store?: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | QuickviewControllerStore;
+	store?: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | QuickviewStore;
 	urlManager?: UrlManager;
 	eventManager?: EventManager;
 	profiler?: Profiler;

@@ -1,6 +1,6 @@
 import { QuickviewController } from '@athoscommerce/snap-controller';
 import { Client } from '@athoscommerce/snap-client';
-import { QuickviewControllerStore } from '@athoscommerce/snap-store-mobx';
+import { QuickviewStore } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, UrlTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { EventManager } from '@athoscommerce/snap-event-manager';
 import { Profiler } from '@athoscommerce/snap-profiler';
@@ -22,7 +22,7 @@ export default (config: SnapQuickviewControllerConfig, services?: SnapController
 		config.controller,
 		{
 			client: services?.client || new Client(config.client!.globals, config.client!.config),
-			store: services?.store || new QuickviewControllerStore(config.controller),
+			store: services?.store || new QuickviewStore(config.controller),
 			urlManager,
 			eventManager: services?.eventManager || new EventManager(),
 			profiler: services?.profiler || new Profiler(),

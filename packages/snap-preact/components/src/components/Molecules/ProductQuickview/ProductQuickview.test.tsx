@@ -42,26 +42,32 @@ jest.mock('../CalloutBadge', () => {
 
 import { ProductQuickview } from './ProductQuickview';
 
-// Build a controller-shaped object whose `store.quickview` mirrors the QuickviewStore API the
-// component reads. Tests set modal state directly on `store.quickview`. The shape matches what a
-// real QuickviewController exposes via QuickviewControllerStore.quickview.
+// Build a controller-shaped object whose `store` mirrors the QuickviewStore API the
+// component reads. Tests set modal state directly on `store`. The shape matches what a
+// real QuickviewController exposes via QuickviewStore.
 function makeController(overrides: any = {}) {
+	const defaultStore = {
+		isOpen: false,
+		product: undefined,
+		loading: false,
+		quickviewConfig: undefined,
+		error: undefined,
+		close: jest.fn(),
+	};
+
 	const controller: any = {
 		type: 'quickview',
-		store: {
-			quickview: {
-				isOpen: false,
-				product: undefined,
-				loading: false,
-				config: undefined,
-				error: undefined,
-				close: jest.fn(),
-			},
-		},
+		store: defaultStore,
 		...overrides,
 	};
-	controller.store.quickview.close ??= jest.fn();
-	const close = controller.store.quickview.close;
+
+	// Merge override store properties into default store
+	if (overrides.store) {
+		controller.store = { ...defaultStore, ...overrides.store };
+	}
+
+	controller.store.close ??= jest.fn();
+	const close = controller.store.close;
 	return { controller, close };
 }
 
@@ -78,7 +84,7 @@ describe('ProductQuickview', () => {
 			attributes: { color: 'red', size: 'M' },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product, config: { displayFields: ['color', 'size'] } } },
+			store: { isOpen: true, product, quickviewConfig: { displayFields: ['color', 'size'] } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -93,10 +99,10 @@ describe('ProductQuickview', () => {
 		expect(rendered.getByText('M')).toBeInTheDocument();
 	});
 
-	it('invokes store.quickview.close when the close button is clicked', () => {
+	it('invokes store.close when the close button is clicked', () => {
 		const product = { mappings: { core: { name: 'Widget' } }, attributes: {} };
 		const { controller, close } = makeController({
-			store: { quickview: { isOpen: true, product, close: jest.fn() } },
+			store: { isOpen: true, product, close: jest.fn() },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -110,7 +116,7 @@ describe('ProductQuickview', () => {
 	it('opens when the store quickview is open and renders the product', () => {
 		const storeProduct = { id: 'mine', mappings: { core: { name: 'Mine' } }, attributes: { size: 'M' } };
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -119,16 +125,14 @@ describe('ProductQuickview', () => {
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
 	});
 
-	it('renders a loading indicator when store.quickview.loading is true', () => {
+	it('renders a loading indicator when store.loading is true', () => {
 		// During loading the store holds the source result as `product` (set by setLoading)
 		// before the cloned/fetched product replaces it.
 		const { controller } = makeController({
 			store: {
-				quickview: {
-					isOpen: true,
-					loading: true,
-					product: { id: 'mine', mappings: { core: {} }, attributes: {} },
-				},
+				isOpen: true,
+				loading: true,
+				product: { id: 'mine', mappings: { core: {}, attributes: {} } },
 			},
 		});
 
@@ -146,12 +150,10 @@ describe('ProductQuickview', () => {
 		};
 		const { controller } = makeController({
 			store: {
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: storeProduct,
-					config: { displayFields: ['size'] },
-				},
+				isOpen: true,
+				loading: false,
+				product: storeProduct,
+				quickviewConfig: { displayFields: ['size'] },
 			},
 		});
 
@@ -179,12 +181,10 @@ describe('ProductQuickview', () => {
 						},
 					},
 				},
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: storeProduct,
-					config: { displayFields: ['size', 'color'] },
-				},
+				isOpen: true,
+				loading: false,
+				product: storeProduct,
+				quickviewConfig: { displayFields: ['size', 'color'] },
 			},
 		});
 
@@ -205,15 +205,7 @@ describe('ProductQuickview', () => {
 			attributes: { sku: 'ABC-123' },
 		};
 		const { controller } = makeController({
-			store: {
-				meta: { data: { facets: {} } },
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: storeProduct,
-					config: { displayFields: ['sku'] },
-				},
-			},
+			store: { meta: { data: { facets: {} } }, isOpen: true, loading: false, product: storeProduct, quickviewConfig: { displayFields: ['sku'] } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -230,12 +222,10 @@ describe('ProductQuickview', () => {
 		};
 		const { controller } = makeController({
 			store: {
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: storeProduct,
-					config: { displayFields: ['tags'] },
-				},
+				isOpen: true,
+				loading: false,
+				product: storeProduct,
+				quickviewConfig: { displayFields: ['tags'] },
 			},
 		});
 
@@ -256,12 +246,10 @@ describe('ProductQuickview', () => {
 		};
 		const { controller } = makeController({
 			store: {
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: storeProduct,
-					config: { displayFields: ['tags'] },
-				},
+				isOpen: true,
+				loading: false,
+				product: storeProduct,
+				quickviewConfig: { displayFields: ['tags'] },
 			},
 		});
 
@@ -275,12 +263,10 @@ describe('ProductQuickview', () => {
 		// update never replaced it), so the shared modal mounts and shows the error message.
 		const { controller } = makeController({
 			store: {
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: { id: 'mine', mappings: { core: {} }, attributes: {} },
-					error: { message: 'Failed to display quickview' },
-				},
+				isOpen: true,
+				loading: false,
+				product: { id: 'mine', mappings: { core: {}, attributes: {} } },
+				error: { message: 'Failed to display quickview' },
 			},
 		});
 
@@ -291,12 +277,10 @@ describe('ProductQuickview', () => {
 	it('renders the error message when quickview.error is set', () => {
 		const { controller } = makeController({
 			store: {
-				quickview: {
-					isOpen: true,
-					loading: false,
-					product: { id: 'mine', mappings: { core: {} }, attributes: {} },
-					error: { message: 'Failed to display quickview' },
-				},
+				isOpen: true,
+				loading: false,
+				product: { id: 'mine', mappings: { core: {}, attributes: {} } },
+				error: { message: 'Failed to display quickview' },
 			},
 		});
 
@@ -323,7 +307,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -341,7 +325,7 @@ describe('ProductQuickview', () => {
 			attributes: { gallery: ['http://example.com/a.jpg', 'http://example.com/b.jpg'] },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'gallery' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'gallery' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -358,7 +342,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -375,7 +359,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -393,7 +377,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -413,7 +397,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -437,7 +421,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: ['primaryImages', 'gallery'] } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: ['primaryImages', 'gallery'] } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -455,7 +439,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -475,7 +459,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -494,7 +478,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -538,7 +522,7 @@ describe('ProductQuickview', () => {
 			},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -580,7 +564,7 @@ describe('ProductQuickview', () => {
 			},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -600,7 +584,7 @@ describe('ProductQuickview', () => {
 			attributes: { color: 'red' },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { displayFields: ['color'] } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { displayFields: ['color'] } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -628,7 +612,7 @@ describe('ProductQuickview', () => {
 		};
 		const { controller } = makeController({
 			addToCart,
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -648,7 +632,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -665,7 +649,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -681,7 +665,7 @@ describe('ProductQuickview', () => {
 			variants: { selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }] },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -699,7 +683,7 @@ describe('ProductQuickview', () => {
 			variants: { selections: [{ field: 'size', type: 'dropdown', values: [], select: () => undefined }] },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -716,7 +700,7 @@ describe('ProductQuickview', () => {
 			variants: { selections: [{ field: 'color', values: [], select: () => undefined }] },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -736,7 +720,7 @@ describe('ProductQuickview', () => {
 			},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -757,7 +741,7 @@ describe('ProductQuickview', () => {
 			},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -773,7 +757,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -792,7 +776,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -810,7 +794,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -832,7 +816,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -851,7 +835,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} showBadges={true} />);
@@ -871,7 +855,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -886,7 +870,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -910,7 +894,7 @@ describe('ProductQuickview', () => {
 			attributes: {},
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
+			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);

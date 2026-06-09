@@ -1,7 +1,8 @@
 import { action, makeObservable, observable } from 'mobx';
-
+import { AbstractStore } from '../Abstract/AbstractStore';
+import { MetaStore } from '../Meta/MetaStore';
 import { Product } from '../Search/Stores';
-import type { StoreConfigs, SearchStoreConfig } from '../types';
+import type { QuickviewStoreConfig, StoreConfigs, SearchStoreConfig } from '../types';
 
 // Structural type — avoids a dependency on snap-client.
 export type QuickviewProductsData = {
@@ -40,19 +41,24 @@ export type QuickviewError = {
 	cause?: unknown;
 };
 
-export class QuickviewStore {
+export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 	public product?: Product = undefined;
 	public isOpen = false;
-	public loading = false;
-	public config?: QuickviewConfig = undefined;
-	public error?: QuickviewError = undefined;
+	// Per-quickview config for the currently-open modal, set on each `update()` and read by the
+	// modal (displayFields, imagesField). Distinct from the store-level `config` (QuickviewStoreConfig).
+	public quickviewConfig: QuickviewConfig | undefined = undefined;
+	public error: QuickviewError | undefined = undefined;
+	// Forwarded from the originating controller's store so badge/facet-label consumers
+	// (OverlayBadge, attribute facet labels) can read `store.meta` off the singleton.
+	public meta?: MetaStore;
 
-	constructor() {
+	constructor(config: QuickviewStoreConfig) {
+		super(config);
+
 		makeObservable(this, {
 			product: observable.ref,
 			isOpen: observable,
-			loading: observable,
-			config: observable,
+			quickviewConfig: observable,
 			error: observable,
 			update: action,
 			close: action,
@@ -146,7 +152,7 @@ export class QuickviewStore {
 		}
 
 		this.product = product;
-		this.config = config;
+		this.quickviewConfig = config;
 		this.isOpen = true;
 		this.loading = false;
 		this.error = undefined;
@@ -158,7 +164,7 @@ export class QuickviewStore {
 
 	public reset(): void {
 		this.product = undefined;
-		this.config = undefined;
+		this.quickviewConfig = undefined;
 		this.isOpen = false;
 		this.loading = false;
 		this.error = undefined;
