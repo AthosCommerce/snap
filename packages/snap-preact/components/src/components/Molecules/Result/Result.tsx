@@ -347,7 +347,7 @@ export const Result = observer((properties: ResultProps) => {
 
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
-							<Button {...subProps.button} content={addToCartButtonText} {...mergedLang.addToCartButtonText.all} />
+							<Button {...subProps.button} {...mergedLang.addToCartButtonText.all} />
 						</div>
 					)}
 				</div>

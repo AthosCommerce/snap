@@ -346,7 +346,7 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 	]);
 
 	// mini styles
-	const miniStyles = css([
+	const mobileStyles = css([
 		sharedStyles,
 		sharedLayoutStyles,
 		termsWrapperStyles,
@@ -408,8 +408,8 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 
 	if (acLayout == 'terms') {
 		return termsStyles;
-	} else if (acLayout == 'mini') {
-		return miniStyles;
+	} else if (acLayout == 'mobile') {
+		return mobileStyles;
 	} else {
 		return standardStyles;
 	}

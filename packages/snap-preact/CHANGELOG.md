@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.6.0](https://github.com/AthosCommerce/snap/compare/v1.5.1...v1.6.0) (2026-06-03)
+
+### Bug Fixes
+
+- **facet:** bugfix for searchable facet input clear button onclick ([c2c217f](https://github.com/AthosCommerce/snap/commit/c2c217f474efefc68f707caed2bafcdedac21702))
+- **grid:** any instance of colord isDark usage was not working as expected ([9ef4051](https://github.com/AthosCommerce/snap/commit/9ef405143a6c598e68a3230aaa2ee9561705cab0))
+- **layoutselector-pike:** removing hardcoded ccp prop values that block usage of props ([2a12b15](https://github.com/AthosCommerce/snap/commit/2a12b15197698bbec5f5d14c7f8e4db02f27086c))
+- **mergeprops:** add support for numeric component names and use in treepath and ccp ([a406211](https://github.com/AthosCommerce/snap/commit/a406211f970557ef04a4bba4756581a2168c05e3))
+- **pike-checkbox:** bugfix for pike checkbox to use prop colors ([c1d2d77](https://github.com/AthosCommerce/snap/commit/c1d2d77e6c45542598d4ab238d712da26884bef6))
+- **uselayoutoptions:** bugfix for defining layoutoptions on a breakpoint ([5cb7a9f](https://github.com/AthosCommerce/snap/commit/5cb7a9f64acb786d2ebbfe096182365ee3865f56))
+
+### Features
+
+- **snaptemplates:** adding spots in the config for you to pass controller config settings and globals ([b914c03](https://github.com/AthosCommerce/snap/commit/b914c0391af7a0566453b9d41fa97432ae7f635c))
+
 ## [1.5.1](https://github.com/AthosCommerce/snap/compare/v1.5.0...v1.5.1) (2026-05-28)
 
 ### Bug Fixes

@@ -69,7 +69,7 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			...props,
 		};
 
-		treePath += componentName?.match(/^[A-Z,a-z,-]+$/) ? `.${componentName}` : '';
+		treePath += componentName?.match(/^[A-Za-z0-9-]+$/) ? `.${componentName}` : '';
 
 		// component props from the theme
 		// add globalTheme props for components with selector matches if they exist
@@ -159,12 +159,13 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			}
 		});
 
-		// tacking on name and variables to `theme`
+		// tacking on name, variables, and activeBreakpoint to `theme`
 		mergedProps = {
 			...mergedProps,
 			theme: {
 				...mergedProps.theme,
 				name: globalTheme.name,
+				...(globalTheme.activeBreakpoint ? { activeBreakpoint: globalTheme.activeBreakpoint } : {}),
 			},
 			treePath,
 		};
