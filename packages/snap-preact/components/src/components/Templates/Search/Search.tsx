@@ -89,10 +89,8 @@ export const Search = observer((properties: SearchProps) => {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
 	}
 
-	// handle selected layoutOptions
-	if (globalTheme?.name && props.layoutOptions) {
-		useLayoutOptions(props, globalTheme);
-	}
+	// handle selected layoutOptions - must always call to preserve hook order
+	useLayoutOptions(props, globalTheme);
 
 	const store = controller.store;
 

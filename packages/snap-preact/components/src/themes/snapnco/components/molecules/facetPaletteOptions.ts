@@ -3,11 +3,8 @@ import type { FacetPaletteOptionsProps, FacetPaletteOptionsTemplatesLegalProps }
 import { ThemeComponent } from '../../../../providers';
 
 // CSS in JS style script for the FacetPaletteOptions component
-const facetPaletteStyleScript = ({ theme }: FacetPaletteOptionsProps) => {
+const facetPaletteStyleScript = ({}: FacetPaletteOptionsProps) => {
 	return css({
-		a: {
-			color: theme?.variables?.colors?.text,
-		},
 		'.ss__facet-palette-options__option': {
 			'&:hover': {
 				cursor: 'pointer',

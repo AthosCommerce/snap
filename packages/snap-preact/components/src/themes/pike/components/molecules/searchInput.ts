@@ -15,7 +15,6 @@ const searchInputStyleScript = (props: SearchInputProps) => {
 
 	// search input styles
 	const searchInputStyles = css({
-		...custom.styles.boxSizing('searchInput', props?.treePath, props?.name),
 		'&.ss__search-input': {
 			margin: `0 0 ${custom.spacing.x4}px`,
 			height: `${searchInputHeight}px`,
@@ -55,7 +54,7 @@ const searchInputStyleScript = (props: SearchInputProps) => {
 			'.ss__search-input__input': {
 				flex: '1 1 0%',
 				minHeight: '1px',
-				...custom.styles.box(variables?.colors?.text, `0 ${custom.spacing.x2}px`, false),
+				...custom.styles.box(undefined, `0 ${custom.spacing.x2}px`, false),
 				fontSize: '14px',
 				'&::-webkit-input-placeholder': {
 					color: lightGray,

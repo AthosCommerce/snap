@@ -10,16 +10,12 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 
 	// breadcrumbs styles
 	const breadcrumbsStyles = css({
-		...custom.styles.boxSizing('breadcrumbs', props?.treePath, props?.name),
 		'.ss__breadcrumbs__crumbs': {
 			gap: `${custom.spacing.x2}px`,
 			margin: 0,
 			padding: 0,
 			'&, li': {
 				listStyle: 'none',
-			},
-			'&, a': {
-				color: variables?.colors?.text,
 			},
 			li: {
 				display: 'block',

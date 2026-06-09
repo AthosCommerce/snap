@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import type { FormattedNumberProps, FormattedNumberTemplatesLegalProps } from '../../../../components/Atoms/FormattedNumber';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 
 // CSS in JS style script for the FormattedNumber component
 const formattedNumberStyleScript = (props: FormattedNumberProps) => {
@@ -9,9 +8,7 @@ const formattedNumberStyleScript = (props: FormattedNumberProps) => {
 	const variables = props?.theme?.variables;
 
 	// formatted number styles
-	const formattedNumberStyles = css({
-		...custom.styles.boxSizing('formattedNumber', props?.treePath, props?.name),
-	});
+	const formattedNumberStyles = css({});
 
 	return formattedNumberStyles;
 };

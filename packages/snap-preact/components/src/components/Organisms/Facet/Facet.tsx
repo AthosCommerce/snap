@@ -38,7 +38,7 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 			alignItems: 'center',
 			color: color || theme?.variables?.colors?.primary,
 			border: 'none',
-			borderBottom: `2px solid ${theme?.variables?.colors?.secondary || '#ccc'}`,
+			borderBottom: `2px solid ${theme?.variables?.colors?.primary || '#ccc'}`,
 			padding: '6px 0',
 
 			'& .ss__facet__header__inner': {
@@ -78,6 +78,9 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 		},
 		'& .ss__search-input': {
 			margin: '16px 0 0 0',
+			'.ss__search-input__button--submit-search-button': {
+				pointerEvents: 'none',
+			},
 		},
 		'& .ss__facet__header__selected-count': {
 			margin: '0px 5px',
@@ -325,6 +328,17 @@ export const Facet = observer((properties: FacetProps) => {
 		searchInput: {
 			// default props
 			internalClassName: 'ss__facet__search-input',
+			clearSearchButton: {
+				onClick: () => {
+					if ((facet as ValueFacet)?.search) {
+						(facet as ValueFacet).search.input = '';
+					}
+				},
+			},
+			submitSearchButton: {
+				// to prevent focus styles and screenreaders
+				disableA11y: true,
+			},
 			// inherited props
 			...defined({
 				disableStyles,

@@ -134,6 +134,20 @@ var documents = [
 				url: './docs/TEMPLATES_THEMING.md',
 				searchable: true,
 			},
+			{
+				label: 'Plugins',
+				route: '/templates-plugins',
+				type: 'markdown',
+				url: './docs/TEMPLATES_PLUGINS.md',
+				searchable: true,
+			},
+			{
+				label: 'How Tos',
+				route: '/templates-how-tos',
+				type: 'markdown',
+				url: './docs/TEMPLATES_HOW_TO.md',
+				searchable: true,
+			},
 		],
 	},
 	{

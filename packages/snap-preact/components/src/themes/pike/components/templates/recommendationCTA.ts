@@ -24,7 +24,7 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 		alignItems: 'center',
 		alignContent: 'center',
 		gap: `${custom.spacing.x2}px`,
-		...custom.styles.box(variables?.colors?.text, spacing ? spacing : `${custom.spacing.x2}px`),
+		...custom.styles.box(undefined, spacing ? spacing : `${custom.spacing.x2}px`),
 		'& > *': {
 			flex: '1 1 100%',
 			minWidth: '1px',
@@ -34,7 +34,6 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 			zIndex: 2,
 		},
 		[`${recommendationHandle}__cta__subtotal`]: {
-			color: variables?.colors?.text,
 			'& > *': {
 				margin: `0 0 ${custom.spacing.x2}px 0`,
 				'&:last-child': {
@@ -69,7 +68,6 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 				[`${recommendationHandle}__cta__subtotal__price`]: {
 					'&, span': {
 						fontSize: '16px',
-						color: variables?.colors?.text,
 						fontWeight: custom.fonts.weight01,
 					},
 				},

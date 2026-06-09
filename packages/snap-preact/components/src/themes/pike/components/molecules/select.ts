@@ -13,7 +13,6 @@ const selectStyleScript = (props: SelectProps) => {
 
 	// shared styles
 	const sharedStyles = css({
-		...custom.styles.boxSizing('select', props?.treePath, props?.name),
 		'&.ss__select--disabled': {
 			...custom.styles.disabled(),
 		},
@@ -106,7 +105,7 @@ const selectStyleScript = (props: SelectProps) => {
 			border: `1px solid ${props?.borderColor ? props?.borderColor : custom.colors.gray02}`,
 			height: `${custom.sizes.height}px`,
 			lineHeight: `${custom.sizes.height}px`,
-			color: props?.color ? props?.color : variables?.colors?.text,
+			color: props?.color,
 			'.ss__select__label, .ss__select__select': {
 				fontSize: '14px',
 			},

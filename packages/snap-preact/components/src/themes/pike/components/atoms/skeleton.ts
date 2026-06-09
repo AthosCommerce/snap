@@ -9,9 +9,7 @@ const skeletonStyleScript = (props: SkeletonProps) => {
 	const variables = props?.theme?.variables;
 
 	// skeleton styles
-	const skeletonStyles = css({
-		...custom.styles.boxSizing('skeleton', props?.treePath, props?.name),
-	});
+	const skeletonStyles = css({});
 
 	return skeletonStyles;
 };

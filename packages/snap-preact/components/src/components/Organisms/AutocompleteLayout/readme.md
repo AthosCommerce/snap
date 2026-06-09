@@ -35,9 +35,28 @@ The required `controller` prop specifies a reference to the autocomplete control
 ```
 
 ### layout
-The `layout` prop is used to specify which child components render and where. The prop takes an array of specific module names, the order of these module names determines the order in which they will be rendered. Additionally you can pass arrays of modules to the array to specify new rows in the display.
+The `layout` prop is used to specify which child components render and where. It accepts either a **prebuilt layout string** or an **array of module names**.
 
-There are also a few special module names - `C1`, `C2`, `C3`, `C4`, & `_` 
+#### Prebuilt Layouts
+
+Instead of constructing a custom module array, you can pass one of the following string values:
+
+| Prebuilt | Expands To | Description |
+|---|---|---|
+| `'terms'` | `[['termsList'], ['no-results'], ['_', 'button.see-more']]` | Terms list only — no product results grid |
+| `'mobile'` | `[['termsList'], ['content'], ['_', 'button.see-more']]` | Compact view with terms and a small results section |
+| `'tablet'` | `[['c1', 'c3']]` | Two-column layout (terms + results, no facets) |
+| `'desktop'` | `[['c1', 'c2', 'c3']]` | Full three-column layout (terms, facets, results) |
+
+```tsx
+<AutocompleteLayout controller={controller} input={'#searchInput'} layout={'terms'} />
+```
+
+#### Custom Layout Arrays
+
+For full control, pass a 2-D array of module names. The order of these module names determines the order in which they will be rendered. Additionally you can pass arrays of modules to the array to specify new rows in the display.
+
+There are also a few special module names - `c1`, `c2`, `c3`, `c4`, & `_`
 
 All of the `Cx` modules represent Columns which also have their own layout array by default, and can be overwrote via their own layout props. IE - `C1` module can be overwrote via the `column1` prop. 
 

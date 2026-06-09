@@ -9,9 +9,6 @@ import { recommendationCTAStyleScript } from './recommendationCTA';
 import { custom } from '../../custom';
 
 // static variables
-const activeColors = custom.utils.activeColors();
-const activeColor = activeColors[0];
-const fontColor = activeColors[1];
 const seedBadgeHeight = 22;
 const checkboxHeight = 16;
 
@@ -19,6 +16,10 @@ const checkboxHeight = 16;
 const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVerticalProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColor = activeColors[0];
+	const fontColor = activeColors[1];
 
 	// bundle vertical shared styles
 	const sharedStyles = css({
@@ -30,7 +31,6 @@ const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVert
 	// bundle vertical styles
 	const bundleVerticalStyles = css({
 		margin: `${custom.spacing.x4}px 0`,
-		...custom.styles.boxSizing('recommendationBundleVertical', props?.treePath, props?.name),
 		'.ss__recommendation-profile-tracker': {
 			'& > *': {
 				margin: `0 0 ${custom.spacing.x2}px 0`,
@@ -138,13 +138,9 @@ export const recommendationBundleVertical: ThemeComponent<
 			separatorIconSeedOnly: false,
 			limit: 8,
 		},
-		'recommendationBundleVertical checkbox icon': {
-			color: custom.colors.primary,
-		},
 		'recommendationBundleVertical icon.bundle-cart': {
 			size: `${custom.sizes.icon16 * 2}px`,
 			icon: custom.icons.bag,
-			color: custom.colors.secondary,
 		},
 		'recommendationBundleVertical result': {
 			layout: 'list',

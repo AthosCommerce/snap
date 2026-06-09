@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import type { LoadingBarProps, LoadingBarTemplatesLegalProps } from '../../../../components/Atoms/LoadingBar';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 
 // CSS in JS style script for the LoadingBar component
 const loadingBarStyleScript = (props: LoadingBarProps) => {
@@ -9,9 +8,7 @@ const loadingBarStyleScript = (props: LoadingBarProps) => {
 	const variables = props?.theme?.variables;
 
 	// loading bar styles
-	const loadingBarStyles = css({
-		...custom.styles.boxSizing('loadingBar', props?.treePath, props?.name),
-	});
+	const loadingBarStyles = css({});
 
 	return loadingBarStyles;
 };

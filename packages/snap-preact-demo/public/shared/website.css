@@ -68,6 +68,14 @@ pre {
 
 /* Text-level semantics
 ========================================================================== */
+a {
+	color: #1d4990;
+}
+
+a:hover {
+	color: #00aeef;
+}
+
 /**
 * Remove the gray background on active links in IE 10.
 */
@@ -430,49 +438,13 @@ h5, h6 {
 	color: #1d4990;
 }
 
-.ss__everest {
-	font-family: "Source Sans 3", Helvetica, Arial;
-}
 
-.ss__everest .ss__demo .ss__demo__theme a:hover {
-	color: #515151;
-}
 
-.ss__everest h1, .ss__everest h2,
-.ss__everest h3, .ss__everest h4,
-.ss__everest h5, .ss__everest h6 {
-	font-family: "Montserrat", Helvetica, Arial;
-	font-weight: 600;
-	text-transform: uppercase;
-}
 
-.ss__everest .ss__demo .ss__demo__theme h1, .ss__everest .ss__demo .ss__demo__theme h2,
-.ss__everest .ss__demo .ss__demo__theme h3, .ss__everest .ss__demo .ss__demo__theme h4,
-.ss__everest .ss__demo .ss__demo__theme h5, .ss__everest .ss__demo .ss__demo__theme h6 {
-	color: #94280b;
-}
 
-.ss__matterhorn {
-	font-family: "Poppins", Helvetica, Arial;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme {
-	color: #555555;
-}
 
-.ss__matterhorn h1, .ss__matterhorn h2,
-.ss__matterhorn h3, .ss__matterhorn h4,
-.ss__matterhorn h5, .ss__matterhorn h6 {
-	font-family: "Lora", "Times New Roman", serif;
-	font-weight: 300;
-	font-style: italic;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme h1, .ss__matterhorn .ss__demo .ss__demo__theme h2,
-.ss__matterhorn .ss__demo .ss__demo__theme h3, .ss__matterhorn .ss__demo .ss__demo__theme h4,
-.ss__matterhorn .ss__demo .ss__demo__theme h5, .ss__matterhorn .ss__demo .ss__demo__theme h6 {
-	color: #222222;
-}
 
 /* DEMO - FORM FIELDS
 ========================================================================== */
@@ -598,80 +570,18 @@ fieldset {
 	font-weight: 700;
 }
 
-.ss__everest .ss__demo .ss__demo__theme input, .ss__everest .ss__demo .ss__demo__theme select, .ss__everest .ss__demo .ss__demo__theme .ss__demo__button {
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-}
 
-.ss__everest .ss__demo .ss__demo__theme input, .ss__everest .ss__demo .ss__demo__theme select {
-	color: #515151;
-	border: 2px solid #d15120;
-}
 
-.ss__everest .ss__demo .ss__demo__theme input::-webkit-input-placeholder, .ss__everest .ss__demo .ss__demo__theme input :focus::-webkit-input-placeholder {
-	color: #515151;
-}
 
-.ss__everest .ss__demo .ss__demo__theme input::-ms-input-placeholder, .ss__everest .ss__demo .ss__demo__theme input :focus::-ms-input-placeholder {
-	color: #515151;
-}
 
-.ss__everest .ss__demo .ss__demo__theme input::placeholder, .ss__everest .ss__demo .ss__demo__theme input :focus::placeholder {
-	color: #515151;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__button {
-	background-color: #d15120;
-	color: #ffffff;
-	font-family: "Montserrat", Helvetica, Arial;
-	font-weight: 600;
-	text-transform: uppercase;
-	position: relative;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__button:after {
-	content: "";
-	display: block;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	margin: auto;
-	border-bottom: 2px solid #94280b;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme input, .ss__matterhorn .ss__demo .ss__demo__theme select, .ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__button {
-	-moz-border-radius: 0;
-	border-radius: 0;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme input, .ss__matterhorn .ss__demo .ss__demo__theme select {
-	color: #555555;
-	border: 1px solid #111111;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme input::-webkit-input-placeholder, .ss__matterhorn .ss__demo .ss__demo__theme input :focus::-webkit-input-placeholder {
-	color: #555555;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme input::-ms-input-placeholder, .ss__matterhorn .ss__demo .ss__demo__theme input :focus::-ms-input-placeholder {
-	color: #555555;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme input::placeholder, .ss__matterhorn .ss__demo .ss__demo__theme input :focus::placeholder {
-	color: #555555;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__button {
-	background-color: #222222;
-	color: #ffffff;
-	font-family: "Lora", "Times New Roman", serif;
-	font-weight: 300;
-	font-style: italic;
-}
 
 /* DEMO - BACKGROUND
 ========================================================================== */
@@ -702,29 +612,11 @@ fieldset {
 	stroke: #ffffff;
 }
 
-.ss__everest .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__background {
-	fill: #94280b;
-}
 
-.ss__everest .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__top_triangle {
-	stroke: #d15120;
-}
 
-.ss__everest .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__bottom_triangle {
-	stroke: #ffffff;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__background {
-	fill: #222222;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__top_triangle {
-	stroke: #111111;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__bottom_triangle {
-	stroke: #ffffff;
-}
 
 /* DEMO - SLIDEOUT BUTTON
 ========================================================================== */
@@ -979,37 +871,12 @@ fieldset {
 	background-color: #ffffff;
 }
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__button .ss__demo__icon {
-	color: #515151;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__button:after {
-	display: none;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button .ss__demo__cart__count {
-	background-color: #d15120;
-	border: 1px solid #d15120;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button:hover .ss__demo__cart__count {
-	color: #d15120;
-	background-color: #ffffff;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__button .ss__demo__icon {
-	color: #555555;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button .ss__demo__cart__count {
-	background-color: #848484;
-	border: 1px solid #848484;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button:hover .ss__demo__cart__count {
-	color: #848484;
-	background-color: #ffffff;
-}
 
 /* DEMO - NAVIGATION
 ========================================================================== */
@@ -1061,27 +928,9 @@ fieldset {
 	color: #00aeef;
 }
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a {
-	font-family: "Source Sans 3", Helvetica, Arial;
-	font-weight: 600;
-	text-transform: uppercase;
-	color: #ffffff;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a:hover {
-	color: #d15120;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a {
-	font-family: "Lora", "Times New Roman", serif;
-	font-weight: 300;
-	font-style: italic;
-	color: #ffffff;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a:hover {
-	color: #555555;
-}
 
 /* DEMO - BREADCRUMBS
 ========================================================================== */
@@ -1286,33 +1135,12 @@ fieldset {
 	background-color: #00aeef;
 }
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__footer {
-	background-color: #94280b;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__footer a:hover {
-	color: #d15120;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__title {
-	border-bottom: 2px solid #d15120;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__information .ss__demo__social a {
-	background-color: #d15120;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__footer {
-	background-color: #222222;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__footer a:hover {
-	color: #555555;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__information .ss__demo__social a {
-	background-color: #111111;
-}
 
 /* DEMO - SKIP TO BUTTON
 ========================================================================== */
@@ -1545,37 +1373,13 @@ fieldset {
 	color: #00aeef;
 }
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing span {
-	color: #515151;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__msrp {
-	color: #737373;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price {
-	font-weight: 600;
-}
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price--on-sale {
-	color: #d15120;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing span {
-	color: #555555;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__msrp {
-	color: #848484;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price {
-	font-weight: 600;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price--on-sale {
-	color: #222222;
-}
 
 @media only screen and (min-width: 768px) {
 	#ss__product__demo .ss__demo .ss__demo__theme .ss__demo__header__title {
@@ -1699,15 +1503,7 @@ fieldset {
 	color: #00aeef;
 }
 
-.ss__everest .ss__demo .ss__demo__theme .ss__demo__cart__products .ss__demo__cart__product .ss__demo__cart__product__details .ss__demo__cart__product__pricing {
-	font-weight: 600;
-	color: #d15120;
-}
 
-.ss__matterhorn .ss__demo .ss__demo__theme .ss__demo__cart__products .ss__demo__cart__product .ss__demo__cart__product__details .ss__demo__cart__product__pricing {
-	font-weight: 600;
-	color: #222222;
-}
 
 @media only screen and (min-width: 541px) {
 	.ss__demo .ss__demo__theme .ss__demo__cart__products .ss__demo__cart__product .ss__demo__cart__product__image {

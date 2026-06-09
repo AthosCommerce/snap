@@ -26,7 +26,6 @@ const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutProps) => {
 	const fixedStyles = css({
 		border: 0,
 		padding: `${custom.spacing.x4}px`,
-		...custom.styles.boxSizing('autocompleteSlideout', props?.treePath, props?.name),
 		'.ss__autocomplete-slideout__inner': {
 			height: '100%',
 			'& > .ss__search-input': {
@@ -62,7 +61,7 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.default?.['autocompleteSlideout'] || {}),
 			themeStyleScript: autocompleteSlideoutStyleScript,
-			layout: 'mini',
+			layout: 'mobile',
 			contentTitle: 'Product Suggestions',
 		},
 		'autocompleteSlideout terms': {
@@ -89,7 +88,7 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		...autocompleteSlideoutThemeComponentProps.mobile,
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.mobile?.['autocompleteSlideout'] || {}),
-			layout: 'mini',
+			layout: 'mobile',
 		},
 		'autocompleteSlideout terms': {
 			vertical: false,
@@ -111,7 +110,7 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		...autocompleteSlideoutThemeComponentProps.tablet,
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.tablet?.['autocompleteSlideout'] || {}),
-			layout: 'mini',
+			layout: 'mobile',
 		},
 		'autocompleteSlideout terms': {
 			vertical: false,
@@ -133,7 +132,7 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		...autocompleteSlideoutThemeComponentProps.desktop,
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.desktop?.['autocompleteSlideout'] || {}),
-			layout: 'mini',
+			layout: 'mobile',
 		},
 		'autocompleteSlideout terms': {
 			vertical: false,

@@ -319,14 +319,16 @@ export const Result = observer((properties: ResultProps) => {
 					{!hideVariantSelections && result.variants?.selections.length && (
 						<div className="ss__result__details__variant-selection">
 							{result.variants?.selections.map((selection) => {
-								return <VariantSelection {...subProps.variantSelection} selection={selection} />;
+								return (
+									<VariantSelection {...subProps.variantSelection} type={selection.type as VariantSelectionProps['type']} selection={selection} />
+								);
 							})}
 						</div>
 					)}
 
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
-							<Button {...subProps.button} content={addToCartButtonText} {...mergedLang.addToCartButtonText.all} />
+							<Button {...subProps.button} {...mergedLang.addToCartButtonText.all} />
 						</div>
 					)}
 				</div>

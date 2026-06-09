@@ -11,7 +11,6 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 
 	// load more styles
 	const loadMoreStyles = css({
-		...custom.styles.boxSizing('loadMore', props?.treePath, props?.name),
 		'&.ss__load-more': {
 			'&, .ss__load-more__progress': {
 				gap: `${custom.spacing.x2}px`,
@@ -30,7 +29,6 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 				},
 				'.ss__load-more__progress__text': {
 					fontSize: '14px',
-					color: variables?.colors?.text,
 				},
 			},
 		},
@@ -44,11 +42,7 @@ export const loadMore: ThemeComponent<'loadMore', LoadMoreProps, LoadMoreTemplat
 	default: {
 		loadMore: {
 			themeStyleScript: loadMoreStyleScript,
-			color: custom.colors.primary,
 			backgroundColor: custom.colors.gray01,
-		},
-		'loadMore icon': {
-			color: custom.colors.primary,
 		},
 		'loadMore button icon': {
 			color: 'currentColor',

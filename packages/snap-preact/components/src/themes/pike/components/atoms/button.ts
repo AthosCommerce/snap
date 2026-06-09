@@ -10,7 +10,7 @@ const buttonDisabledSelectors = '&.ss__button--disabled';
 const buttonStyleScript = (props: ButtonProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const activeColors = custom.utils.activeColors(props?.backgroundColor);
+	const activeColors = custom.utils.activeColors(props?.backgroundColor || variables?.colors?.secondary || custom.colors.secondary);
 	const buttonColor = activeColors[0];
 	const borderColor = props?.borderColor ? props.borderColor : activeColors[0];
 	const fontColor = props?.color ? props.color : activeColors[1];
@@ -29,7 +29,6 @@ const buttonStyleScript = (props: ButtonProps) => {
 			height: `${custom.sizes.height}px`,
 			lineHeight: `${custom.sizes.height}px`,
 			...custom.styles.borderRadius(),
-			...custom.styles.boxSizing('button', props?.treePath, props?.name),
 			'&[active="true"], &:has([active="true"])': {
 				'.ss__icon': {
 					'&.ss__icon--filter': {

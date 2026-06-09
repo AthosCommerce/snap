@@ -10,7 +10,6 @@ const facetsStyleScript = (props: FacetsProps) => {
 
 	// facets styles
 	const facetsStyles = css({
-		...custom.styles.boxSizing('facets', props?.treePath, props?.name),
 		'&.ss__facets': {
 			display: 'block',
 			width: 'auto',

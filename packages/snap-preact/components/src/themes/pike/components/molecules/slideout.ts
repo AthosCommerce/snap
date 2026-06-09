@@ -9,9 +9,7 @@ const slideoutStyleScript = (props: SlideoutProps) => {
 	const variables = props?.theme?.variables;
 
 	// slideout styles
-	const slideoutStyles = css({
-		...custom.styles.boxSizing('slideout', props?.treePath, props?.name),
-	});
+	const slideoutStyles = css({});
 
 	return slideoutStyles;
 };

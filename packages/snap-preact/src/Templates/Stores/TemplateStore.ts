@@ -1,6 +1,11 @@
 import type { h } from 'preact';
 import { observable, makeObservable } from 'mobx';
-import { type SearchStoreConfigSettings, type AutocompleteStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
+import {
+	type SearchStoreConfigSettings,
+	type SearchStoreConfig,
+	type AutocompleteStoreConfigSettings,
+	type AutocompleteStoreConfig,
+} from '@athoscommerce/snap-store-mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
@@ -355,7 +360,7 @@ export type TemplatesStoreConfig = TemplatesStoreConfigLocked | TemplatesStoreCo
 
 export type TemplatesStoreConfigLocked = {
 	components?: TemplateStoreComponentConfigLocked;
-	config: {
+	config?: {
 		siteId?: string;
 		currency?: CurrencyCodes;
 		language?: LanguageCodes;
@@ -369,11 +374,14 @@ export type TemplatesStoreConfigLocked = {
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
 		targets: SearchTargetConfig[];
+		globals?: SearchStoreConfig['globals'];
 		settings?: SearchStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
 	};
 	autocomplete?: {
 		targets: AutocompleteTargetConfig[];
+		action?: string;
+		globals?: AutocompleteStoreConfig['globals'];
 		settings?: AutocompleteStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
 	};
@@ -455,7 +463,7 @@ export class TemplatesStore {
 		const { config, settings } = params || {};
 		this.config = config;
 
-		this.platform = config.config.platform || 'other';
+		this.platform = config.config?.platform || 'other';
 
 		this.storage = new StorageStore({ type: StorageType.local, key: TEMPLATE_STORE_KEY });
 
