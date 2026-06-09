@@ -1754,7 +1754,7 @@ describe('Autocomplete Controller quickview', () => {
 		(window as any).athos = originalAthos;
 	});
 
-	it('quickview fires controller/quickview with result.id as parentId and the originating controller', async () => {
+	it('quickview fires controller/quickview with the core parentId and the originating controller', async () => {
 		const fire = jest.fn();
 		// @ts-ignore
 		window.athos = { fire };
@@ -1768,10 +1768,15 @@ describe('Autocomplete Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		const result: any = { id: 'ac-1' };
+		const result: any = { id: 'ac-child-1', mappings: { core: { parentId: 'ac-parent-1' } } };
 		await controller.quickview({ result });
 
-		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'ac-1', controller }));
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'ac-parent-1', controller }));
+
+		const fallbackResult: any = { id: 'ac-1' };
+		await controller.quickview({ result: fallbackResult });
+
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'ac-1', controller }));
 	});
 
 	it('quickview warns and does not fire when no result provided', async () => {

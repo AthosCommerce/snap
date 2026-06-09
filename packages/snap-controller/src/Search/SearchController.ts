@@ -934,7 +934,6 @@ export class SearchController extends AbstractController {
 			...(config || {}),
 		};
 
-		// Search results may be variant roll-ups; prefer the core parentId, fall back to the result id.
 		const parentId = (result.mappings?.core?.parentId as string) || result.id;
 
 		// Delegate to the dedicated quickview controller via the global event channel.

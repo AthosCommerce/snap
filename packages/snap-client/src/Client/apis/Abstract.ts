@@ -90,7 +90,8 @@ export class API<PathConfigurationType> {
 	private createFetchParams(context: RequestOpts) {
 		// grab siteID out of context to generate apiHost fo URL
 		const siteId = context?.body?.siteId || context?.query?.siteId;
-		if (!siteId && !context.path.startsWith('/v1/products/')) {
+		// siteId is only needed to derive the host; an explicit per-request origin supplies it directly.
+		if (!siteId && !context.origin) {
 			throw new Error(`Request failed. Missing "siteId" parameter.`);
 		}
 

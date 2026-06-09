@@ -15,6 +15,9 @@ export type SearchRequesterPaths = {
 	search?: string;
 	category?: string;
 	finder?: string;
+};
+
+export type ProductsRequesterPaths = {
 	products?: string;
 };
 
@@ -58,6 +61,7 @@ export type ClientConfig = {
 	fetchApi?: WindowOrWorkerGlobalScope['fetch'];
 	meta?: RequesterConfig<MetaRequestModel, MetaRequesterPaths>;
 	search?: RequesterConfig<SearchRequestModel, SearchRequesterPaths>;
+	products?: RequesterConfig<ProductsRequestModel, ProductsRequesterPaths>;
 	recommend?: RequesterConfig<RecommendRequestModel, RecommendRequesterPaths>;
 	suggest?: RequesterConfig<SuggestRequestModel, SuggestRequesterPaths>;
 };

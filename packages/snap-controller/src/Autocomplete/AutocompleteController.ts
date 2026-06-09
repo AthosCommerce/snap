@@ -1010,7 +1010,7 @@ export class AutocompleteController extends AbstractController {
 			...(config || {}),
 		};
 
-		const parentId = result.id;
+		const parentId = (result.mappings?.core?.parentId as string) || result.id;
 
 		// Delegate to the dedicated quickview controller via the global event channel.
 		(window as any)?.athos?.fire?.('controller/quickview', {

@@ -91,7 +91,7 @@ describe('Results Component', () => {
 		expect(results.length).toBe(mockResults.length);
 	});
 
-	it('forwards hideQuickviewButton to child Result instances', async () => {
+	it('forwards showQuickview to child Result instances', async () => {
 		searchConfig = { ...searchConfigDefault };
 		searchConfig.id = uuidv4().split('-').join('');
 
@@ -107,10 +107,10 @@ describe('Results Component', () => {
 
 		await controller.search();
 
-		const rendered = render(<Results layout={Layout.grid} results={mockResults} controller={controller} hideQuickviewButton={false} />);
+		const rendered = render(<Results layout={Layout.grid} results={mockResults} controller={controller} showQuickview={true} />);
 
-		const buttons = rendered.container.querySelectorAll('.ss__result__button--quickview');
-		expect(buttons.length).toBe(mockResults.length);
+		const icons = rendered.container.querySelectorAll('.ss__result__quickview');
+		expect(icons.length).toBe(mockResults.length);
 	});
 
 	it('renders correct number of products when passing rows and columns', () => {

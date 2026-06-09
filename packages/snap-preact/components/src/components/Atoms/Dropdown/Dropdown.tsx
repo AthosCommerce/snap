@@ -250,7 +250,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 									top: coords.top,
 									left: coords.left,
 									width: coords.width,
-									zIndex: 9999,
+									zIndex: 10007,
 									pointerEvents: dropdownOpen ? 'auto' : 'none',
 								}}
 							>

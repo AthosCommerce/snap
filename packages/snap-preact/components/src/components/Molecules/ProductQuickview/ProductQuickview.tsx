@@ -46,11 +46,12 @@ const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 		//
 		// Z-index hierarchy:
 		//   Page content : 0
-		//   Modal overlay: 9990 (overridden below)
-		//   Modal content: 9998
-		//   Dropdown portal (e.g. variant <select> options): 9999  ← rendered to document.body
+		//   Autocomplete : 10002 (Autocomplete/AutocompleteLayout) — quickview must paint above it
+		//   Modal overlay: 10005 (overridden below)
+		//   Modal content: 10006
+		//   Dropdown portal (e.g. variant <select> options): 10007  ← rendered to document.body
 		//     from the VariantSelection Dropdown atom, z-index is hardcoded inline in
-		//     Dropdown.tsx, so we instead keep our modal content BELOW 9999 to let the
+		//     Dropdown.tsx, so we instead keep our modal content BELOW it to let the
 		//     dropdown options paint on top.
 		'&.ss__product-quickview .ss__modal__content': {
 			position: 'fixed !important' as any,
@@ -62,14 +63,14 @@ const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 			maxHeight: '90vh',
 			width: 'auto',
 			overflow: 'auto',
-			zIndex: 9998,
+			zIndex: 10006,
 			boxShadow: '0 4px 24px rgba(0, 0, 0, 0.2)',
 			borderRadius: '4px',
 		},
 		// Lower the Modal's Overlay backdrop too so it stays below both the modal content
-		// (9998) and the dropdown portal (9999) but above page content.
+		// (10006) and the dropdown portal (10007) but above page content and autocomplete.
 		'&.ss__product-quickview .ss__modal__overlay': {
-			zIndex: '9990 !important' as any,
+			zIndex: '10005 !important' as any,
 		},
 		'& .ss__product-quickview__content': {
 			padding: '20px',
@@ -410,7 +411,10 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 
 	return (
 		<CacheProvider>
-			<div {...styling} className={classnames('ss__product-quickview', className, internalClassName)}>
+			{/* stopPropagation keeps clicks inside the quickview (close icon, overlay, content) from
+			    reaching the AutocompleteController's document click handler, which would otherwise
+			    unfocus and close an open autocomplete behind the modal. */}
+			<div {...styling} className={classnames('ss__product-quickview', className, internalClassName)} onClick={(e) => e.stopPropagation()}>
 				{/* lockScroll is disabled: Modal's scroll-lock toggles `body { overflow: hidden }`,
 				    which removes the page scrollbar and reflows the results wider by the scrollbar
 				    width when the modal opens. The fixed full-viewport overlay already masks the
