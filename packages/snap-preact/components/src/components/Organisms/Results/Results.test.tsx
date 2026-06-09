@@ -91,6 +91,16 @@ describe('Results Component', () => {
 		expect(results.length).toBe(mockResults.length);
 	});
 
+	it('can exclude inline banners', () => {
+		const resultsWithBanner = [{ id: 'banner-1', type: 'banner', value: '<div>Promo Banner</div>' }, ...mockResults.slice(0, 2)] as any;
+
+		const renderedWithBanner = render(<Results layout={Layout.grid} results={resultsWithBanner} />);
+		expect(renderedWithBanner.container.querySelector('.ss__inline-banner')).toBeInTheDocument();
+
+		const renderedWithoutBanner = render(<Results layout={Layout.grid} results={resultsWithBanner} excludeBanners={true} />);
+		expect(renderedWithoutBanner.container.querySelector('.ss__inline-banner')).not.toBeInTheDocument();
+	});
+
 	it('renders correct number of products when passing rows and columns', () => {
 		const args = {
 			rows: 2,
