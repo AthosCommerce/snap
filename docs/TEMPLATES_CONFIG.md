@@ -274,7 +274,7 @@ In addition to the common target properties, the following properties apply to t
 | `autocomplete.targets` | Autocomplete target configurations | Array | Required |
 | `autocomplete.targets[].inputSelector` | DOM selector for the autocomplete `<input>` element | String | Required |
 | `autocomplete.targets[].selector` | DOM selector where the component injects; defaults to `inputSelector` | String | ➖ |
-| `autocomplete.targets[].component` | Component to use for autocomplete | String | 'Autocomplete' |
+| `autocomplete.targets[].component` | Component to use for autocomplete | String | 'AutocompleteFixed' |
 
 #### Recommendation
 In addition to the defining recommendation targets, the recommendation configuration also contains the following following properties:
