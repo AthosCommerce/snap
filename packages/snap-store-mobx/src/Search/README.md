@@ -4,9 +4,9 @@ The search store is meant to hold the search API response and associated state. 
 ## `meta` property
 The meta property is an object containing the meta data retrieved from the Athos Meta API. The majority of this data is used elsewhere in constructing other SearchStore data like 'sorting' and 'facets'.
 
-## `quickview` property
+## Quickview
 
-`store.quickview` is a `QuickViewStore` instance that holds the state for the product quickview modal. It is exposed on `SearchStore`, `AutocompleteStore`, and `RecommendationStore`. Consumers typically drive it through the controller's `setQuickView` / `closeQuickView` methods rather than calling these directly, but the observable surface is documented here for integrators who need to react to it.
+`SearchStore` no longer exposes a `quickview` property. The quickview modal store (`QuickviewStore`) now lives on the dedicated `QuickviewController`'s store and is reached at `quickviewController.store.quickview`. `SearchController` still exposes a `quickview({ result })` method that fires a global `controller/quickview` event handled by that controller. The observable surface of `QuickviewStore` is documented here for integrators who need to react to it.
 
 Observable fields:
 
@@ -14,9 +14,9 @@ Observable fields:
 |---|---|---|
 | `product` | `Product \| undefined` | The Product being previewed. By default this is a deep-cloned independent copy of the source result; with `config.clone = false` it is the source result by reference. |
 | `isOpen` | `boolean` | Whether the modal should be rendered. Set by `update`, `setLoading(true, ...)`, `setError(error)`; cleared by `close` and `reset`. |
-| `loading` | `boolean` | True while `setQuickView` is awaiting `/v1/products`. The modal renders a loading branch in this state. |
-| `config` | `QuickViewConfig \| undefined` | Effective config (controller defaults merged with the per-call override). |
-| `error` | `QuickViewError \| undefined` | When set, the modal renders an error branch with `role="alert"`. |
+| `loading` | `boolean` | True while the `QuickviewController` is awaiting `/v1/products`. The modal renders a loading branch in this state. |
+| `config` | `QuickviewConfig \| undefined` | Effective config (controller defaults merged with the per-call override). |
+| `error` | `QuickviewError \| undefined` | When set, the modal renders an error branch with `role="alert"`. |
 
 Actions:
 
@@ -28,7 +28,7 @@ Actions:
 | `setLoading(loading, resultId?)` | Open the modal in a loading state scoped to `resultId`. Also clears any prior error. |
 | `setError(error \| undefined)` | Surface a fatal error; flips `loading` off, leaves the modal open. |
 
-See the controller READMEs for usage examples of `setQuickView` and `closeQuickView`.
+See the controller READMEs for usage of the `quickview({ result })` method.
 
 ## `merchandising` property
 

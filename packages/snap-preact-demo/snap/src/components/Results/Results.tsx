@@ -47,7 +47,7 @@ export const Results = withController(
 
 				<Profile name="results" controller={controller}>
 					<div id="ss_results">
-						<ResultsComponent breakpoints={resultsBreakpoints} controller={controller} results={results} hideQuickViewButton={false} />
+						<ResultsComponent breakpoints={resultsBreakpoints} controller={controller} results={results} hideQuickviewButton={false} />
 					</div>
 				</Profile>
 

@@ -19,7 +19,6 @@ import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useComponent } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
-import { ProductQuickview } from '../ProductQuickview';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ResultProps> = () => {
@@ -85,10 +84,10 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: 'Add To Cart',
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
-		quickViewButtonText: 'Quick View',
+		quickviewButtonText: 'Quick View',
 		hideAddToCartButton: true,
 		hideRating: true,
-		hideQuickViewButton: true,
+		hideQuickviewButton: true,
 	};
 
 	const props = mergeProps('result', globalTheme, defaultProps, properties);
@@ -113,9 +112,9 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText,
 		addToCartButtonSuccessText,
 		addToCartButtonSuccessTimeout,
-		quickViewButtonText,
+		quickviewButtonText,
 		hideRating,
-		hideQuickViewButton,
+		hideQuickviewButton,
 		trackingRef,
 		treePath,
 		customComponent,
@@ -241,8 +240,8 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
 		},
-		quickViewButtonText: {
-			value: quickViewButtonText,
+		quickviewButtonText: {
+			value: quickviewButtonText,
 		},
 	};
 
@@ -332,12 +331,12 @@ export const Result = observer((properties: ResultProps) => {
 						</div>
 					)}
 
-					{!hideQuickViewButton && controller && (
+					{!hideQuickviewButton && controller && (
 						<div className="ss__result__quick-view-wrapper">
 							<Button
-								internalClassName="ss__result__button--quickView"
-								content={quickViewButtonText}
-								{...mergedLang.quickViewButtonText.all}
+								internalClassName="ss__result__button--quickview"
+								content={quickviewButtonText}
+								{...mergedLang.quickviewButtonText.all}
 								onClick={() => controller.quickview({ result })}
 								{...defined({ disableStyles })}
 								theme={props.theme}
@@ -353,10 +352,6 @@ export const Result = observer((properties: ResultProps) => {
 					)}
 				</div>
 			</article>
-			{/* ProductQuickview decides whether to render anything based on the store state
-			    scoped to this `result` — it returns null when this result isn't the active
-			    quickview, so no stray DOM is added to the results grid. */}
-			{!hideQuickViewButton && controller && <ProductQuickview controller={controller} result={result} />}
 		</CacheProvider>
 	) : null;
 });
@@ -391,9 +386,9 @@ export type ResultTemplatesLegalProps = {
 	hideRating?: boolean;
 	hideVariantSelections?: boolean;
 	hideAddToCartButton?: boolean;
-	hideQuickViewButton?: boolean;
+	hideQuickviewButton?: boolean;
 	addToCartButtonText?: string;
-	quickViewButtonText?: string;
+	quickviewButtonText?: string;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;
 	addToCartButtonSuccessTimeout?: number;
@@ -408,7 +403,7 @@ export type ResultTemplatesLegalProps = {
 export interface ResultLang {
 	addToCartButtonText: Lang<ResultPropData>;
 	addToCartButtonSuccessText: Lang<ResultPropData>;
-	quickViewButtonText: Lang<ResultPropData>;
+	quickviewButtonText: Lang<ResultPropData>;
 }
 
 interface ResultPropData {

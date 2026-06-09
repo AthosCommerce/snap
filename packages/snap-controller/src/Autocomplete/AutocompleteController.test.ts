@@ -1711,6 +1711,8 @@ describe('Autocomplete Controller', () => {
 });
 
 describe('Autocomplete Controller quickview', () => {
+	let originalAthos: any;
+
 	beforeEach(() => {
 		document.body.innerHTML = '<div><input type="text" id="search_query"></div>';
 		acConfig = Object.assign({}, acConfigBase); // reset config
@@ -1718,9 +1720,17 @@ describe('Autocomplete Controller quickview', () => {
 
 		urlManager = new UrlManager(new QueryStringTranslator({ queryParameter: 'search_query' }), reactLinker);
 		services = { urlManager };
+		originalAthos = (window as any).athos;
 	});
 
-	it('quickview opens the store with a Product clone and fetches /v1/products for variants', async () => {
+	afterEach(() => {
+		(window as any).athos = originalAthos;
+	});
+
+	it('quickview fires controller/quickview with result.id as parentId and the originating controller', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
 		const controller = new AutocompleteController(acConfig, {
 			client: new MockClient(globals, {}),
 			store: new AutocompleteStore(acConfig, services),
@@ -1731,29 +1741,16 @@ describe('Autocomplete Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		const productsMock = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-		(controller.client as any).products = productsMock;
-
-		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: { name: 'Widget' } } } as any;
-
+		const result: any = { id: 'ac-1' };
 		await controller.quickview({ result });
 
-		expect(controller.store.quickview.isOpen).toBe(true);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeInstanceOf(Product);
-		expect(controller.store.quickview.product).not.toBe(result);
-		expect(controller.store.quickview.product?.id).toBe('abc');
-		expect(controller.store.quickview.product?.variants).toBeDefined();
-		expect(productsMock).toHaveBeenCalledWith({ parentId: 'abc' });
-
-		(controller.store.quickview.product as any).attributes.color = 'blue';
-		expect(result.attributes.color).toBe('red');
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'ac-1', controller }));
 	});
 
-	it('quickview stores displayFields config from caller', async () => {
+	it('quickview warns and does not fire when no result provided', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
 		const controller = new AutocompleteController(acConfig, {
 			client: new MockClient(globals, {}),
 			store: new AutocompleteStore(acConfig, services),
@@ -1764,192 +1761,8 @@ describe('Autocomplete Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
+		await controller.quickview({ result: undefined as any });
 
-		const result = { id: 'abc', attributes: { color: 'red', size: 'M' }, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result, config: { displayFields: ['size'] } });
-
-		expect(controller.store.quickview.config).toEqual({ displayFields: ['size'] });
-	});
-
-	it('quickview still resolves and updates store when /v1/products fetch fails', async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockRejectedValue(new Error('boom'));
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-
-		await expect(controller.quickview({ result })).resolves.toBeUndefined();
-
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeDefined();
-		expect(controller.store.quickview.isOpen).toBe(true);
-	});
-
-	it('quickview skips /v1/products fetch when config.fetchProductData is false', async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		const productsMock = jest.fn();
-		(controller.client as any).products = productsMock;
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result, config: { fetchProductData: false } });
-
-		expect(productsMock).not.toHaveBeenCalled();
-		expect(controller.store.quickview.isOpen).toBe(true);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeDefined();
-	});
-
-	it("fires the 'quickview' middleware event with result, productsData, and config", async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		const fakeProductsResponse = { mappings: { core: {} }, variants: { data: [] } };
-		(controller.client as any).products = jest.fn().mockResolvedValue(fakeProductsResponse);
-
-		const middlewareSpy = jest.fn(async (_eventObj: any, next: any) => {
-			await next();
-		});
-		controller.on('quickview', middlewareSpy);
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result, config: { displayFields: ['size'] } });
-
-		expect(middlewareSpy).toHaveBeenCalledTimes(1);
-		const [eventObj] = middlewareSpy.mock.calls[0];
-		expect(eventObj.controller).toBe(controller);
-		expect(eventObj.result).toBe(result);
-		expect(eventObj.productsData).toEqual(fakeProductsResponse);
-		expect(eventObj.config).toEqual({ displayFields: ['size'] });
-	});
-
-	it("'quickview' middleware can throw new Error('cancelled') to short-circuit", async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({ mappings: { core: {} }, variants: { data: [] } });
-
-		controller.on('quickview', async () => {
-			throw new Error('cancelled');
-		});
-
-		const updateSpy = jest.spyOn(controller.store.quickview, 'update');
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result });
-
-		expect(updateSpy).not.toHaveBeenCalled();
-		expect(controller.store.quickview.isOpen).toBe(false);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeUndefined();
-	});
-
-	it("'quickview' middleware can mutate productsData before update runs", async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({ mappings: { core: {} }, variants: { data: [] } });
-
-		const mutatedVariants = [{ attributes: { color: 'green' }, mappings: { core: { uid: 'v9' } } }];
-		controller.on('quickview', async (eventObj: any, next: any) => {
-			eventObj.productsData = { mappings: { core: {} }, variants: { data: mutatedVariants } };
-			await next();
-		});
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result });
-
-		expect((controller.store.quickview.product?.variants as any)?.data?.length).toBe(1);
-	});
-
-	it('quickview uses source result by reference when config.clone is false', async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-
-		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result, config: { clone: false } });
-
-		expect(controller.store.quickview.product).toBe(result);
-	});
-
-	it('close closes the store but retains the product', async () => {
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result });
-
-		controller.store.quickview.close();
-
-		expect(controller.store.quickview.isOpen).toBe(false);
-		expect(controller.store.quickview.product?.id).toBe('abc');
+		expect(fire).not.toHaveBeenCalled();
 	});
 });

@@ -258,4 +258,35 @@ describe('setupEvents', () => {
 			expect(makeRecs3Spy).not.toHaveBeenCalled();
 		});
 	});
+
+	describe('controller/quickview', () => {
+		afterEach(() => {
+			// @ts-ignore
+			window.athos = { controller: {} };
+		});
+
+		it('delegates to the controller registered at window.athos.controller["quickview"]', async () => {
+			const quickview = jest.fn();
+			// @ts-ignore
+			window.athos = { controller: { quickview: { type: 'quickview', quickview } } };
+
+			const eventManager = setupEvents();
+			const payload = { result: { id: 'p1' }, parentId: 'p1' };
+			await eventManager.fire('controller/quickview', payload);
+
+			expect(quickview).toHaveBeenCalledWith(payload);
+		});
+
+		it('warns and does nothing when no quickview controller exists', async () => {
+			// @ts-ignore
+			window.athos = { controller: {} };
+			const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+			const eventManager = setupEvents();
+			await eventManager.fire('controller/quickview', { result: { id: 'p1' } });
+
+			expect(warn).toHaveBeenCalled();
+			warn.mockRestore();
+		});
+	});
 });

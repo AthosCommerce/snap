@@ -763,6 +763,28 @@ describe('createSnapConfig additional coverage', () => {
 		expect(snapConfig.controllers?.autocomplete).toBeUndefined();
 	});
 
+	it('createSnapConfig always adds a quickview controller targeting body', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const snapConfig = createSnapConfig(baseConfig, templatesStore);
+
+		expect(snapConfig.controllers?.quickview).toHaveLength(1);
+		const def = snapConfig.controllers!.quickview![0];
+		expect(def.config.id).toBe('quickview');
+		expect(def.targeters?.[0].selector).toBe('body');
+		expect(def.targeters?.[0].inject?.action).toBe('append');
+	});
+
+	it('createSnapConfig uses a user-provided quickview definition when present', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const custom = {
+			config: { id: 'quickview' },
+			targeters: [{ selector: '#custom', component: async () => () => null }],
+		};
+		const snapConfig = createSnapConfig({ ...baseConfig, quickview: custom } as any, templatesStore);
+
+		expect(snapConfig.controllers!.quickview![0]).toBe(custom);
+	});
+
 	it('should create search controller with correct id', () => {
 		const config: SnapTemplatesConfig = {
 			...baseConfig,

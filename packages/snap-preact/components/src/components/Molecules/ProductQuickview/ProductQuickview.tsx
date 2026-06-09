@@ -10,7 +10,7 @@ import { useComponent } from '../../../hooks';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Modal } from '../Modal';
-import { VariantSelection } from '../VariantSelection';
+import { VariantSelection, VariantSelectionTemplatesLegalProps } from '../VariantSelection';
 import { Carousel } from '../Carousel';
 import { Button } from '../../Atoms/Button';
 import { Image } from '../../Atoms/Image';
@@ -19,7 +19,7 @@ import { OverlayBadge } from '../OverlayBadge';
 import { CalloutBadge } from '../CalloutBadge';
 import { Gallery } from '../Gallery';
 
-import type { SearchController, AutocompleteController, RecommendationController } from '@athoscommerce/snap-controller';
+import type { QuickviewController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
 import type { Swiper as SwiperType } from 'swiper';
@@ -83,13 +83,16 @@ const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 		'& .ss__product-quickview__media': {
 			marginBottom: '12px',
 		},
+		'& .ss__product-quickview__details': {
+			display: 'flex',
+			flexDirection: 'column',
+			gap: '12px',
+		},
 		'& .ss__product-quickview__title': {
 			fontSize: '1.4em',
-			marginBottom: '12px',
 			paddingRight: '32px', // leave room for the close button
 		},
 		'& .ss__product-quickview__pricing': {
-			marginBottom: '12px',
 			fontSize: '1.2em',
 			'& .ss__price--strike': {
 				fontSize: '80%',
@@ -98,6 +101,10 @@ const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 		},
 		'& .ss__product-quickview__variant': {
 			marginBottom: '12px',
+			// Slideshow centers its track when there are fewer swatches than slidesPerView — left-align instead.
+			'& .ss__slideshow__track--centered': {
+				justifyContent: 'flex-start',
+			},
 		},
 		'& .ss__product-quickview__variant-title': {
 			marginBottom: '6px',
@@ -123,23 +130,39 @@ const defaultStyles: StyleScript<ProductQuickviewProps> = () => {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '12px',
-			marginBottom: '12px',
 		},
 		'& .ss__product-quickview__description': {
-			marginBottom: '12px',
 			lineHeight: 1.4,
 		},
 		'& .ss__product-quickview__attributes': {
 			width: '100%',
 			borderCollapse: 'collapse',
+			fontSize: '0.9em',
+			'& tr': {
+				borderBottom: '1px solid #eee',
+			},
+			'& tr:last-of-type': {
+				borderBottom: 'none',
+			},
 			'& th, & td': {
-				border: '1px solid #eee',
-				padding: '6px 10px',
+				padding: '10px 0',
 				textAlign: 'left',
+				verticalAlign: 'top',
+			},
+			'& th': {
+				width: '40%',
+				paddingRight: '16px',
+				fontWeight: 500,
+				color: '#666',
+				textTransform: 'uppercase',
+				fontSize: '0.85em',
+				letterSpacing: '0.02em',
+			},
+			'& td': {
+				color: '#1a1a1a',
 			},
 		},
 		'& .ss__product-quickview__actions': {
-			marginBottom: '12px',
 			display: 'flex',
 			flexWrap: 'wrap',
 			gap: '12px',
@@ -230,7 +253,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	};
 
 	const props = mergeProps('productQuickview', globalTheme, defaultProps, properties);
-	const { controller, result, className, internalClassName, disableStyles, treePath, customComponent, showBadges } = props;
+	const { controller, className, internalClassName, disableStyles, treePath, customComponent, showBadges } = props;
 
 	if (customComponent) {
 		const ComponentOverride = useComponent(
@@ -252,14 +275,10 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 
 	// Look up the display label for a field name from meta.facets[field].label.
 	// Falls back to the raw field name when no meta entry exists.
-	const metaFacets: Record<string, { label?: string } | undefined> | undefined = (controller.store as any)?.meta?.data?.facets;
+	const metaFacets = controller.store?.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
 	const labelFor = (field: string): string => metaFacets?.[field]?.label || field;
 
-	// Scope the modal to its result by product id. The store sets `product` to the source
-	// result the moment `setLoading` runs (before the fetch resolves), so this holds through
-	// the loading, error, and loaded phases. When no `result` prop is given (standalone usage),
-	// the modal opens whenever the store is open.
-	const isOpen = Boolean(quickview?.isOpen && (!result || product?.id === result.id));
+	const isOpen = Boolean(quickview?.isOpen);
 
 	// Prefer `product.display` so the displayed name/image/attributes reflect the
 	// currently active variant (Mask-merged), falling back to the base product data.
@@ -330,9 +349,11 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	// Images shown in the fullscreen gallery: the multi-image list when present, otherwise the
 	// single core image (so clicking a lone image still opens the zoomable gallery).
 	const galleryImages: string[] = hasMultipleImages ? imageList : image ? [image] : [];
+	// Attributes are opt-in: with no `displayFields` configured, show none rather than dumping
+	// every attribute. When configured, render only those fields (in the given order).
 	const displayedAttributes: Record<string, unknown> = displayFields
 		? Object.fromEntries(displayFields.filter((k) => k in allAttributes).map((k) => [k, allAttributes[k]]))
-		: allAttributes;
+		: {};
 
 	const onClose = () => controller.store.quickview.close();
 
@@ -379,9 +400,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 		/>
 	) : null;
 
-	// Render nothing at all when this instance isn't the active quickview. This is what lets
-	// `Result` mount one `<ProductQuickview>` per tile unconditionally without adding stray DOM
-	// to the results grid — only the active instance produces output.
+	// Render nothing at all while the shared quickview store is closed.
 	if (!isOpen) return null;
 
 	return (
@@ -396,7 +415,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 						<div className="ss__product-quickview__content">
 							<Button
 								internalClassName="ss__product-quickview__close"
-								icon="close"
+								icon="close-thin"
 								aria-label="Close quickview"
 								onClick={onClose}
 								theme={props.theme}
@@ -411,7 +430,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 						<div className="ss__product-quickview__content">
 							<Button
 								internalClassName="ss__product-quickview__close"
-								icon="close"
+								icon="close-thin"
 								aria-label="Close quickview"
 								onClick={onClose}
 								theme={props.theme}
@@ -424,7 +443,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 						<div className="ss__product-quickview__content">
 							<Button
 								internalClassName="ss__product-quickview__close"
-								icon="close"
+								icon="close-thin"
 								aria-label="Close quickview"
 								onClick={onClose}
 								theme={props.theme}
@@ -468,10 +487,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 													<div className="ss__product-quickview__variant-title">{selection.label || selection.field}</div>
 													<VariantSelection
 														selection={selection}
-														// Honor the API's optionConfig type: render Swatches for 'swatches',
-														// a dropdown for 'dropdown'. When the field has no type, leave it
-														// undefined so VariantSelection applies its own default.
-														type={selection.type === 'swatches' ? 'swatches' : selection.type === 'dropdown' ? 'dropdown' : undefined}
+														type={selection.type as VariantSelectionTemplatesLegalProps['type']}
 														theme={props.theme}
 														treePath={treePath}
 														{...defined({ disableStyles })}
@@ -492,7 +508,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 										{url && (
 											<Button
 												internalClassName="ss__product-quickview__go-to-product"
-												content="Go to Product"
+												content="More info"
 												onClick={() => {
 													window.location.href = url;
 												}}
@@ -536,8 +552,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 });
 
 export type ProductQuickviewProps = {
-	controller: SearchController | AutocompleteController | RecommendationController;
-	result?: Product;
+	controller: QuickviewController;
 	customComponent?: string;
 	// When true, overlay badges are shown over the media and callout badges below it. Opt-in (default false).
 	showBadges?: boolean;

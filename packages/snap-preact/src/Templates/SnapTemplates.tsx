@@ -10,10 +10,16 @@ import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { type AutocompleteStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type { AutocompleteController, PluginFunction, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
+import type {
+	AutocompleteController,
+	PluginFunction,
+	PluginGrouping,
+	QuickviewControllerConfig,
+	SearchController,
+} from '@athoscommerce/snap-controller';
 import type { RecommendationComponentObject, RecommendationInstantiatorConfig } from '../Instantiators/RecommendationInstantiator';
 import type { SnapFeatures } from '../types';
-import type { SnapConfig, ExtendedTarget } from '../Snap';
+import type { SnapConfig, ExtendedTarget, SnapConfigControllerDefinition } from '../Snap';
 import type {
 	AutocompleteTargetConfig,
 	CustomPlugins,
@@ -485,6 +491,34 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		// }
 
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
+	}
+
+	/* QUICKVIEW CONTROLLER — always present; injects a single ProductQuickview into <body>. */
+	if (snapConfig.controllers) {
+		const defaultQuickviewControllerDefinition: SnapConfigControllerDefinition<QuickviewControllerConfig> = {
+			config: { id: 'quickview' },
+			targeters: [
+				{
+					selector: 'body',
+					inject: {
+						action: 'append' as const,
+						element: () => {
+							const el = document.createElement('div');
+							el.id = 'athos-quickview';
+							return el;
+						},
+					},
+					component: async () => {
+						const { ProductQuickview } = await import('../../components/src/components/Molecules/ProductQuickview');
+						return ProductQuickview;
+					},
+				} as ExtendedTarget,
+			],
+		};
+
+		// Allow a user-provided quickview definition to override the default entirely.
+		const userQuickview = (templateConfig as any).quickview;
+		snapConfig.controllers.quickview = [userQuickview || defaultQuickviewControllerDefinition];
 	}
 
 	return snapConfig;

@@ -1333,12 +1333,22 @@ describe('Search Controller', () => {
 });
 
 describe('Search Controller quickview', () => {
+	let originalAthos: any;
+
 	beforeEach(() => {
 		searchConfig = { ...searchConfigDefault };
 		searchConfig.id = uuidv4().split('-').join('');
+		originalAthos = (window as any).athos;
 	});
 
-	it('quickview opens the store with a Product clone and fetches /v1/products for variants', async () => {
+	afterEach(() => {
+		(window as any).athos = originalAthos;
+	});
+
+	it('quickview fires controller/quickview with a search parentId, merged config, meta and originating controller', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
 			store: new SearchStore(searchConfig, services),
@@ -1349,30 +1359,26 @@ describe('Search Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		const productsMock = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-		(controller.client as any).products = productsMock;
+		const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 
-		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: { name: 'Widget' } } } as any;
+		await controller.quickview({ result, config: { displayFields: ['color'] } });
 
-		await controller.quickview({ result });
-
-		expect(controller.store.quickview.isOpen).toBe(true);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeInstanceOf(Product);
-		expect(controller.store.quickview.product).not.toBe(result);
-		expect(controller.store.quickview.product?.id).toBe('abc');
-		expect(controller.store.quickview.product?.variants).toBeDefined();
-		expect(productsMock).toHaveBeenCalledWith({ parentId: 'abc' });
-
-		// Mutating the clone does not affect the original.
-		(controller.store.quickview.product as any).attributes.color = 'blue';
-		expect(result.attributes.color).toBe('red');
+		expect(fire).toHaveBeenCalledWith(
+			'controller/quickview',
+			expect.objectContaining({
+				result,
+				parentId: 'parent-1',
+				config: expect.objectContaining({ displayFields: ['color'] }),
+				meta: controller.store.meta,
+				controller,
+			})
+		);
 	});
 
-	it('quickview stores displayFields config from caller', async () => {
+	it('quickview warns and does not fire when no result provided', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
 			store: new SearchStore(searchConfig, services),
@@ -1383,278 +1389,8 @@ describe('Search Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
+		await controller.quickview({ result: undefined as any });
 
-		const result = { id: 'abc', attributes: { color: 'red', size: 'M' }, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result, config: { displayFields: ['size'] } });
-
-		expect(controller.store.quickview.config).toEqual({ displayFields: ['size'] });
-	});
-
-	it('quickview still resolves and updates store when /v1/products fetch fails', async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockRejectedValue(new Error('boom'));
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-
-		await expect(controller.quickview({ result })).resolves.toBeUndefined();
-
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeDefined();
-		expect(controller.store.quickview.isOpen).toBe(true);
-	});
-
-	it('quickview skips /v1/products fetch when config.fetchProductData is false', async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		const productsMock = jest.fn();
-		(controller.client as any).products = productsMock;
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result, config: { fetchProductData: false } });
-
-		expect(productsMock).not.toHaveBeenCalled();
-		expect(controller.store.quickview.isOpen).toBe(true);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeDefined();
-	});
-
-	it('quickview catches exceptions from quickview.update and surfaces them on store.quickview.error', async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-
-		// Stub update() to throw so we can verify the controller catches it and surfaces an error.
-		const updateError = new Error('update went sideways');
-		const updateSpy = jest.spyOn(controller.store.quickview, 'update').mockImplementation(() => {
-			throw updateError;
-		});
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-
-		await expect(controller.quickview({ result })).resolves.toBeUndefined();
-
-		expect(updateSpy).toHaveBeenCalled();
-		expect(controller.store.quickview.error?.message).toBe('Failed to display quickview');
-		expect(controller.store.quickview.error?.cause).toBe(updateError);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.isOpen).toBe(true);
-	});
-
-	it("fires the 'quickview' middleware event with result, productsData, and config", async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		const fakeProductsResponse = { mappings: { core: {} }, variants: { data: [] } };
-		(controller.client as any).products = jest.fn().mockResolvedValue(fakeProductsResponse);
-
-		const middlewareSpy = jest.fn(async (_eventObj: any, next: any) => {
-			await next();
-		});
-		controller.on('quickview', middlewareSpy);
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result, config: { displayFields: ['size'] } });
-
-		expect(middlewareSpy).toHaveBeenCalledTimes(1);
-		const [eventObj] = middlewareSpy.mock.calls[0];
-		expect(eventObj.controller).toBe(controller);
-		expect(eventObj.result).toBe(result);
-		expect(eventObj.productsData).toEqual(fakeProductsResponse);
-		expect(eventObj.config).toEqual({ displayFields: ['size'] });
-	});
-
-	it("'quickview' middleware can throw new Error('cancelled') to short-circuit", async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({ mappings: { core: {} }, variants: { data: [] } });
-
-		controller.on('quickview', async () => {
-			throw new Error('cancelled');
-		});
-
-		const updateSpy = jest.spyOn(controller.store.quickview, 'update');
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result });
-
-		expect(updateSpy).not.toHaveBeenCalled();
-		expect(controller.store.quickview.isOpen).toBe(false);
-		expect(controller.store.quickview.loading).toBe(false);
-		expect(controller.store.quickview.product).toBeUndefined();
-	});
-
-	it("'quickview' middleware can mutate productsData before update runs", async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({ mappings: { core: {} }, variants: { data: [] } });
-
-		const mutatedVariants = [{ attributes: { color: 'green' }, mappings: { core: { uid: 'v9' } } }];
-		controller.on('quickview', async (eventObj: any, next: any) => {
-			eventObj.productsData = { mappings: { core: {} }, variants: { data: mutatedVariants } };
-			await next();
-		});
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result });
-
-		expect((controller.store.quickview.product?.variants as any)?.data?.length).toBe(1);
-	});
-
-	it('quickview uses source result by reference when config.clone is false', async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-
-		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result, config: { clone: false } });
-
-		expect(controller.store.quickview.product).toBe(result);
-	});
-
-	it('quickview uses settings.quickview from controller config as default when no caller-provided config', async () => {
-		const cfg: SearchControllerConfig = {
-			...searchConfigDefault,
-			id: uuidv4().split('-').join(''),
-			settings: { quickview: { displayFields: ['size'], fetchProductData: false } },
-		};
-		const controller = new SearchController(cfg, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(cfg, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		const productsMock = jest.fn();
-		(controller.client as any).products = productsMock;
-
-		const result = { id: 'abc', attributes: { color: 'red' }, mappings: { core: {} } } as any;
-
-		await controller.quickview({ result });
-
-		// fetchProductData=false from controller-level settings should be respected.
-		expect(productsMock).not.toHaveBeenCalled();
-		// displayFields from controller-level settings should be picked up on the store.
-		expect(controller.store.quickview.config?.displayFields).toEqual(['size']);
-	});
-
-	it('quickview({ result, productsData }) does not call client.products when caller pre-fetched', async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		const productsMock = jest.fn();
-		(controller.client as any).products = productsMock;
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		const productsData = { mappings: { core: {} }, variants: { data: [] } } as any;
-
-		await controller.quickview({ result, productsData });
-
-		expect(productsMock).not.toHaveBeenCalled();
-		expect(controller.store.quickview.isOpen).toBe(true);
-		expect(controller.store.quickview.product).toBeDefined();
-	});
-
-	it('close closes the store', async () => {
-		const controller = new SearchController(searchConfig, {
-			client: new MockClient(globals, {}),
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		(controller.client as any).products = jest.fn().mockResolvedValue({
-			mappings: { core: {} },
-			variants: { data: [] },
-		});
-
-		const result = { id: 'abc', attributes: {}, mappings: { core: {} } } as any;
-		await controller.quickview({ result });
-
-		controller.store.quickview.close();
-
-		expect(controller.store.quickview.isOpen).toBe(false);
-		expect(controller.store.quickview.product?.id).toBe('abc');
+		expect(fire).not.toHaveBeenCalled();
 	});
 });

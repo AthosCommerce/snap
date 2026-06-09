@@ -5,7 +5,7 @@ const config = {
 	selectors: {
 		search: '.ss__search',
 		result: '.ss__result',
-		quickviewButton: '.ss__result__button--quickView',
+		quickviewButton: '.ss__result__button--quickview',
 		quickview: '.ss__product-quickview',
 		modal: '.ss__product-quickview .ss__modal',
 		modalOpen: '.ss__product-quickview .ss__modal--open',
@@ -33,9 +33,13 @@ describe('ProductQuickview', () => {
 		cy.get(config.selectors.quickviewButton).should('have.length.greaterThan', 0);
 	});
 
-	it('opens the modal when the Quick View button is clicked', () => {
+	it('opens the single shared modal when the Quick View button is clicked', () => {
 		cy.get(config.selectors.quickviewButton).first().click({ force: true });
 
+		// A single shared ProductQuickview is injected at body > #athos-quickview,
+		// so exactly one modal instance should exist regardless of result count.
+		cy.get('body > #athos-quickview').should('exist');
+		cy.get(config.selectors.quickview).should('have.length', 1);
 		cy.get(config.selectors.modalOpen).should('exist');
 		cy.get(config.selectors.modalContent).should('be.visible');
 	});

@@ -44,15 +44,4 @@ describe('RecommendationStore store', () => {
 		expect(store.results && store.results[0].mappings).toStrictEqual(data.results[0].mappings);
 		expect(store.results && store.results[0].attributes).toStrictEqual(data.results[0].attributes);
 	});
-
-	it('exposes a QuickViewStore at .quickview', () => {
-		const recommendationConfig = {
-			id: 'rec',
-			tag: 'trending',
-		};
-		const recommendationStore = new RecommendationStore(recommendationConfig, services);
-		expect(recommendationStore.quickview).toBeDefined();
-		expect(recommendationStore.quickview.isOpen).toBe(false);
-		expect(recommendationStore.quickview.product).toBeUndefined();
-	});
 });

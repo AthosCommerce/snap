@@ -1,4 +1,11 @@
-import type { AbstractController, AutocompleteController, SearchController, FinderController, RecommendationController } from './index';
+import type {
+	AbstractController,
+	AutocompleteController,
+	SearchController,
+	FinderController,
+	RecommendationController,
+	QuickviewController,
+} from './index';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 
 import type { Client } from '@athoscommerce/snap-client';
@@ -7,13 +14,15 @@ import type {
 	AutocompleteStore,
 	FinderStore,
 	RecommendationStore,
+	QuickviewControllerStore,
 	StoreConfig,
 	SearchStoreConfig,
 	FinderStoreConfig,
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
+	QuickviewControllerStoreConfig,
 	Product,
-	QuickViewConfig,
+	QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
 import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Tracker, ProductViewEvent } from '@athoscommerce/snap-tracker';
@@ -70,10 +79,10 @@ export type RestorePositionObj = {
 	element?: ElementPositionObj;
 };
 export type ProductQuickviewObj = {
-	controller: SearchController | AutocompleteController | RecommendationController;
+	controller: SearchController | AutocompleteController | RecommendationController | QuickviewController;
 	result: Product;
 	productsData?: ProductsResponseModel;
-	config: QuickViewConfig;
+	config: QuickviewConfig;
 };
 
 export type ElementPositionObj = {
@@ -87,13 +96,14 @@ export enum ControllerTypes {
 	autocomplete = 'autocomplete',
 	finder = 'finder',
 	recommendation = 'recommendation',
+	quickview = 'quickview',
 }
 
-export type Controllers = SearchController | AutocompleteController | FinderController | RecommendationController;
+export type Controllers = SearchController | AutocompleteController | FinderController | RecommendationController | QuickviewController;
 
 export type ControllerServices = {
 	client: Client;
-	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore;
+	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | QuickviewControllerStore;
 	urlManager: UrlManager;
 	eventManager: EventManager;
 	profiler: Profiler;
@@ -133,5 +143,12 @@ export type FinderControllerConfig = ControllerConfig & FinderStoreConfig;
 export type AutocompleteControllerConfig = ControllerConfig & AutocompleteStoreConfig;
 // Recommendation config
 export type RecommendationControllerConfig = ControllerConfig & RecommendationStoreConfig;
+// Quickview config
+export type QuickviewControllerConfig = ControllerConfig & QuickviewControllerStoreConfig;
 
-export type ControllerConfigs = SearchControllerConfig | AutocompleteControllerConfig | FinderControllerConfig | RecommendationControllerConfig;
+export type ControllerConfigs =
+	| SearchControllerConfig
+	| AutocompleteControllerConfig
+	| FinderControllerConfig
+	| RecommendationControllerConfig
+	| QuickviewControllerConfig;

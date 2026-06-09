@@ -95,7 +95,7 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent, hideQuickViewButton } =
+	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent, hideQuickviewButton } =
 		props;
 
 	if (customComponent) {
@@ -112,7 +112,7 @@ export const Results = observer((properties: ResultsProps) => {
 			// inherited props
 			...defined({
 				disableStyles,
-				hideQuickViewButton,
+				hideQuickviewButton,
 			}),
 			// component theme overrides
 			theme: props?.theme,
@@ -192,7 +192,7 @@ export type ResultsTemplatesLegalProps = {
 	rows?: number;
 	gapSize?: string;
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
-	hideQuickViewButton?: boolean;
+	hideQuickviewButton?: boolean;
 };
 
 interface ResultsSubProps {

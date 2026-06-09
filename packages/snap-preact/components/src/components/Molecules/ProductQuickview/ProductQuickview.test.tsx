@@ -42,8 +42,12 @@ jest.mock('../CalloutBadge', () => {
 
 import { ProductQuickview } from './ProductQuickview';
 
+// Build a controller-shaped object whose `store.quickview` mirrors the QuickviewStore API the
+// component reads. Tests set modal state directly on `store.quickview`. The shape matches what a
+// real QuickviewController exposes via QuickviewControllerStore.quickview.
 function makeController(overrides: any = {}) {
 	const controller: any = {
+		type: 'quickview',
 		store: {
 			quickview: {
 				isOpen: false,
@@ -74,7 +78,7 @@ describe('ProductQuickview', () => {
 			attributes: { color: 'red', size: 'M' },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product } },
+			store: { quickview: { isOpen: true, product, config: { displayFields: ['color', 'size'] } } },
 		});
 
 		const rendered = render(<ProductQuickview controller={controller} />);
@@ -103,35 +107,21 @@ describe('ProductQuickview', () => {
 		expect(close).toHaveBeenCalledTimes(1);
 	});
 
-	it('does not open when result prop is provided and store product has a different id', () => {
-		const storeProduct = { id: 'other', mappings: { core: { name: 'Other' } }, attributes: {} };
-		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
-		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
-
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
-
-		// Quickview is open in the store, but for a different product — this instance should stay closed.
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
-	});
-
-	it('opens when result prop is provided and matches the store product id', () => {
+	it('opens when the store quickview is open and renders the product', () => {
 		const storeProduct = { id: 'mine', mappings: { core: { name: 'Mine' } }, attributes: { size: 'M' } };
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
 	});
 
 	it('renders a loading indicator when store.quickview.loading is true', () => {
-		// During loading the store holds the source result as `product` (set by setLoading),
-		// which is how the modal scopes to this result before the clone is built.
+		// During loading the store holds the source result as `product` (set by setLoading)
+		// before the cloned/fetched product replaces it.
 		const { controller } = makeController({
 			store: {
 				quickview: {
@@ -141,9 +131,8 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__loading')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__product-quickview__title')).toBeNull();
@@ -165,9 +154,8 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.getByText('size')).toBeInTheDocument();
 		expect(rendered.getByText('M')).toBeInTheDocument();
@@ -199,9 +187,8 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// Pretty labels are rendered…
 		expect(rendered.getByText('Size')).toBeInTheDocument();
@@ -228,9 +215,8 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.getByText('sku')).toBeInTheDocument();
 		expect(rendered.getByText('ABC-123')).toBeInTheDocument();
@@ -252,9 +238,8 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.getByText('new, sale, featured')).toBeInTheDocument();
 	});
@@ -279,17 +264,15 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.getByText('new, sale, featured')).toBeInTheDocument();
 	});
 
-	it('mounts during error state for the scoped result (source product retained)', () => {
+	it('mounts during error state while the store is open (source product retained)', () => {
 		// On error the store still holds the source result as `product` (setLoading set it,
-		// update never replaced it), so the modal scoped to that Result mounts and shows the
-		// error message — while a Result scoped to a different id stays closed.
+		// update never replaced it), so the shared modal mounts and shows the error message.
 		const { controller } = makeController({
 			store: {
 				quickview: {
@@ -300,14 +283,9 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
-		const otherResult = { id: 'other', mappings: {}, attributes: {} } as any;
 
-		const matching = render(<ProductQuickview controller={controller} result={myResult} />);
-		expect(matching.container.querySelector('.ss__product-quickview__error')).not.toBeNull();
-
-		const mismatched = render(<ProductQuickview controller={controller} result={otherResult} />);
-		expect(mismatched.container.querySelector('.ss__product-quickview__error')).toBeNull();
+		const rendered = render(<ProductQuickview controller={controller} />);
+		expect(rendered.container.querySelector('.ss__product-quickview__error')).not.toBeNull();
 	});
 
 	it('renders the error message when quickview.error is set', () => {
@@ -321,9 +299,8 @@ describe('ProductQuickview', () => {
 				},
 			},
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const errorEl = rendered.container.querySelector('.ss__product-quickview__error');
 		expect(errorEl).not.toBeNull();
@@ -348,9 +325,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -367,9 +343,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'gallery' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -385,9 +360,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -403,9 +377,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
 		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
@@ -422,9 +395,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// No imagesField configured → default candidate 'images' has >1 → carousel.
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
@@ -443,9 +415,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -468,9 +439,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: ['primaryImages', 'gallery'] } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -487,9 +457,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// No images/ss_images present → no carousel, single core image only.
 		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
@@ -508,9 +477,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
 		expect(imgs).toHaveLength(3);
@@ -528,9 +496,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// One image in the list → fall back to the single core image.
 		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
@@ -573,9 +540,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// No carousel — the active variant has no own images array, so the single variant image renders.
 		expect(rendered.container.querySelector('.ss__product-quickview__carousel')).toBeNull();
@@ -616,9 +582,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -635,11 +600,10 @@ describe('ProductQuickview', () => {
 			attributes: { color: 'red' },
 		};
 		const { controller } = makeController({
-			store: { quickview: { isOpen: true, product: storeProduct } },
+			store: { quickview: { isOpen: true, product: storeProduct, config: { displayFields: ['color'] } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const media = rendered.container.querySelector('.ss__product-quickview__media');
 		const details = rendered.container.querySelector('.ss__product-quickview__details');
@@ -666,9 +630,8 @@ describe('ProductQuickview', () => {
 			addToCart,
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const button = rendered.container.querySelector('.ss__product-quickview__add-to-cart') as HTMLElement;
 		expect(button).not.toBeNull();
@@ -687,9 +650,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const desc = rendered.container.querySelector('.ss__product-quickview__description');
 		expect(desc).not.toBeNull();
@@ -705,9 +667,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__description')).toBeNull();
 	});
@@ -722,9 +683,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const vs = rendered.container.querySelector('.ss__variant-selection-mock[data-field="color"]');
 		expect(vs).not.toBeNull();
@@ -741,9 +701,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const vs = rendered.container.querySelector('.ss__variant-selection-mock[data-field="size"]');
 		expect(vs!.getAttribute('data-type')).toBe('dropdown');
@@ -759,9 +718,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const vs = rendered.container.querySelector('.ss__variant-selection-mock[data-field="color"]');
 		// Empty data-type → ProductQuickview passed `undefined`, letting VariantSelection default.
@@ -780,9 +738,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const title = rendered.container.querySelector('.ss__product-quickview__variant-title');
 		expect(title).not.toBeNull();
@@ -802,9 +759,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const title = rendered.container.querySelector('.ss__product-quickview__variant-title');
 		expect(title!.textContent).toBe('color');
@@ -819,9 +775,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const pricing = rendered.container.querySelector('.ss__product-quickview__pricing');
 		expect(pricing).not.toBeNull();
@@ -839,9 +794,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const pricing = rendered.container.querySelector('.ss__product-quickview__pricing')!;
 		expect(pricing.querySelector('.ss__price--strike')).not.toBeNull();
@@ -849,7 +803,7 @@ describe('ProductQuickview', () => {
 		expect(pricing.textContent).toContain('20');
 	});
 
-	it('renders a "Go to Product" button that navigates to the product url', () => {
+	it('renders a "More info" button that navigates to the product url', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', url: '/products/apex-bottle' } },
@@ -858,9 +812,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		const button = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
 		expect(button).not.toBeNull();
@@ -881,9 +834,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// Neither badge variant renders when showBadges is not set.
 		expect(rendered.container.querySelector('.ss__overlay-badge-mock')).toBeNull();
@@ -901,9 +853,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} showBadges={true} />);
+		const rendered = render(<ProductQuickview controller={controller} showBadges={true} />);
 
 		// Overlay wraps the media.
 		const overlay = rendered.container.querySelector('.ss__product-quickview__media .ss__overlay-badge-mock');
@@ -913,7 +864,7 @@ describe('ProductQuickview', () => {
 		expect(rendered.container.querySelector('.ss__product-quickview__media .ss__callout-badge-mock')).not.toBeNull();
 	});
 
-	it('omits the "Go to Product" button when the product has no url', () => {
+	it('omits the "More info" button when the product has no url', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine' } },
@@ -922,9 +873,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__go-to-product')).toBeNull();
 	});
@@ -938,9 +888,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// Gallery not open initially.
 		expect(document.querySelector('.ss__gallery')).toBeNull();
@@ -963,9 +912,8 @@ describe('ProductQuickview', () => {
 		const { controller } = makeController({
 			store: { quickview: { isOpen: true, product: storeProduct, config: { imagesField: 'images' } } },
 		});
-		const myResult = { id: 'mine', mappings: {}, attributes: {} } as any;
 
-		const rendered = render(<ProductQuickview controller={controller} result={myResult} />);
+		const rendered = render(<ProductQuickview controller={controller} />);
 
 		// Click the third carousel image (index 2).
 		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');

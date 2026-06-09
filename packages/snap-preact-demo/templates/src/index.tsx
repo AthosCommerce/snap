@@ -80,10 +80,10 @@ let templatesConfig: SnapTemplatesConfig = {
 					// iconColor: 'red'
 				},
 				results: {
-					hideQuickViewButton: false,
+					hideQuickviewButton: false,
 				},
 				result: {
-					hideQuickViewButton: false,
+					hideQuickviewButton: false,
 				},
 			},
 		},

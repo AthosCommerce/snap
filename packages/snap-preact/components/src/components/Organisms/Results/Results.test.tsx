@@ -91,7 +91,7 @@ describe('Results Component', () => {
 		expect(results.length).toBe(mockResults.length);
 	});
 
-	it('forwards hideQuickViewButton to child Result instances', async () => {
+	it('forwards hideQuickviewButton to child Result instances', async () => {
 		searchConfig = { ...searchConfigDefault };
 		searchConfig.id = uuidv4().split('-').join('');
 
@@ -107,9 +107,9 @@ describe('Results Component', () => {
 
 		await controller.search();
 
-		const rendered = render(<Results layout={Layout.grid} results={mockResults} controller={controller} hideQuickViewButton={false} />);
+		const rendered = render(<Results layout={Layout.grid} results={mockResults} controller={controller} hideQuickviewButton={false} />);
 
-		const buttons = rendered.container.querySelectorAll('.ss__result__button--quickView');
+		const buttons = rendered.container.querySelectorAll('.ss__result__button--quickview');
 		expect(buttons.length).toBe(mockResults.length);
 	});
 

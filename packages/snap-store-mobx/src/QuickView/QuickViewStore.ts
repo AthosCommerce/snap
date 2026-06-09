@@ -4,12 +4,12 @@ import { Product } from '../Search/Stores';
 import type { StoreConfigs, SearchStoreConfig } from '../types';
 
 // Structural type — avoids a dependency on snap-client.
-export type QuickViewProductsData = {
+export type QuickviewProductsData = {
 	mappings?: { core?: Record<string, any> };
 	variants?: { data?: any[]; optionConfig?: Record<string, any> };
 };
 
-export type QuickViewConfig = {
+export type QuickviewConfig = {
 	displayFields?: string[];
 	// When false, the source `result` is used directly as the modal's product (no cloning).
 	// Variant selection in the modal will then mutate the source result tile. Default: true.
@@ -25,27 +25,27 @@ export type QuickViewConfig = {
 	imagesField?: string | string[];
 };
 
-export type QuickViewUpdateArgs = {
+export type QuickviewUpdateArgs = {
 	result: Product;
-	productsData?: QuickViewProductsData;
-	config?: QuickViewConfig;
+	productsData?: QuickviewProductsData;
+	config?: QuickviewConfig;
 	// Optional store-config passthrough, used when cloning so variants pick up the existing variants settings.
 	storeConfig?: StoreConfigs;
 	// Optional meta passthrough for badges processing.
 	meta?: any;
 };
 
-export type QuickViewError = {
+export type QuickviewError = {
 	message: string;
 	cause?: unknown;
 };
 
-export class QuickViewStore {
+export class QuickviewStore {
 	public product?: Product = undefined;
 	public isOpen = false;
 	public loading = false;
-	public config?: QuickViewConfig = undefined;
-	public error?: QuickViewError = undefined;
+	public config?: QuickviewConfig = undefined;
+	public error?: QuickviewError = undefined;
 
 	constructor() {
 		makeObservable(this, {
@@ -78,7 +78,7 @@ export class QuickViewStore {
 	// Surface a fatal error from the controller (e.g. an exception inside update()).
 	// The modal will render an error branch instead of the product. Flips loading off
 	// to ensure the spinner doesn't remain stuck.
-	public setError(error: QuickViewError | undefined): void {
+	public setError(error: QuickviewError | undefined): void {
 		this.error = error;
 		this.loading = false;
 		if (error) {
@@ -89,7 +89,7 @@ export class QuickViewStore {
 	// Build (or reuse) the Product instance and populate variants from productsData.
 	// Honors config.clone (default true). When clone is false, the source result is used
 	// directly and variant interactions in the modal will mutate the source result tile.
-	public update({ result, productsData, config, storeConfig, meta }: QuickViewUpdateArgs): void {
+	public update({ result, productsData, config, storeConfig, meta }: QuickviewUpdateArgs): void {
 		if (!result) return;
 
 		let product: Product;

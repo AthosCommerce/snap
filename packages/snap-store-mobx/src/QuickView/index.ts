@@ -1,1 +1,1 @@
-export * from './QuickViewStore';
+export * from './QuickviewStore';

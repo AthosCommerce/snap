@@ -2,7 +2,7 @@
 
 The `ProductQuickview` molecule renders the active quickview product (`controller.store.quickview.product`) inside a `Modal`. It is a MobX `observer` that subscribes to `controller.store.quickview` and dismisses the modal by calling `controller.store.quickview.close()`.
 
-It is the rendering half of the QuickView feature. The state half lives on the controller: see `SearchController`, `AutocompleteController`, and `RecommendationController` for `quickview` (which opens it) and `store.quickview.close()` (which dismisses it).
+It is the rendering half of the Quickview feature. The state half lives on the controller: see `SearchController`, `AutocompleteController`, and `RecommendationController` for `quickview` (which opens it) and `store.quickview.close()` (which dismisses it).
 
 ## Usage
 
@@ -12,7 +12,7 @@ Place a single `<ProductQuickview controller={controller} />` somewhere in your 
 <ProductQuickview controller={controller} />
 ```
 
-Scoping the modal to a specific Result (`Result` does this automatically when `hideQuickViewButton={false}`):
+Scoping the modal to a specific Result (`Result` does this automatically when `hideQuickviewButton={false}`):
 
 ```tsx
 {results.map((result) => (

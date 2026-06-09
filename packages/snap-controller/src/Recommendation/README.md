@@ -45,27 +45,27 @@ This will invoke an addToCart event (see below). Takes an array of Products as a
 recommendationController.addToCart([recommendationController.store.results[0]]);
 ```
 
-## QuickView
+## Quickview
 
-The Recommendation controller exposes a `quickview` method for opening the product quickview modal; closing is done via `controller.store.quickview.close()`. State lives on `controller.store.quickview`; consumers render the `<ProductQuickview controller={controller} />` molecule to display it.
+The Recommendation controller exposes a `quickview` method for opening the product quickview modal. The modal state no longer lives on `RecommendationController` — it is owned by a dedicated `QuickviewController` (controller id `quickview`) at `quickviewController.store.quickview` (a `QuickviewStore`). A single `<ProductQuickview />` is rendered once: the `QuickviewController` injects it into `<body>`, so consumers no longer render one per result.
 
 ### `quickview({ result, productsData?, config? })`
 
-Opens the product quickview modal for the given result. Immediately flips the store into a loading state, optionally fetches `/v1/products` for the result (Recommendation uses `result.id` as the parent identifier), fires the `quickview` middleware event, then populates `controller.store.quickview` with the (cloned-by-default) Product. The method always resolves — errors surface via `store.quickview.error` rather than thrown.
+Requests the product quickview modal for the given result. The Recommendation controller computes the product's parent (`result.id`), merges the controller-level `settings.quickview` config with the per-call override, and fires a global `controller/quickview` event (`window.athos.fire(...)`) carrying `{ result, productsData, parentId, config, meta, controller }`. It no longer touches a local `store.quickview`. The dedicated `QuickviewController` handles that event: it opens the modal, fetches `/v1/products`, fires the `quickview` middleware, and updates its own `store.quickview`.
 
 | param | type | description |
 |---|---|---|
 | `result` | `Product` (required) | The source result to preview. Recommendation uses `result.id` as the parent identifier. |
-| `productsData` | `ProductsResponseModel` (optional) | If passed, the controller skips its own `/v1/products` call and uses this data as-is. |
-| `config` | `QuickViewConfig` (optional) | Per-call override; merged with `settings.quickview` from the controller config (caller wins). |
+| `productsData` | `ProductsResponseModel` (optional) | If passed, the `QuickviewController` skips its own `/v1/products` call and uses this data as-is. |
+| `config` | `QuickviewConfig` (optional) | Per-call override; merged with `settings.quickview` from the controller config (caller wins). |
 
 ```tsx
 <button onClick={() => controller.quickview({ result })}>Quick View</button>
 ```
 
-### `controller.store.quickview.close()`
+### Closing the modal
 
-Hides the modal but retains `product` in the store, so reopening the same result is instant. Call `controller.store.quickview.reset()` if you also want to clear the product reference.
+Closing is handled by the `QuickviewController`'s store: call `quickviewController.store.quickview.close()` to hide the modal while retaining `product` (so reopening the same result is instant), or `quickviewController.store.quickview.reset()` to also clear the product reference.
 
 ## Events
 ### init
@@ -109,9 +109,10 @@ Hides the modal but retains `product` in the store, so reopening the same result
 - Always invoked after `controller.addToCart()` method has been invoked
 
 ### quickview
+- This middleware fires on the dedicated `QuickviewController` (the controller that handles the global `controller/quickview` event), not on `RecommendationController`
 - Called with `eventData` = `ProductQuickviewObj` = { controller, result, productsData?, config }
-- Fires inside `quickview`, after the optional `/v1/products` fetch resolves and before the store's `update` runs
-- Middleware can mutate `result`, `productsData`, or `config` on the payload — the controller reads them back after the await and passes them to `store.quickview.update`
+- Fires after the optional `/v1/products` fetch resolves and before the `QuickviewController`'s `store.quickview.update` runs
+- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewController` reads them back after the await and passes them to `store.quickview.update`
 - Throw `new Error('cancelled')` to short-circuit: `store.quickview.reset()` is called and no modal renders
 - Any other thrown error surfaces as `store.quickview.error` and the modal renders the error branch
 

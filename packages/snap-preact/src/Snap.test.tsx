@@ -1417,6 +1417,32 @@ describe('Snap Preact', () => {
 		});
 	});
 
+	describe('creates quickview controllers via config', () => {
+		it('creates a quickview controller and registers it on window.athos.controller', async () => {
+			const baseConfig = generateBaseConfig();
+			const quickviewConfig = {
+				...baseConfig,
+				controllers: {
+					quickview: [
+						{
+							config: {
+								id: 'quickview',
+							},
+						},
+					],
+				},
+			};
+			const snap = new Snap(quickviewConfig);
+
+			const quickview = await snap.getController('quickview');
+			expect(quickview.id).toBe('quickview');
+			expect(quickview.type).toBe('quickview');
+
+			expect(window.athos.controller['quickview']).toBeDefined();
+			expect(window.athos.controller['quickview'].type).toBe('quickview');
+		});
+	});
+
 	describe('creates eventManager', () => {
 		it('creates eventManager on snap instance and adds functions to window', () => {
 			const baseConfig = generateBaseConfig();

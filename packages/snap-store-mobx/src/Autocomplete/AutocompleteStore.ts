@@ -19,7 +19,6 @@ import {
 	AutocompleteTrendingStore,
 	AutocompleteHistoryStore,
 } from './Stores';
-import { QuickViewStore } from '../QuickView/QuickViewStore';
 
 import type { AutocompleteResponseModel, MetaResponseModel } from '@athoscommerce/snapi-types';
 import type { TrendingResponseModel } from '@athoscommerce/snap-client';
@@ -41,8 +40,6 @@ export class AutocompleteStore extends AbstractStore<AutocompleteStoreConfig> {
 	public storage: StorageStore;
 	public trending: AutocompleteTrendingStore;
 	public history: AutocompleteHistoryStore;
-	public quickview: QuickViewStore;
-
 	constructor(config: AutocompleteStoreConfig, services: StoreServices) {
 		super(config);
 
@@ -60,7 +57,6 @@ export class AutocompleteStore extends AbstractStore<AutocompleteStoreConfig> {
 
 		this.trending = [];
 		this.history = [];
-		this.quickview = new QuickViewStore();
 		this.initHistory();
 
 		this.reset();
@@ -77,7 +73,6 @@ export class AutocompleteStore extends AbstractStore<AutocompleteStoreConfig> {
 			sorting: observable,
 			history: observable,
 			trending: observable,
-			quickview: observable,
 		});
 	}
 
