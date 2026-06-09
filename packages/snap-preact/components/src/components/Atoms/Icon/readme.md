@@ -124,7 +124,7 @@ The `stroke` prop specifies the icon stroke color.
 ```
 
 ### title
-The `title` prop specifies the title to render inside the svg.
+The `title` prop specifies the title to render inside the svg. (not supported when using svg prop)
 
 ```tsx
 <Icon icon='cogs' title={'Settings'} />

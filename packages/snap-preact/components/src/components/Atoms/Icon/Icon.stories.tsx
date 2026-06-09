@@ -57,7 +57,7 @@ export default {
 			control: { type: 'text' },
 		},
 		title: {
-			description: 'Title text to render inside the svg',
+			description: 'Title text to render inside the svg (not supported when using svg prop)',
 			table: {
 				type: {
 					summary: 'string',

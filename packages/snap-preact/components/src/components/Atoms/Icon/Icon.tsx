@@ -83,10 +83,6 @@ export function Icon(properties: IconProps) {
 			svgProps.height = height || size;
 		}
 
-		if (title) {
-			svgProps.title = title;
-		}
-
 		return (
 			<CacheProvider>
 				{/* Using Emotion's jsx() instead of cloneElement to ensure the `css` prop from mergeStyles is processed.
