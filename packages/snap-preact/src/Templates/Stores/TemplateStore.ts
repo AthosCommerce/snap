@@ -12,6 +12,7 @@ import { TargetStore } from './TargetStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
+import type { OverlayResultProps } from '../../../components/src/components/Molecules/OverlayResult';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -108,7 +109,7 @@ import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/Re
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
 
-export type TemplateDefaultComponentTypes = 'result' | 'badge';
+export type TemplateDefaultComponentTypes = 'result' | 'badge' | 'overlayResult';
 
 // TODO: tabbing, finder
 export type SearchTargetConfig = {
@@ -238,6 +239,7 @@ type TemplatesStoreThemeConfigUnlocked = Omit<TemplatesStoreThemeConfigLocked, '
 export type ComponentTypePropsMap = {
 	result: ResultProps;
 	badge: OverlayBadgeProps;
+	overlayResult: OverlayResultProps;
 	badgeImage: BadgeImageProps;
 	badgePill: BadgePillProps;
 	badgeRectangle: BadgeRectangleProps;

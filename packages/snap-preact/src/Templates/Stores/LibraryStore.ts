@@ -157,11 +157,12 @@ export type LibraryImports = {
 		[currencyName in CurrencyCodes]: () => Promise<ThemeMinimal>;
 	};
 };
-const DEFAULT_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge'];
+const DEFAULT_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge', 'overlayResult'];
 
 const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
 	'result',
 	'badge',
+	'overlayResult',
 	/* atoms */
 	'badgeImage',
 	'badgePill',
