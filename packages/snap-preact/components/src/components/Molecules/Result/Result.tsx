@@ -316,7 +316,7 @@ export const Result = observer((properties: ResultProps) => {
 
 					{cloneWithProps(detailSlot, { result, treePath })}
 
-					{!hideVariantSelections && result.variants?.selections.length && (
+					{!hideVariantSelections && result.variants?.selections.length ? (
 						<div className="ss__result__details__variant-selection">
 							{result.variants?.selections.map((selection) => {
 								return (
@@ -324,7 +324,7 @@ export const Result = observer((properties: ResultProps) => {
 								);
 							})}
 						</div>
-					)}
+					) : null}
 
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
