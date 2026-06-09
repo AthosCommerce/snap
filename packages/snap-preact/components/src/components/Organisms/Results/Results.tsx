@@ -131,9 +131,9 @@ export const Results = observer((properties: ResultsProps) => {
 		},
 	};
 
-	let results = props.results;
+	let results = excludeBanners ? props.results?.filter((r) => r.type !== ContentType.BANNER) : props.results;
 	if (props?.columns && props?.rows && props.columns > 0 && props.rows > 0) {
-		results = props.results?.slice(0, props.columns * props.rows);
+		results = results?.slice(0, props.columns * props.rows);
 	}
 
 	const styling = mergeStyles<ResultsProps>({ ...props, columns: layout == ResultsLayout.list ? 1 : props.columns }, defaultStyles);
@@ -145,9 +145,7 @@ export const Results = observer((properties: ResultsProps) => {
 					(() => {
 						switch (result.type) {
 							case ContentType.BANNER:
-								return !excludeBanners ? (
-									<InlineBanner {...subProps.inlineBanner} key={result.id} banner={result as Banner} layout={props.layout} />
-								) : null;
+								return <InlineBanner {...subProps.inlineBanner} key={result.id} banner={result as Banner} layout={props.layout} />;
 							default:
 								if (resultComponent && controller) {
 									return (
@@ -185,11 +183,11 @@ export type ResultsProps = {
 	controller?: SearchController | AutocompleteController | RecommendationController;
 	resultComponent?: JSXComponent | JSX.Element;
 	results?: SearchResultStore;
-	excludeBanners?: boolean;
 } & ResultsTemplatesLegalProps &
 	ComponentProps<ResultsProps>;
 
 export type ResultsTemplatesLegalProps = {
+	excludeBanners?: boolean;
 	columns?: number;
 	rows?: number;
 	gapSize?: string;
