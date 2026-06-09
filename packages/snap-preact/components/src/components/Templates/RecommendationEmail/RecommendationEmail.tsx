@@ -7,8 +7,10 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import classnames from 'classnames';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, ThemeComponent, useTheme, useTreePath } from '../../../providers';
+import { Theme, ThemeComponent, useTheme, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
+import { useComponent } from '../../../hooks';
+import { SnapTemplates } from '../../../../../src';
 
 export const recommendationEmailThemeComponentProps: ThemeComponent<
 	'recommendationEmailThemeComponentProps',
@@ -37,7 +39,16 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 
 	const props = mergeProps('recommendationEmail', globalTheme, defaultProps, properties);
 
-	const { controller, results, resultComponent, resultProps, resultWidth, treePath, disableStyles, internalClassName, className } = props;
+	const { controller, results, resultProps, resultWidth, treePath, disableStyles, internalClassName, className } = props;
+	let resultComponent = props.resultComponent;
+	const snap = useSnap();
+
+	if (resultComponent && typeof resultComponent === 'string') {
+		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
+		if (resultComponentOverride) {
+			resultComponent = resultComponentOverride;
+		}
+	}
 
 	const subProps: RecommendationEmailSubProps = {
 		result: {

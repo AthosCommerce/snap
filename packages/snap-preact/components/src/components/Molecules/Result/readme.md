@@ -120,7 +120,7 @@ const productDetails = (props) => {
 ```
 
 ```tsx
-<Result result={controller.store.results[0]} detailSlot={(props) => ProductDetails} />
+<Result result={controller.store.results[0]} detailSlot={<ProductDetails product={controller.store.results[0]} />} />
 ```
 
 ### fallback

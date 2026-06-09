@@ -373,13 +373,13 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 
 							{cloneWithProps(detailSlot, { result, treePath })}
 
-							{!hideVariantSelections && result.variants?.selections.length && (
+							{!hideVariantSelections && result.variants?.selections.length ? (
 								<div className="ss__overlay-result__details__variant-selection">
 									{result.variants?.selections.map((selection) => {
 										return <VariantSelection {...subProps.variantSelection} selection={selection} />;
 									})}
 								</div>
-							)}
+							) : null}
 
 							{!hideAddToCartButton && (
 								<div className="ss__overlay-result__add-to-cart-wrapper">

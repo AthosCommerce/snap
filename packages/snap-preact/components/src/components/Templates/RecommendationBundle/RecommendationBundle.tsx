@@ -7,7 +7,7 @@ import deepmerge from 'deepmerge';
 import { Carousel, CarouselProps as CarouselProps } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
@@ -18,8 +18,9 @@ import type { CartStore, Product } from '@athoscommerce/snap-store-mobx';
 import { BundleSelector, BundleSelectorProps } from './BundleSelector';
 import { BundledCTA, BundledCTAProps } from './BundleCTA';
 import { Lang } from '../../../hooks';
-import { useIntersection } from '../../../hooks';
+import { useComponent, useIntersection } from '../../../hooks';
 import { componentNameToClassName } from '../../../utilities/componentNameToClassName';
+import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationBundleProps & { hasSeed: boolean; carouselEnabled: boolean }> = ({
 	vertical,
@@ -225,7 +226,6 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		vertical,
 		onAddToCart,
 		separatorIconSeedOnly,
-		resultComponent,
 		ctaSlot,
 		hideSeed,
 		ctaButtonText,
@@ -245,6 +245,16 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		treePath,
 		...additionalProps
 	} = props;
+
+	let resultComponent = props.resultComponent;
+	const snap = useSnap();
+
+	if (resultComponent && typeof resultComponent === 'string') {
+		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
+		if (resultComponentOverride) {
+			resultComponent = resultComponentOverride;
+		}
+	}
 
 	const mergedlazyRender = {
 		enabled: true,
