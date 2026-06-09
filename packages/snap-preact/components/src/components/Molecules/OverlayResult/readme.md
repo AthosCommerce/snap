@@ -137,7 +137,7 @@ const ProductDetails = (props) => {
 ```
 
 ```tsx
-<OverlayResult result={controller.store.results[0]} detailSlot={(props) => ProductDetails} />
+<OverlayResult result={controller.store.results[0]} detailSlot={<ProductDetails product={controller.store.results[0]} />} />
 ```
 
 ### fallback
