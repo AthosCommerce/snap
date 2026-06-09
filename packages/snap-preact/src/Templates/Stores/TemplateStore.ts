@@ -31,7 +31,7 @@ import type {
 	ThemeResponsiveComplete,
 	ThemeResponsiveCompleteUnlocked,
 	LangComponentOverrides,
-	ThemeComponents,
+	ThemeComponentsRestricted,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
@@ -698,7 +698,7 @@ function getTargetArray(targets: TemplatesStore['targets'], type: TemplateTypes)
 }
 
 export function transformTranslationsToTheme(translations: LangComponentOverrides): ThemeMinimal {
-	const components: Partial<ThemeComponents> = {};
+	const components: ThemeComponentsRestricted = {};
 
 	Object.keys(translations).forEach((component) => {
 		components[component as keyof typeof components] = {

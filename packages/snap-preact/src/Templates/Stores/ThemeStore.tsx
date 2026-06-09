@@ -156,7 +156,7 @@ export class ThemeStore {
 
 		const themeOverrides = mergeThemeLayers(overrides, overrideBreakpoint, {
 			variables: toJS(this.variables),
-		} as ThemePartial) as Theme;
+		} as ThemePartial) as ThemePartial;
 
 		let theme: Theme = mergeThemeLayers(base, baseBreakpoint, this.currency, this.language, this.languageOverrides, themeOverrides, {
 			activeBreakpoint: activeBreakpoint,
@@ -176,9 +176,10 @@ export class ThemeStore {
 			// if a component has a theme property with components
 			if (themeComponents) {
 				for (const themeComponentName in themeComponents) {
-					const themeComponentsApplicableSelectors = filterSelectors(themeOverrides.components || {}, `${componentName} ${themeComponentName}`).sort(
-						sortSelectors
-					);
+					const themeComponentsApplicableSelectors = filterSelectors(
+						(themeOverrides.components as any) || {},
+						`${componentName} ${themeComponentName}`
+					).sort(sortSelectors);
 					themeComponentsApplicableSelectors.forEach((selector) => {
 						const themeComponentPropsOverrides = themeOverrides.components![selector as keyof typeof themeOverrides.components];
 						if (themeComponentPropsOverrides) {
@@ -193,10 +194,10 @@ export class ThemeStore {
 
 		// TemplateEditor overrides
 		if (this.editMode) {
-			theme = mergeThemeLayers(theme, this.editorOverrides) as Theme;
+			theme = mergeThemeLayers(theme as ThemePartial, this.editorOverrides) as Theme;
 
 			const editorOverrideBreakpoint = getOverridesAtActiveBreakpoint(activeBreakpoint, this.editorOverrides);
-			theme = mergeThemeLayers(theme, editorOverrideBreakpoint) as Theme;
+			theme = mergeThemeLayers(theme as ThemePartial, editorOverrideBreakpoint) as Theme;
 		}
 
 		// change the theme name to match the ThemeStore theme name
@@ -221,7 +222,7 @@ export class ThemeStore {
 	}
 }
 
-export function mergeThemeLayers(...layers: ThemePartial[]): ThemePartial {
+export function mergeThemeLayers(...layers: (ThemePartial | Theme)[]): ThemePartial {
 	return deepmerge.all(layers, { arrayMerge: arrayMerge });
 }
 

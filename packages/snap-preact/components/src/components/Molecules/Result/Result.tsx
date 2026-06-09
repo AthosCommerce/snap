@@ -374,7 +374,6 @@ export type ResultTemplatesLegalProps = {
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
-	customComponent?: string;
 };
 
 export interface ResultLang {

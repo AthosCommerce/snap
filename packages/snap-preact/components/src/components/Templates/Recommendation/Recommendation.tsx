@@ -230,10 +230,11 @@ export type RecommendationProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	lang?: Partial<RecommendationLang>;
 	breakpoints?: BreakpointsProps;
-} & RecommendationTemplatesLegalProps &
+} & Omit<RecommendationTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationTemplatesLegalProps = {
+	resultComponent?: string;
 	title?: JSX.Element | string;
 	description?: string;
 	hideTitle?: boolean;

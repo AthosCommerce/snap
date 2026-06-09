@@ -87,15 +87,10 @@ export type LibraryImports = {
 				RecommendationEmail: (args?: any) => Promise<JSXComponent>;
 			};
 		};
-		badge: LibraryComponentImport;
-		result: LibraryComponentImport & {
-			Result: (args?: any) => Promise<JSXComponent>;
-			OverlayResult: (args?: any) => Promise<JSXComponent>;
-		};
-		overlayResult: LibraryComponentImport & {
-			OverlayResult: (args?: any) => Promise<JSXComponent>;
-		};
 		/* individual library components */
+		badge: LibraryComponentImport;
+		result: LibraryComponentImport;
+		overlayResult: LibraryComponentImport;
 		badgeImage: LibraryComponentImport;
 		badgePill: LibraryComponentImport;
 		badgeRectangle: LibraryComponentImport;

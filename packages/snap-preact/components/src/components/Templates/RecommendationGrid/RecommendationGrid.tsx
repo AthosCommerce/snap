@@ -170,10 +170,11 @@ export type RecommendationGridProps = {
 	breakpoints?: BreakpointsProps;
 	resultComponent?: JSXComponent | JSX.Element;
 	results?: Product[];
-} & RecommendationGridTemplatesLegalProps &
+} & Omit<RecommendationGridTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationGridTemplatesLegalProps = {
+	resultComponent?: string;
 	title?: string;
 	columns?: number;
 	rows?: number;

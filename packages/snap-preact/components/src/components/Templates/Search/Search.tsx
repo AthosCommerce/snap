@@ -251,10 +251,11 @@ export type SearchProps = {
 	lang?: Partial<SearchLang>;
 	alias?: 'searchCollapsible' | 'searchHorizontal';
 	resultComponent?: JSXComponent | JSX.Element;
-} & SearchTemplatesLegalProps &
+} & Omit<SearchTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchTemplatesLegalProps = {
+	resultComponent?: string;
 	mobileDisplayAt?: string;
 	hideSidebar?: boolean;
 	hideTopToolbar?: boolean;

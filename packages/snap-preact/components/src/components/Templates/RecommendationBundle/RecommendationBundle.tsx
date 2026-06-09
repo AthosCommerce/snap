@@ -686,10 +686,11 @@ export type RecommendationBundleProps = {
 	alias?: string;
 	lang?: Partial<RecommendationBundleLang>;
 	results?: Product[];
-} & RecommendationBundleTemplatesLegalProps &
+} & Omit<RecommendationBundleTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleTemplatesLegalProps = {
+	resultComponent?: string;
 	limit?: number;
 	onAddToCart?: (e: MouseEvent, items: Product[]) => void;
 	title?: JSX.Element | string;

@@ -7,7 +7,6 @@ new SnapTemplates({
 	theme: {
 		extends: 'base',
 		styles: globalStyles,
-		resultComponent: 'Result',
 		variables: { ... },
 		overrides: { ... },
 		responsive: { ... },
@@ -39,7 +38,6 @@ The project theme contains the following properties:
 |----------------------|-------------|------|---------|
 | `theme` | Theme configurations | Object | ✔️ |
 | `theme.extends` | Base theme to extend | String | ✔️ |
-| `theme.resultComponent` | Custom result component | String | ✔️ |
 | `theme.variables` | Theme variables (colors, breakpoints, etc.) | Object | ➖ |
 | `theme.style` | Global styles | Function | ➖ |
 | `theme.overrides` | Component overrides | Object | ➖ |
@@ -48,9 +46,6 @@ The project theme contains the following properties:
 #### Theme `extends`
 The `extends` property is the base theme name to start from and will already contain variables, breakpoint overrides, and component props by default (unless choosing a blank theme)
 
-
-#### Theme `resultComponent`
-The `resultComponent` property allows you to specify a which product card component to use for rendering results within the theme. If using a custom component (not from the library), it must be declared in the `components` section of your configuration.
 
 
 #### Theme `variables`
@@ -180,14 +175,59 @@ new SnapTemplates({
 });
 ```
 
+##### The `resultComponent` Override Prop
+
+Template components support a `resultComponent` prop to control which result card component is rendered.
+
+`resultComponent` is available in locked configuration (default mode), so you can safely customize result rendering without enabling unlocked mode.
+
+Use this prop on template overrides such as `search`, `autocompleteFixed`, `autocompleteModal`, `autocompleteSlideout`, and recommendation templates.
+
+Valid values are:
+
+- Snap supplied result component names: `Result`, `OverlayResult`
+- Custom result component names registered in `components.result`
+
+**Usage Example (Locked Configuration):**
+
+```tsx
+new SnapTemplates({
+	config: { ... },
+	components: {
+		result: {
+			SearchResult: async () => (await import('./components/Result')).SearchResult,
+			AutocompleteResult: async () => (await import('./components/Result')).AutocompleteResult,
+		},
+	},
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				search: {
+					resultComponent: 'SearchResult',
+				},
+				autocompleteFixed: {
+					resultComponent: 'AutocompleteResult',
+				},
+				recommendation: {
+					resultComponent: 'Result',
+				},
+			},
+		},
+	},
+});
+```
+
 ##### The `customComponent` Override Prop
 
 All Atom, Molecule, and Organism components support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 
+Unlike `resultComponent`, `customComponent` does not use built-in fallback names. The value must be explicitly registered in `components` for the component section you are overriding (for example, `components.result` for `result` overrides).
+
 > [!NOTE]
-> When using a locked configuration (the default), only the `result` component supports the `customComponent` prop. To use `customComponent` with other components, you must use an unlocked configuration. See [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
+> When using a locked configuration (the default), only the `resultComponent` prop is available. To use `customComponent`, you must use an unlocked configuration. See [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
 
 **Usage Example:**
 
@@ -197,6 +237,7 @@ First, register your custom component in the configuration:
 import { MyCustomResult } from './components/MyCustomResult';
 
 new SnapTemplates({
+	unlocked: true,
 	config: { ... },
 	components: {
 		result: {
@@ -215,36 +256,46 @@ new SnapTemplates({
 		},
 	},
 	// ...
-});
+} as SnapTemplatesConfigUnlocked);
 ```
 
 You can also target specific instances using more specific selectors:
 
 ```tsx
 new SnapTemplates({
+	unlocked: true,
 	config: { ... },
 	components: {
 		result: {
-			SearchResult: async () => (await import('./components/Result')).SearchResult,,
+			SearchResult: async () => (await import('./components/Result')).SearchResult,
 			AutocompleteResult: () => AutocompleteResult,
 		},
+		sortBy: {
+			CustomSortBy: async () => (await import('./components/SortBy')).CustomSortBy,
+		}
 	},
 	theme: {
 		extends: 'base',
 		overrides: {
 			default: {
 				// Use different custom components in different contexts
-				'search result': {
-					customComponent: 'SearchResult',
+
+				// Top-level template components (Search, AutocompleteFixed, etc.) use resultComponent.
+				'search': {
+					resultComponent: 'SearchResult',
 				},
-				'autocomplete result': {
-					customComponent: 'AutocompleteResult',
+				'autocompleteFixed': {
+					resultComponent: 'AutocompleteResult',
 				},
+				// Other component overrides use customComponent.
+				'sortBy': {
+					customComponent: 'CustomSortBy',
+				}
 			},
 		},
 	},
 	// ...
-});
+} as SnapTemplatesConfigUnlocked);
 ```
 
 **Custom Component Props:**
