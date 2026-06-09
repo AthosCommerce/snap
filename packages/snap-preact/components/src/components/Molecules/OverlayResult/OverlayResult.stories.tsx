@@ -6,8 +6,7 @@ import { OverlayResult, OverlayResultProps } from './OverlayResult';
 import { FALLBACK_IMAGE_URL } from '../../Atoms/Image';
 import { componentArgs, highlightedCode } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
-// import Readme from '../OverlayResult/README.md';
-import { ResultsLayout } from '../../../types';
+import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { Product } from '@athoscommerce/snap-store-mobx';
 
@@ -26,7 +25,7 @@ export default {
 							},
 						}}
 					>
-						{/* {Readme} */}
+						{Readme}
 					</Markdown>
 					<ArgsTable story={PRIMARY_STORY} />
 				</div>
@@ -227,20 +226,6 @@ export default {
 			},
 			control: {
 				type: 'object',
-			},
-		},
-		layout: {
-			description: 'Results layout',
-			defaultValue: ResultsLayout.grid,
-			table: {
-				category: 'Templates Legal',
-				type: {
-					summary: 'string',
-				},
-			},
-			options: [ResultsLayout.grid, ResultsLayout.list],
-			control: {
-				type: 'select',
 			},
 		},
 		onClick: {

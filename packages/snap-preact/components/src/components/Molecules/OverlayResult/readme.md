@@ -87,7 +87,7 @@ const clickFunc = (e, result) => {
 	console.log('added!', e, result);
 }
 
-<OverlayResult result={controller.store.results[0]} onAddToCartClick={() => clickFunc} />
+<OverlayResult result={controller.store.results[0]} onAddToCartClick={clickFunc} />
 ```
 
 ### hideVariantSelections
@@ -122,7 +122,7 @@ The `hideImage` prop will prevent the image from rendering.
 The `detailSlot` prop is a JSX element to used display additional content below the title and pricing sections.
 
 ```js
-const productDetails = (props) => {
+const ProductDetails = (props) => {
 	const listEntries = props?.product?.attributes?.descriptionList.split('|');
 	return (
 		listEntries && (
@@ -137,7 +137,7 @@ const productDetails = (props) => {
 ```
 
 ```tsx
-<OverlayResult result={controller.store.results[0]} detailSlot={<productDetails product={controller.store.results[0]/>} />
+<OverlayResult result={controller.store.results[0]} detailSlot={(props) => ProductDetails} />
 ```
 
 ### fallback
@@ -151,5 +151,5 @@ The `fallback` prop will be passed to the `<Image />` sub-component. If the prim
 The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to allow you truncate the product title at a certain character length, and optionally append an additional string such as "..."
 
 ```tsx
-<OverlayResult result={controller.store.results[0]} truncateTitle={ limit: 5, append: '...' } />
+<OverlayResult result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
 ```

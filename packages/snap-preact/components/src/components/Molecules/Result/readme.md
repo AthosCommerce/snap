@@ -70,7 +70,7 @@ const clickFunc = (e, result) => {
 	console.log('added!', e, result);
 }
 
-<Result result={controller.store.results[0]} onAddToCartClick={() => clickFunc} />
+<Result result={controller.store.results[0]} onAddToCartClick={clickFunc} />
 ```
 
 ### hideVariantSelections
@@ -120,7 +120,7 @@ const productDetails = (props) => {
 ```
 
 ```tsx
-<Result result={controller.store.results[0]} detailSlot={<productDetails product={controller.store.results[0]/>} />
+<Result result={controller.store.results[0]} detailSlot={(props) => ProductDetails} />
 ```
 
 ### fallback
@@ -141,5 +141,5 @@ The `layout` prop specifies if this Result will be contained in a `grid` or `lis
 The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to allow you truncate the product title at a certain character length, and optionally append an additional string such as "..."
 
 ```tsx
-<Result result={controller.store.results[0]} truncateTitle={ limit: 5, append: '...' } />
+<Result result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
 ```

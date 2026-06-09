@@ -105,11 +105,28 @@ const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
 		'&:hover .ss__overlay-result__details': {
 			transform: 'translateY(0)',
 		},
-
 		'&:hover .ss__overlay-result__details .ss__overlay-result__details__extra': {
 			gridTemplateRows: '1fr',
 			opacity: 1,
 			transform: 'translateY(0)',
+		},
+
+		//a11y support for touch devices - show details on focus of the result
+		'&:focus-within .ss__overlay-result__details': {
+			transform: 'translateY(0)',
+		},
+		'&:focus-within .ss__overlay-result__details .ss__overlay-result__details__extra': {
+			gridTemplateRows: '1fr',
+			opacity: 1,
+			transform: 'translateY(0)',
+		},
+
+		'@media (hover: none)': {
+			'& .ss__overlay-result__details .ss__overlay-result__details__extra': {
+				gridTemplateRows: '1fr',
+				opacity: 1,
+				transform: 'translateY(0)',
+			},
 		},
 	});
 };
@@ -154,7 +171,7 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 		customComponent,
 	} = props;
 
-	if (!treePath?.split(' ')?.includes('result') && customComponent) {
+	if (!treePath?.split(' ')?.includes('result') && customComponent && customComponent !== 'OverlayResult') {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlayResult || {}, customComponent);
 		if (ComponentOverride) {
 			return <ComponentOverride {...props} />;
@@ -417,7 +434,6 @@ export type OverlayResultTemplatesLegalProps = {
 	fallback?: string;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
-	customComponent?: string;
 };
 
 export interface OverlayResultLang {
@@ -429,5 +445,3 @@ interface OverlayResultPropData {
 	result: Product;
 	controller?: SearchController | AutocompleteController | RecommendationController;
 }
-
-export type OverlayResultNames = 'seed';
