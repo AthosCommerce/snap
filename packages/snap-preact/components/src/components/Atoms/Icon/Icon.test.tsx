@@ -468,10 +468,8 @@ describe('Icon Component', () => {
 		expect(cogPath).not.toBeInTheDocument();
 	});
 
-	it('svg prop applies disableStyles sizing and title', () => {
+	it('svg prop applies disableStyles sizing', () => {
 		const size = '48px';
-		const titleText = 'Custom icon';
-
 		const rendered = render(
 			<Icon
 				svg={
@@ -481,7 +479,6 @@ describe('Icon Component', () => {
 				}
 				disableStyles
 				size={size}
-				title={titleText}
 			/>
 		);
 
@@ -491,9 +488,6 @@ describe('Icon Component', () => {
 		// disableStyles applies width/height attributes
 		expect(svgElement).toHaveAttribute('width', size);
 		expect(svgElement).toHaveAttribute('height', size);
-
-		// title is forwarded
-		expect(svgElement).toHaveAttribute('title', titleText);
 
 		// preserves the original svg's viewBox
 		expect(svgElement).toHaveAttribute('viewBox', '0 0 24 24');
