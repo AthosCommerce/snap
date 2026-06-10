@@ -6,29 +6,9 @@ The meta property is an object containing the meta data retrieved from the Athos
 
 ## Quickview
 
-`SearchStore` no longer exposes a `quickview` property. The quickview modal store (`QuickviewStore`) now lives on the dedicated `QuickviewController`'s store and is reached at `quickviewController.store.quickview`. `SearchController` still exposes a `quickview({ result })` method that fires a global `controller/quickview` event handled by that controller. The observable surface of `QuickviewStore` is documented here for integrators who need to react to it.
+`SearchStore` no longer exposes a `quickview` property. The quickview modal store (`QuickviewStore`) is now the store of the dedicated `QuickviewController` and is reached at `quickviewController.store`. `SearchController` still exposes a `quickview({ result })` method that fires a global `controller/quickview` event handled by that controller.
 
-Observable fields:
-
-| field | type | description |
-|---|---|---|
-| `product` | `Product \| undefined` | The Product being previewed. By default this is a deep-cloned independent copy of the source result; with `config.clone = false` it is the source result by reference. |
-| `isOpen` | `boolean` | Whether the modal should be rendered. Set by `update`, `setLoading(true, ...)`, `setError(error)`; cleared by `close` and `reset`. |
-| `loading` | `boolean` | True while the `QuickviewController` is awaiting `/v1/products`. The modal renders a loading branch in this state. |
-| `config` | `QuickviewConfig \| undefined` | Effective config (controller defaults merged with the per-call override). |
-| `error` | `QuickviewError \| undefined` | When set, the modal renders an error branch with `role="alert"`. |
-
-Actions:
-
-| action | description |
-|---|---|
-| `update({ result, productsData?, config?, storeConfig?, meta? })` | Build (or reuse) the product, apply variants from `productsData`, and open the modal. Honors `config.clone` (default `true`). |
-| `close()` | Hide the modal but retain `product` in the store. |
-| `reset()` | Clear product, config, error, and close the modal. |
-| `setLoading(loading, resultId?)` | Open the modal in a loading state scoped to `resultId`. Also clears any prior error. |
-| `setError(error \| undefined)` | Surface a fatal error; flips `loading` off, leaves the modal open. |
-
-See the controller READMEs for usage of the `quickview({ result })` method.
+See the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the full observable surface, and the controller READMEs for usage of the `quickview({ result })` method.
 
 ## `merchandising` property
 

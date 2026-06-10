@@ -9,23 +9,21 @@ import Readme from './readme.md';
 // Build a fresh mock controller per story so each Storybook story renders independently.
 function buildMockController(overrides: any = {}): any {
 	const base: any = {
+		type: 'quickview',
 		store: {
 			meta: undefined,
-			quickview: {
-				isOpen: true,
-				loading: false,
-				product: undefined,
-				config: undefined,
-				error: undefined,
-				close: () => {
-					base.store.quickview.isOpen = false;
-				},
+			isOpen: true,
+			loading: false,
+			product: undefined,
+			quickviewConfig: undefined,
+			error: undefined,
+			close: () => {
+				base.store.isOpen = false;
 			},
 		},
 	};
-	// Shallow-merge overrides onto base; merge store.quickview deep so partial overrides preserve defaults.
-	const mergedQuickview = { ...base.store.quickview, ...((overrides.store && overrides.store.quickview) || {}) };
-	const mergedStore = { ...base.store, ...(overrides.store || {}), quickview: mergedQuickview };
+	// Shallow-merge store overrides onto base so partial overrides preserve defaults.
+	const mergedStore = { ...base.store, ...(overrides.store || {}) };
 	return { ...base, ...overrides, store: mergedStore };
 }
 
@@ -47,28 +45,24 @@ const sampleProduct = {
 };
 
 const defaultController = buildMockController({
-	store: { quickview: { isOpen: true, product: sampleProduct } },
+	store: { isOpen: true, product: sampleProduct },
 });
 
 const loadingController = buildMockController({
 	store: {
-		quickview: {
-			isOpen: true,
-			loading: true,
-			// During loading the store holds the source result as `product` (set by setLoading).
-			product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
-		},
+		isOpen: true,
+		loading: true,
+		// During loading the store holds the source result as `product` (set by setLoading).
+		product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
 	},
 });
 
 const errorController = buildMockController({
 	store: {
-		quickview: {
-			isOpen: true,
-			loading: false,
-			product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
-			error: { message: 'Failed to display quickview' },
-		},
+		isOpen: true,
+		loading: false,
+		product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
+		error: { message: 'Failed to display quickview' },
 	},
 });
 
@@ -114,7 +108,7 @@ const variantsProduct = {
 } as any;
 
 const variantsController = buildMockController({
-	store: { quickview: { isOpen: true, product: variantsProduct } },
+	store: { isOpen: true, product: variantsProduct },
 });
 
 const displayFieldsController = buildMockController({
@@ -127,56 +121,36 @@ const displayFieldsController = buildMockController({
 				},
 			},
 		},
-		quickview: {
-			isOpen: true,
-			product: {
-				id: 'display-fields',
-				mappings: { core: { name: 'Display Fields Demo', thumbnailImageUrl: 'https://placehold.co/200' } },
-				attributes: {
-					size: 'L',
-					color: 'green',
-					sku: 'DFD-001',
-					hiddenField: 'should not render',
-				},
-			},
-			config: { displayFields: ['size', 'color'] },
-		},
-	},
-});
-
-const arrayAttrsController = buildMockController({
-	store: {
-		quickview: {
-			isOpen: true,
-			product: {
-				id: 'array-attrs',
-				mappings: { core: { name: 'Array Attributes Demo', thumbnailImageUrl: 'https://placehold.co/200' } },
-				attributes: {
-					tags: ['new', 'sale', 'featured'],
-					sizes: ['S', 'M', 'L'],
-				},
+		isOpen: true,
+		product: {
+			id: 'display-fields',
+			mappings: { core: { name: 'Display Fields Demo', thumbnailImageUrl: 'https://placehold.co/200' } },
+			attributes: {
+				size: 'L',
+				color: 'green',
+				sku: 'DFD-001',
+				hiddenField: 'should not render',
 			},
 		},
+		quickviewConfig: { displayFields: ['size', 'color'] },
 	},
 });
 
 const imageCarouselController = buildMockController({
 	store: {
-		quickview: {
-			isOpen: true,
-			product: {
-				id: 'image-carousel',
-				mappings: {
-					core: {
-						name: 'Image Carousel Demo',
-						imageUrl: 'https://placehold.co/400x400?text=1',
-						images: ['https://placehold.co/400x400?text=1', 'https://placehold.co/400x400?text=2', 'https://placehold.co/400x400?text=3'],
-					},
+		isOpen: true,
+		product: {
+			id: 'image-carousel',
+			mappings: {
+				core: {
+					name: 'Image Carousel Demo',
+					imageUrl: 'https://placehold.co/400x400?text=1',
+					images: ['https://placehold.co/400x400?text=1', 'https://placehold.co/400x400?text=2', 'https://placehold.co/400x400?text=3'],
 				},
-				attributes: { sku: 'IC-001' },
 			},
-			config: { imagesField: 'images' },
+			attributes: { sku: 'IC-001' },
 		},
+		quickviewConfig: { imagesField: 'images' },
 	},
 });
 
@@ -204,11 +178,10 @@ export default {
 	},
 	argTypes: {
 		controller: {
-			description:
-				'Controller exposing `store.quickview` ({ isOpen, product, loading, config, error, close }); dismiss via `store.quickview.close()`',
+			description: 'QuickviewController exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
 			table: {
 				type: {
-					summary: 'SearchController | AutocompleteController | RecommendationController',
+					summary: 'QuickviewController',
 				},
 			},
 			control: { type: 'none' },
@@ -221,6 +194,16 @@ export default {
 				},
 			},
 			control: { type: 'text' },
+		},
+		showBadges: {
+			description: 'Render overlay badges over the product media and callout badges below it',
+			table: {
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: 'false' },
+			},
+			control: { type: 'boolean' },
 		},
 		...componentArgs,
 	},
@@ -241,9 +224,6 @@ WithVariantSelectors.args = {};
 
 export const WithDisplayFields = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={displayFieldsController} />;
 WithDisplayFields.args = {};
-
-export const WithArrayAttributes = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={arrayAttrsController} />;
-WithArrayAttributes.args = {};
 
 export const WithImageCarousel = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={imageCarouselController} />;
 WithImageCarousel.args = {};

@@ -11,6 +11,7 @@ See more information on the available stores below:
 - [SearchStore](https://athoscommerce.github.io/snap/reference-store-search)
 - [AutocompleteStore](https://athoscommerce.github.io/snap/reference-store-autocomplete)
 - [RecommendationStore](https://athoscommerce.github.io/snap/reference-store-recommendation)
+- [QuickviewStore](https://athoscommerce.github.io/snap/reference-store-quickview)
 - [FinderStore](https://athoscommerce.github.io/snap/reference-store-finder)
 - [StorageStore](https://athoscommerce.github.io/snap/reference-store-storage)
 - [MetaStore](https://athoscommerce.github.io/snap/reference-store-meta)

@@ -16,7 +16,7 @@ import { Gallery } from '@athoscommerce/snap-preact/components';
 ```
 
 ### images
-The `images` prop accepts an array of image URL strings to display in the gallery.
+The `images` prop accepts an array of image URL strings to display in the gallery. If the array is empty, the gallery is not rendered.
 
 ```tsx
 <Gallery images={['img1.jpg', 'img2.jpg', 'img3.jpg']} open={true} />
@@ -83,13 +83,14 @@ The `swipeThreshold` prop sets the number of pixels of horizontal touch travel r
 ### Keyboard Controls
 - **Escape** - Close the gallery
 - **ArrowLeft / ArrowRight** - Navigate between images
-- **+ / -** - Zoom in / out
+- **+ / =** - Zoom in
+- **- / _** - Zoom out
 
 ### Zoom
 Zoom ranges from `zoomMin` (default 1x) to `zoomMax` (default 4x) in `zoomStep` (default 0.5x) increments. When zoomed in, drag-to-pan is enabled.
 
 ### Touch Swipe
-On mobile, horizontal swipe gestures past `swipeThreshold` (default 40px) navigate between images when not zoomed in.
+On mobile, dominantly-horizontal swipe gestures past `swipeThreshold` (default 40px) navigate between images when not zoomed in.
 
 ### Wrap-around Navigation
-Navigation wraps around from the last image to the first and vice versa.
+Navigation wraps around from the last image to the first and vice versa. The previous/next navigation buttons and the image counter are hidden when there is only one image.
