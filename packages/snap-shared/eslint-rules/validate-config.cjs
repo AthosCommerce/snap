@@ -1,22 +1,30 @@
 /**
- * ESLint rule: validate-result-component
+ * ESLint rule: validate-config
  *
- * Validates `customComponent` string values against the appropriate
+ * Validates component reference props against the appropriate
  * section in `components` based on the property path context.
  */
+
+const PROVIDED_COMPONENT_KEYS = {
+	result: ['Result', 'OverlayResult'],
+};
 
 module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
 			description:
-				'Validate that customComponent values match keys in components',
+				'Validate that customComponent and resultComponent values match keys in components',
 		},
 		messages: {
 			invalidCustomComponent:
 				'"{{ value }}" is not a valid customComponent for "{{ componentType }}". Must be one of: {{ validKeys }}.',
 			noCustomComponents:
 				'"{{ value }}" is not a valid customComponent. No keys found in components.{{ componentType }}.',
+			invalidResultComponent:
+				'"{{ value }}" is not a valid resultComponent. Must be one of: {{ validKeys }}.',
+			noResultComponents:
+				'"{{ value }}" is not a valid resultComponent. No keys found in components.result.',
 		},
 		schema: [],
 	},
@@ -38,13 +46,13 @@ module.exports = {
 					const init = node.init;
 					if (!init || init.type !== 'ObjectExpression') return;
 
-					// Extract all component keys from components.*
-					const allComponentKeys = extractAllComponentKeys(init);
+					// Extract explicitly registered component keys from components.*
+					const registeredComponentKeys = extractRegisteredComponentKeys(init);
 
-					// Validate customComponent nodes
+					// Validate customComponent nodes using the original path-based lookup
 					const customComponentNodes = collectCustomComponentNodes(init);
 					for (const { node: ccNode, value, componentType } of customComponentNodes) {
-						const validKeys = allComponentKeys[componentType] || [];
+						const validKeys = registeredComponentKeys[componentType] || [];
 						if (validKeys.length === 0) {
 							context.report({
 								node: ccNode,
@@ -63,34 +71,64 @@ module.exports = {
 							});
 						}
 					}
+
+					// Validate resultComponent nodes against components.result
+					const resultComponentNodes = collectResultComponentNodes(init);
+					const validResultKeys = Array.from(
+						new Set([...(PROVIDED_COMPONENT_KEYS.result || []), ...(registeredComponentKeys.result || [])])
+					);
+					for (const { node: resultNode, value } of resultComponentNodes) {
+						if (validResultKeys.length === 0) {
+							context.report({
+								node: resultNode,
+								messageId: 'noResultComponents',
+								data: { value },
+							});
+						} else if (!validResultKeys.includes(value)) {
+							context.report({
+								node: resultNode,
+								messageId: 'invalidResultComponent',
+								data: {
+									value,
+									validKeys: validResultKeys.join(', '),
+								},
+							});
+						}
+					}
 				}
 			},
 		};
 
 		/**
-		 * Extract all keys from all sections in components.*
+		 * Extract all explicitly registered keys from all sections in components.*
 		 * Returns an object like { result: [...], facet: [...], ... }
 		 */
-		function extractAllComponentKeys(objectExpression) {
+		function extractRegisteredComponentKeys(objectExpression) {
 			const componentsProp = findProperty(objectExpression, 'components');
-			if (!componentsProp || componentsProp.value.type !== 'ObjectExpression')
+			if (!componentsProp || componentsProp.value.type !== 'ObjectExpression') {
 				return {};
+			}
 
 			const result = {};
 			for (const prop of componentsProp.value.properties) {
 				if (prop.type === 'Property' && prop.value.type === 'ObjectExpression') {
 					const sectionName = getPropertyName(prop);
-					result[sectionName] = prop.value.properties
+					result[sectionName] = Array.from(
+						new Set([
+							...(result[sectionName] || []),
+							...prop.value.properties
 						.filter((p) => p.type === 'Property')
-						.map((p) => getPropertyName(p));
+						.map((p) => getPropertyName(p)),
+						])
+					);
 				}
 			}
 			return result;
 		}
 
 		/**
-		 * Recursively collect all customComponent: 'string' nodes in the config
-		 * Also tracks the parent property path to determine which component section to validate against
+		 * Recursively collect all customComponent: 'string' nodes in the config.
+		 * Also tracks the parent property path to determine which component section to validate against.
 		 */
 		function collectCustomComponentNodes(node, parentPath = []) {
 			const results = [];
@@ -104,7 +142,6 @@ module.exports = {
 							prop.value.type === 'Literal' &&
 							typeof prop.value.value === 'string'
 						) {
-							// Determine component type from parent path
 							const componentType = extractComponentTypeFromPath(parentPath);
 							results.push({
 								node: prop.value,
@@ -126,6 +163,44 @@ module.exports = {
 				for (const elem of node.elements) {
 					if (elem) {
 						results.push(...collectCustomComponentNodes(elem, parentPath));
+					}
+				}
+			}
+
+			return results;
+		}
+
+		/**
+		 * Recursively collect all resultComponent: 'string' nodes in the config.
+		 * These always validate against components.result.
+		 */
+		function collectResultComponentNodes(node) {
+			const results = [];
+
+			if (node.type === 'ObjectExpression') {
+				for (const prop of node.properties) {
+					if (prop.type === 'Property') {
+						const name = getPropertyName(prop);
+						if (
+							name === 'resultComponent' &&
+							prop.value.type === 'Literal' &&
+							typeof prop.value.value === 'string'
+						) {
+							results.push({
+								node: prop.value,
+								value: prop.value.value,
+							});
+						} else {
+							results.push(...collectResultComponentNodes(prop.value));
+						}
+					} else if (prop.type === 'SpreadElement') {
+						results.push(...collectResultComponentNodes(prop.argument));
+					}
+				}
+			} else if (node.type === 'ArrayExpression') {
+				for (const elem of node.elements) {
+					if (elem) {
+						results.push(...collectResultComponentNodes(elem));
 					}
 				}
 			}
