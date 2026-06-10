@@ -130,6 +130,77 @@ type ThemeComponentNamedSelectorsStartingWithTemplate<
 export type ThemeComponentRestrictedProps<Props, LegalProps> = Partial<LegalProps & ThemeComponentAllowedProps<Props>>;
 type ThemeComponentAllowedProps<Props> = { themeStyleScript?: StyleScript<Props> };
 
+export const DEFAULT_CUSTOM_COMPONENT_TYPES = ['result', 'badge'] as const;
+
+export const ALL_CUSTOM_COMPONENT_TYPES = [
+	...DEFAULT_CUSTOM_COMPONENT_TYPES,
+	/* atoms */
+	'badgeImage',
+	'badgePill',
+	'badgeRectangle',
+	'badgeText',
+	'breadcrumbs',
+	'button',
+	'dropdown',
+	'formattedNumber',
+	'icon',
+	'image',
+	'loadingBar',
+	'banner',
+	'inlineBanner',
+	'overlay',
+	'paginationInfo',
+	'slideshow',
+	'price',
+	'skeleton',
+	/* molecules */
+	'modal',
+	'calloutBadge',
+	'carousel',
+	'checkbox',
+	'grid',
+	'layoutSelector',
+	'list',
+	'radio',
+	'errorHandler',
+	'facetGridOptions',
+	'facetHierarchyOptions',
+	'facetListOptions',
+	'facetPaletteOptions',
+	'facetSlider',
+	'filter',
+	'loadMore',
+	'overlayBadge',
+	'pagination',
+	'perPage',
+	'overlayResult',
+	'radioList',
+	'rating',
+	'searchInput',
+	'select',
+	'slideout',
+	'sortBy',
+	'swatches',
+	'variantSelection',
+	'terms',
+	/* organisms */
+	'branchOverride',
+	'facet',
+	'facets',
+	'facetsHorizontal',
+	'filterSummary',
+	'noResults',
+	'results',
+	'searchHeader',
+	'sidebar',
+	'mobileSidebar',
+	'toolbar',
+	'termsList',
+] as const;
+
+export type TemplateDefaultComponentTypes = typeof DEFAULT_CUSTOM_COMPONENT_TYPES[number];
+export type TemplateCustomComponentTypes = typeof ALL_CUSTOM_COMPONENT_TYPES[number];
+
 /*
 
 	theme: {
