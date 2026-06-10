@@ -9,11 +9,6 @@ module.exports = {
 		'^react-dom$': 'preact/compat',
 		'^react/jsx-runtime$': 'preact/jsx-runtime',
 		'\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
-		// swiper ships ESM (.mjs) that ts-jest does not transform; stub it so any suite that
-		// imports the Carousel molecule (directly or transitively, e.g. via ProductQuickview)
-		// can load. Tests don't exercise real Swiper behavior (Carousel's own suite is disabled).
-		'^swiper/react$': '<rootDir>/__mocks__/swiperReactMock.js',
-		'^swiper/modules$': '<rootDir>/__mocks__/swiperModulesMock.js',
 		'^@testing-library/preact$': '<rootDir>/../../node_modules/@testing-library/preact/dist/cjs/index.js',
 		'^preact$': '<rootDir>/../../node_modules/preact/dist/preact.js',
 		'^preact/compat$': '<rootDir>/../../node_modules/preact/compat/dist/compat.js',
