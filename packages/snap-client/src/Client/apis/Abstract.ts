@@ -79,7 +79,7 @@ export class API<PathConfigurationType> {
 			throw new Error('Unexpected Response Status.');
 		} catch (err: any) {
 			if (err.message == 'Rate limited.') {
-				return await this.request(context, cacheKey);
+				return await this.request(context, cacheKey, cache);
 			}
 
 			// throw an object with fetch details

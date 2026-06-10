@@ -99,6 +99,19 @@ describe('QuickviewController', () => {
 		expect(source.addToCart).toHaveBeenCalledWith([product]);
 	});
 
+	it('passes the originating controller config as storeConfig so the clone inherits settings.variants', async () => {
+		const svc = services();
+		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+		const updateSpy = jest.spyOn(controller.store, 'update');
+		const source = { config: { id: 'search', settings: { variants: { field: 'ss_variants' } } } };
+
+		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any, controller: source as any });
+		expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ storeConfig: source.config }));
+
+		await controller.quickview({ result: { id: 'p2', mappings: { core: {} } } as any });
+		expect(updateSpy).toHaveBeenLastCalledWith(expect.objectContaining({ storeConfig: controller.config }));
+	});
+
 	it('warns instead of throwing when addToCart is called with no originating controller', async () => {
 		const svc = services();
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);

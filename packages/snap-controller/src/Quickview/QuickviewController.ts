@@ -146,7 +146,7 @@ export class QuickviewController extends AbstractController {
 				result: eventObj.result,
 				productsData: eventObj.productsData,
 				config: eventObj.config,
-				storeConfig: this.config,
+				storeConfig: controller?.config || this.config,
 				meta: meta?.data,
 			});
 		} catch (err) {
