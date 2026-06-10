@@ -49,7 +49,7 @@ import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/Re
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
 
-export type TemplateDefaultComponentTypes = 'result' | 'badge' | 'overlayResult';
+export type TemplateDefaultComponentTypes = 'result' | 'badge';
 
 // TODO: tabbing, finder
 export type SearchTargetConfig = {
@@ -114,6 +114,7 @@ export type TemplateCustomComponentTypes =
 	| 'overlayBadge'
 	| 'pagination'
 	| 'perPage'
+	| 'overlayResult'
 	| 'radioList'
 	| 'rating'
 	| 'searchInput'
