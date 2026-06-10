@@ -41,6 +41,8 @@ import type {
 	ThemeOverrides,
 	ThemeVariablesPartial,
 	ComponentTypePropsMap,
+	TemplateCustomComponentTypes,
+	TemplateDefaultComponentTypes,
 } from '../../../components/src';
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
@@ -48,8 +50,6 @@ import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/Re
 
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
-
-export type TemplateDefaultComponentTypes = 'result' | 'badge';
 
 // TODO: tabbing, finder
 export type SearchTargetConfig = {
@@ -73,70 +73,7 @@ export type RecommendationBundleTargetConfig = {
 	component: keyof LibraryImports['component']['recommendation']['bundle'];
 };
 
-export type TemplateCustomComponentTypes =
-	| TemplateDefaultComponentTypes
-	/* atoms */
-	| 'badgeImage'
-	| 'badgePill'
-	| 'badgeRectangle'
-	| 'badgeText'
-	| 'breadcrumbs'
-	| 'button'
-	| 'dropdown'
-	| 'formattedNumber'
-	| 'icon'
-	| 'image'
-	| 'loadingBar'
-	| 'banner'
-	| 'inlineBanner'
-	| 'overlay'
-	| 'paginationInfo'
-	| 'slideshow'
-	| 'price'
-	| 'skeleton'
-	/* molecules */
-	| 'modal'
-	| 'calloutBadge'
-	| 'carousel'
-	| 'checkbox'
-	| 'grid'
-	| 'layoutSelector'
-	| 'list'
-	| 'radio'
-	| 'errorHandler'
-	| 'facetGridOptions'
-	| 'facetHierarchyOptions'
-	| 'facetListOptions'
-	| 'facetPaletteOptions'
-	| 'facetSlider'
-	| 'filter'
-	| 'loadMore'
-	| 'overlayBadge'
-	| 'pagination'
-	| 'perPage'
-	| 'overlayResult'
-	| 'radioList'
-	| 'rating'
-	| 'searchInput'
-	| 'select'
-	| 'slideout'
-	| 'sortBy'
-	| 'swatches'
-	| 'variantSelection'
-	| 'terms'
-	/* organisms */
-	| 'branchOverride'
-	| 'facet'
-	| 'facets'
-	| 'facetsHorizontal'
-	| 'filterSummary'
-	| 'noResults'
-	| 'results'
-	| 'searchHeader'
-	| 'sidebar'
-	| 'mobileSidebar'
-	| 'toolbar'
-	| 'termsList';
+export type { TemplateDefaultComponentTypes, TemplateCustomComponentTypes } from '../../../components/src';
 
 export type RecsTemplateTypes = 'bundle' | 'default' | 'email';
 
