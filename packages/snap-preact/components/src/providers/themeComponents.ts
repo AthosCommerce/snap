@@ -41,6 +41,7 @@ import type { RadioProps, RadioTemplatesLegalProps } from '../components/Molecul
 import type { RadioListProps, RadioListTemplatesLegalProps } from '../components/Molecules/RadioList';
 import type { RatingProps, RatingTemplatesLegalProps } from '../components/Molecules/Rating';
 import type { ResultNames, ResultProps, ResultTemplatesLegalProps } from '../components/Molecules/Result';
+import type { OverlayResultProps, OverlayResultTemplatesLegalProps } from '../components/Molecules/OverlayResult';
 import type { SearchInputProps, SearchInputTemplatesLegalProps } from '../components/Molecules/SearchInput';
 import type { SelectProps, SelectTemplatesLegalProps } from '../components/Molecules/Select';
 import type { SlideoutProps, SlideoutTemplatesLegalProps } from '../components/Molecules/Slideout';
@@ -126,8 +127,79 @@ type ThemeComponentNamedSelectorsStartingWithTemplate<
 	| `${TemplateComponentType} ${string} ${SubComponentType}.${ComponentNames}`
 	| `${TemplateComponentType} ${SubComponentType}.${ComponentNames}`;
 
-export type ThemeComponentRestrictedProps<Props extends LegalProps, LegalProps> = Partial<LegalProps & ThemeComponentAllowedProps<Props>>;
+export type ThemeComponentRestrictedProps<Props, LegalProps> = Partial<LegalProps & ThemeComponentAllowedProps<Props>>;
 type ThemeComponentAllowedProps<Props> = { themeStyleScript?: StyleScript<Props> };
+
+export const DEFAULT_CUSTOM_COMPONENT_TYPES = ['result', 'badge'] as const;
+
+export const ALL_CUSTOM_COMPONENT_TYPES = [
+	...DEFAULT_CUSTOM_COMPONENT_TYPES,
+	/* atoms */
+	'badgeImage',
+	'badgePill',
+	'badgeRectangle',
+	'badgeText',
+	'breadcrumbs',
+	'button',
+	'dropdown',
+	'formattedNumber',
+	'icon',
+	'image',
+	'loadingBar',
+	'banner',
+	'inlineBanner',
+	'overlay',
+	'paginationInfo',
+	'slideshow',
+	'price',
+	'skeleton',
+	/* molecules */
+	'modal',
+	'calloutBadge',
+	'carousel',
+	'checkbox',
+	'grid',
+	'layoutSelector',
+	'list',
+	'radio',
+	'errorHandler',
+	'facetGridOptions',
+	'facetHierarchyOptions',
+	'facetListOptions',
+	'facetPaletteOptions',
+	'facetSlider',
+	'filter',
+	'loadMore',
+	'overlayBadge',
+	'pagination',
+	'perPage',
+	'overlayResult',
+	'radioList',
+	'rating',
+	'searchInput',
+	'select',
+	'slideout',
+	'sortBy',
+	'swatches',
+	'variantSelection',
+	'terms',
+	/* organisms */
+	'branchOverride',
+	'facet',
+	'facets',
+	'facetsHorizontal',
+	'filterSummary',
+	'noResults',
+	'results',
+	'searchHeader',
+	'sidebar',
+	'mobileSidebar',
+	'toolbar',
+	'termsList',
+] as const;
+
+export type TemplateDefaultComponentTypes = typeof DEFAULT_CUSTOM_COMPONENT_TYPES[number];
+export type TemplateCustomComponentTypes = typeof ALL_CUSTOM_COMPONENT_TYPES[number];
 
 /*
 
@@ -187,6 +259,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: Partial<OverlayResultProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: Partial<SearchInputProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: Partial<SelectProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideout'>]?: Partial<SlideoutProps> } &
@@ -272,6 +345,7 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: Partial<OverlayResultTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: Partial<SearchInputTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: Partial<SelectTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideout'>]?: Partial<SlideoutTemplatesLegalProps> } &
@@ -366,6 +440,7 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: Partial<OverlayResultTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: Partial<SearchInputTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: Partial<SelectTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideout'>]?: Partial<SlideoutTemplatesLegalProps> & WithCustomComponent } &
@@ -413,7 +488,7 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> & WithCustomComponent };
 
 // prettier-ignore
-export type ThemeComponentTemplateOverrides<Template extends string, Props extends LegalProps, LegalProps> =
+export type ThemeComponentTemplateOverrides<Template extends string, Props, LegalProps> =
 	/* WITH TEMPLATE */
 	{ [K in ThemeComponentTemplateUnNamedSelectors<Template>]?: ThemeComponentRestrictedProps<Props, LegalProps> } &
 
@@ -462,6 +537,7 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props exten
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'rating'>]?: Partial<RatingTemplatesLegalProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlayResult'>]?: Partial<OverlayResultTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchInput'>]?: Partial<SearchInputTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'select'>]?: Partial<SelectTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'slideout'>]?: Partial<SlideoutTemplatesLegalProps> } &
@@ -508,3 +584,68 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props exten
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'search'>]?: Partial<SearchTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> };
+
+// Component type to props mapping for typed component config
+export type ComponentTypePropsMap = {
+	result: ResultProps;
+	badge: OverlayBadgeProps;
+	overlayResult: OverlayResultProps;
+	badgeImage: BadgeImageProps;
+	badgePill: BadgePillProps;
+	badgeRectangle: BadgeRectangleProps;
+	badgeText: BadgeTextProps;
+	breadcrumbs: BreadcrumbsProps;
+	button: ButtonProps;
+	dropdown: DropdownProps;
+	formattedNumber: FormattedNumberProps;
+	icon: IconProps;
+	image: ImageProps;
+	loadingBar: LoadingBarProps;
+	banner: BannerProps;
+	inlineBanner: InlineBannerProps;
+	overlay: OverlayProps;
+	paginationInfo: PaginationInfoProps;
+	slideshow: SlideshowProps;
+	price: PriceProps;
+	skeleton: SkeletonProps;
+	modal: ModalProps;
+	calloutBadge: CalloutBadgeProps;
+	carousel: CarouselProps;
+	checkbox: CheckboxProps;
+	grid: GridProps;
+	layoutSelector: LayoutSelectorProps;
+	list: ListProps;
+	radio: RadioProps;
+	errorHandler: ErrorHandlerProps;
+	facetGridOptions: FacetGridOptionsProps;
+	facetHierarchyOptions: FacetHierarchyOptionsProps;
+	facetListOptions: FacetListOptionsProps;
+	facetPaletteOptions: FacetPaletteOptionsProps;
+	facetSlider: FacetSliderProps;
+	filter: FilterProps;
+	loadMore: LoadMoreProps;
+	overlayBadge: OverlayBadgeProps;
+	pagination: PaginationProps;
+	perPage: PerPageProps;
+	radioList: RadioListProps;
+	rating: RatingProps;
+	searchInput: SearchInputProps;
+	select: SelectProps;
+	slideout: SlideoutProps;
+	sortBy: SortByProps;
+	swatches: SwatchesProps;
+	variantSelection: VariantSelectionProps;
+	terms: TermsProps;
+	branchOverride: BranchOverrideProps;
+	facet: FacetProps;
+	facets: FacetsProps;
+	facetsHorizontal: FacetsHorizontalProps;
+	filterSummary: FilterSummaryProps;
+	noResults: NoResultsProps;
+	results: ResultsProps;
+	searchHeader: SearchHeaderProps;
+	sidebar: SidebarProps;
+	mobileSidebar: MobileSidebarProps;
+	toolbar: ToolbarProps;
+	termsList: TermsListProps;
+};

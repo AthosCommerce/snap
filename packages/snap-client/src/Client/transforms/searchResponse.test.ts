@@ -842,19 +842,19 @@ describe('range-bucket facet value coercion', () => {
 		const response = transformSearchResponse.facets({ ...mockResponse, facets: rangeBucketFacet as any });
 		const values = (response[0] as any).values;
 
-		expect(values[3].low).toBeUndefined();
+		expect(values[3].low).toBeNull();
 		expect(values[3].high).toBe(0);
 	});
 
-	it('maps the wildcard sentinel "*" to undefined for both bounds', () => {
+	it('maps the wildcard sentinel "*" to null for both bounds', () => {
 		const response = transformSearchResponse.facets({ ...mockResponse, facets: rangeBucketFacet as any });
 		const values = (response[0] as any).values;
 
 		// low: '50', high: '*'
 		expect(values[2].low).toBe(50);
-		expect(values[2].high).toBeUndefined();
+		expect(values[2].high).toBeNull();
 
 		// low: '*', high: '0'
-		expect(values[3].low).toBeUndefined();
+		expect(values[3].low).toBeNull();
 	});
 });

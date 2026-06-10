@@ -95,12 +95,21 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent } = props;
+	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath, customComponent } = props;
+
+	let resultComponent = props.resultComponent;
 
 	if (customComponent) {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.results || {}, customComponent);
 		if (ComponentOverride) {
 			return <ComponentOverride {...props} />;
+		}
+	}
+
+	if (resultComponent && typeof resultComponent === 'string') {
+		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
+		if (resultComponentOverride) {
+			resultComponent = resultComponentOverride;
 		}
 	}
 
@@ -130,9 +139,9 @@ export const Results = observer((properties: ResultsProps) => {
 		},
 	};
 
-	let results = props.results;
+	let results = excludeBanners ? props.results?.filter((r) => r.type !== ContentType.BANNER) : props.results;
 	if (props?.columns && props?.rows && props.columns > 0 && props.rows > 0) {
-		results = props.results?.slice(0, props.columns * props.rows);
+		results = results?.slice(0, props.columns * props.rows);
 	}
 
 	const styling = mergeStyles<ResultsProps>({ ...props, columns: layout == ResultsLayout.list ? 1 : props.columns }, defaultStyles);
@@ -180,12 +189,13 @@ export const Results = observer((properties: ResultsProps) => {
 export type ResultsProps = {
 	breakpoints?: BreakpointsProps;
 	controller?: SearchController | AutocompleteController | RecommendationController;
-	resultComponent?: JSXComponent | JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element | string;
 	results?: SearchResultStore;
 } & ResultsTemplatesLegalProps &
 	ComponentProps<ResultsProps>;
 
 export type ResultsTemplatesLegalProps = {
+	excludeBanners?: boolean;
 	columns?: number;
 	rows?: number;
 	gapSize?: string;
