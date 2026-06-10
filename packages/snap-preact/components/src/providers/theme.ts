@@ -64,7 +64,7 @@ export type Theme = {
 	globalStyle?: ThemeGlobalStyleScript;
 };
 
-export type ThemeComponent<Template extends string, Props extends LegalProps, LegalProps> = {
+export type ThemeComponent<Template extends string, Props, LegalProps> = {
 	default?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
 	mobile?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;
 	tablet?: ThemeComponentTemplateOverrides<Template, Props, LegalProps>;

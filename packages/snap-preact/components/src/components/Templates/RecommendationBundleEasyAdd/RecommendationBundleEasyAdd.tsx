@@ -65,7 +65,7 @@ export type RecommendationBundleEasyAddProps = {
 	alias?: string | undefined;
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
-} & RecommendationBundleEasyAddTemplatesLegalProps &
+} & Omit<RecommendationBundleEasyAddTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleEasyAddTemplatesLegalProps = Omit<

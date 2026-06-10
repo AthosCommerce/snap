@@ -9,9 +9,9 @@ import { Price, PriceProps } from '../../Atoms/Price';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { filters } from '@athoscommerce/snap-toolbox';
-import { ComponentProps, ResultsLayout, StyleScript } from '../../../types';
-import { CalloutBadge, CalloutBadgeProps } from '../../Molecules/CalloutBadge';
-import { OverlayBadge, OverlayBadgeProps } from '../../Molecules/OverlayBadge';
+import { ComponentProps, StyleScript } from '../../../types';
+import { CalloutBadge, CalloutBadgeProps } from '../CalloutBadge';
+import { OverlayBadge, OverlayBadgeProps } from '../OverlayBadge';
 import type { SearchController, AutocompleteController, RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
@@ -21,74 +21,130 @@ import { Lang, useLang, useComponent } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
 import type { SnapTemplates } from '../../../../../src';
 
-const defaultStyles: StyleScript<ResultProps> = () => {
-	return css({
-		'&.ss__result--grid': {
-			display: 'flex',
-			flexDirection: 'column',
-			'& .ss__result__image-wrapper': {
-				flex: '1 0 auto',
-				minHeight: '0%',
-			},
-		},
-		'&.ss__result--list': {
-			display: 'flex',
-			flexDirection: 'row',
-			'& .ss__result__image-wrapper': {
-				flex: '0 0 33%',
-			},
-			'& .ss__result__details': {
-				flex: '1 1 auto',
-				textAlign: 'left',
-				marginLeft: '20px',
-				padding: 0,
-			},
-		},
+const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
+	const { overlayBackground, disableSlide } = props;
 
-		'& .ss__result__image-wrapper': {
+	return css({
+		position: 'relative',
+		overflow: 'hidden',
+		'& .ss__overlay-result__image-wrapper': {
 			position: 'relative',
-			'& .ss__result__badge': {
+			width: '100%',
+
+			'& .ss__overlay-result__badge': {
 				background: 'rgba(255, 255, 255, 0.5)',
 				padding: '10px',
 			},
+
+			'& .ss__overlay-result__image': {
+				display: 'block',
+				width: '100%',
+				objectFit: 'cover',
+			},
 		},
 
-		'& .ss__result__details': {
-			padding: '10px',
-			textAlign: 'center',
+		'& .ss__overlay-result__details': {
+			position: 'absolute',
+			bottom: 0,
+			left: 0,
+			right: 0,
+			width: '100%',
+			boxSizing: 'border-box',
+			padding: '18px 10px 10px',
+			background: overlayBackground,
+			color: '#fff',
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'flex-end',
+			alignItems: 'flex-start',
+			textAlign: 'left',
+			transform: 'translateY(0)',
+			transition: disableSlide ? 'none' : 'transform 260ms ease',
 
-			'& .ss__result__details__title': {
-				marginBottom: '10px',
+			'& .ss__overlay-result__details__title': {
+				marginBottom: '4px',
+				'& a': {
+					color: 'inherit',
+					textDecoration: 'none',
+				},
 			},
-			'& .ss__result__details__pricing': {
-				marginBottom: '10px',
+			'& .ss__overlay-result__details__pricing': {
+				marginBottom: '4px',
 
-				'& .ss__result__price': {
-					fontSize: '1.2em',
+				'& .ss__overlay-result__price': {
+					color: '#fff',
+					fontSize: '1.3em',
 				},
 				'& .ss__price--strike': {
-					fontSize: '80%',
+					color: 'rgba(255,255,255,0.7)',
+					fontSize: '0.9em',
 				},
+			},
+			'& .ss__overlay-result__rating': {
+				marginBottom: '4px',
+			},
+			'& .ss__overlay-result__button--addToCart': {
+				marginTop: '6px',
+			},
+
+			'& .ss__overlay-result__details__extra': {
+				display: 'grid',
+				gridTemplateRows: disableSlide ? '1fr' : '0fr',
+				opacity: disableSlide ? 1 : 0,
+				transform: disableSlide ? 'translateY(0)' : 'translateY(1px)',
+				transition: disableSlide ? 'none' : 'grid-template-rows 260ms ease, opacity 220ms ease, transform 260ms ease',
+				width: '100%',
+
+				'& .ss__overlay-result__details__extra-inner': {
+					overflow: 'hidden',
+					minHeight: 0,
+				},
+			},
+		},
+
+		'&:hover .ss__overlay-result__details': {
+			transform: 'translateY(0)',
+		},
+		'&:hover .ss__overlay-result__details .ss__overlay-result__details__extra': {
+			gridTemplateRows: '1fr',
+			opacity: 1,
+			transform: 'translateY(0)',
+		},
+
+		//a11y support for touch devices - show details on focus of the result
+		'&:focus-within .ss__overlay-result__details': {
+			transform: 'translateY(0)',
+		},
+		'&:focus-within .ss__overlay-result__details .ss__overlay-result__details__extra': {
+			gridTemplateRows: '1fr',
+			opacity: 1,
+			transform: 'translateY(0)',
+		},
+
+		'@media (hover: none)': {
+			'& .ss__overlay-result__details .ss__overlay-result__details__extra': {
+				gridTemplateRows: '1fr',
+				opacity: 1,
+				transform: 'translateY(0)',
 			},
 		},
 	});
 };
 
-export const Result = observer((properties: ResultProps) => {
+export const OverlayResult = observer((properties: OverlayResultProps) => {
 	const globalTheme: Theme = useTheme();
 	const snap = useSnap();
 	const globalTreePath = useTreePath();
-	const defaultProps: Partial<ResultProps> = {
-		layout: ResultsLayout.grid,
+	const defaultProps: Partial<OverlayResultProps> = {
 		treePath: globalTreePath,
 		addToCartButtonText: 'Add To Cart',
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
 		hideAddToCartButton: true,
-		hideRating: true,
+		overlayBackground: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)',
 	};
 
-	const props = mergeProps('result', globalTheme, defaultProps, properties);
+	const props = mergeProps('overlayResult', globalTheme, defaultProps, properties);
 
 	const {
 		result,
@@ -101,7 +157,6 @@ export const Result = observer((properties: ResultProps) => {
 		disableStyles,
 		className,
 		internalClassName,
-		layout,
 		onClick,
 		controller,
 		hideVariantSelections,
@@ -116,10 +171,8 @@ export const Result = observer((properties: ResultProps) => {
 		customComponent,
 	} = props;
 
-	// Check for custom component override
-	// ignore Result custom component to prevent infinite loop since this is the default result component
-	if (customComponent && customComponent !== 'Result') {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
+	if (!treePath?.split(' ')?.includes('result') && customComponent && customComponent !== 'OverlayResult') {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlayResult || {}, customComponent);
 		if (ComponentOverride) {
 			return <ComponentOverride {...props} />;
 		}
@@ -129,10 +182,10 @@ export const Result = observer((properties: ResultProps) => {
 
 	const [addedToCart, setAddedToCart] = useState(false);
 
-	const subProps: ResultSubProps = {
+	const subProps: OverlayResultSubProps = {
 		variantSelection: {
 			// global theme
-			internalClassName: 'ss__result__variant-selection',
+			internalClassName: 'ss__overlay-result__variant-selection',
 			...defined({
 				disableStyles,
 			}),
@@ -142,7 +195,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		price: {
 			// global theme
-			internalClassName: 'ss__result__price',
+			internalClassName: 'ss__overlay-result__price',
 			...defined({
 				disableStyles,
 			}),
@@ -152,7 +205,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		calloutBadge: {
 			// default props
-			internalClassName: 'ss__result__callout-badge',
+			internalClassName: 'ss__overlay-result__callout-badge',
 			result,
 			// inherited props
 			...defined({
@@ -164,7 +217,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		overlayBadge: {
 			// default props
-			internalClassName: 'ss__result__overlay-badge',
+			internalClassName: 'ss__overlay-result__overlay-badge',
 			result,
 			controller: controller as SearchController | AutocompleteController | RecommendationController,
 			// inherited props
@@ -177,7 +230,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		image: {
 			// default props
-			internalClassName: 'ss__result__image',
+			internalClassName: 'ss__overlay-result__image',
 			alt: core?.name || '',
 			src: core?.imageUrl || '',
 			// inherited props
@@ -191,7 +244,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		rating: {
 			// default props
-			internalClassName: 'ss__result__rating',
+			internalClassName: 'ss__overlay-result__rating',
 			value: core?.rating || 0,
 			count: Number(core?.ratingCount || 0),
 			// inherited props
@@ -204,7 +257,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		button: {
 			// default props
-			internalClassName: 'ss__result__button--addToCart',
+			internalClassName: 'ss__overlay-result__button--addToCart',
 			onClick: (e) => {
 				setAddedToCart(true);
 
@@ -231,7 +284,7 @@ export const Result = observer((properties: ResultProps) => {
 		displayName = filters.truncate(core?.name || '', props.truncateTitle.limit, props.truncateTitle.append);
 	}
 
-	const styling = mergeStyles<ResultProps>(props, defaultStyles);
+	const styling = mergeStyles<OverlayResultProps>(props, defaultStyles);
 
 	//initialize lang
 	const defaultLang = {
@@ -253,11 +306,11 @@ export const Result = observer((properties: ResultProps) => {
 		<CacheProvider>
 			<article
 				{...styling}
-				className={classnames('ss__result', `ss__result--${layout}`, { 'ss__result--sale': isOnSale }, className, internalClassName)}
+				className={classnames('ss__overlay-result', { 'ss__overlay-result--sale': isOnSale }, className, internalClassName)}
 				ref={trackingRef}
 			>
 				{!hideImage && (
-					<div className="ss__result__image-wrapper">
+					<div className="ss__overlay-result__image-wrapper">
 						<a
 							href={core!.url}
 							onClick={(e: React.MouseEvent<HTMLAnchorElement, Event>) => {
@@ -278,15 +331,9 @@ export const Result = observer((properties: ResultProps) => {
 					</div>
 				)}
 
-				<div className="ss__result__details">
-					{!hideBadge && (
-						<CalloutBadge
-							{...subProps.calloutBadge}
-							controller={controller as SearchController | AutocompleteController | RecommendationController}
-						/>
-					)}
+				<div className="ss__overlay-result__details">
 					{!hideTitle && (
-						<div className="ss__result__details__title">
+						<div className="ss__overlay-result__details__title">
 							<a
 								href={core.url}
 								onClick={(e: React.MouseEvent<HTMLAnchorElement, Event>) => {
@@ -298,46 +345,56 @@ export const Result = observer((properties: ResultProps) => {
 							/>
 						</div>
 					)}
-					{!hideRating && <Rating {...subProps.rating} />}
 
-					{!hidePricing && core.price && core.price > 0 ? (
-						<div className="ss__result__details__pricing">
-							{isOnSale ? (
-								<>
-									<Price {...subProps.price} value={core.msrp} lineThrough={true} name={'msrp'} />
-									&nbsp;
-									<Price {...subProps.price} value={core.price} name={'price'} />
-								</>
-							) : (
-								<Price {...subProps.price} value={core.price!} />
+					<div className="ss__overlay-result__details__extra">
+						<div className="ss__overlay-result__details__extra-inner">
+							{!hideBadge && (
+								<CalloutBadge
+									{...subProps.calloutBadge}
+									controller={controller as SearchController | AutocompleteController | RecommendationController}
+								/>
+							)}
+
+							{!hideRating && <Rating {...subProps.rating} />}
+
+							{!hidePricing && core.price && core.price > 0 ? (
+								<div className="ss__overlay-result__details__pricing">
+									{isOnSale ? (
+										<>
+											<Price {...subProps.price} value={core.msrp} lineThrough={true} name={'msrp'} />
+											&nbsp;
+											<Price {...subProps.price} value={core.price} name={'price'} />
+										</>
+									) : (
+										<Price {...subProps.price} value={core.price!} />
+									)}
+								</div>
+							) : null}
+
+							{cloneWithProps(detailSlot, { result, treePath })}
+
+							{!hideVariantSelections && result.variants?.selections.length ? (
+								<div className="ss__overlay-result__details__variant-selection">
+									{result.variants?.selections.map((selection) => {
+										return <VariantSelection {...subProps.variantSelection} selection={selection} />;
+									})}
+								</div>
+							) : null}
+
+							{!hideAddToCartButton && (
+								<div className="ss__overlay-result__add-to-cart-wrapper">
+									<Button {...subProps.button} content={addToCartButtonText} {...mergedLang.addToCartButtonText.all} />
+								</div>
 							)}
 						</div>
-					) : null}
-
-					{cloneWithProps(detailSlot, { result, treePath })}
-
-					{!hideVariantSelections && result.variants?.selections.length ? (
-						<div className="ss__result__details__variant-selection">
-							{result.variants?.selections.map((selection) => {
-								return (
-									<VariantSelection {...subProps.variantSelection} type={selection.type as VariantSelectionProps['type']} selection={selection} />
-								);
-							})}
-						</div>
-					) : null}
-
-					{!hideAddToCartButton && (
-						<div className="ss__result__add-to-cart-wrapper">
-							<Button {...subProps.button} {...mergedLang.addToCartButtonText.all} />
-						</div>
-					)}
+					</div>
 				</div>
 			</article>
 		</CacheProvider>
 	) : null;
 });
 
-interface ResultSubProps {
+interface OverlayResultSubProps {
 	calloutBadge: CalloutBadgeProps;
 	overlayBadge: Omit<OverlayBadgeProps, 'children'>;
 	price: PriceProps;
@@ -351,15 +408,17 @@ export interface TruncateTitleProps {
 	append?: string;
 }
 
-export type ResultProps = {
+export type OverlayResultProps = {
 	result: Product;
 	controller?: SearchController | AutocompleteController | RecommendationController;
-	lang?: Partial<ResultLang>;
+	lang?: Partial<OverlayResultLang>;
 	trackingRef?: MutableRef<HTMLElement | null>;
-} & ResultTemplatesLegalProps &
-	ComponentProps<ResultProps>;
+} & OverlayResultTemplatesLegalProps &
+	ComponentProps<OverlayResultProps>;
 
-export type ResultTemplatesLegalProps = {
+export type OverlayResultTemplatesLegalProps = {
+	disableSlide?: boolean;
+	overlayBackground?: string;
 	hideBadge?: boolean;
 	hideTitle?: boolean;
 	hideImage?: boolean;
@@ -373,19 +432,16 @@ export type ResultTemplatesLegalProps = {
 	addToCartButtonSuccessTimeout?: number;
 	detailSlot?: JSX.Element | JSX.Element[];
 	fallback?: string;
-	layout?: keyof typeof ResultsLayout | ResultsLayout;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
 };
 
-export interface ResultLang {
-	addToCartButtonText: Lang<ResultPropData>;
-	addToCartButtonSuccessText: Lang<ResultPropData>;
+export interface OverlayResultLang {
+	addToCartButtonText: Lang<OverlayResultPropData>;
+	addToCartButtonSuccessText: Lang<OverlayResultPropData>;
 }
 
-interface ResultPropData {
+interface OverlayResultPropData {
 	result: Product;
 	controller?: SearchController | AutocompleteController | RecommendationController;
 }
-
-export type ResultNames = 'seed';

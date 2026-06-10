@@ -95,13 +95,21 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath, customComponent, resultComponent } =
-		props;
+	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath, customComponent } = props;
+
+	let resultComponent = props.resultComponent;
 
 	if (customComponent) {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.results || {}, customComponent);
 		if (ComponentOverride) {
 			return <ComponentOverride {...props} />;
+		}
+	}
+
+	if (resultComponent && typeof resultComponent === 'string') {
+		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
+		if (resultComponentOverride) {
+			resultComponent = resultComponentOverride;
 		}
 	}
 
@@ -181,7 +189,7 @@ export const Results = observer((properties: ResultsProps) => {
 export type ResultsProps = {
 	breakpoints?: BreakpointsProps;
 	controller?: SearchController | AutocompleteController | RecommendationController;
-	resultComponent?: JSXComponent | JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element | string;
 	results?: SearchResultStore;
 } & ResultsTemplatesLegalProps &
 	ComponentProps<ResultsProps>;

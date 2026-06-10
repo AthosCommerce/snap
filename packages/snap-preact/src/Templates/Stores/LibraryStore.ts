@@ -87,11 +87,10 @@ export type LibraryImports = {
 				RecommendationEmail: (args?: any) => Promise<JSXComponent>;
 			};
 		};
-		badge: LibraryComponentImport;
-		result: LibraryComponentImport & {
-			Result: (args?: any) => Promise<JSXComponent>;
-		};
 		/* individual library components */
+		badge: LibraryComponentImport;
+		result: LibraryComponentImport;
+		overlayResult: LibraryComponentImport;
 		badgeImage: LibraryComponentImport;
 		badgePill: LibraryComponentImport;
 		badgeRectangle: LibraryComponentImport;
@@ -202,6 +201,7 @@ const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
 	'overlayBadge',
 	'pagination',
 	'perPage',
+	'overlayResult',
 	'radioList',
 	'rating',
 	'searchInput',
@@ -249,6 +249,7 @@ export class LibraryStore {
 		};
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
+		overlayResult: LibraryComponentMap;
 		/* individual library components */
 		badgeImage: LibraryComponentMap;
 		badgePill: LibraryComponentMap;
@@ -318,6 +319,7 @@ export class LibraryStore {
 		},
 		badge: {},
 		result: {},
+		overlayResult: {},
 		/* individual library components */
 		badgeImage: {},
 		badgePill: {},
@@ -542,8 +544,15 @@ export class LibraryStore {
 				Result: async () => {
 					return this.components.result.Result || (this.components.result.Result = (await import('./library/components/Result')).Result);
 				},
+				OverlayResult: async () => {
+					return (
+						this.components.overlayResult.OverlayResult ||
+						(this.components.overlayResult.OverlayResult = (await import('./library/components/OverlayResult')).OverlayResult)
+					);
+				},
 			},
 			/* individual library components */
+			overlayResult: {},
 			badgeImage: {},
 			badgePill: {},
 			badgeRectangle: {},
