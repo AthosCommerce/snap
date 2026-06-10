@@ -8,7 +8,8 @@ import {
 } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
-import type { PluginFunction } from '@athoscommerce/snap-controller';
+import type { PluginFunction, QuickviewControllerConfig } from '@athoscommerce/snap-controller';
+import type { SnapConfigControllerDefinition } from '../Snap';
 
 describe('createPlugins with custom plugins', () => {
 	const baseConfigValues = {
@@ -783,6 +784,22 @@ describe('createSnapConfig additional coverage', () => {
 		const snapConfig = createSnapConfig({ ...baseConfig, quickview: custom } as any, templatesStore);
 
 		expect(snapConfig.controllers!.quickview![0]).toBe(custom);
+	});
+
+	it('createSnapConfig accepts typed quickview definition and uses it', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const customQuickviewDefinition: SnapConfigControllerDefinition<QuickviewControllerConfig> = {
+			config: { id: 'my-quickview' },
+			targeters: [{ selector: '#my-custom', component: async () => () => null }],
+		};
+		const configWithQuickview: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: customQuickviewDefinition,
+		};
+		const snapConfig = createSnapConfig(configWithQuickview, templatesStore);
+
+		expect(snapConfig.controllers!.quickview![0]).toBe(customQuickviewDefinition);
+		expect(snapConfig.controllers!.quickview![0].config.id).toBe('my-quickview');
 	});
 
 	it('should create search controller with correct id', () => {

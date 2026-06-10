@@ -89,4 +89,62 @@ describe('Products Api', () => {
 
 		requestMock.mockReset();
 	});
+
+	it('honors configured origin over derived host', async () => {
+		const api = new ProductsAPI(new ApiConfiguration({ origin: 'https://example-proxy.test' }));
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+		const params = {
+			headers: {},
+			method: 'GET',
+			body: undefined,
+		};
+
+		await api.getProducts({ parentId: '12345', siteId: '8uyt2m' });
+
+		expect(requestMock).toHaveBeenCalledWith('https://example-proxy.test/v1/products/12345', params);
+
+		requestMock.mockReset();
+	});
+
+	it('throws when siteId is missing and no origin is configured', async () => {
+		const api = new ProductsAPI(new ApiConfiguration({}));
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+		await expect(api.getProducts({ parentId: '12345', siteId: '' })).rejects.toThrow('Missing "siteId"');
+
+		expect(requestMock).not.toHaveBeenCalled();
+
+		requestMock.mockReset();
+	});
+
+	it('allows empty siteId when origin is configured', async () => {
+		const api = new ProductsAPI(new ApiConfiguration({ origin: 'https://example-proxy.test' }));
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+		await expect(api.getProducts({ parentId: '12345', siteId: '' })).resolves.toBeDefined();
+
+		expect(requestMock).toHaveBeenCalledWith('https://example-proxy.test/v1/products/12345', expect.any(Object));
+
+		requestMock.mockReset();
+	});
+
+	it('URL-encodes parentId in the request path', async () => {
+		const api = new ProductsAPI(new ApiConfiguration({}));
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+		await api.getProducts({ parentId: 'ab/cd?x', siteId: '8uyt2m' });
+
+		expect(requestMock).toHaveBeenCalledWith(expect.stringContaining('/v1/products/ab%2Fcd%3Fx'), expect.any(Object));
+
+		requestMock.mockReset();
+	});
 });

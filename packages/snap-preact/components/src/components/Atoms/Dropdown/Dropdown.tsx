@@ -112,8 +112,8 @@ export const Dropdown = observer((properties: DropdownProps) => {
 		});
 	}
 
-	// Position the portal BEFORE the browser paints, otherwise the dropdown options
-	// until this effect runs and computes the real button position).
+	// Position the portal BEFORE the browser paints — with a regular effect the dropdown
+	// options would flash at (0,0) until the effect runs and computes the real button position.
 	// Resize / scroll listeners stay on a regular effect — they only need to run after
 	// the initial layout pass is committed.
 	useLayoutEffect(() => {
@@ -250,6 +250,8 @@ export const Dropdown = observer((properties: DropdownProps) => {
 									top: coords.top,
 									left: coords.left,
 									width: coords.width,
+									// 10007: above the quickview modal content (10006) so variant dropdowns paint over it,
+									// below the Gallery lightbox (10010). Full ladder: see ProductQuickview defaultStyles.
 									zIndex: 10007,
 									pointerEvents: dropdownOpen ? 'auto' : 'none',
 								}}

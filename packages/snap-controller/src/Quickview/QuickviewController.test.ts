@@ -104,4 +104,63 @@ describe('QuickviewController', () => {
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 		await expect(controller.addToCart([{ id: 'p1' } as any])).resolves.toBeUndefined();
 	});
+
+	it('out-of-order resolution shows the last-clicked product', async () => {
+		const svc = services();
+		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+
+		const resultA: any = { id: 'prod-A', mappings: { core: { uid: 'uid-A' } } };
+		const resultB: any = { id: 'prod-B', mappings: { core: { uid: 'uid-B' } } };
+
+		let resolveA: (v: any) => void;
+		let resolveB: (v: any) => void;
+		svc.client.products = jest
+			.fn()
+			.mockImplementationOnce(() => new Promise((r) => (resolveA = r)))
+			.mockImplementationOnce(() => new Promise((r) => (resolveB = r)));
+
+		const callA = controller.quickview({ result: resultA });
+		const callB = controller.quickview({ result: resultB });
+
+		// B resolves first, then A resolves — A's continuation must be discarded.
+		resolveB!({ variants: { data: [] } });
+		resolveA!({ variants: { data: [] } });
+
+		await Promise.all([callA, callB]);
+
+		expect(controller.store.product!.id).toBe('prod-B');
+		expect(controller.store.loading).toBe(false);
+		expect(controller.store.isOpen).toBe(true);
+	});
+
+	it('superseded middleware error cannot clobber the active modal', async () => {
+		const svc = services();
+		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+
+		const resultA: any = { id: 'prod-A', mappings: { core: { uid: 'uid-A' } } };
+		const resultB: any = { id: 'prod-B', mappings: { core: { uid: 'uid-B' } } };
+
+		// Skip the /v1/products fetch so both calls reach eventManager.fire in a
+		// predictable order: A fires first (deferred reject), B fires second (resolves).
+		const skipFetch = { fetchProductData: false as const };
+
+		let rejectFireA: (err: any) => void;
+		svc.eventManager.fire = jest
+			.fn()
+			.mockImplementationOnce(() => new Promise((_, rej) => (rejectFireA = rej)))
+			.mockImplementationOnce(() => Promise.resolve(undefined));
+
+		const callA = controller.quickview({ result: resultA, config: skipFetch });
+		const callB = controller.quickview({ result: resultB, config: skipFetch });
+
+		// B settles fully before A's middleware rejects.
+		await callB;
+
+		rejectFireA!(new Error('boom'));
+		await callA;
+
+		// A's error must not overwrite the modal that B already claimed.
+		expect(controller.store.error).toBeUndefined();
+		expect(controller.store.product!.id).toBe('prod-B');
+	});
 });

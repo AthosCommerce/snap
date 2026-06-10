@@ -277,6 +277,18 @@ describe('setupEvents', () => {
 			expect(quickview).toHaveBeenCalledWith(payload);
 		});
 
+		it('resolves quickview controller by type, not id — works with non-default id', async () => {
+			const quickview = jest.fn();
+			// @ts-ignore
+			window.athos = { controller: { myQv: { type: 'quickview', quickview } } };
+
+			const eventManager = setupEvents();
+			const payload = { result: { id: 'p1' }, parentId: 'p1' };
+			await eventManager.fire('controller/quickview', payload);
+
+			expect(quickview).toHaveBeenCalledWith(payload);
+		});
+
 		it('warns and does nothing when no quickview controller exists', async () => {
 			// @ts-ignore
 			window.athos = { controller: {} };
@@ -286,6 +298,18 @@ describe('setupEvents', () => {
 			await eventManager.fire('controller/quickview', { result: { id: 'p1' } });
 
 			expect(warn).toHaveBeenCalled();
+			warn.mockRestore();
+		});
+
+		it('warns when only non-quickview-type controllers are present', async () => {
+			// @ts-ignore
+			window.athos = { controller: { search: { type: 'search', search: jest.fn() } } };
+			const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+			const eventManager = setupEvents();
+			await eventManager.fire('controller/quickview', { result: { id: 'p1' } });
+
+			expect(warn).toHaveBeenCalledWith('[quickview] No quickview-type controller found; quickview ignored.');
 			warn.mockRestore();
 		});
 	});

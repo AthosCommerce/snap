@@ -25,6 +25,10 @@ export class QuickviewController extends AbstractController {
 	// The controller that opened the current quickview, used to delegate add-to-cart.
 	private sourceController?: SourceController;
 
+	// Monotonic token identifying the most recent quickview() call; awaited continuations
+	// from superseded calls must not write to the shared store.
+	private quickviewToken = 0;
+
 	constructor(
 		config: QuickviewControllerConfig,
 		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
@@ -77,6 +81,8 @@ export class QuickviewController extends AbstractController {
 			return;
 		}
 
+		const token = ++this.quickviewToken;
+
 		// Remember the opener so delegated modal actions reach the right platform integration,
 		// and surface its meta store so OverlayBadge / facet-label lookups work on the singleton.
 		this.sourceController = controller;
@@ -105,6 +111,9 @@ export class QuickviewController extends AbstractController {
 			}
 		}
 
+		// A newer quickview() call superseded this one while the fetch was in flight.
+		if (token !== this.quickviewToken) return;
+
 		// Fire the 'quickview' middleware. Listeners can inspect/mutate productsData/config
 		// on the event, or throw `new Error('cancelled')` to short-circuit before the store update.
 		const eventObj: ProductQuickviewObj = {
@@ -115,7 +124,9 @@ export class QuickviewController extends AbstractController {
 		};
 		try {
 			await this.eventManager.fire('quickview', eventObj);
+			if (token !== this.quickviewToken) return;
 		} catch (err: any) {
+			if (token !== this.quickviewToken) return;
 			if (err?.message == 'cancelled') {
 				this.log.warn(`'quickview' middleware cancelled`);
 				this.store.reset();

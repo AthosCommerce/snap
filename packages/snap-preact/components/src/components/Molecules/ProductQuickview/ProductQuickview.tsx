@@ -240,7 +240,7 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
-	// Fullscreen image gallery (lightbox) state. Declared before any early return so hook
+	// Fullscreen image gallery (lightbox) state. Declared before any conditional return so hook
 	// order stays stable.
 	const [galleryOpen, setGalleryOpen] = useState(false);
 	const [galleryIndex, setGalleryIndex] = useState(0);
@@ -256,66 +256,28 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	const props = mergeProps('productQuickview', globalTheme, defaultProps, properties);
 	const { controller, className, internalClassName, disableStyles, treePath, customComponent, showBadges } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent(
-			((snap as SnapTemplates)?.templates?.library.import.component as any)?.productQuickview || {},
-			customComponent
-		);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
-	}
-
-	const styling = mergeStyles<ProductQuickviewProps>(props, defaultStyles);
-
-	if (!controller || controller.type !== 'quickview') {
-		console.warn(`[ProductQuickview] No controller provided; quickview cannot function without a QuickviewController instance.`);
-		return null;
-	}
-
-	const store = controller.store;
-	const product = store.product as Product | undefined;
-	const loading = Boolean(store.loading);
-	const displayFields: string[] | undefined = store.quickviewConfig?.displayFields;
-	const error: { message: string; cause?: unknown } | undefined = store.error;
-
-	// Look up the display label for a field name from meta.facets[field].label.
-	// Falls back to the raw field name when no meta entry exists.
-	const metaFacets = controller.store.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
-	const labelFor = (field: string): string => metaFacets?.[field]?.label || field;
-
-	const isOpen = Boolean(store.isOpen);
-
-	// Prefer `product.display` so the displayed name/image/attributes reflect the
-	// currently active variant (Mask-merged), falling back to the base product data.
+	// Hoist the carousel-sync inputs before any conditional return so the hooks below
+	// are unconditional. All reads use optional chaining and safely produce defaults when
+	// controller/product are absent.
+	const product = controller?.store?.product as Product | undefined;
 	const core = product?.display?.mappings?.core || product?.mappings?.core;
-	const name: string | undefined = core?.name;
-	const description: string | undefined = (core as Record<string, unknown> | undefined)?.description as string | undefined;
 	const image: string | undefined = core?.imageUrl || core?.thumbnailImageUrl;
-	const price: number | undefined = core?.price;
-	const msrp: number | undefined = core?.msrp;
-	const url: string | undefined = core?.url;
-	const isOnSale = Boolean(msrp && price && msrp > price);
-	const allAttributes: Record<string, unknown> = product?.display?.attributes || product?.attributes || {};
-
 	// Resolve the image-list field. `config.imagesField` accepts a single field name or an
 	// array of candidate names; when omitted it defaults to trying 'images' then 'ss_images'.
 	// Each candidate is looked up on mappings.core first, then attributes; the first that
 	// resolves to MORE THAN ONE image wins and is rendered as a 1-per-view carousel. If none
 	// qualify, the modal falls back to the single core image below.
-	const configuredImagesField = store.quickviewConfig?.imagesField;
+	const configuredImagesField = controller?.store?.quickviewConfig?.imagesField;
 	const imageFieldCandidates: string[] = configuredImagesField
 		? Array.isArray(configuredImagesField)
 			? configuredImagesField
 			: [configuredImagesField]
 		: ['images', 'ss_images'];
-
 	const coreRecord = core as Record<string, unknown> | undefined;
-	const selections = product?.variants?.selections;
+	const allAttributes: Record<string, unknown> = product?.display?.attributes || product?.attributes || {};
 	const activeVariant = product?.variants?.active;
 	const variantCore = activeVariant?.mappings?.core as Record<string, unknown> | undefined;
 	const variantAttributes = (activeVariant?.attributes as Record<string, unknown> | undefined) || {};
-
 	const resolveImages = (coreData?: Record<string, unknown>, attrs?: Record<string, unknown>): string[] => {
 		for (const field of imageFieldCandidates) {
 			const candidate = toImageArray(coreData?.[field] ?? attrs?.[field]);
@@ -323,7 +285,6 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 		}
 		return [];
 	};
-
 	// Variant-aware image resolution. When a variant is active, use its own image array
 	// for the carousel. If the variant has no multi-image field, show just its single
 	// imageUrl (no carousel) rather than falling back to the parent's array — the parent
@@ -332,7 +293,6 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	const parentImageList: string[] = resolveImages(coreRecord, allAttributes);
 	const imageList: string[] = activeVariant ? (variantImageList.length > 1 ? variantImageList : []) : parentImageList;
 	const hasMultipleImages = imageList.length > 1;
-
 	// When a variant is active, find its image in the carousel so we can navigate to the
 	// correct slide instead of always staying on slide 0.
 	let targetSlide = 0;
@@ -346,11 +306,85 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 	// flash and layout shift while images reload).
 	const swiperRef = useRef<SwiperType | null>(null);
 
+	// Dialog focus management: remember what had focus before the modal opened,
+	// move focus to the close button on open, and restore on close.
+	const wrapperRef = useRef<HTMLDivElement | null>(null);
+	const previousFocusRef = useRef<HTMLElement | null>(null);
+	const wasOpenRef = useRef(false);
+
+	useEffect(() => {
+		const isOpenNow = Boolean(controller?.store?.isOpen);
+		if (isOpenNow && !wasOpenRef.current) {
+			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
+			const closeEl = wrapperRef.current?.querySelector<HTMLElement>('.ss__product-quickview__close');
+			closeEl?.focus();
+		} else if (!isOpenNow && wasOpenRef.current) {
+			previousFocusRef.current?.focus?.();
+			previousFocusRef.current = null;
+		}
+		wasOpenRef.current = isOpenNow;
+	});
+
+	// Escape closes the quickview — unless the fullscreen gallery is layered on top,
+	// in which case Gallery's own Escape handler closes the gallery first.
+	useEffect(() => {
+		const isOpenNow = Boolean(controller?.store?.isOpen);
+		if (!isOpenNow) return;
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && !galleryOpen) {
+				controller.store.close();
+			}
+		};
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	}, [controller?.store?.isOpen, galleryOpen]);
+
 	useEffect(() => {
 		if (swiperRef.current && !swiperRef.current.destroyed && hasMultipleImages) {
 			swiperRef.current.slideTo(targetSlide);
 		}
 	}, [targetSlide, hasMultipleImages]);
+
+	// Unconditional useComponent call so hook order is stable regardless of customComponent.
+	// Passes '' when no override is requested; the guard in useComponent silently no-ops for
+	// empty names, so there is no console.warn spam on normal renders.
+	const ComponentOverride = useComponent(
+		((snap as SnapTemplates)?.templates?.library.import.component as any)?.productQuickview || {},
+		customComponent || ''
+	);
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} />;
+	}
+
+	const styling = mergeStyles<ProductQuickviewProps>(props, defaultStyles);
+
+	if (!controller || controller.type !== 'quickview') {
+		console.warn(`[ProductQuickview] No controller provided; quickview cannot function without a QuickviewController instance.`);
+		return null;
+	}
+
+	const store = controller.store;
+	const loading = Boolean(store.loading);
+	const displayFields: string[] | undefined = store.quickviewConfig?.displayFields;
+	const error: { message: string; cause?: unknown } | undefined = store.error;
+
+	// Look up the display label for a field name from meta.facets[field].label.
+	// Falls back to the raw field name when no meta entry exists.
+	const metaFacets = controller.store.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
+	const labelFor = (field: string): string => metaFacets?.[field]?.label || field;
+
+	const isOpen = Boolean(store.isOpen);
+
+	// Prefer `product.display` so the displayed name/image/attributes reflect the
+	// currently active variant (Mask-merged), falling back to the base product data.
+	const name: string | undefined = core?.name;
+	const description: string | undefined = (core as Record<string, unknown> | undefined)?.description as string | undefined;
+	const price: number | undefined = core?.price;
+	const msrp: number | undefined = core?.msrp;
+	const url: string | undefined = core?.url;
+	const isOnSale = Boolean(msrp && price && msrp > price);
+
+	const selections = product?.variants?.selections;
 
 	// Images shown in the fullscreen gallery: the multi-image list when present, otherwise the
 	// single core image (so clicking a lone image still opens the zoomable gallery).
@@ -414,7 +448,12 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 			{/* stopPropagation keeps clicks inside the quickview (close icon, overlay, content) from
 			    reaching the AutocompleteController's document click handler, which would otherwise
 			    unfocus and close an open autocomplete behind the modal. */}
-			<div {...styling} className={classnames('ss__product-quickview', className, internalClassName)} onClick={(e) => e.stopPropagation()}>
+			<div
+				{...styling}
+				ref={wrapperRef}
+				className={classnames('ss__product-quickview', className, internalClassName)}
+				onClick={(e) => e.stopPropagation()}
+			>
 				{/* lockScroll is disabled: Modal's scroll-lock toggles `body { overflow: hidden }`,
 				    which removes the page scrollbar and reflows the results wider by the scrollbar
 				    width when the modal opens. The fixed full-viewport overlay already masks the

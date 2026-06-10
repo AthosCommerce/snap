@@ -7,8 +7,7 @@ import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { getSearchParams } from '../utils/getParams';
 import { ControllerTypes, PageContextVariable } from '../types';
 
-import type { Banner, SearchStore, ValueFacet, SearchStoreConfig, QuickviewConfig } from '@athoscommerce/snap-store-mobx';
-import type { ProductsResponseModel } from '@athoscommerce/snap-client';
+import type { Banner, SearchStore, ValueFacet, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
 import type {
 	SearchControllerConfig,
 	SearchAfterSearchObj,
@@ -912,39 +911,6 @@ export class SearchController extends AbstractController {
 		} finally {
 			this.store.loading = false;
 		}
-	};
-
-	public quickview = async ({
-		result,
-		productsData,
-		config,
-	}: {
-		result: Product;
-		productsData?: ProductsResponseModel;
-		config?: QuickviewConfig;
-	}): Promise<void> => {
-		if (!result) {
-			this.log.warn('No result provided to quickview');
-			return;
-		}
-
-		// Controller-level quickview defaults underlay the caller-provided config.
-		const effectiveConfig: QuickviewConfig = {
-			...(this.config?.settings?.quickview || {}),
-			...(config || {}),
-		};
-
-		const parentId = (result.mappings?.core?.parentId as string) || result.id;
-
-		// Delegate to the dedicated quickview controller via the global event channel.
-		(window as any)?.athos?.fire?.('controller/quickview', {
-			result,
-			productsData,
-			parentId,
-			config: effectiveConfig,
-			meta: (this.store as any).meta,
-			controller: this,
-		});
 	};
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {

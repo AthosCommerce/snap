@@ -21,7 +21,7 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 	return css({
 		position: 'fixed',
 		inset: 0,
-		zIndex: 10010, // above the quickview modal (9998) and dropdown portals (9999)
+		zIndex: 10010, // above the quickview modal content (10006) and the dropdown portal (10007); full ladder in ProductQuickview defaultStyles
 		display: 'flex',
 		flexDirection: 'column',
 		background: 'rgba(0, 0, 0, 0.9)',

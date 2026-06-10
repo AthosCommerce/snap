@@ -909,4 +909,120 @@ describe('ProductQuickview', () => {
 		// Counter shows position 3 of 3.
 		expect(document.querySelector('.ss__gallery__counter')!.textContent).toBe('3 / 3');
 	});
+
+	it('controller appearing after first render does not crash (hook-order regression)', () => {
+		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		// First render: no controller — component should render null without throwing.
+		const rendered = render(<ProductQuickview controller={undefined as any} />);
+		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
+
+		// Second render: real controller with an open store and a product.
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+
+		expect(() => {
+			rendered.rerender(<ProductQuickview controller={controller} />);
+		}).not.toThrow();
+
+		// No hook-order error logged by Preact.
+		const hookOrderErrors = consoleError.mock.calls.filter(([msg]) => typeof msg === 'string' && /hook/i.test(msg));
+		expect(hookOrderErrors).toHaveLength(0);
+
+		// Modal content renders after controller appears.
+		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
+		expect(rendered.getByText('Mine')).toBeInTheDocument();
+
+		consoleError.mockRestore();
+	});
+
+	it('focuses the close button when the modal opens', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+
+		render(<ProductQuickview controller={controller} />);
+
+		const closeEl = document.querySelector('.ss__product-quickview__close') as HTMLElement;
+		expect(closeEl).not.toBeNull();
+		expect(document.activeElement).toBe(closeEl);
+	});
+
+	it('Escape key closes the modal when gallery is not open', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+		const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
+
+		render(<ProductQuickview controller={controller} />);
+
+		fireEvent.keyDown(window, { key: 'Escape' });
+		expect(close).toHaveBeenCalledTimes(1);
+	});
+
+	it('Escape key does NOT close the modal while the gallery is open, but closes it after gallery closes', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+		const close = jest.fn();
+		const { controller } = makeController({ store: { isOpen: true, product: storeProduct, close } });
+
+		const rendered = render(<ProductQuickview controller={controller} />);
+
+		// Open the gallery by clicking the product image.
+		const img = rendered.container.querySelector('.ss__product-quickview__media .ss__product-quickview__image img') as HTMLElement;
+		fireEvent.click(img);
+
+		// Gallery is now open; Escape should NOT call store.close.
+		fireEvent.keyDown(window, { key: 'Escape' });
+		expect(close).not.toHaveBeenCalled();
+
+		// Gallery's own Escape handler calls its onClose: setGalleryOpen(false).
+		// After that re-render galleryOpen is false; next Escape should close the modal.
+		const galleryClose = document.querySelector('.ss__gallery__close') as HTMLElement;
+		if (galleryClose) fireEvent.click(galleryClose);
+
+		fireEvent.keyDown(window, { key: 'Escape' });
+		expect(close).toHaveBeenCalledTimes(1);
+	});
+
+	it('restores focus to the previously focused element when the modal closes', () => {
+		// Set up a button outside the modal that holds focus before the modal opens.
+		const outerButton = document.createElement('button');
+		outerButton.setAttribute('data-testid', 'outer-trigger');
+		document.body.appendChild(outerButton);
+		outerButton.focus();
+		expect(document.activeElement).toBe(outerButton);
+
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+
+		// Open the modal — focus moves to the close button.
+		const rendered = render(<ProductQuickview controller={controller} />);
+		expect(document.activeElement).toBe(document.querySelector('.ss__product-quickview__close'));
+
+		// Close the modal by rerendering with isOpen: false.
+		const { controller: closedController } = makeController({ store: { isOpen: false, product: storeProduct } });
+		rendered.rerender(<ProductQuickview controller={closedController} />);
+
+		// Focus should have returned to the outer button.
+		expect(document.activeElement).toBe(outerButton);
+
+		document.body.removeChild(outerButton);
+	});
 });

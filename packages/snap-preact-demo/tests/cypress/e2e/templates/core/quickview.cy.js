@@ -5,7 +5,8 @@ const config = {
 	selectors: {
 		search: '.ss__search',
 		result: '.ss__result',
-		quickviewButton: '.ss__result__button--quickview',
+		quickviewButton: '.ss__result__quickview',
+		quickviewIcon: '.ss__result__quickview__icon',
 		quickview: '.ss__product-quickview',
 		modal: '.ss__product-quickview .ss__modal',
 		modalOpen: '.ss__product-quickview .ss__modal--open',
@@ -27,13 +28,14 @@ describe('ProductQuickview', () => {
 		});
 	});
 
-	it('renders a Quick View button on each result tile', () => {
+	it('renders a quickview eye icon on each result tile', () => {
 		cy.get(config.selectors.search).should('exist');
 		cy.get(config.selectors.result).should('have.length.greaterThan', 0);
 		cy.get(config.selectors.quickviewButton).should('have.length.greaterThan', 0);
+		cy.get(config.selectors.quickviewIcon).should('have.length.greaterThan', 0);
 	});
 
-	it('opens the single shared modal when the Quick View button is clicked', () => {
+	it('opens the single shared modal when the quickview icon is clicked', () => {
 		cy.get(config.selectors.quickviewButton).first().click({ force: true });
 
 		// A single shared ProductQuickview is injected at body > #athos-quickview,

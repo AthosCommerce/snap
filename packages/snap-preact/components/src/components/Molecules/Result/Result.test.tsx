@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, fireEvent } from '@testing-library/preact';
 import { Result } from './Result';
 import { FALLBACK_IMAGE_URL } from '../../Atoms/Image';
 import { ThemeProvider } from '../../../providers';
@@ -736,5 +736,39 @@ describe('Result quickview integration', () => {
 		const { controller } = makeController();
 		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
 		expect(rendered.container.querySelector('.ss__product-quickview')).toBeNull();
+	});
+
+	it('quickview span has tabindex="0"', () => {
+		const { controller } = makeController();
+		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const span = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
+		expect(span).not.toBeNull();
+		expect(span.getAttribute('tabindex')).toBe('0');
+	});
+
+	it('Enter key on quickview span calls controller.quickview with the result', () => {
+		const { controller, set } = makeController();
+		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const span = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
+		fireEvent.keyDown(span, { key: 'Enter' });
+		expect(set).toHaveBeenCalledTimes(1);
+		expect(set).toHaveBeenCalledWith({ result: baseResult });
+	});
+
+	it('Space key on quickview span calls controller.quickview with the result', () => {
+		const { controller, set } = makeController();
+		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const span = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
+		fireEvent.keyDown(span, { key: ' ' });
+		expect(set).toHaveBeenCalledTimes(1);
+		expect(set).toHaveBeenCalledWith({ result: baseResult });
+	});
+
+	it('other keys on quickview span do NOT call controller.quickview', () => {
+		const { controller, set } = makeController();
+		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const span = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
+		fireEvent.keyDown(span, { key: 'a' });
+		expect(set).not.toHaveBeenCalled();
 	});
 });

@@ -60,12 +60,15 @@ export const setupEvents = () => {
 	});
 
 	eventManager.on('controller/quickview', async (data: ControllerQuickviewData, next: Next) => {
-		const controller = window.athos?.controller?.['quickview'] as QuickviewController | undefined;
+		// Resolve by controller type, not id — the quickview controller may be registered under any id.
+		const controller = Object.values(window.athos?.controller || {}).find((cntrlr) => (cntrlr as AbstractController).type === 'quickview') as
+			| QuickviewController
+			| undefined;
 
-		if (controller && controller.type === 'quickview') {
+		if (controller) {
 			await controller.quickview(data);
 		} else {
-			console.warn(`[quickview] No controller with id 'quickview' found; quickview ignored.`);
+			console.warn(`[quickview] No quickview-type controller found; quickview ignored.`);
 		}
 
 		await next();

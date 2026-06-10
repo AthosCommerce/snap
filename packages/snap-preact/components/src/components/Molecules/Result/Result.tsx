@@ -301,7 +301,19 @@ export const Result = observer((properties: ResultProps) => {
 							)}
 						</a>
 						{showQuickview && controller && (
-							<span className="ss__result__quickview" role="button" aria-label={quickviewButtonText} onClick={() => controller.quickview({ result })}>
+							<span
+								className="ss__result__quickview"
+								role="button"
+								tabIndex={0}
+								aria-label={quickviewButtonText}
+								onClick={() => controller.quickview({ result })}
+								onKeyDown={(e: any) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										controller.quickview({ result });
+									}
+								}}
+							>
 								<Icon {...subProps.icon} title={quickviewButtonText} />
 							</span>
 						)}

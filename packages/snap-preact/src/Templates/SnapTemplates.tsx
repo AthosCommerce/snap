@@ -73,11 +73,13 @@ export type SnapTemplatesConfigUnlocked = TemplatesStoreConfigUnlocked & {
 	unlocked: true;
 	url?: UrlTranslatorConfig;
 	features?: SnapFeatures;
+	quickview?: SnapConfigControllerDefinition<QuickviewControllerConfig>;
 };
 
 export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 	url?: UrlTranslatorConfig;
 	features?: SnapFeatures;
+	quickview?: SnapConfigControllerDefinition<QuickviewControllerConfig>;
 };
 
 type TemplatePlugins =
@@ -520,7 +522,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		};
 
 		// Allow a user-provided quickview definition to override the default entirely.
-		const userQuickview = (templateConfig as any).quickview;
+		const userQuickview = templateConfig.quickview;
 		snapConfig.controllers.quickview = [userQuickview || defaultQuickviewControllerDefinition];
 	}
 
