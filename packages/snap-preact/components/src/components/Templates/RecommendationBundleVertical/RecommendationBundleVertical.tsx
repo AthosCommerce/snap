@@ -62,7 +62,7 @@ export type RecommendationBundleVerticalProps = {
 	alias?: string | undefined;
 	lang?: Partial<RecommendationBundleLang> | undefined;
 	results?: Product[] | undefined;
-} & RecommendationBundleVerticalTemplatesLegalProps &
+} & Omit<RecommendationBundleVerticalTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleVerticalTemplatesLegalProps = Omit<

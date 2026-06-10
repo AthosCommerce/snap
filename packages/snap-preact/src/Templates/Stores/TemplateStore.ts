@@ -36,70 +36,11 @@ import type {
 	ThemeResponsiveComplete,
 	ThemeResponsiveCompleteUnlocked,
 	LangComponentOverrides,
-	ThemeComponents,
+	ThemeComponentsRestricted,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
-	// Component Props for typed component config
-	ResultProps,
-	OverlayBadgeProps,
-	BadgeImageProps,
-	BadgePillProps,
-	BadgeRectangleProps,
-	BadgeTextProps,
-	BreadcrumbsProps,
-	ButtonProps,
-	DropdownProps,
-	FormattedNumberProps,
-	IconProps,
-	ImageProps,
-	LoadingBarProps,
-	BannerProps,
-	InlineBannerProps,
-	OverlayProps,
-	PaginationInfoProps,
-	SlideshowProps,
-	PriceProps,
-	SkeletonProps,
-	ModalProps,
-	CalloutBadgeProps,
-	CarouselProps,
-	CheckboxProps,
-	GridProps,
-	LayoutSelectorProps,
-	ListProps,
-	RadioProps,
-	ErrorHandlerProps,
-	FacetGridOptionsProps,
-	FacetHierarchyOptionsProps,
-	FacetListOptionsProps,
-	FacetPaletteOptionsProps,
-	FacetSliderProps,
-	FilterProps,
-	LoadMoreProps,
-	PaginationProps,
-	PerPageProps,
-	RadioListProps,
-	RatingProps,
-	SearchInputProps,
-	SelectProps,
-	SlideoutProps,
-	SortByProps,
-	SwatchesProps,
-	VariantSelectionProps,
-	TermsProps,
-	BranchOverrideProps,
-	FacetProps,
-	FacetsProps,
-	FacetsHorizontalProps,
-	FilterSummaryProps,
-	NoResultsProps,
-	ResultsProps,
-	SearchHeaderProps,
-	SidebarProps,
-	MobileSidebarProps,
-	ToolbarProps,
-	TermsListProps,
+	ComponentTypePropsMap,
 } from '../../../components/src';
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
@@ -173,6 +114,7 @@ export type TemplateCustomComponentTypes =
 	| 'overlayBadge'
 	| 'pagination'
 	| 'perPage'
+	| 'overlayResult'
 	| 'radioList'
 	| 'rating'
 	| 'searchInput'
@@ -232,70 +174,6 @@ type TemplatesStoreThemeConfigLocked = {
 
 type TemplatesStoreThemeConfigUnlocked = Omit<TemplatesStoreThemeConfigLocked, 'overrides'> & {
 	overrides?: ThemeResponsiveCompleteUnlocked;
-};
-
-// Component type to props mapping for typed component config
-export type ComponentTypePropsMap = {
-	result: ResultProps;
-	badge: OverlayBadgeProps;
-	badgeImage: BadgeImageProps;
-	badgePill: BadgePillProps;
-	badgeRectangle: BadgeRectangleProps;
-	badgeText: BadgeTextProps;
-	breadcrumbs: BreadcrumbsProps;
-	button: ButtonProps;
-	dropdown: DropdownProps;
-	formattedNumber: FormattedNumberProps;
-	icon: IconProps;
-	image: ImageProps;
-	loadingBar: LoadingBarProps;
-	banner: BannerProps;
-	inlineBanner: InlineBannerProps;
-	overlay: OverlayProps;
-	paginationInfo: PaginationInfoProps;
-	slideshow: SlideshowProps;
-	price: PriceProps;
-	skeleton: SkeletonProps;
-	modal: ModalProps;
-	calloutBadge: CalloutBadgeProps;
-	carousel: CarouselProps;
-	checkbox: CheckboxProps;
-	grid: GridProps;
-	layoutSelector: LayoutSelectorProps;
-	list: ListProps;
-	radio: RadioProps;
-	errorHandler: ErrorHandlerProps;
-	facetGridOptions: FacetGridOptionsProps;
-	facetHierarchyOptions: FacetHierarchyOptionsProps;
-	facetListOptions: FacetListOptionsProps;
-	facetPaletteOptions: FacetPaletteOptionsProps;
-	facetSlider: FacetSliderProps;
-	filter: FilterProps;
-	loadMore: LoadMoreProps;
-	overlayBadge: OverlayBadgeProps;
-	pagination: PaginationProps;
-	perPage: PerPageProps;
-	radioList: RadioListProps;
-	rating: RatingProps;
-	searchInput: SearchInputProps;
-	select: SelectProps;
-	slideout: SlideoutProps;
-	sortBy: SortByProps;
-	swatches: SwatchesProps;
-	variantSelection: VariantSelectionProps;
-	terms: TermsProps;
-	branchOverride: BranchOverrideProps;
-	facet: FacetProps;
-	facets: FacetsProps;
-	facetsHorizontal: FacetsHorizontalProps;
-	filterSummary: FilterSummaryProps;
-	noResults: NoResultsProps;
-	results: ResultsProps;
-	searchHeader: SearchHeaderProps;
-	sidebar: SidebarProps;
-	mobileSidebar: MobileSidebarProps;
-	toolbar: ToolbarProps;
-	termsList: TermsListProps;
 };
 
 // Typed component function: returns a component that accepts the mapped props type
@@ -706,7 +584,7 @@ function getTargetArray(targets: TemplatesStore['targets'], type: TemplateTypes)
 }
 
 export function transformTranslationsToTheme(translations: LangComponentOverrides): ThemeMinimal {
-	const components: Partial<ThemeComponents> = {};
+	const components: ThemeComponentsRestricted = {};
 
 	Object.keys(translations).forEach((component) => {
 		components[component as keyof typeof components] = {

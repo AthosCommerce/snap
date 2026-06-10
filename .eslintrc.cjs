@@ -15,7 +15,7 @@ module.exports = {
 			files: ['**/index.ts', '**/index.tsx'],
 			plugins: ['snap-config'],
 			rules: {
-				'snap-config/validate-result-component': 'error',
+				'snap-config/validate-config': 'error',
 			},
 		},
 	],
