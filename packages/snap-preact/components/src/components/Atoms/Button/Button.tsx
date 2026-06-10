@@ -9,7 +9,7 @@ import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../p
 import { useA11y } from '../../../hooks/useA11y';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Icon, IconProps, IconType } from '../Icon';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import type { SnapTemplates } from '../../../../../src';
 
@@ -79,11 +79,15 @@ export const Button = observer((properties: ButtonProps) => {
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.button || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.button || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: ButtonSubProps = {

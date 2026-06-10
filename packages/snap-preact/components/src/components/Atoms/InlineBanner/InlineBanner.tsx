@@ -9,7 +9,7 @@ import { useA11y } from '../../../hooks/useA11y';
 import { ComponentProps, StyleScript, ResultsLayout } from '../../../types';
 import { observer } from 'mobx-react-lite';
 import { AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<InlineBannerProps> = ({ width }) => {
@@ -51,11 +51,15 @@ export const InlineBanner = withController<any>(
 
 			const { banner, className, internalClassName, disableA11y, layout, onClick, customComponent } = props;
 
-			if (customComponent) {
-				const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.inlineBanner || {}, customComponent);
-				if (ComponentOverride) {
-					return <ComponentOverride {...props} />;
-				}
+			const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.inlineBanner || {};
+			const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+			if (shouldWaitForNamedOverride) {
+				return null;
+			}
+
+			if (customComponent && ComponentOverride) {
+				return <ComponentOverride {...props} customComponent={undefined} />;
 			}
 
 			const styling = mergeStyles<InlineBannerProps>(props, defaultStyles);

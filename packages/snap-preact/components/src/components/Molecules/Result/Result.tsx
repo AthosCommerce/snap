@@ -17,7 +17,7 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
 import type { SnapTemplates } from '../../../../../src';
 
@@ -116,13 +116,16 @@ export const Result = observer((properties: ResultProps) => {
 		customComponent,
 	} = props;
 
-	// Check for custom component override
-	// ignore Result custom component to prevent infinite loop since this is the default result component
-	if (customComponent && customComponent !== 'Result') {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const overrideComponentName = customComponent && customComponent !== 'Result' ? customComponent : undefined;
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, overrideComponentName);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (overrideComponentName && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const core = result?.display?.mappings.core || result?.mappings?.core;

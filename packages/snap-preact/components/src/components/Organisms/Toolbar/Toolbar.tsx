@@ -4,7 +4,7 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
@@ -29,11 +29,15 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 	const props = mergeProps('toolbar', globalTheme, defaultProps, properties);
 	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, treePath, layout, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.toolbar || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.toolbar || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const styling = mergeStyles<ToolbarProps>(props, defaultStyles);

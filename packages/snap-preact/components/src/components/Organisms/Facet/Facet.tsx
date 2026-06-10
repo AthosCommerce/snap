@@ -20,7 +20,7 @@ import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utili
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { useA11y } from '../../../hooks/useA11y';
 // import { FacetToggle, FacetToggleProps } from '../../Molecules/FacetToggle';
-import { Lang, useComponent, useLang } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
@@ -191,11 +191,15 @@ export const Facet = observer((properties: FacetProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facet || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facet || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: FacetSubProps = {

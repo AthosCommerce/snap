@@ -12,7 +12,7 @@ import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { useA11y } from '../../../hooks/useA11y';
-import { Lang, useComponent, useLang } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -124,11 +124,15 @@ export const Select = observer((properties: SelectProps) => {
 	} = props;
 	let { options } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.select || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.select || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: SelectSubProps = {

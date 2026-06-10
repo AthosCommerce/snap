@@ -8,7 +8,7 @@ import { observer } from 'mobx-react-lite';
 
 import { ComponentProps, StyleScript } from '../../../types';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useClickOutside, useComponent } from '../../../hooks';
+import { useClickOutside, useNamedComponentOverride } from '../../../hooks';
 import { cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { useA11y } from '../../../hooks/useA11y';
 import type { SnapTemplates } from '../../../../../src';
@@ -74,11 +74,15 @@ export const Dropdown = observer((properties: DropdownProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.dropdown || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.dropdown || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	let dropdownOpen: boolean | undefined, setDropdownOpen: undefined | Dispatch<StateUpdater<boolean | undefined>>;

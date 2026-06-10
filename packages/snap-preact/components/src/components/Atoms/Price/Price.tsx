@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../p
 import { FormattedNumberProps } from '../FormattedNumber/FormattedNumber';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<PriceProps> = ({ theme }) => {
@@ -54,11 +54,15 @@ export function Price(properties: PriceProps) {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.price || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.price || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	let formattedPrice: string | undefined;

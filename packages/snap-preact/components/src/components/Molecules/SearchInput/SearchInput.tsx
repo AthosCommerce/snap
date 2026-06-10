@@ -11,7 +11,7 @@ import { Dispatch, MutableRef, StateUpdater, useState } from 'preact/hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
 import { Lang, LangAttributes, useLang } from '../../../hooks/useLang';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<SearchInputProps> = ({ theme }) => {
@@ -112,11 +112,15 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.searchInput || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.searchInput || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	let inputValue: string | undefined;

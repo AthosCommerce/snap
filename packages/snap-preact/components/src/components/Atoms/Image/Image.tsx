@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 export const FALLBACK_IMAGE_URL = '//cdn.athoscommerce.net/snap/images/fallback.png';
@@ -63,11 +63,15 @@ export function Image(properties: ImageProps) {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.image || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.image || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const [visibile, setVisibile] = useState(false);

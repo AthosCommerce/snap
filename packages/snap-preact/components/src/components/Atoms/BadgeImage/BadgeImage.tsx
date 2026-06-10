@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<BadgeImageProps> = () => {
@@ -31,11 +31,15 @@ export const BadgeImage = observer((properties: BadgeImageProps) => {
 
 	const { label, url, tag, className, internalClassName, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.badgeImage || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.badgeImage || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const styling = mergeStyles<BadgeImageProps>(props, defaultStyles);

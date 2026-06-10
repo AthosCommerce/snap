@@ -10,7 +10,7 @@ import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Select, SelectProps } from '../Select';
 import { List, ListProps } from '../List';
 import { RadioList, RadioListProps } from '../RadioList';
-import { Lang, useComponent } from '../../../hooks';
+import { Lang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -53,11 +53,15 @@ export const LayoutSelector = observer((properties: LayoutSelectorProps) => {
 	} = props;
 	let label = props.label;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.layoutSelector || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.layoutSelector || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: SelectSubProps = {

@@ -8,7 +8,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { SearchController } from '@athoscommerce/snap-controller';
 import { Icon, IconProps, IconType } from '../Icon';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<BreadcrumbsProps> = () => {
@@ -46,11 +46,15 @@ export const Breadcrumbs = observer((properties: BreadcrumbsProps) => {
 
 	const { data, separator, separatorIcon, className, internalClassName, controller, disableStyles, treePath, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.breadcrumbs || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.breadcrumbs || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: BreadcrumbsSubProps = {

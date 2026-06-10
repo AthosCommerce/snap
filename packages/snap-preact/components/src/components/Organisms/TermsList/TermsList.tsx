@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Terms, TermsProps } from '../../Molecules/Terms/Terms';
@@ -67,11 +67,15 @@ export const TermsList = observer((properties: TermsListProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.termsList || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.termsList || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: TermsListSubProps = {

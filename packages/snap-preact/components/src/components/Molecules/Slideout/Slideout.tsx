@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
-import { useComponent, useMediaQuery } from '../../../hooks';
+import { useMediaQuery, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { Overlay, OverlayProps } from '../../Atoms/Overlay';
 
@@ -74,11 +74,15 @@ export const Slideout = observer((properties: SlideoutProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.slideout || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.slideout || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: SlideoutSubProps = {

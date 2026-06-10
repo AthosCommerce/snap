@@ -17,7 +17,7 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
 import type { SnapTemplates } from '../../../../../src';
 
@@ -171,11 +171,17 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 		customComponent,
 	} = props;
 
-	if (!treePath?.split(' ')?.includes('result') && customComponent && customComponent !== 'OverlayResult') {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlayResult || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.overlayResult || {};
+	const overrideComponentName =
+		!treePath?.split(' ')?.includes('result') && customComponent && customComponent !== 'OverlayResult' ? customComponent : undefined;
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, overrideComponentName);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (overrideComponentName && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const core = result?.display?.mappings.core || result?.mappings?.core;

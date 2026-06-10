@@ -18,7 +18,7 @@ import type { ScrollbarOptions } from 'swiper/types/modules/scrollbar';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap, ThemeComplete } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<CarouselProps> = ({ vertical, theme }) => {
@@ -269,11 +269,15 @@ export const Carousel = observer((properties: CarouselProps) => {
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.carousel || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.carousel || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	let pagination = props.pagination;

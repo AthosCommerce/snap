@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { css } from '@emotion/react';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, SwatchOption, BreakpointsProps, StyleScript } from '../../../types';
-import { useA11y, useComponent, useDisplaySettings } from '../../../hooks';
+import { useA11y, useDisplaySettings, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Grid, GridProps } from '../Grid';
@@ -126,11 +126,15 @@ export function Swatches(properties: SwatchesProps) {
 	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath, customComponent } =
 		props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.swatches || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.swatches || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: SwatchesSubProps = {

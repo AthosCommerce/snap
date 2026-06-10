@@ -16,7 +16,7 @@ import { Theme, useTheme, CacheProvider, withTracking, useSnap, useTreePath, The
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { SnapTemplates } from '../../../../../src';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<ResultsProps> = ({ gapSize, columns }) => {
 	return css({
@@ -97,21 +97,27 @@ export const Results = observer((properties: ResultsProps) => {
 
 	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath, customComponent } = props;
 
-	let resultComponent = props.resultComponent;
+	const resultComponent = props.resultComponent;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.results || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.results || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
 	}
 
-	if (resultComponent && typeof resultComponent === 'string') {
-		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
-		if (resultComponentOverride) {
-			resultComponent = resultComponentOverride;
-		}
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
+
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const subProps: ResultsSubProps = {
 		result: {
@@ -155,10 +161,13 @@ export const Results = observer((properties: ResultsProps) => {
 							case ContentType.BANNER:
 								return <InlineBanner {...subProps.inlineBanner} key={result.id} banner={result as Banner} layout={props.layout} />;
 							default:
-								if (resultComponent && controller) {
+								if (shouldWaitForNamedResultComponent) {
+									return null;
+								}
+								if (resolvedResultComponent && controller) {
 									return (
 										<ResultTracker result={result as Product} controller={controller as SearchController}>
-											{cloneWithProps(resultComponent, {
+											{cloneWithProps(resolvedResultComponent, {
 												key: (result as Product).id,
 												controller,
 												result: result as Product,

@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 
 import { Facet, FacetProps } from '../Facet';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
@@ -32,11 +32,15 @@ export const Facets = observer((properties: FacetsProps) => {
 
 	const { limit, onFacetOptionClick, disableStyles, className, internalClassName, controller, treePath, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facets || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facets || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const facetClickEvent = (e: React.MouseEvent<Element, MouseEvent>) => {

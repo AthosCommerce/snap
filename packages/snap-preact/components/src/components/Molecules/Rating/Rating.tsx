@@ -7,7 +7,7 @@ import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../p
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RatingProps> = () => {
@@ -72,11 +72,15 @@ export const Rating = observer((properties: RatingProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.rating || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.rating || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: RatingSubProps = {

@@ -9,7 +9,7 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { SearchMerchandisingStore, SearchPaginationStore, SearchQueryStore } from '@athoscommerce/snap-store-mobx';
 import classnames from 'classnames';
-import { useLang, useComponent } from '../../../hooks';
+import { useLang, useNamedComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import type { SnapTemplates } from '../../../../../src';
@@ -65,11 +65,15 @@ export const SearchHeader = observer((properties: SearchHeaderProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.searchHeader || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.searchHeader || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const styling = mergeStyles<SearchHeaderProps>(props, defaultStyles);

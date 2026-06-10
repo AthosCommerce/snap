@@ -13,7 +13,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
 import type { AbstractController } from '@athoscommerce/snap-controller';
-import { Lang, useComponent, useLang } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -132,11 +132,15 @@ export const ErrorHandler = observer((properties: ErrorHandlerProps) => {
 
 	const { controller, error, disableStyles, onRetryClick, className, internalClassName, treePath, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.errorHandler || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.errorHandler || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: ErrorHandlerSubProps = {

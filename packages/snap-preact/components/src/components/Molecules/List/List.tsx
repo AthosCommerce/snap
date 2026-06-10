@@ -10,7 +10,7 @@ import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../p
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Checkbox, CheckboxProps } from '../Checkbox';
-import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
+import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { Icon, IconProps } from '../../Atoms/Icon';
 
@@ -92,11 +92,15 @@ export function List(properties: ListProps) {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.list || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.list || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	let selected = props.selected;

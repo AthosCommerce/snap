@@ -10,7 +10,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { useA11y } from '../../../hooks/useA11y';
-import { Lang, useComponent, useLang } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -78,11 +78,15 @@ export const Checkbox = observer((properties: CheckboxProps) => {
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.checkbox || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.checkbox || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const pixelSize = isNaN(Number(size)) ? size : `${size}px`;

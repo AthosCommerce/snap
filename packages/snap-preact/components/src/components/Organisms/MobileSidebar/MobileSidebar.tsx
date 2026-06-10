@@ -9,7 +9,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import type { SideBarModuleNames } from '../Sidebar';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
+import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { MutableRef, useRef } from 'preact/hooks';
 import type { IconProps, IconType } from '../../Atoms/Icon';
@@ -102,11 +102,15 @@ export const MobileSidebar = observer((properties: MobileSidebarProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.mobileSidebar || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.mobileSidebar || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	let hideFooter = props.hideFooter;

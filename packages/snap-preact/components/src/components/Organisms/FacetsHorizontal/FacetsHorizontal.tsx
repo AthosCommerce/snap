@@ -13,7 +13,7 @@ import type { SearchController, AutocompleteController } from '@athoscommerce/sn
 import type { RangeFacet, ValueFacet } from '@athoscommerce/snap-store-mobx';
 import type { IndividualFacetType } from '../Facets/Facets';
 import { MobileSidebar, MobileSidebarProps } from '../MobileSidebar';
-import { Lang, useClickOutside, useComponent, useLang } from '../../../hooks';
+import { Lang, useClickOutside, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
@@ -136,11 +136,15 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facetsHorizontal || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetsHorizontal || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const facetClickEvent = (e: React.MouseEvent<Element, MouseEvent>) => {

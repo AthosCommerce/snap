@@ -11,7 +11,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchController, AutocompleteController } from '@athoscommerce/snap-controller';
 import type { Filter as FilterType } from '@athoscommerce/snap-store-mobx';
 import { IconProps, IconType } from '../../Atoms/Icon';
-import { Lang, useComponent, useLang } from '../../../hooks';
+import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -108,11 +108,15 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.filterSummary || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.filterSummary || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: FilterSummarySubProps = {

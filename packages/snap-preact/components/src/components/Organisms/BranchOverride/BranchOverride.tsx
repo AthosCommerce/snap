@@ -8,7 +8,7 @@ import { Icon, IconProps } from '../../Atoms/Icon/Icon';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
+import { useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 export type BranchOverrideTheme = {
@@ -256,11 +256,15 @@ export const BranchOverride = (properties: BranchOverrideProps) => {
 
 	const { branch, details, error, className, internalClassName, darkMode, disableStyles, onRemoveClick, treePath, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.branchOverride || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.branchOverride || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: BranchOverrideSubProps = {

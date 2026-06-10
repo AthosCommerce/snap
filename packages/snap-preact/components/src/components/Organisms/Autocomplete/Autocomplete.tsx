@@ -19,7 +19,7 @@ import { createHoverProps } from '../../../toolbox';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap, ThemeComplete } from '../../../providers';
 import { ComponentProps, FacetDisplay, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
-import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
+import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { IconType } from '../../Atoms/Icon';
 // import type { SnapTemplates } from '../../../../../src';
@@ -214,11 +214,15 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 
 	const { customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.autocomplete || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.autocomplete || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const valueProps = createHoverProps();

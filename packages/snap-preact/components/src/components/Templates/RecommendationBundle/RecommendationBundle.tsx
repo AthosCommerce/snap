@@ -18,7 +18,7 @@ import type { CartStore, Product } from '@athoscommerce/snap-store-mobx';
 import { BundleSelector, BundleSelectorProps } from './BundleSelector';
 import { BundledCTA, BundledCTAProps } from './BundleCTA';
 import { Lang } from '../../../hooks';
-import { useComponent, useIntersection } from '../../../hooks';
+import { useIntersection, useNamedComponentOverride } from '../../../hooks';
 import { componentNameToClassName } from '../../../utilities/componentNameToClassName';
 import { SnapTemplates } from '../../../../../src';
 
@@ -246,15 +246,16 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		...additionalProps
 	} = props;
 
-	let resultComponent = props.resultComponent;
+	const resultComponent = props.resultComponent;
 	const snap = useSnap();
-
-	if (resultComponent && typeof resultComponent === 'string') {
-		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
-		if (resultComponentOverride) {
-			resultComponent = resultComponentOverride;
-		}
-	}
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -514,9 +515,16 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 			return !isSeed || ((seedInCarousel || carousel?.enabled == false) && isSeed && !hideSeed) ? (
 				<ResultTracker key={result.id} controller={controller} result={result} track={{ impression: Boolean(!isSeed) }}>
 					<BundleSelector {...attributes}>
-						{resultComponent ? (
-							cloneWithProps(resultComponent, { controller: controller, treePath: treePath, result: result, seed: isSeed, selected, onProductSelect })
-						) : (
+						{resolvedResultComponent ? (
+							cloneWithProps(resolvedResultComponent, {
+								controller: controller,
+								treePath: treePath,
+								result: result,
+								seed: isSeed,
+								selected,
+								onProductSelect,
+							})
+						) : shouldWaitForNamedResultComponent ? null : (
 							<Result {...subProps.result} controller={controller} result={result} />
 						)}
 					</BundleSelector>
@@ -531,7 +539,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		separatorIcon,
 		seedInCarousel,
 		hideSeed,
-		resultComponent,
+		shouldWaitForNamedResultComponent,
+		resolvedResultComponent,
 		props.theme,
 		seedText,
 	]);
@@ -588,8 +597,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 													lang={{ seedText: lang.seedText }}
 												>
 													{(() => {
-														if (resultComponent && controller) {
-															return cloneWithProps(resultComponent, {
+														if (resolvedResultComponent && controller) {
+															return cloneWithProps(resolvedResultComponent, {
 																controller,
 																seed: true,
 																selected: selectedItems.findIndex((item) => item.id == seed.id) > -1,
@@ -597,6 +606,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 																result: seed,
 																treePath,
 															});
+														} else if (shouldWaitForNamedResultComponent) {
+															return null;
 														} else {
 															return <Result {...subProps.result} controller={controller} result={seed} />;
 														}

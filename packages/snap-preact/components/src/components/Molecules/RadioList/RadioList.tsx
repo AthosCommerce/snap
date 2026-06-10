@@ -8,7 +8,7 @@ import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useState } from 'react';
 import { Radio, RadioProps } from '../Radio/Radio';
-import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
+import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import type { SnapTemplates } from '../../../../../src';
@@ -83,11 +83,15 @@ export function RadioList(properties: RadioListProps) {
 		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.radioList || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.radioList || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const subProps: RadioListSubProps = {

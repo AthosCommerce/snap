@@ -10,4 +10,5 @@ export { useLang, Lang } from './useLang';
 export * from './useDeepCompareEffect';
 export * from './useCreateController';
 export * from './useComponent';
+export * from './useNamedComponentOverride';
 export * from './useTracking';

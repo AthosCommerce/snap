@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../providers';
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
+import { useComponent, useNamedComponentOverride } from '../../../hooks';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
 
@@ -18,6 +18,15 @@ const defaultStyles: StyleScript<CalloutBadgeProps> = () => {
 		alignItems: 'center',
 		gap: '5px',
 	});
+};
+
+const BadgeRenderer = ({ badge, badgeComponentMap, treePath }: { badge: any; badgeComponentMap: ComponentMap; treePath?: string }) => {
+	const BadgeComponent = useComponent(badgeComponentMap, badge.component);
+	if (!BadgeComponent) {
+		return null;
+	}
+
+	return <BadgeComponent {...badge} {...badge.parameters} treePath={treePath} />;
 };
 
 export const CalloutBadge = observer((properties: CalloutBadgeProps) => {
@@ -36,11 +45,15 @@ export const CalloutBadge = observer((properties: CalloutBadgeProps) => {
 
 	const { result, tag, renderEmpty, limit, className, internalClassName, treePath, customComponent } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.calloutBadge || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.calloutBadge || {};
+	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+
+	if (shouldWaitForNamedOverride) {
+		return null;
+	}
+
+	if (customComponent && ComponentOverride) {
+		return <ComponentOverride {...props} customComponent={undefined} />;
 	}
 
 	const badgeComponentMap = {
@@ -57,13 +70,9 @@ export const CalloutBadge = observer((properties: CalloutBadgeProps) => {
 		return (
 			<CacheProvider>
 				<div {...styling} className={classnames('ss__callout-badge', `ss__callout-badge--${tag?.replace('/', '-')}`, className, internalClassName)}>
-					{badges.map((badge) => {
-						const BadgeComponent = useComponent(badgeComponentMap, badge.component);
-						if (!BadgeComponent) {
-							return null;
-						}
-						return <BadgeComponent {...badge} {...badge.parameters} treePath={treePath} />;
-					})}
+					{badges.map((badge, badgeIndex) => (
+						<BadgeRenderer key={`${badge.component}-${badgeIndex}`} badge={badge} badgeComponentMap={badgeComponentMap} treePath={treePath} />
+					))}
 				</div>
 			</CacheProvider>
 		);
