@@ -10,13 +10,6 @@ import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
 import { Button } from '../../Atoms/Button';
 
-const ZOOM_MIN = 1;
-const ZOOM_MAX = 4;
-const ZOOM_STEP = 0.5;
-const SWIPE_THRESHOLD = 40; // px of horizontal travel before a touch swipe paginates
-
-const clampZoom = (value: number): number => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
-
 const defaultStyles: StyleScript<GalleryProps> = () => {
 	return css({
 		position: 'fixed',
@@ -112,13 +105,23 @@ export const Gallery = observer((properties: GalleryProps) => {
 	const defaultProps: Partial<GalleryProps> = {
 		treePath: globalTreePath,
 		startIndex: 0,
+		zoomMin: 1,
+		zoomMax: 4,
+		zoomStep: 0.5,
+		swipeThreshold: 40,
 	};
 
 	const props = mergeProps('gallery', globalTheme, defaultProps, properties);
 	const { images, open, startIndex, onClose, alt, className, internalClassName } = props;
+	const zoomMin = props.zoomMin!;
+	const zoomMax = props.zoomMax!;
+	const zoomStep = props.zoomStep!;
+	const swipeThreshold = props.swipeThreshold!;
+
+	const clampZoom = (value: number): number => Math.min(zoomMax, Math.max(zoomMin, value));
 
 	const [index, setIndex] = useState<number>(startIndex || 0);
-	const [zoom, setZoom] = useState<number>(ZOOM_MIN);
+	const [zoom, setZoom] = useState<number>(zoomMin);
 	const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 	const dragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
 	const touchRef = useRef<{ x: number; y: number } | null>(null);
@@ -129,7 +132,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 	useEffect(() => {
 		if (open) {
 			setIndex(Math.min(Math.max(startIndex || 0, 0), Math.max(count - 1, 0)));
-			setZoom(ZOOM_MIN);
+			setZoom(zoomMin);
 			setPan({ x: 0, y: 0 });
 		}
 	}, [open, startIndex, count]);
@@ -138,16 +141,16 @@ export const Gallery = observer((properties: GalleryProps) => {
 		if (count === 0) return;
 		const wrapped = (next + count) % count;
 		setIndex(wrapped);
-		setZoom(ZOOM_MIN);
+		setZoom(zoomMin);
 		setPan({ x: 0, y: 0 });
 	};
 	const showPrev = () => goTo(index - 1);
 	const showNext = () => goTo(index + 1);
-	const zoomIn = () => setZoom((z) => clampZoom(z + ZOOM_STEP));
+	const zoomIn = () => setZoom((z) => clampZoom(z + zoomStep));
 	const zoomOut = () =>
 		setZoom((z) => {
-			const next = clampZoom(z - ZOOM_STEP);
-			if (next === ZOOM_MIN) setPan({ x: 0, y: 0 });
+			const next = clampZoom(z - zoomStep);
+			if (next === zoomMin) setPan({ x: 0, y: 0 });
 			return next;
 		});
 
@@ -185,7 +188,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 
 	// Drag-to-pan when zoomed in.
 	const onPointerDown = (e: any) => {
-		if (zoom <= ZOOM_MIN) return;
+		if (zoom <= zoomMin) return;
 		dragRef.current = { startX: e.clientX, startY: e.clientY, baseX: pan.x, baseY: pan.y };
 	};
 	const onPointerMove = (e: any) => {
@@ -211,13 +214,13 @@ export const Gallery = observer((properties: GalleryProps) => {
 	const onTouchEnd = (e: any) => {
 		const start = touchRef.current;
 		touchRef.current = null;
-		if (!start || zoom > ZOOM_MIN || count <= 1) return;
+		if (!start || zoom > zoomMin || count <= 1) return;
 		const touch = e.changedTouches && e.changedTouches[0];
 		if (!touch) return;
 		const dx = touch.clientX - start.x;
 		const dy = touch.clientY - start.y;
 		// Require a dominantly-horizontal swipe past the threshold.
-		if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+		if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
 			if (dx < 0) showNext();
 			else showPrev();
 		}
@@ -245,7 +248,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 						internalClassName="ss__gallery__button ss__gallery__zoom-out"
 						icon={{ icon: 'minus', color: '#fff' }}
 						aria-label="Zoom out"
-						disabled={zoom <= ZOOM_MIN}
+						disabled={zoom <= zoomMin}
 						onClick={zoomOut}
 						theme={props.theme}
 						treePath={props.treePath}
@@ -255,7 +258,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 						internalClassName="ss__gallery__button ss__gallery__zoom-in"
 						icon={{ icon: 'plus', color: '#fff' }}
 						aria-label="Zoom in"
-						disabled={zoom >= ZOOM_MAX}
+						disabled={zoom >= zoomMax}
 						onClick={zoomIn}
 						theme={props.theme}
 						treePath={props.treePath}
@@ -292,7 +295,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 						draggable={false}
 						style={{
 							transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-							cursor: zoom > ZOOM_MIN ? (dragRef.current ? 'grabbing' : 'grab') : 'default',
+							cursor: zoom > zoomMin ? (dragRef.current ? 'grabbing' : 'grab') : 'default',
 						}}
 						onPointerDown={onPointerDown}
 						onPointerMove={onPointerMove}
@@ -324,4 +327,8 @@ export type GalleryProps = {
 	startIndex?: number;
 	onClose?: () => void;
 	alt?: string;
+	zoomMin?: number;
+	zoomMax?: number;
+	zoomStep?: number;
+	swipeThreshold?: number;
 } & ComponentProps<GalleryProps>;

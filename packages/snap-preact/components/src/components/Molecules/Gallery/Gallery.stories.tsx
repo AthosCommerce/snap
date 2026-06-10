@@ -83,6 +83,50 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		zoomMin: {
+			description: 'Minimum zoom level',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+				defaultValue: { summary: 1 },
+			},
+			control: { type: 'number', min: 0.1, step: 0.1 },
+		},
+		zoomMax: {
+			description: 'Maximum zoom level',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+				defaultValue: { summary: 4 },
+			},
+			control: { type: 'number', min: 0.1, step: 0.1 },
+		},
+		zoomStep: {
+			description: 'Zoom increment applied per zoom in/out action',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+				defaultValue: { summary: 0.5 },
+			},
+			control: { type: 'number', min: 0.1, step: 0.1 },
+		},
+		swipeThreshold: {
+			description: 'Pixels of horizontal touch travel required before a swipe paginates',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+				defaultValue: { summary: 40 },
+			},
+			control: { type: 'number', min: 0 },
+		},
 		...componentArgs,
 	},
 };

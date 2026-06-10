@@ -6,16 +6,17 @@ import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ControllerTypes } from '../types';
 import type { QuickviewControllerConfig, ControllerServices, ContextVariables, ProductQuickviewObj } from '../types';
+import type { SearchController } from '../Search/SearchController';
+import type { AutocompleteController } from '../Autocomplete/AutocompleteController';
+import type { RecommendationController } from '../Recommendation/RecommendationController';
 
 const defaultConfig: QuickviewControllerConfig = {
 	id: 'quickview',
 };
 
-// Minimal shape of the controller that triggered the quickview. The modal delegates
-// actions that need platform integration (e.g. add-to-cart) back to it.
-type SourceController = {
-	addToCart?: (products: Product[] | Product) => Promise<void> | void;
-};
+// The controller that triggered the quickview. The modal delegates actions that
+// need platform integration (e.g. add-to-cart) back to it.
+type SourceController = SearchController | AutocompleteController | RecommendationController;
 
 export class QuickviewController extends AbstractController {
 	public type = ControllerTypes.quickview;

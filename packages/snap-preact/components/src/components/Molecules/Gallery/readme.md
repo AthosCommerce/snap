@@ -50,6 +50,34 @@ The `alt` prop provides alt text for the displayed image.
 <Gallery images={imageUrls} open={true} alt="Product image" />
 ```
 
+### zoomMin
+The `zoomMin` prop sets the minimum zoom level. Defaults to `1`.
+
+```tsx
+<Gallery images={imageUrls} open={true} zoomMin={1} />
+```
+
+### zoomMax
+The `zoomMax` prop sets the maximum zoom level. Defaults to `4`.
+
+```tsx
+<Gallery images={imageUrls} open={true} zoomMax={6} />
+```
+
+### zoomStep
+The `zoomStep` prop sets the zoom increment applied per zoom in/out action. Defaults to `0.5`.
+
+```tsx
+<Gallery images={imageUrls} open={true} zoomStep={1} />
+```
+
+### swipeThreshold
+The `swipeThreshold` prop sets the number of pixels of horizontal touch travel required before a swipe navigates to the next or previous image. Defaults to `40`.
+
+```tsx
+<Gallery images={imageUrls} open={true} swipeThreshold={60} />
+```
+
 ## Features
 
 ### Keyboard Controls
@@ -58,10 +86,10 @@ The `alt` prop provides alt text for the displayed image.
 - **+ / -** - Zoom in / out
 
 ### Zoom
-Zoom ranges from 1x to 4x in 0.5x increments. When zoomed in, drag-to-pan is enabled.
+Zoom ranges from `zoomMin` (default 1x) to `zoomMax` (default 4x) in `zoomStep` (default 0.5x) increments. When zoomed in, drag-to-pan is enabled.
 
 ### Touch Swipe
-On mobile, horizontal swipe gestures navigate between images when not zoomed in.
+On mobile, horizontal swipe gestures past `swipeThreshold` (default 40px) navigate between images when not zoomed in.
 
 ### Wrap-around Navigation
 Navigation wraps around from the last image to the first and vice versa.

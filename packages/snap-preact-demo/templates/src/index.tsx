@@ -79,9 +79,6 @@ let templatesConfig: SnapTemplatesConfig = {
 				facet: {
 					// iconColor: 'red'
 				},
-				results: {
-					showQuickview: true,
-				},
 				result: {
 					showQuickview: true,
 				},
@@ -112,6 +109,11 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+		settings: {
+			quickview: {
+				displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
+			},
+		},
 	},
 	autocomplete: {
 		targets: [

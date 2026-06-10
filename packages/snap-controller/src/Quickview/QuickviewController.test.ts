@@ -91,7 +91,7 @@ describe('QuickviewController', () => {
 		const source = { addToCart: jest.fn() };
 		const meta = { data: { facets: [] } };
 
-		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any, controller: source, meta });
+		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any, controller: source as any, meta });
 		expect(controller.store.meta).toBe(meta);
 
 		const product: any = { id: 'p1' };

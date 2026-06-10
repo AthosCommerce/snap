@@ -7,8 +7,6 @@ export const useComponent = (map: ComponentMap, name: string): JSXComponent | un
 	const [importedComponent, setImportedComponent] = useState<JSXComponent | undefined>(undefined);
 
 	useEffect(() => {
-		// No component requested — quietly do nothing (callers may pass '' to keep hook order stable).
-		if (!name) return;
 		const importFn = map[name];
 		if (importFn && typeof importFn === 'function') {
 			const componentFn = importFn();

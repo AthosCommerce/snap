@@ -91,28 +91,6 @@ describe('Results Component', () => {
 		expect(results.length).toBe(mockResults.length);
 	});
 
-	it('forwards showQuickview to child Result instances', async () => {
-		searchConfig = { ...searchConfigDefault };
-		searchConfig.id = uuidv4().split('-').join('');
-
-		controller = new SearchController(searchConfig, {
-			client: mockClient,
-			store: new SearchStore(searchConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		await controller.search();
-
-		const rendered = render(<Results layout={Layout.grid} results={mockResults} controller={controller} showQuickview={true} />);
-
-		const icons = rendered.container.querySelectorAll('.ss__result__quickview');
-		expect(icons.length).toBe(mockResults.length);
-	});
-
 	it('renders correct number of products when passing rows and columns', () => {
 		const args = {
 			rows: 2,

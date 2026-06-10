@@ -2,12 +2,12 @@ import deepmerge from 'deepmerge';
 import cssEscape from 'css.escape';
 
 import { AbstractController } from '../Abstract/AbstractController';
-import { ErrorType, MerchandisingContentBanner, Product } from '@athoscommerce/snap-store-mobx';
+import { ErrorType, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { getSearchParams } from '../utils/getParams';
 import { ControllerTypes, PageContextVariable } from '../types';
 
-import type { Banner, SearchStore, ValueFacet, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
+import type { Product, Banner, SearchStore, ValueFacet, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
 import type {
 	SearchControllerConfig,
 	SearchAfterSearchObj,

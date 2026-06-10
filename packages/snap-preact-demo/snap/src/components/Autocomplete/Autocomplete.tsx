@@ -15,9 +15,6 @@ export const Autocomplete = observer(({ controller, snap }: AutocompleteProps) =
 			facet: {
 				limit: 5,
 			},
-			results: {
-				showQuickview: true,
-			},
 			result: {
 				showQuickview: true,
 			},
