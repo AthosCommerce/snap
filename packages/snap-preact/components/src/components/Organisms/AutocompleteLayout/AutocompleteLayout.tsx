@@ -817,12 +817,12 @@ export type AutocompleteLayoutProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
-} & AutocompleteLayoutTemplatesLegalProps &
+} & Omit<AutocompleteLayoutTemplatesLegalProps, 'resultComponent'> &
 	ComponentProps<AutocompleteLayoutProps>;
 
 export type AutocompleteLayoutTemplatesLegalProps = {
+	resultComponent?: string;
 	layout?: ModuleNamesWithColumns[] | PrebuiltLayouts;
-
 	column1?: Column;
 	column2?: Column;
 	column3?: Column;

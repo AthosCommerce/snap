@@ -18,7 +18,7 @@ export const SearchCollapsible = observer((properties: SearchCollapsibleProps) =
 export type SearchCollapsibleProps = {
 	controller: SearchController;
 } & SearchProps &
-	SearchCollapsibleTemplatesLegalProps &
+	Omit<SearchCollapsibleTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchCollapsibleTemplatesLegalProps = SearchTemplatesLegalProps;
