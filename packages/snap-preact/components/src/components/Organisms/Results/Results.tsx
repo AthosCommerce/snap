@@ -95,7 +95,7 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent } = props;
+	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath, customComponent } = props;
 
 	let resultComponent = props.resultComponent;
 
@@ -139,9 +139,9 @@ export const Results = observer((properties: ResultsProps) => {
 		},
 	};
 
-	let results = props.results;
+	let results = excludeBanners ? props.results?.filter((r) => r.type !== ContentType.BANNER) : props.results;
 	if (props?.columns && props?.rows && props.columns > 0 && props.rows > 0) {
-		results = props.results?.slice(0, props.columns * props.rows);
+		results = results?.slice(0, props.columns * props.rows);
 	}
 
 	const styling = mergeStyles<ResultsProps>({ ...props, columns: layout == ResultsLayout.list ? 1 : props.columns }, defaultStyles);
@@ -195,6 +195,7 @@ export type ResultsProps = {
 	ComponentProps<ResultsProps>;
 
 export type ResultsTemplatesLegalProps = {
+	excludeBanners?: boolean;
 	columns?: number;
 	rows?: number;
 	gapSize?: string;

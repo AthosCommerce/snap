@@ -400,6 +400,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		results: {
 			columns: 3,
 			rows: 2,
+			excludeBanners,
 			// default props
 			internalClassName: 'ss__autocomplete__results',
 			resultComponent: resultComponent,

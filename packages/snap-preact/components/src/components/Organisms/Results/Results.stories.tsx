@@ -118,6 +118,18 @@ export default {
 			},
 			control: { type: 'none' },
 		},
+		excludeBanners: {
+			defaultValue: false,
+			description: 'Exclude inline merchandising banners from the results list',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		...componentArgs,
 	},
 };
