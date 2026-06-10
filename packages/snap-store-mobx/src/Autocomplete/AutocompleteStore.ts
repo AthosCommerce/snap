@@ -40,6 +40,7 @@ export class AutocompleteStore extends AbstractStore<AutocompleteStoreConfig> {
 	public storage: StorageStore;
 	public trending: AutocompleteTrendingStore;
 	public history: AutocompleteHistoryStore;
+
 	constructor(config: AutocompleteStoreConfig, services: StoreServices) {
 		super(config);
 

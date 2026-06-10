@@ -514,8 +514,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 						},
 					},
 					component: async () => {
-						const { ProductQuickview } = await import('../../components/src/components/Molecules/ProductQuickview');
-						return ProductQuickview;
+						return templatesStore.library.import.component.quickview.ProductQuickview();
 					},
 				} as ExtendedTarget,
 			],
