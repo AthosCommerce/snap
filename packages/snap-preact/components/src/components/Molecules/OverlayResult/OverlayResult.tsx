@@ -22,7 +22,7 @@ import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
-	const { overlayBackground: overlayBackgroundColor, disableSlide } = props;
+	const { overlayBackground, disableSlide } = props;
 
 	return css({
 		position: 'relative',
@@ -51,7 +51,7 @@ const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
 			width: '100%',
 			boxSizing: 'border-box',
 			padding: '18px 10px 10px',
-			background: overlayBackgroundColor,
+			background: overlayBackground,
 			color: '#fff',
 			display: 'flex',
 			flexDirection: 'column',

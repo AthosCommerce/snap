@@ -544,8 +544,6 @@ export class LibraryStore {
 				Result: async () => {
 					return this.components.result.Result || (this.components.result.Result = (await import('./library/components/Result')).Result);
 				},
-			},
-			overlayResult: {
 				OverlayResult: async () => {
 					return (
 						this.components.overlayResult.OverlayResult ||
@@ -554,6 +552,7 @@ export class LibraryStore {
 				},
 			},
 			/* individual library components */
+			overlayResult: {},
 			badgeImage: {},
 			badgePill: {},
 			badgeRectangle: {},

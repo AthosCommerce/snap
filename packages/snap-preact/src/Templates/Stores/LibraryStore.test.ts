@@ -90,9 +90,6 @@ describe('LibraryStore', () => {
 			badge: {
 				Badge: async () => ({} as JSXComponent),
 			},
-			overlayResult: {
-				OverlayResult: async () => ({} as JSXComponent),
-			},
 			dne: {
 				Dne: async () => ({} as JSXComponent),
 			},
@@ -102,7 +99,6 @@ describe('LibraryStore', () => {
 
 		expect(store.import.component.result['Result']).toBeDefined();
 		expect(store.import.component.badge['Badge']).toBeDefined();
-		expect(store.import.component.overlayResult['OverlayResult']).toBeDefined();
 
 		// @ts-ignore - should not be able to register unknown components
 		expect(store.import.component.dne?.['Dne']).toBeUndefined();
@@ -116,11 +112,7 @@ describe('LibraryStore', () => {
 		expect(store.components.badge['Badge']).toBeUndefined();
 		await store.import.component.badge['Badge']();
 		expect(store.components.badge['Badge']).toBeDefined();
-		// expect(store.components.badge['Badge']).toStrictEqual(() => {});
-
-		expect(store.components.overlayResult['OverlayResult']).toBeUndefined();
-		await store.import.component.overlayResult['OverlayResult']();
-		expect(store.components.overlayResult['OverlayResult']).toBeDefined();
+		// expect(store.components.badge['Badge']).toStrictEqual(() => {})
 	});
 
 	it('can import and register library components', async () => {
