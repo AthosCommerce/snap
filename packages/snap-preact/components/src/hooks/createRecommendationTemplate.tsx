@@ -3,7 +3,7 @@ import { RecommendationController, RecommendationControllerConfig } from '@athos
 import { SnapTemplates } from '../../../src';
 import { useSnap } from '../providers';
 import { useCreateController } from './useCreateController';
-import { useNamedComponentOverride } from './useNamedComponentOverride';
+import { useComponent } from './useComponent';
 import { JSXComponent, RecommendationComponentNames, RecommendationComponentProps } from '../types';
 
 export type TemplatesType = {
@@ -35,11 +35,11 @@ export function createRecommendationTemplate(templates: TemplatesType): ReturnTy
 	const recommendationTemplateResultComponentMap = snap?.templates?.library.import.component.result || {};
 
 	const { ComponentOverride: namedRecommendationTemplateComponent, shouldWaitForNamedOverride: shouldWaitForNamedRecommendationTemplateComponent } =
-		useNamedComponentOverride(recommendationTemplateComponentMap, componentName);
+		useComponent(recommendationTemplateComponentMap, componentName);
 	const {
 		ComponentOverride: namedRecommendationTemplateResultComponent,
 		shouldWaitForNamedOverride: shouldWaitForNamedRecommendationTemplateResultComponent,
-	} = useNamedComponentOverride(recommendationTemplateResultComponentMap, resultComponentName);
+	} = useComponent(recommendationTemplateResultComponentMap, resultComponentName);
 
 	if (recommendationTemplatesEnabled) {
 		recommendationTemplateComponent = shouldWaitForNamedRecommendationTemplateComponent

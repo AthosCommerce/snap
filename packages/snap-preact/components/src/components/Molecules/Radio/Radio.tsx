@@ -10,7 +10,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { useA11y } from '../../../hooks/useA11y';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -76,7 +76,7 @@ export const Radio = observer((properties: RadioProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.radio || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

@@ -18,7 +18,7 @@ import type { ScrollbarOptions } from 'swiper/types/modules/scrollbar';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap, ThemeComplete } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
-import { useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<CarouselProps> = ({ vertical, theme }) => {
@@ -270,7 +270,7 @@ export const Carousel = observer((properties: CarouselProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.carousel || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

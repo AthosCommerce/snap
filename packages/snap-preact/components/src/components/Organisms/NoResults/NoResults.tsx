@@ -14,7 +14,7 @@ import type { RecommendationGridProps, RecommendationProps, StyleScript } from '
 import type { SnapTemplates } from '../../../../../src';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import deepmerge from 'deepmerge';
-import { useLang, useNamedComponentOverride } from '../../../hooks';
+import { useLang, useComponent } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import type { LibraryImports } from '../../../../../src/Templates/Stores/LibraryStore';
 
@@ -63,7 +63,7 @@ export const NoResults = observer((properties: NoResultsProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.noResults || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;
@@ -87,11 +87,11 @@ export const NoResults = observer((properties: NoResultsProps) => {
 	const recommendationTemplateResultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
 
 	const { ComponentOverride: namedRecommendationTemplateComponent, shouldWaitForNamedOverride: shouldWaitForNamedRecommendationTemplateComponent } =
-		useNamedComponentOverride(recommendationTemplateComponentMap, recommendationComponentName);
+		useComponent(recommendationTemplateComponentMap, recommendationComponentName);
 	const {
 		ComponentOverride: namedRecommendationTemplateResultComponent,
 		shouldWaitForNamedOverride: shouldWaitForNamedRecommendationTemplateResultComponent,
-	} = useNamedComponentOverride(recommendationTemplateResultComponentMap, recommendationResultComponentName);
+	} = useComponent(recommendationTemplateResultComponentMap, recommendationResultComponentName);
 
 	const recommendationTemplateComponent = namedRecommendationTemplateComponent as
 		| ((props: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null)

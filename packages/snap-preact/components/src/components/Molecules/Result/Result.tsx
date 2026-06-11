@@ -17,7 +17,7 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
 import type { SnapTemplates } from '../../../../../src';
 
@@ -118,7 +118,7 @@ export const Result = observer((properties: ResultProps) => {
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
 	const overrideComponentName = customComponent && customComponent !== 'Result' ? customComponent : undefined;
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, overrideComponentName);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, overrideComponentName);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

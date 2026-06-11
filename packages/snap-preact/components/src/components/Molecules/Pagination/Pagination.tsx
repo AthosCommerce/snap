@@ -11,7 +11,7 @@ import { Icon, IconProps } from '../../Atoms/Icon';
 import type { SearchPaginationStore, Page } from '@athoscommerce/snap-store-mobx';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<PaginationProps> = () => {
@@ -66,7 +66,7 @@ export const Pagination = observer((properties: PaginationProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.pagination || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

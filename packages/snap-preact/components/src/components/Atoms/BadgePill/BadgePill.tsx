@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<BadgePillProps> = ({ color, colorText }) => {
@@ -40,7 +40,7 @@ export const BadgePill = observer((properties: BadgePillProps) => {
 	const { value, tag, className, internalClassName, customComponent } = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.badgePill || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

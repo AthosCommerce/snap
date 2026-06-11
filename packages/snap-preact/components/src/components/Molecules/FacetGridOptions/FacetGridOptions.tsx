@@ -9,7 +9,7 @@ import { mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { FacetValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -94,7 +94,7 @@ export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => 
 	const { values, onClick, previewOnFocus, valueProps, facet, horizontal, className, internalClassName, customComponent } = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetGridOptions || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

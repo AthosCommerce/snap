@@ -8,7 +8,7 @@ import { filters } from '@athoscommerce/snap-toolbox';
 
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, ListOption, SwatchOption, StyleScript } from '../../../types';
-import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { colord, extend } from 'colord';
@@ -170,7 +170,7 @@ export function Grid(properties: GridProps) {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.grid || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

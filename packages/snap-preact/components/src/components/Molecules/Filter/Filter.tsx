@@ -11,7 +11,7 @@ import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import type { Filter as FilterType } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -61,7 +61,7 @@ export const Filter = observer((properties: FilterProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.filter || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

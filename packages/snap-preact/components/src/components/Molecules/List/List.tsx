@@ -10,7 +10,7 @@ import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../p
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Checkbox, CheckboxProps } from '../Checkbox';
-import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { Icon, IconProps } from '../../Atoms/Icon';
 
@@ -93,7 +93,7 @@ export function List(properties: ListProps) {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.list || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

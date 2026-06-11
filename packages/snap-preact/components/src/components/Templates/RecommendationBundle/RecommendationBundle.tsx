@@ -18,7 +18,7 @@ import type { CartStore, Product } from '@athoscommerce/snap-store-mobx';
 import { BundleSelector, BundleSelectorProps } from './BundleSelector';
 import { BundledCTA, BundledCTAProps } from './BundleCTA';
 import { Lang } from '../../../hooks';
-import { useIntersection, useNamedComponentOverride } from '../../../hooks';
+import { useIntersection, useComponent } from '../../../hooks';
 import { componentNameToClassName } from '../../../utilities/componentNameToClassName';
 import { SnapTemplates } from '../../../../../src';
 
@@ -251,7 +251,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 	const isNamedResultComponent = typeof resultComponent === 'string';
 	const resultComponentName = isNamedResultComponent ? resultComponent : '';
 	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
-	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
 		resultComponentMap,
 		isNamedResultComponent ? resultComponentName : undefined
 	);

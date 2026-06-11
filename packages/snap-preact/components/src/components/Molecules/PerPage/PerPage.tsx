@@ -13,7 +13,7 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 import { RadioList, RadioListProps } from '../RadioList';
 import { List, ListProps } from '../List';
 import deepmerge from 'deepmerge';
-import { Lang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<PerPageProps> = () => {
@@ -41,7 +41,7 @@ export const PerPage = observer((properties: PerPageProps) => {
 	const { pagination, type, controller, label, disableStyles, className, internalClassName, treePath, customComponent } = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.perPage || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

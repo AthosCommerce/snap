@@ -3,7 +3,12 @@ import { useEffect, useState } from 'preact/hooks';
 
 import { ComponentMap, JSXComponent } from '../types';
 
-export const useComponent = (map: ComponentMap, name?: string): JSXComponent | undefined => {
+export type UseComponentResult = {
+	ComponentOverride: JSXComponent | undefined;
+	shouldWaitForNamedOverride: boolean;
+};
+
+export const useComponent = (map: ComponentMap, name?: string): UseComponentResult => {
 	const [importedComponent, setImportedComponent] = useState<JSXComponent | undefined>(undefined);
 
 	useEffect(() => {
@@ -49,5 +54,10 @@ export const useComponent = (map: ComponentMap, name?: string): JSXComponent | u
 		};
 	}, [map, name]);
 
-	return importedComponent;
+	const hasNamedOverride = Boolean(name && map[name]);
+
+	return {
+		ComponentOverride: importedComponent,
+		shouldWaitForNamedOverride: hasNamedOverride && !importedComponent,
+	};
 };

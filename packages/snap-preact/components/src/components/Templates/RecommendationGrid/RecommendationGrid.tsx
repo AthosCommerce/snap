@@ -14,7 +14,7 @@ import { RecommendationProfileTracker } from '../../Trackers/Recommendation/Prof
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { useState } from 'react';
 import { useRef } from 'preact/hooks';
-import { useIntersection, useNamedComponentOverride } from '../../../hooks';
+import { useIntersection, useComponent } from '../../../hooks';
 import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationGridProps> = ({ gapSize, columns }) => {
@@ -72,7 +72,7 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 	const isNamedResultComponent = typeof resultComponent === 'string';
 	const resultComponentName = isNamedResultComponent ? resultComponent : '';
 	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
-	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
 		resultComponentMap,
 		isNamedResultComponent ? resultComponentName : undefined
 	);

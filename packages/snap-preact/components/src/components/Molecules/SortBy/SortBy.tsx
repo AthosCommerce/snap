@@ -11,7 +11,7 @@ import { SearchSortingStore } from '@athoscommerce/snap-store-mobx';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { RadioList, RadioListProps } from '../RadioList';
 import { List, ListProps } from '../List';
-import { Lang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -41,7 +41,7 @@ export const SortBy = observer((properties: SortByProps) => {
 	let label = props.label;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.sortBy || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

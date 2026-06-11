@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Terms, TermsProps } from '../../Molecules/Terms/Terms';
@@ -68,7 +68,7 @@ export const TermsList = observer((properties: TermsListProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.termsList || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

@@ -16,7 +16,7 @@ import { Theme, useTheme, CacheProvider, withTracking, useSnap, useTreePath, The
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { SnapTemplates } from '../../../../../src';
-import { useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 
 const defaultStyles: StyleScript<ResultsProps> = ({ gapSize, columns }) => {
 	return css({
@@ -100,7 +100,7 @@ export const Results = observer((properties: ResultsProps) => {
 	const resultComponent = props.resultComponent;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.results || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;
@@ -113,7 +113,7 @@ export const Results = observer((properties: ResultsProps) => {
 	const isNamedResultComponent = typeof resultComponent === 'string';
 	const resultComponentName = isNamedResultComponent ? resultComponent : '';
 	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
-	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
 		resultComponentMap,
 		isNamedResultComponent ? resultComponentName : undefined
 	);

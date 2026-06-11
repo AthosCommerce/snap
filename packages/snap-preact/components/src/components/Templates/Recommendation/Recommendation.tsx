@@ -13,7 +13,7 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Carousel, CarouselProps, defaultCarouselBreakpoints, defaultVerticalCarouselBreakpoints } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { useIntersection, useNamedComponentOverride } from '../../../hooks';
+import { useIntersection, useComponent } from '../../../hooks';
 import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
@@ -98,7 +98,7 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 	const isNamedResultComponent = typeof resultComponent === 'string';
 	const resultComponentName = isNamedResultComponent ? resultComponent : '';
 	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
-	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
 		resultComponentMap,
 		isNamedResultComponent ? resultComponentName : undefined
 	);

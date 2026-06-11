@@ -9,7 +9,7 @@ import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, ThemeComponent, useTheme, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
-import { useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 import { SnapTemplates } from '../../../../../src';
 
 export const recommendationEmailThemeComponentProps: ThemeComponent<
@@ -45,7 +45,7 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 	const isNamedResultComponent = typeof resultComponent === 'string';
 	const resultComponentName = isNamedResultComponent ? resultComponent : '';
 	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
-	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useNamedComponentOverride(
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
 		resultComponentMap,
 		isNamedResultComponent ? resultComponentName : undefined
 	);

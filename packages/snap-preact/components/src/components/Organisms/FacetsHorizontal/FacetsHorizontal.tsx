@@ -13,7 +13,7 @@ import type { SearchController, AutocompleteController } from '@athoscommerce/sn
 import type { RangeFacet, ValueFacet } from '@athoscommerce/snap-store-mobx';
 import type { IndividualFacetType } from '../Facets/Facets';
 import { MobileSidebar, MobileSidebarProps } from '../MobileSidebar';
-import { Lang, useClickOutside, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useClickOutside, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
@@ -137,7 +137,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetsHorizontal || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

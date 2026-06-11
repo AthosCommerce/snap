@@ -11,7 +11,7 @@ import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { sprintf } from '../../../utilities';
 import type { RangeFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useA11y, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -163,7 +163,7 @@ export const FacetSlider = observer((properties: FacetSliderProps) => {
 	const { showTicks, facet, stickyHandleLabel, separateHandles, onChange, onDrag, className, internalClassName, customComponent } = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetSlider || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../providers';
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent, useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 import type { AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
@@ -65,7 +65,7 @@ const defaultStyles: StyleScript<OverlayBadgeProps> = ({ controller }) => {
 };
 
 const BadgeRenderer = ({ badge, badgeComponentMap, treePath }: { badge: any; badgeComponentMap: ComponentMap; treePath?: string }) => {
-	const BadgeComponent = useComponent(badgeComponentMap, badge.component);
+	const { ComponentOverride: BadgeComponent } = useComponent(badgeComponentMap, badge.component);
 	if (!BadgeComponent) {
 		return null;
 	}
@@ -88,7 +88,7 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 	const { result, children, controller, renderEmpty, limit, className, internalClassName, treePath, customComponent } = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.overlayBadge || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

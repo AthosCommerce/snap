@@ -13,7 +13,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
 import type { AbstractController } from '@athoscommerce/snap-controller';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import deepmerge from 'deepmerge';
 
@@ -133,7 +133,7 @@ export const ErrorHandler = observer((properties: ErrorHandlerProps) => {
 	const { controller, error, disableStyles, onRetryClick, className, internalClassName, treePath, customComponent } = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.errorHandler || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

@@ -9,7 +9,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { createHoverProps } from '../../../toolbox';
 import type { FacetHierarchyValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useLang, useComponent } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import type { SnapTemplates } from '../../../../../src';
@@ -127,7 +127,7 @@ export const FacetHierarchyOptions = observer((properties: FacetHierarchyOptions
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetHierarchyOptions || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

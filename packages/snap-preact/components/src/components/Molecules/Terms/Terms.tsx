@@ -11,7 +11,7 @@ import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../p
 import { createHoverProps } from '../../../toolbox';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { Term } from '@athoscommerce/snap-store-mobx';
-import { useLang, useNamedComponentOverride } from '../../../hooks';
+import { useLang, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
@@ -96,7 +96,7 @@ export const Terms = observer((properties: TermsProps) => {
 	const terms = props.terms;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.terms || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

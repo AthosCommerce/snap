@@ -8,7 +8,7 @@ import deepmerge from 'deepmerge';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Lang, useIntersection, useLang, useNamedComponentOverride } from '../../../hooks';
+import { Lang, useIntersection, useLang, useComponent } from '../../../hooks';
 import type { SearchPaginationStore } from '@athoscommerce/snap-store-mobx';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -101,7 +101,7 @@ export const LoadMore = observer((properties: LoadMoreProps) => {
 	} = props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.loadMore || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;

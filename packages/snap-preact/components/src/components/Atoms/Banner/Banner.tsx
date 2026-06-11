@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import { Theme, useTheme, CacheProvider, useTreePath, withTracking, withController, useSnap } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useNamedComponentOverride } from '../../../hooks';
+import { useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 
 import { BannerContent, ContentType } from '@athoscommerce/snap-store-mobx';
@@ -40,7 +40,7 @@ export const Banner = withController<any>(
 		const content = props.content || controller?.store?.merchandising.content;
 
 		const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.banner || {};
-		const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+		const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 		if (shouldWaitForNamedOverride) {
 			return null;

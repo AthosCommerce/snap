@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { css } from '@emotion/react';
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, SwatchOption, BreakpointsProps, StyleScript } from '../../../types';
-import { useA11y, useDisplaySettings, useNamedComponentOverride } from '../../../hooks';
+import { useA11y, useDisplaySettings, useComponent } from '../../../hooks';
 import type { SnapTemplates } from '../../../../../src';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Grid, GridProps } from '../Grid';
@@ -127,7 +127,7 @@ export function Swatches(properties: SwatchesProps) {
 		props;
 
 	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.swatches || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useNamedComponentOverride(overrideComponentMap, customComponent);
+	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
 
 	if (shouldWaitForNamedOverride) {
 		return null;
