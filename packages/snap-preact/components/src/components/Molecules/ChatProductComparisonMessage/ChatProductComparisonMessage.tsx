@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Image } from '../../Atoms/Image';
 import type { ChatController } from '@athoscommerce/snap-controller';
 // import { Lang } from '../../../hooks';
 import { ChatResponseProductComparisonData } from '@athoscommerce/snap-client';
@@ -161,7 +162,7 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 												aria-label={`View details for ${productName}`}
 											>
 												{allProductsHaveImage && (
-													<img
+													<Image
 														className={classnames('ss__chat-product-comparison-message__table__product-header__image')}
 														src={(display.mappings.core.imageUrl || display.mappings.core.parentImageUrl) as string}
 														alt={productName}

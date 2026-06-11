@@ -45,4 +45,40 @@ describe('ChatMessageText Component', () => {
 		);
 		expect(rendered.container.querySelector('.ss__chat-message-text__view-side-chat')).toBeInTheDocument();
 	});
+
+	it('strips script tags from LLM output', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'hello <script>window.__xss = true</script> world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+			/>
+		);
+		const textEl = rendered.container.querySelector('.ss__chat-message-text__text-wrapper__text');
+		expect(textEl?.innerHTML).not.toContain('<script');
+		expect(textEl?.innerHTML).toContain('hello');
+	});
+
+	it('strips event-handler attributes from LLM output', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: '<img src=x onerror="window.__xss=true">', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+			/>
+		);
+		const textEl = rendered.container.querySelector('.ss__chat-message-text__text-wrapper__text');
+		expect(textEl?.innerHTML).not.toContain('onerror');
+	});
+
+	it('preserves legitimate plain text content', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Safe content for the user', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+			/>
+		);
+		expect(rendered.container.textContent).toContain('Safe content for the user');
+	});
 });

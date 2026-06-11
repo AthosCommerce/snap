@@ -1,5 +1,5 @@
 import { h, ComponentChildren } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 
 import { jsx, css } from '@emotion/react';
@@ -100,34 +100,19 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	// state
 	const [isActive, setActive] = useState(Boolean(active));
 	const [renderContent, setRenderContent] = useState(Boolean(active));
+	const isActiveRef = useRef(isActive);
+	isActiveRef.current = isActive;
 
 	const toggleActive = (force?: boolean) => {
-		if (typeof force !== 'undefined') {
-			setActive(force);
-			if (force == false) {
-				if (rerender) {
-					setTimeout(() => {
-						setRenderContent(false);
-					}, 250);
-				}
-			} else {
-				setRenderContent(true);
-			}
-		} else {
-			if (isActive) {
-				setActive(false);
-				if (rerender) {
-					setTimeout(() => {
-						setRenderContent(false);
-					}, 250);
-				}
-			} else {
-				setActive(true);
-				setRenderContent(true);
-			}
+		const next = typeof force !== 'undefined' ? force : !isActiveRef.current;
+		setActive(next);
+		if (next) {
+			setRenderContent(true);
+		} else if (rerender) {
+			setTimeout(() => {
+				setRenderContent(false);
+			}, 250);
 		}
-
-		document.body.style.overflow = isActive ? 'hidden' : '';
 	};
 
 	//this is used to update active state if active prop is changed from parent component.
@@ -147,21 +132,16 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	const styling = mergeStyles<SlideoutProps>(props, defaultStyles);
 
 	useEffect(() => {
-		if (buttonSelector) {
-			let button;
-			let buttons;
-			if (typeof buttonSelector == 'string') {
-				buttons = document.querySelectorAll(buttonSelector);
-				// for quickview should this be "setActive" instead of toggle?
-				buttons.forEach((button) => button.addEventListener('click', () => toggleActive(true)));
-			} else {
-				button = buttonSelector;
-			}
-			if (button) {
-				button.addEventListener('click', () => toggleActive());
-			}
-		}
-	});
+		if (!buttonSelector) return;
+
+		const targets: Element[] = typeof buttonSelector == 'string' ? Array.from(document.querySelectorAll(buttonSelector)) : [buttonSelector];
+		const handler = typeof buttonSelector == 'string' ? () => toggleActive(true) : () => toggleActive();
+
+		targets.forEach((target) => target.addEventListener('click', handler));
+		return () => {
+			targets.forEach((target) => target.removeEventListener('click', handler));
+		};
+	}, [buttonSelector]);
 
 	return isVisible || !rerender ? (
 		<CacheProvider>

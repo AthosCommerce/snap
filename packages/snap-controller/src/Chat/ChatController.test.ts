@@ -123,16 +123,14 @@ describe('Chat Controller', () => {
 			expect(controller.store.features.imageSearch.enabled).toBe(false);
 		});
 
-		it('falls back to default response when chatStatus API throws', async () => {
+		it('disables chat when chatStatus API throws', async () => {
 			const controller = createController();
 			controller.client.chatStatus = jest.fn().mockRejectedValue(new Error('Network error'));
 
 			const result = await controller.checkChatStatus();
 
-			// fallback enables chat with default suggested questions
-			expect(result).toBe(true);
-			expect(controller.store.chatEnabled).toBe(true);
-			expect(controller.store.suggestedQuestions.length).toBeGreaterThan(0);
+			expect(result).toBe(false);
+			expect(controller.store.chatEnabled).toBe(false);
 		});
 	});
 

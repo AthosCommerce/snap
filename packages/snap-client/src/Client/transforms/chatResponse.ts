@@ -184,7 +184,7 @@ transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResu
 		inspirationSections: data.inspirationSections?.map((section) => ({
 			clusterDescription: section.clusterDescription,
 			clusterTitle: section.clusterTitle,
-			products: section.products.map((product) => mapProductToSearchResultProduct(product, responseId)),
+			products: section.products?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
 			searchQueries: section.searchQueries,
 		})),
 	};

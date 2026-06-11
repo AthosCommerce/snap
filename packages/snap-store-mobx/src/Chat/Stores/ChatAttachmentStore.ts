@@ -92,9 +92,11 @@ export class ChatAttachmentStore {
 					}
 				}
 
-				this.items.forEach((item) => {
-					(item as ChatAttachmentProduct).requestType = attachment.requestType; // changes existing attachments to the incoming requestType
-				});
+				this.items
+					.filter((item) => item.type === 'product')
+					.forEach((item) => {
+						(item as ChatAttachmentProduct).requestType = attachment.requestType; // changes existing attachments to the incoming requestType
+					});
 
 				const newAttachment = new ChatAttachmentProduct(attachment);
 				this.items.unshift(newAttachment);
@@ -131,14 +133,13 @@ export class ChatAttachmentStore {
 
 	remove(id: string) {
 		const index = this.items.findIndex((item) => item.id === id);
+		if (index === -1) return;
 		const attachment = this.items[index];
 
 		if (attachment.state === 'active' || attachment.state === 'saved') {
 			attachment.save();
 		} else {
-			if (index !== -1) {
-				this.items.splice(index, 1);
-			}
+			this.items.splice(index, 1);
 		}
 	}
 

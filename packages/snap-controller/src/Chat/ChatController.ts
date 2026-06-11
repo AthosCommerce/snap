@@ -148,29 +148,25 @@ export class ChatController extends AbstractController {
 
 	checkChatStatus = async (): Promise<boolean> => {
 		// @ts-ignore - globals is private
-		let siteId = this.client.globals.siteId;
-		if (siteId == 'ck4bj7') {
-			// TODO: temporary - remove
-			siteId = 'test-mattel-demo';
-		}
+		const siteId = this.client.globals.siteId;
 		try {
 			const response = await this.client.chatStatus({ siteId, tracking: this.getChatTrackingContext() });
 			return this.store.handleChatStatusResponse(response);
-		} catch {
-			const response = {
+		} catch (err) {
+			this.log.warn('chat status request failed; disabling chat', err);
+			return this.store.handleChatStatusResponse({
 				chatbot: {
 					status: {
-						enabled: true,
+						enabled: false,
 					},
-					suggestedQuestions: ['I want to buy barbie dolls', 'Do you have Formula 1 cars?', 'I am looking for toys from Toy Story'],
-					welcomeMessage: 'Hi there! How can I assist you today?',
+					suggestedQuestions: [],
+					welcomeMessage: '',
 				},
 				features: {
-					imageSearch: { enabled: true },
-					similarProducts: { enabled: true },
+					imageSearch: { enabled: false },
+					similarProducts: { enabled: false },
 				},
-			};
-			return this.store.handleChatStatusResponse(response);
+			});
 		}
 	};
 	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
@@ -188,13 +184,8 @@ export class ChatController extends AbstractController {
 
 		const { userId, sessionId, shopperId } = this.tracker.getContext();
 		// @ts-ignore - globals is private
-		let siteId = this.client.globals.siteId; // TODO: get siteId from middleware request.siteId?
+		const siteId = this.client.globals.siteId; // TODO: get siteId from middleware request.siteId?
 		let chat: ChatSessionStore | undefined;
-
-		// TODO: temporary - remove
-		if (siteId == 'ck4bj7') {
-			siteId = 'test-mattel-demo';
-		}
 
 		try {
 			this.store.initChatLoading = true;

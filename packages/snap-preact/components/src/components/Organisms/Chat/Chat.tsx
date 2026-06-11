@@ -630,9 +630,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 				>
 					{!disableBubbleSuggestedQuestions && !store.open && !store.currentChat && store.suggestedQuestions?.length > 0 && (
 						<div className="ss__chat__suggested-questions">
-							{store.suggestedQuestions.map((question, index) => (
+							{store.suggestedQuestions.map((question) => (
 								<div
-									key={index}
+									key={question}
 									className="ss__chat__suggested-questions__item"
 									onClick={() => {
 										controller.openChat(question);
@@ -761,7 +761,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 						<div className={'ss__chat__primary'}>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
-									{logo ? <img className="ss__chat__header__title__logo" src={logo} /> : null}
+									{logo ? <Image className="ss__chat__header__title__logo" src={logo} alt={title || 'Chat logo'} /> : null}
 									<div className="ss__chat__header__title__text">
 										{title ? <div className="ss__chat__header__title__text__primary">{title}</div> : null}
 										{subtitle ? <div className="ss__chat__header__title__text__secondary">{subtitle}</div> : null}
@@ -949,8 +949,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 									)}
 									{store.currentChat?.chat
 										.filter((chatItem) => chatItem.messageType !== 'productQuery')
-										.map((chatItem, index) => (
-											<div key={index} className={`ss__chat__message ss__chat__message--${chatItem.messageType}`}>
+										.map((chatItem) => (
+											<div key={chatItem.id} className={`ss__chat__message ss__chat__message--${chatItem.messageType}`}>
 												{{
 													user: (
 														<ChatMessageUser

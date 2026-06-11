@@ -307,7 +307,7 @@ const trackingQuery = (t: ChatTrackingContext): Record<string, string> => {
 };
 
 export class ChatAPI extends API<any> {
-	private handle400Error(err: any): never {
+	private handleError(err: any): never {
 		if (err?.fetchDetails?.status === 400) {
 			const body = err?.responseBody as ChatBadRequestResponse;
 			throw {
@@ -320,11 +320,6 @@ export class ChatAPI extends API<any> {
 	}
 
 	async postMessage(requestParameters: ChatRequestModel & ClientGlobals): Promise<any> {
-		if (requestParameters.siteId == 'ck4bj7') {
-			// TODO: temporary - remove
-			requestParameters.siteId = 'test-mattel-demo';
-		}
-
 		const userId = requestParameters.personalization?.shopper || requestParameters.tracking.userId;
 
 		try {
@@ -355,7 +350,7 @@ export class ChatAPI extends API<any> {
 
 			return transformChatResponse(response);
 		} catch (err: any) {
-			this.handle400Error(err);
+			this.handleError(err);
 		}
 	}
 
@@ -373,7 +368,7 @@ export class ChatAPI extends API<any> {
 
 			return response;
 		} catch (err: any) {
-			this.handle400Error(err);
+			this.handleError(err);
 		}
 	}
 
@@ -392,27 +387,26 @@ export class ChatAPI extends API<any> {
 
 			return response;
 		} catch (err: any) {
-			this.handle400Error(err);
+			this.handleError(err);
 		}
 	}
 
 	async postUploadImage(requestParameters: UploadImageRequestModel & ClientGlobals): Promise<UploadImageResponseModel> {
+		const extension = (requestParameters.image.type.split('/')[1] || 'jpg').split('+')[0];
 		const formData = new FormData();
-		formData.append('file', requestParameters.image, 'image.jpg');
+		formData.append('file', requestParameters.image, `image.${extension}`);
 
-		if (requestParameters.siteId == 'ck4bj7') {
-			// TODO: temporary - remove
-			requestParameters.siteId = 'test-mattel-demo';
+		try {
+			const response = await this.request<UploadImageResponseModel>({
+				path: '/v1/chat/upload-image',
+				method: 'POST',
+				headers: {},
+				query: { siteId: requestParameters.siteId },
+				body: formData,
+			});
+			return response;
+		} catch (err: any) {
+			this.handleError(err);
 		}
-
-		const response = await this.request<UploadImageResponseModel>({
-			path: '/v1/chat/upload-image',
-			method: 'POST',
-			headers: {},
-			query: { siteId: requestParameters.siteId },
-			body: formData,
-		});
-
-		return response;
 	}
 }

@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
@@ -177,7 +178,10 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 			<div className={classnames('ss__chat-message-text', className, internalClassName)} {...styling}>
 				{text && (
 					<div className="ss__chat-message-text__text-wrapper">
-						<div className="ss__chat-message-text__text-wrapper__text" dangerouslySetInnerHTML={{ __html: marked.parse(text) as string }} />
+						<div
+							className="ss__chat-message-text__text-wrapper__text"
+							dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(text) as string) }}
+						/>
 						{hasSideChatView ? (
 							<Button
 								{...subProps.sideChatButton}
