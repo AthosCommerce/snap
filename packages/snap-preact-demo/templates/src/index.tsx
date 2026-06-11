@@ -75,7 +75,14 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+				result: {
+					showQuickview: true,
+				},
+			},
 		},
 	},
 	recommendation: {
@@ -102,6 +109,11 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+		settings: {
+			quickview: {
+				displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
+			},
+		},
 	},
 	autocomplete: {
 		targets: [

@@ -1,8 +1,8 @@
 import 'whatwg-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
-import { AutocompleteStore } from '@athoscommerce/snap-store-mobx';
-import type { AutocompleteStoreConfig, Product } from '@athoscommerce/snap-store-mobx';
+import { AutocompleteStore, Product } from '@athoscommerce/snap-store-mobx';
+import type { AutocompleteStoreConfig } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Tracker } from '@athoscommerce/snap-tracker';
 import { EventManager } from '@athoscommerce/snap-event-manager';
@@ -1734,5 +1734,67 @@ describe('Autocomplete Controller', () => {
 
 		searchTrendingfn.mockClear();
 		trendingfn.mockClear();
+	});
+});
+
+describe('Autocomplete Controller quickview', () => {
+	let originalAthos: any;
+
+	beforeEach(() => {
+		document.body.innerHTML = '<div><input type="text" id="search_query"></div>';
+		acConfig = Object.assign({}, acConfigBase); // reset config
+		acConfig.id = uuidv4().split('-').join('');
+
+		urlManager = new UrlManager(new QueryStringTranslator({ queryParameter: 'search_query' }), reactLinker);
+		services = { urlManager };
+		originalAthos = (window as any).athos;
+	});
+
+	afterEach(() => {
+		(window as any).athos = originalAthos;
+	});
+
+	it('quickview fires controller/quickview with the core parentId and the originating controller', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new AutocompleteController(acConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(acConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const result: any = { id: 'ac-child-1', mappings: { core: { parentId: 'ac-parent-1' } } };
+		await controller.quickview({ result });
+
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'ac-parent-1', controller }));
+
+		const fallbackResult: any = { id: 'ac-1' };
+		await controller.quickview({ result: fallbackResult });
+
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'ac-1', controller }));
+	});
+
+	it('quickview warns and does not fire when no result provided', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new AutocompleteController(acConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(acConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		await controller.quickview({ result: undefined as any });
+
+		expect(fire).not.toHaveBeenCalled();
 	});
 });

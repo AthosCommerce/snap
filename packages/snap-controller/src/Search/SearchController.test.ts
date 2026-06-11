@@ -1331,3 +1331,66 @@ describe('Search Controller', () => {
 		});
 	});
 });
+
+describe('Search Controller quickview', () => {
+	let originalAthos: any;
+
+	beforeEach(() => {
+		searchConfig = { ...searchConfigDefault };
+		searchConfig.id = uuidv4().split('-').join('');
+		originalAthos = (window as any).athos;
+	});
+
+	afterEach(() => {
+		(window as any).athos = originalAthos;
+	});
+
+	it('quickview fires controller/quickview with a search parentId, merged config, meta and originating controller', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
+
+		await controller.quickview({ result, config: { displayFields: ['color'] } });
+
+		expect(fire).toHaveBeenCalledWith(
+			'controller/quickview',
+			expect.objectContaining({
+				result,
+				parentId: 'parent-1',
+				config: expect.objectContaining({ displayFields: ['color'] }),
+				meta: controller.store.meta,
+				controller,
+			})
+		);
+	});
+
+	it('quickview warns and does not fire when no result provided', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		await controller.quickview({ result: undefined as any });
+
+		expect(fire).not.toHaveBeenCalled();
+	});
+});

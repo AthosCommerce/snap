@@ -16,6 +16,7 @@ import type { SearchController, AutocompleteController, RecommendationController
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { Icon, IconProps } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useComponent } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -51,6 +52,15 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 				background: 'rgba(255, 255, 255, 0.5)',
 				padding: '10px',
 			},
+			'& .ss__result__quickview': {
+				position: 'absolute',
+				bottom: '10px',
+				right: '10px',
+				display: 'flex',
+				background: 'transparent',
+				padding: '5px',
+				cursor: 'pointer',
+			},
 		},
 
 		'& .ss__result__details': {
@@ -84,8 +94,10 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: 'Add To Cart',
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
+		quickviewButtonText: 'Quick View',
 		hideAddToCartButton: true,
 		hideRating: true,
+		showQuickview: false,
 	};
 
 	const props = mergeProps('result', globalTheme, defaultProps, properties);
@@ -110,7 +122,9 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText,
 		addToCartButtonSuccessText,
 		addToCartButtonSuccessTimeout,
+		quickviewButtonText,
 		hideRating,
+		showQuickview,
 		trackingRef,
 		treePath,
 		customComponent,
@@ -202,6 +216,19 @@ export const Result = observer((properties: ResultProps) => {
 			theme: props.theme,
 			treePath,
 		},
+		icon: {
+			// default props
+			internalClassName: 'ss__result__quickview__icon',
+			icon: 'eye',
+			size: '20px',
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props.theme,
+			treePath,
+		},
 		button: {
 			// default props
 			internalClassName: 'ss__result__button--addToCart',
@@ -275,6 +302,23 @@ export const Result = observer((properties: ResultProps) => {
 								<Image {...subProps.image} />
 							)}
 						</a>
+						{showQuickview && controller && (
+							<span
+								className="ss__result__quickview"
+								role="button"
+								tabIndex={0}
+								aria-label={quickviewButtonText}
+								onClick={() => controller.quickview({ result })}
+								onKeyDown={(e: any) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										controller.quickview({ result });
+									}
+								}}
+							>
+								<Icon {...subProps.icon} title={quickviewButtonText} />
+							</span>
+						)}
 					</div>
 				)}
 
@@ -343,6 +387,7 @@ interface ResultSubProps {
 	price: PriceProps;
 	image: ImageProps;
 	rating: RatingProps;
+	icon: IconProps;
 	button: ButtonProps;
 	variantSelection: Partial<VariantSelectionProps>;
 }
@@ -367,7 +412,9 @@ export type ResultTemplatesLegalProps = {
 	hideRating?: boolean;
 	hideVariantSelections?: boolean;
 	hideAddToCartButton?: boolean;
+	showQuickview?: boolean;
 	addToCartButtonText?: string;
+	quickviewButtonText?: string;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;
 	addToCartButtonSuccessTimeout?: number;
@@ -381,6 +428,7 @@ export type ResultTemplatesLegalProps = {
 export interface ResultLang {
 	addToCartButtonText: Lang<ResultPropData>;
 	addToCartButtonSuccessText: Lang<ResultPropData>;
+	quickviewButtonText: Lang<ResultPropData>;
 }
 
 interface ResultPropData {

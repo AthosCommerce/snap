@@ -1,7 +1,7 @@
 import 'whatwg-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
-import { RecommendationStore, RecommendationStoreConfig } from '@athoscommerce/snap-store-mobx';
+import { Product, RecommendationStore, RecommendationStoreConfig } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Tracker } from '@athoscommerce/snap-tracker';
 import { EventManager } from '@athoscommerce/snap-event-manager';
@@ -628,5 +628,62 @@ describe('Recommendation Controller', () => {
 
 		expect(handleError).toHaveBeenCalledWith(error, { status: 500, url: 'test.com' });
 		handleError.mockClear();
+	});
+});
+
+describe('Recommendation Controller quickview', () => {
+	let originalAthos: any;
+
+	beforeEach(() => {
+		recommendConfig.id = uuidv4().split('-').join('');
+		originalAthos = (window as any).athos;
+	});
+
+	afterEach(() => {
+		(window as any).athos = originalAthos;
+	});
+
+	it('quickview fires controller/quickview with the core parentId and the originating controller', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const result: any = { id: 'rec-child-1', mappings: { core: { parentId: 'rec-parent-1' } } };
+		await controller.quickview({ result });
+
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'rec-parent-1', controller }));
+
+		const fallbackResult: any = { id: 'rec-1' };
+		await controller.quickview({ result: fallbackResult });
+
+		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'rec-1', controller }));
+	});
+
+	it('quickview warns and does not fire when no result provided', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		await controller.quickview({ result: undefined as any });
+
+		expect(fire).not.toHaveBeenCalled();
 	});
 });
