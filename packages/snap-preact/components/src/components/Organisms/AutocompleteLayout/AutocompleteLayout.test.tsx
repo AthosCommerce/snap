@@ -464,4 +464,154 @@ describe('AutocompleteLayout Component', () => {
 			expect(footerBanner).toBeInTheDocument();
 		});
 	});
+
+	it('renders prebuilt layout "terms"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'terms',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const terms = rendered.container.querySelector('.ss__autocomplete__terms-wrapper');
+			const seeMore = rendered.container.querySelector('.ss__autocomplete__button--see-more');
+			const results = rendered.container.querySelector('.ss__autocomplete__content__results');
+			const facets = rendered.container.querySelector('.ss__autocomplete__facets-wrapper');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).toHaveClass('ss__autocomplete--terms');
+			expect(terms).toBeInTheDocument();
+			expect(seeMore).toBeInTheDocument();
+			expect(results).not.toBeInTheDocument();
+			expect(facets).not.toBeInTheDocument();
+			expect(c1).not.toBeInTheDocument();
+
+			// terms layout: [['termsList'], ['no-results'], ['_', 'button.see-more']]
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(3);
+			expect(rows[0].childNodes.length).toBe(1); // termsList
+			expect(rows[1].childNodes.length).toBe(1); // no-results
+			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
+		});
+	});
+
+	it('renders prebuilt layout "mobile"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'mobile',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const terms = rendered.container.querySelector('.ss__autocomplete__terms-wrapper');
+			const content = rendered.container.querySelector('.ss__autocomplete__content');
+			const seeMore = rendered.container.querySelector('.ss__autocomplete__button--see-more');
+			const facets = rendered.container.querySelector('.ss__autocomplete__facets-wrapper');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).toHaveClass('ss__autocomplete--mobile');
+			expect(terms).toBeInTheDocument();
+			expect(content).toBeInTheDocument();
+			expect(seeMore).toBeInTheDocument();
+			expect(facets).not.toBeInTheDocument();
+			expect(c1).not.toBeInTheDocument();
+
+			// mobile layout: [['termsList'], ['content'], ['_', 'button.see-more']]
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(3);
+			expect(rows[0].childNodes.length).toBe(1); // termsList
+			expect(rows[1].childNodes.length).toBe(1); // content
+			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
+		});
+	});
+
+	it('renders prebuilt layout "tablet"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'tablet',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
+			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
+			const c4 = rendered.container.querySelector('.ss__autocomplete__column--c4');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(c1).toBeInTheDocument();
+			expect(c2).not.toBeInTheDocument();
+			expect(c3).toBeInTheDocument();
+			expect(c4).not.toBeInTheDocument();
+
+			// tablet layout: [['c1', 'c3']] = 1 row with 2 columns
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(1);
+			expect(rows[0].childNodes.length).toBe(2);
+		});
+	});
+
+	it('renders prebuilt layout "desktop"', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			layout: 'desktop',
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
+			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
+			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
+			const c4 = rendered.container.querySelector('.ss__autocomplete__column--c4');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(c1).toBeInTheDocument();
+			expect(c2).toBeInTheDocument();
+			expect(c3).toBeInTheDocument();
+			expect(c4).not.toBeInTheDocument();
+
+			// desktop layout: [['c1', 'c2', 'c3']] = 1 row with 3 columns
+			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
+			expect(rows.length).toBe(1);
+			expect(rows[0].childNodes.length).toBe(3);
+		});
+	});
 });

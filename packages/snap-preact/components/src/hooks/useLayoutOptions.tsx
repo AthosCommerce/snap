@@ -2,9 +2,10 @@ import deepmerge from 'deepmerge';
 import { useControllerStorage } from './useControllerStorage';
 import { Theme } from '../providers';
 import { ToolbarProps } from '../components/Organisms/Toolbar';
+import { LayoutSelectorOptions } from '../types';
 
 export const useLayoutOptions = (props: any, globalTheme: Theme) => {
-	const layoutOptions = props?.layoutOptions || [];
+	const layoutOptions: LayoutSelectorOptions = props?.layoutOptions || [];
 
 	// Note: only store serializable identifiers (value/label) to avoid JSON.stringify failures
 	// on option objects that may contain JSX (e.g. icon: { children: <span>...</span> })
@@ -20,11 +21,17 @@ export const useLayoutOptions = (props: any, globalTheme: Theme) => {
 	const toStorable = (option: any) => (option ? { value: option.value, label: option.label } : option);
 
 	// handle layoutOptions and selected option — store only serializable identifiers
+	// Always call useControllerStorage to preserve hook order across renders
 	const [storedSelection, setStoredSelection] = useControllerStorage(
 		props.controller,
 		'layoutOptions',
 		toStorable(layoutOptions.filter((option: any) => option.default).pop())
 	);
+
+	// Early return if no layoutOptions - hooks have already been called above
+	if (!layoutOptions.length) {
+		return;
+	}
 
 	// Resolve the stored identifier back to the full option object (which may contain JSX)
 	const selectedLayout = layoutOptions.find((option: any) => isSameOption(option, storedSelection));

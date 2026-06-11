@@ -57,7 +57,7 @@ export default {
 			control: { type: 'text' },
 		},
 		title: {
-			description: 'Title text to render inside the svg',
+			description: 'Title text to render inside the svg (not supported when using svg prop)',
 			table: {
 				type: {
 					summary: 'string',
@@ -71,6 +71,16 @@ export default {
 			table: {
 				type: {
 					summary: 'string, JSX',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+		},
+		svg: {
+			description: 'SVG element to render directly',
+			table: {
+				type: {
+					summary: 'VNode<JSX.SVGAttributes<SVGSVGElement>>',
 				},
 				category: 'Templates Legal',
 			},

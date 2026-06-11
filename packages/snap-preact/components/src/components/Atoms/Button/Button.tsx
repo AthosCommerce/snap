@@ -5,13 +5,12 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
 import { ComponentProps, StyleScript } from '../../../types';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { useA11y } from '../../../hooks/useA11y';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Icon, IconProps, IconType } from '../Icon';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ButtonProps> = ({ native, color, backgroundColor, borderColor, theme }) => {
 	// no styling on native
@@ -49,7 +48,6 @@ const defaultStyles: StyleScript<ButtonProps> = ({ native, color, backgroundColo
 
 export const Button = observer((properties: ButtonProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps = {
@@ -72,18 +70,16 @@ export const Button = observer((properties: ButtonProps) => {
 		icon,
 		lang,
 		treePath,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.button || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('button', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: ButtonSubProps = {
@@ -121,7 +117,10 @@ export const Button = observer((properties: ButtonProps) => {
 	const langs = deepmerge(defaultLang, lang || {});
 	const mergedLang = useLang(langs as any, {});
 
-	return content || children || icon || lang?.button?.value ? (
+	// @ts-ignore - additionalProps may contain dangerouslySetInnerHTML which is fine to spread on the element, but doesn't fit the ButtonProps type definition so we need to ignore it here.
+	const hasDangerouslySetInnerHTML = Boolean(additionalProps.dangerouslySetInnerHTML);
+
+	return content || children || icon || lang?.button?.value || hasDangerouslySetInnerHTML ? (
 		<CacheProvider>
 			{native ? (
 				<button {...elementProps}>
@@ -153,6 +152,7 @@ interface ButtonSubProps {
 export type ButtonProps = {
 	lang?: Partial<ButtonLang>;
 	name?: ButtonNames;
+	content?: string | JSX.Element;
 } & ButtonTemplatesLegalProps &
 	ComponentProps<ButtonProps>;
 
@@ -161,7 +161,6 @@ export type ButtonTemplatesLegalProps = {
 	borderColor?: string;
 	color?: string;
 	icon?: IconType | Partial<IconProps> | boolean;
-	content?: string | JSX.Element;
 	children?: ComponentChildren;
 	disabled?: boolean;
 	native?: boolean;

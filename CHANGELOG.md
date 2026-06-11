@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
+
+### Bug Fixes
+
+- **carousel:** navigation arrows can be turned off by navigation false prop ([e5cf848](https://github.com/AthosCommerce/snap/commit/e5cf84810e472d620af3f21a583a87cfde13f781))
+- **mergeprops:** bugfix for activebreakpoint being responsive ([e742763](https://github.com/AthosCommerce/snap/commit/e742763b74d548daccdea9c5c264911c545e03d8))
+- **result:** bugfix for result component infinite rerender when using customComponent of itself ([7d41c98](https://github.com/AthosCommerce/snap/commit/7d41c987a2aa80b5164e42e5327f1d81a7cec37c))
+- **result:** bugfix to not render a 0 if there are no selections.length ([55cb565](https://github.com/AthosCommerce/snap/commit/55cb565039c6284d38001db3f3e43f4abfb48aac))
+- **searchresponse transform:** reverting transform change made previously ([9d9e84c](https://github.com/AthosCommerce/snap/commit/9d9e84c140cf84e0f19342dde3130a2d6ecba6bf))
+- **usecomponent:** big refactor to useComponent usage across all component ([acefb7e](https://github.com/AthosCommerce/snap/commit/acefb7e4cf7258a73feca83fd90ae7f3ec66d161))
+- **uselayoutoptions:** bugfix for useLayoutOptions only being called on certain breakpoints, and removing the hook on others breaking hook order ([74dca83](https://github.com/AthosCommerce/snap/commit/74dca83df50afb461039f948aa38c3924deab109))
+- **validate-config:** bugfix for es lint rule to allow for snap provided result component names ([9015e83](https://github.com/AthosCommerce/snap/commit/9015e83977b9204ebcd7b512c095d35529b3d234))
+
+### Features
+
+- **autocompletelayout:** adding an additional prebuilt layout for tablet, and docs and tests for all prebuilt layouts ([505675b](https://github.com/AthosCommerce/snap/commit/505675b13e100b07c61da381983bba2bbbd6d4b2))
+- **icon:** adding a new prop to icon to directly render a passed in svg ([582ebb0](https://github.com/AthosCommerce/snap/commit/582ebb0e9f00e537e1371bd8b723983f63f56b0d))
+- **overlayresult:** new result component overlayResult ([eef6914](https://github.com/AthosCommerce/snap/commit/eef6914e27caa77e8cff88d8edc1b6d86af122cc))
+- **results:** adding new prop to disable inline Banners ([ead5628](https://github.com/AthosCommerce/snap/commit/ead56287ac068a349c9e07fbc164da78f5ff75bb))
+
 # [1.6.0](https://github.com/AthosCommerce/snap/compare/v1.5.1...v1.6.0) (2026-06-03)
 
 ### Bug Fixes

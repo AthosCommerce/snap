@@ -13,13 +13,14 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Carousel, CarouselProps, defaultCarouselBreakpoints, defaultVerticalCarouselBreakpoints } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { useIntersection } from '../../../hooks';
-import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete } from '../../../providers';
+import { useIntersection, useComponent } from '../../../hooks';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { Lang, useLang } from '../../../hooks';
 import { ResultTracker } from '../../Trackers/ResultTracker';
+import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationProps> = ({ vertical }) => {
 	return css({
@@ -79,7 +80,6 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 		nextButton,
 		prevButton,
 		hideButtons,
-		resultComponent,
 		disableStyles,
 		className,
 		internalClassName,
@@ -92,6 +92,17 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 		treePath,
 		...additionalProps
 	} = props;
+
+	const resultComponent = props.resultComponent;
+	const snap = useSnap();
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -189,13 +200,16 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 								: resultsToRender.map((result) => (
 										<ResultTracker controller={controller} result={result}>
 											{(() => {
-												if (resultComponent && controller) {
-													return cloneWithProps(resultComponent, {
+												if (resolvedResultComponent && controller) {
+													return cloneWithProps(resolvedResultComponent, {
 														controller,
 														result,
 														treePath: subProps.result.treePath,
 													});
 												} else {
+													if (shouldWaitForNamedResultComponent) {
+														return null;
+													}
 													return <Result key={result.id} {...subProps.result} controller={controller} result={result} />;
 												}
 											})()}
@@ -230,10 +244,11 @@ export type RecommendationProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	lang?: Partial<RecommendationLang>;
 	breakpoints?: BreakpointsProps;
-} & RecommendationTemplatesLegalProps &
+} & Omit<RecommendationTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationTemplatesLegalProps = {
+	resultComponent?: string;
 	title?: JSX.Element | string;
 	description?: string;
 	hideTitle?: boolean;

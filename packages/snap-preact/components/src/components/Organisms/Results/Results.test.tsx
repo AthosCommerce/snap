@@ -91,6 +91,27 @@ describe('Results Component', () => {
 		expect(results.length).toBe(mockResults.length);
 	});
 
+	it('can exclude inline banners', () => {
+		const resultsWithBanner = [{ id: 'banner-1', type: 'banner', value: '<div>Promo Banner</div>' }, ...mockResults.slice(0, 2)] as any;
+
+		const renderedWithBanner = render(<Results layout={Layout.grid} results={resultsWithBanner} />);
+		expect(renderedWithBanner.container.querySelector('.ss__inline-banner')).toBeInTheDocument();
+
+		const renderedWithoutBanner = render(<Results layout={Layout.grid} results={resultsWithBanner} excludeBanners={true} />);
+		expect(renderedWithoutBanner.container.querySelector('.ss__inline-banner')).not.toBeInTheDocument();
+	});
+
+	it('excludeBanners filters banners before rows/columns slice so product count is not reduced', () => {
+		// Place a banner as the first item, followed by 6 products.
+		// With rows=2, columns=3 the limit is 6. The banner must not consume a slot.
+		const banner = { id: 'banner-1', type: 'banner', value: '<div>Promo</div>' };
+		const resultsWithLeadingBanner = [banner, ...mockResults.slice(0, 6)] as any;
+
+		const rendered = render(<Results layout={Layout.grid} results={resultsWithLeadingBanner} excludeBanners={true} rows={2} columns={3} />);
+		const products = rendered.container.querySelectorAll('.ss__result');
+		expect(products.length).toBe(6);
+	});
+
 	it('renders correct number of products when passing rows and columns', () => {
 		const args = {
 			rows: 2,

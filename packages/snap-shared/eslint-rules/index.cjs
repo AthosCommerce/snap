@@ -1,5 +1,5 @@
 module.exports = {
 	rules: {
-		'validate-result-component': require('./validate-result-component.cjs'),
+		'validate-config': require('./validate-config.cjs'),
 	},
 };

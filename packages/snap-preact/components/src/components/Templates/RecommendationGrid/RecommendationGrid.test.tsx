@@ -3,6 +3,7 @@ import { RecommendationGrid } from './RecommendationGrid';
 import 'whatwg-fetch';
 import { render, waitFor } from '@testing-library/preact';
 import { ThemeProvider } from '../../../providers/theme';
+import { SnapProvider } from '../../../providers';
 import { RecommendationStore, RecommendationStoreConfig } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Tracker } from '@athoscommerce/snap-tracker';
@@ -199,6 +200,43 @@ describe('RecommendationGrid Component', () => {
 		expect(results).toHaveLength(controller.store.results.length);
 		results.forEach((result, idx) => {
 			expect(result.textContent).toBe(controller.store.results[idx].id);
+		});
+	});
+
+	it('waits for async named resultComponent override and then renders resolved result component', async () => {
+		const customResultClass = 'async-named-result-component';
+		let resolveImport: ((value: any) => void) | undefined;
+
+		const snap = {
+			templates: {
+				library: {
+					import: {
+						component: {
+							result: {
+								AsyncNamedResult: () =>
+									new Promise((resolve) => {
+										resolveImport = resolve;
+									}),
+							},
+						},
+					},
+				},
+			},
+		} as any;
+
+		const rendered = render(
+			<SnapProvider snap={snap as any}>
+				<RecommendationGrid controller={controller} resultComponent={'AsyncNamedResult' as any} lazyRender={{ enabled: false }} />
+			</SnapProvider>
+		);
+
+		expect(rendered.container.querySelectorAll('.ss__result')).toHaveLength(0);
+		expect(rendered.container.querySelectorAll(`.${customResultClass}`)).toHaveLength(0);
+
+		resolveImport!((props: any) => <div className={customResultClass}>{props.result.id}</div>);
+
+		await waitFor(() => {
+			expect(rendered.container.querySelectorAll(`.${customResultClass}`)).toHaveLength(controller.store.results.length);
 		});
 	});
 
