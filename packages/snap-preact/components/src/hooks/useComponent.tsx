@@ -66,7 +66,7 @@ export const useComponent = (map: ComponentMap, name?: string): UseComponentResu
 		};
 	}, [map, name]);
 
-	const hasNamedOverride = Boolean(name && map[name]);
+	const hasNamedOverride = Boolean(name && typeof map[name] === 'function');
 
 	return {
 		ComponentOverride: importedComponent,
