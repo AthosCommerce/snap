@@ -10,6 +10,7 @@ export type UseComponentResult = {
 
 export const useComponent = (map: ComponentMap, name?: string): UseComponentResult => {
 	const [importedComponent, setImportedComponent] = useState<JSXComponent | undefined>(undefined);
+	const [importFailed, setImportFailed] = useState(false);
 
 	useEffect(() => {
 		// This flag belongs to one specific effect run.
@@ -24,18 +25,29 @@ export const useComponent = (map: ComponentMap, name?: string): UseComponentResu
 			};
 		}
 
+		setImportFailed(false);
+
 		const importFn = map[name];
 		if (importFn && typeof importFn === 'function') {
 			const componentFn = importFn();
 			if (componentFn instanceof Promise) {
 				// Guard against stale promises resolving after the effect has moved on.
-				componentFn.then((component) => {
-					if (!isActive) {
-						return;
-					}
+				componentFn
+					.then((component) => {
+						if (!isActive) {
+							return;
+						}
 
-					setImportedComponent(() => component as JSXComponent);
-				});
+						setImportedComponent(() => component as JSXComponent);
+					})
+					.catch((error) => {
+						if (!isActive) {
+							return;
+						}
+						setImportFailed(true);
+						setImportedComponent(undefined);
+						console.warn(`Failed to load component "${name}".`, error);
+					});
 			} else {
 				// Synchronous resolution can update immediately as long as this effect is still current.
 				if (isActive) {
@@ -58,6 +70,6 @@ export const useComponent = (map: ComponentMap, name?: string): UseComponentResu
 
 	return {
 		ComponentOverride: importedComponent,
-		shouldWaitForNamedOverride: hasNamedOverride && !importedComponent,
+		shouldWaitForNamedOverride: hasNamedOverride && !importedComponent && !importFailed,
 	};
 };
