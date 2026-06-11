@@ -3,8 +3,6 @@ import { Product } from '@athoscommerce/snap-store-mobx';
 import { AbstractPluginConfig } from '../../../common/src/types';
 
 export type PluginShopifyMarketsPricingConfig = AbstractPluginConfig & ShopifyMarketsPricingConfig;
-// Backward compatibility alias for existing integrations.
-export type PluginShopifyAddToCartConfig = PluginShopifyMarketsPricingConfig;
 
 export type ShopifyMarketsPricingConfig = {
 	token: string;
