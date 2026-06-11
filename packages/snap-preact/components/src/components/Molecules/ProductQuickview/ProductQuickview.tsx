@@ -345,15 +345,11 @@ export const ProductQuickview = observer((properties: ProductQuickviewProps) => 
 		}
 	}, [targetSlide, hasMultipleImages]);
 
-	// Unconditional useComponent call so hook order is stable regardless of customComponent.
-	// Passes '' when no override is requested; the guard in useComponent silently no-ops for
-	// empty names, so there is no console.warn spam on normal renders.
-	const ComponentOverride = useComponent(
-		((snap as SnapTemplates)?.templates?.library.import.component as any)?.productQuickview || {},
-		customComponent || ''
-	);
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} />;
+	if (customComponent) {
+		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.quickview || {}, customComponent);
+		if (ComponentOverride) {
+			return <ComponentOverride {...props} />;
+		}
 	}
 
 	const styling = mergeStyles<ProductQuickviewProps>(props, defaultStyles);
