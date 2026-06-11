@@ -5,14 +5,13 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Dispatch, MutableRef, StateUpdater, useState } from 'preact/hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
 import { Lang, LangAttributes, useLang } from '../../../hooks/useLang';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<SearchInputProps> = ({ theme }) => {
 	return css({
@@ -49,7 +48,6 @@ const defaultStyles: StyleScript<SearchInputProps> = ({ theme }) => {
 
 export const SearchInput = observer((properties: SearchInputProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<SearchInputProps> = {
 		placeholderText: 'Search',
@@ -109,18 +107,12 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.searchInput || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('searchInput', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let inputValue: string | undefined;

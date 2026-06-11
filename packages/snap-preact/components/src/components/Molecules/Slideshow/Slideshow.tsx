@@ -2,13 +2,12 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Lang, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { LangAttributes } from '../../../hooks/useLang';
 
@@ -168,7 +167,6 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 
 export function Slideshow(properties: SlideshowProps) {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<SlideshowProps> = {
@@ -210,18 +208,12 @@ export function Slideshow(properties: SlideshowProps) {
 		treePath,
 		overlayNavigation,
 		dragThreshold,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.slideshow || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('slideshow', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let touchDragging = props.touchDragging;

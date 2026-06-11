@@ -9,12 +9,11 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Icon, IconProps } from '../../Atoms/Icon';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { createHoverProps } from '../../../toolbox';
 import type { FacetValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
 import { Checkbox, CheckboxProps } from '../Checkbox';
-import { Lang, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
@@ -165,7 +164,6 @@ const defaultStyles: StyleScript<FacetPaletteOptionsProps> = ({ columns, gridSiz
 
 export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<FacetPaletteOptionsProps> = {
 		columns: 4,
@@ -196,18 +194,12 @@ export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProp
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetPaletteOptions || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetPaletteOptions', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	if (horizontal) {

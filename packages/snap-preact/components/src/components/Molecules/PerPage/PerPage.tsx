@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Select, SelectProps } from '../Select';
@@ -13,8 +13,7 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 import { RadioList, RadioListProps } from '../RadioList';
 import { List, ListProps } from '../List';
 import deepmerge from 'deepmerge';
-import { Lang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<PerPageProps> = () => {
 	return css({
@@ -27,7 +26,6 @@ const defaultStyles: StyleScript<PerPageProps> = () => {
 
 export const PerPage = observer((properties: PerPageProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<PerPageProps> = {
@@ -38,17 +36,12 @@ export const PerPage = observer((properties: PerPageProps) => {
 
 	const props = mergeProps('perPage', globalTheme, defaultProps, properties);
 
-	const { pagination, type, controller, label, disableStyles, className, internalClassName, treePath, customComponent } = props;
+	const { pagination, type, controller, label, disableStyles, className, internalClassName, treePath } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.perPage || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('perPage', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const store = pagination || controller?.store?.pagination;

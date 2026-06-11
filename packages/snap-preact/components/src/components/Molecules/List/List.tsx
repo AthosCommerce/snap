@@ -6,12 +6,11 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Checkbox, CheckboxProps } from '../Checkbox';
-import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Icon, IconProps } from '../../Atoms/Icon';
 
 const defaultStyles: StyleScript<ListProps> = ({ horizontal }) => {
@@ -64,7 +63,6 @@ const defaultStyles: StyleScript<ListProps> = ({ horizontal }) => {
 
 export function List(properties: ListProps) {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ListProps> = {
@@ -89,18 +87,12 @@ export function List(properties: ListProps) {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.list || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('list', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let selected = props.selected;

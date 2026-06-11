@@ -3,13 +3,12 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { SearchController } from '@athoscommerce/snap-controller';
 import { Icon, IconProps, IconType } from '../Icon';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<BreadcrumbsProps> = () => {
 	return css({
@@ -26,7 +25,6 @@ const defaultStyles: StyleScript<BreadcrumbsProps> = () => {
 
 export const Breadcrumbs = observer((properties: BreadcrumbsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<BreadcrumbsProps> = {
@@ -44,17 +42,12 @@ export const Breadcrumbs = observer((properties: BreadcrumbsProps) => {
 
 	const props = mergeProps('breadcrumbs', globalTheme, defaultProps, properties);
 
-	const { data, separator, separatorIcon, className, internalClassName, controller, disableStyles, treePath, customComponent } = props;
+	const { data, separator, separatorIcon, className, internalClassName, controller, disableStyles, treePath } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.breadcrumbs || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('breadcrumbs', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: BreadcrumbsSubProps = {

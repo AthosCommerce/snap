@@ -1,10 +1,9 @@
 import { h } from 'preact';
 import classnames from 'classnames';
 import { css } from '@emotion/react';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, SwatchOption, BreakpointsProps, StyleScript } from '../../../types';
-import { useA11y, useDisplaySettings, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useA11y, useDisplaySettings, useCustomComponentOverride } from '../../../hooks';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Grid, GridProps } from '../Grid';
 import { ImageProps, Image } from '../../Atoms/Image';
@@ -75,7 +74,6 @@ const defaultStyles: StyleScript<SwatchesProps> = ({ theme }) => {
 
 export function Swatches(properties: SwatchesProps) {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultCarouselBreakpoints = {
@@ -123,18 +121,12 @@ export function Swatches(properties: SwatchesProps) {
 		};
 	}
 
-	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath, customComponent } =
-		props;
+	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.swatches || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('swatches', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: SwatchesSubProps = {

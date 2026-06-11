@@ -3,9 +3,8 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { useCustomComponentOverride } from '../../../hooks';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SearchController } from '@athoscommerce/snap-controller';
@@ -18,7 +17,6 @@ const defaultStyles: StyleScript<ToolbarProps> = ({}) => {
 
 export const Toolbar = observer((properties: ToolbarProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ToolbarProps> = {
@@ -27,17 +25,12 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 	};
 
 	const props = mergeProps('toolbar', globalTheme, defaultProps, properties);
-	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, treePath, layout, customComponent } = props;
+	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, treePath, layout } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.toolbar || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('toolbar', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<ToolbarProps>(props, defaultStyles);

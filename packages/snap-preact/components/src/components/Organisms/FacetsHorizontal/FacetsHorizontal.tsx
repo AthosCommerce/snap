@@ -6,15 +6,14 @@ import { observer } from 'mobx-react-lite';
 import deepmerge from 'deepmerge';
 
 import { Facet, FacetProps } from '../Facet';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchController, AutocompleteController } from '@athoscommerce/snap-controller';
 import type { RangeFacet, ValueFacet } from '@athoscommerce/snap-store-mobx';
 import type { IndividualFacetType } from '../Facets/Facets';
 import { MobileSidebar, MobileSidebarProps } from '../MobileSidebar';
-import { Lang, useClickOutside, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useClickOutside, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -101,7 +100,6 @@ const defaultStyles: StyleScript<FacetsHorizontalProps> = ({ theme }) => {
 
 export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetsHorizontalProps> = {
@@ -133,18 +131,12 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		internalClassName,
 		controller,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetsHorizontal || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetsHorizontal', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const facetClickEvent = (e: React.MouseEvent<Element, MouseEvent>) => {

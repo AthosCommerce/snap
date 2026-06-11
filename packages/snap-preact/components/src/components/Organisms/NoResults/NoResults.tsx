@@ -14,7 +14,7 @@ import type { RecommendationGridProps, RecommendationProps, StyleScript } from '
 import type { SnapTemplates } from '../../../../../src';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import deepmerge from 'deepmerge';
-import { useLang, useComponent } from '../../../hooks';
+import { useLang, useComponent, useCustomComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import type { LibraryImports } from '../../../../../src/Templates/Stores/LibraryStore';
 
@@ -59,18 +59,12 @@ export const NoResults = observer((properties: NoResultsProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.noResults || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('noResults', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<NoResultsProps>(props, defaultStyles);

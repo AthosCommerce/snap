@@ -4,12 +4,11 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { FormattedNumberProps } from '../FormattedNumber/FormattedNumber';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<PriceProps> = ({ theme }) => {
 	return css({
@@ -23,7 +22,6 @@ const defaultStyles: StyleScript<PriceProps> = ({ theme }) => {
 
 export function Price(properties: PriceProps) {
 	const globalTheme = useTheme() as Theme;
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<PriceProps> = {
@@ -51,18 +49,12 @@ export function Price(properties: PriceProps) {
 		raw,
 		className,
 		internalClassName,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.price || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('price', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let formattedPrice: string | undefined;

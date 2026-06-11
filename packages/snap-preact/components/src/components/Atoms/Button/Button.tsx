@@ -5,13 +5,12 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
 import { ComponentProps, StyleScript } from '../../../types';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { useA11y } from '../../../hooks/useA11y';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Icon, IconProps, IconType } from '../Icon';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ButtonProps> = ({ native, color, backgroundColor, borderColor, theme }) => {
 	// no styling on native
@@ -49,7 +48,6 @@ const defaultStyles: StyleScript<ButtonProps> = ({ native, color, backgroundColo
 
 export const Button = observer((properties: ButtonProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps = {
@@ -72,22 +70,16 @@ export const Button = observer((properties: ButtonProps) => {
 		icon,
 		lang,
 		treePath,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
 		...additionalProps
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.button || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('button', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: ButtonSubProps = {

@@ -4,15 +4,14 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { createHoverProps } from '../../../toolbox';
 import type { FacetHierarchyValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<FacetHierarchyOptionsProps> = ({ theme, horizontal, returnIcon }) => {
 	if (horizontal) {
@@ -102,7 +101,6 @@ const defaultStyles: StyleScript<FacetHierarchyOptionsProps> = ({ theme, horizon
 
 export const FacetHierarchyOptions = observer((properties: FacetHierarchyOptionsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<FacetHierarchyOptionsProps> = {
 		treePath: globalTreePath,
@@ -123,18 +121,12 @@ export const FacetHierarchyOptions = observer((properties: FacetHierarchyOptions
 		treePath,
 		className,
 		internalClassName,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetHierarchyOptions || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetHierarchyOptions', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: FacetHierarchySubProps = {

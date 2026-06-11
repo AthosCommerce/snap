@@ -3,12 +3,11 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<RatingProps> = () => {
 	return css({
@@ -48,7 +47,6 @@ const defaultStyles: StyleScript<RatingProps> = () => {
 
 export const Rating = observer((properties: RatingProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<RatingProps> = {
 		fullIcon: 'star',
@@ -58,29 +56,12 @@ export const Rating = observer((properties: RatingProps) => {
 
 	const props = mergeProps('rating', globalTheme, defaultProps, properties);
 
-	const {
-		alwaysRender,
-		count,
-		text,
-		disablePartialFill,
-		emptyIcon,
-		fullIcon,
-		disableStyles,
-		className,
-		internalClassName,
-		treePath,
-		customComponent,
-	} = props;
+	const { alwaysRender, count, text, disablePartialFill, emptyIcon, fullIcon, disableStyles, className, internalClassName, treePath } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.rating || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('rating', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: RatingSubProps = {

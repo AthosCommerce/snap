@@ -7,12 +7,11 @@ import classnames from 'classnames';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import type { AutocompleteTermStore } from '@athoscommerce/snap-store-mobx';
 import { ComponentProps, StyleScript } from '../../../types';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { createHoverProps } from '../../../toolbox';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { Term } from '@athoscommerce/snap-store-mobx';
-import { useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useLang, useCustomComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
@@ -81,7 +80,6 @@ const emIfyTerm = (term: string, search: string): string => {
 
 export const Terms = observer((properties: TermsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<TermsProps> = {
@@ -91,19 +89,14 @@ export const Terms = observer((properties: TermsProps) => {
 	};
 
 	const props = mergeProps('terms', globalTheme, defaultProps, properties);
-	const { title, onTermClick, limit, previewOnHover, emIfy, className, internalClassName, controller, customComponent } = props;
+	const { title, onTermClick, limit, previewOnHover, emIfy, className, internalClassName, controller } = props;
 	const currentInput = controller?.store?.state?.input;
 	const terms = props.terms;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.terms || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('terms', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<TermsProps>(props, defaultStyles);

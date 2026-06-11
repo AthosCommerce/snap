@@ -6,14 +6,13 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, SwatchOption, StyleScript } from '../../../types';
-import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
-import type { SnapTemplates } from '../../../../../src';
 
 extend([namesPlugin]);
 
@@ -135,7 +134,6 @@ const defaultStyles: StyleScript<GridProps> = ({ gapSize, columns, theme, disabl
 
 export function Grid(properties: GridProps) {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<GridProps> = {
 		// default props
@@ -166,18 +164,12 @@ export function Grid(properties: GridProps) {
 		internalClassName,
 		treePath,
 		disableA11y,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.grid || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('grid', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: GridSubProps = {

@@ -3,14 +3,13 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SearchController } from '@athoscommerce/snap-controller';
 import { Layout, LayoutProps } from '../Layout';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 	return css({
@@ -28,7 +27,6 @@ const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 
 export const Sidebar = observer((properties: SidebarProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<SidebarProps> = {
@@ -39,17 +37,12 @@ export const Sidebar = observer((properties: SidebarProps) => {
 
 	const props = mergeProps('sidebar', globalTheme, defaultProps, properties);
 
-	const { controller, layout, hideTitleText, titleText, sticky, disableStyles, className, internalClassName, treePath, customComponent } = props;
+	const { controller, layout, hideTitleText, titleText, sticky, disableStyles, className, internalClassName, treePath } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.sidebar || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('sidebar', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<SidebarProps>(props, defaultStyles);

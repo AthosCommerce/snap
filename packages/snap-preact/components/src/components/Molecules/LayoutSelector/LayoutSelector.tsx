@@ -4,14 +4,13 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Select, SelectProps } from '../Select';
 import { List, ListProps } from '../List';
 import { RadioList, RadioListProps } from '../RadioList';
-import { Lang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<LayoutSelectorProps> = ({}) => {
@@ -25,7 +24,6 @@ const defaultStyles: StyleScript<LayoutSelectorProps> = ({}) => {
 
 export const LayoutSelector = observer((properties: LayoutSelectorProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<LayoutSelectorProps> = {
 		label: 'Layout',
@@ -37,31 +35,14 @@ export const LayoutSelector = observer((properties: LayoutSelectorProps) => {
 
 	const props = mergeProps('layoutSelector', globalTheme, defaultProps, properties);
 
-	const {
-		options,
-		selected,
-		type,
-		onSelect,
-		showSingleOption,
-		hideLabel,
-		hideOptionLabels,
-		disableStyles,
-		className,
-		internalClassName,
-		treePath,
-		customComponent,
-	} = props;
+	const { options, selected, type, onSelect, showSingleOption, hideLabel, hideOptionLabels, disableStyles, className, internalClassName, treePath } =
+		props;
 	let label = props.label;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.layoutSelector || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('layoutSelector', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: SelectSubProps = {

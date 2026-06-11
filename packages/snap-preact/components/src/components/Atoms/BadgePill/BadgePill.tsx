@@ -3,11 +3,10 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<BadgePillProps> = ({ color, colorText }) => {
 	return css({
@@ -25,7 +24,6 @@ const defaultStyles: StyleScript<BadgePillProps> = ({ color, colorText }) => {
 };
 export const BadgePill = observer((properties: BadgePillProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<BadgePillProps> = {
@@ -37,17 +35,12 @@ export const BadgePill = observer((properties: BadgePillProps) => {
 
 	const props = mergeProps('badgePill', globalTheme, defaultProps, properties);
 
-	const { value, tag, className, internalClassName, customComponent } = props;
+	const { value, tag, className, internalClassName } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.badgePill || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('badgePill', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<BadgePillProps>(props, defaultStyles);

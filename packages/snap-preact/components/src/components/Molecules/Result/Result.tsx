@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Price, PriceProps } from '../../Atoms/Price';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { ComponentProps, ResultsLayout, StyleScript } from '../../../types';
@@ -17,9 +17,8 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ResultProps> = () => {
 	return css({
@@ -76,7 +75,6 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 
 export const Result = observer((properties: ResultProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<ResultProps> = {
 		layout: ResultsLayout.grid,
@@ -113,19 +111,15 @@ export const Result = observer((properties: ResultProps) => {
 		hideRating,
 		trackingRef,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
-	const overrideComponentName = customComponent && customComponent !== 'Result' ? customComponent : undefined;
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, overrideComponentName);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('result', {
+		...props,
+		customComponent: props.customComponent && props.customComponent !== 'Result' ? props.customComponent : undefined,
+	});
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (overrideComponentName && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const core = result?.display?.mappings.core || result?.mappings?.core;

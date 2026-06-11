@@ -16,7 +16,7 @@ import { Theme, useTheme, CacheProvider, withTracking, useSnap, useTreePath, The
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { SnapTemplates } from '../../../../../src';
-import { useComponent } from '../../../hooks';
+import { useComponent, useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<ResultsProps> = ({ gapSize, columns }) => {
 	return css({
@@ -95,19 +95,14 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath, customComponent } = props;
+	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath } = props;
 
 	const resultComponent = props.resultComponent;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.results || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('results', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const isNamedResultComponent = typeof resultComponent === 'string';

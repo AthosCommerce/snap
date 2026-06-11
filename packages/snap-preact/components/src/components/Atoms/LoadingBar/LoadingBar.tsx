@@ -3,11 +3,10 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css, keyframes } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<LoadingBarProps> = ({ color, height, backgroundColor, theme }) => {
 	const animation = keyframes({
@@ -45,7 +44,6 @@ const defaultStyles: StyleScript<LoadingBarProps> = ({ color, height, background
 
 export const LoadingBar = observer((properties: LoadingBarProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<LoadingBarProps> = {
@@ -55,17 +53,12 @@ export const LoadingBar = observer((properties: LoadingBarProps) => {
 
 	const props = mergeProps('loadingBar', globalTheme, defaultProps, properties);
 
-	const { active, className, internalClassName, customComponent } = props;
+	const { active, className, internalClassName } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.loadingBar || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('loadingBar', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<LoadingBarProps>(props, defaultStyles);

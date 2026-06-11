@@ -2,15 +2,14 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import type { ComponentProps, StyleScript } from '../../../types';
 import { Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import type { SideBarModuleNames } from '../Sidebar';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { MutableRef, useRef } from 'preact/hooks';
 import type { IconProps, IconType } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
@@ -56,7 +55,6 @@ const defaultStyles: StyleScript<MobileSidebarProps> = ({}) => {
 
 export const MobileSidebar = observer((properties: MobileSidebarProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<MobileSidebarProps> = {
@@ -99,18 +97,12 @@ export const MobileSidebar = observer((properties: MobileSidebarProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.mobileSidebar || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('mobileSidebar', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let hideFooter = props.hideFooter;

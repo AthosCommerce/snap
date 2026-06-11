@@ -5,14 +5,13 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import type { Filter as FilterType } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
-import { Lang, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<FilterProps> = ({}) => {
@@ -36,7 +35,6 @@ const defaultStyles: StyleScript<FilterProps> = ({}) => {
 // TODO: look into urlManager and how it connects in this case, left the href out for the time being
 export const Filter = observer((properties: FilterProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<FilterProps> = {
 		treePath: globalTreePath,
@@ -44,31 +42,13 @@ export const Filter = observer((properties: FilterProps) => {
 
 	const props = mergeProps('filter', globalTheme, defaultProps, properties);
 
-	const {
-		filter,
-		facetLabel,
-		valueLabel,
-		url,
-		hideFacetLabel,
-		onClick,
-		icon,
-		separator,
-		disableStyles,
-		className,
-		internalClassName,
-		treePath,
-		customComponent,
-	} = props;
+	const { filter, facetLabel, valueLabel, url, hideFacetLabel, onClick, icon, separator, disableStyles, className, internalClassName, treePath } =
+		props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.filter || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('filter', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const link = filter?.url?.link || url?.link;

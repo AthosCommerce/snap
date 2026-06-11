@@ -4,13 +4,12 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { FacetValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useLang, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<FacetGridOptionsProps> = ({ columns, gapSize, gridSize, theme }) => {
@@ -79,7 +78,6 @@ const defaultStyles: StyleScript<FacetGridOptionsProps> = ({ columns, gapSize, g
 
 export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetGridOptionsProps> = {
@@ -91,17 +89,12 @@ export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => 
 
 	const props = mergeProps('facetGridOptions', globalTheme, defaultProps, properties);
 
-	const { values, onClick, previewOnFocus, valueProps, facet, horizontal, className, internalClassName, customComponent } = props;
+	const { values, onClick, previewOnFocus, valueProps, facet, horizontal, className, internalClassName } = props;
 
-	const overrideComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.facetGridOptions || {};
-	const { ComponentOverride, shouldWaitForNamedOverride } = useComponent(overrideComponentMap, customComponent);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetGridOptions', props);
 
-	if (shouldWaitForNamedOverride) {
-		return null;
-	}
-
-	if (customComponent && ComponentOverride) {
-		return <ComponentOverride {...props} customComponent={undefined} />;
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	if (horizontal) {
