@@ -115,6 +115,9 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 				onClick: () => reset(),
 				icon: 'angle-left',
 			},
+			chatButton: {
+				onClick: () => controller.openChat(),
+			},
 			// inherited props
 			...defined({
 				disableStyles,
@@ -155,31 +158,35 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 	delete acProps.themeStyleScript;
 
 	/***************************************/
-	return layout?.length ? (
-		<CacheProvider>
-			<Slideout
-				{...styling}
-				{...subProps.slideout}
-				className={classNames('ss__autocomplete-slideout', 'ss__autocomplete-slideout__slideout', className, internalClassName)}
-				active={active}
-			>
-				<div className="ss__autocomplete-slideout__inner" ref={(e) => useA11y(e, 0, true, reset)}>
-					{renderInput ? (
-						<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
-					) : (
-						<></>
-					)}
-					<AutocompleteLayout
-						{...acProps}
-						{...subProps.autocompleteLayout}
-						input={_input!}
-						controller={controller}
-						treePath={`${treePath} slideout`}
-					/>
-				</div>
-			</Slideout>
-		</CacheProvider>
-	) : null;
+	return (
+		<>
+			{layout?.length ? (
+				<CacheProvider>
+					<Slideout
+						{...styling}
+						{...subProps.slideout}
+						className={classNames('ss__autocomplete-slideout', 'ss__autocomplete-slideout__slideout', className, internalClassName)}
+						active={active}
+					>
+						<div className="ss__autocomplete-slideout__inner" ref={(e) => useA11y(e, 0, true, reset)}>
+							{renderInput ? (
+								<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
+							) : (
+								<></>
+							)}
+							<AutocompleteLayout
+								{...acProps}
+								{...subProps.autocompleteLayout}
+								input={_input!}
+								controller={controller}
+								treePath={`${treePath} slideout`}
+							/>
+						</div>
+					</Slideout>
+				</CacheProvider>
+			) : null}
+		</>
+	);
 });
 interface AutocompleteSlideoutSubProps {
 	autocompleteLayout: Partial<AutocompleteLayoutProps>;

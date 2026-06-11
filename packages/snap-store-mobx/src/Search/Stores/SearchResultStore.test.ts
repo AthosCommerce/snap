@@ -704,7 +704,7 @@ describe('SearchResultStore', () => {
 		it('uses the original constructed config when calling variants.update', () => {
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -781,7 +781,7 @@ describe('SearchResultStore', () => {
 		it('can use a different config when calling variants.update', () => {
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -913,7 +913,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -959,7 +959,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -1005,7 +1005,7 @@ describe('SearchResultStore', () => {
 		it('auto-selects remaining options when only one variant is available', () => {
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -1078,7 +1078,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -1133,7 +1133,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -1191,7 +1191,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -1244,7 +1244,7 @@ describe('SearchResultStore', () => {
 		it('can use the "thumbnailBackgroundImages" option to set the backgroundImageUrl for each variant to the variant thumbnailImageUrl', () => {
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -1284,7 +1284,7 @@ describe('SearchResultStore', () => {
 		it('can use variantMappings', () => {
 			const searchData = mockData.updateConfig({ siteId: 'z7h1jh' }).searchMeta('variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2118,7 +2118,7 @@ describe('SearchResultStore', () => {
 		it('can be configured to preselect certain variants', () => {
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2159,7 +2159,7 @@ describe('SearchResultStore', () => {
 		it('uses the original constructed config when calling variants.update', () => {
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2228,7 +2228,7 @@ describe('SearchResultStore', () => {
 		it('can use a different config when calling variants.update', () => {
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2348,15 +2348,15 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
 						realtime: {
 							enabled: true,
 						},
+						autoSelect: true,
 					},
-					autoSelect: true,
 				},
 			};
 
@@ -2394,15 +2394,15 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
 						realtime: {
 							enabled: true,
 						},
+						autoSelect: true,
 					},
-					autoSelect: true,
 				},
 			};
 
@@ -2451,7 +2451,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2459,8 +2459,8 @@ describe('SearchResultStore', () => {
 							enabled: true,
 							filters: ['first'],
 						},
+						autoSelect: true,
 					},
-					autoSelect: true,
 				},
 			};
 
@@ -2506,7 +2506,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2563,7 +2563,7 @@ describe('SearchResultStore', () => {
 
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2615,7 +2615,7 @@ describe('SearchResultStore', () => {
 		it('can use the "thumbnailBackgroundImages" option to set the backgroundImageUrl for each variant to the variant thumbnailImageUrl', () => {
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {
@@ -2654,7 +2654,7 @@ describe('SearchResultStore', () => {
 		it('can use variantMappings', () => {
 			const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
 
-			const variantSearchConfig: StoreConfigs = {
+			const variantSearchConfig: SearchStoreConfig = {
 				...searchConfig,
 				settings: {
 					variants: {

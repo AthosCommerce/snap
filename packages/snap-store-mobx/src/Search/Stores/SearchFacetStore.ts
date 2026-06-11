@@ -359,14 +359,15 @@ export class FacetValue {
 	constructor(services: StoreServices, facet: ValueFacet, value: SearchResponseModelFacetValueAllOfValues) {
 		Object.assign(this, value);
 
+		const urlManager = services.urlManager;
 		if (this.filtered) {
-			this.url = services.urlManager.remove('page').remove(`filter.${facet.field}`, value.value);
+			this.url = urlManager.remove('page').remove(`filter.${facet.field}`, value.value);
 		} else {
-			let valueUrl = services.urlManager.remove('page');
+			let valueUrl = urlManager.remove('page');
 			if (facet.multiple == 'single') {
-				valueUrl = valueUrl?.remove(`filter.${facet.field}`);
+				valueUrl = valueUrl.remove(`filter.${facet.field}`);
 			}
-			this.url = valueUrl?.merge(`filter.${facet.field}`, value.value);
+			this.url = valueUrl.merge(`filter.${facet.field}`, value.value);
 		}
 	}
 }
@@ -394,10 +395,11 @@ export class FacetHierarchyValue extends FacetValue {
 			}
 		}
 
+		const urlManager = services.urlManager;
 		if (value.value) {
-			this.url = services.urlManager.remove('page').set(`filter.${facet.field}`, value.value);
+			this.url = urlManager.remove('page').set(`filter.${facet.field}`, value.value);
 		} else {
-			this.url = services.urlManager.remove('page').remove(`filter.${facet.field}`);
+			this.url = urlManager.remove('page').remove(`filter.${facet.field}`);
 		}
 	}
 }
@@ -414,16 +416,17 @@ export class FacetRangeValue {
 	constructor(services: StoreServices, facet: ValueFacet, value: SearchResponseModelFacetValueAllOfValues) {
 		Object.assign(this, value);
 
+		const urlManager = services.urlManager;
 		if (this.filtered) {
-			this.url = services.urlManager.remove('page').remove(`filter.${facet.field}`, [{ low: this.low, high: this.high }]);
+			this.url = urlManager.remove('page').remove(`filter.${facet.field}`, [{ low: this.low, high: this.high }]);
 		} else {
-			let valueUrl = services.urlManager.remove('page');
+			let valueUrl = urlManager.remove('page');
 
 			if (facet.multiple == 'single') {
-				valueUrl = valueUrl?.remove(`filter.${facet.field}`);
+				valueUrl = valueUrl.remove(`filter.${facet.field}`);
 			}
 
-			this.url = valueUrl?.merge(`filter.${facet.field}`, [{ low: this.low, high: this.high }]);
+			this.url = valueUrl.merge(`filter.${facet.field}`, [{ low: this.low, high: this.high }]);
 		}
 	}
 }

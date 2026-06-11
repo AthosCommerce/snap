@@ -1,0 +1,67 @@
+{
+	"data": [
+		{
+			"messageType": "productSearchResult",
+			"id": "msg-search-001",
+			"text": "Here are some dresses I found for you:",
+			"results": [
+				{
+					"id": "product-001",
+					"mappings": {
+						"core": {
+							"uid": "182146",
+							"price": 48,
+							"msrp": 50,
+							"url": "/product/C-AD-W1-1869P",
+							"thumbnailImageUrl": "https://example.com/thumb1.jpg",
+							"imageUrl": "https://example.com/image1.jpg",
+							"name": "Stripe Out White Off-The-Shoulder Dress",
+							"sku": "C-AD-W1-1869P",
+							"brand": "Adrienne",
+							"parentId": "parent-001"
+						}
+					},
+					"attributes": {
+						"title": "Stripe Out White Off-The-Shoulder Dress",
+						"color": ["White", "Navy"]
+					}
+				},
+				{
+					"id": "product-002",
+					"mappings": {
+						"core": {
+							"uid": "182147",
+							"price": 55,
+							"msrp": 65,
+							"url": "/product/C-AD-W2-2001P",
+							"thumbnailImageUrl": "https://example.com/thumb2.jpg",
+							"imageUrl": "https://example.com/image2.jpg",
+							"name": "Summer Breeze Blue Sundress",
+							"sku": "C-AD-W2-2001P",
+							"brand": "Adrienne",
+							"parentId": "parent-002"
+						}
+					},
+					"attributes": {
+						"title": "Summer Breeze Blue Sundress",
+						"color": ["Blue"]
+					}
+				}
+			],
+			"facets": [
+				{
+					"field": "color_family",
+					"label": "Color",
+					"type": "value",
+					"values": [
+						{ "value": "White", "label": "White", "count": 15 },
+						{ "value": "Blue", "label": "Blue", "count": 12 }
+					]
+				}
+			]
+		}
+	],
+	"context": {
+		"sessionId": "test-session-001"
+	}
+}

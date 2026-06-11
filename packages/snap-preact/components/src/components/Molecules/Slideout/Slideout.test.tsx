@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-import { render, waitFor } from '@testing-library/preact';
+import { render, waitFor, act } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 
 import { Slideout, SlideDirectionType } from './Slideout';
@@ -284,6 +284,110 @@ describe('Slideout Component', () => {
 			expect(containerElement).toHaveClass('ss__slideout--active');
 			expect(findMeDiv).toBeInTheDocument();
 		});
+	});
+
+	it('does not accumulate listeners across re-renders with string buttonSelector', async () => {
+		const button = document.createElement('div');
+		button.id = 'accumTest2';
+		document.body.appendChild(button);
+
+		const addSpy = jest.spyOn(button, 'addEventListener');
+
+		const args = {
+			buttonSelector: '#accumTest2',
+			width: '300px',
+		};
+		const { container, rerender } = render(<Slideout {...args} />);
+
+		// Force several re-renders with a prop change that doesn't affect buttonSelector
+		rerender(<Slideout {...args} width="301px" />);
+		rerender(<Slideout {...args} width="302px" />);
+
+		// Fixed code: addEventListener('click', ...) called exactly once on mount.
+		// Buggy code: called once per render → 3 calls.
+		const clickCalls = addSpy.mock.calls.filter(([event]) => event === 'click');
+		expect(clickCalls).toHaveLength(1);
+
+		// Behavioral check: a single click opens the slideout
+		await act(async () => {
+			button.click();
+		});
+		await waitFor(() => {
+			expect(container.querySelector('.ss__slideout')).toHaveClass('ss__slideout--active');
+		});
+
+		addSpy.mockRestore();
+		document.body.removeChild(button);
+	});
+
+	it('toggles correctly using current state with element buttonSelector (no stale closure)', async () => {
+		const buttonEl = document.createElement('button');
+		buttonEl.id = 'elemBtn';
+		document.body.appendChild(buttonEl);
+
+		const addSpy = jest.spyOn(buttonEl, 'addEventListener');
+
+		const args = {
+			buttonSelector: buttonEl,
+		};
+		const { container, unmount } = render(<Slideout {...args} />);
+
+		// Exactly one listener should be attached regardless of re-renders
+		const clickCalls = addSpy.mock.calls.filter(([event]) => event === 'click');
+		expect(clickCalls).toHaveLength(1);
+
+		expect(container.querySelector('.ss__slideout')).not.toHaveClass('ss__slideout--active');
+
+		// First click → open
+		await act(async () => {
+			buttonEl.click();
+		});
+		await waitFor(() => {
+			expect(container.querySelector('.ss__slideout')).toHaveClass('ss__slideout--active');
+		});
+
+		// Second click → closed (would stay open with stale closure bug)
+		await act(async () => {
+			buttonEl.click();
+		});
+		await waitFor(() => {
+			expect(container.querySelector('.ss__slideout')).not.toHaveClass('ss__slideout--active');
+		});
+
+		addSpy.mockRestore();
+		unmount();
+		document.body.removeChild(buttonEl);
+	});
+
+	it('cleans up listeners on unmount so clicks do not trigger state updates', async () => {
+		const button = document.createElement('div');
+		button.id = 'unmountBtn2';
+		document.body.appendChild(button);
+
+		const addSpy = jest.spyOn(button, 'addEventListener');
+		const removeSpy = jest.spyOn(button, 'removeEventListener');
+
+		const args = {
+			buttonSelector: '#unmountBtn2',
+		};
+		const { unmount } = render(<Slideout {...args} />);
+
+		// Capture the handler that was registered
+		const clickAddCalls = addSpy.mock.calls.filter(([event]) => event === 'click');
+		expect(clickAddCalls).toHaveLength(1);
+		const registeredHandler = clickAddCalls[0][1];
+
+		unmount();
+
+		// Fixed code: removeEventListener called with the same handler on cleanup.
+		// Buggy code: removeEventListener never called → 0 calls.
+		const clickRemoveCalls = removeSpy.mock.calls.filter(([event]) => event === 'click');
+		expect(clickRemoveCalls).toHaveLength(1);
+		expect(clickRemoveCalls[0][1]).toBe(registeredHandler);
+
+		addSpy.mockRestore();
+		removeSpy.mockRestore();
+		document.body.removeChild(button);
 	});
 
 	it('can disable styles', () => {

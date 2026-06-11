@@ -82,7 +82,7 @@ describe('Results Component', () => {
 
 		const results = rendered.container.querySelector('.ss__results')!;
 		const resultsStyles = getComputedStyle(results);
-		expect(resultsStyles['grid-template-columns' as keyof CSSStyleDeclaration]).toBe('repeat(1, 1fr)');
+		expect(resultsStyles['grid-template-columns' as keyof CSSStyleDeclaration]).toBe('repeat(1, minmax(0, 1fr))');
 	});
 
 	it('renders all', () => {
@@ -133,7 +133,7 @@ describe('Results Component', () => {
 		const resultsElement = rendered.container.querySelector('.ss__results')!;
 		const resultsElementStyles = getComputedStyle(resultsElement);
 
-		expect(resultsElementStyles.gridTemplateColumns).toBe(`repeat(${args.columns}, 1fr)`);
+		expect(resultsElementStyles.gridTemplateColumns).toBe(`repeat(${args.columns}, minmax(0, 1fr))`);
 		expect(resultsElementStyles.gap).toBe(args.gapSize);
 
 		const result = rendered.container.querySelector('.ss__result')!;

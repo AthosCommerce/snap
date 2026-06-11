@@ -52,7 +52,7 @@ describe('SearchInput Component', () => {
 		const rendered = render(<SearchInput value={''} submitSearchButton={{ icon: 'cog' }} />);
 		const searchInput = rendered.container.querySelector('.ss__search-input__input');
 		expect(searchInput).toBeInTheDocument();
-		const icon = rendered.container.querySelector('.ss__icon');
+		const icon = rendered.container.querySelector('.ss__search-input__button--submit-search-button .ss__icon');
 		expect(icon).toBeInTheDocument();
 		expect(icon?.classList).toContain('ss__icon--cog');
 	});

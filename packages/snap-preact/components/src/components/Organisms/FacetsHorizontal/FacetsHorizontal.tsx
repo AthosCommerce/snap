@@ -324,7 +324,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 													name={'reset-facet'}
 													onClick={(e) => {
 														e.stopPropagation();
-														facet?.clear.url.link.onClick();
+														facet?.clear.url?.link.onClick();
 													}}
 													icon={clearAllIcon ? clearAllIcon : undefined}
 												>

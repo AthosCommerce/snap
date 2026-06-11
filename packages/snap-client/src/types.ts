@@ -1,5 +1,13 @@
 import { AppMode } from '@athoscommerce/snap-toolbox';
-import type { MetaRequestModel, SearchResponseModelResult, SearchRequestModel, MetaResponseModel } from '@athoscommerce/snapi-types';
+import type {
+	MetaRequestModel,
+	SearchResponseModelResult,
+	SearchRequestModel,
+	MetaResponseModel,
+	SearchResponseModelResultCoreMappings,
+	SearchResponseModelResultVariants,
+	SearchResponseModelResultVariantsData,
+} from '@athoscommerce/snapi-types';
 
 export type HTTPHeaders = { [key: string]: string };
 
@@ -8,7 +16,22 @@ export type SearchRequesterPaths = {
 	search?: string;
 	category?: string;
 	finder?: string;
+	products?: string;
 };
+
+export type ProductsRequestModel = {
+	parentId: string;
+	siteId?: string;
+};
+
+export type ProductsResponseModel = {
+	mappings: {
+		core: SearchResponseModelResultCoreMappings;
+	};
+	variants: SearchResponseModelResultVariants;
+};
+
+export type ProductVariant = SearchResponseModelResultVariantsData & { attributes?: Record<string, unknown> };
 
 export type MetaRequesterPaths = {
 	meta?: string;
@@ -36,6 +59,7 @@ export type ClientConfig = {
 	mode?: keyof typeof AppMode | AppMode;
 	initiator?: string;
 	fetchApi?: WindowOrWorkerGlobalScope['fetch'];
+	chat?: RequesterConfig<any, any>;
 	meta?: RequesterConfig<MetaRequestModel, MetaRequesterPaths>;
 	search?: RequesterConfig<SearchRequestModel, SearchRequesterPaths>;
 	recommend?: RequesterConfig<RecommendRequestModel, RecommendRequesterPaths>;

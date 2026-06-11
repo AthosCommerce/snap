@@ -1,5 +1,5 @@
 import { h, ComponentChildren } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 
 import { jsx, css } from '@emotion/react';
@@ -100,21 +100,19 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	// state
 	const [isActive, setActive] = useState(Boolean(active));
 	const [renderContent, setRenderContent] = useState(Boolean(active));
+	const isActiveRef = useRef(isActive);
+	isActiveRef.current = isActive;
 
-	const toggleActive = () => {
-		if (isActive) {
-			setActive(false);
-			if (rerender) {
-				setTimeout(() => {
-					setRenderContent(false);
-				}, 250);
-			}
-		} else {
-			setActive(true);
+	const toggleActive = (force?: boolean) => {
+		const next = typeof force !== 'undefined' ? force : !isActiveRef.current;
+		setActive(next);
+		if (next) {
 			setRenderContent(true);
+		} else if (rerender) {
+			setTimeout(() => {
+				setRenderContent(false);
+			}, 250);
 		}
-
-		document.body.style.overflow = isActive ? 'hidden' : '';
 	};
 
 	//this is used to update active state if active prop is changed from parent component.
@@ -134,18 +132,16 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	const styling = mergeStyles<SlideoutProps>(props, defaultStyles);
 
 	useEffect(() => {
-		if (buttonSelector) {
-			let button;
-			if (typeof buttonSelector == 'string') {
-				button = document.querySelector(buttonSelector);
-			} else {
-				button = buttonSelector;
-			}
-			if (button) {
-				button.addEventListener('click', () => toggleActive());
-			}
-		}
-	}, []);
+		if (!buttonSelector) return;
+
+		const targets: Element[] = typeof buttonSelector == 'string' ? Array.from(document.querySelectorAll(buttonSelector)) : [buttonSelector];
+		const handler = typeof buttonSelector == 'string' ? () => toggleActive(true) : () => toggleActive();
+
+		targets.forEach((target) => target.addEventListener('click', handler));
+		return () => {
+			targets.forEach((target) => target.removeEventListener('click', handler));
+		};
+	}, [buttonSelector]);
 
 	return isVisible || !rerender ? (
 		<CacheProvider>
@@ -165,7 +161,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 			>
 				{renderContent && cloneWithProps(children, { toggleActive, active: isActive, treePath })}
 			</div>
-			<Overlay {...subProps.overlay} active={isActive} onClick={toggleActive} />
+			<Overlay {...subProps.overlay} active={isActive} onClick={() => toggleActive(false)} />
 		</CacheProvider>
 	) : null;
 });

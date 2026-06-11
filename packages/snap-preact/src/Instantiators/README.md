@@ -21,6 +21,7 @@ The `RecommendationInstantiator` class handles the targeting and creation of rec
 | `config.batched` | `boolean` | No | Enable batched recommendation requests. |
 | `config.limit` | `number` | No | Default limit for recommendation results. |
 | `config.variants` | `VariantConfig` | No | Configuration for variant handling. |
+| `config.quickview` | `QuickviewConfig` | No | Configuration for product quickview behavior. |
 | `config.beacon` | `BeaconSettings` | No | Beacon tracking settings. |
 | `config.middleware` | `object` | No | Event middleware configuration. |
 | `config.plugins` | `PluginGrouping[]` | No | Plugin configurations. |

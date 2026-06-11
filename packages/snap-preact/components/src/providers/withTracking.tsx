@@ -1,6 +1,6 @@
 import { h, ComponentType } from 'preact';
 import type { Banner, MerchandisingContentBanner, Product } from '@athoscommerce/snap-store-mobx';
-import type { SearchController, AutocompleteController, RecommendationController } from '@athoscommerce/snap-controller';
+import type { SearchController, AutocompleteController, RecommendationController, ChatController } from '@athoscommerce/snap-controller';
 import type { ContentType, BannerContent } from '@athoscommerce/snap-store-mobx';
 import { createImpressionObserver } from '../utilities';
 import { useEffect, useCallback, useRef } from 'preact/hooks';
@@ -8,7 +8,7 @@ import { JSXComponent } from '../types';
 
 export const TRACKING_ATTRIBUTE = 'sstracking';
 interface WithTrackingProps {
-	controller?: SearchController | AutocompleteController | RecommendationController;
+	controller?: SearchController | AutocompleteController | RecommendationController | ChatController;
 	result?: Product;
 	banner?: Banner;
 	type?: ContentType;

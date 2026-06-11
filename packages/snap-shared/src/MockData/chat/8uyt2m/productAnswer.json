@@ -1,0 +1,28 @@
+{
+	"data": [
+		{
+			"messageType": "productAnswer",
+			"id": "msg-answer-001",
+			"text": "This is the Stripe Out White Off-The-Shoulder Dress. It features 3/4 sleeve bell sleeves with a partially elastic/open back. Made from 97% Cotton and 3% Spandex.",
+			"sourceProduct": {
+				"id": "product-001",
+				"mappings": {
+					"core": {
+						"uid": "182146",
+						"price": 48,
+						"url": "/product/C-AD-W1-1869P",
+						"thumbnailImageUrl": "https://example.com/thumb1.jpg",
+						"imageUrl": "https://example.com/image1.jpg",
+						"name": "Stripe Out White Off-The-Shoulder Dress",
+						"sku": "C-AD-W1-1869P",
+						"parentId": "parent-001"
+					}
+				},
+				"attributes": {}
+			}
+		}
+	],
+	"context": {
+		"sessionId": "test-session-001"
+	}
+}

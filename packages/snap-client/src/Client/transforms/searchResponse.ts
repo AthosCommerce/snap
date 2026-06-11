@@ -22,7 +22,7 @@ import {
 	SearchResponseModelTracking,
 } from '@athoscommerce/snapi-types';
 
-const CORE_FIELDS = [
+export const CORE_FIELDS = [
 	'uid',
 	'sku',
 	'available',
@@ -53,7 +53,7 @@ type SortingOption = {
 	active?: number;
 };
 
-type RawResult = {
+export type RawResult = {
 	available: string;
 	badges?: SearchResponseModelResultBadges[];
 	variants?: SearchResponseModelResultVariants;
@@ -178,7 +178,7 @@ export type SearchResponseType = {
 	};
 };
 
-class Result implements SearchResponseModelResult {
+export class Result implements SearchResponseModelResult {
 	constructor(result: SearchResponseModelResult & { responseId: string }) {
 		Object.assign(this, result);
 	}
@@ -461,7 +461,7 @@ transformSearchResponse.tracking = (response: SearchResponseType): SearchRespons
 };
 
 // used for HTML entities decoding
-function decodeProperty(encoded: string | string[] | SearchResponseModelResultBadges[] | SearchResponseModelResultVariants) {
+export function decodeProperty(encoded: string | string[] | SearchResponseModelResultBadges[] | SearchResponseModelResultVariants) {
 	if (Array.isArray(encoded)) {
 		return encoded.map((item) => {
 			if (typeof item === 'string') {

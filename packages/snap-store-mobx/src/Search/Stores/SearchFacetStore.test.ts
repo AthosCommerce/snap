@@ -1066,7 +1066,7 @@ describe('Facet Store', () => {
 				expect(filteredValueFacet.filteredCount).toBe(filteredValues.length);
 
 				filteredValues.forEach((filteredValue: FacetValue) => {
-					expect(filteredValue.url.href).not.toMatch(filteredValueFacet.field);
+					expect(filteredValue.url?.href).not.toMatch(filteredValueFacet.field);
 				});
 			});
 
@@ -1089,8 +1089,8 @@ describe('Facet Store', () => {
 				const filteredValues = filteredValueFacet.values.filter((value: FacetValue) => !value.filtered);
 
 				filteredValues.forEach((filteredValue: FacetValue) => {
-					expect(filteredValue.url.href).toMatch(filteredValueFacet.field);
-					expect(filteredValue.url.href).toMatch(filteredValue.value);
+					expect(filteredValue.url?.href).toMatch(filteredValueFacet.field);
+					expect(filteredValue.url?.href).toMatch(filteredValue.value);
 				});
 			});
 
@@ -1214,7 +1214,7 @@ describe('Facet Store', () => {
 
 				filteredValues.forEach((filteredValue) => {
 					// removing the filter (URL should not have the value)
-					expect(filteredValue?.url.href).not.toMatch(filteredRangeBucketFacet.field);
+					expect(filteredValue?.url?.href).not.toMatch(filteredRangeBucketFacet.field);
 				});
 			});
 
@@ -1235,7 +1235,7 @@ describe('Facet Store', () => {
 				const filteredRangeBucketFacet = facets.filter((facet) => facet.type == 'range-buckets' && facet.filtered).pop();
 				const filteredValues = filteredRangeBucketFacet.values.filter((value: FacetRangeValue) => !value?.filtered);
 				filteredValues.forEach((filteredValue: FacetRangeValue) => {
-					expect(filteredValue.url.href).toMatch(`filter:${filteredRangeBucketFacet.field}:${filteredValue.low}:${filteredValue.high}`);
+					expect(filteredValue.url?.href).toMatch(`filter:${filteredRangeBucketFacet.field}:${filteredValue.low}:${filteredValue.high}`);
 				});
 			});
 
@@ -1264,7 +1264,7 @@ describe('Facet Store', () => {
 				const unselectedFacetValue = filteredRangeBucketFacet.values.filter((value) => !value?.filtered).pop() as FacetRangeValue;
 
 				// to find a match only once
-				expect(unselectedFacetValue?.url.href).toMatch(
+				expect(unselectedFacetValue?.url?.href).toMatch(
 					`filter:${filteredRangeBucketFacet.field}:${unselectedFacetValue?.low}:${unselectedFacetValue?.high}`
 				);
 			});

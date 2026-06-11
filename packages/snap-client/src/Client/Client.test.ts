@@ -52,8 +52,13 @@ describe('Snap Client', () => {
 			expect(name).toBe(name);
 			// @ts-ignore - verifying private property
 			expect(requester.mode).toBe(AppMode.production);
-			// @ts-ignore - verifying private property
-			expect(requester.cache.config.enabled).toBe(true);
+			if (name === 'chat') {
+				// @ts-ignore - verifying private property
+				expect(requester.cache.config.enabled).toBe(false);
+			} else {
+				// @ts-ignore - verifying private property
+				expect(requester.cache.config.enabled).toBe(true);
+			}
 		}
 	});
 
@@ -121,6 +126,7 @@ describe('Snap Client', () => {
 		expect(client.trending).toBeDefined();
 		expect(client.recommend).toBeDefined();
 		expect(client.meta).toBeDefined();
+		expect(client.products).toBeDefined();
 	});
 
 	describe('each fetch method uses the expected requester', () => {
@@ -326,6 +332,42 @@ describe('Snap Client', () => {
 
 			expect(suggestRequesterSpy).toHaveBeenCalledTimes(1);
 			expect(suggestRequesterSpy.mock.calls).toEqual([[trendingparams, trendingcacheKey]]);
+			expect(fetchApiMock).toHaveBeenCalledTimes(1);
+			fetchApiMock.mockReset();
+		});
+
+		it('Products method', async () => {
+			const mockResponse = {
+				mappings: { core: { name: 'Test Product' } },
+				variants: { optionConfig: {}, data: [] },
+			};
+
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockResponse) } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' });
+
+			//@ts-ignore
+			const searchRequester = client.requesters.search;
+
+			const searchRequesterSpy = jest.spyOn(searchRequester, 'request' as never);
+
+			await client.products({ parentId: 'abc123' });
+
+			const productsRequest = {
+				origin: 'https://8uyt2m.a.athoscommerce.net',
+				headers: {},
+				method: 'GET',
+				path: '/v1/products/abc123',
+			};
+
+			const productsCacheKey = '{"parentId":"abc123","siteId":"8uyt2m"}';
+
+			expect(searchRequesterSpy).toHaveBeenCalledTimes(1);
+			// getProducts routes through the memory-only cache so /v1/products responses don't persist to sessionStorage.
+			expect(searchRequesterSpy).toHaveBeenCalledWith(productsRequest, productsCacheKey, searchRequester.memoryCache);
+
 			expect(fetchApiMock).toHaveBeenCalledTimes(1);
 			fetchApiMock.mockReset();
 		});

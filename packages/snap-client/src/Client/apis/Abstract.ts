@@ -27,20 +27,24 @@ export class API<PathConfigurationType> {
 	private retryCount = 0;
 
 	public cache: NetworkCache;
+	public memoryCache: NetworkCache;
 
 	constructor(public configuration: ApiConfiguration<PathConfigurationType>) {
 		this.cache = new NetworkCache(this.configuration.cache);
+		// Memory-only cache for endpoints that should never persist to sessionStorage
+		// (e.g. /v1/products — quickview lookups don't need to survive a page reload).
+		this.memoryCache = new NetworkCache({ ...this.configuration.cache, type: 'memory' });
 	}
 
 	protected get mode(): AppMode {
 		return this.configuration.mode;
 	}
 
-	protected async request<T>(context: RequestOpts, cacheKey?: string): Promise<T> {
+	protected async request<T>(context: RequestOpts, cacheKey?: string, cache: NetworkCache = this.cache): Promise<T> {
 		const { url, init } = this.createFetchParams(context);
 
 		if (cacheKey) {
-			const cachedResponse = this.cache.get(`${context.path}/${cacheKey}`) || this.cache.get(`${context.path}/*`);
+			const cachedResponse = cache.get(`${context.path}/${cacheKey}`) || cache.get(`${context.path}/*`);
 			if (cachedResponse) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
 				this.retryDelay = 1000;
@@ -52,14 +56,23 @@ export class API<PathConfigurationType> {
 
 		try {
 			response = await this.fetchApi(url, init);
+
 			responseJSON = await response?.json();
+
+			// get headers off of response (for chat API)
+			const sessionId = response.headers?.get('x-session-id');
+
+			if (sessionId) {
+				// @ts-ignore - add sessionId to response context
+				responseJSON.context = response.context || { sessionId };
+			}
 
 			if (response.status >= 200 && response.status < 300) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
 				this.retryDelay = 1000;
 				if (cacheKey) {
 					// save in the cache before returning
-					this.cache.set(`${context.path}/${cacheKey}`, responseJSON);
+					cache.set(`${context.path}/${cacheKey}`, responseJSON);
 				}
 				return responseJSON;
 			} else if (response.status == 429) {
@@ -79,20 +92,20 @@ export class API<PathConfigurationType> {
 			throw new Error('Unexpected Response Status.');
 		} catch (err: any) {
 			if (err.message == 'Rate limited.') {
-				return await this.request(context, cacheKey);
+				return await this.request(context, cacheKey, cache);
 			}
 
 			// throw an object with fetch details
-			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init } };
+			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init }, responseBody: responseJSON };
 		}
 	}
 
 	private createFetchParams(context: RequestOpts) {
 		// grab siteID out of context to generate apiHost fo URL
 		const siteId = context?.body?.siteId || context?.query?.siteId;
-		if (!siteId) {
-			throw new Error(`Request failed. Missing "siteId" parameter.`);
-		}
+		// if (!siteId && !(context.body instanceof FormData) && !(context.origin || this.configuration.origin || '').includes('ksearchnet.com')) {
+		// 	throw new Error(`Request failed. Missing "siteId" parameter.`);
+		// }
 
 		const siteIdHost = `https://${siteId}.a${context.subDomain ? `.${context.subDomain}` : ''}.athoscommerce.net`;
 		const origin = (context.origin || this.configuration.origin || siteIdHost).replace(/\/$/, '');

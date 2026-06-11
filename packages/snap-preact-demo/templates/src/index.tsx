@@ -3,6 +3,7 @@ import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
+// import { CustomResult } from './components/Result';
 
 const { siteId, clientConfig } = getDemoConfig();
 
@@ -75,10 +76,17 @@ let templatesConfig: SnapTemplatesConfig = {
 		},
 		style: globalStyles,
 		overrides: {
-			default: {},
+			default: {
+				result: {
+					discussProductIcon: { icon: 'chat' },
+				},
+			},
 		},
 	},
 	recommendation: {
+		settings: {
+			branch: 'production',
+		},
 		email: {
 			Email: {
 				component: 'RecommendationEmail',
@@ -102,6 +110,20 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+	},
+	chat: {
+		targets: [
+			{
+				selector: 'body',
+				component: 'Chat',
+			},
+		],
+		settings: {
+			quickview: {
+				enabled: true,
+				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+			},
+		},
 	},
 	autocomplete: {
 		targets: [
