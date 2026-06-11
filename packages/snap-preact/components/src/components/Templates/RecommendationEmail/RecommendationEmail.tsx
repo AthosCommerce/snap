@@ -40,15 +40,16 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 	const props = mergeProps('recommendationEmail', globalTheme, defaultProps, properties);
 
 	const { controller, results, resultProps, resultWidth, treePath, disableStyles, internalClassName, className } = props;
-	let resultComponent = props.resultComponent;
+	const resultComponent = props.resultComponent;
 	const snap = useSnap();
-
-	if (resultComponent && typeof resultComponent === 'string') {
-		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
-		if (resultComponentOverride) {
-			resultComponent = resultComponentOverride;
-		}
-	}
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const subProps: RecommendationEmailSubProps = {
 		result: {
@@ -78,8 +79,8 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 					style={{ display: 'block', width: resultWidth }}
 				>
 					{(() => {
-						if (resultComponent) {
-							return cloneWithProps(resultComponent, {
+						if (resolvedResultComponent) {
+							return cloneWithProps(resolvedResultComponent, {
 								controller,
 								result,
 								...resultProps,
@@ -87,6 +88,9 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 								treePath,
 							});
 						} else {
+							if (shouldWaitForNamedResultComponent) {
+								return null;
+							}
 							return (
 								<Result
 									result={result}

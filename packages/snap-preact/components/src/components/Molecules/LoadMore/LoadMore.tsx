@@ -5,16 +5,15 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import deepmerge from 'deepmerge';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Lang, useComponent, useIntersection, useLang } from '../../../hooks';
+import { Lang, useIntersection, useLang, useCustomComponentOverride } from '../../../hooks';
 import type { SearchPaginationStore } from '@athoscommerce/snap-store-mobx';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { useFuncDebounce } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<LoadMoreProps> = ({ pagination, progressIndicatorWidth, progressIndicatorSize, color, backgroundColor, theme }) => {
 	return css({
@@ -68,7 +67,6 @@ const defaultStyles: StyleScript<LoadMoreProps> = ({ pagination, progressIndicat
 
 export const LoadMore = observer((properties: LoadMoreProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<LoadMoreProps> = {
 		loadMoreText: 'Load More',
@@ -97,14 +95,12 @@ export const LoadMore = observer((properties: LoadMoreProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.loadMore || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('loadMore', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const store = pagination || controller?.store?.pagination;

@@ -15,11 +15,10 @@ import type { PaginationOptions } from 'swiper/types/modules/pagination';
 import type { NavigationOptions } from 'swiper/types/modules/navigation';
 import type { ScrollbarOptions } from 'swiper/types/modules/scrollbar';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap, ThemeComplete } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<CarouselProps> = ({ vertical, theme }) => {
 	return css({
@@ -201,7 +200,6 @@ export const defaultVerticalCarouselBreakpoints = {
 
 export const Carousel = observer((properties: CarouselProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<CarouselProps> = {
 		breakpoints: properties.vertical
@@ -258,7 +256,6 @@ export const Carousel = observer((properties: CarouselProps) => {
 		onPrevButtonClick,
 		onClick,
 		disableStyles,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -269,11 +266,10 @@ export const Carousel = observer((properties: CarouselProps) => {
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.carousel || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('carousel', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let pagination = props.pagination;
