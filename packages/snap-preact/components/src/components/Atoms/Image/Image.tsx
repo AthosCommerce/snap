@@ -4,11 +4,10 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 export const FALLBACK_IMAGE_URL = '//cdn.athoscommerce.net/snap/images/fallback.png';
 
@@ -35,7 +34,6 @@ const defaultStyles: StyleScript<ImageProps> = ({ height }) => {
 
 export function Image(properties: ImageProps) {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ImageProps> = {
@@ -46,28 +44,12 @@ export function Image(properties: ImageProps) {
 
 	const props = mergeProps('image', globalTheme, defaultProps, properties);
 
-	const {
-		alt,
-		src,
-		fallback,
-		title,
-		hoverSrc,
-		lazy,
-		onMouseOver,
-		onMouseOut,
-		onError,
-		onLoad,
-		onClick,
-		className,
-		internalClassName,
-		customComponent,
-	} = props;
+	const { alt, src, fallback, title, hoverSrc, lazy, onMouseOver, onMouseOut, onError, onLoad, onClick, className, internalClassName } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.image || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('image', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const [visibile, setVisibile] = useState(false);

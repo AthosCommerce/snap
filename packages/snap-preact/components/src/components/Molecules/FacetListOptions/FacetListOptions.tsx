@@ -4,14 +4,13 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Checkbox, CheckboxProps } from '../Checkbox/Checkbox';
 import { createHoverProps } from '../../../toolbox';
 import type { FacetValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { Radio, RadioProps } from '../Radio';
 
@@ -46,7 +45,6 @@ const defaultStyles: StyleScript<FacetListOptionsProps> = ({ horizontal, theme, 
 
 export const FacetListOptions = observer((properties: FacetListOptionsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetListOptionsProps> = {
@@ -70,14 +68,12 @@ export const FacetListOptions = observer((properties: FacetListOptionsProps) => 
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facetListOptions || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetListOptions', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let renderRadios = false;

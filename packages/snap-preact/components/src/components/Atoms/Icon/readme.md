@@ -83,6 +83,13 @@ The `path` prop can also contain an array of children svg elements to render.
 ]} />
 ```
 
+### svg
+The `svg` prop accepts a JSX SVG element and renders it directly. This is useful when you have a complete SVG that should be rendered as-is.
+
+```tsx
+<Icon svg={<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2z"/></svg>} size="70px" />
+```
+
 ### children
 Component children can be provided and will be rendered within the wrapping `svg` element.
 
@@ -117,7 +124,7 @@ The `stroke` prop specifies the icon stroke color.
 ```
 
 ### title
-The `title` prop specifies the title to render inside the svg.
+The `title` prop specifies the title to render inside the svg. (not supported when using svg prop)
 
 ```tsx
 <Icon icon='cogs' title={'Settings'} />

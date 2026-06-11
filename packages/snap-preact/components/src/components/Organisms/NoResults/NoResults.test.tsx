@@ -1,6 +1,6 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
-import { ThemeProvider } from '../../../providers';
+import { render, waitFor } from '@testing-library/preact';
+import { SnapProvider, ThemeProvider } from '../../../providers';
 import { NoResults } from '../NoResults';
 
 describe('NoResults  Component', () => {
@@ -178,6 +178,42 @@ describe('NoResults  Component', () => {
 		const element = rendered.container.querySelector('.ss__no-results');
 		expect(element).toBeInTheDocument();
 		expect(element).toHaveClass(className);
+	});
+
+	it('waits for async named noResults customComponent override and then renders it', async () => {
+		const customComponentClassName = 'async-noresults-custom-component';
+		let resolveImport: ((value: any) => void) | undefined;
+
+		const snap = {
+			templates: {
+				library: {
+					import: {
+						component: {
+							noResults: {
+								AsyncNoResults: () =>
+									new Promise((resolve) => {
+										resolveImport = resolve;
+									}),
+							},
+						},
+					},
+				},
+			},
+		} as any;
+
+		const rendered = render(
+			<SnapProvider snap={snap}>
+				<NoResults customComponent="AsyncNoResults" templates={{ recommendation: { enabled: false } }} />
+			</SnapProvider>
+		);
+
+		expect(rendered.container.querySelector('.ss__no-results')).not.toBeInTheDocument();
+
+		resolveImport!(() => <div className={customComponentClassName}>async noresults override</div>);
+
+		await waitFor(() => {
+			expect(rendered.container.querySelector(`.${customComponentClassName}`)).toBeInTheDocument();
+		});
 	});
 
 	it('renders with additional style using prop', () => {

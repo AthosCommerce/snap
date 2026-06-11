@@ -51,7 +51,7 @@ export const autocompleteSlideoutThemeComponentProps: ThemeComponent<
 	},
 	mobile: {
 		autocompleteSlideout: {
-			layout: 'mini',
+			layout: 'mobile',
 		},
 		'autocompleteSlideout recommendationGrid': {
 			columns: 2,

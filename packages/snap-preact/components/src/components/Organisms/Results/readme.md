@@ -44,6 +44,13 @@ const CustomResult = ({
 <Results results={controller.store.results} controller={controller} resultComponent={CustomResult} />
 ```
 
+### excludeBanners
+The `excludeBanners` prop specifies whether inline merchandising banners should be omitted from the rendered results.
+
+```tsx
+<Results results={controller.store.results} excludeBanners={true} />
+```
+
 ### layout
 The `layout` prop specifies if this result will be rendered in a `grid` or `list` layout.
 

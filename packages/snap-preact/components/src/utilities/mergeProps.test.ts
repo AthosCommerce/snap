@@ -1,4 +1,4 @@
-import { SlideoutProps, Theme } from '..';
+import { SlideoutProps, Theme, ResponsiveKeys } from '..';
 import { GLOBAL_THEME_NAME } from '../../../src/Templates/Stores/TargetStore';
 import { SelectProps } from '../components/Molecules/Select';
 import { sortSelectors, filterSelectors, mergeProps } from './mergeProps';
@@ -472,6 +472,47 @@ describe('mergeProps function with theme type', () => {
 			},
 			treePath: `button ${componentType}.1`,
 		});
+	});
+
+	it('passes activeBreakpoint from globalTheme to theme prop', () => {
+		const componentType = 'select';
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			activeBreakpoint: 'mobile' as ResponsiveKeys,
+			variables: {
+				breakpoints: { mobile: 540, tablet: 767, desktop: 1200 },
+				colors: { primary: '#3A23AD', secondary: '#00cee1', accent: '#4c3ce2' },
+			},
+		};
+
+		const defaultProps: Partial<SelectProps> = {};
+		const properties: Partial<SelectProps> = {};
+		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
+		expect(props.theme?.activeBreakpoint).toBe('mobile');
+	});
+
+	it('updates activeBreakpoint on theme prop when globalTheme breakpoint changes', () => {
+		const componentType = 'select';
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			activeBreakpoint: 'mobile' as ResponsiveKeys,
+			variables: {
+				breakpoints: { mobile: 540, tablet: 767, desktop: 1200 },
+				colors: { primary: '#3A23AD', secondary: '#00cee1', accent: '#4c3ce2' },
+			},
+		};
+
+		const defaultProps: Partial<SelectProps> = {};
+		const properties: Partial<SelectProps> = {};
+
+		const props1 = mergeProps(componentType, globalTheme, defaultProps, properties);
+		expect(props1.theme?.activeBreakpoint).toBe('mobile');
+
+		const globalThemeDesktop = { ...globalTheme, activeBreakpoint: 'desktop' as ResponsiveKeys };
+		const props2 = mergeProps(componentType, globalThemeDesktop, defaultProps, properties);
+		expect(props2.theme?.activeBreakpoint).toBe('desktop');
 	});
 });
 describe('sortSelectors function', () => {

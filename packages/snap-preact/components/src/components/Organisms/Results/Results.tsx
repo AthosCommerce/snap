@@ -16,7 +16,7 @@ import { Theme, useTheme, CacheProvider, withTracking, useSnap, useTreePath, The
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { SnapTemplates } from '../../../../../src';
-import { useComponent } from '../../../hooks';
+import { useComponent, useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<ResultsProps> = ({ gapSize, columns }) => {
 	return css({
@@ -95,14 +95,24 @@ export const Results = observer((properties: ResultsProps) => {
 		};
 	}
 
-	const { disableStyles, className, internalClassName, layout, theme, controller, treePath, customComponent, resultComponent } = props;
+	const { disableStyles, className, internalClassName, layout, theme, excludeBanners, controller, treePath } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.results || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const resultComponent = props.resultComponent;
+
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('results', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
+
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const subProps: ResultsSubProps = {
 		result: {
@@ -130,9 +140,9 @@ export const Results = observer((properties: ResultsProps) => {
 		},
 	};
 
-	let results = props.results;
+	let results = excludeBanners ? props.results?.filter((r) => r.type !== ContentType.BANNER) : props.results;
 	if (props?.columns && props?.rows && props.columns > 0 && props.rows > 0) {
-		results = props.results?.slice(0, props.columns * props.rows);
+		results = results?.slice(0, props.columns * props.rows);
 	}
 
 	const styling = mergeStyles<ResultsProps>({ ...props, columns: layout == ResultsLayout.list ? 1 : props.columns }, defaultStyles);
@@ -146,10 +156,13 @@ export const Results = observer((properties: ResultsProps) => {
 							case ContentType.BANNER:
 								return <InlineBanner {...subProps.inlineBanner} key={result.id} banner={result as Banner} layout={props.layout} />;
 							default:
-								if (resultComponent && controller) {
+								if (shouldWaitForNamedResultComponent) {
+									return null;
+								}
+								if (resolvedResultComponent && controller) {
 									return (
 										<ResultTracker result={result as Product} controller={controller as SearchController}>
-											{cloneWithProps(resultComponent, {
+											{cloneWithProps(resolvedResultComponent, {
 												key: (result as Product).id,
 												controller,
 												result: result as Product,
@@ -180,12 +193,13 @@ export const Results = observer((properties: ResultsProps) => {
 export type ResultsProps = {
 	breakpoints?: BreakpointsProps;
 	controller?: SearchController | AutocompleteController | RecommendationController;
-	resultComponent?: JSXComponent | JSX.Element;
+	resultComponent?: JSXComponent | JSX.Element | string;
 	results?: SearchResultStore;
 } & ResultsTemplatesLegalProps &
 	ComponentProps<ResultsProps>;
 
 export type ResultsTemplatesLegalProps = {
+	excludeBanners?: boolean;
 	columns?: number;
 	rows?: number;
 	gapSize?: string;
