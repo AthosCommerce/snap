@@ -35,6 +35,8 @@ import {
 	pluginLogger,
 	PluginLoggerConfig,
 } from '@athoscommerce/snap-platforms/common';
+
+//todo the capitalization of the plugin functions is inconsistent and should be standardized across platforms and within this library
 import {
 	pluginBackgroundFilters as PluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -42,7 +44,10 @@ import {
 	PluginMutateResultsConfig as PluginShopifyMutateResultsConfig,
 	pluginAddToCart as pluginShopifyAddToCart,
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
+	PluginMarketsPricingConfig as PluginShopifyMarketsPricingConfig,
+	pluginMarketsPricing as pluginShopifyMarketsPricing,
 } from '@athoscommerce/snap-platforms/shopify';
+
 import {
 	pluginAddToCart as pluginBigcommerceAddToCart,
 	PluginAddToCartConfig as PluginBigCommerceAddToCartConfig,
@@ -84,6 +89,7 @@ type TemplatePlugins =
 	| [typeof PluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
+	| [typeof pluginShopifyMarketsPricing, PluginShopifyMarketsPricingConfig]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
