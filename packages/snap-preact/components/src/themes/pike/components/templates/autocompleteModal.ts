@@ -29,7 +29,6 @@ const autocompleteModalStyleScript = (props: AutocompleteModalProps) => {
 
 	// autocomplete modal styles
 	const modalStyles = css({
-		...custom.styles.boxSizing('autocompleteModal', props?.treePath, props?.name),
 		'.ss__modal': {
 			'.ss__modal__content': {
 				'.ss__autocomplete-modal__inner': {
@@ -83,7 +82,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.default?.['autocompleteModal'] || {}),
 			themeStyleScript: autocompleteModalStyleScript,
-			layout: 'standard',
+			layout: 'desktop',
 			width: '90vw',
 			contentTitle: 'Product Suggestions',
 		},
@@ -138,7 +137,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		...autocompleteModalThemeComponentProps.mobile,
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.mobile?.['autocompleteModal'] || {}),
-			layout: 'mini',
+			layout: 'mobile',
 		},
 		'autocompleteModal terms': {
 			vertical: false,
@@ -160,7 +159,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		...autocompleteModalThemeComponentProps.tablet,
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.tablet?.['autocompleteModal'] || {}),
-			layout: 'standard',
+			layout: 'desktop',
 		},
 		'autocompleteModal terms': {
 			vertical: false,
@@ -198,7 +197,7 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		...autocompleteModalThemeComponentProps.desktop,
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.desktop?.['autocompleteModal'] || {}),
-			layout: 'standard',
+			layout: 'desktop',
 		},
 		'autocompleteModal terms': {
 			vertical: false,

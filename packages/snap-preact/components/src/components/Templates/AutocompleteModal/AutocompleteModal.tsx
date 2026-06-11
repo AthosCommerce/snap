@@ -7,7 +7,7 @@ import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
-import { AutocompleteLayout, AutocompleteLayoutProps } from '../../Organisms/AutocompleteLayout';
+import { AutocompleteLayout, AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps } from '../../Organisms/AutocompleteLayout';
 import { Modal, ModalProps } from '../../Molecules/Modal';
 import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
@@ -243,12 +243,14 @@ interface AutocompleteModalSubProps {
 export type AutocompleteModalProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
-} & AutocompleteModalTemplatesLegalProps &
+} & Omit<AutocompleteModalTemplatesLegalProps, 'resultComponent'> &
+	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type AutocompleteModalTemplatesLegalProps = {
+	resultComponent?: string;
 	buttonSelector?: string | Element;
 	overlayColor?: string;
 	renderInput?: boolean;
 	height?: string;
-} & AutocompleteLayoutProps;
+} & AutocompleteLayoutTemplatesLegalProps;

@@ -19,11 +19,16 @@ const dropdownStyleScript = (props: DropdownProps) => {
 	const dropdownStyles = css({
 		width: 'auto',
 		...disabled,
-		...custom.styles.boxSizing('dropdown', props?.treePath, props?.name),
+		'&.ss__dropdown--open, &.ss__dropdown__portal--open': {
+			'.ss__dropdown__content': {
+				gridTemplateRows: '1fr',
+				transition: 'grid-template-rows 200ms ease, visibility 200ms',
+			},
+		},
 		'&.ss__dropdown__portal': {
 			'.ss__dropdown__content': {
 				marginTop: `${custom.spacing.x1}px`,
-				...custom.styles.box(variables?.colors?.text),
+				...custom.styles.box(),
 				'ul, ul li': {
 					listStyle: 'none',
 				},
@@ -69,6 +74,12 @@ const dropdownStyleScript = (props: DropdownProps) => {
 			left: 0,
 			right: 0,
 			zIndex: -1,
+			display: 'grid',
+			gridTemplateRows: '0fr',
+			transition: 'grid-template-rows 100ms ease, visibility 100ms',
+			'& > *': {
+				overflow: 'hidden',
+			},
 		},
 	});
 

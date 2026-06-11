@@ -17,13 +17,13 @@ jobs:
       - name: Checkout Snap repository
         uses: actions/checkout@v4
         with:
-          ref: "main"
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Checkout snapfu-patches repository
+      - name: Checkout snapfu-library repository
         uses: actions/checkout@v4
         with:
-          repository: "searchspring/snapfu-patches"
-          path: "snapfu-patches"
+          repository: "athoscommerce/snapfu-library"
+          path: "snapfu-library"
           ref: "main"
           token: ${{ secrets.MACHINE_ACTION_WORKFLOW_PAT }}
 
@@ -40,12 +40,11 @@ jobs:
       - name: Generate ${{ matrix.framework }} patch file
         run: |
           node .github/workflows/scripts/generatePatchFile.js --version ${{ env.version }} --framework ${{ matrix.framework }}
-          mkdir -p snapfu-patches/${{ matrix.framework }}
-          mkdir -p snapfu-patches/${{ matrix.framework }}/${{ env.version }}
-          cp patch.${{ matrix.framework }}.${{ env.version }}.yml snapfu-patches/${{ matrix.framework }}/${{ env.version }}/
+          mkdir -p snapfu-library/athos/${{ matrix.framework }}/patches/${{ env.version }}
+          cp patch.${{ matrix.framework }}.${{ env.version }}.yml snapfu-library/athos/${{ matrix.framework }}/patches/${{ env.version }}/
 
       - name: Commit patch files
-        working-directory: snapfu-patches
+        working-directory: snapfu-library
         run: |
           git config --global user.name "athos-machine"
           git config --global user.email "machine@athoscommerce.com"
@@ -56,6 +55,6 @@ jobs:
 
       - name: Create PR
         run: |
-          gh pr create --title "Patch file ${{ matrix.framework }}/${{ env.version }}" --body "" --repo "https://github.com/searchspring/snapfu-patches" --base "main" --head "patch-generate-${{ matrix.framework }}-${{ env.version }}" --project "Snap" --reviewer "searchspring/snap-team"
+          gh pr create --title "Patch file ${{ matrix.framework }}/${{ env.version }}" --body "" --repo "https://github.com/athoscommerce/snapfu-library" --base "main" --head "patch-generate-${{ matrix.framework }}-${{ env.version }}" --project "Snap" --reviewer "athoscommerce/snap-team"
         env:
           GITHUB_TOKEN: ${{ secrets.MACHINE_ACTION_WORKFLOW_PAT }}

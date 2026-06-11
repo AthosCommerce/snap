@@ -5,33 +5,6 @@ export const searchCollapsibleThemeComponentProps: ThemeComponent<'searchCollaps
 	{
 		default: {
 			searchCollapsible: {
-				layoutOptions: [
-					{
-						value: 1,
-						label: '4 wide',
-						default: true,
-						icon: 'layout-grid-4',
-						overrides: {
-							components: {
-								'searchCollapsible results': {
-									columns: 4,
-								},
-							},
-						},
-					},
-					{
-						value: 2,
-						label: '3 wide',
-						icon: 'layout-grid-3',
-						overrides: {
-							components: {
-								'searchCollapsible results': {
-									columns: 3,
-								},
-							},
-						},
-					},
-				],
 				hideToggleSidebarButton: false,
 				toggleSidebarStartClosed: true,
 			},
@@ -40,18 +13,7 @@ export const searchCollapsibleThemeComponentProps: ThemeComponent<'searchCollaps
 			},
 
 			'searchCollapsible toolbar.top': {
-				layout: [
-					['banner.header'],
-					// ['_', 'searchHeader', '_'],
-					['banner.banner'],
-					['button.sidebar-toggle', 'searchHeader', '_', 'perPage', 'sortBy', 'layoutSelector'],
-				],
-			},
-
-			'searchCollapsible layoutSelector': {
-				type: 'list',
-				hideLabel: true,
-				hideOptionLabels: true,
+				layout: [['banner.header'], ['searchHeader'], ['banner.banner'], ['button.sidebar-toggle', 'paginationInfo', '_', 'perPage', 'sortBy']],
 			},
 			'searchCollapsible toolbar.middle': {
 				layout: [],
@@ -67,49 +29,22 @@ export const searchCollapsibleThemeComponentProps: ThemeComponent<'searchCollaps
 		},
 		mobile: {
 			'searchCollapsible toolbar.top': {
-				layout: [['banner.header'], ['_', 'searchHeader', '_'], ['banner.banner'], ['mobileSidebar', '_', 'paginationInfo', '_', 'layoutSelector']],
+				layout: [['banner.header'], ['searchHeader', '_']],
+			},
+			'searchCollapsible toolbar.middle': {
+				layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
 			},
 			'searchCollapsible results': {
 				columns: 2,
-			},
-
-			searchCollapsible: {
-				layoutOptions: [
-					{
-						value: 3,
-						label: '3 wide',
-						icon: 'layout-grid-3',
-						overrides: {
-							components: {
-								'searchCollapsible results': {
-									columns: 3,
-								},
-							},
-						},
-					},
-					{
-						value: 4,
-						label: '2 wide',
-						default: true,
-						icon: 'layout-grid-2',
-						overrides: {
-							components: {
-								'searchCollapsible results': {
-									columns: 2,
-								},
-							},
-						},
-					},
-				],
 			},
 		},
 
 		tablet: {
 			'searchCollapsible toolbar.top': {
-				layout: [
-					['_', 'searchHeader', '_'],
-					['mobileSidebar', '_', 'paginationInfo', '_', 'layoutSelector'],
-				],
+				layout: [['banner.header'], ['searchHeader', '_']],
+			},
+			'searchCollapsible toolbar.middle': {
+				layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
 			},
 			'searchCollapsible results': {
 				columns: 3,

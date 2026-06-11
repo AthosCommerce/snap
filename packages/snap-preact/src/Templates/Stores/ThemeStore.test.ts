@@ -22,6 +22,7 @@ const testThemeVariables: ThemeVariables = {
 
 let testTheme: ThemeComplete = {
 	name: 'test',
+	type: 'templates',
 	variables: testThemeVariables,
 	components: {},
 	responsive: {},
@@ -44,6 +45,7 @@ describe('ThemeStore', () => {
 
 		testTheme = {
 			name: 'test',
+			type: 'templates',
 			variables: testThemeVariables,
 			components: {
 				results: {
@@ -76,6 +78,7 @@ describe('ThemeStore', () => {
 			type: 'local',
 			base: {
 				name: 'empty',
+				type: 'templates',
 				variables: testThemeVariables,
 				components: {},
 				responsive: {},
@@ -146,6 +149,7 @@ describe('ThemeStore', () => {
 			type: 'local',
 			base: {
 				name: 'empty',
+				type: 'templates',
 				variables: testThemeVariables,
 				components: {},
 				responsive: {},
@@ -547,11 +551,20 @@ describe('ThemeStore', () => {
 		expect(merged.components?.results?.columns).toBe(12);
 	});
 
-	it('adds a style sheet to the page when a style is provided', async () => {
+	it('exposes a composed globalStyle on the runtime theme when styles are provided', () => {
 		const config: ThemeStoreThemeConfig = {
 			name: 'globally',
 			type: 'local',
-			base: testTheme,
+			base: {
+				...testTheme,
+				globalStyle: () => {
+					return {
+						'.ss__base-result': {
+							color: 'red',
+						},
+					};
+				},
+			},
 			overrides: {},
 			variables: {},
 			currency: {},
@@ -560,24 +573,29 @@ describe('ThemeStore', () => {
 			innerWidth: 0,
 			style: (theme) => {
 				return {
-					'.ss__result': {
+					'.ss__integration-result': {
 						fontSize: '200%',
 					},
 				};
 			},
 		};
 
-		new ThemeStore({ config, dependencies, settings });
-
-		// wait for rendering of stylesheets
-		await waitFor(() => {
-			const styleElements = document.querySelectorAll('head style')!;
-			expect(styleElements).toHaveLength(2);
-
-			expect(styleElements[0].innerHTML).toBe(`<!-- athos style injection point for "${config.name}" theme -->`);
-
-			expect(styleElements[1]).toHaveAttribute('data-emotion', 'ss-global');
+		const themeStore = new ThemeStore({ config, dependencies, settings });
+		const runtimeTheme = themeStore.theme;
+		const runtimeGlobalStyle = runtimeTheme.globalStyle?.({
+			name: runtimeTheme.name,
+			variables: runtimeTheme.variables!,
 		});
+
+		expect(runtimeGlobalStyle).toEqual({
+			'.ss__base-result': {
+				color: 'red',
+			},
+			'.ss__integration-result': {
+				fontSize: '200%',
+			},
+		});
+		expect(document.querySelectorAll('head style')).toHaveLength(0);
 	});
 
 	it('correctly merges observable variable arrays', async () => {

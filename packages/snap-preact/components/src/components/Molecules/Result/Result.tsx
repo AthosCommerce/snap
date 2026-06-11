@@ -118,7 +118,9 @@ export const Result = observer((properties: ResultProps) => {
 		discussProductIcon,
 	} = props;
 
-	if (customComponent) {
+	// Check for custom component override
+	// ignore Result custom component to prevent infinite loop since this is the default result component
+	if (customComponent && customComponent !== 'Result') {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
 		if (ComponentOverride) {
 			return <ComponentOverride {...props} />;
@@ -331,17 +333,19 @@ export const Result = observer((properties: ResultProps) => {
 
 					{cloneWithProps(detailSlot, { result, treePath })}
 
-					{!hideVariantSelections && result.variants?.selections?.length && (
+					{!hideVariantSelections && result.variants?.selections?.length ? (
 						<div className="ss__result__details__variant-selection">
 							{result.variants?.selections.map((selection) => {
-								return <VariantSelection {...subProps.variantSelection} selection={selection} />;
+								return (
+									<VariantSelection {...subProps.variantSelection} type={selection.type as VariantSelectionProps['type']} selection={selection} />
+								);
 							})}
 						</div>
-					)}
+					) : null}
 
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
-							<Button {...subProps.button} content={addToCartButtonText} {...mergedLang.addToCartButtonText.all} />
+							<Button {...subProps.button} {...mergedLang.addToCartButtonText.all} />
 						</div>
 					)}
 				</div>
@@ -389,7 +393,6 @@ export type ResultTemplatesLegalProps = {
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
-	customComponent?: string;
 	discussProductIcon?: IconProps;
 };
 

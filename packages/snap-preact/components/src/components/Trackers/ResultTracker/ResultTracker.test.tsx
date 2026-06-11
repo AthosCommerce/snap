@@ -205,6 +205,77 @@ describe('ResultTracker Component', () => {
 			impressionTrackfn.mockClear();
 		});
 
+		it('does not send impression events for bundle seed products', async () => {
+			const controller = new RecommendationController(recommendConfig, {
+				client: new MockClient(globals, {}),
+				store: new RecommendationStore(recommendConfig, services),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals, { mode: 'development' }),
+			});
+
+			const impressionTrackfn = jest.spyOn(controller.track.product, 'impression');
+
+			await controller.search();
+
+			const seedResult = controller.store.results[0];
+			const nonSeedResults = controller.store.results.slice(1);
+
+			// RecommendationBundle passes track={{ impression: false }} for the seed and
+			// track={{ impression: true }} (default) for every other result in the carousel.
+			render(
+				<>
+					<ResultTracker controller={controller} result={seedResult} track={{ impression: false }}>
+						<div className="seed">seed</div>
+					</ResultTracker>
+					{nonSeedResults.map((result, idx) => (
+						<ResultTracker controller={controller} result={result} key={idx}>
+							<div className={`findMe findMe${idx}`}>
+								<div className="result">{result.mappings.core?.name}</div>
+							</div>
+						</ResultTracker>
+					))}
+				</>
+			);
+
+			// Trigger intersection for all observed elements
+			observerCallbacks.forEach((callback, element) => {
+				callback(
+					[
+						{
+							target: element,
+							isIntersecting: true,
+							intersectionRatio: 0.8,
+							boundingClientRect: element.getBoundingClientRect(),
+							intersectionRect: element.getBoundingClientRect(),
+							rootBounds: null,
+							time: Date.now(),
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				);
+			});
+
+			jest.advanceTimersByTime(1000);
+
+			await waitFor(() => {
+				// Only non-seed results should have fired impressions
+				expect(impressionTrackfn).toHaveBeenCalledTimes(nonSeedResults.length);
+			});
+
+			// Seed must never have triggered an impression
+			expect(impressionTrackfn).not.toHaveBeenCalledWith(seedResult);
+
+			// Every non-seed result should have triggered an impression
+			nonSeedResults.forEach((result) => {
+				expect(impressionTrackfn).toHaveBeenCalledWith(result);
+			});
+
+			impressionTrackfn.mockClear();
+		});
+
 		it('can use track prop to disable tracking for clicks', async () => {
 			const user = await userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 

@@ -22,7 +22,7 @@ const defaultStyles: StyleScript<PriceProps> = ({ theme }) => {
 };
 
 export function Price(properties: PriceProps) {
-	const globalTheme: Theme = useTheme();
+	const globalTheme = useTheme() as Theme;
 	const snap = useSnap();
 	const globalTreePath = useTreePath();
 

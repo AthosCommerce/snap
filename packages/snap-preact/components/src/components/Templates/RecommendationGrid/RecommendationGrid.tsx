@@ -8,13 +8,14 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { useState } from 'react';
 import { useRef } from 'preact/hooks';
-import { useIntersection } from '../../../hooks';
+import { useComponent, useIntersection } from '../../../hooks';
+import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationGridProps> = ({ gapSize, columns }) => {
 	return css({
@@ -54,7 +55,7 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 
 	let props = mergeProps('recommendationGrid', globalTheme, defaultProps, _properties);
 
-	if (!properties.theme?.name) {
+	if (!((properties.theme as ThemeComplete)?.type == 'templates' || (globalTheme as ThemeComplete)?.type == 'templates')) {
 		// breakpoint settings are calculated in ThemeStore for snap templates
 		const displaySettings = useDisplaySettings(props?.breakpoints || {});
 		const theme = deepmerge(props?.theme || {}, displaySettings?.theme || {}, { arrayMerge: (destinationArray, sourceArray) => sourceArray });
@@ -65,7 +66,16 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 		};
 	}
 
-	const { disableStyles, title, resultComponent, trim, lazyRender, className, internalClassName, treePath, theme, controller } = props;
+	const { disableStyles, title, trim, lazyRender, className, internalClassName, treePath, theme, controller } = props;
+	let resultComponent = props.resultComponent;
+	const snap = useSnap();
+
+	if (resultComponent && typeof resultComponent === 'string') {
+		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
+		if (resultComponentOverride) {
+			resultComponent = resultComponentOverride;
+		}
+	}
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -170,10 +180,11 @@ export type RecommendationGridProps = {
 	breakpoints?: BreakpointsProps;
 	resultComponent?: JSXComponent | JSX.Element;
 	results?: Product[];
-} & RecommendationGridTemplatesLegalProps &
+} & Omit<RecommendationGridTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationGridTemplatesLegalProps = {
+	resultComponent?: string;
 	title?: string;
 	columns?: number;
 	rows?: number;

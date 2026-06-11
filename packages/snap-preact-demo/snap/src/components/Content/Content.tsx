@@ -17,7 +17,7 @@ const demoTheme = {
 		...defaultTheme.components,
 		result: {
 			...defaultTheme.components?.result,
-			discussProductIcon: { icon: 'chat' },
+			discussProductIcon: { icon: 'chat' as const },
 		},
 	},
 };

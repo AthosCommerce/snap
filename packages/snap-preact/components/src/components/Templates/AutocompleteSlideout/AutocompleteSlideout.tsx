@@ -7,7 +7,7 @@ import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
-import { AutocompleteLayout, AutocompleteLayoutProps } from '../../Organisms/AutocompleteLayout';
+import { AutocompleteLayout, AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps } from '../../Organisms/AutocompleteLayout';
 import { SlideDirectionType, Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
@@ -197,12 +197,14 @@ interface AutocompleteSlideoutSubProps {
 export type AutocompleteSlideoutProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
-} & AutocompleteSlideoutTemplatesLegalProps &
+} & Omit<AutocompleteSlideoutTemplatesLegalProps, 'resultComponent'> &
+	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type AutocompleteSlideoutTemplatesLegalProps = {
+	resultComponent?: string;
 	overlayColor?: string;
 	slideDirection?: SlideDirectionType;
 	buttonSelector?: string | Element;
 	renderInput?: boolean;
-} & AutocompleteLayoutProps;
+} & AutocompleteLayoutTemplatesLegalProps;

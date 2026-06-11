@@ -278,8 +278,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 
 				{!usePortal
 					? (content || children) && contentElement
-					: dropdownOpen &&
-					  (content || children) &&
+					: (content || children) &&
 					  createPortal(
 							<div
 								className={classnames('ss__dropdown__portal', className, internalClassName, {
@@ -293,6 +292,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 									...(flipX ? { right: flipRight } : { left: coords.left, width: coords.width }),
 									zIndex: 9999,
 									...(dropUp ? { transform: 'translateY(-100%)' } : {}),
+									pointerEvents: dropdownOpen ? 'auto' : 'none',
 								}}
 							>
 								{contentElement}

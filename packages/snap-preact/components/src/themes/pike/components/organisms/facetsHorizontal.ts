@@ -16,7 +16,6 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 	// facets horizontal styles
 	const facetsHorizontalStyles = css({
 		margin: 0,
-		...custom.styles.boxSizing('facetsHorizontal', props?.treePath, props?.name),
 		'.ss__facets-horizontal__header': {
 			gap: `${custom.spacing.x2}px`,
 			position: 'relative',
@@ -49,7 +48,7 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 					},
 				},
 				'.ss__dropdown__button, .ss__dropdown__content': {
-					...custom.styles.box(variables?.colors?.text, `0 ${custom.spacing.x2}px`),
+					...custom.styles.box(undefined, `0 ${custom.spacing.x2}px`),
 				},
 				'.ss__dropdown__button': {
 					height: `${dropdownButtonHeight}px`,

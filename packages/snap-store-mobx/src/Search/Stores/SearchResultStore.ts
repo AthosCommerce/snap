@@ -454,11 +454,12 @@ export class Variants {
 					return variant;
 				})
 				.map((variant) => {
-					Object.keys(variant.options).forEach((variantOption) => {
-						if (!options.includes(variantOption)) {
-							options.push(variantOption);
-						}
-					});
+					variant.options &&
+						Object.keys(variant.options).forEach((variantOption) => {
+							if (!options.includes(variantOption)) {
+								options.push(variantOption);
+							}
+						});
 
 					return new Variant({
 						data: { variant },
@@ -506,7 +507,7 @@ export class Variants {
 			}
 		} catch (err) {
 			// failed to parse the variant JSON
-			console.error(err, `Invalid variant JSON for: ${variantData}`);
+			console.error(err, 'Failed to update variants!');
 		}
 	}
 

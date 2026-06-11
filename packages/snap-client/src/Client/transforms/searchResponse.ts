@@ -16,7 +16,6 @@ import {
 	SearchResponseModelFilterTypeEnum,
 	SearchResponseModelFacet,
 	SearchResponseModelFacetValueAllOfValues,
-	SearchResponseModelFacetRangeBucketsAllOfValues,
 	SearchResponseModelSorting,
 	SearchResponseModelSortingDirectionEnum,
 	SearchResponseModelSearch,
@@ -370,11 +369,11 @@ transformSearchResponse.facets = (
 				});
 			} else if (facet.values[0].type == 'range') {
 				transformedFacet.type = 'range-buckets';
-				transformedFacet.values = facet.values.map((value): SearchResponseModelFacetRangeBucketsAllOfValues => {
+				transformedFacet.values = facet.values.map((value) => {
 					return {
 						filtered: value.active,
-						low: value.low == '*' ? undefined : value.low != null ? +value.low : undefined,
-						high: value.high == '*' ? undefined : value.high != null ? +value.high : undefined,
+						low: value.low == '*' ? null : value.low != null ? +value.low : null,
+						high: value.high == '*' ? null : value.high != null ? +value.high : null,
 						label: value.label,
 						count: value.count,
 					};

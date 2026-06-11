@@ -11,19 +11,18 @@ const darkSelector = `&.${swatchesSelector}--dark, &:has(.${swatchesSelector}__i
 const imageSelector = '&:has(.ss__image)';
 const urlSelector = '&[style*="url"]';
 const styleSelector = '&[style], &:has(.ss__image)';
-const activeColors = custom.utils.activeColors();
-const activeColor = activeColors[0];
-const fontColor = activeColors[1];
 
 // CSS in JS style script for the Swatches component
 const swatchesStyleScript = (props: SwatchesProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
 
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColor = activeColors[0];
+	const fontColor = activeColors[1];
+
 	// shared styles
-	const sharedStyles = css({
-		...custom.styles.boxSizing('swatches', props?.treePath, props?.name),
-	});
+	const sharedStyles = css({});
 
 	// swatches carousel styles
 	const swatchesCarouselStyles = css([
@@ -54,7 +53,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 									position: 'relative',
 									width: '100%',
 									height: '100%',
-									...custom.styles.box(variables?.colors?.text, `${custom.spacing.x1}px`),
+									...custom.styles.box(undefined, `${custom.spacing.x1}px`),
 									'&, .ss__swatches__slideshow__swatch__value': {
 										overflow: 'hidden',
 									},
@@ -160,7 +159,6 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 										[styleSelector]: {
 											border: 0,
 											backgroundColor: 'transparent',
-											color: variables?.colors?.text,
 											'&:before': {
 												opacity: 1,
 											},

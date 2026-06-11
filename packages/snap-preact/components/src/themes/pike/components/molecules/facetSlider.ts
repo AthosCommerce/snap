@@ -33,7 +33,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 	const hasTicks = props?.showTicks ? true : false;
 	const hasStickyHandles = props?.stickyHandleLabel ? true : false;
 	const trackBorderColor = props?.trackColor != custom.colors.gray01 ? custom.utils.darkenColor(props.trackColor, 0.25) : custom.colors.gray02;
-	const activeColors = custom.utils.activeColors(props?.handleColor);
+	const activeColors = custom.utils.activeColors(props?.handleColor || variables?.colors?.secondary || custom.colors.secondary);
 
 	// values font styles
 	const valuesStyles = css({
@@ -43,7 +43,6 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 
 	// shared styles
 	const sharedStyles = css({
-		...custom.styles.boxSizing('facetSlider', props?.treePath, props?.name),
 		'&, .ss__facet-slider__slider': {
 			margin: 'auto',
 		},
@@ -79,10 +78,12 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 				border: `1px solid ${trackBorderColor}`,
 				...custom.styles.borderRadius(slider.bar),
 			},
-			'.ss__facet-slider__rail': {},
+			'.ss__facet-slider__rail': {
+				...custom.styles.borderRadius(slider.bar),
+			},
 			'.ss__facet-slider__handles': {
 				position: 'relative',
-				margin: `0 ${slider.handles / 2 - 2}px`,
+				margin: `0 ${slider.handles / 2}px`,
 				button: {
 					'.ss__facet-slider__handle': {
 						transform: 'none',
@@ -185,10 +186,7 @@ export const facetSlider: ThemeComponent<'facetSlider', FacetSliderProps, FacetS
 	default: {
 		facetSlider: {
 			themeStyleScript: facetSliderStyleScript,
-			handleColor: custom.colors.primary,
-			handleDraggingColor: custom.colors.primary,
 			trackColor: custom.colors.gray01,
-			railColor: custom.colors.secondary,
 			tickTextColor: custom.colors.text,
 			valueTextColor: custom.colors.text,
 		},

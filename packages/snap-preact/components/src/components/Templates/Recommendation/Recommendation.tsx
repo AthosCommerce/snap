@@ -13,13 +13,14 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Carousel, CarouselProps, defaultCarouselBreakpoints, defaultVerticalCarouselBreakpoints } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { useIntersection } from '../../../hooks';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { useComponent, useIntersection } from '../../../hooks';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
 import { Lang, useLang } from '../../../hooks';
 import { ResultTracker } from '../../Trackers/ResultTracker';
+import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationProps> = ({ vertical }) => {
 	return css({
@@ -33,7 +34,6 @@ const defaultStyles: StyleScript<RecommendationProps> = ({ vertical }) => {
 export const Recommendation = observer((properties: RecommendationProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
-
 	const defaultProps: Partial<RecommendationProps> = {
 		breakpoints: properties.vertical
 			? JSON.parse(JSON.stringify(defaultVerticalCarouselBreakpoints))
@@ -55,7 +55,7 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 	let displaySettings;
 
 	//no breakpoint props allowed in templates
-	if (!(properties.theme?.name || globalTheme.name) && props.breakpoints) {
+	if (!((properties.theme as ThemeComplete)?.type == 'templates' || (globalTheme as ThemeComplete)?.type == 'templates') && props.breakpoints) {
 		// breakpoint settings are calculated in ThemeStore for snap templates
 
 		displaySettings = useDisplaySettings(props.breakpoints);
@@ -80,7 +80,6 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 		nextButton,
 		prevButton,
 		hideButtons,
-		resultComponent,
 		disableStyles,
 		className,
 		internalClassName,
@@ -93,6 +92,9 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 		treePath,
 		...additionalProps
 	} = props;
+
+	let resultComponent = props.resultComponent;
+	const snap = useSnap();
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -111,6 +113,13 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 			`<Recommendation> Component received invalid number of children. Must match length of 'results' prop or 'controller.store.results'`
 		);
 		return null;
+	}
+
+	if (resultComponent && typeof resultComponent === 'string') {
+		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
+		if (resultComponentOverride) {
+			resultComponent = resultComponentOverride;
+		}
 	}
 
 	const subProps: RecommendationSubProps = {
@@ -231,10 +240,11 @@ export type RecommendationProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	lang?: Partial<RecommendationLang>;
 	breakpoints?: BreakpointsProps;
-} & RecommendationTemplatesLegalProps &
+} & Omit<RecommendationTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationTemplatesLegalProps = {
+	resultComponent?: string;
 	title?: JSX.Element | string;
 	description?: string;
 	hideTitle?: boolean;

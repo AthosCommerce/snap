@@ -44,7 +44,7 @@ export const autocompleteFixedThemeComponentProps: ThemeComponent<'autocompleteF
 		},
 		mobile: {
 			autocompleteFixed: {
-				layout: 'mini',
+				layout: 'mobile',
 			},
 			'autocompleteFixed results': {
 				columns: 2,

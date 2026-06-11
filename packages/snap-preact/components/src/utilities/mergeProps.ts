@@ -1,5 +1,5 @@
 import type { ComponentProps } from '../types';
-import type { Theme, ThemeComponents } from '../providers';
+import type { Theme, ThemeComplete, ThemeComponents } from '../providers';
 
 // Symbol to track prop-value pairs that originated from theme configuration
 const THEME_PROPS_MAP_SYMBOL = Symbol.for('__themePropsMap__');
@@ -42,7 +42,7 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 		...defaultProps,
 	};
 
-	if (!globalTheme?.name) {
+	if ((globalTheme as ThemeComplete)?.type !== 'templates') {
 		// add globalTheme props if they exist
 		const globalComponent = globalTheme?.components && globalTheme.components[componentType as keyof typeof globalTheme.components];
 
@@ -69,7 +69,7 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			...props,
 		};
 
-		treePath += componentName?.match(/^[A-Z,a-z,-]+$/) ? `.${componentName}` : '';
+		treePath += componentName?.match(/^[A-Za-z0-9-]+$/) ? `.${componentName}` : '';
 
 		// component props from the theme
 		// add globalTheme props for components with selector matches if they exist
@@ -159,12 +159,13 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			}
 		});
 
-		// tacking on name and variables to `theme`
+		// tacking on name, variables, and activeBreakpoint to `theme`
 		mergedProps = {
 			...mergedProps,
 			theme: {
 				...mergedProps.theme,
 				name: globalTheme.name,
+				...(globalTheme.activeBreakpoint ? { activeBreakpoint: globalTheme.activeBreakpoint } : {}),
 			},
 			treePath,
 		};
