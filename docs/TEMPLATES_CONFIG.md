@@ -183,6 +183,11 @@ new SnapTemplates({
 ### Registering additional components
 Snap Templates was built to intentionally not support custom Preact components composing the search experience and layouts. Snap Templates supports customization of the Result component and support for custom badge components. Custom result and badge components must first be registered via `config.components` before they can be applied to a feature target. Component registration can be defined as synchronously or asynchronously function imports.
 
+`resultComponent` and `customComponent` do not resolve names the same way:
+
+- `resultComponent` accepts built-in result component names (`Result`, `OverlayResult`) and any names registered in `components.result`.
+- `customComponent` requires explicit component registration in `components` for the component section being overridden. Built-in fallback names are not used for `customComponent`.
+
 
 
 | Configuration Option | Description | Type | Default |
@@ -237,9 +242,6 @@ Each target across all features contains the following common properties:
 
 `component` - The template component name to render in the target selector
 
-`resultComponent` - The result component name that will be rendered within the target template component if that template utilizes a result component. Components from the library as well as any components registered via the config can be utilized here.
-
-
 #### Search
 
 In addition to the common target properties, the following properties apply to the search target(s):
@@ -254,7 +256,6 @@ In addition to the common target properties, the following properties apply to t
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
 | `search.targets[].component` | Component to use for search | String | Required |
-| `search.targets[].resultComponent` | Custom result component | String | 'Result' |
 
 #### Autocomplete
 
@@ -274,7 +275,6 @@ In addition to the common target properties, the following properties apply to t
 | `autocomplete.targets[].inputSelector` | DOM selector for the autocomplete `<input>` element | String | Required |
 | `autocomplete.targets[].selector` | DOM selector where the component injects; defaults to `inputSelector` | String | ➖ |
 | `autocomplete.targets[].component` | Component to use for autocomplete | String | 'AutocompleteFixed' |
-| `autocomplete.targets[].resultComponent` | Custom result component for autocomplete | String | 'Result' |
 
 #### Recommendation
 In addition to the defining recommendation targets, the recommendation configuration also contains the following following properties:
@@ -304,7 +304,6 @@ Standard product recommendation typically rendered in a carousel
 | `recommendation.default` | Default recommendation configurations | Object | ➖ |
 | `recommendation.default[profileComponentName]` | Configuration for a specific default recommendation profile | Object | ➖ |
 | `recommendation.default[profileComponentName].component` | Component to use for default recommendation | String | 'Recommendation' |
-| `recommendation.default[profileComponentName].resultComponent` | Custom result component for default recommendation | String | 'Result' |
 
 
 #### Bundle Recommendations
@@ -316,16 +315,14 @@ Product recommendations that require and include a seed product sku.
 | `recommendation.bundle` | Bundle recommendation configurations | Object | ➖ |
 | `recommendation.bundle[profileComponentName]` | Configuration for a specific bundle recommendation profile | Object | ➖ |
 | `recommendation.bundle[profileComponentName].component` | Component to use for bundle recommendation | String | 'RecommendationBundle' |
-| `recommendation.bundle[profileComponentName].resultComponent` | Custom result component for bundle recommendation | String | 'Result' |
 
 
 #### Email Recommendations
 
-Product recommendations for external email campaigns. Email recommendations are not directly rendered via Snap on a storefront or within emails. Instead, email campaigns provide product recommendations by displaying images. Athos' email image generation service utilizes the `resultComponent` from the Snap integration to create email recommendations.
+Product recommendations for external email campaigns. Email recommendations are not directly rendered via Snap on a storefront or within emails. Instead, email campaigns provide product recommendations by displaying images.
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `recommendation.email` | Email recommendation configurations | Object | ➖ |
 | `recommendation.email[profileComponentName]` | Configuration for a specific email recommendation profile | Object | ➖ |
 | `recommendation.email[profileComponentName].component` | Component to use for email recommendation | String | 'RecommendationEmail' |
-| `recommendation.email[profileComponentName].resultComponent` | Custom result component for email recommendation | String | 'Result' |

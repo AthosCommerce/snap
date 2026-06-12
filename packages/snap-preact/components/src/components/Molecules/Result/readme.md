@@ -4,6 +4,10 @@ Renders a single product card.
 
 ## Sub-components
 - Badge
+- CalloutBadge
+- Rating
+- Button
+- VariantSelection
 - Price
 - Image
 
@@ -70,7 +74,7 @@ const clickFunc = (e, result) => {
 	console.log('added!', e, result);
 }
 
-<Result result={controller.store.results[0]} onAddToCartClick={() => clickFunc} />
+<Result result={controller.store.results[0]} onAddToCartClick={clickFunc} />
 ```
 
 ### hideVariantSelections
@@ -120,7 +124,7 @@ const productDetails = (props) => {
 ```
 
 ```tsx
-<Result result={controller.store.results[0]} detailSlot={<productDetails product={controller.store.results[0]/>} />
+<Result result={controller.store.results[0]} detailSlot={<ProductDetails product={controller.store.results[0]} />} />
 ```
 
 ### fallback
@@ -128,13 +132,6 @@ The `fallback` prop will be passed to the `<Image />` sub-component. If the prim
 
 ```tsx
 <Result result={controller.store.results[0]} fallback={'https://www.example.com/imgs/placeholder.jpg'} />
-```
-
-### width
-The `width` prop sets the width of this Result.
-
-```tsx
-<Result result={controller.store.results[0]} width={'25%'} />
 ```
 
 ### layout
@@ -148,5 +145,5 @@ The `layout` prop specifies if this Result will be contained in a `grid` or `lis
 The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to allow you truncate the product title at a certain character length, and optionally append an additional string such as "..."
 
 ```tsx
-<Result result={controller.store.results[0]} truncateTitle={ limit: 5, append: '...' } />
+<Result result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
 ```

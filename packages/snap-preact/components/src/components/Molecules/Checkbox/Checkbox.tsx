@@ -7,11 +7,10 @@ import { observer } from 'mobx-react-lite';
 
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { useA11y } from '../../../hooks/useA11y';
-import { Lang, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<CheckboxProps> = ({ size, color, theme, native }) => {
@@ -41,7 +40,6 @@ const defaultStyles: StyleScript<CheckboxProps> = ({ size, color, theme, native 
 
 export const Checkbox = observer((properties: CheckboxProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<CheckboxProps> = {
@@ -70,7 +68,6 @@ export const Checkbox = observer((properties: CheckboxProps) => {
 		theme,
 		treePath,
 		lang,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -78,11 +75,10 @@ export const Checkbox = observer((properties: CheckboxProps) => {
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.checkbox || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('checkbox', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const pixelSize = isNaN(Number(size)) ? size : `${size}px`;

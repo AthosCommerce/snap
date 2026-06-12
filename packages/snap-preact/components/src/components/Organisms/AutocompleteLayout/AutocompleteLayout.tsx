@@ -400,6 +400,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		results: {
 			columns: 3,
 			rows: 2,
+			excludeBanners,
 			// default props
 			internalClassName: 'ss__autocomplete__results',
 			resultComponent: resultComponent,
@@ -817,12 +818,12 @@ export type AutocompleteLayoutProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
-} & AutocompleteLayoutTemplatesLegalProps &
+} & Omit<AutocompleteLayoutTemplatesLegalProps, 'resultComponent'> &
 	ComponentProps<AutocompleteLayoutProps>;
 
 export type AutocompleteLayoutTemplatesLegalProps = {
+	resultComponent?: string;
 	layout?: ModuleNamesWithColumns[] | PrebuiltLayouts;
-
 	column1?: Column;
 	column2?: Column;
 	column3?: Column;

@@ -6,10 +6,9 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
-import { useComponent, useMediaQuery } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useMediaQuery, useCustomComponentOverride } from '../../../hooks';
 import { Overlay, OverlayProps } from '../../Atoms/Overlay';
 
 const defaultStyles: StyleScript<SlideoutProps> = ({ slideDirection, transitionSpeed, width }) => {
@@ -41,7 +40,6 @@ const defaultStyles: StyleScript<SlideoutProps> = ({ slideDirection, transitionS
 
 export const Slideout = observer((properties: SlideoutProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<SlideoutProps> = {
@@ -71,14 +69,12 @@ export const Slideout = observer((properties: SlideoutProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.slideout || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('slideout', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: SlideoutSubProps = {
