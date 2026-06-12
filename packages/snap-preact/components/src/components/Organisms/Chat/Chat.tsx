@@ -433,6 +433,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 				<div className="ss__chat__history__header__buttons">
 					<Button
 						content="clear"
+						disabled={store.loading || store.blocked}
 						onClick={() => {
 							controller.store.clearHistory();
 							props.toggleOpen && props.toggleOpen();
@@ -452,7 +453,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 									onClick={() => {
 										controller.store.switchChat(chat.id);
 									}}
-									disabled={chat.id === store.currentChatId}
+									disabled={chat.id === store.currentChatId || store.loading || store.blocked}
 								>
 									<div className="ss__chat__history__chat__button__text">
 										{(() => {
@@ -784,11 +785,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 										onClick={() => controller.store.createChat()}
 									/>
 									{store.chats.length > 1 && (
-										<Dropdown
-											disabled={store.chats.length == 1 && store.currentChat && store.currentChat.chat.length <= 1}
-											className="ss__chat__header__dropdown-history"
-											button={<HistoryButton />}
-										>
+										<Dropdown disabled={store.loading || store.blocked} className="ss__chat__header__dropdown-history" button={<HistoryButton />}>
 											<HistoryPopup />
 										</Dropdown>
 									)}

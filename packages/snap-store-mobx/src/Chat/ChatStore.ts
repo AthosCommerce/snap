@@ -654,7 +654,7 @@ function cloneProductForQuickview(product: Product, meta: MetaResponseModel | un
 		responseId: product.responseId,
 		mappings: JSON.parse(JSON.stringify(product.mappings || {})),
 		attributes: JSON.parse(JSON.stringify(product.attributes || {})),
-		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag })) || [],
+		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag, value: b.value })) || [],
 	};
 	return new Product({
 		config: {} as any,

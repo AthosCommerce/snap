@@ -54,7 +54,7 @@ function serializeProduct(product: any): any {
 		responseId: product.responseId,
 		mappings: product.mappings,
 		attributes: product.attributes,
-		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag })) || [],
+		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag, value: b.value })) || [],
 	};
 	if (product.variants) {
 		raw.variants = {

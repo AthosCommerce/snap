@@ -121,7 +121,6 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 				color: '#000',
 				fontWeight: 'bold',
 				fontSize: '1.2em',
-				marginTop: 'auto',
 			},
 		},
 	});

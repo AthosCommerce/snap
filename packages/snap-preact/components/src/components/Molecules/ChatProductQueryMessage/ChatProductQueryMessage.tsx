@@ -522,13 +522,27 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	// the quickview from inspiration leaves all selections empty, and the first
 	// variant click can't narrow `refineSelections` to a single variant — so the
 	// active variant (and hero image) doesn't update until a second selection is
-	// made. Pre-selecting the first available value for each selection on mount
-	// matches the carousel behavior. Single-value selections also get hidden from
+	// made. Prefer the variant whose image matches the product card image that was
+	// clicked to open the panel so the panel reflects what the user saw; fall back
+	// to the first available value. Single-value selections also get hidden from
 	// the UI (handled by `visibleSelections` below).
 	useEffect(() => {
+		const sourceCore = (sourceProduct as any)?.display?.mappings?.core || (sourceProduct as any)?.mappings?.core || {};
+		const sourceImage = sourceCore.imageUrl || sourceCore.parentImageUrl;
+		const matchedVariant = sourceImage
+			? variants?.data?.find(
+					(variant) =>
+						variant.available && (variant.mappings?.core?.imageUrl === sourceImage || variant.mappings?.core?.thumbnailImageUrl === sourceImage)
+			  )
+			: undefined;
+
 		selections.forEach((selection: VariantSelection) => {
 			if (selection.selected) return;
-			const target = selection.values.find((v) => v.available) || selection.values[0];
+			const matchedValue = matchedVariant?.options?.[selection.field]?.value;
+			const target =
+				(matchedValue != null && selection.values.find((v) => v.available && v.value == matchedValue)) ||
+				selection.values.find((v) => v.available) ||
+				selection.values[0];
 			if (target) {
 				selection.select(target.value);
 			}

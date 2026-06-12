@@ -46,6 +46,68 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
 	});
 
+	it('auto-selects the variant whose image matches the clicked product image', () => {
+		const select = jest.fn();
+		const product = {
+			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
+			variants: {
+				data: [
+					{ available: true, mappings: { core: { imageUrl: 'https://img/black.jpg' } }, options: { color: { value: 'black' } } },
+					{ available: true, mappings: { core: { imageUrl: 'https://img/brown.jpg' } }, options: { color: { value: 'brown' } } },
+				],
+				selections: [
+					{
+						field: 'color',
+						values: [
+							{ value: 'black', available: true },
+							{ value: 'brown', available: true },
+						],
+						selected: undefined,
+						select,
+					},
+				],
+			},
+		};
+		render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { mappings: { core: { imageUrl: 'https://img/brown.jpg' } } } } as any}
+				controller={makeController(product)}
+			/>
+		);
+		expect(select).toHaveBeenCalledWith('brown');
+	});
+
+	it('falls back to the first available value when no variant image matches', () => {
+		const select = jest.fn();
+		const product = {
+			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
+			variants: {
+				data: [
+					{ available: false, mappings: { core: { imageUrl: 'https://img/black.jpg' } }, options: { color: { value: 'black' } } },
+					{ available: true, mappings: { core: { imageUrl: 'https://img/brown.jpg' } }, options: { color: { value: 'brown' } } },
+				],
+				selections: [
+					{
+						field: 'color',
+						values: [
+							{ value: 'black', available: false },
+							{ value: 'brown', available: true },
+						],
+						selected: undefined,
+						select,
+					},
+				],
+			},
+		};
+		render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { mappings: { core: { imageUrl: 'https://img/other.jpg' } } } } as any}
+				controller={makeController(product)}
+			/>
+		);
+		expect(select).toHaveBeenCalledWith('brown');
+	});
+
 	it('renders variant swatches with radio semantics', () => {
 		const product = {
 			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
