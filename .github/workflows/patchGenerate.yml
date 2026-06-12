@@ -55,6 +55,6 @@ jobs:
 
       - name: Create PR
         run: |
-          gh pr create --title "Patch file ${{ matrix.framework }}/${{ env.version }}" --body "" --repo "https://github.com/athoscommerce/snapfu-library" --base "main" --head "patch-generate-${{ matrix.framework }}-${{ env.version }}" --project "Snap" --reviewer "athoscommerce/snap-team"
+          gh pr create --title "Patch file ${{ matrix.framework }}/${{ env.version }}" --body "" --repo "https://github.com/athoscommerce/snapfu-library" --base "main" --head "patch-generate-${{ matrix.framework }}-${{ env.version }}" --reviewer "athoscommerce/snap-team"
         env:
           GITHUB_TOKEN: ${{ secrets.MACHINE_ACTION_WORKFLOW_PAT }}
