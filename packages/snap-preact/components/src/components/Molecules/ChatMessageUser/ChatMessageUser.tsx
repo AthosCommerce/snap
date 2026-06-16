@@ -153,7 +153,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 
 	const props = mergeProps('chatMessageUser', globalTheme, defaultProps, properties);
 
-	const { controller, chatItem, onProductQuickView, disableStyles, className, internalClassName, treePath } = props;
+	const { controller, chatItem, onProductQuickView, hideMessageTypeIndicatorText, disableStyles, className, internalClassName, treePath } = props;
 	const { store } = controller;
 
 	const subProps: ChatMessageUserSubProps = {
@@ -177,7 +177,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 		const chat = store.currentChat?.chat;
 		const existingQuery = chat?.find((m: any) => m.messageType === 'productQuery' && m.sourceProduct?.id === attachment.productId) as any;
 		if (existingQuery) {
-			store.currentChat?.setActiveMessage(existingQuery.id);
+			controller.reopenProductQuery(existingQuery);
 			onProductQuickView?.(existingQuery.sourceProduct);
 			return;
 		}
@@ -287,7 +287,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 						</ul>
 					)}
 					<div className="ss__chat-message-user__text-wrapper">
-						{requestTypeLabel ? <div className="ss__chat-message-user__request-type">{requestTypeLabel}</div> : null}
+						{requestTypeLabel && !hideMessageTypeIndicatorText ? <div className="ss__chat-message-user__request-type">{requestTypeLabel}</div> : null}
 						{chatItem.text ? <div className="ss__chat-message-user__text">{chatItem.text}</div> : null}
 					</div>
 				</div>
@@ -311,4 +311,5 @@ export type ChatMessageUserProps = {
 export type ChatMessageUserTemplatesLegalProps = {
 	primaryColor?: string;
 	primaryColorText?: string;
+	hideMessageTypeIndicatorText?: boolean;
 };

@@ -11,7 +11,7 @@ The current text value of the chat input field.
 Boolean (inherited from `AbstractStore`) indicating whether a chat request is currently in progress.
 
 ## `chatEnabled` property
-Boolean (or `null` before the status check completes) indicating whether chat is enabled for the current site. This is determined by the chat status endpoint, with the response cached in localStorage for 12 hours.
+Boolean (or `null` before the status check completes) indicating whether chat is enabled for the current site. This is determined by the chat status endpoint, with the response cached in sessionStorage for 10 minutes (so the status is rechecked both after expiry and whenever a new browser session starts).
 
 ## `initChatLoading` property
 Boolean indicating whether the initial chat session creation (`chatInit` API call) is in progress.
@@ -146,7 +146,7 @@ Snapshots the current facet labels and forwards the outgoing chat request to the
 Updates the store with a chat API response. Hydrates results into `Product`/`SearchResultStore` instances, refreshes `meta`, and appends the assistant message(s) to the current session's conversation history.
 
 ### `handleChatStatusResponse(response)`
-Processes the chat status response. Sets `chatEnabled`, `suggestedQuestions`, `welcomeMessage`, and `features`, and persists the response (with a timestamp) to localStorage so it can be reused for 12 hours. Returns a boolean indicating whether chat is enabled.
+Processes the chat status response. Sets `chatEnabled`, `suggestedQuestions`, `welcomeMessage`, and `features`, and persists the response (with a timestamp) to sessionStorage so it can be reused for 10 minutes. Returns a boolean indicating whether chat is enabled.
 
 ## ChatSessionStore
 
@@ -164,9 +164,7 @@ Each chat session is represented by a `ChatSessionStore` instance, accessible vi
 | `dismissedSideChatMessageId` | Id of a message whose side-chat panel the user has explicitly dismissed |
 | `attachments` | `ChatAttachmentStore` managing image, product, and facet attachments |
 | `comparisons` | `ChatCompareStore` managing the in-progress and committed product comparison sets |
-| `sessionFeedback` | Session-level feedback object with a `rating` of `'UP'` or `'DOWN'` |
-| `feedbackJustGiven` | Boolean flag set after feedback is submitted (drives the brief "thank you" UI) |
-| `feedbackDismissed` | Boolean flag set when the feedback prompt is dismissed |
+| `feedback` | Session feedback state: `rating` (`'UP'` / `'DOWN'` / `null`), `dismissed` (prompt dismissed), and `justGiven` (transient flag driving the brief "thank you" UI — never persisted) |
 | `sessionLimitReached` | Boolean flag set when the API rejects a request with `CS_003` |
 | `hydrated` | Boolean indicating whether stored results have been re-wrapped as `Product` / `SearchResultStore` instances |
 | `createdAt` | When the session was created — used to prune oldest stored sessions |

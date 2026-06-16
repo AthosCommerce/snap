@@ -1,9 +1,9 @@
 # ChatResultsDisplay
 
-Wraps `Carousel` + `ChatResult` to display either `chatItem.results` or `chatItem.recommendationResult[*].results` inside a chat message. Adjusts slides-per-view based on viewport width and whether the side-chat panel is currently open.
+Wraps `Slideshow` + `ChatResult` to display either `chatItem.results` or `chatItem.recommendationResult[*].results` inside a chat message. Adjusts slides-to-show based on viewport width and whether the side-chat panel is currently open.
 
 ## Sub-components
-- Carousel
+- Slideshow
 - ChatResult
 
 ## Usage

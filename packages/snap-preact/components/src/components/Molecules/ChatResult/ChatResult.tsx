@@ -24,6 +24,16 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 		border: '1px solid #e5e7eb',
 		borderRadius: '1em',
 		overflow: 'hidden',
+		// rest slightly scaled down and grow to full size on hover so the zoom
+		// reads as a subtle enlargement without ever exceeding the slide bounds
+		// (the surrounding Slideshow clips overflow), which would otherwise crop
+		// the card's border on hover
+		transform: 'scale(0.96)',
+		transition: 'transform 0.3s ease',
+
+		'&:hover': {
+			transform: 'scale(1)',
+		},
 
 		'.ss__chat-result__image': {
 			width: '100%',
@@ -205,6 +215,11 @@ export const ChatResult = withTracking(
 								}
 								aria-pressed={isInComparison}
 								onClick={() => {
+									// toggle: clicking again removes it from comparison, matching the 'x' icon in the comparison view
+									if (isInComparison) {
+										controller.store.currentChat?.comparisons.remove(result.id);
+										return;
+									}
 									controller.compareProduct(result);
 								}}
 							/>

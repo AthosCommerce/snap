@@ -19,11 +19,20 @@ const defaultStyles: StyleScript<ChatMessageTextProps> = ({ primaryColor, primar
 		display: 'flex',
 		flexDirection: 'column',
 		justifyContent: 'flex-start',
-		gap: '5px',
-		background: '#fff',
-		padding: '1em',
-		borderRadius: '1em',
-		borderBottomLeftRadius: '3px',
+		alignItems: 'flex-start',
+		gap: '8px',
+
+		'.ss__chat-message-text__bubble': {
+			alignSelf: 'stretch',
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'flex-start',
+			gap: '5px',
+			background: '#fff',
+			padding: '1em',
+			borderRadius: '1em',
+			borderBottomLeftRadius: '3px',
+		},
 
 		'.ss__chat-message-text__text-wrapper': {
 			display: 'flex',
@@ -87,6 +96,22 @@ const defaultStyles: StyleScript<ChatMessageTextProps> = ({ primaryColor, primar
 				stroke: colorPrimary,
 			},
 		},
+		'.ss__button.ss__chat-message-text__explore': {
+			alignSelf: 'flex-start',
+			color: colorPrimaryText,
+			background: colorPrimary,
+			border: `1px solid ${colorPrimary}`,
+			borderRadius: '12px',
+			cursor: 'pointer',
+			'&:not(.ss__button--disabled):hover': {
+				color: colorPrimaryText,
+				background: colorPrimary,
+			},
+			'&.ss__chat-message-text__explore--active': {
+				background: '#fff',
+				color: colorPrimary,
+			},
+		},
 		'.ss__chat-message-text__results': {
 			marginTop: '12px',
 			'.swiper-container': {
@@ -133,6 +158,7 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 		onProductQuickView,
 		showDetailsButton,
 		sideChatOpen,
+		buttonBelowMessage,
 		disableStyles,
 		className,
 		internalClassName,
@@ -162,13 +188,21 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 	const text =
 		chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || chatItem.messageForDrift || '';
 	const currentChat = controller.store.currentChat;
-	const sideChatLabels: Record<string, { open: string; close: string }> = {
-		inspirationResult: { open: 'View inspiration', close: 'Close inspiration' },
-		productComparison: { open: 'View comparison', close: 'Close comparison' },
+	const sideChatLabels: Record<string, { open: string; close: string; explore: string }> = {
+		inspirationResult: { open: 'View inspiration', close: 'Close inspiration', explore: 'Explore Inspiration Scenarios' },
+		productComparison: { open: 'View comparison', close: 'Close comparison', explore: 'Explore Comparison Data' },
 	};
 	const sideChatLabel = sideChatLabels[chatItem?.messageType as string];
 	const hasSideChatView = !!sideChatLabel && !!chatItem?.id;
 	const isSideChatActive = hasSideChatView && !!sideChatOpen && currentChat?.activeMessage?.id === chatItem.id;
+
+	const toggleSideChat = () => {
+		if (isSideChatActive) {
+			currentChat?.dismissSideChat();
+		} else {
+			currentChat?.setActiveMessage(chatItem.id);
+		}
+	};
 
 	// Show the prominent "Show Details" button when requested (e.g. mobile subsequent comparisons)
 	const shouldShowDetailsButton = showDetailsButton && chatItem?.messageType === 'productComparison' && !isSideChatActive;
@@ -176,57 +210,66 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 	return (
 		<CacheProvider>
 			<div className={classnames('ss__chat-message-text', className, internalClassName)} {...styling}>
-				{text && (
-					<div className="ss__chat-message-text__text-wrapper">
-						<div
-							className="ss__chat-message-text__text-wrapper__text"
-							dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(text) as string) }}
-						/>
-						{hasSideChatView ? (
-							<Button
-								{...subProps.sideChatButton}
-								className={classnames('ss__chat-message-text__view-side-chat', {
-									'ss__chat-message-text__view-side-chat--active': isSideChatActive,
-								})}
-								aria-label={isSideChatActive ? sideChatLabel.close : sideChatLabel.open}
-								aria-pressed={isSideChatActive}
-								icon={{
-									icon: isSideChatActive ? 'close-thin' : 'angle-right',
-									title: isSideChatActive ? sideChatLabel.close : sideChatLabel.open,
-								}}
-								onClick={() => {
-									if (isSideChatActive) {
-										currentChat?.dismissSideChat();
-									} else {
-										currentChat?.setActiveMessage(chatItem.id);
-									}
-								}}
+				<div className="ss__chat-message-text__bubble">
+					{text && (
+						<div className="ss__chat-message-text__text-wrapper">
+							<div
+								className="ss__chat-message-text__text-wrapper__text"
+								dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(text) as string) }}
 							/>
-						) : null}
-					</div>
-				)}
-				{shouldShowDetailsButton && (
+							{hasSideChatView && !buttonBelowMessage ? (
+								<Button
+									{...subProps.sideChatButton}
+									className={classnames('ss__chat-message-text__view-side-chat', {
+										'ss__chat-message-text__view-side-chat--active': isSideChatActive,
+									})}
+									aria-label={isSideChatActive ? sideChatLabel.close : sideChatLabel.open}
+									aria-pressed={isSideChatActive}
+									icon={{
+										icon: isSideChatActive ? 'close-thin' : 'angle-right',
+										title: isSideChatActive ? sideChatLabel.close : sideChatLabel.open,
+									}}
+									onClick={toggleSideChat}
+								/>
+							) : null}
+						</div>
+					)}
+					{shouldShowDetailsButton && (
+						<Button
+							{...subProps.showDetailsButton}
+							className="ss__chat-message-text__show-details"
+							aria-label="Show comparison details"
+							icon={{ icon: 'angle-right', title: 'Show Details' }}
+							onClick={() => {
+								currentChat?.setActiveMessage(chatItem.id);
+							}}
+						>
+							<>Show Details</>
+						</Button>
+					)}
+					{chatItem && (
+						<ChatResultsDisplay
+							{...subProps.resultsDisplay}
+							controller={controller}
+							chatItem={chatItem}
+							scrollToBottom={scrollToBottom}
+							onProductQuickView={onProductQuickView}
+						/>
+					)}
+				</div>
+				{hasSideChatView && buttonBelowMessage ? (
 					<Button
-						{...subProps.showDetailsButton}
-						className="ss__chat-message-text__show-details"
-						aria-label="Show comparison details"
-						icon={{ icon: 'angle-right', title: 'Show Details' }}
-						onClick={() => {
-							currentChat?.setActiveMessage(chatItem.id);
-						}}
+						{...subProps.sideChatButton}
+						className={classnames('ss__chat-message-text__explore', {
+							'ss__chat-message-text__explore--active': isSideChatActive,
+						})}
+						aria-label={isSideChatActive ? sideChatLabel.close : sideChatLabel.explore}
+						aria-pressed={isSideChatActive}
+						onClick={toggleSideChat}
 					>
-						<>Show Details</>
+						<>{isSideChatActive ? sideChatLabel.close : sideChatLabel.explore}</>
 					</Button>
-				)}
-				{chatItem && (
-					<ChatResultsDisplay
-						{...subProps.resultsDisplay}
-						controller={controller}
-						chatItem={chatItem}
-						scrollToBottom={scrollToBottom}
-						onProductQuickView={onProductQuickView}
-					/>
-				)}
+				) : null}
 			</div>
 		</CacheProvider>
 	);
@@ -245,10 +288,13 @@ export type ChatMessageTextProps = {
 	onProductQuickView?: () => void;
 	showDetailsButton?: boolean;
 	sideChatOpen?: boolean;
+	buttonBelowMessage?: boolean;
 } & ChatMessageTextTemplatesLegalProps &
 	ComponentProps<ChatMessageTextProps>;
 
 export type ChatMessageTextTemplatesLegalProps = {
 	primaryColor?: string;
 	primaryColorText?: string;
+	primaryAccentColor?: string;
+	primaryAccentColorText?: string;
 };

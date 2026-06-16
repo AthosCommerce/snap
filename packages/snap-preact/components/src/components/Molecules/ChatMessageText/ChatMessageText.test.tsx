@@ -46,6 +46,35 @@ describe('ChatMessageText Component', () => {
 		expect(rendered.container.querySelector('.ss__chat-message-text__view-side-chat')).toBeInTheDocument();
 	});
 
+	it('renders an explore button below the message instead of the icon button when buttonBelowMessage is true', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Inspiration', messageType: 'inspirationResult' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				buttonBelowMessage={true}
+			/>
+		);
+		expect(rendered.container.querySelector('.ss__chat-message-text__view-side-chat')).not.toBeInTheDocument();
+		const exploreButton = rendered.container.querySelector('.ss__chat-message-text__explore');
+		expect(exploreButton).toBeInTheDocument();
+		expect(exploreButton?.textContent).toContain('Explore Inspiration Scenarios');
+		// The button sits below the message, not inside the bubble
+		expect(exploreButton?.closest('.ss__chat-message-text__bubble')).toBeNull();
+	});
+
+	it('uses the comparison label for the explore button on productComparison messages', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Comparison', messageType: 'productComparison' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				buttonBelowMessage={true}
+			/>
+		);
+		expect(rendered.container.querySelector('.ss__chat-message-text__explore')?.textContent).toContain('Explore Comparison Data');
+	});
+
 	it('strips script tags from LLM output', () => {
 		const rendered = render(
 			<ChatMessageText

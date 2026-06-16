@@ -46,14 +46,14 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
 	});
 
-	it('auto-selects the variant whose image matches the clicked product image', () => {
+	it('auto-selects the variant whose uid matches the clicked result id', () => {
 		const select = jest.fn();
 		const product = {
 			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
 			variants: {
 				data: [
-					{ available: true, mappings: { core: { imageUrl: 'https://img/black.jpg' } }, options: { color: { value: 'black' } } },
-					{ available: true, mappings: { core: { imageUrl: 'https://img/brown.jpg' } }, options: { color: { value: 'brown' } } },
+					{ available: true, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } },
+					{ available: true, mappings: { core: { uid: 'variant-brown' } }, options: { color: { value: 'brown' } } },
 				],
 				selections: [
 					{
@@ -70,21 +70,21 @@ describe('ChatProductQueryMessage Component', () => {
 		};
 		render(
 			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { mappings: { core: { imageUrl: 'https://img/brown.jpg' } } } } as any}
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-brown' } } as any}
 				controller={makeController(product)}
 			/>
 		);
 		expect(select).toHaveBeenCalledWith('brown');
 	});
 
-	it('falls back to the first available value when no variant image matches', () => {
+	it('falls back to the first available value when no variant uid matches', () => {
 		const select = jest.fn();
 		const product = {
 			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
 			variants: {
 				data: [
-					{ available: false, mappings: { core: { imageUrl: 'https://img/black.jpg' } }, options: { color: { value: 'black' } } },
-					{ available: true, mappings: { core: { imageUrl: 'https://img/brown.jpg' } }, options: { color: { value: 'brown' } } },
+					{ available: false, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } },
+					{ available: true, mappings: { core: { uid: 'variant-brown' } }, options: { color: { value: 'brown' } } },
 				],
 				selections: [
 					{
@@ -101,7 +101,7 @@ describe('ChatProductQueryMessage Component', () => {
 		};
 		render(
 			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { mappings: { core: { imageUrl: 'https://img/other.jpg' } } } } as any}
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-unknown' } } as any}
 				controller={makeController(product)}
 			/>
 		);

@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
-import { Carousel, CarouselProps } from '../Carousel';
+import { Slideshow, SlideshowProps, SlideshowSlide } from '../Slideshow';
 import { ChatResult, ChatResultProps } from '../ChatResult';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
@@ -29,32 +29,17 @@ const defaultStyles: StyleScript<ChatResultsDisplayProps> = () => {
 	});
 };
 
-const carouselStyleScript = () => {
+const slideshowStyleScript = () => {
 	return css({
-		position: 'relative',
-
-		'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
-			position: 'absolute',
-			top: '50%',
-			transform: 'translateY(-50%)',
-			zIndex: 9,
-
-			'.ss__carousel__prev, .ss__carousel__next': {
-				background: 'rgba(255, 255, 255, 0.85)',
-				borderRadius: '50%',
-				width: '2em',
-				height: '2em',
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-			},
-		},
-		'.ss__carousel__prev-wrapper': {
-			left: 0,
-		},
-		'.ss__carousel__next-wrapper': {
-			right: 0,
+		'.ss__slideshow__navigation .ss__button': {
+			background: 'rgba(255, 255, 255, 0.85)',
+			borderRadius: '50%',
+			width: '2em',
+			height: '2em',
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+			boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
 		},
 	});
 };
@@ -79,25 +64,23 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 		currentChat?.dismissedSideChatMessageId !== activeMessage.id;
 
 	const isNarrow = typeof window !== 'undefined' && window.innerWidth < 550;
-	// only the tablet range needs the narrower carousel when the side chat is open;
+	// only the tablet range needs the narrower slideshow when the side chat is open;
 	// at >= 1200px there's room to keep 2.9 slides alongside the secondary chat
 	const isConstrained = !isNarrow && isSideChatOpen && typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth <= 1200;
-	const slidesPerView = isNarrow || isConstrained ? 1.9 : 2.9;
-	const visibleSlides = Math.ceil(slidesPerView);
+	const slidesToShow = isNarrow || isConstrained ? 1.9 : 2.9;
 
 	const subProps: ChatResultsDisplaySubProps = {
-		carousel: {
+		slideshow: {
 			disableStyles,
 			theme: props.theme,
 			treePath,
-			breakpoints: undefined,
-			slidesPerView,
-			slidesPerGroup: isNarrow || isConstrained ? 2 : 3,
+			slidesToShow,
+			slidesToMove: isNarrow || isConstrained ? 2 : 3,
 			loop: false,
-			pagination: false,
+			showPagination: false,
 			centerInsufficientSlides: false,
-			freeMode: true,
-			styleScript: carouselStyleScript,
+			overlayNavigation: true,
+			styleScript: slideshowStyleScript,
 		},
 		chatResult: {
 			disableStyles,
@@ -124,43 +107,47 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 		}
 	};
 
-	const renderCarousel = (results: Product[], key?: string | number) => (
-		<div key={key} className={classnames('ss__chat-results-display', className, internalClassName)} {...styling}>
-			<Carousel {...subProps.carousel} hideButtons={results.length <= visibleSlides}>
-				{results.map((result: Product) => (
-					<div
-						key={result.id}
-						className="ss__chat-results-display__result"
-						role="button"
-						tabIndex={0}
-						aria-label={`Open ${(result as any)?.display?.mappings?.core?.name || 'product'}`}
-						onClick={(e: any) => handleResultClick(e, result)}
-						onKeyDown={(e: any) => handleResultKeyDown(e, result)}
-					>
-						<ChatResult {...subProps.chatResult} result={result} controller={controller} scrollToBottom={scrollToBottom} />
-					</div>
-				))}
-			</Carousel>
-		</div>
-	);
+	const renderSlideshow = (results: Product[], key?: string | number) => {
+		const slides: SlideshowSlide[] = results.map((result: Product) => ({
+			content: (
+				<div
+					key={result.id}
+					className="ss__chat-results-display__result"
+					role="button"
+					tabIndex={0}
+					aria-label={`Open ${(result as any)?.display?.mappings?.core?.name || 'product'}`}
+					onClick={(e: any) => handleResultClick(e, result)}
+					onKeyDown={(e: any) => handleResultKeyDown(e, result)}
+				>
+					<ChatResult {...subProps.chatResult} result={result} controller={controller} scrollToBottom={scrollToBottom} />
+				</div>
+			),
+		}));
+
+		return (
+			<div key={key} className={classnames('ss__chat-results-display', className, internalClassName)} {...styling}>
+				<Slideshow {...subProps.slideshow} slides={slides} />
+			</div>
+		);
+	};
 
 	if (chatItem.messageType === 'productRecommendation' && chatItem.recommendationResult?.length) {
 		return (
 			<CacheProvider>
 				<>
 					{chatItem.recommendationResult.map((recommendation: any, index: number) =>
-						recommendation.results?.length > 0 ? renderCarousel(recommendation.results, index) : null
+						recommendation.results?.length > 0 ? renderSlideshow(recommendation.results, index) : null
 					)}
 				</>
 			</CacheProvider>
 		);
 	}
 
-	return chatItem.results?.length > 0 ? <CacheProvider>{renderCarousel(chatItem.results)}</CacheProvider> : null;
+	return chatItem.results?.length > 0 ? <CacheProvider>{renderSlideshow(chatItem.results)}</CacheProvider> : null;
 });
 
 interface ChatResultsDisplaySubProps {
-	carousel: Partial<CarouselProps>;
+	slideshow: Partial<SlideshowProps>;
 	chatResult: Partial<ChatResultProps>;
 }
 

@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, fireEvent } from '@testing-library/preact';
 import { ChatResult } from './ChatResult';
 
 describe('ChatResult Component', () => {
@@ -52,5 +52,33 @@ describe('ChatResult Component', () => {
 		expect(buttons).toBeInTheDocument();
 		expect(buttons?.querySelector('.ss__chat-result__image__buttons__similar')).toBeInTheDocument();
 		expect(buttons?.querySelector('.ss__chat-result__image__buttons__compare')).toBeInTheDocument();
+	});
+
+	it('adds to comparison when clicking Compare while not in comparison', () => {
+		const compareProduct = jest.fn();
+		const remove = jest.fn();
+		const controller = {
+			...mockController,
+			compareProduct,
+			store: { ...mockController.store, currentChat: { comparisons: { items: [], remove } } },
+		};
+		const rendered = render(<ChatResult result={mockResult as any} controller={controller as any} scrollToBottom={() => undefined} />);
+		fireEvent.click(rendered.container.querySelector('.ss__chat-result__image__buttons__compare')!);
+		expect(compareProduct).toHaveBeenCalledWith(mockResult);
+		expect(remove).not.toHaveBeenCalled();
+	});
+
+	it('removes from comparison when clicking Compare while already in comparison', () => {
+		const compareProduct = jest.fn();
+		const remove = jest.fn();
+		const controller = {
+			...mockController,
+			compareProduct,
+			store: { ...mockController.store, currentChat: { comparisons: { items: [{ result: mockResult }], remove } } },
+		};
+		const rendered = render(<ChatResult result={mockResult as any} controller={controller as any} scrollToBottom={() => undefined} />);
+		fireEvent.click(rendered.container.querySelector('.ss__chat-result__image__buttons__compare')!);
+		expect(remove).toHaveBeenCalledWith(mockResult.id);
+		expect(compareProduct).not.toHaveBeenCalled();
 	});
 });

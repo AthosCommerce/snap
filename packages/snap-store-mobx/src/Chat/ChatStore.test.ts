@@ -56,6 +56,19 @@ function readLocalStorage(key: string): Record<string, any> {
 	return raw ? JSON.parse(raw) : {};
 }
 
+// Chat status is cached in sessionStorage under a `-status`-suffixed key so it is
+// rechecked when a new browser session starts.
+const statusStorageKey = (siteId: string, id: string) => `ss-${siteId}-${id}-status`;
+
+function seedSessionStorage(key: string, data: Record<string, any>) {
+	window.sessionStorage.setItem(key, JSON.stringify(data));
+}
+
+function readSessionStorage(key: string): Record<string, any> {
+	const raw = window.sessionStorage.getItem(key);
+	return raw ? JSON.parse(raw) : {};
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('ChatStore — construction and storage key', () => {
@@ -144,11 +157,12 @@ describe('ChatStore — restoring chats from storage', () => {
 describe('ChatStore — chat-status caching', () => {
 	const siteId = '8uyt2m';
 	const id = 'chat';
-	const key = storageKey(siteId, id);
-	const TWELVE_HOURS = 1000 * 60 * 60 * 12;
+	const key = statusStorageKey(siteId, id);
+	const TEN_MINUTES = 1000 * 60 * 10;
 
 	beforeEach(() => {
 		window.localStorage.clear();
+		window.sessionStorage.clear();
 		jest.restoreAllMocks();
 	});
 
@@ -172,11 +186,11 @@ describe('ChatStore — chat-status caching', () => {
 		};
 	};
 
-	it('applies a stored chatStatusResponse younger than 12 hours', () => {
+	it('applies a stored chatStatusResponse younger than 10 minutes', () => {
 		const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(1000000000000);
-		// stored 1 hour ago — still valid
-		const ageMs = 1000 * 60 * 60;
-		seedLocalStorage(key, makeChatStatusPayload(ageMs));
+		// stored 5 minutes ago — still valid
+		const ageMs = 1000 * 60 * 5;
+		seedSessionStorage(key, makeChatStatusPayload(ageMs));
 
 		const store = createStore({ id, siteId });
 
@@ -186,11 +200,11 @@ describe('ChatStore — chat-status caching', () => {
 		nowSpy.mockRestore();
 	});
 
-	it('clears a stored chatStatusResponse older than 12 hours', () => {
+	it('clears a stored chatStatusResponse older than 10 minutes', () => {
 		const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(1000000000000);
-		// stored 13 hours ago — expired
-		const ageMs = TWELVE_HOURS + 1000 * 60 * 60;
-		seedLocalStorage(key, makeChatStatusPayload(ageMs));
+		// stored 11 minutes ago — expired
+		const ageMs = TEN_MINUTES + 1000 * 60;
+		seedSessionStorage(key, makeChatStatusPayload(ageMs));
 
 		const store = createStore({ id, siteId });
 
@@ -198,18 +212,52 @@ describe('ChatStore — chat-status caching', () => {
 		expect(store.chatEnabled).toBeNull();
 		expect(store.suggestedQuestions).toEqual([]);
 		// storage entry should be cleared (set to null)
-		const stored = readLocalStorage(key);
+		const stored = readSessionStorage(key);
 		expect(stored.chatStatusResponse).toBeNull();
 		nowSpy.mockRestore();
 	});
 
 	it('clears a corrupt chatStatusResponse without throwing', () => {
-		seedLocalStorage(key, { chatStatusResponse: 'not-valid-json{{{' });
+		seedSessionStorage(key, { chatStatusResponse: 'not-valid-json{{{' });
 
 		expect(() => createStore({ id, siteId })).not.toThrow();
 
-		const stored = readLocalStorage(key);
+		const stored = readSessionStorage(key);
 		expect(stored.chatStatusResponse).toBeNull();
+	});
+
+	it('rechecks status on a new session — sessionStorage empty even when a stale localStorage entry exists', () => {
+		// A new browser session has empty sessionStorage; any prior localStorage
+		// entry must be ignored so the status is rechecked.
+		seedLocalStorage(storageKey(siteId, id), makeChatStatusPayload(1000 * 60 * 5));
+
+		const store = createStore({ id, siteId });
+
+		expect(store.chatEnabled).toBeNull();
+		expect(store.suggestedQuestions).toEqual([]);
+	});
+
+	it('handleChatStatusResponse persists to sessionStorage', () => {
+		const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(1000000000000);
+		const store = createStore({ id, siteId });
+
+		store.handleChatStatusResponse({
+			chatbot: {
+				status: { enabled: true },
+				suggestedQuestions: ['What can I help you find?'],
+				welcomeMessage: 'Hello!',
+			},
+			features: {
+				imageSearch: { enabled: true },
+				similarProducts: { enabled: false },
+			},
+		} as any);
+
+		const stored = readSessionStorage(key);
+		const parsed = JSON.parse(stored.chatStatusResponse);
+		expect(parsed.checkTime).toBe(1000000000000);
+		expect(parsed.response.chatbot.status.enabled).toBe(true);
+		nowSpy.mockRestore();
 	});
 });
 

@@ -12,13 +12,16 @@ import { ChatStatusResponse } from '@athoscommerce/snap-client';
 import { Product, Variants } from '../Search/Stores/SearchResultStore';
 import { SearchFacetStore } from '../Search/Stores/SearchFacetStore';
 
-const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 60 * 12; // 12 hours
+const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
 
 export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public meta?: MetaStore = undefined;
 	public inputValue: string = '';
 	public open: boolean = false;
 	public storage: StorageStore;
+	/** Session-scoped storage for the chat status response — cleared when a new
+	 * browser session starts, so the status is rechecked on each new session. */
+	public statusStorage: StorageStore;
 	public services: StoreServices;
 	/** Detached UrlManager — holds the in-progress facet selection for the active facets display.
 	 * Detached so .go() updates state without navigating the page. */
@@ -60,24 +63,28 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			type: 'local',
 			key: storageKey,
 		});
+		this.statusStorage = new StorageStore({
+			type: 'session',
+			key: `${storageKey}-status`,
+		});
 
 		this.facets = this.buildFacetStore();
 
-		const storedChatStatusResponse = this.storage.get('chatStatusResponse');
+		const storedChatStatusResponse = this.statusStorage.get('chatStatusResponse');
 		if (storedChatStatusResponse) {
 			try {
 				const storedChatStatus = JSON.parse(storedChatStatusResponse);
 				if (storedChatStatus.checkTime && Date.now() - storedChatStatus.checkTime > CHAT_STATUS_EXPIRATION_TIME) {
 					// chat status is expired, remove from storage to trigger a new check
-					this.storage.set('chatStatusResponse', null);
+					this.statusStorage.set('chatStatusResponse', null);
 				} else {
-					// Apply the stored response without persisting, so the 12-hour
+					// Apply the stored response without persisting, so the
 					// checkTime keeps counting from the last real API call rather
 					// than resetting on every page load.
 					this.applyChatStatusResponse(storedChatStatus.response);
 				}
 			} catch {
-				this.storage.set('chatStatusResponse', null);
+				this.statusStorage.set('chatStatusResponse', null);
 			}
 		}
 
@@ -398,9 +405,9 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 	public handleChatStatusResponse(response: ChatStatusResponse): boolean {
 		const enabled = this.applyChatStatusResponse(response);
-		// Always persist on a real API response — restarts the 12-hour expiration
+		// Always persist on a real API response — restarts the 10-minute expiration
 		// so each new chat session refreshes the cache.
-		this.storage.set('chatStatusResponse', JSON.stringify({ response, checkTime: Date.now() }));
+		this.statusStorage.set('chatStatusResponse', JSON.stringify({ response, checkTime: Date.now() }));
 		return enabled;
 	}
 

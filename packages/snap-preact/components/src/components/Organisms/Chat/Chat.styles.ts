@@ -56,7 +56,7 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 
 		'.ss__chat__primary': {
 			...(mobile
-				? { width: '100%', height: '100%' }
+				? { width: '100%', height: '100%', position: 'relative', zIndex: 0 }
 				: hasSideChat
 				? { flex: '1 1 0', minWidth: 0, maxWidth: 600, height: '70vh' }
 				: { width: 600, maxWidth: 'calc(100vw - 60px)', height: '70vh' }),
@@ -419,6 +419,11 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 			},
 		},
 		'.ss__chat__session-feedback': {
+			position: 'absolute',
+			top: '10px',
+			left: '10px',
+			right: '10px',
+			zIndex: 11,
 			display: 'flex',
 			alignItems: 'center',
 			gap: '10px',
@@ -426,6 +431,8 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 			background: new Colour(colorPrimary).darkenHex(0.1),
 			color: colorPrimaryText,
 			fontSize: '14px',
+			borderRadius: '8px',
+			boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
 			'.ss__chat__session-feedback__icon': {
 				flex: '0 0 auto',
 				display: 'flex',
@@ -668,6 +675,45 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 				},
 				'.ss__chat__message': {
 					marginBottom: '30px',
+					'&.ss__chat__message--with-avatar': {
+						display: 'flex',
+						alignItems: 'flex-start',
+						gap: '10px',
+						'.ss__chat__message__content': {
+							flex: '1 1 auto',
+							minWidth: 0,
+						},
+					},
+					'.ss__chat__message__avatar': {
+						flex: '0 0 auto',
+						width: '30px',
+						height: '30px',
+						borderRadius: '50%',
+						overflow: 'hidden',
+						background: colorPrimary,
+						color: colorPrimaryText,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						fontSize: '14px',
+						fontWeight: 'bold',
+						textTransform: 'uppercase',
+						userSelect: 'none',
+						'&.ss__chat__message__avatar--image': {
+							background: 'none',
+						},
+						'.ss__image': {
+							width: '30px',
+							height: '30px',
+							margin: 0,
+							img: {
+								width: '30px',
+								height: '30px',
+								borderRadius: '50%',
+								objectFit: 'cover',
+							},
+						},
+					},
 					ul: {
 						margin: 0,
 						listStyle: 'inside',
@@ -1108,11 +1154,15 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 					display: 'flex',
 					justifyContent: 'space-between',
 					overflow: 'auto',
+					'&:has(input:disabled)': {
+						backgroundColor: '#f5f5f5',
+					},
 					'input[type="text"]': {
 						padding: '0.5em 0',
 						margin: '0 0 0 1em',
 						flex: '1 0 auto',
 						border: 'none',
+						backgroundColor: 'transparent',
 						'&::placeholder': {
 							color: '#999',
 							opacity: 0.7,
@@ -1121,10 +1171,17 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 							outline: 'none',
 							borderColor: colorPrimary,
 						},
+						'&:disabled': {
+							backgroundColor: 'transparent',
+						},
 					},
 					'.ss__button': {
 						margin: '0 0.5em 0 0',
+						backgroundColor: 'transparent',
 						'&:hover': {
+							backgroundColor: 'transparent',
+						},
+						'&:disabled': {
 							backgroundColor: 'transparent',
 						},
 					},

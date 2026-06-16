@@ -409,15 +409,15 @@ export class ChatController extends AbstractController {
 		const currentChat = this.store.currentChat;
 		if (!currentChat) return;
 
-		currentChat.sessionFeedback = { rating: thumbs };
-		currentChat.feedbackJustGiven = true;
+		currentChat.feedback.rating = thumbs;
+		currentChat.feedback.justGiven = true;
 		currentChat.save();
 
 		this.track.product.feedback(thumbs);
 
 		// auto-dismiss the feedback bar after 3 seconds
 		setTimeout(() => {
-			currentChat.feedbackDismissed = true;
+			currentChat.feedback.dismissed = true;
 			currentChat.save();
 		}, 3000);
 	};
@@ -533,6 +533,16 @@ export class ChatController extends AbstractController {
 
 		this.store.currentChat?.pushProductQueryMessage(result);
 		await this.loadProductQuickview(result);
+	};
+
+	/** Re-open an existing productQuery side-chat message (e.g. clicking the product
+	 * circle on an earlier user message). The Product Information panel renders from the
+	 * single store.productQuickview slot, which may now be stale or cleared — so set the
+	 * message active AND reload the quickview for its product. */
+	reopenProductQuery = async (message: { id: string; sourceProduct?: Product }): Promise<void> => {
+		if (!message?.sourceProduct) return;
+		this.store.currentChat?.setActiveMessage(message.id);
+		await this.loadProductQuickview(message.sourceProduct);
 	};
 
 	compareProduct = (result: Product): void => {

@@ -157,9 +157,12 @@ function serializeChatForStorage(chat: ChatMessage[]): any[] {
 	});
 }
 
-export type ChatFeedbacks = { messageId: string; rating: 'UP' | 'DOWN' };
-
-export type ChatSessionFeedback = { rating: 'UP' | 'DOWN' };
+export type ChatFeedback = {
+	rating: 'UP' | 'DOWN' | null;
+	dismissed: boolean;
+	/** Transient — set after submitting feedback to drive the brief "thank you" UI. Never persisted. */
+	justGiven: boolean;
+};
 
 export type ChatUserMessage = {
 	id: string;
@@ -198,9 +201,7 @@ type ChatSessionStoreConfig = {
 		chat?: ChatMessage[];
 		attachments?: ChatAttachmentAddAttachment[];
 		actions?: ChatActions;
-		feedbacks?: ChatFeedbacks[];
-		sessionFeedback?: ChatSessionFeedback | null;
-		feedbackDismissed?: boolean;
+		feedback?: { rating?: 'UP' | 'DOWN' | null; dismissed?: boolean };
 		createdAt?: Date;
 		sessionEndTime?: Date;
 		committedComparisons?: any[];
@@ -228,10 +229,7 @@ export class ChatSessionStore {
 	public attachments: ChatAttachmentStore = new ChatAttachmentStore();
 	public comparisons: ChatCompareStore = new ChatCompareStore();
 	public storage: StorageStore;
-	public feedbacks: ChatFeedbacks[] = [];
-	public sessionFeedback: ChatSessionFeedback | null = null;
-	public feedbackDismissed: boolean = false;
-	public feedbackJustGiven: boolean = false;
+	public feedback: ChatFeedback = { rating: null, dismissed: false, justGiven: false };
 	public createdAt: Date = new Date();
 	public sessionEndTime?: Date;
 	public requestType: string = '';
@@ -242,19 +240,7 @@ export class ChatSessionStore {
 	public hydrated: boolean = true;
 
 	constructor(params: ChatSessionStoreConfig) {
-		const {
-			id,
-			sessionId,
-			chat,
-			attachments,
-			actions,
-			feedbacks,
-			sessionFeedback,
-			feedbackDismissed,
-			createdAt,
-			sessionEndTime,
-			committedComparisons,
-		} = params.data || {};
+		const { id, sessionId, chat, attachments, actions, feedback, createdAt, sessionEndTime, committedComparisons } = params.data || {};
 		const { stores } = params;
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
@@ -262,9 +248,11 @@ export class ChatSessionStore {
 		this.actions = actions || [];
 		this.createdAt = createdAt ? new Date(createdAt) : new Date();
 		this.sessionEndTime = sessionEndTime ? new Date(sessionEndTime) : undefined;
-		this.feedbacks = feedbacks || [];
-		this.sessionFeedback = sessionFeedback || null;
-		this.feedbackDismissed = feedbackDismissed || false;
+		this.feedback = {
+			rating: feedback?.rating || null,
+			dismissed: feedback?.dismissed || false,
+			justGiven: false,
+		};
 
 		// if chat and attachments are passed, load them
 		if (chat && chat.length > 0) {
@@ -311,10 +299,7 @@ export class ChatSessionStore {
 			requestType: observable,
 			actions: observable,
 			attachments: observable,
-			feedbacks: observable,
-			sessionFeedback: observable,
-			feedbackDismissed: observable,
-			feedbackJustGiven: observable,
+			feedback: observable,
 			dismissedSideChatMessageId: observable,
 			activeMessageId: observable,
 			sessionLimitReached: observable,
@@ -462,8 +447,7 @@ export class ChatSessionStore {
 		this.attachments.reset();
 		this.chat = [];
 		this.actions = [];
-		this.feedbacks = [];
-		this.sessionFeedback = null;
+		this.feedback = { rating: null, dismissed: false, justGiven: false };
 	}
 
 	private saveTimerId: ReturnType<typeof setTimeout> | null = null;
@@ -480,9 +464,7 @@ export class ChatSessionStore {
 			chat: serializeChatForStorage(this.chat),
 			attachments: serializeAttachmentsForStorage(this.attachments.items),
 			actions: this.actions,
-			feedbacks: this.feedbacks,
-			sessionFeedback: this.sessionFeedback,
-			feedbackDismissed: this.feedbackDismissed,
+			feedback: { rating: this.feedback.rating, dismissed: this.feedback.dismissed },
 			createdAt: this.createdAt,
 			sessionEndTime: this.sessionEndTime,
 			committedComparisons: this.comparisons.committedItems,

@@ -10,7 +10,8 @@ import type { ChatController } from '@athoscommerce/snap-controller';
 // import { Lang } from '../../../hooks';
 import { ChatRequestModel, ChatResponseInspirationResultData } from '@athoscommerce/snap-client';
 import { Image } from '../../Atoms/Image';
-import { Carousel, CarouselProps } from '../../..';
+import { Icon, IconProps } from '../../Atoms/Icon';
+import { Slideshow, SlideshowProps, SlideshowSlide } from '../Slideshow';
 
 const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 	return css({
@@ -38,12 +39,14 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 					gap: '1em',
 					flexWrap: 'wrap',
 					'.ss__chat-inspiration-result-message__inspiration-sections__section__queries__query': {
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '0.5em',
 						background: '#fff',
 						border: '1px solid #E5E7EB',
 						padding: '0.25em 0.5em',
-						borderRadius: '0.5em',
+						borderRadius: '1em',
 						cursor: 'pointer',
-						textDecoration: 'underline',
 						font: 'inherit',
 						color: 'inherit',
 						'&:focus-visible': {
@@ -54,6 +57,13 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 				},
 				'.ss__chat-inspiration-result-message__inspiration-sections__section__products': {
 					'.ss__chat-inspiration-result-message__inspiration-sections__section__products__product': {
+						// rest slightly scaled down and grow to full size on hover so the zoom
+						// reads as a subtle enlargement without overflowing the slideshow bounds
+						transform: 'scale(0.96)',
+						transition: 'transform 0.3s ease',
+						'&:hover': {
+							transform: 'scale(1)',
+						},
 						'.ss__image': {
 							img: {
 								width: '80px',
@@ -84,7 +94,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 	const { chatItem, controller, onProductQuickView, disableStyles, className, internalClassName, treePath } = props;
 
 	const subProps: ChatInspirationResultMessageSubProps = {
-		Carousel: {
+		slideshow: {
 			// inherited props
 			...defined({
 				disableStyles,
@@ -93,14 +103,18 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 			theme: props?.theme,
 			treePath,
 
-			breakpoints: undefined,
-			slidesPerView: 6,
-			slidesPerGroup: 1,
+			slidesToShow: 6,
+			slidesToMove: 1,
 			loop: false,
-			hideButtons: true,
-			pagination: false,
+			showNavigation: false,
+			showPagination: false,
 			centerInsufficientSlides: false,
-			freeMode: true,
+		},
+		icon: {
+			disableStyles,
+			theme: props?.theme,
+			treePath,
+			size: '1em',
 		},
 	};
 
@@ -115,6 +129,22 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 
 	//deep merge with props.lang
 	// const lang = deepmerge(defaultLang, props.lang || {});
+
+	const handleProductClick = (e: any, product: any): void => {
+		// buttons/links should be clickable without triggering the product click
+		if (e.composedPath?.().some((el: EventTarget) => el instanceof HTMLElement && el.matches('button, .ss__button, a'))) return;
+		controller?.track.product.click(e, product);
+		controller?.productQuickView(product);
+		onProductQuickView?.();
+	};
+
+	const handleProductKeyDown = (e: any, product: any): void => {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			controller?.productQuickView(product);
+			onProductQuickView?.();
+		}
+	};
 
 	const { messageType, inspirationSections } = chatItem;
 	if (messageType !== 'inspirationResult') {
@@ -150,32 +180,36 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 											controller?.search({ data: { requestType: 'productSearch', searchTerm } } as Partial<ChatRequestModel>);
 										}}
 									>
+										<Icon {...subProps.icon} icon="search" />
 										{searchTerm}
 									</button>
 								))}
 							</div>
 							<div className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__products')}>
-								<Carousel {...subProps.Carousel}>
-									{section.products.map((product: any) => {
+								<Slideshow
+									{...subProps.slideshow}
+									slides={section.products.map((product: any): SlideshowSlide => {
 										const display = product?.display || product;
-										return (
-											<div
-												key={product.id}
-												className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__products__product')}
-											>
-												<Image
-													onClick={(e: any) => {
-														controller?.track.product.click(e, product);
-														controller?.productQuickView(product);
-														onProductQuickView?.();
-													}}
-													alt={display?.mappings?.core?.name || ''}
-													src={display?.mappings?.core?.imageUrl || display?.mappings?.core?.parentImageUrl || ''}
-												/>
-											</div>
-										);
+										return {
+											content: (
+												<div
+													key={product.id}
+													className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__products__product')}
+													role="button"
+													tabIndex={0}
+													aria-label={`Open ${display?.mappings?.core?.name || 'product'}`}
+													onClick={(e: any) => handleProductClick(e, product)}
+													onKeyDown={(e: any) => handleProductKeyDown(e, product)}
+												>
+													<Image
+														alt={display?.mappings?.core?.name || ''}
+														src={display?.mappings?.core?.imageUrl || display?.mappings?.core?.parentImageUrl || ''}
+													/>
+												</div>
+											),
+										};
 									})}
-								</Carousel>
+								/>
 							</div>
 						</div>
 					))}
@@ -186,7 +220,8 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 });
 
 interface ChatInspirationResultMessageSubProps {
-	Carousel: Partial<CarouselProps>;
+	slideshow: Partial<SlideshowProps>;
+	icon: Partial<IconProps>;
 }
 
 export type ChatInspirationResultMessageProps = {
