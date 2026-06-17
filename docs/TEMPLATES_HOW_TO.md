@@ -620,6 +620,8 @@ new SnapTemplates(config);
 ### Using the Shopify Markets Pricing Plugin
 
 The **Shopify Markets Pricing plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
+When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
+The formatter reads script context with `getContext(['format', 'iso'])`, so an optional `iso` value can prefix formatted amounts.
 
 Register the plugin in your SnapTemplates configuration:
 
@@ -644,12 +646,21 @@ const config = {
 new SnapTemplates(config);
 ```
 
-In your result component, check the `priceFetched` flag before rendering prices with the `shopifyMarketsPriceFormat` format.
+Optional script context variables used by `shopifyMarketsPriceFormat`:
+
+```html
+<script id="athos-context" src="bundle.js">
+	format = '${{amount}}';
+	iso = 'USD ';
+</script>
+```
+
+In your result component, check the `priceFetched` flag before rendering prices.
+You do not need to manually import or pass `shopifyMarketsPriceFormat` when using the snap `Price` component.
 
 ```tsx
 import { observer } from 'mobx-react-lite';
 import { Price } from '@athoscommerce/snap-preact/components';
-import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 	const core = result.display.mappings.core;
@@ -659,11 +670,13 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 		<article>
 			<h2>{core?.name}</h2>
 			{priceFetched && (
-				<Price format={shopifyMarketsPriceFormat} value={core?.price} treePath={treePath} />
+				<Price value={core?.price} treePath={treePath} />
 			)}
 		</article>
 	);
 });
 ```
+
+If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
 
 For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets Pricing plugin documentation](../../packages/snap-platforms/shopify/README.md#pluginshopifymarketspricing).

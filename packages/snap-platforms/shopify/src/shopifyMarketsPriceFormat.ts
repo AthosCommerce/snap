@@ -1,7 +1,7 @@
 import { getContext } from '@athoscommerce/snap-toolbox';
 
 export const shopifyMarketsPriceFormat = (number: number | string) => {
-	const context = getContext(['format']);
+	const context = getContext(['format', 'iso']);
 	const currencyFormat: string = context?.format || '${{amount}}';
 
 	// ensure number is a number
@@ -41,6 +41,10 @@ export const shopifyMarketsPriceFormat = (number: number | string) => {
 		case 'amount_with_apostrophe_separator':
 			value = formatWithDelimiters(number, 2, "'", '.');
 			break;
+	}
+
+	if (value && context?.iso) {
+		value = `${context.iso}${value}`;
 	}
 
 	return currencyFormat.replace(formatRegex, value);

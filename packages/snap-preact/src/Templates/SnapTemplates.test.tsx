@@ -1,5 +1,6 @@
 import { version } from '@athoscommerce/snap-toolbox';
 import {
+	applyAutomaticThemeOverrides,
 	createAutocompleteTargeters,
 	createPlugins,
 	createSnapConfig,
@@ -9,6 +10,7 @@ import {
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
+import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 describe('createPlugins with custom plugins', () => {
 	const baseConfigValues = {
@@ -425,6 +427,66 @@ describe('createSnapConfig with custom plugins', () => {
 		const plugins = recsConfig?.config?.plugins || [];
 		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
 		expect(customPluginEntry).toBeDefined();
+	});
+});
+
+describe('applyAutomaticThemeOverrides', () => {
+	it('adds shopify markets price formatter when marketsPricing plugin is configured', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'shopify',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			plugins: {
+				shopify: {
+					marketsPricing: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const resolved = applyAutomaticThemeOverrides(config);
+		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+
+		expect(priceConfig?.format).toBe(shopifyMarketsPriceFormat);
+	});
+
+	it('does not override an explicitly configured price formatter', () => {
+		const existingFormat = jest.fn();
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'shopify',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+				overrides: {
+					default: {
+						price: {
+							format: existingFormat,
+						},
+					},
+				},
+			},
+			plugins: {
+				shopify: {
+					marketsPricing: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const resolved = applyAutomaticThemeOverrides(config);
+		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+
+		expect(priceConfig?.format).toBe(existingFormat);
 	});
 });
 

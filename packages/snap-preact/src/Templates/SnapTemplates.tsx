@@ -46,6 +46,7 @@ import {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginMarketsPricingConfig as PluginShopifyMarketsPricingConfig,
 	pluginMarketsPricing as pluginShopifyMarketsPricing,
+	shopifyMarketsPriceFormat,
 } from '@athoscommerce/snap-platforms/shopify';
 
 import {
@@ -110,9 +111,54 @@ export const DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS: AutocompleteStoreConfigSe
 	},
 };
 
+const hasShopifyMarketsPricingPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
+	const pluginConfigs = [
+		templateConfig.plugins?.shopify?.marketsPricing,
+		templateConfig.search?.plugins?.shopify?.marketsPricing,
+		templateConfig.autocomplete?.plugins?.shopify?.marketsPricing,
+		templateConfig.recommendation?.plugins?.shopify?.marketsPricing,
+	];
+
+	return pluginConfigs.some((pluginConfig) => {
+		return typeof pluginConfig?.token === 'string' && pluginConfig.token.length > 0;
+	});
+};
+
+export const applyAutomaticThemeOverrides = (
+	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked
+): SnapTemplatesConfig | SnapTemplatesConfigUnlocked => {
+	if (templateConfig.config?.platform !== 'shopify') {
+		return templateConfig;
+	}
+
+	if (!hasShopifyMarketsPricingPluginConfig(templateConfig)) {
+		return templateConfig;
+	}
+
+	const defaultOverrides = templateConfig.theme?.overrides?.default as Record<string, unknown> | undefined;
+	const priceOverride = defaultOverrides?.price as { format?: unknown } | undefined;
+
+	if (typeof priceOverride?.format !== 'undefined') {
+		return templateConfig;
+	}
+
+	return deepmerge(templateConfig, {
+		theme: {
+			overrides: {
+				default: {
+					price: {
+						format: shopifyMarketsPriceFormat,
+					},
+				},
+			},
+		},
+	});
+};
+
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
+		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
 		try {
 			context = getContext(['editor']);
@@ -128,9 +174,9 @@ export class SnapTemplates extends Snap {
 		);
 		const editMode = Boolean(editorCookieValue) || editUIMode || Boolean(editor?.mode === 'headless');
 
-		const templatesStore = new TemplatesStore({ config, settings: { editMode } });
+		const templatesStore = new TemplatesStore({ config: modifiedConfig, settings: { editMode } });
 
-		const snapConfig = createSnapConfig(config, templatesStore);
+		const snapConfig = createSnapConfig(modifiedConfig, templatesStore);
 
 		super(snapConfig, { templatesStore });
 

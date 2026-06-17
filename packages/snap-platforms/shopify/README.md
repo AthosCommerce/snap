@@ -134,6 +134,8 @@ plugins: {
 
 The **Markets Pricing plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
 
+When used through `SnapTemplates` on Shopify, enabling `marketsPricing` also automatically applies `theme.overrides.default.price.format = shopifyMarketsPriceFormat` unless you already provide a custom `price.format` override.
+
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
 | token | Shopify Storefront Access Token | string | — | ✅ |
@@ -178,16 +180,29 @@ new SnapTemplates(config);
 4. Sets `result.custom.priceFetched = true` when pricing is ready to display
 5. Caches results in `controller.store.custom.graphQLData.priceCache` to avoid redundant API calls
 
+When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format', 'iso'])`:
+
+- `format`: Shopify money format template (for example, `${{amount}}`)
+- `iso`: optional ISO currency code prefix to prepend to the formatted amount (for example, `USD `)
+
+Example script context:
+
+```html
+<script id="athos-context" src="bundle.js">
+	format = '${{amount}}';
+	iso = 'USD ';
+</script>
+```
+
 #### Using in Your Result Component
 
 Always check the `priceFetched` flag before rendering prices to ensure data has been fetched.
-Import `shopifyMarketsPriceFormat` from `@athoscommerce/snap-platforms/shopify` and pass it to the `Price` component's `format` prop.
+When using `SnapTemplates`, you do not need to import `shopifyMarketsPriceFormat` or pass a `format` prop for the templated `Price` component.
 
 ```tsx
 import { h, Fragment } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { Price } from '@athoscommerce/snap-preact/components';
-import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 	const core = result.display.mappings.core;
@@ -204,14 +219,12 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 						<Fragment>
 							{/* Show strikethrough MSRP */}
 							<Price
-								format={shopifyMarketsPriceFormat}
 								value={core.msrp}
 								lineThrough={true}
 								treePath={treePath}
 							/>
 							{/* Show sale price */}
 							<Price
-								format={shopifyMarketsPriceFormat}
 								value={core.price}
 								treePath={treePath}
 								className="sale-price"
@@ -219,7 +232,6 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 						</Fragment>
 					) : (
 						<Price
-							format={shopifyMarketsPriceFormat}
 							value={core?.price}
 							treePath={treePath}
 						/>
@@ -230,3 +242,5 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 	);
 });
 ```
+
+If you are not using `SnapTemplates`, or want custom formatting behavior, you can still explicitly import and pass `shopifyMarketsPriceFormat` (or your own formatter).
