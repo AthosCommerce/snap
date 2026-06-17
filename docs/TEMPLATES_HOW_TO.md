@@ -614,3 +614,56 @@ const config: SnapTemplatesConfigUnlocked = {
 
 new SnapTemplates(config);
 ```
+
+---
+
+### Using the Shopify Markets Pricing Plugin
+
+The **Shopify Markets Pricing plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
+
+Register the plugin in your SnapTemplates configuration:
+
+```tsx
+const config = {
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		shopify: {
+			marketsPricing: {
+				token: 'your-storefront-access-token',
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+};
+
+new SnapTemplates(config);
+```
+
+In your result component, check the `priceFetched` flag before rendering prices with the `shopifyMarketsPriceFormat` format.
+
+```tsx
+import { observer } from 'mobx-react-lite';
+import { Price } from '@athoscommerce/snap-preact/components';
+import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
+
+export const CustomResult = observer(({ result, treePath }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const { priceFetched } = result.custom;
+
+	return (
+		<article>
+			<h2>{core?.name}</h2>
+			{priceFetched && (
+				<Price format={shopifyMarketsPriceFormat} value={core?.price} treePath={treePath} />
+			)}
+		</article>
+	);
+});
+```
+
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets Pricing plugin documentation](../../packages/snap-platforms/shopify/README.md#pluginshopifymarketspricing).

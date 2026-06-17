@@ -11,4 +11,6 @@ export { pluginShopifyAddToCart as pluginAddToCart, PluginShopifyAddToCartConfig
 export {
 	pluginShopifyMarketsPricing as pluginMarketsPricing,
 	ShopifyMarketsPricingConfig as PluginMarketsPricingConfig,
+	SHOPIFY_GRAPHQL_API_PATH,
 } from './plugins/pluginShopifyMarketsPricing';
+export { shopifyMarketsPriceFormat } from './shopifyMarketsPriceFormat';

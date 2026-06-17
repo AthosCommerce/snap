@@ -4,23 +4,26 @@ import { AbstractPluginConfig } from '../../../common/src/types';
 
 export type PluginShopifyMarketsPricingConfig = AbstractPluginConfig & ShopifyMarketsPricingConfig;
 
+export const SHOPIFY_GRAPHQL_API_PATH = '/api/2025-04/graphql.json';
+
 export type ShopifyMarketsPricingConfig = {
 	token: string;
-	endpoint: string;
+	baseUrl?: string;
+	path?: string;
 	baseCurrency?: string;
 };
 
-type ShopifyMarketsMoney = {
+type ShopifyMarketsPrice = {
 	amount: string;
 };
 
 type ShopifyMarketsProductNode = {
 	id: string;
 	priceRange: {
-		minVariantPrice: ShopifyMarketsMoney;
+		minVariantPrice: ShopifyMarketsPrice;
 	};
 	compareAtPriceRange: {
-		maxVariantPrice: ShopifyMarketsMoney;
+		maxVariantPrice: ShopifyMarketsPrice;
 	};
 	[key: string]: unknown;
 };
@@ -51,21 +54,14 @@ type StoreCustomData = {
 	[key: string]: unknown;
 };
 
-type ShopifyWindowLike = Window & {
-	Shopify?: {
-		country?: string;
-		currency?: {
-			active?: string;
-		};
-		[key: string]: unknown;
+type ShopifyObj = {
+	shop: string;
+	country?: string;
+	currency?: {
+		active?: string;
 	};
+	[key: string]: unknown;
 };
-
-// const config = {
-//     controller: {} as SearchController,
-//     token: '9cedbae40677f4f785182705818b9dfb',
-// 	endpoint: 'https://cartolina-nantucket.myshopify.com/api/2025-04/graphql.json',
-// }
 
 const markResultsAsPriceFetched = (results: Array<{ type: string; custom?: Record<string, unknown> }>) => {
 	results.forEach((result) => {
@@ -80,16 +76,20 @@ const markResultsAsPriceFetched = (results: Array<{ type: string; custom?: Recor
 
 export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: PluginShopifyMarketsPricingConfig) => {
 	const controller = cntrlr;
-	const getShopify = () => {
-		if (typeof window === 'undefined') return undefined;
-		const shopify = (window as ShopifyWindowLike).Shopify;
-		return shopify && typeof shopify === 'object' ? shopify : undefined;
-	};
+	const shopify = window?.Shopify as ShopifyObj;
+	const { token, baseCurrency = 'USD' } = config;
 
-	const { token, endpoint, baseCurrency = 'USD' } = config;
+	const baseUrl = config.baseUrl || shopify?.shop || window?.location?.host;
+	const path = config.path || SHOPIFY_GRAPHQL_API_PATH;
+
+	const hasProtocol = /^https?:\/\//i.test(baseUrl);
+	const normalizedBaseUrl = hasProtocol ? baseUrl : `https://${baseUrl}`;
+
+	const endpoint = `${normalizedBaseUrl}${path}`;
+
 	// Dynamically build query in context of currently selected region/country
 	const buildQuery = (): string => {
-		const country = getShopify()?.country || 'US';
+		const country = shopify?.country || 'US';
 
 		return `query ($query: String!) @inContext(country: ${country}) {
 			search (first: 250, query: $query) {
@@ -105,6 +105,10 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 							minVariantPrice { amount }
 						}
 					} 
+				}
+				pageInfo {
+					hasNextPage
+					endCursor
 				}
 			}
 		}`;
@@ -198,25 +202,25 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 			const { results } = controller.store;
 			const customStore = getTypedCustomStore(controller);
 			const existingPriceCache = customStore.graphQLData.priceCache;
-			const activeCurrency = getShopify()?.currency?.active?.toUpperCase();
+			const activeCurrency = shopify?.currency?.active?.toUpperCase();
 			const normalizedBaseCurrency = baseCurrency.toUpperCase();
 			const shouldFetchPrices = !!activeCurrency && activeCurrency !== normalizedBaseCurrency;
-			if (results.length > 0) {
+			const products: Product[] = results.filter((result) => result.type !== 'banner') as Product[];
+
+			if (products.length > 0) {
 				if (shouldFetchPrices) {
 					// Grab productIds of products we need pricing data for
 					const productIds = Array.from(
 						new Set(
-							results
-								.filter((result) => result.type !== 'banner')
-								.map((result) => {
-									const parentId = result?.mappings?.core?.parentId;
+							products.map((result) => {
+								const parentId = result?.mappings?.core?.parentId;
 
-									if (parentId !== null && typeof parentId !== 'undefined' && parentId !== '') {
-										return parentId;
-									}
+								if (parentId !== null && typeof parentId !== 'undefined' && parentId !== '') {
+									return parentId;
+								}
 
-									return null;
-								})
+								return null;
+							})
 						)
 					);
 
@@ -242,7 +246,7 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 						customStore.graphQLData.priceCache = mergedPriceCache;
 
 						// Update prices displayed for products
-						(results.filter((result) => result.type === 'product') as Product[]).forEach((result) => {
+						products.forEach((result) => {
 							const parentId = result.mappings.core?.parentId;
 							if (!parentId) return;
 
@@ -252,14 +256,14 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 								const { price, msrp } = cachedData;
 
 								if (typeof price === 'number') {
-									if (result.display.mappings.core) {
-										result.display.mappings.core.price = price;
+									if (result.mappings.core) {
+										result.mappings.core.price = price;
 									}
 								}
 
 								if (msrp || msrp === 0) {
-									if (result.display.mappings.core) {
-										result.display.mappings.core.msrp = msrp;
+									if (result.mappings.core) {
+										result.mappings.core.msrp = msrp;
 									}
 								}
 							}
