@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
-import { render } from '@testing-library/preact';
-import { ThemeProvider } from '../../../providers';
+import { render, waitFor } from '@testing-library/preact';
+import { SnapProvider, ThemeProvider } from '../../../providers';
 
 import { CalloutBadge } from './CalloutBadge';
 
@@ -81,6 +81,42 @@ describe('CalloutBadge Component', () => {
 
 		const CalloutBadgeCustomComponent = rendered.container.querySelector(`.${customComponentClassName}`)!;
 		expect(CalloutBadgeCustomComponent).toBeInTheDocument();
+	});
+
+	it('waits for async named customComponent override and then renders it', async () => {
+		const customComponentClassName = 'async-callout-custom-component';
+		let resolveImport: ((value: any) => void) | undefined;
+
+		const snap = {
+			templates: {
+				library: {
+					import: {
+						component: {
+							calloutBadge: {
+								AsyncCalloutBadge: () =>
+									new Promise((resolve) => {
+										resolveImport = resolve;
+									}),
+							},
+						},
+					},
+				},
+			},
+		} as any;
+
+		const rendered = render(
+			<SnapProvider snap={snap}>
+				<CalloutBadge result={result} customComponent="AsyncCalloutBadge" />
+			</SnapProvider>
+		);
+
+		expect(rendered.container.querySelector('.ss__callout-badge')).not.toBeInTheDocument();
+
+		resolveImport!(() => <div className={customComponentClassName}>async badge override</div>);
+
+		await waitFor(() => {
+			expect(rendered.container.querySelector(`.${customComponentClassName}`)).toBeInTheDocument();
+		});
 	});
 
 	it('renders with classname', () => {
