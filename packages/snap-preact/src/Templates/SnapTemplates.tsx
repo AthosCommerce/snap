@@ -583,10 +583,6 @@ export function createPlugins(
 				templatesStore.library.import.plugins.shopify.addToCart,
 				deepmerge(templateConfig.plugins?.shopify?.addToCart || {}, controllerConfig?.plugins?.shopify?.addToCart || {}),
 			]);
-			plugins.push([
-				templatesStore.library.import.plugins.shopify.marketsPricing,
-				deepmerge(templateConfig.plugins?.shopify?.marketsPricing || {}, controllerConfig?.plugins?.shopify?.marketsPricing || {}),
-			]);
 			const marketsPricingConfig = deepmerge(
 				templateConfig.plugins?.shopify?.marketsPricing || {},
 				controllerConfig?.plugins?.shopify?.marketsPricing || {}
