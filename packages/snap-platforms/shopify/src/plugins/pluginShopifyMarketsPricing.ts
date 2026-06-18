@@ -268,7 +268,7 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 								}
 							}
 
-							// Update flag to signal prices have been retreived and are ready for display
+							// Update flag to signal prices have been retrieved and are ready for display
 							result.custom = {
 								...result.custom,
 								priceFetched: true,
