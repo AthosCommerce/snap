@@ -36,7 +36,6 @@ import {
 	PluginLoggerConfig,
 } from '@athoscommerce/snap-platforms/common';
 
-//todo the capitalization of the plugin functions is inconsistent and should be standardized across platforms and within this library
 import {
 	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
