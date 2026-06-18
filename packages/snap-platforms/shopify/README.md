@@ -176,7 +176,7 @@ new SnapTemplates(config);
 
 1. After search results load, the plugin detects if the active currency (`Shopify.currency.active`) differs from `baseCurrency`
 2. For uncached products, it fetches localized `priceRange` and `compareAtPriceRange` from Shopify GraphQL
-3. Updates `result.display.mappings.core.price` and `result.display.mappings.core.msrp`
+3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
 4. Sets `result.custom.priceFetched = true` when pricing is ready to display
 5. Caches results in `controller.store.custom.graphQLData.priceCache` to avoid redundant API calls
 
