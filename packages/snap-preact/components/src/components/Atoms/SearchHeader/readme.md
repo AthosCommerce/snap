@@ -116,7 +116,7 @@ The `background` prop sets the CSS background value applied to the SearchHeader 
 ```tsx
 <SearchHeader controller={controller} background={'#f4f4f4'} />
 ```
-or 
+or
 ```tsx
 <SearchHeader controller={controller} background={'url("https://images.example.com/header-bg.jpg") center / cover no-repeat'} />
 ```
