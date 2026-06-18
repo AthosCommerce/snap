@@ -2,7 +2,7 @@ import { AbstractController, AutocompleteController, RecommendationController, S
 import { Product } from '@athoscommerce/snap-store-mobx';
 import { AbstractPluginConfig } from '../../../common/src/types';
 
-export type PluginShopifyMarketsPricingConfig = AbstractPluginConfig & ShopifyMarketsPricingConfig;
+export type PluginShopifyMarketsPricingConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsPricingConfig;
 
 export const SHOPIFY_GRAPHQL_API_PATH = '/api/2025-04/graphql.json';
 
@@ -13,17 +13,17 @@ export type ShopifyMarketsPricingConfig = {
 	baseCurrency?: string;
 };
 
-type ShopifyMarketsPrice = {
-	amount: string;
-};
-
 type ShopifyMarketsProductNode = {
 	id: string;
 	priceRange: {
-		minVariantPrice: ShopifyMarketsPrice;
+		minVariantPrice: {
+			amount: string;
+		};
 	};
 	compareAtPriceRange: {
-		maxVariantPrice: ShopifyMarketsPrice;
+		maxVariantPrice: {
+			amount: string;
+		};
 	};
 	[key: string]: unknown;
 };
@@ -46,7 +46,6 @@ type GraphQLPriceCacheEntry = {
 
 type GraphQLPriceCache = Record<string, GraphQLPriceCacheEntry>;
 
-// TODO: Can this be typed better to maintain the existing type of controller.store.custom and be extended to include graphQLData?
 type StoreCustomData = {
 	graphQLData?: {
 		priceCache: GraphQLPriceCache;
@@ -75,7 +74,11 @@ const markResultsAsPriceFetched = (results: Array<{ type: string; custom?: Recor
 };
 
 export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: PluginShopifyMarketsPricingConfig) => {
-	const controller = cntrlr;
+	if (!config?.token) {
+		cntrlr.log?.warn?.('[shopifyMarkets] Missing required `token` in plugin config.');
+		return;
+	}
+
 	const shopify = window?.Shopify as ShopifyObj;
 	const { token, baseCurrency = 'USD' } = config;
 
@@ -195,9 +198,9 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 	};
 
 	// Set up graphQL cache object in store.custom
-	getTypedCustomStore(controller);
+	getTypedCustomStore(cntrlr);
 
-	controller.on('afterStore', async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController }, next) => {
+	cntrlr.on('afterStore', async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController }, next) => {
 		try {
 			const { results } = controller.store;
 			const customStore = getTypedCustomStore(controller);

@@ -10,7 +10,7 @@ export {
 export { pluginShopifyAddToCart as pluginAddToCart, PluginShopifyAddToCartConfig as PluginAddToCartConfig } from './plugins/pluginShopifyAddToCart';
 export {
 	pluginShopifyMarketsPricing as pluginMarketsPricing,
-	ShopifyMarketsPricingConfig as PluginMarketsPricingConfig,
+	PluginShopifyMarketsPricingConfig as PluginMarketsPricingConfig,
 	SHOPIFY_GRAPHQL_API_PATH,
 } from './plugins/pluginShopifyMarketsPricing';
 export { shopifyMarketsPriceFormat } from './shopifyMarketsPriceFormat';

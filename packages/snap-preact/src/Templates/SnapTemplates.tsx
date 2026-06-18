@@ -38,7 +38,7 @@ import {
 
 //todo the capitalization of the plugin functions is inconsistent and should be standardized across platforms and within this library
 import {
-	pluginBackgroundFilters as PluginShopifyBackgroundFilters,
+	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
 	pluginMutateResults as pluginShopifyMutateResults,
 	PluginMutateResultsConfig as PluginShopifyMutateResultsConfig,
@@ -87,7 +87,7 @@ type TemplatePlugins =
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
 	// shopify
-	| [typeof PluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
+	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
 	| [typeof pluginShopifyMarketsPricing, PluginShopifyMarketsPricingConfig]
@@ -588,6 +588,14 @@ export function createPlugins(
 				templatesStore.library.import.plugins.shopify.marketsPricing,
 				deepmerge(templateConfig.plugins?.shopify?.marketsPricing || {}, controllerConfig?.plugins?.shopify?.marketsPricing || {}),
 			]);
+			const marketsPricingConfig = deepmerge(
+				templateConfig.plugins?.shopify?.marketsPricing || {},
+				controllerConfig?.plugins?.shopify?.marketsPricing || {}
+			);
+			//only push if token is defined and non-empty
+			if (typeof (marketsPricingConfig as any)?.token === 'string' && (marketsPricingConfig as any).token.length > 0) {
+				plugins.push([templatesStore.library.import.plugins.shopify.marketsPricing, marketsPricingConfig]);
+			}
 			break;
 		case 'bigCommerce':
 			plugins.push([
