@@ -109,3 +109,14 @@ The `hideExpandedSearchText` prop hides the expanded search text.
 ```tsx
 <SearchHeader controller={controller} hideExpandedSearchText={true} />
 ```
+
+### background
+The `background` prop sets the CSS background value applied to the SearchHeader root element.
+
+```tsx
+<SearchHeader controller={controller} background={'#f4f4f4'} />
+```
+or 
+```tsx
+<SearchHeader controller={controller} background={'url("https://images.example.com/header-bg.jpg") center / cover no-repeat'} />
+```

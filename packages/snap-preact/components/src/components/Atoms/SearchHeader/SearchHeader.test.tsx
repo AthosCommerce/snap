@@ -49,6 +49,14 @@ describe('Search Header Component', () => {
 		expect(headerElement?.classList).toHaveLength(1);
 	});
 
+	it('applies background style from background prop', () => {
+		const rendered = render(<SearchHeader pagination={paginationStore} query={queryStore} background={'rgb(255, 0, 0)'} />);
+
+		const headerElement = rendered.container.querySelector('.ss__search-header');
+		expect(headerElement).toBeInTheDocument();
+		expect(window.getComputedStyle(headerElement as Element).backgroundColor).toBe('rgb(255, 0, 0)');
+	});
+
 	const theme = {
 		components: {
 			searchHeader: {

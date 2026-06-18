@@ -35,6 +35,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		background: 'initial',
+	},
 	argTypes: {
 		controller: {
 			description: 'Search Controller reference',
@@ -214,6 +217,17 @@ export default {
 				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
+		},
+		background: {
+			description: 'Header background CSS value',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: 'initial' },
+			},
+			control: { type: 'text' },
 		},
 		...componentArgs,
 	},

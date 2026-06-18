@@ -13,8 +13,10 @@ import { useLang, useCustomComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
-const defaultStyles: StyleScript<SearchHeaderProps> = () => {
-	return css({});
+const defaultStyles: StyleScript<SearchHeaderProps> = ({ background }: SearchHeaderProps) => {
+	return css({
+		background: background || 'initial',
+	});
 };
 
 export const SearchHeader = observer((properties: SearchHeaderProps) => {
@@ -196,6 +198,7 @@ export type SearchHeaderTemplatesLegalProps = {
 	hideNoResultsText?: boolean;
 	hideDidYouMeanText?: boolean;
 	hideExpandedSearchText?: boolean;
+	background?: string;
 };
 
 export interface SearchHeaderLang {
