@@ -13,9 +13,9 @@ import { useLang, useCustomComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
-const defaultStyles: StyleScript<SearchHeaderProps> = ({ background }: SearchHeaderProps) => {
+const defaultStyles: StyleScript<SearchHeaderProps> = ({ background }) => {
 	return css({
-		background: background || 'initial',
+		background,
 	});
 };
 
