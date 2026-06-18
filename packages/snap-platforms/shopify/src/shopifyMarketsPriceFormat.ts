@@ -1,9 +1,13 @@
 import { getContext } from '@athoscommerce/snap-toolbox';
 
 export const shopifyMarketsPriceFormat = (number: number | string) => {
-	const context = getContext(['format', 'iso']);
+	let context: { format?: string; iso?: string } | undefined;
+	try {
+		context = getContext(['format', 'iso']) as { format?: string; iso?: string };
+	} catch {
+		context = undefined;
+	}
 	const currencyFormat: string = context?.format || '${{amount}}';
-
 	// ensure number is a number
 	number = typeof number === 'string' ? parseFloat(number) : number;
 
