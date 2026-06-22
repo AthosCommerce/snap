@@ -78,7 +78,8 @@ export type LibraryImports = {
 			AutocompleteSlideout: (args?: any) => Promise<JSXComponent>;
 		};
 		quickview: {
-			ProductQuickview: (args?: any) => Promise<JSXComponent>;
+			ProductQuickviewModal: (args?: any) => Promise<JSXComponent>;
+			ProductQuickviewSlideout: (args?: any) => Promise<JSXComponent>;
 		};
 		recommendation: {
 			bundle: {
@@ -402,10 +403,18 @@ export class LibraryStore {
 				},
 			},
 			quickview: {
-				ProductQuickview: async () => {
+				ProductQuickviewModal: async () => {
 					return (
-						this.components.quickview.ProductQuickview ||
-						(this.components.quickview.ProductQuickview = (await import('./library/components/ProductQuickview')).ProductQuickview)
+						this.components.quickview.ProductQuickviewModal ||
+						(this.components.quickview.ProductQuickviewModal = (await import('./library/components/ProductQuickviewModal')).ProductQuickviewModal)
+					);
+				},
+				ProductQuickviewSlideout: async () => {
+					return (
+						this.components.quickview.ProductQuickviewSlideout ||
+						(this.components.quickview.ProductQuickviewSlideout = (
+							await import('./library/components/ProductQuickviewSlideout')
+						).ProductQuickviewSlideout)
 					);
 				},
 			},

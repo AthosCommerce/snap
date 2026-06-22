@@ -67,6 +67,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 		displayAt,
 		transitionSpeed,
 		overlayColor,
+		onToggle,
 		disableStyles,
 		className,
 		internalClassName,
@@ -102,6 +103,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	const [renderContent, setRenderContent] = useState(Boolean(active));
 
 	const toggleActive = () => {
+		const next = !isActive;
 		if (isActive) {
 			setActive(false);
 			if (rerender) {
@@ -115,6 +117,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 		}
 
 		document.body.style.overflow = isActive ? 'hidden' : '';
+		onToggle && onToggle(next);
 	};
 
 	//this is used to update active state if active prop is changed from parent component.
@@ -183,6 +186,7 @@ export type SlideoutTemplatesLegalProps = {
 	slideDirection?: SlideDirectionType;
 	rerender?: boolean;
 	buttonSelector?: string | Element;
+	onToggle?: (active: boolean) => void;
 };
 
 export type SlideDirectionType = 'top' | 'right' | 'bottom' | 'left';

@@ -184,7 +184,8 @@ let config: SnapConfig = {
 							},
 						},
 						component: async () => {
-							return (await import('@athoscommerce/snap-preact/components')).ProductQuickview;
+							// return (await import('@athoscommerce/snap-preact/components')).ProductQuickviewModal;
+							return (await import('@athoscommerce/snap-preact/components')).ProductQuickviewSlideout;
 						},
 					},
 				],

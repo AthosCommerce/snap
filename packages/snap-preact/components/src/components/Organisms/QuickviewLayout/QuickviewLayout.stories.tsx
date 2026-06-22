@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 
-import { ProductQuickview, ProductQuickviewProps } from './ProductQuickview';
+import { QuickviewLayout, QuickviewLayoutProps } from './QuickviewLayout';
 import { componentArgs, highlightedCode } from '../../../utilities';
 import Readme from './readme.md';
 
@@ -155,8 +155,8 @@ const imageCarouselController = buildMockController({
 });
 
 export default {
-	title: 'Molecules/ProductQuickview',
-	component: ProductQuickview,
+	title: 'Organisms/QuickviewLayout',
+	component: QuickviewLayout,
 	tags: ['autodocs'],
 	parameters: {
 		docs: {
@@ -210,20 +210,20 @@ export default {
 	args: {},
 };
 
-export const Default = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={defaultController} />;
+export const Default = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={defaultController} />;
 Default.args = {};
 
-export const Loading = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={loadingController} />;
+export const Loading = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={loadingController} />;
 Loading.args = {};
 
-export const ErrorState = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={errorController} />;
+export const ErrorState = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={errorController} />;
 ErrorState.args = {};
 
-export const WithVariantSelectors = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={variantsController} />;
+export const WithVariantSelectors = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={variantsController} />;
 WithVariantSelectors.args = {};
 
-export const WithDisplayFields = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={displayFieldsController} />;
+export const WithDisplayFields = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={displayFieldsController} />;
 WithDisplayFields.args = {};
 
-export const WithImageCarousel = (args: ProductQuickviewProps) => <ProductQuickview {...args} controller={imageCarouselController} />;
+export const WithImageCarousel = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={imageCarouselController} />;
 WithImageCarousel.args = {};

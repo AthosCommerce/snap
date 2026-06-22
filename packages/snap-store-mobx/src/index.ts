@@ -10,5 +10,5 @@ export { StorageStore, StorageConfig, StorageType } from '@athoscommerce/snap-to
 export { MetaStore } from './Meta/MetaStore';
 export { QuickviewStore } from './QuickView/QuickviewStore';
 export type { QuickviewConfig, QuickviewProductsData, QuickviewUpdateArgs, QuickviewError } from './QuickView/QuickviewStore';
-export type { QuickviewStoreConfig } from './types';
+export type { QuickviewStoreConfig, QuickviewStoreConfigSettings } from './types';
 export * from './types';

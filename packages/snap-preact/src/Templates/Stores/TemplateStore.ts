@@ -5,6 +5,7 @@ import {
 	type SearchStoreConfig,
 	type AutocompleteStoreConfigSettings,
 	type AutocompleteStoreConfig,
+	type QuickviewStoreConfigSettings,
 } from '@athoscommerce/snap-store-mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
@@ -61,6 +62,11 @@ export type AutocompleteTargetConfig = {
 	selector?: string;
 	inputSelector: string;
 	component: keyof LibraryImports['component']['autocomplete'];
+};
+
+export type QuickviewTargetConfig = {
+	selector?: string;
+	component: keyof LibraryImports['component']['quickview'];
 };
 
 export type RecommendationDefaultTargetConfig = {
@@ -199,6 +205,10 @@ export type TemplatesStoreConfigLocked = {
 		globals?: AutocompleteStoreConfig['globals'];
 		settings?: AutocompleteStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
+	};
+	quickview?: {
+		targets: QuickviewTargetConfig[];
+		settings?: QuickviewStoreConfigSettings;
 	};
 	recommendation?: {
 		email?: {

@@ -251,7 +251,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 									left: coords.left,
 									width: coords.width,
 									// 10007: above the quickview modal content (10006) so variant dropdowns paint over it,
-									// below the Gallery lightbox (10010). Full ladder: see ProductQuickview defaultStyles.
+									// below the Gallery lightbox (10010). Full ladder: see ProductQuickviewModal defaultStyles.
 									zIndex: 10007,
 									pointerEvents: dropdownOpen ? 'auto' : 'none',
 								}}
