@@ -96,6 +96,44 @@ new SnapTemplates({
 });
 ```
 
+### Theme `globalResultComponent`
+
+`globalResultComponent` is a global convenience for result rendering and is closely related to `resultComponent`.
+
+Use `theme.globalResultComponent` when you want one result component applied everywhere result cards render (search, recommendation, and autocomplete templates), without repeating `resultComponent` on each template override.
+
+It accepts the same names you would use for result rendering:
+
+- Built-in result component names: `Result`, `OverlayResult`
+- Any component registered in `components.result`
+
+If a more specific template-level override is set with `resultComponent`, that specific override remains the source of truth for that template.
+
+**Usage Example:**
+
+```tsx
+new SnapTemplates({
+	config: { ... },
+	components: {
+		result: {
+			GlobalResult: async () => (await import('./components/Result')).GlobalResult,
+		},
+	},
+	theme: {
+		extends: 'base',
+		globalResultComponent: 'GlobalResult',
+		overrides: {
+			default: {
+				// Optional: keep template-specific control where needed.
+				recommendationEmail: {
+					resultComponent: 'Result',
+				},
+			},
+		},
+	},
+});
+```
+
 ### Theme `overrides`
 Themes and components provide their own default component prop configurations. The `overrides` property in a theme configuration allows you to customize these defaults.
 
@@ -213,44 +251,6 @@ new SnapTemplates({
 					resultComponent: 'AutocompleteResult',
 				},
 				recommendation: {
-					resultComponent: 'Result',
-				},
-			},
-		},
-	},
-});
-```
-
-##### The `globalResultComponent` Theme Prop
-
-`globalResultComponent` is a global convenience for result rendering and is closely related to `resultComponent`.
-
-Use `theme.globalResultComponent` when you want one result component applied everywhere result cards render (search, recommendation, and autocomplete templates), without repeating `resultComponent` on each template override.
-
-It accepts the same names you would use for result rendering:
-
-- Built-in result component names: `Result`, `OverlayResult`
-- Any component registered in `components.result`
-
-If a more specific template-level override is set with `resultComponent`, that specific override remains the source of truth for that template.
-
-**Usage Example:**
-
-```tsx
-new SnapTemplates({
-	config: { ... },
-	components: {
-		result: {
-			GlobalResult: async () => (await import('./components/Result')).GlobalResult,
-		},
-	},
-	theme: {
-		extends: 'base',
-		globalResultComponent: 'GlobalResult',
-		overrides: {
-			default: {
-				// Optional: keep template-specific control where needed.
-				recommendationEmail: {
 					resultComponent: 'Result',
 				},
 			},
