@@ -188,6 +188,8 @@ Snap Templates was built to intentionally not support custom Preact components c
 - `resultComponent` accepts built-in result component names (`Result`, `OverlayResult`) and any names registered in `components.result`.
 - `customComponent` requires explicit component registration in `components` for the component section being overridden. Built-in fallback names are not used for `customComponent`.
 
+`globalResultComponent` follows `resultComponent` name resolution for result rendering and applies that selection globally across templates.
+
 
 
 | Configuration Option | Description | Type | Default |
@@ -230,6 +232,9 @@ See [Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THE
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `theme` | Theme configurations | Object | Required |
+| `theme.globalResultComponent` | Global result renderer name applied across templates | String | ➖ |
+
+`theme.globalResultComponent` is a global result rendering shortcut aligned with `resultComponent`. It lets you define one result component for search, autocomplete, and recommendation templates without repeating `resultComponent` in each template override.
 
 
 ### Feature Targets
