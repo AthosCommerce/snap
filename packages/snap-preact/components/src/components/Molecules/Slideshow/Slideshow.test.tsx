@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, fireEvent, createEvent } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { Slideshow, SlideshowProps, SlideshowSlide } from './Slideshow';
 import { ThemeProvider } from '@emotion/react';
@@ -281,6 +281,73 @@ describe('Slideshow Component', () => {
 			await user.keyboard('{ArrowLeft}');
 
 			expect(slideshow).toBeInTheDocument();
+		});
+	});
+
+	describe('Drag/Touch Behavior', () => {
+		it('starts dragging on primary (left) mouse button', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			fireEvent.mouseDown(track, { button: 0, clientX: 100 });
+
+			expect(track).toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		it('does not start dragging on right-click (non-primary button)', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			fireEvent.mouseDown(track, { button: 2, clientX: 100 });
+
+			expect(track).not.toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		// The fireEvent.touch* shorthands don't attach `touches`, so build the event explicitly.
+		const fireTouch = (node: Element, type: 'touchStart' | 'touchMove' | 'touchEnd', clientX: number) => {
+			const event = createEvent[type](node, { touches: [{ clientX }], changedTouches: [{ clientX }] });
+			fireEvent(node, event);
+		};
+
+		it('navigates to next slide on a left touch swipe', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			// Initially at index 0
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+
+			// Swipe left (drag content leftwards) to advance to the next slide
+			fireTouch(track, 'touchStart', 300);
+			fireTouch(track, 'touchMove', 100);
+			fireTouch(track, 'touchEnd', 100);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+		});
+
+		it('navigates to previous slide on a right touch swipe', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			// Advance to index 1 first
+			fireTouch(track, 'touchStart', 300);
+			fireTouch(track, 'touchMove', 100);
+			fireTouch(track, 'touchEnd', 100);
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+
+			// Swipe right (drag content rightwards) to go back
+			fireTouch(track, 'touchStart', 100);
+			fireTouch(track, 'touchMove', 300);
+			fireTouch(track, 'touchEnd', 300);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
 		});
 	});
 

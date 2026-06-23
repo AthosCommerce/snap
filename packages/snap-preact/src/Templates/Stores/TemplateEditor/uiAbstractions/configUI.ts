@@ -13,10 +13,10 @@ export const configUI = (store: TemplateEditorStore): AbstractionGroup[] => {
 					getDisplayState: () => 'disabled',
 					getValue: () => {
 						// value is derived in the editorstore at construction time
-						return store.overrides.config.siteId ?? store.initial.config.siteId ?? '';
+						return store.overrides.config?.siteId ?? store.initial.config.siteId ?? '';
 					},
 					shouldShowReset: () => {
-						return typeof store.overrides.config.siteId !== 'undefined';
+						return typeof store.overrides.config?.siteId !== 'undefined';
 					},
 					onValueChange: (value) => {
 						store.setConfigOverride({ path: ['siteId'], value });
@@ -41,12 +41,12 @@ export const configUI = (store: TemplateEditorStore): AbstractionGroup[] => {
 						},
 					],
 					getValue: () => {
-						return store.overrides.config.platform || store.initial.config.platform || 'other';
+						return store.overrides.config?.platform || store.initial.config.platform || 'other';
 					},
 					shouldShowReset: () => {
 						// if the override differs from the initial state, show reset
 						const initialPlatform = store.initial.config.platform || 'other';
-						const overridePlatform = store.overrides.config.platform;
+						const overridePlatform = store.overrides.config?.platform;
 						return typeof overridePlatform !== 'undefined' && initialPlatform != overridePlatform;
 					},
 					onValueChange: (value) => {
@@ -71,12 +71,12 @@ export const configUI = (store: TemplateEditorStore): AbstractionGroup[] => {
 						},
 					],
 					getValue: () => {
-						return store.overrides.config.language || store.initial.config.language || 'en';
+						return store.overrides.config?.language || store.initial.config.language || 'en';
 					},
 					shouldShowReset: () => {
 						// if the override differs from the initial state, show reset
 						const initialLanguage = store.initial.config.language || 'en';
-						const overrideLanguage = store.overrides.config.language;
+						const overrideLanguage = store.overrides.config?.language;
 						return typeof overrideLanguage !== 'undefined' && initialLanguage != overrideLanguage;
 					},
 					onValueChange: (value) => {
@@ -101,12 +101,12 @@ export const configUI = (store: TemplateEditorStore): AbstractionGroup[] => {
 						},
 					],
 					getValue: () => {
-						return store.overrides.config.currency || store.initial.config.currency || 'usd';
+						return store.overrides.config?.currency || store.initial.config.currency || 'usd';
 					},
 					shouldShowReset: () => {
 						// if the override differs from the initial state, show reset
 						const initialCurrency = store.initial.config.currency || 'usd';
-						const overrideCurrency = store.overrides.config.currency;
+						const overrideCurrency = store.overrides.config?.currency;
 						return typeof overrideCurrency !== 'undefined' && initialCurrency != overrideCurrency;
 					},
 					onValueChange: async (value) => {

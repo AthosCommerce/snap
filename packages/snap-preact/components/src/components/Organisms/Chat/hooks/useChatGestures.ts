@@ -45,6 +45,7 @@ export const useChatGestures = ({ panelRef, shouldShowSideChat, activeMessageId,
 	const swipeStartTime = useRef(0);
 	const swipeActive = useRef(false);
 	const swipeOffsetRef = useRef(0);
+	const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const [swipeOffset, setSwipeOffsetRaw] = useState(0);
 	const [swipeAnimating, setSwipeAnimating] = useState(false);
 
@@ -99,7 +100,8 @@ export const useChatGestures = ({ panelRef, shouldShowSideChat, activeMessageId,
 			// Animate out then dismiss
 			setSwipeAnimating(true);
 			updateSwipeOffset(height);
-			setTimeout(() => {
+			if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+			animationTimerRef.current = setTimeout(() => {
 				onDismiss();
 				updateSwipeOffset(0);
 				setSwipeAnimating(false);
@@ -108,9 +110,16 @@ export const useChatGestures = ({ panelRef, shouldShowSideChat, activeMessageId,
 			// Snap back
 			setSwipeAnimating(true);
 			updateSwipeOffset(0);
-			setTimeout(() => setSwipeAnimating(false), 300);
+			if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+			animationTimerRef.current = setTimeout(() => setSwipeAnimating(false), 300);
 		}
 	};
+
+	useEffect(() => {
+		return () => {
+			if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+		};
+	}, []);
 
 	return {
 		swipeOffset,

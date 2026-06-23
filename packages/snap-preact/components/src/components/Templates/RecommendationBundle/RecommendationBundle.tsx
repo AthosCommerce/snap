@@ -7,7 +7,7 @@ import deepmerge from 'deepmerge';
 import { Carousel, CarouselProps as CarouselProps } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
@@ -18,8 +18,9 @@ import type { CartStore, Product } from '@athoscommerce/snap-store-mobx';
 import { BundleSelector, BundleSelectorProps } from './BundleSelector';
 import { BundledCTA, BundledCTAProps } from './BundleCTA';
 import { Lang } from '../../../hooks';
-import { useIntersection } from '../../../hooks';
+import { useIntersection, useComponent } from '../../../hooks';
 import { componentNameToClassName } from '../../../utilities/componentNameToClassName';
+import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationBundleProps & { hasSeed: boolean; carouselEnabled: boolean }> = ({
 	vertical,
@@ -198,7 +199,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 	}
 
 	let displaySettings: BreakpointsEntry | undefined;
-	if (!(properties.theme?.name || globalTheme.name)) {
+	if (!((properties.theme as ThemeComplete)?.type == 'templates' || (globalTheme as ThemeComplete)?.type == 'templates')) {
 		displaySettings = useDisplaySettings(props.breakpoints!);
 		if (displaySettings && Object.keys(displaySettings).length) {
 			const theme = deepmerge(props?.theme || {}, displaySettings?.theme || {}, { arrayMerge: (destinationArray, sourceArray) => sourceArray });
@@ -225,7 +226,6 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		vertical,
 		onAddToCart,
 		separatorIconSeedOnly,
-		resultComponent,
 		ctaSlot,
 		hideSeed,
 		ctaButtonText,
@@ -245,6 +245,17 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		treePath,
 		...additionalProps
 	} = props;
+
+	const resultComponent = props.resultComponent;
+	const snap = useSnap();
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -378,7 +389,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		};
 
 		//no breakpoint props allowed in templates
-		if (!(properties.theme?.name || globalTheme.name)) {
+		if (!((properties.theme as ThemeComplete)?.type == 'templates' || (globalTheme as ThemeComplete)?.type == 'templates')) {
 			Object.keys(props.breakpoints!).forEach((breakpoint) => {
 				const obj = props.breakpoints![breakpoint as keyof typeof props.breakpoints];
 
@@ -504,9 +515,16 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 			return !isSeed || ((seedInCarousel || carousel?.enabled == false) && isSeed && !hideSeed) ? (
 				<ResultTracker key={result.id} controller={controller} result={result} track={{ impression: Boolean(!isSeed) }}>
 					<BundleSelector {...attributes}>
-						{resultComponent ? (
-							cloneWithProps(resultComponent, { controller: controller, treePath: treePath, result: result, seed: isSeed, selected, onProductSelect })
-						) : (
+						{resolvedResultComponent ? (
+							cloneWithProps(resolvedResultComponent, {
+								controller: controller,
+								treePath: treePath,
+								result: result,
+								seed: isSeed,
+								selected,
+								onProductSelect,
+							})
+						) : shouldWaitForNamedResultComponent ? null : (
 							<Result {...subProps.result} controller={controller} result={result} />
 						)}
 					</BundleSelector>
@@ -521,7 +539,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		separatorIcon,
 		seedInCarousel,
 		hideSeed,
-		resultComponent,
+		shouldWaitForNamedResultComponent,
+		resolvedResultComponent,
 		props.theme,
 		seedText,
 	]);
@@ -578,8 +597,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 													lang={{ seedText: lang.seedText }}
 												>
 													{(() => {
-														if (resultComponent && controller) {
-															return cloneWithProps(resultComponent, {
+														if (resolvedResultComponent && controller) {
+															return cloneWithProps(resolvedResultComponent, {
 																controller,
 																seed: true,
 																selected: selectedItems.findIndex((item) => item.id == seed.id) > -1,
@@ -587,6 +606,8 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 																result: seed,
 																treePath,
 															});
+														} else if (shouldWaitForNamedResultComponent) {
+															return null;
 														} else {
 															return <Result {...subProps.result} controller={controller} result={seed} />;
 														}
@@ -686,10 +707,11 @@ export type RecommendationBundleProps = {
 	alias?: string;
 	lang?: Partial<RecommendationBundleLang>;
 	results?: Product[];
-} & RecommendationBundleTemplatesLegalProps &
+} & Omit<RecommendationBundleTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type RecommendationBundleTemplatesLegalProps = {
+	resultComponent?: string;
 	limit?: number;
 	onAddToCart?: (e: MouseEvent, items: Product[]) => void;
 	title?: JSX.Element | string;

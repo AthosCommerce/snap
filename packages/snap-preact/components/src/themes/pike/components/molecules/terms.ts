@@ -12,7 +12,6 @@ const termsStyleScript = (props: TermsProps) => {
 	// shared styles
 	const sharedStyles = css({
 		width: '100%',
-		...custom.styles.boxSizing('terms', props?.treePath, props?.name),
 		'.ss__terms__title': {
 			'&, h5': {
 				padding: 0,
@@ -35,7 +34,6 @@ const termsStyleScript = (props: TermsProps) => {
 				a: {
 					fontSize: '14px',
 					em: {
-						color: variables?.colors?.text,
 						fontStyle: 'normal',
 						fontSize: 'inherit',
 						fontWeight: 'inherit',

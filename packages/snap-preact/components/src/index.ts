@@ -102,7 +102,18 @@ export {
 } from './components/Trackers/ResultTracker';
 
 // HOOKS
-export * from './hooks';
+export * from './hooks/useClickOutside';
+export * from './hooks/useConstructor';
+export * from './hooks/useMediaQuery';
+export * from './hooks/useIntersection';
+export * from './hooks/useIntersectionAdvanced';
+export * from './hooks/useDisplaySettings';
+export * from './hooks/useFuncDebounce';
+export * from './hooks/useA11y';
+export { useLang, Lang } from './hooks/useLang';
+export * from './hooks/useDeepCompareEffect';
+export * from './hooks/useCreateController';
+export * from './hooks/useTracking';
 
 // PROVIDERS
 export * from './providers';

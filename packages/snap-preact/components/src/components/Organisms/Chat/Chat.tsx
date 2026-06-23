@@ -60,6 +60,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		secondaryAccentColorBg: '#000000',
 		secondaryAccentColorFg: '#ffffff',
 		position: 'right',
+		hideMessageTypeIndicatorText: false,
+		buttonBelowMessage: false,
 	};
 
 	let props = mergeProps('chat', globalTheme, defaultProps, properties);
@@ -71,6 +73,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		logo,
 		title,
 		subtitle,
+		avatar,
 		offset,
 		multiselectFacets,
 		disableBubbleSuggestedQuestions,
@@ -81,6 +84,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		secondaryAccentColorBg,
 		secondaryAccentColorFg,
 		position,
+		hideMessageTypeIndicatorText,
+		buttonBelowMessage,
 		disableStyles,
 		treePath,
 	} = props;
@@ -91,6 +96,21 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 	const colorSecondaryAccent = secondaryAccentColorBg!;
 	const colorSecondaryAccentText = secondaryAccentColorFg!;
 	const chatPosition: 'left' | 'right' = position === 'right' ? 'right' : 'left';
+
+	const isValidImageUrl = (value: string): boolean => {
+		try {
+			const { protocol } = new URL(value);
+			return protocol === 'http:' || protocol === 'https:' || protocol === 'data:';
+		} catch {
+			return false;
+		}
+	};
+
+	// A single-character avatar renders as a capitalized letter; a longer value renders
+	// as an image when it's a valid image URL. Anything else renders no avatar.
+	const avatarCharacter = avatar && avatar.length === 1 ? avatar.toUpperCase() : undefined;
+	const avatarImage = avatar && avatar.length > 1 && isValidImageUrl(avatar) ? avatar : undefined;
+
 	const { store } = controller;
 
 	const themeDefaults: Theme = {
@@ -112,6 +132,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 			treePath,
 			primaryColor: colorPrimary,
 			primaryColorText: colorPrimaryText,
+			hideMessageTypeIndicatorText,
 		},
 		messageText: {
 			disableStyles,
@@ -119,6 +140,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 			treePath,
 			primaryColor: colorPrimary,
 			primaryColorText: colorPrimaryText,
+			primaryAccentColor: colorPrimaryAccent,
+			primaryAccentColorText: colorPrimaryAccentText,
+			buttonBelowMessage,
 		},
 		suggestedQuestions: {
 			disableStyles,
@@ -433,6 +457,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 				<div className="ss__chat__history__header__buttons">
 					<Button
 						content="clear"
+						disabled={store.loading || store.blocked}
 						onClick={() => {
 							controller.store.clearHistory();
 							props.toggleOpen && props.toggleOpen();
@@ -452,7 +477,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 									onClick={() => {
 										controller.store.switchChat(chat.id);
 									}}
-									disabled={chat.id === store.currentChatId}
+									disabled={chat.id === store.currentChatId || store.loading || store.blocked}
 								>
 									<div className="ss__chat__history__chat__button__text">
 										{(() => {
@@ -572,19 +597,22 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		return <></>;
 	}
 
+	// Dismiss the secondary panel and clear any product attachments tied to the side-chat
+	// (discuss product flow), while preserving productSimilar/productComparison attachments.
+	const dismissSideChat = (): void => {
+		const productAttachmentsToRemove = (store.currentChat?.attachments.attached || []).filter(
+			(item) => item.type === 'product' && (item as any).requestType !== 'productSimilar' && (item as any).requestType !== 'productComparison'
+		);
+		productAttachmentsToRemove.forEach((item) => store.currentChat?.attachments.remove(item.id));
+		setMobileProductInfoOpen(false);
+		store.currentChat?.dismissSideChat();
+	};
+
 	const { swipeOffset, swipeAnimating, swipeHandlers } = useChatGestures({
 		panelRef: secondaryRef,
 		shouldShowSideChat: !!shouldShowSideChat,
 		activeMessageId: activeMessage?.id,
-		onDismiss: () => {
-			const attachments = store.currentChat?.attachments.attached || [];
-			const productAttachments = attachments.filter(
-				(item: any) => item.type === 'product' && item.requestType !== 'productSimilar' && item.requestType !== 'productComparison'
-			);
-			productAttachments.forEach((item) => store.currentChat?.attachments.remove(item.id));
-			setMobileProductInfoOpen(false);
-			store.currentChat?.dismissSideChat();
-		},
+		onDismiss: dismissSideChat,
 	});
 
 	const requestType = store.currentChat?.requestType;
@@ -630,9 +658,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 				>
 					{!disableBubbleSuggestedQuestions && !store.open && !store.currentChat && store.suggestedQuestions?.length > 0 && (
 						<div className="ss__chat__suggested-questions">
-							{store.suggestedQuestions.map((question, index) => (
+							{store.suggestedQuestions.map((question) => (
 								<div
-									key={index}
+									key={question}
 									className="ss__chat__suggested-questions__item"
 									onClick={() => {
 										controller.openChat(question);
@@ -685,7 +713,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 											{
 												inspirationResult: 'Inspiration Scenarios',
 												productComparison: 'Product Comparison',
-												productQuery: 'Product Information',
+												productQuery: '',
 											} as any
 										)[activeMessage.messageType] || null}
 									</div>
@@ -694,7 +722,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 											{
 												inspirationResult: 'Choose a style direction to explore',
 												productComparison: `Comparing ${(activeMessage as ChatResponseProductComparisonData)?.searchResults?.length || ''} products`,
-												productQuery: 'Complete product details',
+												productQuery: '',
 											} as any
 										)[activeMessage.messageType] || null}
 									</div>
@@ -704,20 +732,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 										className="ss__chat__header__button--close"
 										aria-label="Close chat"
 										icon={{ icon: 'close2', title: 'Close Chat' }}
-										onClick={() => {
-											// clear any product attachments tied to the side chat (discuss product flow)
-											// so the attachments bar disappears alongside the secondary panel
-											// but preserve productComparison attachments so the user can continue comparing
-											const productAttachmentsToRemove = (store.currentChat?.attachments.attached || []).filter(
-												(item) =>
-													item.type === 'product' &&
-													(item as any).requestType !== 'productSimilar' &&
-													(item as any).requestType !== 'productComparison'
-											);
-											productAttachmentsToRemove.forEach((item) => store.currentChat?.attachments.remove(item.id));
-											setMobileProductInfoOpen(false);
-											store.currentChat?.dismissSideChat();
-										}}
+										onClick={() => dismissSideChat()}
 									/>
 								</div>
 							</div>
@@ -758,10 +773,16 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 						</div>
 					) : null}
 					{store.open ? (
-						<div className={'ss__chat__primary'}>
+						<div
+							className={'ss__chat__primary'}
+							// On mobile, interacting with the primary chat (header or anywhere within)
+							// dismisses the secondary panel. Capture phase so it fires even when an
+							// inner control stops propagation.
+							onClickCapture={isMobile && shouldShowSideChat ? () => dismissSideChat() : undefined}
+						>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
-									{logo ? <img className="ss__chat__header__title__logo" src={logo} /> : null}
+									{logo ? <Image className="ss__chat__header__title__logo" src={logo} alt={title || 'Chat logo'} /> : null}
 									<div className="ss__chat__header__title__text">
 										{title ? <div className="ss__chat__header__title__text__primary">{title}</div> : null}
 										{subtitle ? <div className="ss__chat__header__title__text__secondary">{subtitle}</div> : null}
@@ -784,11 +805,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 										onClick={() => controller.store.createChat()}
 									/>
 									{store.chats.length > 1 && (
-										<Dropdown
-											disabled={store.chats.length == 1 && store.currentChat && store.currentChat.chat.length <= 1}
-											className="ss__chat__header__dropdown-history"
-											button={<HistoryButton />}
-										>
+										<Dropdown disabled={store.loading || store.blocked} className="ss__chat__header__dropdown-history" button={<HistoryButton />}>
 											<HistoryPopup />
 										</Dropdown>
 									)}
@@ -800,56 +817,56 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 									/>
 								</div>
 							</div>
-							{(() => {
-								const feedbackAfterMessages = controller.config.settings?.feedbackAfterMessages;
-								const systemMessages = (store.currentChat?.chat || []).filter(
-									(msg) => msg.messageType !== 'user' && msg.messageType !== 'productQuery'
-								);
-								const currentRating = store.currentChat?.sessionFeedback?.rating;
-								const hasRated = !!currentRating;
-								const shouldShowFeedback =
-									feedbackAfterMessages &&
-									systemMessages.length >= feedbackAfterMessages &&
-									!store.currentChat?.feedbackDismissed &&
-									(!hasRated || store.currentChat?.feedbackJustGiven);
-
-								return shouldShowFeedback ? (
-									<div className="ss__chat__session-feedback">
-										<div className="ss__chat__session-feedback__icon">
-											<Icon icon="chat" size="16px" />
-										</div>
-										<span className="ss__chat__session-feedback__label">
-											{hasRated ? 'Thank you for your feedback' : "How's your experience so far?"}
-										</span>
-										<div className={`ss__chat__session-feedback__actions${hasRated ? ' ss__chat__session-feedback__actions--rated' : ''}`}>
-											{(!hasRated || currentRating === 'UP') && (
-												<span onClick={() => !hasRated && controller.handleFeedback('UP')}>
-													<Icon icon={'thumbs-up'} size="16px" title={'Thumbs Up'} />
-												</span>
-											)}
-											{(!hasRated || currentRating === 'DOWN') && (
-												<span onClick={() => !hasRated && controller.handleFeedback('DOWN')}>
-													<Icon icon={'thumbs-down'} size="16px" title={'Thumbs Down'} />
-												</span>
-											)}
-										</div>
-										{!hasRated && (
-											<span
-												className="ss__chat__session-feedback__close"
-												onClick={() => {
-													if (store.currentChat) {
-														store.currentChat.feedbackDismissed = true;
-														store.currentChat.save();
-													}
-												}}
-											>
-												<Icon icon="close-thin" size="14px" />
-											</span>
-										)}
-									</div>
-								) : null;
-							})()}
 							<div className="ss__chat__content">
+								{(() => {
+									const feedbackAfterMessages = controller.config.settings?.feedbackAfterMessages;
+									const systemMessages = (store.currentChat?.chat || []).filter(
+										(msg) => msg.messageType !== 'user' && msg.messageType !== 'productQuery'
+									);
+									const currentRating = store.currentChat?.feedback.rating;
+									const hasRated = !!currentRating;
+									const shouldShowFeedback =
+										feedbackAfterMessages &&
+										systemMessages.length >= feedbackAfterMessages &&
+										!store.currentChat?.feedback.dismissed &&
+										(!hasRated || store.currentChat?.feedback.justGiven);
+
+									return shouldShowFeedback ? (
+										<div className="ss__chat__session-feedback">
+											<div className="ss__chat__session-feedback__icon">
+												<Icon icon="chat" size="16px" />
+											</div>
+											<span className="ss__chat__session-feedback__label">
+												{hasRated ? 'Thank you for your feedback' : "How's your experience so far?"}
+											</span>
+											<div className={`ss__chat__session-feedback__actions${hasRated ? ' ss__chat__session-feedback__actions--rated' : ''}`}>
+												{(!hasRated || currentRating === 'UP') && (
+													<span onClick={() => !hasRated && controller.handleFeedback('UP')}>
+														<Icon icon={'thumbs-up'} size="16px" title={'Thumbs Up'} />
+													</span>
+												)}
+												{(!hasRated || currentRating === 'DOWN') && (
+													<span onClick={() => !hasRated && controller.handleFeedback('DOWN')}>
+														<Icon icon={'thumbs-down'} size="16px" title={'Thumbs Down'} />
+													</span>
+												)}
+											</div>
+											{!hasRated && (
+												<span
+													className="ss__chat__session-feedback__close"
+													onClick={() => {
+														if (store.currentChat) {
+															store.currentChat.feedback.dismissed = true;
+															store.currentChat.save();
+														}
+													}}
+												>
+													<Icon icon="close-thin" size="14px" />
+												</span>
+											)}
+										</div>
+									) : null;
+								})()}
 								<div
 									ref={headerRef}
 									className={classnames('ss__chat__content__header', {
@@ -949,9 +966,10 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 									)}
 									{store.currentChat?.chat
 										.filter((chatItem) => chatItem.messageType !== 'productQuery')
-										.map((chatItem, index) => (
-											<div key={index} className={`ss__chat__message ss__chat__message--${chatItem.messageType}`}>
-												{{
+										.map((chatItem) => {
+											const showAvatar = !!(avatarCharacter || avatarImage) && chatItem.messageType !== 'user';
+											const messageContent =
+												{
 													user: (
 														<ChatMessageUser
 															{...subProps.messageUser}
@@ -1080,9 +1098,29 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 														/>
 													),
 													productQuery: null,
-												}[chatItem.messageType] || null}
-											</div>
-										))}
+												}[chatItem.messageType] || null;
+
+											return (
+												<div
+													key={chatItem.id}
+													className={classnames(`ss__chat__message`, `ss__chat__message--${chatItem.messageType}`, {
+														'ss__chat__message--with-avatar': showAvatar,
+													})}
+												>
+													{showAvatar && (
+														<div
+															className={classnames('ss__chat__message__avatar', {
+																'ss__chat__message__avatar--image': !!avatarImage,
+															})}
+															aria-hidden="true"
+														>
+															{avatarImage ? <Image src={avatarImage} alt="" /> : avatarCharacter}
+														</div>
+													)}
+													{showAvatar ? <div className="ss__chat__message__content">{messageContent}</div> : messageContent}
+												</div>
+											);
+										})}
 									<div className="ss__chat__messages__end" ref={messagesEndRef} />
 									{showNewMessages && messagesOverflow && (
 										<div
@@ -1686,6 +1724,7 @@ export type ChatTemplatesLegalProps = {
 	logo?: string;
 	title?: string;
 	subtitle?: string;
+	avatar?: string;
 	offset?: string | number;
 	multiselectFacets?: boolean;
 	disableBubbleSuggestedQuestions?: boolean;
@@ -1696,6 +1735,8 @@ export type ChatTemplatesLegalProps = {
 	primaryAccentColorFg?: string;
 	secondaryAccentColorBg?: string;
 	secondaryAccentColorFg?: string;
+	hideMessageTypeIndicatorText?: boolean;
+	buttonBelowMessage?: boolean;
 };
 
 export interface ChatLang {

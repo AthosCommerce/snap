@@ -16,7 +16,7 @@ export const SearchHorizontal = observer((properties: SearchHorizontalProps) => 
 export type SearchHorizontalProps = {
 	controller: SearchController;
 } & SearchProps &
-	SearchHorizontalTemplatesLegalProps &
+	Omit<SearchHorizontalTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchHorizontalTemplatesLegalProps = SearchTemplatesLegalProps;

@@ -31,7 +31,6 @@ const autocompleteFixedStyleScript = (props: AutocompleteFixedProps) => {
 
 	// autocomplete fixed styles
 	const fixedStyles = css({
-		...custom.styles.boxSizing('autocompleteFixed', props?.treePath, props?.name),
 		'.ss__modal': {
 			'.ss__modal__content': {
 				'.ss__autocomplete-fixed__inner': {
@@ -90,7 +89,7 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed'] || {}),
 			themeStyleScript: autocompleteFixedStyleScript,
-			layout: 'standard',
+			layout: 'desktop',
 			width: '940px',
 			viewportMaxHeight: false,
 			contentTitle: 'Product Suggestions',
@@ -146,7 +145,7 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.mobile,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.mobile?.['autocompleteFixed'] || {}),
-			layout: 'mini',
+			layout: 'mobile',
 			width: 'auto',
 		},
 		'autocompleteFixed terms': {
@@ -169,7 +168,7 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.tablet,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.tablet?.['autocompleteFixed'] || {}),
-			layout: 'standard',
+			layout: 'desktop',
 			width: '600px',
 		},
 		'autocompleteFixed terms': {
@@ -208,7 +207,7 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.desktop,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.desktop?.['autocompleteFixed'] || {}),
-			layout: 'standard',
+			layout: 'desktop',
 			width: '700px',
 		},
 		'autocompleteFixed terms': {

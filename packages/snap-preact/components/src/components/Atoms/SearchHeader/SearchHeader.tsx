@@ -3,16 +3,15 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { SearchMerchandisingStore, SearchPaginationStore, SearchQueryStore } from '@athoscommerce/snap-store-mobx';
 import classnames from 'classnames';
-import { useLang, useComponent } from '../../../hooks';
+import { useLang, useCustomComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import deepmerge from 'deepmerge';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<SearchHeaderProps> = () => {
 	return css({});
@@ -20,7 +19,6 @@ const defaultStyles: StyleScript<SearchHeaderProps> = () => {
 
 export const SearchHeader = observer((properties: SearchHeaderProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const landingPage = properties.controller?.store.merchandising.landingPage || properties.merchandising?.landingPage;
@@ -62,14 +60,12 @@ export const SearchHeader = observer((properties: SearchHeaderProps) => {
 		hideNoResultsText,
 		hideExpandedSearchText,
 		hideDidYouMeanText,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.searchHeader || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('searchHeader', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<SearchHeaderProps>(props, defaultStyles);

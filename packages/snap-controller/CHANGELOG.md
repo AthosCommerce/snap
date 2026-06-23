@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
+
+**Note:** Version bump only for package @athoscommerce/snap-controller
+
+# [1.6.0](https://github.com/AthosCommerce/snap/compare/v1.5.1...v1.6.0) (2026-06-03)
+
+### Features
+
+- **snaptemplates:** adding spots in the config for you to pass controller config settings and globals ([b914c03](https://github.com/AthosCommerce/snap/commit/b914c0391af7a0566453b9d41fa97432ae7f635c))
+
+## [1.5.1](https://github.com/AthosCommerce/snap/compare/v1.5.0...v1.5.1) (2026-05-28)
+
+**Note:** Version bump only for package @athoscommerce/snap-controller
+
 # [1.5.0](https://github.com/AthosCommerce/snap/compare/v1.4.0...v1.5.0) (2026-05-11)
 
 **Note:** Version bump only for package @athoscommerce/snap-controller

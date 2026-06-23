@@ -3,16 +3,15 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap, withTracking } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, withTracking } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { CalloutBadge, OverlayBadge, Price } from '../../..';
-import { useComponent } from '../../../hooks';
+import { useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ChatResultProps> = () => {
 	return css({
@@ -24,6 +23,16 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 		border: '1px solid #e5e7eb',
 		borderRadius: '1em',
 		overflow: 'hidden',
+		// rest slightly scaled down and grow to full size on hover so the zoom
+		// reads as a subtle enlargement without ever exceeding the slide bounds
+		// (the surrounding Slideshow clips overflow), which would otherwise crop
+		// the card's border on hover
+		transform: 'scale(0.96)',
+		transition: 'transform 0.3s ease',
+
+		'&:hover': {
+			transform: 'scale(1)',
+		},
 
 		'.ss__chat-result__image': {
 			width: '100%',
@@ -121,17 +130,15 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 				color: '#000',
 				fontWeight: 'bold',
 				fontSize: '1.2em',
-				marginTop: 'auto',
 			},
 		},
 	});
 };
 
 export const ChatResult = withTracking(
-	observer((properties: ChatResultProps): JSX.Element => {
+	observer((properties: ChatResultProps) => {
 		const globalTheme: Theme = useTheme();
 		const globalTreePath = useTreePath();
-		const snap = useSnap();
 
 		const defaultProps: Partial<ChatResultProps> = {
 			treePath: globalTreePath,
@@ -139,13 +146,15 @@ export const ChatResult = withTracking(
 
 		const props = mergeProps('chatResult', globalTheme, defaultProps, properties);
 
-		const { controller, result, scrollToBottom, customComponent, trackingRef, disableStyles, className, internalClassName, treePath } = props;
+		const { controller, result, scrollToBottom, trackingRef, disableStyles, className, internalClassName, treePath } = props;
 
-		if (customComponent) {
-			const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
-			if (ComponentOverride) {
-				return <ComponentOverride {...props} />;
-			}
+		const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatResult', {
+			...props,
+			customComponent: props.customComponent && props.customComponent !== 'ChatResult' ? props.customComponent : undefined,
+		});
+
+		if (!shouldRenderDefault) {
+			return overrideElement;
 		}
 
 		const isInComparison = controller.store.currentChat?.comparisons.items.some((item) => item.result?.id === result.id);
@@ -206,6 +215,11 @@ export const ChatResult = withTracking(
 								}
 								aria-pressed={isInComparison}
 								onClick={() => {
+									// toggle: clicking again removes it from comparison, matching the 'x' icon in the comparison view
+									if (isInComparison) {
+										controller.store.currentChat?.comparisons.remove(result.id);
+										return;
+									}
 									controller.compareProduct(result);
 								}}
 							/>

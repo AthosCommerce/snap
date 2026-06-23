@@ -138,9 +138,11 @@ describe('BundledRecommendations', () => {
 						}
 
 						//price
-						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-list__wrapper__cta__subtotal__price`)
-							.should('exist')
-							.contains(`$${store.cart.price}`);
+						if (store.results.filter((result) => result.mappings.core.price).length) {
+							cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-list__wrapper__cta__subtotal__price`)
+								.should('exist')
+								.contains(`$${store.cart.price}`);
+						}
 						//button
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-list__wrapper__cta__button`)
 							.should('exist')

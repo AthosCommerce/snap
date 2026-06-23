@@ -1,8 +1,13 @@
 import { h } from 'preact';
 
 import type { JSXComponent, Theme, ThemeComplete, ThemeMinimal } from '../../../components/src';
-import { transformTranslationsToTheme, type TemplateCustomComponentTypes, type TemplateTypes } from './TemplateStore';
+import { transformTranslationsToTheme, type TemplateTypes } from './TemplateStore';
 import type { TemplateStoreComponentConfigUnlocked } from './TemplateStore';
+import {
+	ALL_CUSTOM_COMPONENT_TYPES,
+	DEFAULT_CUSTOM_COMPONENT_TYPES,
+	type TemplateCustomComponentTypes,
+} from '../../../components/src/providers/themeComponents';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
@@ -87,14 +92,11 @@ export type LibraryImports = {
 				RecommendationEmail: (args?: any) => Promise<JSXComponent>;
 			};
 		};
-		chat: LibraryComponentImport & {
-			Chat: (args?: any) => Promise<JSXComponent>;
-		};
-		badge: LibraryComponentImport;
-		result: LibraryComponentImport & {
-			Result: (args?: any) => Promise<JSXComponent>;
-		};
 		/* individual library components */
+		chat: LibraryComponentImport;
+		badge: LibraryComponentImport;
+		result: LibraryComponentImport;
+		overlayResult: LibraryComponentImport;
 		badgeImage: LibraryComponentImport;
 		badgePill: LibraryComponentImport;
 		badgeRectangle: LibraryComponentImport;
@@ -161,74 +163,6 @@ export type LibraryImports = {
 		[currencyName in CurrencyCodes]: () => Promise<ThemeMinimal>;
 	};
 };
-const DEFAULT_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = ['result', 'badge'];
-
-const ALL_CUSTOM_COMPONENT_TYPES: TemplateCustomComponentTypes[] = [
-	'result',
-	'badge',
-	/* atoms */
-	'badgeImage',
-	'badgePill',
-	'badgeRectangle',
-	'badgeText',
-	'breadcrumbs',
-	'button',
-	'dropdown',
-	'formattedNumber',
-	'icon',
-	'image',
-	'loadingBar',
-	'banner',
-	'inlineBanner',
-	'overlay',
-	'paginationInfo',
-	'slideshow',
-	'price',
-	'skeleton',
-	/* molecules */
-	'modal',
-	'calloutBadge',
-	'carousel',
-	'checkbox',
-	'grid',
-	'layoutSelector',
-	'list',
-	'radio',
-	'errorHandler',
-	'facetGridOptions',
-	'facetHierarchyOptions',
-	'facetListOptions',
-	'facetPaletteOptions',
-	'facetSlider',
-	'filter',
-	'loadMore',
-	'overlayBadge',
-	'pagination',
-	'perPage',
-	'radioList',
-	'rating',
-	'searchInput',
-	'select',
-	'slideout',
-	'sortBy',
-	'swatches',
-	'variantSelection',
-	'terms',
-	/* organisms */
-	'branchOverride',
-	'facet',
-	'facets',
-	'facetsHorizontal',
-	'filterSummary',
-	'noResults',
-	'results',
-	'searchHeader',
-	'sidebar',
-	'mobileSidebar',
-	'toolbar',
-	'termsList',
-];
-
 type LibraryStoreConfig = {
 	components?: TemplateStoreComponentConfigUnlocked;
 	unlocked?: boolean;
@@ -253,6 +187,7 @@ export class LibraryStore {
 		chat: LibraryComponentMap;
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
+		overlayResult: LibraryComponentMap;
 		/* individual library components */
 		badgeImage: LibraryComponentMap;
 		badgePill: LibraryComponentMap;
@@ -323,6 +258,7 @@ export class LibraryStore {
 		chat: {},
 		badge: {},
 		result: {},
+		overlayResult: {},
 		/* individual library components */
 		badgeImage: {},
 		badgePill: {},
@@ -552,8 +488,15 @@ export class LibraryStore {
 				Result: async () => {
 					return this.components.result.Result || (this.components.result.Result = (await import('./library/components/Result')).Result);
 				},
+				OverlayResult: async () => {
+					return (
+						this.components.overlayResult.OverlayResult ||
+						(this.components.overlayResult.OverlayResult = (await import('./library/components/OverlayResult')).OverlayResult)
+					);
+				},
 			},
 			/* individual library components */
+			overlayResult: {},
 			badgeImage: {},
 			badgePill: {},
 			badgeRectangle: {},
@@ -641,7 +584,7 @@ export class LibraryStore {
 
 	constructor(params?: LibraryStoreConfig) {
 		const { components, unlocked } = params || {};
-		this.allowedComponentTypes = unlocked ? ALL_CUSTOM_COMPONENT_TYPES : DEFAULT_CUSTOM_COMPONENT_TYPES;
+		this.allowedComponentTypes = unlocked ? [...ALL_CUSTOM_COMPONENT_TYPES] : [...DEFAULT_CUSTOM_COMPONENT_TYPES];
 
 		// allow for configuration to supply custom component imports
 		if (components) {

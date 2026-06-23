@@ -123,16 +123,14 @@ describe('Chat Controller', () => {
 			expect(controller.store.features.imageSearch.enabled).toBe(false);
 		});
 
-		it('falls back to default response when chatStatus API throws', async () => {
+		it('disables chat when chatStatus API throws', async () => {
 			const controller = createController();
 			controller.client.chatStatus = jest.fn().mockRejectedValue(new Error('Network error'));
 
 			const result = await controller.checkChatStatus();
 
-			// fallback enables chat with default suggested questions
-			expect(result).toBe(true);
-			expect(controller.store.chatEnabled).toBe(true);
-			expect(controller.store.suggestedQuestions.length).toBeGreaterThan(0);
+			expect(result).toBe(false);
+			expect(controller.store.chatEnabled).toBe(false);
 		});
 	});
 
@@ -475,6 +473,37 @@ describe('Chat Controller', () => {
 		});
 	});
 
+	describe('reopenProductQuery', () => {
+		it('reactivates the message and reloads the quickview for its product when the slot is stale', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest.fn().mockResolvedValue({
+				mappings: { core: { name: 'Discussed Product' } },
+				variants: { optionConfig: {}, data: [] },
+			});
+
+			const product = {
+				id: 'prod1',
+				mappings: { core: { parentId: 'parent1', name: 'Discussed Product' } },
+			} as unknown as Product;
+
+			controller.store.currentChat!.pushProductQueryMessage(product);
+			const message = controller.store.currentChat!.chat.find((m) => m.messageType === 'productQuery')!;
+
+			// The single quickview slot has been cleared (or holds another product) since
+			// the message was created — reopening must restore it.
+			controller.store.clearProductQuickview();
+			expect(controller.store.productQuickview).toBeNull();
+
+			await controller.reopenProductQuery(message);
+
+			expect(controller.store.currentChat!.activeMessageId).toBe(message.id);
+			expect(controller.store.productQuickview).not.toBeNull();
+			expect(controller.client.products).toHaveBeenCalledWith({ parentId: 'parent1' });
+		});
+	});
+
 	describe('compareProduct', () => {
 		it('adds a product to the comparison set', () => {
 			const controller = createController();
@@ -669,8 +698,8 @@ describe('Chat Controller', () => {
 
 			controller.handleFeedback('UP');
 
-			expect(controller.store.currentChat!.sessionFeedback).toEqual({ rating: 'UP' });
-			expect(controller.store.currentChat!.feedbackJustGiven).toBe(true);
+			expect(controller.store.currentChat!.feedback.rating).toBe('UP');
+			expect(controller.store.currentChat!.feedback.justGiven).toBe(true);
 		});
 
 		it('records thumbs down feedback', () => {
@@ -679,7 +708,7 @@ describe('Chat Controller', () => {
 
 			controller.handleFeedback('DOWN');
 
-			expect(controller.store.currentChat!.sessionFeedback).toEqual({ rating: 'DOWN' });
+			expect(controller.store.currentChat!.feedback.rating).toBe('DOWN');
 		});
 
 		it('does nothing when no current chat exists', () => {
@@ -696,10 +725,10 @@ describe('Chat Controller', () => {
 			controller.store.createChat({ sessionId: 'test-session-001' });
 
 			controller.handleFeedback('UP');
-			expect(controller.store.currentChat!.feedbackDismissed).toBeFalsy();
+			expect(controller.store.currentChat!.feedback.dismissed).toBeFalsy();
 
 			jest.advanceTimersByTime(3000);
-			expect(controller.store.currentChat!.feedbackDismissed).toBe(true);
+			expect(controller.store.currentChat!.feedback.dismissed).toBe(true);
 
 			jest.useRealTimers();
 		});

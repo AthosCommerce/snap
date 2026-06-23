@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import type { ImageProps, ImageTemplatesLegalProps } from '../../../../components/Atoms/Image';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 
 // CSS in JS style script for the Image component
 const imageStyleScript = (props: ImageProps) => {
@@ -10,7 +9,6 @@ const imageStyleScript = (props: ImageProps) => {
 
 	// image styles
 	const imageStyles = css({
-		...custom.styles.boxSizing('image', props?.treePath, props?.name),
 		'&, img': {
 			lineHeight: 0,
 		},

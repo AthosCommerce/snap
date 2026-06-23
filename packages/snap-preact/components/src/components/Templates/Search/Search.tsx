@@ -89,10 +89,8 @@ export const Search = observer((properties: SearchProps) => {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
 	}
 
-	// handle selected layoutOptions
-	if (globalTheme?.name && props.layoutOptions) {
-		useLayoutOptions(props, globalTheme);
-	}
+	// handle selected layoutOptions - must always call to preserve hook order
+	useLayoutOptions(props, globalTheme);
 
 	const store = controller.store;
 
@@ -160,7 +158,7 @@ export const Search = observer((properties: SearchProps) => {
 			name: 'middle',
 			internalClassName: `${classNamePrefix}__content__toolbar--middle-toolbar`,
 			layout: isMobile
-				? [['mobileSidebar', '_', 'paginationInfo'], ['banner.banner']]
+				? [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']]
 				: [['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
 			// inherited props
@@ -251,10 +249,11 @@ export type SearchProps = {
 	lang?: Partial<SearchLang>;
 	alias?: 'searchCollapsible' | 'searchHorizontal';
 	resultComponent?: JSXComponent | JSX.Element;
-} & SearchTemplatesLegalProps &
+} & Omit<SearchTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
 export type SearchTemplatesLegalProps = {
+	resultComponent?: string;
 	mobileDisplayAt?: string;
 	hideSidebar?: boolean;
 	hideTopToolbar?: boolean;

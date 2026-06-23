@@ -15,7 +15,6 @@ const recommendationGridStyleScript = (props: RecommendationGridProps) => {
 	const sharedStyles = css({
 		margin: `${custom.spacing.x8}px 0`,
 		maxHeight: 'none',
-		...custom.styles.boxSizing('recommendationGrid', props?.treePath, props?.name),
 		'.ss__recommendation-grid__title': {
 			margin: `0 0 ${custom.spacing.x4}px 0`,
 			...custom.styles.headerText(variables?.colors?.secondary, '18px'),

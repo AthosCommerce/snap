@@ -28,4 +28,16 @@ describe('ChatMessageUser Component', () => {
 		const rendered = render(<ChatMessageUser chatItem={{ id: '1', text: 'sneakers', requestType: 'productSearch' }} controller={makeController()} />);
 		expect(rendered.getByText('Searching products')).toBeInTheDocument();
 	});
+
+	it('hides the request type label when hideMessageTypeIndicatorText is true', () => {
+		const rendered = render(
+			<ChatMessageUser
+				chatItem={{ id: '1', text: 'sneakers', requestType: 'productSearch' }}
+				controller={makeController()}
+				hideMessageTypeIndicatorText={true}
+			/>
+		);
+		expect(rendered.queryByText('Searching products')).not.toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__chat-message-user__request-type')).not.toBeInTheDocument();
+	});
 });

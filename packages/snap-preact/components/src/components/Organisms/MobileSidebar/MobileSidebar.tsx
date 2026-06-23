@@ -2,15 +2,14 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import type { ComponentProps, StyleScript } from '../../../types';
 import { Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import type { SideBarModuleNames } from '../Sidebar';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { MutableRef, useRef } from 'preact/hooks';
 import type { IconProps, IconType } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
@@ -56,14 +55,13 @@ const defaultStyles: StyleScript<MobileSidebarProps> = ({}) => {
 
 export const MobileSidebar = observer((properties: MobileSidebarProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<MobileSidebarProps> = {
 		openButtonText: 'Filters',
 		clearButtonText: 'Clear All',
 		applyButtonText: 'Apply',
-		layout: ['filterSummary', 'sortBy', 'perPage', 'facets', 'banner.left'],
+		layout: ['filterSummary', 'facets', 'banner.left'],
 		titleText: 'Filter Options',
 		displayAt: '',
 		closeButtonIcon: 'close-thin',
@@ -99,14 +97,12 @@ export const MobileSidebar = observer((properties: MobileSidebarProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.mobileSidebar || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('mobileSidebar', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let hideFooter = props.hideFooter;

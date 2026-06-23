@@ -671,4 +671,37 @@ describe('RecommendationBundle Component', async () => {
 		// reset the viewport to 1200px.
 		cy.viewport(1200, 750);
 	});
+
+	it('does not send impression events for the bundle seed product', () => {
+		const seedResult = controller.store.results.filter((r) => r.bundleSeed).pop();
+		const nonSeedResults = controller.store.results.filter((r) => !r.bundleSeed);
+
+		cy.spy(controller.track.product, 'impression').as('impression');
+
+		// carousel.enabled: false renders all results inline (no Swiper) so all are in viewport.
+		// lazyRender.enabled: false makes the component visible immediately.
+		// The seed still gets track={{ impression: false }} via the renderedResults mapping.
+		mount(
+			<RecommendationBundle
+				controller={controller}
+				carousel={{ enabled: false }}
+				lazyRender={{ enabled: false }}
+				onAddToCart={cy.stub().as('onAddToCart')}
+			/>
+		);
+
+		cy.get('.ss__recommendation-bundle').should('exist');
+
+		// Wait for the minimum visible time (1000ms) plus buffer so all in-viewport impressions have fired
+		cy.wait(1100);
+
+		// Seed must never have triggered an impression —
+		// RecommendationBundle passes track={{ impression: false }} to the seed's ResultTracker
+		cy.get('@impression').should('not.have.been.calledWith', seedResult);
+
+		// Non-seed results should have triggered impressions (all rendered inline and in viewport)
+		nonSeedResults.forEach((result) => {
+			cy.get('@impression').should('have.been.calledWith', result);
+		});
+	});
 });

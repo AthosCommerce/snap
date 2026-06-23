@@ -1,18 +1,20 @@
 import { h } from 'preact';
 import classnames from 'classnames';
 import { css } from '@emotion/react';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, SwatchOption, BreakpointsProps, StyleScript } from '../../../types';
-import { useA11y, useComponent, useDisplaySettings } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useA11y, useDisplaySettings, useCustomComponentOverride } from '../../../hooks';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Grid, GridProps } from '../Grid';
 import { ImageProps, Image } from '../../Atoms/Image';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
-import Color from 'color';
+import { colord, extend } from 'colord';
+import namesPlugin from 'colord/plugins/names';
 import { Slideshow, SlideshowSlide, SlideshowProps } from '../Slideshow';
 import { useState } from 'preact/hooks';
+
+extend([namesPlugin]);
 
 const defaultStyles: StyleScript<SwatchesProps> = ({ theme }) => {
 	return css({
@@ -72,7 +74,6 @@ const defaultStyles: StyleScript<SwatchesProps> = ({ theme }) => {
 
 export function Swatches(properties: SwatchesProps) {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultCarouselBreakpoints = {
@@ -120,14 +121,12 @@ export function Swatches(properties: SwatchesProps) {
 		};
 	}
 
-	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath, customComponent } =
-		props;
+	const { onSelect, disabled, options, hideLabels, disableStyles, className, internalClassName, type, slideshow, grid, treePath } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.swatches || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('swatches', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: SwatchesSubProps = {
@@ -203,12 +202,16 @@ export function Swatches(properties: SwatchesProps) {
 				const label = option.label;
 				const selected = selection?.value == option.value;
 				let isDark = false;
-				try {
-					const color = new Color(
-						option.background ? option.background.toLowerCase() : option.backgroundImageUrl ? `` : option.value.toString().toLowerCase()
-					);
-					isDark = color.isDark();
-				} catch (err) {}
+				const colorString = option.background?.toLowerCase() || (!option.backgroundImageUrl ? option.value?.toString().toLowerCase() : null);
+
+				if (colorString) {
+					try {
+						const color = colord(colorString);
+						if (color.isValid()) {
+							isDark = color.isDark();
+						}
+					} catch (err) {}
+				}
 
 				slidesArray.push({
 					onClick: (e) => !disabled && !option?.disabled && makeSelection(e as any, option),

@@ -6,9 +6,6 @@ import { recommendationCTAStyleScript } from './recommendationCTA';
 import { custom } from '../../custom';
 
 // static variables
-const activeColors = custom.utils.activeColors();
-const activeColor = activeColors[0];
-const fontColor = activeColors[1];
 const seedBadgeHeight = 22;
 const checkboxHeight = 16;
 
@@ -18,6 +15,11 @@ const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 	const variables = props?.theme?.variables;
 	const tabletBp = variables?.breakpoints?.tablet as number;
 	const mobileBp = variables?.breakpoints?.mobile as number;
+
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColor = activeColors[0];
+	const fontColor = activeColors[1];
+
 	// bundle shared styles
 	const sharedStyles = css({
 		'.ss__recommendation-bundle__wrapper__cta': {
@@ -28,7 +30,6 @@ const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 	// bundle styles
 	const bundleStyles = css({
 		margin: `${custom.spacing.x8}px 0`,
-		...custom.styles.boxSizing('recommendationBundle', props?.treePath, props?.name),
 		'.ss__recommendation-bundle__title, .ss__recommendation-bundle__description': {
 			margin: `0 0 ${custom.spacing.x4}px 0`,
 		},
@@ -36,7 +37,7 @@ const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 			...custom.styles.headerText(variables?.colors?.secondary, '18px'),
 		},
 		'.ss__recommendation-bundle__description': {
-			...custom.styles.baseText(variables?.colors?.text),
+			...custom.styles.baseText(),
 		},
 		'.ss__recommendation-bundle__wrapper': {
 			flexFlow: 'row wrap',
@@ -162,13 +163,9 @@ export const recommendationBundle: ThemeComponent<'recommendationBundle', Recomm
 			separatorIcon: false,
 			separatorIconSeedOnly: false,
 		},
-		'recommendationBundle checkbox icon': {
-			color: custom.colors.primary,
-		},
 		'recommendationBundle icon.bundle-cart': {
 			size: `${custom.sizes.icon16 * 2}px`,
 			icon: custom.icons.bag,
-			color: custom.colors.secondary,
 		},
 		'recommendationBundle carousel': {
 			spaceBetween: custom.spacing.x4,

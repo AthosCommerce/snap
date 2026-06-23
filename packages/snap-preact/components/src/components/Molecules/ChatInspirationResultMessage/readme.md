@@ -1,10 +1,10 @@
 # ChatInspirationResultMessage
 
-Renders an `inspirationResult` chat message. Each `inspirationSection` is rendered as a card with a cluster title, description, a row of keyboard-accessible "search query" buttons (each clicks-through to a productSearch via `controller.search()`), and a horizontal carousel of product thumbnails.
+Renders an `inspirationResult` chat message. Each `inspirationSection` is rendered as a card with a cluster title, description, a row of keyboard-accessible "search query" buttons (each clicks-through to a productSearch via `controller.search()`), and a horizontal slideshow of product thumbnails.
 
 ## Sub-components
 - Image
-- Carousel
+- Slideshow
 
 ## Usage
 ```tsx

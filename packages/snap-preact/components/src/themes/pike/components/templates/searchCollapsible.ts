@@ -12,7 +12,6 @@ const searchCollapsibleStyleScript = (props: SearchCollapsibleProps) => {
 
 	// search collapsible styles
 	const searchCollapsibleStyles = css({
-		...custom.styles.boxSizing('searchCollapsible', props?.treePath, props?.name),
 		'&:not(:has(.ss__no-results))': {
 			'.ss__search-collapsible__header-section': {
 				margin: `0 0 ${custom.spacing.x4}px 0`,

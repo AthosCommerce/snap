@@ -10,10 +10,9 @@ const sidebarStyleScript = (props: SidebarProps) => {
 
 	// sidebar styles
 	const sidebarStyles = css({
-		...custom.styles.boxSizing('sidebar', props?.treePath, props?.name),
 		'.ss__sidebar__title': {
 			margin: `0 0 ${custom.spacing.x6}px 0`,
-			...custom.styles.headerText(variables?.colors?.secondary, '20px'),
+			...custom.styles.headerText(variables?.colors?.primary, '20px'),
 		},
 		'.ss__sidebar__inner': {
 			'.ss__layout': {

@@ -11,7 +11,6 @@ const badgeTextStyleScript = (props: BadgeTextProps) => {
 	// badge text styles
 	const badgeTextStyles = css({
 		padding: 0,
-		...custom.styles.boxSizing('badgeText', props?.treePath, props?.name),
 		span: {
 			...custom.styles.badgeText(12),
 		},

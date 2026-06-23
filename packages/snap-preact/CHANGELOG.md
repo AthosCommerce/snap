@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
+
+### Bug Fixes
+
+- **carousel:** navigation arrows can be turned off by navigation false prop ([e5cf848](https://github.com/AthosCommerce/snap/commit/e5cf84810e472d620af3f21a583a87cfde13f781))
+- **mergeprops:** bugfix for activebreakpoint being responsive ([e742763](https://github.com/AthosCommerce/snap/commit/e742763b74d548daccdea9c5c264911c545e03d8))
+- **result:** bugfix for result component infinite rerender when using customComponent of itself ([7d41c98](https://github.com/AthosCommerce/snap/commit/7d41c987a2aa80b5164e42e5327f1d81a7cec37c))
+- **result:** bugfix to not render a 0 if there are no selections.length ([55cb565](https://github.com/AthosCommerce/snap/commit/55cb565039c6284d38001db3f3e43f4abfb48aac))
+- **usecomponent:** big refactor to useComponent usage across all component ([acefb7e](https://github.com/AthosCommerce/snap/commit/acefb7e4cf7258a73feca83fd90ae7f3ec66d161))
+- **uselayoutoptions:** bugfix for useLayoutOptions only being called on certain breakpoints, and removing the hook on others breaking hook order ([74dca83](https://github.com/AthosCommerce/snap/commit/74dca83df50afb461039f948aa38c3924deab109))
+
+### Features
+
+- **autocompletelayout:** adding an additional prebuilt layout for tablet, and docs and tests for all prebuilt layouts ([505675b](https://github.com/AthosCommerce/snap/commit/505675b13e100b07c61da381983bba2bbbd6d4b2))
+- **icon:** adding a new prop to icon to directly render a passed in svg ([582ebb0](https://github.com/AthosCommerce/snap/commit/582ebb0e9f00e537e1371bd8b723983f63f56b0d))
+- **overlayresult:** new result component overlayResult ([eef6914](https://github.com/AthosCommerce/snap/commit/eef6914e27caa77e8cff88d8edc1b6d86af122cc))
+- **results:** adding new prop to disable inline Banners ([ead5628](https://github.com/AthosCommerce/snap/commit/ead56287ac068a349c9e07fbc164da78f5ff75bb))
+
+# [1.6.0](https://github.com/AthosCommerce/snap/compare/v1.5.1...v1.6.0) (2026-06-03)
+
+### Bug Fixes
+
+- **facet:** bugfix for searchable facet input clear button onclick ([c2c217f](https://github.com/AthosCommerce/snap/commit/c2c217f474efefc68f707caed2bafcdedac21702))
+- **grid:** any instance of colord isDark usage was not working as expected ([9ef4051](https://github.com/AthosCommerce/snap/commit/9ef405143a6c598e68a3230aaa2ee9561705cab0))
+- **layoutselector-pike:** removing hardcoded ccp prop values that block usage of props ([2a12b15](https://github.com/AthosCommerce/snap/commit/2a12b15197698bbec5f5d14c7f8e4db02f27086c))
+- **mergeprops:** add support for numeric component names and use in treepath and ccp ([a406211](https://github.com/AthosCommerce/snap/commit/a406211f970557ef04a4bba4756581a2168c05e3))
+- **pike-checkbox:** bugfix for pike checkbox to use prop colors ([c1d2d77](https://github.com/AthosCommerce/snap/commit/c1d2d77e6c45542598d4ab238d712da26884bef6))
+- **uselayoutoptions:** bugfix for defining layoutoptions on a breakpoint ([5cb7a9f](https://github.com/AthosCommerce/snap/commit/5cb7a9f64acb786d2ebbfe096182365ee3865f56))
+
+### Features
+
+- **snaptemplates:** adding spots in the config for you to pass controller config settings and globals ([b914c03](https://github.com/AthosCommerce/snap/commit/b914c0391af7a0566453b9d41fa97432ae7f635c))
+
+## [1.5.1](https://github.com/AthosCommerce/snap/compare/v1.5.0...v1.5.1) (2026-05-28)
+
+### Bug Fixes
+
+- **searchinput:** fixing the ability to turn off input buttons by adding new props ([d855b26](https://github.com/AthosCommerce/snap/commit/d855b26e061e2ff125d6f6c64f9e3a4d3ae54a7f))
+- **templateeditorstore:** adding isValid check for colord ([f593efe](https://github.com/AthosCommerce/snap/commit/f593efedbe94c918104d1b9fbb5b244d66c09d4b))
+- **theme:** adding new required type field to themes for us to identify snap templates theme from a user specified theme ([ee875d6](https://github.com/AthosCommerce/snap/commit/ee875d617b48c858195bb920e64e511fd46bbb54))
+- **themecomponents:** update types to fix typescript issues ([71eae28](https://github.com/AthosCommerce/snap/commit/71eae287771c25b80cae577c1103c53c8f65bb80))
+- trackingRef incorrectly setting ref for inlineBanner ([b8e8c31](https://github.com/AthosCommerce/snap/commit/b8e8c319afb50fb351e1b6db8274a4b9ac012a6e))
+
 # [1.5.0](https://github.com/AthosCommerce/snap/compare/v1.4.0...v1.5.0) (2026-05-11)
 
 ### Features

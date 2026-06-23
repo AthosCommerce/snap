@@ -30,7 +30,7 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 		<SnapProvider snap={snap}>
 			<ThemeProvider theme={theme}>
 				<ControllerProvider controller={controller}>
-					<div className={`ss__template-select ss__theme__${theme.name}`}>
+					<div className="ss__template-select">
 						<Component controller={controller} {...otherProps} />
 					</div>
 				</ControllerProvider>

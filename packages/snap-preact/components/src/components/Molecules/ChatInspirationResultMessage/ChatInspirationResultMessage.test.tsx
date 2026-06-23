@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, fireEvent } from '@testing-library/preact';
 import { ChatInspirationResultMessage } from './ChatInspirationResultMessage';
 
 describe('ChatInspirationResultMessage Component', () => {
@@ -40,5 +40,46 @@ describe('ChatInspirationResultMessage Component', () => {
 		expect(buttons.length).toBe(2);
 		expect(buttons[0].tagName).toBe('BUTTON');
 		expect(buttons[0]).toHaveAttribute('aria-label', 'Search for "waterproof jacket"');
+	});
+
+	const chatItemWithProduct = {
+		messageType: 'inspirationResult' as const,
+		inspirationSections: [
+			{
+				clusterTitle: 'Outdoor Looks',
+				clusterDescription: 'Great picks for chilly weather',
+				searchQueries: [],
+				products: [{ id: 'p1', display: { mappings: { core: { name: 'Cool Jacket', imageUrl: 'http://example.com/1.jpg' } } } }],
+			},
+		],
+	};
+
+	it('opens the product quick view when a product is clicked', () => {
+		const controller = makeController();
+		const productQuickView = jest.fn();
+		controller.productQuickView = productQuickView;
+
+		const rendered = render(<ChatInspirationResultMessage chatItem={chatItemWithProduct as any} controller={controller} />);
+		const product = rendered.container.querySelector(
+			'.ss__chat-inspiration-result-message__inspiration-sections__section__products__product'
+		) as HTMLElement;
+		expect(product).not.toBeNull();
+
+		fireEvent.click(product);
+		expect(productQuickView).toHaveBeenCalledTimes(1);
+	});
+
+	it('opens the product quick view via keyboard', () => {
+		const controller = makeController();
+		const productQuickView = jest.fn();
+		controller.productQuickView = productQuickView;
+
+		const rendered = render(<ChatInspirationResultMessage chatItem={chatItemWithProduct as any} controller={controller} />);
+		const product = rendered.container.querySelector(
+			'.ss__chat-inspiration-result-message__inspiration-sections__section__products__product'
+		) as HTMLElement;
+
+		fireEvent.keyDown(product, { key: 'Enter' });
+		expect(productQuickView).toHaveBeenCalledTimes(1);
 	});
 });

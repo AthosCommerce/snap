@@ -14,7 +14,7 @@ import { Banner, BannerProps } from '../../Atoms/Banner';
 import { Facets, FacetsProps } from '../Facets';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
-import { Theme, useTheme, CacheProvider } from '../../../providers';
+import { Theme, useTheme, CacheProvider, ThemeComplete } from '../../../providers';
 import { ComponentProps, FacetDisplay, RecommendationComponentNames, RecommendationComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { Lang, useA11y, useLang } from '../../../hooks';
 import { TermsList, TermsListProps } from '../TermsList';
@@ -254,7 +254,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		},
 	};
 
-	if (!globalTheme?.name) {
+	if (!((globalTheme as ThemeComplete)?.type === 'templates')) {
 		const themeDefaults: Theme = {
 			components: {
 				facet: {
@@ -343,7 +343,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		},
 		termsList: {
 			internalClassName: 'ss__autocomplete__terms-list',
-			verticalOptions: props.layout == 'terms' || props.layout == 'mini' ? false : true,
+			verticalOptions: props.layout == 'terms' || props.layout == 'mobile' ? false : true,
 			// default props
 			controller: controller,
 			// inherited props
@@ -355,7 +355,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		},
 		terms: {
 			internalClassName: 'ss__autocomplete__terms',
-			vertical: props.layout == 'terms' || props.layout == 'mini' ? false : true,
+			vertical: props.layout == 'terms' || props.layout == 'mobile' ? false : true,
 			// default props
 			controller: controller,
 			// inherited props
@@ -400,6 +400,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		results: {
 			columns: 3,
 			rows: 2,
+			excludeBanners,
 			// default props
 			internalClassName: 'ss__autocomplete__results',
 			resultComponent: resultComponent,
@@ -724,13 +725,21 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		if (props.layout === 'terms') {
 			layout = [['termsList'], ['no-results'], ['_', 'button.see-more']];
 		}
-		if (props.layout === 'mini') {
+		if (props.layout === 'mobile') {
 			layout = [['termsList'], ['content'], ['_', 'button.see-more']];
 		}
-
-		if (props.layout === 'standard') {
+		if (props.layout === 'tablet') {
+			layout = [['c1', 'c3']];
+		}
+		if (props.layout === 'desktop') {
 			layout = [['c1', 'c2', 'c3']];
 		}
+	}
+
+	//fallback for unsupported layout values
+	if (typeof layout === 'string') {
+		controller.log.warn(`unsupported layout found. ${props.layout}`);
+		layout = [];
 	}
 
 	/***************************************/
@@ -741,7 +750,9 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 				className={classnames(
 					'ss__autocomplete',
 					{ 'ss__autocomplete--terms': props.layout === 'terms' },
-					{ 'ss__autocomplete--mini': props.layout === 'mini' },
+					{ 'ss__autocomplete--mobile': props.layout === 'mobile' },
+					{ 'ss__autocomplete--desktop': props.layout === 'desktop' },
+					{ 'ss__autocomplete--tablet': props.layout === 'tablet' },
 					className,
 					internalClassName
 				)}
@@ -793,7 +804,7 @@ export type ModuleNames =
 	| 'banner.footer'
 	| 'banner.header';
 type ColumnsNames = 'c1' | 'c2' | 'c3' | 'c4';
-type PrebuiltLayouts = 'terms' | 'mini' | 'standard';
+type PrebuiltLayouts = 'terms' | 'mobile' | 'desktop' | 'tablet';
 type ModuleNamesWithColumns = ModuleNames | ColumnsNames | ModuleNames[] | ColumnsNames[];
 
 type Column = {
@@ -807,12 +818,12 @@ export type AutocompleteLayoutProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
-} & AutocompleteLayoutTemplatesLegalProps &
+} & Omit<AutocompleteLayoutTemplatesLegalProps, 'resultComponent'> &
 	ComponentProps<AutocompleteLayoutProps>;
 
 export type AutocompleteLayoutTemplatesLegalProps = {
+	resultComponent?: string;
 	layout?: ModuleNamesWithColumns[] | PrebuiltLayouts;
-
 	column1?: Column;
 	column2?: Column;
 	column3?: Column;

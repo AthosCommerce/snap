@@ -23,7 +23,6 @@ const recommendationBundleEasyAddStyleScript = (props: RecommendationBundleEasyA
 	// bundle easy add styles
 	const bundleEasyAddStyles = css({
 		margin: `${custom.spacing.x4}px 0`,
-		...custom.styles.boxSizing('recommendationBundleEasyAdd', props?.treePath, props?.name),
 		'.ss__recommendation-profile-tracker': {
 			'& > *': {
 				margin: `0 0 ${custom.spacing.x2}px 0`,
@@ -82,13 +81,9 @@ export const recommendationBundleEasyAdd: ThemeComponent<
 			ctaButtonText: 'Add Both to Cart',
 			ctaButtonSuccessText: 'Added!',
 		},
-		'recommendationBundleEasyAdd checkbox icon': {
-			color: custom.colors.primary,
-		},
 		'recommendationBundleEasyAdd icon.bundle-cart': {
 			size: `${custom.sizes.icon16 * 2}px`,
 			icon: custom.icons.bag,
-			color: custom.colors.secondary,
 		},
 		'recommendationBundleEasyAdd result': {
 			layout: 'list',

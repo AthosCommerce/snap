@@ -236,7 +236,11 @@ let config: SnapConfig = {
 						component: async () => {
 							return (await import('@athoscommerce/snap-preact/components')).Chat;
 						},
-						props: {},
+						props: {
+							avatar: 'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Gemini_Generated_Image_vz2c2tvz2c2tvz2c.png?v=1771603960',
+							buttonBelowMessage: true,
+							hideMessageTypeIndicatorText: true,
+						},
 					},
 				],
 			},

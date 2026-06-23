@@ -28,6 +28,9 @@ Required `ChatController`. Drives all messages, attachments, side-chat state, fi
 ### logo, title, subtitle
 Header content. Defaults: Athos Commerce logo + "Athos Conversational Assistant" + "Your Guided Discovery Expert".
 
+### avatar
+Optional string used to render a round avatar next to each system (non-user) message. A single character renders as a capitalized letter; a longer value renders as an image when it's a valid image URL (`http`, `https`, or `data:`). Any other value renders no avatar. Undefined by default.
+
 ### position
 `'left'` or `'right'`. Anchors the bubble and the expanded panel to that side of the viewport. Defaults to `'right'`.
 
@@ -42,6 +45,12 @@ When true, the suggested-question chips don't render above the chat bubble while
 
 ### primaryColorBg, primaryColorFg, primaryAccentColorBg, primaryAccentColorFg, secondaryAccentColorBg, secondaryAccentColorFg
 Templates-legal color tokens. Drive the bubble background, header strip, user-message bubble, Add-to-Cart button, and Compare / Similar buttons respectively. All defaults match the Athos brand.
+
+### hideMessageTypeIndicatorText
+When true, the request-type indicator text above a user message (e.g. "Searching products", "Comparing products") is not rendered. Defaults to false.
+
+### buttonBelowMessage
+When false (default), the side-chat affordance for inspiration and comparison messages renders as a round icon button inside the message bubble. When true, it renders instead as a labelled `Button` (no icon) below the message, with text reflecting the action — `Explore Inspiration Scenarios` or `Explore Comparison Data`.
 
 ## Accessibility
 

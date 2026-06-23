@@ -13,7 +13,6 @@ const facetStyleScript = (props: FacetProps) => {
 
 	// facet styles
 	const facetStyles = css({
-		...custom.styles.boxSizing('facet', props?.treePath, props?.name),
 		'&.ss__facet--collapsed': {
 			'.ss__facet__header': {
 				'.ss__facet__dropdown__icon': {
@@ -82,7 +81,6 @@ const facetStyleScript = (props: FacetProps) => {
 		'.ss__facet__range-inputs': {
 			margin: `${custom.spacing.x4}px 0 0 0`,
 			fontSize: '14px',
-			color: variables?.colors?.text,
 			'&, .ss__facet__range-inputs__row': {
 				gap: `${custom.spacing.x2}px`,
 			},
@@ -109,7 +107,7 @@ const facetStyleScript = (props: FacetProps) => {
 			'.ss__facet__range-input__input': {
 				height: custom.sizes.height,
 				lineHeight: custom.sizes.height,
-				...custom.styles.box(variables?.colors?.text, `0 ${custom.spacing.x2}px`, false),
+				...custom.styles.box(undefined, `0 ${custom.spacing.x2}px`, false),
 				'&::-webkit-input-placeholder': {
 					color: lightGray,
 				},
@@ -150,8 +148,6 @@ export const facet: ThemeComponent<'facet', FacetProps, FacetTemplatesLegalProps
 			iconExpand: custom.icons.arrowDown,
 			iconOverflowMore: custom.icons.plus,
 			iconOverflowLess: custom.icons.minus,
-			color: custom.colors.secondary,
-			iconColor: custom.colors.primary,
 		},
 		'facet dropdown icon.collapse': {
 			size: `${custom.sizes.icon12}px`,

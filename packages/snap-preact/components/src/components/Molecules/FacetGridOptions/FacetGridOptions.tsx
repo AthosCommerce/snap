@@ -4,21 +4,15 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { FacetValue, ValueFacet } from '@athoscommerce/snap-store-mobx';
-import { Lang, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
-import Color from 'color';
 
 const defaultStyles: StyleScript<FacetGridOptionsProps> = ({ columns, gapSize, gridSize, theme }) => {
-	const variables = theme?.variables;
-	const backgroundColor = new Color(variables?.colors.primary || undefined);
-	const color = backgroundColor.isDark() ? '#fff' : '#000';
-
 	return css({
 		display: 'flex',
 		flexFlow: 'row wrap',
@@ -31,7 +25,8 @@ const defaultStyles: StyleScript<FacetGridOptionsProps> = ({ columns, gapSize, g
 			justifyContent: 'center',
 			alignItems: 'center',
 			flex: '0 1 auto',
-			border: `1px solid ${backgroundColor.hex() || '#333'}`,
+			border: '1px solid',
+			borderColor: theme?.variables?.colors?.primary || 'initial',
 			textAlign: 'center',
 			wordBreak: 'break-all',
 			boxSizing: 'border-box',
@@ -43,13 +38,13 @@ const defaultStyles: StyleScript<FacetGridOptionsProps> = ({ columns, gapSize, g
 				marginRight: '0',
 			},
 			'&.ss__facet-grid-options__option--filtered': {
-				background: backgroundColor.hex() || '#ccc',
-				color: color || '#333',
+				background: '#ccc',
+				color: '#333',
 			},
 			'&:hover:not(.ss__facet-grid-options__option--filtered)': {
 				cursor: 'pointer',
-				background: backgroundColor.hex() || '#f8f8f8',
-				color: color || '#333',
+				background: '#f8f8f8',
+				color: '#333',
 			},
 			'& .ss__facet-grid-options__option__value': {
 				'&.ss__facet-grid-options__option__value--smaller': {
@@ -83,7 +78,6 @@ const defaultStyles: StyleScript<FacetGridOptionsProps> = ({ columns, gapSize, g
 
 export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetGridOptionsProps> = {
@@ -95,13 +89,12 @@ export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => 
 
 	const props = mergeProps('facetGridOptions', globalTheme, defaultProps, properties);
 
-	const { values, onClick, previewOnFocus, valueProps, facet, horizontal, className, internalClassName, customComponent } = props;
+	const { values, onClick, previewOnFocus, valueProps, facet, horizontal, className, internalClassName } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facetGridOptions || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetGridOptions', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	if (horizontal) {

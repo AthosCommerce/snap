@@ -10,7 +10,6 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 
 	// no results styles
 	const noResultsStyles = css({
-		...custom.styles.boxSizing('noResults', props?.treePath, props?.name),
 		'& > *:not(.ss__no-results__recommendations)': {
 			'h1, h2, h3, h4, h5, h6, ul': {
 				margin: `0 0 ${custom.spacing.x4}px 0`,
@@ -19,7 +18,7 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 				...custom.styles.headerText(variables?.colors?.secondary, '20px'),
 			},
 			'ul li, p': {
-				...custom.styles.baseText(variables?.colors?.text),
+				...custom.styles.baseText(),
 			},
 			a: {
 				color: variables?.colors?.primary,
@@ -42,7 +41,7 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 		},
 		'.ss__no-results__contact': {
 			'.ss__no-results__contact__title': {
-				...custom.styles.baseText(variables?.colors?.text),
+				...custom.styles.baseText(),
 				fontWeight: 'normal',
 			},
 		},

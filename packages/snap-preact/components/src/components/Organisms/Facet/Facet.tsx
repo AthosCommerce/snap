@@ -17,15 +17,14 @@ import { ComponentProps, FacetDisplay, StyleScript } from '../../../types';
 import type { ValueFacet, RangeFacet, FacetHierarchyValue, FacetValue, FacetRangeValue } from '@athoscommerce/snap-store-mobx';
 
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { useA11y } from '../../../hooks/useA11y';
 // import { FacetToggle, FacetToggleProps } from '../../Molecules/FacetToggle';
-import { Lang, useComponent, useLang } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 import { LangAttributesObj } from '../../../hooks/useLang';
-import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme }) => {
 	return css({
@@ -38,7 +37,7 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 			alignItems: 'center',
 			color: color || theme?.variables?.colors?.primary,
 			border: 'none',
-			borderBottom: `2px solid ${theme?.variables?.colors?.secondary || '#ccc'}`,
+			borderBottom: `2px solid ${theme?.variables?.colors?.primary || '#ccc'}`,
 			padding: '6px 0',
 
 			'& .ss__facet__header__inner': {
@@ -78,6 +77,9 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 		},
 		'& .ss__search-input': {
 			margin: '16px 0 0 0',
+			'.ss__search-input__button--submit-search-button': {
+				pointerEvents: 'none',
+			},
 		},
 		'& .ss__facet__header__selected-count': {
 			margin: '0px 5px',
@@ -125,7 +127,6 @@ const defaultStyles: StyleScript<FacetProps> = ({ disableCollapse, color, theme 
 
 export const Facet = observer((properties: FacetProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FacetProps> = {
@@ -185,14 +186,12 @@ export const Facet = observer((properties: FacetProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.facet || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facet', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: FacetSubProps = {
@@ -325,6 +324,17 @@ export const Facet = observer((properties: FacetProps) => {
 		searchInput: {
 			// default props
 			internalClassName: 'ss__facet__search-input',
+			clearSearchButton: {
+				onClick: () => {
+					if ((facet as ValueFacet)?.search) {
+						(facet as ValueFacet).search.input = '';
+					}
+				},
+			},
+			submitSearchButton: {
+				// to prevent focus styles and screenreaders
+				disableA11y: true,
+			},
 			// inherited props
 			...defined({
 				disableStyles,

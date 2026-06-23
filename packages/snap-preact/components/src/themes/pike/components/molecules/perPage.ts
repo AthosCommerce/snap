@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import type { PerPageProps, PerPageTemplatesLegalProps } from '../../../../components/Molecules/PerPage';
 import { ThemeComponent } from '../../../../providers';
-import { custom } from '../../custom';
 
 // CSS in JS style script for the PerPage component
 const perPageStyleScript = (props: PerPageProps) => {
@@ -9,9 +8,7 @@ const perPageStyleScript = (props: PerPageProps) => {
 	const variables = props?.theme?.variables;
 
 	// perPage styles
-	const perPageStyles = css({
-		...custom.styles.boxSizing('perPage', props?.treePath, props?.name),
-	});
+	const perPageStyles = css({});
 
 	return perPageStyles;
 };

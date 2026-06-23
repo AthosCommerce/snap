@@ -40,7 +40,6 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 	const sharedStyles = css({
 		width: 'auto',
 		...filterSummaryStyles,
-		...custom.styles.boxSizing('filterSummary', props?.treePath, props?.name),
 		'.ss__filter-summary__title': {
 			...headerStyles,
 		},

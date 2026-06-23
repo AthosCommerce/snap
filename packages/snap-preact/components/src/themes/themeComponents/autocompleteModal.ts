@@ -44,7 +44,7 @@ export const autocompleteModalThemeComponentProps: ThemeComponent<'autocompleteM
 		},
 		mobile: {
 			autocompleteModal: {
-				layout: 'mini',
+				layout: 'mobile',
 			},
 			'autocompleteModal results': {
 				columns: 2,
