@@ -84,17 +84,19 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 							return cloneWithProps(resolvedResultComponent, {
 								controller,
 								result,
-								theme: deepmerge(props.theme || {}, {
-									components: {
-										// in order to preserve theme overrides for resultComponent vs. customComponent
-										result: {
-											customComponent: props.resultComponent,
-										},
-										image: {
-											lazy: false,
-										},
-									},
-								}),
+								theme: isNamedResultComponent
+									? deepmerge(props.theme || {}, {
+											components: {
+												// in order to preserve theme overrides for resultComponent vs. customComponent
+												result: {
+													customComponent: resultComponent,
+												},
+												image: {
+													lazy: false,
+												},
+											},
+									  })
+									: props.theme,
 								treePath,
 							});
 						} else {
