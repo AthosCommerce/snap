@@ -518,6 +518,14 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 						{resolvedResultComponent ? (
 							cloneWithProps(resolvedResultComponent, {
 								controller: controller,
+								theme: deepmerge(props.theme || {}, {
+									components: {
+										// in order to preserve theme overrides for resultComponent vs. customComponent
+										result: {
+											customComponent: props.resultComponent,
+										},
+									},
+								}),
 								treePath: treePath,
 								result: result,
 								seed: isSeed,
@@ -605,6 +613,14 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 																onProductSelect,
 																result: seed,
 																treePath,
+																theme: deepmerge(props.theme || {}, {
+																	components: {
+																		// in order to preserve theme overrides for resultComponent vs. customComponent
+																		result: {
+																			customComponent: props.resultComponent,
+																		},
+																	},
+																}),
 															});
 														} else if (shouldWaitForNamedResultComponent) {
 															return null;

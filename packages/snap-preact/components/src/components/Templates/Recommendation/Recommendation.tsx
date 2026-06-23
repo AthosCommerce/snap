@@ -205,6 +205,14 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 														controller,
 														result,
 														treePath: subProps.result.treePath,
+														theme: deepmerge(props.theme || {}, {
+															components: {
+																// in order to preserve theme overrides for resultComponent vs. customComponent
+																result: {
+																	customComponent: props.resultComponent,
+																},
+															},
+														}),
 													});
 												} else {
 													if (shouldWaitForNamedResultComponent) {

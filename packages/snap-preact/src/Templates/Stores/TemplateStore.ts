@@ -104,6 +104,7 @@ type WindowProperties = {
 
 type TemplatesStoreThemeConfigLocked = {
 	extends: keyof LibraryImports['theme'];
+	globalResultComponent?: string;
 	style?: GlobalThemeStyleScript;
 	variables?: ThemeVariablesPartial;
 	overrides?: ThemeResponsiveComplete;

@@ -166,7 +166,14 @@ export const Results = observer((properties: ResultsProps) => {
 												key: (result as Product).id,
 												controller,
 												result: result as Product,
-												theme,
+												theme: deepmerge(theme || {}, {
+													components: {
+														// in order to preserve theme overrides for resultComponent vs. customComponent
+														result: {
+															customComponent: props.resultComponent,
+														},
+													},
+												}),
 												treePath,
 											})}
 										</ResultTracker>

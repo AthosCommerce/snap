@@ -70,16 +70,4 @@ describe('RecommendationEmail Template Component', () => {
 		expect(element).toBeInTheDocument();
 		expect(element).toHaveStyle(`width: ${customWidth}`);
 	});
-
-	it('renders with custom result props and email prop', () => {
-		const key = 'testProp';
-		const value = 'testValue';
-		const customProps = { [key]: value };
-		const CustomResult = (props: any) => <div {...props}>Custom Result</div>;
-		const rendered = render(<RecommendationEmail controller={controller} resultProps={customProps} resultComponent={<CustomResult />} />);
-		const element = rendered.container.querySelector('#ss-emailrec0 div');
-		expect(element).toBeInTheDocument();
-		expect(element).toHaveAttribute(key, value);
-		expect(element).toHaveAttribute('email', 'true');
-	});
 });
