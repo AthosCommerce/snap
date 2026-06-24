@@ -195,15 +195,11 @@ export default {
 			},
 			control: { type: 'text' },
 		},
-		showBadges: {
-			description: 'Render overlay badges over the product media and callout badges below it',
-			table: {
-				type: {
-					summary: 'boolean',
-				},
-				defaultValue: { summary: 'false' },
-			},
-			control: { type: 'boolean' },
+		recommendation: {
+			description:
+				'Config for `recommendation.<profile>` modules: `{ component?, resultComponent?, config? }`. Profile/tag comes from the module name.',
+			table: { type: { summary: '{ component?, resultComponent?, config? }' } },
+			control: { type: 'object' },
 		},
 		...componentArgs,
 	},
@@ -227,3 +223,16 @@ WithDisplayFields.args = {};
 
 export const WithImageCarousel = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={imageCarouselController} />;
 WithImageCarousel.args = {};
+
+// Recommendations require a Snap templates context to populate (see readme → Recommendations).
+// Rendered standalone in Storybook the carousel collapses to nothing; this story documents the
+// layout configuration — the product modules around it still render from the mock controller.
+export const WithRecommendations = (args: QuickviewLayoutProps) => (
+	<QuickviewLayout
+		{...args}
+		controller={defaultController}
+		layout={[['c1', 'c2'], ['recommendation.quickview']]}
+		recommendation={{ component: 'Recommendation', resultComponent: 'Result' }}
+	/>
+);
+WithRecommendations.args = {};

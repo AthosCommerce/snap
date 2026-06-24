@@ -174,6 +174,91 @@ export default {
 			},
 			control: { type: 'none' },
 		},
+		rows: {
+			description: 'number of rows visible before overflowing (visible limit is `rows * columns`)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+			},
+			control: { type: 'number' },
+		},
+		columns: {
+			description: 'number of columns visible before overflowing (visible limit is `rows * columns`)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+			},
+			control: { type: 'number' },
+		},
+		overflowButtonInGrid: {
+			description: 'render the overflow button inline as an option (counts toward the limit) with a `+ N` / `- N` label',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		disableOverflowAction: {
+			description: 'render the overflow button as a static indicator that does not expand the list when clicked',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideShowLess: {
+			description: 'only render the overflow button while the list is limited, hiding it once expanded',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		overflowButton: {
+			description: 'custom JSX element to render in place of the default overflow button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'JSX.Element',
+				},
+			},
+			control: { type: 'none' },
+		},
+		disableA11y: {
+			description: 'disable the auto-set accessibility properties on the overflow button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		onOverflowButtonClick: {
+			description: 'overflow button onClick event handler `(e, status, remainder) => void`',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'function',
+				},
+			},
+			control: { type: 'none' },
+			action: 'onOverflowButtonClick',
+		},
 		...componentArgs,
 	},
 };
@@ -307,3 +392,27 @@ SortBy.args = {
 	titleText: 'Sort By',
 	requireSelection: true,
 } as Partial<ListProps>;
+
+const overflowOptions = [
+	{ value: 'one' },
+	{ value: 'two' },
+	{ value: 'three' },
+	{ value: 'four' },
+	{ value: 'five' },
+	{ value: 'six' },
+	{ value: 'seven' },
+	{ value: 'eight' },
+];
+
+export const Overflow = (args: ListProps) => {
+	return (
+		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+			<List {...args} />
+		</div>
+	);
+};
+Overflow.args = {
+	options: overflowOptions,
+	rows: 1,
+	columns: 4,
+} as ListProps;

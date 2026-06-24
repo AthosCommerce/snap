@@ -1,19 +1,20 @@
 import { h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
 
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
-import { ComponentProps, StyleScript } from '../../../types';
+import { useComponent, useCreateController } from '../../../hooks';
+import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { VariantSelection, VariantSelectionTemplatesLegalProps } from '../../Molecules/VariantSelection';
-import { Carousel } from '../../Molecules/Carousel';
+import { Slideshow } from '../../Molecules/Slideshow';
 import { Button } from '../../Atoms/Button';
-import { Image } from '../../Atoms/Image';
 import { Price } from '../../Atoms/Price';
+import { ProductDetail } from '../../Atoms/ProductDetail';
+import { ProductDetailTable } from '../../Molecules/ProductDetailTable';
 import { OverlayBadge } from '../../Molecules/OverlayBadge';
 import { CalloutBadge } from '../../Molecules/CalloutBadge';
 import { Gallery } from '../../Molecules/Gallery';
@@ -21,9 +22,11 @@ import { Gallery } from '../../Molecules/Gallery';
 import type { QuickviewController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
-import type { Swiper as SwiperType } from 'swiper';
+import type { RecommendationController, RecommendationControllerConfig } from '@athoscommerce/snap-controller';
+import type { RecommendationProps, RecommendationGridProps } from '../../../';
+import type { LibraryImports } from '../../../../../src/Templates/Stores/LibraryStore';
 
-const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2 }) => {
+const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, column3, column4 }) => {
 	return css({
 		'& .ss__product-quickview__content': {
 			padding: '20px',
@@ -41,7 +44,7 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2 }) 
 			alignItems: 'flex-start',
 			gap: '24px',
 			// Flex items default to `min-width: auto`, which prevents a child from shrinking below
-			// its content's intrinsic width. For a row whose child is the media (an Image/Carousel),
+			// its content's intrinsic width. For a row whose child is the slideshow (an Image/Slideshow),
 			// that means the image renders at its natural width — overflowing a narrow container such
 			// as the Slideout's single-column layout. Allow row children to shrink to the row width so
 			// the image's `max-width: 100%` can take effect. Column children (c1/c2) keep their own
@@ -67,7 +70,17 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2 }) 
 			maxWidth: column2?.width == 'auto' ? 'auto' : column2?.width,
 			alignContent: column2?.alignContent,
 		},
-		'& .ss__product-quickview__media': {
+		'& .ss__quickview-layout__column.ss__quickview-layout__column--c3': {
+			flex: column3?.width == 'auto' ? '1 1 auto' : `1 1 ${column3?.width}`,
+			maxWidth: column3?.width == 'auto' ? 'auto' : column3?.width,
+			alignContent: column3?.alignContent,
+		},
+		'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
+			flex: column4?.width == 'auto' ? '1 1 auto' : `1 1 ${column4?.width}`,
+			maxWidth: column4?.width == 'auto' ? 'auto' : column4?.width,
+			alignContent: column4?.alignContent,
+		},
+		'& .ss__product-quickview__slideshow': {
 			marginBottom: 0,
 		},
 		'& .ss__product-quickview__title': {
@@ -103,51 +116,36 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2 }) 
 			},
 		},
 		'& .ss__product-quickview__carousel': {
-			// Images inside carousel slides shouldn't carry the single-image bottom margin.
-			'& .ss__product-quickview__image': {
-				marginBottom: 0,
+			// Slideshow defaults its slide images to objectFit:cover; the quickview hero image should
+			// display uncropped at its natural aspect ratio instead.
+			'& .ss__slideshow__slide img': {
+				objectFit: 'contain',
+				height: 'auto',
+			},
+			// Match the single-image zoom-in affordance (the clickable slide opens the lightbox).
+			'& .ss__slideshow__slide--clickable': {
+				cursor: 'zoom-in',
+			},
+			// Slideshow pins its nav buttons to width:10px; under a border-box reset the padding
+			// collapses the content box and the arrow icon shrinks to nothing (a blank white box).
+			// Let the buttons size to their icon so the prev/next angles actually render.
+			'& .ss__slideshow__navigation .ss__button': {
+				boxSizing: 'content-box',
+				width: 'auto',
 			},
 		},
 		'& .ss__product-quickview__variants': {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '12px',
+			// Each layout entry is wrapped in a flex row whose children size to their content (no
+			// flex-grow). Span the full row so the variant selectors — notably the swatch Slideshow,
+			// whose track reserves `calc(100% - 60px)` for nav arrows and collapses to 0 width (hiding
+			// every swatch) when its container is narrow — have room to render.
+			width: '100%',
 		},
 		'& .ss__product-quickview__description': {
 			lineHeight: 1.4,
-		},
-		'& .ss__product-quickview__attributes': {
-			width: '100%',
-			borderCollapse: 'collapse',
-			fontSize: '0.9em',
-			'& tr': {
-				borderBottom: '1px solid #eee',
-			},
-			'& tr:last-of-type': {
-				borderBottom: 'none',
-			},
-			'& th, & td': {
-				padding: '10px 0',
-				textAlign: 'left',
-				verticalAlign: 'top',
-			},
-			'& th': {
-				width: '40%',
-				paddingRight: '16px',
-				fontWeight: 500,
-				color: '#666',
-				textTransform: 'uppercase',
-				fontSize: '0.85em',
-				letterSpacing: '0.02em',
-			},
-			'& td': {
-				color: '#1a1a1a',
-			},
-		},
-		'& .ss__product-quickview__actions': {
-			display: 'flex',
-			flexWrap: 'wrap',
-			gap: '12px',
 		},
 		'& .ss__product-quickview__close': {
 			position: 'absolute',
@@ -179,19 +177,6 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2 }) 
 	});
 };
 
-const renderAttributeValue = (value: unknown): string => {
-	if (value === null || value === undefined) return '';
-
-	if (Array.isArray(value) || isObservableArray(value as any)) {
-		return Array.from(value as Iterable<unknown>)
-			.map((v) => (typeof v === 'object' ? JSON.stringify(v) : String(v)))
-			.join(', ');
-	}
-
-	if (typeof value === 'object') return JSON.stringify(value);
-	return String(value);
-};
-
 // Coerce an image-list field value into an array of image URL strings.
 // Handles real arrays and MobX observable arrays; anything else → [].
 const toImageArray = (value: unknown): string[] => {
@@ -199,6 +184,30 @@ const toImageArray = (value: unknown): string[] => {
 		return Array.from(value as Iterable<unknown>).filter((v): v is string => typeof v === 'string' && v.length > 0);
 	}
 	return [];
+};
+
+// Collect every `recommendation.<profile>` profile the active `layout` will actually render. Walks
+// the layout and, on a column token (`c1`..`c4`), descends into that column's layout — mirroring
+// findModule, which only renders a column the layout references. Columns the layout never references
+// are skipped so their profiles don't spawn phantom controllers/searches. Deduped + sorted so the
+// per-profile hook calls below keep a stable count/order across renders.
+const collectRecommendationProfiles = (layout: unknown, columns: Record<string, unknown>): string[] => {
+	const profiles = new Set<string>();
+	const visitedColumns = new Set<string>();
+	const walk = (node: unknown): void => {
+		if (typeof node === 'string') {
+			if (node.startsWith('recommendation.')) {
+				profiles.add(node.slice('recommendation.'.length));
+			} else if (node in columns && !visitedColumns.has(node)) {
+				visitedColumns.add(node);
+				walk(columns[node]);
+			}
+		} else if (Array.isArray(node)) {
+			node.forEach(walk);
+		}
+	};
+	walk(layout);
+	return Array.from(profiles).sort();
 };
 
 export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
@@ -217,22 +226,43 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const defaultProps: Partial<QuickviewLayoutProps> = {
 		treePath: globalTreePath,
-		showBadges: false,
 		layout: [['c1', 'c2']],
 		column1: {
-			layout: ['image'],
+			layout: ['overlayBadge'],
 			width: '45%',
 		},
 		column2: {
-			layout: ['title', 'price', 'variants', 'actions', 'description', 'attributes'],
+			layout: [
+				['productDetail.mappings.core.name'],
+				['calloutBadge'],
+				['price'],
+				['variantSelection'],
+				['button.add-to-cart', 'button.more-info'],
+				['productDetail.mappings.core.description'],
+				['productDetailTable'],
+				['recommendation.quickview'],
+			],
 			width: 'auto',
 		},
 	};
 
 	const props = mergeProps('quickviewLayout', globalTheme, defaultProps, properties);
-	const { controller, className, internalClassName, disableStyles, treePath, customComponent, showBadges, onReset, column1, column2 } = props;
+	const {
+		controller,
+		className,
+		internalClassName,
+		disableStyles,
+		treePath,
+		customComponent,
+		onReset,
+		column1,
+		column2,
+		column3,
+		column4,
+		recommendation,
+	} = props;
 
-	// Hoist the carousel-sync inputs before any conditional return so the hooks below
+	// Hoist the slide-sync inputs before any conditional return so the hooks below
 	// are unconditional. All reads use optional chaining and safely produce defaults when
 	// controller/product are absent.
 	const product = controller?.store?.product as Product | undefined;
@@ -241,7 +271,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// Resolve the image-list field. `config.imagesField` accepts a single field name or an
 	// array of candidate names; when omitted it defaults to trying 'images' then 'ss_images'.
 	// Each candidate is looked up on mappings.core first, then attributes; the first that
-	// resolves to MORE THAN ONE image wins and is rendered as a 1-per-view carousel. If none
+	// resolves to MORE THAN ONE image wins and is rendered as a 1-per-view slideshow. If none
 	// qualify, the modal falls back to the single core image below.
 	const configuredImagesField = controller?.store?.quickviewConfig?.imagesField;
 	const imageFieldCandidates: string[] = configuredImagesField
@@ -262,25 +292,20 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		return [];
 	};
 	// Variant-aware image resolution. When a variant is active, use its own image array
-	// for the carousel. If the variant has no multi-image field, show just its single
-	// imageUrl (no carousel) rather than falling back to the parent's array — the parent
+	// for the slideshow. If the variant has no multi-image field, show just its single
+	// imageUrl (no slideshow) rather than falling back to the parent's array — the parent
 	// images may depict other variants and would be misleading.
 	const variantImageList: string[] = activeVariant ? resolveImages(variantCore, variantAttributes) : [];
 	const parentImageList: string[] = resolveImages(coreRecord, allAttributes);
 	const imageList: string[] = activeVariant ? (variantImageList.length > 1 ? variantImageList : []) : parentImageList;
 	const hasMultipleImages = imageList.length > 1;
-	// When a variant is active, find its image in the carousel so we can navigate to the
+	// When a variant is active, find its image in the slideshow so we can navigate to the
 	// correct slide instead of always staying on slide 0.
 	let targetSlide = 0;
 	if (activeVariant && hasMultipleImages && image) {
 		const idx = imageList.indexOf(image);
 		if (idx >= 0) targetSlide = idx;
 	}
-
-	// Keep a ref to the Swiper instance so we can programmatically navigate slides when
-	// the active variant changes — avoids remounting the carousel (which causes a visible
-	// flash and layout shift while images reload).
-	const swiperRef = useRef<SwiperType | null>(null);
 
 	// Escape closes the quickview — unless the fullscreen gallery is layered on top,
 	// in which case Gallery's own Escape handler closes the gallery first.
@@ -296,11 +321,71 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		return () => window.removeEventListener('keydown', onKey);
 	}, [controller?.store?.isOpen, galleryOpen]);
 
+	// Recommendation modules. `findModule` runs inside .map()/recursion and must not call hooks, so
+	// resolve every referenced profile's controller + components here (stable order) and let
+	// findModule read from this map. Mirrors Organisms/NoResults.
+	const recommendationProfiles = collectRecommendationProfiles(props.layout, {
+		c1: column1?.layout,
+		c2: column2?.layout,
+		c3: column3?.layout,
+		c4: column4?.layout,
+	});
+
+	type RecEntry = {
+		Component?: (p: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null;
+		ResultComponent?: JSXComponent;
+		recsController?: RecommendationController;
+	};
+	const recsByProfile = new Map<string, RecEntry>();
+	const snapTemplates = snap as SnapTemplates;
+
+	for (const profile of recommendationProfiles) {
+		const componentName = recommendation?.component || 'Recommendation';
+		const resultComponentName = (recommendation?.resultComponent || 'Result') as string;
+
+		const mergedConfig = Object.assign({ id: '', tag: profile, branch: 'production' }, recommendation?.config) as RecommendationControllerConfig & {
+			id: string;
+		};
+		mergedConfig.tag = profile; // the module name always wins for tag
+		mergedConfig.id = mergedConfig.id || `quickview-${profile}`;
+
+		const recsController = snapTemplates?.templates
+			? useCreateController<RecommendationController>(snapTemplates, 'recommendation', mergedConfig)
+			: undefined;
+
+		const ResultComponent = snapTemplates?.templates?.library.import.component.result
+			? useComponent(snapTemplates.templates.library.import.component.result, resultComponentName)
+			: undefined;
+
+		const Component = snapTemplates?.templates?.library.import.component.recommendation.default
+			? useComponent(snapTemplates.templates.library.import.component.recommendation.default, componentName)
+			: undefined;
+
+		recsByProfile.set(profile, {
+			Component: Component as RecEntry['Component'],
+			ResultComponent,
+			recsController,
+		});
+	}
+
+	// Seed each recommendation with the currently-viewed product and (re)search when it changes.
+	// The controllers are resolved once by id (useCreateController), so the seed is applied here.
+	const recommendationSeed = ((core as Record<string, unknown> | undefined)?.parentId as string | undefined) || product?.id;
+	// useCreateController resolves its controller asynchronously — on the render where this effect first
+	// runs the controllers are still undefined. Key the effect on which profiles have a resolved controller
+	// so it re-runs (and finally seeds + searches) once they resolve; otherwise the search is skipped and
+	// never retried because the seed/profile deps don't change after mount.
+	const resolvedRecsKey = recommendationProfiles.map((profile) => (recsByProfile.get(profile)?.recsController ? profile : '')).join(',');
 	useEffect(() => {
-		if (swiperRef.current && !swiperRef.current.destroyed && hasMultipleImages) {
-			swiperRef.current.slideTo(targetSlide);
-		}
-	}, [targetSlide, hasMultipleImages]);
+		if (!recommendationSeed) return;
+		recsByProfile.forEach(({ recsController }) => {
+			if (!recsController) return;
+			recsController.config.globals = { ...recsController.config.globals, products: [recommendationSeed] };
+			recsController.search();
+		});
+		// recsByProfile is rebuilt each render but holds the same (memoized) controller instances;
+		// re-run when the seed, the set of profiles, or the set of resolved controllers changes.
+	}, [recommendationSeed, recommendationProfiles.join(','), resolvedRecsKey]);
 
 	if (customComponent) {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.quickview || {}, customComponent);
@@ -333,7 +418,6 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// Prefer `product.display` so the displayed name/image/attributes reflect the
 	// currently active variant (Mask-merged), falling back to the base product data.
 	const name: string | undefined = core?.name;
-	const description: string | undefined = (core as Record<string, unknown> | undefined)?.description as string | undefined;
 	const price: number | undefined = core?.price;
 	const msrp: number | undefined = core?.msrp;
 	const url: string | undefined = core?.url;
@@ -344,54 +428,35 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// Images shown in the fullscreen gallery: the multi-image list when present, otherwise the
 	// single core image (so clicking a lone image still opens the zoomable gallery).
 	const galleryImages: string[] = hasMultipleImages ? imageList : image ? [image] : [];
-	// Attributes are opt-in: with no `displayFields` configured, show none rather than dumping
-	// every attribute. When configured, render only those fields (in the given order).
-	const displayedAttributes: Record<string, unknown> = displayFields
-		? Object.fromEntries(displayFields.filter((k) => k in allAttributes).map((k) => [k, allAttributes[k]]))
-		: {};
 
-	// The media region: a 1-per-view carousel when there are multiple images, otherwise the
-	// single core image. Clicking opens the fullscreen gallery at the clicked index.
-	const mediaContent = hasMultipleImages ? (
-		<Carousel
-			className="ss__product-quickview__carousel"
-			initialSlide={targetSlide}
-			onAfterInit={(swiper) => {
-				swiperRef.current = swiper;
-			}}
-			slidesPerView={1}
-			slidesPerGroup={1}
-			breakpoints={{ 0: { slidesPerView: 1, slidesPerGroup: 1 } }}
-			pagination={true}
-			loop={false}
-			theme={props.theme}
-			treePath={treePath}
-			{...defined({ disableStyles })}
-		>
-			{imageList.map((src, i) => (
-				<Image
-					key={`${src}-${i}`}
-					className="ss__product-quickview__image"
-					src={src}
-					alt={name || ''}
-					onClick={() => openGallery(i)}
-					theme={props.theme}
-					treePath={treePath}
-					{...defined({ disableStyles })}
-				/>
-			))}
-		</Carousel>
-	) : image ? (
-		<Image
-			className="ss__product-quickview__image"
-			src={image}
-			alt={name || ''}
-			onClick={() => openGallery(0)}
-			theme={props.theme}
-			treePath={treePath}
-			{...defined({ disableStyles })}
-		/>
-	) : null;
+	// Prepare slides for the slideshow. Use imageList when available, otherwise use the single image.
+	const slidesData = hasMultipleImages ? imageList : image ? [image] : [];
+	const hasSingleImage = slidesData.length === 1;
+
+	// The slideshow region: always use Slideshow component. When there's only one image, hide navigation and pagination.
+	// Clicking a slide opens the fullscreen gallery at that index. When the active variant changes,
+	// `startIndex` navigates to the variant's image without remounting.
+	const slideshowContent =
+		slidesData.length > 0 ? (
+			<Slideshow
+				className="ss__product-quickview__carousel"
+				startIndex={targetSlide}
+				slidesToShow={1}
+				slidesToMove={1}
+				showNavigation={!hasSingleImage}
+				overlayNavigation={true}
+				showPagination={!hasSingleImage}
+				loop={false}
+				slides={slidesData.map((src, i) => ({
+					src,
+					alt: name || '',
+					onClick: () => openGallery(i),
+				}))}
+				theme={props.theme}
+				treePath={treePath}
+				{...defined({ disableStyles })}
+			/>
+		) : null;
 
 	// Module renderers. Each returns the corresponding region, or null when it has nothing to
 	// show (so empty columns/rows collapse). Columns (c1/c2) recurse into their own layouts.
@@ -416,26 +481,67 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			if (!hasContent) return null;
 			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c2">{children}</div>;
 		}
+		if (module == 'c3' && column3?.layout?.length) {
+			const children = (column3.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
+			const hasContent = (column3.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
+			if (!hasContent) return null;
+			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c3">{children}</div>;
+		}
+		if (module == 'c4' && column4?.layout?.length) {
+			const children = (column4.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
+			const hasContent = (column4.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
+			if (!hasContent) return null;
+			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c4">{children}</div>;
+		}
 
-		if (module == 'image') {
-			if (!mediaContent || !product) return null;
+		if (module == 'slideshow') {
+			if (!slideshowContent || !product) return null;
+			return <div className="ss__product-quickview__slideshow">{slideshowContent}</div>;
+		}
+
+		if (module == 'overlayBadge') {
+			if (!slideshowContent || !product) return null;
 			return (
-				<div className="ss__product-quickview__media">
-					{showBadges ? (
-						<OverlayBadge result={product} controller={controller} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
-							{mediaContent}
-						</OverlayBadge>
-					) : (
-						mediaContent
-					)}
-					{showBadges && <CalloutBadge result={product} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />}
+				<div className="ss__product-quickview__slideshow">
+					<OverlayBadge result={product} controller={controller} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
+						{slideshowContent}
+					</OverlayBadge>
 				</div>
 			);
 		}
 
-		if (module == 'title') {
-			if (!name) return null;
-			return <div className="ss__product-quickview__title">{name}</div>;
+		if (module == 'calloutBadge') {
+			if (!product) return null;
+			return <CalloutBadge result={product} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />;
+		}
+
+		// `productDetail.<path>` renders a single product field resolved from an explicit dot-path
+		// (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). The product
+		// name is the "title", the `description` field renders as rich HTML; any other field renders
+		// as text. ProductDetail resolves the path and returns null when empty.
+		if (module.startsWith('productDetail.')) {
+			const path = module.slice('productDetail.'.length);
+			const field = path.split('.').pop() || '';
+			if (!path || !product) return null;
+			// Preserve the legacy quickview classnames so existing styles/themes/tests keep matching.
+			const legacyClass =
+				field === 'name'
+					? 'ss__product-quickview__title'
+					: field === 'description'
+					? 'ss__product-quickview__description'
+					: `ss__product-quickview__${field}`;
+			return (
+				<ProductDetail
+					result={product}
+					field={path}
+					name={field}
+					html={field === 'description'}
+					className={legacyClass}
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
+				/>
+			);
 		}
 
 		if (module == 'price') {
@@ -455,7 +561,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			);
 		}
 
-		if (module == 'variants') {
+		if (module == 'variantSelection') {
 			if (!selections || selections.length === 0) return null;
 			return (
 				<div className="ss__product-quickview__variants">
@@ -475,51 +581,69 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			);
 		}
 
-		if (module == 'actions') {
+		if (module == 'button.add-to-cart') {
+			if (!product) return null;
 			return (
-				<div className="ss__product-quickview__actions">
-					<Button
-						internalClassName="ss__product-quickview__add-to-cart"
-						content="Add to Cart"
-						onClick={() => product && controller.addToCart([product])}
-						theme={props.theme}
-						treePath={treePath}
-						{...defined({ disableStyles })}
-					/>
-					{url && (
-						<Button
-							internalClassName="ss__product-quickview__go-to-product"
-							content="More info"
-							onClick={() => {
-								window.location.href = url;
-							}}
-							theme={props.theme}
-							treePath={treePath}
-							{...defined({ disableStyles })}
-						/>
-					)}
-				</div>
+				<Button
+					name="add-to-cart"
+					internalClassName="ss__product-quickview__add-to-cart"
+					content="Add to Cart"
+					onClick={() => product && controller.addToCart([product])}
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
+				/>
 			);
 		}
 
-		if (module == 'description') {
-			if (!description) return null;
-			return <div className="ss__product-quickview__description" dangerouslySetInnerHTML={{ __html: description }} />;
+		if (module == 'button.more-info') {
+			if (!url) return null;
+			return (
+				<Button
+					name="more-info"
+					internalClassName="ss__product-quickview__go-to-product"
+					content="More info"
+					onClick={() => {
+						window.location.href = url;
+					}}
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
+				/>
+			);
 		}
 
-		if (module == 'attributes') {
-			if (Object.keys(displayedAttributes).length === 0) return null;
+		if (module == 'productDetailTable') {
+			if (!product) return null;
+			const labels = Object.fromEntries((displayFields || []).map((f) => [f, labelFor(f)]));
 			return (
-				<table className="ss__product-quickview__attributes">
-					<tbody>
-						{Object.entries(displayedAttributes).map(([key, value]) => (
-							<tr key={key}>
-								<th scope="row">{labelFor(key)}</th>
-								<td>{renderAttributeValue(value)}</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<ProductDetailTable
+					result={product}
+					fields={displayFields}
+					labels={labels}
+					className="ss__product-quickview__attributes"
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
+				/>
+			);
+		}
+
+		if (module.startsWith('recommendation.')) {
+			const profile = module.slice('recommendation.'.length);
+			const entry = recsByProfile.get(profile);
+			const RecComponent = entry?.Component;
+			const recsController = entry?.recsController;
+			if (!RecComponent || !recsController?.store?.loaded) return null;
+			return (
+				<div className="ss__product-quickview__recommendations">
+					<RecComponent
+						controller={recsController}
+						title={recsController.store?.profile?.display?.templateParameters?.title}
+						resultComponent={entry?.ResultComponent}
+						name={`quickview-${profile}`}
+					/>
+				</div>
 			);
 		}
 
@@ -585,8 +709,19 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 });
 
 //can add modules here in the future
-export type QuickviewModuleNames = 'image' | 'title' | 'price' | 'variants' | 'actions' | 'description' | 'attributes' | '_';
-type ColumnsNames = 'c1' | 'c2';
+export type QuickviewModuleNames =
+	| 'slideshow'
+	| 'overlayBadge'
+	| 'calloutBadge'
+	| 'price'
+	| 'variantSelection'
+	| `productDetail.${string}`
+	| 'button.add-to-cart'
+	| 'button.more-info'
+	| 'productDetailTable'
+	| `recommendation.${string}`
+	| '_';
+type ColumnsNames = 'c1' | 'c2' | 'c3' | 'c4';
 type ModuleNamesWithColumns = QuickviewModuleNames | ColumnsNames | QuickviewModuleNames[] | ColumnsNames[];
 
 export type QuickviewColumn = {
@@ -602,9 +737,14 @@ export type QuickviewLayoutProps = {
 	ComponentProps<QuickviewLayoutProps>;
 
 export type QuickviewLayoutTemplatesLegalProps = {
-	// When true, overlay badges are shown over the media and callout badges below it. Opt-in (default false).
-	showBadges?: boolean;
 	layout?: ModuleNamesWithColumns[];
 	column1?: QuickviewColumn;
 	column2?: QuickviewColumn;
+	column3?: QuickviewColumn;
+	column4?: QuickviewColumn;
+	recommendation?: {
+		component?: keyof LibraryImports['component']['recommendation']['default'];
+		resultComponent?: keyof LibraryImports['component']['result'] | (string & NonNullable<unknown>);
+		config?: Partial<RecommendationControllerConfig>;
+	};
 };

@@ -83,7 +83,7 @@ let templatesConfig: SnapTemplatesConfig = {
 					showQuickview: true,
 				},
 				quickviewLayout: {
-					// layout: [['image'], ['title', 'price'], ['description']],
+					// layout: [['slideshow'], ['title', 'price'], ['description']],
 				},
 			},
 		},
@@ -118,16 +118,13 @@ let templatesConfig: SnapTemplatesConfig = {
 			},
 		},
 	},
-	// Quickview defaults to the centered ProductQuickviewModal when no targets are configured.
-	// Configure layout (layout/column1/column2/showBadges) via theme overrides on the
-	// `productQuickviewModal` / `productQuickviewSlideout` selector, the same way autocomplete does.
-	quickview: {
-		targets: [
-			{
-				component: 'ProductQuickviewSlideout',
-			},
-		],
-	},
+	// quickview: {
+	// 	targets: [
+	// 		{
+	// 			component: 'ProductQuickviewSlideout',
+	// 		},
+	// 	],
+	// },
 	autocomplete: {
 		targets: [
 			{

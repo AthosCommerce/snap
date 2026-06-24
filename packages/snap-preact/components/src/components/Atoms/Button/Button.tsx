@@ -191,4 +191,6 @@ export type ButtonNames =
 	| 'close-search'
 	| 'clear-search'
 	| 'submit-search'
-	| 'reset-facet';
+	| 'reset-facet'
+	| 'add-to-cart'
+	| 'more-info';

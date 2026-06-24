@@ -15,6 +15,7 @@ export * from './components/Atoms/LoadingBar';
 export * from './components/Atoms/Overlay';
 export * from './components/Atoms/PaginationInfo';
 export * from './components/Atoms/Price';
+export * from './components/Atoms/ProductDetail';
 export * from './components/Atoms/SearchHeader';
 export * from './components/Atoms/Skeleton';
 
@@ -39,6 +40,7 @@ export * from './components/Molecules/Modal';
 export * from './components/Molecules/OverlayBadge';
 export * from './components/Molecules/Pagination';
 export * from './components/Molecules/PerPage';
+export * from './components/Molecules/ProductDetailTable';
 export * from './components/Organisms/QuickviewLayout';
 export * from './components/Templates/ProductQuickviewModal';
 export * from './components/Templates/ProductQuickviewSlideout';

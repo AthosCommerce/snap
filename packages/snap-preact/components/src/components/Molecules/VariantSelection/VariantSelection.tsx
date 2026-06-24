@@ -135,6 +135,10 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 			internalClassName: 'ss__variant-selection__list',
 			multiSelect: false,
 			hideOptionCheckboxes: true,
+			overflowButtonInGrid: true,
+			disableOverflowAction: true,
+			rows: 1,
+			columns: 6,
 			onSelect: (e, option) => onSelectHandler(e, option),
 			selected: selection.selected,
 			// inherited props

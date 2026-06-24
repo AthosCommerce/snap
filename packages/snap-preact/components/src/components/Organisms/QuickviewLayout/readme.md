@@ -30,12 +30,25 @@ The `controller` must be a `QuickviewController` — the components warn and ren
 
 `QuickviewLayout` renders a flex grid of named **modules** described by the `layout` prop, resolved at render time by a recursive `findModule()` engine (mirroring `AutocompleteLayout`).
 
-Modules: `image`, `title`, `price`, `variants`, `actions`, `description`, `attributes`, and `_` (a flexible separator). Columns `c1` and `c2` recurse into their own `column1` / `column2` layouts.
+Each module name maps to a library component (so theme selectors and `customComponent` overrides resolve, the same way `AutocompleteLayout` uses `terms.history` / `button.see-more`):
 
-- **`ProductQuickviewModal` default** — a two-column row: `layout: [['c1', 'c2']]` with `column1 = { layout: ['image'], width: '45%' }` and `column2 = { layout: ['title','price','variants','actions','description','attributes'], width: 'auto' }`. Columns wrap to a single column on narrow viewports.
-- **`ProductQuickviewSlideout` default** — a single stacked column: `layout: [['image'], ['title'], ['price'], ['variants'], ['actions'], ['description'], ['attributes']]`.
+- `slideshow` — the slideshow region (a `Slideshow` of one or more images; nav/pagination appear only for multiple images).
+- `overlayBadge` — the same slideshow region wrapped in `OverlayBadge` so overlay badges paint over it.
+- `calloutBadge` — the `CalloutBadge` molecule (callout badges rendered as their own block).
+- `price` — the `Price` atom(s).
+- `variantSelection` — one `VariantSelection` per variant selection.
+- `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid.
+- `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`).
+- `productDetailTable` — the `ProductDetailTable` molecule (opt-in via `displayFields`).
+- `recommendation.<profile>` — a recommendation carousel for the named profile. `<profile>` becomes the `RecommendationController` **tag**; the controller is seeded with the currently-viewed product (`mappings.core.parentId || product.id`) and rendered through the theme's `Recommendation` component (configurable via the `recommendation` prop). Renders `null` until the controller's store is loaded.
+- `_` — a flexible separator.
 
-Each module returns `null` when it has nothing to show (no description, no displayed attributes, no variant selections, no media), so empty columns and rows collapse.
+Columns `c1`–`c4` recurse into their own `column1`–`column4` layouts.
+
+- **`ProductQuickviewModal` default** — a two-column row: `layout: [['c1', 'c2']]` with `column1 = { layout: ['overlayBadge'], width: '45%' }` and `column2 = { layout: [['productDetail.mappings.core.name'],['calloutBadge'],['price'],['variantSelection'],['button.add-to-cart','button.more-info'],['productDetail.mappings.core.description'],['productDetailTable'],['recommendation.quickview']], width: 'auto' }`. Columns wrap to a single column on narrow viewports. (`ProductQuickviewModal` sets no layout of its own, so it inherits these `QuickviewLayout` defaults.)
+- **`ProductQuickviewSlideout` default** — a single stacked column: `layout: [['overlayBadge'], ['productDetail.mappings.core.name'], ['calloutBadge'], ['price'], ['variantSelection'], ['button.add-to-cart', 'button.more-info'], ['productDetail.mappings.core.description'], ['productDetailTable']]`.
+
+Each module returns `null` when it has nothing to show (no description, no displayed attributes, no variant selections, no slideshow), so empty columns and rows collapse.
 
 ## Props
 
@@ -44,12 +57,12 @@ Each module returns `null` when it has nothing to show (no description, no displ
 | `controller` | `QuickviewController` | ✔️ | The component subscribes to `controller.store`. Renders `null` (with a console warning) when missing or not of type `'quickview'`. |
 | `onReset` | `() => void` | | Called by the close button. The container passes `store.close()`; falls back to `store.close()` when rendered standalone. |
 | `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
-| `column1`, `column2` | `Column` | | `{ layout, width, alignContent }` configs for the `c1` / `c2` columns. |
-| `showBadges` | `boolean` | | Opt-in (default `false`). When `true`, overlay badges are shown over the media via `OverlayBadge` and callout badges below it via `CalloutBadge`. |
+| `column1`–`column4` | `Column` | | `{ layout, width, alignContent }` configs for the `c1`–`c4` columns. |
+| `recommendation` | `{ component?, resultComponent?, config? }` | | Config for every `recommendation.<profile>` module (see Recommendations). |
 | `customComponent` | `string` | | Name of a custom template component override, resolved via the Snap templates library. |
 | `className`, `internalClassName`, `disableStyles`, `theme`, `treePath` | inherited | | Standard `ComponentProps`. |
 
-`ProductQuickviewModal` / `ProductQuickviewSlideout` accept the same `showBadges` / `layout` / `column1` / `column2` props and pass them through to `QuickviewLayout`. `ProductQuickviewSlideout` additionally accepts `slideDirection`, `width`, and `overlayColor`.
+`ProductQuickviewModal` / `ProductQuickviewSlideout` accept the same `layout` / `column1`–`column4` props and pass them through to `QuickviewLayout`. `ProductQuickviewSlideout` additionally accepts `slideDirection`, `width`, and `overlayColor`.
 
 ## States
 
@@ -63,23 +76,39 @@ All three branches include a close button (top-right `close-thin` icon `Button`,
 
 ## Fullscreen gallery (lightbox)
 
-Clicking the image (or any carousel image) opens a fullscreen `Gallery` overlay, portaled to `document.body` so it sits above the container. It provides zoom (`+`/`−`, drag to pan), prev/next navigation with a `n / total` counter, touch swipe, and keyboard control (`Esc` closes, `←`/`→` navigate, `+`/`−` zoom). The gallery shows the same image set as the media region (the multi-image list when present, otherwise the single core image). `Gallery` is also exported for standalone use.
+Clicking the image (or any slide) opens a fullscreen `Gallery` overlay, portaled to `document.body` so it sits above the container. It provides zoom (`+`/`−`, drag to pan), prev/next navigation with a `n / total` counter, touch swipe, and keyboard control (`Esc` closes, `←`/`→` navigate, `+`/`−` zoom). The gallery shows the same image set as the slideshow region (the multi-image list when present, otherwise the single core image). `Gallery` is also exported for standalone use.
 
 ## Images
 
 By default the product branch renders a single image from `mappings.core.imageUrl || thumbnailImageUrl`.
 
-`config.imagesField` (read from `store.quickviewConfig`) controls which field(s) hold the **list** of image URLs. It accepts a single field name or an array of candidate names tried in order; each is looked up on `mappings.core` first, then `attributes`, and the first that resolves to **more than one** image renders in a 1-per-view `Carousel`. When omitted it defaults to trying `'images'` then `'ss_images'`. If none qualifies, it falls back to the single core image.
+`config.imagesField` (read from `store.quickviewConfig`) controls which field(s) hold the **list** of image URLs. It accepts a single field name or an array of candidate names tried in order; each is looked up on `mappings.core` first, then `attributes`, and the first that resolves to **more than one** image renders in a 1-per-view `Slideshow`. When omitted it defaults to trying `'images'` then `'ss_images'`. If none qualifies, it falls back to the single core image (rendered through the same `Slideshow` with navigation and pagination hidden).
 
-Image resolution is variant-aware: when a variant is active its own image list is used; if the variant has no multi-image field only its single `imageUrl` is shown (no carousel) rather than the parent's array. When the active variant's image appears in the carousel, it navigates to that slide without remounting.
+Image resolution is variant-aware: when a variant is active its own image list is used; if the variant has no multi-image field only its single `imageUrl` is shown (no slideshow nav) rather than the parent's array. When the active variant's image appears in the slideshow, the `Slideshow`'s `startIndex` navigates to that slide in place (no remount).
 
 ## Variant selection
 
-When `product.variants.selections` is non-empty the `variants` module renders one `VariantSelection` molecule per selection. Each renders as **swatches** or a **dropdown** based on the field's `optionConfig.type`. Because the layout reads `product.display.mappings.core` / `product.display.attributes` (which compose `mask` over base data), the displayed name, image, and attributes refresh automatically when a variant is selected.
+When `product.variants.selections` is non-empty the `variantSelection` module renders one `VariantSelection` molecule per selection. Each renders as **swatches** or a **dropdown** based on the field's `optionConfig.type`. Because the layout reads `product.display.mappings.core` / `product.display.attributes` (which compose `mask` over base data), the displayed name, image, and attributes refresh automatically when a variant is selected.
 
 ## `displayFields` and labels
 
-`store.quickviewConfig.displayFields` is an optional `string[]` selecting which attributes appear in the `attributes` table (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. Labels come from `controller.store.meta?.data?.facets[field]?.label`, falling back to the raw field name. Array values render comma-separated; objects fall back to `JSON.stringify`.
+`store.quickviewConfig.displayFields` is an optional `string[]` selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from `controller.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes them to `ProductDetailTable` as `labels`. Array values render comma-separated; objects fall back to `JSON.stringify`.
+
+## Recommendations
+
+Place a `recommendation.<profile>` module anywhere in the `layout` (or a column layout) to render a recommendation carousel below/around the product. The `<profile>` segment is the `RecommendationController` **tag** (e.g. `recommendation.similar`, `recommendation.crosssell`).
+
+Because `QuickviewLayout` cannot call hooks inside its recursive module renderer, it scans the resolved layout for every `recommendation.*` profile up front and resolves one `RecommendationController` (id `quickview-<profile>`) and the render/result components per profile. Each controller is seeded with the active product (`mappings.core.parentId || product.id`) and re-searches whenever the viewed product changes.
+
+The optional `recommendation` prop configures every recommendation module (the profile/tag still comes from the module name):
+
+| field | type | default | description |
+|---|---|---|---|
+| `component` | library `recommendation` component name | `Recommendation` | The carousel/grid component resolved from the theme library. |
+| `resultComponent` | library `result` component name | `Result` | The per-result component passed to the recommendation component. |
+| `config` | `Partial<RecommendationControllerConfig>` | ➖ | Extra controller config (e.g. `limit`, `globals`). `tag` is always overridden by the module name; `id` defaults to `quickview-<profile>`. |
+
+Recommendations require a Snap templates context (`useSnap().templates`); rendered standalone without one, the module collapses to nothing.
 
 ## Styling & containers
 

@@ -72,7 +72,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	};
 
 	const props = mergeProps('productQuickviewModal', globalTheme, defaultProps, properties);
-	const { controller, className, internalClassName, disableStyles, treePath, showBadges, layout, column1, column2 } = props;
+	const { controller, className, internalClassName, disableStyles, treePath, layout, column1, column2, column3, column4, recommendation } = props;
 
 	// Dialog focus management: remember what had focus before the modal opened, move focus to
 	// the close button on open, and restore on close. This lives in the container (not the
@@ -107,7 +107,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	const onClose = () => store.close();
 
 	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> = {
-		...defined({ showBadges, layout, column1, column2 }),
+		...defined({ layout, column1, column2, column3, column4, recommendation }),
 	};
 
 	return (

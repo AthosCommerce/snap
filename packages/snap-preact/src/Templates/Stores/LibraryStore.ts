@@ -117,6 +117,7 @@ export type LibraryImports = {
 		paginationInfo: LibraryComponentImport;
 		slideshow: LibraryComponentImport;
 		price: LibraryComponentImport;
+		productDetail: LibraryComponentImport;
 		skeleton: LibraryComponentImport;
 		modal: LibraryComponentImport;
 		calloutBadge: LibraryComponentImport;
@@ -145,6 +146,7 @@ export type LibraryImports = {
 		sortBy: LibraryComponentImport;
 		swatches: LibraryComponentImport;
 		variantSelection: LibraryComponentImport;
+		productDetailTable: LibraryComponentImport;
 		terms: LibraryComponentImport;
 		branchOverride: LibraryComponentImport;
 		facet: LibraryComponentImport;
@@ -209,6 +211,7 @@ export class LibraryStore {
 		paginationInfo: LibraryComponentMap;
 		slideshow: LibraryComponentMap;
 		price: LibraryComponentMap;
+		productDetail: LibraryComponentMap;
 		skeleton: LibraryComponentMap;
 		modal: LibraryComponentMap;
 		calloutBadge: LibraryComponentMap;
@@ -237,6 +240,7 @@ export class LibraryStore {
 		sortBy: LibraryComponentMap;
 		swatches: LibraryComponentMap;
 		variantSelection: LibraryComponentMap;
+		productDetailTable: LibraryComponentMap;
 		terms: LibraryComponentMap;
 		branchOverride: LibraryComponentMap;
 		facet: LibraryComponentMap;
@@ -280,6 +284,7 @@ export class LibraryStore {
 		paginationInfo: {},
 		slideshow: {},
 		price: {},
+		productDetail: {},
 		skeleton: {},
 		modal: {},
 		calloutBadge: {},
@@ -308,6 +313,7 @@ export class LibraryStore {
 		sortBy: {},
 		swatches: {},
 		variantSelection: {},
+		productDetailTable: {},
 		terms: {},
 		branchOverride: {},
 		facet: {},
@@ -528,6 +534,7 @@ export class LibraryStore {
 			paginationInfo: {},
 			slideshow: {},
 			price: {},
+			productDetail: {},
 			skeleton: {},
 			modal: {},
 			calloutBadge: {},
@@ -556,6 +563,7 @@ export class LibraryStore {
 			sortBy: {},
 			swatches: {},
 			variantSelection: {},
+			productDetailTable: {},
 			terms: {},
 			branchOverride: {},
 			facet: {},

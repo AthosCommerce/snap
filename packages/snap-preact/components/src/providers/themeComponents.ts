@@ -15,6 +15,7 @@ import type { InlineBannerProps, InlineBannerTemplatesLegalProps } from '../comp
 import type { OverlayProps, OverlayTemplatesLegalProps } from '../components/Atoms/Overlay';
 import type { PaginationInfoProps, PaginationInfoTemplatesLegalProps } from '../components/Atoms/PaginationInfo';
 import type { PriceNames, PriceProps, PriceTemplatesLegalProps } from '../components/Atoms/Price';
+import type { ProductDetailProps, ProductDetailTemplatesLegalProps } from '../components/Atoms/ProductDetail';
 import type { SkeletonProps, SkeletonTemplatesLegalProps } from '../components/Atoms/Skeleton';
 // import type { ToggleProps } from '../components/Atoms/Toggle';
 
@@ -48,6 +49,7 @@ import type { SlideoutProps, SlideoutTemplatesLegalProps } from '../components/M
 import type { SortByProps, SortByTemplatesLegalProps } from '../components/Molecules/SortBy';
 import type { SwatchesProps, SwatchesTemplatesLegalProps } from '../components/Molecules/Swatches';
 import type { VariantSelectionProps, VariantSelectionTemplatesLegalProps } from '../components/Molecules/VariantSelection';
+import type { ProductDetailTableProps, ProductDetailTableTemplatesLegalProps } from '../components/Molecules/ProductDetailTable';
 import type { TermsNames, TermsProps, TermsTemplatesLegalProps } from '../components/Molecules/Terms';
 import type { ModalProps, ModalTemplatesLegalProps } from '../components/Molecules/Modal';
 
@@ -155,6 +157,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'paginationInfo',
 	'slideshow',
 	'price',
+	'productDetail',
 	'skeleton',
 	/* molecules */
 	'modal',
@@ -185,6 +188,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'sortBy',
 	'swatches',
 	'variantSelection',
+	'productDetailTable',
 	'terms',
 	/* organisms */
 	'branchOverride',
@@ -269,6 +273,8 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'sortBy'>]?: Partial<SortByProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'variantSelection', string>]?: Partial<VariantSelectionProps> } &
+	{ [K in ThemeComponentOverridesNamedSelectors<'productDetail', string>]?: Partial<ProductDetailProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetailTable'>]?: Partial<ProductDetailTableProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsProps> } &
 
 	/* ORGANISMS */
@@ -359,6 +365,9 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: unknown } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetail'>]?: Partial<ProductDetailTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'productDetail'>]?: unknown } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetailTable'>]?: Partial<ProductDetailTableTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
@@ -457,6 +466,9 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: unknown } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetail'>]?: Partial<ProductDetailTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'productDetail'>]?: unknown } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetailTable'>]?: Partial<ProductDetailTableTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> & WithCustomComponent } &
 
 	/* ORGANISMS */
@@ -557,6 +569,9 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
 	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'variantSelection'>]?: unknown } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'productDetail'>]?: Partial<ProductDetailTemplatesLegalProps> } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'productDetail'>]?: unknown } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'productDetailTable'>]?: Partial<ProductDetailTableTemplatesLegalProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
@@ -650,6 +665,8 @@ export type ComponentTypePropsMap = {
 	sortBy: SortByProps;
 	swatches: SwatchesProps;
 	variantSelection: VariantSelectionProps;
+	productDetail: ProductDetailProps;
+	productDetailTable: ProductDetailTableProps;
 	terms: TermsProps;
 	branchOverride: BranchOverrideProps;
 	facet: FacetProps;

@@ -39,7 +39,16 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 		slideDirection: 'right',
 		width: '500px',
 		overlayColor: 'rgba(0,0,0,0.8)',
-		layout: [['image'], ['title'], ['price'], ['variants'], ['actions'], ['description'], ['attributes']],
+		layout: [
+			['overlayBadge'],
+			['productDetail.mappings.core.name'],
+			['calloutBadge'],
+			['price'],
+			['variantSelection'],
+			['button.add-to-cart', 'button.more-info'],
+			['productDetail.mappings.core.description'],
+			['productDetailTable'],
+		],
 	};
 
 	const props = mergeProps('productQuickviewSlideout', globalTheme, defaultProps, properties);
@@ -49,10 +58,12 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 		internalClassName,
 		disableStyles,
 		treePath,
-		showBadges,
 		layout,
 		column1,
 		column2,
+		column3,
+		column4,
+		recommendation,
 		slideDirection,
 		width,
 		overlayColor,
@@ -89,7 +100,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 	const onClose = () => store.close();
 
 	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> = {
-		...defined({ showBadges, layout, column1, column2 }),
+		...defined({ layout, column1, column2, column3, column4, recommendation }),
 	};
 
 	return (
