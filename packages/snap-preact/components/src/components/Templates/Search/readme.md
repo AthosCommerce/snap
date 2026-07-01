@@ -35,10 +35,17 @@ const CustomResult = ({
 ```
 
 ### mobileDisplayAt
-The `mobileDisplayAt` prop specifies a CSS media query for when the MobileSidebar component will render. By default, the component will render at "991px".
+The `mobileDisplayAt` prop specifies a CSS media query for when the Sidebar component should render in mobile view, which will render in a slideout. By default, the component will render at "991px".
 
 ```tsx
 <Search controller={controller} mobileDisplayAt={'400px'} />
+```
+
+### sidebarWidth
+The `sidebarWidth` prop specifies the CSS width of the Sidebar component. By default, the sidebar width is `"270px"`.
+
+```tsx
+<Search controller={controller} sidebarWidth={'300px'} />
 ```
 
 ### hideSidebar

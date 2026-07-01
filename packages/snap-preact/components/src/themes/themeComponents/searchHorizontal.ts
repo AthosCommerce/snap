@@ -18,7 +18,7 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 		'searchHorizontal facetsHorizontal': {
 			limit: 9,
 		},
-		'searchHorizontal mobileSidebar': {
+		'searchHorizontal sidebar': {
 			layout: ['filterSummary', 'facets', 'banner.left'],
 		},
 	},
@@ -28,7 +28,7 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 			layout: [['banner.header'], ['searchHeader', '_']],
 		},
 		'searchHorizontal toolbar.middle': {
-			layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
+			layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 		},
 		'searchHorizontal results': {
 			columns: 2,

@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useRef, useEffect } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -17,12 +17,14 @@ import { SearchFilterStore } from '@athoscommerce/snap-store-mobx';
 import deepmerge from 'deepmerge';
 import { useLayoutOptions } from '../../../hooks/useLayoutOptions';
 import { componentNameToClassName } from '../../../utilities/componentNameToClassName';
+import { Slideout, SlideoutProps } from '../../Molecules/Slideout';
 
 const defaultStyles: StyleScript<SearchProps> = (props) => {
 	let classNamePrefix = 'ss__search';
 	if (props.alias) {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
 	}
+	const isMobile = useMediaQuery(props.mobileDisplayAt ? `(max-width: ${props.mobileDisplayAt})` : `(max-width: 0px)`);
 
 	return css({
 		[`.${classNamePrefix}__header-section`]: {
@@ -37,7 +39,7 @@ const defaultStyles: StyleScript<SearchProps> = (props) => {
 
 		'.ss__sidebar': {
 			flex: '0 1 auto',
-			width: '270px',
+			width: !isMobile ? props.sidebarWidth : '100%',
 			'&:empty': {
 				display: 'none',
 			},
@@ -59,7 +61,7 @@ export const Search = observer((properties: SearchProps) => {
 
 	const defaultProps: Partial<SearchProps> = {
 		toggleSidebarButtonText: 'Filters',
-		hideToggleSidebarButton: true,
+		sidebarWidth: '270px',
 		mobileDisplayAt: globalTheme?.variables?.breakpoints?.tablet ? `${globalTheme.variables?.breakpoints?.tablet}px` : '991px',
 		treePath: globalTreePath,
 	};
@@ -94,9 +96,30 @@ export const Search = observer((properties: SearchProps) => {
 
 	const store = controller.store;
 
-	const isMobile = useMediaQuery(`(max-width: ${mobileDisplayAt})`);
+	const isMobile = useMediaQuery(mobileDisplayAt ? `(max-width: ${mobileDisplayAt})` : `(max-width: 0px)`);
 
-	const [sidebarOpenState, setSidebarOpenState] = useState(Boolean(alias !== 'searchHorizontal' && !toggleSidebarStartClosed));
+	const [sidebarOpenState, setSidebarOpenState] = useState(Boolean(alias !== 'searchHorizontal' && !toggleSidebarStartClosed && !isMobile));
+
+	// Track previous isMobile value to detect transitions and suppress slideout overlay animation occuring during resize to mobile.
+	const prevIsMobileRef = useRef(isMobile);
+	const justTransitionedToMobile = isMobile && !prevIsMobileRef.current;
+
+	useEffect(() => {
+		prevIsMobileRef.current = isMobile;
+	});
+
+	useEffect(() => {
+		if (isMobile) {
+			// if we are on mobile, we want to close the slideout to start.
+			setSidebarOpenState(false);
+		} else {
+			if (toggleSidebarStartClosed) {
+				setSidebarOpenState(false);
+			} else {
+				setSidebarOpenState(true);
+			}
+		}
+	}, [isMobile]);
 
 	//initialize lang
 	const defaultLang: Partial<SearchLang> = {
@@ -136,16 +159,14 @@ export const Search = observer((properties: SearchProps) => {
 			});
 		},
 		children:
-			!hideToggleSidebarButton && store.loaded && !isMobile && (toggleSidebarButtonText || mergedLang.toggleSidebarButtonText?.value)
-				? ToggleSidebar
-				: undefined,
+			!hideToggleSidebarButton && store.loaded && (toggleSidebarButtonText || mergedLang.toggleSidebarButtonText?.value) ? ToggleSidebar : undefined,
 	};
 	const subProps: SearchSubProps = {
 		TopToolbar: {
 			// default props
 			name: 'top',
 			internalClassName: `${classNamePrefix}__header-section__toolbar--top-toolbar`,
-			layout: [['banner.header'], ['searchHeader', '_', 'button.sidebar-toggle']],
+			layout: [['banner.header'], ['searchHeader', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
 			...defined({
 				disableStyles,
@@ -158,7 +179,7 @@ export const Search = observer((properties: SearchProps) => {
 			name: 'middle',
 			internalClassName: `${classNamePrefix}__content__toolbar--middle-toolbar`,
 			layout: isMobile
-				? [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']]
+				? [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
 				: [['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
 			// inherited props
@@ -210,6 +231,18 @@ export const Search = observer((properties: SearchProps) => {
 			theme: props.theme,
 			treePath,
 		},
+		Slideout: {
+			// default props
+			width: props.sidebarWidth,
+			internalClassName: `${classNamePrefix}__slideout`,
+			onChange: (active: boolean) => setSidebarOpenState(active),
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			theme: props.theme,
+			treePath,
+		},
 	};
 
 	const styling = mergeStyles<SearchProps>(props, defaultStyles);
@@ -222,11 +255,20 @@ export const Search = observer((properties: SearchProps) => {
 			>
 				<div className={`${classNamePrefix}__header-section`}>{!hideTopToolbar && <Toolbar {...subProps.TopToolbar} controller={controller} />}</div>
 				<div className={`${classNamePrefix}__main-section`}>
-					{!hideSidebar && !isMobile && sidebarOpenState && store.loaded && store.pagination.totalResults > 0 && (
-						<div className={`${classNamePrefix}__sidebar`}>
-							<Sidebar {...subProps.Sidebar} controller={controller} />
-						</div>
-					)}
+					{!hideSidebar &&
+						store.loaded &&
+						store.pagination.totalResults > 0 &&
+						(isMobile ? (
+							<Slideout {...subProps.Slideout} active={justTransitionedToMobile ? false : sidebarOpenState}>
+								<div className={`${classNamePrefix}__sidebar`}>
+									<Sidebar {...subProps.Sidebar} controller={controller} />
+								</div>
+							</Slideout>
+						) : sidebarOpenState ? (
+							<div className={`${classNamePrefix}__sidebar`}>
+								<Sidebar {...subProps.Sidebar} controller={controller} />
+							</div>
+						) : null)}
 					<div className={classnames(`${classNamePrefix}__content`)}>
 						{!hideMiddleToolbar && <Toolbar {...subProps.MiddleToolbar} controller={controller} />}
 
@@ -254,8 +296,9 @@ export type SearchProps = {
 
 export type SearchTemplatesLegalProps = {
 	resultComponent?: string;
-	mobileDisplayAt?: string;
+	mobileDisplayAt?: string | false;
 	hideSidebar?: boolean;
+	sidebarWidth?: string;
 	hideTopToolbar?: boolean;
 	hideMiddleToolbar?: boolean;
 	hideBottomToolbar?: boolean;
@@ -276,4 +319,5 @@ interface SearchSubProps {
 	TopToolbar: Partial<ToolbarProps>;
 	MiddleToolbar: Partial<ToolbarProps>;
 	BottomToolbar: Partial<ToolbarProps>;
+	Slideout: Partial<SlideoutProps>;
 }

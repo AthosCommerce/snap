@@ -14,7 +14,6 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 import { SortBy, SortByProps } from '../../Molecules/SortBy';
 import { PerPage, PerPageProps } from '../../Molecules/PerPage';
 import { LayoutSelector, LayoutSelectorProps } from '../../Molecules/LayoutSelector';
-import { MobileSidebar, MobileSidebarProps } from '../MobileSidebar';
 import { PaginationInfo, PaginationInfoProps } from '../../Atoms/PaginationInfo/PaginationInfo';
 import { SearchHeader, SearchHeaderProps } from '../../Atoms/SearchHeader/SearchHeader';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -66,17 +65,6 @@ export const Layout = observer((properties: LayoutProps) => {
 	const styling = mergeStyles<LayoutProps>(props, defaultStyles);
 
 	const subProps: LayoutSubProps = {
-		MobileSidebar: {
-			// default props
-			controller,
-			// inherited props
-			...defined({
-				disableStyles,
-			}),
-			// component theme overrides
-			theme: props?.theme,
-			treePath: properties.treePath,
-		},
 		Banner: {
 			// default props
 			controller,
@@ -230,12 +218,6 @@ export const Layout = observer((properties: LayoutProps) => {
 	const hasResults = controller.store.pagination.totalResults > 0;
 	function renderModule(module: ModuleNames) {
 		switch (module) {
-			case 'mobileSidebar':
-				if (hasResults) {
-					return <MobileSidebar controller={controller} {...subProps.MobileSidebar} />;
-				}
-				break;
-
 			case 'searchHeader':
 				return <SearchHeader {...subProps.SearchHeader} />;
 
@@ -352,7 +334,6 @@ export type ModuleNames =
 	// toolbar
 	| 'searchHeader'
 	| 'filterSummary'
-	| 'mobileSidebar'
 	| 'layoutSelector'
 	| 'perPage'
 	| 'sortBy'
@@ -370,7 +351,6 @@ export type ModuleNames =
 	| 'banner.left';
 
 interface LayoutSubProps {
-	MobileSidebar: Partial<MobileSidebarProps>;
 	FilterSummary: Partial<FilterSummaryProps>;
 	Pagination: Partial<PaginationProps>;
 	PaginationInfo: Partial<PaginationInfoProps>;

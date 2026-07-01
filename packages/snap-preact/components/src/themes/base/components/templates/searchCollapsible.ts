@@ -4,15 +4,13 @@ import { searchCollapsibleThemeComponentProps } from '../../../themeComponents/s
 import { ThemeComponent } from '../../../../providers';
 
 // CSS in JS style script for the Search component
-const searchCollapsibleStyleScript = ({ theme }: SearchCollapsibleProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const variables = theme?.variables;
-	const sidebarWidth = 'calc(270px + 1.5em)';
+const searchCollapsibleStyleScript = ({ sidebarWidth }: SearchCollapsibleProps) => {
+	const _sidebarWidth = sidebarWidth ? `calc(${sidebarWidth} + 1.5em)` : undefined;
 
 	return css({
 		'.ss__toolbar .ss__button--sidebar-toggle-button-wrapper': {
-			marginRight: sidebarWidth ? 'inherit' : 'auto',
-			width: sidebarWidth ? sidebarWidth : 'inherit',
+			marginRight: _sidebarWidth ? 'inherit' : 'auto',
+			width: _sidebarWidth ? _sidebarWidth : 'inherit',
 		},
 	});
 };

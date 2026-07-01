@@ -27,9 +27,9 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 			},
 			'.ss__toolbar': {
 				'.ss__layout__row': {
-					'.ss__mobile-sidebar': {
+					'.ss__button--sidebar-toggle-button-wrapper': {
 						minWidth: '1px',
-						'.ss__mobile-sidebar__slideout__button': {
+						'.ss__button': {
 							width: '100%',
 						},
 					},
@@ -42,7 +42,7 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__search-horizontal__main-section': {
 				'.ss__toolbar': {
-					'.ss__mobile-sidebar': {
+					'.ss__button--sidebar-toggle-button-wrapper': {
 						minWidth: '200px',
 					},
 				},
@@ -52,7 +52,7 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 			'.ss__search-horizontal__main-section': {
 				'.ss__toolbar': {
 					'.ss__layout__row': {
-						'.ss__mobile-sidebar': {
+						'.ss__button--sidebar-toggle-button-wrapper': {
 							minWidth: '1px',
 						},
 						'.ss__select': {
