@@ -1143,8 +1143,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 											<div className={'ss__chat__topic-drift'}>
 												<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'} />
 												<div className={'ss__chat__topic-drift__text'}>
-													<span>Session limit reached</span>
-													<span>This chat has reached its maximum number of interactions. Start a new session to continue.</span>
+													<span>Chat is currently unavailable due to high volume.</span>
+													<span>In the meantime, feel free to use the search bar above to find what you need!</span>
 												</div>
 												<Button
 													className={'ss__chat__topic-drift__button'}

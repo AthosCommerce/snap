@@ -115,7 +115,7 @@ export class ChatController extends AbstractController {
 			this.log.warn('Chat is disabled, preventing search request');
 			this.store.error = {
 				type: ErrorType.WARNING,
-				message: 'Chat is currently unavailable. Please try again later.',
+				message: 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!',
 			};
 			return false;
 		}
@@ -172,7 +172,7 @@ export class ChatController extends AbstractController {
 	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
 		const enabled = await this.checkChatStatus();
 		if (!enabled) {
-			const message = 'Chat is currently unavailable. Please try again later.';
+			const message = 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!';
 			this.log.warn(message);
 			this.store.error = {
 				type: ErrorType.WARNING,
@@ -222,7 +222,7 @@ export class ChatController extends AbstractController {
 		} catch (e) {
 			this.log.error('Error starting new chat:', e);
 			this.store.error = {
-				message: 'Failed to start new chat.',
+				message: "We couldn't start a new chat just now. Please try again in a moment.",
 				type: ErrorType.ERROR,
 			};
 		} finally {
@@ -466,7 +466,11 @@ export class ChatController extends AbstractController {
 						thumbnailUrl: response.thumbnailUrl,
 					});
 				} catch (err: any) {
-					const errorMessage = err?.responseBody?.errorMessage || 'An unknown error has occurred.';
+					const serverMessage = err?.responseBody?.errorMessage;
+					const errorMessage =
+						err?.fetchDetails?.status === 400 && serverMessage
+							? `${serverMessage}. Please try again.`
+							: 'Something went wrong behind the scenes. Please give it another shot in a moment.';
 					attachment.update({
 						error: {
 							message: errorMessage,
@@ -746,18 +750,24 @@ export class ChatController extends AbstractController {
 							this.store.error = {
 								code: 429,
 								type: ErrorType.WARNING,
-								message: 'Failed to process request. Please try again shortly',
+								message: "We couldn't process your request. Please wait a few seconds and try again.",
 							};
 						} else if (err.fetchDetails.status === 500) {
 							this.store.error = {
 								code: 500,
 								type: ErrorType.ERROR,
-								message: 'An unexpected error occured. Please try again.',
+								message: 'Something went wrong behind the scenes. Please give it another shot in a moment.',
+							};
+						} else if (err.fetchDetails.status === 400) {
+							this.store.error = {
+								code: 400,
+								type: ErrorType.ERROR,
+								message: "We couldn't send your message. Please try again.",
 							};
 						} else {
 							this.store.error = {
 								type: ErrorType.ERROR,
-								message: errMessage || 'An unknown error has occurred.',
+								message: 'Something went wrong behind the scenes. Please give it another shot in a moment.',
 							};
 						}
 					}
@@ -767,7 +777,7 @@ export class ChatController extends AbstractController {
 				} else {
 					this.store.error = {
 						type: ErrorType.ERROR,
-						message: `Something went wrong... - ${err}`,
+						message: 'Something went wrong behind the scenes. Please give it another shot in a moment.',
 					};
 					this.log.error(err);
 					this.handleError(err);
