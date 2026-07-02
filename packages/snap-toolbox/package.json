@@ -4,6 +4,7 @@
 	"description": "Snap Toolbox",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
+	"types": "dist/esm/index.d.ts",
 	"author": "AthosCommerce",
 	"license": "MIT",
 	"repository": {

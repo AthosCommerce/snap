@@ -20,7 +20,7 @@ import { price } from './price';
 import { searchHeader } from './searchHeader';
 import { skeleton } from './skeleton';
 
-export const atoms: ThemeResponsiveComplete = {
+export const atoms = {
 	default: {
 		...badgeImage.default,
 		...badgePill.default,
@@ -101,4 +101,4 @@ export const atoms: ThemeResponsiveComplete = {
 		...searchHeader.desktop,
 		...skeleton.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

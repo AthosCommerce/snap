@@ -4,5 +4,6 @@
 	"description": "Snap Magento 2 Platform Library",
 	"main": "../dist/cjs/magento2/src/index.js",
 	"module": "../dist/esm/magento2/src/index.js",
+	"types": "../dist/esm/magento2/src/index.d.ts",
 	"sideEffects": false
 }

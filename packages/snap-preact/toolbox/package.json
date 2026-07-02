@@ -4,5 +4,6 @@
 	"description": "Snap Preact Toolbox Library",
 	"main": "../dist/cjs/toolbox/src/index.js",
 	"module": "../dist/esm/toolbox/src/index.js",
+	"types": "../dist/esm/toolbox/src/index.d.ts",
 	"sideEffects": false
 }

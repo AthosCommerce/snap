@@ -11,7 +11,7 @@ import { termsList } from './termsList';
 import { toolbar } from './toolbar';
 import { autocomplete } from './autocomplete';
 
-export const organisms: ThemeResponsiveComplete = {
+export const organisms = {
 	default: {
 		...autocomplete.default,
 		...facet.default,
@@ -56,4 +56,4 @@ export const organisms: ThemeResponsiveComplete = {
 		...toolbar.desktop,
 		...termsList.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

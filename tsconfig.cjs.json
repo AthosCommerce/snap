@@ -3,6 +3,10 @@
 	"compilerOptions": {
 		"target": "es5",
 		"module": "CommonJS",
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		// the ESM pass performs type checking and declaration emit (package "types" fields point at dist/esm)
+		"noCheck": true,
+		"declaration": false,
+		"declarationMap": false
 	}
 }
