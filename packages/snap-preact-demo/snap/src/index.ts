@@ -213,6 +213,38 @@ let config: SnapConfig = {
 				],
 			},
 		],
+		chat: [
+			{
+				config: {
+					id: 'chat',
+					settings: {
+						quickview: {
+							enabled: true,
+							displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+						},
+					},
+					middleware: {
+						addToCart: (data: { products: any }, next: () => void) => {
+							console.log('chat add to cart!', data.products);
+							next();
+						},
+					},
+				},
+				targeters: [
+					{
+						selector: 'body',
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).Chat;
+						},
+						props: {
+							avatar: 'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Gemini_Generated_Image_vz2c2tvz2c2tvz2c.png?v=1771603960',
+							buttonBelowMessage: true,
+							hideMessageTypeIndicatorText: true,
+						},
+					},
+				],
+			},
+		],
 	},
 };
 

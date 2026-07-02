@@ -11,7 +11,10 @@
 import * as fs from 'fs';
 import deepmerge from 'deepmerge';
 import type { MetaResponseModel, SearchResponseModel, AutocompleteResponseModel } from '@athoscommerce/snapi-types';
-import { RecommendCombinedResponseModel } from '@athoscommerce/snap-client';
+import { RecommendCombinedResponseModel, ChatResponseModel, ChatStatusResponse } from '@athoscommerce/snap-client';
+
+type ChatInitResponseModel = { chatSessionId: string; sessionEndTime: string };
+type UploadImageResponseModel = { imageId: string; imageUrl: string; thumbnailUrl: string };
 
 type MockDataConfig = {
 	siteId?: string;
@@ -19,6 +22,10 @@ type MockDataConfig = {
 	search?: string;
 	autocomplete?: string;
 	trending?: string;
+	chat?: string;
+	chatInit?: string;
+	chatStatus?: string;
+	uploadImage?: string;
 	recommend?: {
 		profile?: string;
 		results?: string;
@@ -31,6 +38,10 @@ const defaultConfig: MockDataConfig = {
 	search: 'default',
 	autocomplete: 'default',
 	trending: 'default',
+	chat: 'default',
+	chatInit: 'chatInit',
+	chatStatus: 'chatStatus',
+	uploadImage: 'uploadImage',
 	recommend: {
 		profile: 'default',
 		results: 'default',
@@ -115,6 +126,50 @@ export class MockData {
 			return getJSON(dataFile);
 		} catch (err) {
 			throw `Data file '${dataFile}' not found!`;
+		}
+	}
+
+	chat(file?: string): ChatResponseModel {
+		const chatFile = `${__dirname}/chat/${this.config.siteId}/${file || this.config.chat}.json`;
+		try {
+			return getJSON(chatFile);
+		} catch (err) {
+			throw `Chat JSON '${chatFile}' not found.`;
+		}
+	}
+
+	chatMeta(file?: string): { meta: MetaResponseModel; chat: ChatResponseModel } {
+		try {
+			return { meta: this.meta(), chat: this.chat(file) };
+		} catch (err) {
+			throw `ChatMeta JSON not found: ${err}`;
+		}
+	}
+
+	chatInit(file?: string): ChatInitResponseModel {
+		const chatInitFile = `${__dirname}/chat/${this.config.siteId}/${file || this.config.chatInit}.json`;
+		try {
+			return getJSON(chatInitFile);
+		} catch (err) {
+			throw `ChatInit JSON '${chatInitFile}' not found.`;
+		}
+	}
+
+	chatStatus(file?: string): ChatStatusResponse {
+		const chatStatusFile = `${__dirname}/chat/${this.config.siteId}/${file || this.config.chatStatus}.json`;
+		try {
+			return getJSON(chatStatusFile);
+		} catch (err) {
+			throw `ChatStatus JSON '${chatStatusFile}' not found.`;
+		}
+	}
+
+	uploadImage(file?: string): UploadImageResponseModel {
+		const uploadImageFile = `${__dirname}/chat/${this.config.siteId}/${file || this.config.uploadImage}.json`;
+		try {
+			return getJSON(uploadImageFile);
+		} catch (err) {
+			throw `UploadImage JSON '${uploadImageFile}' not found.`;
 		}
 	}
 

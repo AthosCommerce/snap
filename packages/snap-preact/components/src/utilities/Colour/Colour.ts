@@ -115,6 +115,20 @@ export class Colour {
 		return new Colour(Colour.opacity(this.hex, -offset));
 	}
 
+	/** Returns a hex string mixed linearly toward black. `amount` (0-1) is the proportion
+	 * of black in the result — 0.9 yields a near-black with a slight tint of the original.
+	 * Uses linear RGB mixing so light inputs reliably produce darker outputs. */
+	darkenHex(amount: number = 0.3): string {
+		return Colour.mixToward(this.hex, '#000000', amount);
+	}
+
+	/** Returns a hex string mixed linearly toward white. `amount` (0-1) is the proportion
+	 * of white in the result — 0.9 yields a near-white with a slight tint of the original.
+	 * Uses linear RGB mixing so dark inputs reliably produce paler outputs. */
+	lightenHex(amount: number = 0.3): string {
+		return Colour.mixToward(this.hex, '#ffffff', amount);
+	}
+
 	static isRgb(color: string): boolean {
 		return Boolean(
 			color.match(/^rgba?\([0-9]{1,3}[\s,\,]+[0-9]{1,3}[\s,\,]+[0-9]{1,3}[\s,\,]*\)$/i) ||
@@ -191,6 +205,29 @@ export class Colour {
 			return Colour.hexToRgb(hexValue);
 		}
 		return hexValue;
+	}
+
+	/** Linear RGB mix between two hex colors. `amount` (0-1) is the proportion of `towardHex`
+	 * in the result. Returns the source `hex` unchanged when either input is invalid. */
+	static mixToward(hex: string | undefined, towardHex: string, amount: number): string {
+		if (!hex || !Colour.isHex(hex) || !Colour.isHex(towardHex)) return hex || '';
+
+		const clamped = Math.max(0, Math.min(1, amount));
+
+		const sourceR = parseInt(hex.slice(1, 3), 16);
+		const sourceG = parseInt(hex.slice(3, 5), 16);
+		const sourceB = parseInt(hex.slice(5, 7), 16);
+		const targetR = parseInt(towardHex.slice(1, 3), 16);
+		const targetG = parseInt(towardHex.slice(3, 5), 16);
+		const targetB = parseInt(towardHex.slice(5, 7), 16);
+
+		const mix = (s: number, t: number) => Math.round(s * (1 - clamped) + t * clamped);
+
+		const r = mix(sourceR, targetR).toString(16).padStart(2, '0');
+		const g = mix(sourceG, targetG).toString(16).padStart(2, '0');
+		const b = mix(sourceB, targetB).toString(16).padStart(2, '0');
+
+		return `#${r}${g}${b}`;
 	}
 
 	static brightness(color: string | undefined, offset: number): string | undefined {

@@ -101,6 +101,18 @@ const buttonProps = {
 <SearchInput closeSearchButton={buttonProps} />
 ```
 
+### chatButton
+The `chatButton` prop specifies props to pass to the open chat button component. Takes any `Button` component props. 
+
+```jsx
+const buttonProps = {
+    icon: 'chat',
+    onClick: () => func
+};
+
+<SearchInput chatButton={buttonProps} />
+```
+
 ### hideSubmitSearchButton
 The `hideSubmitSearchButton` prop hides the submit search button.
 

@@ -21,6 +21,15 @@ export * from './components/Atoms/Skeleton';
 // MOLECULES
 export * from './components/Molecules/CalloutBadge';
 export * from './components/Molecules/Carousel';
+export * from './components/Molecules/ChatAttachmentContext';
+export * from './components/Molecules/ChatInspirationResultMessage';
+export * from './components/Molecules/ChatMessageText';
+export * from './components/Molecules/ChatMessageUser';
+export * from './components/Molecules/ChatProductComparisonMessage';
+export * from './components/Molecules/ChatProductQueryMessage';
+export * from './components/Molecules/ChatResult';
+export * from './components/Molecules/ChatResultsDisplay';
+export * from './components/Molecules/ChatSuggestedQuestions';
 export * from './components/Molecules/Checkbox';
 export * from './components/Molecules/ErrorHandler';
 export * from './components/Molecules/FacetGridOptions';
@@ -66,8 +75,10 @@ export * from './components/Organisms/Sidebar';
 export * from './components/Organisms/Toolbar';
 export * from './components/Organisms/Autocomplete';
 export * from './components/Organisms/TermsList';
+export { ChatOrganism, type ChatOrganismProps } from './components/Organisms/Chat';
 
 // TEMPLATES
+export * from './components/Templates/Chat';
 export * from './components/Templates/Recommendation';
 export * from './components/Templates/RecommendationBundle';
 export * from './components/Templates/RecommendationBundleEasyAdd';

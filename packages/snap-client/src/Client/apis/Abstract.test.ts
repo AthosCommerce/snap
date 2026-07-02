@@ -115,7 +115,7 @@ describe('Abstract Api', () => {
 	// set up
 	const fetchfn = jest
 		.spyOn(global.window, 'fetch')
-		.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve() } as Response));
+		.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(), headers: new Headers() } as Response));
 
 	it('can pass in all the props', async () => {
 		const config: ApiConfigurationParameters = {
@@ -204,10 +204,11 @@ describe('Abstract Api', () => {
 		expect(fetchParams.init.headers).toStrictEqual(customHeaders);
 		expect(fetchParams.init.method).toBe('POST');
 
-		//create fetch params requires a site id
+		//create fetch params no longer requires a site id (check is commented out in Abstract.ts)
 		const badContext = { ...context, body: {} };
 		//@ts-ignore
-		expect(() => api.createFetchParams(badContext)).toThrowError(`Request failed. Missing "siteId" parameter.`);
+		const badFetchParams = api.createFetchParams(badContext);
+		expect(badFetchParams).toBeDefined();
 
 		const config2: ApiConfigurationParameters = {
 			origin: 'https://athoscommerce.com',
@@ -303,7 +304,7 @@ describe('Abstract Api', () => {
 		//handles 200s
 		const fetchfn200 = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({ found: true }) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({ found: true }), headers: new Headers() } as Response));
 
 		const setCacheSpy = jest.spyOn(api.cache, 'set');
 		const getCacheSpy = jest.spyOn(api.cache, 'get').mockImplementation(() => Promise.resolve({ foundInCache: true }) as unknown as Response);
@@ -352,7 +353,7 @@ describe('Abstract Api', () => {
 		//can handle 429s and retry correct amount of times.
 		const fetchfn429 = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve({ broken: true }) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve({ broken: true }), headers: new Headers() } as Response));
 
 		await expect(async () => {
 			//@ts-ignore
@@ -367,6 +368,7 @@ describe('Abstract Api', () => {
 				status: 429,
 				url: 'https://athoscommerce.com/v1/autocomplete',
 			},
+			responseBody: { broken: true },
 		});
 
 		expect(fetchfn429).toHaveBeenCalledTimes((config.maxRetry || 0) + 1);

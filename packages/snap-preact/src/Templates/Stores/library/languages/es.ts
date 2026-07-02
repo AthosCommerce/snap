@@ -98,6 +98,11 @@ export const es: LangComponents = {
 				'aria-label': 'Enviar búsqueda',
 			},
 		},
+		chatButton: {
+			attributes: {
+				'aria-label': 'Abrir chat',
+			},
+		},
 	},
 	recommendationBundle: {
 		seedText: {

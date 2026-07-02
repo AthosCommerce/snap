@@ -16,6 +16,7 @@ import type { SnapFeatures } from '../types';
 import type { SnapConfig, ExtendedTarget } from '../Snap';
 import type {
 	AutocompleteTargetConfig,
+	ChatTargetConfig,
 	CustomPlugins,
 	PluginsConfigsUnlocked,
 	RecsTemplateTypes,
@@ -256,6 +257,51 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 	});
 };
 
+export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] => {
+	// initial target configs
+	const targetConfigs = templateConfig.chat?.targets || [];
+
+	let mergedConfigs: ChatTargetConfig[];
+	if (templatesStore.settings.editMode) {
+		const overrideConfigs = (templatesStore.storage.get('overrides.targets.chat') || []) as ChatTargetConfig[];
+		mergedConfigs = deepmerge<ChatTargetConfig[]>(targetConfigs, overrideConfigs, { arrayMerge: combineMerge });
+	} else {
+		mergedConfigs = targetConfigs;
+	}
+
+	return mergedConfigs.map((targetConfig) => {
+		const target = templatesStore.addTarget({ ...targetConfig, type: 'chat' });
+
+		const targeter: ExtendedTarget = {
+			selector: targetConfig.selector,
+			hideTarget: true,
+			component: async () => {
+				const componentImportPromises = [];
+				componentImportPromises.push(templatesStore.library.import.component.chat[targetConfig.component]());
+
+				await Promise.all(componentImportPromises);
+				return TemplateSelect;
+			},
+			props: { target, templatesStore },
+		};
+
+		// temporary change to allow injecting into body to append target
+		if (targetConfig.selector == 'body') {
+			targeter.hideTarget = false;
+			targeter.inject = {
+				action: 'append',
+				element: () => {
+					const chatContainer = document.createElement('div');
+					chatContainer.className = 'ss__chat--target';
+					return chatContainer;
+				},
+			};
+		}
+
+		return targeter;
+	});
+};
+
 export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
 	// initial target configs
 	const targetConfigs = templateConfig.autocomplete?.targets || [];
@@ -352,6 +398,7 @@ export function createRecommendationComponentMapping(
 export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked, templatesStore: TemplatesStore): SnapConfig {
 	const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 	const snapConfig: SnapConfig = {
+		mode: templateConfig.config?.mode,
 		features: templateConfig.features || DEFAULT_FEATURES,
 		client: {
 			globals: {
@@ -490,13 +537,30 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
 	}
 
+	/* CHAT CONTROLLER */
+	if (templateConfig.chat && snapConfig.controllers) {
+		const chatControllerConfig = {
+			config: {
+				id: 'chat',
+				plugins: createPlugins(templateConfig, templatesStore, 'chat'),
+				settings: {
+					...(templateConfig.chat.settings || {}),
+					languageCode: templatesStore.language,
+				},
+			},
+			targeters: createChatTargeters(templateConfig, templatesStore),
+		};
+
+		snapConfig.controllers.chat = [chatControllerConfig];
+	}
+
 	return snapConfig;
 }
 
 export function createPlugins(
 	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked,
 	templatesStore: TemplatesStore,
-	controllerType?: 'autocomplete' | 'search' | 'recommendation'
+	controllerType?: 'autocomplete' | 'search' | 'recommendation' | 'chat'
 ): PluginGrouping[] {
 	const plugins: TemplatePluginGrouping = [];
 	let controllerConfig;

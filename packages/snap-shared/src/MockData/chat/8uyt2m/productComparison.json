@@ -1,0 +1,64 @@
+{
+	"data": [
+		{
+			"messageType": "productComparison",
+			"id": "msg-compare-001",
+			"searchResults": [
+				{
+					"id": "product-001",
+					"mappings": {
+						"core": {
+							"uid": "182146",
+							"price": 48,
+							"url": "/product/C-AD-W1-1869P",
+							"thumbnailImageUrl": "https://example.com/thumb1.jpg",
+							"imageUrl": "https://example.com/image1.jpg",
+							"name": "Stripe Out White Off-The-Shoulder Dress",
+							"sku": "C-AD-W1-1869P",
+							"parentId": "parent-001"
+						}
+					},
+					"attributes": {}
+				},
+				{
+					"id": "product-002",
+					"mappings": {
+						"core": {
+							"uid": "182147",
+							"price": 55,
+							"url": "/product/C-AD-W2-2001P",
+							"thumbnailImageUrl": "https://example.com/thumb2.jpg",
+							"imageUrl": "https://example.com/image2.jpg",
+							"name": "Summer Breeze Blue Sundress",
+							"sku": "C-AD-W2-2001P",
+							"parentId": "parent-002"
+						}
+					},
+					"attributes": {}
+				}
+			],
+			"comparisonData": {
+				"features": [
+					{
+						"featureName": "Price",
+						"values": {
+							"Stripe Out White Off-The-Shoulder Dress": "$48",
+							"Summer Breeze Blue Sundress": "$55"
+						}
+					},
+					{
+						"featureName": "Material",
+						"values": {
+							"Stripe Out White Off-The-Shoulder Dress": "Cotton/Spandex",
+							"Summer Breeze Blue Sundress": "Polyester"
+						}
+					}
+				],
+				"summary": "Both dresses are casual summer options. The Stripe Out dress is more affordable at $48, while the Summer Breeze is priced at $55."
+			}
+		}
+	],
+	"context": {
+		"sessionId": "test-session-001"
+	}
+}

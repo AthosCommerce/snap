@@ -15,6 +15,9 @@ export const Autocomplete = observer(({ controller, snap }: AutocompleteProps) =
 			facet: {
 				limit: 5,
 			},
+			result: {
+				discussProductIcon: { icon: 'chat' as const },
+			},
 		},
 	};
 

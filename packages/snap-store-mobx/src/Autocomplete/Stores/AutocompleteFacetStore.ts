@@ -39,7 +39,7 @@ export class AutocompleteFacetStore extends Array {
 					facet.filtered = true;
 					value.filtered = true;
 					state?.autocomplete.locks.facets.lock();
-					value.url.go();
+					value.url?.go();
 				};
 			});
 		});

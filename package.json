@@ -26,7 +26,7 @@
     "format": "lerna exec --parallel --stream 'npm run format'",
     "storybook:preact": "npm run storybook --workspace=@athoscommerce/snap-preact",
     "release": "lerna publish --exact --conventional-commits --no-git-reset --no-verify-access --force-publish --yes --create-release github",
-    "release:beta": "lerna publish --exact --canary --pre-dist-tag beta --preid beta --conventional-commits --no-git-reset --no-verify-access --force-publish --yes",
+    "release:beta": "lerna publish --exact --canary --include-merged-tags --pre-dist-tag beta --preid beta --no-git-reset --no-verify-access --force-publish --yes",
     "prepare": "husky install"
   },
   "prettier": "@searchspring/prettier",

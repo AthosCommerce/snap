@@ -11,6 +11,17 @@ type ContentProps = {
 	snap: Snap;
 };
 
+const demoTheme = {
+	...defaultTheme,
+	components: {
+		...defaultTheme.components,
+		result: {
+			...defaultTheme.components?.result,
+			discussProductIcon: { icon: 'chat' as const },
+		},
+	},
+};
+
 export const Content = observer(({ controller, snap }: ContentProps) => {
 	const store = controller.store;
 	const theme = snap?.templates?.themes.local.global.theme;
@@ -18,7 +29,7 @@ export const Content = observer(({ controller, snap }: ContentProps) => {
 	return (
 		<SnapProvider snap={snap}>
 			<ControllerProvider controller={controller}>
-				<ThemeProvider theme={theme || defaultTheme}>
+				<ThemeProvider theme={theme || demoTheme}>
 					<StoreProvider store={store}>
 						<div>
 							<LoadingBar active={store.loading} />

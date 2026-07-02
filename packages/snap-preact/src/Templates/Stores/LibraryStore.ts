@@ -93,6 +93,7 @@ export type LibraryImports = {
 			};
 		};
 		/* individual library components */
+		chat: LibraryComponentImport;
 		badge: LibraryComponentImport;
 		result: LibraryComponentImport;
 		overlayResult: LibraryComponentImport;
@@ -183,6 +184,7 @@ export class LibraryStore {
 			default: LibraryComponentMap;
 			email: LibraryComponentMap;
 		};
+		chat: LibraryComponentMap;
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
 		overlayResult: LibraryComponentMap;
@@ -253,6 +255,7 @@ export class LibraryStore {
 			default: {},
 			email: {},
 		},
+		chat: {},
 		badge: {},
 		result: {},
 		overlayResult: {},
@@ -473,6 +476,11 @@ export class LibraryStore {
 							).RecommendationEmail)
 						);
 					},
+				},
+			},
+			chat: {
+				Chat: async () => {
+					return this.components.chat.Chat || (this.components.chat.Chat = (await import('./library/components/Chat')).Chat);
 				},
 			},
 			badge: {},
