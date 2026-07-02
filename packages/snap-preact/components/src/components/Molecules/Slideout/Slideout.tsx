@@ -112,7 +112,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 			setRenderContent(true);
 		}
 
-		document.body.style.overflow = isActive ? 'hidden' : '';
+		document.body.style.overflow = newActive ? 'hidden' : '';
 		onChange && onChange(newActive);
 	};
 
