@@ -2,7 +2,7 @@
 
 Renders a user-side chat message bubble. Optionally shows:
 
-- An italicized "request type" label (e.g. "Searching products", "Comparing products")
+- An italicized "request type" label (e.g. "Searching products", "Comparing products"). A `productSearch` message reads "Filtering products" when its request carries only `searchFilters`; if a `searchTerm` is present (e.g. an inspiration query click that also applies section filters), it reads "Searching products" and the filters render as pills.
 - A right-aligned attachments row (image thumbnails, product thumbnails, filter pills) with overflow-counter
 - The user's typed text
 

@@ -46,6 +46,19 @@ describe('ChatOrganism Component', () => {
 		expect(rendered.container.querySelector('.ss__chat')).toBeNull();
 	});
 
+	it('stays mounted with a disabled input and unavailable message when chat becomes disabled mid-session', () => {
+		const rendered = render(<ChatOrganism controller={makeController({ open: true })} />);
+		expect(rendered.container.querySelector('.ss__chat')).not.toBeNull();
+
+		rendered.rerender(<ChatOrganism controller={makeController({ open: true, chatEnabled: false })} />);
+
+		expect(rendered.container.querySelector('.ss__chat')).not.toBeNull();
+		const input = rendered.container.querySelector('input[name="ss-chat-input"]') as HTMLInputElement;
+		expect(input).toBeInTheDocument();
+		expect(input.disabled).toBe(true);
+		expect(rendered.container.querySelector('.ss__chat__error')?.textContent).toContain('Service is temporarily unavailable');
+	});
+
 	it('renders the chat bubble as a keyboard-accessible button', () => {
 		const rendered = render(<ChatOrganism controller={makeController()} />);
 		const bubble = rendered.container.querySelector('.ss__chat__bubble') as HTMLElement;

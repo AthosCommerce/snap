@@ -103,7 +103,7 @@ function getRequestTypeLabel(chatItem: any): string | undefined {
 		case 'productComparison':
 			return 'Comparing products';
 		case 'productSearch':
-			if (chatItem.request?.searchFilters?.length) {
+			if (chatItem.request?.searchFilters?.length && !chatItem.request?.searchTerm) {
 				return 'Filtering products';
 			}
 			return 'Searching products';

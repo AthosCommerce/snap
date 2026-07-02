@@ -219,6 +219,7 @@ export type MoiResponseModelInspirationResult = BaseResponseProperties & {
 	messageType: 'inspirationResult';
 	overallSummary: string;
 	inspirationSections: {
+		filterSummary?: MoiResponseModelSearchResult['filterSummary'];
 		clusterTitle: string;
 		clusterDescription: string;
 		searchQueries: string[];

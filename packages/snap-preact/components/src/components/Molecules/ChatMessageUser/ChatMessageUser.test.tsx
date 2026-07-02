@@ -29,6 +29,42 @@ describe('ChatMessageUser Component', () => {
 		expect(rendered.getByText('Searching products')).toBeInTheDocument();
 	});
 
+	it('renders the "Filtering products" label when the request has only searchFilters', () => {
+		const rendered = render(
+			<ChatMessageUser
+				chatItem={{
+					id: '1',
+					text: 'Filter by product_type Benches',
+					requestType: 'productSearch',
+					request: { requestType: 'productSearch', searchFilters: [{ key: 'product_type', options: [{ key: 'Benches' }] }] },
+				}}
+				controller={makeController()}
+			/>
+		);
+		expect(rendered.getByText('Filtering products')).toBeInTheDocument();
+	});
+
+	it('renders the "Searching products" label when the request has a searchTerm alongside searchFilters', () => {
+		const rendered = render(
+			<ChatMessageUser
+				chatItem={{
+					id: '1',
+					text: 'short modern bench for dog to reach the bed',
+					requestType: 'productSearch',
+					request: {
+						requestType: 'productSearch',
+						searchTerm: 'short modern bench for dog to reach the bed',
+						searchFilters: [{ key: 'product_type', options: [{ key: 'Furniture/Living Room Furniture/Benches' }] }],
+					},
+				}}
+				controller={makeController()}
+			/>
+		);
+		expect(rendered.getByText('Searching products')).toBeInTheDocument();
+		// applied filters still render as pills
+		expect(rendered.getByLabelText('Filter: product_type = Furniture/Living Room Furniture/Benches')).toBeInTheDocument();
+	});
+
 	it('hides the request type label when hideMessageTypeIndicatorText is true', () => {
 		const rendered = render(
 			<ChatMessageUser

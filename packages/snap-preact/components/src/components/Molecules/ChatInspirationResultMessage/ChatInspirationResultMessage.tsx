@@ -152,6 +152,25 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 		return null;
 	}
 
+	// Translate a section's applied filters into the API's `searchFilters` shape,
+	// grouping multiple values under the same field into one entry.
+	const getSectionSearchFilters = (
+		section: ChatResponseInspirationResultData['inspirationSections'][number]
+	): { key: string; options: ({ key: string } | { low: string; high: string })[] }[] => {
+		const grouped: Record<string, { key: string; options: ({ key: string } | { low: string; high: string })[] }> = {};
+		(section.filterSummary || []).forEach((filter) => {
+			if (!filter?.field || filter?.value == null) return;
+			const entry = (grouped[filter.field] = grouped[filter.field] || { key: filter.field, options: [] });
+			const value = filter.value as any;
+			if (typeof value === 'object' && ('low' in value || 'high' in value)) {
+				entry.options.push({ low: value.low == null ? '*' : String(value.low), high: value.high == null ? '*' : String(value.high) });
+			} else {
+				entry.options.push({ key: String(value) });
+			}
+		});
+		return Object.values(grouped);
+	};
+
 	return inspirationSections.length ? (
 		<CacheProvider>
 			<div
@@ -177,7 +196,14 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 										aria-label={`Search for "${searchTerm}"`}
 										onClick={() => {
 											if (controller?.store.loading || controller?.store.blocked) return;
-											controller?.search({ data: { requestType: 'productSearch', searchTerm } } as Partial<ChatRequestModel>);
+											const searchFilters = getSectionSearchFilters(section);
+											controller?.search({
+												data: {
+													requestType: 'productSearch',
+													searchTerm,
+													...(searchFilters.length ? { searchFilters } : {}),
+												},
+											} as Partial<ChatRequestModel>);
 										}}
 									>
 										<Icon {...subProps.icon} icon="search" />

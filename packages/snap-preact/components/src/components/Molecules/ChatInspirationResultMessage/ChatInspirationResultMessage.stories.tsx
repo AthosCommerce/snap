@@ -60,12 +60,30 @@ const mockChatItem: any = {
 	messageType: 'inspirationResult',
 	inspirationSections: [
 		{
+			filterSummary: [
+				{
+					field: 'product_type',
+					value: 'Apparel/Outerwear',
+					label: 'Product Type: Apparel/Outerwear',
+					filterLabel: 'Product Type',
+					filterValue: 'Apparel/Outerwear',
+				},
+			],
 			clusterTitle: 'Cozy Layers',
 			clusterDescription: 'Warm, easy-to-style pieces for chilly mornings.',
 			searchQueries: ['waterproof jacket', 'wool beanie', 'thermal base layer'],
 			products: [],
 		},
 		{
+			filterSummary: [
+				{
+					field: 'product_type',
+					value: 'Apparel/Footwear/Hiking',
+					label: 'Product Type: Apparel/Footwear/Hiking',
+					filterLabel: 'Product Type',
+					filterValue: 'Apparel/Footwear/Hiking',
+				},
+			],
 			clusterTitle: 'On-the-Trail',
 			clusterDescription: 'Practical picks for day-hike comfort.',
 			searchQueries: ['hiking boots', 'lightweight backpack'],

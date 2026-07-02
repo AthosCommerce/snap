@@ -40,6 +40,10 @@ import {
 	ChatResponseActionsData,
 } from '@athoscommerce/snap-client/dist/cjs/Client/transforms/chatResponse';
 
+// Fallback footer copy when chat becomes disabled mid-session and store.error has
+// been cleared (e.g. by createChat) — mirrors the controller's unavailable message.
+const CHAT_UNAVAILABLE_MESSAGE = 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!';
+
 export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Element => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -112,6 +116,11 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 	const avatarImage = avatar && avatar.length > 1 && isValidImageUrl(avatar) ? avatar : undefined;
 
 	const { store } = controller;
+
+	// Track that the widget has been visible so a mid-session disable (status check
+	// flips chatEnabled to false) keeps it mounted with the unavailable message
+	// instead of vanishing. A disabled status at bootstrap still renders nothing.
+	const wasVisibleRef = useRef(false);
 
 	const themeDefaults: Theme = {
 		components: {},
@@ -593,7 +602,13 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 	};
 
 	// TODO: if starting a new chat and it's expired, this button would then disappear
-	if (!controller.store.chatEnabled) {
+	if (controller.store.chatEnabled) {
+		wasVisibleRef.current = true;
+	}
+	// Hide the widget entirely when chat is disabled at bootstrap (silent disable).
+	// When chat becomes disabled mid-session, keep the widget mounted so the footer
+	// unavailable message stays visible (with the input disabled).
+	if (!controller.store.chatEnabled && !wasVisibleRef.current) {
 		return <></>;
 	}
 
@@ -1138,13 +1153,15 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 								<ChatLoadingIndicator {...subProps.loadingIndicator} loading={store.loading} verbs={loadingVerbs} />
 								{!store.currentChat?.isExpired ? (
 									<div className="ss__chat__content__footer" ref={footerRef} {...dragHandlers}>
-										{store.error && <div className="ss__chat__error">{store.error.message}</div>}
+										{(store.error || store.chatEnabled === false) && (
+											<div className="ss__chat__error">{store.error?.message || CHAT_UNAVAILABLE_MESSAGE}</div>
+										)}
 										{store.currentChat?.sessionLimitReached && (
 											<div className={'ss__chat__topic-drift'}>
 												<Icon icon="info" size="18px" className={'ss__chat__topic-drift__icon--info'} />
 												<div className={'ss__chat__topic-drift__text'}>
-													<span>Session limit reached</span>
-													<span>This chat has reached its maximum number of interactions. Start a new session to continue.</span>
+													<span>Chat is currently unavailable due to high volume.</span>
+													<span>In the meantime, feel free to use the search bar above to find what you need!</span>
 												</div>
 												<Button
 													className={'ss__chat__topic-drift__button'}
@@ -1593,7 +1610,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 												<input
 													type="text"
 													name="ss-chat-input"
-													disabled={store.loading || store.blocked || store.currentChat?.sessionLimitReached}
+													disabled={store.loading || store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false}
 													placeholder={(() => {
 														const comparedCount = store.currentChat?.comparisons.compared.length || 0;
 														const committedCount = store.currentChat?.comparisons.committed.length || 0;
@@ -1633,7 +1650,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 													<>
 														<Button
 															className={'ss__chat__upload-button'}
-															disabled={store.loading || store.blocked || store.currentChat?.sessionLimitReached}
+															disabled={store.loading || store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false}
 															onClick={() => fileInputRef.current?.click()}
 															icon={{ icon: 'image', title: 'Upload Image' }}
 														/>
@@ -1658,7 +1675,11 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 													);
 													const messageEmpty = !controller.store.inputValue.trim();
 													const sendDisabled =
-														store.blocked || store.currentChat?.sessionLimitReached || (hasImageAttachment && messageEmpty) || messageEmpty;
+														store.blocked ||
+														store.currentChat?.sessionLimitReached ||
+														store.chatEnabled === false ||
+														(hasImageAttachment && messageEmpty) ||
+														messageEmpty;
 													return (
 														<Button
 															className="ss__chat__send-button"

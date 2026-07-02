@@ -151,7 +151,7 @@ describe('Chat Controller', () => {
 			mockClient.mockData.updateConfig({ chatStatus: 'chatStatus.disabled' });
 			const controller = createController({}, mockClient);
 
-			await expect(controller.startNewChat()).rejects.toThrow('Chat is currently unavailable');
+			await expect(controller.startNewChat()).rejects.toThrow('Service is temporarily unavailable');
 			expect(controller.store.error).toBeDefined();
 			expect(controller.store.error!.type).toBe('warning');
 		});
@@ -185,7 +185,7 @@ describe('Chat Controller', () => {
 			expect(chat).toBeUndefined();
 			expect(logSpy).toHaveBeenCalledWith('Error starting new chat:', expect.any(Error));
 			expect(controller.store.error).toBeDefined();
-			expect(controller.store.error!.message).toBe('Failed to start new chat.');
+			expect(controller.store.error!.message).toBe("We couldn't start a new chat just now. Please try again in a moment.");
 			logSpy.mockClear();
 		});
 	});
@@ -267,7 +267,7 @@ describe('Chat Controller', () => {
 			expect(controller.store.error).toStrictEqual({
 				code: 429,
 				type: 'warning',
-				message: 'Failed to process request. Please try again shortly',
+				message: "We couldn't process your request. Please wait a few seconds and try again.",
 			});
 			expect(handleError).toHaveBeenCalledWith(error, { status: 429, url: 'test.com' });
 			handleError.mockClear();
@@ -289,7 +289,7 @@ describe('Chat Controller', () => {
 			expect(controller.store.error).toStrictEqual({
 				code: 500,
 				type: 'error',
-				message: 'An unexpected error occured. Please try again.',
+				message: 'Something went wrong behind the scenes. Please give it another shot in a moment.',
 			});
 			expect(handleError).toHaveBeenCalledWith(error, { status: 500, url: 'test.com' });
 			handleError.mockClear();
