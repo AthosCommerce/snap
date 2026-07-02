@@ -24,7 +24,11 @@ const defaultStyles: StyleScript<SearchProps> = (props) => {
 	if (props.alias) {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
 	}
-	const isMobile = useMediaQuery(props.mobileDisplayAt ? `(max-width: ${props.mobileDisplayAt})` : `(max-width: 0px)`);
+	const mobileQuery = props.mobileDisplayAt
+		? typeof props.mobileDisplayAt === 'boolean'
+			? `(min-width: 0px)`
+			: `(max-width: ${props.mobileDisplayAt})`
+		: `(max-width: 0px)`;
 
 	return css({
 		[`.${classNamePrefix}__header-section`]: {
@@ -39,9 +43,12 @@ const defaultStyles: StyleScript<SearchProps> = (props) => {
 
 		'.ss__sidebar': {
 			flex: '0 1 auto',
-			width: !isMobile ? props.sidebarWidth : '100%',
+			width: props.sidebarWidth,
 			'&:empty': {
 				display: 'none',
+			},
+			[`@media ${mobileQuery}`]: {
+				width: '100%',
 			},
 		},
 
@@ -96,7 +103,9 @@ export const Search = observer((properties: SearchProps) => {
 
 	const store = controller.store;
 
-	const isMobile = useMediaQuery(mobileDisplayAt ? `(max-width: ${mobileDisplayAt})` : `(max-width: 0px)`);
+	const isMobile = useMediaQuery(
+		mobileDisplayAt ? (typeof mobileDisplayAt == 'boolean' ? `(min-width: 0px)` : `(max-width: ${mobileDisplayAt})`) : `(max-width: 0px)`
+	);
 
 	const [sidebarOpenState, setSidebarOpenState] = useState(Boolean(alias !== 'searchHorizontal' && !toggleSidebarStartClosed && !isMobile));
 
@@ -296,7 +305,7 @@ export type SearchProps = {
 
 export type SearchTemplatesLegalProps = {
 	resultComponent?: string;
-	mobileDisplayAt?: string | false;
+	mobileDisplayAt?: string | boolean;
 	hideSidebar?: boolean;
 	sidebarWidth?: string;
 	hideTopToolbar?: boolean;
