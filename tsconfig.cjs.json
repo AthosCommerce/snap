@@ -1,8 +1,10 @@
 {
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"target": "es5",
-		"module": "CommonJS",
+		// nodenext with packages that lack "type": "module" treats source as CJS format,
+		// allowing extensionless relative imports while emitting CommonJS (node10 resolution is gone in TS7)
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"resolveJsonModule": true,
 		// the ESM pass performs type checking and declaration emit (package "types" fields point at dist/esm)
 		"noCheck": true,

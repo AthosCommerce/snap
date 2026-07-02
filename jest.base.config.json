@@ -1,6 +1,6 @@
 {
 	"transform": {
-		"^.+\\.tsx?$": "ts-jest"
+		"^.+\\.tsx?$": ["ts-jest", { "tsconfig": { "types": ["jest", "node"] } }]
 	},
 	"testRegex": "\\.(test|spec)\\.(jsx?|tsx?)$",
 	"moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
