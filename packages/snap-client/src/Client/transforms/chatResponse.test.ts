@@ -186,6 +186,50 @@ describe('transformChatResponse', () => {
 		expect(item.inspirationSections[0].products).toEqual([]);
 	});
 
+	it('passes through inspirationResult section filterSummary and defaults to [] when missing', () => {
+		const filterSummary = [
+			{
+				field: 'product_type',
+				value: 'Furniture/Bedroom Furniture/Bedroom Benches',
+				label: 'Product Type: Furniture/Bedroom Furniture/Bedroom Benches',
+				filterLabel: 'Product Type',
+				filterValue: 'Furniture/Bedroom Furniture/Bedroom Benches',
+			},
+		];
+		const response: MoiResponseModel = {
+			responseId: 'resp-003',
+			context: minimalContext,
+			data: [
+				{
+					messageType: 'inspirationResult',
+					id: 'x',
+					overallSummary: 's',
+					inspirationSections: [
+						{
+							filterSummary,
+							clusterTitle: 't',
+							clusterDescription: 'd',
+							searchQueries: ['low bench'],
+							products: [],
+						},
+						{
+							clusterTitle: 't2',
+							clusterDescription: 'd2',
+							searchQueries: [],
+							products: [],
+						},
+					],
+				},
+			],
+		};
+
+		const result = transformChatResponse(response);
+
+		const item = result.data[0] as any;
+		expect(item.inspirationSections[0].filterSummary).toEqual(filterSummary);
+		expect(item.inspirationSections[1].filterSummary).toEqual([]);
+	});
+
 	it('returns unknownError fallback when data is empty array', () => {
 		const response = { data: [], context: minimalContext } as unknown as MoiResponseModel;
 		const result = transformChatResponse(response);

@@ -554,7 +554,17 @@ export class ChatSessionStore {
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {
 			const searchFilters = request.data.searchFilters;
-			if (searchFilters && searchFilters.length > 0) {
+			if (request.data.searchTerm) {
+				// for when a query is clicked from ChatInspirationResultMessage — the
+				// query text is the message even when section filters are attached
+				this.chat.push({
+					id: uuidv4(),
+					messageType: 'user',
+					text: request.data.searchTerm,
+					requestType: request.data.requestType,
+					request: request.data, // request is added here to conditionally display different text in MessageUser
+				});
+			} else if (searchFilters && searchFilters.length > 0) {
 				const filterTextArray: string[] = [];
 
 				searchFilters.forEach((filter) => {
@@ -577,15 +587,6 @@ export class ChatSessionStore {
 					messageType: 'user',
 					attachments: attachments.length > 0 ? attachments : undefined,
 					text: `Filter by ${filterTextArray.join(' and ')}`,
-					requestType: request.data.requestType,
-					request: request.data, // request is added here to conditionally display different text in MessageUser
-				});
-			} else if (request.data.searchTerm) {
-				// for when a query is clicked from ChatInspirationResultMessage
-				this.chat.push({
-					id: uuidv4(),
-					messageType: 'user',
-					text: request.data.searchTerm,
 					requestType: request.data.requestType,
 					request: request.data, // request is added here to conditionally display different text in MessageUser
 				});

@@ -2,6 +2,8 @@
 
 Renders an `inspirationResult` chat message. Each `inspirationSection` is rendered as a card with a cluster title, description, a row of keyboard-accessible "search query" buttons (each clicks-through to a productSearch via `controller.search()`), and a horizontal slideshow of product thumbnails.
 
+When a section includes a `filterSummary` (the filters the backend applied when building the cluster), clicking one of its search-query buttons sends those filters along with the query as `searchFilters` on the productSearch request. Entries sharing a `field` are grouped into a single `searchFilters` entry with multiple options; distinct fields become separate entries. Sections without a `filterSummary` send the query alone.
+
 ## Sub-components
 - Image
 - Slideshow

@@ -167,6 +167,7 @@ export type ChatResponseInspirationResultData = BaseResponseProperties & {
 	messageType: 'inspirationResult';
 	overallSummary: string;
 	inspirationSections: {
+		filterSummary: ChatResponseProductSearchResultData['filterSummary'];
 		clusterDescription: string;
 		clusterTitle: string;
 		products: SearchResponseModelResult[];
@@ -182,6 +183,7 @@ transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResu
 		// specific
 		overallSummary: data.overallSummary,
 		inspirationSections: data.inspirationSections?.map((section) => ({
+			filterSummary: section.filterSummary || [],
 			clusterDescription: section.clusterDescription,
 			clusterTitle: section.clusterTitle,
 			products: section.products?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],

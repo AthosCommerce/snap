@@ -62,6 +62,40 @@ describe('ChatSessionStore productQuery messages', () => {
 	});
 });
 
+describe('ChatSessionStore productSearch request messages', () => {
+	it('uses the searchTerm as the message text even when searchFilters are present', () => {
+		const store = createStore();
+		store.request({
+			context: {},
+			data: {
+				requestType: 'productSearch',
+				searchTerm: 'short modern bench for dog to reach the bed',
+				searchFilters: [{ key: 'product_type', options: [{ key: 'Furniture/Living Room Furniture/Benches' }] }],
+			},
+			tracking: {},
+		} as any);
+
+		expect(store.chat.length).toBe(1);
+		expect(store.chat[0].messageType).toBe('user');
+		expect((store.chat[0] as any).text).toBe('short modern bench for dog to reach the bed');
+	});
+
+	it('uses the "Filter by" text when only searchFilters are present', () => {
+		const store = createStore();
+		store.request({
+			context: {},
+			data: {
+				requestType: 'productSearch',
+				searchFilters: [{ key: 'product_type', options: [{ key: 'Benches' }] }],
+			},
+			tracking: {},
+		} as any);
+
+		expect(store.chat.length).toBe(1);
+		expect((store.chat[0] as any).text).toBe('Filter by product_type Benches');
+	});
+});
+
 describe('ChatSessionStore badge persistence', () => {
 	const meta: any = {
 		badges: {
