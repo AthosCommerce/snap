@@ -195,6 +195,87 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		onReset: {
+			description: 'Called by the close button (containers pass `store.close()`); falls back to `store.close()` when omitted',
+			table: {
+				type: {
+					summary: '() => void',
+				},
+			},
+			control: 'none',
+		},
+		layout: {
+			description: 'Module/column arrangement (see the readme for available modules)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'ModuleNamesWithColumns[]',
+				},
+				defaultValue: { summary: "[['c1', 'c2']]" },
+			},
+			control: 'none',
+		},
+		disabledOverlayBadges: {
+			description: 'Render the `slideshow` module without the `OverlayBadge` wrapper',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		column1: {
+			description: '`{ layout, width, alignContent }` config for the `c1` column',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: '{ layout?, width?, alignContent? }',
+				},
+				defaultValue: { summary: "{ layout: ['slideshow'], width: '45%' }" },
+			},
+			control: 'none',
+		},
+		column2: {
+			description: '`{ layout, width, alignContent }` config for the `c2` column',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: '{ layout?, width?, alignContent? }',
+				},
+			},
+			control: 'none',
+		},
+		column3: {
+			description: '`{ layout, width, alignContent }` config for the `c3` column',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: '{ layout?, width?, alignContent? }',
+				},
+			},
+			control: 'none',
+		},
+		column4: {
+			description: '`{ layout, width, alignContent }` config for the `c4` column',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: '{ layout?, width?, alignContent? }',
+				},
+			},
+			control: 'none',
+		},
+		lang: {
+			description: 'Custom language keys (`quickview`, `closeButton`, `addToCartButton`, `moreInfoButton`, `loadingText`)',
+			table: {
+				type: {
+					summary: 'Partial<QuickviewLayoutLang>',
+				},
+			},
+			control: { type: 'object' },
+		},
 		recommendation: {
 			description:
 				'Config for `recommendation.<profile>` modules: `{ component?, resultComponent?, config? }`. Profile/tag comes from the module name.',

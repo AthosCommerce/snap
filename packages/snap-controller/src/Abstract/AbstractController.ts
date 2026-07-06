@@ -88,15 +88,7 @@ export abstract class AbstractController {
 		}
 	};
 
-	public quickview = async ({
-		result,
-		productsData,
-		config,
-	}: {
-		result: Product;
-		productsData?: ProductsResponseModel;
-		config?: QuickviewConfig;
-	}): Promise<void> => {
+	public quickview = async (result: Product, productsData?: ProductsResponseModel, config?: QuickviewConfig): Promise<void> => {
 		if (!result) {
 			this.log.warn('No result provided to quickview');
 			return;

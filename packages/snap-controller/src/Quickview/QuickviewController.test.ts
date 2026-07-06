@@ -28,7 +28,7 @@ describe('QuickviewController', () => {
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 		const result: any = { id: 'p1', mappings: { core: {} } };
 
-		await controller.quickview({ result, parentId: 'parent-1' });
+		await controller.quickview(result, undefined, undefined, { parentId: 'parent-1' });
 
 		expect(svc.client.products).toHaveBeenCalledWith({ parentId: 'parent-1' });
 		expect(svc.eventManager.fire).toHaveBeenCalledWith('quickview', expect.objectContaining({ controller, result }));
@@ -39,7 +39,7 @@ describe('QuickviewController', () => {
 	it('skips the fetch when fetchProductData is false', async () => {
 		const svc = services();
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
-		await controller.quickview({ result: { id: 'p1' } as any, config: { fetchProductData: false } });
+		await controller.quickview({ id: 'p1' } as any, undefined, { fetchProductData: false });
 		expect(svc.client.products).not.toHaveBeenCalled();
 	});
 
@@ -47,18 +47,18 @@ describe('QuickviewController', () => {
 		const svc = services();
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 
-		await controller.quickview({ result: { id: 'child-1', mappings: { core: { parentId: 'parent-9' } } } as any });
+		await controller.quickview({ id: 'child-1', mappings: { core: { parentId: 'parent-9' } } } as any);
 		expect(svc.client.products).toHaveBeenCalledWith({ parentId: 'parent-9' });
 
 		svc.client.products.mockClear();
-		await controller.quickview({ result: { id: 'lone-1', mappings: { core: {} } } as any });
+		await controller.quickview({ id: 'lone-1', mappings: { core: {} } } as any);
 		expect(svc.client.products).toHaveBeenCalledWith({ parentId: 'lone-1' });
 	});
 
 	it('warns and does nothing when no result is provided', async () => {
 		const svc = services();
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
-		await controller.quickview({ result: undefined as any });
+		await controller.quickview(undefined as any);
 		expect(svc.client.products).not.toHaveBeenCalled();
 		expect(controller.store.isOpen).toBe(false);
 	});
@@ -68,7 +68,7 @@ describe('QuickviewController', () => {
 		svc.eventManager.fire = jest.fn().mockRejectedValue(new Error('cancelled'));
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 
-		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any });
+		await controller.quickview({ id: 'p1', mappings: { core: {} } } as any);
 
 		expect(controller.store.isOpen).toBe(false);
 		expect(controller.store.loading).toBe(false);
@@ -79,7 +79,7 @@ describe('QuickviewController', () => {
 		svc.eventManager.fire = jest.fn().mockRejectedValue(new Error('boom'));
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 
-		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any });
+		await controller.quickview({ id: 'p1', mappings: { core: {} } } as any);
 
 		expect(controller.store.error?.message).toBe(`'quickview' middleware error`);
 		expect(controller.store.loading).toBe(false);
@@ -91,7 +91,7 @@ describe('QuickviewController', () => {
 		const source = { addToCart: jest.fn() };
 		const meta = { data: { facets: [] } };
 
-		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any, controller: source as any, meta });
+		await controller.quickview({ id: 'p1', mappings: { core: {} } } as any, undefined, undefined, { controller: source as any, meta });
 		expect(controller.store.meta).toBe(meta);
 
 		const product: any = { id: 'p1' };
@@ -105,10 +105,10 @@ describe('QuickviewController', () => {
 		const updateSpy = jest.spyOn(controller.store, 'update');
 		const source = { config: { id: 'search', settings: { variants: { field: 'ss_variants' } } } };
 
-		await controller.quickview({ result: { id: 'p1', mappings: { core: {} } } as any, controller: source as any });
+		await controller.quickview({ id: 'p1', mappings: { core: {} } } as any, undefined, undefined, { controller: source as any });
 		expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ storeConfig: source.config }));
 
-		await controller.quickview({ result: { id: 'p2', mappings: { core: {} } } as any });
+		await controller.quickview({ id: 'p2', mappings: { core: {} } } as any);
 		expect(updateSpy).toHaveBeenLastCalledWith(expect.objectContaining({ storeConfig: controller.config }));
 	});
 
@@ -132,8 +132,8 @@ describe('QuickviewController', () => {
 			.mockImplementationOnce(() => new Promise((r) => (resolveA = r)))
 			.mockImplementationOnce(() => new Promise((r) => (resolveB = r)));
 
-		const callA = controller.quickview({ result: resultA });
-		const callB = controller.quickview({ result: resultB });
+		const callA = controller.quickview(resultA);
+		const callB = controller.quickview(resultB);
 
 		// B resolves first, then A resolves — A's continuation must be discarded.
 		resolveB!({ variants: { data: [] } });
@@ -163,8 +163,8 @@ describe('QuickviewController', () => {
 			.mockImplementationOnce(() => new Promise((_, rej) => (rejectFireA = rej)))
 			.mockImplementationOnce(() => Promise.resolve(undefined));
 
-		const callA = controller.quickview({ result: resultA, config: skipFetch });
-		const callB = controller.quickview({ result: resultB, config: skipFetch });
+		const callA = controller.quickview(resultA, undefined, skipFetch);
+		const callB = controller.quickview(resultB, undefined, skipFetch);
 
 		// B settles fully before A's middleware rejects.
 		await callB;

@@ -10,12 +10,14 @@ const mockResult = {
 	mappings: {
 		core: {
 			name: 'Sample Product',
+			price: 19.99,
 		},
 	},
 	attributes: {
 		brand: 'Acme',
 		material: 'Cotton',
 		colors: ['Red', 'Blue'],
+		rating: 4.5,
 	},
 } as any;
 
@@ -49,18 +51,10 @@ export default {
 			},
 			control: false,
 		},
-		fields: {
-			description: 'Ordered detail keys to display',
+		details: {
+			description: 'Ordered detail rows to display: field, optional label, and optional render type',
 			table: {
-				type: { summary: 'string[]' },
-				category: 'Templates Legal',
-			},
-			control: { type: 'object' },
-		},
-		labels: {
-			description: 'Map of field key -> display label',
-			table: {
-				type: { summary: 'Record<string, string>' },
+				type: { summary: 'ProductDetailTableDetail[]' },
 				category: 'Templates Legal',
 			},
 			control: { type: 'object' },
@@ -72,6 +66,11 @@ export default {
 export const Default = (args: ProductDetailTableProps) => <ProductDetailTable {...args} />;
 Default.args = {
 	result: mockResult,
-	fields: ['brand', 'material', 'colors'],
-	labels: { brand: 'Brand', material: 'Material', colors: 'Colors' },
+	details: [
+		{ field: 'brand', label: 'Brand' },
+		{ field: 'material', label: 'Material' },
+		{ field: 'colors', label: 'Colors' },
+		{ field: 'price', label: 'Price', type: 'price' },
+		{ field: 'rating', label: 'Rating', type: 'rating' },
+	],
 };

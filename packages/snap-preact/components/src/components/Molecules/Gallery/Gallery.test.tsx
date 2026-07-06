@@ -203,4 +203,76 @@ describe('Gallery', () => {
 		// But the (zoomable) image is still rendered.
 		expect(document.querySelector('img.ss__gallery__image')).not.toBeNull();
 	});
+
+	describe('accessibility and lang', () => {
+		it('exposes dialog semantics and a useA11y focus trap on the gallery root', () => {
+			render(<Gallery images={IMAGES} open={true} />);
+			const gallery = document.querySelector('.ss__gallery') as HTMLElement;
+			expect(gallery).toHaveAttribute('role', 'dialog');
+			expect(gallery).toHaveAttribute('aria-modal', 'true');
+			expect(gallery).toHaveAttribute('aria-label', 'Image gallery');
+			expect(gallery).toHaveAttribute('ss-a11y');
+			expect(gallery).toHaveAttribute('tabindex', '0');
+		});
+
+		it('renders the default control aria-labels via lang', () => {
+			render(<Gallery images={IMAGES} open={true} />);
+			expect(document.querySelector('.ss__gallery__zoom-out')).toHaveAttribute('aria-label', 'Zoom out');
+			expect(document.querySelector('.ss__gallery__zoom-in')).toHaveAttribute('aria-label', 'Zoom in');
+			expect(document.querySelector('.ss__gallery__close')).toHaveAttribute('aria-label', 'Close gallery');
+			expect(document.querySelector('.ss__gallery__nav--prev')).toHaveAttribute('aria-label', 'Previous image');
+			expect(document.querySelector('.ss__gallery__nav--next')).toHaveAttribute('aria-label', 'Next image');
+		});
+
+		it('lang props override the default aria-labels', () => {
+			const lang = {
+				gallery: { attributes: { 'aria-label': 'Bildergalerie' } },
+				closeButton: { attributes: { 'aria-label': 'Galerie schließen' } },
+				nextButton: { attributes: { 'aria-label': 'Nächstes Bild' } },
+			};
+			render(<Gallery images={IMAGES} open={true} lang={lang} />);
+			expect(document.querySelector('.ss__gallery')).toHaveAttribute('aria-label', 'Bildergalerie');
+			expect(document.querySelector('.ss__gallery__close')).toHaveAttribute('aria-label', 'Galerie schließen');
+			expect(document.querySelector('.ss__gallery__nav--next')).toHaveAttribute('aria-label', 'Nächstes Bild');
+		});
+
+		it('closes exactly once when Escape fires inside the focus trap (no double-handling by the window listener)', () => {
+			const onClose = jest.fn();
+			render(<Gallery images={IMAGES} open={true} onClose={onClose} />);
+			const gallery = document.querySelector('.ss__gallery') as HTMLElement;
+			fireEvent.keyDown(gallery, { key: 'Escape', keyCode: 27 });
+			expect(onClose).toHaveBeenCalledTimes(1);
+		});
+
+		it('traps Tab within the gallery controls', () => {
+			render(<Gallery images={IMAGES} open={true} />);
+			const gallery = document.querySelector('.ss__gallery') as HTMLElement;
+			const first = document.querySelector('.ss__gallery__zoom-out') as HTMLElement;
+			const last = document.querySelector('.ss__gallery__nav--next') as HTMLElement;
+
+			// Tab from the last focusable element wraps to the first.
+			last.focus();
+			fireEvent.keyDown(gallery, { key: 'Tab', keyCode: 9 });
+			expect(document.activeElement).toBe(first);
+
+			// Shift+Tab from the first focusable element wraps back to the last.
+			fireEvent.keyDown(gallery, { key: 'Tab', keyCode: 9, shiftKey: true });
+			expect(document.activeElement).toBe(last);
+		});
+
+		it('moves focus to the close button on open and restores it on close', () => {
+			const outerButton = document.createElement('button');
+			document.body.appendChild(outerButton);
+			outerButton.focus();
+			expect(document.activeElement).toBe(outerButton);
+
+			const rendered = render(<Gallery images={IMAGES} open={false} />);
+			rendered.rerender(<Gallery images={IMAGES} open={true} />);
+			expect(document.activeElement).toBe(document.querySelector('.ss__gallery__close'));
+
+			rendered.rerender(<Gallery images={IMAGES} open={false} />);
+			expect(document.activeElement).toBe(outerButton);
+			document.body.removeChild(outerButton);
+		});
+	});
 });

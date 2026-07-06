@@ -53,6 +53,13 @@ describe('CalloutBadge Component', () => {
 		expect(CalloutBadgeComponentEl).not.toBeInTheDocument();
 	});
 
+	it('will NOT render (and not throw) when the result has no display data', () => {
+		const plainResult = { id: 'plain', mappings: { core: { name: 'Plain' } }, attributes: {} };
+		const rendered = render(<CalloutBadge result={plainResult as any} />);
+		const CalloutBadgeEl = rendered.container.querySelector('.ss__callout-badge');
+		expect(CalloutBadgeEl).not.toBeInTheDocument();
+	});
+
 	it('will render the wrapper element if there are no badges when using the `renderEmpty` prop', () => {
 		const rendered = render(<CalloutBadge result={result} tag="NO BADGES!" renderEmpty />);
 		const CalloutBadgeEl = rendered.container.querySelector('.ss__callout-badge')!;
@@ -115,6 +122,25 @@ describe('CalloutBadge Component', () => {
 			const element = rendered.container.querySelector('.ss__callout-badge');
 			expect(element).toBeInTheDocument();
 			expect(element).toHaveClass(globalTheme.components.calloutBadge.className);
+		});
+
+		it('derives its name from a custom tag so named theme selectors apply', () => {
+			const globalTheme = {
+				type: 'templates',
+				components: {
+					['calloutBadge.callout' as 'calloutBadge']: {
+						className: 'named-classy',
+					},
+				},
+			} as any;
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<CalloutBadge result={result} tag={CALLOUT_NAME} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__callout-badge');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass('named-classy');
 		});
 
 		it('is themeable with theme prop', () => {

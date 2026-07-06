@@ -3,12 +3,16 @@ import { h } from 'preact';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
+import { isObservableArray } from 'mobx';
 
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useComponent } from '../../../hooks';
 import { ProductDetail, getProductFieldValue, renderDetailValue } from '../../Atoms/ProductDetail';
+import { Price } from '../../Atoms/Price';
+import { Image } from '../../Atoms/Image';
+import { Rating } from '../Rating';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
@@ -55,7 +59,7 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 
 	const props = mergeProps('productDetailTable', globalTheme, defaultProps, properties);
 
-	const { result, fields, labels, disableStyles, className, internalClassName, customComponent, treePath } = props;
+	const { result, details, disableStyles, className, internalClassName, customComponent, treePath } = props;
 
 	if (customComponent) {
 		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.productDetailTable || {}, customComponent);
@@ -66,22 +70,55 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 
 	const styling = mergeStyles<ProductDetailTableProps>(props, defaultStyles);
 
-	// Render only the configured fields that resolve to a non-empty value (preserves the opt-in
-	// behaviour: with no fields, nothing renders).
-	const displayedFields = (fields || []).filter((field) => renderDetailValue(getProductFieldValue(result, field)) !== '');
+	// Render only the configured details that resolve to a non-empty value (preserves the opt-in
+	// behaviour: with no details, nothing renders).
+	const displayedDetails = (details || []).filter((detail) => renderDetailValue(getProductFieldValue(result, detail.field)) !== '');
 
-	if (displayedFields.length === 0) return null;
+	if (displayedDetails.length === 0) return null;
+
+	const renderValue = (detail: ProductDetailTableDetail): h.JSX.Element => {
+		const rawValue = getProductFieldValue(result, detail.field);
+		const componentProps = { theme: props.theme, treePath, ...defined({ disableStyles }) };
+
+		switch (detail.type) {
+			case 'price': {
+				const value = Number(rawValue);
+				if (!isNaN(value)) {
+					return <Price value={value} {...componentProps} />;
+				}
+				break;
+			}
+			case 'rating': {
+				const value = Number(rawValue);
+				if (!isNaN(value)) {
+					return <Rating value={value} {...componentProps} />;
+				}
+				break;
+			}
+			case 'image': {
+				// An image field may resolve to an array of URLs — display the first.
+				const src = Array.isArray(rawValue) || isObservableArray(rawValue as any) ? Array.from(rawValue as Iterable<unknown>)[0] : rawValue;
+				if (typeof src === 'string' && src) {
+					return <Image src={src} alt={detail.label || detail.field} {...componentProps} />;
+				}
+				break;
+			}
+			case 'html':
+				return <ProductDetail result={result} field={detail.field} html={true} {...componentProps} />;
+		}
+
+		// 'text' (the default) — and the fallback when a typed value doesn't fit its type.
+		return <ProductDetail result={result} field={detail.field} {...componentProps} />;
+	};
 
 	return (
 		<CacheProvider>
 			<table {...styling} className={classnames('ss__product-detail-table', className, internalClassName)}>
 				<tbody>
-					{displayedFields.map((field) => (
-						<tr key={field}>
-							<th scope="row">{labels?.[field] ?? field}</th>
-							<td>
-								<ProductDetail result={result} field={field} name={field} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />
-							</td>
+					{displayedDetails.map((detail, index) => (
+						<tr key={`${detail.field}-${index}`}>
+							<th scope="row">{detail.label ?? detail.field}</th>
+							<td>{renderValue(detail)}</td>
 						</tr>
 					))}
 				</tbody>
@@ -90,14 +127,22 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 	);
 });
 
+export type ProductDetailTableDetail = {
+	// Explicit dot-path (e.g. `attributes.brand`) or bare field key resolved via `mappings.core` then `attributes`.
+	field: string;
+	// Display label (falls back to the raw field key).
+	label?: string;
+	// How to render the resolved value: `price` → Price, `rating` → Rating, `image` → Image,
+	// `html` → rich HTML, `text` (default) → plain text via ProductDetail.
+	type?: 'price' | 'image' | 'html' | 'rating' | 'text';
+};
+
 export type ProductDetailTableProps = {
 	result?: Product;
 } & ProductDetailTableTemplatesLegalProps &
 	ComponentProps<ProductDetailTableProps>;
 
 export type ProductDetailTableTemplatesLegalProps = {
-	// The detail fields to display, in order. Each is an explicit dot-path (e.g. `attributes.brand`).
-	fields?: string[];
-	// Optional map of field key -> display label (falls back to the raw field key).
-	labels?: Record<string, string>;
+	// The detail rows to display, in order.
+	details?: ProductDetailTableDetail[];
 };

@@ -16,7 +16,6 @@ import type { SearchController, AutocompleteController, RecommendationController
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Icon, IconProps } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useComponent } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -58,6 +57,7 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 				right: '10px',
 				display: 'flex',
 				background: 'transparent',
+				border: 0,
 				padding: '5px',
 				cursor: 'pointer',
 			},
@@ -216,11 +216,16 @@ export const Result = observer((properties: ResultProps) => {
 			theme: props.theme,
 			treePath,
 		},
-		icon: {
+		quickviewButton: {
 			// default props
-			internalClassName: 'ss__result__quickview__icon',
-			icon: 'eye',
-			size: '20px',
+			internalClassName: 'ss__result__quickview',
+			icon: {
+				internalClassName: 'ss__result__quickview__icon',
+				icon: 'eye',
+				size: '20px',
+				title: quickviewButtonText,
+			},
+			onClick: () => controller?.quickview(result),
 			// inherited props
 			...defined({
 				disableStyles,
@@ -265,6 +270,11 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
 		},
+		quickviewButtonText: {
+			attributes: {
+				'aria-label': quickviewButtonText,
+			},
+		},
 	};
 
 	//deep merge with props.lang
@@ -302,23 +312,7 @@ export const Result = observer((properties: ResultProps) => {
 								<Image {...subProps.image} />
 							)}
 						</a>
-						{showQuickview && controller && (
-							<span
-								className="ss__result__quickview"
-								role="button"
-								tabIndex={0}
-								aria-label={quickviewButtonText}
-								onClick={() => controller.quickview({ result })}
-								onKeyDown={(e: any) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										controller.quickview({ result });
-									}
-								}}
-							>
-								<Icon {...subProps.icon} title={quickviewButtonText} />
-							</span>
-						)}
+						{showQuickview && controller && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
 					</div>
 				)}
 
@@ -387,7 +381,7 @@ interface ResultSubProps {
 	price: PriceProps;
 	image: ImageProps;
 	rating: RatingProps;
-	icon: IconProps;
+	quickviewButton: ButtonProps;
 	button: ButtonProps;
 	variantSelection: Partial<VariantSelectionProps>;
 }

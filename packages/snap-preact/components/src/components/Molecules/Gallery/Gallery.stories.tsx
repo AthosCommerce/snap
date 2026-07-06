@@ -127,6 +127,16 @@ export default {
 			},
 			control: { type: 'number', min: 0 },
 		},
+		lang: {
+			description:
+				'Custom language keys for the accessible labels (`gallery`, `zoomOutButton`, `zoomInButton`, `closeButton`, `prevButton`, `nextButton`)',
+			table: {
+				type: {
+					summary: 'Partial<GalleryLang>',
+				},
+			},
+			control: { type: 'object' },
+		},
 		...componentArgs,
 	},
 };

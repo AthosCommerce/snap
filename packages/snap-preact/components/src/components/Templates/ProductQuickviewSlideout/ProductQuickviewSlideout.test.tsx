@@ -109,4 +109,16 @@ describe('ProductQuickviewSlideout', () => {
 		expect(closeEl).not.toBeNull();
 		expect(document.activeElement).toBe(closeEl);
 	});
+
+	it('forwards lang to the quickview layout', () => {
+		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+		const lang = {
+			quickview: { attributes: { 'aria-label': 'Schnellansicht' } },
+			closeButton: { attributes: { 'aria-label': 'Schließen' } },
+		};
+		const rendered = render(<ProductQuickviewSlideout controller={controller} lang={lang} />);
+
+		expect(rendered.container.querySelector('.ss__product-quickview__content')).toHaveAttribute('aria-label', 'Schnellansicht');
+		expect(rendered.container.querySelector('.ss__product-quickview__close')).toHaveAttribute('aria-label', 'Schließen');
+	});
 });

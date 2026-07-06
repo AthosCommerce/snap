@@ -60,27 +60,24 @@ export class QuickviewController extends AbstractController {
 		}
 	};
 
-	public quickview = async ({
-		result,
-		productsData,
-		parentId,
-		config,
-		meta,
-		controller,
-	}: {
-		result: Product;
-		productsData?: ProductsResponseModel;
-		parentId?: string;
-		config?: QuickviewConfig;
-		// The originating controller's `meta` store (a MetaStore), forwarded for badge/facet labels.
-		meta?: any;
-		// The controller that opened the quickview, for delegated actions like add-to-cart.
-		controller?: SourceController;
-	}): Promise<void> => {
+	public quickview = async (
+		result: Product,
+		productsData?: ProductsResponseModel,
+		config?: QuickviewConfig,
+		options?: {
+			parentId?: string;
+			// The originating controller's `meta` store (a MetaStore), forwarded for badge/facet labels.
+			meta?: any;
+			// The controller that opened the quickview, for delegated actions like add-to-cart.
+			controller?: SourceController;
+		}
+	): Promise<void> => {
 		if (!result) {
 			this.log.warn('No result provided to quickview');
 			return;
 		}
+
+		const { parentId, meta, controller } = options || {};
 
 		const token = ++this.quickviewToken;
 

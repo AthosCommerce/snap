@@ -287,7 +287,7 @@ const config = {
 ```
 
 ##### controller/quickview event
-Snap Preact registers a global `controller/quickview` event handler on the shared `eventManager`. When the event is fired (for example, by calling `controller.quickview({ result })` on any controller — this fires `controller/quickview` via the integration global), the handler looks through all registered controllers (`window.athos.controller`) for a controller of type `quickview` (regardless of its `id`) and invokes its `quickview()` method with the event data. If no quickview-type controller has been created, a console warning is logged and the event is ignored.
+Snap Preact registers a global `controller/quickview` event handler on the shared `eventManager`. When the event is fired (for example, by calling `controller.quickview(result)` on any controller — this fires `controller/quickview` via the integration global), the handler looks through all registered controllers (`window.athos.controller`) for a controller of type `quickview` (regardless of its `id`) and invokes its `quickview()` method with the event data. If no quickview-type controller has been created, a console warning is logged and the event is ignored.
 
 ## properties
 After instantiating an instance of Snap, the following properties can be accessed. 

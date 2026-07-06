@@ -66,7 +66,8 @@ export const setupEvents = () => {
 			| undefined;
 
 		if (controller) {
-			await controller.quickview(data);
+			const { result, productsData, config, parentId, meta, controller: sourceController } = data;
+			await controller.quickview(result, productsData, config, { parentId, meta, controller: sourceController });
 		} else {
 			console.warn(`[quickview] No quickview-type controller found; quickview ignored.`);
 		}

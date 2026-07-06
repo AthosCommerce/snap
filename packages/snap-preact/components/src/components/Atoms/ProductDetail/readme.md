@@ -36,7 +36,7 @@ When `html` is true the resolved value is rendered via `dangerouslySetInnerHTML`
 ```
 
 ### name
-The optional `name` prop drives the `productDetail.<name>` theme selector (the `${module}.${name}` pattern) and the `ss__product-detail--<name>` classname modifier. When omitted the field path's final segment is used.
+The optional `name` prop drives the `productDetail.<name>` theme selector (the `${module}.${name}` pattern) and the `ss__product-detail--<name>` classname modifier. When omitted the field path's final segment is used, normalized to its component-name form (underscores become dashes, lowercased — e.g. `color_family` → `color-family`).
 
 ```tsx
 <ProductDetail result={product} field={'mappings.core.name'} name={'name'} />

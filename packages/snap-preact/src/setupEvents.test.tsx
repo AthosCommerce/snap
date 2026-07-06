@@ -274,7 +274,11 @@ describe('setupEvents', () => {
 			const payload = { result: { id: 'p1' }, parentId: 'p1' };
 			await eventManager.fire('controller/quickview', payload);
 
-			expect(quickview).toHaveBeenCalledWith(payload);
+			expect(quickview).toHaveBeenCalledWith(payload.result, undefined, undefined, {
+				parentId: payload.parentId,
+				meta: undefined,
+				controller: undefined,
+			});
 		});
 
 		it('resolves quickview controller by type, not id — works with non-default id', async () => {
@@ -286,7 +290,11 @@ describe('setupEvents', () => {
 			const payload = { result: { id: 'p1' }, parentId: 'p1' };
 			await eventManager.fire('controller/quickview', payload);
 
-			expect(quickview).toHaveBeenCalledWith(payload);
+			expect(quickview).toHaveBeenCalledWith(payload.result, undefined, undefined, {
+				parentId: payload.parentId,
+				meta: undefined,
+				controller: undefined,
+			});
 		});
 
 		it('warns and does nothing when no quickview controller exists', async () => {

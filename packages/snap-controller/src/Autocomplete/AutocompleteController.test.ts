@@ -1769,12 +1769,12 @@ describe('Autocomplete Controller quickview', () => {
 		});
 
 		const result: any = { id: 'ac-child-1', mappings: { core: { parentId: 'ac-parent-1' } } };
-		await controller.quickview({ result });
+		await controller.quickview(result);
 
 		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'ac-parent-1', controller }));
 
 		const fallbackResult: any = { id: 'ac-1' };
-		await controller.quickview({ result: fallbackResult });
+		await controller.quickview(fallbackResult);
 
 		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'ac-1', controller }));
 	});
@@ -1793,7 +1793,7 @@ describe('Autocomplete Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		await controller.quickview({ result: undefined as any });
+		await controller.quickview(undefined as any);
 
 		expect(fire).not.toHaveBeenCalled();
 	});

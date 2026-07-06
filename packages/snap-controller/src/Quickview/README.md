@@ -16,16 +16,16 @@ The `settings.quickview` values act as controller-level defaults — each `quick
 
 ## How quickviews are triggered
 
-The `QuickviewController` is normally not invoked directly. Other controllers' `quickview` methods fire a global `controller/quickview` event on the integration global (`window.athos.fire('controller/quickview', { result, productsData, parentId, config, meta, controller })`). The snap-preact event manager handles this event by locating the registered controller with `type === 'quickview'` (matched by type, not id) and invoking its `quickview` method with the event payload. Because of this, the `QuickviewController` is created eagerly by snap-preact even when no targeters are configured.
+The `QuickviewController` is normally not invoked directly. Other controllers' `quickview` methods fire a global `controller/quickview` event on the integration global (`window.athos.fire('controller/quickview', { result, productsData, parentId, config, meta, controller })`). The snap-preact event manager handles this event by locating the registered controller with `type === 'quickview'` (matched by type, not id) and invoking its `quickview` method with the payload fields as arguments. Because of this, the `QuickviewController` is created eagerly by snap-preact even when no targeters are configured.
 
 ```jsx
 // any Search / Autocomplete / Recommendation controller
-<button onClick={() => controller.quickview({ result })}>Quick View</button>
+<button onClick={() => controller.quickview(result)}>Quick View</button>
 ```
 
 ## Quickview
 
-### `quickview({ result, productsData?, parentId?, config?, meta?, controller? })`
+### `quickview(result, productsData?, config?, options?)`
 
 Opens the quickview modal for the given result and populates the store.
 
@@ -33,10 +33,10 @@ Opens the quickview modal for the given result and populates the store.
 |---|---|---|
 | `result` | `Product` (required) | The source result to preview. If omitted, a warning is logged and nothing happens. |
 | `productsData` | `ProductsResponseModel` (optional) | If passed, the controller skips its own `/v1/products` call and uses this data as-is. Useful for tests, prefetching, or middleware-driven flows. |
-| `parentId` | `string` (optional) | Parent id used for the `/v1/products` request. When omitted, resolved via `result.mappings.core.parentId \|\| result.id`. |
 | `config` | `QuickviewConfig` (optional) | Per-call override; merged on top of `config.settings.quickview` (caller wins). |
-| `meta` | `MetaStore` (optional) | The originating controller's meta store, forwarded onto `store.meta` for badge / facet-label rendering. |
-| `controller` | `SearchController \| AutocompleteController \| RecommendationController` (optional) | The controller that opened the quickview, remembered for delegated actions like `addToCart`. |
+| `options.parentId` | `string` (optional) | Parent id used for the `/v1/products` request. When omitted, resolved via `result.mappings.core.parentId \|\| result.id`. |
+| `options.meta` | `MetaStore` (optional) | The originating controller's meta store, forwarded onto `store.meta` for badge / facet-label rendering. |
+| `options.controller` | `SearchController \| AutocompleteController \| RecommendationController` (optional) | The controller that opened the quickview, remembered for delegated actions like `addToCart`. |
 
 The method performs the following steps:
 
@@ -48,14 +48,14 @@ The method performs the following steps:
 Each call increments an internal token; if a newer `quickview()` call supersedes an older one while its fetch or middleware is still in flight, the stale continuation is discarded and never writes to the store — the last-clicked product always wins.
 
 ```js
-quickviewController.quickview({ result, config: { displayFields: ['color', 'material'] } });
+quickviewController.quickview(result, undefined, { displayFields: ['color', 'material'] });
 ```
 
 ## Search
 The `QuickviewController` has no search lifecycle. The `search` method exists only to satisfy the `AbstractController` interface and resolves immediately without doing anything.
 
 ## AddToCart
-Delegates to the `addToCart` method of the controller that opened the current quickview (passed as `controller` to `quickview()`), so the platform's existing cart integration (tracking and `addToCart` middleware) runs there. Takes an array of Products (or a single Product) as a parameter. If no originating controller exists, a warning is logged.
+Delegates to the `addToCart` method of the controller that opened the current quickview (passed as `options.controller` to `quickview()`), so the platform's existing cart integration (tracking and `addToCart` middleware) runs there. Takes an array of Products (or a single Product) as a parameter. If no originating controller exists, a warning is logged.
 
 ```js
 quickviewController.addToCart([quickviewController.store.product]);

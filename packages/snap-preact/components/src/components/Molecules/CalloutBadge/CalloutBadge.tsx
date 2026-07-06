@@ -8,6 +8,7 @@ import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../p
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
 import { useComponent } from '../../../hooks';
+import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
 
@@ -27,6 +28,8 @@ export const CalloutBadge = observer((properties: CalloutBadgeProps) => {
 
 	const defaultProps: Partial<CalloutBadgeProps> = {
 		// default props
+		// a custom tag names the component (`calloutBadge.<tag>` theme selectors); default usage stays unnamed
+		name: properties.tag ? fieldNameToComponentName(properties.tag) : undefined,
 		tag: 'callout',
 		limit: 1,
 		treePath: globalTreePath,
@@ -51,7 +54,7 @@ export const CalloutBadge = observer((properties: CalloutBadgeProps) => {
 
 	const styling = mergeStyles<CalloutBadgeProps>(props, defaultStyles);
 
-	const badges = result?.display.badges?.atLocation(tag).slice(0, limit);
+	const badges = result?.display?.badges?.atLocation(tag).slice(0, limit);
 
 	if (renderEmpty || badges?.length) {
 		return (

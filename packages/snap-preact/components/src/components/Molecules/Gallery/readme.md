@@ -78,6 +78,20 @@ The `swipeThreshold` prop sets the number of pixels of horizontal touch travel r
 <Gallery images={imageUrls} open={true} swipeThreshold={60} />
 ```
 
+### lang
+The `lang` prop customizes the accessible labels following the standard component lang pattern:
+
+- `gallery` — attributes for the dialog root (default `aria-label="Image gallery"`).
+- `zoomOutButton` — attributes for the zoom-out button (default `aria-label="Zoom out"`).
+- `zoomInButton` — attributes for the zoom-in button (default `aria-label="Zoom in"`).
+- `closeButton` — attributes for the close button (default `aria-label="Close gallery"`).
+- `prevButton` — attributes for the previous-image button (default `aria-label="Previous image"`).
+- `nextButton` — attributes for the next-image button (default `aria-label="Next image"`).
+
+```tsx
+<Gallery images={imageUrls} open={true} lang={{ gallery: { attributes: { 'aria-label': 'Bildergalerie' } } }} />
+```
+
 ## Features
 
 ### Keyboard Controls
@@ -94,3 +108,6 @@ On mobile, dominantly-horizontal swipe gestures past `swipeThreshold` (default 4
 
 ### Wrap-around Navigation
 Navigation wraps around from the last image to the first and vice versa. The previous/next navigation buttons and the image counter are hidden when there is only one image.
+
+### Accessibility
+The gallery root is a dialog (`role="dialog"`, `aria-modal="true"`) with a `useA11y` focus trap: `Tab`/`Shift+Tab` cycle within the gallery controls and `Escape` invokes `onClose`. On open, focus moves to the close button; on close, focus is restored to the previously focused element. Because the gallery portals to `document.body`, its trap operates independently of any surrounding dialog's trap (e.g. the quickview).

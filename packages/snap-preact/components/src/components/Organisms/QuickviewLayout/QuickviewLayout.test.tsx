@@ -44,7 +44,7 @@ jest.mock('../../Molecules/OverlayBadge', () => {
 jest.mock('../../Molecules/CalloutBadge', () => {
 	const { h: hh } = require('preact');
 	return {
-		CalloutBadge: () => hh('div', { className: 'ss__callout-badge-mock' }),
+		CalloutBadge: ({ tag }: { tag?: string }) => hh('div', { className: 'ss__callout-badge-mock', 'data-tag': tag }),
 	};
 });
 
@@ -646,7 +646,7 @@ describe('QuickviewLayout', () => {
 				layout={[['c1', 'c2', 'c3', 'c4']]}
 				column1={{ layout: ['slideshow'], width: '25%' }}
 				column2={{ layout: [['productDetail.mappings.core.name']], width: '25%' }}
-				column3={{ layout: [['price']], width: '25%' }}
+				column3={{ layout: [['productDetail.mappings.core.price']], width: '25%' }}
 				column4={{ layout: [['button.add-to-cart']], width: '25%' }}
 			/>
 		);
@@ -663,7 +663,7 @@ describe('QuickviewLayout', () => {
 		// Each module lands in its own column.
 		expect(c1!.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img')).not.toBeNull();
 		expect(c2!.querySelector('.ss__product-quickview__title')).not.toBeNull();
-		expect(c3!.querySelector('.ss__product-quickview__pricing')).not.toBeNull();
+		expect(c3!.querySelector('.ss__product-detail--price .ss__price')).not.toBeNull();
 		expect(c4!.querySelector('.ss__product-quickview__add-to-cart')).not.toBeNull();
 	});
 
@@ -681,8 +681,8 @@ describe('QuickviewLayout', () => {
 			<QuickviewLayout
 				controller={controller}
 				layout={[['c3', 'c4']]}
-				// c3 renders the price, but the product has none → empty → collapses.
-				column3={{ layout: [['price']], width: '50%' }}
+				// c3 renders the More info button, but the product has no url → empty → collapses.
+				column3={{ layout: [['button.more-info']], width: '50%' }}
 				// c4 renders the name → has content.
 				column4={{ layout: [['productDetail.mappings.core.name']], width: '50%' }}
 			/>
@@ -841,7 +841,110 @@ describe('QuickviewLayout', () => {
 		expect(title!.textContent).toBe('color');
 	});
 
-	it('renders the price via the Price component from core mappings', () => {
+	it('renders only the matching selection for a variantSelection.<field> module', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			variants: {
+				selections: [
+					{ field: 'color', type: 'swatches', values: [], select: () => undefined },
+					{ field: 'size', type: 'dropdown', values: [], select: () => undefined },
+				],
+			},
+		};
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection.size']]} />);
+
+		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
+		expect(selections).toHaveLength(1);
+		expect(selections[0].getAttribute('data-field')).toBe('size');
+		expect(rendered.container.querySelector('.ss__product-quickview__variant-title')!.textContent).toBe('size');
+	});
+
+	it('matches a variantSelection.<field> module against the component-name form of the field', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			variants: {
+				selections: [{ field: 'color_family', type: 'swatches', values: [], select: () => undefined }],
+			},
+		};
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection.color-family']]} />);
+
+		const selection = rendered.container.querySelector('.ss__variant-selection-mock');
+		expect(selection).not.toBeNull();
+		expect(selection!.getAttribute('data-field')).toBe('color_family');
+	});
+
+	it('renders nothing for a variantSelection.<field> module with no matching selection', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			variants: {
+				selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }],
+			},
+		};
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection.material']]} />);
+
+		expect(rendered.container.querySelector('.ss__variant-selection-mock')).toBeNull();
+	});
+
+	it('renders nothing for a bare variantSelection module', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			variants: {
+				selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }],
+			},
+		};
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection' as any]]} />);
+
+		expect(rendered.container.querySelector('.ss__variant-selection-mock')).toBeNull();
+	});
+
+	it('renders all selections for the variantSelections module', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			variants: {
+				selections: [
+					{ field: 'color', type: 'swatches', values: [], select: () => undefined },
+					{ field: 'size', type: 'dropdown', values: [], select: () => undefined },
+				],
+			},
+		};
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelections']]} />);
+
+		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
+		expect(selections).toHaveLength(2);
+		expect(rendered.container.querySelector('.ss__product-quickview__variants')).not.toBeNull();
+	});
+
+	it('renders the price via the productDetail module from core mappings', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', price: 20 } },
@@ -851,31 +954,13 @@ describe('QuickviewLayout', () => {
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['productDetail.mappings.core.price']]} />);
 
-		const pricing = rendered.container.querySelector('.ss__product-quickview__pricing');
+		const pricing = rendered.container.querySelector('.ss__product-detail--price');
 		expect(pricing).not.toBeNull();
-		// Price atom renders a .ss__price element with the formatted value.
+		// ProductDetail renders core price fields with the Price atom.
 		expect(pricing!.querySelector('.ss__price')).not.toBeNull();
 		expect(pricing!.textContent).toContain('20');
-	});
-
-	it('renders a struck msrp alongside the sale price when on sale', () => {
-		const storeProduct = {
-			id: 'mine',
-			mappings: { core: { name: 'Mine', price: 15, msrp: 20 } },
-			attributes: {},
-		};
-		const { controller } = makeController({
-			store: { isOpen: true, product: storeProduct },
-		});
-
-		const rendered = render(<QuickviewLayout controller={controller} />);
-
-		const pricing = rendered.container.querySelector('.ss__product-quickview__pricing')!;
-		expect(pricing.querySelector('.ss__price--strike')).not.toBeNull();
-		expect(pricing.textContent).toContain('15');
-		expect(pricing.textContent).toContain('20');
 	});
 
 	it('renders a "More info" button that navigates to the product url', () => {
@@ -900,7 +985,7 @@ describe('QuickviewLayout', () => {
 		expect((window.location as any).href).toBe('/products/apex-bottle');
 	});
 
-	it('renders bare slideshow with no badges when the layout uses the slideshow module', () => {
+	it('renders bare slideshow with no badges when disabledOverlayBadges is set', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
@@ -910,16 +995,16 @@ describe('QuickviewLayout', () => {
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['slideshow']]} />);
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['slideshow']]} disabledOverlayBadges={true} />);
 
-		// The `slideshow` module renders the slideshow without any badge wrappers.
+		// With disabledOverlayBadges the slideshow renders without any badge wrappers.
 		expect(rendered.container.querySelector('.ss__overlay-badge-mock')).toBeNull();
 		expect(rendered.container.querySelector('.ss__callout-badge-mock')).toBeNull();
 		// The image still renders, just not wrapped in the badge overlay.
 		expect(rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img')).not.toBeNull();
 	});
 
-	it('wraps the slideshow in overlay badges and renders callout badges when those modules are in the layout', () => {
+	it('wraps the slideshow in overlay badges by default and renders callout badges when that module is in the layout', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
@@ -929,14 +1014,33 @@ describe('QuickviewLayout', () => {
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['overlayBadge'], ['calloutBadge']]} />);
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['slideshow'], ['calloutBadge']]} />);
 
-		// The `overlayBadge` module wraps the slideshow in OverlayBadge.
+		// The `slideshow` module wraps the slideshow in OverlayBadge by default.
 		const overlay = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__overlay-badge-mock');
 		expect(overlay).not.toBeNull();
 		expect(overlay!.querySelector('.ss__product-quickview__image img')).not.toBeNull();
 		// The `calloutBadge` module renders the callout badges as their own block.
 		expect(rendered.container.querySelector('.ss__callout-badge-mock')).not.toBeNull();
+	});
+
+	it('passes a custom tag to CalloutBadge via the calloutBadge.<tag> module', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} layout={[['calloutBadge'], ['calloutBadge.callout-secondary']]} />);
+
+		const badges = rendered.container.querySelectorAll('.ss__callout-badge-mock');
+		expect(badges).toHaveLength(2);
+		// Bare `calloutBadge` passes no tag, so CalloutBadge falls back to its default.
+		expect(badges[0].getAttribute('data-tag')).toBeNull();
+		expect(badges[1].getAttribute('data-tag')).toBe('callout-secondary');
 	});
 
 	it('omits the "More info" button when the product has no url', () => {
@@ -1102,7 +1206,7 @@ describe('QuickviewLayout', () => {
 
 			const rec = container.querySelector('.ss__product-quickview__recommendations .ss__rec-stub');
 			expect(rec).toBeInTheDocument();
-			expect(rec).toHaveAttribute('data-name', 'quickview-similar');
+			expect(rec).toHaveAttribute('data-name', 'similar');
 			expect(rec?.textContent).toBe('Similar Items');
 
 			await waitFor(() => expect(search).toHaveBeenCalled());
@@ -1185,6 +1289,118 @@ describe('QuickviewLayout', () => {
 			const { container } = render(<QuickviewLayout controller={controller as any} layout={[['recommendation.trending']]} />);
 
 			expect(container.querySelector('.ss__product-quickview__recommendations')).not.toBeInTheDocument();
+		});
+	});
+
+	describe('accessibility and lang', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', url: 'http://example.com/product', imageUrl: 'http://example.com/main.jpg' } },
+			attributes: {},
+		};
+
+		it('renders the content as a dialog with a useA11y focus trap', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+
+			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			expect(content).toHaveAttribute('role', 'dialog');
+			expect(content).toHaveAttribute('aria-modal', 'true');
+			expect(content).toHaveAttribute('aria-label', 'Quickview');
+			expect(content).toHaveAttribute('ss-a11y');
+			expect(content).toHaveAttribute('tabindex', '0');
+		});
+
+		it('renders a keyboard-focusable close button with its default aria-label', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+
+			const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
+			expect(closeButton).toHaveAttribute('role', 'button');
+			expect(closeButton).toHaveAttribute('tabindex', '0');
+			expect(closeButton).toHaveAttribute('ss-a11y');
+			expect(closeButton).toHaveAttribute('aria-label', 'Close quickview');
+		});
+
+		it('closes exactly once when Escape fires inside the focus trap (no double-handling by the window listener)', () => {
+			const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+
+			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
+			expect(close).toHaveBeenCalledTimes(1);
+		});
+
+		it('Escape inside the focus trap closes the gallery first, then the quickview', () => {
+			const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+
+			// Open the gallery by clicking the product image.
+			const img = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img') as HTMLElement;
+			fireEvent.click(img);
+			expect(document.querySelector('.ss__gallery')).not.toBeNull();
+
+			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
+			expect(document.querySelector('.ss__gallery')).toBeNull();
+			expect(close).not.toHaveBeenCalled();
+
+			fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
+			expect(close).toHaveBeenCalledTimes(1);
+		});
+
+		it('traps Tab within the quickview content', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+
+			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
+			const moreInfoButton = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
+			expect(moreInfoButton).not.toBeNull();
+
+			// Tab from the last focusable element wraps to the first (the close button).
+			moreInfoButton.focus();
+			fireEvent.keyDown(content, { key: 'Tab', keyCode: 9 });
+			expect(document.activeElement).toBe(closeButton);
+
+			// Shift+Tab from the first focusable element wraps back to the last.
+			fireEvent.keyDown(content, { key: 'Tab', keyCode: 9, shiftKey: true });
+			expect(document.activeElement).toBe(moreInfoButton);
+		});
+
+		it('renders the default button texts via lang', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+
+			expect(rendered.getByText('Add to Cart')).toBeInTheDocument();
+			expect(rendered.getByText('More info')).toBeInTheDocument();
+		});
+
+		it('lang props override the default strings', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const lang = {
+				quickview: { attributes: { 'aria-label': 'Schnellansicht' } },
+				closeButton: { attributes: { 'aria-label': 'Schließen' } },
+				addToCartButton: { value: 'In den Warenkorb' },
+				moreInfoButton: { value: 'Mehr Infos' },
+			};
+			const rendered = render(<QuickviewLayout controller={controller} lang={lang} />);
+
+			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			expect(content).toHaveAttribute('aria-label', 'Schnellansicht');
+			expect(rendered.container.querySelector('.ss__product-quickview__close')).toHaveAttribute('aria-label', 'Schließen');
+			expect(rendered.getByText('In den Warenkorb')).toBeInTheDocument();
+			expect(rendered.getByText('Mehr Infos')).toBeInTheDocument();
+		});
+
+		it('renders the loading text via lang and supports overriding it', () => {
+			const { controller } = makeController({ store: { isOpen: true, loading: true, product: undefined } });
+			const rendered = render(<QuickviewLayout controller={controller} />);
+			expect(rendered.container.querySelector('.ss__product-quickview__loading')?.innerHTML).toBe('Loading…');
+
+			const { controller: controller2 } = makeController({ store: { isOpen: true, loading: true, product: undefined } });
+			const rendered2 = render(<QuickviewLayout controller={controller2} lang={{ loadingText: { value: 'Lädt…' } }} />);
+			expect(rendered2.container.querySelector('.ss__product-quickview__loading')?.innerHTML).toBe('Lädt…');
 		});
 	});
 });

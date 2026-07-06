@@ -1361,7 +1361,7 @@ describe('Search Controller quickview', () => {
 
 		const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 
-		await controller.quickview({ result, config: { displayFields: ['color'] } });
+		await controller.quickview(result, undefined, { displayFields: ['color'] });
 
 		expect(fire).toHaveBeenCalledWith(
 			'controller/quickview',
@@ -1389,7 +1389,7 @@ describe('Search Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		await controller.quickview({ result: undefined as any });
+		await controller.quickview(undefined as any);
 
 		expect(fire).not.toHaveBeenCalled();
 	});

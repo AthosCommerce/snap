@@ -658,12 +658,12 @@ describe('Recommendation Controller quickview', () => {
 		});
 
 		const result: any = { id: 'rec-child-1', mappings: { core: { parentId: 'rec-parent-1' } } };
-		await controller.quickview({ result });
+		await controller.quickview(result);
 
 		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'rec-parent-1', controller }));
 
 		const fallbackResult: any = { id: 'rec-1' };
-		await controller.quickview({ result: fallbackResult });
+		await controller.quickview(fallbackResult);
 
 		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'rec-1', controller }));
 	});
@@ -682,7 +682,7 @@ describe('Recommendation Controller quickview', () => {
 			tracker: new Tracker(globals),
 		});
 
-		await controller.quickview({ result: undefined as any });
+		await controller.quickview(undefined as any);
 
 		expect(fire).not.toHaveBeenCalled();
 	});

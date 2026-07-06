@@ -602,7 +602,7 @@ describe('Search Controller', () => {
 			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 			const productsData: any = { variants: { data: [] } };
 
-			await controller.quickview({ result, productsData, config: { displayFields: ['color'] } });
+			await controller.quickview(result, productsData, { displayFields: ['color'] });
 
 			expect(fire).toHaveBeenCalledTimes(1);
 			expect(fire).toHaveBeenCalledWith(
@@ -641,7 +641,7 @@ describe('Search Controller', () => {
 			const spy = jest.spyOn(controller.log, 'warn');
 			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 
-			await controller.quickview({ result });
+			await controller.quickview(result);
 
 			expect(spy).toHaveBeenCalledWith(`quickview ignored — no 'athos' integration global found on window`);
 		});
@@ -663,7 +663,7 @@ describe('Search Controller', () => {
 			const controller = new QuickviewController({ id: 'quickview' }, quickviewServices as any);
 			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 
-			await controller.quickview({ result, parentId: 'parent-1' });
+			await controller.quickview(result, undefined, undefined, { parentId: 'parent-1' });
 
 			expect(fire).not.toHaveBeenCalled();
 			expect(quickviewServices.eventManager.fire).toHaveBeenCalledWith(

@@ -244,7 +244,7 @@ export type ThemeComponents =
 	
 	/* MOLECULES */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeProps> } &
+	{ [K in ThemeComponentOverridesNamedSelectors<'calloutBadge', string>]?: Partial<CalloutBadgeProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridProps> } &
@@ -335,7 +335,8 @@ export type ThemeComponentsRestricted =
 	
 	/* MOLECULES */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } & 
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'calloutBadge'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridTemplatesLegalProps> } &
@@ -438,6 +439,7 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	/* MOLECULES */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'calloutBadge'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridTemplatesLegalProps> & WithCustomComponent } &
@@ -539,7 +541,8 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	
 	/* MOLECULES */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'modal'>]?: Partial<ModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } & 
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'calloutBadge'>]?: unknown } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'carousel'>]?: Partial<CarouselTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'grid'>]?: Partial<GridTemplatesLegalProps> } &

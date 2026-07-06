@@ -74,7 +74,7 @@ available modules to use in the layout are
 ### column1
 The `column1` prop specifies the layout to render in the `C1` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `['termsList']`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -88,7 +88,7 @@ The `column1` prop specifies the layout to render in the `C1` module. Takes an o
 ### column2
 The `column2` prop specifies a layout array to render in the `C2` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `['facets']`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -102,7 +102,7 @@ The `column2` prop specifies a layout array to render in the `C2` module. Takes 
 ### column3
 The `column3` prop specifies a layout array to render in the `C3` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `[['content'], ['_', 'button.see-more']]`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -116,7 +116,7 @@ The `column3` prop specifies a layout array to render in the `C3` module. Takes 
 ### column4
 The `column4` prop specifies a layout array to render in the `C4` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `[['content'], ['_', 'button.see-more']]`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 

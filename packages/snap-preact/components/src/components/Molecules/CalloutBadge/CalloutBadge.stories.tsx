@@ -104,7 +104,7 @@ export default {
 			control: { type: 'number' },
 		},
 		tag: {
-			description: 'Callout location tag',
+			description: 'Callout location tag; a custom tag also names the component so `calloutBadge.<tag>` theme selectors can target it',
 			table: {
 				type: {
 					summary: 'string',

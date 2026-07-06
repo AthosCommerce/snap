@@ -2,6 +2,7 @@ import { h } from 'preact';
 
 import { render } from '@testing-library/preact';
 
+import { ThemeProvider } from '../../../providers';
 import { ProductDetail, getProductFieldValue, renderDetailValue, isCorePriceField } from './ProductDetail';
 
 const mockResult = {
@@ -50,6 +51,24 @@ describe('ProductDetail Component', () => {
 		const rendered = render(<ProductDetail result={mockResult} field={'mappings.core.name'} name={'title'} />);
 		const el = rendered.container.querySelector('.ss__product-detail')!;
 		expect(el).toHaveClass('ss__product-detail--title');
+	});
+
+	it('derives its name from the field final segment so named theme selectors apply', () => {
+		const globalTheme = {
+			type: 'templates',
+			components: {
+				['productDetail.brand' as 'productDetail']: {
+					className: 'named-classy',
+				},
+			},
+		} as any;
+		const rendered = render(
+			<ThemeProvider theme={globalTheme}>
+				<ProductDetail result={mockResult} field={'attributes.brand'} />
+			</ThemeProvider>
+		);
+		const el = rendered.container.querySelector('.ss__product-detail')!;
+		expect(el).toHaveClass('named-classy');
 	});
 
 	it('falls back to the path final segment for the modifier classname', () => {

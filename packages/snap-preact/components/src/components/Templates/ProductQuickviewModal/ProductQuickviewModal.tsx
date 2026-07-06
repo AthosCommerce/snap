@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers'
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Modal } from '../../Molecules/Modal';
-import { QuickviewLayout, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
+import { QuickviewLayout, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 
 import type { QuickviewController } from '@athoscommerce/snap-controller';
 
@@ -60,6 +60,21 @@ const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 		'&.ss__product-quickview .ss__modal__overlay': {
 			zIndex: '10005 !important' as any,
 		},
+		// Below the desktop breakpoint (where QuickviewLayout stacks to a single column) the
+		// modal spans the full viewport width instead of shrink-wrapping its content. The
+		// wrapper class is compounded into the content selector so this beats QuickviewLayout's
+		// same-specificity min/max width rule on the content div.
+		'@media (max-width: 767px)': {
+			'&.ss__product-quickview .ss__modal__content': {
+				width: '100vw',
+				maxWidth: '100vw',
+				borderRadius: 0,
+			},
+			'&.ss__product-quickview .ss__product-quickview__content': {
+				minWidth: 'auto',
+				maxWidth: '100%',
+			},
+		},
 	});
 };
 
@@ -69,10 +84,25 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 
 	const defaultProps: Partial<ProductQuickviewModalProps> = {
 		treePath: globalTreePath,
+		disabledOverlayBadges: false,
 	};
 
 	const props = mergeProps('productQuickviewModal', globalTheme, defaultProps, properties);
-	const { controller, className, internalClassName, disableStyles, treePath, layout, column1, column2, column3, column4, recommendation } = props;
+	const {
+		controller,
+		className,
+		internalClassName,
+		disableStyles,
+		treePath,
+		layout,
+		disabledOverlayBadges,
+		column1,
+		column2,
+		column3,
+		column4,
+		recommendation,
+		lang,
+	} = props;
 
 	// Dialog focus management: remember what had focus before the modal opened, move focus to
 	// the close button on open, and restore on close. This lives in the container (not the
@@ -106,8 +136,8 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
 
-	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> = {
-		...defined({ layout, column1, column2, column3, column4, recommendation }),
+	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
+		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
 	};
 
 	return (
@@ -142,5 +172,6 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 
 export type ProductQuickviewModalProps = {
 	controller: QuickviewController;
+	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
 	Omit<ComponentProps, 'customComponent'>;

@@ -100,14 +100,14 @@ The `addToCartButtonSuccessTimeout` prop specifies the number of ms to show the 
 ```
 
 ### showQuickview
-The `showQuickview` prop will render a quickview button (an eye `<Icon />`) overlaid on the product image. Clicking the button (or pressing Enter/Space while focused) invokes `controller.quickview({ result })`. Defaults to `false`. The button only renders when a `controller` prop has also been provided and the image is not hidden.
+The `showQuickview` prop will render a quickview `<Button />` (with an eye `<Icon />`) overlaid on the product image. Clicking the button (or pressing Enter/Space while focused) invokes `controller.quickview(result)`. Defaults to `false`. The button only renders when a `controller` prop has also been provided and the image is not hidden.
 
 ```tsx
 <Result result={controller.store.results[0]} controller={controller} showQuickview={true} />
 ```
 
 ### quickviewButtonText
-The `quickviewButtonText` prop changes the accessible label (`aria-label` and icon title) of the quickview button. Defaults to `'Quick View'`.
+The `quickviewButtonText` prop changes the accessible label (`aria-label` and icon title) of the quickview button. Defaults to `'Quick View'`. The `aria-label` can also be set via `lang.quickviewButtonText.attributes['aria-label']`.
 
 ```tsx
 <Result result={controller.store.results[0]} controller={controller} showQuickview={true} quickviewButtonText={'Peek'} />

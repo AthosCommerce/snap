@@ -1,18 +1,19 @@
 import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent, useCreateController } from '../../../hooks';
+import { Lang, useA11y, useComponent, useCreateController, useLang } from '../../../hooks';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 import { VariantSelection, VariantSelectionTemplatesLegalProps } from '../../Molecules/VariantSelection';
 import { Slideshow } from '../../Molecules/Slideshow';
 import { Button } from '../../Atoms/Button';
-import { Price } from '../../Atoms/Price';
 import { ProductDetail } from '../../Atoms/ProductDetail';
 import { ProductDetailTable } from '../../Molecules/ProductDetailTable';
 import { OverlayBadge } from '../../Molecules/OverlayBadge';
@@ -29,14 +30,15 @@ import type { LibraryImports } from '../../../../../src/Templates/Stores/Library
 const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, column3, column4 }) => {
 	return css({
 		'& .ss__product-quickview__content': {
-			padding: '20px',
+			// extra top padding keeps the close button clear of top content (e.g. overlay badges)
+			padding: '48px 20px 20px 20px',
 			minWidth: '320px',
 			maxWidth: '600px',
 			position: 'relative',
 			boxSizing: 'border-box',
 		},
-		// The module grid: a flex row of columns. Columns wrap on narrow viewports (single
-		// column) and sit side-by-side once there's room (2-column on desktop).
+		// The module grid: a flex row of columns. Columns are full width below the desktop
+		// breakpoint (single column) and use their configured widths side-by-side above it.
 		'& .ss__quickview-layout__row': {
 			display: 'flex',
 			flexDirection: 'row',
@@ -54,30 +56,27 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 				maxWidth: '100%',
 			},
 		},
+		// Mobile-first: every column spans the full row width so a multi-column layout
+		// stacks into a single column. Configured column widths apply at the desktop
+		// breakpoint below.
 		'& .ss__quickview-layout__column': {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '12px',
 			minWidth: 0,
+			flex: '1 1 100%',
+			maxWidth: '100%',
 		},
 		'& .ss__quickview-layout__column.ss__quickview-layout__column--c1': {
-			flex: column1?.width == 'auto' ? '1 1 auto' : `1 1 ${column1?.width}`,
-			maxWidth: column1?.width == 'auto' ? 'auto' : column1?.width,
 			alignContent: column1?.alignContent,
 		},
 		'& .ss__quickview-layout__column.ss__quickview-layout__column--c2': {
-			flex: column2?.width == 'auto' ? '1 1 auto' : `1 1 ${column2?.width}`,
-			maxWidth: column2?.width == 'auto' ? 'auto' : column2?.width,
 			alignContent: column2?.alignContent,
 		},
 		'& .ss__quickview-layout__column.ss__quickview-layout__column--c3': {
-			flex: column3?.width == 'auto' ? '1 1 auto' : `1 1 ${column3?.width}`,
-			maxWidth: column3?.width == 'auto' ? 'auto' : column3?.width,
 			alignContent: column3?.alignContent,
 		},
 		'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
-			flex: column4?.width == 'auto' ? '1 1 auto' : `1 1 ${column4?.width}`,
-			maxWidth: column4?.width == 'auto' ? 'auto' : column4?.width,
 			alignContent: column4?.alignContent,
 		},
 		'& .ss__product-quickview__slideshow': {
@@ -86,13 +85,6 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		'& .ss__product-quickview__title': {
 			fontSize: '1.4em',
 			paddingRight: '32px', // leave room for the close button
-		},
-		'& .ss__product-quickview__pricing': {
-			fontSize: '1.2em',
-			'& .ss__price--strike': {
-				fontSize: '80%',
-				marginRight: '6px',
-			},
 		},
 		'& .ss__product-quickview__variant': {
 			marginBottom: '12px',
@@ -149,8 +141,8 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		},
 		'& .ss__product-quickview__close': {
 			position: 'absolute',
-			top: '8px',
-			right: '8px',
+			top: '12px',
+			right: '12px',
 			background: 'transparent',
 			border: 'none',
 			fontSize: '1.4em',
@@ -172,6 +164,22 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		'@media (min-width: 768px)': {
 			'& .ss__product-quickview__content': {
 				maxWidth: '880px',
+			},
+			'& .ss__quickview-layout__column.ss__quickview-layout__column--c1': {
+				flex: column1?.width == 'auto' ? '1 1 0' : `1 1 ${column1?.width}`,
+				maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
+			},
+			'& .ss__quickview-layout__column.ss__quickview-layout__column--c2': {
+				flex: column2?.width == 'auto' ? '1 1 0' : `1 1 ${column2?.width}`,
+				maxWidth: column2?.width == 'auto' ? 'none' : column2?.width,
+			},
+			'& .ss__quickview-layout__column.ss__quickview-layout__column--c3': {
+				flex: column3?.width == 'auto' ? '1 1 0' : `1 1 ${column3?.width}`,
+				maxWidth: column3?.width == 'auto' ? 'none' : column3?.width,
+			},
+			'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
+				flex: column4?.width == 'auto' ? '1 1 0' : `1 1 ${column4?.width}`,
+				maxWidth: column4?.width == 'auto' ? 'none' : column4?.width,
 			},
 		},
 	});
@@ -219,6 +227,10 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// order stays stable.
 	const [galleryOpen, setGalleryOpen] = useState(false);
 	const [galleryIndex, setGalleryIndex] = useState(0);
+	// Mirrors galleryOpen for the useA11y escape callback, which binds once per content element
+	// and would otherwise capture a stale value.
+	const galleryOpenRef = useRef(false);
+	galleryOpenRef.current = galleryOpen;
 	const openGallery = (i: number) => {
 		setGalleryIndex(i);
 		setGalleryOpen(true);
@@ -227,20 +239,19 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const defaultProps: Partial<QuickviewLayoutProps> = {
 		treePath: globalTreePath,
 		layout: [['c1', 'c2']],
+		disabledOverlayBadges: false,
 		column1: {
-			layout: ['overlayBadge'],
+			layout: ['slideshow'],
 			width: '45%',
 		},
 		column2: {
 			layout: [
 				['productDetail.mappings.core.name'],
 				['calloutBadge'],
-				['price'],
-				['variantSelection'],
+				['variantSelections'],
 				['button.add-to-cart', 'button.more-info'],
 				['productDetail.mappings.core.description'],
 				['productDetailTable'],
-				['recommendation.quickview'],
 			],
 			width: 'auto',
 		},
@@ -255,12 +266,42 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		treePath,
 		customComponent,
 		onReset,
+		disabledOverlayBadges,
 		column1,
 		column2,
 		column3,
 		column4,
 		recommendation,
 	} = props;
+
+	//initialize lang
+	const defaultLang = {
+		quickview: {
+			attributes: {
+				'aria-label': 'Quickview',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Close quickview',
+			},
+		},
+		addToCartButton: {
+			value: 'Add to Cart',
+		},
+		moreInfoButton: {
+			value: 'More info',
+		},
+		loadingText: {
+			value: 'Loading…',
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {
+		controller,
+	});
 
 	// Hoist the slide-sync inputs before any conditional return so the hooks below
 	// are unconditional. All reads use optional chaining and safely produce defaults when
@@ -309,6 +350,9 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	// Escape closes the quickview — unless the fullscreen gallery is layered on top,
 	// in which case Gallery's own Escape handler closes the gallery first.
+	// This window listener is the fallback for when focus sits outside the content focus
+	// trap (useA11y on the content div handles Escape — with stopPropagation — when focus
+	// is within it).
 	useEffect(() => {
 		const isOpenNow = Boolean(controller?.store?.isOpen);
 		if (!isOpenNow) return;
@@ -415,13 +459,31 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// store directly so the layout still works when rendered standalone.
 	const onClose = onReset || (() => store.close());
 
+	// Escape inside the focus trap: the gallery layers above the quickview, so close it
+	// first; otherwise close the quickview itself.
+	const handleEscape = () => {
+		if (galleryOpenRef.current) {
+			setGalleryOpen(false);
+		} else {
+			onClose();
+		}
+	};
+
+	// Dialog semantics + focus trap for the quickview content, following the autocomplete
+	// containers (AutocompleteModal/AutocompleteSlideout): useA11y traps Tab within the
+	// content and wires Escape to the callback above.
+	const contentProps = {
+		className: 'ss__product-quickview__content',
+		role: 'dialog' as const,
+		'aria-modal': 'true' as const,
+		ref: (e: HTMLDivElement | null) => useA11y(e, 0, true, handleEscape),
+		...mergedLang.quickview?.attributes,
+	};
+
 	// Prefer `product.display` so the displayed name/image/attributes reflect the
 	// currently active variant (Mask-merged), falling back to the base product data.
 	const name: string | undefined = core?.name;
-	const price: number | undefined = core?.price;
-	const msrp: number | undefined = core?.msrp;
 	const url: string | undefined = core?.url;
-	const isOnSale = Boolean(msrp && price && msrp > price);
 
 	const selections = product?.variants?.selections;
 
@@ -496,23 +558,25 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 		if (module == 'slideshow') {
 			if (!slideshowContent || !product) return null;
-			return <div className="ss__product-quickview__slideshow">{slideshowContent}</div>;
-		}
-
-		if (module == 'overlayBadge') {
-			if (!slideshowContent || !product) return null;
 			return (
 				<div className="ss__product-quickview__slideshow">
-					<OverlayBadge result={product} controller={controller} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
-						{slideshowContent}
-					</OverlayBadge>
+					{disabledOverlayBadges ? (
+						slideshowContent
+					) : (
+						<OverlayBadge result={product} controller={controller} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
+							{slideshowContent}
+						</OverlayBadge>
+					)}
 				</div>
 			);
 		}
 
-		if (module == 'calloutBadge') {
+		// `calloutBadge` renders badges at the default tag; `calloutBadge.<tag>` renders badges
+		// at a custom tag location (e.g. `calloutBadge.callout-secondary`).
+		if (module == 'calloutBadge' || module.startsWith('calloutBadge.')) {
 			if (!product) return null;
-			return <CalloutBadge result={product} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />;
+			const tag = module.startsWith('calloutBadge.') ? module.slice('calloutBadge.'.length) : undefined;
+			return <CalloutBadge result={product} theme={props.theme} treePath={treePath} {...defined({ disableStyles, tag })} />;
 		}
 
 		// `productDetail.<path>` renders a single product field resolved from an explicit dot-path
@@ -534,7 +598,6 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 				<ProductDetail
 					result={product}
 					field={path}
-					name={field}
 					html={field === 'description'}
 					className={legacyClass}
 					theme={props.theme}
@@ -544,24 +607,11 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			);
 		}
 
-		if (module == 'price') {
-			if (!price) return null;
-			return (
-				<div className="ss__product-quickview__pricing">
-					{isOnSale ? (
-						<>
-							<Price value={msrp} lineThrough={true} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />
-							&nbsp;
-							<Price value={price} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />
-						</>
-					) : (
-						<Price value={price} theme={props.theme} treePath={treePath} {...defined({ disableStyles })} />
-					)}
-				</div>
-			);
-		}
-
-		if (module == 'variantSelection') {
+		// `variantSelections` renders every variant selection; `variantSelection.<field>` renders only
+		// the selection whose field matches (e.g. `variantSelection.color`). The field also matches its
+		// component-name form (`color_family` → `color-family`). A bare `variantSelection` module is
+		// not supported.
+		if (module == 'variantSelections') {
 			if (!selections || selections.length === 0) return null;
 			return (
 				<div className="ss__product-quickview__variants">
@@ -581,13 +631,31 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			);
 		}
 
+		if (module.startsWith('variantSelection.')) {
+			const name = module.slice('variantSelection.'.length);
+			const selection = selections?.find((selection) => selection.field === name || fieldNameToComponentName(selection.field) === name);
+			if (!name || !selection) return null;
+			return (
+				<div className="ss__product-quickview__variant">
+					<div className="ss__product-quickview__variant-title">{selection.label || selection.field}</div>
+					<VariantSelection
+						selection={selection}
+						type={selection.type as VariantSelectionTemplatesLegalProps['type']}
+						theme={props.theme}
+						treePath={treePath}
+						{...defined({ disableStyles })}
+					/>
+				</div>
+			);
+		}
+
 		if (module == 'button.add-to-cart') {
 			if (!product) return null;
 			return (
 				<Button
 					name="add-to-cart"
 					internalClassName="ss__product-quickview__add-to-cart"
-					content="Add to Cart"
+					lang={{ button: lang.addToCartButton }}
 					onClick={() => product && controller.addToCart([product])}
 					theme={props.theme}
 					treePath={treePath}
@@ -602,7 +670,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 				<Button
 					name="more-info"
 					internalClassName="ss__product-quickview__go-to-product"
-					content="More info"
+					lang={{ button: lang.moreInfoButton }}
 					onClick={() => {
 						window.location.href = url;
 					}}
@@ -615,12 +683,11 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 		if (module == 'productDetailTable') {
 			if (!product) return null;
-			const labels = Object.fromEntries((displayFields || []).map((f) => [f, labelFor(f)]));
+			const details = (displayFields || []).map((field) => ({ field, label: labelFor(field) }));
 			return (
 				<ProductDetailTable
 					result={product}
-					fields={displayFields}
-					labels={labels}
+					details={details}
 					className="ss__product-quickview__attributes"
 					theme={props.theme}
 					treePath={treePath}
@@ -641,7 +708,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 						controller={recsController}
 						title={recsController.store?.profile?.display?.templateParameters?.title}
 						resultComponent={entry?.ResultComponent}
-						name={`quickview-${profile}`}
+						name={profile}
 					/>
 				</div>
 			);
@@ -662,9 +729,10 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const closeButton = (
 		<Button
+			name="close"
 			internalClassName="ss__product-quickview__close"
 			icon="close-thin"
-			aria-label="Close quickview"
+			lang={{ button: lang.closeButton }}
 			onClick={() => onClose()}
 			theme={props.theme}
 			treePath={treePath}
@@ -676,19 +744,19 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__quickview-layout', className, internalClassName)}>
 				{error ? (
-					<div className="ss__product-quickview__content">
+					<div {...contentProps}>
 						{closeButton}
 						<div className="ss__product-quickview__error" role="alert">
 							{error.message}
 						</div>
 					</div>
 				) : loading ? (
-					<div className="ss__product-quickview__content">
+					<div {...contentProps}>
 						{closeButton}
-						<div className="ss__product-quickview__loading">Loading…</div>
+						<div className="ss__product-quickview__loading" {...mergedLang.loadingText?.all}></div>
 					</div>
 				) : product ? (
-					<div className="ss__product-quickview__content">
+					<div {...contentProps}>
 						{closeButton}
 						{(layout as ModuleNamesWithColumns[])?.map((module) => findModule(module))}
 						<Gallery
@@ -711,10 +779,10 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 //can add modules here in the future
 export type QuickviewModuleNames =
 	| 'slideshow'
-	| 'overlayBadge'
 	| 'calloutBadge'
-	| 'price'
-	| 'variantSelection'
+	| `calloutBadge.${string}`
+	| 'variantSelections'
+	| `variantSelection.${string}`
 	| `productDetail.${string}`
 	| 'button.add-to-cart'
 	| 'button.more-info'
@@ -733,11 +801,25 @@ export type QuickviewColumn = {
 export type QuickviewLayoutProps = {
 	controller: QuickviewController;
 	onReset?: () => void;
+	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
 	ComponentProps<QuickviewLayoutProps>;
 
+export interface QuickviewLayoutLang {
+	quickview: Lang<{
+		controller: QuickviewController;
+	}>;
+	closeButton: Lang<never>;
+	addToCartButton: Lang<never>;
+	moreInfoButton: Lang<never>;
+	loadingText: Lang<{
+		controller: QuickviewController;
+	}>;
+}
+
 export type QuickviewLayoutTemplatesLegalProps = {
 	layout?: ModuleNamesWithColumns[];
+	disabledOverlayBadges?: boolean;
 	column1?: QuickviewColumn;
 	column2?: QuickviewColumn;
 	column3?: QuickviewColumn;

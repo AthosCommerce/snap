@@ -1,7 +1,7 @@
 # QuickviewStore
 The quickview store holds the state for the product quickview modal. It extends the AbstractStore and is the `store` of the dedicated `QuickviewController` — it is reached at `quickviewController.store`.
 
-The store is typically driven by the `QuickviewController`, which opens it in a loading state, fetches additional product data from `/v1/products`, and then calls `update` to populate the modal. Other controllers (`SearchController`, `AutocompleteController`, `RecommendationController`) trigger this flow via their `quickview({ result })` method, which fires the global `controller/quickview` event.
+The store is typically driven by the `QuickviewController`, which opens it in a loading state, fetches additional product data from `/v1/products`, and then calls `update` to populate the modal. Other controllers (`SearchController`, `AutocompleteController`, `RecommendationController`) trigger this flow via their `quickview(result)` method, which fires the global `controller/quickview` event.
 
 ## Constructor
 The store is constructed with a `QuickviewStoreConfig` (the standard `StoreConfig` plus an optional `settings.quickview` of type `QuickviewConfig`). The config is stored on the inherited `config` property.

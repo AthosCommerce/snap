@@ -4,10 +4,12 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
+import { Lang, useA11y, useLang } from '../../../hooks';
 import { Button } from '../../Atoms/Button';
 
 const defaultStyles: StyleScript<GalleryProps> = () => {
@@ -128,6 +130,44 @@ export const Gallery = observer((properties: GalleryProps) => {
 
 	const count = images?.length || 0;
 
+	//initialize lang
+	const defaultLang = {
+		gallery: {
+			attributes: {
+				'aria-label': 'Image gallery',
+			},
+		},
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Zoom out',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Zoom in',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Close gallery',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Previous image',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Next image',
+			},
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {});
+
 	// Reset to the clicked image (and clear zoom/pan) whenever the gallery opens or the start changes.
 	useEffect(() => {
 		if (open) {
@@ -182,6 +222,26 @@ export const Gallery = observer((properties: GalleryProps) => {
 		return () => window.removeEventListener('keydown', onKey);
 	}, [open, index, count]);
 
+	// Dialog focus management — same pattern as ProductQuickviewModal/ProductQuickviewSlideout:
+	// remember what had focus before the gallery opened (the gallery portals to document.body,
+	// outside any surrounding focus trap), move focus into the gallery on open, restore on close.
+	const rootRef = useRef<HTMLElement | null>(null);
+	const previousFocusRef = useRef<HTMLElement | null>(null);
+	const wasOpenRef = useRef(false);
+
+	useEffect(() => {
+		const isOpenNow = Boolean(open && count > 0);
+		if (isOpenNow && !wasOpenRef.current) {
+			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
+			const closeEl = rootRef.current?.querySelector<HTMLElement>('.ss__gallery__close');
+			(closeEl || rootRef.current)?.focus();
+		} else if (!isOpenNow && wasOpenRef.current) {
+			previousFocusRef.current?.focus?.();
+			previousFocusRef.current = null;
+		}
+		wasOpenRef.current = isOpenNow;
+	});
+
 	const styling = mergeStyles<GalleryProps>(props, defaultStyles);
 
 	if (!open || count === 0) return null;
@@ -235,7 +295,11 @@ export const Gallery = observer((properties: GalleryProps) => {
 				className={classnames('ss__gallery', className, internalClassName)}
 				role="dialog"
 				aria-modal="true"
-				aria-label="Image gallery"
+				{...mergedLang.gallery?.attributes}
+				ref={(e) => {
+					rootRef.current = e;
+					useA11y(e, 0, true, () => onClose && onClose());
+				}}
 				onClick={onBackdropClick}
 			>
 				<div className="ss__gallery__toolbar">
@@ -247,7 +311,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 					<Button
 						internalClassName="ss__gallery__button ss__gallery__zoom-out"
 						icon={{ icon: 'minus', color: '#fff' }}
-						aria-label="Zoom out"
+						lang={{ button: lang.zoomOutButton }}
 						disabled={zoom <= zoomMin}
 						onClick={zoomOut}
 						theme={props.theme}
@@ -257,7 +321,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 					<Button
 						internalClassName="ss__gallery__button ss__gallery__zoom-in"
 						icon={{ icon: 'plus', color: '#fff' }}
-						aria-label="Zoom in"
+						lang={{ button: lang.zoomInButton }}
 						disabled={zoom >= zoomMax}
 						onClick={zoomIn}
 						theme={props.theme}
@@ -265,9 +329,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 						{...defined({ disableStyles: props.disableStyles })}
 					/>
 					<Button
+						name="close"
 						internalClassName="ss__gallery__button ss__gallery__close"
 						icon={{ icon: 'close', color: '#fff' }}
-						aria-label="Close gallery"
+						lang={{ button: lang.closeButton }}
 						onClick={() => onClose && onClose()}
 						theme={props.theme}
 						treePath={props.treePath}
@@ -278,9 +343,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 				<div className="ss__gallery__stage" onClick={onBackdropClick} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 					{count > 1 && (
 						<Button
+							name="prev"
 							internalClassName="ss__gallery__nav ss__gallery__nav--prev"
 							icon={{ icon: 'angle-left', color: '#fff' }}
-							aria-label="Previous image"
+							lang={{ button: lang.prevButton }}
 							onClick={showPrev}
 							theme={props.theme}
 							treePath={props.treePath}
@@ -305,9 +371,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 
 					{count > 1 && (
 						<Button
+							name="next"
 							internalClassName="ss__gallery__nav ss__gallery__nav--next"
 							icon={{ icon: 'angle-right', color: '#fff' }}
-							aria-label="Next image"
+							lang={{ button: lang.nextButton }}
 							onClick={showNext}
 							theme={props.theme}
 							treePath={props.treePath}
@@ -331,4 +398,14 @@ export type GalleryProps = {
 	zoomMax?: number;
 	zoomStep?: number;
 	swipeThreshold?: number;
+	lang?: Partial<GalleryLang>;
 } & ComponentProps<GalleryProps>;
+
+export interface GalleryLang {
+	gallery: Lang<never>;
+	zoomOutButton: Lang<never>;
+	zoomInButton: Lang<never>;
+	closeButton: Lang<never>;
+	prevButton: Lang<never>;
+	nextButton: Lang<never>;
+}

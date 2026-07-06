@@ -82,9 +82,18 @@ let templatesConfig: SnapTemplatesConfig = {
 				result: {
 					showQuickview: true,
 				},
-				quickviewLayout: {
-					// layout: [['slideshow'], ['title', 'price'], ['description']],
-				},
+				// quickviewLayout: {
+				// 	layout: [['overlayBadge', 'calloutBadge'],['productDetail.mappings.core.price'], ['variantSelections'],
+				// 			['productDetailTable']],
+				// },
+				// productDetailTable: {
+				// 	details: [
+				// 		{ field: 'mappings.core.color', label: 'Color' },
+				// 		{ field: 'mappings.core.price', label: 'Price', type: 'price' },
+				// 		{ field: 'mappings.core.vendor', label: 'Vendor' },
+				// 		{ field: 'mappings.core.status', label: 'Status' },
+				// 	],
+				// }
 			},
 		},
 	},

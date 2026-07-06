@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers'
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SlideDirectionType, Slideout } from '../../Molecules/Slideout';
-import { QuickviewLayout, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
+import { QuickviewLayout, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 
 import type { QuickviewController } from '@athoscommerce/snap-controller';
 
@@ -39,12 +39,12 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 		slideDirection: 'right',
 		width: '500px',
 		overlayColor: 'rgba(0,0,0,0.8)',
+		disabledOverlayBadges: false,
 		layout: [
-			['overlayBadge'],
+			['slideshow'],
 			['productDetail.mappings.core.name'],
 			['calloutBadge'],
-			['price'],
-			['variantSelection'],
+			['variantSelections'],
 			['button.add-to-cart', 'button.more-info'],
 			['productDetail.mappings.core.description'],
 			['productDetailTable'],
@@ -59,6 +59,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 		disableStyles,
 		treePath,
 		layout,
+		disabledOverlayBadges,
 		column1,
 		column2,
 		column3,
@@ -67,6 +68,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 		slideDirection,
 		width,
 		overlayColor,
+		lang,
 	} = props;
 
 	// Dialog focus management — see ProductQuickviewModal for the rationale (effect lives in the
@@ -99,8 +101,8 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
 
-	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> = {
-		...defined({ layout, column1, column2, column3, column4, recommendation }),
+	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
+		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
 	};
 
 	return (
@@ -144,5 +146,6 @@ export type ProductQuickviewSlideoutProps = {
 	slideDirection?: SlideDirectionType;
 	width?: string;
 	overlayColor?: string;
+	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
 	Omit<ComponentProps, 'customComponent'>;

@@ -49,7 +49,7 @@ recommendationController.addToCart([recommendationController.store.results[0]]);
 
 The Recommendation controller exposes a `quickview` method for opening the product quickview modal. The modal state no longer lives on `RecommendationController` — it is owned by a dedicated `QuickviewController` (default id `quickview`; the global handler resolves it by controller type) at `quickviewController.store` (a `QuickviewStore`). A single `<ProductQuickview />` is rendered once: the Snap framework injects it into `<body>`, so consumers no longer render one per result.
 
-### `quickview({ result, productsData?, config? })`
+### `quickview(result, productsData?, config?)`
 
 Requests the product quickview modal for the given result. The Recommendation controller computes the product's parent (`result.mappings.core.parentId || result.id`), merges the controller-level `settings.quickview` config with the per-call override, and fires a global `controller/quickview` event (`window.athos.fire(...)`) carrying `{ result, productsData, parentId, config, meta, controller }`. It no longer touches a local `store.quickview`. The dedicated `QuickviewController` handles that event: it opens the modal, fetches `/v1/products`, fires the `quickview` middleware, and updates its own store.
 
@@ -60,7 +60,7 @@ Requests the product quickview modal for the given result. The Recommendation co
 | `config` | `QuickviewConfig` (optional) | Per-call override; merged with `settings.quickview` from the controller config (caller wins). |
 
 ```tsx
-<button onClick={() => controller.quickview({ result })}>Quick View</button>
+<button onClick={() => controller.quickview(result)}>Quick View</button>
 ```
 
 ### Closing the modal

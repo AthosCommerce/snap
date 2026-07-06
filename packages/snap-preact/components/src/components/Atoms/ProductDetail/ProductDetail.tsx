@@ -5,10 +5,11 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { useComponent } from '../../../hooks';
+import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 import { Price } from '../Price';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
@@ -82,6 +83,8 @@ export const ProductDetail = observer((properties: ProductDetailProps) => {
 
 	const defaultProps: Partial<ProductDetailProps> = {
 		treePath: globalTreePath,
+		// the field's final segment names the component (`productDetail.<name>` theme selectors)
+		name: properties.field ? fieldNameToComponentName(properties.field.split('.').pop() || '') : undefined,
 	};
 
 	const props = mergeProps('productDetail', globalTheme, defaultProps, properties);
@@ -121,7 +124,7 @@ export const ProductDetail = observer((properties: ProductDetailProps) => {
 				<div {...styling} className={classNames} dangerouslySetInnerHTML={{ __html: value }} />
 			) : (
 				<div {...styling} className={classNames}>
-					{isPrice ? <Price value={rawValue as number} /> : value}
+					{isPrice ? <Price value={rawValue as number} treePath={props.treePath} /> : value}
 				</div>
 			)}
 		</CacheProvider>
