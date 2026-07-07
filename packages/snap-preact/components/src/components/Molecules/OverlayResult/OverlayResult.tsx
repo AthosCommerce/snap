@@ -303,7 +303,7 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 	});
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);
-	const renderPrices = controller?.store.config.asyncState?.product?.price ? result.state.priceFetched : true;
+	const renderPrices = controller?.store?.config?.asyncState?.product?.price ? result.state.priceFetched : true;
 
 	return core ? (
 		<CacheProvider>
