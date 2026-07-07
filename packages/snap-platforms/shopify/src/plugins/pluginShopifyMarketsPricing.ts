@@ -38,6 +38,10 @@ type ShopifyMarketsProductNode = {
 	};
 	variants?: {
 		nodes?: ShopifyMarketsVariantNode[];
+		pageInfo?: {
+			hasNextPage: boolean;
+			endCursor: string | null;
+		};
 	};
 	[key: string]: unknown;
 };
@@ -66,13 +70,6 @@ type GraphQLPriceCacheEntry = {
 
 type GraphQLPriceCache = Record<string, GraphQLPriceCacheEntry>;
 
-type StoreStateData = {
-	graphQLData?: {
-		priceCache: GraphQLPriceCache;
-	};
-	[key: string]: unknown;
-};
-
 type ShopifyObj = {
 	shop: string;
 	country?: string;
@@ -85,10 +82,7 @@ type ShopifyObj = {
 const markResultsAsPriceFetched = (results: Product[] | SearchResultStore) => {
 	results.forEach((result) => {
 		if (result.type !== 'banner') {
-			result.state = {
-				...result.state,
-				priceFetched: true,
-			};
+			(result as Product).state.priceFetched = true;
 		}
 	});
 };
@@ -137,6 +131,10 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 								id
 								price { amount }
 								compareAtPrice { amount }
+							}
+							pageInfo {
+								hasNextPage
+								endCursor
 							}
 						}
 					} 
@@ -190,63 +188,104 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 		return json;
 	};
 
-	// Re-format data from Storefront API response into a more manageable format
-	const formatMarketsData = (productData: ShopifyMarketsProductNode[]): GraphQLPriceCache => {
-		return productData.reduce((formattedData: GraphQLPriceCache, currentProduct) => {
+	// Fetch remaining variant pages for a product that has more than 250 variants
+	const fetchRemainingVariants = async (productGid: string, initialCursor: string): Promise<ShopifyMarketsVariantNode[]> => {
+		const allVariants: ShopifyMarketsVariantNode[] = [];
+		let cursor: string | null = initialCursor;
+
+		while (cursor) {
+			const country = shopify?.country || 'US';
+			const response: Response = await fetch(endpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Shopify-Storefront-Access-Token': token,
+				},
+				body: JSON.stringify({
+					query: `query @inContext(country: ${country}) {
+						product(id: "${productGid}") {
+							variants(first: 250, after: "${cursor}") {
+								nodes {
+									id
+									price { amount }
+									compareAtPrice { amount }
+								}
+								pageInfo {
+									hasNextPage
+									endCursor
+								}
+							}
+						}
+					}`,
+				}),
+			});
+
+			if (!response.ok) break;
+
+			const json = await response.json();
+			const variants = json?.data?.product?.variants;
+
+			if (variants?.nodes?.length) {
+				allVariants.push(...variants.nodes);
+			}
+
+			cursor = variants?.pageInfo?.hasNextPage ? variants.pageInfo.endCursor : null;
+		}
+
+		return allVariants;
+	};
+
+	// Re-format data from Storefront API response into a more manageable format, paginating variants as needed
+	const formatMarketsData = async (productData: ShopifyMarketsProductNode[]): Promise<GraphQLPriceCache> => {
+		const formattedData: GraphQLPriceCache = {};
+
+		for (const currentProduct of productData) {
 			const id = currentProduct.id.replace('gid://shopify/Product/', '');
+			if (formattedData[id]) continue;
+
 			const msrp = Number(currentProduct.compareAtPriceRange.maxVariantPrice.amount);
 			const price = Number(currentProduct.priceRange.minVariantPrice.amount);
 
-			if (!formattedData[id]) {
-				const entry: GraphQLPriceCacheEntry = {
-					price: Number.isFinite(price) ? price : 0,
-					msrp: Number.isFinite(msrp) ? msrp : 0,
-				};
+			const entry: GraphQLPriceCacheEntry = {
+				price: Number.isFinite(price) ? price : 0,
+				msrp: Number.isFinite(msrp) ? msrp : 0,
+			};
 
-				// Extract variant-level pricing
-				if (currentProduct.variants?.nodes?.length) {
-					entry.variants = {};
-					for (const variantNode of currentProduct.variants.nodes) {
-						const variantId = variantNode.id.replace('gid://shopify/ProductVariant/', '');
-						const variantPrice = Number(variantNode.price.amount);
-						const variantMsrp = variantNode.compareAtPrice ? Number(variantNode.compareAtPrice.amount) : 0;
+			// Collect all variant nodes, paginating if the product has more than 250
+			let allVariantNodes = currentProduct.variants?.nodes || [];
 
-						entry.variants[variantId] = {
-							price: Number.isFinite(variantPrice) ? variantPrice : 0,
-							msrp: Number.isFinite(variantMsrp) ? variantMsrp : 0,
-						};
-					}
-				}
-
-				formattedData[id] = entry;
+			if (currentProduct.variants?.pageInfo?.hasNextPage && currentProduct.variants.pageInfo.endCursor) {
+				const remaining = await fetchRemainingVariants(currentProduct.id, currentProduct.variants.pageInfo.endCursor);
+				allVariantNodes = [...allVariantNodes, ...remaining];
 			}
 
-			return formattedData;
-		}, {});
-	};
+			// Extract variant-level pricing
+			if (allVariantNodes.length) {
+				entry.variants = {};
+				for (const variantNode of allVariantNodes) {
+					const variantId = variantNode.id.replace('gid://shopify/ProductVariant/', '');
+					const variantPrice = Number(variantNode.price.amount);
+					const variantMsrp = variantNode.compareAtPrice ? Number(variantNode.compareAtPrice.amount) : 0;
 
-	// Configures typed graphQL cache object that we can reference throughout file
-	const getTypedStateStore = (currentController: AbstractController): StoreStateData => {
-		const stateStore = (currentController.store.derivedState || {}) as StoreStateData;
-		if (!stateStore.graphQLData) {
-			stateStore.graphQLData = { priceCache: {} };
-		} else if (!stateStore.graphQLData.priceCache) {
-			stateStore.graphQLData.priceCache = {};
+					entry.variants[variantId] = {
+						price: Number.isFinite(variantPrice) ? variantPrice : 0,
+						msrp: Number.isFinite(variantMsrp) ? variantMsrp : 0,
+					};
+				}
+			}
+
+			formattedData[id] = entry;
 		}
 
-		const initializedStateStore = stateStore as StoreStateData;
-		currentController.store.derivedState = initializedStateStore;
-		return initializedStateStore;
+		return formattedData;
 	};
 
-	// Set up graphQL cache object in store.derivedState
-	getTypedStateStore(cntrlr);
+	// In-memory cache for GraphQL pricing data, scoped to this plugin instance
+	let priceCache: GraphQLPriceCache = {};
 
 	cntrlr.on('afterStore', async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController }, next) => {
 		try {
 			const { results } = controller.store;
-			const stateStore = getTypedStateStore(controller);
-			const existingPriceCache = stateStore.graphQLData?.priceCache;
 			const activeCurrency = shopify?.currency?.active?.toUpperCase();
 			const normalizedBaseCurrency = baseCurrency.toUpperCase();
 			const shouldFetchPrices = !!activeCurrency && activeCurrency !== normalizedBaseCurrency;
@@ -271,15 +310,15 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 
 					if (productIds.length > 0) {
 						// Determine products without cached pricing data
-						const uncachedIds = productIds.filter((productId) => !existingPriceCache?.[String(productId)] && productId !== null) as string[];
-						let mergedPriceCache: GraphQLPriceCache = { ...existingPriceCache };
+						const uncachedIds = productIds.filter((productId) => !priceCache[String(productId)] && productId !== null) as string[];
+						let mergedPriceCache: GraphQLPriceCache = { ...priceCache };
 
 						// Fetch prices and update cache to reflect latest data
 						if (uncachedIds.length > 0) {
 							const productData = await fetchMarketsData(uncachedIds);
 
 							if (productData?.data?.search?.nodes?.length) {
-								const formattedProductData = formatMarketsData(productData.data.search.nodes);
+								const formattedProductData = await formatMarketsData(productData.data.search.nodes);
 								mergedPriceCache = {
 									...mergedPriceCache,
 									...formattedProductData,
@@ -287,17 +326,15 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 							}
 						}
 
-						// Update store with new cache
-						if (stateStore.graphQLData) {
-							stateStore.graphQLData.priceCache = mergedPriceCache;
-						}
+						// Update local cache
+						priceCache = mergedPriceCache;
 
 						// Update prices displayed for products
 						products.forEach((result) => {
 							const parentId = result.mappings.core?.parentId;
 							if (!parentId) return;
 
-							const cachedData = stateStore.graphQLData?.priceCache[parentId];
+							const cachedData = priceCache[parentId];
 
 							if (cachedData) {
 								const { price, msrp } = cachedData;
@@ -341,10 +378,7 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 							}
 
 							// Update flag to signal prices have been retrieved and are ready for display
-							result.state = {
-								...result.state,
-								priceFetched: true,
-							};
+							result.state.priceFetched = true;
 						});
 					} else {
 						controller.log.warn('[shopifyMarkets] No product IDs found in results.');

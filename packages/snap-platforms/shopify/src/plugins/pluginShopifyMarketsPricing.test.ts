@@ -29,7 +29,6 @@ type MockController = {
 	config: Record<string, unknown>;
 	setConfig: (newConfig: Record<string, unknown>) => void;
 	store: {
-		derivedState: Record<string, unknown>;
 		results: MockResult[];
 	};
 	log: {
@@ -47,7 +46,6 @@ const createController = (results: MockResult[]): MockController => {
 			this.config = newConfig;
 		},
 		store: {
-			derivedState: {},
 			results,
 		},
 		log: {
@@ -148,12 +146,6 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 		expect(productResult.mappings.core.price).toBe(12);
 		expect(productResult.mappings.core.msrp).toBe(20);
 		expect(productResult.state.priceFetched).toBe(true);
-
-		const customStore = controller.store.derivedState as any;
-		expect(customStore.graphQLData.priceCache['123']).toEqual({
-			price: 12,
-			msrp: 20,
-		});
 	});
 
 	it('does not fetch when active currency matches base currency and still sets priceFetched', async () => {
@@ -475,5 +467,123 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		expect(productResult.variants!.data[0].mappings.core.price).toBe(50);
 		expect(productResult.variants!.data[0].mappings.core.msrp).toBe(60);
+	});
+
+	it('paginates variants when product has more than one page', async () => {
+		const firstPageVariants = [
+			{ id: '1001', price: 10, msrp: 20 },
+			{ id: '1002', price: 11, msrp: 21 },
+		];
+		const secondPageVariants = [
+			{
+				id: `gid://shopify/ProductVariant/1003`,
+				price: { amount: '12' },
+				compareAtPrice: { amount: '22' },
+			},
+			{
+				id: `gid://shopify/ProductVariant/1004`,
+				price: { amount: '13' },
+				compareAtPrice: { amount: '23' },
+			},
+		];
+
+		// First call: search response with hasNextPage on variants
+		const searchResponse = {
+			ok: true,
+			json: async () => ({
+				data: {
+					search: {
+						nodes: [
+							{
+								id: 'gid://shopify/Product/500',
+								priceRange: { minVariantPrice: { amount: '10' } },
+								compareAtPriceRange: { maxVariantPrice: { amount: '20' } },
+								variants: {
+									nodes: firstPageVariants.map((v) => ({
+										id: `gid://shopify/ProductVariant/${v.id}`,
+										price: { amount: String(v.price) },
+										compareAtPrice: { amount: String(v.msrp) },
+									})),
+									pageInfo: {
+										hasNextPage: true,
+										endCursor: 'cursor-abc',
+									},
+								},
+							},
+						],
+					},
+				},
+			}),
+		} as Response;
+
+		// Second call: variant pagination response
+		const variantPaginationResponse = {
+			ok: true,
+			json: async () => ({
+				data: {
+					product: {
+						variants: {
+							nodes: secondPageVariants,
+							pageInfo: {
+								hasNextPage: false,
+								endCursor: null,
+							},
+						},
+					},
+				},
+			}),
+		} as Response;
+
+		const fetchMock = jest.fn().mockResolvedValueOnce(searchResponse).mockResolvedValueOnce(variantPaginationResponse);
+		(global as any).fetch = fetchMock;
+
+		const productResult: MockResult = {
+			type: 'product',
+			mappings: {
+				core: {
+					parentId: '500',
+					price: 5,
+					msrp: 10,
+				},
+			},
+			variants: {
+				data: [
+					{ mappings: { core: { uid: '1001', price: 5, msrp: 10 } } },
+					{ mappings: { core: { uid: '1002', price: 5, msrp: 10 } } },
+					{ mappings: { core: { uid: '1003', price: 5, msrp: 10 } } },
+					{ mappings: { core: { uid: '1004', price: 5, msrp: 10 } } },
+				],
+			},
+			state: {},
+		};
+
+		const controller = createController([productResult]);
+
+		pluginShopifyMarketsPricing(controller as any, {
+			token: 'token',
+			baseCurrency: 'USD',
+		});
+
+		await (controller as any).runAfterStore();
+
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+
+		// Product-level prices updated
+		expect(productResult.mappings.core.price).toBe(10);
+		expect(productResult.mappings.core.msrp).toBe(20);
+
+		// First page variants updated
+		expect(productResult.variants!.data[0].mappings.core.price).toBe(10);
+		expect(productResult.variants!.data[0].mappings.core.msrp).toBe(20);
+		expect(productResult.variants!.data[1].mappings.core.price).toBe(11);
+		expect(productResult.variants!.data[1].mappings.core.msrp).toBe(21);
+
+		// Second page (paginated) variants updated
+		expect(productResult.variants!.data[2].mappings.core.price).toBe(12);
+		expect(productResult.variants!.data[2].mappings.core.msrp).toBe(22);
+		expect(productResult.variants!.data[3].mappings.core.price).toBe(13);
+		expect(productResult.variants!.data[3].mappings.core.msrp).toBe(23);
+
+		expect(productResult.state.priceFetched).toBe(true);
 	});
 });

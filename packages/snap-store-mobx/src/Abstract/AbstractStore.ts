@@ -2,7 +2,6 @@ import { makeObservable, observable, toJS } from 'mobx';
 import type { StoreConfig, ErrorType } from '../types';
 export abstract class AbstractStore<Type = StoreConfig> {
 	public custom = {};
-	public derivedState = {};
 	public loading = false;
 	public loaded = false;
 	public error:
@@ -19,7 +18,6 @@ export abstract class AbstractStore<Type = StoreConfig> {
 
 		makeObservable(this, {
 			custom: observable,
-			derivedState: observable,
 			loading: observable,
 			loaded: observable,
 			config: observable,

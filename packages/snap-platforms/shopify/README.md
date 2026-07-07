@@ -180,7 +180,7 @@ new SnapTemplates(config);
 2. For uncached products, it fetches localized `priceRange` and `compareAtPriceRange` from Shopify GraphQL
 3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
 4. Sets `result.state.priceFetched = true` when pricing is ready to display
-5. Caches results in `controller.store.derivedState.graphQLData.priceCache` to avoid redundant API calls
+5. Caches results in an in-memory price cache local to the plugin instance to avoid redundant API calls
 
 When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format', 'iso'])`:
 

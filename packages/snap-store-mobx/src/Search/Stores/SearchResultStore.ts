@@ -163,7 +163,7 @@ export class Banner {
 		core: {},
 	};
 	public custom = {};
-	public state: ProductState = {};
+	public state = {};
 
 	public config: SearchResponseModelMerchandisingContentConfig;
 	public value: string;
@@ -222,7 +222,6 @@ type ProductData = {
 };
 
 type ProductState = {
-	[name: string]: any;
 	priceFetched?: boolean;
 };
 
@@ -433,7 +432,13 @@ export class Variants {
 					result: variant as SearchResponseModelResult,
 				},
 			});
-			mask.set({ mappings: this.active.mappings, attributes: this.active.attributes, badges: activeBadges });
+			mask.set({
+				mappings: this.active.mappings,
+				attributes: this.active.attributes,
+				badges: activeBadges,
+				state: this.active.state,
+				custom: this.active.custom,
+			});
 		};
 
 		if (config) {
