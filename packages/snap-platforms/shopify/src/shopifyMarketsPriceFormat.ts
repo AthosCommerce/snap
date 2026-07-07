@@ -45,6 +45,9 @@ export const shopifyMarketsPriceFormat = (number: number | string) => {
 		case 'amount_with_apostrophe_separator':
 			value = formatWithDelimiters(number, 2, "'", '.');
 			break;
+		default:
+			value = formatWithDelimiters(number, 2);
+			break;
 	}
 
 	if (value && context?.iso) {
