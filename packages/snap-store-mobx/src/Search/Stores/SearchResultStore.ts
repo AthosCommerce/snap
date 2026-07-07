@@ -163,6 +163,8 @@ export class Banner {
 		core: {},
 	};
 	public custom = {};
+	public state: ProductState = {};
+
 	public config: SearchResponseModelMerchandisingContentConfig;
 	public value: string;
 
@@ -180,6 +182,8 @@ export class Banner {
 			id: observable,
 			mappings: observable,
 			attributes: observable,
+			custom: observable,
+			state: observable,
 		});
 	}
 }
@@ -217,6 +221,11 @@ type ProductData = {
 	responseId: string;
 };
 
+type ProductState = {
+	[name: string]: any;
+	priceFetched?: boolean;
+};
+
 export class Product {
 	public type = 'product';
 	public id: string;
@@ -226,6 +235,7 @@ export class Product {
 		core: {},
 	};
 	public custom = {};
+	public state: ProductState = {};
 	public badges: Badges;
 
 	public bundleSeed: boolean | undefined;
@@ -279,6 +289,7 @@ export class Product {
 			mappings: observable,
 			attributes: observable,
 			custom: observable,
+			state: observable,
 			quantity: observable,
 		});
 	}
@@ -779,6 +790,7 @@ export class Variant {
 		core: {},
 	};
 	public custom = {};
+	public state: ProductState = {};
 
 	constructor(variantData: { data: { variant: VariantData } }) {
 		const { data } = variantData || {};
@@ -795,6 +807,7 @@ export class Variant {
 			attributes: observable,
 			mappings: observable,
 			custom: observable,
+			state: observable,
 			available: observable,
 		});
 	}

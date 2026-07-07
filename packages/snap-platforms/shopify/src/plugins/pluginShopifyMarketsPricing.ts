@@ -1,5 +1,5 @@
 import { AbstractController, AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
-import { Product } from '@athoscommerce/snap-store-mobx';
+import { Product, SearchResultStore } from '@athoscommerce/snap-store-mobx';
 import { AbstractPluginConfig } from '../../../common/src/types';
 
 export type PluginShopifyMarketsPricingConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsPricingConfig;
@@ -11,6 +11,17 @@ export type ShopifyMarketsPricingConfig = {
 	baseUrl?: string;
 	path?: string;
 	baseCurrency?: string;
+	idFieldName?: string;
+};
+
+type ShopifyMarketsVariantNode = {
+	id: string;
+	price: {
+		amount: string;
+	};
+	compareAtPrice: {
+		amount: string;
+	} | null;
 };
 
 type ShopifyMarketsProductNode = {
@@ -25,6 +36,9 @@ type ShopifyMarketsProductNode = {
 			amount: string;
 		};
 	};
+	variants?: {
+		nodes?: ShopifyMarketsVariantNode[];
+	};
 	[key: string]: unknown;
 };
 
@@ -38,15 +52,21 @@ type ShopifyMarketsGraphQLResponse = {
 	[key: string]: unknown;
 };
 
+type GraphQLVariantPriceCacheEntry = {
+	price?: number;
+	msrp?: number;
+};
+
 type GraphQLPriceCacheEntry = {
 	price?: number;
 	msrp?: number;
+	variants?: Record<string, GraphQLVariantPriceCacheEntry>;
 	[key: string]: unknown;
 };
 
 type GraphQLPriceCache = Record<string, GraphQLPriceCacheEntry>;
 
-type StoreCustomData = {
+type StoreStateData = {
 	graphQLData?: {
 		priceCache: GraphQLPriceCache;
 	};
@@ -62,11 +82,11 @@ type ShopifyObj = {
 	[key: string]: unknown;
 };
 
-const markResultsAsPriceFetched = (results: Array<{ type: string; custom?: Record<string, unknown> }>) => {
+const markResultsAsPriceFetched = (results: Product[] | SearchResultStore) => {
 	results.forEach((result) => {
 		if (result.type !== 'banner') {
-			result.custom = {
-				...result.custom,
+			result.state = {
+				...result.state,
 				priceFetched: true,
 			};
 		}
@@ -77,10 +97,15 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 	if (!config?.token) {
 		cntrlr.log?.warn?.('[shopifyMarkets] Missing required `token` in plugin config.');
 		return;
+	} else {
+		cntrlr.setConfig({
+			...cntrlr.config,
+			asyncState: { ...cntrlr.config.asyncState, product: { ...cntrlr.config.asyncState?.product, price: true } },
+		});
 	}
 
 	const shopify = window?.Shopify as ShopifyObj;
-	const { token, baseCurrency = 'USD' } = config;
+	const { token, baseCurrency = 'USD', idFieldName = 'mappings.core.uid' } = config;
 
 	const baseUrl = config.baseUrl || shopify?.shop || window?.location?.host;
 	const path = config.path || SHOPIFY_GRAPHQL_API_PATH;
@@ -106,6 +131,13 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 						compareAtPriceRange {
 							maxVariantPrice { amount }
 							minVariantPrice { amount }
+						}
+						variants(first: 250) {
+							nodes {
+								id
+								price { amount }
+								compareAtPrice { amount }
+							}
 						}
 					} 
 				}
@@ -166,45 +198,55 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 			const price = Number(currentProduct.priceRange.minVariantPrice.amount);
 
 			if (!formattedData[id]) {
-				formattedData[id] = {
+				const entry: GraphQLPriceCacheEntry = {
 					price: Number.isFinite(price) ? price : 0,
 					msrp: Number.isFinite(msrp) ? msrp : 0,
 				};
+
+				// Extract variant-level pricing
+				if (currentProduct.variants?.nodes?.length) {
+					entry.variants = {};
+					for (const variantNode of currentProduct.variants.nodes) {
+						const variantId = variantNode.id.replace('gid://shopify/ProductVariant/', '');
+						const variantPrice = Number(variantNode.price.amount);
+						const variantMsrp = variantNode.compareAtPrice ? Number(variantNode.compareAtPrice.amount) : 0;
+
+						entry.variants[variantId] = {
+							price: Number.isFinite(variantPrice) ? variantPrice : 0,
+							msrp: Number.isFinite(variantMsrp) ? variantMsrp : 0,
+						};
+					}
+				}
+
+				formattedData[id] = entry;
 			}
 
 			return formattedData;
 		}, {});
 	};
 
-	type InitializedStoreCustomData = StoreCustomData & {
-		graphQLData: {
-			priceCache: GraphQLPriceCache;
-		};
-	};
-
 	// Configures typed graphQL cache object that we can reference throughout file
-	// TODO: How to specify types for properties added in store.custom in cleaner way?
-	const getTypedCustomStore = (currentController: AbstractController): InitializedStoreCustomData => {
-		const customStore = (currentController.store.custom || {}) as StoreCustomData;
-		if (!customStore.graphQLData) {
-			customStore.graphQLData = { priceCache: {} };
-		} else if (!customStore.graphQLData.priceCache) {
-			customStore.graphQLData.priceCache = {};
+	const getTypedStateStore = (currentController: AbstractController): StoreStateData => {
+		const stateStore = (currentController.store.derivedState || {}) as StoreStateData;
+		if (!stateStore.graphQLData) {
+			stateStore.graphQLData = { priceCache: {} };
+		} else if (!stateStore.graphQLData.priceCache) {
+			stateStore.graphQLData.priceCache = {};
 		}
 
-		const initializedCustomStore = customStore as InitializedStoreCustomData;
-		currentController.store.custom = initializedCustomStore;
-		return initializedCustomStore;
+		const initializedStateStore = stateStore as StoreStateData;
+		currentController.store.derivedState = initializedStateStore;
+		return initializedStateStore;
 	};
 
-	// Set up graphQL cache object in store.custom
-	getTypedCustomStore(cntrlr);
+	// Set up graphQL cache object in store.derivedState
+	getTypedStateStore(cntrlr);
 
 	cntrlr.on('afterStore', async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController }, next) => {
 		try {
 			const { results } = controller.store;
-			const customStore = getTypedCustomStore(controller);
-			const existingPriceCache = customStore.graphQLData.priceCache;
+			const stateStore = getTypedStateStore(controller);
+			const existingPriceCache = stateStore.graphQLData?.priceCache;
 			const activeCurrency = shopify?.currency?.active?.toUpperCase();
 			const normalizedBaseCurrency = baseCurrency.toUpperCase();
 			const shouldFetchPrices = !!activeCurrency && activeCurrency !== normalizedBaseCurrency;
@@ -229,7 +271,7 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 
 					if (productIds.length > 0) {
 						// Determine products without cached pricing data
-						const uncachedIds = productIds.filter((productId) => !existingPriceCache[String(productId)] && productId !== null) as string[];
+						const uncachedIds = productIds.filter((productId) => !existingPriceCache?.[String(productId)] && productId !== null) as string[];
 						let mergedPriceCache: GraphQLPriceCache = { ...existingPriceCache };
 
 						// Fetch prices and update cache to reflect latest data
@@ -246,14 +288,16 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 						}
 
 						// Update store with new cache
-						customStore.graphQLData.priceCache = mergedPriceCache;
+						if (stateStore.graphQLData) {
+							stateStore.graphQLData.priceCache = mergedPriceCache;
+						}
 
 						// Update prices displayed for products
 						products.forEach((result) => {
 							const parentId = result.mappings.core?.parentId;
 							if (!parentId) return;
 
-							const cachedData = customStore.graphQLData.priceCache[parentId];
+							const cachedData = stateStore.graphQLData?.priceCache[parentId];
 
 							if (cachedData) {
 								const { price, msrp } = cachedData;
@@ -264,16 +308,41 @@ export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: 
 									}
 								}
 
-								if (msrp || msrp === 0) {
+								if (typeof msrp === 'number') {
 									if (result.mappings.core) {
 										result.mappings.core.msrp = msrp;
+									}
+								}
+
+								// Update variant prices
+								if (cachedData.variants && result.variants?.data?.length) {
+									for (const variant of result.variants.data) {
+										let variantUid: string | undefined;
+										let level: any = variant;
+										for (const field of idFieldName.split('.')) {
+											level = level?.[field];
+										}
+										if (level != null) {
+											variantUid = String(level);
+										}
+										if (!variantUid) continue;
+
+										const variantCachedData = cachedData.variants[variantUid];
+										if (variantCachedData) {
+											if (typeof variantCachedData.price === 'number' && variant.mappings.core) {
+												variant.mappings.core.price = variantCachedData.price;
+											}
+											if ((variantCachedData.msrp || variantCachedData.msrp === 0) && variant.mappings.core) {
+												variant.mappings.core.msrp = variantCachedData.msrp;
+											}
+										}
 									}
 								}
 							}
 
 							// Update flag to signal prices have been retrieved and are ready for display
-							result.custom = {
-								...result.custom,
+							result.state = {
+								...result.state,
 								priceFetched: true,
 							};
 						});

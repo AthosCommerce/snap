@@ -142,6 +142,7 @@ When used through `SnapTemplates` on Shopify, enabling `marketsPricing` also aut
 | baseCurrency | Your store's base/catalog currency | string | `'USD'` | ➖ |
 | baseUrl | Optional override for store URL | string | — | ➖ |
 | path | Optional override for GraphQL API path | string | `'/api/2025-04/graphql.json'` | ➖ |
+| idFieldName | Dot-notation path on the variant object used to match against Shopify variant IDs | string | `'mappings.core.uid'` | ➖ |
 
 #### Setup
 
@@ -160,6 +161,7 @@ const config = {
 			marketsPricing: {
 				token: 'your-storefront-access-token',
 				baseCurrency: 'USD',  // e.g., 'USD', 'EUR', 'GBP'
+				idFieldName: 'mappings.core.uid', // optional; use a custom field if variant UIDs don't match Shopify variant IDs
 				// baseUrl and path are optional; defaults work for standard Shopify stores
 			},
 		},
