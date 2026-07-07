@@ -664,8 +664,7 @@ import { Price } from '@athoscommerce/snap-preact/components';
 
 export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 	const core = result.display.mappings.core;
-	const { priceFetched } = result.custom;
-
+	const { priceFetched } = result.state;
 	return (
 		<article>
 			<h2>{core?.name}</h2>
