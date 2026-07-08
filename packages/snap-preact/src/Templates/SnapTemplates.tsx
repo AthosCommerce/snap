@@ -173,6 +173,14 @@ export class SnapTemplates extends Snap {
 		);
 		const editMode = Boolean(editorCookieValue) || editUIMode || Boolean(editor?.mode === 'headless');
 
+		// handle "global" result component configuration
+		if (config.theme.globalResultComponent) {
+			(config as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
+				{ default: { result: { customComponent: config.theme.globalResultComponent } } },
+				(config as SnapTemplatesConfigUnlocked).theme.overrides || {}
+			);
+		}
+
 		const templatesStore = new TemplatesStore({ config: modifiedConfig, settings: { editMode } });
 
 		const snapConfig = createSnapConfig(modifiedConfig, templatesStore);

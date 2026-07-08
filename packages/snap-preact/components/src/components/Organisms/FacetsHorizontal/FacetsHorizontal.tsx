@@ -12,11 +12,12 @@ import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchController, AutocompleteController } from '@athoscommerce/snap-controller';
 import type { RangeFacet, ValueFacet } from '@athoscommerce/snap-store-mobx';
 import type { IndividualFacetType } from '../Facets/Facets';
-import { MobileSidebar, MobileSidebarProps } from '../MobileSidebar';
 import { Lang, useClickOutside, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { Slideout, SlideoutProps } from '../../Molecules/Slideout';
+import { Sidebar, SidebarProps } from '../Sidebar';
 
 const defaultStyles: StyleScript<FacetsHorizontalProps> = ({ theme }) => {
 	return css({
@@ -26,10 +27,6 @@ const defaultStyles: StyleScript<FacetsHorizontalProps> = ({ theme }) => {
 			display: 'flex',
 			flexWrap: 'wrap',
 			gap: '10px',
-
-			'& .ss__mobile-sidebar': {
-				margin: '0 10px',
-			},
 
 			'& .ss__facet__header__inner': {
 				display: 'flex',
@@ -107,6 +104,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		iconCollapse: 'angle-down',
 		iconExpand: 'angle-up',
 		clearAllText: 'Clear All',
+		toggleSidebarButtonText: 'Filters',
 		facets: properties.controller?.store?.facets,
 		treePath: globalTreePath,
 	};
@@ -116,8 +114,8 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 	const {
 		facets,
 		limit,
-		alwaysShowFiltersButton,
-		hideFiltersButton,
+		alwaysShowToggleSidebarButton,
+		hideToggleSidebarButton,
 		onFacetOptionClick,
 		showSelectedCount,
 		hideSelectedCountParenthesis,
@@ -126,6 +124,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		iconExpand,
 		clearAllText,
 		iconCollapse,
+		toggleSidebarButtonText,
 		disableStyles,
 		className,
 		internalClassName,
@@ -180,6 +179,8 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		}
 	}
 
+	const [sidebarOpenState, setSidebarOpenState] = useState(false);
+
 	const subProps: FacetsHorizontalSubProps = {
 		dropdown: {
 			// default props
@@ -220,7 +221,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 			internalClassName: `ss__facets-horizontal__content__facet`,
 			justContent: true,
 			// this should be turned on if there is ever a filters button rendering.
-			statefulOverflow: !hideFiltersButton && (isOverflowing || alwaysShowFiltersButton) ? true : undefined,
+			statefulOverflow: !hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton) ? true : undefined,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -229,9 +230,30 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 			theme: props?.theme,
 			treePath: `${treePath} dropdown`,
 		},
-		MobileSidebar: {
+		slideout: {
 			// default props
-			internalClassName: 'ss__facets-horizontal__header__mobile-sidebar',
+			internalClassName: 'ss__facets-horizontal__slideout',
+			onChange: (active: boolean) => setSidebarOpenState(active),
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+		sidebar: {
+			// default props
+			internalClassName: 'ss__facets-horizontal__sidebar',
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+		toggleSidebarButton: {
 			// inherited props
 			...defined({
 				disableStyles,
@@ -249,6 +271,31 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 	const innerRef = useClickOutside(() => {
 		selectedFacet && setSelectedFacet(undefined);
 	});
+
+	//initialize lang
+	const defaultLang: Partial<FacetsHorizontalLang> = {
+		toggleSidebarButtonText: {
+			value: toggleSidebarButtonText,
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, { facets: facets, sidebarOpenState: sidebarOpenState });
+
+	const ToggleSidebarButton = ({ sidebarOpenState, setSidebarOpenState, subProps }: any) => {
+		return (
+			<Button
+				{...subProps.toggleSidebarButton}
+				internalClassName="ss__facets-horizontal__header__toggle-sidebar"
+				onClick={() => setSidebarOpenState(!sidebarOpenState)}
+			>
+				<span {...mergedLang.toggleSidebarButtonText.all}></span>
+			</Button>
+		);
+	};
+
+	const renderSidebar = Boolean(!hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton));
 
 	//todo investigate keyboard navigation here when overlay prop is true/false
 	return (facetsToShow && facetsToShow?.length > 0) || isOverflowing ? (
@@ -345,10 +392,13 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 							</Dropdown>
 						);
 					})}
-					{!hideFiltersButton && (isOverflowing || alwaysShowFiltersButton) && (
-						<MobileSidebar controller={controller as any} {...subProps.MobileSidebar}></MobileSidebar>
-					)}
+					{renderSidebar && <ToggleSidebarButton sidebarOpenState={sidebarOpenState} setSidebarOpenState={setSidebarOpenState} subProps={subProps} />}
 				</div>
+				{renderSidebar && (
+					<Slideout {...subProps.slideout} active={sidebarOpenState}>
+						<Sidebar {...subProps.sidebar} controller={controller as SearchController} />
+					</Slideout>
+				)}
 			</div>
 		</CacheProvider>
 	) : null;
@@ -358,8 +408,10 @@ interface FacetsHorizontalSubProps {
 	dropdown: Partial<DropdownProps>;
 	icon: Partial<IconProps>;
 	facet: Partial<FacetProps>;
-	MobileSidebar: Partial<MobileSidebarProps>;
 	button: Partial<ButtonProps>;
+	slideout: Partial<SlideoutProps>;
+	sidebar: Partial<SidebarProps>;
+	toggleSidebarButton: Partial<ButtonProps>;
 }
 
 export type FacetsHorizontalProps = {
@@ -377,10 +429,11 @@ export type FacetsHorizontalTemplatesLegalProps = {
 	clearAllIcon?: IconType | Partial<IconProps>;
 
 	limit?: number;
-	alwaysShowFiltersButton?: boolean;
-	hideFiltersButton?: boolean;
+	alwaysShowToggleSidebarButton?: boolean;
+	hideToggleSidebarButton?: boolean;
 	iconCollapse?: IconType | Partial<IconProps>;
 	iconExpand?: IconType | Partial<IconProps>;
+	toggleSidebarButtonText?: string;
 	onFacetOptionClick?: (e: React.MouseEvent<Element, MouseEvent>) => void;
 };
 
@@ -389,4 +442,5 @@ export interface FacetsHorizontalLang {
 		selectedFacet: IndividualFacetType;
 		facet: IndividualFacetType;
 	}>;
+	toggleSidebarButtonText?: Lang<{ facets: IndividualFacetType[]; sidebarOpenState: boolean }>;
 }

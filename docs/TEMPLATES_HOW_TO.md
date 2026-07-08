@@ -221,7 +221,6 @@ The `_` token is a flex spacer. Items to the left of `_` are left-aligned, items
 | `searchHeader` | Page title / search query heading |
 | `filterSummary` | Active filter chips |
 | `breadcrumbs` | Breadcrumb navigation |
-| `mobileSidebar` | Mobile sidebar drawer trigger |
 | `layoutSelector` | Grid layout toggle (requires `layoutOptions`) |
 | `perPage` | Results-per-page selector |
 | `sortBy` | Sort order selector |
@@ -275,7 +274,7 @@ new SnapTemplates({
 
 #### Example: Responsive Toolbar Adjustments
 
-On mobile, surface the mobile sidebar trigger and drop the desktop sort/paging row into its own row:
+On mobile, surface the sidebar toggle button and drop the desktop sort/paging row into its own row:
 
 ```tsx
 new SnapTemplates({
@@ -307,7 +306,7 @@ new SnapTemplates({
 				},
 				'toolbar.middle': {
 					layout: [
-						['mobileSidebar', '_', 'paginationInfo'],
+						['button.sidebar-toggle', '_', 'paginationInfo'],
 						['sortBy', 'perPage'],
 					],
 				},
@@ -356,7 +355,7 @@ new SnapTemplates({
 					layout: [['banner.header'], ['searchHeader', '_']],
 				},
 				'searchHorizontal toolbar.middle': {
-					layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
+					layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 				},
 			},
 		},

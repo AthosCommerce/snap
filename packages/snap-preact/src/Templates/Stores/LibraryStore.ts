@@ -153,7 +153,6 @@ export type LibraryImports = {
 		results: LibraryComponentImport;
 		searchHeader: LibraryComponentImport;
 		sidebar: LibraryComponentImport;
-		mobileSidebar: LibraryComponentImport;
 		toolbar: LibraryComponentImport;
 		termsList: LibraryComponentImport;
 	};
@@ -244,7 +243,6 @@ export class LibraryStore {
 		results: LibraryComponentMap;
 		searchHeader: LibraryComponentMap;
 		sidebar: LibraryComponentMap;
-		mobileSidebar: LibraryComponentMap;
 		toolbar: LibraryComponentMap;
 		termsList: LibraryComponentMap;
 	} = {
@@ -314,7 +312,6 @@ export class LibraryStore {
 		results: {},
 		searchHeader: {},
 		sidebar: {},
-		mobileSidebar: {},
 		toolbar: {},
 		termsList: {},
 	};
@@ -547,7 +544,6 @@ export class LibraryStore {
 			results: {},
 			searchHeader: {},
 			sidebar: {},
-			mobileSidebar: {},
 			toolbar: {},
 			termsList: {},
 		},
