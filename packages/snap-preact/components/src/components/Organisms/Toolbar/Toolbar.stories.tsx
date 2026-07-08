@@ -58,9 +58,9 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						'[`searchHeader` | `breadcrumbs` | `filterSummary` | `mobileSidebar` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
+						'[`searchHeader` | `breadcrumbs` | `filterSummary` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
 				},
-				defaultValue: { summary: "['mobileSidebar', 'filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']" },
+				defaultValue: { summary: "['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']" },
 			},
 			control: 'none',
 		},
@@ -99,5 +99,5 @@ Default.loaders = [
 	},
 ];
 Default.args = {
-	layout: [['mobileSidebar', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']],
+	layout: [['filterSummary', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']],
 };

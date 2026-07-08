@@ -57,7 +57,6 @@ import type { FacetProps, FacetTemplatesLegalProps } from '../components/Organis
 import type { FacetsHorizontalProps, FacetsHorizontalTemplatesLegalProps } from '../components/Organisms/FacetsHorizontal';
 import type { FacetsProps, FacetsTemplatesLegalProps } from '../components/Organisms/Facets';
 import type { FilterSummaryProps, FilterSummaryTemplatesLegalProps } from '../components/Organisms/FilterSummary';
-import type { MobileSidebarProps, MobileSidebarTemplatesLegalProps } from '../components/Organisms/MobileSidebar';
 import type { NoResultsProps, NoResultsTemplatesLegalProps } from '../components/Organisms/NoResults';
 import type { ResultsProps, ResultsTemplatesLegalProps } from '../components/Organisms/Results';
 import type { SearchHeaderProps, SearchHeaderTemplatesLegalProps } from '../components/Atoms/SearchHeader';
@@ -193,7 +192,6 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'results',
 	'searchHeader',
 	'sidebar',
-	'mobileSidebar',
 	'toolbar',
 	'termsList',
 ] as const;
@@ -278,7 +276,6 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'results'>]?: Partial<ResultsProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHeader'>]?: Partial<SearchHeaderProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'sidebar'>]?: Partial<SidebarProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'mobileSidebar'>]?: Partial<MobileSidebarProps>} &
 	{ [K in ThemeComponentOverridesNamedSelectors<'toolbar', ToolbarNames>]?: Partial<ToolbarProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'termsList'>]?: Partial<TermsListProps> } &
 
@@ -366,7 +363,6 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'results'>]?: Partial<ResultsTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHeader'>]?: Partial<SearchHeaderTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'sidebar'>]?: Partial<SidebarTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'mobileSidebar'>]?: Partial<MobileSidebarTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'toolbar', ToolbarNames>]?: Partial<ToolbarTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'termsList'>]?: Partial<TermsListTemplatesLegalProps> } &
 
@@ -461,7 +457,6 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'results'>]?: Partial<ResultsTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHeader'>]?: Partial<SearchHeaderTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'sidebar'>]?: Partial<SidebarTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'mobileSidebar'>]?: Partial<MobileSidebarTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'toolbar', ToolbarNames>]?: Partial<ToolbarTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'termsList'>]?: Partial<TermsListTemplatesLegalProps> & WithCustomComponent } &
 
@@ -558,7 +553,6 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'results'>]?: Partial<ResultsTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchHeader'>]?: Partial<SearchHeaderTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'sidebar'>]?: Partial<SidebarTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'mobileSidebar'>]?: Partial<MobileSidebarTemplatesLegalProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'toolbar', ToolbarNames>]?: Partial<ToolbarTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'termsList'>]?: Partial<TermsListTemplatesLegalProps> } &
 
@@ -645,7 +639,6 @@ export type ComponentTypePropsMap = {
 	results: ResultsProps;
 	searchHeader: SearchHeaderProps;
 	sidebar: SidebarProps;
-	mobileSidebar: MobileSidebarProps;
 	toolbar: ToolbarProps;
 	termsList: TermsListProps;
 };

@@ -32,7 +32,7 @@ export const searchCollapsibleThemeComponentProps: ThemeComponent<'searchCollaps
 				layout: [['banner.header'], ['searchHeader', '_']],
 			},
 			'searchCollapsible toolbar.middle': {
-				layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
+				layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 			},
 			'searchCollapsible results': {
 				columns: 2,
@@ -44,7 +44,7 @@ export const searchCollapsibleThemeComponentProps: ThemeComponent<'searchCollaps
 				layout: [['banner.header'], ['searchHeader', '_']],
 			},
 			'searchCollapsible toolbar.middle': {
-				layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
+				layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 			},
 			'searchCollapsible results': {
 				columns: 3,
