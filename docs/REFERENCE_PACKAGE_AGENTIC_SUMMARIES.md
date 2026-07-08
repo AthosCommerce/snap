@@ -28,7 +28,7 @@ as ground truth, then cross-checking against the snap-mcp index.
 
 - [`snap-toolbox`](../packages/snap-toolbox/AGENTIC_SUMMARY.md) — 22 public exports
 - [`snap-logger`](../packages/snap-logger/AGENTIC_SUMMARY.md) — 4 public exports
-- [`snap-profiler`](../packages/snap-profiler/AGENTIC_SUMMARY.md) — 1 public exports
+- [`snap-profiler`](../packages/snap-profiler/AGENTIC_SUMMARY.md) — 1 public export
 - [`snap-event-manager`](../packages/snap-event-manager/AGENTIC_SUMMARY.md) — 4 public exports
 - [`snap-url-manager`](../packages/snap-url-manager/AGENTIC_SUMMARY.md) — 19 public exports
 - [`snap-tracker`](../packages/snap-tracker/AGENTIC_SUMMARY.md) — 10 public exports

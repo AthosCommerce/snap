@@ -78,7 +78,7 @@ const { profile, meta: recMeta, results, responseId } = await client.recommend({
 - Internal API requesters (not exported): `packages/snap-client/src/Client/apis/` — MetaAPI, SearchAPI, RecommendAPI, SuggestAPI
 - `RecommendationRequestRangeFilterModel` and `RecommendationRequestValueFilterModel` are not individually exported; only their union `RecommendationRequestFilterModel` is public
 - Peer dependency on `@athoscommerce/snapi-types` for search/meta/autocomplete types (not re-exported by this package)
-- Cache defaults: `enabled: true`, `ttl: 300000` ms, `maxSize: 200` kb, `purgeable: true` (except `meta` defaults `purgeable: false`)
+- Cache defaults (NetworkCache): `enabled: true`, `ttl: 300000` ms, `maxSize: 1000` kb, `type: 'sessionStorage'`, `purgeable: true` (except `meta` defaults `purgeable: false`)
 
 ## README Fixes Applied
 - Added missing `type?: 'memory' | 'sessionStorage'` field to the `CacheConfig` type block in the README

@@ -93,9 +93,9 @@ Provides MobX-observable store classes that manage Snap API response state for s
 
 | Export | Kind | Description |
 |--------|------|-------------|
-| `StorageStore` | class (re-export from snap-toolbox) | Session/local storage abstraction |
+| `StorageStore` | class (re-export from snap-toolbox) | Unified key/value store backed by `localStorage`, `sessionStorage`, cookies, or in-memory |
 | `StorageConfig` | type (re-export from snap-toolbox) | Config for StorageStore |
-| `StorageType` | enum (re-export from snap-toolbox) | `'session'` \| `'local'` |
+| `StorageType` | enum (re-export from snap-toolbox) | `'session'` \| `'local'` \| `'cookie'` \| `'memory'` |
 
 ## Key Type Contracts
 
