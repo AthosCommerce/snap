@@ -8,7 +8,7 @@ const searchCollapsibleStyleScript = ({ sidebarWidth }: SearchCollapsibleProps) 
 	const _sidebarWidth = sidebarWidth ? `calc(${sidebarWidth} + 1.5em)` : undefined;
 
 	return css({
-		'.ss__toolbar .ss__button--sidebar-toggle-button-wrapper': {
+		'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': {
 			marginRight: _sidebarWidth ? 'inherit' : 'auto',
 			width: _sidebarWidth ? _sidebarWidth : 'inherit',
 		},

@@ -124,7 +124,7 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 					},
 				},
 			},
-			'.ss__facets-horizontal__header__dropdown .ss__dropdown__content .ss__facet__show-more-less, .ss__button--sidebar-toggle-button-wrapper .ss__button':
+			'.ss__facets-horizontal__header__dropdown .ss__dropdown__content .ss__facet__show-more-less, .ss__layout__sidebar-toggle-button-wrapper .ss__button':
 				{
 					display: 'flex',
 				},
