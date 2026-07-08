@@ -142,7 +142,16 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 										return cloneWithProps(resolvedResultComponent, {
 											controller,
 											result: result as Product,
-											theme,
+											theme: isNamedResultComponent
+												? deepmerge(theme || {}, {
+														components: {
+															// in order to preserve theme overrides for resultComponent vs. customComponent
+															result: {
+																customComponent: resultComponent,
+															},
+														},
+												  })
+												: theme,
 											treePath,
 										});
 									} else {
