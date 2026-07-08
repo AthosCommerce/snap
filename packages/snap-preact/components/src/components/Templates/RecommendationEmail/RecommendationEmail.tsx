@@ -84,6 +84,7 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 							return cloneWithProps(resolvedResultComponent, {
 								controller,
 								result,
+								email: true,
 								theme: isNamedResultComponent
 									? deepmerge(props.theme || {}, {
 											components: {
