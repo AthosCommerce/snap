@@ -2,6 +2,7 @@ import { version } from '@athoscommerce/snap-toolbox';
 import {
 	createAutocompleteTargeters,
 	createPlugins,
+	createSearchTargeters,
 	createSnapConfig,
 	DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS,
 	DEFAULT_FEATURES,
@@ -937,5 +938,122 @@ describe('createAutocompleteTargeters props.input', () => {
 
 		// Second targeter renders into a separate node; originalElem is #ac-dropdown, not the input
 		expect(targeters[1].props?.input).toBe('#header-search');
+	});
+});
+
+describe('createSearchTargeters autoRetarget and hideTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('sets autoRetarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].autoRetarget).toBe(true);
+	});
+
+	it('sets hideTarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].hideTarget).toBe(true);
+	});
+
+	it('applies autoRetarget and hideTarget to all search targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [
+					{ selector: '#search-1', component: 'Search' },
+					{ selector: '#search-2', component: 'Search' },
+					{ selector: '#search-3', component: 'Search' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(3);
+		targeters.forEach((targeter) => {
+			expect(targeter.autoRetarget).toBe(true);
+			expect(targeter.hideTarget).toBe(true);
+		});
+	});
+});
+
+describe('createAutocompleteTargeters autoRetarget and hideTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('sets autoRetarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [{ inputSelector: '.search-input', component: 'AutocompleteFixed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].autoRetarget).toBe(true);
+	});
+
+	it('sets hideTarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [{ inputSelector: '.search-input', component: 'AutocompleteFixed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].hideTarget).toBe(true);
+	});
+
+	it('applies autoRetarget and hideTarget to all autocomplete targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [
+					{ inputSelector: '.search-input-1', component: 'AutocompleteFixed' },
+					{ inputSelector: '.search-input-2', component: 'AutocompleteFixed' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(2);
+		targeters.forEach((targeter) => {
+			expect(targeter.autoRetarget).toBe(true);
+			expect(targeter.hideTarget).toBe(true);
+		});
 	});
 });
