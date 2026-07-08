@@ -12,7 +12,7 @@ import type { PluginFunction } from '@athoscommerce/snap-controller';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
-import { pluginMarketsPricing as shopifyPluginMarketsPricing } from './library/plugins/shopify/pluginMarketsPricing';
+import { pluginMarkets as shopifyPluginMarkets } from './library/plugins/shopify/pluginMarkets';
 import { pluginAddToCart as bigCommercePluginAddToCart } from './library/plugins/bigCommerce/pluginAddToCart';
 import { pluginAddToCart as magento2PluginAddToCart } from './library/plugins/magento2/pluginAddToCart';
 import { pluginAddToCart as commonPluginAddToCart } from './library/plugins/common/pluginAddToCart';
@@ -47,7 +47,7 @@ export type LibraryImports = {
 			backgroundFilters: typeof shopifyPluginBackgroundFilters;
 			mutateResults: typeof shopifyPluginMutateResults;
 			addToCart: typeof shopifyPluginAddToCart;
-			marketsPricing: typeof shopifyPluginMarketsPricing;
+			markets: typeof shopifyPluginMarkets;
 		};
 		bigcommerce: {
 			backgroundFilters: PluginFunction;
@@ -360,7 +360,7 @@ export class LibraryStore {
 				backgroundFilters: shopifyPluginBackgroundFilters,
 				mutateResults: shopifyPluginMutateResults,
 				addToCart: shopifyPluginAddToCart,
-				marketsPricing: shopifyPluginMarketsPricing,
+				markets: shopifyPluginMarkets,
 			},
 			bigcommerce: {
 				backgroundFilters: bigCommercePluginBackgroundFilters,

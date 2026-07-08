@@ -431,7 +431,7 @@ describe('createSnapConfig with custom plugins', () => {
 });
 
 describe('applyAutomaticThemeOverrides', () => {
-	it('adds shopify markets price formatter when marketsPricing plugin is configured', () => {
+	it('adds shopify markets price formatter when markets plugin is configured', () => {
 		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
 			config: {
@@ -443,7 +443,7 @@ describe('applyAutomaticThemeOverrides', () => {
 			},
 			plugins: {
 				shopify: {
-					marketsPricing: {
+					markets: {
 						token: 'token',
 					},
 				},
@@ -476,7 +476,7 @@ describe('applyAutomaticThemeOverrides', () => {
 			},
 			plugins: {
 				shopify: {
-					marketsPricing: {
+					markets: {
 						token: 'token',
 					},
 				},

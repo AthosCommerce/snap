@@ -130,11 +130,11 @@ plugins: {
 }
 ```
 
-### pluginShopifyMarketsPricing
+### pluginShopifyMarkets
 
-The **Markets Pricing plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
+The **Marketss plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
 
-When used through `SnapTemplates` on Shopify, enabling `marketsPricing` also automatically applies `theme.overrides.default.price.format = shopifyMarketsPriceFormat` unless you already provide a custom `price.format` override.
+When used through `SnapTemplates` on Shopify, enabling `markets` also automatically applies `theme.overrides.default.price.format = shopifyMarketsPriceFormat` unless you already provide a custom `price.format` override.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
@@ -158,7 +158,7 @@ const config = {
 	},
 	plugins: {
 		shopify: {
-			marketsPricing: {
+			markets: {
 				token: 'your-storefront-access-token',
 				baseCurrency: 'USD',  // e.g., 'USD', 'EUR', 'GBP'
 				idFieldName: 'mappings.core.uid', // optional; use a custom field if variant UIDs don't match Shopify variant IDs

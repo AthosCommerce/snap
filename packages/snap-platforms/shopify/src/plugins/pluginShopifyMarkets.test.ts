@@ -1,4 +1,4 @@
-import { pluginShopifyMarketsPricing } from './pluginShopifyMarketsPricing';
+import { pluginShopifyMarkets } from './pluginShopifyMarkets';
 
 type MockVariant = {
 	mappings: {
@@ -103,7 +103,7 @@ const makeFetchResponse = (
 	} as Response;
 };
 
-describe('shopify/pluginShopifyMarketsPricing', () => {
+describe('shopify/pluginShopifyMarkets', () => {
 	beforeEach(() => {
 		jest.resetAllMocks();
 
@@ -135,7 +135,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});
@@ -174,7 +174,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult, bannerResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});
@@ -203,7 +203,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});
@@ -234,7 +234,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 			baseUrl: 'https://custom-shop.myshopify.com',
@@ -279,7 +279,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});
@@ -324,7 +324,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});
@@ -364,7 +364,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});
@@ -412,7 +412,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 			idFieldName: 'attributes.shopifyVariantId',
@@ -457,7 +457,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 			// no idFieldName — should default to mappings.core.uid
@@ -559,7 +559,7 @@ describe('shopify/pluginShopifyMarketsPricing', () => {
 
 		const controller = createController([productResult]);
 
-		pluginShopifyMarketsPricing(controller as any, {
+		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseCurrency: 'USD',
 		});

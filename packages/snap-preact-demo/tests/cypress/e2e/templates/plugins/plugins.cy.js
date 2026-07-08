@@ -259,7 +259,7 @@ describe('plugins work based on plaform setting', () => {
 		});
 	});
 
-	it('has shopify marketsPricing plugin when token is configured', () => {
+	it('has shopify markets plugin when token is configured', () => {
 		cy.on('window:before:load', (win) => {
 			win.mergeSnapConfig = {
 				config: {
@@ -270,7 +270,7 @@ describe('plugins work based on plaform setting', () => {
 				},
 				plugins: {
 					shopify: {
-						marketsPricing: {
+						markets: {
 							token: 'test-token',
 						},
 					},
@@ -296,7 +296,7 @@ describe('plugins work based on plaform setting', () => {
 				'pluginShopifyBackgroundFilters',
 				'pluginShopifyMutateResults',
 				'pluginShopifyAddToCart',
-				'pluginShopifyMarketsPricing',
+				'pluginShopifyMarkets',
 			];
 			expect(controller.config.plugins.length).to.equal(expectedPluginList.length);
 

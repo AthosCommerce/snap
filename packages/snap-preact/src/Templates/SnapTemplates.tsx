@@ -43,8 +43,8 @@ import {
 	PluginMutateResultsConfig as PluginShopifyMutateResultsConfig,
 	pluginAddToCart as pluginShopifyAddToCart,
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
-	PluginMarketsPricingConfig as PluginShopifyMarketsPricingConfig,
-	pluginMarketsPricing as pluginShopifyMarketsPricing,
+	PluginMarketsConfig as PluginShopifyMarketsConfig,
+	pluginMarkets as pluginShopifyMarkets,
 	shopifyMarketsPriceFormat,
 } from '@athoscommerce/snap-platforms/shopify';
 
@@ -89,7 +89,7 @@ type TemplatePlugins =
 	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
-	| [typeof pluginShopifyMarketsPricing, PluginShopifyMarketsPricingConfig]
+	| [typeof pluginShopifyMarkets, PluginShopifyMarketsConfig]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
@@ -110,12 +110,12 @@ export const DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS: AutocompleteStoreConfigSe
 	},
 };
 
-const hasShopifyMarketsPricingPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
+const hasShopifyMarketsPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
 	const pluginConfigs = [
-		templateConfig.plugins?.shopify?.marketsPricing,
-		templateConfig.search?.plugins?.shopify?.marketsPricing,
-		templateConfig.autocomplete?.plugins?.shopify?.marketsPricing,
-		templateConfig.recommendation?.plugins?.shopify?.marketsPricing,
+		templateConfig.plugins?.shopify?.markets,
+		templateConfig.search?.plugins?.shopify?.markets,
+		templateConfig.autocomplete?.plugins?.shopify?.markets,
+		templateConfig.recommendation?.plugins?.shopify?.markets,
 	];
 
 	return pluginConfigs.some((pluginConfig) => {
@@ -130,7 +130,7 @@ export const applyAutomaticThemeOverrides = (
 		return templateConfig;
 	}
 
-	if (!hasShopifyMarketsPricingPluginConfig(templateConfig)) {
+	if (!hasShopifyMarketsPluginConfig(templateConfig)) {
 		return templateConfig;
 	}
 
@@ -583,13 +583,10 @@ export function createPlugins(
 				templatesStore.library.import.plugins.shopify.addToCart,
 				deepmerge(templateConfig.plugins?.shopify?.addToCart || {}, controllerConfig?.plugins?.shopify?.addToCart || {}),
 			]);
-			const marketsPricingConfig = deepmerge(
-				templateConfig.plugins?.shopify?.marketsPricing || {},
-				controllerConfig?.plugins?.shopify?.marketsPricing || {}
-			);
+			const marketsConfig = deepmerge(templateConfig.plugins?.shopify?.markets || {}, controllerConfig?.plugins?.shopify?.markets || {});
 			//only push if token is defined and non-empty
-			if (typeof (marketsPricingConfig as any)?.token === 'string' && (marketsPricingConfig as any).token.length > 0) {
-				plugins.push([templatesStore.library.import.plugins.shopify.marketsPricing, marketsPricingConfig]);
+			if (typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0) {
+				plugins.push([templatesStore.library.import.plugins.shopify.markets, marketsConfig]);
 			}
 			break;
 		case 'bigCommerce':

@@ -617,9 +617,9 @@ new SnapTemplates(config);
 
 ---
 
-### Using the Shopify Markets Pricing Plugin
+### Using the Shopify Markets Plugin
 
-The **Shopify Markets Pricing plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
+The **Shopify Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
 When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
 The formatter reads script context with `getContext(['format', 'iso'])`, so an optional `iso` value can prefix formatted amounts.
 
@@ -633,7 +633,7 @@ const config = {
 	},
 	plugins: {
 		shopify: {
-			marketsPricing: {
+			markets: {
 				token: 'your-storefront-access-token',
 			},
 		},
@@ -678,4 +678,4 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 
 If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
 												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets Pricing plugin documentation](/reference-platforms-shopify#pluginshopifymarketspricing).
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](/reference-platforms-shopify#pluginshopifymarkets).

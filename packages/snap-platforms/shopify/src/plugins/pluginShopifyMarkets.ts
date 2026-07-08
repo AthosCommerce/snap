@@ -2,11 +2,11 @@ import { AbstractController, AutocompleteController, RecommendationController, S
 import { Product, SearchResultStore } from '@athoscommerce/snap-store-mobx';
 import { AbstractPluginConfig } from '../../../common/src/types';
 
-export type PluginShopifyMarketsPricingConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsPricingConfig;
+export type PluginShopifyMarketsConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsConfig;
 
 export const SHOPIFY_GRAPHQL_API_PATH = '/api/2025-04/graphql.json';
 
-export type ShopifyMarketsPricingConfig = {
+export type ShopifyMarketsConfig = {
 	token: string;
 	baseUrl?: string;
 	path?: string;
@@ -87,7 +87,7 @@ const markResultsAsPriceFetched = (results: Product[] | SearchResultStore) => {
 	});
 };
 
-export const pluginShopifyMarketsPricing = (cntrlr: AbstractController, config: PluginShopifyMarketsPricingConfig) => {
+export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginShopifyMarketsConfig) => {
 	if (!config?.token) {
 		cntrlr.log?.warn?.('[shopifyMarkets] Missing required `token` in plugin config.');
 		return;
