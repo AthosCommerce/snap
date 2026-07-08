@@ -6,6 +6,7 @@ import {
 	createSnapConfig,
 	DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS,
 	DEFAULT_FEATURES,
+	SnapTemplates,
 } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
@@ -1055,5 +1056,108 @@ describe('createAutocompleteTargeters autoRetarget and hideTarget', () => {
 			expect(targeter.autoRetarget).toBe(true);
 			expect(targeter.hideTarget).toBe(true);
 		});
+	});
+});
+
+describe('globalResultComponent configuration', () => {
+	const baseConfigValues = {
+		config: {
+			platform: 'other' as const,
+			siteId: 'test123',
+		},
+		theme: {
+			extends: 'base' as const,
+		},
+	};
+
+	it('should apply one global result renderer across templates', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+			},
+		};
+
+		new SnapTemplates(config);
+
+		// Internally this is represented as a global result customComponent override.
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+	});
+
+	it('should merge global result renderer with existing overrides', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+				overrides: {
+					default: {
+						'recommendation.similar': {
+							slidesPerView: 3,
+						},
+					},
+				},
+			},
+		};
+
+		new SnapTemplates(config);
+
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect((config.theme.overrides?.default?.['recommendation.similar'] as any)?.slidesPerView).toBe(3);
+	});
+
+	it('should not override an existing result override', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'GlobalResult',
+				overrides: {
+					default: {
+						result: {
+							customComponent: 'SpecificResult',
+						},
+					},
+				},
+			},
+		};
+
+		new SnapTemplates(config);
+
+		// The specific override should take precedence over the global one (because it's merged second)
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('SpecificResult');
+	});
+
+	it('should apply globalResultComponent without overrides object', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+			},
+		};
+
+		new SnapTemplates(config);
+
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect(config.theme.overrides?.default).toBeDefined();
+	});
+
+	it('should not add overrides if globalResultComponent is not specified', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfigValues,
+			theme: {
+				extends: 'base',
+			},
+		};
+
+		new SnapTemplates(config);
+		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
+		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
 	});
 });

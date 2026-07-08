@@ -125,7 +125,7 @@ export default {
 		},
 		mobileDisplayAt: {
 			defaultValue: '',
-			description: 'Media query for when to render the mobileSidebar',
+			description: 'specifies a CSS media query for when the Sidebar component should render in mobile view, which will render in a slideout',
 			table: {
 				category: 'Templates Legal',
 				type: {
