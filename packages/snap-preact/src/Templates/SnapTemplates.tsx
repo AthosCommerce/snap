@@ -423,9 +423,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 	const snapConfig: SnapConfig = {
 		features: templateConfig.features || DEFAULT_FEATURES,
 		client: {
-			globals: {
-				siteId: templateConfig.config?.siteId,
-			},
+			globals: {},
 			config: {
 				...(templateConfig.config?.client || {}),
 				initiator: `athos/${initiatorPrefix}snap/preact/templates/${version}`,
@@ -440,6 +438,11 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		instantiators: {},
 		controllers: {},
 	};
+
+	// add siteId if specified
+	if (templateConfig.config?.siteId && snapConfig.client?.globals) {
+		snapConfig.client.globals.siteId = templateConfig.config.siteId;
+	}
 
 	// add url configuration if specified
 	if (templateConfig.url) {

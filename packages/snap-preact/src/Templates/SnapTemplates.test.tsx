@@ -1223,3 +1223,27 @@ describe('globalResultComponent configuration', () => {
 		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
 	});
 });
+
+describe('SnapTemplates siteId context fallback', () => {
+	afterEach(() => {
+		delete window.athos;
+		document.body.innerHTML = '';
+	});
+
+	it('uses context siteId when template config omits config.siteId', () => {
+		document.body.innerHTML = `<script id="athos-context">siteId = 'siteid';</script>`;
+
+		const config = {
+			config: {
+				platform: 'other' as const,
+			},
+			theme: {
+				extends: 'base' as const,
+			},
+		} as SnapTemplatesConfig;
+
+		const snap = new SnapTemplates(config);
+
+		expect((snap.client as any).globals.siteId).toBe('siteid');
+	});
+});
