@@ -1,5 +1,4 @@
 import { shopifyMarketsPriceFormat } from './shopifyMarketsPriceFormat';
-import { getContext } from '@athoscommerce/snap-toolbox';
 
 describe('shopifyMarketsPriceFormat', () => {
 	it('uses default amount format when context format is unavailable', () => {
