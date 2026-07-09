@@ -1,13 +1,4 @@
-import { getContext } from '@athoscommerce/snap-toolbox';
-
-export const shopifyMarketsPriceFormat = (number: number | string) => {
-	let context: { format?: string; iso?: string } | undefined;
-	try {
-		context = getContext(['format', 'iso']) as { format?: string; iso?: string };
-	} catch {
-		context = undefined;
-	}
-	const currencyFormat: string = context?.format || '${{amount}}';
+export const shopifyMarketsPriceFormat = (number: number | string, format: string = '${{amount}}') => {
 	// ensure number is a number
 	number = typeof number === 'string' ? parseFloat(number) : number;
 
@@ -25,7 +16,7 @@ export const shopifyMarketsPriceFormat = (number: number | string) => {
 	};
 
 	const formatRegex = /\{\{\s*(\w+)\s*\}\}/;
-	const match = currencyFormat.match(formatRegex);
+	const match = format.match(formatRegex);
 	const formatKey = match?.[1] || 'amount';
 	let value: string = '';
 
@@ -50,9 +41,5 @@ export const shopifyMarketsPriceFormat = (number: number | string) => {
 			break;
 	}
 
-	if (value && context?.iso) {
-		value = `${context.iso}${value}`;
-	}
-
-	return currencyFormat.replace(formatRegex, value);
+	return format.replace(formatRegex, value);
 };

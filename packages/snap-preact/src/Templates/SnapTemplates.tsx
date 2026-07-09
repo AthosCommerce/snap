@@ -141,12 +141,20 @@ export const applyAutomaticThemeOverrides = (
 		return templateConfig;
 	}
 
+	let context: { format?: string } | undefined;
+	try {
+		context = getContext(['format']) as { format?: string };
+	} catch {
+		context = undefined;
+	}
+	const currencyFormat: string = context?.format || '${{amount}}';
+	// todo: consider moving this inside of the plugin if possible. seems odd to have this happen outside of it.
 	return deepmerge(templateConfig, {
 		theme: {
 			overrides: {
 				default: {
 					price: {
-						format: shopifyMarketsPriceFormat,
+						format: (number: number | string) => shopifyMarketsPriceFormat(number, currencyFormat),
 					},
 				},
 			},

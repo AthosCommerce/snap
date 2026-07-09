@@ -132,7 +132,7 @@ plugins: {
 
 ### pluginShopifyMarkets
 
-The **Marketss plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
+The **Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
 
 When used through `SnapTemplates` on Shopify, enabling `markets` also automatically applies `theme.overrides.default.price.format = shopifyMarketsPriceFormat` unless you already provide a custom `price.format` override.
 
@@ -182,17 +182,15 @@ new SnapTemplates(config);
 4. Sets `result.state.priceFetched = true` when pricing is ready to display
 5. Caches results in an in-memory price cache local to the plugin instance to avoid redundant API calls
 
-When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format', 'iso'])`:
+When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format'])`:
 
 - `format`: Shopify money format template (for example, `${{amount}}`)
-- `iso`: optional ISO currency code prefix to prepend to the formatted amount (for example, `USD `)
 
 Example script context:
 
 ```html
 <script id="athos-context" src="bundle.js">
 	format = '${{amount}}';
-	iso = 'USD ';
 </script>
 ```
 

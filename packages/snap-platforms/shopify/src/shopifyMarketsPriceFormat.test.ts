@@ -21,7 +21,7 @@ describe('shopifyMarketsPriceFormat', () => {
 
 		shopifyMarketsPriceFormat(10);
 
-		expect(getContext).toHaveBeenCalledWith(['format', 'iso']);
+		expect(getContext).toHaveBeenCalledWith(['format']);
 	});
 
 	it('supports amount_no_decimals format', () => {

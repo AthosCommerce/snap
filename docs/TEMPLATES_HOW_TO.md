@@ -620,7 +620,7 @@ new SnapTemplates(config);
 
 The **Shopify Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
 When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
-The formatter reads script context with `getContext(['format', 'iso'])`, so an optional `iso` value can prefix formatted amounts.
+The formatter reads script context with `getContext(['format'])`.
 
 Register the plugin in your SnapTemplates configuration:
 
@@ -650,7 +650,6 @@ Optional script context variables used by `shopifyMarketsPriceFormat`:
 ```html
 <script id="athos-context" src="bundle.js">
 	format = '${{amount}}';
-	iso = 'USD ';
 </script>
 ```
 
