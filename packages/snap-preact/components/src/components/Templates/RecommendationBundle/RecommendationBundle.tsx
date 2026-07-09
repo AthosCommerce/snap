@@ -179,7 +179,6 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		ctaButtonSuccessText: 'Bundle Added!',
 		ctaButtonSuccessTimeout: 2000,
 		ctaInline: true,
-		onAddToCart: (e, items) => controller?.addToCart && controller.addToCart(items),
 		title: properties.controller?.store?.profile?.display?.templateParameters?.title,
 		description: properties.controller?.store?.profile?.display?.templateParameters?.description,
 		treePath: globalTreePath,
@@ -433,12 +432,12 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 			}
 		}
 	};
-	const addToCart = (e: MouseEvent) => {
+	const addToCart = async (e: MouseEvent): Promise<void> => {
 		// add to cart tracking
-		controller.addToCart(selectedItems);
+		await controller.addToCart(selectedItems);
 
 		//call the function passed
-		onAddToCart && onAddToCart(e, selectedItems);
+		onAddToCart && (await onAddToCart(e, selectedItems));
 	};
 
 	const setSeedwidth = () => {
@@ -733,7 +732,7 @@ export type RecommendationBundleProps = {
 export type RecommendationBundleTemplatesLegalProps = {
 	resultComponent?: string;
 	limit?: number;
-	onAddToCart?: (e: MouseEvent, items: Product[]) => void;
+	onAddToCart?: (e: MouseEvent, items: Product[]) => void | Promise<void>;
 	title?: JSX.Element | string;
 	preselectedCount?: number;
 	hideCheckboxes?: boolean;
