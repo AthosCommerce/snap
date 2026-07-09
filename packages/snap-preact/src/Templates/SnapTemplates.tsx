@@ -249,6 +249,7 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 
 		const targeter: ExtendedTarget = {
 			selector: targetConfig.selector,
+			autoRetarget: true,
 			hideTarget: true,
 			component: async () => {
 				const componentImportPromises = [];
@@ -295,6 +296,7 @@ export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig,
 				//only set input if selector and inputSelector are different. else bind to orinalElem
 				...(targetConfig.selector && targetConfig.selector !== targetConfig.inputSelector ? { input: targetConfig.inputSelector } : {}),
 			},
+			autoRetarget: true,
 			hideTarget: true,
 			createControllerBeforeTargeting: templatesStore.settings.editMode,
 		};
