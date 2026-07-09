@@ -163,6 +163,8 @@ export class Banner {
 		core: {},
 	};
 	public custom = {};
+	public state = {};
+
 	public config: SearchResponseModelMerchandisingContentConfig;
 	public value: string;
 
@@ -180,6 +182,8 @@ export class Banner {
 			id: observable,
 			mappings: observable,
 			attributes: observable,
+			custom: observable,
+			state: observable,
 		});
 	}
 }
@@ -217,6 +221,10 @@ type ProductData = {
 	responseId: string;
 };
 
+type ProductState = {
+	priceFetched?: boolean;
+};
+
 export class Product {
 	public type = 'product';
 	public id: string;
@@ -226,6 +234,7 @@ export class Product {
 		core: {},
 	};
 	public custom = {};
+	public state: ProductState = {};
 	public badges: Badges;
 
 	public bundleSeed: boolean | undefined;
@@ -279,6 +288,7 @@ export class Product {
 			mappings: observable,
 			attributes: observable,
 			custom: observable,
+			state: observable,
 			quantity: observable,
 		});
 	}
@@ -422,7 +432,13 @@ export class Variants {
 					result: variant as SearchResponseModelResult,
 				},
 			});
-			mask.set({ mappings: this.active.mappings, attributes: this.active.attributes, badges: activeBadges });
+			mask.set({
+				mappings: this.active.mappings,
+				attributes: this.active.attributes,
+				badges: activeBadges,
+				state: this.active.state,
+				custom: this.active.custom,
+			});
 		};
 
 		if (config) {
@@ -779,6 +795,7 @@ export class Variant {
 		core: {},
 	};
 	public custom = {};
+	public state: ProductState = {};
 
 	constructor(variantData: { data: { variant: VariantData } }) {
 		const { data } = variantData || {};
@@ -795,6 +812,7 @@ export class Variant {
 			attributes: observable,
 			mappings: observable,
 			custom: observable,
+			state: observable,
 			available: observable,
 		});
 	}

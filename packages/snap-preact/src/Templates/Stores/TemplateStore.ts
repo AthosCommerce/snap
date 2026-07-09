@@ -47,7 +47,7 @@ import type {
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/RecommendationInstantiator';
-
+import type { PluginMarketsConfig } from '@athoscommerce/snap-platforms/shopify';
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
 
@@ -139,6 +139,7 @@ export type ShopifyPlugins = {
 	backgroundFilters?: PluginShopifyBackgroundFiltersConfig;
 	mutateResults?: PluginShopifyMutateResultsConfig;
 	addToCart?: PluginShopifyAddToCartConfig;
+	markets?: PluginMarketsConfig;
 };
 
 export type BigCommercePlugins = {

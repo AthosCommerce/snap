@@ -245,6 +245,7 @@ export const Result = observer((properties: ResultProps) => {
 	});
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);
+	const renderPrices = controller?.store?.config?.asyncState?.product?.price ? result.state.priceFetched : true;
 
 	return core ? (
 		<CacheProvider>
@@ -297,7 +298,7 @@ export const Result = observer((properties: ResultProps) => {
 					)}
 					{!hideRating && <Rating {...subProps.rating} />}
 
-					{!hidePricing && core.price && core.price > 0 ? (
+					{!hidePricing && renderPrices && core.price && core.price > 0 ? (
 						<div className="ss__result__details__pricing">
 							{isOnSale ? (
 								<>

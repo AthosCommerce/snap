@@ -35,14 +35,19 @@ import {
 	pluginLogger,
 	PluginLoggerConfig,
 } from '@athoscommerce/snap-platforms/common';
+
 import {
-	pluginBackgroundFilters as PluginShopifyBackgroundFilters,
+	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
 	pluginMutateResults as pluginShopifyMutateResults,
 	PluginMutateResultsConfig as PluginShopifyMutateResultsConfig,
 	pluginAddToCart as pluginShopifyAddToCart,
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
+	PluginMarketsConfig as PluginShopifyMarketsConfig,
+	pluginMarkets as pluginShopifyMarkets,
+	shopifyMarketsPriceFormat,
 } from '@athoscommerce/snap-platforms/shopify';
+
 import {
 	pluginAddToCart as pluginBigcommerceAddToCart,
 	PluginAddToCartConfig as PluginBigCommerceAddToCartConfig,
@@ -81,9 +86,10 @@ type TemplatePlugins =
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
 	// shopify
-	| [typeof PluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
+	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
+	| [typeof pluginShopifyMarkets, PluginShopifyMarketsConfig]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
@@ -104,9 +110,62 @@ export const DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS: AutocompleteStoreConfigSe
 	},
 };
 
+const hasShopifyMarketsPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
+	const pluginConfigs = [
+		templateConfig.plugins?.shopify?.markets,
+		templateConfig.search?.plugins?.shopify?.markets,
+		templateConfig.autocomplete?.plugins?.shopify?.markets,
+		templateConfig.recommendation?.plugins?.shopify?.markets,
+	];
+
+	return pluginConfigs.some((pluginConfig) => {
+		return typeof pluginConfig?.token === 'string' && pluginConfig.token.length > 0;
+	});
+};
+
+export const applyAutomaticThemeOverrides = (
+	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked
+): SnapTemplatesConfig | SnapTemplatesConfigUnlocked => {
+	if (templateConfig.config?.platform !== 'shopify') {
+		return templateConfig;
+	}
+
+	if (!hasShopifyMarketsPluginConfig(templateConfig)) {
+		return templateConfig;
+	}
+
+	const defaultOverrides = templateConfig.theme?.overrides?.default as Record<string, unknown> | undefined;
+	const priceOverride = defaultOverrides?.price as { format?: unknown } | undefined;
+
+	if (typeof priceOverride?.format !== 'undefined') {
+		return templateConfig;
+	}
+
+	let context: { format?: string } | undefined;
+	try {
+		context = getContext(['format']) as { format?: string };
+	} catch {
+		context = undefined;
+	}
+	const currencyFormat: string = context?.format || '${{amount}}';
+	// todo: consider moving this inside of the plugin if possible. seems odd to have this happen outside of it.
+	return deepmerge(templateConfig, {
+		theme: {
+			overrides: {
+				default: {
+					price: {
+						format: (number: number | string) => shopifyMarketsPriceFormat(number, currencyFormat),
+					},
+				},
+			},
+		},
+	});
+};
+
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
+		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
 		try {
 			context = getContext(['editor']);
@@ -130,9 +189,9 @@ export class SnapTemplates extends Snap {
 			);
 		}
 
-		const templatesStore = new TemplatesStore({ config, settings: { editMode } });
+		const templatesStore = new TemplatesStore({ config: modifiedConfig, settings: { editMode } });
 
-		const snapConfig = createSnapConfig(config, templatesStore);
+		const snapConfig = createSnapConfig(modifiedConfig, templatesStore);
 
 		super(snapConfig, { templatesStore });
 
@@ -542,6 +601,11 @@ export function createPlugins(
 				templatesStore.library.import.plugins.shopify.addToCart,
 				deepmerge(templateConfig.plugins?.shopify?.addToCart || {}, controllerConfig?.plugins?.shopify?.addToCart || {}),
 			]);
+			const marketsConfig = deepmerge(templateConfig.plugins?.shopify?.markets || {}, controllerConfig?.plugins?.shopify?.markets || {});
+			//only push if token is defined and non-empty
+			if (typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0) {
+				plugins.push([templatesStore.library.import.plugins.shopify.markets, marketsConfig]);
+			}
 			break;
 		case 'bigCommerce':
 			plugins.push([
