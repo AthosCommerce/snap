@@ -20,7 +20,7 @@ controller.store.results.map(result => {
 ### Product Add To Cart
 Tracks product add to cart events. It is recommended to invoke on each product `onClick` event via the `controller.addToCart()` method available on all controller types.
 
-`controller.addToCart()` returns a Promise that resolves after add-to-cart middleware has completed. This makes it safe to run post-cart actions after awaiting it.
+`controller.addToCart()` returns a Promise that settles after add-to-cart middleware has completed (it will reject if middleware cancels or throws). This makes it safe to run post-cart actions after a successful `await`.
 
 ```tsx
 controller.store.results.map(result => {
