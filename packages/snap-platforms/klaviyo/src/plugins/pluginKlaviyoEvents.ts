@@ -1,5 +1,5 @@
 import type { Product } from '@athoscommerce/snap-store-mobx';
-import type { AbstractController, SearchController } from '@athoscommerce/snap-controller';
+import type { AbstractController, AutocompleteController, SearchController } from '@athoscommerce/snap-controller';
 import type { Next } from '@athoscommerce/snap-event-manager';
 import type { AbstractPluginConfig } from '../../../common/src/types';
 
@@ -7,47 +7,62 @@ export type PluginKlaviyoEventsConfig = AbstractPluginConfig & {
 	// TODO: config
 };
 
+type LearnqCommand = [string, ...unknown[]];
+
+// adding _learnq to window type
+declare global {
+	interface Window {
+		_learnq?: {
+			push: (command: LearnqCommand) => void;
+		};
+	}
+}
+
 export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginKlaviyoEventsConfig) => {
 	// do nothing if plugin is disabled
 	if (config?.enabled === false) return;
 
 	// this will potentially need to be attached to multiple controller types:
 	// 1. search
-	// 2. autocomplete (maybe later)
-	if (cntrlr.type !== 'search') return;
+	// 2. autocomplete
+	if (cntrlr.type !== 'search' && cntrlr.type !== 'autocomplete') return;
 
-	// maybe just search
-	cntrlr.on('afterStore', async ({ controller }: { controller: SearchController }, next: Next) => {
-		// do something
-		// a search has been stored!
+	// autocomplete and search clickthrough
+	cntrlr.on(
+		'track.product.clickThrough',
+		async ({ controller, product }: { controller: SearchController | AutocompleteController; product: Product }, next: Next) => {
+			// product was clicked - segment based on "subject"
 
-		// build out the payload
-		const klaviyoPayload = {
-			'Search Term': controller.store.search.query?.string || '',
-			'Total Number of Product Results': controller.store.pagination.totalResults,
-		};
+			// build out the payload
+			const klaviyoClickPayload = {
+				query: controller.store.search.query?.string || '',
+				subject: '', // TODO
+				totalResults: controller.store.pagination.totalResults,
+				product: extractProductDetails(product),
+				results: controller.store.results
+					.filter((result) => result.type == 'product' && result.id !== product.id)
+					.map((result) => extractProductDetails(result as Product)),
+			};
 
-		controller.log.debug('pluginKlaviyoEvents', 'afterStore', klaviyoPayload);
+			try {
+				window?._learnq?.push(['track', `Athos Commerce ${controller.type} click`, klaviyoClickPayload]);
+				controller.log.debug('pluginKlaviyoEvents', 'track.product.clickThrough', klaviyoClickPayload);
+			} catch (e) {
+				controller.log.error('pluginKlaviyoEvents', 'track.product.clickThrough', klaviyoClickPayload);
+				controller.log.error(e);
+			}
 
-		await next();
-	});
-
-	// maybe autocomplete and search
-	cntrlr.on('track.product.clickThrough', async ({ controller, product }: { controller: SearchController; product: Product }, next: Next) => {
-		// do something
-		// product was clicked - segment based on "subject"
-
-		// build out the payload
-		const klaviyoPayload = {
-			'Search Term': controller.store.search.query?.string || '',
-			'Total Number of Product Results': controller.store.pagination.totalResults,
-			'Product Clicked': {
-				name: product.mappings?.core?.name,
-			},
-		};
-
-		controller.log.debug('pluginKlaviyoEvents', 'track.product.clickThrough', klaviyoPayload);
-
-		await next();
-	});
+			await next();
+		}
+	);
 };
+
+const extractProductDetails = (product: Product) => ({
+	id: product.id,
+	name: product.mappings?.core?.name,
+	url: product.mappings?.core?.url,
+	thumbnailImageUrl: product.mappings?.core?.thumbnailImageUrl,
+	imageUrl: product.mappings?.core?.imageUrl,
+	price: product.mappings?.core?.price,
+	msrp: product.mappings?.core?.msrp,
+});
