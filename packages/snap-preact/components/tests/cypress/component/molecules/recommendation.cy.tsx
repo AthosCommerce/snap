@@ -60,8 +60,8 @@ describe('Recommendation Component', async () => {
 	});
 
 	it('tracks as expected', async () => {
-		cy.wrap(controller.store.loaded).should('eq', true);
-		cy.wrap(controller.store.results.length).should('be.greaterThan', 0);
+		cy.wrap(controller.store).its('loaded').should('eq', true);
+		cy.wrap(controller.store).its('results.length').should('be.greaterThan', 0);
 
 		mount(
 			<Recommendation controller={controller} speed={0} lazyRender={{ enabled: false }}>
