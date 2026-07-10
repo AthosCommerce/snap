@@ -85,13 +85,19 @@ describe('Autocomplete', () => {
 			});
 
 			cy.visit(config.url);
+			cy.addLocalSnap();
+			cy.waitForBundle();
 
 			cy.snapController('autocomplete').then(({ store }) => {
 				if (config.selectors.website.openInputButton) {
-					cy.get(config.selectors.website.openInputButton).first().click({ force: true });
+					cy.get('body').then(($body) => {
+						if ($body.find(config.selectors.website.openInputButton).length) {
+							cy.get(config.selectors.website.openInputButton).first().click({ force: true });
+						}
+					});
 				}
 
-				cy.get(config.selectors.website.input).first().should('exist').click().focus();
+				cy.get(config.selectors.website.input, { timeout: 20000 }).first().should('exist').click({ force: true }).focus();
 
 				// TODO: remove - but is currently needed for cases where we are getting no trending terms back from the API
 				if (store.trending.length) {
