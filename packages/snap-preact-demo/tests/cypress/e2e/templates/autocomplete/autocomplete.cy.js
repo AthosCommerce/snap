@@ -90,11 +90,7 @@ describe('Autocomplete', () => {
 
 			cy.snapController('autocomplete').then(({ store }) => {
 				if (config.selectors.website.openInputButton) {
-					cy.get('body').then(($body) => {
-						if ($body.find(config.selectors.website.openInputButton).length) {
-							cy.get(config.selectors.website.openInputButton).first().click({ force: true });
-						}
-					});
+					cy.get(config.selectors.website.openInputButton, { timeout: 20000 }).first().click({ force: true });
 				}
 
 				cy.get(config.selectors.website.input, { timeout: 20000 }).first().should('exist').click({ force: true }).focus();
