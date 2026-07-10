@@ -182,10 +182,10 @@ export class SnapTemplates extends Snap {
 		const editMode = Boolean(editorCookieValue) || editUIMode || Boolean(editor?.mode === 'headless');
 
 		// handle "global" result component configuration
-		if (config.theme.globalResultComponent) {
-			(config as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
-				{ default: { result: { customComponent: config.theme.globalResultComponent } } },
-				(config as SnapTemplatesConfigUnlocked).theme.overrides || {}
+		if (modifiedConfig.theme.globalResultComponent) {
+			(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
+				{ default: { result: { customComponent: modifiedConfig.theme.globalResultComponent } } },
+				(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides || {}
 			);
 		}
 
