@@ -296,21 +296,23 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 					// Grab productIds of products we need pricing data for
 					const productIds = Array.from(
 						new Set(
-							products.map((result) => {
-								const parentId = result?.mappings?.core?.parentId;
+							products
+								.map((result) => {
+									const parentId = result?.mappings?.core?.parentId;
 
-								if (parentId !== null && typeof parentId !== 'undefined' && parentId !== '') {
-									return parentId;
-								}
+									if (parentId !== null && typeof parentId !== 'undefined' && parentId !== '') {
+										return parentId;
+									}
 
-								return null;
-							})
+									return null;
+								})
+								.filter((id): id is string => id !== null && id !== '')
 						)
 					);
 
 					if (productIds.length > 0) {
 						// Determine products without cached pricing data
-						const uncachedIds = productIds.filter((productId) => !priceCache[String(productId)] && productId !== null) as string[];
+						const uncachedIds = productIds.filter((productId) => !priceCache[productId]);
 						let mergedPriceCache: GraphQLPriceCache = { ...priceCache };
 
 						// Fetch prices and update cache to reflect latest data
