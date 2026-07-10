@@ -50,10 +50,11 @@ describe('Custom Result Compnent', () => {
 	});
 
 	it('can click on a result and go to that page', function () {
-		cy.document().then((doc) => {
-			cy.snapController().then(({ store }) => {
-				cy.get(config?.selectors?.search.customResult).should('exist');
-				let url = doc.querySelector(`${config?.selectors?.search.customResult} a`).attributes?.href?.value;
+		cy.get(config?.selectors?.search.customResult).should('exist');
+		cy.get(`${config?.selectors?.search.customResult} a`)
+			.first()
+			.should('have.attr', 'href')
+			.then((url) => {
 				cy.get(`${config?.selectors?.search.customResult} a`)
 					.first()
 					.click()
@@ -61,6 +62,5 @@ describe('Custom Result Compnent', () => {
 						cy.location('href').should('include', url);
 					});
 			});
-		});
 	});
 });

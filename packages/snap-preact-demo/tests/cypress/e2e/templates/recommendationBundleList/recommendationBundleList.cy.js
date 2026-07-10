@@ -152,10 +152,11 @@ describe('BundledRecommendations', () => {
 		});
 
 		it('can click on a result and go to that page', function () {
-			cy.document().then((doc) => {
-				cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
-					cy.get(config?.selectors?.recommendation.result).should('exist');
-					let url = doc.querySelector(`${config?.selectors?.recommendation.result} a`).attributes?.href?.value;
+			cy.get(config?.selectors?.recommendation.result).should('exist');
+			cy.get(`${config?.selectors?.recommendation.result} a`)
+				.first()
+				.should('have.attr', 'href')
+				.then((url) => {
 					cy.get(`${config?.selectors?.recommendation.result} a`)
 						.first()
 						.click({ force: true })
@@ -163,7 +164,6 @@ describe('BundledRecommendations', () => {
 							cy.location('href').should('include', url);
 						});
 				});
-			});
 		});
 
 		describe('Tests Custom Result Component', () => {
