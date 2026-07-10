@@ -53,8 +53,9 @@ describe('Custom Result Compnent', () => {
 		cy.get(config?.selectors?.search.customResult).should('exist');
 		cy.get(`${config?.selectors?.search.customResult} a`)
 			.first()
-			.should('have.attr', 'href')
+			.invoke('attr', 'href')
 			.then((url) => {
+				expect(url).to.be.a('string').and.not.be.empty;
 				cy.get(`${config?.selectors?.search.customResult} a`)
 					.first()
 					.click()

@@ -184,8 +184,9 @@ describe('Recommendations', () => {
 					cy.get(integration?.selectors?.recommendation.activeSlide).should('exist');
 					cy.get(`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} a`)
 						.first()
-						.should('have.attr', 'href')
+						.invoke('attr', 'href')
 						.then((url) => {
+							expect(url).to.be.a('string').and.not.be.empty;
 							cy.get(`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} a`)
 								.first()
 								.click({ force: true })
