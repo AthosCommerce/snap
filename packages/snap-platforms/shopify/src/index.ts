@@ -8,3 +8,9 @@ export {
 	PluginShopifyMutateResultsConfig as PluginMutateResultsConfig,
 } from './plugins/pluginShopifyMutateResults';
 export { pluginShopifyAddToCart as pluginAddToCart, PluginShopifyAddToCartConfig as PluginAddToCartConfig } from './plugins/pluginShopifyAddToCart';
+export {
+	pluginShopifyMarkets as pluginMarkets,
+	PluginShopifyMarketsConfig as PluginMarketsConfig,
+	SHOPIFY_GRAPHQL_API_PATH,
+} from './plugins/pluginShopifyMarkets';
+export { shopifyMarketsPriceFormat } from './shopifyMarketsPriceFormat';

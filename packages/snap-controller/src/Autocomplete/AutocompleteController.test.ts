@@ -729,8 +729,50 @@ describe('Autocomplete Controller', () => {
 
 		const eventfn = jest.spyOn(controller.eventManager, 'fire');
 
-		controller.addToCart([controller.store.results[0] as Product, controller.store.results[1] as Product]);
+		await controller.addToCart([controller.store.results[0] as Product, controller.store.results[1] as Product]);
 
+		expect(eventfn).toHaveBeenCalledWith('addToCart', { controller, products: [controller.store.results[0], controller.store.results[1]] });
+	});
+
+	it('awaits addToCart middleware completion', async () => {
+		const controller = new AutocompleteController(acConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(acConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const query = 'bumpers';
+		controller.urlManager = controller.urlManager.reset().set('query', query);
+		expect(controller.urlManager.state.query).toBe(query);
+
+		(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'autocomplete.query.bumpers' });
+		await controller.search();
+
+		let resolveFire = () => {};
+		const firePromise = new Promise<void>((resolve) => {
+			resolveFire = resolve;
+		});
+
+		const eventfn = jest.spyOn(controller.eventManager, 'fire').mockImplementation(async () => {
+			await firePromise;
+		});
+
+		let settled = false;
+		const addToCartPromise = controller.addToCart([controller.store.results[0] as Product, controller.store.results[1] as Product]).then(() => {
+			settled = true;
+		});
+
+		await Promise.resolve();
+		expect(settled).toBe(false);
+
+		resolveFire();
+		await addToCartPromise;
+
+		expect(settled).toBe(true);
 		expect(eventfn).toHaveBeenCalledWith('addToCart', { controller, products: [controller.store.results[0], controller.store.results[1]] });
 	});
 

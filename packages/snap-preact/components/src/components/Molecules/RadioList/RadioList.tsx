@@ -2,6 +2,7 @@ import { h } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
@@ -55,7 +56,7 @@ const defaultStyles: StyleScript<RadioListProps> = ({ horizontal }) => {
 	});
 };
 
-export function RadioList(properties: RadioListProps) {
+export const RadioList = observer((properties: RadioListProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<RadioListProps> = {
@@ -199,7 +200,7 @@ export function RadioList(properties: RadioListProps) {
 			</div>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type RadioListProps = {
 	lang?: Partial<RadioListLang>;

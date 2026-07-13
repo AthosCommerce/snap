@@ -59,7 +59,6 @@ export * from './components/Organisms/Facet';
 export * from './components/Organisms/Facets';
 export * from './components/Organisms/FacetsHorizontal';
 export * from './components/Organisms/FilterSummary';
-export * from './components/Organisms/MobileSidebar';
 export * from './components/Organisms/NoResults';
 export * from './components/Organisms/Results';
 export * from './components/Organisms/Sidebar';

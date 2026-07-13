@@ -36,9 +36,8 @@ const searchStyleScript = (props: SearchProps) => {
 					'&:has(.ss__pagination-info:last-child)': {
 						flexDirection: 'row-reverse',
 					},
-					'.ss__mobile-sidebar': {
-						minWidth: '1px',
-						'.ss__mobile-sidebar__slideout__button': {
+					'.ss__layout__sidebar-toggle-button-wrapper': {
+						'.ss__button': {
 							width: '100%',
 						},
 					},
@@ -51,7 +50,7 @@ const searchStyleScript = (props: SearchProps) => {
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__search__main-section': {
 				'.ss__toolbar': {
-					'.ss__mobile-sidebar': {
+					'.ss__layout__sidebar-toggle-button-wrapper': {
 						minWidth: '200px',
 					},
 				},

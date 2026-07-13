@@ -4,7 +4,6 @@ import { ThemeResponsiveComplete } from '../../../../providers';
 import { facet } from './facet';
 import { facetsHorizontal } from './facetsHorizontal';
 import { filterSummary } from './filterSummary';
-import { mobileSidebar } from './mobileSidebar';
 import { noResults } from './noResults';
 import { sidebar } from './sidebar';
 import { termsList } from './termsList';
@@ -16,7 +15,6 @@ export const organisms: ThemeResponsiveComplete = {
 		...facet.default,
 		...facetsHorizontal.default,
 		...filterSummary.default,
-		...mobileSidebar.default,
 		...noResults.default,
 		...sidebar.default,
 		...toolbar.default,
@@ -27,7 +25,6 @@ export const organisms: ThemeResponsiveComplete = {
 		...facet.mobile,
 		...facetsHorizontal.mobile,
 		...filterSummary.mobile,
-		...mobileSidebar.mobile,
 		...noResults.mobile,
 		...sidebar.mobile,
 		...toolbar.mobile,
@@ -38,7 +35,6 @@ export const organisms: ThemeResponsiveComplete = {
 		...facet.tablet,
 		...facetsHorizontal.tablet,
 		...filterSummary.tablet,
-		...mobileSidebar.tablet,
 		...noResults.tablet,
 		...sidebar.tablet,
 		...toolbar.tablet,
@@ -49,7 +45,6 @@ export const organisms: ThemeResponsiveComplete = {
 		...facet.desktop,
 		...facetsHorizontal.desktop,
 		...filterSummary.desktop,
-		...mobileSidebar.desktop,
 		...noResults.desktop,
 		...sidebar.desktop,
 		...toolbar.desktop,
