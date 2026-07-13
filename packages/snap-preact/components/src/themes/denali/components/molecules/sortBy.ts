@@ -14,27 +14,27 @@ const sortByStyleScript = ({}: SortByProps) => {
 				position: 'relative',
 			},
 			'.ss__dropdown__content': {
-				backgroundColor: '#e6e6e6',
+				backgroundColor: '#efefef',
 			},
 		},
 		'.ss__dropdown': {
 			'.ss__dropdown__content': {
 				width: 'max-content',
-				backgroundColor: '#e6e6e6',
 				top: '0px',
 				paddingTop: '44px',
 				zIndex: '105',
 				borderRadius: '25px',
 			},
 			'.ss__select__dropdown__button': {
-				background: '#e6e6e6',
 				borderRadius: '25px',
 				fontWeight: 'initial',
 				padding: '10px 5px 10px 15px',
 				boxShadow: 'none',
+				background: '#efefef',
+				color: 'currentColor',
 
 				'&:hover': {
-					background: '#e6e6e6',
+					background: '#efefef',
 				},
 
 				'.ss__select__dropdown__button__icon': {

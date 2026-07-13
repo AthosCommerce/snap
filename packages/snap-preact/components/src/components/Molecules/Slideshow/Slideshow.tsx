@@ -99,6 +99,7 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 			'.ss__button': {
 				border: 'none',
 				width: '10px',
+				padding: '0px',
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',

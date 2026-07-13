@@ -84,5 +84,9 @@ export const select: ThemeComponent<'select', SelectProps, SelectTemplatesLegalP
 			iconClose: 'angle-down',
 			iconOpen: 'angle-down',
 		},
+
+		'select dropdown button icon': {
+			size: 17,
+		},
 	},
 };

@@ -39,7 +39,7 @@ export type LibraryImports = {
 		// matterhorn: (args?: any) => Promise<ThemeComplete>;
 		pike: (args?: any) => Promise<ThemeComplete>;
 		// snapnco: (args?: any) => Promise<ThemeComplete>;
-		// snappy: (args?: any) => Promise<ThemeComplete>;
+		denali: (args?: any) => Promise<ThemeComplete>;
 	};
 	plugins: {
 		shopify: {
@@ -346,9 +346,9 @@ export class LibraryStore {
 			// snapnco: async () => {
 			// 	return this.themes.snapnco || (this.themes.snapnco = (await import('./library/themes/snapnco')).snapnco);
 			// },
-			// snappy: async () => {
-			// 	return this.themes.snappy || (this.themes.snappy = (await import('./library/themes/snappy')).snappy);
-			// },
+			denali: async () => {
+				return this.themes.denali || (this.themes.denali = (await import('./library/themes/denali')).denali);
+			},
 		},
 		plugins: {
 			shopify: {

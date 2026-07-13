@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 
 import { SnapTemplates, TemplatesStore } from '../../src';
 import { ThemeComplete, ThemeProvider } from '../src/providers/theme';
-import { base, bocachica, pike, snappy, snapnco } from '../src/themes';
+import { base, bocachica, pike, denali, snapnco } from '../src/themes';
 
 // custom styles for storybook
 import './styles.scss';
@@ -27,7 +27,7 @@ addTheme(snapTemplates, 'base', base);
 addTheme(snapTemplates, 'bocachica', bocachica);
 addTheme(snapTemplates, 'pike', pike);
 addTheme(snapTemplates, 'snapnco', snapnco);
-addTheme(snapTemplates, 'snappy', snappy);
+addTheme(snapTemplates, 'denali', denali);
 
 // color keys that map to theme variables.colors
 const COLOR_KEYS = ['primary', 'secondary', 'accent'] as const;
@@ -133,7 +133,7 @@ export const decorators = [
 		const themeDecoratorFn = withThemeFromJSXProvider({
 			themes: {
 				snapnco: snapTemplates.templates.themes.library.snapnco.theme,
-				snappy: snapTemplates.templates.themes.library.snappy.theme,
+				denali: snapTemplates.templates.themes.library.denali.theme,
 				bocachica: snapTemplates.templates.themes.library.bocachica.theme,
 				base: snapTemplates.templates.themes.library.base.theme,
 				pike: snapTemplates.templates.themes.library.pike.theme,
