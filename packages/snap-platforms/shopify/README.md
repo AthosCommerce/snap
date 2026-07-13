@@ -129,3 +129,117 @@ plugins: {
 	}
 }
 ```
+
+### pluginShopifyMarkets
+
+The **Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
+
+When used through `SnapTemplates` on Shopify, enabling `markets` also automatically applies `theme.overrides.default.price.format = shopifyMarketsPriceFormat` unless you already provide a custom `price.format` override.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| token | Shopify Storefront Access Token | string | — | ✅ |
+| baseCurrency | Your store's base/catalog currency | string | `'USD'` | ➖ |
+| baseUrl | Optional override for store URL | string | — | ➖ |
+| path | Optional override for GraphQL API path | string | `'/api/2025-04/graphql.json'` | ➖ |
+| idFieldName | Dot-notation path on the variant object used to match against Shopify variant IDs | string | `'mappings.core.uid'` | ➖ |
+
+#### Setup
+
+1. Register the plugin in your SnapTemplates config:
+
+```tsx
+import { SnapTemplates } from '@athoscommerce/snap-preact';
+
+const config = {
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		shopify: {
+			markets: {
+				token: 'your-storefront-access-token',
+				baseCurrency: 'USD',  // e.g., 'USD', 'EUR', 'GBP'
+				idFieldName: 'mappings.core.uid', // optional; use a custom field if variant UIDs don't match Shopify variant IDs
+				// baseUrl and path are optional; defaults work for standard Shopify stores
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+};
+
+new SnapTemplates(config);
+```
+
+#### How It Works
+
+1. After search results load, the plugin detects if the active currency (`Shopify.currency.active`) differs from `baseCurrency`
+2. For uncached products, it fetches localized `priceRange` and `compareAtPriceRange` from Shopify GraphQL
+3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
+4. Sets `result.state.priceFetched = true` when pricing is ready to display
+5. Caches results in an in-memory price cache local to the plugin instance to avoid redundant API calls
+
+When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format'])`:
+
+- `format`: Shopify money format template (for example, `${{amount}}`)
+
+Example script context:
+
+```html
+<script id="athos-context" src="bundle.js">
+	format = '${{amount}}';
+</script>
+```
+
+#### Using in Your Result Component
+
+Always check the `priceFetched` flag before rendering prices to ensure data has been fetched.
+When using `SnapTemplates`, you do not need to import `shopifyMarketsPriceFormat` or pass a `format` prop for the templated `Price` component.
+
+```tsx
+import { h, Fragment } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { Price } from '@athoscommerce/snap-preact/components';
+
+export const CustomResult = observer(({ result, treePath }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const { priceFetched } = result.state;
+	return (
+		<article className="product-result">
+			<h2>{core?.name}</h2>
+
+			{/* Only render pricing after priceFetched is true */}
+			{priceFetched && (
+				<div className="pricing">
+					{core?.price && core?.msrp && core.price < core.msrp ? (
+						<Fragment>
+							{/* Show strikethrough MSRP */}
+							<Price
+								value={core.msrp}
+								lineThrough={true}
+								treePath={treePath}
+							/>
+							{/* Show sale price */}
+							<Price
+								value={core.price}
+								treePath={treePath}
+								className="sale-price"
+							/>
+						</Fragment>
+					) : (
+						<Price
+							value={core?.price}
+							treePath={treePath}
+						/>
+					)}
+				</div>
+			)}
+		</article>
+	);
+});
+```
+
+If you are not using `SnapTemplates`, or want custom formatting behavior, you can still explicitly import and pass `shopifyMarketsPriceFormat` (or your own formatter).

@@ -2,6 +2,7 @@ import { h } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
@@ -26,7 +27,7 @@ const defaultStyles: StyleScript<OverlayProps> = ({ transitionSpeed, color }) =>
 	});
 };
 
-export function Overlay(properties: OverlayProps) {
+export const Overlay = observer((properties: OverlayProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -58,7 +59,7 @@ export function Overlay(properties: OverlayProps) {
 			/>
 		</CacheProvider>
 	);
-}
+});
 
 export type OverlayProps = OverlayTemplatesLegalProps & ComponentProps<OverlayProps>;
 

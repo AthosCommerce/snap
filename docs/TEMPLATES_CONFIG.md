@@ -188,6 +188,8 @@ Snap Templates was built to intentionally not support custom Preact components c
 - `resultComponent` accepts built-in result component names (`Result`, `OverlayResult`) and any names registered in `components.result`.
 - `customComponent` requires explicit component registration in `components` for the component section being overridden. Built-in fallback names are not used for `customComponent`.
 
+`globalResultComponent` utilizes `resultComponent` name resolution for result rendering and applies that selection globally across templates.
+
 
 
 | Configuration Option | Description | Type | Default |

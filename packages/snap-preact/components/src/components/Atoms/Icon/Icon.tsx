@@ -2,6 +2,7 @@ import { h, ComponentChildren, JSX, VNode } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
@@ -20,7 +21,7 @@ const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, wid
 	});
 };
 
-export function Icon(properties: IconProps) {
+export const Icon = observer((properties: IconProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -115,7 +116,7 @@ export function Icon(properties: IconProps) {
 			</svg>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type SVGPathElement = {
 	type: string;

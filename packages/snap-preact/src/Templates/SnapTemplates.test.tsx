@@ -1,14 +1,18 @@
 import { version } from '@athoscommerce/snap-toolbox';
 import {
+	applyAutomaticThemeOverrides,
 	createAutocompleteTargeters,
 	createPlugins,
+	createSearchTargeters,
 	createSnapConfig,
 	DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS,
 	DEFAULT_FEATURES,
+	SnapTemplates,
 } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
+import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 describe('createPlugins with custom plugins', () => {
 	const baseConfigValues = {
@@ -425,6 +429,66 @@ describe('createSnapConfig with custom plugins', () => {
 		const plugins = recsConfig?.config?.plugins || [];
 		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
 		expect(customPluginEntry).toBeDefined();
+	});
+});
+
+describe('applyAutomaticThemeOverrides', () => {
+	it('adds shopify markets price formatter when markets plugin is configured', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'shopify',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			plugins: {
+				shopify: {
+					markets: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const resolved = applyAutomaticThemeOverrides(config);
+		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+
+		expect(priceConfig?.format).toBeDefined();
+	});
+
+	it('does not override an explicitly configured price formatter', () => {
+		const existingFormat = jest.fn();
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'shopify',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+				overrides: {
+					default: {
+						price: {
+							format: existingFormat,
+						},
+					},
+				},
+			},
+			plugins: {
+				shopify: {
+					markets: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const resolved = applyAutomaticThemeOverrides(config);
+		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+
+		expect(priceConfig?.format).toBe(existingFormat);
 	});
 });
 
@@ -937,5 +1001,249 @@ describe('createAutocompleteTargeters props.input', () => {
 
 		// Second targeter renders into a separate node; originalElem is #ac-dropdown, not the input
 		expect(targeters[1].props?.input).toBe('#header-search');
+	});
+});
+
+describe('createSearchTargeters autoRetarget and hideTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('sets autoRetarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].autoRetarget).toBe(true);
+	});
+
+	it('sets hideTarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].hideTarget).toBe(true);
+	});
+
+	it('applies autoRetarget and hideTarget to all search targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [
+					{ selector: '#search-1', component: 'Search' },
+					{ selector: '#search-2', component: 'Search' },
+					{ selector: '#search-3', component: 'Search' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(3);
+		targeters.forEach((targeter) => {
+			expect(targeter.autoRetarget).toBe(true);
+			expect(targeter.hideTarget).toBe(true);
+		});
+	});
+});
+
+describe('createAutocompleteTargeters autoRetarget and hideTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('sets autoRetarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [{ inputSelector: '.search-input', component: 'AutocompleteFixed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].autoRetarget).toBe(true);
+	});
+
+	it('sets hideTarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [{ inputSelector: '.search-input', component: 'AutocompleteFixed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].hideTarget).toBe(true);
+	});
+
+	it('applies autoRetarget and hideTarget to all autocomplete targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [
+					{ inputSelector: '.search-input-1', component: 'AutocompleteFixed' },
+					{ inputSelector: '.search-input-2', component: 'AutocompleteFixed' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(2);
+		targeters.forEach((targeter) => {
+			expect(targeter.autoRetarget).toBe(true);
+			expect(targeter.hideTarget).toBe(true);
+		});
+	});
+});
+
+describe('globalResultComponent configuration', () => {
+	const baseConfigValues = {
+		config: {
+			platform: 'other' as const,
+			siteId: 'test123',
+		},
+		theme: {
+			extends: 'base' as const,
+		},
+	};
+
+	it('should apply one global result renderer across templates', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+			},
+		};
+
+		new SnapTemplates(config);
+
+		// Internally this is represented as a global result customComponent override.
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+	});
+
+	it('should merge global result renderer with existing overrides', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+				overrides: {
+					default: {
+						'recommendation.similar': {
+							slidesPerView: 3,
+						},
+					},
+				},
+			},
+		};
+
+		new SnapTemplates(config);
+
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect((config.theme.overrides?.default?.['recommendation.similar'] as any)?.slidesPerView).toBe(3);
+	});
+
+	it('should not override an existing result override', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'GlobalResult',
+				overrides: {
+					default: {
+						result: {
+							customComponent: 'SpecificResult',
+						},
+					},
+				},
+			},
+		};
+
+		new SnapTemplates(config);
+
+		// The specific override should take precedence over the global one (because it's merged second)
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('SpecificResult');
+	});
+
+	it('should apply globalResultComponent without overrides object', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+			},
+		};
+
+		new SnapTemplates(config);
+
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect(config.theme.overrides?.default).toBeDefined();
+	});
+
+	it('should not add overrides if globalResultComponent is not specified', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfigValues,
+			theme: {
+				extends: 'base',
+			},
+		};
+
+		new SnapTemplates(config);
+		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
+		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
+	});
+});
+
+describe('SnapTemplates siteId context fallback', () => {
+	afterEach(() => {
+		delete window.athos;
+		document.body.innerHTML = '';
+	});
+
+	it('uses context siteId when template config omits config.siteId', () => {
+		document.body.innerHTML = `<script id="athos-context">siteId = 'siteid';</script>`;
+
+		const config = {
+			config: {
+				platform: 'other' as const,
+			},
+			theme: {
+				extends: 'base' as const,
+			},
+		} as SnapTemplatesConfig;
+
+		const snap = new SnapTemplates(config);
+
+		expect((snap.client as any).globals.siteId).toBe('siteid');
 	});
 });

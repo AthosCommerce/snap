@@ -147,6 +147,17 @@ export const Results = observer((properties: ResultsProps) => {
 
 	const styling = mergeStyles<ResultsProps>({ ...props, columns: layout == ResultsLayout.list ? 1 : props.columns }, defaultStyles);
 
+	// Precompute merged theme for named result components to avoid repeated deepmerge in the loop
+	const mergedResultComponentTheme = isNamedResultComponent
+		? deepmerge(theme || {}, {
+				components: {
+					result: {
+						customComponent: resultComponent,
+					},
+				},
+		  })
+		: theme;
+
 	return results?.length ? (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__results', `ss__results-${props.layout}`, className, internalClassName)}>
@@ -166,7 +177,7 @@ export const Results = observer((properties: ResultsProps) => {
 												key: (result as Product).id,
 												controller,
 												result: result as Product,
-												theme,
+												theme: mergedResultComponentTheme,
 												treePath,
 											})}
 										</ResultTracker>
