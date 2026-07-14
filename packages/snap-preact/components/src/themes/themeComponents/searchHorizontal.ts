@@ -24,6 +24,10 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 	},
 
 	mobile: {
+		searchHorizontal: {
+			hideSidebar: false,
+			toggleSidebarStartClosed: false,
+		},
 		'searchHorizontal toolbar.top': {
 			layout: [['banner.header'], ['searchHeader', '_']],
 		},
@@ -32,6 +36,9 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 		},
 		'searchHorizontal results': {
 			columns: 2,
+		},
+		'searchHorizontal filterSummary': {
+			hideTitle: false,
 		},
 	},
 	tablet: {
