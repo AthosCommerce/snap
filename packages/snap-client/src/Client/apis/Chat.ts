@@ -80,6 +80,9 @@ export type ChatStatusResponse = {
 	};
 };
 
+/** Maximum characters the chat backend accepts in a request `message`. */
+export const CHAT_MAX_MESSAGE_LENGTH = 256;
+
 // DISCRIMINATOR: "requestType" === general, productQuery, productComparison, productSearch, inspiration, imageSearch, content, productSimilar
 export type MoiRequestModel =
 	| MoiRequestModelGeneral
@@ -114,7 +117,7 @@ export type MoiRequestModelProductSearch = {
 
 export type MoiRequestModelProductComparison = {
 	requestType: 'productComparison';
-	message: string;
+	message?: string;
 	productIds: string[];
 };
 
@@ -126,7 +129,6 @@ export type MoiRequestModelImageSearch = {
 
 export type MoiRequestModelProductSimilar = {
 	requestType: 'productSimilar';
-	message: string;
 	productId: string;
 };
 

@@ -12,6 +12,7 @@ import { useChatGestures } from './hooks/useChatGestures';
 import { useChatOverflow } from './hooks/useChatOverflow';
 import { useChatFileUpload } from './hooks/useChatFileUpload';
 import type { ChatController } from '@athoscommerce/snap-controller';
+import { CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
 import { Button } from '../../Atoms/Button';
 import { useRef, useEffect, useMemo, useState } from 'preact/hooks';
 
@@ -43,6 +44,9 @@ import {
 // Fallback footer copy when chat becomes disabled mid-session and store.error has
 // been cleared (e.g. by createChat) — mirrors the controller's unavailable message.
 const CHAT_UNAVAILABLE_MESSAGE = 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!';
+
+// show the character counter only when the user is approaching the limit
+const CHAR_COUNTER_THRESHOLD = 200;
 
 export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Element => {
 	const globalTheme: Theme = useTheme();
@@ -1610,6 +1614,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 												<input
 													type="text"
 													name="ss-chat-input"
+													maxLength={CHAT_MAX_MESSAGE_LENGTH}
 													disabled={store.loading || store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false}
 													placeholder={(() => {
 														const comparedCount = store.currentChat?.comparisons.compared.length || 0;
@@ -1646,6 +1651,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 													}}
 													value={controller.store.inputValue}
 												/>
+												{controller.store.inputValue.length >= CHAR_COUNTER_THRESHOLD && (
+													<span className={'ss__chat__input__counter'}>{`${controller.store.inputValue.length}/${CHAT_MAX_MESSAGE_LENGTH}`}</span>
+												)}
 												{store.features.imageSearch.enabled && (
 													<>
 														<Button

@@ -31,7 +31,7 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
-import { ChatRequestModel, ChatTrackingContext, MoiRequestModel } from '@athoscommerce/snap-client';
+import { ChatRequestModel, ChatTrackingContext, MoiRequestModel, CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
 import type { ChatAttachmentImage, ChatAttachmentProduct, Product, Banner, ChatSessionStore } from '@athoscommerce/snap-store-mobx';
 import {
 	type Product as BeaconProduct,
@@ -380,7 +380,6 @@ export class ChatController extends AbstractController {
 		if (similarProducts?.length === 1) {
 			chatRequest = {
 				requestType: 'productSimilar',
-				message: this.store.inputValue,
 				productId: similarProducts[0].productId,
 			};
 		}
@@ -645,6 +644,9 @@ export class ChatController extends AbstractController {
 					this.store.createChat();
 				}
 				this.store.open = !this.store.open;
+				if (this.store.open) {
+					this.scheduleResume();
+				}
 			},
 		},
 	};
@@ -663,6 +665,8 @@ export class ChatController extends AbstractController {
 			this.search({ data: { message: initialMessage } } as Partial<ChatRequestModel>);
 		} else if (!this.store.currentChat) {
 			this.store.createChat();
+		} else {
+			this.scheduleResume();
 		}
 		if (!initialMessage) {
 			setTimeout(() => {
@@ -676,6 +680,40 @@ export class ChatController extends AbstractController {
 		if (input) {
 			input.focus();
 		}
+	};
+
+	/** Mirror the backend's per-requestType message rules at the submit boundary.
+	 * Returns the shaped request data, or undefined when the request must not be sent. */
+	private finalizeRequestData = (data: MoiRequestModel): MoiRequestModel | undefined => {
+		const finalized = { ...data } as MoiRequestModel & { message?: string };
+
+		if (typeof finalized.message === 'string') {
+			finalized.message = finalized.message.trim();
+		}
+
+		if (finalized.requestType === 'productSimilar') {
+			delete finalized.message;
+			return finalized;
+		}
+
+		if ((finalized.message?.length || 0) > CHAT_MAX_MESSAGE_LENGTH) {
+			this.log.warn(`chat message exceeds ${CHAT_MAX_MESSAGE_LENGTH} characters; request not sent`);
+			return undefined;
+		}
+
+		if (finalized.requestType === 'productComparison' || finalized.requestType === 'productSearch') {
+			if (!finalized.message) {
+				delete finalized.message;
+			}
+			return finalized;
+		}
+
+		if (!finalized.message) {
+			this.log.warn(`chat requestType '${finalized.requestType}' requires a message; request not sent`);
+			return undefined;
+		}
+
+		return finalized;
 	};
 
 	search = async (overrides?: Partial<ChatRequestModel>): Promise<void> => {
@@ -692,6 +730,10 @@ export class ChatController extends AbstractController {
 		this.store.inputValue = filters.stripHTML(this.store.inputValue);
 		const params = deepmerge(this.params, overrides || {});
 
+		const finalizedData = this.finalizeRequestData(params.data);
+		if (!finalizedData) return;
+		params.data = finalizedData;
+
 		// Ensure a chat exists synchronously so the user message can be pushed
 		// without waiting for chatInit; startNewChat below will reuse this same
 		// chat and attach the sessionId once the API roundtrips complete.
@@ -699,13 +741,22 @@ export class ChatController extends AbstractController {
 			this.store.createChat();
 		}
 
-		// Push the user message and flip loading on synchronously. Previously these
-		// happened after `await prepareRequest`, which made the chat feel unresponsive
-		// during the chatStatus/chatInit network calls and let spam clicks slip past
-		// the loading guard.
+		// Push the user message synchronously so the chat feels responsive during
+		// the chatStatus/chatInit network calls.
 		this.store.request(params);
-		this.store.loading = true;
 		this.store.inputValue = '';
+
+		await this.send(params);
+	};
+
+	/** Network/error lifecycle for an already-shaped request. Called by search()
+	 * (after pushing the user message) and by resumePendingRequest() (whose user
+	 * message is already in the persisted history). */
+	private send = async (params: ChatRequestModel): Promise<void> => {
+		this.store.loading = true;
+		// persist the in-flight request so navigating away before the response
+		// leaves a resumable trail; cleared on response or surfaced error below
+		this.store.currentChat?.setPendingRequest(params.data);
 		// capture the chat this request belongs to so a response from a chat
 		// the user has since left isn't applied to the new active chat
 		const requestChatId: string | undefined = this.store.currentChat?.id;
@@ -714,7 +765,10 @@ export class ChatController extends AbstractController {
 			const proceed = await this.prepareRequest(params);
 			// prepareRequest sets store.error when chat is disabled or session init
 			// fails — the existing error banner surfaces that to the user.
-			if (!proceed) return;
+			if (!proceed) {
+				this.store.currentChat?.setPendingRequest(null);
+				return;
+			}
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
 
@@ -729,12 +783,16 @@ export class ChatController extends AbstractController {
 			}
 
 			this.store.update(response);
+			this.store.currentChat?.setPendingRequest(null);
 		} catch (err: any) {
 			// if user has switched away from this chat, suppress the error so it
 			// doesn't surface (e.g. "failed to fetch") on the new chat
 			if (requestChatId && this.store.currentChat?.id !== requestChatId) {
 				return;
 			}
+			// the failure is surfaced to the user below — don't silently re-send it
+			// the next time the chat opens
+			this.store.currentChat?.setPendingRequest(null);
 			if (err) {
 				if (err.err && err.fetchDetails) {
 					// session limit exceeded — flag the current chat so the UI can show a banner
@@ -790,6 +848,42 @@ export class ChatController extends AbstractController {
 				this.store.loading = false;
 			}
 		}
+	};
+
+	/** Re-send a request that never received a response (the user navigated away
+	 * mid-flight). The user message is already in the persisted history, so the
+	 * stored request data is sent verbatim without pushing a new message. */
+	resumePendingRequest = async (): Promise<void> => {
+		const pending = this.store.currentChat?.pendingRequest;
+		if (!pending || this.store.loading || this.store.currentChat?.isExpired) return;
+
+		const { userId, shopperId } = this.tracker.getContext();
+		const params: ChatRequestModel = {
+			context: {
+				sessionId: this.store.currentChat?.sessionId,
+			},
+			data: pending,
+			tracking: {
+				...this.getChatTrackingContext(),
+				userId,
+			},
+		};
+		if (shopperId) {
+			params.personalization = { shopper: shopperId };
+		}
+
+		this.store.error = undefined;
+		await this.send(params);
+	};
+
+	/** Schedule a resume for after the current tick, so an explicit send issued in
+	 * the same tick (e.g. the chat/send event fires openChat() then search())
+	 * takes priority — by the time this runs, that send holds the loading flag
+	 * and has replaced pendingRequest. */
+	private scheduleResume = (): void => {
+		setTimeout(() => {
+			this.resumePendingRequest();
+		});
 	};
 
 	track: ChatTrackMethods = {
@@ -895,6 +989,7 @@ export class ChatController extends AbstractController {
 
 				const responseId = result.responseId;
 				const chatSessionId = this.store.currentChat?.sessionId;
+				const chatId = this.store.currentChat?.id;
 
 				if (!chatSessionId) {
 					this.log.warn('No chatSessionId available for track.product.impression');
@@ -904,6 +999,16 @@ export class ChatController extends AbstractController {
 				this.events[responseId] = this.events[responseId] || { product: {} };
 
 				if (this.events[responseId]?.product[result.id]?.impression) {
+					return;
+				}
+
+				const productId = '' + result.id;
+
+				// Persisted dedup — survives page navigation so a product already
+				// impressed for this chat + response is not re-impressed on reopen.
+				if (chatId && responseId && this.store.impressionStorage.get([chatId, responseId, productId])) {
+					this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
+					this.events[responseId].product[result.id].impression = true;
 					return;
 				}
 
@@ -926,6 +1031,10 @@ export class ChatController extends AbstractController {
 				this.config.beacon?.enabled && this.tracker.events.chat.impression({ data });
 				this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
 				this.events[responseId].product[result.id].impression = true;
+
+				if (chatId && responseId) {
+					this.store.impressionStorage.set([chatId, responseId, productId], true);
+				}
 			},
 			feedback: (thumbs: 'UP' | 'DOWN'): void => {
 				const chatSessionId = this.store.currentChat?.sessionId;

@@ -13,6 +13,7 @@ import type {
 	ChatResponseProductRecommendationData,
 	ChatResponseErrorData,
 	ChatResponseTopicDriftData,
+	MoiRequestModel,
 } from '@athoscommerce/snap-client';
 import {
 	ChatAttachmentAddAttachment,
@@ -205,6 +206,7 @@ type ChatSessionStoreConfig = {
 		createdAt?: Date;
 		sessionEndTime?: Date;
 		committedComparisons?: any[];
+		pendingRequest?: MoiRequestModel | null;
 	};
 	stores: {
 		storage: StorageStore;
@@ -233,6 +235,9 @@ export class ChatSessionStore {
 	public createdAt: Date = new Date();
 	public sessionEndTime?: Date;
 	public requestType: string = '';
+	/** Request data awaiting a response — persisted so an unanswered message
+	 * survives navigation and can be re-sent when the chat reopens. */
+	public pendingRequest: MoiRequestModel | null = null;
 	public dismissedSideChatMessageId: string | null = null;
 	public activeMessageId: string | null = null;
 	public sessionLimitReached: boolean = false;
@@ -240,7 +245,8 @@ export class ChatSessionStore {
 	public hydrated: boolean = true;
 
 	constructor(params: ChatSessionStoreConfig) {
-		const { id, sessionId, chat, attachments, actions, feedback, createdAt, sessionEndTime, committedComparisons } = params.data || {};
+		const { id, sessionId, chat, attachments, actions, feedback, createdAt, sessionEndTime, committedComparisons, pendingRequest } =
+			params.data || {};
 		const { stores } = params;
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
@@ -248,6 +254,7 @@ export class ChatSessionStore {
 		this.actions = actions || [];
 		this.createdAt = createdAt ? new Date(createdAt) : new Date();
 		this.sessionEndTime = sessionEndTime ? new Date(sessionEndTime) : undefined;
+		this.pendingRequest = pendingRequest || null;
 		this.feedback = {
 			rating: feedback?.rating || null,
 			dismissed: feedback?.dismissed || false,
@@ -297,6 +304,7 @@ export class ChatSessionStore {
 		makeObservable(this, {
 			chat: observable,
 			requestType: observable,
+			pendingRequest: observable,
 			actions: observable,
 			attachments: observable,
 			feedback: observable,
@@ -468,6 +476,7 @@ export class ChatSessionStore {
 			createdAt: this.createdAt,
 			sessionEndTime: this.sessionEndTime,
 			committedComparisons: this.comparisons.committedItems,
+			pendingRequest: this.pendingRequest,
 		});
 	}
 
@@ -485,8 +494,14 @@ export class ChatSessionStore {
 		}, 0);
 	}
 
-	/** Remove oldest stored sessions when exceeding the limit. */
-	public static pruneStoredSessions(storage: StorageStore, maxSessions: number = 10): void {
+	public setPendingRequest(data: MoiRequestModel | null): void {
+		this.pendingRequest = data;
+		this.save();
+	}
+
+	/** Remove oldest stored sessions when exceeding the limit. Returns the ids removed. */
+	public static pruneStoredSessions(storage: StorageStore, maxSessions: number = 10): string[] {
+		const prunedIds: string[] = [];
 		const storedChats = storage.get('chats');
 		if (storedChats) {
 			const chatIds = Object.keys(storedChats);
@@ -500,9 +515,11 @@ export class ChatSessionStore {
 					.slice(0, chatIds.length - maxSessions)
 					.forEach((id) => {
 						storage.set(`chats.${id}`, null);
+						prunedIds.push(id);
 					});
 			}
 		}
+		return prunedIds;
 	}
 
 	/** Re-wrap raw stored results as Product / SearchResultStore instances. */

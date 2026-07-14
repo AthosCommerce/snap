@@ -28,6 +28,7 @@ export {
 	ChatResponseTopicDriftData,
 } from './Client/transforms';
 export {
+	CHAT_MAX_MESSAGE_LENGTH,
 	MoiRequestModel,
 	MoiRequestModelGeneral,
 	MoiRequestModelProductQuery,

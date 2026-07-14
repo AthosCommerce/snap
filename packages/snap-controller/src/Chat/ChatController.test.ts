@@ -208,6 +208,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 
 			let loadingDuringSearch = false;
 			const originalChat = controller.client.chat.bind(controller.client);
@@ -255,6 +256,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 			const handleError = jest.spyOn(controller, 'handleError');
 			const error = new Error('Too many requests');
 
@@ -277,6 +279,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 			const handleError = jest.spyOn(controller, 'handleError');
 			const error = new Error('Server error');
 
@@ -299,6 +302,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 
 			controller.client.chat = jest.fn(() => {
 				throw {
@@ -317,6 +321,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 			const logSpy = jest.spyOn(controller.log, 'error');
 
 			controller.client.chat = jest.fn(() => {
@@ -335,6 +340,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 
 			controller.client.chat = jest.fn(() => {
 				throw { err: new Error('fail'), fetchDetails: { status: 500, url: 'test.com' } };
@@ -351,6 +357,7 @@ describe('Chat Controller', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = false;
+			controller.store.inputValue = 'test message';
 			const logSpy = jest.spyOn(controller.log, 'warn');
 
 			await controller.search();
@@ -364,6 +371,7 @@ describe('Chat Controller', () => {
 		it('starts a new chat when no session exists', async () => {
 			const controller = createController();
 			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
 			expect(controller.store.currentChat).toBeUndefined();
 
 			const chatInitSpy = jest.spyOn(controller.client, 'chatInit');
@@ -834,6 +842,100 @@ describe('Chat Controller', () => {
 			eventSpy.mockClear();
 		});
 
+		it('track.product.impression persists a seen flag to impressionStorage', () => {
+			const controller = createController({ beacon: { enabled: true } });
+			controller.store.createChat({ sessionId: 'test-session-persist' });
+			const chatId = controller.store.currentChat!.id;
+
+			const result = {
+				id: 'prod1',
+				responseId: 'resp1',
+				mappings: { core: { parentId: 'parent1', uid: 'uid1', sku: 'sku1' } },
+			} as unknown as Product;
+
+			controller.track.product.impression(result);
+
+			expect(controller.store.impressionStorage.get([chatId, 'resp1', 'prod1'])).toBe(true);
+		});
+
+		it('track.product.impression does not re-fire when the flag is already persisted (post-navigation)', () => {
+			const controller = createController({ beacon: { enabled: true } });
+			controller.store.createChat({ sessionId: 'test-session-nav' });
+			const chatId = controller.store.currentChat!.id;
+
+			const result = {
+				id: 'prod1',
+				responseId: 'resp1',
+				mappings: { core: { parentId: 'parent1', uid: 'uid1', sku: 'sku1' } },
+			} as unknown as Product;
+
+			// Simulate a previous page view having already impressed this product:
+			// storage is populated, but this controller's in-memory events map is empty.
+			controller.store.impressionStorage.set([chatId, 'resp1', 'prod1'], true);
+
+			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
+			controller.track.product.impression(result);
+
+			const impressionCalls = eventSpy.mock.calls.filter((call) => call[0] === 'track.product.impression');
+			expect(impressionCalls.length).toBe(0);
+		});
+
+		it('track.product.impression fires again for the same product under a different responseId', () => {
+			const controller = createController({ beacon: { enabled: true } });
+			controller.store.createChat({ sessionId: 'test-session-resp' });
+			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
+
+			const base = { id: 'prod1', mappings: { core: { parentId: 'p', uid: 'u', sku: 's' } } };
+			controller.track.product.impression({ ...base, responseId: 'resp1' } as unknown as Product);
+			controller.track.product.impression({ ...base, responseId: 'resp2' } as unknown as Product);
+
+			const impressionCalls = eventSpy.mock.calls.filter((call) => call[0] === 'track.product.impression');
+			expect(impressionCalls.length).toBe(2);
+		});
+
+		it("a fresh controller does not treat one chat's impressions as another's (chatId isolation)", () => {
+			// The in-memory events map is keyed by responseId only, so chatId isolation
+			// lives entirely in storage. A fresh controller (empty events) is what makes
+			// this observable — the same page-navigation scenario, but into a different chat.
+			const result = {
+				id: 'prod1',
+				responseId: 'resp1',
+				mappings: { core: { parentId: 'p', uid: 'u', sku: 's' } },
+			} as unknown as Product;
+
+			// Controller 1 impresses prod1/resp1 in chat A (shares localStorage key via chatConfig.id).
+			const c1 = createController({ beacon: { enabled: true } });
+			c1.store.createChat({ sessionId: 'session-a' });
+			const chatAId = c1.store.currentChat!.id;
+			c1.track.product.impression(result);
+
+			// Fresh controller (navigation) whose current chat is a different chat B.
+			const c2 = createController({ beacon: { enabled: true } });
+			c2.store.createChat({ sessionId: 'session-b' });
+			const chatBId = c2.store.currentChat!.id;
+			expect(chatBId).not.toBe(chatAId);
+
+			const eventSpy = jest.spyOn(c2.eventManager, 'fire');
+			c2.track.product.impression(result);
+
+			const impressionCalls = eventSpy.mock.calls.filter((call) => call[0] === 'track.product.impression');
+			expect(impressionCalls.length).toBe(1);
+		});
+
+		it('track.product.impression does not throw or persist when responseId is missing', () => {
+			const controller = createController({ beacon: { enabled: true } });
+			controller.store.createChat({ sessionId: 'session-noresp' });
+			const chatId = controller.store.currentChat!.id;
+
+			const result = {
+				id: 'prod1',
+				mappings: { core: { parentId: 'p', uid: 'u', sku: 's' } },
+			} as unknown as Product;
+
+			expect(() => controller.track.product.impression(result)).not.toThrow();
+			expect(controller.store.impressionStorage.get([chatId, 'undefined', 'prod1'])).not.toBe(true);
+		});
+
 		it('track.product.clickThrough fires event', () => {
 			const controller = createController({ beacon: { enabled: true } });
 			controller.store.createChat({ sessionId: 'test-session-001' });
@@ -1242,6 +1344,231 @@ describe('Chat Controller', () => {
 			expect(params.data.requestType).toBe('productSearch');
 			expect((params.data as any).message).toBe('show me jackets');
 			expect((params.data as any).searchFilters).toEqual([{ key: 'color', options: [{ key: 'red' }] }]);
+		});
+	});
+
+	describe('request validation', () => {
+		it('drops general requests with a blank message and warns', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			const warnSpy = jest.spyOn(controller.log, 'warn');
+			controller.store.inputValue = '   ';
+
+			await controller.search();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(warnSpy).toHaveBeenCalled();
+			expect(controller.store.currentChat?.chat.length).toBe(0);
+			expect(controller.store.loading).toBe(false);
+		});
+
+		it('drops requests with a message over 256 characters and warns', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			const warnSpy = jest.spyOn(controller.log, 'warn');
+			controller.store.inputValue = 'a'.repeat(257);
+
+			await controller.search();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(warnSpy).toHaveBeenCalled();
+			expect(controller.store.currentChat?.chat.length).toBe(0);
+		});
+
+		it('sends a message of exactly 256 characters', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			controller.store.inputValue = 'a'.repeat(256);
+
+			await controller.search();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('never sends a message field on productSimilar requests', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			controller.store.inputValue = 'show me similar stuff';
+
+			await controller.search({ data: { requestType: 'productSimilar', productId: 'prod-1' } } as any);
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data;
+			expect(sentData.requestType).toBe('productSimilar');
+			expect(sentData).not.toHaveProperty('message');
+		});
+
+		it('omits a blank message on productComparison requests but still sends', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			controller.store.inputValue = '';
+
+			await controller.search({ data: { requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } } as any);
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data;
+			expect(sentData.requestType).toBe('productComparison');
+			expect(sentData).not.toHaveProperty('message');
+		});
+
+		it('keeps a non-blank message on productComparison requests', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			controller.store.inputValue = 'which is warmer?';
+
+			await controller.search({ data: { requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } } as any);
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect((chatSpy.mock.calls[0][0].data as any).message).toBe('which is warmer?');
+		});
+
+		it('omits a blank message on productSearch requests but still sends', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			controller.store.inputValue = '   ';
+
+			await controller.search({ data: { requestType: 'productSearch' } } as any);
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data;
+			expect(sentData.requestType).toBe('productSearch');
+			expect(sentData).not.toHaveProperty('message');
+		});
+	});
+
+	describe('pendingRequest resume', () => {
+		it('search sets pendingRequest while in flight and clears it on response', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'show me dresses';
+
+			let pendingDuringFlight;
+			const originalChat = controller.client.chat.bind(controller.client);
+			controller.client.chat = jest.fn(async (params) => {
+				pendingDuringFlight = controller.store.currentChat?.pendingRequest;
+				return originalChat(params);
+			});
+
+			await controller.search();
+
+			expect(pendingDuringFlight).toEqual(expect.objectContaining({ requestType: 'general', message: 'show me dresses' }));
+			expect(controller.store.currentChat?.pendingRequest).toBeNull();
+		});
+
+		it('clears pendingRequest when the request errors', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'show me dresses';
+			controller.client.chat = jest.fn().mockRejectedValue({ err: new Error('boom'), fetchDetails: { status: 500 } });
+
+			await controller.search();
+
+			expect(controller.store.currentChat?.pendingRequest).toBeNull();
+			expect(controller.store.error).toBeDefined();
+		});
+
+		it('re-sends a pending request on openChat without pushing a duplicate user message', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			controller.openChat();
+			// resume is deferred a tick, then awaits the mocked network roundtrip
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect(chatSpy.mock.calls[0][0].data).toEqual({ requestType: 'general', message: 'lost message' });
+			const userMessages = controller.store.currentChat?.chat.filter((m) => m.messageType === 'user') || [];
+			expect(userMessages.length).toBe(0);
+			expect(controller.store.currentChat?.pendingRequest).toBeNull();
+		});
+
+		it('re-sends a pending request when the chat is opened via the bubble toggle', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			controller.handlers.button.click();
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			expect(controller.store.open).toBe(true);
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not re-send when nothing is pending', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			controller.openChat();
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			expect(chatSpy).not.toHaveBeenCalled();
+		});
+
+		it('does not resume when the session has expired', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat!.sessionEndTime = new Date(Date.now() - 1000);
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(controller.store.currentChat?.pendingRequest).toEqual({ requestType: 'general', message: 'lost message' });
+		});
+
+		it('does not resume while a request is already loading', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.loading = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+		});
+
+		it('a new message sent right after opening wins over the pending resume', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			// mirrors the setupEvents chat/send flow: openChat() then search() in the same tick
+			controller.openChat();
+			const searchPromise = controller.search({ data: { requestType: 'general', message: 'new message' } } as any);
+			await searchPromise;
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect((chatSpy.mock.calls[0][0].data as any).message).toBe('new message');
 		});
 	});
 });

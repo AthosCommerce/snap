@@ -1,6 +1,8 @@
 import { ChatStore } from './ChatStore';
 import { ChatStoreConfig } from '../types';
 import { MetaStore } from '../Meta/MetaStore';
+import { ChatSessionStore } from './Stores/ChatSessionStore';
+import { StorageStore } from '@athoscommerce/snap-toolbox';
 
 // ── Minimal mock urlManager ───────────────────────────────────────────────────
 // ChatStore calls services.urlManager.detach(true) which must return an object
@@ -93,6 +95,68 @@ describe('ChatStore — construction and storage key', () => {
 		const store = createStore();
 		expect(store.chats.length).toBe(0);
 		expect(store.currentChatId).toBe('');
+	});
+
+	it('creates a local impressionStorage keyed with an -impressions suffix', () => {
+		createStore({ id: 'chat', siteId: '8uyt2m' });
+		const keys = Object.keys(window.localStorage);
+		expect(keys).toContain(`${storageKey('8uyt2m', 'chat')}-impressions`);
+	});
+});
+
+describe('ChatSessionStore.pruneStoredSessions — return value', () => {
+	beforeEach(() => window.localStorage.clear());
+
+	it('returns the ids of the chats it pruned, oldest first', () => {
+		const key = storageKey('8uyt2m', 'chat');
+		const chats: Record<string, any> = {};
+		// 12 chats; maxSessions default 10 → 2 oldest pruned
+		for (let i = 0; i < 12; i++) {
+			chats[`chat-${i}`] = { createdAt: new Date(2020, 0, 1 + i).toISOString() };
+		}
+		seedLocalStorage(key, { chats });
+
+		const storage = new StorageStore({ type: 'local', key });
+		const pruned = ChatSessionStore.pruneStoredSessions(storage);
+
+		expect(pruned).toEqual(['chat-0', 'chat-1']);
+		// StorageStore.set nulls the leaf rather than deleting the key, so the
+		// pruned entry is `null` (not `undefined`) — consistent with the
+		// impression-cleanup test below.
+		expect(storage.get('chats')['chat-0']).toBeNull();
+		expect(storage.get('chats')['chat-11']).toBeDefined();
+	});
+
+	it('returns an empty array when nothing is pruned', () => {
+		const key = storageKey('8uyt2m', 'chat');
+		seedLocalStorage(key, { chats: { 'chat-0': { createdAt: new Date().toISOString() } } });
+		const storage = new StorageStore({ type: 'local', key });
+		expect(ChatSessionStore.pruneStoredSessions(storage)).toEqual([]);
+	});
+});
+
+describe('ChatStore.createChat — impression cleanup', () => {
+	beforeEach(() => window.localStorage.clear());
+
+	it('removes impressionStorage entries for chats pruned during createChat', () => {
+		const key = storageKey('8uyt2m', 'chat');
+		const chats: Record<string, any> = {};
+		for (let i = 0; i < 11; i++) {
+			chats[`chat-${i}`] = { createdAt: new Date(2020, 0, 1 + i).toISOString() };
+		}
+		seedLocalStorage(key, { chats });
+		// impressions for the oldest (chat-0, will be pruned) and a survivor (chat-10)
+		seedLocalStorage(`${key}-impressions`, {
+			'chat-0': { resp: { prod: true } },
+			'chat-10': { resp: { prod: true } },
+		});
+
+		const store = createStore({ id: 'chat', siteId: '8uyt2m' });
+		store.createChat(); // 11 existing + guard → prunes the single oldest (chat-0)
+
+		const impressions = readLocalStorage(`${key}-impressions`);
+		expect(impressions['chat-0']).toBeNull();
+		expect(impressions['chat-10']).toEqual({ resp: { prod: true } });
 	});
 });
 
