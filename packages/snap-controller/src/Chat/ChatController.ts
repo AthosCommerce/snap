@@ -991,6 +991,11 @@ export class ChatController extends AbstractController {
 				const chatSessionId = this.store.currentChat?.sessionId;
 				const chatId = this.store.currentChat?.id;
 
+				if (!responseId) {
+					this.log.warn('No responseId found on result for track.product.impression');
+					return;
+				}
+
 				if (!chatSessionId) {
 					this.log.warn('No chatSessionId available for track.product.impression');
 					return;

@@ -188,12 +188,11 @@ describe('ChatSessionStore pendingRequest', () => {
 		store.setPendingRequest({ requestType: 'general', message: 'hello' });
 		expect(store.pendingRequest).toEqual({ requestType: 'general', message: 'hello' });
 
-		store.saveImmediate();
+		// setPendingRequest persists synchronously — no debounce flush needed
 		const savedCall = storage.set.mock.calls.find((call: any[]) => call[0] === `chats.${store.id}`);
 		expect(savedCall[1].pendingRequest).toEqual({ requestType: 'general', message: 'hello' });
 
 		store.setPendingRequest(null);
-		store.saveImmediate();
 		const lastCall = storage.set.mock.calls[storage.set.mock.calls.length - 1];
 		expect(lastCall[1].pendingRequest).toBeNull();
 	});

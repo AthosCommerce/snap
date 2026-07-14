@@ -496,7 +496,9 @@ export class ChatSessionStore {
 
 	public setPendingRequest(data: MoiRequestModel | null): void {
 		this.pendingRequest = data;
-		this.save();
+		// persist synchronously — this field must survive an immediate navigation/unload,
+		// which a debounced save() could lose (no unload flush exists as a fallback)
+		this.saveImmediate();
 	}
 
 	/** Remove oldest stored sessions when exceeding the limit. Returns the ids removed. */
