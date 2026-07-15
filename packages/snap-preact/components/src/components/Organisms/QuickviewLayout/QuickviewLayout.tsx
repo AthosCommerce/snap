@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { Lang, useA11y, useComponent, useCreateController, useLang, useTracking } from '../../../hooks';
+import { Lang, useA11y, useComponent, useCreateController, useCustomComponentOverride, useLang, useTracking } from '../../../hooks';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
@@ -286,7 +286,6 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		internalClassName,
 		disableStyles,
 		treePath,
-		customComponent,
 		onReset,
 		disabledOverlayBadges,
 		column1,
@@ -295,6 +294,12 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		column4,
 		recommendation,
 	} = props;
+
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('quickview', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	//initialize lang
 	const defaultLang = {
@@ -420,11 +425,11 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			: undefined;
 
 		const ResultComponent = snapTemplates?.templates?.library.import.component.result
-			? useComponent(snapTemplates.templates.library.import.component.result, resultComponentName)
+			? useComponent(snapTemplates.templates.library.import.component.result, resultComponentName).ComponentOverride
 			: undefined;
 
 		const Component = snapTemplates?.templates?.library.import.component.recommendation.default
-			? useComponent(snapTemplates.templates.library.import.component.recommendation.default, componentName)
+			? useComponent(snapTemplates.templates.library.import.component.recommendation.default, componentName).ComponentOverride
 			: undefined;
 
 		recsByProfile.set(profile, {
@@ -452,13 +457,6 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		// recsByProfile is rebuilt each render but holds the same (memoized) controller instances;
 		// re-run when the seed, the set of profiles, or the set of resolved controllers changes.
 	}, [recommendationSeed, recommendationProfiles.join(','), resolvedRecsKey]);
-
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.quickview || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
-	}
 
 	const styling = mergeStyles<QuickviewLayoutProps>(props, defaultStyles);
 

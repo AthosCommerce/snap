@@ -6,9 +6,8 @@ import classnames from 'classnames';
 
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { ComponentProps, StyleScript } from '../../../types';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { useCustomComponentOverride } from '../../../hooks';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Terms, TermsProps } from '../../Molecules/Terms/Terms';
 
@@ -39,7 +38,6 @@ const defaultStyles: StyleScript<TermsListProps> = ({}) => {
 
 export const TermsList = observer((properties: TermsListProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<TermsListProps> = {
@@ -64,14 +62,12 @@ export const TermsList = observer((properties: TermsListProps) => {
 		className,
 		internalClassName,
 		controller,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.termsList || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('termsList', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: TermsListSubProps = {

@@ -6,13 +6,12 @@ import { observer } from 'mobx-react-lite';
 
 import { Filter, FilterProps } from '../../Molecules/Filter';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import type { SearchController, AutocompleteController } from '@athoscommerce/snap-controller';
 import type { Filter as FilterType } from '@athoscommerce/snap-store-mobx';
 import { IconProps, IconType } from '../../Atoms/Icon';
-import { Lang, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<FilterSummaryProps> = (props) => {
@@ -72,7 +71,6 @@ const defaultStyles: StyleScript<FilterSummaryProps> = (props) => {
 
 export const FilterSummary = observer((properties: FilterSummaryProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<FilterSummaryProps> = {
@@ -105,14 +103,12 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.filterSummary || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('filterSummary', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: FilterSummarySubProps = {

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+# [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
+
+### Bug Fixes
+
+- **searchresponse transform:** reverting transform change made previously ([9d9e84c](https://github.com/AthosCommerce/snap/commit/9d9e84c140cf84e0f19342dde3130a2d6ecba6bf))
+
 # [1.6.0](https://github.com/AthosCommerce/snap/compare/v1.5.1...v1.6.0) (2026-06-03)
 
 **Note:** Version bump only for package @athoscommerce/snap-client

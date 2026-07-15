@@ -63,17 +63,6 @@ export default {
 			},
 			control: { type: 'none' },
 		},
-		resultProps: {
-			description: 'Additional props to pass to each result component',
-			type: { required: false },
-			table: {
-				category: 'Templates Legal',
-				type: {
-					summary: 'Partial<ResultProps> | Record<string, any>',
-				},
-			},
-			control: { type: 'object' },
-		},
 		resultWidth: {
 			description: 'Width of each result card',
 			type: { required: false },

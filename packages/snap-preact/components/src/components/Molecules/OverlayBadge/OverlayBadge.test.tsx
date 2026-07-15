@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
-import { render } from '@testing-library/preact';
-import { ThemeProvider } from '../../../providers';
+import { render, waitFor } from '@testing-library/preact';
+import { SnapProvider, ThemeProvider } from '../../../providers';
 
 import { OverlayBadge } from './OverlayBadge';
 
@@ -129,6 +129,45 @@ describe('OverlayBadge Component', () => {
 
 		const OverlayBadgeCustomComponent = rendered.container.querySelector(`.${customComponentClassName}`)!;
 		expect(OverlayBadgeCustomComponent).toBeInTheDocument();
+	});
+
+	it('waits for async named customComponent override and then renders it', async () => {
+		const customComponentClassName = 'async-overlay-custom-component';
+		let resolveImport: ((value: any) => void) | undefined;
+
+		const snap = {
+			templates: {
+				library: {
+					import: {
+						component: {
+							overlayBadge: {
+								AsyncOverlayBadge: () =>
+									new Promise((resolve) => {
+										resolveImport = resolve;
+									}),
+							},
+						},
+					},
+				},
+			},
+		} as any;
+
+		const rendered = render(
+			<SnapProvider snap={snap}>
+				<OverlayBadge controller={controller} result={result} customComponent="AsyncOverlayBadge">
+					{CHILDREN}
+				</OverlayBadge>
+			</SnapProvider>
+		);
+
+		expect(rendered.container.querySelector('.ss__overlay-badge')).not.toBeInTheDocument();
+		expect(rendered.container.querySelector('.children')).not.toBeInTheDocument();
+
+		resolveImport!(() => <div className={customComponentClassName}>async overlay override</div>);
+
+		await waitFor(() => {
+			expect(rendered.container.querySelector(`.${customComponentClassName}`)).toBeInTheDocument();
+		});
 	});
 
 	describe('OverlayBadge theming works', () => {

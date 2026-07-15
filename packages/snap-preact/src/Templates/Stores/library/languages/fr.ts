@@ -103,25 +103,6 @@ export const fr: LangComponents = {
 			value: (data) => `Sous-total pour ${data.cartStore.count} articles`,
 		},
 	},
-	mobileSidebar: {
-		openButtonText: {
-			value: 'Filtres',
-		},
-		clearButtonText: {
-			value: 'Tout Effacer',
-		},
-		applyButtonText: {
-			value: 'Appliquer',
-		},
-		titleText: {
-			value: 'Options de Filtrage',
-		},
-		closeButtonText: {
-			attributes: {
-				'aria-label': `fermer le bouton Filtres`,
-			},
-		},
-	},
 	slideshow: {
 		pauseButton: {
 			value: (data) => (data.isPlaying ? 'pausa' : 'Jouer'),
@@ -257,6 +238,25 @@ export const fr: LangComponents = {
 		infoText: {
 			// TODO: add begin & end range here
 			value: ({ pagination }) => `${pagination?.totalResults} produits`,
+		},
+	},
+	result: {
+		addToCartButtonText: {
+			value: 'Tout ajouter au panier',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Ajouté !',
+		},
+		quickviewButtonText: {
+			value: 'Aperçu rapide',
+		},
+	},
+	overlayResult: {
+		addToCartButtonText: {
+			value: 'Tout ajouter au panier',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Ajouté !',
 		},
 	},
 	loadMore: {
@@ -460,5 +460,58 @@ export const fr: LangComponents = {
 		//                 <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
 		//             </div>`,
 		// },
+	},
+	gallery: {
+		gallery: {
+			attributes: {
+				'aria-label': "Galerie d'images",
+			},
+		},
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Zoom arrière',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Zoom avant',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Fermer la galerie',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Image précédente',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Image suivante',
+			},
+		},
+	},
+	quickviewLayout: {
+		quickview: {
+			attributes: {
+				'aria-label': 'Aperçu rapide',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': "Fermer l'aperçu rapide",
+			},
+		},
+		addToCartButton: {
+			value: 'Ajouter au panier',
+		},
+		moreInfoButton: {
+			value: "Plus d'informations",
+		},
+		loadingText: {
+			value: 'Chargement…',
+		},
 	},
 };

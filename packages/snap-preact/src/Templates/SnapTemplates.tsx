@@ -43,14 +43,19 @@ import {
 	pluginLogger,
 	PluginLoggerConfig,
 } from '@athoscommerce/snap-platforms/common';
+
 import {
-	pluginBackgroundFilters as PluginShopifyBackgroundFilters,
+	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
 	pluginMutateResults as pluginShopifyMutateResults,
 	PluginMutateResultsConfig as PluginShopifyMutateResultsConfig,
 	pluginAddToCart as pluginShopifyAddToCart,
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
+	PluginMarketsConfig as PluginShopifyMarketsConfig,
+	pluginMarkets as pluginShopifyMarkets,
+	shopifyMarketsPriceFormat,
 } from '@athoscommerce/snap-platforms/shopify';
+
 import {
 	pluginAddToCart as pluginBigcommerceAddToCart,
 	PluginAddToCartConfig as PluginBigCommerceAddToCartConfig,
@@ -89,9 +94,10 @@ type TemplatePlugins =
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
 	// shopify
-	| [typeof PluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
+	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
+	| [typeof pluginShopifyMarkets, PluginShopifyMarketsConfig]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
@@ -112,9 +118,62 @@ export const DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS: AutocompleteStoreConfigSe
 	},
 };
 
+const hasShopifyMarketsPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
+	const pluginConfigs = [
+		templateConfig.plugins?.shopify?.markets,
+		templateConfig.search?.plugins?.shopify?.markets,
+		templateConfig.autocomplete?.plugins?.shopify?.markets,
+		templateConfig.recommendation?.plugins?.shopify?.markets,
+	];
+
+	return pluginConfigs.some((pluginConfig) => {
+		return typeof pluginConfig?.token === 'string' && pluginConfig.token.length > 0;
+	});
+};
+
+export const applyAutomaticThemeOverrides = (
+	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked
+): SnapTemplatesConfig | SnapTemplatesConfigUnlocked => {
+	if (templateConfig.config?.platform !== 'shopify') {
+		return templateConfig;
+	}
+
+	if (!hasShopifyMarketsPluginConfig(templateConfig)) {
+		return templateConfig;
+	}
+
+	const defaultOverrides = templateConfig.theme?.overrides?.default as Record<string, unknown> | undefined;
+	const priceOverride = defaultOverrides?.price as { format?: unknown } | undefined;
+
+	if (typeof priceOverride?.format !== 'undefined') {
+		return templateConfig;
+	}
+
+	let context: { format?: string } | undefined;
+	try {
+		context = getContext(['format']) as { format?: string };
+	} catch {
+		context = undefined;
+	}
+	const currencyFormat: string = context?.format || '${{amount}}';
+	// todo: consider moving this inside of the plugin if possible. seems odd to have this happen outside of it.
+	return deepmerge(templateConfig, {
+		theme: {
+			overrides: {
+				default: {
+					price: {
+						format: (number: number | string) => shopifyMarketsPriceFormat(number, currencyFormat),
+					},
+				},
+			},
+		},
+	});
+};
+
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
+		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
 		try {
 			context = getContext(['editor']);
@@ -130,9 +189,17 @@ export class SnapTemplates extends Snap {
 		);
 		const editMode = Boolean(editorCookieValue) || editUIMode || Boolean(editor?.mode === 'headless');
 
-		const templatesStore = new TemplatesStore({ config, settings: { editMode } });
+		// handle "global" result component configuration
+		if (modifiedConfig.theme.globalResultComponent) {
+			(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
+				{ default: { result: { customComponent: modifiedConfig.theme.globalResultComponent } } },
+				(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides || {}
+			);
+		}
 
-		const snapConfig = createSnapConfig(config, templatesStore);
+		const templatesStore = new TemplatesStore({ config: modifiedConfig, settings: { editMode } });
+
+		const snapConfig = createSnapConfig(modifiedConfig, templatesStore);
 
 		super(snapConfig, { templatesStore });
 
@@ -249,6 +316,7 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 
 		const targeter: ExtendedTarget = {
 			selector: targetConfig.selector,
+			autoRetarget: true,
 			hideTarget: true,
 			component: async () => {
 				const componentImportPromises = [];
@@ -295,6 +363,7 @@ export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig,
 				//only set input if selector and inputSelector are different. else bind to orinalElem
 				...(targetConfig.selector && targetConfig.selector !== targetConfig.inputSelector ? { input: targetConfig.inputSelector } : {}),
 			},
+			autoRetarget: true,
 			hideTarget: true,
 			createControllerBeforeTargeting: templatesStore.settings.editMode,
 		};
@@ -400,9 +469,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 	const snapConfig: SnapConfig = {
 		features: templateConfig.features || DEFAULT_FEATURES,
 		client: {
-			globals: {
-				siteId: templateConfig.config?.siteId,
-			},
+			globals: {},
 			config: {
 				...(templateConfig.config?.client || {}),
 				initiator: `athos/${initiatorPrefix}snap/preact/templates/${version}`,
@@ -417,6 +484,11 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		instantiators: {},
 		controllers: {},
 	};
+
+	// add siteId if specified
+	if (templateConfig.config?.siteId && snapConfig.client?.globals) {
+		snapConfig.client.globals.siteId = templateConfig.config.siteId;
+	}
 
 	// add url configuration if specified
 	if (templateConfig.url) {
@@ -593,6 +665,11 @@ export function createPlugins(
 				templatesStore.library.import.plugins.shopify.addToCart,
 				deepmerge(templateConfig.plugins?.shopify?.addToCart || {}, controllerConfig?.plugins?.shopify?.addToCart || {}),
 			]);
+			const marketsConfig = deepmerge(templateConfig.plugins?.shopify?.markets || {}, controllerConfig?.plugins?.shopify?.markets || {});
+			//only push if token is defined and non-empty
+			if (typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0) {
+				plugins.push([templatesStore.library.import.plugins.shopify.markets, marketsConfig]);
+			}
 			break;
 		case 'bigCommerce':
 			plugins.push([

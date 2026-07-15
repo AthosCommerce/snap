@@ -13,7 +13,7 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Carousel, CarouselProps, defaultCarouselBreakpoints, defaultVerticalCarouselBreakpoints } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent, useIntersection } from '../../../hooks';
+import { useIntersection, useComponent } from '../../../hooks';
 import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
@@ -93,8 +93,16 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 		...additionalProps
 	} = props;
 
-	let resultComponent = props.resultComponent;
+	const resultComponent = props.resultComponent;
 	const snap = useSnap();
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -113,13 +121,6 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 			`<Recommendation> Component received invalid number of children. Must match length of 'results' prop or 'controller.store.results'`
 		);
 		return null;
-	}
-
-	if (resultComponent && typeof resultComponent === 'string') {
-		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
-		if (resultComponentOverride) {
-			resultComponent = resultComponentOverride;
-		}
 	}
 
 	const subProps: RecommendationSubProps = {
@@ -199,13 +200,26 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 								: resultsToRender.map((result) => (
 										<ResultTracker controller={controller} result={result}>
 											{(() => {
-												if (resultComponent && controller) {
-													return cloneWithProps(resultComponent, {
+												if (resolvedResultComponent && controller) {
+													return cloneWithProps(resolvedResultComponent, {
 														controller,
 														result,
 														treePath: subProps.result.treePath,
+														theme: isNamedResultComponent
+															? deepmerge(props.theme || {}, {
+																	components: {
+																		// in order to preserve theme overrides for resultComponent vs. customComponent
+																		result: {
+																			customComponent: resultComponent,
+																		},
+																	},
+															  })
+															: props.theme,
 													});
 												} else {
+													if (shouldWaitForNamedResultComponent) {
+														return null;
+													}
 													return <Result key={result.id} {...subProps.result} controller={controller} result={result} />;
 												}
 											})()}

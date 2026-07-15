@@ -2,13 +2,13 @@ import { h, ComponentChildren, JSX, VNode } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { iconPaths, IconType } from './paths';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, width, height, size }) => {
 	return css({
@@ -21,9 +21,8 @@ const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, wid
 	});
 };
 
-export function Icon(properties: IconProps) {
+export const Icon = observer((properties: IconProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<IconProps> = {
@@ -49,7 +48,6 @@ export function Icon(properties: IconProps) {
 		disableStyles,
 		className,
 		internalClassName,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -58,11 +56,10 @@ export function Icon(properties: IconProps) {
 		...otherProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.icon || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('icon', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<IconProps>(props, defaultStyles);
@@ -119,7 +116,7 @@ export function Icon(properties: IconProps) {
 			</svg>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type SVGPathElement = {
 	type: string;

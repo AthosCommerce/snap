@@ -14,7 +14,7 @@ import { RecommendationProfileTracker } from '../../Trackers/Recommendation/Prof
 import { ResultTracker } from '../../Trackers/ResultTracker';
 import { useState } from 'react';
 import { useRef } from 'preact/hooks';
-import { useComponent, useIntersection } from '../../../hooks';
+import { useIntersection, useComponent } from '../../../hooks';
 import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationGridProps> = ({ gapSize, columns }) => {
@@ -67,15 +67,16 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 	}
 
 	const { disableStyles, title, trim, lazyRender, className, internalClassName, treePath, theme, controller } = props;
-	let resultComponent = props.resultComponent;
+	const resultComponent = props.resultComponent;
 	const snap = useSnap();
-
-	if (resultComponent && typeof resultComponent === 'string') {
-		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
-		if (resultComponentOverride) {
-			resultComponent = resultComponentOverride;
-		}
-	}
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const mergedlazyRender = {
 		enabled: true,
@@ -137,14 +138,26 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 						<div className="ss__recommendation-grid__results">
 							{results.map((result) =>
 								(() => {
-									if (resultComponent && controller) {
-										return cloneWithProps(resultComponent, {
+									if (resolvedResultComponent && controller) {
+										return cloneWithProps(resolvedResultComponent, {
 											controller,
 											result: result as Product,
-											theme,
+											theme: isNamedResultComponent
+												? deepmerge(theme || {}, {
+														components: {
+															// in order to preserve theme overrides for resultComponent vs. customComponent
+															result: {
+																customComponent: resultComponent,
+															},
+														},
+												  })
+												: theme,
 											treePath,
 										});
 									} else {
+										if (shouldWaitForNamedResultComponent) {
+											return null;
+										}
 										return (
 											<ResultTracker result={result as Product} controller={controller}>
 												<Result

@@ -7,8 +7,8 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../providers';
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
 import type { AutocompleteController, RecommendationController, SearchController, QuickviewController } from '@athoscommerce/snap-controller';
+import { useComponent, useCustomComponentOverride } from '../../../hooks';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
 
@@ -64,6 +64,15 @@ const defaultStyles: StyleScript<OverlayBadgeProps> = ({ controller }) => {
 	});
 };
 
+const BadgeRenderer = ({ badge, badgeComponentMap, treePath }: { badge: any; badgeComponentMap: ComponentMap; treePath?: string }) => {
+	const { ComponentOverride: BadgeComponent } = useComponent(badgeComponentMap, badge.component);
+	if (!BadgeComponent) {
+		return null;
+	}
+
+	return <BadgeComponent {...badge} {...badge.parameters} treePath={treePath} />;
+};
+
 export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 	const globalTheme: Theme = useTheme();
 	const snap = useSnap();
@@ -76,13 +85,12 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 
 	const props = mergeProps('overlayBadge', globalTheme, defaultProps, properties);
 
-	const { result, children, controller, renderEmpty, limit, className, internalClassName, treePath, customComponent } = props;
+	const { result, children, controller, renderEmpty, limit, className, internalClassName, treePath } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlayBadge || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('overlayBadge', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	if (!children) {
@@ -145,17 +153,18 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 								});
 								return (
 									<div
+										key={`${location.section}-${slot.tag}`}
 										className={classnames('ss__overlay-badge__grid-wrapper__slot', `ss__overlay-badge__grid-wrapper__slot--${slot.tag}`)}
 										css={[badgeStyles]}
 									>
-										{slot.badges.map((badge) => {
-											const BadgeComponent = useComponent(badgeComponentMap, badge.component);
-											if (!BadgeComponent) {
-												return null;
-											}
-
-											return <BadgeComponent {...badge} {...badge.parameters} treePath={treePath} />;
-										})}
+										{slot.badges.map((badge, badgeIndex) => (
+											<BadgeRenderer
+												key={`${slot.tag}-${badge.component}-${badgeIndex}`}
+												badge={badge}
+												badgeComponentMap={badgeComponentMap}
+												treePath={treePath}
+											/>
+										))}
 									</div>
 								);
 							});

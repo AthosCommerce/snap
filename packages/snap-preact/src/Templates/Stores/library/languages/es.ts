@@ -113,23 +113,23 @@ export const es: LangComponents = {
 			value: (data) => `Subtotal para ${data.cartStore.count} artículos`,
 		},
 	},
-	mobileSidebar: {
-		openButtonText: {
-			value: 'Filtros',
+	result: {
+		addToCartButtonText: {
+			value: 'Añadir todo al carrito',
 		},
-		clearButtonText: {
-			value: 'Limpiar todo',
+		addToCartButtonSuccessText: {
+			value: '¡Agregado!',
 		},
-		applyButtonText: {
-			value: 'Aplicar',
+		quickviewButtonText: {
+			value: 'Vista rápida',
 		},
-		titleText: {
-			value: 'Opciones de filtro',
+	},
+	overlayResult: {
+		addToCartButtonText: {
+			value: 'Añadir todo al carrito',
 		},
-		closeButtonText: {
-			attributes: {
-				'aria-label': 'cerrar botón de filtros',
-			},
+		addToCartButtonSuccessText: {
+			value: '¡Agregado!',
 		},
 	},
 	slideshow: {
@@ -473,6 +473,59 @@ export const es: LangComponents = {
                         <h4 className="ss__no-results__contact__detail__title">Correo Electrónico</h4>
                         <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
                     </div>`,
+		},
+	},
+	gallery: {
+		gallery: {
+			attributes: {
+				'aria-label': 'Galería de imágenes',
+			},
+		},
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Alejar',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Acercar',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Cerrar galería',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Imagen anterior',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Imagen siguiente',
+			},
+		},
+	},
+	quickviewLayout: {
+		quickview: {
+			attributes: {
+				'aria-label': 'Vista rápida',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Cerrar vista rápida',
+			},
+		},
+		addToCartButton: {
+			value: 'Añadir al carrito',
+		},
+		moreInfoButton: {
+			value: 'Más información',
+		},
+		loadingText: {
+			value: 'Cargando…',
 		},
 	},
 };

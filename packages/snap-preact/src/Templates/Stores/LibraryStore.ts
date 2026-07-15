@@ -12,6 +12,7 @@ import type { PluginFunction } from '@athoscommerce/snap-controller';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
+import { pluginMarkets as shopifyPluginMarkets } from './library/plugins/shopify/pluginMarkets';
 import { pluginAddToCart as bigCommercePluginAddToCart } from './library/plugins/bigCommerce/pluginAddToCart';
 import { pluginAddToCart as magento2PluginAddToCart } from './library/plugins/magento2/pluginAddToCart';
 import { pluginAddToCart as commonPluginAddToCart } from './library/plugins/common/pluginAddToCart';
@@ -46,6 +47,7 @@ export type LibraryImports = {
 			backgroundFilters: typeof shopifyPluginBackgroundFilters;
 			mutateResults: typeof shopifyPluginMutateResults;
 			addToCart: typeof shopifyPluginAddToCart;
+			markets: typeof shopifyPluginMarkets;
 		};
 		bigcommerce: {
 			backgroundFilters: PluginFunction;
@@ -157,7 +159,6 @@ export type LibraryImports = {
 		results: LibraryComponentImport;
 		searchHeader: LibraryComponentImport;
 		sidebar: LibraryComponentImport;
-		mobileSidebar: LibraryComponentImport;
 		toolbar: LibraryComponentImport;
 		termsList: LibraryComponentImport;
 	};
@@ -251,7 +252,6 @@ export class LibraryStore {
 		results: LibraryComponentMap;
 		searchHeader: LibraryComponentMap;
 		sidebar: LibraryComponentMap;
-		mobileSidebar: LibraryComponentMap;
 		toolbar: LibraryComponentMap;
 		termsList: LibraryComponentMap;
 	} = {
@@ -324,7 +324,6 @@ export class LibraryStore {
 		results: {},
 		searchHeader: {},
 		sidebar: {},
-		mobileSidebar: {},
 		toolbar: {},
 		termsList: {},
 	};
@@ -370,6 +369,7 @@ export class LibraryStore {
 				backgroundFilters: shopifyPluginBackgroundFilters,
 				mutateResults: shopifyPluginMutateResults,
 				addToCart: shopifyPluginAddToCart,
+				markets: shopifyPluginMarkets,
 			},
 			bigcommerce: {
 				backgroundFilters: bigCommercePluginBackgroundFilters,
@@ -574,7 +574,6 @@ export class LibraryStore {
 			results: {},
 			searchHeader: {},
 			sidebar: {},
-			mobileSidebar: {},
 			toolbar: {},
 			termsList: {},
 		},

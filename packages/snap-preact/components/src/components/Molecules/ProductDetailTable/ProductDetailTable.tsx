@@ -5,17 +5,16 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
+import { useCustomComponentOverride } from '../../../hooks';
 import { ProductDetail, getProductFieldValue, renderDetailValue } from '../../Atoms/ProductDetail';
 import { Price } from '../../Atoms/Price';
 import { Image } from '../../Atoms/Image';
 import { Rating } from '../Rating';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ProductDetailTableProps> = () => {
 	return css({
@@ -50,7 +49,6 @@ const defaultStyles: StyleScript<ProductDetailTableProps> = () => {
 
 export const ProductDetailTable = observer((properties: ProductDetailTableProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ProductDetailTableProps> = {
@@ -59,13 +57,12 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 
 	const props = mergeProps('productDetailTable', globalTheme, defaultProps, properties);
 
-	const { result, details, disableStyles, className, internalClassName, customComponent, treePath } = props;
+	const { result, details, disableStyles, className, internalClassName, treePath } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.productDetailTable || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('productDetailTable', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<ProductDetailTableProps>(props, defaultStyles);

@@ -74,6 +74,7 @@ let templatesConfig: SnapTemplatesConfig = {
 			// },
 		},
 		style: globalStyles,
+		// globalResultComponent: 'CustomResult',
 		overrides: {
 			default: {
 				facet: {

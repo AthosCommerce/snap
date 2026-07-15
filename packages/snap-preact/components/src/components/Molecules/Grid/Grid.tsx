@@ -5,15 +5,15 @@ import { useState } from 'preact/hooks';
 import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
+import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, SwatchOption, StyleScript } from '../../../types';
-import { Lang, useA11y, useLang, useComponent } from '../../../hooks';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
-import type { SnapTemplates } from '../../../../../src';
 
 extend([namesPlugin]);
 
@@ -133,9 +133,8 @@ const defaultStyles: StyleScript<GridProps> = ({ gapSize, columns, theme, disabl
 	});
 };
 
-export function Grid(properties: GridProps) {
+export const Grid = observer((properties: GridProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<GridProps> = {
 		// default props
@@ -166,14 +165,12 @@ export function Grid(properties: GridProps) {
 		internalClassName,
 		treePath,
 		disableA11y,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.grid || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('grid', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: GridSubProps = {
@@ -347,7 +344,7 @@ export function Grid(properties: GridProps) {
 			</div>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type GridProps = {
 	lang?: Partial<GridLang>;

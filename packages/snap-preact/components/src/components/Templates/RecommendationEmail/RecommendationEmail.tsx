@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
+import deepmerge from 'deepmerge';
 
 import type { RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
@@ -39,16 +40,17 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 
 	const props = mergeProps('recommendationEmail', globalTheme, defaultProps, properties);
 
-	const { controller, results, resultProps, resultWidth, treePath, disableStyles, internalClassName, className } = props;
-	let resultComponent = props.resultComponent;
+	const { controller, results, resultWidth, treePath, disableStyles, internalClassName, className } = props;
+	const resultComponent = props.resultComponent;
 	const snap = useSnap();
-
-	if (resultComponent && typeof resultComponent === 'string') {
-		const resultComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, resultComponent);
-		if (resultComponentOverride) {
-			resultComponent = resultComponentOverride;
-		}
-	}
+	const isNamedResultComponent = typeof resultComponent === 'string';
+	const resultComponentName = isNamedResultComponent ? resultComponent : '';
+	const resultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+	const { ComponentOverride: resultComponentOverride, shouldWaitForNamedOverride: shouldWaitForNamedResultComponent } = useComponent(
+		resultComponentMap,
+		isNamedResultComponent ? resultComponentName : undefined
+	);
+	const resolvedResultComponent = isNamedResultComponent ? resultComponentOverride : resultComponent;
 
 	const subProps: RecommendationEmailSubProps = {
 		result: {
@@ -78,15 +80,30 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 					style={{ display: 'block', width: resultWidth }}
 				>
 					{(() => {
-						if (resultComponent) {
-							return cloneWithProps(resultComponent, {
+						if (resolvedResultComponent) {
+							return cloneWithProps(resolvedResultComponent, {
 								controller,
 								result,
-								...resultProps,
 								email: true,
+								theme: isNamedResultComponent
+									? deepmerge(props.theme || {}, {
+											components: {
+												// in order to preserve theme overrides for resultComponent vs. customComponent
+												result: {
+													customComponent: resultComponent,
+												},
+												image: {
+													lazy: false,
+												},
+											},
+									  })
+									: props.theme,
 								treePath,
 							});
 						} else {
+							if (shouldWaitForNamedResultComponent) {
+								return null;
+							}
 							return (
 								<Result
 									result={result}
@@ -99,7 +116,6 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 										},
 									}}
 									{...subProps.result}
-									{...resultProps}
 								/>
 							);
 						}
@@ -121,7 +137,6 @@ export type RecommendationEmailProps = {
 
 export type RecommendationEmailTemplatesLegalProps = {
 	resultComponent?: string;
-	resultProps?: Partial<ResultProps> | Record<string, any>;
 	resultWidth?: string;
 };
 

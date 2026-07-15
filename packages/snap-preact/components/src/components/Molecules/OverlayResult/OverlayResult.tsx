@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Price, PriceProps } from '../../Atoms/Price';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { ComponentProps, StyleScript } from '../../../types';
@@ -17,9 +17,8 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
 	const { overlayBackground, disableSlide } = props;
@@ -133,7 +132,6 @@ const defaultStyles: StyleScript<OverlayResultProps> = (props) => {
 
 export const OverlayResult = observer((properties: OverlayResultProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<OverlayResultProps> = {
 		treePath: globalTreePath,
@@ -168,14 +166,18 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 		hideRating,
 		trackingRef,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (!treePath?.split(' ')?.includes('result') && customComponent && customComponent !== 'OverlayResult') {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlayResult || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('overlayResult', {
+		...props,
+		customComponent:
+			!treePath?.split(' ')?.includes('result') && props.customComponent && props.customComponent !== 'OverlayResult'
+				? props.customComponent
+				: undefined,
+	});
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const core = result?.display?.mappings.core || result?.mappings?.core;
@@ -301,6 +303,7 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 	});
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);
+	const renderPrices = controller?.store?.config?.asyncState?.product?.price ? result.state.priceFetched : true;
 
 	return core ? (
 		<CacheProvider>
@@ -357,7 +360,7 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 
 							{!hideRating && <Rating {...subProps.rating} />}
 
-							{!hidePricing && core.price && core.price > 0 ? (
+							{!hidePricing && renderPrices && core.price && core.price > 0 ? (
 								<div className="ss__overlay-result__details__pricing">
 									{isOnSale ? (
 										<>

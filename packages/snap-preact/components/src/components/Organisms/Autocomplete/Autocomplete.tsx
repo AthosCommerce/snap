@@ -16,13 +16,11 @@ import { Banner, BannerProps } from '../../Atoms/Banner';
 import { Facets, FacetsProps } from '../Facets';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { createHoverProps } from '../../../toolbox';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap, ThemeComplete } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete } from '../../../providers';
 import { ComponentProps, FacetDisplay, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
-import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { IconType } from '../../Atoms/Icon';
-// import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<AutocompleteProps> = ({
 	hideFacets,
@@ -196,7 +194,6 @@ const defaultStyles: StyleScript<AutocompleteProps> = ({
 
 export const Autocomplete = observer((properties: AutocompleteProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<AutocompleteProps> = {
@@ -212,13 +209,10 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 
 	let props = mergeProps('autocomplete', globalTheme, defaultProps, properties);
 
-	const { customComponent } = props;
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('autocomplete', props);
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.autocomplete || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const valueProps = createHoverProps();

@@ -6,16 +6,15 @@ import classnames from 'classnames';
 
 import { Theme, useTheme, useSnap, useTreePath } from '../../../providers';
 import { cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
-import { ComponentProps, JSXComponent } from '../../../types';
+import { ComponentProps } from '../../../types';
 import { filters } from '@athoscommerce/snap-toolbox';
-import { useComponent } from '../../../hooks/useComponent';
 import { useCreateController } from '../../../hooks/useCreateController';
 import type { RecommendationController, RecommendationControllerConfig } from '@athoscommerce/snap-controller';
 import type { RecommendationGridProps, RecommendationProps, StyleScript } from '../../../';
 import type { SnapTemplates } from '../../../../../src';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import deepmerge from 'deepmerge';
-import { useLang } from '../../../hooks';
+import { useLang, useComponent, useCustomComponentOverride } from '../../../hooks';
 import type { Lang } from '../../../hooks';
 import type { LibraryImports } from '../../../../../src/Templates/Stores/LibraryStore';
 
@@ -60,14 +59,12 @@ export const NoResults = observer((properties: NoResultsProps) => {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.noResults || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('noResults', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<NoResultsProps>(props, defaultStyles);
@@ -75,38 +72,43 @@ export const NoResults = observer((properties: NoResultsProps) => {
 	const suggestionsExist = suggestionsList && Array.isArray(suggestionsList) && suggestionsList.length !== 0;
 	const contactsExist = contactsList && Array.isArray(contactsList) && contactsList.length !== 0;
 
-	let recommendationTemplateComponent: ((props: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null) | undefined;
-	let recommendationTemplateResultComponent: JSXComponent | undefined;
+	const recommendationTemplatesEnabled = Boolean(templates?.recommendation?.enabled);
+	const recommendationComponentName = recommendationTemplatesEnabled ? templates?.recommendation?.component || 'Recommendation' : undefined;
+	const recommendationResultComponentName = recommendationTemplatesEnabled
+		? String(templates?.recommendation?.resultComponent || 'Result')
+		: undefined;
+	const recommendationTemplateComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.recommendation.default || {};
+	const recommendationTemplateResultComponentMap = (snap as SnapTemplates)?.templates?.library.import.component.result || {};
+
+	const { ComponentOverride: namedRecommendationTemplateComponent, shouldWaitForNamedOverride: shouldWaitForNamedRecommendationTemplateComponent } =
+		useComponent(recommendationTemplateComponentMap, recommendationComponentName);
+	const {
+		ComponentOverride: namedRecommendationTemplateResultComponent,
+		shouldWaitForNamedOverride: shouldWaitForNamedRecommendationTemplateResultComponent,
+	} = useComponent(recommendationTemplateResultComponentMap, recommendationResultComponentName);
+
+	const recommendationTemplateComponent = namedRecommendationTemplateComponent as
+		| ((props: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null)
+		| undefined;
+	const recommendationTemplateResultComponent = namedRecommendationTemplateResultComponent;
+
 	let recsController: RecommendationController | undefined;
 
-	if (templates?.recommendation?.enabled) {
-		const componentName = templates?.recommendation?.component || 'Recommendation';
-		const snap = useSnap() as SnapTemplates;
-
+	if (recommendationTemplatesEnabled) {
 		if (snap?.templates) {
-			const defaultResultComponentFromTheme = 'Result';
-			const resultComponentName = (templates?.recommendation?.resultComponent || defaultResultComponentFromTheme) as string;
 			const mergedConfig = Object.assign(
 				{
 					id: '',
 					tag: 'no-results',
 					branch: 'production',
 				},
-				templates.recommendation!.config
+				templates?.recommendation?.config
 			);
 			mergedConfig.id = mergedConfig.id || `search-${mergedConfig.tag}`;
 
 			recsController = useCreateController<RecommendationController>(snap, 'recommendation', mergedConfig);
 			if (!recsController?.store?.loaded && !recsController?.store?.loading && recsController?.store.error?.type !== 'error') {
 				recsController?.search();
-			}
-
-			if (resultComponentName && snap?.templates?.library.import.component.result) {
-				recommendationTemplateResultComponent = useComponent(snap?.templates?.library.import.component.result, resultComponentName);
-			}
-
-			if (componentName && snap?.templates?.library.import.component.recommendation.default) {
-				recommendationTemplateComponent = useComponent(snap?.templates?.library.import.component.recommendation.default, componentName);
 			}
 		}
 	}
@@ -180,7 +182,10 @@ export const NoResults = observer((properties: NoResultsProps) => {
 				</div>
 			)}
 
-			{RecommendationTemplateComponent && recsController?.store?.loaded ? (
+			{RecommendationTemplateComponent &&
+			recsController?.store?.loaded &&
+			!shouldWaitForNamedRecommendationTemplateComponent &&
+			!shouldWaitForNamedRecommendationTemplateResultComponent ? (
 				<div className="ss__no-results__recommendations">
 					<RecommendationTemplateComponent
 						controller={recsController}

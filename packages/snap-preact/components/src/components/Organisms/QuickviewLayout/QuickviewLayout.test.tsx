@@ -1228,7 +1228,10 @@ describe('QuickviewLayout', () => {
 
 			(useSnap as jest.Mock).mockReturnValue(snapWithTemplates);
 			(useCreateController as jest.Mock).mockReturnValue(recsController);
-			(useComponent as jest.Mock).mockImplementation((_map: any, name: string) => (name === 'Result' ? () => null : RecStub));
+			(useComponent as jest.Mock).mockImplementation((_map: any, name: string) => ({
+				ComponentOverride: name === 'Result' ? () => null : RecStub,
+				shouldWaitForNamedOverride: false,
+			}));
 
 			const { controller } = makeController({
 				store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X', parentId: 'parent-1' } } } },
@@ -1265,7 +1268,10 @@ describe('QuickviewLayout', () => {
 				}, []);
 				return c;
 			});
-			(useComponent as jest.Mock).mockImplementation((_map: any, name: string) => (name === 'Result' ? () => null : RecStub));
+			(useComponent as jest.Mock).mockImplementation((_map: any, name: string) => ({
+				ComponentOverride: name === 'Result' ? () => null : RecStub,
+				shouldWaitForNamedOverride: false,
+			}));
 
 			const { controller } = makeController({
 				store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X', parentId: 'parent-1' } } } },
@@ -1285,7 +1291,7 @@ describe('QuickviewLayout', () => {
 				store: { loaded: false },
 				search: jest.fn(),
 			}));
-			(useComponent as jest.Mock).mockReturnValue(() => null);
+			(useComponent as jest.Mock).mockReturnValue({ ComponentOverride: () => null, shouldWaitForNamedOverride: false });
 
 			const { controller } = makeController({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
 
@@ -1306,7 +1312,10 @@ describe('QuickviewLayout', () => {
 		it('renders nothing while the recommendation controller is not loaded', () => {
 			(useSnap as jest.Mock).mockReturnValue(snapWithTemplates);
 			(useCreateController as jest.Mock).mockReturnValue({ config: { globals: {} }, store: { loaded: false }, search: jest.fn() });
-			(useComponent as jest.Mock).mockReturnValue(() => h('div', { className: 'ss__rec-stub' }));
+			(useComponent as jest.Mock).mockReturnValue({
+				ComponentOverride: () => h('div', { className: 'ss__rec-stub' }),
+				shouldWaitForNamedOverride: false,
+			});
 
 			const { controller } = makeController({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
 			const { container } = render(<QuickviewLayout controller={controller as any} layout={[['recommendation.similar']]} />);

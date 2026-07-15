@@ -132,7 +132,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 					width={width}
 					overlayColor={overlayColor}
 					// Sync an overlay dismiss back to the store so `store.isOpen` stays the single source of truth.
-					onToggle={(active) => {
+					onChange={(active: boolean) => {
 						if (!active) onClose();
 					}}
 					theme={props.theme}

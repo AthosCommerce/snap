@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import type { VariantSelection as VariantSelectionType } from '@athoscommerce/snap-store-mobx';
@@ -10,8 +10,7 @@ import { List, ListProps } from '../List';
 import { Swatches, SwatchesProps } from '../Swatches';
 import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Icon, IconProps } from '../../Atoms/Icon';
-import { useA11y, useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useA11y, useCustomComponentOverride } from '../../../hooks';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 
 const defaultStyles: StyleScript<VariantSelectionProps> = () => {
@@ -67,7 +66,6 @@ const dropdownContentStyles: StyleScript<VariantSelectionProps> = () => {
 
 export const VariantSelection = observer((properties: VariantSelectionProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<VariantSelectionProps> = {
@@ -78,13 +76,12 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 
 	const props = mergeProps('variantSelection', globalTheme, defaultProps, properties);
 
-	const { selection, onSelect, disableStyles, className, internalClassName, treePath, customComponent } = props;
+	const { selection, onSelect, disableStyles, className, internalClassName, treePath } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.variantSelection || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('variantSelection', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let type = props.type;

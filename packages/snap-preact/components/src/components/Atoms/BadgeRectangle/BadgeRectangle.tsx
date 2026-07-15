@@ -3,11 +3,10 @@ import { h } from 'preact';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<BadgeRectangleProps> = ({ color, colorText }) => {
 	return css({
@@ -25,7 +24,6 @@ const defaultStyles: StyleScript<BadgeRectangleProps> = ({ color, colorText }) =
 
 export const BadgeRectangle = observer((properties: BadgeRectangleProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<BadgeRectangleProps> = {
@@ -37,13 +35,12 @@ export const BadgeRectangle = observer((properties: BadgeRectangleProps) => {
 
 	const props = mergeProps('badgeRectangle', globalTheme, defaultProps, properties);
 
-	const { value, tag, className, internalClassName, customComponent } = props;
+	const { value, tag, className, internalClassName } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.badgeRectangle || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('badgeRectangle', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<BadgeRectangleProps>(props, defaultStyles);

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
+
+### Bug Fixes
+
+- **controller:** ensuring that addToCart is async and can be awaited ([17c417f](https://github.com/AthosCommerce/snap/commit/17c417f9f7fbc7e03879e154ef31be3bfdf7b0b5))
+
+# [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
+
+**Note:** Version bump only for package @athoscommerce/snap-controller
+
 # [1.6.0](https://github.com/AthosCommerce/snap/compare/v1.5.1...v1.6.0) (2026-06-03)
 
 ### Features

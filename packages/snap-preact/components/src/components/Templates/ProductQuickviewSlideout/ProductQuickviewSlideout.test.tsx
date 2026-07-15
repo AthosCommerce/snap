@@ -90,7 +90,7 @@ describe('ProductQuickviewSlideout', () => {
 		warn.mockRestore();
 	});
 
-	it('closes the store when the overlay is clicked (onToggle sync)', () => {
+	it('closes the store when the overlay is clicked (onChange sync)', () => {
 		const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
 		const rendered = render(<ProductQuickviewSlideout controller={controller} />);
 		const overlay = rendered.container.querySelector('.ss__slideout__overlay') as HTMLElement;

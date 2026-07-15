@@ -5,15 +5,14 @@ import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 
-import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
+import { useCustomComponentOverride } from '../../../hooks';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
 import { Price } from '../Price';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
-import type { SnapTemplates } from '../../../../../src';
 
 // Core mapping fields whose values represent monetary amounts and should be formatted by `Price`.
 const CORE_PRICE_FIELDS = ['price', 'msrp'];
@@ -78,7 +77,6 @@ const defaultStyles: StyleScript<ProductDetailProps> = () => {
 
 export const ProductDetail = observer((properties: ProductDetailProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ProductDetailProps> = {
@@ -89,13 +87,12 @@ export const ProductDetail = observer((properties: ProductDetailProps) => {
 
 	const props = mergeProps('productDetail', globalTheme, defaultProps, properties);
 
-	const { result, field, name, html, tag, className, internalClassName, customComponent } = props;
+	const { result, field, name, html, tag, className, internalClassName } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.productDetail || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('productDetail', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<ProductDetailProps>(props, defaultStyles);
