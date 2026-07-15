@@ -317,6 +317,28 @@ describe('Chat Controller', () => {
 			expect(controller.store.currentChat!.sessionLimitReached).toBe(true);
 		});
 
+		it('displays the returned errorMessage for CS_006 errors', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+
+			controller.client.chat = jest.fn(() => {
+				throw {
+					err: new Error('Your message could not be processed.'),
+					fetchDetails: { status: 200, url: 'test.com' },
+					responseBody: { errorCode: 'CS_006', errorMessage: 'Your message could not be processed.' },
+				};
+			});
+
+			await controller.search();
+
+			expect(controller.store.error).toStrictEqual({
+				type: 'error',
+				message: 'Your message could not be processed.',
+			});
+		});
+
 		it('handles unknown error', async () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });

@@ -800,6 +800,13 @@ export class ChatController extends AbstractController {
 						if (this.store.currentChat) {
 							this.store.currentChat.sessionLimitReached = true;
 						}
+					} else if (err.responseBody?.errorCode === 'CS_006') {
+						this.store.error = {
+							type: ErrorType.ERROR,
+							message:
+								err.responseBody?.errorMessage ||
+								'Your message was blocked due to content policy restrictions. Please try again with different wording.',
+						};
 					} else {
 						const errMessage: string = err.err?.message || '';
 						const isRateLimited = err.fetchDetails.status === 429 || errMessage === 'Failed to fetch' || errMessage === 'Retry rate limit exceeded.';
