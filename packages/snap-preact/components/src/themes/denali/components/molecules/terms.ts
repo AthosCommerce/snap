@@ -8,7 +8,7 @@ const termsStyleScript = ({ theme }: TermsProps) => {
 
 	return css({
 		'& .ss__terms__options .ss__terms__option': {
-			border: '1px solid black',
+			border: `1px solid ${variables?.colors.secondary}`,
 			borderRadius: '28px',
 			textAlign: 'center',
 			padding: '5px 15px',

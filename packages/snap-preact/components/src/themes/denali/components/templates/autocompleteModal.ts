@@ -23,9 +23,6 @@ const autocompleteModalStyleScript = ({}: AutocompleteModalProps) => {
 		'.ss__autocomplete__button--see-more': {
 			margin: '10px',
 		},
-		'& .ss__autocomplete__content__results .ss__result .ss__image': {
-			minHeight: '200px',
-		},
 	});
 };
 

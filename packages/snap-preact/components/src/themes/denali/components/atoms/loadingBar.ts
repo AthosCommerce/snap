@@ -6,7 +6,7 @@ import { ThemeComponent } from '../../../../providers';
 const loadingBarStyleScript = ({ color, backgroundColor, theme }: LoadingBarProps) => {
 	const variables = theme?.variables;
 	return css({
-		background: backgroundColor || '#efefef',
+		background: backgroundColor || variables?.colors.accent,
 		'& .ss__loading-bar__bar': {
 			background: `${color || variables?.colors?.accent || '#ccc'}`,
 		},

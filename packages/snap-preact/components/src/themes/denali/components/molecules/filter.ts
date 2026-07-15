@@ -9,12 +9,12 @@ const filterStyleScript = ({ theme }: FilterProps) => {
 	return css({
 		'& .ss__filter__button': {
 			backgroundColor: 'white',
-			color: 'currentColor',
-			border: '2px solid currentColor',
+			color: variables?.colors.primary,
+			border: `2px solid ${variables?.colors.primary}`,
 
 			'& .ss__filter__button__icon': {
-				fill: 'currentColor',
-				stroke: 'currentColor',
+				fill: variables?.colors.primary,
+				stroke: variables?.colors.primary,
 				margin: '0 10px 0 0',
 			},
 

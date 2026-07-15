@@ -10,8 +10,8 @@ const denaliVariables: ThemeVariables = {
 	},
 	colors: {
 		primary: 'currentColor',
-		secondary: 'currentColor',
-		accent: 'currentColor',
+		secondary: '#000000',
+		accent: '#efefef',
 	},
 };
 

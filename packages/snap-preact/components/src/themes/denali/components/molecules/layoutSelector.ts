@@ -3,40 +3,32 @@ import type { LayoutSelectorProps, LayoutSelectorTemplatesLegalProps } from '../
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the LayoutSelector component
 const layoutSelectorStyleScript = ({ theme }: LayoutSelectorProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = theme?.variables;
-
 	return css({
 		'.ss__button__content': {
 			gap: '7px',
 		},
 
 		'.ss__list__option': {
-			color: '#e6e6e6',
-			border: '2px solid #e6e6e6',
 			padding: '10px',
 			borderRadius: '50%',
+			color: variables?.colors.secondary,
+			border: `2px solid ${variables?.colors.secondary}`,
+			opacity: 0.7,
+
 			'.ss__icon': {
-				fill: `#e6e6e6`,
-				stroke: `#e6e6e6`,
-			},
-			'&:hover': {
-				color: 'black',
-				border: '2px solid black',
-				opacity: 0.7,
-				'.ss__icon': {
-					fill: 'black',
-					stroke: 'black',
-				},
+				fill: variables?.colors.secondary,
+				stroke: variables?.colors.secondary,
 			},
 		},
 
 		'.ss__list__option--selected': {
-			color: 'black',
-			border: '2px solid black',
+			color: variables?.colors.secondary,
+			border: `3px solid ${variables?.colors.secondary}`,
+			opacity: 1,
 			'.ss__icon': {
-				fill: 'black',
-				stroke: 'black',
+				fill: variables?.colors.secondary,
+				stroke: variables?.colors.secondary,
 			},
 		},
 	});

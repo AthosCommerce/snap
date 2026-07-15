@@ -24,8 +24,8 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 					backgroundColor: 'initial',
 					color: variables?.colors?.primary,
 					'.ss__icon': {
-						fill: variables?.colors?.accent,
-						stroke: variables?.colors?.accent,
+						fill: variables?.colors?.primary,
+						stroke: variables?.colors?.primary,
 					},
 				},
 				'.ss__select__dropdown__button__icon': {

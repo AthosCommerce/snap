@@ -30,6 +30,14 @@ const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
 						},
 					},
 				},
+
+				'.ss__dropdown__content': {
+					borderBottomLeftRadius: '20px',
+					borderBottomRightRadius: '20px',
+				},
+				'.ss__facet': {
+					marginBottom: '0px',
+				},
 			},
 		},
 		'& .ss__facets-horizontal__header__dropdown': {

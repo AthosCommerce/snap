@@ -2,7 +2,8 @@ import { css } from '@emotion/react';
 import type { SortByProps, SortByTemplatesLegalProps } from '../../../../components/Molecules/SortBy';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the SortBy component
-const sortByStyleScript = ({}: SortByProps) => {
+const sortByStyleScript = ({ theme }: SortByProps) => {
+	const variables = theme?.variables;
 	return css({
 		'.ss__button__content': {
 			gap: '7px',
@@ -14,7 +15,7 @@ const sortByStyleScript = ({}: SortByProps) => {
 				position: 'relative',
 			},
 			'.ss__dropdown__content': {
-				backgroundColor: '#efefef',
+				backgroundColor: variables?.colors.accent,
 			},
 		},
 		'.ss__dropdown': {
@@ -30,11 +31,11 @@ const sortByStyleScript = ({}: SortByProps) => {
 				fontWeight: 'initial',
 				padding: '10px 5px 10px 15px',
 				boxShadow: 'none',
-				background: '#efefef',
-				color: 'currentColor',
+				background: variables?.colors.accent,
+				color: variables?.colors.primary,
 
 				'&:hover': {
-					background: '#efefef',
+					background: variables?.colors.accent,
 				},
 
 				'.ss__select__dropdown__button__icon': {
@@ -60,14 +61,9 @@ export const sortBy: ThemeComponent<'sortBy', SortByProps, SortByTemplatesLegalP
 			icon: 'angle-down',
 		},
 	},
-	tablet: {
-		'sortBy select': {
-			hideSelection: true,
-		},
-	},
+	tablet: {},
 	mobile: {
 		'sortBy select': {
-			hideSelection: true,
 			separator: '',
 		},
 	},

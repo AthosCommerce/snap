@@ -10,10 +10,6 @@ const autocompleteSlideoutStyleScript = ({}: AutocompleteSlideoutProps) => {
 			margin: '10px 0px',
 			border: '0px',
 		},
-
-		'& .ss__autocomplete__content__results .ss__result .ss__image': {
-			minHeight: '250px',
-		},
 	});
 };
 

@@ -7,8 +7,8 @@ const iconStyleScript = ({ color, height, width, size, theme }: IconProps) => {
 	const variables = theme?.variables;
 
 	return css({
-		fill: color || variables?.colors?.accent,
-		stroke: color || variables?.colors?.accent,
+		fill: color || variables?.colors?.primary,
+		stroke: color || variables?.colors?.primary,
 		width: width || size,
 		height: height || size,
 	});
