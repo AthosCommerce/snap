@@ -186,13 +186,15 @@ When formatting prices, `shopifyMarketsPriceFormat` reads script context variabl
 
 - `format`: Shopify money format template (for example, `${{amount}}`)
 
-Example script context:
+To set this up, add the following Liquid code to your Shopify theme file (e.g., `theme.liquid`) inside the integration script context:
 
 ```html
 <script id="athos-context" src="bundle.js">
-	format = '${{amount}}';
+	format = '{{ shop.money_format }}';
 </script>
 ```
+
+This outputs your store's configured money format (e.g., `${{amount}}`) into the script context so that `shopifyMarketsPriceFormat` can format prices correctly for the active market currency.
 
 #### Using in Your Result Component
 
