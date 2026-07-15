@@ -432,6 +432,74 @@ describe('Recommendation Controller', () => {
 		clickfn.mockClear();
 	});
 
+	it('passes quickView override through track.product methods and addToCart to beacon events', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const impressionfn = jest.spyOn(controller.tracker.events.recommendations, 'impression');
+		const clickThroughfn = jest.spyOn(controller.tracker.events.recommendations, 'clickThrough');
+		const addToCartfn = jest.spyOn(controller.tracker.events.recommendations, 'addToCart');
+
+		await controller.search();
+
+		const results = controller.store.results;
+
+		controller.track.product.impression(results[0], { quickView: true });
+		controller.track.product.clickThrough(new MouseEvent('click'), results[0], { quickView: true });
+		controller.track.product.addToCart(results[0] as Product, { quickView: true });
+		await controller.addToCart(results[1] as Product, { quickView: true });
+
+		const withQuickView = expect.objectContaining({ data: expect.objectContaining({ quickView: true }) });
+		expect(impressionfn).toHaveBeenCalledWith(withQuickView);
+		expect(clickThroughfn).toHaveBeenCalledWith(withQuickView);
+		expect(addToCartfn).toHaveBeenNthCalledWith(1, withQuickView);
+		expect(addToCartfn).toHaveBeenNthCalledWith(2, withQuickView);
+
+		controller.track.product.clickThrough(new MouseEvent('click'), results[2]);
+		expect(clickThroughfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.not.objectContaining({ quickView: true }) }));
+
+		controller.tracker.cookies.cart.clear();
+		impressionfn.mockClear();
+		clickThroughfn.mockClear();
+		addToCartfn.mockClear();
+	});
+
+	it('dedupes quickView impressions separately from regular impressions', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const impressionfn = jest.spyOn(controller.tracker.events.recommendations, 'impression');
+
+		await controller.search();
+
+		const result = controller.store.results[0];
+
+		// a regular impression must not suppress the quickview impression (and vice versa)
+		controller.track.product.impression(result);
+		controller.track.product.impression(result, { quickView: true });
+		expect(impressionfn).toHaveBeenCalledTimes(2);
+		expect(impressionfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.objectContaining({ quickView: true }) }));
+
+		// repeat impressions of either kind are deduped
+		controller.track.product.impression(result, { quickView: true });
+		controller.track.product.impression(result);
+		expect(impressionfn).toHaveBeenCalledTimes(2);
+
+		impressionfn.mockClear();
+	});
+
 	it('can set lastViewed param', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),

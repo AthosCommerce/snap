@@ -53,7 +53,7 @@ searchController.search();
 ```
 
 ## AddToCart
-This will invoke an addToCart event (see below). Takes an array of Products as a parameter. 
+This will invoke an addToCart event (see below). Takes an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewController` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
 
 ```js
 searchController.addToCart([searchController.store.results[0]]);
@@ -277,6 +277,10 @@ export class Content extends Component {
 ### track.product.addToCart
 - Called with `eventData` = { controller, product, trackEvent } 
 - Always invoked after `track.product.addToCart()` method has been invoked
+
+For the `track.product.*` events above, `trackEvent` includes `quickView: true` when the tracked interaction was delegated from the `QuickviewController` (i.e. it occurred within the quickview modal).
+
+Impressions are deduped per product per response: `track.product.impression` sends at most one regular impression and one quickview-delegated impression for each result of a response. The two kinds dedup separately, so opening the quickview still sends an impression for a product whose grid impression was already tracked (and vice versa).
 
 ### track.product.redirect
 - Called with `eventData` = { controller, redirectURL, trackEvent } 

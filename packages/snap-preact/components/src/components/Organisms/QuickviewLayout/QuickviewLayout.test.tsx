@@ -77,9 +77,14 @@ function makeController(overrides: any = {}) {
 		close: jest.fn(),
 	};
 
+	const defaultTrack = {
+		product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() },
+	};
+
 	const controller: any = {
 		type: 'quickview',
 		store: defaultStore,
+		track: defaultTrack,
 		...overrides,
 	};
 
@@ -982,6 +987,33 @@ describe('QuickviewLayout', () => {
 		const original = window.location.href;
 		Object.defineProperty(window, 'location', { value: { href: original }, writable: true, configurable: true });
 		button.click();
+		expect((window.location as any).href).toBe('/products/apex-bottle');
+	});
+
+	it('tracks a clickThrough for the product when the "More info" button is clicked', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', url: '/products/apex-bottle' } },
+			attributes: {},
+		};
+		const clickThrough = jest.fn();
+		const { controller } = makeController({
+			store: { isOpen: true, product: storeProduct },
+			track: { product: { clickThrough } },
+		});
+
+		const rendered = render(<QuickviewLayout controller={controller} />);
+
+		const button = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
+		expect(button).not.toBeNull();
+
+		const original = window.location.href;
+		Object.defineProperty(window, 'location', { value: { href: original }, writable: true, configurable: true });
+		button.click();
+
+		expect(clickThrough).toHaveBeenCalledTimes(1);
+		expect(clickThrough).toHaveBeenCalledWith(expect.anything(), storeProduct);
+		// navigation still happens after tracking
 		expect((window.location as any).href).toBe('/products/apex-bottle');
 	});
 

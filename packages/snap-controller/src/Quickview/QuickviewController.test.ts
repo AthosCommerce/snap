@@ -96,7 +96,7 @@ describe('QuickviewController', () => {
 
 		const product: any = { id: 'p1' };
 		await controller.addToCart([product]);
-		expect(source.addToCart).toHaveBeenCalledWith([product]);
+		expect(source.addToCart).toHaveBeenCalledWith([product], { quickView: true });
 	});
 
 	it('passes the originating controller config as storeConfig so the clone inherits settings.variants', async () => {
@@ -116,6 +116,73 @@ describe('QuickviewController', () => {
 		const svc = services();
 		const controller = new QuickviewController({ id: 'quickview' }, svc as any);
 		await expect(controller.addToCart([{ id: 'p1' } as any])).resolves.toBeUndefined();
+	});
+
+	describe('track', () => {
+		const setSourceController = async (controller: QuickviewController, source: any) => {
+			await controller.quickview({ id: 'p1', mappings: { core: {} } } as any, undefined, undefined, { controller: source });
+		};
+
+		it('delegates track.product.clickThrough to the originating controller with quickView: true', async () => {
+			const svc = services();
+			const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+			const source = { track: { product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() } } };
+			await setSourceController(controller, source);
+
+			const event = {} as MouseEvent;
+			const product: any = { id: 'p1' };
+			controller.track.product.clickThrough(event, product);
+
+			expect(source.track.product.clickThrough).toHaveBeenCalledWith(event, product, { quickView: true });
+		});
+
+		it('delegates track.product.click to the originating controller with quickView: true', async () => {
+			const svc = services();
+			const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+			const source = { track: { product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() } } };
+			await setSourceController(controller, source);
+
+			const event = {} as MouseEvent;
+			const product: any = { id: 'p1' };
+			controller.track.product.click(event, product);
+
+			expect(source.track.product.click).toHaveBeenCalledWith(event, product, { quickView: true });
+		});
+
+		it('delegates track.product.impression to the originating controller with quickView: true', async () => {
+			const svc = services();
+			const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+			const source = { track: { product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() } } };
+			await setSourceController(controller, source);
+
+			const product: any = { id: 'p1' };
+			controller.track.product.impression(product);
+
+			expect(source.track.product.impression).toHaveBeenCalledWith(product, { quickView: true });
+		});
+
+		it('delegates track.product.addToCart to the originating controller with quickView: true', async () => {
+			const svc = services();
+			const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+			const source = { track: { product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() } } };
+			await setSourceController(controller, source);
+
+			const product: any = { id: 'p1' };
+			controller.track.product.addToCart(product);
+
+			expect(source.track.product.addToCart).toHaveBeenCalledWith(product, { quickView: true });
+		});
+
+		it('warns instead of throwing when track methods are called with no originating controller', async () => {
+			const svc = services();
+			const controller = new QuickviewController({ id: 'quickview' }, svc as any);
+			const product: any = { id: 'p1' };
+
+			expect(() => controller.track.product.clickThrough({} as MouseEvent, product)).not.toThrow();
+			expect(() => controller.track.product.click({} as MouseEvent, product)).not.toThrow();
+			expect(() => controller.track.product.impression(product)).not.toThrow();
+			expect(() => controller.track.product.addToCart(product)).not.toThrow();
+		});
 	});
 
 	it('out-of-order resolution shows the last-clicked product', async () => {

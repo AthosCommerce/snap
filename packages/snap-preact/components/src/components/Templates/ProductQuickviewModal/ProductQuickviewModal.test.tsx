@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render, fireEvent } from '@testing-library/preact';
+import { render, fireEvent, act } from '@testing-library/preact';
 
 // QuickviewLayout (rendered inside the Modal) pulls in Carousel/VariantSelection/badges; mock the
 // heavy molecules so these container tests stay focused on open/close + focus behavior.
@@ -41,9 +41,14 @@ function makeController(overrides: any = {}) {
 		close: jest.fn(),
 	};
 
+	const defaultTrack = {
+		product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() },
+	};
+
 	const controller: any = {
 		type: 'quickview',
 		store: defaultStore,
+		track: defaultTrack,
 		...overrides,
 	};
 
@@ -138,5 +143,87 @@ describe('ProductQuickviewModal', () => {
 
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).toHaveAttribute('aria-label', 'Schnellansicht');
 		expect(rendered.container.querySelector('.ss__product-quickview__close')).toHaveAttribute('aria-label', 'Schließen');
+	});
+
+	describe('impression tracking', () => {
+		let observerCallbacks: Map<Element, IntersectionObserverCallback>;
+
+		beforeEach(() => {
+			jest.useFakeTimers();
+			observerCallbacks = new Map();
+
+			const mockIntersectionObserver = jest.fn((callback: IntersectionObserverCallback, options?: IntersectionObserverInit) => ({
+				observe: jest.fn((element: Element) => {
+					observerCallbacks.set(element, callback);
+				}),
+				unobserve: jest.fn((element: Element) => {
+					observerCallbacks.delete(element);
+				}),
+				disconnect: jest.fn(() => {
+					observerCallbacks.clear();
+				}),
+				root: null,
+				rootMargin: options?.rootMargin || '0px',
+				thresholds: Array.isArray(options?.threshold) ? options.threshold : [options?.threshold || 0],
+				takeRecords: jest.fn(() => []),
+			}));
+
+			//@ts-ignore
+			window.IntersectionObserver = mockIntersectionObserver;
+		});
+
+		afterEach(() => {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+			observerCallbacks.clear();
+			//@ts-ignore
+			delete window.IntersectionObserver;
+		});
+
+		const triggerIntersection = () => {
+			observerCallbacks.forEach((callback, element) => {
+				callback(
+					[
+						{
+							target: element,
+							isIntersecting: true,
+							intersectionRatio: 0.8,
+							boundingClientRect: element.getBoundingClientRect(),
+							intersectionRect: element.getBoundingClientRect(),
+							rootBounds: null,
+							time: Date.now(),
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				);
+			});
+			// satisfy the impression observer's minimum visible time (1000ms)
+			act(() => {
+				jest.advanceTimersByTime(1000);
+			});
+		};
+
+		it('tracks an impression for the displayed product when the quickview content is viewed', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			render(<ProductQuickviewModal controller={controller} />);
+
+			triggerIntersection();
+
+			expect(controller.track.product.impression).toHaveBeenCalledTimes(1);
+			expect(controller.track.product.impression).toHaveBeenCalledWith(storeProduct);
+		});
+
+		it('does not track a click when the quickview content is clicked', () => {
+			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<ProductQuickviewModal controller={controller} />);
+
+			triggerIntersection();
+
+			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			fireEvent.click(content);
+
+			expect(controller.track.product.click).not.toHaveBeenCalled();
+			expect(controller.track.product.clickThrough).not.toHaveBeenCalled();
+		});
 	});
 });

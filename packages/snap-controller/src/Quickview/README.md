@@ -45,6 +45,8 @@ The method performs the following steps:
 3. Fires the `quickview` event middleware (see Events below).
 4. Updates the store (`store.update(...)`), building the modal product and applying variants. An exception here surfaces as `store.error` instead of leaving the modal stuck in loading state.
 
+The controller does not track an impression itself — the quickview container components (`ProductQuickviewModal` / `ProductQuickviewSlideout`) observe the displayed content and call `track.product.impression` when it is actually viewed.
+
 Each call increments an internal token; if a newer `quickview()` call supersedes an older one while its fetch or middleware is still in flight, the stale continuation is discarded and never writes to the store — the last-clicked product always wins.
 
 ```js
@@ -55,11 +57,29 @@ quickviewController.quickview(result, undefined, { displayFields: ['color', 'mat
 The `QuickviewController` has no search lifecycle. The `search` method exists only to satisfy the `AbstractController` interface and resolves immediately without doing anything.
 
 ## AddToCart
-Delegates to the `addToCart` method of the controller that opened the current quickview (passed as `options.controller` to `quickview()`), so the platform's existing cart integration (tracking and `addToCart` middleware) runs there. Takes an array of Products (or a single Product) as a parameter. If no originating controller exists, a warning is logged.
+Delegates to the `addToCart` method of the controller that opened the current quickview (passed as `options.controller` to `quickview()`), so the platform's existing cart integration (tracking and `addToCart` middleware) runs there. Takes an array of Products (or a single Product) as a parameter. The delegated call passes `{ quickView: true }` as the overrides parameter, so the resulting beacon event is flagged as having occurred within the quickview modal. If no originating controller exists, a warning is logged.
 
 ```js
 quickviewController.addToCart([quickviewController.store.product]);
 ```
+
+## Track
+The `QuickviewController` has no tracking lifecycle of its own — every tracked interaction happened against a result that belongs to the originating controller's response. Its `track.product` methods therefore delegate to the same method on the controller that opened the current quickview, passing `{ quickView: true }` as the overrides parameter so the resulting beacon event (and the `trackEvent` data on the fired `track.product.*` events) is flagged with `quickView: true`. If no originating controller exists, a warning is logged and nothing is tracked.
+
+| method | delegates to |
+|---|---|
+| `track.product.clickThrough(e, result)` | `sourceController.track.product.clickThrough(e, result, { quickView: true })` |
+| `track.product.click(e, result)` | `sourceController.track.product.click(e, result, { quickView: true })` |
+| `track.product.impression(result)` | `sourceController.track.product.impression(result, { quickView: true })` |
+| `track.product.addToCart(result)` | `sourceController.track.product.addToCart(result, { quickView: true })` |
+
+```js
+quickviewController.track.product.impression(quickviewController.store.product);
+```
+
+In the default components these methods are invoked automatically: the container components (`ProductQuickviewModal` / `ProductQuickviewSlideout`) wrap the layout in a `QuickviewTracker` that calls `track.product.impression` (via the `useTracking` hook) once the displayed product is actually viewed, and the `QuickviewLayout` "More info" button calls `track.product.clickThrough` before navigating to the product page. Generic click tracking is intentionally disabled inside the quickview — the "More info" button is the only element that sends a click-type event.
+
+Quickview impressions are deduped separately from regular (grid) impressions in the originating controller's event bookkeeping — opening the quickview still sends an impression for a product whose grid impression was already tracked, and vice versa. Each kind is sent at most once per product per response.
 
 ## QuickviewStore
 The controller's store (`quickviewController.store`) is a `QuickviewStore` holding the modal state:

@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers'
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SlideDirectionType, Slideout } from '../../Molecules/Slideout';
-import { QuickviewLayout, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
+import { QuickviewLayout, QuickviewTracker, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 
 import type { QuickviewController } from '@athoscommerce/snap-controller';
 
@@ -100,10 +100,22 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 	const store = controller.store;
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
+	const product = store.product;
 
 	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
 		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
 	};
+
+	const layoutContent = (
+		<QuickviewLayout
+			controller={controller}
+			onReset={onClose}
+			theme={props.theme}
+			treePath={treePath}
+			{...layoutProps}
+			{...defined({ disableStyles })}
+		/>
+	);
 
 	return (
 		<CacheProvider>
@@ -127,14 +139,16 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 					treePath={treePath}
 					{...defined({ disableStyles })}
 				>
-					<QuickviewLayout
-						controller={controller}
-						onReset={onClose}
-						theme={props.theme}
-						treePath={treePath}
-						{...layoutProps}
-						{...defined({ disableStyles })}
-					/>
+					{/* keyed by response/product so a product change remounts the tracker and the new
+					    product's impression is observed and tracked (the Slideout keeps children
+					    mounted across open/close since rerender is false) */}
+					{product ? (
+						<QuickviewTracker key={`${product.responseId}-${product.id}`} controller={controller} product={product}>
+							{layoutContent}
+						</QuickviewTracker>
+					) : (
+						layoutContent
+					)}
 				</Slideout>
 			</div>
 		</CacheProvider>

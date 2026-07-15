@@ -1,5 +1,5 @@
-import { h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { h, ComponentChildren } from 'preact';
+import { useEffect, useRef, useState, type MutableRef } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { isObservableArray } from 'mobx';
 import { css } from '@emotion/react';
@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
-import { Lang, useA11y, useComponent, useCreateController, useLang } from '../../../hooks';
+import { Lang, useA11y, useComponent, useCreateController, useLang, useTracking } from '../../../hooks';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { fieldNameToComponentName } from '@athoscommerce/snap-toolbox';
@@ -216,6 +216,28 @@ const collectRecommendationProfiles = (layout: unknown, columns: Record<string, 
 	};
 	walk(layout);
 	return Array.from(profiles).sort();
+};
+
+// Impression-tracking wrapper used by the quickview containers (ProductQuickviewModal /
+// ProductQuickviewSlideout). Containers mount it keyed by response/product so each displayed
+// product is observed and tracked once via the standard useTracking hook (the impression is
+// delegated to the originating controller with `quickView: true`). Click tracking is disabled —
+// quickview interactions are not clickThroughs; only the "More info" button tracks one.
+export const QuickviewTracker = ({
+	controller,
+	product,
+	children,
+}: {
+	controller: QuickviewController;
+	product: Product;
+	children: ComponentChildren;
+}) => {
+	const { trackingRef } = useTracking({ controller, result: product, track: { click: false } });
+	return (
+		<div className="ss__product-quickview__tracker" ref={trackingRef as MutableRef<HTMLDivElement>}>
+			{children}
+		</div>
+	);
 };
 
 export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
@@ -671,7 +693,12 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					name="more-info"
 					internalClassName="ss__product-quickview__go-to-product"
 					lang={{ button: lang.moreInfoButton }}
-					onClick={() => {
+					onClick={(e) => {
+						// track the redirect to the product page as a quickview clickThrough
+						// before navigating away (delegated with `quickView: true`)
+						if (product) {
+							controller.track.product.clickThrough(e as unknown as MouseEvent, product);
+						}
 						window.location.href = url;
 					}}
 					theme={props.theme}

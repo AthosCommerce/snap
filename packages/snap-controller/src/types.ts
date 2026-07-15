@@ -85,6 +85,13 @@ export type ProductQuickviewObj = {
 	config: QuickviewConfig;
 };
 
+// Overrides passed to `track.*` methods. `quickView` is set by QuickviewController when
+// delegating tracking calls to the originating (source) controller, so the resulting beacon
+// event is flagged as having occurred within the quickview modal rather than the source page.
+export type TrackEventOverrides = {
+	quickView?: boolean;
+};
+
 export type ElementPositionObj = {
 	href?: string;
 	selector?: string;

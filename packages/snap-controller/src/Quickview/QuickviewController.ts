@@ -18,6 +18,18 @@ const defaultConfig: QuickviewControllerConfig = {
 // need platform integration (e.g. add-to-cart) back to it.
 type SourceController = SearchController | AutocompleteController | RecommendationController;
 
+// Quickview has no search/tracking lifecycle of its own — every tracked interaction happened
+// against a result that belongs to the originating controller's response, so tracking is
+// delegated back to it (with `quickView: true`) rather than reimplemented here.
+type QuickviewTrackMethods = {
+	product: {
+		clickThrough: (e: MouseEvent, result: Product) => void;
+		click: (e: MouseEvent, result: Product) => void;
+		impression: (result: Product) => void;
+		addToCart: (result: Product) => void;
+	};
+};
+
 export class QuickviewController extends AbstractController {
 	public type = ControllerTypes.quickview;
 	declare store: QuickviewStore;
@@ -52,12 +64,52 @@ export class QuickviewController extends AbstractController {
 
 	// Delegate add-to-cart back to the controller that opened the quickview so the
 	// platform's existing cart integration (tracking + 'addToCart' middleware) runs.
+	// The originating controller's `track.product.addToCart` call is flagged `quickView: true`
+	// so the beacon event reflects that the add-to-cart happened from within the modal.
 	public addToCart = async (products: Product[] | Product): Promise<void> => {
 		if (this.sourceController?.addToCart) {
-			await this.sourceController.addToCart(products);
+			await this.sourceController.addToCart(products, { quickView: true });
 		} else {
 			this.log.warn('Quickview has no originating controller to handle addToCart');
 		}
+	};
+
+	// Tracking is delegated to the controller that opened the quickview (`sourceController`) —
+	// the tracked result belongs to that controller's response/responseId, so re-implementing
+	// dedup/beacon logic here would duplicate (and could desync from) the source controller's
+	// own `events` bookkeeping. Each call is flagged `quickView: true` so downstream consumers
+	// of the beacon event can distinguish quickview interactions from the originating page.
+	public track: QuickviewTrackMethods = {
+		product: {
+			clickThrough: (e: MouseEvent, result: Product): void => {
+				if (!this.sourceController?.track?.product?.clickThrough) {
+					this.log.warn('Quickview has no originating controller to handle track.product.clickThrough');
+					return;
+				}
+				this.sourceController.track.product.clickThrough(e, result, { quickView: true });
+			},
+			click: (e: MouseEvent, result: Product): void => {
+				if (!this.sourceController?.track?.product?.click) {
+					this.log.warn('Quickview has no originating controller to handle track.product.click');
+					return;
+				}
+				this.sourceController.track.product.click(e, result, { quickView: true });
+			},
+			impression: (result: Product): void => {
+				if (!this.sourceController?.track?.product?.impression) {
+					this.log.warn('Quickview has no originating controller to handle track.product.impression');
+					return;
+				}
+				this.sourceController.track.product.impression(result, { quickView: true });
+			},
+			addToCart: (result: Product): void => {
+				if (!this.sourceController?.track?.product?.addToCart) {
+					this.log.warn('Quickview has no originating controller to handle track.product.addToCart');
+					return;
+				}
+				this.sourceController.track.product.addToCart(result, { quickView: true });
+			},
+		},
 	};
 
 	public quickview = async (
@@ -138,6 +190,9 @@ export class QuickviewController extends AbstractController {
 		// Wrap update() so a bad clone/variants payload surfaces via store.error instead of
 		// leaving the modal stuck in loading state. `meta?.data` is the raw meta the cloned
 		// Product needs for badge processing (the originating MetaStore was forwarded as `meta`).
+		// The impression for the displayed product is not tracked here — the quickview containers
+		// (ProductQuickviewModal / ProductQuickviewSlideout) observe their content via useTracking
+		// and call track.product.impression when it is actually viewed.
 		try {
 			this.store.update({
 				result: eventObj.result,

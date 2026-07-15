@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers'
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Modal } from '../../Molecules/Modal';
-import { QuickviewLayout, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
+import { QuickviewLayout, QuickviewTracker, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 
 import type { QuickviewController } from '@athoscommerce/snap-controller';
 
@@ -135,10 +135,22 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	const store = controller.store;
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
+	const product = store.product;
 
 	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
 		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
 	};
+
+	const layoutContent = (
+		<QuickviewLayout
+			controller={controller}
+			onReset={onClose}
+			theme={props.theme}
+			treePath={treePath}
+			{...layoutProps}
+			{...defined({ disableStyles })}
+		/>
+	);
 
 	return (
 		<CacheProvider>
@@ -156,14 +168,15 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 				    width when the modal opens. The fixed full-viewport overlay already masks the
 				    background and the fixed-centered content stays put, so locking isn't needed. */}
 				<Modal open={isOpen} lockScroll={false} onOverlayClick={onClose} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
-					<QuickviewLayout
-						controller={controller}
-						onReset={onClose}
-						theme={props.theme}
-						treePath={treePath}
-						{...layoutProps}
-						{...defined({ disableStyles })}
-					/>
+					{/* keyed by response/product so a product change while open remounts the tracker
+					    and the new product's impression is observed and tracked */}
+					{product ? (
+						<QuickviewTracker key={`${product.responseId}-${product.id}`} controller={controller} product={product}>
+							{layoutContent}
+						</QuickviewTracker>
+					) : (
+						layoutContent
+					)}
 				</Modal>
 			</div>
 		</CacheProvider>

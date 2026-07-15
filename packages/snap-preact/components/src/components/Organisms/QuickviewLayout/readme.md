@@ -37,7 +37,7 @@ Each module name maps to a library component (so theme selectors and `customComp
 - `variantSelections` — one `VariantSelection` per variant selection.
 - `variantSelection.<field>` — a single `VariantSelection` for the matching selection field (e.g. `variantSelection.color`). The field also matches its component-name form (`color_family` → `color-family`), so `variantSelection.<field>` theme selectors can target it. A bare `variantSelection` module is not supported.
 - `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid. The path's final segment names the component, so `productDetail.<name>` theme selectors can target it (e.g. `productDetail.description`).
-- `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`).
+- `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`). Clicking More info tracks a clickThrough for the product (`controller.track.product.clickThrough`, delegated with `quickView: true`) before navigating to the product page.
 - `productDetailTable` — the `ProductDetailTable` molecule (opt-in via `displayFields`).
 - `recommendation.<profile>` — a recommendation carousel for the named profile. `<profile>` becomes the `RecommendationController` **tag**; the controller is seeded with the currently-viewed product (`mappings.core.parentId || product.id`) and rendered through the theme's `Recommendation` component (configurable via the `recommendation` prop). The profile also names the component, so `recommendation.<profile>` theme selectors can target it. Renders `null` until the controller's store is loaded.
 - `_` — a flexible separator.
@@ -109,6 +109,14 @@ The optional `recommendation` prop configures every recommendation module (the p
 | `config` | `Partial<RecommendationControllerConfig>` | ➖ | Extra controller config (e.g. `limit`, `globals`). `tag` is always overridden by the module name; `id` defaults to `quickview-<profile>`. |
 
 Recommendations require a Snap templates context (`useSnap().templates`); rendered standalone without one, the module collapses to nothing.
+
+## Tracking
+
+Both containers wrap the layout in the exported `QuickviewTracker` component whenever a product is displayed. It uses the `useTracking` hook (`track: { click: false }`) to observe the quickview content and calls `controller.track.product.impression(product)` once the content has actually been viewed (the standard impression thresholds apply: ≥70% visible for at least 1s). The `QuickviewController` delegates the call to the controller that opened the quickview with `{ quickView: true }`, and quickview impressions dedup separately from grid impressions there — one of each kind per product per response.
+
+The tracker is keyed by `responseId`-`product.id`, so displaying a different product (or the same product from a new search response) remounts it and the new product view is observed and tracked. Because the impression fires from the containers, a standalone `QuickviewLayout` does not track impressions on its own.
+
+Generic click tracking is disabled inside the quickview (`track: { click: false }` — clicks on the content do not send click/clickThrough events). The only click-type event is the **More info** button, which tracks a clickThrough for the product before navigating to the product page. Add-to-cart tracking runs through `controller.addToCart`, which delegates to the originating controller's cart integration (also flagged `quickView: true`).
 
 ## Styling & containers
 
