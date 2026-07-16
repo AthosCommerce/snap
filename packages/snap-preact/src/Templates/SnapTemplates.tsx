@@ -395,7 +395,7 @@ export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, te
 				action: 'append' as const,
 				element: () => {
 					const el = document.createElement('div');
-					el.id = 'athos-quickview';
+					el.id = index === 0 ? 'athos-quickview' : `athos-quickview-${index}`;
 					return el;
 				},
 			},

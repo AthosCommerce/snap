@@ -143,7 +143,7 @@ export default {
 			},
 			control: { type: 'text' },
 		},
-		onToggle: {
+		onChange: {
 			description: 'called with the new active state whenever the slideout is toggled',
 			table: {
 				type: {
