@@ -76,6 +76,11 @@ export class ThemeStore {
 			overrides.responsive.desktop = prefixComponentKeys('(D)', overrides.responsive?.desktop);
 		}
 
+		// Normalize comma-separated selectors in override default components (no prefix needed, but commas need normalizing)
+		if (overrides?.components) {
+			overrides.components = normalizeCommaSeparatedKeys(overrides.components);
+		}
+
 		this.name = name;
 		this.type = type;
 		this.base = base;
@@ -259,14 +264,14 @@ function prefixComponentKeys(prefix: string, components?: ThemeComponentsRestric
 	if (components) {
 		Object.keys(components).forEach((key) => {
 			// Handle comma-separated selectors by prefixing each individual selector
-			if (key.includes(', ')) {
+			// Split on comma with optional surrounding whitespace, normalize to ', '
+			if (key.includes(',')) {
 				const prefixedKey = key
-					.split(', ')
+					.split(/\s*,\s*/)
 					.map((part) => {
-						const trimmed = part.trim();
 						// does the part already have the prefix?
-						if (trimmed.indexOf(prefix) === 0) return trimmed;
-						return `${prefix}${trimmed}`;
+						if (part.indexOf(prefix) === 0) return part;
+						return `${prefix}${part}`;
 					})
 					.join(', ');
 				newComponents[prefixedKey as keyof typeof newComponents] = components![key as keyof typeof components];
@@ -281,6 +286,21 @@ function prefixComponentKeys(prefix: string, components?: ThemeComponentsRestric
 			newComponents[`${prefix}${key}` as keyof typeof newComponents] = components![key as keyof typeof components];
 		});
 	}
+
+	return newComponents;
+}
+
+function normalizeCommaSeparatedKeys(components: ThemeComponentsRestricted): ThemeComponentsRestricted {
+	const newComponents: any = {};
+
+	Object.keys(components).forEach((key) => {
+		if (key.includes(',')) {
+			const normalized = key.split(/\s*,\s*/).join(', ');
+			newComponents[normalized] = components[key as keyof typeof components];
+		} else {
+			newComponents[key] = components[key as keyof typeof components];
+		}
+	});
 
 	return newComponents;
 }

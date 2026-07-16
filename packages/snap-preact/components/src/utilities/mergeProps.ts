@@ -257,12 +257,13 @@ export function filterSelectors(themeComponents: ThemeComponents, treePath: stri
 	const selectors = Object.keys(themeComponents);
 
 	// Expand comma-separated selectors into individual entries, preserving the original key for value lookup
+	// Split on comma with optional surrounding whitespace to handle both 'a, b' and 'a,b' formats
 	const expandedSelectors: { original: string; selector: string }[] = [];
 	for (const key of selectors) {
-		if (key.includes(', ')) {
-			const parts = key.split(', ');
+		if (key.includes(',')) {
+			const parts = key.split(/\s*,\s*/);
 			for (const part of parts) {
-				expandedSelectors.push({ original: key, selector: part.trim() });
+				expandedSelectors.push({ original: key, selector: part });
 			}
 		} else {
 			expandedSelectors.push({ original: key, selector: key });
