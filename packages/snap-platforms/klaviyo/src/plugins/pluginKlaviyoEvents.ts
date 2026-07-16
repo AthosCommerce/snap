@@ -36,7 +36,7 @@ export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginK
 			// build out the payload
 			const klaviyoClickPayload = {
 				query: controller.store.search.query?.string || '',
-				subject: '', // TODO
+				subject: controller.store.search.subject?.string || '',
 				totalResults: controller.store.pagination.totalResults,
 				product: extractProductDetails(product),
 				results: controller.store.results

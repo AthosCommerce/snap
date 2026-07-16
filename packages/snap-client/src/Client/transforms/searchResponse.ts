@@ -176,6 +176,7 @@ export type SearchResponseType = {
 		matchType?: SearchResponseModelSearchMatchTypeEnum;
 		corrected?: string;
 		original?: string;
+		subject?: string;
 	};
 };
 
@@ -440,10 +441,12 @@ transformSearchResponse.search = (
 		didYouMean?: string;
 		matchType?: SearchResponseModelSearchMatchTypeEnum;
 		originalQuery?: string;
+		subject?: string;
 	} = {
 		query: request?.search?.query?.string,
 		didYouMean: response?.didYouMean?.query,
 		matchType: response?.query?.matchType,
+		subject: response?.query?.subject,
 	};
 
 	if (response?.query?.corrected && response?.query.original) {
