@@ -25,6 +25,8 @@ module.exports = {
 				'"{{ value }}" is not a valid resultComponent. Must be one of: {{ validKeys }}.',
 			noResultComponents:
 				'"{{ value }}" is not a valid resultComponent. No keys found in components.result.',
+			commaSeparatedComponentMismatch:
+				'Comma-separated selector "{{ key }}" has mismatched component types: {{ types }}. All selectors must target the same component type.',
 		},
 		schema: [],
 	},
@@ -91,6 +93,24 @@ module.exports = {
 								data: {
 									value,
 									validKeys: validResultKeys.join(', '),
+								},
+							});
+						}
+					}
+
+					// Validate comma-separated component override selectors
+					const commaSeparatedNodes = collectCommaSeparatedSelectorNodes(init);
+					for (const { node: selectorNode, key } of commaSeparatedNodes) {
+						const parts = key.split(',').map((p) => p.trim());
+						const componentTypes = parts.map(extractComponentTypeFromSelector);
+						const uniqueTypes = [...new Set(componentTypes)];
+						if (uniqueTypes.length > 1) {
+							context.report({
+								node: selectorNode,
+								messageId: 'commaSeparatedComponentMismatch',
+								data: {
+									key,
+									types: uniqueTypes.join(', '),
 								},
 							});
 						}
@@ -253,6 +273,74 @@ module.exports = {
 			if (property.key.type === 'Identifier') return property.key.name;
 			if (property.key.type === 'Literal') return String(property.key.value);
 			return null;
+		}
+
+		/**
+		 * Extract the component type from a single selector string.
+		 * The component type is the last space-separated segment, with any dot-name suffix stripped.
+		 * e.g., 'recommendation.crosssell icon.prev' -> 'icon'
+		 * e.g., 'search results' -> 'results'
+		 * e.g., 'icon' -> 'icon'
+		 */
+		function extractComponentTypeFromSelector(selector) {
+			const trimmed = selector.trim();
+			const parts = trimmed.split(' ');
+			const lastPart = parts[parts.length - 1];
+			// Strip dot-name suffix: 'icon.prev' -> 'icon'
+			return lastPart.split('.')[0];
+		}
+
+		/**
+		 * Recursively collect all property nodes whose key is a string containing ', '
+		 * within theme.overrides (component override sections).
+		 */
+		function collectCommaSeparatedSelectorNodes(node, parentPath = []) {
+			const results = [];
+
+			if (node.type === 'ObjectExpression') {
+				for (const prop of node.properties) {
+					if (prop.type === 'Property') {
+						const name = getPropertyName(prop);
+						// Check if this key contains a comma-separated selector
+						if (
+							typeof name === 'string' &&
+							name.includes(', ') &&
+							isInOverridesContext(parentPath)
+						) {
+							results.push({
+								node: prop.key,
+								key: name,
+							});
+						}
+						// Recurse into child objects
+						if (prop.value.type === 'ObjectExpression') {
+							results.push(
+								...collectCommaSeparatedSelectorNodes(prop.value, [...parentPath, name])
+							);
+						}
+					} else if (prop.type === 'SpreadElement') {
+						results.push(
+							...collectCommaSeparatedSelectorNodes(prop.argument, parentPath)
+						);
+					}
+				}
+			}
+
+			return results;
+		}
+
+		/**
+		 * Check if the property path indicates we are inside a theme overrides context
+		 * where component selector keys are expected.
+		 * Valid contexts: theme.overrides.default, theme.overrides.responsive.mobile, etc.
+		 */
+		function isInOverridesContext(path) {
+			for (let i = 0; i < path.length; i++) {
+				if (path[i] === 'overrides' || path[i] === 'components') {
+					return true;
+				}
+			}
+			return false;
 		}
 	},
 };

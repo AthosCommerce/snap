@@ -254,7 +254,21 @@ export function sortSelectors(a: string, b: string): number {
 }
 
 export function filterSelectors(themeComponents: ThemeComponents, treePath: string): string[] {
-	let selectors = Object.keys(themeComponents);
+	const selectors = Object.keys(themeComponents);
+
+	// Expand comma-separated selectors into individual entries, preserving the original key for value lookup
+	const expandedSelectors: { original: string; selector: string }[] = [];
+	for (const key of selectors) {
+		if (key.includes(', ')) {
+			const parts = key.split(', ');
+			for (const part of parts) {
+				expandedSelectors.push({ original: key, selector: part.trim() });
+			}
+		} else {
+			expandedSelectors.push({ original: key, selector: key });
+		}
+	}
+
 	const paths = treePath.split(' ');
 	const componentTypeAndName = paths.slice(-1).pop() ?? '';
 	const [componentType, componentName] = componentTypeAndName.split('.');
@@ -268,8 +282,10 @@ export function filterSelectors(themeComponents: ThemeComponents, treePath: stri
 		};
 	});
 
+	let filtered: { original: string; selector: string }[];
+
 	if (componentName) {
-		selectors = selectors.filter((key) => {
+		filtered = expandedSelectors.filter(({ selector: key }) => {
 			const keys = key.split(' ');
 			const lastkey = keys[keys.length - 1].replace(/\*?(\([MDT]\))?/g, '');
 			if (lastkey == componentType || lastkey == `${componentType}.${componentName}`) {
@@ -277,9 +293,10 @@ export function filterSelectors(themeComponents: ThemeComponents, treePath: stri
 			}
 		});
 	} else {
-		selectors = selectors.filter((key) => key.endsWith(componentType));
+		filtered = expandedSelectors.filter(({ selector: key }) => key.endsWith(componentType));
 	}
-	return selectors.filter((selector) => {
+
+	const matched = filtered.filter(({ selector }) => {
 		// when considering matches, we do not care about the base theme prefix "*" nor the responsive prefix "(M)" || "(T)" || "(D)"
 		// these are automatically added by the ThemeStore in Snap Templates in order to preserve merge ordering of these overrides
 		const split = selector
@@ -310,4 +327,16 @@ export function filterSelectors(themeComponents: ThemeComponents, treePath: stri
 
 		return true;
 	});
+
+	// Deduplicate: return original keys, preserving order of first match
+	const seen = new Set<string>();
+	const result: string[] = [];
+	for (const { original } of matched) {
+		if (!seen.has(original)) {
+			seen.add(original);
+			result.push(original);
+		}
+	}
+
+	return result;
 }

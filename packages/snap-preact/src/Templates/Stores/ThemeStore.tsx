@@ -258,6 +258,20 @@ function prefixComponentKeys(prefix: string, components?: ThemeComponentsRestric
 
 	if (components) {
 		Object.keys(components).forEach((key) => {
+			// Handle comma-separated selectors by prefixing each individual selector
+			if (key.includes(', ')) {
+				const prefixedKey = key
+					.split(', ')
+					.map((part) => {
+						const trimmed = part.trim();
+						// does the part already have the prefix?
+						if (trimmed.indexOf(prefix) === 0) return trimmed;
+						return `${prefix}${trimmed}`;
+					})
+					.join(', ');
+				newComponents[prefixedKey as keyof typeof newComponents] = components![key as keyof typeof components];
+				return;
+			}
 			//does the key already have the prefix? - this is needed when using the editor.
 			if (key.indexOf(prefix) === 0) {
 				newComponents[key as keyof typeof newComponents] = components![key as keyof typeof components];
