@@ -304,7 +304,7 @@ module.exports = {
 						// Check if this key contains a comma-separated selector
 						if (
 							typeof name === 'string' &&
-							name.includes(', ') &&
+							name.includes(',') &&
 							isInOverridesContext(parentPath)
 						) {
 							results.push({
