@@ -13,6 +13,7 @@
     "build:docs": "lerna exec --stream --parallel 'npm run build:docs'",
     "build:feed": "node ./docs/generateFeed.js",
     "build:metrics": "node ./metrics/generate",
+    "build:sitemap": "node ./docs/generateDocsSitemap.js",
     "test": "jest",
     "posttest": "npm run test --workspace=@athoscommerce/snap-preact-demo && npm run cypress:headless --workspace=@athoscommerce/snap-preact",
     "dev": "lerna exec --parallel --stream 'npm run dev'",
