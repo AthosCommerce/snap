@@ -194,7 +194,7 @@ To set this up, add the following Liquid code to your Shopify theme file (e.g., 
 </script>
 ```
 
-This outputs your store's configured money format (e.g., `${{amount}}`) into the script context so that `shopifyMarketsPriceFormat` can format prices correctly for the active market currency. The `| json` Liquid filter safely encodes the value as a quoted JSON string, handling any HTML or special characters that `shop.money_format` may contain. 
+This outputs your store's configured money format (e.g., `${{amount}}`) into the script context so that `shopifyMarketsPriceFormat` can format prices correctly for the active market currency. The `| json` Liquid filter safely encodes the value as a quoted JSON string, handling any HTML or special characters that `shop.money_format` may contain.
 
 #### Using in Your Result Component
 
