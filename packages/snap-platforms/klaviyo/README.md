@@ -1,12 +1,27 @@
 # Klaviyo Platform
-This platform library gives you plugins to use with the Klaviyo marketing platform. 
+This platform library gives you plugins to use with the Klaviyo marketing platform. The plugins can be used with both Snap and Snap Templates.
 
-## Usage 
-To use the platform library, simply import what you wish to use from `@athoscommerce/snap-platforms/klaviyo`.
+## Usage with Snap
+To use the platform library with Snap, simply import what you wish to use from `@athoscommerce/snap-platforms/klaviyo`.
 
 ```tsx
 import { pluginEvents } from '@athoscommerce/snap-platforms/klaviyo';
 ```
+
+## Usage with Snap Templates
+When using Snap Templates, no import is needed — the plugins are included in the templates library. Enable a plugin via the `plugins.klaviyo` configuration by setting `enabled` to `true`:
+
+```tsx
+plugins: {
+	klaviyo: {
+		events: {
+			enabled: true,
+		},
+	},
+},
+```
+
+The configuration can be set globally (top-level `plugins`) or per controller type (e.g. `search.plugins`, `autocomplete.plugins`).
 
 ## Plugins
 
@@ -18,9 +33,13 @@ Plugin to send Athos Commerce events to Klaviyo. The plugin attaches to the `tra
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
-| enabled | configuration to allow for disabling the plugin | boolean | true | ➖ |
+| enabled | the plugin is opt-in and only runs when this is set to `true` | boolean | false | ✔️ |
 
-Attach the plugin to a controller via the controller `plugins` configuration:
+> [!NOTE]
+> The plugin is disabled by default. It must be explicitly enabled by setting `enabled: true` in the plugin configuration.
+
+#### Snap
+Attach the plugin to a controller via the controller `plugins` configuration, passing a configuration with `enabled: true`:
 
 ```tsx
 import { Snap } from '@athoscommerce/snap-preact';
@@ -33,7 +52,7 @@ const config = {
 			{
 				config: {
 					id: 'search',
-					plugins: [[pluginEvents]],
+					plugins: [[pluginEvents, { enabled: true }]],
 				},
 			},
 		],
@@ -41,6 +60,22 @@ const config = {
 };
 
 new Snap(config);
+```
+
+#### Snap Templates
+No import is needed. Enable the plugin via the `plugins.klaviyo.events` configuration by setting `enabled` to `true`:
+
+```tsx
+new SnapTemplates({
+	// ...
+	plugins: {
+		klaviyo: {
+			events: {
+				enabled: true,
+			},
+		},
+	},
+});
 ```
 
 #### Events

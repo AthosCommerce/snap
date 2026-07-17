@@ -1,1 +1,1 @@
-export { pluginKlaviyoEvents as pluginEvents } from './plugins/pluginKlaviyoEvents';
+export { pluginKlaviyoEvents as pluginEvents, PluginKlaviyoEventsConfig as PluginEventsConfig } from './plugins/pluginKlaviyoEvents';

@@ -4,6 +4,7 @@ import type { JSXComponent, Theme, ThemeComplete, ThemeMinimal } from '../../../
 import { transformTranslationsToTheme, type TemplateCustomComponentTypes, type TemplateTypes } from './TemplateStore';
 import type { TemplateStoreComponentConfigUnlocked } from './TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
+import { pluginEvents as pluginKlaviyoEvents } from '@athoscommerce/snap-platforms/klaviyo';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
@@ -59,6 +60,9 @@ export type LibraryImports = {
 		};
 		custom?: {
 			[name: string]: PluginFunction;
+		};
+		klaviyo: {
+			events: typeof pluginKlaviyoEvents;
 		};
 	};
 	component: {
@@ -435,6 +439,9 @@ export class LibraryStore {
 				scrollToTop: pluginScrollToTop,
 				logger: pluginLogger,
 				addToCart: commonPluginAddToCart,
+			},
+			klaviyo: {
+				events: pluginKlaviyoEvents,
 			},
 		},
 		component: {

@@ -20,7 +20,15 @@ declare global {
 
 export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginKlaviyoEventsConfig) => {
 	// do nothing if plugin is disabled
-	if (config?.enabled === false) return;
+	// TODO: only activate plugin if specified in the config for Snap Templates
+	if (config?.enabled !== true) return;
+
+	// at plugin init, inside the enabled gate:
+	if (!window._learnq) {
+		cntrlr.log.warn('pluginKlaviyoEvents', '_learnq not found - Klaviyo script may not be installed; events will not be sent');
+		// don't return here - we want to allow the plugin to continue so that if _learnq is added later, events will be sent
+		// this covers situations where the Klaviyo script is loaded asynchronously after Snap is initialized
+	}
 
 	// this will potentially need to be attached to multiple controller types:
 	// 1. search
@@ -45,7 +53,7 @@ export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginK
 			};
 
 			try {
-				window?._learnq?.push(['track', `Athos Commerce ${controller.type} click`, klaviyoClickPayload]);
+				window._learnq?.push(['track', `Athos Commerce ${controller.type} click`, klaviyoClickPayload]);
 				controller.log.debug('pluginKlaviyoEvents', 'track.product.clickThrough', klaviyoClickPayload);
 			} catch (e) {
 				controller.log.error('pluginKlaviyoEvents', 'track.product.clickThrough', klaviyoClickPayload);

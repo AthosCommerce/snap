@@ -53,6 +53,11 @@ let templatesConfig: SnapTemplatesConfig = {
 				function: (data) => console.log('added to cart!', data),
 			},
 		},
+		klaviyo: {
+			events: {
+				enabled: true,
+			},
+		},
 	},
 	components: {
 		result: {

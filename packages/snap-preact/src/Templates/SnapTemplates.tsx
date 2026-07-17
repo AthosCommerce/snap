@@ -35,6 +35,8 @@ import {
 	pluginLogger,
 	PluginLoggerConfig,
 } from '@athoscommerce/snap-platforms/common';
+// TODO: add klaviyo plugin to the list of imports
+import { pluginEvents as pluginKlaviyoEvents, PluginEventsConfig as PluginKlaviyoEventsConfig } from '@athoscommerce/snap-platforms/klaviyo';
 import {
 	pluginBackgroundFilters as PluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -92,7 +94,9 @@ type TemplatePlugins =
 	| [typeof pluginMagento2BackgroundFilters, PluginMagento2BackgroundFiltersConfig]
 	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig]
 	// custom
-	| [PluginFunction, ...unknown[]];
+	| [PluginFunction, ...unknown[]]
+	// klaviyo
+	| [typeof pluginKlaviyoEvents, PluginKlaviyoEventsConfig];
 
 type TemplatePluginGrouping = TemplatePlugins[];
 
@@ -518,6 +522,11 @@ export function createPlugins(
 		deepmerge(templateConfig.plugins?.common?.logger || {}, controllerConfig?.plugins?.common?.logger || {}),
 	]);
 
+	plugins.push([
+		templatesStore.library.import.plugins.klaviyo?.events,
+		deepmerge(templateConfig.plugins?.klaviyo?.events || {}, controllerConfig?.plugins?.klaviyo?.events || {}),
+	]);
+
 	switch (templatesStore.platform) {
 		case 'shopify':
 			plugins.push([
@@ -562,6 +571,7 @@ export function createPlugins(
 				templatesStore.library.import.plugins.common.addToCart,
 				deepmerge(templateConfig.plugins?.common?.addToCart || {}, controllerConfig?.plugins?.common?.addToCart || {}),
 			]);
+
 		default:
 			break;
 	}

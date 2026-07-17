@@ -62,15 +62,23 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 	});
 
 	afterEach(() => {
-		delete window._learnq;
+		delete (window as { _learnq?: unknown })._learnq;
 	});
 
-	it('attaches a handler to the track.product.clickThrough event', () => {
+	it('attaches a handler to the track.product.clickThrough event when enabled', () => {
+		const onEventSpy = jest.spyOn(controller.eventManager, 'on');
+
+		pluginKlaviyoEvents(controller, { enabled: true });
+
+		expect(onEventSpy).toHaveBeenCalledWith('track.product.clickThrough', expect.any(Function));
+	});
+
+	it('is disabled by default (opt-in)', () => {
 		const onEventSpy = jest.spyOn(controller.eventManager, 'on');
 
 		pluginKlaviyoEvents(controller);
 
-		expect(onEventSpy).toHaveBeenCalledWith('track.product.clickThrough', expect.any(Function));
+		expect(onEventSpy).not.toHaveBeenCalled();
 	});
 
 	it('can be disabled via config', () => {
@@ -91,7 +99,7 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 			on: jest.fn(),
 		} as unknown as AbstractController;
 
-		pluginKlaviyoEvents(mockController);
+		pluginKlaviyoEvents(mockController, { enabled: true });
 
 		expect(mockController.on).not.toHaveBeenCalled();
 	});
@@ -99,7 +107,7 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 	it('pushes a track event to _learnq on product clickthrough', async () => {
 		await controller.search();
 
-		pluginKlaviyoEvents(controller);
+		pluginKlaviyoEvents(controller, { enabled: true });
 
 		const product = controller.store.results.find((result) => result.type === 'product') as Product;
 		expect(product).toBeDefined();
@@ -123,7 +131,7 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 	it('excludes the clicked product from the results payload', async () => {
 		await controller.search();
 
-		pluginKlaviyoEvents(controller);
+		pluginKlaviyoEvents(controller, { enabled: true });
 
 		const product = controller.store.results.find((result) => result.type === 'product') as Product;
 
@@ -136,18 +144,19 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 	});
 
 	it('does not throw when window._learnq is not available', async () => {
-		delete window._learnq;
+		delete (window as { _learnq?: unknown })._learnq;
 
 		await controller.search();
 
-		pluginKlaviyoEvents(controller);
+		pluginKlaviyoEvents(controller, { enabled: true });
 
-		const errorSpy = jest.spyOn(controller.log, 'error');
+		const errorSpy = jest.spyOn(controller.log, 'error').mockImplementation(() => {});
 		const product = controller.store.results.find((result) => result.type === 'product') as Product;
 
 		await expect(controller.eventManager.fire('track.product.clickThrough', { controller, product })).resolves.not.toThrow();
 
-		expect(errorSpy).not.toHaveBeenCalled();
+		// _learnq access throws internally and is caught and logged
+		expect(errorSpy).toHaveBeenCalledWith('pluginKlaviyoEvents', 'track.product.clickThrough', expect.any(Object));
 	});
 
 	it('logs an error when _learnq.push throws', async () => {
@@ -159,7 +168,7 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 
 		await controller.search();
 
-		pluginKlaviyoEvents(controller);
+		pluginKlaviyoEvents(controller, { enabled: true });
 
 		const errorSpy = jest.spyOn(controller.log, 'error').mockImplementation(() => {});
 		const product = controller.store.results.find((result) => result.type === 'product') as Product;
@@ -176,7 +185,7 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 			on: jest.fn(),
 		} as unknown as AbstractController;
 
-		pluginKlaviyoEvents(mockController);
+		pluginKlaviyoEvents(mockController, { enabled: true });
 
 		expect(mockController.on).toHaveBeenCalledWith('track.product.clickThrough', expect.any(Function));
 	});
