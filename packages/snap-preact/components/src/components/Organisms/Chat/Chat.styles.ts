@@ -1188,6 +1188,14 @@ export const chatDefaultStyles: StyleScript<ChatStyleProps> = ({
 					'input[type="file"]': {
 						display: 'none',
 					},
+					'.ss__chat__input__counter': {
+						alignSelf: 'center',
+						flexShrink: 0,
+						fontSize: '10px',
+						color: '#999',
+						padding: '0 0.75em',
+						whiteSpace: 'nowrap',
+					},
 				},
 				'.ss__chat__input__actions': {
 					'.ss__button': {

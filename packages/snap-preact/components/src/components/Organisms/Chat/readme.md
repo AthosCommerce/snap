@@ -52,6 +52,10 @@ When true, the request-type indicator text above a user message (e.g. "Searching
 ### buttonBelowMessage
 When false (default), the side-chat affordance for inspiration and comparison messages renders as a round icon button inside the message bubble. When true, it renders instead as a labelled `Button` (no icon) below the message, with text reflecting the action — `Explore Inspiration Scenarios` or `Explore Comparison Data`.
 
+## Composer
+
+The text input is capped at `CHAT_MAX_MESSAGE_LENGTH` (256 characters, from `@athoscommerce/snap-client`) via the native `maxLength` attribute, matching the controller's server-side limit. Once the input reaches 200 characters a small `.ss__chat__input__counter` element appears showing `<count>/256` so the user can see how much room is left.
+
 ## Accessibility
 
 - The chat bubble is a real `<button>` with `aria-label` and `aria-expanded`.

@@ -80,13 +80,16 @@ An error object (inherited from `AbstractStore`) set when a chat request fails. 
 
 Session-limit-exceeded responses (`CS_003`) are flagged on `currentChat.sessionLimitReached` instead of populating `error`.
 
+## `impressionStorage` property
+A `StorageStore` (local storage) recording which products have already fired a chat impression, keyed `chatId` → `responseId` → `productId`. Because it is persisted, a product impressed on one page is not re-impressed when the chat reopens on a later page. Entries for a chat are dropped when that chat is pruned during `createChat`.
+
 ## `meta` property
 Contains meta data retrieved from the Athos Meta API, stored as a `MetaStore` instance. Persisted to localStorage and used to lazily hydrate inactive sessions when the user switches chats.
 
 ## Methods
 
 ### `createChat(data?)`
-Creates a new `ChatSessionStore`, sets it as the current chat, persists the new `currentChatId` to localStorage, and returns the created session. Optionally accepts an object with a `sessionId`. Old sessions beyond the 10-session cap are pruned. Resets `loading` and `error` so any in-flight request from the previous chat doesn't bleed into the new one.
+Creates a new `ChatSessionStore`, sets it as the current chat, persists the new `currentChatId` to localStorage, and returns the created session. Optionally accepts an object with a `sessionId`. Old sessions beyond the 10-session cap are pruned, and the `impressionStorage` entries for any pruned chat are dropped alongside them. Resets `loading` and `error` so any in-flight request from the previous chat doesn't bleed into the new one.
 
 ```js
 const chat = store.createChat();
@@ -159,6 +162,7 @@ Each chat session is represented by a `ChatSessionStore` instance, accessible vi
 | `chat` | Array of message objects (user, assistant, and `productQuery` placeholder messages) in the conversation |
 | `actions` | Suggested follow-up actions returned with the most recent assistant response |
 | `requestType` | Request type of the most recent outgoing message |
+| `pendingRequest` | Request data (`MoiRequestModel`) awaiting a response, or `null`. Persisted so an unanswered message survives navigation and can be re-sent when the chat reopens (see `ChatController.resumePendingRequest`) |
 | `activeMessage` (getter) | Currently displayed assistant message — honors the `activeMessageId` override and skips `topicDrift` / `productAnswer` |
 | `activeMessageId` | Override id used when the user navigates back to a historical message |
 | `dismissedSideChatMessageId` | Id of a message whose side-chat panel the user has explicitly dismissed |
@@ -205,8 +209,11 @@ Hydrates results in the chat response into `Product` / `SearchResultStore` insta
 ### `hydrateResults(meta)`
 Re-wraps raw stored results in this session as `Product` / `SearchResultStore` instances using the supplied meta. Called lazily by `ChatStore.switchChat` when an inactive session is opened.
 
+### `setPendingRequest(data)`
+Sets `pendingRequest` to the given request data (or `null` to clear it) and immediately persists the session. Used by the controller to record an in-flight request so it can be resumed after navigation.
+
 ### `reset()`
 Clears the conversation, attachments, actions, and feedback on this session.
 
 ### `ChatSessionStore.pruneStoredSessions(storage, maxSessions = 10)` (static)
-Removes the oldest stored sessions when the count in storage exceeds `maxSessions`. Called by `ChatStore.createChat` before adding a new session.
+Removes the oldest stored sessions when the count in storage exceeds `maxSessions`, and returns an array of the pruned session ids (oldest first; empty when nothing was pruned). Called by `ChatStore.createChat` before adding a new session, which uses the returned ids to clean up their `impressionStorage` entries.

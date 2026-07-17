@@ -80,4 +80,18 @@ describe('ChatOrganism Component', () => {
 		expect(messages).toHaveAttribute('role', 'log');
 		expect(messages).toHaveAttribute('aria-live', 'polite');
 	});
+
+	it('limits the chat input to 256 characters', () => {
+		const rendered = render(<ChatOrganism controller={makeController({ open: true })} />);
+		const input = rendered.container.querySelector('input[name="ss-chat-input"]') as HTMLInputElement;
+		expect(input).toHaveAttribute('maxlength', '256');
+	});
+
+	it('shows a character counter once the input reaches 200 characters', () => {
+		const rendered = render(<ChatOrganism controller={makeController({ open: true, inputValue: 'a'.repeat(199) })} />);
+		expect(rendered.container.querySelector('.ss__chat__input__counter')).toBeNull();
+
+		rendered.rerender(<ChatOrganism controller={makeController({ open: true, inputValue: 'a'.repeat(200) })} />);
+		expect(rendered.container.querySelector('.ss__chat__input__counter')?.textContent).toBe('200/256');
+	});
 });

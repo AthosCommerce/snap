@@ -24,6 +24,14 @@ chatController.init();
 ## Search
 Sends a chat message. The request is constructed from the current input value, attached images, attached products, active comparisons, and any selected facet filters on the active facets display. The request type is automatically determined based on context. The input value is HTML-stripped at submit time to prevent tag injection in both the API request and the rendered user message.
 
+Before the request is sent, the message field is finalized to mirror the backend's per-`requestType` rules:
+
+- The message is trimmed of surrounding whitespace.
+- `productSimilar` never carries a message — it is dropped (the backend infers intent from the `productId`).
+- `productComparison` and `productSearch` may send with no message — a blank message is omitted rather than blocking the request.
+- Every other request type requires a message; a request with a blank message is dropped and a warning is logged.
+- A message longer than `CHAT_MAX_MESSAGE_LENGTH` (256 characters, exported from `@athoscommerce/snap-client`) is rejected: the request is dropped and a warning is logged. The chat input also enforces this cap client-side via `maxLength`.
+
 ```js
 chatController.search();
 
@@ -58,7 +66,7 @@ chatController.productQuery(result);
 ```
 
 ## ProductSimilar
-Attaches a product with the "find similar" intent and immediately sends a search request. Any in-progress or committed comparison set is discarded first.
+Attaches a product with the "find similar" intent and immediately sends a search request. Any in-progress or committed comparison set is discarded first. The `productSimilar` request carries only the `productId` — no message is sent.
 
 ```js
 chatController.productSimilar(result);
@@ -74,13 +82,22 @@ chatController.compareProduct(result2);
 ```
 
 ## OpenChat
-Opens the chat UI. Optionally accepts an initial message to start a conversation immediately. With no message, a new chat session is created if none exists and the input is focused. If the persisted active session has expired (past the `sessionEndTime` returned by `chatInit`) a fresh session is created so the user lands in a usable chat rather than the expired placeholder. Also exposed as the global event `chat/send` (fire via `window.athos.fire('chat/send', { message })`).
+Opens the chat UI. Optionally accepts an initial message to start a conversation immediately. With no message, a new chat session is created if none exists and the input is focused. If the persisted active session has expired (past the `sessionEndTime` returned by `chatInit`) a fresh session is created so the user lands in a usable chat rather than the expired placeholder. If the reopened session has a pending (unanswered) request, it is resumed — see [ResumePendingRequest](#resumependingrequest). Also exposed as the global event `chat/send` (fire via `window.athos.fire('chat/send', { message })`).
 
 ```js
 chatController.openChat();
 
 // open with an initial message
 chatController.openChat('I am looking for running shoes');
+```
+
+## ResumePendingRequest
+Re-sends a request that was in flight when the user navigated away before the response arrived. While a request is being sent, its data is persisted on the current session as `pendingRequest` and cleared once the response (or an error surfaced to the user) comes back. On the next page the session rehydrates from storage with that pending request intact, and reopening the chat — via `openChat()` or the bubble toggle — resumes it: the request data is re-sent verbatim without pushing a new user message (the original message is already in the persisted history).
+
+The resume is a no-op when there is nothing pending, a request is already loading, or the session has expired. It is also deferred one tick so an explicit send issued while opening (the `chat/send` flow calls `openChat()` then `search()` in the same tick) takes priority over the resume.
+
+```js
+chatController.resumePendingRequest();
 ```
 
 ## AddToCart
@@ -139,7 +156,8 @@ The controller automatically determines the request type based on the current co
 
 ### track.product.impression
 - Called with `eventData` = { controller, product, trackEvent }
-- Always invoked after `track.product.impression()` method has been invoked
+- Invoked after `track.product.impression()` when the product has not already been impressed for its chat + response
+- Impressions are deduplicated per `chatId` + `responseId` + `productId` and persisted to `impressionStorage` (see the ChatStore docs), so a product already impressed for a response is not re-impressed after the chat reopens on a new page
 
 ### track.product.clickThrough
 - Called with `eventData` = { controller, event, product, trackEvent }

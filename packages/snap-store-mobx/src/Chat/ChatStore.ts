@@ -22,6 +22,9 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	/** Session-scoped storage for the chat status response — cleared when a new
 	 * browser session starts, so the status is rechecked on each new session. */
 	public statusStorage: StorageStore;
+	/** Local storage of impressed products, keyed chatId → responseId → productId,
+	 * so the same product is not re-impressed after the chat reopens on a new page. */
+	public impressionStorage: StorageStore;
 	public services: StoreServices;
 	/** Detached UrlManager — holds the in-progress facet selection for the active facets display.
 	 * Detached so .go() updates state without navigating the page. */
@@ -66,6 +69,10 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.statusStorage = new StorageStore({
 			type: 'session',
 			key: `${storageKey}-status`,
+		});
+		this.impressionStorage = new StorageStore({
+			type: 'local',
+			key: `${storageKey}-impressions`,
 		});
 
 		this.facets = this.buildFacetStore();
@@ -492,8 +499,10 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.loading = false;
 		this.error = undefined;
 
-		// Prune old sessions before creating a new one to keep storage bounded
-		ChatSessionStore.pruneStoredSessions(this.storage);
+		// Prune old sessions before creating a new one to keep storage bounded,
+		// and drop impression entries for any chat that was pruned.
+		const prunedChatIds = ChatSessionStore.pruneStoredSessions(this.storage);
+		prunedChatIds.forEach((id) => this.impressionStorage.set([id], null));
 
 		const newChat = new ChatSessionStore({
 			data: {
