@@ -449,6 +449,97 @@ describe('List Component', () => {
 		expect(titleElem).not.toBeInTheDocument();
 	});
 
+	describe('overflow functionality', () => {
+		it('limits options and renders an overflow button using rows and columns', async () => {
+			const args = {
+				columns: 1,
+				rows: 3,
+			};
+
+			const rendered = render(<List options={options} {...args} />);
+
+			let optionElems = rendered.container.querySelectorAll('.ss__list__option');
+			let overflowButton = rendered.container.querySelector('.ss__list__show-more-wrapper');
+
+			expect(optionElems).toHaveLength(args.columns * args.rows);
+			expect(overflowButton).toBeInTheDocument();
+			expect(overflowButton).toHaveTextContent('Show More');
+
+			await userEvent.click(overflowButton!);
+
+			optionElems = rendered.container.querySelectorAll('.ss__list__option');
+			overflowButton = rendered.container.querySelector('.ss__list__show-more-wrapper');
+
+			expect(optionElems).toHaveLength(options.length);
+			expect(overflowButton).toBeInTheDocument();
+			expect(overflowButton).toHaveTextContent('Show Less');
+		});
+
+		it('has different text content when the overflow button is in the grid', async () => {
+			const args = {
+				columns: 1,
+				rows: 3,
+				overflowButtonInGrid: true,
+			};
+
+			const rendered = render(<List options={options} {...args} />);
+
+			let overflowButton = rendered.container.querySelector('.ss__list__show-more-wrapper');
+			expect(overflowButton).toHaveTextContent(`+ ${options.length - args.columns * args.rows + 1}`);
+			expect(overflowButton).toHaveClass('ss__list__option');
+
+			await userEvent.click(overflowButton!);
+
+			overflowButton = rendered.container.querySelector('.ss__list__show-more-wrapper');
+			expect(overflowButton).toHaveTextContent(`- ${options.length - args.columns * args.rows + 1}`);
+		});
+
+		it('can disableOverflowAction to keep options limited', async () => {
+			const args = {
+				columns: 1,
+				rows: 3,
+				overflowButtonInGrid: true,
+				disableOverflowAction: true,
+			};
+
+			const rendered = render(<List options={options} {...args} />);
+
+			let optionElems = rendered.container.querySelectorAll('.ss__list__option');
+			const overflowButton = rendered.container.querySelector('.ss__list__show-more-wrapper');
+
+			// in-grid overflow button also carries the option class, so it counts toward the limit
+			expect(optionElems).toHaveLength(args.columns * args.rows);
+			expect(overflowButton).toBeInTheDocument();
+
+			await userEvent.click(overflowButton!);
+
+			optionElems = rendered.container.querySelectorAll('.ss__list__option');
+			expect(optionElems).toHaveLength(args.columns * args.rows);
+		});
+
+		it('can use a custom overflow button and fires onOverflowButtonClick', async () => {
+			const func = jest.fn();
+			const CustomButton = () => <div className="custom">custom</div>;
+			const args = {
+				columns: 1,
+				rows: 3,
+				overflowButton: <CustomButton />,
+				onOverflowButtonClick: func,
+			};
+
+			const rendered = render(<List options={options} {...args} />);
+
+			const overflowButton = rendered.container.querySelector('.custom');
+
+			expect(overflowButton).toBeInTheDocument();
+			expect(overflowButton).toHaveTextContent('custom');
+
+			await userEvent.click(overflowButton!);
+
+			expect(func).toHaveBeenCalled();
+		});
+	});
+
 	describe('List lang works', () => {
 		const selector = '.ss__list';
 

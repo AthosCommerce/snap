@@ -174,6 +174,17 @@ export default {
 			},
 			control: { type: 'number', min: 1, max: 4, step: 1 },
 		},
+		startIndex: {
+			description: 'Initial slide index; navigates to the slide in place when it changes after mount',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+				defaultValue: { summary: 0 },
+			},
+			control: { type: 'number', min: 0, step: 1 },
+		},
 		touchDragging: {
 			description: 'Controls if the slideshow should have drag navigation enabled',
 			table: {

@@ -23,7 +23,7 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@athoscommerce/beacon": "1.2.1",
+		"@athoscommerce/beacon": "1.3.0",
 		"@athoscommerce/snap-toolbox": "1.8.0",
 		"@types/uuid": "8.3.4",
 		"deepmerge": "4.3.1",

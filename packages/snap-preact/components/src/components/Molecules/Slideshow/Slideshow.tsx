@@ -12,6 +12,9 @@ import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { LangAttributes } from '../../../hooks/useLang';
 
+// Pointer travel (px) past which a press is treated as a drag rather than a click.
+const DRAG_CLICK_THRESHOLD = 5;
+
 const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, slideWidth, gap = 16, overlayNavigation = false, showNavigation }) => {
 	return css({
 		position: 'relative',
@@ -180,6 +183,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		centerInsufficientSlides: true,
 		slidesToShow: properties.slideWidth ? undefined : 4,
 		slidesToMove: 1,
+		startIndex: 0,
 		gap: 10,
 		ariaLabel: 'slideshow',
 		touchDragging: true,
@@ -205,6 +209,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		ariaLabelledBy,
 		disableStyles,
 		slideWidth,
+		startIndex,
 		gap,
 		treePath,
 		overlayNavigation,
@@ -290,12 +295,17 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		slidesToMove = 1;
 	}
 
-	const [currentIndex, setCurrentIndex] = useState(0);
+	const [currentIndex, setCurrentIndex] = useState(startIndex ?? 0);
 	const [isPlaying, setIsPlaying] = useState(autoPlay);
 	const [containerWidth, setContainerWidth] = useState(0);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const slideshowRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
+	// Tracks whether the pointer moved during the current press. The browser fires a `click`
+	// after a drag's `mouseup`, by which point `isDragging` state has already been reset — so a
+	// swipe would otherwise be treated as a click (e.g. opening a lightbox). This synchronous ref
+	// lets `handleSlideClick` suppress that trailing click.
+	const hasDraggedRef = useRef(false);
 
 	// Track container width for slideWidth-based visible slide calculation
 	useEffect(() => {
@@ -352,6 +362,12 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	const visibleSlides = Math.min(computedSlidesToShow, totalSlides);
 	const maxIndex = Math.max(0, totalSlides - visibleSlides);
 
+	// Navigate to startIndex when it changes (e.g. a consumer syncing the active slide to external
+	// state), clamped to the valid range. Updates the index in place rather than remounting.
+	useEffect(() => {
+		setCurrentIndex(Math.min(Math.max(0, startIndex ?? 0), maxIndex));
+	}, [startIndex]);
+
 	// Calculate slide groups for pagination
 	const slideGroups: number[] = [];
 	for (let i = 0; i <= maxIndex; i += slidesToMove!) {
@@ -399,6 +415,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	const handleDragStart = (clientX: number) => {
 		if (!touchDragging) return;
 
+		hasDraggedRef.current = false;
 		setIsPlaying(false);
 		setIsDragging(true);
 		setStartX(clientX);
@@ -415,6 +432,11 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 		setCurrentX(clientX);
 		const diff = clientX - startX;
+		// Past a few pixels of travel this is a drag, not a click — flag it so the trailing
+		// click (fired after mouseup/touchend) doesn't trigger slide onClick handlers.
+		if (Math.abs(diff) > DRAG_CLICK_THRESHOLD) {
+			hasDraggedRef.current = true;
+		}
 		setDragOffset(diff);
 	};
 
@@ -502,7 +524,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Handle image click
 	const handleSlideClick = (slide: SlideshowSlide, index: number) => {
-		if (slide.onClick && !isDragging) {
+		if (slide.onClick && !isDragging && !hasDraggedRef.current) {
 			slide.onClick(slide, index);
 		}
 	};
@@ -885,6 +907,7 @@ export type SlideshowTemplatesLegalProps = {
 	slidesToShow?: number;
 	slideWidth?: number;
 	slidesToMove?: number;
+	startIndex?: number;
 	gap?: number;
 	slideImageAlt?: string;
 	ariaLabel?: string;

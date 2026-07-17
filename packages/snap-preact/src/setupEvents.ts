@@ -1,4 +1,4 @@
-import { AbstractController } from '@athoscommerce/snap-controller';
+import { AbstractController, QuickviewController } from '@athoscommerce/snap-controller';
 import { EventManager, Next } from '@athoscommerce/snap-event-manager';
 import { Product, SearchStore } from '@athoscommerce/snap-store-mobx';
 
@@ -8,6 +8,16 @@ type ControllerSelectVariantOptionsData = {
 };
 type ControllerRecommendationUpdateData = {
 	controllerIds?: (string | RegExp)[];
+};
+type ControllerQuickviewData = {
+	result: Product;
+	productsData?: any;
+	parentId?: string;
+	config?: any;
+	// The originating controller's MetaStore, forwarded for badge/facet-label rendering.
+	meta?: any;
+	// The controller that opened the quickview, used to delegate actions like add-to-cart.
+	controller?: any;
 };
 
 export const setupEvents = () => {
@@ -45,6 +55,22 @@ export const setupEvents = () => {
 		controllers.map((controller) => {
 			controller.search();
 		});
+
+		await next();
+	});
+
+	eventManager.on('controller/quickview', async (data: ControllerQuickviewData, next: Next) => {
+		// Resolve by controller type, not id — the quickview controller may be registered under any id.
+		const controller = Object.values(window.athos?.controller || {}).find((cntrlr) => (cntrlr as AbstractController).type === 'quickview') as
+			| QuickviewController
+			| undefined;
+
+		if (controller) {
+			const { result, productsData, config, parentId, meta, controller: sourceController } = data;
+			await controller.quickview(result, productsData, config, { parentId, meta, controller: sourceController });
+		} else {
+			console.warn(`[quickview] No quickview-type controller found; quickview ignored.`);
+		}
 
 		await next();
 	});

@@ -176,7 +176,7 @@ describe('AutocompleteLayout Component', () => {
 
 			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
 			const styles = getComputedStyle(c1!);
-			expect(styles.flex).toBe(`1 1 auto`);
+			expect(styles.flex).toBe(`1 1 0px`);
 
 			expect(c1Terms).not.toBeInTheDocument();
 			expect(c1Facets).toBeInTheDocument();
@@ -216,7 +216,7 @@ describe('AutocompleteLayout Component', () => {
 
 			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
 			const styles = getComputedStyle(c2!);
-			expect(styles.flex).toBe(`1 1 auto`);
+			expect(styles.flex).toBe(`1 1 0px`);
 
 			expect(c2Terms).toBeInTheDocument();
 			expect(c2Facets).not.toBeInTheDocument();
@@ -255,7 +255,7 @@ describe('AutocompleteLayout Component', () => {
 
 			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
 			const styles = getComputedStyle(c3!);
-			expect(styles.flex).toBe(`1 1 auto`);
+			expect(styles.flex).toBe(`1 1 0px`);
 
 			expect(c3Terms).toBeInTheDocument();
 			expect(c3Facets).toBeInTheDocument();

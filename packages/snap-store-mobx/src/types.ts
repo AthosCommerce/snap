@@ -1,5 +1,7 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { RecommendRequestModel } from '@athoscommerce/snap-client';
+
+import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
 	SearchResponseModelFacetValueAllOfValues,
 	AutocompleteRequestModel,
@@ -58,7 +60,9 @@ export type SearchStoreConfigSettings = {
 			value: number;
 		}[];
 	};
+	quickview?: QuickviewConfig;
 };
+
 export type VariantConfigFilterTypes = 'first' | 'unaltered';
 
 export type VariantConfig = {
@@ -159,6 +163,7 @@ export type AutocompleteStoreConfigSettings = {
 		input?: boolean;
 		submit?: boolean;
 	};
+	quickview?: QuickviewConfig;
 };
 
 // Autocomplete config
@@ -181,10 +186,19 @@ export type RecommendationStoreConfig = StoreConfig & {
 	settings?: {
 		variants?: VariantConfig;
 		searchOnPageShow?: boolean;
+		quickview?: QuickviewConfig;
 	};
 };
 
 export type StoreConfigs = SearchStoreConfig | AutocompleteStoreConfig | FinderStoreConfig | RecommendationStoreConfig;
+
+export type QuickviewStoreConfigSettings = {
+	quickview?: QuickviewConfig;
+};
+
+export type QuickviewStoreConfig = StoreConfig & {
+	settings?: QuickviewStoreConfigSettings;
+};
 
 export type StoreServices = {
 	urlManager: UrlManager;

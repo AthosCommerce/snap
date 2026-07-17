@@ -79,6 +79,10 @@ export type LibraryImports = {
 			AutocompleteModal: (args?: any) => Promise<JSXComponent>;
 			AutocompleteSlideout: (args?: any) => Promise<JSXComponent>;
 		};
+		quickview: {
+			ProductQuickviewModal: (args?: any) => Promise<JSXComponent>;
+			ProductQuickviewSlideout: (args?: any) => Promise<JSXComponent>;
+		};
 		recommendation: {
 			bundle: {
 				RecommendationBundle: (args?: any) => Promise<JSXComponent>;
@@ -115,6 +119,7 @@ export type LibraryImports = {
 		paginationInfo: LibraryComponentImport;
 		slideshow: LibraryComponentImport;
 		price: LibraryComponentImport;
+		productDetail: LibraryComponentImport;
 		skeleton: LibraryComponentImport;
 		modal: LibraryComponentImport;
 		calloutBadge: LibraryComponentImport;
@@ -143,6 +148,7 @@ export type LibraryImports = {
 		sortBy: LibraryComponentImport;
 		swatches: LibraryComponentImport;
 		variantSelection: LibraryComponentImport;
+		productDetailTable: LibraryComponentImport;
 		terms: LibraryComponentImport;
 		branchOverride: LibraryComponentImport;
 		facet: LibraryComponentImport;
@@ -179,6 +185,7 @@ export class LibraryStore {
 	components: {
 		search: LibraryComponentMap;
 		autocomplete: LibraryComponentMap;
+		quickview: LibraryComponentMap;
 		recommendation: {
 			bundle: LibraryComponentMap;
 			default: LibraryComponentMap;
@@ -205,6 +212,7 @@ export class LibraryStore {
 		paginationInfo: LibraryComponentMap;
 		slideshow: LibraryComponentMap;
 		price: LibraryComponentMap;
+		productDetail: LibraryComponentMap;
 		skeleton: LibraryComponentMap;
 		modal: LibraryComponentMap;
 		calloutBadge: LibraryComponentMap;
@@ -233,6 +241,7 @@ export class LibraryStore {
 		sortBy: LibraryComponentMap;
 		swatches: LibraryComponentMap;
 		variantSelection: LibraryComponentMap;
+		productDetailTable: LibraryComponentMap;
 		terms: LibraryComponentMap;
 		branchOverride: LibraryComponentMap;
 		facet: LibraryComponentMap;
@@ -248,6 +257,7 @@ export class LibraryStore {
 	} = {
 		search: {},
 		autocomplete: {},
+		quickview: {},
 		recommendation: {
 			bundle: {},
 			default: {},
@@ -274,6 +284,7 @@ export class LibraryStore {
 		paginationInfo: {},
 		slideshow: {},
 		price: {},
+		productDetail: {},
 		skeleton: {},
 		modal: {},
 		calloutBadge: {},
@@ -302,6 +313,7 @@ export class LibraryStore {
 		sortBy: {},
 		swatches: {},
 		variantSelection: {},
+		productDetailTable: {},
 		terms: {},
 		branchOverride: {},
 		facet: {},
@@ -393,6 +405,22 @@ export class LibraryStore {
 					return (
 						this.components.autocomplete.AutocompleteModal ||
 						(this.components.autocomplete.AutocompleteModal = (await import('./library/components/AutocompleteModal')).AutocompleteModal)
+					);
+				},
+			},
+			quickview: {
+				ProductQuickviewModal: async () => {
+					return (
+						this.components.quickview.ProductQuickviewModal ||
+						(this.components.quickview.ProductQuickviewModal = (await import('./library/components/ProductQuickviewModal')).ProductQuickviewModal)
+					);
+				},
+				ProductQuickviewSlideout: async () => {
+					return (
+						this.components.quickview.ProductQuickviewSlideout ||
+						(this.components.quickview.ProductQuickviewSlideout = (
+							await import('./library/components/ProductQuickviewSlideout')
+						).ProductQuickviewSlideout)
 					);
 				},
 			},
@@ -506,6 +534,7 @@ export class LibraryStore {
 			paginationInfo: {},
 			slideshow: {},
 			price: {},
+			productDetail: {},
 			skeleton: {},
 			modal: {},
 			calloutBadge: {},
@@ -534,6 +563,7 @@ export class LibraryStore {
 			sortBy: {},
 			swatches: {},
 			variantSelection: {},
+			productDetailTable: {},
 			terms: {},
 			branchOverride: {},
 			facet: {},

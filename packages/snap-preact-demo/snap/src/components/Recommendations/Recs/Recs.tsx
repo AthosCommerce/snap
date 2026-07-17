@@ -21,7 +21,7 @@ export const Recs = observer((props: RecsProps) => {
 			<hr style={{ margin: '20px 0' }} />
 			<Recommendation controller={controller} title={parameters.title} speed={0} lazyRender={{ enabled: false }}>
 				{store.results.map((result) => (
-					<Result controller={controller} result={result}></Result>
+					<Result controller={controller} result={result} showQuickview={true}></Result>
 				))}
 			</Recommendation>
 		</div>

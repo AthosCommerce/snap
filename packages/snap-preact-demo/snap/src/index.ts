@@ -113,6 +113,9 @@ let config: SnapConfig = {
 								},
 							],
 						},
+						quickview: {
+							displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
+						},
 					},
 					globals: {
 						filters: backgroundFilters,
@@ -161,6 +164,28 @@ let config: SnapConfig = {
 						hideTarget: true,
 						component: async () => {
 							return (await import('./components/Autocomplete/Autocomplete')).Autocomplete;
+						},
+					},
+				],
+			},
+		],
+		quickview: [
+			{
+				config: { id: 'quickview' },
+				targeters: [
+					{
+						selector: 'body',
+						inject: {
+							action: 'append',
+							element: () => {
+								const el = document.createElement('div');
+								el.id = 'athos-quickview';
+								return el;
+							},
+						},
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).ProductQuickviewModal;
+							// return (await import('@athoscommerce/snap-preact/components')).ProductQuickviewSlideout;
 						},
 					},
 				],

@@ -8,7 +8,7 @@ import { Dropdown } from '@athoscommerce/snap-preact/components';
 ```
 
 ### content
-The `content` prop specifies the dropdown contents. This can be a string or a JSX element. The Dropdown component also passes the current open state to the JSX component under the prop showContent: boolean. 
+The `content` prop specifies the dropdown contents. This can be a string or a JSX element. The Dropdown component also passes the current open state and a toggle function to the JSX element under the `open: boolean` and `toggleOpen` props. 
 
 ```tsx
 <Dropdown content={"Hello World!"} />
@@ -96,7 +96,7 @@ The `disableClickOutside` prop by default is `false`. Setting this to `true` wil
 ```
 
 ### usePortal
-The `usePortal` prop specifies if the dropdown content should be rendered in a portal. This will render the content directly on the body, and dynamically position itself. This is useful if the dropdown content is being cut off by a parent container with `overflow: hidden`.
+The `usePortal` prop specifies if the dropdown content should be rendered in a portal. This will render the content directly on the body, and dynamically position itself below the dropdown button (repositioning on scroll and resize). This is useful if the dropdown content is being cut off by a parent container with `overflow: hidden`. Clicks within the portaled content are not treated as outside clicks and will not close the dropdown.
 
 ```tsx
 <Dropdown usePortal>Hello World!</Dropdown>

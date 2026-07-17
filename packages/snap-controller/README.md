@@ -110,6 +110,9 @@ Used for autocomplete searches.
 ### Finder
 A specialized controller used for building custom product finders.
 
+### Quickview
+A singleton controller that owns the product quickview modal state. It handles the global `controller/quickview` event fired by other controllers' `quickview` method and exposes its modal state via a `QuickviewStore`. Its `addToCart` and `track.product.*` methods delegate to the controller that opened the quickview, flagging each event with `quickView: true`. The quickview container components invoke these automatically: an impression is tracked when the quickview content is viewed, and a clickThrough when its "More info" button is clicked.
+
 ### Recommendation
 The standard controller used for recommendation profiles.
 

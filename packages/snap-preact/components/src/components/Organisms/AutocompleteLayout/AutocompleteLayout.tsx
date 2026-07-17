@@ -48,23 +48,23 @@ const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 	const noResults = Boolean(controller.store.search?.query?.string && controller.store.results.length === 0);
 	return css({
 		'.ss__autocomplete__column.ss__autocomplete__column--c1': {
-			flex: column1?.width == 'auto' ? '1 1 auto' : `1 0 ${column1?.width}`,
-			maxWidth: column1?.width == 'auto' ? 'auto' : column1?.width,
+			flex: column1?.width == 'auto' ? '1 1 0' : `1 0 ${column1?.width}`,
+			maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
 			alignContent: column1?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c2': {
-			flex: column2?.width == 'auto' ? '1 1 auto' : `1 0 ${column2?.width}`,
-			maxWidth: column2?.width == 'auto' ? 'auto' : column2?.width,
+			flex: column2?.width == 'auto' ? '1 1 0' : `1 0 ${column2?.width}`,
+			maxWidth: column2?.width == 'auto' ? 'none' : column2?.width,
 			alignContent: column2?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c3': {
-			flex: column3?.width == 'auto' ? '1 1 auto' : `1 0 ${column3?.width}`,
-			maxWidth: column3?.width == 'auto' ? 'auto' : column3?.width,
+			flex: column3?.width == 'auto' ? '1 1 0' : `1 0 ${column3?.width}`,
+			maxWidth: column3?.width == 'auto' ? 'none' : column3?.width,
 			alignContent: column3?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c4': {
-			flex: column4?.width == 'auto' ? '1 1 auto' : `1 0 ${column4?.width}`,
-			maxWidth: column4?.width == 'auto' ? 'auto' : column4?.width,
+			flex: column4?.width == 'auto' ? '1 1 0' : `1 0 ${column4?.width}`,
+			maxWidth: column4?.width == 'auto' ? 'none' : column4?.width,
 			alignContent: column4?.alignContent,
 		},
 

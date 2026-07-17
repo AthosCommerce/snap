@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, fireEvent } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { Slideshow, SlideshowProps, SlideshowSlide } from './Slideshow';
 import { ThemeProvider } from '@emotion/react';
@@ -361,6 +361,48 @@ describe('Slideshow Component', () => {
 				await user.click(clickableSlide);
 				expect(mockOnClick).toHaveBeenCalled();
 			}
+		});
+
+		it('does not trigger slide onClick after a drag (suppresses the trailing click)', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				// Multiple slides so dragging is enabled (touchDragging stays on).
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// Simulate a mouse drag: press, move past the threshold, release.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseMove(document, { clientX: 200 });
+			fireEvent.mouseUp(document);
+
+			// The browser fires a click after the drag's mouseup — it must NOT invoke the slide handler.
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).not.toHaveBeenCalled();
+		});
+
+		it('still triggers slide onClick for a press with no movement', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// A press with no movement is a genuine click.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
 		});
 
 		it('mixes clickable and non-clickable images', () => {
