@@ -26,7 +26,7 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 		3. spreads component theme props of component and named component
 		4. spreads global theme props of component and named component
 		5. ensure templates theme variables pass on in `theme`
-		6. if treepath contains 'custom' do #2 again
+		6. if treePath contains 'customComponent' do #2 again; if storybook-rooted, do #2 again minus `theme`
 
 	*/
 
@@ -193,10 +193,23 @@ export function mergeProps<GenericComponentProps extends ComponentProps>(
 			(mergedProps.theme as any)[THEME_PROPS_MAP_SYMBOL] = combinedThemePropsMap;
 		}
 
-		if (treePath && (treePath.indexOf('customComponent') > -1 || (treePath.startsWith('storybook') && treePath.split(' ').length == 2))) {
+		if (treePath && treePath.indexOf('customComponent') > -1) {
+			// custom components: the author's JSX props win over theme overrides at every depth
 			mergedProps = {
 				...mergedProps,
 				...props,
+				treePath,
+			};
+		} else if (treePath && treePath.startsWith('storybook ')) {
+			// storybook: props provided via story controls/args must have the final say at every
+			// depth. Respread all directly-passed props over the theme merges, but keep the
+			// enriched `theme` built above (name, variables, activeBreakpoint, theme props map)
+			// instead of the raw props.theme so children still receive full theme context.
+			const propsWithoutTheme: Partial<GenericComponentProps> = { ...props };
+			delete propsWithoutTheme.theme;
+			mergedProps = {
+				...mergedProps,
+				...propsWithoutTheme,
 				treePath,
 			};
 		}
