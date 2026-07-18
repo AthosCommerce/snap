@@ -1,6 +1,6 @@
 // Part of the mergeProps characterization suite pinning CURRENT behavior ahead of a planned refactor.
 // Scope: templates branch — selector priority semantics, the parent-theme respread (step 2), and
-// comma-separated selectors end-to-end (mergeProps.ts lines 76-160).
+// comma-separated selectors end-to-end (applyGlobalBaseSelectors through applyParentThemeSelectors in mergeProps.ts).
 // QUIRK comments flag behavior that is pinned as-is but looks unintended; the refactor is verified
 // against these tests, so they assert what the code DOES, not what it should do.
 
@@ -11,8 +11,8 @@ import { mergeProps } from './mergeProps';
 
 const THEME_PROPS_MAP_SYMBOL = Symbol.for('__themePropsMap__');
 
-describe('mergeProps templates - parent theme respread (step 2) matches by value only', () => {
-	it('respreads passed prop when its value matches ANY parent theme map value (value-only match), overriding the child base theme under an unrelated key', () => {
+describe('mergeProps templates - parent theme respread (step 2) provenance matching', () => {
+	it('does NOT respread a passed boolean prop whose value merely collides with an UNRELATED parent map value: child base theme wins', () => {
 		const globalTheme = {
 			type: 'templates',
 			name: GLOBAL_THEME_NAME,
@@ -33,16 +33,85 @@ describe('mergeProps templates - parent theme respread (step 2) matches by value
 		// @ts-ignore
 		const props = mergeProps('icon', globalTheme as Theme, {}, properties);
 
-		// QUIRK: the respread check at mergeProps.ts:126 is `parentThemeValuesArray.indexOf(propValue)` —
-		// it compares the prop VALUE against ALL values in the parent theme map and ignores map keys
-		// entirely, so the child base theme's `visible: false` is overridden purely because `true`
-		// equals the value of the UNRELATED parent map key 'startOpen'. The existing tests at
-		// mergeProps.test.ts:966-1125 carry comments claiming key+value matching, but their assertions
-		// pass either way because they never put the colliding key into the child's base theme; this
-		// test is the discriminating case.
-		expect((props as any).visible).toBe(true);
-		// the unrelated base theme prop is untouched by the respread
+		// respreadParentThemeDerivedProps() only respreads on a same-key match, or a cross-key
+		// match for strings/objects (renamed-prop forwarding). Booleans never match cross-key,
+		// so `visible: true` is NOT treated as theme-derived and the child base theme wins.
+		expect((props as any).visible).toBe(false);
 		expect((props as any).icon).toBe('ban');
+	});
+
+	it('respreads a passed boolean prop on a same-key match, beating the child base theme', () => {
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*icon': { visible: false, icon: 'ban' },
+			},
+		};
+		// parent theme map tracks 'visible' -> true: same key AND identical value as the passed prop
+		const parentThemePropsMap = new Map<string, any>([['visible', true]]);
+		const properties = {
+			visible: true,
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps('icon', globalTheme as Theme, {}, properties);
+
+		// same-key matching works for every value type, including booleans
+		expect((props as any).visible).toBe(true);
+		expect((props as any).icon).toBe('ban');
+	});
+
+	it('does NOT respread a passed number prop whose value collides cross-key with a parent map value: child base theme wins', () => {
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*select': { limit: 10 },
+			},
+		};
+		// parent map tracks 'columns' -> 3; the child receives 'limit: 3' — number collision under a different key
+		const parentThemePropsMap = new Map<string, any>([['columns', 3]]);
+		const properties = {
+			limit: 3,
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps('select', globalTheme as Theme, {}, properties);
+
+		// numbers never match cross-key, so the child base theme's limit wins
+		expect((props as any).limit).toBe(10);
+	});
+
+	it('respreads a passed string prop on a cross-key identity match (renamed-prop forwarding), beating the child base theme', () => {
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*overlay': { color: 'blue' },
+			},
+		};
+		// mirrors Slideout forwarding its theme-derived overlayColor to Overlay as `color`:
+		// the parent map key is 'overlayColor' but the child receives the value under 'color'
+		const parentThemePropsMap = new Map<string, any>([['overlayColor', 'red']]);
+		const properties = {
+			color: 'red',
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps('overlay', globalTheme as Theme, {}, properties);
+
+		// strings keep cross-key matching so renamed forwards stay theme-derived
+		expect((props as any).color).toBe('red');
 	});
 
 	it('base theme beats the same directly-passed prop when no parent theme map is present (counterpart to the value-only respread)', () => {
@@ -61,8 +130,8 @@ describe('mergeProps templates - parent theme respread (step 2) matches by value
 		const props = mergeProps('icon', globalTheme, {}, properties);
 
 		// same call as above minus the parent theme map: without a value collision to trigger the
-		// respread at mergeProps.ts:126, the base theme selector (applied at mergeProps.ts:88-106,
-		// after the normal props spread at mergeProps.ts:67-70) wins over the passed prop
+		// respread at mergeProps.ts respreadParentThemeDerivedProps(), the base theme selector (applied at mergeProps.ts applyGlobalBaseSelectors(),
+		// after the normal props spread at mergeProps.ts mergeProps() initial templates spread) wins over the passed prop
 		expect((props as any).visible).toBe(false);
 		expect((props as any).icon).toBe('ban');
 	});
@@ -88,14 +157,14 @@ describe('mergeProps templates - globalTheme user override priority within the o
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// both keys lack '*' so both land in the userOverrideSelectors bucket (mergeProps.ts:81);
+		// both keys lack '*' so both land in the userOverrideSelectors bucket (mergeProps.ts createTemplatesContext() bucket split);
 		// sortSelectors weighs 'select' at 1000 and '(M)select' at 3000, so '(M)select' applies last
 		expect(props.separator).toBe('resp');
 	});
 });
 
 describe('mergeProps templates - props.theme.components (step 4) has no base/override bucket split', () => {
-	it('applies props.theme.components selectors in pure sortSelectors order: *(M)select (weight 2000) beats select (weight 1000)', () => {
+	it('applies props.theme.components selectors with the same layer priority as globalTheme: select (user) beats *(M)select (base-responsive)', () => {
 		const componentType = 'select';
 		const globalTheme = {
 			type: 'templates',
@@ -104,6 +173,8 @@ describe('mergeProps templates - props.theme.components (step 4) has no base/ove
 		const properties: Partial<SelectProps> = {
 			theme: {
 				components: {
+					// base-responsive declared LAST so only the weight model (not insertion order)
+					// can push the user override after it
 					[componentType]: { separator: 'user' },
 					// @ts-ignore - selector key not in ThemeComponents type
 					'*(M)select': { separator: 'baseResp' },
@@ -114,13 +185,11 @@ describe('mergeProps templates - props.theme.components (step 4) has no base/ove
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, {}, properties);
 
-		// QUIRK: step 4 at mergeProps.ts:154-160 applies props.theme.components selectors in raw
-		// sortSelectors order with NO base/user-override bucket split (unlike globalTheme.components,
-		// which splits at mergeProps.ts:80-81). '*(M)select' (weight 2000) sorts after 'select'
-		// (weight 1000) and wins — the OPPOSITE outcome of the same two keys placed in
-		// globalTheme.components, where the bucket split makes the user override win (pinned at
-		// mergeProps.test.ts:840).
-		expect(props.separator).toBe('baseResp');
+		// step 4 (mergeProps.ts applyParentThemeSelectors()) applies selectors in raw sorted order;
+		// since the weight model orders base (*) < base-responsive (*(M)) < user override, the user
+		// override wins — the SAME outcome as the identical keys in globalTheme.components (pinned
+		// at mergeProps.test.ts 'user provided overrides take priority over responsive theme overrides').
+		expect(props.separator).toBe('user');
 	});
 
 	it('applies props.theme.components base selector before plain selector: select (weight 1000) beats *select (weight 0)', () => {
@@ -164,12 +233,12 @@ describe('mergeProps templates - comma-separated selectors end-to-end', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, {}, {});
 
-		// filterSelectors expands 'select, button' into parts (mergeProps.ts:275-284) and returns
+		// filterSelectors expands 'select, button' into parts (mergeProps.ts expandCommaSelectors()) and returns
 		// the ORIGINAL joined key for lookup, so the grouped value applies to select
 		expect((props as any).separator).toBe('x');
 	});
 
-	it('classifies a comma-separated BASE selector as specific, blocking the parent-theme respread', () => {
+	it('treats a comma-separated BASE selector exactly like its individual parts: it does NOT block the parent-theme respread', () => {
 		const componentType = 'select';
 		const globalTheme = {
 			type: 'templates',
@@ -189,13 +258,11 @@ describe('mergeProps templates - comma-separated selectors end-to-end', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, {}, properties);
 
-		// QUIRK: cleanSelector at mergeProps.ts:93-97 only strips a leading '*' (and a trailing
-		// responsive marker), so the comma key '*select, *button' still contains a space and splits
-		// into 2 segments, classifying it as a "specific" selector. That adds 'separator' to
-		// propsSetBySpecificSelectors, so the respread is skipped at mergeProps.ts:122 and the base
-		// theme value wins over the parent-theme-derived value — even though the selector is a flat
-		// group, not a multi-segment path.
-		expect(props.separator).toBe('base');
+		// specificity is classified on the comma part that MATCHED (mergeProps.ts
+		// applyGlobalBaseSelectors()): '*select' is a single-segment selector, so — exactly like
+		// the non-comma '*select' in the next test — it is NOT "specific" and the parent-theme
+		// respread restores the parent-derived value over the base theme.
+		expect(props.separator).toBe('parent');
 	});
 
 	it('does NOT block the parent-theme respread for the equivalent non-comma base selector (*select): parent-theme-derived value wins', () => {
@@ -219,20 +286,46 @@ describe('mergeProps templates - comma-separated selectors end-to-end', () => {
 		const props = mergeProps(componentType, globalTheme, {}, properties);
 
 		// QUIRK: contrast with the previous test — '*select' cleans to a single segment so it is not
-		// "specific", and the respread at mergeProps.ts:126 restores the parent-theme-derived value
+		// "specific", and the respread at mergeProps.ts respreadParentThemeDerivedProps() restores the parent-theme-derived value
 		// over the base theme. Grouping the same base selector with a comma ('*select, *button')
 		// flips this outcome for an identical theme value.
 		expect(props.separator).toBe('parent');
 	});
 
-	it('sorts a comma-separated key by the weight of the whole joined string: grouped selector beats an identical individual one', () => {
+	it('classifies a comma part with multiple path segments as specific (blocking the respread), by the matched part', () => {
+		const componentType = 'select';
 		const globalTheme = {
 			type: 'templates',
 			name: GLOBAL_THEME_NAME,
 			components: {
-				// the comma key is deliberately declared FIRST: if weights were computed per comma part
-				// (2 vs 2, equal), stable sort would keep it first and 'a' would win — so this test
-				// fails unless the whole-joined-string weight (12 > 2) pushes the comma key last
+				'*facet select, *toolbar select': { separator: 'base' },
+			},
+		};
+		const parentThemePropsMap = new Map<string, any>([['separator', 'parent']]);
+		const properties: Partial<SelectProps> = {
+			treePath: 'facet',
+			separator: 'parent',
+			theme: {
+				[THEME_PROPS_MAP_SYMBOL]: parentThemePropsMap,
+			} as any,
+		};
+
+		// @ts-ignore
+		const props = mergeProps(componentType, globalTheme, {}, properties);
+
+		// the matched part '*facet select' has 2 path segments, so it IS specific — same as the
+		// individual '*facet select' selector — and the respread is blocked
+		expect(props.separator).toBe('base');
+	});
+
+	it('sorts a comma-separated key by its MATCHED part: a grouped selector ties with an identical individual one (insertion order wins)', () => {
+		const globalTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				// the comma key is declared FIRST: its matched part '*carousel icon' weighs the same
+				// as the individual '*carousel icon', so the tie resolves by insertion order and the
+				// LAST-declared identical selector wins — the same behavior as two duplicate plain keys
 				'*carousel icon, *banner icon': { icon: 'b' },
 				'*carousel icon': { icon: 'a' },
 			},
@@ -241,11 +334,10 @@ describe('mergeProps templates - comma-separated selectors end-to-end', () => {
 		// @ts-ignore
 		const props = mergeProps('icon', globalTheme, {}, { treePath: 'carousel' } as any);
 
-		// QUIRK: sortSelectors at mergeProps.ts:256-264 computes weight on the whole joined key —
-		// '*carousel icon, *banner icon' splits into 4 space-segments (weight 12) while
-		// '*carousel icon' has 2 (weight 2) — so the comma key sorts after and its value wins,
-		// meaning a grouped selector outranks an identical individual selector.
-		expect((props as any).icon).toBe('b');
+		// the pipeline sorts comma groups by the part that MATCHED the treePath (mergeProps.ts
+		// matchSelectors() + selectorWeight()), so a grouped selector no longer outranks an
+		// identical individual one purely for being grouped.
+		expect((props as any).icon).toBe('a');
 	});
 });
 
@@ -271,10 +363,10 @@ describe('mergeProps templates - responsive-prefixed specific selectors and the 
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, {}, properties);
 
-		// QUIRK: the responsive-marker strip at mergeProps.ts:95 is anchored to the END of the string
+		// QUIRK: the responsive-marker strip at mergeProps.ts applyGlobalBaseSelectors() cleanSelector is anchored to the END of the string
 		// (/\([MDT]\)$/) but responsive markers are PREFIXES ('*(M)facet select'), so the strip never
 		// fires — it is dead code. Classification as "specific" still happens anyway because the
-		// segment count at mergeProps.ts:97 is 2 regardless ('(M)facet' + 'select'), so 'separator'
+		// segment count at mergeProps.ts applyGlobalBaseSelectors() cleanSelector is 2 regardless ('(M)facet' + 'select'), so 'separator'
 		// is protected from the respread and the base theme value wins over the parent-theme-derived
 		// value.
 		expect(props.separator).toBe('resp-specific');

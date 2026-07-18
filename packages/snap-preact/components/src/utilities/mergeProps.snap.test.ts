@@ -1,5 +1,5 @@
 // Part of the mergeProps characterization suite: these tests pin the CURRENT behavior of the
-// non-templates ("classic Snap") branch of mergeProps (mergeProps.ts lines 45-64) ahead of a
+// non-templates ("classic Snap") branch of mergeProps (mergeClassicLayers in mergeProps.ts) ahead of a
 // planned refactor. QUIRK comments flag behavior that is pinned as-is but looks unintended.
 
 import { Theme } from '..';
@@ -56,9 +56,9 @@ describe('mergeProps non-templates branch - treePath construction', () => {
 			name: 'foo',
 		};
 		const props = mergeProps('select', {} as Theme, {}, properties);
-		// QUIRK: the name is read (mergeProps.ts:34) and treePath is built (mergeProps.ts:36-38) in
+		// QUIRK: the name is read (mergeProps.ts createTemplatesContext()) and treePath is built (mergeProps.ts mergeProps() treePath construction) in
 		// shared pre-branch code, but the '.name' append only happens in the templates branch
-		// (mergeProps.ts:72) — the non-templates branch never appends it, so 'foo' remains only as
+		// (mergeProps.ts createTemplatesContext() name append) — the non-templates branch never appends it, so 'foo' remains only as
 		// a plain prop.
 		expect(props.treePath).toBe('search results select');
 		expect(props.name).toBe('foo');
@@ -98,7 +98,7 @@ describe('mergeProps non-templates branch - selector-style globalTheme keys', ()
 		// @ts-ignore - selector-style component keys
 		const props = mergeProps('select', globalTheme as Theme, {}, {});
 		// QUIRK: the non-templates branch looks up only the exact componentType key
-		// (mergeProps.ts:47), so '*select', '(M)select', 'search select', and 'select, button'
+		// (mergeProps.ts mergeClassicLayers()), so '*select', '(M)select', 'search select', and 'select, button'
 		// are all silently ignored. (With this treePath the templates branch would match all of
 		// them except 'search select', which requires a 'search' segment in the treePath.)
 		expect((props as any).starProp).toBeUndefined();
@@ -128,8 +128,8 @@ describe('mergeProps non-templates branch - selector-style globalTheme keys', ()
 describe('mergeProps non-templates branch - degenerate globalTheme', () => {
 	it('routes undefined globalTheme to the non-templates branch and does not throw', () => {
 		// QUIRK: (undefined as ThemeComplete)?.type !== 'templates' evaluates to true
-		// (mergeProps.ts:45), so an undefined globalTheme silently takes the non-templates
-		// branch and the optional chains at mergeProps.ts:47 skip theme merging entirely.
+		// (mergeProps.ts isTemplatesTheme()), so an undefined globalTheme silently takes the non-templates
+		// branch and the optional chains at mergeProps.ts mergeClassicLayers() skip theme merging entirely.
 		const props = mergeProps('select', undefined as any, { a: 1 } as any, {} as any);
 		expect(props).toStrictEqual({ a: 1, treePath: 'select' });
 	});
@@ -153,7 +153,7 @@ describe('mergeProps non-templates branch - mergeThemeProps value handling', () 
 	it('spreads an explicit undefined theme value over the defaultProps value (key stays present)', () => {
 		// @ts-ignore - theme props with undefined/function/null values
 		const props = mergeProps('select', globalTheme as Theme, defaultProps, {});
-		// QUIRK: mergeThemeProps spreads componentThemeProps last (mergeProps.ts:242-245), and
+		// QUIRK: mergeThemeProps spreads componentThemeProps last (mergeProps.ts mergeThemeProps()), and
 		// object spread copies keys with explicit undefined values, so separator: undefined
 		// clobbers the defaultProps value ': ' while the key remains present on the result.
 		expect(props.separator).toBeUndefined();
@@ -171,8 +171,8 @@ describe('mergeProps non-templates branch - mergeThemeProps value handling', () 
 		// @ts-ignore - theme props with undefined/function/null values
 		const props = mergeProps('select', globalTheme as Theme, defaultProps, {});
 		// QUIRK: mergeThemeProps only tracks values that are not undefined, not null, and not
-		// functions (mergeProps.ts:235), so none of these theme values enter the map even though
-		// all of them are spread onto the result; the empty map is still attached (mergeProps.ts:247).
+		// functions (mergeProps.ts mergeThemeProps()), so none of these theme values enter the map even though
+		// all of them are spread onto the result; the empty map is still attached (mergeProps.ts mergeThemeProps()).
 		const themeMap = (props as any)[THEME_PROPS_MAP_SYMBOL];
 		expect(themeMap).toBeInstanceOf(Map);
 		expect(themeMap.size).toBe(0);
@@ -197,11 +197,11 @@ describe('mergeProps non-templates branch - THEME_PROPS_MAP_SYMBOL tracking acro
 		const props = mergeProps('select', globalTheme as Theme, {}, properties);
 		expect((props as any).a).toBe(2);
 		expect((props as any).b).toBe(3);
-		// Both mergeThemeProps calls in this branch (mergeProps.ts:50 and mergeProps.ts:63) use the
+		// Both mergeThemeProps calls in this branch (mergeProps.ts mergeClassicLayers() and mergeProps.ts mergeClassicLayers()) use the
 		// default preserveExistingMapKeys=false, so the props.theme value for 'a' overwrites the
 		// globalTheme-derived entry in the map. (In the templates branch only the global user-override
-		// selector merge at mergeProps.ts:146 passes preserveExistingMapKeys=true; its props.theme
-		// merge at mergeProps.ts:158 overwrites map entries just like here.)
+		// selector merge at mergeProps.ts applyGlobalOverrideSelectors() passes preserveExistingMapKeys=true; its props.theme
+		// merge at mergeProps.ts applyParentThemeSelectors() overwrites map entries just like here.)
 		const themeMap = (props as any)[THEME_PROPS_MAP_SYMBOL];
 		expect(themeMap).toBeInstanceOf(Map);
 		expect(themeMap.size).toBe(2);

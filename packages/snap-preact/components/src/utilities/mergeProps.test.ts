@@ -516,13 +516,16 @@ describe('mergeProps function with theme type', () => {
 	});
 });
 describe('sortSelectors function', () => {
-	it('orders strings by spaces', () => {
+	it('orders strings by segment weights (deeper paths and named segments sort later)', () => {
+		// weights are 1-based per segment (mergeProps.ts selectorWeight()): a named segment counts
+		// ((i+1)*2)**2 vs (i+1)*2 unnamed. Note 'search toolbar perPage' (2+4+6=12) sorts BEFORE
+		// 'search toolbar.top' (2+16=18): a named segment now outweighs an extra unnamed level.
 		const expected = [
 			'search',
 			'search toolbar',
+			'search toolbar perPage',
 			'search toolbar.top',
 			'search toolbar.bottom',
-			'search toolbar perPage',
 			'search toolbar.top perPage',
 			'search toolbar.bottom perPage',
 			'search toolbar perPage.named',
@@ -963,15 +966,15 @@ describe('mergeProps function with theme name - prop merge order (templates beha
 	});
 });
 
-describe('respread logic - value-identity matching (step 2, mergeProps.ts:126)', () => {
-	// NOTE: the respread check is `parentThemeValuesArray.indexOf(propValue) !== -1` — it compares
-	// each passed prop VALUE against ALL values in the parent theme map and ignores map keys
-	// entirely. A passed prop whose value coincidentally equals ANY parent theme value is treated
-	// as theme-derived (see the discriminating collision test in mergeProps.templates-priority.test.ts,
-	// which shows such a prop beating the child's base theme). The tests here pin the surrounding
-	// behavior: what the respread does and does not touch.
+describe('respread logic - value-identity matching (step 2, mergeProps.ts respreadParentThemeDerivedProps())', () => {
+	// NOTE: a passed prop counts as parent-theme-derived when the parent map has the SAME key
+	// with the identical value (any type), or — renamed-prop forwarding — when its value is
+	// identical to ANY parent map value and the value is a string or a (non-null) object.
+	// Booleans and numbers never match cross-key (they collide with unrelated theme values too
+	// easily). The discriminating collision tests live in mergeProps.templates-priority.test.ts;
+	// the tests here pin what the respread does and does not touch.
 
-	it('respreading a value-colliding passed prop does not clobber UNRELATED child base theme props', () => {
+	it('a value-colliding passed boolean is not respread and does not affect UNRELATED child base theme props', () => {
 		const componentType = 'icon';
 		const globalTheme = {
 			type: 'templates',
@@ -984,11 +987,9 @@ describe('respread logic - value-identity matching (step 2, mergeProps.ts:126)',
 		const defaultProps = {};
 
 		// Parent theme map tracks `startOpen: true`. The child receives `visible: true` — a
-		// different key that merely shares the value `true`. The value-only check at
-		// mergeProps.ts:126 DOES classify `visible` as theme-derived and respreads it, but the
-		// respread only re-applies keys present in props, so the unrelated base theme prop
-		// `icon` is untouched (and `visible` is not defined by the base theme, so respreading
-		// it changes nothing observable here).
+		// different key that merely shares the value `true`. Booleans never match cross-key,
+		// so `visible` is not respread; it survives via the normal props spread only because
+		// the base theme does not define it, and the unrelated `icon` is untouched.
 		const parentThemePropsMap = new Map<string, any>([['startOpen', true]]);
 		const properties = {
 			visible: true,
@@ -1004,7 +1005,7 @@ describe('respread logic - value-identity matching (step 2, mergeProps.ts:126)',
 		expect((props as any).visible).toBe(true);
 	});
 
-	it('respreading a value-colliding passed prop leaves other child base theme props intact (number collision)', () => {
+	it('a value-colliding passed number is not respread and leaves other child base theme props intact', () => {
 		const componentType = 'select';
 		const globalTheme = {
 			type: 'templates',
@@ -1015,9 +1016,9 @@ describe('respread logic - value-identity matching (step 2, mergeProps.ts:126)',
 		};
 		const defaultProps: Partial<SelectProps> = {};
 
-		// Parent theme map tracks `columns: 3`; the child receives `limit: 3`. The value-only
-		// check treats `limit` as theme-derived (3 matches 3), but respreading `limit` cannot
-		// affect `separator`, which keeps its base theme value.
+		// Parent theme map tracks `columns: 3`; the child receives `limit: 3`. Numbers never
+		// match cross-key, so `limit` is not respread (it survives via the normal props spread),
+		// and `separator` keeps its base theme value.
 		const parentThemePropsMap = new Map<string, any>([['columns', 3]]);
 		const properties: Partial<SelectProps> = {
 			theme: {
@@ -1057,7 +1058,7 @@ describe('respread logic - value-identity matching (step 2, mergeProps.ts:126)',
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// the respread (value match at mergeProps.ts:126) restores the parent-theme-derived
+		// the respread (value match at mergeProps.ts respreadParentThemeDerivedProps()) restores the parent-theme-derived
 		// `startOpen: true` over the child base theme's `false`
 		expect((props as any).startOpen).toBe(true);
 		expect((props as any).icon).toBe('ban');

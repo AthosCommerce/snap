@@ -3,7 +3,7 @@
 	ahead of a planned refactor. Expected values in this file were captured by running the code,
 	not from documentation or intent. QUIRK comments flag behavior that is pinned as-is but looks
 	unintended. Scope: treePath/name handling, lang, output theme shape, and THEME_PROPS_MAP
-	propagation (mergeProps.ts lines 33-38, 65-72, 162-194).
+	propagation (createTemplatesContext, enrichThemeMeta, restoreLangProp, finalizeThemeForChildren in mergeProps.ts).
 */
 
 import { GLOBAL_THEME_NAME } from '../../../src/Templates/Stores/TargetStore';
@@ -32,7 +32,7 @@ describe('mergeProps templates componentName fallback (treePath naming)', () => 
 		const properties: Partial<SelectProps> = { name: '' };
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, defaultProps, properties);
-		// QUIRK: mergeProps.ts:34 computes componentName as `props?.name || defaultProps.name`, so an
+		// QUIRK: mergeProps.ts createTemplatesContext() computes componentName as `props?.name || defaultProps.name`, so an
 		// empty-string props.name is coerced to defaultProps.name for the treePath suffix. The result.name
 		// prop remains '' from the props spread, so treePath and name disagree.
 		expect(props.treePath).toBe('select.fallback');
@@ -59,7 +59,7 @@ describe('mergeProps templates name regex rejection', () => {
 		const properties: Partial<SelectProps> = { name };
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, {}, properties);
-		// QUIRK: mergeProps.ts:72 only appends `.${componentName}` when the name matches
+		// QUIRK: mergeProps.ts createTemplatesContext() name append only appends `.${componentName}` when the name matches
 		// /^[A-Za-z0-9-]+$/, so names with spaces, underscores, or dots are silently dropped from the
 		// treePath while the name prop itself is kept.
 		expect(props.treePath).toBe('select');
@@ -77,7 +77,7 @@ describe('mergeProps templates name regex rejection', () => {
 		const properties: Partial<SelectProps> = { name: 'under_score' };
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, {}, properties);
-		// QUIRK: because mergeProps.ts:72 silently rejects 'under_score' from the treePath, the treePath
+		// QUIRK: because mergeProps.ts createTemplatesContext() name append silently rejects 'under_score' from the treePath, the treePath
 		// stays 'select' and filterSelectors can never match the 'select.under_score' selector — theme
 		// overrides keyed by such names are unreachable.
 		expect(props.separator).toBeUndefined();
@@ -150,7 +150,7 @@ describe('mergeProps templates output theme shape', () => {
 		};
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, {}, properties);
-		// QUIRK: mergeProps.ts:167 unconditionally writes `name: globalTheme.name` onto the output theme,
+		// QUIRK: mergeProps.ts enrichThemeMeta() unconditionally writes `name: globalTheme.name` onto the output theme,
 		// so when the globalTheme has no name the result theme gains an own 'name' key whose value is
 		// undefined (visible to hasOwnProperty / spread) rather than omitting the key.
 		expect(Object.prototype.hasOwnProperty.call(props.theme, 'name')).toBe(true);
@@ -171,7 +171,7 @@ describe('mergeProps templates output theme shape', () => {
 		};
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, {}, properties);
-		// QUIRK: mergeProps.ts:177-179 assigns globalTheme.variables directly onto the output theme, so
+		// QUIRK: mergeProps.ts finalizeThemeForChildren() assigns globalTheme.variables directly onto the output theme, so
 		// the exact same variables object is shared by reference across every merged result (not cloned),
 		// and it unconditionally clobbers any variables supplied via props.theme.
 		expect((props.theme as any).variables).toBe(globalVariables);
@@ -191,8 +191,8 @@ describe('mergeProps templates THEME_PROPS_MAP_SYMBOL propagation to children', 
 		};
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, {}, properties);
-		// QUIRK: with no theme props applied the combining block at mergeProps.ts:182-194 is skipped
-		// (currentThemePropsMap.size is 0), but the spread at mergeProps.ts:166 copies symbol keys from
+		// QUIRK: with no theme props applied the combining block at mergeProps.ts finalizeThemeForChildren() is skipped
+		// (currentThemePropsMap.size is 0), but the spread at mergeProps.ts enrichThemeMeta() copies symbol keys from
 		// props.theme — so the child result shares the parent's Map instance rather than getting a copy.
 		expect((props.theme as any)[THEME_PROPS_MAP_SYMBOL]).toBe(parentMap);
 	});
@@ -231,7 +231,7 @@ describe('mergeProps templates THEME_PROPS_MAP_SYMBOL propagation to children', 
 		const topLevelMap = (props as any)[THEME_PROPS_MAP_SYMBOL];
 		expect(topLevelMap).toBeInstanceOf(Map);
 		expect(topLevelMap).not.toBe(themeMap);
-		// QUIRK: mergeProps.ts:182-194 stores the combined map (child entries first, parent extras
+		// QUIRK: mergeProps.ts finalizeThemeForChildren() stores the combined map (child entries first, parent extras
 		// appended) only on result.theme, while the top-level result[THEME_PROPS_MAP_SYMBOL] written by
 		// mergeThemeProps keeps only the child's own theme entries — the two maps diverge on the same
 		// result object.
@@ -255,10 +255,10 @@ describe('mergeProps templates theme selectors setting the name prop', () => {
 		};
 		// @ts-ignore
 		const props = mergeProps('select', globalTheme, {}, properties);
-		// QUIRK: the respread skip-list at mergeProps.ts:119 excludes 'name', so a theme-set name is never
+		// QUIRK: the respread skip-list at mergeProps.ts respreadParentThemeDerivedProps() meta-prop skip list excludes 'name', so a theme-set name is never
 		// restored from props even when the props value matches a parent theme map value (unlike lang,
-		// which gets restored at mergeProps.ts:173-175). Meanwhile treePath was already computed from the
-		// original props.name at mergeProps.ts:34 and :72, so result.name and result.treePath disagree.
+		// which gets restored at mergeProps.ts restoreLangProp()). Meanwhile treePath was already computed from the
+		// original props.name at mergeProps.ts createTemplatesContext() and :72, so result.name and result.treePath disagree.
 		expect(props.name).toBe('themed');
 		expect(props.treePath).toBe('select.orig');
 	});
