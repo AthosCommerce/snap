@@ -676,4 +676,4 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 
 If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
 												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](/reference-platforms-shopify#pluginshopifymarkets).
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).

@@ -22,6 +22,7 @@ import { pluginBase as magento2PluginBase } from './library/plugins/magento2/plu
 import { pluginBackgroundFilters } from './library/plugins/common/pluginBackgroundFilters';
 import { pluginScrollToTop } from './library/plugins/common/pluginScrollToTop';
 import { pluginLogger } from './library/plugins/common/pluginLogger';
+import { pluginKlaviyoEvents } from './library/plugins/common/pluginKlaviyoEvents';
 import { CustomComponent } from './library/components/CustomComponent';
 
 type LibraryComponentImport = {
@@ -63,6 +64,7 @@ export type LibraryImports = {
 			scrollToTop: typeof pluginScrollToTop;
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
+			klaviyoEvents: typeof pluginKlaviyoEvents;
 		};
 		custom?: {
 			[name: string]: PluginFunction;
@@ -373,6 +375,7 @@ export class LibraryStore {
 				scrollToTop: pluginScrollToTop,
 				logger: pluginLogger,
 				addToCart: commonPluginAddToCart,
+				klaviyoEvents: pluginKlaviyoEvents,
 			},
 		},
 		component: {
