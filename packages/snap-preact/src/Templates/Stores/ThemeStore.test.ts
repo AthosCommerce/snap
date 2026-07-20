@@ -1,11 +1,11 @@
-import { configure as configureMobx } from 'mobx';
+import { configure as configureMobx, autorun } from 'mobx';
 import '@testing-library/jest-dom';
 import { waitFor } from '@testing-library/preact';
 
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig, mergeThemeLayers } from './ThemeStore';
 import type { TemplatesStoreDependencies, TemplateThemeTypes, TemplatesStoreSettings } from './TemplateStore';
-import type { ThemeComplete, ThemeVariables, ThemePartial } from '../../../components/src/providers/theme';
+import type { ThemeComplete, ThemeVariables, ThemePartial, ThemeOverrides } from '../../../components/src/providers/theme';
 import { GLOBAL_THEME_NAME } from './TargetStore';
 
 // configure MobX - useProxies: 'never' matches what we are doing for browser support (IE 11)
@@ -27,6 +27,39 @@ let testTheme: ThemeComplete = {
 	components: {},
 	responsive: {},
 };
+
+// Mirror the ThemeStore constructor's prefixing. The store now prefixes into owned copies and no
+// longer mutates the input base/overrides in place, so expectations must prefix them themselves
+// (previously they relied on the inputs being mutated to prefixed keys during construction).
+const prefixKeys = (prefix: string, obj?: Record<string, any>): Record<string, any> => {
+	const out: Record<string, any> = {};
+	if (obj) Object.keys(obj).forEach((key) => (out[key.indexOf(prefix) === 0 ? key : `${prefix}${key}`] = obj[key]));
+	return out;
+};
+
+function withPrefixedBase(base: ThemeComplete): ThemeComplete {
+	const prefixed = { ...base, components: prefixKeys('*', base.components as Record<string, any>) } as ThemeComplete;
+	if (base.responsive) {
+		prefixed.responsive = {
+			mobile: prefixKeys('*(M)', base.responsive.mobile as Record<string, any>),
+			tablet: prefixKeys('*(T)', base.responsive.tablet as Record<string, any>),
+			desktop: prefixKeys('*(D)', base.responsive.desktop as Record<string, any>),
+		};
+	}
+	return prefixed;
+}
+
+function withPrefixedOverrides(overrides: ThemeOverrides): ThemeOverrides {
+	const prefixed = { ...overrides };
+	if (overrides.responsive) {
+		prefixed.responsive = {
+			mobile: prefixKeys('(M)', overrides.responsive.mobile as Record<string, any>),
+			tablet: prefixKeys('(T)', overrides.responsive.tablet as Record<string, any>),
+			desktop: prefixKeys('(D)', overrides.responsive.desktop as Record<string, any>),
+		};
+	}
+	return prefixed;
+}
 
 describe('ThemeStore', () => {
 	let dependencies: TemplatesStoreDependencies;
@@ -98,8 +131,11 @@ describe('ThemeStore', () => {
 
 		// @ts-ignore - private property
 		expect(store.dependencies).toBe(dependencies);
+		// base is prefixed into a ThemeStore-owned copy; the shared input base is NOT mutated
 		// @ts-ignore - private property
-		expect(store.base).toStrictEqual(config.base);
+		expect(store.base).not.toBe(config.base);
+		expect(config.base.components).toStrictEqual({});
+		expect(config.base.responsive).toStrictEqual({});
 		// @ts-ignore - private property
 		expect(store.overrides).toStrictEqual(config.overrides);
 		expect(store.variables).toStrictEqual(config.variables);
@@ -109,7 +145,7 @@ describe('ThemeStore', () => {
 		expect(store.innerWidth).toBe(config.innerWidth);
 
 		expect(store.theme).toStrictEqual({
-			...config.base,
+			...withPrefixedBase(config.base),
 			name: config.name,
 			activeBreakpoint: 'mobile',
 		});
@@ -134,13 +170,53 @@ describe('ThemeStore', () => {
 		expect(store.editorOverrides).toStrictEqual(editorOverride2);
 
 		// order here matches order merged via theme() getter (editorOverrides not applied when editMode=false)
-		const merged = mergeThemeLayers(config.base, currency, language);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), currency, language);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
 			name: config.name,
 			activeBreakpoint: 'mobile',
 		});
+	});
+
+	it('does not mutate the shared input base theme (prefixes into a ThemeStore-owned copy)', () => {
+		const sharedBase: ThemeComplete = {
+			name: 'shared',
+			type: 'templates',
+			variables: testThemeVariables,
+			components: {
+				results: { columns: 5 },
+			},
+			responsive: {
+				mobile: { results: { columns: 1 } },
+			},
+		};
+
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: sharedBase,
+			overrides: {},
+			variables: {},
+			currency: {},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		// build TWO stores from the same shared base (mirrors a local theme and a library theme
+		// both extending the same library base object)
+		const storeA = new ThemeStore({ config, dependencies, settings });
+		const storeB = new ThemeStore({ config, dependencies, settings });
+
+		// the shared input base is left pristine — its selector keys are NOT prefixed
+		expect(sharedBase.components).toStrictEqual({ results: { columns: 5 } });
+		expect(sharedBase.responsive).toStrictEqual({ mobile: { results: { columns: 1 } } });
+
+		// both stores independently produce the prefixed runtime theme
+		expect(storeA.theme.components).toHaveProperty('*results');
+		expect(storeB.theme.components).toHaveProperty('*results');
+		expect((storeA.theme.components as any)['*results']).toEqual({ columns: 5 });
 	});
 
 	it('updates activeBreakpoint correctly', () => {
@@ -185,6 +261,43 @@ describe('ThemeStore', () => {
 		expect(store.theme.activeBreakpoint).toStrictEqual('default');
 	});
 
+	it('does not rebuild the theme on a within-band resize (reference-stable), but does across a band change', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {},
+			variables: {},
+			currency: {},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 800, // desktop band (breakpoints mobile:420, tablet:720, desktop:1440)
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+
+		// keep the `theme` computed observed so mobx memoizes it (mirrors the TemplateSelect observer)
+		const dispose = autorun(() => void store.theme);
+
+		const t1 = store.theme;
+		expect(t1.activeBreakpoint).toBe('desktop');
+
+		// resize within the same band -> same theme object reference (no rebuild)
+		store.setInnerWidth(900);
+		const t2 = store.theme;
+		expect(store.innerWidth).toBe(900);
+		expect(t2).toBe(t1);
+		expect(t2.activeBreakpoint).toBe('desktop');
+
+		// resize across a band boundary -> a new theme object (genuine rebuild)
+		store.setInnerWidth(500); // tablet
+		const t3 = store.theme;
+		expect(t3).not.toBe(t1);
+		expect(t3.activeBreakpoint).toBe('tablet');
+
+		dispose();
+	});
+
 	it('can get theme', () => {
 		const config: ThemeStoreThemeConfig = {
 			name: GLOBAL_THEME_NAME,
@@ -201,7 +314,7 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -241,7 +354,7 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -285,7 +398,9 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!, { variables: config.variables });
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!, {
+			variables: config.variables,
+		});
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -341,7 +456,9 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!, { variables: config.variables });
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!, {
+			variables: config.variables,
+		});
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -372,18 +489,13 @@ describe('ThemeStore', () => {
 
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const baseResponsiveOverrides = config.base.responsive?.mobile!;
+		const pb = withPrefixedBase(config.base);
+		const baseResponsiveOverrides = pb.responsive?.mobile!;
 
 		expect(baseResponsiveOverrides).toBeDefined();
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(
-			config.base,
-			{ components: baseResponsiveOverrides as ThemePartial },
-			config.currency,
-			config.language,
-			config.overrides!
-		);
+		const merged = mergeThemeLayers(pb, { components: baseResponsiveOverrides as ThemePartial }, config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -414,7 +526,7 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -453,19 +565,20 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const baseResponsiveOverrides = config.base.responsive?.mobile!;
+		const pb = withPrefixedBase(config.base);
+		const baseResponsiveOverrides = pb.responsive?.mobile!;
 		expect(baseResponsiveOverrides).toBeDefined();
 
-		const additionalResponsiveOverrides = config.overrides?.responsive?.mobile!;
+		const additionalResponsiveOverrides = withPrefixedOverrides(config.overrides!).responsive?.mobile!;
 		expect(additionalResponsiveOverrides).toBeDefined();
 
 		// order here matches order merged via theme() getter
 		const merged = mergeThemeLayers(
-			config.base,
+			pb,
 			{ components: baseResponsiveOverrides },
 			config.currency,
 			config.language,
-			config.overrides!,
+			withPrefixedOverrides(config.overrides!),
 			{ components: additionalResponsiveOverrides },
 			{ variables: config.variables }
 		);
@@ -519,10 +632,11 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings: { editMode: true } });
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const baseResponsiveOverrides = config.base.responsive?.mobile!;
+		const pb = withPrefixedBase(config.base);
+		const baseResponsiveOverrides = pb.responsive?.mobile!;
 		expect(baseResponsiveOverrides).toBeDefined();
 
-		const additionalResponsiveOverrides = config.overrides?.responsive?.mobile!;
+		const additionalResponsiveOverrides = withPrefixedOverrides(config.overrides!).responsive?.mobile!;
 		expect(additionalResponsiveOverrides).toBeDefined();
 
 		store.setEditorOverrides({ components: { results: { columns: 12 } } });
@@ -531,11 +645,11 @@ describe('ThemeStore', () => {
 		// mergeThemeLayers(base, baseResponsive, currency, language, overrides, overridesResponsive, variables, editor)
 
 		const merged = mergeThemeLayers(
-			config.base,
+			pb,
 			{ components: baseResponsiveOverrides },
 			config.currency,
 			config.language,
-			config.overrides!,
+			withPrefixedOverrides(config.overrides!),
 			{ components: additionalResponsiveOverrides },
 			{ variables: config.variables },
 			store.editorOverrides

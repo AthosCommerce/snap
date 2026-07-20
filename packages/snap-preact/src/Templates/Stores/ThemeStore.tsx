@@ -62,29 +62,38 @@ export class ThemeStore {
 
 		const { name, style, type, base, overrides, editorOverrides, variables, currency, language, languageOverrides, innerWidth } = config;
 
-		// add prefixes to base theme components and responsive components
-		base.components = prefixComponentKeys('*', base.components);
+		// Prefix base + normalize override selector keys into ThemeStore-OWNED copies. `base` is a
+		// shared library theme object (the same instance is reused to build multiple ThemeStores),
+		// so it must NOT be mutated in place — build fresh objects instead. prefixComponentKeys /
+		// normalizeCommaSeparatedKeys already return new objects; here we just avoid reassigning
+		// onto the shared inputs.
+		const prefixedBase = { ...base };
+		prefixedBase.components = prefixComponentKeys('*', base.components);
 		if (base.responsive) {
-			base.responsive.mobile = prefixComponentKeys('*(M)', base.responsive?.mobile);
-			base.responsive.tablet = prefixComponentKeys('*(T)', base.responsive?.tablet);
-			base.responsive.desktop = prefixComponentKeys('*(D)', base.responsive?.desktop);
+			prefixedBase.responsive = {
+				mobile: prefixComponentKeys('*(M)', base.responsive.mobile),
+				tablet: prefixComponentKeys('*(T)', base.responsive.tablet),
+				desktop: prefixComponentKeys('*(D)', base.responsive.desktop),
+			};
 		}
 
+		const prefixedOverrides = { ...(overrides || {}) };
 		if (overrides?.responsive) {
-			overrides.responsive.mobile = prefixComponentKeys('(M)', overrides.responsive?.mobile);
-			overrides.responsive.tablet = prefixComponentKeys('(T)', overrides.responsive?.tablet);
-			overrides.responsive.desktop = prefixComponentKeys('(D)', overrides.responsive?.desktop);
+			prefixedOverrides.responsive = {
+				mobile: prefixComponentKeys('(M)', overrides.responsive.mobile),
+				tablet: prefixComponentKeys('(T)', overrides.responsive.tablet),
+				desktop: prefixComponentKeys('(D)', overrides.responsive.desktop),
+			};
 		}
-
 		// Normalize comma-separated selectors in override default components (no prefix needed, but commas need normalizing)
 		if (overrides?.components) {
-			overrides.components = normalizeCommaSeparatedKeys(overrides.components);
+			prefixedOverrides.components = normalizeCommaSeparatedKeys(overrides.components);
 		}
 
 		this.name = name;
 		this.type = type;
-		this.base = base;
-		this.overrides = overrides || {};
+		this.base = prefixedBase;
+		this.overrides = prefixedOverrides;
 		this.editorOverrides = editorOverrides || {};
 		this.variables = variables || {};
 		this.currency = currency;
@@ -100,8 +109,26 @@ export class ThemeStore {
 			language: observable,
 			editorOverrides: observable,
 			innerWidth: observable,
+			// memoized breakpoint band. `theme` depends on THIS computed, not on `innerWidth`
+			// directly, so a resize that stays within the same band (a common case) recomputes
+			// this cheap primitive to the same value and does NOT invalidate the expensive theme
+			// merge below.
+			activeBreakpoint: computed,
 			theme: computed, // make theme getter a computed property (memoized)
 		});
+	}
+
+	// Current breakpoint band derived from innerWidth. Kept as its own computed so that
+	// within-band resizes (which return the same string) do not invalidate the `theme` computed.
+	public get activeBreakpoint(): ResponsiveKeys {
+		// const breakpoints = this.variables.breakpoints || this.base.variables?.breakpoints;
+		const breakpoints: ThemeVariableBreakpoints = deepmerge.all<ThemeVariableBreakpoints>([
+			this.base.variables.breakpoints,
+			this.variables.breakpoints || {},
+			(this.editMode && this.editorOverrides?.variables?.breakpoints) || {},
+		]);
+
+		return getActiveBreakpoint(this.innerWidth, breakpoints);
 	}
 
 	public get theme(): Theme {
@@ -119,22 +146,13 @@ export class ThemeStore {
 				10. stored theme editor overrides at responsive breakpoints
 		*/
 
-		// const breakpoints = this.variables.breakpoints || this.base.variables?.breakpoints;
-		const breakpoints: ThemeVariableBreakpoints = deepmerge.all<ThemeVariableBreakpoints>([
-			this.base.variables.breakpoints,
-			this.variables.breakpoints || {},
-			(this.editMode && this.editorOverrides?.variables?.breakpoints) || {},
-		]);
-
-		const activeBreakpoint = getActiveBreakpoint(this.innerWidth, breakpoints);
+		const activeBreakpoint = this.activeBreakpoint;
 
 		// overrides breakpoint is index file responsive overrides that match current breakpoint
 		const overrideBreakpoint = getOverridesAtActiveBreakpoint(activeBreakpoint, this.overrides);
 
 		// currently selected theme layer for current breakpoint
 		const baseBreakpoint = getOverridesAtActiveBreakpoint(activeBreakpoint, this.base);
-		// currently selected theme
-		const base = { ...this.base };
 
 		// overrides is index file default overrides
 		const overrides = { ...this.overrides };
@@ -143,9 +161,16 @@ export class ThemeStore {
 			variables: toJS(this.variables),
 		} as ThemePartial) as ThemePartial;
 
-		let theme: Theme = mergeThemeLayers(base, baseBreakpoint, this.currency, this.language, this.languageOverrides, themeOverrides, {
+		// PERF: deepmerge.all deep-clones its accumulator on EVERY layer, so passing the large base
+		// theme as the first of 7 layers re-clones it ~6x per rebuild. Instead, merge the small
+		// (non-base) layers together first, then do a SINGLE merge with base — base is deep-cloned
+		// once. Output is identical: last-wins deep object/array merge is associative for these
+		// layers (verified by the theme-getter tests below, which pin full theme output).
+		const overlay = mergeThemeLayers(baseBreakpoint, this.currency, this.language, this.languageOverrides, themeOverrides, {
 			activeBreakpoint: activeBreakpoint,
-		}) as Theme;
+		});
+
+		let theme: Theme = mergeThemeLayers(this.base, overlay) as Theme;
 
 		/*
 			Ensure 'theme' prop has overrides applied to it
@@ -179,10 +204,11 @@ export class ThemeStore {
 
 		// TemplateEditor overrides
 		if (this.editMode) {
-			theme = mergeThemeLayers(theme as ThemePartial, this.editorOverrides) as Theme;
-
+			// PERF: same single-clone pattern — pre-merge the small editor layers, then one merge
+			// with the (large) theme instead of cloning the theme twice.
 			const editorOverrideBreakpoint = getOverridesAtActiveBreakpoint(activeBreakpoint, this.editorOverrides);
-			theme = mergeThemeLayers(theme as ThemePartial, editorOverrideBreakpoint) as Theme;
+			const editorOverlay = mergeThemeLayers(this.editorOverrides, editorOverrideBreakpoint);
+			theme = mergeThemeLayers(theme as ThemePartial, editorOverlay) as Theme;
 		}
 
 		const activeStyleFns = [this.base.globalStyle, this.style].filter(Boolean) as ThemeGlobalStyleScript[];
