@@ -34,7 +34,8 @@ export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginK
 			// product was clicked - segment based on "subject"
 
 			if (!window._learnq) {
-				cntrlr.log.error('pluginKlaviyoEvents', '_learnq not found - Klaviyo script may not be installed; events will not be sent');
+				controller.log.error('pluginKlaviyoEvents', '_learnq not found - Klaviyo script may not be installed; events will not be sent');
+				await next();
 				return;
 			}
 

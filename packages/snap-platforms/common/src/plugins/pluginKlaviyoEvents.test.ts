@@ -150,6 +150,12 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 
 		pluginKlaviyoEvents(controller, { enabled: true });
 
+		// handler attached after the plugin to verify the event chain continues via next()
+		const downstreamHandler = jest.fn(async (_payload, next) => {
+			await next();
+		});
+		controller.on('track.product.clickThrough', downstreamHandler);
+
 		const errorSpy = jest.spyOn(controller.log, 'error').mockImplementation(() => {});
 		const product = controller.store.results.find((result) => result.type === 'product') as Product;
 
@@ -158,6 +164,9 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 		// missing _learnq is detected in the handler and logged
 		expect(errorSpy).toHaveBeenCalledWith('pluginKlaviyoEvents', expect.stringContaining('_learnq not found'));
 		expect(pushMock).not.toHaveBeenCalled();
+
+		// missing _learnq must not halt the event chain
+		expect(downstreamHandler).toHaveBeenCalledTimes(1);
 	});
 
 	it('logs an error when _learnq.push throws', async () => {
@@ -171,6 +180,12 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 
 		pluginKlaviyoEvents(controller, { enabled: true });
 
+		// handler attached after the plugin to verify the event chain continues via next()
+		const downstreamHandler = jest.fn(async (_payload, next) => {
+			await next();
+		});
+		controller.on('track.product.clickThrough', downstreamHandler);
+
 		const errorSpy = jest.spyOn(controller.log, 'error').mockImplementation(() => {});
 		const product = controller.store.results.find((result) => result.type === 'product') as Product;
 
@@ -178,6 +193,9 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 
 		expect(errorSpy).toHaveBeenCalledWith('pluginKlaviyoEvents', 'track.product.clickThrough', expect.any(Object));
 		expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
+
+		// a failing _learnq.push must not halt the event chain
+		expect(downstreamHandler).toHaveBeenCalledTimes(1);
 	});
 
 	it('attaches to autocomplete controllers', () => {

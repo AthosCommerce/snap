@@ -582,7 +582,6 @@ export function createPlugins(
 		templatesStore.library.import.plugins.common.backgroundFilters,
 		deepmerge(templateConfig.plugins?.common?.backgroundFilters || {}, controllerConfig?.plugins?.common?.backgroundFilters || {}),
 	]);
-
 	plugins.push([
 		templatesStore.library.import.plugins.common.scrollToTop,
 		deepmerge(templateConfig.plugins?.common?.scrollToTop || {}, controllerConfig?.plugins?.common?.scrollToTop || {}),
@@ -591,10 +590,10 @@ export function createPlugins(
 		templatesStore.library.import.plugins.common.logger,
 		deepmerge(templateConfig.plugins?.common?.logger || {}, controllerConfig?.plugins?.common?.logger || {}),
 	]);
-	plugins.push([
-		templatesStore.library.import.plugins.common.klaviyoEvents,
-		deepmerge(templateConfig.plugins?.common?.klaviyoEvents || {}, controllerConfig?.plugins?.common?.klaviyoEvents || {}),
-	]);
+	const klaviyoEventsConfig = deepmerge(templateConfig.plugins?.common?.klaviyoEvents || {}, controllerConfig?.plugins?.common?.klaviyoEvents || {});
+	if (klaviyoEventsConfig?.enabled === true) {
+		plugins.push([templatesStore.library.import.plugins.common.klaviyoEvents, klaviyoEventsConfig]);
+	}
 
 	switch (templatesStore.platform) {
 		case 'shopify':
