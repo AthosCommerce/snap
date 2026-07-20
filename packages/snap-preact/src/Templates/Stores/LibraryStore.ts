@@ -9,7 +9,6 @@ import {
 	type TemplateCustomComponentTypes,
 } from '../../../components/src/providers/themeComponents';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
-import { pluginEvents as pluginKlaviyoEvents } from '@athoscommerce/snap-platforms/klaviyo';
 import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './library/plugins/shopify/pluginBackgroundFilters';
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
@@ -23,6 +22,7 @@ import { pluginBase as magento2PluginBase } from './library/plugins/magento2/plu
 import { pluginBackgroundFilters } from './library/plugins/common/pluginBackgroundFilters';
 import { pluginScrollToTop } from './library/plugins/common/pluginScrollToTop';
 import { pluginLogger } from './library/plugins/common/pluginLogger';
+import { pluginKlaviyoEvents } from './library/plugins/common/pluginKlaviyoEvents';
 import { CustomComponent } from './library/components/CustomComponent';
 
 type LibraryComponentImport = {
@@ -64,12 +64,10 @@ export type LibraryImports = {
 			scrollToTop: typeof pluginScrollToTop;
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
+			klaviyoEvents: typeof pluginKlaviyoEvents;
 		};
 		custom?: {
 			[name: string]: PluginFunction;
-		};
-		klaviyo: {
-			events: typeof pluginKlaviyoEvents;
 		};
 	};
 	component: {
@@ -377,9 +375,7 @@ export class LibraryStore {
 				scrollToTop: pluginScrollToTop,
 				logger: pluginLogger,
 				addToCart: commonPluginAddToCart,
-			},
-			klaviyo: {
-				events: pluginKlaviyoEvents,
+				klaviyoEvents: pluginKlaviyoEvents,
 			},
 		},
 		component: {

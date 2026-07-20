@@ -29,10 +29,10 @@ import type {
 import type {
 	PluginAddToCartConfig,
 	PluginBackgroundFiltersConfig,
+	PluginKlaviyoEventsConfig,
 	PluginLoggerConfig,
 	PluginScrollToTopConfig,
 } from '@athoscommerce/snap-platforms/common';
-import type { PluginEventsConfig as PluginKlaviyoEventsConfig } from '@athoscommerce/snap-platforms/klaviyo';
 import type {
 	ThemeResponsiveComplete,
 	ThemeResponsiveCompleteUnlocked,
@@ -135,6 +135,7 @@ export type CommonPlugins = {
 	scrollToTop?: PluginScrollToTopConfig;
 	logger?: PluginLoggerConfig;
 	addToCart?: PluginAddToCartConfig;
+	klaviyoEvents?: PluginKlaviyoEventsConfig;
 };
 export type ShopifyPlugins = {
 	backgroundFilters?: PluginShopifyBackgroundFiltersConfig;
@@ -163,16 +164,11 @@ export type CustomPlugins = {
 	[key: string]: CustomPluginConfig;
 };
 
-export type KlaviyoPlugins = {
-	events?: PluginKlaviyoEventsConfig;
-};
-
 export type PluginsConfigsLocked = {
 	common?: CommonPlugins;
 	shopify?: ShopifyPlugins;
 	bigCommerce?: BigCommercePlugins;
 	magento2?: Magento2Plugins;
-	klaviyo?: KlaviyoPlugins;
 };
 
 export type PluginsConfigsUnlocked = PluginsConfigsLocked & {

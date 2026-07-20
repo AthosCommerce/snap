@@ -4,8 +4,7 @@
 		"common/src",
 		"bigcommerce/src",
 		"magento2/src",
-		"shopify/src",
-		"klaviyo/src"
+		"shopify/src"
 	],
 	"compilerOptions": {
 		"outDir": "./dist/esm",

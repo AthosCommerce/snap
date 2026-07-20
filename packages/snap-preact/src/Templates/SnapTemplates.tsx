@@ -34,9 +34,9 @@ import {
 	PluginAddToCartConfig,
 	pluginLogger,
 	PluginLoggerConfig,
+	pluginKlaviyoEvents,
+	PluginKlaviyoEventsConfig,
 } from '@athoscommerce/snap-platforms/common';
-// TODO: add klaviyo plugin to the list of imports
-import { pluginEvents as pluginKlaviyoEvents, PluginEventsConfig as PluginKlaviyoEventsConfig } from '@athoscommerce/snap-platforms/klaviyo';
 import {
 	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -86,6 +86,7 @@ type TemplatePlugins =
 	| [typeof pluginScrollToTop, PluginScrollToTopConfig]
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
+	| [typeof pluginKlaviyoEvents, PluginKlaviyoEventsConfig]
 	// shopify
 	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
@@ -99,9 +100,7 @@ type TemplatePlugins =
 	| [typeof pluginMagento2BackgroundFilters, PluginMagento2BackgroundFiltersConfig]
 	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig]
 	// custom
-	| [PluginFunction, ...unknown[]]
-	// klaviyo
-	| [typeof pluginKlaviyoEvents, PluginKlaviyoEventsConfig];
+	| [PluginFunction, ...unknown[]];
 
 type TemplatePluginGrouping = TemplatePlugins[];
 
@@ -592,10 +591,9 @@ export function createPlugins(
 		templatesStore.library.import.plugins.common.logger,
 		deepmerge(templateConfig.plugins?.common?.logger || {}, controllerConfig?.plugins?.common?.logger || {}),
 	]);
-
 	plugins.push([
-		templatesStore.library.import.plugins.klaviyo?.events,
-		deepmerge(templateConfig.plugins?.klaviyo?.events || {}, controllerConfig?.plugins?.klaviyo?.events || {}),
+		templatesStore.library.import.plugins.common.klaviyoEvents,
+		deepmerge(templateConfig.plugins?.common?.klaviyoEvents || {}, controllerConfig?.plugins?.common?.klaviyoEvents || {}),
 	]);
 
 	switch (templatesStore.platform) {

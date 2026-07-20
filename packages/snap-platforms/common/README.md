@@ -144,6 +144,90 @@ Additionaly, if not all controllers should have a specific background filter app
 </script>
 ```
 
+### pluginKlaviyoEvents
+Plugin to send Athos Commerce events to the Klaviyo marketing platform. The plugin attaches to the `track.product.clickThrough` controller event and pushes a corresponding `track` event to the Klaviyo `_learnq` object. Search and autocomplete controllers are supported; the plugin will do nothing when attached to other controller types.
+
+> [!IMPORTANT]
+> The Klaviyo script must be installed on the site so that the `_learnq` object is available on the window. If `_learnq` is not available, events will not be sent.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| enabled | the plugin is opt-in and only runs when this is set to `true` | boolean | false | ✔️ |
+
+> [!NOTE]
+> Unlike other common plugins, this plugin is disabled by default. It must be explicitly enabled by setting `enabled: true` in the plugin configuration.
+
+Usage with Snap (attach to a controller via the controller `plugins` configuration):
+
+```tsx
+import { pluginKlaviyoEvents } from '@athoscommerce/snap-platforms/common';
+
+...
+	{
+		config: {
+			id: 'search',
+			plugins: [[pluginKlaviyoEvents, { enabled: true }]],
+			...
+		},
+		targeters: [...],
+	}
+...
+```
+
+Usage with Snap Templates (no import necessary):
+
+```tsx
+...
+	plugins: {
+		common: {
+			klaviyoEvents: {
+				enabled: true,
+			},
+		},
+	},
+...
+```
+
+When a product clickthrough occurs, the plugin pushes a Klaviyo `track` event named `Athos Commerce search click` or `Athos Commerce autocomplete click` (depending on the controller type) with the following payload:
+
+| Property | Description |
+|----------|-------------|
+| query | the current search query |
+| subject | the current search subject |
+| totalResults | total number of results for the query |
+| product | details of the clicked product |
+| results | details of the other products in the results (clicked product excluded) |
+
+Product details (for both `product` and entries in `results`) contain the following properties from the product core mappings: `id`, `name`, `url`, `thumbnailImageUrl`, `imageUrl`, `price` and `msrp`.
+
+```json
+{
+	"query": "dress",
+	"subject": "",
+	"totalResults": 42,
+	"product": {
+		"id": "182146",
+		"name": "Stripe Out White Off-The-Shoulder Dress",
+		"url": "/product/C-AD-W1-1869P",
+		"thumbnailImageUrl": "https://cdn.example.com/images/thumb/182146.jpg",
+		"imageUrl": "https://cdn.example.com/images/182146.jpg",
+		"price": 48,
+		"msrp": 50
+	},
+	"results": [
+		{
+			"id": "182147",
+			"name": "Another Dress",
+			"url": "/product/C-AD-W1-1870P",
+			"thumbnailImageUrl": "https://cdn.example.com/images/thumb/182147.jpg",
+			"imageUrl": "https://cdn.example.com/images/182147.jpg",
+			"price": 30,
+			"msrp": 35
+		}
+	]
+}
+```
+
 ### pluginLogger
 Adds some controller logging. Currently logs the store after every search.
 

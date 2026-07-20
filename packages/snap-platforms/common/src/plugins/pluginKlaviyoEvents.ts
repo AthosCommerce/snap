@@ -1,7 +1,7 @@
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { AbstractController, AutocompleteController, SearchController } from '@athoscommerce/snap-controller';
 import type { Next } from '@athoscommerce/snap-event-manager';
-import type { AbstractPluginConfig } from '../../../common/src/types';
+import type { AbstractPluginConfig } from '../types';
 
 export type PluginKlaviyoEventsConfig = AbstractPluginConfig & {
 	// TODO: config
@@ -19,16 +19,8 @@ declare global {
 }
 
 export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginKlaviyoEventsConfig) => {
-	// do nothing if plugin is disabled
-	// TODO: only activate plugin if specified in the config for Snap Templates
+	// plugin is opt-in and does nothing unless enabled
 	if (config?.enabled !== true) return;
-
-	// at plugin init, inside the enabled gate:
-	if (!window._learnq) {
-		cntrlr.log.warn('pluginKlaviyoEvents', '_learnq not found - Klaviyo script may not be installed; events will not be sent');
-		// don't return here - we want to allow the plugin to continue so that if _learnq is added later, events will be sent
-		// this covers situations where the Klaviyo script is loaded asynchronously after Snap is initialized
-	}
 
 	// this will potentially need to be attached to multiple controller types:
 	// 1. search
@@ -40,6 +32,11 @@ export const pluginKlaviyoEvents = (cntrlr: AbstractController, config?: PluginK
 		'track.product.clickThrough',
 		async ({ controller, product }: { controller: SearchController | AutocompleteController; product: Product }, next: Next) => {
 			// product was clicked - segment based on "subject"
+
+			if (!window._learnq) {
+				cntrlr.log.error('pluginKlaviyoEvents', '_learnq not found - Klaviyo script may not be installed; events will not be sent');
+				return;
+			}
 
 			// build out the payload
 			const klaviyoClickPayload = {

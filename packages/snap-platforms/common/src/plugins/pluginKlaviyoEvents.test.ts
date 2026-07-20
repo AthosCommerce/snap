@@ -155,8 +155,9 @@ describe('klaviyo/pluginKlaviyoEvents', () => {
 
 		await expect(controller.eventManager.fire('track.product.clickThrough', { controller, product })).resolves.not.toThrow();
 
-		// _learnq access throws internally and is caught and logged
-		expect(errorSpy).toHaveBeenCalledWith('pluginKlaviyoEvents', 'track.product.clickThrough', expect.any(Object));
+		// missing _learnq is detected in the handler and logged
+		expect(errorSpy).toHaveBeenCalledWith('pluginKlaviyoEvents', expect.stringContaining('_learnq not found'));
+		expect(pushMock).not.toHaveBeenCalled();
 	});
 
 	it('logs an error when _learnq.push throws', async () => {

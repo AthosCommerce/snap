@@ -5,8 +5,6 @@ import { Snap } from '@athoscommerce/snap-preact';
 
 import { getContext } from '@athoscommerce/snap-toolbox';
 
-import { pluginEvents } from '@athoscommerce/snap-platforms/klaviyo';
-
 // import { afterSearch } from './middleware/plugins/afterSearch';
 import { afterStore, mutateResultsURL } from './middleware/plugins/afterStore';
 import { combineMerge } from './middleware/functions';
@@ -85,7 +83,7 @@ let config: SnapConfig = {
 			{
 				config: {
 					id: 'search',
-					plugins: [[afterStore], [mutateResultsURL], [pluginEvents]],
+					plugins: [[afterStore], [mutateResultsURL]],
 					settings: {
 						infinite: {
 							backfill: 5,
