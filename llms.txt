@@ -57,7 +57,7 @@ Repository: https://github.com/athoscommerce/snap
 - [AutocompleteStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Autocomplete/README.md)
 - [RecommendationStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Recommendation/README.md)
 - [FinderStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Finder/README.md)
-- [StorageStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Storage/README.md)
+- [StorageStore](https://athoscommerce.github.io/snap/packages/snap-toolbox/src/StorageStore/README.md)
 - [MetaStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Meta/README.md)
 - [CartStore](https://athoscommerce.github.io/snap/packages/snap-store-mobx/src/Cart/README.md)
 - [Toolbox](https://athoscommerce.github.io/snap/packages/snap-toolbox/README.md)
