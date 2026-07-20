@@ -1,0 +1,305 @@
+{
+	"version": 1,
+	"site": {
+		"baseUrl": "https://athoscommerce.github.io/snap",
+		"name": "Snap Documentation"
+	},
+	"files": {
+		"docs/ABOUT.md": {
+			"url": "/",
+			"title": "About"
+		},
+		"docs/REFERENCE_MIGRATION.md": {
+			"url": "/reference-migration",
+			"title": "Migration Guide"
+		},
+		"docs/SNAP_SETUP.md": {
+			"url": "/snap-setup",
+			"title": "Setup"
+		},
+		"docs/SNAP_OVERVIEW.md": {
+			"url": "/snap-overview",
+			"title": "Overview"
+		},
+		"docs/SNAP_SEARCH.md": {
+			"url": "/snap-search",
+			"title": "Search"
+		},
+		"docs/SNAP_AUTOCOMPLETE.md": {
+			"url": "/snap-autocomplete",
+			"title": "Autocomplete"
+		},
+		"docs/SNAP_RECOMMENDATIONS.md": {
+			"url": "/snap-recommendations",
+			"title": "Recommendations"
+		},
+		"docs/SNAP_RECOMMENDATIONS_INTEGRATION.md": {
+			"url": "/snap-recommendations-integration",
+			"title": "Integration"
+		},
+		"docs/SNAP_RECOMMENDATIONS_LEGACY.md": {
+			"url": "/snap-recommendations-legacy",
+			"title": "Recommendations (legacy)"
+		},
+		"docs/SNAP_FINDER.md": {
+			"url": "/snap-finder",
+			"title": "Finder"
+		},
+		"docs/SNAP_TRACKING.md": {
+			"url": "/snap-tracking",
+			"title": "Tracking"
+		},
+		"docs/SNAP_BACKGROUND_FILTERS.md": {
+			"url": "/snap-background-filters",
+			"title": "Background Filters"
+		},
+		"docs/SNAP_FOREGROUND_FILTERS.md": {
+			"url": "/snap-foreground-filters",
+			"title": "Foreground Filters"
+		},
+		"docs/SNAP_BADGES.md": {
+			"url": "/snap-badges",
+			"title": "Badges"
+		},
+		"docs/TEMPLATES_ABOUT.md": {
+			"url": "/templates-about",
+			"title": "About"
+		},
+		"docs/TEMPLATES_CONFIG.md": {
+			"url": "/templates-config",
+			"title": "Config"
+		},
+		"docs/TEMPLATES_THEMING.md": {
+			"url": "/templates-theming",
+			"title": "Theming"
+		},
+		"docs/TEMPLATES_PLUGINS.md": {
+			"url": "/templates-plugins",
+			"title": "Plugins"
+		},
+		"docs/TEMPLATES_HOW_TO.md": {
+			"url": "/templates-how-tos",
+			"title": "How Tos"
+		},
+		"docs/SNAP_CLIENT.md": {
+			"url": "/snap-client",
+			"title": "Snap Client"
+		},
+		"packages/snap-preact/README.md": {
+			"url": "/reference-snap-preact",
+			"title": "Snap Preact"
+		},
+		"docs/REFERENCE_CONFIGURATION.md": {
+			"url": "/reference-snap-preact-configuration",
+			"title": "Configuration"
+		},
+		"docs/REFERENCE_CONFIGURATION_TARGETERS.md": {
+			"url": "/reference-snap-preact-targeters",
+			"title": "Targeters"
+		},
+		"docs/REFERENCE_CONFIGURATION_MIDDLEWARE.md": {
+			"url": "/reference-snap-preact-middleware",
+			"title": "Middleware"
+		},
+		"packages/snap-url-manager/src/Translators/Url/README.md": {
+			"url": "/reference-snap-preact-url-translator",
+			"title": "URL Translator"
+		},
+		"packages/snap-preact/src/Instantiators/README.md": {
+			"url": "/reference-snap-preact-instantiators",
+			"title": "Instantiators"
+		},
+		"packages/snap-controller/README.md": {
+			"url": "/reference-controllers",
+			"title": "Controllers"
+		},
+		"packages/snap-controller/src/Search/README.md": {
+			"url": "/reference-controller-search",
+			"title": "SearchController"
+		},
+		"packages/snap-controller/src/Autocomplete/README.md": {
+			"url": "/reference-controller-autocomplete",
+			"title": "AutocompleteController"
+		},
+		"packages/snap-controller/src/Finder/README.md": {
+			"url": "/reference-controller-finder",
+			"title": "FinderController"
+		},
+		"packages/snap-controller/src/Recommendation/README.md": {
+			"url": "/reference-controller-recommendation",
+			"title": "RecommendationController"
+		},
+		"packages/snap-store-mobx/README.md": {
+			"url": "/reference-store",
+			"title": "Store"
+		},
+		"packages/snap-store-mobx/src/Abstract/README.md": {
+			"url": "/reference-store-abstract",
+			"title": "AbstractStore"
+		},
+		"packages/snap-store-mobx/src/Search/README.md": {
+			"url": "/reference-store-search",
+			"title": "SearchStore"
+		},
+		"packages/snap-store-mobx/src/Autocomplete/README.md": {
+			"url": "/reference-store-autocomplete",
+			"title": "AutocompleteStore"
+		},
+		"packages/snap-store-mobx/src/Recommendation/README.md": {
+			"url": "/reference-store-recommendation",
+			"title": "RecommendationStore"
+		},
+		"packages/snap-store-mobx/src/Finder/README.md": {
+			"url": "/reference-store-finder",
+			"title": "FinderStore"
+		},
+		"packages/snap-toolbox/src/StorageStore/README.md": {
+			"url": "/reference-store-storage",
+			"title": "StorageStore"
+		},
+		"packages/snap-store-mobx/src/Meta/README.md": {
+			"url": "/reference-store-meta",
+			"title": "MetaStore"
+		},
+		"packages/snap-store-mobx/src/Cart/README.md": {
+			"url": "/reference-store-cart",
+			"title": "CartStore"
+		},
+		"packages/snap-toolbox/README.md": {
+			"url": "/reference-toolbox",
+			"title": "Toolbox"
+		},
+		"packages/snap-toolbox/src/filters/README.md": {
+			"url": "/reference-toolbox-filters",
+			"title": "Filters"
+		},
+		"packages/snap-toolbox/src/DomTargeter/README.md": {
+			"url": "/reference-toolbox-domtargeter",
+			"title": "DomTargeter"
+		},
+		"packages/snap-toolbox/src/charsParams/README.md": {
+			"url": "/reference-toolbox-charsparams",
+			"title": "CharsParams"
+		},
+		"packages/snap-toolbox/src/until/README.md": {
+			"url": "/reference-toolbox-until",
+			"title": "Until"
+		},
+		"packages/snap-toolbox/src/url/README.md": {
+			"url": "/reference-toolbox-url",
+			"title": "Url"
+		},
+		"packages/snap-toolbox/src/getContext/README.md": {
+			"url": "/reference-toolbox-getcontext",
+			"title": "GetContext"
+		},
+		"packages/snap-toolbox/src/featureFlags/README.md": {
+			"url": "/reference-toolbox-featureflags",
+			"title": "FeatureFlags"
+		},
+		"packages/snap-toolbox/src/cookies/README.md": {
+			"url": "/reference-toolbox-cookies",
+			"title": "Cookies"
+		},
+		"packages/snap-logger/README.md": {
+			"url": "/reference-logger",
+			"title": "Logger"
+		},
+		"packages/snap-profiler/README.md": {
+			"url": "/reference-profiler",
+			"title": "Profiler"
+		},
+		"packages/snap-platforms/README.md": {
+			"url": "/reference-platforms",
+			"title": "Platforms"
+		},
+		"packages/snap-platforms/common/README.md": {
+			"url": "/package-platforms-common",
+			"title": "Common"
+		},
+		"packages/snap-platforms/shopify/README.md": {
+			"url": "/reference-platforms-shopify",
+			"title": "Shopify"
+		},
+		"packages/snap-platforms/bigcommerce/README.md": {
+			"url": "/reference-platforms-bigcommerce",
+			"title": "BigCommerce"
+		},
+		"packages/snap-platforms/magento2/README.md": {
+			"url": "/reference-platforms-magento2",
+			"title": "Magento2"
+		},
+		"packages/snap-url-manager/README.md": {
+			"url": "/reference-url-manager",
+			"title": "Url Manager"
+		},
+		"packages/snap-url-manager/src/Translators/README.md": {
+			"url": "/reference-url-manager-translators",
+			"title": "Translators"
+		},
+		"packages/snap-url-manager/src/Translators/QueryString/README.md": {
+			"url": "/reference-url-manager-query-string-translator",
+			"title": "Query String Translator"
+		},
+		"packages/snap-url-manager/src/linkers/README.md": {
+			"url": "/reference-url-manager-linkers",
+			"title": "Linkers"
+		},
+		"packages/snap-url-manager/src/linkers/react/README.md": {
+			"url": "/reference-url-manager-react-linker",
+			"title": "React Linker"
+		},
+		"packages/snap-event-manager/README.md": {
+			"url": "/reference-event-manager",
+			"title": "Event Manager"
+		},
+		"packages/snap-tracker/README.md": {
+			"url": "/reference-tracker",
+			"title": "Tracker"
+		},
+		"docs/REFERENCE_VARIANTS.md": {
+			"url": "/reference-variants",
+			"title": "Variants"
+		},
+		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
+			"url": "/reference-custom-recommendation-templates",
+			"title": "Custom Recommendation Templates"
+		},
+		"docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md": {
+			"url": "/reference-custom-badge-templates",
+			"title": "Custom Badge Templates"
+		},
+		"docs/BUILD_DEPLOY.md": {
+			"url": "/build-deploy",
+			"title": "Build & Deploy"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION.md": {
+			"url": "/build-deploy-integration",
+			"title": "Integration"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION_SHOPIFY.md": {
+			"url": "/build-deploy-integration-shopify",
+			"title": "Shopify"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION_BIGCOMMERCE.md": {
+			"url": "/build-deploy-integration-bigcommerce",
+			"title": "BigCommerce"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION_MAGENTO2.md": {
+			"url": "/build-deploy-integration-magento2",
+			"title": "Magento 2"
+		},
+		"docs/BUILD_DEPLOY_CHECKLIST.md": {
+			"url": "/build-deploy-ckecklist",
+			"title": "QA Checklist"
+		},
+		"docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md": {
+			"url": "/build-deploy-performance-optimization",
+			"title": "Performance Optimization"
+		},
+		"docs/ACCESSIBILITY_STATEMENT.md": {
+			"url": "/about-accessibility",
+			"title": "Accessibility Statement"
+		}
+	}
+}

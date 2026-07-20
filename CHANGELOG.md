@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- add Klaviyo platform integration ([fc700c4](https://github.com/AthosCommerce/snap/commit/fc700c4ec142075740fc849befda11a6da5b27db))
+- adding docs sitemap generator and workflow adjustments around it ([54702be](https://github.com/AthosCommerce/snap/commit/54702be128ff7477b0111ba070051264cfd7dcaa))
+- adding subject to the types, tests and README for the Klaviyo plugin ([0db6e26](https://github.com/AthosCommerce/snap/commit/0db6e264b5f716591de9d879309ad85a8424720d))
+- enhance Klaviyo plugin integration with detailed usage instructions and configuration options ([eff80bc](https://github.com/AthosCommerce/snap/commit/eff80bc1b721e5cc9b7f36078e097dea0c0c8cf2))
+
 # [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
 
 ### Bug Fixes

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- add Klaviyo platform integration ([fc700c4](https://github.com/AthosCommerce/snap/commit/fc700c4ec142075740fc849befda11a6da5b27db))
+- enhance Klaviyo plugin integration with detailed usage instructions and configuration options ([eff80bc](https://github.com/AthosCommerce/snap/commit/eff80bc1b721e5cc9b7f36078e097dea0c0c8cf2))
+
 # [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
 
 ### Features

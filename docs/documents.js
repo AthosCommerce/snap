@@ -307,7 +307,7 @@ var documents = [
 						label: 'StorageStore',
 						route: '/reference-store-storage',
 						type: 'markdown',
-						url: './packages/snap-store-mobx/src/Storage/README.md',
+						url: './packages/snap-toolbox/src/StorageStore/README.md',
 						searchable: true,
 					},
 					{
