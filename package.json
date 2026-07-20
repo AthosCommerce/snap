@@ -32,7 +32,7 @@
   },
   "prettier": "@searchspring/prettier",
   "devDependencies": {
-    "@athoscommerce/snapi-types": "1.0.6",
+    "@athoscommerce/snapi-types": "1.0.7",
     "@searchspring/prettier": "1.0.2",
     "@testing-library/jest-dom": "6.2.0",
     "@testing-library/preact": "3.2.4",
