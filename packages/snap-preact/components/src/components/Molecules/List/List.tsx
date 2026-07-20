@@ -5,13 +5,13 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
+import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Checkbox, CheckboxProps } from '../Checkbox';
-import { Lang, useA11y, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Icon, IconProps } from '../../Atoms/Icon';
 
 const defaultStyles: StyleScript<ListProps> = ({ horizontal }) => {
@@ -62,9 +62,8 @@ const defaultStyles: StyleScript<ListProps> = ({ horizontal }) => {
 	});
 };
 
-export function List(properties: ListProps) {
+export const List = observer((properties: ListProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ListProps> = {
@@ -89,14 +88,12 @@ export function List(properties: ListProps) {
 		className,
 		internalClassName,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.list || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('list', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	let selected = props.selected;
@@ -240,7 +237,7 @@ export function List(properties: ListProps) {
 			</div>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type ListProps = {
 	lang?: Partial<ListLang>;

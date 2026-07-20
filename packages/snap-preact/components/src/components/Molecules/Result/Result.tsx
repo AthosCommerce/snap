@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Price, PriceProps } from '../../Atoms/Price';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, cloneWithProps, mergeProps, mergeStyles } from '../../../utilities';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { ComponentProps, ResultsLayout, StyleScript } from '../../../types';
@@ -17,9 +17,8 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
-import { Lang, useLang, useComponent } from '../../../hooks';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
-import type { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<ResultProps> = () => {
 	return css({
@@ -76,7 +75,6 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 
 export const Result = observer((properties: ResultProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<ResultProps> = {
 		layout: ResultsLayout.grid,
@@ -113,14 +111,15 @@ export const Result = observer((properties: ResultProps) => {
 		hideRating,
 		trackingRef,
 		treePath,
-		customComponent,
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.result || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('result', {
+		...props,
+		customComponent: props.customComponent && props.customComponent !== 'Result' ? props.customComponent : undefined,
+	});
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const core = result?.display?.mappings.core || result?.mappings?.core;
@@ -246,6 +245,7 @@ export const Result = observer((properties: ResultProps) => {
 	});
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);
+	const renderPrices = controller?.store?.config?.asyncState?.product?.price ? result.state.priceFetched : true;
 
 	return core ? (
 		<CacheProvider>
@@ -298,7 +298,7 @@ export const Result = observer((properties: ResultProps) => {
 					)}
 					{!hideRating && <Rating {...subProps.rating} />}
 
-					{!hidePricing && core.price && core.price > 0 ? (
+					{!hidePricing && renderPrices && core.price && core.price > 0 ? (
 						<div className="ss__result__details__pricing">
 							{isOnSale ? (
 								<>
@@ -314,7 +314,7 @@ export const Result = observer((properties: ResultProps) => {
 
 					{cloneWithProps(detailSlot, { result, treePath })}
 
-					{!hideVariantSelections && result.variants?.selections.length && (
+					{!hideVariantSelections && result.variants?.selections.length ? (
 						<div className="ss__result__details__variant-selection">
 							{result.variants?.selections.map((selection) => {
 								return (
@@ -322,7 +322,7 @@ export const Result = observer((properties: ResultProps) => {
 								);
 							})}
 						</div>
-					)}
+					) : null}
 
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
@@ -374,7 +374,6 @@ export type ResultTemplatesLegalProps = {
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
-	customComponent?: string;
 };
 
 export interface ResultLang {

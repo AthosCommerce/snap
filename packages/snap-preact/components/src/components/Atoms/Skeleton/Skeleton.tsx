@@ -4,11 +4,10 @@ import { jsx, css, keyframes } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<SkeletonProps> = ({ width, height, round, backgroundColor, animatedColor }) => {
 	const animation = keyframes({
@@ -51,7 +50,6 @@ const defaultStyles: StyleScript<SkeletonProps> = ({ width, height, round, backg
 
 export const Skeleton = observer((properties: SkeletonProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<SkeletonProps> = {
@@ -62,13 +60,12 @@ export const Skeleton = observer((properties: SkeletonProps) => {
 
 	const props = mergeProps('skeleton', globalTheme, defaultProps, properties);
 
-	const { className, internalClassName, customComponent } = props;
+	const { className, internalClassName } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.skeleton || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('skeleton', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<SkeletonProps>(props, defaultStyles);

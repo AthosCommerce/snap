@@ -39,9 +39,9 @@ Instead of constructing a custom module array, you can pass one of the following
 | Prebuilt | Expands To | Description |
 |---|---|---|
 | `'terms'` | `[['termsList'], ['no-results'], ['_', 'button.see-more']]` | Terms list only — no product results grid |
-| `'mini'` | `[['termsList'], ['content'], ['_', 'button.see-more']]` | Compact view with terms and a small results section |
+| `'mobile'` | `[['termsList'], ['content'], ['_', 'button.see-more']]` | Compact view with terms and a small results section |
 | `'tablet'` | `[['c1', 'c3']]` | Two-column layout (terms + results, no facets) |
-| `'standard'` | `[['c1', 'c2', 'c3']]` | Full three-column layout (terms, facets, results) |
+| `'desktop'` | `[['c1', 'c2', 'c3']]` | Full three-column layout (terms, facets, results) |
 
 ```tsx
 <AutocompleteSlideout controller={controller} input={'#searchInput'} layout={'terms'} />

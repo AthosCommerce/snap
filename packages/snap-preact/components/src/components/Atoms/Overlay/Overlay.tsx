@@ -2,12 +2,12 @@ import { h } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 import { useA11y } from '../../../hooks';
 
 const defaultStyles: StyleScript<OverlayProps> = ({ transitionSpeed, color }) => {
@@ -27,9 +27,8 @@ const defaultStyles: StyleScript<OverlayProps> = ({ transitionSpeed, color }) =>
 	});
 };
 
-export function Overlay(properties: OverlayProps) {
+export const Overlay = observer((properties: OverlayProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<OverlayProps> = {
@@ -40,13 +39,12 @@ export function Overlay(properties: OverlayProps) {
 
 	const props = mergeProps('overlay', globalTheme, defaultProps, properties);
 
-	const { active, onClick, disableA11y, className, internalClassName, customComponent } = props;
+	const { active, onClick, disableA11y, className, internalClassName } = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.overlay || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('overlay', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const styling = mergeStyles<OverlayProps>(props, defaultStyles);
@@ -61,7 +59,7 @@ export function Overlay(properties: OverlayProps) {
 			/>
 		</CacheProvider>
 	);
-}
+});
 
 export type OverlayProps = OverlayTemplatesLegalProps & ComponentProps<OverlayProps>;
 

@@ -7,11 +7,10 @@ import { observer } from 'mobx-react-lite';
 
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { useA11y } from '../../../hooks/useA11y';
-import { Lang, useComponent, useLang } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 
 const defaultStyles: StyleScript<RadioProps> = ({ size, native }) => {
@@ -36,7 +35,6 @@ const defaultStyles: StyleScript<RadioProps> = ({ size, native }) => {
 
 export const Radio = observer((properties: RadioProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<RadioProps> = {
@@ -67,7 +65,6 @@ export const Radio = observer((properties: RadioProps) => {
 		size,
 		treePath,
 		lang,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -75,11 +72,10 @@ export const Radio = observer((properties: RadioProps) => {
 		...additionalProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.radio || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
-		}
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('radio', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	const subProps: RadioSubProps = {

@@ -1,14 +1,14 @@
-import { h, ComponentChildren } from 'preact';
+import { h, ComponentChildren, JSX, VNode } from 'preact';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
-import { Theme, useTheme, CacheProvider, useTreePath, useSnap } from '../../../providers';
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { iconPaths, IconType } from './paths';
 import { mergeProps, mergeStyles } from '../../../utilities';
-import { useComponent } from '../../../hooks';
-import type { SnapTemplates } from '../../../../../src';
+import { useCustomComponentOverride } from '../../../hooks';
 
 const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, width, height, size }) => {
 	return css({
@@ -21,9 +21,8 @@ const defaultStyles: StyleScript<IconProps> = ({ color, fill, stroke, theme, wid
 	});
 };
 
-export function Icon(properties: IconProps) {
+export const Icon = observer((properties: IconProps) => {
 	const globalTheme: Theme = useTheme();
-	const snap = useSnap();
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<IconProps> = {
@@ -45,10 +44,10 @@ export function Icon(properties: IconProps) {
 		title,
 		height,
 		viewBox,
+		svg,
 		disableStyles,
 		className,
 		internalClassName,
-		customComponent,
 		style: _,
 		styleScript: __,
 		themeStyleScript: ___,
@@ -57,22 +56,47 @@ export function Icon(properties: IconProps) {
 		...otherProps
 	} = props;
 
-	if (customComponent) {
-		const ComponentOverride = useComponent((snap as SnapTemplates)?.templates?.library.import.component.icon || {}, customComponent);
-		if (ComponentOverride) {
-			return <ComponentOverride {...props} />;
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('icon', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
+	const styling = mergeStyles<IconProps>(props, defaultStyles);
+	const iconClassNames = classnames('ss__icon', icon && !svg ? `ss__icon--${icon}` : null, className, internalClassName);
+
+	if (svg) {
+		// if the provided svg already has a className or class prop, we need to merge it with the one generated from props
+		const existingSvgClassName = svg?.props?.className || svg?.props?.class;
+
+		const svgProps: Record<string, any> = {
+			...styling,
+			className: classnames(iconClassNames, existingSvgClassName),
+			...otherProps,
+		};
+
+		if (disableStyles) {
+			svgProps.width = width || size;
+			svgProps.height = height || size;
 		}
+
+		return (
+			<CacheProvider>
+				{/* Using Emotion's jsx() instead of cloneElement to ensure the `css` prop from mergeStyles is processed.
+					cloneElement bypasses Emotion's JSX pragma, which leaves styles unapplied. */}
+				{jsx(svg.type as any, { ...svg.props, ...svgProps, children: svg.props.children })}
+			</CacheProvider>
+		);
 	}
 
 	const iconPath = iconPaths[icon as IconType] || path;
 	const pathType = typeof iconPath;
-	const styling = mergeStyles<IconProps>(props, defaultStyles);
 
 	return children || (iconPath && (pathType === 'string' || (pathType === 'object' && Array.isArray(iconPath)))) ? (
 		<CacheProvider>
 			<svg
 				{...styling}
-				className={classnames('ss__icon', icon ? `ss__icon--${icon}` : null, className, internalClassName)}
+				className={iconClassNames}
 				viewBox={viewBox}
 				xmlns="http://www.w3.org/2000/svg"
 				width={disableStyles ? width || size : undefined}
@@ -92,7 +116,7 @@ export function Icon(properties: IconProps) {
 			</svg>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type SVGPathElement = {
 	type: string;
@@ -113,6 +137,7 @@ export type IconTemplatesLegalProps = {
 	icon?: IconType | false;
 	title?: string;
 	path?: string | SVGPathElement[];
+	svg?: VNode<JSX.SVGAttributes<SVGSVGElement>>;
 	children?: ComponentChildren;
 	size?: string | number;
 	width?: string | number;

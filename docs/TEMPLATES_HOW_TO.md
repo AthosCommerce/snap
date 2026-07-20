@@ -221,7 +221,6 @@ The `_` token is a flex spacer. Items to the left of `_` are left-aligned, items
 | `searchHeader` | Page title / search query heading |
 | `filterSummary` | Active filter chips |
 | `breadcrumbs` | Breadcrumb navigation |
-| `mobileSidebar` | Mobile sidebar drawer trigger |
 | `layoutSelector` | Grid layout toggle (requires `layoutOptions`) |
 | `perPage` | Results-per-page selector |
 | `sortBy` | Sort order selector |
@@ -275,7 +274,7 @@ new SnapTemplates({
 
 #### Example: Responsive Toolbar Adjustments
 
-On mobile, surface the mobile sidebar trigger and drop the desktop sort/paging row into its own row:
+On mobile, surface the sidebar toggle button and drop the desktop sort/paging row into its own row:
 
 ```tsx
 new SnapTemplates({
@@ -307,7 +306,7 @@ new SnapTemplates({
 				},
 				'toolbar.middle': {
 					layout: [
-						['mobileSidebar', '_', 'paginationInfo'],
+						['button.sidebar-toggle', '_', 'paginationInfo'],
 						['sortBy', 'perPage'],
 					],
 				},
@@ -356,7 +355,7 @@ new SnapTemplates({
 					layout: [['banner.header'], ['searchHeader', '_']],
 				},
 				'searchHorizontal toolbar.middle': {
-					layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
+					layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 				},
 			},
 		},
@@ -614,3 +613,67 @@ const config: SnapTemplatesConfigUnlocked = {
 
 new SnapTemplates(config);
 ```
+
+---
+
+### Using the Shopify Markets Plugin
+
+The **Shopify Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
+When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
+The formatter reads script context with `getContext(['format'])`.
+
+Register the plugin in your SnapTemplates configuration:
+
+```tsx
+const config = {
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		shopify: {
+			markets: {
+				token: 'your-storefront-access-token',
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+};
+
+new SnapTemplates(config);
+```
+
+Optional script context variables used by `shopifyMarketsPriceFormat`:
+
+```html
+<script id="athos-context" src="bundle.js">
+	format = '${{amount}}';
+</script>
+```
+
+In your result component, check the `priceFetched` flag before rendering prices.
+You do not need to manually import or pass `shopifyMarketsPriceFormat` when using the snap `Price` component.
+
+```tsx
+import { observer } from 'mobx-react-lite';
+import { Price } from '@athoscommerce/snap-preact/components';
+
+export const CustomResult = observer(({ result, treePath }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const { priceFetched } = result.state;
+	return (
+		<article>
+			<h2>{core?.name}</h2>
+			{priceFetched && (
+				<Price value={core?.price} treePath={treePath} />
+			)}
+		</article>
+	);
+});
+```
+
+If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
+												
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
