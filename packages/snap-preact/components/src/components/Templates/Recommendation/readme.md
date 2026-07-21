@@ -187,3 +187,24 @@ const defaultVerticalRecommendationBreakpoints = {
 ```tsx
 <Recommendation controller={controller} breakpoints={defaultRecommendationBreakpoints} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Recommendation component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `titleText` | Recommendation carousel title | `controller` (RecommendationController) |
+
+### Example
+
+```tsx
+<Recommendation
+	controller={controller}
+	lang={{
+		titleText: {
+			value: 'You May Also Like',
+		},
+	}}
+/>
+```
