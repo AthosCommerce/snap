@@ -6,6 +6,39 @@ const branchName = childProcess.execSync('git rev-parse --abbrev-ref HEAD').toSt
 
 // class name for for branch override usage
 const styleClass = 'athos-snap-bundle-styles';
+const transpileOnly = process.env.SNAP_WEBPACK_TRANSPILE_ONLY === '1';
+const typescriptRules = transpileOnly
+	? [
+			{
+				test: /\.ts$/,
+				use: {
+					loader: 'esbuild-loader',
+					options: {
+						loader: 'ts',
+						target: 'es2020',
+					},
+				},
+				exclude: /node_modules/,
+			},
+			{
+				test: /\.tsx$/,
+				use: {
+					loader: 'esbuild-loader',
+					options: {
+						loader: 'tsx',
+						target: 'es2020',
+					},
+				},
+				exclude: /node_modules/,
+			},
+	  ]
+	: [
+			{
+				test: /\.tsx?$/,
+				use: 'ts-loader',
+				exclude: /node_modules/,
+			},
+	  ];
 
 export default {
 	stats: {
@@ -28,11 +61,7 @@ export default {
 	],
 	module: {
 		rules: [
-			{
-				test: /\.tsx?$/,
-				use: 'ts-loader',
-				exclude: /node_modules/,
-			},
+			...typescriptRules,
 			{
 				test: /\.(css|scss)$/,
 				exclude: /\.module\.(css|scss)$/,

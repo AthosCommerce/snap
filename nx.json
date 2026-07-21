@@ -1,8 +1,31 @@
 {
+	"namedInputs": {
+		"production": [
+			"default",
+			"!{projectRoot}/**/*.spec.ts",
+			"!{projectRoot}/**/*.spec.tsx",
+			"!{projectRoot}/**/*.test.ts",
+			"!{projectRoot}/**/*.test.tsx",
+			"!{projectRoot}/**/*.stories.tsx",
+			"!{projectRoot}/**/*.cy.tsx",
+			"!{projectRoot}/**/__tests__/**",
+			"!{projectRoot}/**/__mocks__/**",
+			"!{projectRoot}/**/test/**",
+			"!{projectRoot}/**/tests/**"
+		]
+	},
 	"targetDefaults": {
 		"build": {
 			"cache": true,
-			"dependsOn": ["^build"]
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"],
+			"outputs": ["{projectRoot}/dist/esm"]
+		},
+		"build:prod": {
+			"cache": true,
+			"dependsOn": ["^build:prod"],
+			"inputs": ["production", "^production"],
+			"outputs": ["{projectRoot}/dist"]
 		},
 		"lint": {
 			"cache": true

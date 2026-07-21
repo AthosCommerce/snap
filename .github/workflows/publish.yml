@@ -49,7 +49,7 @@ jobs:
 
       - name: Build
         run: |
-          npm run build
+          npm run build:prod
 
       - name: Publish packages
         if: github.ref_name == 'main'

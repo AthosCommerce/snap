@@ -9,6 +9,7 @@
   "scripts": {
     "commit": "cz",
     "build": "lerna run build",
+    "build:prod": "lerna run build:prod",
     "build:crawler": "node ./docs/generateCrawlerFiles.js",
     "build:docs": "lerna exec --stream --parallel 'npm run build:docs'",
     "build:feed": "node ./docs/generateFeed.js",
@@ -16,6 +17,7 @@
     "test": "jest",
     "posttest": "npm run test --workspace=@athoscommerce/snap-preact-demo && npm run cypress:headless --workspace=@athoscommerce/snap-preact",
     "dev": "lerna exec --parallel --stream 'npm run dev'",
+    "dev:universal": "SNAP_WEBPACK_UNIVERSAL=1 lerna exec --parallel --stream 'npm run dev'",
     "dev:docs": "http-server ./ -p 1111 -c-1",
     "lint": "lerna run lint",
     "clean": "npm run clean:coverage && npm run clean:docs && npm run clean:packages && npm run clean:cache",
@@ -40,6 +42,7 @@
     "@types/node": "25.9.0",
     "@types/jsdom": "21.1.6",
     "@types/uuid": "9.0.1",
+    "@typescript/native": "npm:typescript@7.0.2",
     "@typescript-eslint/eslint-plugin": "8.62.1",
     "@typescript-eslint/parser": "8.62.1",
     "cz-conventional-changelog": "3.3.0",
@@ -58,7 +61,7 @@
     "standard-version": "9.5.0",
     "ts-jest": "29.4.11",
     "typedoc": "0.28.19",
-    "typescript": "6.0.3",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "uuid": "9.0.1",
     "whatwg-fetch": "3.6.2"
   },
