@@ -165,7 +165,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders close button in header when closeButtonText is provided', () => {
-			const rendered = render(<Sidebar controller={controller} closeButtonText={'Close'} />);
+			const rendered = render(<Sidebar controller={controller} closeButtonText={'Close'} hideCloseButton={false} />);
 			const closeButton = rendered.container.querySelector('.ss__sidebar__header__close-button');
 			expect(closeButton).toBeInTheDocument();
 		});
@@ -177,7 +177,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders close button with custom text', () => {
-			const rendered = render(<Sidebar controller={controller} closeButtonText={'Close Sidebar'} />);
+			const rendered = render(<Sidebar controller={controller} closeButtonText={'Close Sidebar'} hideCloseButton={false} />);
 			const closeButton = rendered.container.querySelector('.ss__sidebar__header__close-button');
 			expect(closeButton).toBeInTheDocument();
 			expect(closeButton?.textContent).toContain('Close Sidebar');
@@ -185,7 +185,13 @@ describe('Sidebar Component', () => {
 
 		it('hides close button text when hideCloseButtonText is true', () => {
 			const rendered = render(
-				<Sidebar controller={controller} closeButtonText={'Close Sidebar'} hideCloseButtonText={true} closeButtonIcon={'close'} />
+				<Sidebar
+					controller={controller}
+					closeButtonText={'Close Sidebar'}
+					hideCloseButtonText={true}
+					closeButtonIcon={'close'}
+					hideCloseButton={false}
+				/>
 			);
 			const closeButton = rendered.container.querySelector('.ss__sidebar__header__close-button');
 			expect(closeButton).toBeInTheDocument();
@@ -193,7 +199,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders close button with icon', () => {
-			const rendered = render(<Sidebar controller={controller} closeButtonIcon={'close'} />);
+			const rendered = render(<Sidebar controller={controller} closeButtonIcon={'close'} hideCloseButton={false} />);
 			const closeButton = rendered.container.querySelector('.ss__sidebar__header__close-button');
 			const icon = closeButton?.querySelector('.ss__icon');
 			expect(closeButton).toBeInTheDocument();
@@ -202,7 +208,7 @@ describe('Sidebar Component', () => {
 
 		it('calls toggleSidebar when close button is clicked', () => {
 			const toggleFn = jest.fn();
-			const rendered = render(<Sidebar controller={controller} onToggleSidebar={toggleFn} closeButtonText={'Close'} />);
+			const rendered = render(<Sidebar controller={controller} onToggleSidebar={toggleFn} closeButtonText={'Close'} hideCloseButton={false} />);
 			const closeButton = rendered.container.querySelector('.ss__sidebar__header__close-button');
 			closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 			expect(toggleFn).toHaveBeenCalled();
@@ -223,7 +229,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders apply button in footer when applyButtonText is provided', () => {
-			const rendered = render(<Sidebar controller={controller} applyButtonText={'Apply'} />);
+			const rendered = render(<Sidebar controller={controller} applyButtonText={'Apply'} hideApplyButton={false} />);
 			const applyButton = rendered.container.querySelector('.ss__sidebar__footer__apply-button');
 			expect(applyButton).toBeInTheDocument();
 		});
@@ -235,7 +241,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders apply button with custom text', () => {
-			const rendered = render(<Sidebar controller={controller} applyButtonText={'Apply Changes'} />);
+			const rendered = render(<Sidebar controller={controller} applyButtonText={'Apply Changes'} hideApplyButton={false} />);
 			const applyButton = rendered.container.querySelector('.ss__sidebar__footer__apply-button');
 			expect(applyButton).toBeInTheDocument();
 			expect(applyButton?.textContent).toContain('Apply Changes');
@@ -243,7 +249,13 @@ describe('Sidebar Component', () => {
 
 		it('hides apply button text when hideApplyButtonText is true', () => {
 			const rendered = render(
-				<Sidebar controller={controller} applyButtonText={'Apply Changes'} hideApplyButtonText={true} applyButtonIcon={'cog'} />
+				<Sidebar
+					controller={controller}
+					applyButtonText={'Apply Changes'}
+					hideApplyButtonText={true}
+					applyButtonIcon={'cog'}
+					hideApplyButton={false}
+				/>
 			);
 			const applyButton = rendered.container.querySelector('.ss__sidebar__footer__apply-button');
 			expect(applyButton).toBeInTheDocument();
@@ -251,7 +263,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders apply button with icon', () => {
-			const rendered = render(<Sidebar controller={controller} applyButtonIcon={'cog'} />);
+			const rendered = render(<Sidebar controller={controller} applyButtonIcon={'cog'} hideApplyButton={false} />);
 			const applyButton = rendered.container.querySelector('.ss__sidebar__footer__apply-button');
 			const icon = applyButton?.querySelector('.ss__icon');
 			expect(applyButton).toBeInTheDocument();
@@ -260,14 +272,14 @@ describe('Sidebar Component', () => {
 
 		it('calls toggleSidebar when apply button is clicked', () => {
 			const toggleFn = jest.fn();
-			const rendered = render(<Sidebar controller={controller} onToggleSidebar={toggleFn} applyButtonText={'Apply'} />);
+			const rendered = render(<Sidebar controller={controller} onToggleSidebar={toggleFn} applyButtonText={'Apply'} hideApplyButton={false} />);
 			const applyButton = rendered.container.querySelector('.ss__sidebar__footer__apply-button');
 			applyButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 			expect(toggleFn).toHaveBeenCalled();
 		});
 
 		it('renders clear button in footer when clearButtonText is provided', () => {
-			const rendered = render(<Sidebar controller={controller} clearButtonText={'Clear All'} />);
+			const rendered = render(<Sidebar controller={controller} clearButtonText={'Clear All'} hideClearButton={false} />);
 			const clearButton = rendered.container.querySelector('.ss__sidebar__footer__clear-button');
 			expect(clearButton).toBeInTheDocument();
 		});
@@ -279,7 +291,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders clear button with custom text', () => {
-			const rendered = render(<Sidebar controller={controller} clearButtonText={'Start Over'} />);
+			const rendered = render(<Sidebar controller={controller} clearButtonText={'Start Over'} hideClearButton={false} />);
 			const clearButton = rendered.container.querySelector('.ss__sidebar__footer__clear-button');
 			expect(clearButton).toBeInTheDocument();
 			expect(clearButton?.textContent).toContain('Start Over');
@@ -287,7 +299,13 @@ describe('Sidebar Component', () => {
 
 		it('hides clear button text when hideClearButtonText is true', () => {
 			const rendered = render(
-				<Sidebar controller={controller} clearButtonText={'Start Over'} hideClearButtonText={true} clearButtonIcon={'close'} />
+				<Sidebar
+					controller={controller}
+					clearButtonText={'Start Over'}
+					hideClearButtonText={true}
+					clearButtonIcon={'close'}
+					hideClearButton={false}
+				/>
 			);
 			const clearButton = rendered.container.querySelector('.ss__sidebar__footer__clear-button');
 			expect(clearButton).toBeInTheDocument();
@@ -295,7 +313,7 @@ describe('Sidebar Component', () => {
 		});
 
 		it('renders clear button with icon', () => {
-			const rendered = render(<Sidebar controller={controller} clearButtonIcon={'close'} />);
+			const rendered = render(<Sidebar controller={controller} clearButtonIcon={'close'} hideClearButton={false} />);
 			const clearButton = rendered.container.querySelector('.ss__sidebar__footer__clear-button');
 			const icon = clearButton?.querySelector('.ss__icon');
 			expect(clearButton).toBeInTheDocument();
@@ -439,6 +457,9 @@ describe('Sidebar Component', () => {
 							closeButtonText={'Close'}
 							applyButtonText={'Apply'}
 							clearButtonText={'Clear'}
+							hideCloseButton={false}
+							hideApplyButton={false}
+							hideClearButton={false}
 						/>
 					);
 					const element = rendered.container.querySelector(selector);
