@@ -30,6 +30,10 @@ const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 			justifyContent: 'space-between',
 			alignItems: 'baseline',
 
+			'& .ss__sidebar__title, & .ss__sidebar__header__close-button': {
+				margin: '15px 0',
+			},
+
 			'& .ss__sidebar__header__close-button': {
 				cursor: 'pointer',
 			},
