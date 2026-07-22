@@ -50,7 +50,7 @@ The `titleText` prop will change the inner text of the sidebar title.
 The `sticky` prop enables the sidebar to remain fixed at the top of the viewport as the user scrolls the page.
 
 ```tsx
-<Sidebar controller={controller} sticky={'true'} />3
+<Sidebar controller={controller} sticky={true} />
 ```
 
 ### stickyOffset
