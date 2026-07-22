@@ -232,7 +232,6 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'Clear All' },
 			},
 			control: { type: 'text' },
 		},
