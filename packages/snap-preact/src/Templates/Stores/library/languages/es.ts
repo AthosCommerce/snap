@@ -76,6 +76,9 @@ export const es: LangComponents = {
 		titleText: {
 			value: 'Filtros',
 		},
+		applyButtonText: {},
+		clearButtonText: {},
+		closeButtonText: {},
 	},
 	searchInput: {
 		placeholderText: {
