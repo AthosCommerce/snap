@@ -141,6 +141,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
+				defaultValue: { summary: true },
 			},
 			control: { type: 'boolean' },
 		},
@@ -151,6 +152,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'close-thin' },
 			},
 			options: [...Object.keys(iconPaths)],
 			control: {
@@ -185,6 +187,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
+				defaultValue: { summary: true },
 			},
 			control: { type: 'boolean' },
 		},
@@ -196,6 +199,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'Apply' },
 			},
 			control: { type: 'text' },
 		},
@@ -219,6 +223,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
+				defaultValue: { summary: true },
 			},
 			control: { type: 'boolean' },
 		},
@@ -230,6 +235,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'Clear All' },
 			},
 			control: { type: 'text' },
 		},

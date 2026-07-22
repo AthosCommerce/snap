@@ -49,6 +49,9 @@ export const Sidebar = observer((properties: SidebarProps) => {
 
 	const defaultProps: Partial<SidebarProps> = {
 		titleText: 'Filters',
+		clearButtonText: 'Clear All',
+		applyButtonText: 'Apply',
+		closeButtonIcon: 'close-thin',
 		hideApplyButton: true,
 		hideClearButton: true,
 		hideCloseButton: true,

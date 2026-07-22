@@ -224,9 +224,6 @@ export const Search = observer((properties: SearchProps) => {
 		MobileSidebar: {
 			// default props
 			layout: [['filterSummary'], ['facets'], ['banner.left']],
-			clearButtonText: 'Clear All',
-			applyButtonText: 'Apply',
-			closeButtonIcon: 'close-thin',
 			hideApplyButton: false,
 			hideClearButton: false,
 			hideCloseButton: false,
