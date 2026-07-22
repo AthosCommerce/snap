@@ -137,3 +137,26 @@ The `onDrag` prop allows for a custom callback function for when a slider handle
 	onDrag={(values)=>{ console.log(`low: ${values[0]} high: ${values[1]}`) }}
 />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetSlider component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `sliderHandle` | Slider handle element text/attributes | `facet` (RangeFacet), `value` (number) |
+
+### Example
+
+```tsx
+<FacetSlider
+	facet={rangeFacet}
+	lang={{
+		sliderHandle: {
+			attributes: {
+				'aria-label': (data) => `${data.facet.label} slider handle, current value ${data.value}`,
+			},
+		},
+	}}
+/>
+```

@@ -89,3 +89,26 @@ The `onClick` prop allows for a custom callback function for when when a facet v
 ```tsx
 <FacetGridOptions values={sizeFacet.values} onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetGridOptions component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `gridOption` | Grid option element text/attributes | `facet` (ValueFacet), `value` (FacetValue) |
+
+### Example
+
+```tsx
+<FacetGridOptions
+	values={facet.values}
+	lang={{
+		gridOption: {
+			attributes: {
+				'aria-label': (data) => `${data.value.filtered ? 'remove' : 'apply'} filter ${data.facet?.label} - ${data.value.label}`,
+			},
+		},
+	}}
+/>
+```

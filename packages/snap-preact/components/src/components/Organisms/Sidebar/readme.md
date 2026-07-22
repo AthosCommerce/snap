@@ -137,8 +137,6 @@ The `clearButtonIcon` prop specifies the name of an icon to add to the sidebar c
 <Sidebar controller={controller} clearButtonIcon={'close'} />
 ```
 
-
-
 ### hideClearButtonText 
 The `hideClearButtonText` prop hides the clear button text.
 
@@ -165,3 +163,24 @@ The `onToggleSidebar` prop specifies a callback function that is invoked when th
 
 ```tsx
 <Sidebar controller={controller} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Sidebar component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `titleText` | Sidebar heading text | `controller` (SearchController) |
+
+### Example
+
+```tsx
+<Sidebar
+	controller={controller}
+	lang={{
+		titleText: {
+			value: 'Refine By',
+		},
+	}}
+/>
+```

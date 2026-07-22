@@ -76,3 +76,26 @@ The `onClick` prop allows for a custom callback function for when the button is 
 ```tsx
 <Button content={"click me!"} onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Button component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `button` | Button element text/attributes | _(none)_ |
+
+### Example
+
+```tsx
+<Button
+	content={"click me!"}
+	lang={{
+		button: {
+			attributes: {
+				'aria-label': 'Click this button',
+			},
+		},
+	}}
+/>
+```

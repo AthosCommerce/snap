@@ -67,3 +67,32 @@ export enum ErrorType {
 	ERROR = 'error',
 }
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the ErrorHandler component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `warningText` | Warning message prefix text | `controller` (AbstractController) |
+| `infoText` | Info message prefix text | `controller` (AbstractController) |
+| `errorText` | Error message prefix text | `controller` (AbstractController) |
+| `reloadText` | Retry button text | `controller` (AbstractController) |
+
+### Example
+
+```tsx
+<ErrorHandler
+	controller={controller}
+	lang={{
+		warningText: {
+			value: 'Warning:',
+		},
+		errorText: {
+			value: 'Something went wrong:',
+		},
+		reloadText: {
+			value: 'Try Again',
+		},
+	}}
+/>
+```

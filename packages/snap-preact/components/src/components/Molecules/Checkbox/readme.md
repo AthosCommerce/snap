@@ -77,3 +77,25 @@ The `onClick` prop allows for a custom callback function for when the checkbox i
 ```tsx
 <Checkbox onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Checkbox component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `checkbox` | Checkbox element text/attributes | `checkedState` (boolean), `disabled` (boolean) |
+
+### Example
+
+```tsx
+<Checkbox
+	lang={{
+		checkbox: {
+			attributes: {
+				'aria-label': (data) => `checkbox is ${data.checkedState ? 'checked' : 'unchecked'}`,
+			},
+		},
+	}}
+/>
+```

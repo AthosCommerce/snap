@@ -165,6 +165,12 @@ const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 				minHeight: '0%',
 			},
 		},
+		'.ss__banner': {
+			'iframe, img': {
+				maxWidth: '100%',
+				height: 'auto',
+			},
+		},
 		'.ss__banner.ss__banner--header, .ss__banner.ss__banner--banner': {
 			marginBottom: '10px',
 		},
