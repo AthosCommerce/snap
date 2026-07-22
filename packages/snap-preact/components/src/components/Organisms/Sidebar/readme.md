@@ -156,7 +156,7 @@ The `hideClearButtonText` prop hides the clear button text.
 The `hideApplyButtonText` prop hides the apply button text.
 
 ```tsx
-<Sidebar controller={controller} applyButtonText={'Apply Changees'} hideApplyButtonText={true} />
+<Sidebar controller={controller} applyButtonText={'Apply Changes'} hideApplyButtonText={true} />
 ```
 
 ### hideCloseButtonText 
