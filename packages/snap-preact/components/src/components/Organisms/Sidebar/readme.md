@@ -138,12 +138,6 @@ The `clearButtonIcon` prop specifies the name of an icon to add to the sidebar c
 ```
 
 
-### hideOpenButtonText 
-The `hideOpenButtonText` prop hides the open button text.
-
-```tsx
-<Sidebar controller={controller} openButtonText={'open'} hideOpenButtonText={true} />
-```
 
 ### hideClearButtonText 
 The `hideClearButtonText` prop hides the clear button text.
