@@ -763,8 +763,8 @@ new SnapTemplates({
 			autocompleteLayout: {
 				seeMoreButton: {
 					value: (data) =>
-						`See ${data?.controller?.store?.pagination.totalResults} result${
-							data?.controller?.store?.pagination?.totalResults == 1 ? '' : 's'
+						`See ${data?.controller?.store?.pagination?.totalResults} result${
+							data?.controller?.store?.pagination?.totalResults === 1 ? '' : 's'
 						} for "${data?.controller?.store?.search?.query?.string}"`,
 				},
 			},
