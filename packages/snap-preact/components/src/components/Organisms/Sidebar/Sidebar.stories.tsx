@@ -196,7 +196,6 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'Apply Filters' },
 			},
 			control: { type: 'text' },
 		},
