@@ -63,7 +63,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 		sticky,
 		hideApplyButton,
 		hideFooter,
-		toggleSidebar,
+		onToggleSidebar,
 		hideHeader,
 		hideClearButton,
 		hideCloseButton,
@@ -153,7 +153,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 							<Button
 								internalClassName="ss__sidebar__header__close-button"
 								disableStyles={true}
-								onClick={() => toggleSidebar && toggleSidebar()}
+								onClick={() => onToggleSidebar && onToggleSidebar()}
 								icon={closeButtonIcon}
 								{...subProps.button}
 								name={'close'}
@@ -174,7 +174,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 							<Button
 								internalClassName="ss__sidebar__footer__apply-button"
 								icon={applyButtonIcon}
-								onClick={toggleSidebar ? () => toggleSidebar() : undefined}
+								onClick={onToggleSidebar ? () => onToggleSidebar() : undefined}
 								{...subProps.button}
 								name={'apply'}
 							>
@@ -187,7 +187,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 								icon={clearButtonIcon}
 								onClick={() => {
 									controller?.urlManager.remove('filter').remove('page').go();
-									toggleSidebar && (() => toggleSidebar())();
+									onToggleSidebar && (() => onToggleSidebar())();
 								}}
 								{...subProps.button}
 								name={'clear'}
@@ -207,6 +207,7 @@ export type SideBarModuleNames = 'filterSummary' | 'sortBy' | 'perPage' | 'facet
 export type SidebarProps = {
 	controller: SearchController;
 	lang?: Partial<SidebarLang>;
+	onToggleSidebar?: () => void;
 } & SidebarTemplatesLegalProps &
 	ComponentProps<SidebarProps>;
 
@@ -216,8 +217,6 @@ export type SidebarTemplatesLegalProps = {
 	hideTitleText?: boolean;
 	sticky?: boolean;
 	stickyOffset?: number;
-
-	toggleSidebar?: () => void;
 	hideHeader?: boolean;
 	hideFooter?: boolean;
 	hideApplyButton?: boolean;

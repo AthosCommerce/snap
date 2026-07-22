@@ -246,6 +246,15 @@ export default {
 				type: 'select',
 			},
 		},
+		onToggleSidebar: {
+			description: 'Callback function invoked when the close, apply, or clear button is clicked',
+			table: {
+				type: {
+					summary: '() => void',
+				},
+			},
+			action: 'onToggleSidebar',
+		},
 		...componentArgs,
 	},
 };

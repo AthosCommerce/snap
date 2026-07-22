@@ -227,7 +227,7 @@ export const Search = observer((properties: SearchProps) => {
 			clearButtonText: 'Clear All',
 			applyButtonText: 'Apply',
 			closeButtonIcon: 'close-thin',
-			toggleSidebar: () => setSidebarOpenState((prev) => !prev),
+			onToggleSidebar: () => setSidebarOpenState((prev) => !prev),
 			// inherited props
 			...defined({
 				disableStyles,

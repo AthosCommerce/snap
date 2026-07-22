@@ -159,3 +159,9 @@ The `hideCloseButtonText` prop hides the close button text.
 ```tsx
 <Sidebar controller={controller} closeButtonText={'close'} hideCloseButtonText={true} />
 ```
+
+### onToggleSidebar
+The `onToggleSidebar` prop specifies a callback function that is invoked when the close, apply, or clear button is clicked. Typically used to toggle the sidebar open/closed state.
+
+```tsx
+<Sidebar controller={controller} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />

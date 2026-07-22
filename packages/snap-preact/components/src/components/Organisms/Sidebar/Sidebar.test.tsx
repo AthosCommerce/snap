@@ -202,7 +202,7 @@ describe('Sidebar Component', () => {
 
 		it('calls toggleSidebar when close button is clicked', () => {
 			const toggleFn = jest.fn();
-			const rendered = render(<Sidebar controller={controller} toggleSidebar={toggleFn} closeButtonText={'Close'} />);
+			const rendered = render(<Sidebar controller={controller} onToggleSidebar={toggleFn} closeButtonText={'Close'} />);
 			const closeButton = rendered.container.querySelector('.ss__sidebar__header__close-button');
 			closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 			expect(toggleFn).toHaveBeenCalled();
@@ -260,7 +260,7 @@ describe('Sidebar Component', () => {
 
 		it('calls toggleSidebar when apply button is clicked', () => {
 			const toggleFn = jest.fn();
-			const rendered = render(<Sidebar controller={controller} toggleSidebar={toggleFn} applyButtonText={'Apply'} />);
+			const rendered = render(<Sidebar controller={controller} onToggleSidebar={toggleFn} applyButtonText={'Apply'} />);
 			const applyButton = rendered.container.querySelector('.ss__sidebar__footer__apply-button');
 			applyButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 			expect(toggleFn).toHaveBeenCalled();
