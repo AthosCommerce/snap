@@ -151,7 +151,6 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'close-thin' },
 			},
 			options: [...Object.keys(iconPaths)],
 			control: {
