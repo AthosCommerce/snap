@@ -106,7 +106,7 @@ The `hideApplyButton` prop will disable the apply Button component from renderin
 The `applyButtonText` prop will change the inner text of the apply Button component.
 
 ```tsx
-<Sidebar controller={controller} applyButtonText={'Apply Changees'} />
+<Sidebar controller={controller} applyButtonText={'Apply Changes'} />
 ```
 
 ### applyButtonIcon 
