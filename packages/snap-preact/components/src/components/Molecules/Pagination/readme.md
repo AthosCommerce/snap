@@ -112,7 +112,7 @@ The `firstButton` prop specifies the first page button content. This can be a st
 The `lastButton` prop specifies the last page button content. This can be a string or JSX element.
 
 ```tsx
-<Pagination pagination={controller.store.pagination} lastButton={'Prev'} />
+<Pagination pagination={controller.store.pagination} lastButton={'Last'} />
 ```
 
 ## Lang
