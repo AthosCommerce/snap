@@ -400,6 +400,42 @@ describe('AutocompleteLayout Component', () => {
 		});
 	});
 
+	it('restricts banner iframe and img elements to the autocomplete container', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+		(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'ac.banners' });
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+		await waitFor(() => {
+			const banner = rendered.container.querySelector('.ss__banner');
+			expect(banner).toBeInTheDocument();
+		});
+
+		const allRules: string[] = [];
+		Array.from(document.styleSheets).forEach((sheet) => {
+			try {
+				Array.from(sheet.cssRules).forEach((rule) => allRules.push(rule.cssText));
+			} catch (e) {
+				// noop
+			}
+		});
+
+		const bannerMediaRules = allRules.filter(
+			(rule) => rule.includes('.ss__banner') && rule.includes('iframe') && rule.includes('img') && rule.includes('max-width: 100%')
+		);
+		expect(bannerMediaRules.length).toBeGreaterThan(0);
+		expect(bannerMediaRules.some((rule) => rule.includes('height: auto'))).toBe(true);
+	});
+
 	it('can exclude auto banners', async () => {
 		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
 		await controller.bind();
