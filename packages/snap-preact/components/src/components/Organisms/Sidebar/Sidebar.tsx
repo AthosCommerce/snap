@@ -152,7 +152,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 								{titleText}
 							</h4>
 						) : (
-							<></>
+							<div></div>
 						)}
 
 						{!hideCloseButton && (
