@@ -10,6 +10,8 @@ import { SearchController } from '@athoscommerce/snap-controller';
 import { Layout, LayoutProps } from '../Layout';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
+import { Button, ButtonProps } from '../../Atoms/Button';
+import { IconProps, IconType } from '../../Atoms/Icon';
 
 const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 	return css({
@@ -21,6 +23,22 @@ const defaultStyles: StyleScript<SidebarProps> = ({ stickyOffset }) => {
 
 		'& .ss__facets': {
 			width: '100%',
+		},
+
+		'& .ss__sidebar__header': {
+			display: 'flex',
+			justifyContent: 'space-between',
+			alignItems: 'baseline',
+
+			'& .ss__sidebar__header__close-button': {
+				cursor: 'pointer',
+			},
+		},
+		'& .ss__sidebar__footer': {
+			display: 'flex',
+			gap: '10px',
+			justifyContent: 'center',
+			flexDirection: 'row',
 		},
 	});
 };
@@ -37,7 +55,32 @@ export const Sidebar = observer((properties: SidebarProps) => {
 
 	const props = mergeProps('sidebar', globalTheme, defaultProps, properties);
 
-	const { controller, layout, hideTitleText, titleText, sticky, disableStyles, className, internalClassName, treePath } = props;
+	const {
+		controller,
+		layout,
+		hideTitleText,
+		titleText,
+		sticky,
+		hideApplyButton,
+		hideFooter,
+		toggleSidebar,
+		hideHeader,
+		hideClearButton,
+		hideCloseButton,
+		hideClearButtonText,
+		hideApplyButtonText,
+		hideCloseButtonText,
+		clearButtonText,
+		applyButtonText,
+		closeButtonText,
+		applyButtonIcon,
+		clearButtonIcon,
+		closeButtonIcon,
+		disableStyles,
+		className,
+		internalClassName,
+		treePath,
+	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('sidebar', props);
 
@@ -51,6 +94,15 @@ export const Sidebar = observer((properties: SidebarProps) => {
 	const defaultLang = {
 		titleText: {
 			value: titleText,
+		},
+		closeButtonText: {
+			value: closeButtonText,
+		},
+		applyButtonText: {
+			value: applyButtonText,
+		},
+		clearButtonText: {
+			value: clearButtonText,
 		},
 	};
 
@@ -71,23 +123,80 @@ export const Sidebar = observer((properties: SidebarProps) => {
 			theme: props.theme,
 			treePath,
 		},
+		button: {
+			// default props
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
 	};
 
 	const hasChildrenToRender = layout?.length;
 	return controller?.store?.loaded && controller?.store?.pagination?.totalResults > 0 && hasChildrenToRender ? (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__sidebar', className, internalClassName, { 'ss__sidebar--sticky': sticky })}>
-				{!hideTitleText ? (
-					<h4 className={classnames('ss__sidebar__title')} aria-atomic="true" aria-live="polite" {...mergedLang.titleText.all}>
-						{titleText}
-					</h4>
-				) : (
-					<></>
+				{!hideHeader && (
+					<div className="ss__sidebar__header">
+						{!hideTitleText ? (
+							<h4 className={classnames('ss__sidebar__title')} aria-atomic="true" aria-live="polite" {...mergedLang.titleText.all}>
+								{titleText}
+							</h4>
+						) : (
+							<></>
+						)}
+
+						{!hideCloseButton && (
+							<Button
+								internalClassName="ss__sidebar__header__close-button"
+								disableStyles={true}
+								onClick={() => toggleSidebar && toggleSidebar()}
+								icon={closeButtonIcon}
+								{...subProps.button}
+								name={'close'}
+							>
+								{!hideCloseButtonText && closeButtonText ? <span {...mergedLang.closeButtonText?.all}></span> : undefined}
+							</Button>
+						)}
+					</div>
 				)}
 
 				<div className={classnames('ss__sidebar__inner')}>
 					<Layout controller={controller} layout={layout} {...subProps.Layout} />
 				</div>
+
+				{!hideFooter && (
+					<div className="ss__sidebar__footer">
+						{!hideApplyButton && (
+							<Button
+								internalClassName="ss__sidebar__footer__apply-button"
+								icon={applyButtonIcon}
+								onClick={toggleSidebar ? () => toggleSidebar() : undefined}
+								{...subProps.button}
+								name={'apply'}
+							>
+								{!hideApplyButtonText && applyButtonText ? <span {...mergedLang.applyButtonText?.all}></span> : undefined}
+							</Button>
+						)}
+						{!hideClearButton && (
+							<Button
+								internalClassName="ss__sidebar__footer__clear-button"
+								icon={clearButtonIcon}
+								onClick={() => {
+									controller?.urlManager.remove('filter').remove('page').go();
+									toggleSidebar && (() => toggleSidebar())();
+								}}
+								{...subProps.button}
+								name={'clear'}
+							>
+								{!hideClearButtonText && clearButtonText ? <span {...mergedLang.clearButtonText?.all}></span> : undefined}
+							</Button>
+						)}
+					</div>
+				)}
 			</div>
 		</CacheProvider>
 	) : null;
@@ -107,14 +216,40 @@ export type SidebarTemplatesLegalProps = {
 	hideTitleText?: boolean;
 	sticky?: boolean;
 	stickyOffset?: number;
+
+	toggleSidebar?: () => void;
+	hideHeader?: boolean;
+	hideFooter?: boolean;
+	hideApplyButton?: boolean;
+	hideClearButton?: boolean;
+	hideCloseButton?: boolean;
+	hideClearButtonText?: boolean;
+	hideApplyButtonText?: boolean;
+	hideCloseButtonText?: boolean;
+	clearButtonText?: string;
+	applyButtonText?: string;
+	closeButtonText?: string;
+	applyButtonIcon?: IconType | Partial<IconProps>;
+	clearButtonIcon?: IconType | Partial<IconProps>;
+	closeButtonIcon?: IconType | Partial<IconProps>;
 };
 
 export interface SidebarLang {
 	titleText: Lang<{
 		controller: SearchController;
 	}>;
+	closeButtonText: Lang<{
+		controller: SearchController;
+	}>;
+	applyButtonText: Lang<{
+		controller: SearchController;
+	}>;
+	clearButtonText: Lang<{
+		controller: SearchController;
+	}>;
 }
 
 interface SidebarSubProps {
 	Layout: Partial<LayoutProps>;
+	button: Partial<ButtonProps>;
 }
