@@ -49,6 +49,9 @@ export const Sidebar = observer((properties: SidebarProps) => {
 
 	const defaultProps: Partial<SidebarProps> = {
 		titleText: 'Filters',
+		hideApplyButton: true,
+		hideClearButton: true,
+		hideCloseButton: true,
 		treePath: globalTreePath,
 		layout: [['filterSummary'], ['sortBy', 'perPage'], ['facets'], ['banner.left']],
 	};

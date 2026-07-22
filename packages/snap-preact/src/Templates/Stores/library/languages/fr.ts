@@ -66,8 +66,12 @@ export const fr: LangComponents = {
 		titleText: {
 			value: 'Filtres',
 		},
-		applyButtonText: {},
-		clearButtonText: {},
+		applyButtonText: {
+			value: 'Appliquer',
+		},
+		clearButtonText: {
+			value: 'Tout effacer',
+		},
 		closeButtonText: {},
 	},
 	searchInput: {
