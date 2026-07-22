@@ -60,3 +60,23 @@ The `stickyOffset` prop sets the number of pixels from the top of the viewport t
 ```tsx
 <Sidebar controller={controller} stickyOffset={50} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Sidebar component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `titleText` | Sidebar heading text | `controller` (SearchController) |
+
+### Example
+
+```tsx
+<Sidebar
+	controller={controller}
+	lang={{
+		titleText: {
+			value: 'Refine By',
+		},
+	}}
+/>
+```

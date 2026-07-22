@@ -172,3 +172,26 @@ const colorMapping = {
 ```
 
 
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetPaletteOptions component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `paletteOption` | Palette option element text/attributes | `facet` (ValueFacet), `value` (FacetValue) |
+
+### Example
+
+```tsx
+<FacetPaletteOptions
+	values={facet.values}
+	lang={{
+		paletteOption: {
+			attributes: {
+				'aria-label': (data) => `${data.value.filtered ? 'remove' : 'apply'} filter ${data.facet?.label} - ${data.value.label}`,
+			},
+		},
+	}}
+/>
+```

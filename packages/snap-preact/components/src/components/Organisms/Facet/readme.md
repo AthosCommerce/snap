@@ -300,3 +300,39 @@ The `horizontal` prop renders the facet horizontally.
 ```tsx
 <Facet facet={controller.store.facets[0]}  horizontal={true} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Facet component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `showMoreText` | Show more options button text | `facet` (ValueFacet \| RangeFacet) |
+| `showLessText` | Show less options button text | `facet` (ValueFacet \| RangeFacet) |
+| `dropdownButton` | Facet dropdown toggle button attributes | `facet` (ValueFacet \| RangeFacet) |
+| `clearAllText` | Clear all selections button text | `facet` (ValueFacet \| RangeFacet) |
+| `submitRangeButton` | Range input submit button text | `facet` (ValueFacet \| RangeFacet) |
+
+### Example
+
+```tsx
+<Facet
+	facet={controller.store.facets[0]}
+	lang={{
+		showMoreText: {
+			value: (data) => `Show more ${data.facet.label} options`,
+		},
+		showLessText: {
+			value: 'Show fewer options',
+		},
+		dropdownButton: {
+			attributes: {
+				'aria-label': (data) => `${data.facet.collapsed ? 'expand' : 'collapse'} ${data.facet.label} filter`,
+			},
+		},
+		clearAllText: {
+			value: 'Clear filters',
+		},
+	}}
+/>
+```
