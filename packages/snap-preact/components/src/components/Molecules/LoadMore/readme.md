@@ -119,3 +119,31 @@ The `onClick` prop allows for a custom callback function for when the button is 
 ```tsx
 <LoadMore pagination={controller.store.pagination} onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the LoadMore component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `loadMoreButton` | Load more button text | `pagination` (SearchPaginationStore) |
+| `progressText` | Progress indicator text | `pagination` (SearchPaginationStore) |
+
+### Example
+
+```tsx
+<LoadMore
+	pagination={controller.store.pagination}
+	lang={{
+		loadMoreButton: {
+			value: 'Load More Products',
+			attributes: {
+				'aria-label': 'Load more products',
+			},
+		},
+		progressText: {
+			value: (data) => `You've viewed ${data.pagination?.end} of ${data.pagination?.totalResults} products`,
+		},
+	}}
+/>
+```

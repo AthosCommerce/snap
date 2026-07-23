@@ -112,3 +112,24 @@ The `onFacetOptionClick` callback function for when a facet option is clicked.
 ```tsx
 <FacetsHorizontal controller={controller} onFacetOptionClick={clickfunc}/>
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetsHorizontal component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `dropdownButton` | Facet dropdown button text/attributes | `selectedFacet` (IndividualFacetType), `facet` (IndividualFacetType) |
+| `toggleSidebarButtonText` | Sidebar toggle button text | `facets` (IndividualFacetType[]), `sidebarOpenState` (boolean) |
+
+### Example
+
+```tsx
+<FacetsHorizontal
+	controller={controller}
+	lang={{
+		toggleSidebarButtonText: {
+			value: (data) => data.sidebarOpenState ? 'Hide Filters' : 'Show Filters',
+		},
+	}}
+/>
+```

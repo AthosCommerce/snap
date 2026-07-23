@@ -183,3 +183,27 @@ The `onSelect` prop allows for a custom callback function for when a selection h
 ```tsx
 <Select options={controller.store.sorting.options} onSelect={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Select component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `buttonLabel` | The select dropdown button label | `options` (ListOption[]), `selectedOptions` (ListOption[]), `label` (string), `open` (boolean) |
+
+### Example
+
+```tsx
+<Select
+	options={options}
+	lang={{
+		buttonLabel: {
+			value: 'Select an option',
+			attributes: {
+				'aria-label': (data) => `${data.label} dropdown, ${data.options.length} options${data.selectedOptions.length ? `, selected: ${data.selectedOptions[0].label}` : ''}`,
+			},
+		},
+	}}
+/>
+```

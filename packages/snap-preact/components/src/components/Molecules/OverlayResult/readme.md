@@ -157,3 +157,27 @@ The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to
 ```tsx
 <OverlayResult result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the OverlayResult component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `addToCartButtonText` | Add to cart button text | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
+| `addToCartButtonSuccessText` | Text shown after item is added to cart | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
+
+### Example
+
+```tsx
+<OverlayResult
+	result={controller.store.results[0]}
+	lang={{
+		addToCartButtonText: {
+			value: 'Add to Bag',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Added!',
+		},
+	}}
+/>
+```

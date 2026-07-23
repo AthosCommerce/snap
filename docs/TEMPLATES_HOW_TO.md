@@ -677,3 +677,130 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
 												
 For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+
+---
+
+### Language Translations
+
+Snap Templates includes built-in language support for English (`en`), French (`fr`), and Spanish (`es`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
+
+#### How It Works
+
+Each component in the theme tree can have a `lang` object containing translatable strings. The `translations` config is keyed by language code, then by component name. Each component entry contains named lang properties, where each property has a `value` (static string or function) and optional `attributes` (e.g. `aria-label`, `placeholder`).
+
+When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions.
+
+#### Basic Setup
+
+Set `config.language` to one of the supported language codes (`'en'`, `'fr'`, `'es'`), then provide overrides in the `translations` block:
+
+```tsx
+new SnapTemplates({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		currency: 'usd',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filter Results',
+				},
+			},
+			sidebar: {
+				titleText: {
+					value: 'Refine By',
+				},
+			},
+		},
+		fr: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filtrer les résultats',
+				},
+			},
+			sidebar: {
+				titleText: {
+					value: 'Affiner par',
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+#### Dynamic Translation Values
+
+Translation values can be functions that receive component data, enabling conditional or interpolated text:
+
+```tsx
+new SnapTemplates({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: (data: { sidebarOpenState: boolean }) => {
+						if (data.sidebarOpenState) {
+							return 'Close Sidebar';
+						}
+						return 'Open Sidebar';
+					},
+				},
+			},
+			autocompleteLayout: {
+				seeMoreButton: {
+					value: (data) =>
+						`See ${data?.controller?.store?.pagination?.totalResults} result${
+							data?.controller?.store?.pagination?.totalResults === 1 ? '' : 's'
+						} for "${data?.controller?.store?.search?.query?.string}"`,
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+#### Translation with HTML Attributes
+
+Some lang entries support an `attributes` map for setting HTML attributes like `aria-label` or `placeholder`:
+
+```tsx
+translations: {
+	en: {
+		searchInput: {
+			placeholderText: {
+				attributes: {
+					placeholder: 'Search our store...',
+				},
+			},
+			closeSearchButton: {
+				attributes: {
+					'aria-label': 'Close search',
+				},
+			},
+		},
+	},
+}
+```
+
+> [!NOTE]
+> The active language is determined at initialization from `config.language`. If you need to support runtime language switching, use the `TemplatesStore.setLanguage()` method.
