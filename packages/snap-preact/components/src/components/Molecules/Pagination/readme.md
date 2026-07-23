@@ -112,5 +112,78 @@ The `firstButton` prop specifies the first page button content. This can be a st
 The `lastButton` prop specifies the last page button content. This can be a string or JSX element.
 
 ```tsx
-<Pagination pagination={controller.store.pagination} lastButton={'Prev'} />
+<Pagination pagination={controller.store.pagination} lastButton={'Last'} />
+```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Pagination component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `previous` | Previous page button text/attributes | `pagination` (SearchPaginationStore) |
+| `next` | Next page button text/attributes | `pagination` (SearchPaginationStore) |
+| `first` | First page button text/attributes | `pagination` (SearchPaginationStore) |
+| `last` | Last page button text/attributes | `pagination` (SearchPaginationStore) |
+| `page` | Individual page number text/attributes | `pagination` (SearchPaginationStore), `page` (Page) |
+
+### Example
+
+```tsx
+<Pagination
+	pagination={controller.store.pagination}
+	lang={{
+		previous: {
+			attributes: {
+				'aria-label': 'Go to previous page',
+			},
+		},
+		next: {
+			attributes: {
+				'aria-label': 'Go to next page',
+			},
+		},
+		first: {
+			attributes: {
+				'aria-label': 'Go to the first page',
+			},
+		},
+		last: {
+			value: (data) => `Go to page ${data.pagination.last.number}`,
+			attributes: {
+				'aria-label': (data) => `Go to last page, page ${data.pagination.last.number}`,
+			},
+		},
+		page: {
+			attributes: {
+				'aria-label': (data) => `Go to page ${data.page.number} of ${data.pagination.totalPages}`,
+			},
+		},
+	}}
+/>
+```
+
+When used with Snap Templates, these values can also be set via the `translations` config:
+
+```tsx
+new SnapTemplates({
+	...
+	translations: {
+		en: {
+			pagination: {
+				previous: {
+					attributes: { 'aria-label': 'Previous page' },
+				},
+				next: {
+					attributes: { 'aria-label': 'Next page' },
+				},
+				page: {
+					attributes: {
+						'aria-label': (data) => `Page ${data.page.number} of ${data.pagination.totalPages}`,
+					},
+				},
+			},
+		},
+	},
+});
 ```

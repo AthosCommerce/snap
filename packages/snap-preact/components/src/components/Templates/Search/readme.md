@@ -152,3 +152,28 @@ const layoutOptions: ListOption[] = [
 
 <Search controller={controller} layoutOptions={layoutOptions} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Search component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `toggleSidebarButtonText` | Sidebar toggle button text | `filters` (SearchFilterStore), `sidebarOpenState` (boolean) |
+
+### Example
+
+```tsx
+<Search
+	controller={controller}
+	lang={{
+		toggleSidebarButtonText: {
+			value: (data) => {
+				if (data.sidebarOpenState) {
+					return 'Close Sidebar';
+				}
+				return 'Open Sidebar';
+			},
+		},
+	}}
+/>
+```

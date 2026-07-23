@@ -16,6 +16,11 @@ export type BeaconSettings = {
 export type StoreConfig = {
 	id: string;
 	beacon?: BeaconSettings;
+	asyncState?: {
+		product?: {
+			price?: boolean;
+		};
+	};
 	[any: string]: unknown;
 };
 

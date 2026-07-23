@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+### Bug Fixes
+
+- contain banners in autocomplete to prevent overflow ([9496374](https://github.com/AthosCommerce/snap/commit/949637410aab58f5457992561a300c1195507fb3))
+- **langcomponents:** adding searchHorizontal and searchCollapsible to the langComponents list ([4fd0b0d](https://github.com/AthosCommerce/snap/commit/4fd0b0d781d5c34196cc9a67332ebbed83803b5d))
+
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- enhance Klaviyo plugin integration with detailed usage instructions and configuration options ([eff80bc](https://github.com/AthosCommerce/snap/commit/eff80bc1b721e5cc9b7f36078e097dea0c0c8cf2))
+
+# [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
+
+### Bug Fixes
+
+- **controller:** ensuring that addToCart is async and can be awaited ([17c417f](https://github.com/AthosCommerce/snap/commit/17c417f9f7fbc7e03879e154ef31be3bfdf7b0b5))
+- **preact/templates:** fixing bug around siteId context variable usage ([cb35148](https://github.com/AthosCommerce/snap/commit/cb351481a147fd5a55bfb77f72c361fe95ca1027))
+- **snaptemplates:** fix ([1ceadbd](https://github.com/AthosCommerce/snap/commit/1ceadbd66e4fb0806e370aea8b15738eb8f7afbb))
+- **templates:** adding auto-retarget by default for Snap Templates ([2199a57](https://github.com/AthosCommerce/snap/commit/2199a57cea38b5f8527f2f42367bc60c0d65e138))
+
+### Features
+
+- **markets plugin:** adding a new shopify markets plugin ([c09cdb9](https://github.com/AthosCommerce/snap/commit/c09cdb9cb197f5bf968fba2698bd26a2758b057e))
+- **pluginshopifymarketspricing:** adding plugin for shopify markets pricing ([19483e5](https://github.com/AthosCommerce/snap/commit/19483e5961df4e55094ac4d6df924c94485137dc))
+- **preact/templates:** adding globalResultComponent configuration for convenience ([bdee4ae](https://github.com/AthosCommerce/snap/commit/bdee4ae856c2477a5d6b2b6331882eec56946e5f))
+
 # [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
 
 ### Bug Fixes

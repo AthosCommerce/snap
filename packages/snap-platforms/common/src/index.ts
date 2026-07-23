@@ -2,3 +2,4 @@ export { pluginBackgroundFilters, PluginBackgroundFiltersConfig } from './plugin
 export { pluginScrollToTop, PluginScrollToTopConfig } from './plugins/pluginScrollToTop';
 export { pluginLogger, PluginLoggerConfig } from './plugins/pluginLogger';
 export { pluginAddToCart, PluginAddToCartConfig } from './plugins/pluginAddToCart';
+export { pluginKlaviyoEvents, PluginKlaviyoEventsConfig } from './plugins/pluginKlaviyoEvents';

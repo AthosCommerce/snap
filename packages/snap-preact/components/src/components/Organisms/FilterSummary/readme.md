@@ -109,3 +109,28 @@ The `onClearAllClick` prop allows for a custom callback function for when the 'c
 ```tsx
 <FilterSummary filters={controller.store.filters} onClearAllClick={(e) => {console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FilterSummary component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `title` | Filter summary section title | `filters` (FilterType[]) |
+| `clearAllLabel` | Clear all filters button text | `label` (string), `value` (string) |
+
+### Example
+
+```tsx
+<FilterSummary
+	filters={controller.store.filters}
+	lang={{
+		title: {
+			value: 'Active Filters',
+		},
+		clearAllLabel: {
+			value: 'Clear All Filters',
+		},
+	}}
+/>
+```
