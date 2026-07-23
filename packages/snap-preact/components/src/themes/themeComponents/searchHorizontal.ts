@@ -36,6 +36,9 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 		'searchHorizontal results': {
 			columns: 2,
 		},
+		'searchHorizontal filterSummary': {
+			hideTitle: false,
+		},
 	},
 	tablet: {
 		'searchHorizontal facetsHorizontal': {

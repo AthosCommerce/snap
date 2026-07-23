@@ -1,8 +1,9 @@
 import { css } from '@emotion/react';
-import type { SortByProps, SortByTemplatesLegalProps } from '../../../../components/Molecules/SortBy';
+import type { PerPageProps, PerPageTemplatesLegalProps } from '../../../../components/Molecules/PerPage';
 import { ThemeComponent } from '../../../../providers';
-// CSS in JS style script for the SortBy component
-const sortByStyleScript = ({}: SortByProps) => {
+// CSS in JS style script for the PerPage component
+const perPageStyleScript = ({ theme }: PerPageProps) => {
+	const variables = theme?.variables;
 	return css({
 		'.ss__button__content': {
 			gap: '7px',
@@ -14,27 +15,27 @@ const sortByStyleScript = ({}: SortByProps) => {
 				position: 'relative',
 			},
 			'.ss__dropdown__content': {
-				backgroundColor: '#e6e6e6',
+				backgroundColor: variables?.colors.accent,
 			},
 		},
 		'.ss__dropdown': {
 			'.ss__dropdown__content': {
 				width: 'max-content',
-				backgroundColor: '#e6e6e6',
 				top: '0px',
 				paddingTop: '44px',
 				zIndex: '105',
 				borderRadius: '25px',
 			},
 			'.ss__select__dropdown__button': {
-				background: '#e6e6e6',
 				borderRadius: '25px',
 				fontWeight: 'initial',
 				padding: '10px 5px 10px 15px',
 				boxShadow: 'none',
+				background: variables?.colors.accent,
+				color: variables?.colors.primary,
 
 				'&:hover': {
-					background: '#e6e6e6',
+					background: variables?.colors.accent,
 				},
 
 				'.ss__select__dropdown__button__icon': {
@@ -48,26 +49,19 @@ const sortByStyleScript = ({}: SortByProps) => {
 	});
 };
 
-// SortBy component props
-export const sortBy: ThemeComponent<'sortBy', SortByProps, SortByTemplatesLegalProps> = {
+// PerPage component props
+export const perPage: ThemeComponent<'perPage', PerPageProps, PerPageTemplatesLegalProps> = {
 	default: {
-		sortBy: {
-			themeStyleScript: sortByStyleScript,
+		perPage: {
+			themeStyleScript: perPageStyleScript,
+			label: '',
 		},
-
-		'sortBy icon': {
+		'perPage icon': {
 			size: '12px',
-			icon: 'angle-down',
-		},
-	},
-	tablet: {
-		'sortBy select': {
-			hideSelection: true,
 		},
 	},
 	mobile: {
-		'sortBy select': {
-			hideSelection: true,
+		'perPage select': {
 			separator: '',
 		},
 	},

@@ -12,9 +12,15 @@ const recommendationBundleStyleScript = ({ theme }: any) => {
 
 		'.ss__recommendation-bundle__wrapper__selector': {
 			'& .ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': {
-				backgroundColor: variables?.colors.accent,
+				backgroundColor: variables?.colors.secondary,
+				padding: '0px 5px',
 				color: '#fff',
+				borderRadius: '3px',
 			},
+		},
+		'& .ss__recommendation-bundle__wrapper__cta__button': {
+			color: variables?.colors.secondary,
+			border: `2px solid ${variables?.colors.secondary}`,
 		},
 	});
 };

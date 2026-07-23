@@ -2,22 +2,22 @@ import { ThemeComplete, ThemeVariables } from '../../providers';
 import { components } from './components';
 import { responsive } from './responsive';
 
-const snappyVariables: ThemeVariables = {
+const denaliVariables: ThemeVariables = {
 	breakpoints: {
 		mobile: 767,
 		tablet: 991,
 		desktop: 1299,
 	},
 	colors: {
-		primary: '#202223',
-		secondary: '#6d7175',
-		accent: '#3a23ad',
+		primary: 'currentColor',
+		secondary: '#000000',
+		accent: '#efefef',
 	},
 };
 
-export const snappy: ThemeComplete = {
-	name: 'snappy',
-	variables: snappyVariables,
+export const denali: ThemeComplete = {
+	name: 'denali',
+	variables: denaliVariables,
 	components,
 	responsive,
 	type: 'templates',

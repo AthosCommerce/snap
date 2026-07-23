@@ -15,7 +15,7 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 		},
 
 		'& .ss__facet__dropdown': {
-			background: ' #f8f8f8',
+			background: variables?.colors.accent,
 			padding: '20px',
 			borderRadius: '30px',
 
@@ -29,7 +29,7 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 				},
 			},
 			'.ss__dropdown__content': {
-				background: '#f8f8f8',
+				background: variables?.colors.accent,
 			},
 		},
 		'& .ss__facet__header': {
