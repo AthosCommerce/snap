@@ -27,7 +27,7 @@ const BATCH_TIMEOUT = 150;
 export class RecommendAPI extends API<RecommendRequesterPaths> {
 	private batches: {
 		[key: string]: {
-			timeout: number | NodeJS.Timeout;
+			timeout: number | ReturnType<typeof setTimeout>;
 			request: RecommendPostRequestModel;
 			entries: BatchEntry[];
 		};

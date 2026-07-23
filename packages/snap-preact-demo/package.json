@@ -10,14 +10,19 @@
 		"analyze:universal": "webpack --config ./snap/webpack.universal.js --analyze",
 		"analyze:templates": "webpack --config ./templates/webpack.modern.js --analyze",
 		"analyze:templates:universal": "webpack --config ./templates/webpack.universal.js --analyze",
-		"build": "rm -rf ./dist && webpack --config webpack.build.js",
+		"build:prod": "rm -rf ./snap/dist ./templates/dist ./hybrid/dist && webpack --config webpack.build.js && npm run test:es5",
 		"build:docs": "echo 'no docs for snap-preact-demo'",
 		"cypress": "cypress open --project tests",
 		"cypress:headless": "cypress run --project tests",
-		"dev": "webpack serve --config webpack.dev.js",
+		"predev": "npm run typecheck",
+		"dev": "SNAP_WEBPACK_TRANSPILE_ONLY=1 webpack serve --config webpack.dev.js",
+		"dev:universal": "npm run typecheck && SNAP_WEBPACK_TRANSPILE_ONLY=1 SNAP_WEBPACK_UNIVERSAL=1 webpack serve --config webpack.dev.js",
 		"format": "prettier --write '{snap,templates}/src/**/*.{js,jsx,ts,tsx}'",
 		"lint": "eslint '{snap,templates}/src/**/*.{js,jsx,ts,tsx}'",
 		"test": "START_SERVER_AND_TEST_INSECURE=1 start-server-and-test dev https-get://localhost:2222 cypress:headless",
+		"test:es5": "node ./scripts/check-universal-es5.mjs",
+		"typecheck": "tsc --noEmit",
+		"typecheck:watch": "tsc --noEmit --watch",
 		"lighthouse": "lhci --config ./tests/lighthouse/lighthouserc.js autorun"
 	},
 	"searchspring": {
@@ -48,11 +53,13 @@
 		"@emotion/react": "11.13.0",
 		"@lhci/cli": "^0.13.0",
 		"@searchspring/browserslist-config-snap": "^1.0.6",
+		"acorn": "8.16.0",
 		"babel-loader": "^9.1.2",
 		"core-js": "^3.35.0",
 		"css-loader": "^6.7.3",
 		"cypress": "^14.2.1",
 		"cypress-wait-until": "^3.0.1",
+		"esbuild-loader": "^4.4.2",
 		"file-loader": "^6.2.0",
 		"sass": "^1.69.7",
 		"sass-loader": "^13.3.3",
@@ -68,5 +75,16 @@
 	"browserslist": {
 		"universal": "extends @searchspring/browserslist-config-snap/universal",
 		"modern": "extends @searchspring/browserslist-config-snap/modern"
+	},
+	"nx": {
+		"targets": {
+			"build:prod": {
+				"outputs": [
+					"{projectRoot}/snap/dist",
+					"{projectRoot}/templates/dist",
+					"{projectRoot}/hybrid/dist"
+				]
+			}
+		}
 	}
 }

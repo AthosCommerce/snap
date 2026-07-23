@@ -10,10 +10,7 @@ import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utili
 import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
 import { Icon, IconProps } from '../../Atoms/Icon/Icon';
 import type { Swiper as SwiperTypes } from 'swiper';
-import type { SwiperOptions } from 'swiper/types';
-import type { PaginationOptions } from 'swiper/types/modules/pagination';
-import type { NavigationOptions } from 'swiper/types/modules/navigation';
-import type { ScrollbarOptions } from 'swiper/types/modules/scrollbar';
+import type { SwiperOptions, PaginationOptions, NavigationOptions, ScrollbarOptions } from 'swiper/types';
 
 import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript } from '../../../types';

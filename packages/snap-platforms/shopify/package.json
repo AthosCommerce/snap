@@ -4,5 +4,6 @@
 	"description": "Snap Shopify Platform Library",
 	"main": "../dist/cjs/shopify/src/index.js",
 	"module": "../dist/esm/shopify/src/index.js",
+	"types": "../dist/esm/shopify/src/index.d.ts",
 	"sideEffects": false
 }

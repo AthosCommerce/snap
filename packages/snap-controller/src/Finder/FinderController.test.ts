@@ -281,7 +281,7 @@ describe('Finder Controller', () => {
 				window.location = {
 					...window.location,
 					href: '', // jest does not support window location changes
-				};
+				} as unknown as string & Location;
 
 				const beforeFindfn = jest.spyOn(controller.eventManager, 'fire');
 				await controller.find();

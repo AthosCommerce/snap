@@ -999,7 +999,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1052,7 +1052,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1104,7 +1104,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		expect(controller.store.merchandising.redirect).toBe('https://athoscommerce.com/?redirect');
 		// change the input to a new query
@@ -1161,7 +1161,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1211,7 +1211,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1282,7 +1282,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl!.value = 'wh';
 		inputEl!.focus();

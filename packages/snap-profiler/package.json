@@ -4,6 +4,7 @@
 	"description": "Snap Profiler",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
+	"types": "dist/esm/index.d.ts",
 	"author": "Athos Commerce",
 	"license": "MIT",
 	"repository": {
@@ -14,7 +15,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "rm -rf ./dist && rm -fr ./components/dist && tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2",
+		"build": "tsc",
+		"build:prod": "rm -rf ./dist ./components/dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "typedoc --out docs src/index.ts",
 		"dev": "tsc --watch",
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",

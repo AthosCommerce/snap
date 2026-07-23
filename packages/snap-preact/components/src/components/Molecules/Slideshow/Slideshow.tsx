@@ -293,7 +293,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(autoPlay);
 	const [containerWidth, setContainerWidth] = useState(0);
-	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const slideshowRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 
