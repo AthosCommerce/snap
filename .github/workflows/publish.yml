@@ -5,6 +5,12 @@ on:
     branches:
       - 'main'
       - 'beta'
+  workflow_dispatch:
+    inputs:
+      resume:
+        description: 'Resume a failed publish (lerna from-package, no version bump)'
+        type: boolean
+        default: false
 
 permissions:
   id-token: write  # Required for OIDC
@@ -52,8 +58,14 @@ jobs:
           npm run build
 
       - name: Publish packages
-        if: github.ref_name == 'main'
+        if: github.event_name == 'push' && github.ref_name == 'main'
         run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resume failed publish (from-package)
+        if: github.event_name == 'workflow_dispatch' && inputs.resume
+        run: npx lerna publish from-package --yes --no-verify-access
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
