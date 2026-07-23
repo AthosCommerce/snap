@@ -43,6 +43,9 @@ jobs:
       - name: Install packages
         run: npm ci
 
+      - name: Verify docs sitemap
+        run: npm run build:sitemap -- --check
+
       - name: Build
         run: npm run build:prod
 

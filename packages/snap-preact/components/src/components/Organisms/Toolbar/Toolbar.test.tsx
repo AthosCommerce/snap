@@ -60,7 +60,7 @@ describe('Toolbar Component', () => {
 		const filterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
 		const paginationElement = rendered.container.querySelector('.ss__pagination');
 		const paginationInfoElement = rendered.container.querySelector('.ss__pagination-info');
-		const mobileSidebarElement = rendered.container.querySelector('.ss__mobile-sidebar');
+		const sidebarToggleElement = rendered.container.querySelector('.ss__layout__sidebar-toggle-button-wrapper');
 		const sortByElement = rendered.container.querySelector('.ss__sortby');
 		const perPageElement = rendered.container.querySelector('.ss__per-page');
 
@@ -69,7 +69,28 @@ describe('Toolbar Component', () => {
 		expect(filterSummaryElement).toBeInTheDocument();
 		expect(paginationElement).toBeInTheDocument();
 		expect(paginationInfoElement).toBeInTheDocument();
-		expect(mobileSidebarElement).toBeInTheDocument();
+		expect(sidebarToggleElement).not.toBeInTheDocument();
+		expect(sortByElement).toBeInTheDocument();
+		expect(perPageElement).toBeInTheDocument();
+	});
+
+	it('renders toggle sidebar button when passed', () => {
+		const rendered = render(
+			<Toolbar controller={controller} toggleSideBarButton={{ children: <div className="ss__layout__toggle-sidebar-button">Filters</div> }} />
+		);
+		const filterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
+		const paginationElement = rendered.container.querySelector('.ss__pagination');
+		const paginationInfoElement = rendered.container.querySelector('.ss__pagination-info');
+		const sidebarToggleElement = rendered.container.querySelector('.ss__layout__sidebar-toggle-button-wrapper');
+		const sortByElement = rendered.container.querySelector('.ss__sortby');
+		const perPageElement = rendered.container.querySelector('.ss__per-page');
+
+		const toolbar = rendered.container.querySelector('.ss__toolbar')!;
+		expect(toolbar).toBeInTheDocument();
+		expect(filterSummaryElement).toBeInTheDocument();
+		expect(paginationElement).toBeInTheDocument();
+		expect(paginationInfoElement).toBeInTheDocument();
+		expect(sidebarToggleElement).toBeInTheDocument();
 		expect(sortByElement).toBeInTheDocument();
 		expect(perPageElement).toBeInTheDocument();
 	});
@@ -79,7 +100,7 @@ describe('Toolbar Component', () => {
 		const filterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
 		const paginationElement = rendered.container.querySelector('.ss__pagination');
 		const paginationInfoElement = rendered.container.querySelector('.ss__pagination-info');
-		const mobileSidebarElement = rendered.container.querySelector('.ss__mobile-sidebar');
+		const sidebarToggleElement = rendered.container.querySelector('.ss__layout__sidebar-toggle-button-wrapper');
 		const sortByElement = rendered.container.querySelector('.ss__sortby');
 		const perPageElement = rendered.container.querySelector('.ss__per-page');
 
@@ -87,7 +108,7 @@ describe('Toolbar Component', () => {
 		expect(toolbar).toBeInTheDocument();
 		expect(filterSummaryElement).not.toBeInTheDocument();
 		expect(paginationInfoElement).not.toBeInTheDocument();
-		expect(mobileSidebarElement).not.toBeInTheDocument();
+		expect(sidebarToggleElement).not.toBeInTheDocument();
 		expect(sortByElement).not.toBeInTheDocument();
 
 		expect(perPageElement).toBeInTheDocument();
@@ -102,7 +123,7 @@ describe('Toolbar Component', () => {
 		const filterSummaryElement = rendered.container.querySelector('.ss__layout__row.ss__layout__row--1 .ss__filter-summary');
 		const paginationInfoElement = rendered.container.querySelector('.ss__layout__row.ss__layout__row--1 .ss__pagination-info');
 
-		const mobileSidebarElement = rendered.container.querySelector('.ss__mobile-sidebar');
+		const sidebarToggleElement = rendered.container.querySelector('.ss__layout__sidebar-toggle-button-wrapper');
 		const perPageElement = rendered.container.querySelector('.ss__per-page');
 		const paginationElement = rendered.container.querySelector('.ss__pagination');
 
@@ -120,7 +141,7 @@ describe('Toolbar Component', () => {
 		expect(toolbar).toBeInTheDocument();
 		expect(filterSummaryElement).toBeInTheDocument();
 		expect(paginationInfoElement).toBeInTheDocument();
-		expect(mobileSidebarElement).not.toBeInTheDocument();
+		expect(sidebarToggleElement).not.toBeInTheDocument();
 
 		expect(sortByElement).toBeInTheDocument();
 		expect(perPageElement).toBeInTheDocument();
@@ -137,18 +158,16 @@ describe('Toolbar Component', () => {
 		const filterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
 		const paginationElement = rendered.container.querySelector('.ss__pagination');
 		const paginationInfoElement = rendered.container.querySelector('.ss__pagination-info');
-		const mobileSidebarElement = rendered.container.querySelector('.ss__mobile-sidebar');
 		const sortByElement = rendered.container.querySelector('.ss__sortby');
 		const perPageElement = rendered.container.querySelector('.ss__per-page');
 
-		const toggleButtonElement = rendered.container.querySelector('.ss__button--sidebar-toggle-button-wrapper .ss__button');
+		const toggleButtonElement = rendered.container.querySelector('.ss__layout__sidebar-toggle-button-wrapper .ss__button');
 
 		const toolbar = rendered.container.querySelector('.ss__toolbar')!;
 		expect(toolbar).toBeInTheDocument();
 		expect(filterSummaryElement).not.toBeInTheDocument();
 		expect(paginationElement).not.toBeInTheDocument();
 		expect(paginationInfoElement).not.toBeInTheDocument();
-		expect(mobileSidebarElement).not.toBeInTheDocument();
 		expect(sortByElement).not.toBeInTheDocument();
 		expect(perPageElement).not.toBeInTheDocument();
 

@@ -39,6 +39,7 @@ The project theme contains the following properties:
 | `theme.extends` | Base theme to extend | String | ✔️ |
 | `theme.variables` | Theme variables (colors, breakpoints, etc.) | Object | ➖ |
 | `theme.style` | Global styles | Function | ➖ |
+| `theme.globalResultComponent` | Global result renderer applied across templates | String | ➖ |
 | `theme.overrides` | Component overrides | Object | ➖ |
 
 
@@ -92,6 +93,44 @@ new SnapTemplates({
 		style: globalStyles,
 	},
 	...
+});
+```
+
+### Theme `globalResultComponent`
+
+`globalResultComponent` is a global convenience for result rendering and is closely related to `resultComponent`.
+
+Use `theme.globalResultComponent` when you want one result component applied everywhere result cards render (search, recommendation, and autocomplete templates), without repeating `resultComponent` on each template override.
+
+It accepts the same names you would use for result rendering:
+
+- Built-in result component names: `Result`, `OverlayResult`
+- Any component registered in `components.result`
+
+If a more specific template-level override is set with `resultComponent`, that specific override remains the source of truth for that template.
+
+**Usage Example:**
+
+```tsx
+new SnapTemplates({
+	config: { ... },
+	components: {
+		result: {
+			GlobalResult: async () => (await import('./components/Result')).GlobalResult,
+		},
+	},
+	theme: {
+		extends: 'base',
+		globalResultComponent: 'GlobalResult',
+		overrides: {
+			default: {
+				// Optional: keep template-specific control where needed.
+				recommendationEmail: {
+					resultComponent: 'Result',
+				},
+			},
+		},
+	},
 });
 ```
 

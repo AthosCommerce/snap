@@ -156,6 +156,12 @@ const defaultStyles: StyleScript<AutocompleteProps> = ({
 				display: 'none',
 			},
 		},
+		'.ss__banner': {
+			'iframe, img': {
+				maxWidth: '100%',
+				height: 'auto',
+			},
+		},
 		'.ss__autocomplete__content': {
 			display: 'flex',
 			flex: `1 1 ${hideFacets ? 'auto' : '0%'}`,

@@ -57,6 +57,8 @@ export const fr: LangComponents = {
 	},
 	button: {},
 	search: {},
+	searchHorizontal: {},
+	searchCollapsible: {},
 	list: {},
 	radioList: {},
 	layoutSelector: {
@@ -66,6 +68,13 @@ export const fr: LangComponents = {
 		titleText: {
 			value: 'Filtres',
 		},
+		applyButtonText: {
+			value: 'Appliquer',
+		},
+		clearButtonText: {
+			value: 'Tout effacer',
+		},
+		closeButtonText: {},
 	},
 	searchInput: {
 		placeholderText: {
@@ -101,25 +110,6 @@ export const fr: LangComponents = {
 		},
 		ctaSubtotalTitle: {
 			value: (data) => `Sous-total pour ${data.cartStore.count} articles`,
-		},
-	},
-	mobileSidebar: {
-		openButtonText: {
-			value: 'Filtres',
-		},
-		clearButtonText: {
-			value: 'Tout Effacer',
-		},
-		applyButtonText: {
-			value: 'Appliquer',
-		},
-		titleText: {
-			value: 'Options de Filtrage',
-		},
-		closeButtonText: {
-			attributes: {
-				'aria-label': `fermer le bouton Filtres`,
-			},
 		},
 	},
 	slideshow: {
@@ -257,6 +247,22 @@ export const fr: LangComponents = {
 		infoText: {
 			// TODO: add begin & end range here
 			value: ({ pagination }) => `${pagination?.totalResults} produits`,
+		},
+	},
+	result: {
+		addToCartButtonText: {
+			value: 'Tout ajouter au panier',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Ajouté !',
+		},
+	},
+	overlayResult: {
+		addToCartButtonText: {
+			value: 'Tout ajouter au panier',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Ajouté !',
 		},
 	},
 	loadMore: {

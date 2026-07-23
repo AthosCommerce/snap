@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
@@ -165,7 +166,7 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 	});
 };
 
-export function Slideshow(properties: SlideshowProps) {
+export const Slideshow = observer((properties: SlideshowProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -825,7 +826,7 @@ export function Slideshow(properties: SlideshowProps) {
 			</div>
 		</CacheProvider>
 	);
-}
+});
 
 export interface SlideshowLang {
 	pauseButton: Lang<{

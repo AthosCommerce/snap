@@ -4,6 +4,7 @@ import deepmerge from 'deepmerge';
 import { Snap } from '@athoscommerce/snap-preact';
 
 import { getContext } from '@athoscommerce/snap-toolbox';
+
 // import { afterSearch } from './middleware/plugins/afterSearch';
 import { afterStore, mutateResultsURL } from './middleware/plugins/afterStore';
 import { combineMerge } from './middleware/functions';

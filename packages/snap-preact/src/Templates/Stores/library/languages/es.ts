@@ -60,6 +60,8 @@ export const es: LangComponents = {
 	},
 	button: {},
 	search: {},
+	searchHorizontal: {},
+	searchCollapsible: {},
 	list: {},
 	radioList: {},
 	layoutSelector: {
@@ -76,6 +78,13 @@ export const es: LangComponents = {
 		titleText: {
 			value: 'Filtros',
 		},
+		applyButtonText: {
+			value: 'Aplicar',
+		},
+		clearButtonText: {
+			value: 'Borrar todo',
+		},
+		closeButtonText: {},
 	},
 	searchInput: {
 		placeholderText: {
@@ -113,23 +122,20 @@ export const es: LangComponents = {
 			value: (data) => `Subtotal para ${data.cartStore.count} artículos`,
 		},
 	},
-	mobileSidebar: {
-		openButtonText: {
-			value: 'Filtros',
+	result: {
+		addToCartButtonText: {
+			value: 'Añadir todo al carrito',
 		},
-		clearButtonText: {
-			value: 'Limpiar todo',
+		addToCartButtonSuccessText: {
+			value: '¡Agregado!',
 		},
-		applyButtonText: {
-			value: 'Aplicar',
+	},
+	overlayResult: {
+		addToCartButtonText: {
+			value: 'Añadir todo al carrito',
 		},
-		titleText: {
-			value: 'Opciones de filtro',
-		},
-		closeButtonText: {
-			attributes: {
-				'aria-label': 'cerrar botón de filtros',
-			},
+		addToCartButtonSuccessText: {
+			value: '¡Agregado!',
 		},
 	},
 	slideshow: {

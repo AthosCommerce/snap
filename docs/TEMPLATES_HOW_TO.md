@@ -221,7 +221,6 @@ The `_` token is a flex spacer. Items to the left of `_` are left-aligned, items
 | `searchHeader` | Page title / search query heading |
 | `filterSummary` | Active filter chips |
 | `breadcrumbs` | Breadcrumb navigation |
-| `mobileSidebar` | Mobile sidebar drawer trigger |
 | `layoutSelector` | Grid layout toggle (requires `layoutOptions`) |
 | `perPage` | Results-per-page selector |
 | `sortBy` | Sort order selector |
@@ -275,7 +274,7 @@ new SnapTemplates({
 
 #### Example: Responsive Toolbar Adjustments
 
-On mobile, surface the mobile sidebar trigger and drop the desktop sort/paging row into its own row:
+On mobile, surface the sidebar toggle button and drop the desktop sort/paging row into its own row:
 
 ```tsx
 new SnapTemplates({
@@ -307,7 +306,7 @@ new SnapTemplates({
 				},
 				'toolbar.middle': {
 					layout: [
-						['mobileSidebar', '_', 'paginationInfo'],
+						['button.sidebar-toggle', '_', 'paginationInfo'],
 						['sortBy', 'perPage'],
 					],
 				},
@@ -356,7 +355,7 @@ new SnapTemplates({
 					layout: [['banner.header'], ['searchHeader', '_']],
 				},
 				'searchHorizontal toolbar.middle': {
-					layout: [['paginationInfo', '_'], ['mobileSidebar', '_', 'sortBy'], ['banner.banner']],
+					layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 				},
 			},
 		},
@@ -614,3 +613,194 @@ const config: SnapTemplatesConfigUnlocked = {
 
 new SnapTemplates(config);
 ```
+
+---
+
+### Using the Shopify Markets Plugin
+
+The **Shopify Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
+When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
+The formatter reads script context with `getContext(['format'])`.
+
+Register the plugin in your SnapTemplates configuration:
+
+```tsx
+const config = {
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		shopify: {
+			markets: {
+				token: 'your-storefront-access-token',
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+};
+
+new SnapTemplates(config);
+```
+
+Optional script context variables used by `shopifyMarketsPriceFormat`:
+
+```html
+<script id="athos-context" src="bundle.js">
+	format = '${{amount}}';
+</script>
+```
+
+In your result component, check the `priceFetched` flag before rendering prices.
+You do not need to manually import or pass `shopifyMarketsPriceFormat` when using the snap `Price` component.
+
+```tsx
+import { observer } from 'mobx-react-lite';
+import { Price } from '@athoscommerce/snap-preact/components';
+
+export const CustomResult = observer(({ result, treePath }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const { priceFetched } = result.state;
+	return (
+		<article>
+			<h2>{core?.name}</h2>
+			{priceFetched && (
+				<Price value={core?.price} treePath={treePath} />
+			)}
+		</article>
+	);
+});
+```
+
+If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
+												
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+
+---
+
+### Language Translations
+
+Snap Templates includes built-in language support for English (`en`), French (`fr`), and Spanish (`es`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
+
+#### How It Works
+
+Each component in the theme tree can have a `lang` object containing translatable strings. The `translations` config is keyed by language code, then by component name. Each component entry contains named lang properties, where each property has a `value` (static string or function) and optional `attributes` (e.g. `aria-label`, `placeholder`).
+
+When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions.
+
+#### Basic Setup
+
+Set `config.language` to one of the supported language codes (`'en'`, `'fr'`, `'es'`), then provide overrides in the `translations` block:
+
+```tsx
+new SnapTemplates({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		currency: 'usd',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filter Results',
+				},
+			},
+			sidebar: {
+				titleText: {
+					value: 'Refine By',
+				},
+			},
+		},
+		fr: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filtrer les résultats',
+				},
+			},
+			sidebar: {
+				titleText: {
+					value: 'Affiner par',
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+#### Dynamic Translation Values
+
+Translation values can be functions that receive component data, enabling conditional or interpolated text:
+
+```tsx
+new SnapTemplates({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: (data: { sidebarOpenState: boolean }) => {
+						if (data.sidebarOpenState) {
+							return 'Close Sidebar';
+						}
+						return 'Open Sidebar';
+					},
+				},
+			},
+			autocompleteLayout: {
+				seeMoreButton: {
+					value: (data) =>
+						`See ${data?.controller?.store?.pagination?.totalResults} result${
+							data?.controller?.store?.pagination?.totalResults === 1 ? '' : 's'
+						} for "${data?.controller?.store?.search?.query?.string}"`,
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+#### Translation with HTML Attributes
+
+Some lang entries support an `attributes` map for setting HTML attributes like `aria-label` or `placeholder`:
+
+```tsx
+translations: {
+	en: {
+		searchInput: {
+			placeholderText: {
+				attributes: {
+					placeholder: 'Search our store...',
+				},
+			},
+			closeSearchButton: {
+				attributes: {
+					'aria-label': 'Close search',
+				},
+			},
+		},
+	},
+}
+```
+
+> [!NOTE]
+> The active language is determined at initialization from `config.language`. If you need to support runtime language switching, use the `TemplatesStore.setLanguage()` method.

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
 
 import { jsx, css } from '@emotion/react';
 import { filters } from '@athoscommerce/snap-toolbox';
@@ -13,7 +14,7 @@ const defaultStyles: StyleScript<FormattedNumberProps> = () => {
 	return css({});
 };
 
-export function FormattedNumber(properties: FormattedNumberProps) {
+export const FormattedNumber = observer((properties: FormattedNumberProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -58,7 +59,7 @@ export function FormattedNumber(properties: FormattedNumberProps) {
 			</span>
 		</CacheProvider>
 	);
-}
+});
 
 export type FormattedNumberProps = FormattedNumberTemplatesLegalProps & ComponentProps<FormattedNumberProps>;
 

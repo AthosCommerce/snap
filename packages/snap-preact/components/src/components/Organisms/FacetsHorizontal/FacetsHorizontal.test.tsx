@@ -30,19 +30,19 @@ describe('FacetsHorizontal Component', () => {
 		const facetsDropdown = rendered.container.querySelectorAll('.ss__facets-horizontal__header__dropdown');
 		expect(facetsDropdown).toHaveLength(args.limit);
 
-		const mobileSidebar = rendered.container.querySelector('.ss__facets-horizontal__header__mobile-sidebar');
-		expect(mobileSidebar).toBeInTheDocument();
+		const toggleSidebarButton = rendered.container.querySelector('.ss__facets-horizontal__header__toggle-sidebar');
+		expect(toggleSidebarButton).toBeInTheDocument();
 	});
 
-	it('always shows overflow using alwaysShowFiltersButton', () => {
+	it('always shows overflow using alwaysShowToggleSidebarButton', () => {
 		const args = {
 			facets: searchResponse.facets as IndividualFacetType[],
-			alwaysShowFiltersButton: true,
+			alwaysShowToggleSidebarButton: true,
 		};
 		const rendered = render(<FacetsHorizontal {...args} />);
 
-		const mobileSidebar = rendered.container.querySelector('.ss__facets-horizontal__header__mobile-sidebar');
-		expect(mobileSidebar).toBeInTheDocument();
+		const toggleSidebarButton = rendered.container.querySelector('.ss__facets-horizontal__header__toggle-sidebar');
+		expect(toggleSidebarButton).toBeInTheDocument();
 	});
 
 	it('renders with className', () => {

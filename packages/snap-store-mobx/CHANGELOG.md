@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- adding subject to the types, tests and README for the Klaviyo plugin ([0db6e26](https://github.com/AthosCommerce/snap/commit/0db6e264b5f716591de9d879309ad85a8424720d))
+
+# [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
 # [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
 
 **Note:** Version bump only for package @athoscommerce/snap-store-mobx
