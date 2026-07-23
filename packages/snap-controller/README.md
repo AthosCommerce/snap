@@ -11,7 +11,7 @@ The configuration object provided during instantiation provides a way of configu
 Along with a configuration, each controller is passed a collection of services during instantiation. These services are then used by the controller and made available via controller methods. Sometimes controllers might share a reference to a service (the `client` service for example), but in most cases a controller will have it's own instance of a service. Some services (like the `SearchStore`) share services with the controller (in the example above, the `UrlManager` is shared).
 
 ```js
-{ client, store, urlManager, eventManager, profiler, logger }
+{ client, store, urlManager, eventManager, profiler, logger, tracker }
 ```
 ### client
 The `client` service makes the requests to the API when the controller `search` method is called. The response is passed onto the `store` service. This service is exposed as `controller.client`.
