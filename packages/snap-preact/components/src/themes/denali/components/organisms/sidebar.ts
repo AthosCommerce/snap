@@ -13,6 +13,13 @@ const sidebarStyleScript = ({ theme }: SidebarProps) => {
 		'& .ss__sidebar__title': {
 			color: variables?.colors?.primary,
 		},
+
+		'& .ss__sidebar__header': {
+			'& .ss__sidebar__header__close-button': {
+				lineHeight: '0px',
+				padding: '10px',
+			},
+		},
 	});
 };
 
@@ -22,6 +29,15 @@ export const sidebar: ThemeComponent<'sidebar', SidebarProps, SidebarTemplatesLe
 		sidebar: {
 			themeStyleScript: sidebarStyleScript,
 			hideTitleText: true,
+		},
+	},
+	mobile: {
+		sidebar: {
+			hideTitleText: false,
+		},
+
+		'sidebar button.close icon': {
+			size: 10,
 		},
 	},
 };
