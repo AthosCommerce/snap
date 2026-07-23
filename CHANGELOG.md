@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+### Bug Fixes
+
+- contain banners in autocomplete to prevent overflow ([9496374](https://github.com/AthosCommerce/snap/commit/949637410aab58f5457992561a300c1195507fb3))
+- **langcomponents:** adding searchHorizontal and searchCollapsible to the langComponents list ([4fd0b0d](https://github.com/AthosCommerce/snap/commit/4fd0b0d781d5c34196cc9a67332ebbed83803b5d))
+
 # [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
 
 ### Features
