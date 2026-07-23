@@ -70,11 +70,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Beta packages
-        if: github.ref_name == 'beta'
+        if: github.event_name == 'push' && github.ref_name == 'beta'
         run: npm run release:beta
 
       - name: Configure AWS credentials
-        if: github.ref_name == 'main'
+        if: github.event_name == 'push' && github.ref_name == 'main'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.SNAPFU_AWS_KEY_ID }}
