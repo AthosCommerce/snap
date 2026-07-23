@@ -151,10 +151,10 @@ Badge template parameters is an array of objects. Each object is a template para
 | `label` | ✔️ | string | Label that is displayed when selecting this badge parameter within the Athos Search & Product Discovery Console |
 | `description` | ✔️ | string | Badge parameter description |
 | `options` | ✔️* | string[] | Required only if `type` is `array`. Define an array of strings containing dropdown value options |
-| `defaultValue` | ➖ | string | Default value that will be used unless specified when configuring a new badge rule. Must be a string regardless of different `type` options |
+| `defaultValue` | ➖ | string | Default value that will be used unless specified when configuring a new badge rule. Must be a non-empty string regardless of different `type` options |
 | `validations` | ➖ | object | Only applicable if `type` is `string`, `url`, `integer`, `decimal` |
-| `validations.min` | ➖ | number | Only applicable if `type` is `integer`, `decimal`, `string`, `url`. Should be a number (negative values also accepted). If `type` is `integer` or `decimal`, ensures `defaultValue` or the user defined `value` meets a **numerical minimum**. If `type` is `string` or `url`, ensures `defaultValue` or the user defined `value` meets a minimum **character length** |
-| `validations.max` | ➖ | number | Only applicable if `type` is `integer`, `decimal`, `string`, `url`. Should be a number (negative values also accepted). If `type` is `integer` or `decimal`, ensures `defaultValue` or the user defined `value` meets a **numerical maximum**. If `type` is `string` or `url`, ensures `defaultValue` or the user defined `value` meets a maximum **character length** |
+| `validations.min` | ➖ | number | Only applicable if `type` is `integer`, `decimal`, `string`, `url`. Should be a number. If `type` is `integer` or `decimal`, ensures `defaultValue` or the user defined `value` meets a **numerical minimum** (negative values accepted, must be a whole number if `type` is `integer`). If `type` is `string` or `url`, ensures `defaultValue` or the user defined `value` meets a minimum **character length** (must be `0` or greater) |
+| `validations.max` | ➖ | number | Only applicable if `type` is `integer`, `decimal`, `string`, `url`. Should be a number. If `type` is `integer` or `decimal`, ensures `defaultValue` or the user defined `value` meets a **numerical maximum** (negative values accepted, must be a whole number if `type` is `integer`). If `type` is `string` or `url`, ensures `defaultValue` or the user defined `value` meets a maximum **character length** (must be `0` or greater) |
 | `validations.regex` | ➖ | string | Ensures `defaultValue` or the user defined `value` meets a regex definition. Must also provide `validations.regexExplain` |
 | `validations.regexExplain` | ➖ | string | Required if using `validations.regex`. Describes the regex definition and is displayed as an error message if the regex validation fails |
 
@@ -240,6 +240,47 @@ Badge template parameters is an array of objects. Each object is a template para
 	]
 }
 ```
+
+## Badge Template Parameter Validation
+
+The Snapfu CLI validates template parameters during `snapfu badges sync` and will report errors and abort syncing when a template does not meet the following rules:
+
+**All parameters**
+
+- `name`, `type`, `label` and `description` are required on every parameter
+- `name`, `type`, `label`, `description` and `defaultValue` must be non-empty strings when present
+- No properties other than `name`, `type`, `label`, `description`, `defaultValue`, `validations` and `options` are allowed
+- Parameter `name` and `label` values must be unique within the template
+- `validations.min` and `validations.max` must be numbers, and `min` must be lower than `max`
+- `validations.regex` requires `validations.regexExplain`, and both must be non-empty strings
+
+**`array`**
+
+- `options` must be an array containing at least one option
+- `defaultValue` must be one of the values in `options`
+- `validations` is not allowed
+
+**`string`, `url`**
+
+- `validations.min` and `validations.max` are character length bounds and must be `0` or greater
+- `defaultValue` must match `validations.regex` and meet the `validations.min`/`validations.max` character lengths
+
+**`color`**
+
+- `defaultValue` must be a valid rgba color. Ie. `rgba(0,0,255,1.0)`
+- `validations` is not allowed
+
+**`integer`, `decimal`**
+
+- `defaultValue` must be a string containing a number that meets the `validations.min`/`validations.max` bounds
+- `validations.min` and `validations.max` may be negative
+- `validations.min` and `validations.max` must be whole numbers if `type` is `integer`
+- `validations.regex` and `validations.regexExplain` are not allowed
+
+**`boolean`, `checkbox`, `toggle`**
+
+- `defaultValue` must be one of `'true'`, `'1'`, `'false'`, `'0'`
+- `validations` is not allowed
 
 ## Custom Badge Locations
 
