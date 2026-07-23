@@ -133,3 +133,43 @@ useEffect(() => {
 
 <SearchInput inputRef={renderedInputRef} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the SearchInput component. Lang entries for this component primarily use `attributes` to set HTML attributes like `placeholder` and `aria-label`.
+
+| Lang Key | Description | Attributes |
+|---|---|---|
+| `placeholderText` | Search input placeholder | `placeholder` |
+| `closeSearchButton` | Close search button | `aria-label` |
+| `clearSearchButton` | Clear search button | `aria-label` |
+| `submitSearchButton` | Submit search button | `aria-label` |
+
+### Example
+
+```tsx
+<SearchInput
+	lang={{
+		placeholderText: {
+			attributes: {
+				placeholder: 'Search our store...',
+			},
+		},
+		closeSearchButton: {
+			attributes: {
+				'aria-label': 'Close search',
+			},
+		},
+		clearSearchButton: {
+			attributes: {
+				'aria-label': 'Clear search input',
+			},
+		},
+		submitSearchButton: {
+			attributes: {
+				'aria-label': 'Submit search',
+			},
+		},
+	}}
+/>
+```

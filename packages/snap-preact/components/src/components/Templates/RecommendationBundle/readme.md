@@ -302,3 +302,36 @@ const defaultRecommendationBreakpoints = {
 <RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} breakpoints={defaultRecommendationBreakpoints} />
 ```
 
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the RecommendationBundle component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `seedText` | Seed product label text | _(none)_ |
+| `ctaButtonText` | Add to cart CTA button text | _(none)_ |
+| `ctaButtonSuccessText` | CTA button text after successful add | _(none)_ |
+| `ctaSubtotalTitle` | Subtotal section title | `cartStore` (CartStore) |
+
+### Example
+
+```tsx
+<RecommendationBundle
+	controller={controller}
+	lang={{
+		seedText: {
+			value: 'This Product',
+		},
+		ctaButtonText: {
+			value: 'Add Bundle to Cart',
+		},
+		ctaButtonSuccessText: {
+			value: 'Bundle Added!',
+		},
+		ctaSubtotalTitle: {
+			value: (data) => `Subtotal for ${data.cartStore.count} items`,
+		},
+	}}
+/>
+```

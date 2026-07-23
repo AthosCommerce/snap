@@ -105,3 +105,26 @@ The `onClick` prop allows for a custom callback function for when a facet value 
 ```tsx
 <FacetListOptions values={listFacet.values} onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetListOptions component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `listOption` | List option element text/attributes | `facet` (ValueFacet), `value` (FacetValue) |
+
+### Example
+
+```tsx
+<FacetListOptions
+	values={facet.values}
+	lang={{
+		listOption: {
+			attributes: {
+				'aria-label': (data) => `${data.value.filtered ? 'remove' : 'apply'} filter ${data.facet?.label} - ${data.value.label}`,
+			},
+		},
+	}}
+/>
+```

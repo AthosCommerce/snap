@@ -221,6 +221,20 @@ export const Search = observer((properties: SearchProps) => {
 			theme: props.theme,
 			treePath,
 		},
+		MobileSidebar: {
+			// default props
+			layout: [['filterSummary'], ['facets'], ['banner.left']],
+			hideApplyButton: false,
+			hideClearButton: false,
+			hideCloseButton: false,
+			onToggleSidebar: () => setSidebarOpenState((prev) => !prev),
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			theme: props.theme,
+			treePath,
+		},
 		Results: {
 			// default props
 			resultComponent: resultComponent,
@@ -270,7 +284,7 @@ export const Search = observer((properties: SearchProps) => {
 						(isMobile ? (
 							<Slideout {...subProps.Slideout} active={justTransitionedToMobile ? false : sidebarOpenState}>
 								<div className={`${classNamePrefix}__sidebar`}>
-									<Sidebar {...subProps.Sidebar} controller={controller} />
+									<Sidebar {...subProps.MobileSidebar} controller={controller} />
 								</div>
 							</Slideout>
 						) : sidebarOpenState ? (
@@ -325,6 +339,7 @@ interface SearchSubProps {
 	Results: Partial<ResultsProps>;
 	NoResults: Partial<NoResultsProps>;
 	Sidebar: Partial<SidebarProps>;
+	MobileSidebar: Partial<SidebarProps>;
 	TopToolbar: Partial<ToolbarProps>;
 	MiddleToolbar: Partial<ToolbarProps>;
 	BottomToolbar: Partial<ToolbarProps>;
