@@ -620,6 +620,68 @@ describe('ThemeStore', () => {
 
 		expect(themeStore.theme.variables?.breakpoints).toStrictEqual(config.variables?.breakpoints);
 	});
+
+	it('prefixes comma-separated selectors correctly in base and overrides', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: {
+				name: 'test',
+				type: 'templates',
+				variables: testThemeVariables,
+				components: {
+					'search icon, recommendation icon': {
+						size: 12,
+					},
+				},
+				responsive: {
+					mobile: {
+						'results icon, pagination icon': {
+							size: 13,
+						},
+					},
+				},
+			},
+			overrides: {
+				components: {
+					'search results,recommendation results': {
+						columns: 4,
+					},
+				} as any,
+				responsive: {
+					mobile: {
+						'search icon,recommendation icon': {
+							size: 8,
+						},
+					} as any,
+				},
+			},
+			variables: {},
+			currency: {},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+		const theme = store.theme;
+
+		// Base components should be prefixed with '*' on each selector part, normalized to ', '
+		expect(theme.components).toHaveProperty('*search icon, *recommendation icon');
+		expect((theme.components as any)['*search icon, *recommendation icon']).toEqual({ size: 12 });
+
+		// Base responsive mobile should be prefixed with '*(M)' on each selector part
+		expect(theme.components).toHaveProperty('*(M)results icon, *(M)pagination icon');
+		expect((theme.components as any)['*(M)results icon, *(M)pagination icon']).toEqual({ size: 13 });
+
+		// Override responsive mobile should be prefixed with '(M)' on each selector part, normalized from 'a,b' to 'a, b'
+		expect(theme.components).toHaveProperty('(M)search icon, (M)recommendation icon');
+		expect((theme.components as any)['(M)search icon, (M)recommendation icon']).toEqual({ size: 8 });
+
+		// Override components (no responsive) should NOT be prefixed (user overrides at default breakpoint have no prefix)
+		expect(theme.components).toHaveProperty('search results, recommendation results');
+		expect((theme.components as any)['search results, recommendation results']).toEqual({ columns: 4 });
+	});
 });
 
 describe('mergeThemeLayers function', () => {

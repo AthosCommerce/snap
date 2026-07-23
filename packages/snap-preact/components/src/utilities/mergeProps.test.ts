@@ -1199,3 +1199,77 @@ describe('filterSelectors function', () => {
 		expect(filterSelectors(selectors, treePath)).toEqual(expected);
 	});
 });
+
+describe('filterSelectors with comma-separated selectors', () => {
+	it('matches comma-separated selectors when any individual selector matches the treePath', () => {
+		const treePath = 'recommendation.crosssell carousel icon.prev';
+
+		const selectors = {
+			// comma-separated: first part matches this treePath
+			'recommendation.crosssell icon.prev, recommendation.similar icon.prev': {},
+			// comma-separated: second part matches this treePath
+			'recommendation.similar icon.prev, recommendation.crosssell icon.prev': {},
+			// comma-separated: neither part matches
+			'recommendation.similar icon.prev, search icon.prev': {},
+			// comma-separated with non-named match
+			'recommendation.crosssell icon, recommendation.similar icon': {},
+			// regular single selector that matches
+			'recommendation.crosssell icon.prev': {},
+			// regular single selector that doesn't match
+			'recommendation.similar icon.prev': {},
+		};
+
+		const expected = [
+			'recommendation.crosssell icon.prev, recommendation.similar icon.prev',
+			'recommendation.similar icon.prev, recommendation.crosssell icon.prev',
+			'recommendation.crosssell icon, recommendation.similar icon',
+			'recommendation.crosssell icon.prev',
+		];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+
+	it('matches comma-separated selectors for unnamed components', () => {
+		const treePath = 'search results';
+
+		const selectors = {
+			'search results, recommendation results': {},
+			'autocomplete results, recommendation results': {},
+			results: {},
+		};
+
+		const expected = ['search results, recommendation results', 'results'];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+
+	it('deduplicates comma-separated selectors when multiple parts match', () => {
+		const treePath = 'search toolbar pagination icon.next';
+
+		const selectors = {
+			// both parts match the treePath
+			'search icon.next, toolbar icon.next': {},
+			'icon.next': {},
+		};
+
+		const expected = ['search icon.next, toolbar icon.next', 'icon.next'];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+
+	it('handles comma-separated selectors with prefixes', () => {
+		const treePath = 'recommendation.crosssell carousel icon.prev';
+
+		const selectors = {
+			'*recommendation.crosssell icon.prev, *recommendation.similar icon.prev': {},
+			'*(M)recommendation.crosssell icon.prev, *(M)recommendation.similar icon.prev': {},
+		};
+
+		const expected = [
+			'*recommendation.crosssell icon.prev, *recommendation.similar icon.prev',
+			'*(M)recommendation.crosssell icon.prev, *(M)recommendation.similar icon.prev',
+		];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+});
