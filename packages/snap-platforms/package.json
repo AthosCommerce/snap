@@ -12,7 +12,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "rm -rf ./dist/esm && tsc",
+		"build": "rm -rf ./dist && tsc",
 		"build:prod": "rm -rf ./dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "echo 'no docs for snap-platforms'",
 		"dev": "tsc --watch",
