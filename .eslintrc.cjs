@@ -18,6 +18,16 @@ module.exports = {
 				'snap-config/validate-config': 'error',
 			},
 		},
+		{
+			// build-time webpack helpers consumed via require() by project webpack configs — must remain CommonJS
+			files: ['packages/snap-preact/webpack/**/*.js'],
+			parserOptions: {
+				sourceType: 'script',
+			},
+			rules: {
+				'@typescript-eslint/no-require-imports': 'off',
+			},
+		},
 	],
 	rules: {
 		// add rules... or dont...

@@ -1,6 +1,6 @@
 import { merge } from 'webpack-merge';
 import common from '../webpack.common.js';
-import { universalTranspilationRule } from '../webpack.universal-transpilation.js';
+import { universalTranspilationRule, UniversalSyntaxCheckPlugin } from '@athoscommerce/snap-preact/webpack';
 import path from 'path';
 import childProcess from 'child_process';
 import { fileURLToPath } from 'url';
@@ -19,7 +19,8 @@ export default merge(common, {
 		chunkLoadingGlobal: `${branchName}BundleChunks`,
 	},
 	target: 'browserslist:universal',
+	plugins: [new UniversalSyntaxCheckPlugin()],
 	module: {
-		rules: [universalTranspilationRule],
+		rules: [universalTranspilationRule()],
 	},
 });

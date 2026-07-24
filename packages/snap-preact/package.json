@@ -28,6 +28,7 @@
 		"storybook": "storybook dev -c ./components/.storybook -p 6006"
 	},
 	"dependencies": {
+		"acorn": "8.16.0",
 		"@athoscommerce/snap-client": "1.9.1",
 		"@athoscommerce/snap-controller": "1.9.1",
 		"@athoscommerce/snap-event-manager": "1.9.1",
@@ -84,7 +85,8 @@
 	},
 	"sideEffects": false,
 	"files": [
-		"dist/**/*"
+		"dist/**/*",
+		"webpack"
 	],
 	"exports": {
 		".": {
@@ -101,7 +103,8 @@
 			"types": "./dist/esm/toolbox/src/index.d.ts",
 			"import": "./dist/esm/toolbox/src/index.js",
 			"require": "./dist/cjs/toolbox/src/index.js"
-		}
+		},
+		"./webpack": "./webpack/index.js"
 	},
 	"gitHead": "c31d6fae1461ef16d593321c312c94b85dad7d96"
 }
