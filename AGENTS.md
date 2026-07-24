@@ -6,20 +6,21 @@ Athos Commerce **Snap** — e-commerce search/discovery SDK. Monorepo of TypeScr
 
 ## Stack
 
-TypeScript 5.6 (strict), Preact 10, MobX 6, Emotion CSS-in-JS, Lerna 9 + Nx 22 + npm workspaces. Dual ESM (`es2020`) and CJS (`es5`) builds per package.
+TypeScript 7.0 native compiler (strict), Preact 10, MobX 6, Emotion CSS-in-JS, Lerna 9 + Nx 22 + npm workspaces. Dual ESM and CJS builds targeting ES2020. TypeScript 6 remains installed as the compatibility API for ESLint, Jest, and TypeDoc.
 
 ## Commands
 
-| Task            | Command                    | Notes                                                                                                  |
-| --------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Install         | `npm ci`                   | Always use `ci`, not `install` — lockfile is source of truth                                           |
-| Build all       | `npm run build`            | Lerna delegates to each package; Nx caches with `dependsOn: ["^build"]`                                |
-| Test all        | `npm run test`             | Root Jest (`bail: true`), then `posttest` runs demo Cypress E2E + preact Cypress component tests       |
-| Lint all        | `npm run lint`             | ESLint via Lerna; also Nx-cached                                                                       |
-| Format all      | `npm run format`           | Prettier via Lerna                                                                                     |
+| Task            | Command                    | Notes                                                                                                   |
+| --------------- | -------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Install         | `npm ci`                   | Always use `ci`, not `install` — lockfile is source of truth                                            |
+| Build for dev   | `npm run build`            | Fast ESM-only library build for local development; skips CJS and demo production bundles                |
+| Build all       | `npm run build:prod`       | Full ESM+CJS package and demo production build used by CI and releases                                  |
+| Test all        | `npm run test`             | Root Jest (`bail: true`), then `posttest` runs demo Cypress E2E + preact Cypress component tests        |
+| Lint all        | `npm run lint`             | ESLint via Lerna; also Nx-cached                                                                        |
+| Format all      | `npm run format`           | Prettier via Lerna                                                                                      |
 | Dev (all watch) | `npm run dev`              | Runs each workspace's `dev` script in parallel (watchers/dev servers); demo at `https://localhost:2222` |
-| Storybook       | `npm run storybook:preact` | Port 6006                                                                                              |
-| Commit          | `npm run commit`           | Commitizen, conventional-changelog, 150 char max header                                                |
+| Storybook       | `npm run storybook:preact` | Port 6006                                                                                               |
+| Commit          | `npm run commit`           | Commitizen, conventional-changelog, 150 char max header                                                 |
 
 ### Single-package operations
 
@@ -27,8 +28,11 @@ TypeScript 5.6 (strict), Preact 10, MobX 6, Emotion CSS-in-JS, Lerna 9 + Nx 22 +
 # Run tests for one package
 npm run test --workspace=@athoscommerce/snap-client
 
-# Build one package (must build deps first — Nx handles this via `npm run build`)
+# Build one package for local development
 npm run build --workspace=@athoscommerce/snap-toolbox
+
+# Full production build for one package
+npm run build:prod --workspace=@athoscommerce/snap-toolbox
 
 # Lint one package
 npm run lint --workspace=@athoscommerce/snap-controller
@@ -67,7 +71,7 @@ snapps/              ← gitignored; local co-development area
 
 ### Build output
 
-Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocations. The build script is: `tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2`.
+Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocations. Cleanup must finish before either compiler starts; the build script groups both compiler processes after `rm -rf ./dist ./components/dist`.
 
 ## Conventions
 
@@ -91,7 +95,7 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 
 ## Gotchas
 
-- `npm run build` must complete before tests — Jest runs against source via ts-jest, but Cypress and cross-package imports need built `dist/`.
+- `npm run build:prod` must complete before CI tests — Jest runs against source via ts-jest, but Cypress and cross-package imports need the full production output.
 - Lerna `packages` config only includes `packages/*`, but npm `workspaces` also includes `packages/snapps/*`.
 - `snap-preact` has sub-exports (`/components`, `/toolbox`) defined in its `exports` field — these are separate TypeScript compilation roots under `components/` and `toolbox/`.
 - Preact is pinned to `10.28.4` via root `overrides` in `package.json`.

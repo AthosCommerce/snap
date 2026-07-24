@@ -33,9 +33,14 @@ npm install
 ```
 
 ## Build
-Executes `npm run build` across all packages sequentially
+Builds the ESM package outputs needed for local development:
 ```shell
 npm run build
+```
+
+Builds the complete ESM, CJS, and demo production outputs:
+```shell
+npm run build:prod
 ```
 ## Dev
 Executes `npm run dev` across all packages sequentially. All packages will be linked with hot reloading
@@ -82,4 +87,3 @@ Removes all package and root `node_modules` directories and package-lock.json; a
 ```shell
 npm run clean
 ```
-

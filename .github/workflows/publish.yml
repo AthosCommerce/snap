@@ -55,7 +55,7 @@ jobs:
 
       - name: Build
         run: |
-          npm run build
+          npm run build:prod
 
       - name: Publish packages
         if: github.event_name == 'push' && github.ref_name == 'main'
