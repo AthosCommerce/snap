@@ -1,3 +1,5 @@
+import { waitFor } from '@testing-library/preact';
+
 import { TemplatesStore, TemplateTarget } from './TemplateStore';
 import type { SnapTemplatesConfig } from '../SnapTemplates';
 import { GLOBAL_THEME_NAME, TargetStore } from './TargetStore';
@@ -116,8 +118,7 @@ describe('TemplateStore', () => {
 		expect(store.library.import.theme[config.theme.extends]).toBeDefined();
 		expect(store.library.themes[config.theme.extends]).toBeUndefined();
 		expect(spy).toHaveBeenCalledTimes(0);
-		await wait(100);
-		expect(store.library.themes[config.theme.extends]).toBeDefined();
+		await waitFor(() => expect(store.library.themes[config.theme.extends]).toBeDefined());
 		expect(spy).toHaveBeenCalledTimes(1);
 
 		expect(store.themes.local[theme]).toBeDefined();
@@ -181,9 +182,3 @@ describe('TemplateStore', () => {
 		expect(store.getTarget(target.type, targetObject!.index)).toBe(targetObject);
 	});
 });
-
-const wait = (time = 1) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
-};

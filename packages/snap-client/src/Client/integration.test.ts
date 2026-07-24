@@ -86,6 +86,12 @@ describe('Snap Client Integration Tests', () => {
 			searchConfig.id = uuidv4().split('-').join('');
 		});
 
+		afterEach(() => {
+			// tests that opt into fake timers must not leak them into their siblings
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		});
+
 		afterAll(() => {
 			// return our mocks to their original values
 			// 🚨 THIS IS VERY IMPORTANT to avoid polluting future tests!
@@ -99,6 +105,10 @@ describe('Snap Client Integration Tests', () => {
 		const cacheEntryCount = () => Object.keys(JSON.parse(mockStorage[CACHE_STORAGE_KEY] || '{}')).length;
 
 		it('Caches search responses and uses them', async () => {
+			// fake timers let the beacon grouping/render timers elapse instantly; the virtual
+			// durations advanced below match the real delays this test used to sleep through
+			jest.useFakeTimers({ doNotFake: ['performance'] });
+
 			// mock fetch - return legacy-format data for search, empty for meta and beacon calls
 			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation((url: any) => {
 				const urlStr = typeof url === 'string' ? url : url.toString();
@@ -124,7 +134,7 @@ describe('Snap Client Integration Tests', () => {
 			// make a search
 			await controller.search();
 			// wait beacon.js REQUEST_GROUPING_TIMEOUT (300ms) + buffer for render event to fire
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			await jest.advanceTimersByTimeAsync(500);
 
 			// expect meta, search, and beacon render calls to fire
 			expect(fetchfn).toHaveBeenCalledTimes(3);
@@ -137,7 +147,7 @@ describe('Snap Client Integration Tests', () => {
 
 			controller.urlManager.set('query', 'dress').go();
 			// wait for the async search triggered by URL change + beacon render event
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await jest.advanceTimersByTimeAsync(1000);
 
 			// cache was updated with new entries
 			expect(cacheEntryCount()).toBeGreaterThan(0);
@@ -150,7 +160,7 @@ describe('Snap Client Integration Tests', () => {
 
 			controller.urlManager.reset().set('query', '').go();
 			// wait for beacon render event (search and meta are both cached)
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await jest.advanceTimersByTimeAsync(1000);
 
 			// only the beacon render event fired - search and meta came from cache
 			expect(fetchfn).toHaveBeenCalledTimes(6);

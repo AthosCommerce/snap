@@ -207,6 +207,10 @@ describe('Finder Store', () => {
 			});
 
 			it('can reset persisted selections after expiration', async () => {
+				// expiration is compared against Date.now(), so travelling the clock is
+				// equivalent to sleeping and costs nothing
+				jest.useFakeTimers();
+
 				config = {
 					...config,
 					persist: {
@@ -236,7 +240,7 @@ describe('Finder Store', () => {
 				expect(finderStore2.persisted).toBe(true);
 
 				// should be expired now
-				await new Promise((resolve) => setTimeout(resolve, config.persist?.expiration! + 100));
+				jest.setSystemTime(Date.now() + config.persist?.expiration! + 100);
 
 				const finderStore3 = new FinderStore(config, services);
 				const spy = jest.spyOn(finderStore3, 'reset');
@@ -246,6 +250,7 @@ describe('Finder Store', () => {
 				expect(spy).toHaveBeenCalled();
 
 				spy.mockClear();
+				jest.useRealTimers();
 			});
 
 			it('can reset persisted selections if config has changed', () => {

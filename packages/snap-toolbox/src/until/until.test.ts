@@ -129,14 +129,23 @@ describe('until', () => {
 	});
 
 	it('should reject eventually', async () => {
-		let thing = '';
-		expect.assertions(1);
+		jest.useFakeTimers();
 
-		const delay = options.checkTime! * options.checkCount!;
+		try {
+			let thing = '';
+			expect.assertions(1);
 
-		until(() => thing, options);
-		await wait(delay + 200); // add 200ms to ensure rejects
+			const delay = options.checkTime! * options.checkCount!;
 
-		expect(thing).toBe('');
+			// swallow the eventual rejection so the floating promise cannot surface
+			// as an unhandled rejection once the remaining checks are drained
+			until(() => thing, options).catch(() => undefined);
+			await jest.advanceTimersByTimeAsync(delay + 200); // add 200ms to ensure rejects
+
+			expect(thing).toBe('');
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 });
