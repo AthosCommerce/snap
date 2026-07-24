@@ -233,7 +233,7 @@ export const Search = observer((properties: SearchProps) => {
 				disableStyles,
 			}),
 			theme: props.theme,
-			treePath,
+			treePath: `${treePath} slideout`,
 		},
 		Results: {
 			// default props
