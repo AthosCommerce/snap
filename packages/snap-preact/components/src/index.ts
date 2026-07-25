@@ -84,10 +84,8 @@ export * from './types';
 // TRACKERS
 export * from './components/Trackers/Recommendation/ProfileTracker';
 export * from './components/Trackers/ResultTracker';
-export {
-	ResultTracker as RecommendationResultTracker,
-	ResultTrackerProps as RecommendationResultTrackerProps,
-} from './components/Trackers/ResultTracker';
+export { ResultTracker as RecommendationResultTracker } from './components/Trackers/ResultTracker';
+export type { ResultTrackerProps as RecommendationResultTrackerProps } from './components/Trackers/ResultTracker';
 
 // HOOKS
 export * from './hooks/useClickOutside';
@@ -98,7 +96,8 @@ export * from './hooks/useIntersectionAdvanced';
 export * from './hooks/useDisplaySettings';
 export * from './hooks/useFuncDebounce';
 export * from './hooks/useA11y';
-export { useLang, Lang } from './hooks/useLang';
+export { useLang } from './hooks/useLang';
+export type { Lang } from './hooks/useLang';
 export * from './hooks/useDeepCompareEffect';
 export * from './hooks/useCreateController';
 export * from './hooks/useTracking';

@@ -1,29 +1,16 @@
 import { h } from 'preact';
-import { ArgsTable, Markdown, PRIMARY_STORY } from '@storybook/addon-docs';
-import { Slideshow, SlideshowProps } from './Slideshow';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { Slideshow } from './Slideshow';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Slideshow',
 	component: Slideshow,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -242,76 +229,81 @@ const sampleImages = [
 	'https://picsum.photos/400/300?random=8',
 ];
 
-export const Default = (args: SlideshowProps) => <Slideshow {...args} />;
-Default.args = {
-	slides: sampleImages,
+export const Default = {
+	args: {
+		slides: sampleImages,
+	},
 };
 
-export const AutoPlay = (args: SlideshowProps) => <Slideshow {...args} />;
-AutoPlay.args = {
-	slides: sampleImages,
-	slidesToShow: 3,
-	slidesToMove: 1,
-	autoPlay: true,
-	autoPlayInterval: 2000,
+export const AutoPlay = {
+	args: {
+		slides: sampleImages,
+		slidesToShow: 3,
+		slidesToMove: 1,
+		autoPlay: true,
+		autoPlayInterval: 2000,
+	},
 };
 
-export const Loop = (args: SlideshowProps) => <Slideshow {...args} />;
-Loop.args = {
-	slides: sampleImages,
-	slidesToShow: 2,
-	slidesToMove: 1,
-	loop: true,
+export const Loop = {
+	args: {
+		slides: sampleImages,
+		slidesToShow: 2,
+		slidesToMove: 1,
+		loop: true,
+	},
 };
 
-export const NoNavigation = (args: SlideshowProps) => <Slideshow {...args} />;
-NoNavigation.args = {
-	slides: sampleImages,
-	slidesToShow: 3,
-	showNavigation: false,
+export const NoNavigation = {
+	args: {
+		slides: sampleImages,
+		slidesToShow: 3,
+		showNavigation: false,
+	},
 };
 
-export const ClickableSlides = (args: SlideshowProps) => <Slideshow {...args} />;
-ClickableSlides.args = {
-	slides: [
-		{
-			src: 'https://picsum.photos/400/300?random=10',
-			alt: 'Premium Headphones',
-			productId: 'headphones-001',
-			price: '$299.99',
-			onClick: (image: any) => {
-				console.log('Product clicked:', image);
-				alert(`Opening product details for ${image.alt}\nPrice: ${image.price}\nProduct ID: ${image.productId}`);
+export const ClickableSlides = {
+	args: {
+		slides: [
+			{
+				src: 'https://picsum.photos/400/300?random=10',
+				alt: 'Premium Headphones',
+				productId: 'headphones-001',
+				price: '$299.99',
+				onClick: (image: any) => {
+					console.log('Product clicked:', image);
+					alert(`Opening product details for ${image.alt}\nPrice: ${image.price}\nProduct ID: ${image.productId}`);
+				},
 			},
-		},
-		{
-			src: 'https://picsum.photos/400/300?random=11',
-			alt: 'Wireless Speaker',
-			productId: 'speaker-002',
-			price: '$199.99',
-			onClick: (image: any) => {
-				alert(`Adding ${image.alt} to cart\nPrice: ${image.price}`);
+			{
+				src: 'https://picsum.photos/400/300?random=11',
+				alt: 'Wireless Speaker',
+				productId: 'speaker-002',
+				price: '$199.99',
+				onClick: (image: any) => {
+					alert(`Adding ${image.alt} to cart\nPrice: ${image.price}`);
+				},
 			},
-		},
-		{
-			src: 'https://picsum.photos/400/300?random=12',
-			alt: 'Smart Watch',
-			productId: 'watch-003',
-			price: '$399.99',
-			onClick: (image: any) => {
-				alert(`Quick view: ${image.alt}\nPrice: ${image.price}\nWould open product modal here`);
+			{
+				src: 'https://picsum.photos/400/300?random=12',
+				alt: 'Smart Watch',
+				productId: 'watch-003',
+				price: '$399.99',
+				onClick: (image: any) => {
+					alert(`Quick view: ${image.alt}\nPrice: ${image.price}\nWould open product modal here`);
+				},
 			},
-		},
-		{
-			src: 'https://picsum.photos/400/300?random=13',
-			alt: 'Laptop Stand',
-			productId: 'stand-004',
-			price: '$89.99',
-			onClick: (image: any) => {
-				alert(`${image.alt} details:\nPrice: ${image.price}\nClick tracked for analytics`);
+			{
+				src: 'https://picsum.photos/400/300?random=13',
+				alt: 'Laptop Stand',
+				productId: 'stand-004',
+				price: '$89.99',
+				onClick: (image: any) => {
+					alert(`${image.alt} details:\nPrice: ${image.price}\nClick tracked for analytics`);
+				},
 			},
-		},
-	],
-	slidesToShow: 2,
-	slidesToMove: 1,
+		],
+		slidesToShow: 2,
+		slidesToMove: 1,
+	},
 };

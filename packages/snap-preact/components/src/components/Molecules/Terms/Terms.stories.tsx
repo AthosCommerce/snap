@@ -1,8 +1,6 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Terms, TermsProps } from './Terms';
 import Readme from './readme.md';
 import { AutocompleteController } from '@athoscommerce/snap-controller';
@@ -14,23 +12,11 @@ import { useState } from 'preact/hooks';
 export default {
 	title: 'Molecules/Terms',
 	component: Terms,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -43,7 +29,7 @@ export default {
 					summary: 'autocomplete controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		terms: {
 			description: 'autocomplete term store reference',
@@ -53,7 +39,7 @@ export default {
 					summary: 'autocomplete term store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		title: {
 			description: 'terms title',
@@ -106,7 +92,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onTermClick',
 		},
 		vertical: {
@@ -137,73 +123,75 @@ const snapInstance = Snapify.autocomplete({
 	},
 });
 
-export const Default = (args: TermsProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
-	const [termState, setTermState] = useState(false);
+export const Default = {
+	render: (args: TermsProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
+		const [termState, setTermState] = useState(false);
 
-	const mockTerms: AutocompleteTermStore = [
-		{
-			active: termState === 'dress',
-			preview: () => setTermState('dress'),
-			value: 'dress',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shirt',
-			preview: () => setTermState('shirt'),
-			value: 'shirt',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shoes',
-			preview: () => setTermState('shoes'),
-			value: 'shoes',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'hat',
-			preview: () => setTermState('hat'),
-			value: 'hat',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'pants',
-			preview: () => setTermState('pants'),
-			value: 'pants',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'socks',
-			preview: () => setTermState('socks'),
-			value: 'socks',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-	];
+		const mockTerms: AutocompleteTermStore = [
+			{
+				active: termState === 'dress',
+				preview: () => setTermState('dress'),
+				value: 'dress',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shirt',
+				preview: () => setTermState('shirt'),
+				value: 'shirt',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shoes',
+				preview: () => setTermState('shoes'),
+				value: 'shoes',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'hat',
+				preview: () => setTermState('hat'),
+				value: 'hat',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'pants',
+				preview: () => setTermState('pants'),
+				value: 'pants',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'socks',
+				preview: () => setTermState('socks'),
+				value: 'socks',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+		];
 
-	setTimeout(() => {
-		controller.bind();
-	});
+		setTimeout(() => {
+			controller.bind();
+		});
 
-	return (
-		<div style={{ maxWidth: args?.vertical ? '500px' : '1200px' }}>
-			<Terms {...args} controller={controller} terms={mockTerms} />
-		</div>
-	);
+		return (
+			<div style={{ maxWidth: args?.vertical ? '500px' : '1200px' }}>
+				<Terms {...args} controller={controller} terms={mockTerms} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => ({
+			controller: await snapInstance,
+		}),
+	],
 };
-
-Default.loaders = [
-	async () => ({
-		controller: await snapInstance,
-	}),
-];

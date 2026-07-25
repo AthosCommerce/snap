@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { AutocompleteFixed, AutocompleteFixedProps } from './AutocompleteFixed';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
@@ -14,23 +12,11 @@ import { UrlManager } from '@athoscommerce/snap-url-manager';
 export default {
 	title: 'Templates/AutocompleteFixed',
 	component: AutocompleteFixed,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -103,7 +89,7 @@ export default {
 					summary: 'Autocomplete controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		input: {
 			description: 'input element reference',
@@ -113,7 +99,7 @@ export default {
 					summary: 'Element or String as CSS Selector',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		layout: {
 			description: 'array of modules to render in specified layout',
@@ -284,74 +270,76 @@ const snapInstance = Snapify.autocomplete({
 	},
 });
 
-export const Default = (args: AutocompleteFixedProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
-	const [termState, setTermState] = useState(false);
+export const Default = {
+	render: (args: AutocompleteFixedProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
+		const [termState, setTermState] = useState(false);
 
-	const mockTerms: AutocompleteTermStore = [
-		{
-			active: termState === 'dress',
-			preview: () => setTermState('dress'),
-			value: 'dress',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shirt',
-			preview: () => setTermState('shirt'),
-			value: 'shirt',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shoes',
-			preview: () => setTermState('shoes'),
-			value: 'shoes',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'hat',
-			preview: () => setTermState('hat'),
-			value: 'hat',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'pants',
-			preview: () => setTermState('pants'),
-			value: 'pants',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'socks',
-			preview: () => setTermState('socks'),
-			value: 'socks',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-	];
-	controller.store.history = mockTerms;
+		const mockTerms: AutocompleteTermStore = [
+			{
+				active: termState === 'dress',
+				preview: () => setTermState('dress'),
+				value: 'dress',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shirt',
+				preview: () => setTermState('shirt'),
+				value: 'shirt',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shoes',
+				preview: () => setTermState('shoes'),
+				value: 'shoes',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'hat',
+				preview: () => setTermState('hat'),
+				value: 'hat',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'pants',
+				preview: () => setTermState('pants'),
+				value: 'pants',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'socks',
+				preview: () => setTermState('socks'),
+				value: 'socks',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+		];
+		controller.store.history = mockTerms;
 
-	const [inputFound, setInputFound] = useState(false);
+		const [inputFound, setInputFound] = useState(false);
 
-	useEffect(() => {
-		if (document.querySelector('#searchInput')) {
-			setInputFound(true);
-		}
-	}, []);
+		useEffect(() => {
+			if (document.querySelector('#searchInput')) {
+				setInputFound(true);
+			}
+		}, []);
 
-	return inputFound ? <AutocompleteFixed {...args} controller={controller} input={controller?.config.selector} /> : <></>;
+		return inputFound ? <AutocompleteFixed {...args} controller={controller} input={controller?.config.selector} /> : <></>;
+	},
+
+	loaders: [
+		async () => ({
+			controller: await snapInstance,
+		}),
+	],
 };
-
-Default.loaders = [
-	async () => ({
-		controller: await snapInstance,
-	}),
-];

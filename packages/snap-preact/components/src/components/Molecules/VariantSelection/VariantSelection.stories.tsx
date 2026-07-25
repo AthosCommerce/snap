@@ -1,10 +1,9 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 import type { SearchController, SearchControllerConfig } from '@athoscommerce/snap-controller';
 
 import { VariantSelection, VariantSelectionProps } from './VariantSelection';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../VariantSelection/readme.md';
 import { Snapify } from '../../../utilities/snapify';
 import { Next } from '@athoscommerce/snap-event-manager';
@@ -13,23 +12,11 @@ import { SearchResponseModel } from '@athoscommerce/snapi-types';
 export default {
 	title: 'Molecules/VariantSelection',
 	component: VariantSelection,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -80,12 +67,44 @@ const ObservableSelection = observer(({ args }: { args: VariantSelectionProps })
 	);
 });
 
-export const List = (args: VariantSelectionProps) => {
-	return <ObservableSelection args={args} />;
+export const List = {
+	render: (args: VariantSelectionProps) => {
+		return <ObservableSelection args={args} />;
+	},
+
+	args: {
+		selection: {
+			select: (e: any) => {
+				console.log('selected', e);
+			},
+			previouslySelected: '',
+			field: 'color',
+			label: 'color',
+			selected: { value: 'Chambray', label: 'Chambray', available: true },
+			values: values,
+		},
+		type: 'list',
+	},
 };
 
-export const Swatches = (args: VariantSelectionProps) => {
-	return <ObservableSelection args={args} />;
+export const Swatches = {
+	render: (args: VariantSelectionProps) => {
+		return <ObservableSelection args={args} />;
+	},
+
+	args: {
+		selection: {
+			select: (e: any) => {
+				console.log('selected', e);
+			},
+			previouslySelected: '',
+			field: 'color',
+			label: 'color',
+			selected: { value: 'Chambray', label: 'Chambray', available: true },
+			values: values,
+		},
+		type: 'swatches',
+	},
 };
 
 const values = [
@@ -131,69 +150,43 @@ const config: SearchControllerConfig = {
 
 const snapInstance = Snapify.search(config);
 
-export const Dropdown = (args: VariantSelectionProps, { loaded: {} }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' ? '500px' : '300px' }}>
-			<VariantSelection {...args} />
-		</div>
-	);
-};
-
-Dropdown.loaders = [
-	async () => {
-		snapInstance.on('afterSearch', async ({ response }: { response: SearchResponseModel }, next: Next) => {
-			if (response.results?.length) {
-				// @ts-ignore stupid typing
-				response.results[0].attributes.ss_variants =
-					'[{"mappings":{"core":{"uid":44204136300802,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-30","url":"/products/fort-chino-pants?variant=44204136300802","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 30 / 32","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"30"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136333570,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-30","url":"/products/fort-chino-pants?variant=44204136333570","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 30 / 34","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"30"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136366338,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-32","url":"/products/fort-chino-pants?variant=44204136366338","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 32 / 32","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"32"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136399106,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-32","url":"/products/fort-chino-pants?variant=44204136399106","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 32 / 34","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"32"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136431874,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-34","url":"/products/fort-chino-pants?variant=44204136431874","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 34 / 32","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"34"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136464642,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-34","url":"/products/fort-chino-pants?variant=44204136464642","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 34 / 34","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"34"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136497410,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-36","url":"/products/fort-chino-pants?variant=44204136497410"}},"attributes":{"quantity":0,"title":"Scout / 36 / 32","available":false},"options":{"color":{"value":"Scout"},"size":{"value":"36"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136530178,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-36","url":"/products/fort-chino-pants?variant=44204136530178"}},"attributes":{"quantity":0,"title":"Scout / 36 / 34","available":false},"options":{"color":{"value":"Scout"},"size":{"value":"36"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136562946,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-30","url":"/products/fort-chino-pants?variant=44204136562946"}},"attributes":{"quantity":0,"title":"Desert / 30 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"30"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136595714,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-30","url":"/products/fort-chino-pants?variant=44204136595714","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 30 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"30"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136628482,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-32","url":"/products/fort-chino-pants?variant=44204136628482"}},"attributes":{"quantity":0,"title":"Desert / 32 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"32"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136661250,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-32","url":"/products/fort-chino-pants?variant=44204136661250","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 32 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"32"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136694018,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-34","url":"/products/fort-chino-pants?variant=44204136694018"}},"attributes":{"quantity":0,"title":"Desert / 34 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"34"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136726786,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-34","url":"/products/fort-chino-pants?variant=44204136726786","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 34 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"34"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136759554,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-36","url":"/products/fort-chino-pants?variant=44204136759554"}},"attributes":{"quantity":0,"title":"Desert / 36 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"36"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136792322,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-36","url":"/products/fort-chino-pants?variant=44204136792322","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 36 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"36"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136825090,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-30","url":"/products/fort-chino-pants?variant=44204136825090"}},"attributes":{"quantity":0,"title":"Mirage / 30 / 32","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"30"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136857858,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-30","url":"/products/fort-chino-pants?variant=44204136857858"}},"attributes":{"quantity":0,"title":"Mirage / 30 / 34","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"30"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136890626,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-32","url":"/products/fort-chino-pants?variant=44204136890626"}},"attributes":{"quantity":0,"title":"Mirage / 32 / 32","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"32"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136923394,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-32","url":"/products/fort-chino-pants?variant=44204136923394"}},"attributes":{"quantity":0,"title":"Mirage / 32 / 34","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"32"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136956162,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-34","url":"/products/fort-chino-pants?variant=44204136956162"}},"attributes":{"quantity":0,"title":"Mirage / 34 / 32","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"34"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136988930,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-34","url":"/products/fort-chino-pants?variant=44204136988930"}},"attributes":{"quantity":0,"title":"Mirage / 34 / 34","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"34"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204137021698,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-36","url":"/products/fort-chino-pants?variant=44204137021698","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376"}},"attributes":{"quantity":20,"title":"Mirage / 36 / 32","available":true},"options":{"color":{"value":"Mirage"},"size":{"value":"36"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204137054466,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-36","url":"/products/fort-chino-pants?variant=44204137054466","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376"}},"attributes":{"quantity":20,"title":"Mirage / 36 / 34","available":true},"options":{"color":{"value":"Mirage"},"size":{"value":"36"},"inseam":{"value":"34"}}}]';
-			}
-			await next();
-		});
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Dropdown = {
+	render: (args: VariantSelectionProps, { loaded: {} }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' ? '500px' : '300px' }}>
+				<VariantSelection {...args} />
+			</div>
+		);
 	},
-];
 
-Dropdown.args = {
-	selection: {
-		select: (e: any) => {
-			console.log('selected', e);
+	loaders: [
+		async () => {
+			snapInstance.on('afterSearch', async ({ response }: { response: SearchResponseModel }, next: Next) => {
+				if (response.results?.length) {
+					// @ts-ignore stupid typing
+					response.results[0].attributes.ss_variants =
+						'[{"mappings":{"core":{"uid":44204136300802,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-30","url":"/products/fort-chino-pants?variant=44204136300802","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 30 / 32","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"30"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136333570,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-30","url":"/products/fort-chino-pants?variant=44204136333570","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 30 / 34","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"30"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136366338,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-32","url":"/products/fort-chino-pants?variant=44204136366338","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 32 / 32","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"32"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136399106,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-32","url":"/products/fort-chino-pants?variant=44204136399106","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 32 / 34","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"32"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136431874,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-34","url":"/products/fort-chino-pants?variant=44204136431874","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 34 / 32","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"34"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136464642,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-34","url":"/products/fort-chino-pants?variant=44204136464642","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610055_outerknown_fortchinopants_sct_F_pdp_1400x1400_f953fa33-a0ae-4186-8214-c8802b5455c7.jpg?v=1706131359"}},"attributes":{"quantity":20,"title":"Scout / 34 / 34","available":true},"options":{"color":{"value":"Scout"},"size":{"value":"34"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136497410,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-32-36","url":"/products/fort-chino-pants?variant=44204136497410"}},"attributes":{"quantity":0,"title":"Scout / 36 / 32","available":false},"options":{"color":{"value":"Scout"},"size":{"value":"36"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136530178,"msrp":"59.99","price":"54.99","sku":"1610060-SCT-34-36","url":"/products/fort-chino-pants?variant=44204136530178"}},"attributes":{"quantity":0,"title":"Scout / 36 / 34","available":false},"options":{"color":{"value":"Scout"},"size":{"value":"36"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136562946,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-30","url":"/products/fort-chino-pants?variant=44204136562946"}},"attributes":{"quantity":0,"title":"Desert / 30 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"30"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136595714,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-30","url":"/products/fort-chino-pants?variant=44204136595714","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 30 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"30"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136628482,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-32","url":"/products/fort-chino-pants?variant=44204136628482"}},"attributes":{"quantity":0,"title":"Desert / 32 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"32"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136661250,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-32","url":"/products/fort-chino-pants?variant=44204136661250","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 32 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"32"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136694018,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-34","url":"/products/fort-chino-pants?variant=44204136694018"}},"attributes":{"quantity":0,"title":"Desert / 34 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"34"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136726786,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-34","url":"/products/fort-chino-pants?variant=44204136726786","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 34 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"34"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136759554,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-32-36","url":"/products/fort-chino-pants?variant=44204136759554"}},"attributes":{"quantity":0,"title":"Desert / 36 / 32","available":false},"options":{"color":{"value":"Desert"},"size":{"value":"36"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136792322,"msrp":"59.99","price":"59.99","sku":"1610060-DSR-34-36","url":"/products/fort-chino-pants?variant=44204136792322","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_DSR_1_a23dc4be-a162-4b04-a70e-93cd99569115.jpg?v=1706131367"}},"attributes":{"quantity":20,"title":"Desert / 36 / 34","available":true},"options":{"color":{"value":"Desert"},"size":{"value":"36"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136825090,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-30","url":"/products/fort-chino-pants?variant=44204136825090"}},"attributes":{"quantity":0,"title":"Mirage / 30 / 32","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"30"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136857858,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-30","url":"/products/fort-chino-pants?variant=44204136857858"}},"attributes":{"quantity":0,"title":"Mirage / 30 / 34","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"30"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136890626,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-32","url":"/products/fort-chino-pants?variant=44204136890626"}},"attributes":{"quantity":0,"title":"Mirage / 32 / 32","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"32"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136923394,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-32","url":"/products/fort-chino-pants?variant=44204136923394"}},"attributes":{"quantity":0,"title":"Mirage / 32 / 34","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"32"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204136956162,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-34","url":"/products/fort-chino-pants?variant=44204136956162"}},"attributes":{"quantity":0,"title":"Mirage / 34 / 32","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"34"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204136988930,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-34","url":"/products/fort-chino-pants?variant=44204136988930"}},"attributes":{"quantity":0,"title":"Mirage / 34 / 34","available":false},"options":{"color":{"value":"Mirage"},"size":{"value":"34"},"inseam":{"value":"34"}}},{"mappings":{"core":{"uid":44204137021698,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-32-36","url":"/products/fort-chino-pants?variant=44204137021698","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376"}},"attributes":{"quantity":20,"title":"Mirage / 36 / 32","available":true},"options":{"color":{"value":"Mirage"},"size":{"value":"36"},"inseam":{"value":"32"}}},{"mappings":{"core":{"uid":44204137054466,"msrp":"59.99","price":"49.99","sku":"1610060-MRG-34-36","url":"/products/fort-chino-pants?variant=44204137054466","imageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376","thumbnailImageUrl":"https://cdn.shopify.com/s/files/1/0677/2424/7298/files/1610060_Fort_Chino_Pants_MRG_1_2c30c0cd-a068-4aaa-bd53-f0996db3a241.jpg?v=1706131376"}},"attributes":{"quantity":20,"title":"Mirage / 36 / 34","available":true},"options":{"color":{"value":"Mirage"},"size":{"value":"36"},"inseam":{"value":"34"}}}]';
+				}
+				await next();
+			});
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
 		},
-		previouslySelected: '',
-		field: 'color',
-		label: 'color',
-		selected: { value: 'Chambray', label: 'Chambray', available: true },
-		values: values,
-	},
-	type: 'dropdown',
-};
+	],
 
-List.args = {
-	selection: {
-		select: (e: any) => {
-			console.log('selected', e);
+	args: {
+		selection: {
+			select: (e: any) => {
+				console.log('selected', e);
+			},
+			previouslySelected: '',
+			field: 'color',
+			label: 'color',
+			selected: { value: 'Chambray', label: 'Chambray', available: true },
+			values: values,
 		},
-		previouslySelected: '',
-		field: 'color',
-		label: 'color',
-		selected: { value: 'Chambray', label: 'Chambray', available: true },
-		values: values,
+		type: 'dropdown',
 	},
-	type: 'list',
-};
-
-Swatches.args = {
-	selection: {
-		select: (e: any) => {
-			console.log('selected', e);
-		},
-		previouslySelected: '',
-		field: 'color',
-		label: 'color',
-		selected: { value: 'Chambray', label: 'Chambray', available: true },
-		values: values,
-	},
-	type: 'swatches',
 };

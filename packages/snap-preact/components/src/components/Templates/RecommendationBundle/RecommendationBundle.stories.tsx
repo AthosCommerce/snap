@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { RecommendationBundle, RecommendationBundleProps } from '../RecommendationBundle';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 
 import Readme from './readme.md';
@@ -16,23 +14,11 @@ import type { RecommendationControllerConfig } from '@athoscommerce/snap-control
 export default {
 	title: 'Templates/RecommendationBundle',
 	component: RecommendationBundle,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -55,7 +41,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		results: {
 			description: 'Results store reference, overrides controller.store.results',
@@ -65,7 +51,7 @@ export default {
 					summary: 'Results store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultComponent: {
 			description: 'Slot for custom result component',
@@ -331,19 +317,21 @@ const config: RecommendationControllerConfig = {
 
 const snapInstance = Snapify.recommendation(config);
 
-export const Default = (props: RecommendationBundleProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return <RecommendationBundle {...props} controller={controller} results={controller.store.results} />;
-};
-
-Default.loaders = [
-	async () => {
-		snapInstance.on('afterStore', async ({ controller }: { controller: RecommendationController }, next: Next) => {
-			controller.store.results.forEach((result: Product) => (result.mappings.core!.url = 'javascript:void(0);'));
-			await next();
-		});
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (props: RecommendationBundleProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
+		return <RecommendationBundle {...props} controller={controller} results={controller.store.results} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			snapInstance.on('afterStore', async ({ controller }: { controller: RecommendationController }, next: Next) => {
+				controller.store.results.forEach((result: Product) => (result.mappings.core!.url = 'javascript:void(0);'));
+				await next();
+			});
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

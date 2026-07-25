@@ -1,32 +1,18 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { Button, ButtonProps } from './Button';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { Button } from './Button';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Button/readme.md';
 import { iconPaths } from '../Icon';
 
 export default {
 	title: 'Atoms/Button',
 	component: Button,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -47,7 +33,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		disabled: {
 			description: 'Disable button',
@@ -68,7 +54,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		color: {
@@ -142,19 +128,22 @@ export default {
 	},
 };
 
-export const Default = (args: ButtonProps) => <Button {...args} />;
-Default.args = {
-	content: 'Button',
+export const Default = {
+	args: {
+		content: 'Button',
+	},
 };
 
-export const Disabled = (args: ButtonProps) => <Button {...args} />;
-Disabled.args = {
-	content: 'Button',
-	disabled: true,
+export const Disabled = {
+	args: {
+		content: 'Button',
+		disabled: true,
+	},
 };
 
-export const Native = (args: ButtonProps) => <Button {...args} />;
-Native.args = {
-	content: 'Button',
-	native: true,
+export const Native = {
+	args: {
+		content: 'Button',
+		native: true,
+	},
 };

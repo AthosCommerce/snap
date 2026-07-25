@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { BranchOverride, BranchOverrideProps } from './BranchOverride';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { BranchOverride } from './BranchOverride';
+import { componentArgs } from '../../../utilities';
 import Readme from '../BranchOverride/readme.md';
 
 export default {
 	title: 'Organisms/BranchOverride',
 	component: BranchOverride,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -78,7 +64,7 @@ export default {
 					summary: '(e: Event, name: string) => void',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onRemoveClick',
 		},
 		darkMode: {
@@ -95,40 +81,44 @@ export default {
 	},
 };
 
-export const Auto = (args: BranchOverrideProps) => <BranchOverride {...args} />;
-Auto.args = {
-	branch: 'next',
-	details: {
-		url: 'https://snapui.athoscommerce.io/y56s6x/next/bundle.js',
-		lastModified: '1 Feb 2022 1:02:03 GMT',
+export const Auto = {
+	args: {
+		branch: 'next',
+		details: {
+			url: 'https://snapui.athoscommerce.io/y56s6x/next/bundle.js',
+			lastModified: '1 Feb 2022 1:02:03 GMT',
+		},
 	},
 };
 
-export const Dark = (args: BranchOverrideProps) => <BranchOverride {...args} />;
-Dark.args = {
-	branch: 'next',
-	details: {
-		url: 'https://snapui.athoscommerce.io/y56s6x/next/bundle.js',
-		lastModified: '1 Feb 2022 1:02:03 GMT',
-	},
-	darkMode: true,
-};
-
-export const Error = (args: BranchOverrideProps) => <BranchOverride {...args} />;
-Error.args = {
-	branch: 'testing',
-	error: {
-		message: 'Branch not found!',
-		description: 'Incorrect branch name or branch no longer exists.',
+export const Dark = {
+	args: {
+		branch: 'next',
+		details: {
+			url: 'https://snapui.athoscommerce.io/y56s6x/next/bundle.js',
+			lastModified: '1 Feb 2022 1:02:03 GMT',
+		},
+		darkMode: true,
 	},
 };
 
-export const Light = (args: BranchOverrideProps) => <BranchOverride {...args} />;
-Light.args = {
-	branch: 'next',
-	details: {
-		url: 'https://snapui.athoscommerce.io/y56s6x/next/bundle.js',
-		lastModified: '1 Feb 2022 1:02:03 GMT',
+export const Error = {
+	args: {
+		branch: 'testing',
+		error: {
+			message: 'Branch not found!',
+			description: 'Incorrect branch name or branch no longer exists.',
+		},
 	},
-	darkMode: false,
+};
+
+export const Light = {
+	args: {
+		branch: 'next',
+		details: {
+			url: 'https://snapui.athoscommerce.io/y56s6x/next/bundle.js',
+			lastModified: '1 Feb 2022 1:02:03 GMT',
+		},
+		darkMode: false,
+	},
 };

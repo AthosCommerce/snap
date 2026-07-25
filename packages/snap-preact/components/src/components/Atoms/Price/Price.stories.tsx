@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { Price, PriceProps } from './Price';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { Price } from './Price';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Price/readme.md';
 
 export default {
 	title: 'Atoms/Price',
 	component: Price,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -142,22 +128,25 @@ export default {
 	},
 };
 
-export const Default = (args: PriceProps) => <Price {...args} />;
-Default.args = {
-	value: 1099.99,
+export const Default = {
+	args: {
+		value: 1099.99,
+	},
 };
 
-export const lineThrough = (args: PriceProps) => <Price {...args} />;
-lineThrough.args = {
-	value: 1199.99,
-	lineThrough: true,
+export const lineThrough = {
+	args: {
+		value: 1199.99,
+		lineThrough: true,
+	},
 };
 
-export const CustomCurrency = (args: PriceProps) => <Price {...args} />;
-CustomCurrency.args = {
-	value: 999.99,
-	symbol: ' €',
-	thousandsSeparator: '.',
-	decimalSeparator: ',',
-	symbolAfter: true,
+export const CustomCurrency = {
+	args: {
+		value: 999.99,
+		symbol: ' €',
+		thousandsSeparator: '.',
+		decimalSeparator: ',',
+		symbolAfter: true,
+	},
 };

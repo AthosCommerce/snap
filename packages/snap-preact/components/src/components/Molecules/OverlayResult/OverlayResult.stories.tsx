@@ -1,10 +1,8 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { OverlayResult, OverlayResultProps } from './OverlayResult';
 import { FALLBACK_IMAGE_URL } from '../../Atoms/Image';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -13,23 +11,11 @@ import { Product } from '@athoscommerce/snap-store-mobx';
 export default {
 	title: 'Molecules/OverlayResult',
 	component: OverlayResult,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -41,7 +27,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		result: {
 			description: 'Result store Product reference',
@@ -51,7 +37,7 @@ export default {
 					summary: 'result store Product object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		hideBadge: {
 			description: 'Hide badge',
@@ -190,7 +176,7 @@ export default {
 				},
 				defaultValue: { summary: 'Add To Cart' },
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		detailSlot: {
@@ -236,7 +222,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		...componentArgs,
@@ -245,79 +231,87 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'Result', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: OverlayResultProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	const resultToUse = controller?.store?.results[7] as Product;
-	//force a rating to show up for the demo since ratings are hidden by default and not all products have ratings
-	resultToUse.display.mappings.core = {
-		...resultToUse.display.mappings.core,
-		rating: 4.5,
-	};
-	return (
-		<div style={{ maxWidth: '300px' }}>
-			<OverlayResult {...args} result={resultToUse} />
-		</div>
-	);
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
+export const Default = {
+	render: (args: OverlayResultProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		const resultToUse = controller?.store?.results[7] as Product;
+		//force a rating to show up for the demo since ratings are hidden by default and not all products have ratings
+		resultToUse.display.mappings.core = {
+			...resultToUse.display.mappings.core,
+			rating: 4.5,
 		};
+		return (
+			<div style={{ maxWidth: '300px' }}>
+				<OverlayResult {...args} result={resultToUse} />
+			</div>
+		);
 	},
-];
 
-export const hideSections = (args: OverlayResultProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	const resultToUse = controller?.store?.results[7] as Product;
-	//force a rating to show up for the demo since ratings are hidden by default and not all products have ratings
-	resultToUse.display.mappings.core = {
-		...resultToUse.display.mappings.core,
-		rating: 4.5,
-	};
-	return (
-		<div style={{ maxWidth: '300px' }}>
-			<OverlayResult {...args} result={resultToUse} />
-		</div>
-	);
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 };
 
-hideSections.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
+export const hideSections = {
+	render: (args: OverlayResultProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		const resultToUse = controller?.store?.results[7] as Product;
+		//force a rating to show up for the demo since ratings are hidden by default and not all products have ratings
+		resultToUse.display.mappings.core = {
+			...resultToUse.display.mappings.core,
+			rating: 4.5,
 		};
+		return (
+			<div style={{ maxWidth: '300px' }}>
+				<OverlayResult {...args} result={resultToUse} />
+			</div>
+		);
 	},
-];
-hideSections.args = {
-	hideBadge: true,
-	hideTitle: true,
-	hidePricing: true,
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		hideBadge: true,
+		hideTitle: true,
+		hidePricing: true,
+	},
 };
 
-export const truncateTitle = (args: OverlayResultProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	const resultToUse = controller?.store?.results[7] as Product;
-	//force a rating to show up for the demo since ratings are hidden by default and not all products have ratings
-	resultToUse.display.mappings.core = {
-		...resultToUse.display.mappings.core,
-		rating: 4.5,
-	};
-	return (
-		<div style={{ maxWidth: '300px' }}>
-			<OverlayResult {...args} result={resultToUse} />
-		</div>
-	);
-};
-
-truncateTitle.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
+export const truncateTitle = {
+	render: (args: OverlayResultProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		const resultToUse = controller?.store?.results[7] as Product;
+		//force a rating to show up for the demo since ratings are hidden by default and not all products have ratings
+		resultToUse.display.mappings.core = {
+			...resultToUse.display.mappings.core,
+			rating: 4.5,
 		};
+		return (
+			<div style={{ maxWidth: '300px' }}>
+				<OverlayResult {...args} result={resultToUse} />
+			</div>
+		);
 	},
-];
-truncateTitle.args = {
-	truncateTitle: { limit: 5, append: '...' },
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		truncateTitle: { limit: 5, append: '...' },
+	},
 };

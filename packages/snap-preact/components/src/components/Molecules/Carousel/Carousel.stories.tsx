@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Carousel, CarouselProps } from './Carousel';
-import { componentArgs, Colour, highlightedCode } from '../../../utilities';
+import { componentArgs, Colour } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Carousel',
 	component: Carousel,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -74,7 +60,7 @@ export default {
 				category: 'Templates Legal',
 				defaultValue: { summary: '[Navigation, Pagination]' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		hideButtons: {
 			defaultValue: false,
@@ -140,7 +126,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onNextButtonClick',
 		},
 		onPrevButtonClick: {
@@ -151,7 +137,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onPrevButtonClick',
 		},
 		onClick: {
@@ -162,7 +148,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		onInit: {
@@ -173,7 +159,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onInit',
 		},
 		...componentArgs,
@@ -185,28 +171,31 @@ const carouselStep = Math.floor(180 / count);
 const colors = Array.from(Array(count).keys());
 const color = new Colour('#00aeef');
 
-export const Colors = (props: CarouselProps) => {
-	return (
-		<div style={{ maxWidth: '800px', height: props?.vertical ? '300px' : undefined }}>
-			<Carousel {...props}>
-				{colors.map((number, index) => (
-					<div
-						style={{
-							height: props?.vertical ? '100%' : '100px',
-							width: '100%',
-							minHeight: '1px',
-							minWidth: '1px',
-							background: color.lighten(index * carouselStep).hex,
-							margin: '0 auto',
-						}}
-					></div>
-				))}
-			</Carousel>
-		</div>
-	);
-};
-Colors.args = {
-	pagination: true,
-	hideButtons: true,
-	loop: false,
+export const Colors = {
+	render: (props: CarouselProps) => {
+		return (
+			<div style={{ maxWidth: '800px', height: props?.vertical ? '300px' : undefined }}>
+				<Carousel {...props}>
+					{colors.map((number, index) => (
+						<div
+							style={{
+								height: props?.vertical ? '100%' : '100px',
+								width: '100%',
+								minHeight: '1px',
+								minWidth: '1px',
+								background: color.lighten(index * carouselStep).hex,
+								margin: '0 auto',
+							}}
+						></div>
+					))}
+				</Carousel>
+			</div>
+		);
+	},
+
+	args: {
+		pagination: true,
+		hideButtons: true,
+		loop: false,
+	},
 };

@@ -1,11 +1,10 @@
-import { Meta, Markdown } from '@storybook/blocks';
+import { Meta, Markdown } from '@storybook/addon-docs/blocks';
 import Readme from '../Usage/Usage.md';
-import { highlightedCode } from '../../utilities';
 
 <Meta title="Documentation/Usage" />
 
 <style>
-  {`
+	{`
 	.header {
 		display: flex;
 		align-items: center;
@@ -23,15 +22,10 @@ import { highlightedCode } from '../../utilities';
   `}
 </style>
 
-<div class="header">
-	<span class="subtitle">SNAP PREACT COMPONENETS</span>
+<div className="header">
+	<span className="subtitle">SNAP PREACT COMPONENETS</span>
 </div>
 
 ---
 
-<Markdown  options={{
-	overrides: {
-		code: highlightedCode
-	}
-}}
->{ Readme }</Markdown>
+<Markdown>{Readme}</Markdown>

@@ -1,32 +1,19 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
-import { ErrorHandler, ErrorHandlerProps } from './ErrorHandler';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { ErrorHandler } from './ErrorHandler';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/ErrorHandler',
 	component: ErrorHandler,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -44,7 +31,7 @@ export default {
 					summary: 'Controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		error: {
 			description: 'Error object containing message and type',
@@ -63,56 +50,60 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onRetryClick',
 		},
 		...componentArgs,
 	},
 };
 
-export const Warning = (args: ErrorHandlerProps) => <ErrorHandler {...args} />;
-Warning.args = {
-	controller: {
-		store: {
-			error: {
-				code: 429,
-				type: ErrorType.WARNING,
-				message: 'Too many requests try again later',
+export const Warning = {
+	args: {
+		controller: {
+			store: {
+				error: {
+					code: 429,
+					type: ErrorType.WARNING,
+					message: 'Too many requests try again later',
+				},
 			},
 		},
 	},
 };
 
-export const Error = (args: ErrorHandlerProps) => <ErrorHandler {...args} />;
-Error.args = {
-	controller: {
-		store: {
-			error: {
-				code: 500,
-				type: ErrorType.ERROR,
-				message: 'Invalid Search Request or Service Unavailable',
+export const Error = {
+	args: {
+		controller: {
+			store: {
+				error: {
+					code: 500,
+					type: ErrorType.ERROR,
+					message: 'Invalid Search Request or Service Unavailable',
+				},
 			},
 		},
 	},
 };
 
-export const Info = (args: ErrorHandlerProps) => <ErrorHandler {...args} />;
-Info.args = {
-	controller: {
-		store: {
-			error: {
-				code: 200,
-				type: ErrorType.INFO,
-				message: 'Something important happened',
+export const Info = {
+	args: {
+		controller: {
+			store: {
+				error: {
+					code: 200,
+					type: ErrorType.INFO,
+					message: 'Something important happened',
+				},
 			},
 		},
 	},
 };
 
-export const CustomError = (args: ErrorHandlerProps) => <ErrorHandler {...args} />;
-CustomError.args = {
-	error: {
-		type: ErrorType.INFO,
-		message: 'Custom error using info type',
+export const CustomError = {
+	args: {
+		error: {
+			type: ErrorType.INFO,
+			message: 'Custom error using info type',
+		},
 	},
 };

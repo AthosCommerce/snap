@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Autocomplete, AutocompleteProps } from './Autocomplete';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../Autocomplete/readme.md';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
@@ -15,23 +13,11 @@ import { useState } from 'preact/hooks';
 export default {
 	title: 'Organisms/Autocomplete',
 	component: Autocomplete,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -67,7 +53,7 @@ export default {
 					summary: 'Autocomplete controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		input: {
 			description: 'input element reference',
@@ -77,7 +63,7 @@ export default {
 					summary: 'Element or String as CSS Selector',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		width: {
 			defaultValue: '100%',
@@ -307,7 +293,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		facetsSlot: {
 			description: 'Slot for custom facets component',
@@ -316,7 +302,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		contentSlot: {
 			description: 'Slot for custom content component',
@@ -325,7 +311,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		linkSlot: {
 			description: 'Slot for custom "see n results for keyword" link component',
@@ -334,7 +320,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultsSlot: {
 			description: 'Slot for custom results component & title.',
@@ -343,7 +329,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultComponent: {
 			description: 'Slot for custom result component',
@@ -360,7 +346,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		breakpoints: {
 			description: 'Breakpoints options object',
@@ -370,7 +356,7 @@ export default {
 				},
 				defaultValue: { summary: 'Breakpoint object' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		onFacetOptionClick: {
 			description: 'Custom onClick event handler for facet options.',
@@ -379,7 +365,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onFacetOptionClick',
 		},
 		onTermClick: {
@@ -389,7 +375,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onTermClick',
 		},
 		...componentArgs,
@@ -409,71 +395,73 @@ const snapInstance = Snapify.autocomplete({
 	},
 });
 
-export const Default = (args: AutocompleteProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
-	// bind after input exists
-	const [termState, setTermState] = useState(false);
+export const Default = {
+	render: (args: AutocompleteProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
+		// bind after input exists
+		const [termState, setTermState] = useState(false);
 
-	const mockTerms: AutocompleteTermStore = [
-		{
-			active: termState === 'dress',
-			preview: () => setTermState('dress'),
-			value: 'dress',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shirt',
-			preview: () => setTermState('shirt'),
-			value: 'shirt',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shoes',
-			preview: () => setTermState('shoes'),
-			value: 'shoes',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'hat',
-			preview: () => setTermState('hat'),
-			value: 'hat',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'pants',
-			preview: () => setTermState('pants'),
-			value: 'pants',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'socks',
-			preview: () => setTermState('socks'),
-			value: 'socks',
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-	];
+		const mockTerms: AutocompleteTermStore = [
+			{
+				active: termState === 'dress',
+				preview: () => setTermState('dress'),
+				value: 'dress',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shirt',
+				preview: () => setTermState('shirt'),
+				value: 'shirt',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shoes',
+				preview: () => setTermState('shoes'),
+				value: 'shoes',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'hat',
+				preview: () => setTermState('hat'),
+				value: 'hat',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'pants',
+				preview: () => setTermState('pants'),
+				value: 'pants',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'socks',
+				preview: () => setTermState('socks'),
+				value: 'socks',
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+		];
 
-	controller.store.history = mockTerms;
+		controller.store.history = mockTerms;
 
-	setTimeout(() => {
-		controller.bind();
-	});
-	return <Autocomplete {...args} controller={controller} input={controller?.config.selector} />;
+		setTimeout(() => {
+			controller.bind();
+		});
+		return <Autocomplete {...args} controller={controller} input={controller?.config.selector} />;
+	},
+
+	loaders: [
+		async () => ({
+			controller: await snapInstance,
+		}),
+	],
 };
-
-Default.loaders = [
-	async () => ({
-		controller: await snapInstance,
-	}),
-];
