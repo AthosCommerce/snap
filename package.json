@@ -74,6 +74,9 @@
     "*.{js,ts,tsx}": [
       "prettier --write",
       "eslint"
+    ],
+    "package-lock.json": [
+      "prettier --write"
     ]
   },
   "config": {
