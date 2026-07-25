@@ -32,6 +32,8 @@ While at the <b>repo root</b>, the following commands are available:
 npm install
 ```
 
+Always run TypeScript through the local install. The repo pins TypeScript 5.6, and if `node_modules` is missing, `npx tsc` silently falls through to a globally installed compiler — with TypeScript 7 that fails as `error TS5108: Option 'moduleResolution=node10' has been removed`. That is a missing-install symptom, not a code or config error.
+
 ## Build
 Builds the ESM package outputs needed for local development:
 ```shell
@@ -72,6 +74,9 @@ npm run storybook:preact
 ```
 
 ## Tests (unit + headless E2E)
+
+Run `npm run build:prod` first. Cross-package imports resolve to each package's built `dist/`, so on a fresh clone, after `npm run clean`, or in a new git worktree, tests fail with `Cannot find module '@athoscommerce/...'` until the build has completed.
+
 ```shell
 npm run test
 ```

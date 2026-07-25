@@ -90,12 +90,22 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 - Tests live in `src/` alongside source as `*.test.ts` / `*.test.tsx`.
 - Root Jest uses `bail: true` to stop on the first failure and `silent: true` to reduce test output verbosity.
 - `posttest` triggers Cypress: demo E2E (`snap-preact-demo/tests/`) and component tests (`snap-preact/components/tests/`).
-- Demo Cypress needs the dev server running (`start-server-and-test` handles this automatically).
+- Demo Cypress needs the dev server running (`start-server-and-test` handles this automatically). To iterate quickly, start it once (`npm run dev` in `snap-preact-demo`, wait for `https://localhost:2222`) and then run `npx cypress run --project tests` directly.
+- `--spec` paths resolve against the current working directory, not `--project`, so from `snap-preact-demo` they must start with `tests/cypress/e2e/...`.
 - CI sets `NODE_OPTIONS="--max-old-space-size=4096"` for tests.
+
+### Cypress traps
+
+- **`it('...', async () => {...})` with `cy` commands and no `await` silently skips every assertion.** The async function returns an already-resolved promise, Cypress treats that as the test finishing, and the command queue is abandoned — the test passes without testing anything. Spot it by comparing a test's reported duration against the work it claims to do. Never write a Cypress test as `async` unless it genuinely awaits something.
+- **`cy.wrap(someValue).should(...)` freezes the value at queue time** and retries forever against a stale snapshot. Wrap the owning object and walk the path instead: `cy.wrap(controller).its('store.services.urlManager.state.filter').should('exist')`.
+- **`cy.snapController()` doubles as a page settle.** Specs frequently click Snap-bound elements right after calling it; if the targeter has not bound yet the click silently does nothing, and the test fails much later on a missing selector. Its `grace` option preserves that settle for stores that never load — do not tighten it casually.
+- `testIsolation: false` in the demo config means state carries between tests, so a change can break a *later* spec. After touching `tests/cypress/support/commands.js`, run the whole demo suite, not just the specs you edited.
 
 ## Gotchas
 
-- `npm run build:prod` must complete before CI tests — Jest runs against source via ts-jest, but Cypress and cross-package imports need the full production output.
+- `npm run build:prod` must complete before CI tests — Jest runs against source via ts-jest, but Cypress and cross-package imports need the full production output. The failure reads `Cannot find module '@athoscommerce/...'`, which looks like a broken Jest `moduleNameMapper` but is just a missing build.
+- **A fresh git worktree has no `node_modules` and no `dist`** — run `npm ci && npm run build:prod` before anything else. Until you do, `npx tsc` falls through to whatever compiler is installed globally; with TypeScript 7 that fails as `error TS5108: Option 'moduleResolution=node10' has been removed`. That is a missing-install symptom, not a real type error.
+- `git stash` is repository-global, not per-worktree — `git stash list` and `git stash pop` operate on shared refs across every worktree. With several worktrees checked out, prefer committing over stashing.
 - Lerna `packages` config only includes `packages/*`, but npm `workspaces` also includes `packages/snapps/*`.
 - `snap-preact` has sub-exports (`/components`, `/toolbox`) defined in its `exports` field — these are separate TypeScript compilation roots under `components/` and `toolbox/`.
 - Preact is pinned to `10.28.4` via root `overrides` in `package.json`.
