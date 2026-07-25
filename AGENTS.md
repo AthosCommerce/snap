@@ -15,7 +15,12 @@ TypeScript 7.0 native compiler (strict), Preact 10, MobX 6, Emotion CSS-in-JS, L
 | Install         | `npm ci`                   | Always use `ci`, not `install` — lockfile is source of truth                                            |
 | Build for dev   | `npm run build`            | Fast ESM-only library build for local development; skips CJS and demo production bundles                |
 | Build all       | `npm run build:prod`       | Full ESM+CJS package and demo production build used by CI and releases                                  |
-| Test all        | `npm run test`             | Root Jest (`bail: true`), then `posttest` runs demo Cypress E2E + preact Cypress component tests        |
+| Test all        | `npm run test`             | Full suite: Jest, then `npm run build`, then both Cypress suites. Stops at the first failure             |
+| Test (Jest)     | `npm run test:core`        | Jest only (`bail: true`); needs no build. Coverage is opt-in via `npm run test:coverage`                 |
+| Typecheck tests | `npm run typecheck:tests`  | Only type gate for `*.test.ts(x)` — Jest is transpile-only and build/lint both exclude test files        |
+| E2E all         | `npm run test:e2e`         | Component Cypress then demo Cypress (in that order); needs `npm run build` first                         |
+| E2E components  | `npm run test:e2e:components` | Preact component tests only; no dev server needed                                                     |
+| E2E demo        | `npm run test:e2e:demo`    | Demo E2E only; boots the demo dev server via `start-server-and-test`                                     |
 | Lint all        | `npm run lint`             | ESLint via Lerna; also Nx-cached                                                                        |
 | Format all      | `npm run format`           | Prettier via Lerna                                                                                      |
 | Dev (all watch) | `npm run dev`              | Runs each workspace's `dev` script in parallel (watchers/dev servers); demo at `https://localhost:2222` |
@@ -40,7 +45,12 @@ npm run lint --workspace=@athoscommerce/snap-controller
 
 ### CI order
 
-Build -> Lint -> Test (see `.github/workflows/test.yml`). Tests need built output.
+Two jobs (see `.github/workflows/test.yml`):
+
+1. **Tests** — Lint -> Typecheck tests -> Jest. Needs no build.
+2. **E2E** — `needs: Tests`, so it is skipped entirely if the above fails. Build -> both Cypress suites -> demo preview deploy to S3.
+
+CI calls `test:core` / `test:e2e` directly rather than `npm test`.
 
 ## Architecture
 
@@ -82,14 +92,16 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 - **Unused vars**: Error, but `h`, `jsx`, and underscore-prefixed vars are allowed (`varsIgnorePattern: "^(h|jsx|_+)$"`).
 - **No debugger statements** (`no-debugger: error`).
 - **Preact, not React**: JSX pragma is `h`. React is aliased to Preact in bundler configs. Do not import from `react`.
-- **Test files are excluded from lint and build** (see `tsconfig.json` excludes and `.eslintrc.cjs` `ignorePatterns`).
+- **Test files are excluded from lint and build** (see `tsconfig.json` excludes and `.eslintrc.cjs` `ignorePatterns`), so `npm run typecheck:tests` is the only thing that type-checks them.
 
 ## Testing
 
-- Jest 29 with ts-jest, jsdom environment. Config at `jest.config.json` + `jest.base.config.json`.
+- Jest 29 with ts-jest (transpile-only via `isolatedModules`), jsdom environment except `snap-event-manager`, which uses `node`. Config at `jest.config.json` + `jest.base.config.json`.
 - Tests live in `src/` alongside source as `*.test.ts` / `*.test.tsx`.
 - Root Jest uses `bail: true` to stop on the first failure and `silent: true` to reduce test output verbosity.
-- `posttest` triggers Cypress: demo E2E (`snap-preact-demo/tests/`) and component tests (`snap-preact/components/tests/`).
+- `npm run test` is the humans' full-suite entry point: Jest, then `npm run build`, then both Cypress suites, `&&`-chained so it stops at the first failure. **CI does not use it** — the workflow calls `test:core` and `test:e2e` separately so it can split them across jobs and do its own `build:prod` (needed for the S3 deploy).
+- The e2e step only needs `npm run build` (fast, ESM-only), not `build:prod`. Verified: component Cypress passes against an ESM-only `dist`, and the demo E2E runs off the webpack dev server rather than the demo's production bundles. `build:prod` is only required for publishing and the CI preview deploy.
+- **Both Cypress suites need `packages/*/dist`** (component specs import `@athoscommerce/*`, and the component webpack config has no source aliases, unlike Jest). They deliberately share one CI job so a single build serves both; splitting them would mean either building twice or plumbing artifacts. The cheaper component suite runs first, so a failure there skips the demo suite and its dev-server boot.
 - Demo Cypress needs the dev server running (`start-server-and-test` handles this automatically). To iterate quickly, start it once (`npm run dev` in `snap-preact-demo`, wait for `https://localhost:2222`) and then run `npx cypress run --project tests` directly.
 - `--spec` paths resolve against the current working directory, not `--project`, so from `snap-preact-demo` they must start with `tests/cypress/e2e/...`.
 - CI sets `NODE_OPTIONS="--max-old-space-size=4096"` for tests.
@@ -103,8 +115,10 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 
 ## Gotchas
 
-- `npm run build:prod` must complete before CI tests — Jest runs against source via ts-jest, but Cypress and cross-package imports need the full production output. The failure reads `Cannot find module '@athoscommerce/...'`, which looks like a broken Jest `moduleNameMapper` but is just a missing build.
-- **A fresh git worktree has no `node_modules` and no `dist`** — run `npm ci && npm run build:prod` before anything else. Until you do, `npx tsc` falls through to whatever compiler is installed globally; with TypeScript 7 that fails as `error TS5108: Option 'moduleResolution=node10' has been removed`. That is a missing-install symptom, not a real type error.
+- **Jest needs no build; Cypress does.** `jest.base.config.json` maps `@athoscommerce/*` to each package's `src/`, so `npm run test:core` and `npm run typecheck:tests` run from a clean tree. Only the Cypress suites (`npm run test:e2e`) need a build, and `npm run build` is enough — see the note above. If you add a new workspace package or sub-export, add it to that `moduleNameMapper` *and* to `paths` in `tsconfig.test.json`, or its imports will fall back to `dist/` and reintroduce the stale-build hazard.
+- **Jest is transpile-only** (`isolatedModules`), so it will not fail on type errors. `npm run typecheck:tests` is the only type gate for test files — the build's `tsconfig.json` `exclude` and `.eslintrc.cjs` `ignorePatterns` both skip `*.test.ts(x)`. `tsconfig.test.json` must also include the ambient `*.d.ts` shims (`is-plain-object`, `css.escape`), which package builds get free via `include: ["src"]`; omitting them yields spurious `TS7016`.
+- **`testTimeout` is a global-only Jest option** — setting it in a project config (`packages/*/jest.config.js`) is silently ignored and emits an "Unknown option" warning. Suites needing more than the 5s default call `jest.setTimeout()` in-file; do not "clean those up" as redundant.
+- **A fresh git worktree has no `node_modules`** — run `npm ci` before anything else. Until you do, `npx tsc` falls through to whatever compiler is installed globally; with TypeScript 7 that fails as `error TS5108: Option 'moduleResolution=node10' has been removed`. That is a missing-install symptom, not a real type error.
 - `git stash` is repository-global, not per-worktree — `git stash list` and `git stash pop` operate on shared refs across every worktree. With several worktrees checked out, prefer committing over stashing.
 - Lerna `packages` config only includes `packages/*`, but npm `workspaces` also includes `packages/snapps/*`.
 - `snap-preact` has sub-exports (`/components`, `/toolbox`) defined in its `exports` field — these are separate TypeScript compilation roots under `components/` and `toolbox/`.

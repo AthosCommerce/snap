@@ -10,17 +10,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Jest needs no build (moduleNameMapper in jest.base.config.json points
+  # @athoscommerce/* at package sources), so this is the cheap gate and runs first.
+  #
+  # CI calls the granular `test:core` / `test:e2e` scripts rather than `npm test`,
+  # which is the full-suite entry point and would build + run Cypress too.
   Tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set Github Credentials
-        run: |
-          git config user.name athos-machine
-          git config user.email machine@athoscommerce.com
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -40,6 +40,81 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: Cache jest transform output
+        uses: actions/cache@v4
+        with:
+          path: .jest-cache
+          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'tsconfig.json', 'jest.base.config.json') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-
+
+      # this job never runs Cypress, so skip downloading its binary
+      - name: Install packages
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+        run: npm ci
+
+      - name: Eslint
+        run: npm run lint
+
+      # jest runs transpile-only, so this is the only type gate for test files
+      - name: Typecheck tests
+        run: npm run typecheck:tests
+
+      # jest defaults to cores-1, which collapses to a single worker on a two-core
+      # runner; nproc is logged so the runner size is visible if this needs retuning
+      - name: Tests
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+        run: |
+          echo "runner cores: $(nproc)"
+          npm run test:core -- --maxWorkers=100%
+
+  # Build, headless E2E, and the per-branch demo preview deploy. These all need
+  # the full production output, so they stay together.
+  #
+  # `needs: Tests` is deliberate: this job is far more expensive, so gating it on
+  # the cheap unit-test job means a unit failure skips it entirely. It also keeps
+  # the preview deploy from publishing off a red build.
+  E2E:
+    needs: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Github Credentials
+        run: |
+          git config user.name athos-machine
+          git config user.email machine@athoscommerce.com
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      # npm ci downloads and extracts the cypress binary on every uncached run
+      - name: Cache Cypress binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-
+
       - name: Install packages
         run: npm ci
 
@@ -49,13 +124,13 @@ jobs:
       - name: Build
         run: npm run build:prod
 
-      - name: Eslint
-        run: npm run lint
-
-      - name: Tests
+      # Both Cypress suites reuse the single build above, which is why they share a
+      # job. `test:e2e` runs the cheaper component suite first and &&-chains them, so
+      # a component failure skips the demo suite and its dev-server boot.
+      - name: E2E tests
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-        run: npm run test
+        run: npm run test:e2e
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

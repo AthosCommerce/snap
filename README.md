@@ -75,16 +75,46 @@ npm run storybook:preact
 
 ## Tests (unit + headless E2E)
 
-Run `npm run build:prod` first. Cross-package imports resolve to each package's built `dist/`, so on a fresh clone, after `npm run clean`, or in a new git worktree, tests fail with `Cannot find module '@athoscommerce/...'` until the build has completed.
+Runs everything — Jest, then `npm run build`, then both headless Cypress suites. It stops at the first failure, cheapest step first, so a broken unit test surfaces in seconds rather than after a build:
 
 ```shell
 npm run test
 ```
 
-## Cypress E2E Tests
-Only applies to `packages/snap-preact-demo`
+To run just the Jest suite (no build required — cross-package `@athoscommerce/*` imports are mapped to each package's `src/` via `moduleNameMapper` in `jest.base.config.json`, so it runs straight from a fresh clone and always exercises current source rather than a possibly-stale `dist/`):
+
 ```shell
-npm run cypress
+npm run test:core
+```
+
+Coverage is opt-in, since instrumenting every file slows the run:
+
+```shell
+npm run test:coverage
+```
+
+Jest runs transpile-only, so it does not report type errors. Test files are type-checked separately (nothing else in the repo covers them — the build and lint configs both exclude `*.test.ts`):
+
+```shell
+npm run typecheck:tests
+```
+
+The Cypress suites need a build first, but only the fast ESM-only one. Run them together, or individually while iterating:
+
+```shell
+npm run build && npm run test:e2e
+```
+
+```shell
+npm run test:e2e:components
+npm run test:e2e:demo
+```
+
+## Cypress (interactive)
+The headless runs above are covered by `npm run test:e2e`. To open the Cypress UI instead, run it from the package that owns the suite — the demo for E2E specs, `snap-preact` for component specs. Both need a build first (`npm run build`).
+```shell
+npm run cypress --workspace=@athoscommerce/snap-preact-demo
+npm run cypress --workspace=@athoscommerce/snap-preact
 ```
 
 ## Clean

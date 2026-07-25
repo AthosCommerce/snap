@@ -1,13 +1,18 @@
 {
 	"transform": {
-		"^.+\\.tsx?$": ["ts-jest", { "tsconfig": { "types": ["jest", "node"] } }]
+		"^.+\\.tsx?$": ["ts-jest", { "tsconfig": { "types": ["jest", "node"], "isolatedModules": true } }]
 	},
+	"cacheDirectory": "<rootDir>/../../.jest-cache",
 	"testRegex": "\\.(test|spec)\\.(jsx?|tsx?)$",
 	"moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
 	"coveragePathIgnorePatterns": ["<rootDir>/dist/"],
-	"coverageReporters": ["json", "html", "text", "text-summary", "json-summary"],
 	"testEnvironment": "jsdom",
-	"collectCoverage": true,
-	"verbose": true,
-	"roots": ["<rootDir>/src"]
+	"roots": ["<rootDir>/src"],
+	"moduleNameMapper": {
+		"^@athoscommerce/snap-preact$": "<rootDir>/../snap-preact/src",
+		"^@athoscommerce/snap-preact/components$": "<rootDir>/../snap-preact/components/src",
+		"^@athoscommerce/snap-preact/toolbox$": "<rootDir>/../snap-preact/toolbox/src",
+		"^@athoscommerce/snap-platforms/(common|bigcommerce|magento2|shopify)$": "<rootDir>/../snap-platforms/$1/src",
+		"^@athoscommerce/snap-(client|controller|event-manager|logger|profiler|store-mobx|toolbox|tracker|url-manager)$": "<rootDir>/../snap-$1/src"
+	}
 }
