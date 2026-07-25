@@ -41,7 +41,7 @@ const controller = new RecommendationController(recommendConfig, {
 
 let selection: VariantSelectionType;
 
-describe('VariantSelection Component', () => {
+describe('VariantSelection Component', async () => {
 	before(() => {
 		cy.intercept('*recommend*', json);
 		cy.intercept('*profile*', profile);
@@ -69,8 +69,6 @@ describe('VariantSelection Component', () => {
 			cy.get('.ss__variant-selection__option').should('not.have.length');
 
 			cy.get('.ss__dropdown__button-wrapper').click();
-
-			cy.wait(100);
 
 			cy.get('.ss__variant-selection__option').should('have.length', selection.values.length);
 		});

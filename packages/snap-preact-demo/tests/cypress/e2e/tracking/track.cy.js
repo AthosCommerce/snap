@@ -95,9 +95,12 @@ describe('Tracking Beacon 2.0', () => {
 						expect(pagination).to.exist;
 						expect(merchandising).to.exist;
 
-						cy.wait(1000);
+						// wait for the render beacon rather than a fixed delay, so the tracker is
+						// known to be live before the clickthrough is triggered
+						cy.wait(`@beacon/search/render`);
+
 						// Click on first product
-						cy.get(`.ss__result a[href='${firstResult.mappings.core.url}']`).first().click({ force: true });
+						cy.get(`.ss__result a[href='${firstResult.mappings.core.url}']`).should('exist').first().click({ force: true });
 
 						cy.wait(`@beacon/search/clickthrough`).then((clickthrough) => {
 							expect(clickthrough.response.body).to.have.property('success').to.equal(true);
@@ -235,11 +238,12 @@ describe('Tracking Beacon 2.0', () => {
 
 			// append 'x' to make 'apex' - should return cached response (same responseId)
 			cy.get('input[name="q"]').type('x');
-			cy.wait(2000).then(() => {
-				// verify the store still has the same responseId (cached response)
-				cy.snapController('autocomplete').then(({ store }) => {
-					expect(store.results.find((result) => result.type === 'product').responseId).to.equal(initialResponseId);
-				});
+
+			// allow a window for any (unwanted) render/impression beacon to arrive, then verify the
+			// store settled on the cached response and that no new beacons were sent
+			cy.wait(500);
+			cy.snapController('autocomplete', { delay: 300 }).then(({ store }) => {
+				expect(store.results.find((result) => result.type === 'product').responseId).to.equal(initialResponseId);
 				expect(renderCounter).to.equal(1);
 				expect(impressionCounter).to.equal(1);
 			});
@@ -272,7 +276,9 @@ describe('Tracking Beacon 2.0', () => {
 					expect(activeTermText).to.be.a('string');
 					expect(activeTermText.length).to.be.greaterThan(1);
 					cy.get('input[name="q"]').type(activeTermText);
-					cy.wait(2000).then(() => {
+
+					// window for a (duplicate) impression beacon to arrive, if one were going to
+					cy.wait(500).then(() => {
 						expect(counter).to.equal(1);
 					});
 				});
@@ -292,7 +298,8 @@ describe('Tracking Beacon 2.0', () => {
 			expect(data).to.have.property('tag').to.be.a('string').and.to.not.be.empty;
 		});
 
-		cy.wait(2000);
+		// the recs need to be rendered before scrolling can bring them into view
+		cy.get('.ss__recommendation .ss__result').should('have.length.greaterThan', 0);
 		cy.scrollTo('bottom'); // Scroll down to trigger impressions
 
 		cy.wait(`@beacon/recommendations/impression`, { timeout: 10000 }).then(({ request, response }) => {
@@ -321,7 +328,8 @@ describe('Tracking Beacon 2.0', () => {
 		cy.scrollTo('bottom'); // Scroll down to trigger render in viewport
 		cy.wait(`@beacon/bundles/render`).its('response.statusCode').should('eq', 200);
 
-		cy.wait(2000);
+		// the bundle needs to be rendered before scrolling can bring it into view
+		cy.get('.ss__recommendation-bundle__wrapper__cta__button').should('exist');
 		cy.scrollTo('bottom'); // Scroll down to trigger impressions
 
 		cy.wait(`@beacon/bundles/impression`, { timeout: 10000 }).its('response.statusCode').should('eq', 200);

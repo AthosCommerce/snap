@@ -36,25 +36,43 @@ Cypress.Commands.add('addLocalSnap', () => {
 
 Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	const defaultOptions = {
-		delay: 200,
+		// A store that has not loaded may belong to a controller that never searches, so it is only
+		// accepted as settled once this grace period has passed without a search starting. Several
+		// tests also lean on this command as a page settle before clicking snap-bound elements, so
+		// the grace matches the floor of the previous implementation (200ms delay + one 200ms poll).
+		grace: 400,
+		// extra delay before checking anything - needed where an action triggers a new search that
+		// cannot be waited on via a network alias, so the previous store would otherwise read as settled
+		delay: 0,
+		timeout: Cypress.config('defaultCommandTimeout'),
+		interval: 20,
 	};
 
 	const mergedOptions = { ...defaultOptions, ...options };
-	cy.wait(mergedOptions.delay);
+	const startedAt = Date.now();
 
-	return cy.window().then((window) => {
-		return new Cypress.Promise((resolve) => {
-			const checkTimeout = 200;
-			const interval = setInterval(() => {
-				if (window.athos?.controller && window.athos.controller[controllerId]) {
-					if (!window.athos.controller[controllerId].store.loading) {
-						clearInterval(interval);
-						resolve(window.athos.controller[controllerId]);
-					}
-				}
-			}, checkTimeout);
-		});
-	});
+	const getSettledController = (window) => {
+		const controller = window.athos?.controller?.[controllerId];
+		if (!controller) return;
+
+		const { loading, loaded } = controller.store;
+		if (loading) return;
+		if (!loaded && Date.now() - startedAt < mergedOptions.grace) return;
+
+		return controller;
+	};
+
+	if (mergedOptions.delay) {
+		cy.wait(mergedOptions.delay);
+	}
+
+	return cy
+		.waitUntil(() => cy.window({ log: false }).then((window) => Boolean(getSettledController(window))), {
+			timeout: mergedOptions.timeout,
+			interval: mergedOptions.interval,
+			errorMsg: `snapController('${controllerId}'): controller never became available or store never stopped loading`,
+		})
+		.then(() => cy.window({ log: false }).then((window) => getSettledController(window)));
 });
 
 Cypress.Commands.add('waitForBundle', () => {
@@ -88,11 +106,16 @@ Cypress.Commands.add('waitForIdle', (options) => {
 	});
 });
 
-Cypress.Commands.add('waitForRecsReady', () => {
-	return cy.document().then((doc) => {
-		return new Cypress.Promise((resolve) => {
-			setTimeout(resolve, 5000);
-			doc.addEventListener('RecsReady', resolve);
-		});
-	});
+Cypress.Commands.add('waitForRecsReady', (options) => {
+	const mergedOptions = { timeout: 10000, interval: 50, ...options };
+
+	// the email pages set window.RecsReady from their own RecsReady listener, so polling the flag
+	// also covers the case where the event fired before this command could attach a listener
+	return cy
+		.waitUntil(() => cy.window({ log: false }).then((window) => window.RecsReady === true), {
+			timeout: mergedOptions.timeout,
+			interval: mergedOptions.interval,
+			errorMsg: 'waitForRecsReady: window.RecsReady was never set (RecsReady event did not fire)',
+		})
+		.then(() => cy.window({ log: false }));
 });

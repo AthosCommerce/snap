@@ -56,7 +56,8 @@ describe('Autocomplete', () => {
 
 	describe('Tests Autocomplete', () => {
 		it('has a controller with an empty store', function () {
-			cy.snapController('autocomplete').then(({ store }) => {
+			// this controller is expected never to have searched, so skip the not-loaded grace period
+			cy.snapController('autocomplete', { grace: 0 }).then(({ store }) => {
 				expect(store.results.length).to.equal(0);
 				expect(store.terms.length).to.equal(0);
 				expect(store.state.input).to.equal(undefined);
@@ -163,20 +164,20 @@ describe('Autocomplete', () => {
 					cy.get(config.selectors.website.input).first().clear({ force: true }).type(config.query, { force: true });
 					cy.wait('@autocomplete').should('exist');
 				}
-				cy.wait(200);
+				cy.get(`${config.selectors.autocomplete.facet} a`)
+					.should('have.length.greaterThan', 0)
+					.then((facetOptions) => {
+						const firstOption = facetOptions[0];
+						const optionURL = firstOption.href;
+						cy.get(firstOption).rightclick({ force: true }); // trigger onFocus event
 
-				cy.get(`${config.selectors.autocomplete.facet} a`).then((facetOptions) => {
-					const firstOption = facetOptions[0];
-					const optionURL = firstOption.href;
-					cy.wait(200);
-					cy.get(firstOption).rightclick({ force: true }); // trigger onFocus event
-					cy.wait(200);
-
-					cy.snapController('autocomplete').then(({ store }) => {
-						cy.wrap(store.services.urlManager.state.filter).should('exist');
-						cy.wrap(store.services.urlManager.href).should('contain', optionURL);
+						cy.snapController('autocomplete').then((controller) => {
+							// wrap the controller and walk the path with .its() so each retry re-reads the
+							// urlManager - it is replaced on update, so a wrapped value would stay stale
+							cy.wrap(controller).its('store.services.urlManager.state.filter').should('exist');
+							cy.wrap(controller).its('store.services.urlManager.href').should('contain', optionURL);
+						});
 					});
-				});
 			});
 		});
 

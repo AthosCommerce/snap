@@ -698,16 +698,15 @@ describe('RecommendationBundle Component', () => {
 
 		cy.get('.ss__recommendation-bundle').should('exist');
 
-		// Wait for the minimum visible time (1000ms) plus buffer so all in-viewport impressions have fired
-		cy.wait(1100);
+		// Non-seed results should have triggered impressions (all rendered inline and in viewport).
+		// These retry through the minimum visible time, so no fixed wait is needed - and once they
+		// have all fired, the seed's identical visibility window has conclusively passed too.
+		nonSeedResults.forEach((result) => {
+			cy.get('@impression', { timeout: 6000 }).should('have.been.calledWith', result);
+		});
 
 		// Seed must never have triggered an impression —
 		// RecommendationBundle passes track={{ impression: false }} to the seed's ResultTracker
 		cy.get('@impression').should('not.have.been.calledWith', seedResult);
-
-		// Non-seed results should have triggered impressions (all rendered inline and in viewport)
-		nonSeedResults.forEach((result) => {
-			cy.get('@impression').should('have.been.calledWith', result);
-		});
 	});
 });

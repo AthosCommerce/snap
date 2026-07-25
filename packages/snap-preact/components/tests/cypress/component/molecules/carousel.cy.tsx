@@ -14,7 +14,7 @@ const theme = {
 
 const children = ['red', 'blue', 'yellow', 'green', 'white', 'orange', 'black'];
 
-describe('Carousel Component', () => {
+describe('Carousel Component', async () => {
 	it('renders with results', () => {
 		mount(
 			<Carousel>
