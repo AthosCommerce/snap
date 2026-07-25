@@ -1,5 +1,5 @@
 import { VariantSelection } from '../../../../src/components/Molecules/VariantSelection';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { RecommendationStore, RecommendationStoreConfig, VariantSelection as VariantSelectionType } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Tracker } from '@athoscommerce/snap-tracker';

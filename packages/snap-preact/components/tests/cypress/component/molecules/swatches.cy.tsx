@@ -1,5 +1,5 @@
 import { Swatches } from '../../../../src/components/Molecules/Swatches';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { ThemeProvider } from '../../../../src/providers';
 
 const theme = {

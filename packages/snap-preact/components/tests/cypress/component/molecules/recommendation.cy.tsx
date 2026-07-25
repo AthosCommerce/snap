@@ -10,7 +10,7 @@ import meta from '../../fixtures/meta.json';
 import json from '../../fixtures/recommend-results-default.json';
 import profile from '../../fixtures/profile-default.json';
 import { Recommendation } from '../../../../src/components/Templates/Recommendation';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { ThemeProvider } from '../../../../src/providers';
 
 const globals = { siteId: '8uyt2m' };

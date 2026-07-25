@@ -8,7 +8,7 @@ import { Logger } from '@athoscommerce/snap-logger';
 import { Client } from '@athoscommerce/snap-client';
 import { RecommendationController } from '@athoscommerce/snap-controller';
 import { RecommendationBundle } from '../../../../src/components/Templates/RecommendationBundle';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { ThemeProvider } from '../../../../src/providers';
 import { Result } from '../../../../src/components/Molecules/Result';
 import meta from '../../fixtures/meta.json';

@@ -1,6 +1,6 @@
 import { Carousel } from '../../../../src/components/Molecules/Carousel';
 import { Scrollbar } from 'swiper/modules';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { Theme, ThemeProvider } from '../../../../src/providers';
 
 const theme = {
