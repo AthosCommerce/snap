@@ -44,7 +44,7 @@ const theme = {
 
 let controller: RecommendationController;
 
-describe('RecommendationBundle Component', async () => {
+describe('RecommendationBundle Component', () => {
 	beforeEach(async () => {
 		cy.intercept('POST', '*recommend*', json);
 		cy.intercept('GET', '*profile*', profile);
@@ -194,7 +194,7 @@ describe('RecommendationBundle Component', async () => {
 		});
 	});
 
-	it('can use custom ctaSlot', async () => {
+	it('can use custom ctaSlot', () => {
 		const CtaSlot = observer((props: any) => {
 			return (
 				<div className="findMe">
@@ -202,7 +202,7 @@ describe('RecommendationBundle Component', async () => {
 					<div className="bundlePrice">{props.cartStore.price}</div>
 					<div className="strikePrice">{props.cartStore.msrp}</div>
 
-					<div className="ctaButton" onClick={() => props.onAddToCartClick()}>
+					<div className="ctaButton" onClick={(e: any) => props.onAddToCart(e)}>
 						custom button here
 					</div>
 				</div>
@@ -277,7 +277,7 @@ describe('RecommendationBundle Component', async () => {
 			.should('exist')
 			.click()
 			.then(() => {
-				cy.get('@onAddToCart').should('be.calledWith', [
+				cy.get('@onAddToCart').should('be.calledWith', Cypress.sinon.match.any, [
 					controller.store.results[0],
 					controller.store.results[1],
 					controller.store.results[2],
@@ -298,12 +298,18 @@ describe('RecommendationBundle Component', async () => {
 			});
 
 		//lets remove this product from the bundle and see the cta values update
+		// at the 1280px config viewport the 1200 breakpoint applies (slidesPerView 4), and the seed renders outside
+		// the carousel, so 3 slides are visible and the last one is the 4th result. Asserted explicitly so a layout
+		// change fails here rather than silently shifting the subtotals below.
+		cy.get('.swiper-last-visible-slide .ss__result').should('have.class', '1291014-PCH-XX-S');
+
+		// removing it drops its selected variant (Black/S) - 68.00, and it has no variant msrp so msrp falls back to price
 		cy.get('.swiper-last-visible-slide .ss__recommendation-bundle__wrapper__selector__result-wrapper__checkbox')
 			.click({ force: true })
 			.then(() => {
-				cy.get('.ss__recommendation-bundle .findMe .strikePrice').should('exist').should('have.text', '272.99');
+				cy.get('.ss__recommendation-bundle .findMe .strikePrice').should('exist').should('have.text', '255.98');
 				cy.get('.ss__recommendation-bundle .findMe .selectedItems').should('exist').should('have.text', '3');
-				cy.get('.ss__recommendation-bundle .findMe .bundlePrice').should('exist').should('have.text', '267.99');
+				cy.get('.ss__recommendation-bundle .findMe .bundlePrice').should('exist').should('have.text', '250.98');
 			});
 	});
 
