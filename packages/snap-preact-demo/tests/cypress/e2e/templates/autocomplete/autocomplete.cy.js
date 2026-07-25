@@ -56,8 +56,7 @@ describe('Autocomplete', () => {
 
 	describe('Tests Autocomplete', () => {
 		it('has a controller with an empty store', function () {
-			// this controller is expected never to have searched, so skip the not-loaded grace period
-			cy.snapController('autocomplete', { grace: 0 }).then(({ store }) => {
+			cy.snapController('autocomplete').then(({ store }) => {
 				expect(store.results.length).to.equal(0);
 				expect(store.terms.length).to.equal(0);
 				expect(store.state.input).to.equal(undefined);

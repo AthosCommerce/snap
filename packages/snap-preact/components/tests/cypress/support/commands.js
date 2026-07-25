@@ -36,13 +36,10 @@ Cypress.Commands.add('addLocalSnap', () => {
 
 Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	const defaultOptions = {
-		// A store that has not loaded may belong to a controller that never searches, so it is only
-		// accepted as settled once this grace period has passed without a search starting. Several
-		// tests also lean on this command as a page settle before clicking snap-bound elements, so
-		// the grace matches the floor of the previous implementation (200ms delay + one 200ms poll).
-		grace: 400,
-		// extra delay before checking anything - needed where an action triggers a new search that
-		// cannot be waited on via a network alias, so the previous store would otherwise read as settled
+		// Minimum settle before the controller is handed back - see the demo package's copy of this
+		// command. Resolving as soon as the store loads is not safe, because specs assert on things
+		// that are only ready after render. Matches the original floor (200ms delay + one 200ms poll).
+		settle: 400,
 		delay: 0,
 		timeout: Cypress.config('defaultCommandTimeout'),
 		interval: 20,
@@ -54,10 +51,8 @@ Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	const getSettledController = (window) => {
 		const controller = window.athos?.controller?.[controllerId];
 		if (!controller) return;
-
-		const { loading, loaded } = controller.store;
-		if (loading) return;
-		if (!loaded && Date.now() - startedAt < mergedOptions.grace) return;
+		if (controller.store.loading) return;
+		if (Date.now() - startedAt < mergedOptions.settle) return;
 
 		return controller;
 	};

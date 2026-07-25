@@ -242,7 +242,7 @@ describe('Tracking Beacon 2.0', () => {
 			// allow a window for any (unwanted) render/impression beacon to arrive, then verify the
 			// store settled on the cached response and that no new beacons were sent
 			cy.wait(500);
-			cy.snapController('autocomplete', { delay: 300 }).then(({ store }) => {
+			cy.snapController('autocomplete').then(({ store }) => {
 				expect(store.results.find((result) => result.type === 'product').responseId).to.equal(initialResponseId);
 				expect(renderCounter).to.equal(1);
 				expect(impressionCounter).to.equal(1);

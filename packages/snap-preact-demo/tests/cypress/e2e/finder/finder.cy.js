@@ -104,9 +104,7 @@ config?.pages?.forEach((page, _i) => {
 
 											cy.get(select).select(valueToSelect, { force: true }).should('have.value', valueToSelect);
 
-											// .select() starts a new finder search with no network alias to wait on, so the
-											// store can still read as settled from the previous search without a small delay
-											cy.snapController(id, { delay: 300 }).then(({ store }) => {
+											cy.snapController(id).then(({ store }) => {
 												expect(store.selections[index].selected).to.equal(valueToSelect);
 											});
 										});
@@ -147,9 +145,7 @@ config?.pages?.forEach((page, _i) => {
 
 										cy.get(select).select(valueToSelect, { force: true }).should('have.value', valueToSelect);
 
-										// .select() starts a new finder search with no network alias to wait on, so the
-										// store can still read as settled from the previous search without a small delay
-										cy.snapController(id, { delay: 300 }).then(({ store }) => {
+										cy.snapController(id).then(({ store }) => {
 											expect(store.selections[firstSelectedIndex].selected).to.equal(valueToSelect);
 										});
 									});
@@ -229,9 +225,7 @@ config?.pages?.forEach((page, _i) => {
 										cy.get('@selection').select(valueToSelect, { force: true });
 										cy.get('@selection').should('have.value', valueToSelect);
 
-										// .select() starts a new finder search with no network alias to wait on, so the
-										// store can still read as settled from the previous search without a small delay
-										cy.snapController(id, { delay: 300 }).then(({ store }) => {
+										cy.snapController(id).then(({ store }) => {
 											expect(store.selections[index].selected).to.equal(valueToSelect);
 										});
 									});
@@ -266,9 +260,7 @@ config?.pages?.forEach((page, _i) => {
 
 										cy.get(select).select(valueToSelect, { force: true }).should('have.value', valueToSelect);
 
-										// .select() starts a new finder search with no network alias to wait on, so the
-										// store can still read as settled from the previous search without a small delay
-										cy.snapController(id, { delay: 300 }).then(({ store }) => {
+										cy.snapController(id).then(({ store }) => {
 											expect(store.selections[firstSelectedIndex].selected).to.equal(valueToSelect);
 
 											// ensure other previously selected dropdowns have been reset
