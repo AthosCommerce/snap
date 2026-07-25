@@ -21,7 +21,7 @@ const options = [
 	{ value: 'White', label: 'White', disabled: false },
 ];
 
-describe('Swatches Component', async () => {
+describe('Swatches Component', () => {
 	describe('slideshow swatches', () => {
 		it('renders as slideshow by default', () => {
 			mount(<Swatches options={options} />);
@@ -214,14 +214,21 @@ describe('Swatches Component', async () => {
 			cy.get('.ss__swatches').should('not.have.class', theme.components.swatches.className);
 		});
 
-		it('breakpoints override theme prop', async () => {
+		// A breakpoint's `theme` is merged into `props.theme` after mergeProps has already resolved
+		// this component's own theme entry, so it can only override sub-component themes - not
+		// `components.swatches` itself. Same for every other breakpoints-aware component; see the
+		// "TODO: need to support this!" on the equivalent Results test.
+		it('breakpoints override theme prop', () => {
 			// Change the viewport to 1200px.
 			cy.viewport(1200, 750);
 
 			const componentTheme = {
 				components: {
 					swatches: {
-						className: 'component theme',
+						className: 'swatches-component-theme',
+					},
+					slideshow: {
+						className: 'slideshow-component-theme',
 					},
 				},
 			};
@@ -230,7 +237,7 @@ describe('Swatches Component', async () => {
 				0: {
 					theme: {
 						components: {
-							swatches: {
+							slideshow: {
 								className: 'mobile',
 							},
 						},
@@ -240,7 +247,7 @@ describe('Swatches Component', async () => {
 					hideButtons: false,
 					theme: {
 						components: {
-							swatches: {
+							slideshow: {
 								className: 'tablet',
 							},
 						},
@@ -251,16 +258,21 @@ describe('Swatches Component', async () => {
 			mount(<Swatches options={options} breakpoints={customBreakpoints} theme={componentTheme} />);
 
 			cy.get('.ss__swatches').should('exist');
-			cy.get('.ss__swatches').should('have.class', customBreakpoints[700].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', customBreakpoints[0].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', componentTheme.components.swatches.className);
+			cy.get('.ss__slideshow').should('have.class', customBreakpoints[700].theme.components.slideshow.className);
+			cy.get('.ss__slideshow').should('not.have.class', customBreakpoints[0].theme.components.slideshow.className);
+			cy.get('.ss__slideshow').should('not.have.class', componentTheme.components.slideshow.className);
+
+			// the component's own theme entry is unaffected by breakpoints
+			cy.get('.ss__swatches').should('have.class', componentTheme.components.swatches.className);
 
 			// Change the viewport to 500px.
 			cy.viewport(500, 750);
 
-			cy.get('.ss__swatches').should('have.class', customBreakpoints[0].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', customBreakpoints[700].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', componentTheme.components.swatches.className);
+			cy.get('.ss__slideshow').should('have.class', customBreakpoints[0].theme.components.slideshow.className);
+			cy.get('.ss__slideshow').should('not.have.class', customBreakpoints[700].theme.components.slideshow.className);
+			cy.get('.ss__slideshow').should('not.have.class', componentTheme.components.slideshow.className);
+
+			cy.get('.ss__swatches').should('have.class', componentTheme.components.swatches.className);
 
 			// reset the viewport to 1200px.
 			cy.viewport(1200, 750);
@@ -390,14 +402,19 @@ describe('Swatches Component', async () => {
 			cy.get('.ss__swatches').should('not.have.class', theme.components.swatches.className);
 		});
 
-		it('breakpoints override theme prop', async () => {
+		// see the note on the slideshow variant of this test - breakpoint themes reach sub-components
+		// (here `grid`), not the component's own `swatches` entry.
+		it('breakpoints override theme prop', () => {
 			// Change the viewport to 1200px.
 			cy.viewport(1200, 750);
 
 			const componentTheme = {
 				components: {
 					swatches: {
-						className: 'component theme',
+						className: 'swatches-component-theme',
+					},
+					grid: {
+						className: 'grid-component-theme',
 					},
 				},
 			};
@@ -406,7 +423,7 @@ describe('Swatches Component', async () => {
 				0: {
 					theme: {
 						components: {
-							swatches: {
+							grid: {
 								className: 'mobile',
 							},
 						},
@@ -416,7 +433,7 @@ describe('Swatches Component', async () => {
 					hideButtons: false,
 					theme: {
 						components: {
-							swatches: {
+							grid: {
 								className: 'tablet',
 							},
 						},
@@ -427,16 +444,21 @@ describe('Swatches Component', async () => {
 			mount(<Swatches type="grid" options={options} breakpoints={customBreakpoints} theme={componentTheme} />);
 
 			cy.get('.ss__swatches').should('exist');
-			cy.get('.ss__swatches').should('have.class', customBreakpoints[700].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', customBreakpoints[0].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', componentTheme.components.swatches.className);
+			cy.get('.ss__swatches__grid').should('have.class', customBreakpoints[700].theme.components.grid.className);
+			cy.get('.ss__swatches__grid').should('not.have.class', customBreakpoints[0].theme.components.grid.className);
+			cy.get('.ss__swatches__grid').should('not.have.class', componentTheme.components.grid.className);
+
+			// the component's own theme entry is unaffected by breakpoints
+			cy.get('.ss__swatches').should('have.class', componentTheme.components.swatches.className);
 
 			// Change the viewport to 500px.
 			cy.viewport(500, 750);
 
-			cy.get('.ss__swatches').should('have.class', customBreakpoints[0].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', customBreakpoints[700].theme.components.swatches.className);
-			cy.get('.ss__swatches').should('not.have.class', componentTheme.components.swatches.className);
+			cy.get('.ss__swatches__grid').should('have.class', customBreakpoints[0].theme.components.grid.className);
+			cy.get('.ss__swatches__grid').should('not.have.class', customBreakpoints[700].theme.components.grid.className);
+			cy.get('.ss__swatches__grid').should('not.have.class', componentTheme.components.grid.className);
+
+			cy.get('.ss__swatches').should('have.class', componentTheme.components.swatches.className);
 
 			// reset the viewport to 1200px.
 			cy.viewport(1200, 750);

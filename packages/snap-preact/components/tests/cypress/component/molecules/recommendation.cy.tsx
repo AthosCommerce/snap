@@ -46,7 +46,7 @@ const controller = new RecommendationController(recommendConfig, {
 	tracker: new Tracker(globals, { mode: 'development' }),
 });
 
-describe('Recommendation Component', async () => {
+describe('Recommendation Component', () => {
 	before(() => {
 		cy.spy(controller.tracker.events.recommendations, 'render').as('render');
 		cy.spy(controller.track.product, 'impression').as('impression');
@@ -59,7 +59,7 @@ describe('Recommendation Component', async () => {
 		await controller.search();
 	});
 
-	it('tracks as expected', async () => {
+	it('tracks as expected', () => {
 		cy.wrap(controller.store).its('loaded').should('eq', true);
 		cy.wrap(controller.store).its('results.length').should('be.greaterThan', 0);
 
