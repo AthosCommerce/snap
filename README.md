@@ -32,7 +32,7 @@ While at the <b>repo root</b>, the following commands are available:
 npm install
 ```
 
-Always run TypeScript through the local install. The repo pins TypeScript 5.6, and if `node_modules` is missing, `npx tsc` silently falls through to a globally installed compiler — with TypeScript 7 that fails as `error TS5108: Option 'moduleResolution=node10' has been removed`. That is a missing-install symptom, not a code or config error.
+Always run TypeScript through the local install. This branch pins `typescript` to `npm:@typescript/typescript6@6.0.2`, so `npx tsc` from a directory without `node_modules` silently falls through to whatever compiler is installed globally and reports confusing, unrelated errors. That is a missing-install symptom, not a code or config error — run `npm ci` first.
 
 ## Build
 Builds the ESM package outputs needed for local development:

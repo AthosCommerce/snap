@@ -87,8 +87,12 @@ describe('Snap Client Integration Tests', () => {
 		});
 
 		afterEach(() => {
-			// tests that opt into fake timers must not leak them into their siblings
-			jest.runOnlyPendingTimers();
+			// tests that opt into fake timers must not leak them into their siblings. only drain
+			// pending timers when they are actually faked - most tests in this block use real
+			// timers, and the advance APIs are not valid against those.
+			if (jest.isMockFunction(setTimeout)) {
+				jest.runOnlyPendingTimers();
+			}
 			jest.useRealTimers();
 		});
 

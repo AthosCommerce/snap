@@ -46,7 +46,7 @@ const controller = new RecommendationController(recommendConfig, {
 	tracker: new Tracker(globals, { mode: 'development' }),
 });
 
-describe('Recommendation Component', async () => {
+describe('Recommendation Component', () => {
 	before(() => {
 		cy.spy(controller.tracker.events.recommendations, 'render').as('render');
 		cy.spy(controller.track.product, 'impression').as('impression');

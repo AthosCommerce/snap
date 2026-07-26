@@ -130,6 +130,12 @@ describe('Finder Store', () => {
 				}
 			});
 
+			afterEach(() => {
+				// a test that opts into fake timers restores them inline, but that restore is skipped
+				// if an assertion throws first - this guarantees they never leak into later tests
+				jest.useRealTimers();
+			});
+
 			it('can persist selections', () => {
 				config = {
 					...config,
