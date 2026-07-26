@@ -30,6 +30,29 @@ const config = {
 	query: 'dress',
 };
 
+// The fixed autocomplete input only exists once snap has bound its input targeter and the overlay
+// has opened. A single click can land before that binding, in which case nothing opens and the
+// input is never found. Re-check before each click and only click while the input is absent - the
+// open button toggles, so clicking unconditionally would just close an overlay that had opened.
+const openAutocompleteInput = () => {
+	if (!config.selectors.website.openInputButton) return;
+
+	cy.waitUntil(
+		() =>
+			cy.get('body').then(($body) => {
+				if ($body.find(config.selectors.website.input).length) return true;
+
+				cy.get(config.selectors.website.openInputButton).first().click({ force: true });
+				return false;
+			}),
+		{
+			timeout: 20000,
+			interval: 1000,
+			errorMsg: 'openAutocompleteInput: input never appeared after clicking the open button',
+		}
+	);
+};
+
 describe('Autocomplete', () => {
 	describe('Setup', () => {
 		it('has valid config', () => {
@@ -89,9 +112,7 @@ describe('Autocomplete', () => {
 			cy.waitForBundle();
 
 			cy.snapController('autocomplete').then(({ store }) => {
-				if (config.selectors.website.openInputButton) {
-					cy.get(config.selectors.website.openInputButton, { timeout: 20000 }).first().click({ force: true });
-				}
+				openAutocompleteInput();
 
 				cy.get(config.selectors.website.input, { timeout: 20000 }).first().should('exist').click({ force: true }).focus();
 
@@ -112,9 +133,7 @@ describe('Autocomplete', () => {
 		});
 
 		it('can make single letter query', function () {
-			if (config.selectors.website.openInputButton) {
-				cy.get(config.selectors.website.openInputButton).first().click({ force: true });
-			}
+			openAutocompleteInput();
 
 			cy.get(config.selectors.website.input).first().should('exist').focus().type(config.startingQuery, { force: true });
 
@@ -227,9 +246,7 @@ describe('Autocomplete', () => {
 			cy.window().then((win) => (win.ssFirstLoad = true));
 
 			cy.snapController('autocomplete').then(() => {
-				if (config.selectors.website.openInputButton) {
-					cy.get(config.selectors.website.openInputButton).first().click({ force: true });
-				}
+				openAutocompleteInput();
 
 				cy.get(config.selectors.website.input).first().should('exist').should('have.value', config.query).click().focus({ force: true });
 				cy.wait('@autocomplete').should('exist');
