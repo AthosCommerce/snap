@@ -49,8 +49,10 @@ describe('Theme styling works', () => {
 		cy.visit('https://localhost:2222/templates/');
 
 		cy.snapController().then(({ store }) => {
-			expect(obj.customStyles).to.be.called;
-			expect(obj.customStyles).to.be.calledWithMatch();
+			// assert via the alias so the assertion retries - the stylescript runs during theme
+			// render, which is not guaranteed to have happened the moment the store finishes loading
+			cy.get('@styleScript').should('have.been.called');
+			cy.get('@styleScript').should('have.been.calledWithMatch');
 			cy.get('@styleScript').should('have.been.calledWithMatch', {
 				name: 'global',
 				variables: {
@@ -111,8 +113,10 @@ describe('Theme styling works', () => {
 		cy.visit('https://localhost:2222/templates/');
 
 		cy.snapController().then(({ store }) => {
-			expect(obj.customStyles).to.be.called;
-			expect(obj.customStyles).to.be.calledWithMatch();
+			// assert via the alias so the assertion retries - the stylescript runs during theme
+			// render, which is not guaranteed to have happened the moment the store finishes loading
+			cy.get('@styleScript').should('have.been.called');
+			cy.get('@styleScript').should('have.been.calledWithMatch');
 			cy.get('@styleScript').should('have.been.calledWithMatch', {
 				name: 'global',
 				variables: {
