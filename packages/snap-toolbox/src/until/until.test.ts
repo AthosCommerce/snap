@@ -133,14 +133,16 @@ describe('until', () => {
 
 		try {
 			let thing = '';
-			expect.assertions(1);
+			expect.assertions(2);
 
-			const delay = options.checkTime! * options.checkCount!;
+			// attach the rejection expectation *before* draining the clock: it asserts the promise
+			// actually rejects, and doubles as the handler so the rejection can never surface as an
+			// unhandled rejection. runAllTimersAsync drains the exponential backoff across all
+			// `checkMax` checks, so the schedule does not have to be reproduced here.
+			const rejection = expect(until(() => thing, options)).rejects.toBeUndefined();
 
-			// swallow the eventual rejection so the floating promise cannot surface
-			// as an unhandled rejection once the remaining checks are drained
-			until(() => thing, options).catch(() => undefined);
-			await jest.advanceTimersByTimeAsync(delay + 200); // add 200ms to ensure rejects
+			await jest.runAllTimersAsync();
+			await rejection;
 
 			expect(thing).toBe('');
 		} finally {

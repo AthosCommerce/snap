@@ -37,11 +37,11 @@ Cypress.Commands.add('addLocalSnap', () => {
 
 Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	const defaultOptions = {
-		// Minimum settle before the controller is handed back. Many specs use this command as a de
-		// facto page settle and then assert synchronously on things that are only ready *after* the
-		// store loads - theme stylescripts, targeter bindings, autocomplete input sync - so resolving
-		// as soon as `loaded` flips is not safe. This matches the floor of the original implementation
-		// (a 300ms delay plus one 150ms poll); shortening it fails on slower CI runners.
+		// Minimum settle before the controller is handed back. Many specs rely on this command
+		// as a page settle and then assert synchronously on things that are only ready *after*
+		// the store loads - theme stylescripts, targeter bindings, autocomplete input sync - so
+		// resolving as soon as `loaded` flips is not safe. This matches the floor of the original
+		// implementation (a 300ms delay plus one 150ms poll); shortening it fails on slower CI.
 		settle: 450,
 		delay: 0,
 		timeout: Cypress.config('defaultCommandTimeout'),
