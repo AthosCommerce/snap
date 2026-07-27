@@ -1232,7 +1232,9 @@ export const Default = {
 		async () => {
 			snapInstance.on('init', async ({ controller }: { controller: RecommendationController }, next: Next) => {
 				controller.store.results = results as unknown as Product[];
-				controller.store.results.forEach((result: Product) => (result.mappings.core!.url = 'javascript:void(0);'));
+				// neutralize mock links. '#' is safe here because recommendations hold no UrlManager state —
+				// in a Search or Autocomplete story it would clear the hash-stored filter/sort/pageSize params.
+				controller.store.results.forEach((result: Product) => (result.mappings.core!.url = '#'));
 				await next();
 			});
 			await snapInstance.init();

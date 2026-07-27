@@ -227,7 +227,7 @@ export const ExternalState = {
 export const JSXContent = {
 	args: {
 		button: 'button text',
-		content: <div>jsx content - (note this component receieved the open state as a prop)</div>,
+		content: <div>jsx content - (note this component received the open state as a prop)</div>,
 	},
 };
 
@@ -236,7 +236,7 @@ export const JSXChildren = {
 
 	args: {
 		button: 'button text',
-		content: <div>jsx content - (note this component receieved the open state as a prop)</div>,
+		content: <div>jsx content - (note this component received the open state as a prop)</div>,
 	},
 };
 
@@ -245,6 +245,6 @@ export const StringChildren = {
 
 	args: {
 		button: 'button text',
-		content: 'string content - (note this component receieved the open state as a prop)',
+		content: 'string content - (note this component received the open state as a prop)',
 	},
 };
