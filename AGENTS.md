@@ -45,12 +45,13 @@ npm run lint --workspace=@athoscommerce/snap-controller
 
 ### CI order
 
-Two jobs (see `.github/workflows/test.yml`):
+A single `Tests` job (see `.github/workflows/test.yml`) runs, in order:
 
-1. **Tests** — Lint -> Typecheck tests -> Jest. Needs no build.
-2. **E2E** — `needs: Tests`, so it is skipped entirely if the above fails. Build -> both Cypress suites -> demo preview deploy to S3.
+Lint -> Typecheck tests -> Jest (`test:core`) -> sitemap check -> `build:prod` -> both Cypress suites (`test:e2e`) -> demo preview deploy to S3 + CloudFront invalidation.
 
-CI calls `test:core` / `test:e2e` directly rather than `npm test`.
+Steps stop at the first failure, so a lint or unit-test failure costs ~1 minute and never reaches the build, Cypress or deploy steps. The job is named `Tests` because branch protection matches required checks by job name — renaming it would leave PRs waiting on a check that never reports.
+
+CI calls `test:core` / `test:e2e` directly rather than `npm test`, which is the full-suite entry point and would build and run Cypress twice.
 
 ## Architecture
 
@@ -76,12 +77,12 @@ snapps/              ← gitignored; local co-development area
 
 - SDK orchestrator: `packages/snap-preact/src/Snap.tsx`
 - Components: `packages/snap-preact/components/src/` (Atomic Design: Atoms → Molecules → Organisms → Templates)
-- 7 themes in `packages/snap-preact/components/src/themes/`
+- 5 themes in `packages/snap-preact/components/src/themes/` (`base`, `bocachica`, `pike`, `snapnco`, `snappy`); the sibling `themeComponents/` directory is shared pieces, not a theme
 - Platform integrations use conditional `exports` in `snap-platforms/package.json`
 
 ### Build output
 
-Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocations. Cleanup must finish before either compiler starts; the build script groups both compiler processes after `rm -rf ./dist ./components/dist`.
+`build:prod` emits `dist/esm/` and `dist/cjs/` via parallel `tsc` invocations. Cleanup must finish before either compiler starts; the script groups both compiler processes after `rm -rf ./dist`. `build` runs a single `tsc` and emits ESM only.
 
 ## Conventions
 
@@ -99,7 +100,7 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 - Jest 29 with ts-jest (transpile-only via `isolatedModules`), jsdom environment except `snap-event-manager`, which uses `node`. Config at `jest.config.json` + `jest.base.config.json`.
 - Tests live in `src/` alongside source as `*.test.ts` / `*.test.tsx`.
 - Root Jest uses `bail: true` to stop on the first failure and `silent: true` to reduce test output verbosity.
-- `npm run test` is the humans' full-suite entry point: Jest, then `npm run build`, then both Cypress suites, `&&`-chained so it stops at the first failure. **CI does not use it** — the workflow calls `test:core` and `test:e2e` separately so it can split them across jobs and do its own `build:prod` (needed for the S3 deploy).
+- `npm run test` is the humans' full-suite entry point: Jest, then `npm run build`, then both Cypress suites, `&&`-chained so it stops at the first failure. **CI does not use it** — the workflow calls `test:core` and `test:e2e` as separate steps so it can interleave lint and typecheck between them and run its own `build:prod` (needed for the S3 deploy).
 - The e2e step only needs `npm run build` (fast, ESM-only), not `build:prod`. Verified: component Cypress passes against an ESM-only `dist`, and the demo E2E runs off the webpack dev server rather than the demo's production bundles. `build:prod` is only required for publishing and the CI preview deploy.
 - **Both Cypress suites need `packages/*/dist`** (component specs import `@athoscommerce/*`, and the component webpack config has no source aliases, unlike Jest). They deliberately share one CI job so a single build serves both; splitting them would mean either building twice or plumbing artifacts. The cheaper component suite runs first, so a failure there skips the demo suite and its dev-server boot.
 - Demo Cypress needs the dev server running (`start-server-and-test` handles this automatically). To iterate quickly, start it once (`npm run dev` in `snap-preact-demo`, wait for `https://localhost:2222`) and then run `npx cypress run --project tests` directly.
@@ -110,7 +111,7 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 
 - **`it('...', async () => {...})` with `cy` commands and no `await` silently skips every assertion.** The async function returns an already-resolved promise, Cypress treats that as the test finishing, and the command queue is abandoned — the test passes without testing anything. Spot it by comparing a test's reported duration against the work it claims to do. Never write a Cypress test as `async` unless it genuinely awaits something.
 - **`cy.wrap(someValue).should(...)` freezes the value at queue time** and retries forever against a stale snapshot. Wrap the owning object and walk the path instead: `cy.wrap(controller).its('store.services.urlManager.state.filter').should('exist')`.
-- **`cy.snapController()` doubles as a page settle.** Specs frequently click Snap-bound elements right after calling it; if the targeter has not bound yet the click silently does nothing, and the test fails much later on a missing selector. Its `grace` option preserves that settle for stores that never load — do not tighten it casually.
+- **`cy.snapController()` doubles as a page settle.** Specs frequently click Snap-bound elements right after calling it; if the targeter has not bound yet the click silently does nothing, and the test fails much later on a missing selector. Its `settle` option (default 450ms, matching the previous implementation's floor) preserves that margin — do not tighten it casually; shortening it passes locally and fails on slower CI runners.
 - `testIsolation: false` in the demo config means state carries between tests, so a change can break a *later* spec. After touching `tests/cypress/support/commands.js`, run the whole demo suite, not just the specs you edited.
 
 ## Gotchas
@@ -118,7 +119,7 @@ Each package builds to `dist/esm/` and `dist/cjs/` via parallel `tsc` invocation
 - **Jest needs no build; Cypress does.** `jest.base.config.json` maps `@athoscommerce/*` to each package's `src/`, so `npm run test:core` and `npm run typecheck:tests` run from a clean tree. Only the Cypress suites (`npm run test:e2e`) need a build, and `npm run build` is enough — see the note above. If you add a new workspace package or sub-export, add it to that `moduleNameMapper` *and* to `paths` in `tsconfig.test.json`, or its imports will fall back to `dist/` and reintroduce the stale-build hazard.
 - **Jest is transpile-only** (`isolatedModules`), so it will not fail on type errors. `npm run typecheck:tests` is the only type gate for test files — the build's `tsconfig.json` `exclude` and `.eslintrc.cjs` `ignorePatterns` both skip `*.test.ts(x)`. `tsconfig.test.json` must also include the ambient `*.d.ts` shims (`is-plain-object`, `css.escape`), which package builds get free via `include: ["src"]`; omitting them yields spurious `TS7016`.
 - **`testTimeout` is a global-only Jest option** — setting it in a project config (`packages/*/jest.config.js`) is silently ignored and emits an "Unknown option" warning. Suites needing more than the 5s default call `jest.setTimeout()` in-file; do not "clean those up" as redundant.
-- **A fresh git worktree has no `node_modules` and no `dist`** — run `npm ci && npm run build:prod` before anything else. Until you do, `npx tsc` falls through to whatever compiler is installed globally and reports confusing, unrelated config errors. This branch pins `typescript` to `npm:@typescript/typescript6@6.0.2`, so only the local compiler matches `tsconfig.json`.
+- **A fresh git worktree has no `node_modules` and no `dist`** — run `npm ci` (and `npm run build` before Cypress) before anything else. Until you do, `npx tsc` falls through to whatever compiler is installed globally and reports confusing, unrelated config errors. The toolchain is two aliased packages — `@typescript/native` (`typescript@7.0.2`, the compiler `tsc` resolves to) and `typescript` (`@typescript/typescript6@6.0.2`, the compatibility API for ESLint/Jest/TypeDoc) — so only the local install matches `tsconfig.json`.
 - `git stash` is repository-global, not per-worktree — `git stash list` and `git stash pop` operate on shared refs across every worktree. With several worktrees checked out, prefer committing over stashing.
 - Lerna `packages` config only includes `packages/*`, but npm `workspaces` also includes `packages/snapps/*`.
 - `snap-preact` has sub-exports (`/components`, `/toolbox`) defined in its `exports` field — these are separate TypeScript compilation roots under `components/` and `toolbox/`.

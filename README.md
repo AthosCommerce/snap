@@ -17,7 +17,7 @@ Documentation for each package can be found in its respective README file (`/pac
 # Prerequisite
 
 ## Node.js
-We recommend usage of Node.js v16 or higher.
+CI runs Node.js 24 (see `.github/workflows/test.yml`); match that locally. There is no `engines` field pinning it, but the toolchain is no longer exercised against older releases.
 ## NPM v7.x
 
 NPM v7.x is required for its workspaces feature
@@ -28,11 +28,12 @@ NPM v7.7.0 is optional for executing scripts in workspaces
 While at the <b>repo root</b>, the following commands are available:
 
 ## Install dependencies
+Use `ci` rather than `install` — the lockfile is the source of truth:
 ```shell
-npm install
+npm ci
 ```
 
-Always run TypeScript through the local install. This branch pins `typescript` to `npm:@typescript/typescript6@6.0.2`, so `npx tsc` from a directory without `node_modules` silently falls through to whatever compiler is installed globally and reports confusing, unrelated errors. That is a missing-install symptom, not a code or config error — run `npm ci` first.
+Always run TypeScript through the local install. The toolchain is pinned as two aliased packages — `@typescript/native` (`typescript@7.0.2`, what `tsc` actually runs) and `typescript` (`@typescript/typescript6@6.0.2`, the compatibility API used by ESLint, Jest and TypeDoc). From a directory without `node_modules`, `npx tsc` silently falls through to whatever compiler is installed globally and reports confusing, unrelated errors. That is a missing-install symptom, not a code or config error — install first.
 
 ## Build
 Builds the ESM package outputs needed for local development:
