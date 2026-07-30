@@ -688,7 +688,7 @@ Snap Templates includes built-in language support for English (`en`), French (`f
 
 Each component in the theme tree can have a `lang` object containing translatable strings. The `translations` config is keyed by language code, then by component name. Each component entry contains named lang properties, where each property has a `value` (static string or function) and optional `attributes` (e.g. `aria-label`, `placeholder`).
 
-When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions. The `data` object also always includes `activeBreakpoint`, the currently active responsive breakpoint (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size.
+When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions. In Snap Templates, the `data` object includes `activeBreakpoint`, the currently active responsive breakpoint (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size.
 
 #### Basic Setup
 
