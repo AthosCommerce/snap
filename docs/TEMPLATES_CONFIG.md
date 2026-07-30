@@ -148,7 +148,7 @@ Translations overrides can be provided in two ways:
 1. Simple translations: Use a string value for straightforward text replacements.
 2. Complex translations: Utilize functions to access component props and apply logic for dynamic text generation.
 
-When using a function, the `data` argument always includes `activeBreakpoint` (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](TEMPLATES_HOW_TO.md#responsive-translations) for an example.
+When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](TEMPLATES_HOW_TO.md#responsive-translations) for an example.
 
 The example below demonstrates both approaches for French language translations:
 - The `FilterSummary` component uses a simple string translation.
