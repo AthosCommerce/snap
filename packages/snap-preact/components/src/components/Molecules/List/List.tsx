@@ -193,7 +193,7 @@ export const List = observer((properties: ListProps) => {
 			options,
 			selectedOptions: selection,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return typeof options == 'object' && options?.length ? (

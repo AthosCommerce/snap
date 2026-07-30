@@ -23,7 +23,11 @@ export type LangAttributesObjAttributes = {
 	all?: Partial<ValType> & Partial<AttType> & { 'ss-lang': string };
 };
 
-export type LangType<P> = string | ((data: P & { activeBreakpoint?: ResponsiveKeys }) => string);
+export type AdditionalLangData = {
+	activeBreakpoint?: ResponsiveKeys;
+};
+
+export type LangType<P> = string | ((data: P & AdditionalLangData) => string);
 
 export interface LangObjType {
 	[name: string]: Lang<any>;
@@ -57,8 +61,8 @@ export interface LangAttributes<T> {
 	};
 }
 
-export const useLang = (lang: LangObjType, data?: any, activeBreakpoint?: ResponsiveKeys): LangAttributesObj => {
-	const enrichedData = activeBreakpoint ? { ...data, activeBreakpoint } : data;
+export const useLang = (lang: LangObjType, data?: any, additionalData?: AdditionalLangData): LangAttributesObj => {
+	const enrichedData = additionalData ? { ...data, ...additionalData } : data;
 
 	const returnObj: LangAttributesObj = {};
 

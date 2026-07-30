@@ -237,7 +237,7 @@ export const Select = observer((properties: SelectProps) => {
 			label,
 			open,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	// options can be an Array or ObservableArray - but should have length

@@ -156,7 +156,7 @@ export const NoResults = observer((properties: NoResultsProps) => {
 		{
 			controller: controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return (

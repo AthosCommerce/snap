@@ -123,7 +123,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 		{
 			controller: controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const subProps: SidebarSubProps = {

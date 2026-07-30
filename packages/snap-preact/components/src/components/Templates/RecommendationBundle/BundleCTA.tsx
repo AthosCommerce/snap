@@ -72,7 +72,7 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 		{
 			cartStore,
 		},
-		props?.theme?.activeBreakpoint
+		{ activeBreakpoint: props?.theme?.activeBreakpoint }
 	);
 	return (
 		<div className={`${classNamePrefix}__wrapper__cta`}>

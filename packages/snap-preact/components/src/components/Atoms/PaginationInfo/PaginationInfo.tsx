@@ -64,7 +64,7 @@ export const PaginationInfo = observer((properties: PaginationInfoProps) => {
 		{
 			pagination: store,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return store?.totalResults ? (

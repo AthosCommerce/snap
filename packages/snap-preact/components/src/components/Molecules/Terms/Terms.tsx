@@ -124,7 +124,7 @@ export const Terms = observer((properties: TermsProps) => {
 		{
 			controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return termsToShow?.length ? (
@@ -154,7 +154,7 @@ export const Terms = observer((properties: TermsProps) => {
 								numberOfTerms: termsToShow.length,
 								term: term,
 							},
-							globalTheme?.activeBreakpoint
+							{ activeBreakpoint: globalTheme?.activeBreakpoint }
 						);
 
 						return (

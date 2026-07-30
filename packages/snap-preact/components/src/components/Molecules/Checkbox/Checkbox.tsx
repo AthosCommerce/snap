@@ -138,7 +138,7 @@ export const Checkbox = observer((properties: CheckboxProps) => {
 			checkedState,
 			disabled,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return (

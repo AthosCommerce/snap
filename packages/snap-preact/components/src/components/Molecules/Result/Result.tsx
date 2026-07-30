@@ -245,7 +245,7 @@ export const Result = observer((properties: ResultProps) => {
 			result: result,
 			controller: controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);

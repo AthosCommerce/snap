@@ -138,7 +138,7 @@ export const FacetListOptions = observer((properties: FacetListOptionsProps) => 
 							facet,
 							value,
 						},
-						globalTheme?.activeBreakpoint
+						{ activeBreakpoint: globalTheme?.activeBreakpoint }
 					);
 
 					return (

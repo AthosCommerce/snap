@@ -139,7 +139,11 @@ export const Search = observer((properties: SearchProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, { filters: store.filters, sidebarOpenState: sidebarOpenState }, globalTheme?.activeBreakpoint);
+	const mergedLang = useLang(
+		lang as any,
+		{ filters: store.filters, sidebarOpenState: sidebarOpenState },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const ToggleSidebar = () => {
 		return (

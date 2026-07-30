@@ -539,7 +539,7 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 		{
 			controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 	return visible ? (
 		<CacheProvider>
@@ -608,7 +608,7 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 														term,
 														index: idx,
 													},
-													globalTheme?.activeBreakpoint
+													{ activeBreakpoint: globalTheme?.activeBreakpoint }
 												);
 
 												return (
@@ -660,7 +660,7 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 														term,
 														index: idx,
 													},
-													globalTheme?.activeBreakpoint
+													{ activeBreakpoint: globalTheme?.activeBreakpoint }
 												);
 
 												return (
@@ -712,7 +712,7 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 														term,
 														index: idx,
 													},
-													globalTheme?.activeBreakpoint
+													{ activeBreakpoint: globalTheme?.activeBreakpoint }
 												);
 
 												return (

@@ -182,7 +182,7 @@ export const LoadMore = observer((properties: LoadMoreProps) => {
 		{
 			pagination: store,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return store.totalResults ? (

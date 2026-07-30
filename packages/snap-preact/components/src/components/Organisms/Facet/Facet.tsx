@@ -492,7 +492,7 @@ export const Facet = observer((properties: FacetProps) => {
 		{
 			facet,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const selectedCount =

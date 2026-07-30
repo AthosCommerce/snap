@@ -278,7 +278,7 @@ export const FacetSlider = observer((properties: FacetSliderProps) => {
 									facet,
 									value,
 								},
-								globalTheme?.activeBreakpoint
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
 							);
 
 							return (

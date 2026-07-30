@@ -103,7 +103,7 @@ export const Filter = observer((properties: FilterProps) => {
 			label,
 			value,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return value ? (

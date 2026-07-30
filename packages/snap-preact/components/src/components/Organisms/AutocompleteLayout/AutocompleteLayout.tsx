@@ -508,7 +508,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		{
 			controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	let recsController: RecommendationController | undefined;

@@ -154,7 +154,7 @@ export const RadioList = observer((properties: RadioListProps) => {
 			options,
 			selectedOptions: selection,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return typeof options == 'object' && options?.length ? (

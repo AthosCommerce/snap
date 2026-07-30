@@ -122,7 +122,7 @@ export const Pagination = observer((properties: PaginationProps) => {
 		{
 			pagination: store,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return pageNumbers && pageNumbers.length > 1 && store?.totalResults ? (
@@ -170,7 +170,7 @@ export const Pagination = observer((properties: PaginationProps) => {
 									pagination: store,
 									page: page,
 								},
-								globalTheme?.activeBreakpoint
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
 							);
 
 							return page.active ? (

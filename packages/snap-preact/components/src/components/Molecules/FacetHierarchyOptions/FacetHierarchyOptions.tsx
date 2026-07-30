@@ -177,7 +177,7 @@ export const FacetHierarchyOptions = observer((properties: FacetHierarchyOptions
 							facet,
 							value,
 						},
-						globalTheme?.activeBreakpoint
+						{ activeBreakpoint: globalTheme?.activeBreakpoint }
 					);
 
 					return (

@@ -376,7 +376,7 @@ describe('useLang hook', () => {
 				},
 			},
 		};
-		const data = useLang(lang, {}, 'mobile');
+		const data = useLang(lang, {}, { activeBreakpoint: 'mobile' });
 		expect(data[name].all).toEqual(
 			expect.objectContaining({
 				'aria-label': 'label-mobile',
@@ -393,14 +393,14 @@ describe('useLang hook', () => {
 				value: (data) => `${data.my_data}-${data.activeBreakpoint}`,
 			},
 		};
-		const data = useLang(lang, { my_data: dataVal }, 'tablet');
+		const data = useLang(lang, { my_data: dataVal }, { activeBreakpoint: 'tablet' });
 		expect(data[name].value).toEqual({
 			dangerouslySetInnerHTML: { __html: `${dataVal}-tablet` },
 			'ss-lang': name,
 		});
 	});
 
-	it('the hook does not add an activeBreakpoint key when it is not passed', () => {
+	it('the hook does not add an activeBreakpoint key when additionalData is not passed', () => {
 		const name = 'thing';
 		const receivedData: Record<string, unknown>[] = [];
 		const lang: LangObjType = {

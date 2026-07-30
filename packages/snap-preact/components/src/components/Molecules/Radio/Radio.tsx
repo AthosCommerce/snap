@@ -146,7 +146,7 @@ export const Radio = observer((properties: RadioProps) => {
 			disabled,
 			checkedState,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return (

@@ -148,7 +148,7 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		{
 			filters,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return filters?.length ? (

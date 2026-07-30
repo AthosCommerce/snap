@@ -652,7 +652,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 			isNextDisabled,
 			isPrevDisabled,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return (
@@ -742,7 +742,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 									index,
 									slidesLength: normalizedSlides.length,
 								},
-								globalTheme?.activeBreakpoint
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
 							);
 
 							return (
@@ -810,7 +810,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 									index,
 									totalDots,
 								},
-								globalTheme?.activeBreakpoint
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
 							);
 							const selected = currentDotIndex === index;
 							const subpropsToUse = selected ? subProps.PaginationCurrentButton : subProps.PaginationButton;

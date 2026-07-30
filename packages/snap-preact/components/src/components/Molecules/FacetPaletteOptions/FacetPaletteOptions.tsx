@@ -279,7 +279,7 @@ export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProp
 							facet,
 							value,
 						},
-						globalTheme?.activeBreakpoint
+						{ activeBreakpoint: globalTheme?.activeBreakpoint }
 					);
 
 					let lowerCaseColorMapping;

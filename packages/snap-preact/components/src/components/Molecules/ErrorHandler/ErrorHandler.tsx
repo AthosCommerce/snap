@@ -190,7 +190,7 @@ export const ErrorHandler = observer((properties: ErrorHandlerProps) => {
 		{
 			controller,
 		},
-		globalTheme?.activeBreakpoint
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	return Object.values(ErrorType).includes(errorObject?.type!) && errorObject?.message ? (

@@ -132,7 +132,7 @@ export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => 
 							facet,
 							value,
 						},
-						globalTheme?.activeBreakpoint
+						{ activeBreakpoint: globalTheme?.activeBreakpoint }
 					);
 
 					return (

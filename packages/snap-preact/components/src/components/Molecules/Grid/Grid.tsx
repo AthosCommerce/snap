@@ -266,7 +266,7 @@ export const Grid = observer((properties: GridProps) => {
 				limited,
 				remainder,
 			},
-			globalTheme?.activeBreakpoint
+			{ activeBreakpoint: globalTheme?.activeBreakpoint }
 		);
 
 		return showButton && remainder > 0 && options.length !== limit ? (
