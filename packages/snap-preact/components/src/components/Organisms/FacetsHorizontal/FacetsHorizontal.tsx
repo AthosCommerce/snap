@@ -281,7 +281,11 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, { facets: facets, sidebarOpenState: sidebarOpenState });
+	const mergedLang = useLang(
+		lang as any,
+		{ facets: facets, sidebarOpenState: sidebarOpenState },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const ToggleSidebarButton = ({ sidebarOpenState, setSidebarOpenState, subProps }: any) => {
 		return (
@@ -328,10 +332,14 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 
 						//deep merge with props.lang
 						const lang = deepmerge(defaultLang, props.lang || {});
-						const mergedLang = useLang(lang as any, {
-							selectedFacet,
-							facet,
-						});
+						const mergedLang = useLang(
+							lang as any,
+							{
+								selectedFacet,
+								facet,
+							},
+							{ activeBreakpoint: globalTheme?.activeBreakpoint }
+						);
 
 						return (
 							<Dropdown
