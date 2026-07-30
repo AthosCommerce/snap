@@ -593,7 +593,7 @@ const FacetContent = (
 	props: Omit<FacetProps, 'displayType'> & {
 		// wider than the public displayType prop, as the resolved value can also be a display type that
 		// is not interchangeable (eg. slider, hierarchy)
-		displayType?: ResolvedFacetDisplay;
+		displayType: ResolvedFacetDisplay;
 		limitedValues: (FacetHierarchyValue | FacetValue | FacetRangeValue | undefined)[];
 		searchableFacet: {
 			allowableTypes: string[];
@@ -673,7 +673,7 @@ const FacetContent = (
 
 	return (
 		<>
-			{searchable && searchableFacet.allowableTypes.includes(displayType || facet.display) && (
+			{searchable && searchableFacet.allowableTypes.includes(displayType) && (
 				<SearchInput
 					{...subProps.searchInput}
 					onChange={searchableFacet.searchFilter}
@@ -687,7 +687,7 @@ const FacetContent = (
 					if (optionsSlot) {
 						return cloneWithProps(optionsSlot, { facet, valueProps, limit, previewOnFocus, treePath });
 					} else {
-						switch (displayType || facet?.display) {
+						switch (displayType) {
 							// case FacetDisplay.TOGGLE:
 							// 	return <FacetToggle {...subProps.facetToggle} facet={facet as ValueFacet} />;
 							case FacetDisplay.SLIDER:
