@@ -180,6 +180,27 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		hidePages: {
+			description: 'Hide main page number buttons (excludes first and last)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		ellipsisButton: {
+			description: 'Custom content for the ellipsis sections',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string, JSX',
+				},
+			},
+			control: { type: 'text' },
+		},
 		hideNext: {
 			description: 'Hide next button',
 			table: {

@@ -259,6 +259,43 @@ describe('Lets test the Pagination Component optional props', () => {
 		expect(paginationElement).not.toHaveTextContent('…');
 	});
 
+	it('hides page numbers with hidePages', () => {
+		const rendered = render(<Pagination pagination={paginationStore} hidePages={true} />);
+		const paginationElement = rendered.container.querySelector('.ss__pagination');
+		expect(paginationElement).toBeInTheDocument();
+
+		// first and last should still render
+		expect(rendered.container.querySelector('.ss__pagination__page--first')).toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__pagination__page--last')).toBeInTheDocument();
+
+		// numbered page links (not first/last/next/prev) should not render
+		const pageLinks = rendered.container.querySelectorAll(
+			'.ss__pagination__page:not(.ss__pagination__page--first):not(.ss__pagination__page--last):not(.ss__pagination__page--next):not(.ss__pagination__page--previous):not(.ss__pagination__page--active)'
+		);
+		expect(pageLinks).toHaveLength(0);
+		const activePage = rendered.container.querySelector('.ss__pagination__page--active');
+		expect(activePage).not.toBeInTheDocument();
+	});
+
+	it('renders a custom ellipsisButton string', () => {
+		const rendered = render(<Pagination pagination={paginationStore} ellipsisButton={'...'} />);
+		const paginationElement = rendered.container.querySelector('.ss__pagination');
+		expect(paginationElement).toBeInTheDocument();
+
+		expect(paginationElement).not.toHaveTextContent('…');
+		expect(paginationElement).toHaveTextContent('...');
+	});
+
+	it('renders a custom ellipsisButton JSX element', () => {
+		const rendered = render(<Pagination pagination={paginationStore} ellipsisButton={<span className="custom-ellipsis">~~~</span>} />);
+		const paginationElement = rendered.container.querySelector('.ss__pagination');
+		expect(paginationElement).toBeInTheDocument();
+
+		const customEllipsis = rendered.container.querySelectorAll('.custom-ellipsis');
+		expect(customEllipsis.length).toBeGreaterThan(0);
+		customEllipsis.forEach((el) => expect(el).toHaveTextContent('~~~'));
+	});
+
 	it('custom next and prev buttns', () => {
 		const rendered = render(<Pagination pagination={paginationStore} nextButton={'NEXT'} prevButton={'PREV'} />);
 		const paginationElement = rendered.container.querySelector('.ss__pagination');

@@ -73,6 +73,20 @@ The `hideEllipsis` prop disables the hideEllipsis after the first page, or the l
 <Pagination pagination={controller.store.pagination} hideEllipsis={true} />
 ```
 
+### hidePages
+The `hidePages` prop hides the main page number buttons (excludes first and last pages, which have their own hide props).
+
+```tsx
+<Pagination pagination={controller.store.pagination} hidePages={true} />
+```
+
+### ellipsisButton
+The `ellipsisButton` prop specifies custom content to render in the ellipsis sections. This can be a string or JSX element.
+
+```tsx
+<Pagination pagination={controller.store.pagination} ellipsisButton={'...'} />
+```
+
 ### hideNext
 The `hideNext` prop disables the next page.
 
