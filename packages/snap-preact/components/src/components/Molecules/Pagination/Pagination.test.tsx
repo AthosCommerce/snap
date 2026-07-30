@@ -277,8 +277,8 @@ describe('Lets test the Pagination Component optional props', () => {
 		expect(activePage).not.toBeInTheDocument();
 	});
 
-	it('renders a custom ellipsisButton string', () => {
-		const rendered = render(<Pagination pagination={paginationStore} ellipsisButton={'...'} />);
+	it('renders a custom ellipsisContent string', () => {
+		const rendered = render(<Pagination pagination={paginationStore} ellipsisContent={'...'} />);
 		const paginationElement = rendered.container.querySelector('.ss__pagination');
 		expect(paginationElement).toBeInTheDocument();
 
@@ -286,8 +286,8 @@ describe('Lets test the Pagination Component optional props', () => {
 		expect(paginationElement).toHaveTextContent('...');
 	});
 
-	it('renders a custom ellipsisButton JSX element', () => {
-		const rendered = render(<Pagination pagination={paginationStore} ellipsisButton={<span className="custom-ellipsis">~~~</span>} />);
+	it('renders a custom ellipsisContent JSX element', () => {
+		const rendered = render(<Pagination pagination={paginationStore} ellipsisContent={<span className="custom-ellipsis">~~~</span>} />);
 		const paginationElement = rendered.container.querySelector('.ss__pagination');
 		expect(paginationElement).toBeInTheDocument();
 

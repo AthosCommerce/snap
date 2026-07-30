@@ -191,7 +191,7 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
-		ellipsisButton: {
+		ellipsisContent: {
 			description: 'Custom content for the ellipsis sections',
 			table: {
 				category: 'Templates Legal',

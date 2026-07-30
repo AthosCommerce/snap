@@ -80,11 +80,11 @@ The `hidePages` prop hides the main page number buttons (excludes first and last
 <Pagination pagination={controller.store.pagination} hidePages={true} />
 ```
 
-### ellipsisButton
-The `ellipsisButton` prop specifies custom content to render in the ellipsis sections. This can be a string or JSX element.
+### ellipsisContent
+The `ellipsisContent` prop specifies custom content to render in the ellipsis sections. This can be a string or JSX element.
 
 ```tsx
-<Pagination pagination={controller.store.pagination} ellipsisButton={'...'} />
+<Pagination pagination={controller.store.pagination} ellipsisContent={'...'} />
 ```
 
 ### hideNext

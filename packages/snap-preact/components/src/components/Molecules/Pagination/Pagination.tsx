@@ -57,7 +57,7 @@ export const Pagination = observer((properties: PaginationProps) => {
 		prevButton,
 		firstButton,
 		lastButton,
-		ellipsisButton,
+		ellipsisContent,
 		disableStyles,
 		className,
 		internalClassName,
@@ -144,7 +144,7 @@ export const Pagination = observer((properties: PaginationProps) => {
 							<a {...store.first.url.link} className={classnames('ss__pagination__page', 'ss__pagination__page--first')} {...mergedLang.first?.all}>
 								{firstButton ? firstButton : store.first.number}
 							</a>
-							{!pageNumbers.includes(2) && !hideEllipsis && <span>{ellipsisButton ?? <>&hellip;</>}</span>}
+							{!pageNumbers.includes(2) && !hideEllipsis && <span>{ellipsisContent ?? <>&hellip;</>}</span>}
 						</>
 					)}
 
@@ -187,7 +187,7 @@ export const Pagination = observer((properties: PaginationProps) => {
 					{/* last page */}
 					{(!pageNumbers.includes(store.last.number) || (persistLast && store.page !== store.last.number)) && !hideLast && (
 						<>
-							{!pageNumbers.includes(store.totalPages - 1) && !hideEllipsis && <span>{ellipsisButton ?? <>&hellip;</>}</span>}
+							{!pageNumbers.includes(store.totalPages - 1) && !hideEllipsis && <span>{ellipsisContent ?? <>&hellip;</>}</span>}
 
 							<a {...store.last.url.link} className={classnames('ss__pagination__page', 'ss__pagination__page--last')} {...mergedLang.last?.all}>
 								{lastButton ? lastButton : store.last.number}
@@ -232,7 +232,7 @@ export type PaginationTemplatesLegalProps = {
 	prevButton?: string | JSX.Element;
 	firstButton?: string | JSX.Element;
 	lastButton?: string | JSX.Element;
-	ellipsisButton?: string | JSX.Element;
+	ellipsisContent?: string | JSX.Element;
 	persistFirst?: boolean;
 	persistLast?: boolean;
 };
