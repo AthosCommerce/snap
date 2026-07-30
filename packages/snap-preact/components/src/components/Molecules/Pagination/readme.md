@@ -108,11 +108,23 @@ The `nextButton` prop specifies the next page button content. This can be a stri
 <Pagination pagination={controller.store.pagination} nextButton={'Next'} />
 ```
 
+Using a JSX element:
+
+```tsx
+<Pagination pagination={controller.store.pagination} nextButton={<Icon icon={'angle-right'} />} />
+```
+
 ### prevButton
 The `prevButton` prop specifies the previous page button content. This can be a string or JSX element.
 
 ```tsx
 <Pagination pagination={controller.store.pagination} prevButton={'Prev'} />
+```
+
+Using a JSX element:
+
+```tsx
+<Pagination pagination={controller.store.pagination} prevButton={<Icon icon={'angle-left'} />} />
 ```
 
 ### firstButton
