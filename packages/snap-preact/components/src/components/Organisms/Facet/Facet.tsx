@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { MutableRef, useRef, useState, useEffect } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -602,6 +602,8 @@ const FacetContent = (
 		rangeInputsPrefix,
 		rangeInputsInheritDefaultValues,
 		rangeInputsSeparatorText,
+		rangeInputsSubmitOnBlur,
+		hideRangeInputsSubmitButton,
 		justContent,
 		valueProps,
 		hideShowMoreLessText,
@@ -631,15 +633,56 @@ const FacetContent = (
 		setHigh(vals[1]);
 	};
 
-	const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter') {
-			if (typeof low == 'number' && typeof high == 'number') {
-				submitButtonRef.current?.base?.click();
+	// submits the current low/high range input values to the url manager, clamping/swapping as needed.
+	// used by the submit button, the Enter key, and (optionally) blur, so it works even when the
+	// submit button isn't rendered (e.g. when rangeInputsSubmitButtonText is an empty string).
+	const submitRange = () => {
+		if (facet?.services?.urlManager && typeof low === 'number' && typeof high === 'number') {
+			let currentLow = low;
+			let currentHigh = high;
+
+			//adjust ranges if high and low have swapped.
+			if (currentHigh < currentLow) {
+				currentLow = high;
+				currentHigh = low;
+				setLow(currentLow);
+				setHigh(currentHigh);
 			}
+
+			//adjust limits if state is too high or too low
+			if ((facet as RangeFacet)?.range?.low !== undefined && currentLow < (facet as RangeFacet)?.range?.low!) {
+				currentLow = (facet as RangeFacet)?.range?.low!;
+				setLow(currentLow);
+			}
+			if ((facet as RangeFacet)?.range?.high !== undefined && currentLow > (facet as RangeFacet)?.range?.high!) {
+				currentLow = (facet as RangeFacet)?.range?.high!;
+				setLow(currentLow);
+			}
+
+			if ((facet as RangeFacet)?.range?.low !== undefined && currentHigh < (facet as RangeFacet)?.range?.low!) {
+				currentHigh = (facet as RangeFacet)?.range?.low!;
+				setHigh(currentHigh);
+			}
+			if ((facet as RangeFacet)?.range?.high !== undefined && currentHigh > (facet as RangeFacet)?.range?.high!) {
+				currentHigh = (facet as RangeFacet)?.range?.high!;
+				setHigh(currentHigh);
+			}
+
+			facet.services.urlManager.remove('page').set(`filter.${facet.field}`, { low: currentLow, high: currentHigh }).go();
 		}
 	};
 
-	const submitButtonRef: MutableRef<any> = useRef();
+	const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter') {
+			submitRange();
+		}
+	};
+
+	const onBlur = () => {
+		if (rangeInputsSubmitOnBlur) {
+			submitRange();
+		}
+	};
 
 	let overflowState: overflowStateType | undefined;
 	if (!statefulOverflow) {
@@ -721,6 +764,7 @@ const FacetContent = (
 								value={low}
 								onInput={(e) => (e.currentTarget.value ? setLow(Number(e.currentTarget.value)) : setLow(undefined))}
 								onKeyUp={onKeyUp}
+								onBlur={onBlur}
 							/>
 						</div>
 
@@ -734,52 +778,17 @@ const FacetContent = (
 								value={high}
 								onInput={(e) => (e.currentTarget.value ? setHigh(Number(e.currentTarget.value)) : setHigh(undefined))}
 								onKeyUp={onKeyUp}
+								onBlur={onBlur}
 							/>
 						</div>
 					</div>
-					<div className="ss__facet__range-inputs__row ss__facet__range-inputs__row--button-wrapper">
-						<Button
-							internalClassName="ss__facet__range-input__button--submit"
-							ref={submitButtonRef}
-							onClick={() => {
-								if (facet?.services?.urlManager && typeof low === 'number' && typeof high === 'number') {
-									let currentLow = low;
-									let currentHigh = high;
-
-									//adjust ranges if high and low have swapped.
-									if (currentHigh < currentLow) {
-										currentLow = high;
-										currentHigh = low;
-										setLow(currentLow);
-										setHigh(currentHigh);
-									}
-
-									//adjust limits if state is too high or too low
-									if ((facet as RangeFacet)?.range?.low !== undefined && currentLow < (facet as RangeFacet)?.range?.low!) {
-										currentLow = (facet as RangeFacet)?.range?.low!;
-										setLow(currentLow);
-									}
-									if ((facet as RangeFacet)?.range?.high !== undefined && currentLow > (facet as RangeFacet)?.range?.high!) {
-										currentLow = (facet as RangeFacet)?.range?.high!;
-										setLow(currentLow);
-									}
-
-									if ((facet as RangeFacet)?.range?.low !== undefined && currentHigh < (facet as RangeFacet)?.range?.low!) {
-										currentHigh = (facet as RangeFacet)?.range?.low!;
-										setHigh(currentHigh);
-									}
-									if ((facet as RangeFacet)?.range?.high !== undefined && currentHigh > (facet as RangeFacet)?.range?.high!) {
-										currentHigh = (facet as RangeFacet)?.range?.high!;
-										setHigh(currentHigh);
-									}
-
-									facet.services.urlManager.remove('page').set(`filter.${facet.field}`, { low: currentLow, high: currentHigh }).go();
-								}
-							}}
-						>
-							{mergedLang.submitRangeButton.value ? <label {...mergedLang.submitRangeButton.all}></label> : null}
-						</Button>
-					</div>
+					{!hideRangeInputsSubmitButton && (
+						<div className="ss__facet__range-inputs__row ss__facet__range-inputs__row--button-wrapper">
+							<Button internalClassName="ss__facet__range-input__button--submit" onClick={submitRange}>
+								{mergedLang.submitRangeButton.value ? <label {...mergedLang.submitRangeButton.all}></label> : null}
+							</Button>
+						</div>
+					)}
 				</div>
 			)}
 
@@ -859,6 +868,8 @@ export type FacetTemplatesLegalProps = {
 	rangeInputsPrefix?: string;
 	rangeInputsInheritDefaultValues?: boolean;
 	rangeInputsSeparatorText?: string;
+	rangeInputsSubmitOnBlur?: boolean;
+	hideRangeInputsSubmitButton?: boolean;
 	justContent?: boolean;
 	horizontal?: boolean;
 };

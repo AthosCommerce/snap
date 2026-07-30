@@ -160,6 +160,20 @@ The `rangeInputsInheritDefaultValues` prop enables the facet range input values 
 <Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsInheritDefaultValues={true}/>
 ```
 
+### rangeInputsSubmitOnBlur
+The `rangeInputsSubmitOnBlur` prop submits the range inputs when either input loses focus (blur).
+
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true}/>
+```
+
+### hideSubmitButton
+The `hideSubmitButton` prop hides the range inputs submit button.
+
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true} hideSubmitButton={true}/>
+```
+
 ### showClearAllText
 The `showClearAllText` prop specifies if the clear all text should render.
 
