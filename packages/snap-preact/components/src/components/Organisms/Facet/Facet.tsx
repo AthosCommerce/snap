@@ -152,8 +152,10 @@ export const Facet = observer((properties: FacetProps) => {
 	// list, grid and palette are interchangeable; other displays (slider, hierarchy, toggle) have data
 	// requirements that must match the API display, so misaligned overrides fall back to the API display
 	const interchangeableDisplays: string[] = [FacetDisplay.LIST, FacetDisplay.GRID, FacetDisplay.PALETTE];
-	const resolveDisplayType = () => {
-		const apiDisplay = props.facet?.display;
+	const resolveDisplayType = (): ResolvedFacetDisplay => {
+		// the store types display as a plain string, so it is narrowed here - the options switch renders
+		// its default case for any value outside of FacetDisplay
+		const apiDisplay = props.facet?.display as ResolvedFacetDisplay;
 		if (props.displayType && interchangeableDisplays.includes(apiDisplay) && interchangeableDisplays.includes(props.displayType)) {
 			return props.displayType;
 		}
@@ -589,7 +591,9 @@ export const Facet = observer((properties: FacetProps) => {
 
 const FacetContent = (
 	props: Omit<FacetProps, 'displayType'> & {
-		displayType?: string;
+		// wider than the public displayType prop, as the resolved value can also be a display type that
+		// is not interchangeable (eg. slider, hierarchy)
+		displayType?: ResolvedFacetDisplay;
 		limitedValues: (FacetHierarchyValue | FacetValue | FacetRangeValue | undefined)[];
 		searchableFacet: {
 			allowableTypes: string[];
@@ -872,7 +876,7 @@ export type FacetTemplatesLegalProps = {
 	iconOverflowLess?: IconType | Partial<IconProps>;
 	fields?: FieldProps;
 	display?: FieldProps;
-	displayType?: `${FacetDisplay.GRID}` | `${FacetDisplay.PALETTE}` | `${FacetDisplay.LIST}`;
+	displayType?: InterchangeableFacetDisplay;
 	searchable?: boolean;
 	rangeInputs?: boolean;
 	rangeInputsSubmitButtonText?: string;
@@ -882,6 +886,12 @@ export type FacetTemplatesLegalProps = {
 	justContent?: boolean;
 	horizontal?: boolean;
 };
+
+// display types that can be swapped for one another via the displayType prop
+export type InterchangeableFacetDisplay = `${FacetDisplay.GRID}` | `${FacetDisplay.PALETTE}` | `${FacetDisplay.LIST}`;
+
+// the display type a facet renders with, once the displayType prop has been resolved against the API display
+export type ResolvedFacetDisplay = `${FacetDisplay}`;
 
 export interface FacetLang {
 	showMoreText: Lang<{
