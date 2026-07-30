@@ -148,11 +148,24 @@ export const Facet = observer((properties: FacetProps) => {
 
 	let props = mergeProps('facet', globalTheme, defaultProps, properties);
 
+	// resolves the rendered display type - the displayType prop overrides the API display, but only
+	// list, grid and palette are interchangeable; other displays (slider, hierarchy, toggle) have data
+	// requirements that must match the API display, so misaligned overrides fall back to the API display
+	const interchangeableDisplays: string[] = [FacetDisplay.LIST, FacetDisplay.GRID, FacetDisplay.PALETTE];
+	const resolveDisplayType = () => {
+		const apiDisplay = props.facet?.display;
+		if (props.displayType && interchangeableDisplays.includes(apiDisplay) && interchangeableDisplays.includes(props.displayType)) {
+			return props.displayType;
+		}
+		return apiDisplay;
+	};
+	let displayType = resolveDisplayType();
+
 	//manual props override on a per facet display type level using the display prop
-	if (props.display && props.display[props.facet?.display]) {
+	if (props.display && props.display[displayType]) {
 		props = {
 			...props,
-			...props.display[props.facet?.display],
+			...props.display[displayType],
 		};
 	}
 
@@ -163,6 +176,9 @@ export const Facet = observer((properties: FacetProps) => {
 			...props.fields[props.facet?.field],
 		};
 	}
+
+	// re-resolve in case the display or fields overrides set a displayType
+	displayType = resolveDisplayType();
 
 	const {
 		disableCollapse,
@@ -460,6 +476,7 @@ export const Facet = observer((properties: FacetProps) => {
 		className,
 		internalClassName,
 		...props,
+		displayType,
 	};
 
 	//initialize lang
@@ -506,7 +523,7 @@ export const Facet = observer((properties: FacetProps) => {
 					`${facet.collapsed ? 'ss__facet--collapsed' : ''}`,
 					className,
 					internalClassName,
-					`${facet.display ? `ss__facet--${facet.display}` : ''}`,
+					`${displayType ? `ss__facet--${displayType}` : ''}`,
 					(statefulOverflow ? overflowState?.remaining || 0 > 0 : ((facet as ValueFacet)?.overflow?.remaining || 0) > 0) || facet?.display == 'slider'
 						? ''
 						: 'ss__facet--showing-all'
@@ -571,7 +588,8 @@ export const Facet = observer((properties: FacetProps) => {
 });
 
 const FacetContent = (
-	props: FacetProps & {
+	props: Omit<FacetProps, 'displayType'> & {
+		displayType?: string;
 		limitedValues: (FacetHierarchyValue | FacetValue | FacetRangeValue | undefined)[];
 		searchableFacet: {
 			allowableTypes: string[];
@@ -607,6 +625,7 @@ const FacetContent = (
 		hideShowMoreLessText,
 		treePath,
 		mergedLang,
+		displayType,
 	} = props;
 
 	const [low, setLow] = useState<number | undefined>(
@@ -650,7 +669,7 @@ const FacetContent = (
 
 	return (
 		<>
-			{searchable && searchableFacet.allowableTypes.includes(facet.display) && (
+			{searchable && searchableFacet.allowableTypes.includes(displayType || facet.display) && (
 				<SearchInput
 					{...subProps.searchInput}
 					onChange={searchableFacet.searchFilter}
@@ -664,7 +683,7 @@ const FacetContent = (
 					if (optionsSlot) {
 						return cloneWithProps(optionsSlot, { facet, valueProps, limit, previewOnFocus, treePath });
 					} else {
-						switch (facet?.display) {
+						switch (displayType || facet?.display) {
 							// case FacetDisplay.TOGGLE:
 							// 	return <FacetToggle {...subProps.facetToggle} facet={facet as ValueFacet} />;
 							case FacetDisplay.SLIDER:
@@ -853,6 +872,7 @@ export type FacetTemplatesLegalProps = {
 	iconOverflowLess?: IconType | Partial<IconProps>;
 	fields?: FieldProps;
 	display?: FieldProps;
+	displayType?: `${FacetDisplay.GRID}` | `${FacetDisplay.PALETTE}` | `${FacetDisplay.LIST}`;
 	searchable?: boolean;
 	rangeInputs?: boolean;
 	rangeInputsSubmitButtonText?: string;
