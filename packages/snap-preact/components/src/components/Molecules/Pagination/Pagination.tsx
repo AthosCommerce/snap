@@ -117,9 +117,13 @@ export const Pagination = observer((properties: PaginationProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		pagination: store,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			pagination: store,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return pageNumbers && pageNumbers.length > 1 && store?.totalResults ? (
 		<CacheProvider>
@@ -160,10 +164,14 @@ export const Pagination = observer((properties: PaginationProps) => {
 
 							//deep merge with props.lang
 							const pagelang = deepmerge(defaultPageLang, props.lang || {});
-							const mergedPageLang = useLang(pagelang as any, {
-								pagination: store,
-								page: page,
-							});
+							const mergedPageLang = useLang(
+								pagelang as any,
+								{
+									pagination: store,
+									page: page,
+								},
+								globalTheme?.activeBreakpoint
+							);
 
 							return page.active ? (
 								<span

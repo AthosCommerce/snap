@@ -97,10 +97,14 @@ export const Filter = observer((properties: FilterProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		label,
-		value,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			label,
+			value,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return value ? (
 		<CacheProvider>

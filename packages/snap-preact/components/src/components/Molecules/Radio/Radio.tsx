@@ -140,10 +140,14 @@ export const Radio = observer((properties: RadioProps) => {
 
 	//deep merge with props.lang
 	const _lang = deepmerge(defaultLang, lang || {});
-	const mergedLang = useLang(_lang as any, {
-		disabled,
-		checkedState,
-	});
+	const mergedLang = useLang(
+		_lang as any,
+		{
+			disabled,
+			checkedState,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return (
 		<CacheProvider>

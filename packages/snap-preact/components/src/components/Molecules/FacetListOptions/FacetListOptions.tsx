@@ -132,10 +132,14 @@ export const FacetListOptions = observer((properties: FacetListOptionsProps) => 
 
 					//deep merge with props.lang
 					const lang = deepmerge(defaultLang, props.lang || {});
-					const mergedLang = useLang(lang as any, {
-						facet,
-						value,
-					});
+					const mergedLang = useLang(
+						lang as any,
+						{
+							facet,
+							value,
+						},
+						globalTheme?.activeBreakpoint
+					);
 
 					return (
 						<a

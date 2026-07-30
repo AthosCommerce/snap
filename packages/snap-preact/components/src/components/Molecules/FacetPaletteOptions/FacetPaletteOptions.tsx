@@ -273,10 +273,14 @@ export const FacetPaletteOptions = observer((properties: FacetPaletteOptionsProp
 
 					//deep merge with props.lang
 					const lang = deepmerge(defaultLang, props.lang || {});
-					const mergedLang = useLang(lang as any, {
-						facet,
-						value,
-					});
+					const mergedLang = useLang(
+						lang as any,
+						{
+							facet,
+							value,
+						},
+						globalTheme?.activeBreakpoint
+					);
 
 					let lowerCaseColorMapping;
 					if (colorMapping) {

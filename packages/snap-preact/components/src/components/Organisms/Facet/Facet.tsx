@@ -487,9 +487,13 @@ export const Facet = observer((properties: FacetProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		facet,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			facet,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	const selectedCount =
 		(facet as ValueFacet)?.values?.filter((value) => value?.filtered).length ||

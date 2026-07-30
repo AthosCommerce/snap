@@ -119,9 +119,13 @@ export const Terms = observer((properties: TermsProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedTitleLang = useLang({ title: lang.title } as any, {
-		controller,
-	});
+	const mergedTitleLang = useLang(
+		{ title: lang.title } as any,
+		{
+			controller,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return termsToShow?.length ? (
 		<CacheProvider>
@@ -143,11 +147,15 @@ export const Terms = observer((properties: TermsProps) => {
 							},
 						};
 						const termLang = deepmerge(defaultTermLang, props.lang || {});
-						const mergedTermLang = useLang({ term: termLang.term } as any, {
-							index: idx,
-							numberOfTerms: termsToShow.length,
-							term: term,
-						});
+						const mergedTermLang = useLang(
+							{ term: termLang.term } as any,
+							{
+								index: idx,
+								numberOfTerms: termsToShow.length,
+								term: term,
+							},
+							globalTheme?.activeBreakpoint
+						);
 
 						return (
 							<li

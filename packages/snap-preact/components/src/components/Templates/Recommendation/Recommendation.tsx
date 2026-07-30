@@ -168,7 +168,7 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {});
+	const mergedLang = useLang(lang as any, {}, globalTheme?.activeBreakpoint);
 
 	return (Array.isArray(children) && children.length) || resultsToRender?.length ? (
 		<CacheProvider>

@@ -54,7 +54,7 @@ export const BundleSelector = observer((properties: BundleSelectorProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge({}, props.lang || {});
-	const mergedLang = useLang(lang as any, {});
+	const mergedLang = useLang(lang as any, {}, globalTheme?.activeBreakpoint);
 	return (
 		<div
 			className={classnames(

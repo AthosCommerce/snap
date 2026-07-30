@@ -210,7 +210,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {});
+	const mergedLang = useLang(lang as any, {}, globalTheme?.activeBreakpoint);
 
 	return (
 		<CacheProvider>

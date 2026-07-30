@@ -210,7 +210,7 @@ export const CTASlot = observer((props: BundledCTAProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge({}, props.lang || {});
-	const mergedLang = useLang(lang as any, {});
+	const mergedLang = useLang(lang as any, {}, props?.theme?.activeBreakpoint);
 
 	return (
 		<>

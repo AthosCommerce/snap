@@ -99,7 +99,8 @@ export const SearchHeader = observer((properties: SearchHeaderProps) => {
 		{
 			pagination: pagination,
 			search: search,
-		} as SearchHeaderPropData
+		} as SearchHeaderPropData,
+		globalTheme?.activeBreakpoint
 	);
 
 	return (

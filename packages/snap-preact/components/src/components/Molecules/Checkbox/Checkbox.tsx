@@ -132,10 +132,14 @@ export const Checkbox = observer((properties: CheckboxProps) => {
 
 	//deep merge with props.lang
 	const _lang = deepmerge(defaultLang, lang || {});
-	const mergedLang = useLang(_lang as any, {
-		checkedState,
-		disabled,
-	});
+	const mergedLang = useLang(
+		_lang as any,
+		{
+			checkedState,
+			disabled,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return (
 		<CacheProvider>

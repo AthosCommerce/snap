@@ -143,9 +143,13 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		filters,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			filters,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return filters?.length ? (
 		<CacheProvider>

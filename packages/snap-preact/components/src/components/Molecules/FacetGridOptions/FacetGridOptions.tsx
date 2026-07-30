@@ -126,10 +126,14 @@ export const FacetGridOptions = observer((properties: FacetGridOptionsProps) => 
 
 					//deep merge with props.lang
 					const lang = deepmerge(defaultLang, props.lang || {});
-					const mergedLang = useLang(lang as any, {
-						facet,
-						value,
-					});
+					const mergedLang = useLang(
+						lang as any,
+						{
+							facet,
+							value,
+						},
+						globalTheme?.activeBreakpoint
+					);
 
 					return (
 						<a

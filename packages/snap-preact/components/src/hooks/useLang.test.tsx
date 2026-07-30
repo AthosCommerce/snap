@@ -365,4 +365,54 @@ describe('useLang hook', () => {
 			},
 		});
 	});
+
+	it('the hook passes activeBreakpoint to value and attribute functions', () => {
+		const name = 'thing';
+		const lang: LangObjType = {
+			[name]: {
+				value: (data) => `value-${data.activeBreakpoint}`,
+				attributes: {
+					'aria-label': (data) => `label-${data.activeBreakpoint}`,
+				},
+			},
+		};
+		const data = useLang(lang, {}, 'mobile');
+		expect(data[name].all).toEqual(
+			expect.objectContaining({
+				'aria-label': 'label-mobile',
+				dangerouslySetInnerHTML: { __html: 'value-mobile' },
+			})
+		);
+	});
+
+	it('the hook merges activeBreakpoint alongside other passed-in data', () => {
+		const name = 'thing';
+		const dataVal = 'stuff';
+		const lang: LangObjType = {
+			[name]: {
+				value: (data) => `${data.my_data}-${data.activeBreakpoint}`,
+			},
+		};
+		const data = useLang(lang, { my_data: dataVal }, 'tablet');
+		expect(data[name].value).toEqual({
+			dangerouslySetInnerHTML: { __html: `${dataVal}-tablet` },
+			'ss-lang': name,
+		});
+	});
+
+	it('the hook does not add an activeBreakpoint key when it is not passed', () => {
+		const name = 'thing';
+		const receivedData: Record<string, unknown>[] = [];
+		const lang: LangObjType = {
+			[name]: {
+				value: (data) => {
+					receivedData.push(data);
+					return 'stringy';
+				},
+			},
+		};
+		useLang(lang, { my_data: 'stuff' });
+		expect(receivedData[0]).toEqual({ my_data: 'stuff' });
+		expect(receivedData[0]).not.toHaveProperty('activeBreakpoint');
+	});
 });

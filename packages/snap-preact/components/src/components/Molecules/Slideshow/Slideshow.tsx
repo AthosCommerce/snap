@@ -645,11 +645,15 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		isPlaying,
-		isNextDisabled,
-		isPrevDisabled,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			isPlaying,
+			isNextDisabled,
+			isPrevDisabled,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	return (
 		<CacheProvider>
@@ -730,12 +734,16 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 							//deep merge with props.lang
 							const slideLang = deepmerge(defaultLang, props.lang || {});
-							const slideLangObj = useLang(slideLang as any, {
-								hasClickHandler,
-								imageAlt,
-								index,
-								slidesLength: normalizedSlides.length,
-							});
+							const slideLangObj = useLang(
+								slideLang as any,
+								{
+									hasClickHandler,
+									imageAlt,
+									index,
+									slidesLength: normalizedSlides.length,
+								},
+								globalTheme?.activeBreakpoint
+							);
 
 							return (
 								<div
@@ -796,10 +804,14 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 							//deep merge with props.lang
 							const paginationLang = deepmerge(defaultLang, props.lang || {});
-							const paginationLangObj = useLang(paginationLang as any, {
-								index,
-								totalDots,
-							});
+							const paginationLangObj = useLang(
+								paginationLang as any,
+								{
+									index,
+									totalDots,
+								},
+								globalTheme?.activeBreakpoint
+							);
 							const selected = currentDotIndex === index;
 							const subpropsToUse = selected ? subProps.PaginationCurrentButton : subProps.PaginationButton;
 							return (

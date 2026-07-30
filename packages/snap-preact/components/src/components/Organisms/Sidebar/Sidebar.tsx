@@ -118,9 +118,13 @@ export const Sidebar = observer((properties: SidebarProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller: controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller: controller,
+		},
+		globalTheme?.activeBreakpoint
+	);
 
 	const subProps: SidebarSubProps = {
 		Layout: {

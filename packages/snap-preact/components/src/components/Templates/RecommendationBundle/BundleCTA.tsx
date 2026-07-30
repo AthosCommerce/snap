@@ -67,9 +67,13 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge({}, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		cartStore,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			cartStore,
+		},
+		props?.theme?.activeBreakpoint
+	);
 	return (
 		<div className={`${classNamePrefix}__wrapper__cta`}>
 			{ctaSlot ? (
