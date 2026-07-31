@@ -460,6 +460,119 @@ describe('Facet Component', () => {
 			expect(lowInput.value).toBe(args.facet.range?.low?.toString());
 			expect(highInput.value).toBe(args.facet.range?.high?.toString());
 		});
+
+		it('rangeInputsSubmitOnBlur prop submits the range when an input is blurred', async () => {
+			const urlManager = { remove: jest.fn().mockReturnThis(), set: jest.fn().mockReturnThis(), go: jest.fn() };
+
+			const args = {
+				facet: {
+					...sliderFacetMock,
+					display: 'slider',
+					collapsed: false,
+					type: 'range',
+					field: 'price',
+					range: { low: 10, high: 100 },
+					active: { low: undefined, high: undefined },
+					services: { urlManager },
+				} as unknown as RangeFacet,
+				rangeInputs: true,
+				rangeInputsSubmitOnBlur: true,
+			};
+
+			const rendered = render(<Facet {...args} />);
+			const rangeInputsElement = rendered.container.querySelector('.ss__facet__range-inputs')!;
+
+			const submitButton = rangeInputsElement.querySelector('.ss__facet__range-input__button--submit');
+			expect(submitButton).toBeInTheDocument();
+
+			const lowInput = rangeInputsElement.querySelector('.ss__facet__range-input--low .ss__facet__range-input__input') as HTMLInputElement;
+			const highInput = rangeInputsElement.querySelector('.ss__facet__range-input--high .ss__facet__range-input__input') as HTMLInputElement;
+
+			await userEvent.type(lowInput, '20');
+			await userEvent.type(highInput, '80');
+			highInput.focus();
+			highInput.blur();
+
+			expect(urlManager.set).toHaveBeenCalledWith('filter.price', { low: 20, high: 80 });
+			expect(urlManager.go).toHaveBeenCalled();
+		});
+
+		it('submits the range with the Enter key even when rangeInputsSubmitButtonText is an empty string', async () => {
+			const urlManager = { remove: jest.fn().mockReturnThis(), set: jest.fn().mockReturnThis(), go: jest.fn() };
+
+			const args = {
+				facet: {
+					...sliderFacetMock,
+					display: 'slider',
+					collapsed: false,
+					type: 'range',
+					field: 'price',
+					range: { low: 10, high: 100 },
+					active: { low: undefined, high: undefined },
+					services: { urlManager },
+				} as unknown as RangeFacet,
+				rangeInputs: true,
+				rangeInputsSubmitButtonText: '',
+			};
+
+			const rendered = render(<Facet {...args} />);
+			const rangeInputsElement = rendered.container.querySelector('.ss__facet__range-inputs')!;
+
+			// the submit button doesn't render since it has no text/icon/content
+			const submitButton = rangeInputsElement.querySelector('.ss__facet__range-input__button--submit');
+			expect(submitButton).not.toBeInTheDocument();
+
+			const lowInput = rangeInputsElement.querySelector('.ss__facet__range-input--low .ss__facet__range-input__input') as HTMLInputElement;
+			const highInput = rangeInputsElement.querySelector('.ss__facet__range-input--high .ss__facet__range-input__input') as HTMLInputElement;
+
+			await userEvent.type(lowInput, '20');
+			await userEvent.type(highInput, '80');
+			await userEvent.type(highInput, '{Enter}');
+
+			expect(urlManager.set).toHaveBeenCalledWith('filter.price', { low: 20, high: 80 });
+			expect(urlManager.go).toHaveBeenCalled();
+		});
+
+		it('hideRangeInputsSubmitButton prop hides the submit button', async () => {
+			const urlManager = { remove: jest.fn().mockReturnThis(), set: jest.fn().mockReturnThis(), go: jest.fn() };
+
+			const args = {
+				facet: {
+					...sliderFacetMock,
+					display: 'slider',
+					collapsed: false,
+					type: 'range',
+					field: 'price',
+					range: { low: 10, high: 100 },
+					active: { low: undefined, high: undefined },
+					services: { urlManager },
+				} as unknown as RangeFacet,
+				rangeInputs: true,
+				rangeInputsSubmitOnBlur: true,
+				hideRangeInputsSubmitButton: true,
+			};
+
+			const rendered = render(<Facet {...args} />);
+			const rangeInputsElement = rendered.container.querySelector('.ss__facet__range-inputs')!;
+
+			const submitButton = rangeInputsElement.querySelector('.ss__facet__range-input__button--submit');
+			expect(submitButton).not.toBeInTheDocument();
+
+			const buttonWrapper = rangeInputsElement.querySelector('.ss__facet__range-inputs__row--button-wrapper');
+			expect(buttonWrapper).not.toBeInTheDocument();
+
+			// submission still works via blur even though the button is hidden
+			const lowInput = rangeInputsElement.querySelector('.ss__facet__range-input--low .ss__facet__range-input__input') as HTMLInputElement;
+			const highInput = rangeInputsElement.querySelector('.ss__facet__range-input--high .ss__facet__range-input__input') as HTMLInputElement;
+
+			await userEvent.type(lowInput, '20');
+			await userEvent.type(highInput, '80');
+			highInput.focus();
+			highInput.blur();
+
+			expect(urlManager.set).toHaveBeenCalledWith('filter.price', { low: 20, high: 80 });
+			expect(urlManager.go).toHaveBeenCalled();
+		});
 	});
 
 	it('renders with classname', () => {
