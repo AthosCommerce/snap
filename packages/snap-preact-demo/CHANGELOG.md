@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Bug Fixes
+
+- **cypress:** make post-render assertions retry instead of relying on a fixed settle ([f7995ca](https://github.com/AthosCommerce/snap/commit/f7995cac171b2646932198637612b60a21a23698))
+- **cypress:** retry opening the templates autocomplete input instead of clicking once ([6243374](https://github.com/AthosCommerce/snap/commit/624337492d6f550f84a2d6271d46a163102efee0))
+
+### Features
+
+- **preact:** adding webpack export for universal ES5 build and validation ([94e1dda](https://github.com/AthosCommerce/snap/commit/94e1dda3d47c6805c3d7fba8e326470a0d8e0877))
+
 ## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-preact-demo
