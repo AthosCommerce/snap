@@ -170,7 +170,8 @@ The `rangeInputsSubmitOnBlur` prop submits the range inputs when either input lo
 ### hideRangeInputsSubmitButton
 The `hideRangeInputsSubmitButton` prop hides the range inputs submit button.
 
-    <Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true} hideRangeInputsSubmitButton={true}/>
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true} hideRangeInputsSubmitButton={true}/>
 ```
 
 ### showClearAllText
