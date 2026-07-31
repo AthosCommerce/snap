@@ -5,7 +5,6 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-import packageJSON from '../../../package.json';
 import 'cypress-wait-until';
 
 Cypress.Commands.add('addScript', (script) => {
@@ -64,13 +63,13 @@ Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 		cy.wait(mergedOptions.delay);
 	}
 
-	return cy
-		.waitUntil(() => cy.window({ log: false }).then((window) => Boolean(getSettledController(window))), {
-			timeout: mergedOptions.timeout,
-			interval: mergedOptions.interval,
-			errorMsg: `snapController('${controllerId}'): controller never became available or store never stopped loading`,
-		})
-		.then(() => cy.window({ log: false }).then((window) => getSettledController(window)));
+	// the predicate must yield an explicit falsy to retry - a cy.then returning undefined keeps
+	// the previous subject (the window, truthy), which would end the wait immediately
+	return cy.waitUntil(() => cy.window({ log: false }).then((window) => getSettledController(window) ?? false), {
+		timeout: mergedOptions.timeout,
+		interval: mergedOptions.interval,
+		errorMsg: `snapController('${controllerId}'): controller never became available or store never stopped loading`,
+	});
 });
 
 Cypress.Commands.add('waitForBundle', () => {
@@ -109,11 +108,9 @@ Cypress.Commands.add('waitForRecsReady', (options) => {
 
 	// the email pages set window.RecsReady from their own RecsReady listener, so polling the flag
 	// also covers the case where the event fired before this command could attach a listener
-	return cy
-		.waitUntil(() => cy.window({ log: false }).then((window) => window.RecsReady === true), {
-			timeout: mergedOptions.timeout,
-			interval: mergedOptions.interval,
-			errorMsg: 'waitForRecsReady: window.RecsReady was never set (RecsReady event did not fire)',
-		})
-		.then(() => cy.window({ log: false }));
+	return cy.waitUntil(() => cy.window({ log: false }).then((window) => window.RecsReady === true && window), {
+		timeout: mergedOptions.timeout,
+		interval: mergedOptions.interval,
+		errorMsg: 'waitForRecsReady: window.RecsReady was never set (RecsReady event did not fire)',
+	});
 });
