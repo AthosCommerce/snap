@@ -274,6 +274,33 @@ const displayProp = {
 <Facet facet={controller.store.facets[0]} display={displayProp} />
 ```
 
+### displayType
+The `displayType` prop overrides the display type provided by the meta API, changing which options component the facet renders with. Accepts `'list'`, `'grid'`, or `'palette'` — only these display types are interchangeable. If the facet's API display type is not one of these (eg. `'slider'`, `'hierarchy'`), or the override value is not one of these, the prop is ignored and the API display type is used. Note that while a `'palette'` facet can be displayed as any of the other types, fields not intended for palette display may not render well as a palette (option values are used as swatch colors).
+
+```tsx
+<Facet facet={controller.store.facets[0]} displayType={'list'} />
+```
+
+When using Snap Templates, `displayType` can be set via theme overrides — including responsively per breakpoint and scoped to a specific component tree. For example, to render autocomplete facets as a list across all breakpoints while keeping the API display type (eg. `palette`) on desktop and everywhere in search:
+
+```typescript
+new SnapTemplates({
+	config: {
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					'autocompleteFixed facet': {
+						displayType: 'list',
+					},
+				},
+			},
+		},
+	},
+	// ...
+});
+```
+
 ### optionsSlot
 The `optionsSlot` prop is a JSX element used to manually set the options component used, regardless of the facet.display type. Returns the facet,valueProps, limit, & previewOnFocus prop values.
 

@@ -121,6 +121,108 @@ describe('Facet Component', () => {
 		});
 	});
 
+	describe('displayType prop', () => {
+		it('overrides the API display type', () => {
+			const args: FacetProps = {
+				facet: { ...paletteFacetMock, display: 'palette' } as ValueFacet,
+				displayType: 'list',
+			};
+			// @ts-ignore - readonly
+			args.facet.refinedValues = (args.facet as ValueFacet).values;
+			const rendered = render(<Facet {...args} />);
+			const facetElement = rendered.container.querySelector('.ss__facet');
+			expect(facetElement).toHaveClass('ss__facet--list');
+			expect(facetElement).not.toHaveClass('ss__facet--palette');
+			const count = rendered.container.querySelectorAll('.ss__facet-list-options__option').length;
+			expect(count).toEqual((args.facet as ValueFacet).values.length);
+			expect(rendered.container.querySelector('.ss__facet-palette-options')).not.toBeInTheDocument();
+		});
+
+		it('cannot override a hierarchy display and falls back to the API display', () => {
+			const args: FacetProps = {
+				facet: { ...hierarchyFacetMock, display: 'hierarchy' } as ValueFacet,
+				displayType: 'palette',
+			};
+			args.facet.collapsed = false;
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--hierarchy');
+			expect(rendered.container.querySelector('.ss__facet-hierarchy-options')).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__facet-palette-options')).not.toBeInTheDocument();
+		});
+
+		it('cannot override to a hierarchy display and falls back to the API display', () => {
+			const args: FacetProps = {
+				facet: { ...listFacetMock, display: 'list' } as ValueFacet,
+				//@ts-ignore - hierarchy is not an allowed displayType, testing runtime fallback for untyped theme configs
+				displayType: 'hierarchy',
+			};
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--list');
+			expect(rendered.container.querySelector('.ss__facet-list-options')).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__facet-hierarchy-options')).not.toBeInTheDocument();
+		});
+
+		it('cannot override a slider display', () => {
+			const args: FacetProps = {
+				//@ts-ignore - mock data type
+				facet: { ...sliderFacetMock, display: 'slider' } as RangeFacet,
+				displayType: 'list',
+			};
+			args.facet.collapsed = false;
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--slider');
+			expect(rendered.container.querySelector('.ss__facet-slider')).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__facet-list-options')).not.toBeInTheDocument();
+		});
+
+		it('applies display keyed props using the overridden display type', () => {
+			const args: FacetProps = {
+				facet: { ...facetOverflowMock, display: 'list' } as ValueFacet,
+				displayType: 'grid',
+				disableOverflow: true,
+				display: {
+					grid: { limit: 3 },
+					list: { limit: 1 },
+				},
+			};
+			const rendered = render(<Facet {...args} />);
+			const count = rendered.container.querySelectorAll('.ss__facet-grid-options__option').length;
+			expect(count).toEqual(3);
+		});
+
+		it('can be set per field via the fields prop', () => {
+			const args: FacetProps = {
+				facet: { ...paletteFacetMock, display: 'palette' } as ValueFacet,
+				fields: {
+					[paletteFacetMock.field!]: { displayType: 'grid' },
+				},
+			};
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--grid');
+			expect(rendered.container.querySelector('.ss__facet-grid-options')).toBeInTheDocument();
+		});
+
+		it('is themeable', () => {
+			const globalTheme = {
+				components: {
+					facet: {
+						displayType: 'list' as const,
+					},
+				},
+			};
+			const args: FacetProps = {
+				facet: { ...paletteFacetMock, display: 'palette' } as ValueFacet,
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<Facet {...args} />
+				</ThemeProvider>
+			);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--list');
+			expect(rendered.container.querySelector('.ss__facet-list-options')).toBeInTheDocument();
+		});
+	});
+
 	describe('Facet props', () => {
 		it('color prop', () => {
 			const args = {

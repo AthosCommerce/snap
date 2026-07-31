@@ -446,6 +446,20 @@ export default {
 				type: 'object',
 			},
 		},
+		displayType: {
+			description:
+				'Override the API display type used to render the facet options - only list, grid and palette are interchangeable; misaligned overrides fall back to the API display type',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+			},
+			control: {
+				type: 'select',
+			},
+			options: ['list', 'grid', 'palette'],
+		},
 		...componentArgs,
 	},
 };
