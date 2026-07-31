@@ -67,8 +67,9 @@ jobs:
       - name: Typecheck tests
         run: npm run typecheck:tests
 
-      # jest defaults to cores-1, which collapses to a single worker on a two-core
-      # runner; nproc is logged so the runner size is visible if this needs retuning
+      # jest defaults to cores-1, reserving a core for its mostly-idle coordinator;
+      # on small CI runners that idle core is better spent on a worker, so use 100%.
+      # nproc is logged so the runner size is visible if this needs retuning
       - name: Core tests
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"

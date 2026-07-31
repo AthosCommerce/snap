@@ -132,21 +132,20 @@ describe('until', () => {
 		jest.useFakeTimers();
 
 		try {
-			let thing = '';
-			expect.assertions(2);
+			// the value never becomes truthy, so until() should give up after `checkMax` checks
+			const check = jest.fn(() => '');
+			let rejected = false;
+			until(check, options).catch(() => {
+				rejected = true;
+			});
 
-			// attach the rejection expectation *before* draining the clock: it asserts the promise
-			// actually rejects, and doubles as the handler so the rejection can never surface as an
-			// unhandled rejection. runAllTimersAsync drains the exponential backoff across all
-			// `checkMax` checks, so the schedule does not have to be reproduced here.
-			const rejection = expect(until(() => thing, options)).rejects.toBeUndefined();
-
+			// fast-forward through every scheduled check (including the exponential backoff)
 			await jest.runAllTimersAsync();
-			await rejection;
 
-			expect(thing).toBe('');
+			expect(rejected).toBe(true);
+			// one immediate check plus `checkMax` scheduled retries
+			expect(check).toHaveBeenCalledTimes(options.checkMax! + 1);
 		} finally {
-			jest.runOnlyPendingTimers();
 			jest.useRealTimers();
 		}
 	});

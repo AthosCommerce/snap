@@ -51,8 +51,6 @@ describe('Theme styling works', () => {
 		cy.snapController().then(({ store }) => {
 			// assert via the alias so the assertion retries - the stylescript runs during theme
 			// render, which is not guaranteed to have happened the moment the store finishes loading
-			cy.get('@styleScript').should('have.been.called');
-			cy.get('@styleScript').should('have.been.calledWithMatch');
 			cy.get('@styleScript').should('have.been.calledWithMatch', {
 				name: 'global',
 				variables: {
@@ -115,8 +113,6 @@ describe('Theme styling works', () => {
 		cy.snapController().then(({ store }) => {
 			// assert via the alias so the assertion retries - the stylescript runs during theme
 			// render, which is not guaranteed to have happened the moment the store finishes loading
-			cy.get('@styleScript').should('have.been.called');
-			cy.get('@styleScript').should('have.been.calledWithMatch');
 			cy.get('@styleScript').should('have.been.calledWithMatch', {
 				name: 'global',
 				variables: {

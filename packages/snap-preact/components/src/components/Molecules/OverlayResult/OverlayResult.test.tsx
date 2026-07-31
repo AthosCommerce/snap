@@ -9,6 +9,7 @@ import { MockData } from '@athoscommerce/snap-shared';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { SearchResponseModelResultVariants } from '@athoscommerce/snapi-types';
+import { SearchController } from '@athoscommerce/snap-controller';
 
 const mockData = new MockData();
 const searchResponse = mockData.searchMeta();
@@ -180,9 +181,8 @@ describe('OverlayResult Component', () => {
 		try {
 			const controller = {
 				addToCart: jest.fn(),
-			};
+			} as any as SearchController;
 
-			// @ts-ignore
 			const rendered = render(<OverlayResult controller={controller} result={mockResults[1] as Product} hideAddToCartButton={false} />);
 
 			const resultElement = rendered.container.querySelector('.ss__overlay-result');
