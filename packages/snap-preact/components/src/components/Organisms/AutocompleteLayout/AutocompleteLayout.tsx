@@ -503,9 +503,13 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	let recsController: RecommendationController | undefined;
 	let RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;

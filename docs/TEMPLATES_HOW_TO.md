@@ -688,7 +688,7 @@ Snap Templates includes built-in language support for English (`en`), French (`f
 
 Each component in the theme tree can have a `lang` object containing translatable strings. The `translations` config is keyed by language code, then by component name. Each component entry contains named lang properties, where each property has a `value` (static string or function) and optional `attributes` (e.g. `aria-label`, `placeholder`).
 
-When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions.
+When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions. In Snap Templates, the `data` object includes `activeBreakpoint`, the currently active responsive breakpoint (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size.
 
 #### Basic Setup
 
@@ -778,6 +778,46 @@ new SnapTemplates({
 	},
 });
 ```
+
+#### Responsive Translations
+
+Since a `value` function's `data` argument always includes `activeBreakpoint`, you can swap out text at different screen sizes without adding your own resize logic — just check `data.activeBreakpoint` inline:
+
+```tsx
+new SnapTemplates({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: (data) => (data.activeBreakpoint === 'mobile' ? 'Filters' : 'Filter Results'),
+				},
+			},
+			autocompleteLayout: {
+				seeMoreButton: {
+					value: (data) =>
+						data.activeBreakpoint === 'mobile'
+							? 'See more'
+							: `See ${data?.controller?.store?.pagination?.totalResults} results`,
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+> [!NOTE]
+> `activeBreakpoint` reflects the breakpoint thresholds configured in `theme.variables.breakpoints` (see [Global Styles with Breakpoints](#global-styles-with-breakpoints)). It is `'default'` when no responsive breakpoints are configured or the current width doesn't match a defined breakpoint.
 
 #### Translation with HTML Attributes
 

@@ -229,12 +229,16 @@ export const Select = observer((properties: SelectProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		options,
-		selectedOptions,
-		label,
-		open,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			options,
+			selectedOptions,
+			label,
+			open,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	// options can be an Array or ObservableArray - but should have length
 	return typeof options == 'object' && options?.length ? (

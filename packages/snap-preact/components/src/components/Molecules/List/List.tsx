@@ -187,10 +187,14 @@ export const List = observer((properties: ListProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		options,
-		selectedOptions: selection,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			options,
+			selectedOptions: selection,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return typeof options == 'object' && options?.length ? (
 		<CacheProvider>

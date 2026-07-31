@@ -13,10 +13,10 @@ const devServer = {
 	output: {
 		filename: 'server.js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 	devServer: {
 		server: 'https',
-		port: 2222,
+		port: Number(process.env.SNAP_DEV_PORT || 2222),
 		hot: true,
 		allowedHosts: 'all',
 		headers: {
@@ -90,7 +90,7 @@ const modern = {
 		filename: 'bundle.js',
 		chunkFilename: 'bundle.chunk.[fullhash:8].[id].js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 };
 
 import modernTemplatesProd from './templates/webpack.modern.js';
@@ -125,7 +125,7 @@ const modernTemplates = {
 		filename: 'bundle.js',
 		chunkFilename: 'bundle.chunk.[fullhash:8].[id].js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 };
 
 import universalProd from './snap/webpack.universal.js';
@@ -160,7 +160,7 @@ const universal = {
 		filename: 'universal.bundle.js',
 		chunkFilename: 'universal.bundle.chunk.[fullhash:8].[id].js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 };
 
 import universalTemplatesProd from './templates/webpack.universal.js';
@@ -194,7 +194,7 @@ const universalTemplates = {
 		filename: 'universal.bundle.js',
 		chunkFilename: 'universal.bundle.chunk.[fullhash:8].[id].js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 };
 
 import universalHybridProd from './hybrid/webpack.universal.js';
@@ -229,7 +229,7 @@ const universalHybrid = {
 		filename: 'universal.bundle.js',
 		chunkFilename: 'universal.bundle.chunk.[fullhash:8].[id].js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 };
 
 import modernHybridProd from './hybrid/webpack.modern.js';
@@ -264,7 +264,10 @@ const modernHybrid = {
 		filename: 'bundle.js',
 		chunkFilename: 'bundle.chunk.[fullhash:8].[id].js',
 	},
-	devtool: 'source-map',
+	devtool: 'eval-cheap-module-source-map',
 };
 
-export default [devServer, modern, modernTemplates, universal, universalTemplates, modernHybrid, universalHybrid];
+const modernConfigs = [devServer, modern, modernTemplates, modernHybrid];
+const universalConfigs = [universal, universalTemplates, universalHybrid];
+
+export default process.env.SNAP_WEBPACK_UNIVERSAL === '1' ? [...modernConfigs, ...universalConfigs] : modernConfigs;
