@@ -3281,12 +3281,13 @@ try {
 						if (!t) {
 							(t = !0), e || (e = wT);
 							var o = e(n);
-							return Br(o)
-								? o.then(function () {
-										if (a) throw a;
-										return n;
-								  })
-								: n;
+							if (Br(o))
+								return o.then(function () {
+									if (a) throw a;
+									return n;
+								});
+							if (a) throw a;
+							return n;
 						}
 					}
 					return this.then(function (n) {

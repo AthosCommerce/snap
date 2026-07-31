@@ -352,12 +352,12 @@ window.translations = {
 					f = new RegExp(a),
 					p = new RegExp(l),
 					v = new RegExp(c),
-					x = new RegExp(d),
-					w = /^(.+?)(ss|i)es$/,
+					E = new RegExp(d),
+					L = /^(.+?)(ss|i)es$/,
 					m = /^(.+?)([^s])s$/,
 					g = /^(.+?)eed$/,
 					T = /^(.+?)(ed|ing)$/,
-					L = /.$/,
+					w = /.$/,
 					C = /(at|bl|iz)$/,
 					O = new RegExp('([^aeiouylsz])\\1$'),
 					j = new RegExp('^' + s + i + '[^aeiouwxy]$'),
@@ -365,36 +365,36 @@ window.translations = {
 					q =
 						/^(.+?)(ational|tional|enci|anci|izer|bli|alli|entli|eli|ousli|ization|ation|ator|alism|iveness|fulness|ousness|aliti|iviti|biliti|logi)$/,
 					W = /^(.+?)(icate|ative|alize|iciti|ical|ful|ness)$/,
-					B = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/,
+					V = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/,
 					z = /^(.+?)(s|t)(ion)$/,
 					_ = /^(.+?)e$/,
 					U = /ll$/,
 					J = new RegExp('^' + s + i + '[^aeiouwxy]$'),
-					V = function (u) {
-						var y, P, k, h, E, Q, H;
+					B = function (u) {
+						var y, P, k, h, x, Q, H;
 						if (u.length < 3) return u;
 						if (
 							((k = u.substr(0, 1)),
 							k == 'y' && (u = k.toUpperCase() + u.substr(1)),
-							(h = w),
-							(E = m),
-							h.test(u) ? (u = u.replace(h, '$1$2')) : E.test(u) && (u = u.replace(E, '$1$2')),
+							(h = L),
+							(x = m),
+							h.test(u) ? (u = u.replace(h, '$1$2')) : x.test(u) && (u = u.replace(x, '$1$2')),
 							(h = g),
-							(E = T),
+							(x = T),
 							h.test(u))
 						) {
 							var b = h.exec(u);
-							(h = f), h.test(b[1]) && ((h = L), (u = u.replace(h, '')));
-						} else if (E.test(u)) {
-							var b = E.exec(u);
+							(h = f), h.test(b[1]) && ((h = w), (u = u.replace(h, '')));
+						} else if (x.test(u)) {
+							var b = x.exec(u);
 							(y = b[1]),
-								(E = x),
-								E.test(y) &&
+								(x = E),
+								x.test(y) &&
 									((u = y),
-									(E = C),
+									(x = C),
 									(Q = O),
 									(H = j),
-									E.test(u) ? (u = u + 'e') : Q.test(u) ? ((h = L), (u = u.replace(h, ''))) : H.test(u) && (u = u + 'e'));
+									x.test(u) ? (u = u + 'e') : Q.test(u) ? ((h = w), (u = u.replace(h, ''))) : H.test(u) && (u = u + 'e'));
 						}
 						if (((h = N), h.test(u))) {
 							var b = h.exec(u);
@@ -408,21 +408,21 @@ window.translations = {
 							var b = h.exec(u);
 							(y = b[1]), (P = b[2]), (h = f), h.test(y) && (u = y + n[P]);
 						}
-						if (((h = B), (E = z), h.test(u))) {
+						if (((h = V), (x = z), h.test(u))) {
 							var b = h.exec(u);
 							(y = b[1]), (h = p), h.test(y) && (u = y);
-						} else if (E.test(u)) {
-							var b = E.exec(u);
-							(y = b[1] + b[2]), (E = p), E.test(y) && (u = y);
+						} else if (x.test(u)) {
+							var b = x.exec(u);
+							(y = b[1] + b[2]), (x = p), x.test(y) && (u = y);
 						}
 						if (((h = _), h.test(u))) {
 							var b = h.exec(u);
-							(y = b[1]), (h = p), (E = v), (Q = J), (h.test(y) || (E.test(y) && !Q.test(y))) && (u = y);
+							(y = b[1]), (h = p), (x = v), (Q = J), (h.test(y) || (x.test(y) && !Q.test(y))) && (u = y);
 						}
-						return (h = U), (E = p), h.test(u) && E.test(u) && ((h = L), (u = u.replace(h, ''))), k == 'y' && (u = k.toLowerCase() + u.substr(1)), u;
+						return (h = U), (x = p), h.test(u) && x.test(u) && ((h = w), (u = u.replace(h, ''))), k == 'y' && (u = k.toLowerCase() + u.substr(1)), u;
 					};
 				return function (A) {
-					return A.update(V);
+					return A.update(B);
 				};
 			})()),
 				t.Pipeline.registerFunction(t.stemmer, 'stemmer');
@@ -657,13 +657,13 @@ window.translations = {
 								var p = a[f];
 								if (p == d || d == '*') {
 									var v = r.node.edges[p],
-										x = r.qNode.edges[d],
-										w = v.final && x.final,
+										E = r.qNode.edges[d],
+										L = v.final && E.final,
 										m = void 0;
 									p in r.output.edges
-										? ((m = r.output.edges[p]), (m.final = m.final || w))
-										: ((m = new t.TokenSet()), (m.final = w), (r.output.edges[p] = m)),
-										i.push({ qNode: x, output: m, node: v });
+										? ((m = r.output.edges[p]), (m.final = m.final || L))
+										: ((m = new t.TokenSet()), (m.final = L), (r.output.edges[p] = m)),
+										i.push({ qNode: E, output: m, node: v });
 								}
 							}
 					}
@@ -731,21 +731,21 @@ window.translations = {
 						for (var p = 0; p < d.length; p++) {
 							var v = d[p];
 							l.term = v;
-							var x = t.TokenSet.fromClause(l),
-								w = this.tokenSet.intersect(x).toArray();
-							if (w.length === 0 && l.presence === t.Query.presence.REQUIRED) {
+							var E = t.TokenSet.fromClause(l),
+								L = this.tokenSet.intersect(E).toArray();
+							if (L.length === 0 && l.presence === t.Query.presence.REQUIRED) {
 								for (var m = 0; m < l.fields.length; m++) {
 									var g = l.fields[m];
 									o[g] = t.Set.empty;
 								}
 								break;
 							}
-							for (var T = 0; T < w.length; T++)
-								for (var L = w[T], C = this.invertedIndex[L], O = C._index, m = 0; m < l.fields.length; m++) {
+							for (var T = 0; T < L.length; T++)
+								for (var w = L[T], C = this.invertedIndex[w], O = C._index, m = 0; m < l.fields.length; m++) {
 									var g = l.fields[m],
 										j = C[g],
 										N = Object.keys(j),
-										q = L + '/' + g,
+										q = w + '/' + g,
 										W = new t.Set(N);
 									if (
 										(l.presence == t.Query.presence.REQUIRED && ((f = f.union(W)), o[g] === void 0 && (o[g] = t.Set.complete)),
@@ -760,12 +760,12 @@ window.translations = {
 										}),
 										!s[q])
 									) {
-										for (var B = 0; B < N.length; B++) {
-											var z = N[B],
+										for (var V = 0; V < N.length; V++) {
+											var z = N[V],
 												_ = new t.FieldRef(z, g),
 												U = j[z],
 												J;
-											(J = r[_]) === void 0 ? (r[_] = new t.MatchData(L, g, U)) : J.add(L, g, U);
+											(J = r[_]) === void 0 ? (r[_] = new t.MatchData(w, g, U)) : J.add(w, g, U);
 										}
 										s[q] = !0;
 									}
@@ -777,9 +777,9 @@ window.translations = {
 								o[g] = o[g].intersect(f);
 							}
 					}
-					for (var V = t.Set.complete, A = t.Set.empty, c = 0; c < this.fields.length; c++) {
+					for (var B = t.Set.complete, A = t.Set.empty, c = 0; c < this.fields.length; c++) {
 						var g = this.fields[c];
-						o[g] && (V = V.intersect(o[g])), a[g] && (A = A.union(a[g]));
+						o[g] && (B = B.intersect(o[g])), a[g] && (A = A.union(a[g]));
 					}
 					var u = Object.keys(r),
 						y = [],
@@ -795,9 +795,9 @@ window.translations = {
 					for (var c = 0; c < u.length; c++) {
 						var k = t.FieldRef.fromString(u[c]),
 							h = k.docRef;
-						if (V.contains(h) && !A.contains(h)) {
-							var E = this.fieldVectors[k],
-								Q = i[k.fieldName].similarity(E),
+						if (B.contains(h) && !A.contains(h)) {
+							var x = this.fieldVectors[k],
+								Q = i[k.fieldName].similarity(x),
 								H;
 							if ((H = P[h]) !== void 0) (H.score += Q), H.matchData.combine(r[k]);
 							else {
@@ -846,8 +846,8 @@ window.translations = {
 					for (var l = 0; l < o.length; l++) {
 						var d = o[l],
 							v = d[0],
-							x = d[1];
-						a.insert(v), (s[v] = x);
+							E = d[1];
+						a.insert(v), (s[v] = E);
 					}
 					return (
 						a.finish(), (n.fields = e.fields), (n.fieldVectors = r), (n.invertedIndex = s), (n.tokenSet = a.root), (n.pipeline = c), new t.Index(n)
@@ -896,18 +896,18 @@ window.translations = {
 							p = Object.create(null);
 						(this.fieldTermFrequencies[f] = p), (this.fieldLengths[f] = 0), (this.fieldLengths[f] += d.length);
 						for (var v = 0; v < d.length; v++) {
-							var x = d[v];
-							if ((p[x] == null && (p[x] = 0), (p[x] += 1), this.invertedIndex[x] == null)) {
-								var w = Object.create(null);
-								(w._index = this.termIndex), (this.termIndex += 1);
-								for (var m = 0; m < i.length; m++) w[i[m]] = Object.create(null);
-								this.invertedIndex[x] = w;
+							var E = d[v];
+							if ((p[E] == null && (p[E] = 0), (p[E] += 1), this.invertedIndex[E] == null)) {
+								var L = Object.create(null);
+								(L._index = this.termIndex), (this.termIndex += 1);
+								for (var m = 0; m < i.length; m++) L[i[m]] = Object.create(null);
+								this.invertedIndex[E] = L;
 							}
-							this.invertedIndex[x][o][r] == null && (this.invertedIndex[x][o][r] = Object.create(null));
+							this.invertedIndex[E][o][r] == null && (this.invertedIndex[E][o][r] = Object.create(null));
 							for (var g = 0; g < this.metadataWhitelist.length; g++) {
 								var T = this.metadataWhitelist[g],
-									L = x.metadata[T];
-								this.invertedIndex[x][o][r][T] == null && (this.invertedIndex[x][o][r][T] = []), this.invertedIndex[x][o][r][T].push(L);
+									w = E.metadata[T];
+								this.invertedIndex[E][o][r][T] == null && (this.invertedIndex[E][o][r][T] = []), this.invertedIndex[E][o][r][T].push(w);
 							}
 						}
 					}
@@ -935,21 +935,21 @@ window.translations = {
 								f = Object.keys(d),
 								p = f.length,
 								v = this._fields[a].boost || 1,
-								x = this._documents[o.docRef].boost || 1,
-								w = 0;
-							w < p;
-							w++
+								E = this._documents[o.docRef].boost || 1,
+								L = 0;
+							L < p;
+							L++
 						) {
-							var m = f[w],
+							var m = f[L],
 								g = d[m],
 								T = this.invertedIndex[m]._index,
-								L,
+								w,
 								C,
 								O;
-							i[m] === void 0 ? ((L = t.idf(this.invertedIndex[m], this.documentCount)), (i[m] = L)) : (L = i[m]),
-								(C = (L * ((this._k1 + 1) * g)) / (this._k1 * (1 - this._b + this._b * (c / this.averageFieldLength[a])) + g)),
+							i[m] === void 0 ? ((w = t.idf(this.invertedIndex[m], this.documentCount)), (i[m] = w)) : (w = i[m]),
+								(C = (w * ((this._k1 + 1) * g)) / (this._k1 * (1 - this._b + this._b * (c / this.averageFieldLength[a])) + g)),
 								(C *= v),
-								(C *= x),
+								(C *= E),
 								(O = Math.round(C * 1e3) / 1e3),
 								l.insert(T, O);
 						}
@@ -1216,13 +1216,9 @@ window.translations = {
 							var i = 'expecting term, found nothing';
 							throw new t.QueryParseError(i, n.start, n.end);
 						}
-						switch (s.type) {
-							case t.QueryLexer.TERM:
-								return t.QueryParser.parseTerm;
-							default:
-								var i = "expecting term, found '" + s.type + "'";
-								throw new t.QueryParseError(i, s.start, s.end);
-						}
+						if (s.type === t.QueryLexer.TERM) return t.QueryParser.parseTerm;
+						var i = "expecting term, found '" + s.type + "'";
+						throw new t.QueryParseError(i, s.start, s.end);
 					}
 				}),
 				(t.QueryParser.parseTerm = function (e) {
@@ -1514,7 +1510,7 @@ window.translations = {
 	function st() {
 		document.body.style.removeProperty('overflow'), document.body.style.removeProperty('padding-right');
 	}
-	function xe(t, e) {
+	function Ee(t, e) {
 		t.addEventListener('animationend', () => {
 			t.classList.contains(Y) && (t.classList.remove(Y), document.getElementById(ae)?.remove(), t.close(), st());
 		}),
@@ -1530,7 +1526,7 @@ window.translations = {
 					!0
 				);
 	}
-	function Ee(t) {
+	function xe(t) {
 		if (t.open) return;
 		let e = document.createElement('div');
 		(e.id = ae), document.body.appendChild(e), t.showModal(), it();
@@ -1549,7 +1545,7 @@ window.translations = {
 	var be = document.head.appendChild(document.createElement('style'));
 	be.dataset.for = 'filters';
 	var le = {};
-	function we(t) {
+	function Le(t) {
 		for (let e of t.split(/\s+/)) if (le.hasOwnProperty(e) && !le[e]) return !0;
 		return !1;
 	}
@@ -1583,7 +1579,7 @@ window.translations = {
 				this.app.updateIndexVisibility();
 		}
 	};
-	var Le = 0;
+	var we = 0;
 	async function Se(t, e) {
 		if (!window.searchData) return;
 		let n = await R(window.searchData);
@@ -1611,9 +1607,9 @@ window.translations = {
 	}
 	function ot(t, e) {
 		let { field: n, results: r, searchEl: i, status: s, trigger: o } = t;
-		xe(i, { closeOnClick: !0 });
+		Ee(i, { closeOnClick: !0 });
 		function a() {
-			Ee(i), n.setSelectionRange(0, n.value.length);
+			xe(i), n.setSelectionRange(0, n.value.length);
 		}
 		o.addEventListener('click', a),
 			n.addEventListener(
@@ -1671,7 +1667,7 @@ window.translations = {
 	}
 	function at(t, e, n, r) {
 		if (!r.index || !r.data) return;
-		(t.innerHTML = ''), (n.innerHTML = ''), (Le += 1);
+		(t.innerHTML = ''), (n.innerHTML = ''), (we += 1);
 		let i = e.value.trim(),
 			s;
 		if (i) {
@@ -1681,7 +1677,7 @@ window.translations = {
 				.join(' ');
 			s = r.index.search(a).filter(({ ref: c }) => {
 				let l = r.data.rows[Number(c)].classes;
-				return !l || !we(l);
+				return !l || !Le(l);
 			});
 		} else s = [];
 		if (s.length === 0 && i) {
@@ -1699,16 +1695,17 @@ window.translations = {
 		let o = Math.min(10, s.length);
 		for (let a = 0; a < o; a++) {
 			let c = r.data.rows[Number(s[a].ref)],
-				d = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="tsd-kind-icon" aria-label="${window.translations[
-					`kind_${c.kind}`
-				].replaceAll('"', '&quot;')}"><use href="#icon-${c.icon || c.kind}"></use></svg>`,
+				d = `<svg width="20" height="20" class="tsd-kind-icon" aria-label="${window.translations[`kind_${c.kind}`].replaceAll(
+					'"',
+					'&quot;'
+				)}"><use href="#icon-${c.icon || c.kind}"></use></svg>`,
 				f = Ce(c.name, i);
 			globalThis.DEBUG_SEARCH_WEIGHTS && (f += ` (score: ${s[a].score.toFixed(2)})`),
 				c.parent &&
 					(f = `<span class="parent">
                 ${Ce(c.parent, i)}.</span>${f}`);
 			let p = document.createElement('li');
-			(p.id = `tsd-search:${Le}-${a}`), (p.role = 'option'), (p.ariaSelected = 'false'), (p.classList.value = c.classes ?? '');
+			(p.id = `tsd-search:${we}-${a}`), (p.role = 'option'), (p.ariaSelected = 'false'), (p.classList.value = c.classes ?? '');
 			let v = document.createElement('a');
 			(v.tabIndex = -1), (v.href = r.base + c.url), (v.innerHTML = d + `<span class="text">${f}</span>`), p.append(v), t.appendChild(p);
 		}
@@ -1880,10 +1877,10 @@ window.translations = {
 		if (!t || !window.navigationData) return;
 		let e = await R(window.navigationData);
 		(se = document.documentElement.dataset.base), se.endsWith('/') || (se += '/'), (t.innerHTML = '');
-		for (let n of e) Be(n, t, []);
+		for (let n of e) Ve(n, t, []);
 		window.app.createComponents(t), window.app.showPage(), window.app.ensureActivePageVisible();
 	}
-	function Be(t, e, n) {
+	function Ve(t, e, n) {
 		let r = e.appendChild(document.createElement('li'));
 		if (t.children) {
 			let i = [...n, t.text],
@@ -1892,13 +1889,13 @@ window.translations = {
 			let o = s.appendChild(document.createElement('summary'));
 			(o.className = 'tsd-accordion-summary'),
 				(o.dataset.key = i.join('$')),
-				(o.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg>'),
+				(o.innerHTML = '<svg width="20" height="20"><use href="#icon-chevronDown"></use></svg>'),
 				De(t, o);
 			let a = s.appendChild(document.createElement('div'));
 			a.className = 'tsd-accordion-details';
 			let c = a.appendChild(document.createElement('ul'));
 			c.className = 'tsd-nested-navigation';
-			for (let l of t.children) Be(l, c, i);
+			for (let l of t.children) Ve(l, c, i);
 		} else De(t, r, t.class);
 	}
 	function De(t, e, n) {
@@ -1911,15 +1908,13 @@ window.translations = {
 				t.kind)
 			) {
 				let i = window.translations[`kind_${t.kind}`].replaceAll('"', '&quot;');
-				r.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="tsd-kind-icon" aria-label="${i}"><use href="#icon-${
-					t.icon || t.kind
-				}"></use></svg>`;
+				r.innerHTML = `<svg width="20" height="20" class="tsd-kind-icon" aria-label="${i}"><use href="#icon-${t.icon || t.kind}"></use></svg>`;
 			}
 			r.appendChild(Fe(t.text, document.createElement('span')));
 		} else {
 			let r = e.appendChild(document.createElement('span')),
 				i = window.translations.folder.replaceAll('"', '&quot;');
-			(r.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="tsd-kind-icon" aria-label="${i}"><use href="#icon-folder"></use></svg>`),
+			(r.innerHTML = `<svg width="20" height="20" class="tsd-kind-icon" aria-label="${i}"><use href="#icon-folder"></use></svg>`),
 				r.appendChild(Fe(t.text, document.createElement('span')));
 		}
 	}
@@ -1963,9 +1958,9 @@ window.translations = {
 	}
 	function pt() {
 		let t = document.getElementById('tsd-hierarchy-script');
-		t && (t.addEventListener('load', Ve), Ve());
+		t && (t.addEventListener('load', Be), Be());
 	}
-	async function Ve() {
+	async function Be() {
 		let t = document.querySelector('.tsd-panel.tsd-hierarchy:has(h4 a)');
 		if (!t || !window.hierarchyData) return;
 		let e = +t.dataset.refl,
@@ -2033,14 +2028,7 @@ window.translations = {
 	}
 	function gt() {
 		let t = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		return (
-			t.setAttribute('width', '20'),
-			t.setAttribute('height', '20'),
-			t.setAttribute('viewBox', '0 0 24 24'),
-			t.setAttribute('fill', 'none'),
-			(t.innerHTML = '<use href="#icon-chevronDown"></use>'),
-			t
-		);
+		return t.setAttribute('width', '20'), t.setAttribute('height', '20'), (t.innerHTML = '<use href="#icon-chevronDown"></use>'), t;
 	}
 	X(re, 'a[data-toggle]');
 	X(ie, '.tsd-accordion');
