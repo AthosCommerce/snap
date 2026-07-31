@@ -29,21 +29,29 @@ describe('Hybrid tests', () => {
 		it('has a templates search controller with templates targeters', () => {
 			// Templates config creates a search controller (id: 'search') targeting #athos-layout
 			cy.snapController('search').then((controller) => {
-				const targeterIds = Object.keys(controller.targeters);
-				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
+				// re-read targeters on each retry - they are registered during snap init and are
+				// not guaranteed to be present the moment the store finishes loading
+				cy.wrap(controller).should((c) => {
+					const targeterIds = Object.keys(c.targeters);
+					const allSelectors = targeterIds.flatMap((id) => c.targeters[id].targets.map((t) => t.selector));
 
-				expect(allSelectors).to.include('#athos-layout');
+					expect(allSelectors).to.include('#athos-layout');
+				});
 			});
 		});
 
 		it('has a snap search controller with snap targeters', () => {
 			// Snap config creates a search controller (id: 'search_snap') targeting #athos-content and #athos-sidebar
 			cy.snapController('search_snap').then((controller) => {
-				const targeterIds = Object.keys(controller.targeters);
-				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
+				// re-read targeters on each retry - they are registered during snap init and are
+				// not guaranteed to be present the moment the store finishes loading
+				cy.wrap(controller).should((c) => {
+					const targeterIds = Object.keys(c.targeters);
+					const allSelectors = targeterIds.flatMap((id) => c.targeters[id].targets.map((t) => t.selector));
 
-				expect(allSelectors).to.include('#athos-content');
-				expect(allSelectors).to.include('#athos-sidebar');
+					expect(allSelectors).to.include('#athos-content');
+					expect(allSelectors).to.include('#athos-sidebar');
+				});
 			});
 		});
 
@@ -81,17 +89,25 @@ describe('Hybrid tests', () => {
 		it('has autocomplete controllers with targeter selectors', () => {
 			// Both configs target input.athos-ac on their respective controllers
 			cy.snapController('autocomplete').then((controller) => {
-				const targeterIds = Object.keys(controller.targeters);
-				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
+				// re-read targeters on each retry - they are registered during snap init and are
+				// not guaranteed to be present the moment the store finishes loading
+				cy.wrap(controller).should((c) => {
+					const targeterIds = Object.keys(c.targeters);
+					const allSelectors = targeterIds.flatMap((id) => c.targeters[id].targets.map((t) => t.selector));
 
-				expect(allSelectors).to.include('input.athos-ac');
+					expect(allSelectors).to.include('input.athos-ac');
+				});
 			});
 
 			cy.snapController('autocomplete_snap').then((controller) => {
-				const targeterIds = Object.keys(controller.targeters);
-				const allSelectors = targeterIds.flatMap((id) => controller.targeters[id].targets.map((t) => t.selector));
+				// re-read targeters on each retry - they are registered during snap init and are
+				// not guaranteed to be present the moment the store finishes loading
+				cy.wrap(controller).should((c) => {
+					const targeterIds = Object.keys(c.targeters);
+					const allSelectors = targeterIds.flatMap((id) => c.targeters[id].targets.map((t) => t.selector));
 
-				expect(allSelectors).to.include('input.athos-ac');
+					expect(allSelectors).to.include('input.athos-ac');
+				});
 			});
 		});
 

@@ -260,10 +260,14 @@ export const Grid = observer((properties: GridProps) => {
 
 		//deep merge with props.lang
 		const lang = deepmerge(defaultLang, props.lang || {});
-		const mergedLang = useLang(lang as any, {
-			limited,
-			remainder,
-		});
+		const mergedLang = useLang(
+			lang as any,
+			{
+				limited,
+				remainder,
+			},
+			{ activeBreakpoint: globalTheme?.activeBreakpoint }
+		);
 
 		return showButton && remainder > 0 && options.length !== limit ? (
 			<div
