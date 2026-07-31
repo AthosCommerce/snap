@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Cache node modules
+      - name: Cache Node modules
         uses: actions/cache@v4
         env:
           cache-name: cache-node-modules
@@ -40,8 +40,42 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      - name: Cache Jest transform output
+        uses: actions/cache@v4
+        with:
+          path: .jest-cache
+          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'tsconfig.json', 'jest.base.config.json') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-
+
+      # npm ci downloads and extracts the Cypress binary on every uncached run
+      - name: Cache Cypress binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-
+
       - name: Install packages
         run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      # jest runs transpile-only, so this is the only type gate for test files
+      - name: Typecheck tests
+        run: npm run typecheck:tests
+
+      # jest defaults to cores-1, reserving a core for its mostly-idle coordinator;
+      # on small CI runners that idle core is better spent on a worker, so use 100%.
+      # nproc is logged so the runner size is visible if this needs retuning
+      - name: Core tests
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+        run: |
+          echo "runner cores: $(nproc)"
+          npm run test:core -- --maxWorkers=100%
 
       - name: Verify docs sitemap
         run: npm run build:sitemap -- --check
@@ -49,13 +83,13 @@ jobs:
       - name: Build
         run: npm run build:prod
 
-      - name: Eslint
-        run: npm run lint
-
-      - name: Tests
+      # Both Cypress suites reuse the single build above. `test:e2e` runs the cheaper
+      # component suite first and &&-chains them, so a component failure skips the demo
+      # suite and its dev-server boot.
+      - name: E2E tests
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-        run: npm run test
+        run: npm run test:e2e
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -64,7 +98,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.SNAPFU_AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Copy Files to S3
+      - name: Copy files to S3
         shell: bash
         run: |
           aws s3 sync --acl public-read packages/snap-preact-demo/snap/dist s3://${{ secrets.SNAPFU_AWS_BUCKET }}/snap/${{ github.head_ref }}
@@ -77,7 +111,7 @@ jobs:
           aws s3 sync --acl public-read packages/snap-preact-demo/public/hybrid s3://${{ secrets.SNAPFU_AWS_BUCKET }}/hybrid/${{ github.head_ref }}
           aws s3 sync --acl public-read packages/snap-preact-demo/public/shared s3://${{ secrets.SNAPFU_AWS_BUCKET }}/hybrid/${{ github.head_ref }}
 
-      - name: Invalidate CDN Files
+      - name: Invalidate CDN files
         shell: bash
         env:
           AWS_MAX_ATTEMPTS: 9

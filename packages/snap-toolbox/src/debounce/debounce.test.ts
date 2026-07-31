@@ -1,13 +1,16 @@
 import { debounce } from './debounce';
 
-const wait = (time?: number) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
-};
-
 describe('debounce', () => {
-	it('can debounce an event', async () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+	});
+
+	afterEach(() => {
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
+	});
+
+	it('can debounce an event', () => {
 		const func = jest.fn();
 		const debouncedFunc = debounce(func);
 		debouncedFunc();
@@ -15,17 +18,18 @@ describe('debounce', () => {
 		debouncedFunc();
 		expect(func).not.toHaveBeenCalled();
 
-		await wait(100);
+		// the default debounce delay is 200ms - halfway through, nothing has fired yet
+		jest.advanceTimersByTime(100);
 
 		expect(func).not.toHaveBeenCalled();
 
-		await wait(100);
+		jest.advanceTimersByTime(100);
 
 		expect(func).toHaveBeenCalled();
 		expect(func).toHaveBeenCalledTimes(1);
 	});
 
-	it('can debounce an event using custom delay', async () => {
+	it('can debounce an event using custom delay', () => {
 		const delay = 500;
 		const func = jest.fn();
 		const debouncedFunc = debounce(func, delay);
@@ -34,9 +38,9 @@ describe('debounce', () => {
 		debouncedFunc();
 		expect(func).not.toHaveBeenCalled();
 
-		await wait(delay / 2);
+		jest.advanceTimersByTime(delay / 2);
 		expect(func).not.toHaveBeenCalled();
-		await wait(delay / 2);
+		jest.advanceTimersByTime(delay / 2);
 
 		expect(func).toHaveBeenCalled();
 		expect(func).toHaveBeenCalledTimes(1);

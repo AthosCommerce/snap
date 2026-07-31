@@ -1,8 +1,4 @@
 describe('Infinite Setting Test', () => {
-	afterEach(() => {
-		cy.wait(300);
-	});
-
 	it('has infinite functionality', () => {
 		const backfill = 0;
 		cy.on('window:before:load', (win) => {
