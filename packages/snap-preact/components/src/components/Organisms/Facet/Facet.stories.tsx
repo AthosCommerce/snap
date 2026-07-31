@@ -1,12 +1,10 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Facet, FacetProps } from './Facet';
 import { iconPaths } from '../../Atoms/Icon';
 import { FacetDisplay } from '../../../types';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../Facet/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -14,23 +12,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Organisms/Facet',
 	component: Facet,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -49,7 +35,7 @@ export default {
 					summary: 'facet store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		limit: {
 			defaultValue: 12,
@@ -338,7 +324,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		optionsSlot: {
 			description: 'Slot for custom facet option components',
@@ -348,7 +334,7 @@ export default {
 					summary: 'component',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		justContent: {
 			defaultValue: false,
@@ -434,18 +420,20 @@ const ObservableListFacet = observer(({ args, controller }: { args: FacetProps; 
 	return <Facet {...args} facet={controller?.store?.facets.filter((facet) => facet.display === FacetDisplay.LIST).shift()} />;
 });
 
-export const List = (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<ObservableListFacet args={args} controller={controller} />
-);
+export const List = {
+	render: (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<ObservableListFacet args={args} controller={controller} />
+	),
 
-List.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
 
 // Slider Facet
 
@@ -459,18 +447,20 @@ const ObservableSliderFacet = observer(({ args, controller }: { args: FacetProps
 	return <div></div>;
 });
 
-export const Slider = (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<ObservableSliderFacet args={args} controller={controller} />
-);
+export const Slider = {
+	render: (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<ObservableSliderFacet args={args} controller={controller} />
+	),
 
-Slider.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
 
 // Palette Facet
 
@@ -484,18 +474,20 @@ const ObservablePaletteFacet = observer(({ args, controller }: { args: FacetProp
 	return <div></div>;
 });
 
-export const Palette = (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<ObservablePaletteFacet args={args} controller={controller} />
-);
+export const Palette = {
+	render: (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<ObservablePaletteFacet args={args} controller={controller} />
+	),
 
-Palette.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
 
 // Grid Facet
 
@@ -509,17 +501,20 @@ const ObservableGridFacet = observer(({ args, controller }: { args: FacetProps; 
 	return <div></div>;
 });
 
-export const Grid = (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<ObservableGridFacet args={args} controller={controller} />
-);
-Grid.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
+export const Grid = {
+	render: (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<ObservableGridFacet args={args} controller={controller} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
 
 // HIERARCHY Facet
 
@@ -532,14 +527,17 @@ const ObservableHierarchyFacet = observer(({ args, controller }: { args: FacetPr
 	return <div></div>;
 });
 
-export const Hierarchy = (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<ObservableHierarchyFacet args={args} controller={controller} />
-);
-Hierarchy.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
+export const Hierarchy = {
+	render: (args: FacetProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<ObservableHierarchyFacet args={args} controller={controller} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

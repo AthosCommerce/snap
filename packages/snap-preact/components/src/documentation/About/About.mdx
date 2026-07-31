@@ -1,6 +1,5 @@
-import { Meta, Markdown } from '@storybook/blocks';
+import { Meta, Markdown } from '@storybook/addon-docs/blocks';
 import Readme from '../About/About.md';
-import { highlightedCode } from '../../utilities';
 
 <Meta title="Documentation/About" />
 
@@ -23,18 +22,10 @@ import { highlightedCode } from '../../utilities';
 	`}
 </style>
 
-<div class="header">
-	<span class="subtitle">SNAP PREACT COMPONENTS</span>
+<div className="header">
+	<span className="subtitle">SNAP PREACT COMPONENTS</span>
 </div>
 
 ---
 
-<Markdown
-	options={{
-		overrides: {
-			code: highlightedCode,
-		},
-	}}
->
-	{Readme}
-</Markdown>
+<Markdown>{Readme}</Markdown>

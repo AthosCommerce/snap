@@ -1,8 +1,6 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -11,23 +9,11 @@ import { Search, SearchProps } from './Search';
 export default {
 	title: 'Templates/Search',
 	component: Search,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -50,7 +36,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		toggleSidebarButtonText: {
 			description: 'Text to render in the toggle Sidebar button.',
@@ -202,28 +188,32 @@ const noresultsInstance = Snapify.search({
 	},
 });
 
-export const Default = (args: SearchProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Search {...args} controller={controller} />;
+export const Default = {
+	render: (args: SearchProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <Search {...args} controller={controller} />;
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 };
 
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const NoResults = {
+	render: (args: SearchProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <Search {...args} controller={controller} />;
 	},
-];
 
-export const NoResults = (args: SearchProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Search {...args} controller={controller} />;
+	loaders: [
+		async () => {
+			await noresultsInstance.search();
+			return {
+				controller: noresultsInstance,
+			};
+		},
+	],
 };
-
-NoResults.loaders = [
-	async () => {
-		await noresultsInstance.search();
-		return {
-			controller: noresultsInstance,
-		};
-	},
-];

@@ -1,8 +1,10 @@
 import { ComponentChildren, h } from 'preact';
+import type { Preview } from '@storybook/preact-vite';
 import { withThemeFromJSXProvider } from '@storybook/addon-themes';
-import { useGlobals, useEffect } from '@storybook/preview-api';
+import { useGlobals, useEffect } from 'storybook/preview-api';
 import { observer } from 'mobx-react-lite';
 
+import { AutodocsPage } from './AutodocsPage';
 import { SnapTemplates, TemplatesStore } from '../../src';
 import { ThemeComplete, ThemeProvider } from '../src/providers/theme';
 import { base, bocachica, pike, snappy, snapnco } from '../src/themes';
@@ -34,16 +36,6 @@ const COLOR_KEYS = ['primary', 'secondary', 'accent'] as const;
 type ColorKey = typeof COLOR_KEYS[number];
 const GLOBAL_COLOR_PREFIX = 'themeColor_';
 const DEFAULT_COLOR_PREFIX = 'themeDefaultColor_';
-
-// register globals so Storybook persists color overrides and theme defaults across story navigation
-export const globalTypes = {
-	themeColor_primary: { defaultValue: '' },
-	themeColor_secondary: { defaultValue: '' },
-	themeColor_accent: { defaultValue: '' },
-	themeDefaultColor_primary: { defaultValue: '' },
-	themeDefaultColor_secondary: { defaultValue: '' },
-	themeDefaultColor_accent: { defaultValue: '' },
-};
 
 const Providers = observer(
 	({
@@ -98,24 +90,29 @@ const CustomThemeProvider = ({
 	</Providers>
 );
 
-export const decorators = [
+const decorators = [
 	(Story: any, context: any) => {
 		// useGlobals must be called here in the decorator (valid Storybook hook context)
 		const [globals, updateGlobals] = useGlobals();
 
-		// Sync the active theme's default colors into globals so the toolbar can display them
+		// Sync the active theme's default colors into globals so the toolbar can display them.
+		// Writing globals re-renders every story, which remounts this decorator and re-runs the
+		// effect — only write when a value actually changed, or the docs page loops forever.
 		const activeThemeName: string = context.globals.theme || 'base';
 		useEffect(() => {
 			const themeStore = snapTemplates.templates.themes.library[activeThemeName];
 			const defaultColors = themeStore?.theme?.variables?.colors as Record<ColorKey, string> | undefined;
-			if (defaultColors) {
-				const defaults: Record<string, string> = {};
-				COLOR_KEYS.forEach((k) => {
-					defaults[`${DEFAULT_COLOR_PREFIX}${k}`] = defaultColors[k] || '';
-				});
-				updateGlobals(defaults);
-			}
-		}, [activeThemeName]);
+			if (!defaultColors) return;
+
+			const changed: Record<string, string> = {};
+			COLOR_KEYS.forEach((k) => {
+				const key = `${DEFAULT_COLOR_PREFIX}${k}`;
+				const next = defaultColors[k] || '';
+				if (globals[key] !== next) changed[key] = next;
+			});
+
+			if (Object.keys(changed).length) updateGlobals(changed);
+		}, [activeThemeName, globals]);
 
 		const colorOverrides: Partial<Record<ColorKey, string>> = {};
 		COLOR_KEYS.forEach((k) => {
@@ -146,23 +143,46 @@ export const decorators = [
 	},
 ];
 
-export const parameters = {
-	actions: {
-		argTypesRegex: '^on[A-Z].*',
-		disabled: false,
+const preview: Preview = {
+	// every component story gets a generated docs page
+	tags: ['autodocs'],
+	// color overrides and theme defaults persist across story navigation
+	initialGlobals: {
+		themeColor_primary: '',
+		themeColor_secondary: '',
+		themeColor_accent: '',
+		themeDefaultColor_primary: '',
+		themeDefaultColor_secondary: '',
+		themeDefaultColor_accent: '',
 	},
-	controls: {
-		expanded: true,
-		disabled: false,
+	globalTypes: {
+		themeColor_primary: {},
+		themeColor_secondary: {},
+		themeColor_accent: {},
+		themeDefaultColor_primary: {},
+		themeDefaultColor_secondary: {},
+		themeDefaultColor_accent: {},
 	},
-	options: {
-		showPanel: true,
-		storySort: {
-			// custom order of stories
-			order: ['Documentation', 'Atoms', 'Molecules', 'Organisms', 'Templates', 'Trackers'],
+	decorators,
+	parameters: {
+		docs: {
+			page: AutodocsPage,
+		},
+		controls: {
+			expanded: true,
+			disabled: false,
+		},
+		options: {
+			showPanel: true,
+			storySort: {
+				// custom order of stories
+				order: ['Documentation', 'Atoms', 'Molecules', 'Organisms', 'Templates', 'Trackers'],
+			},
 		},
 	},
 };
+
+export default preview;
 
 // add the full theme for template stories, and add a "simple" theme for all other stories
 function addTheme(snapTemplates: SnapTemplates, themeName: string, theme: ThemeComplete) {

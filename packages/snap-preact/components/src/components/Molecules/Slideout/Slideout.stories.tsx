@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Slideout, SlideoutProps } from './Slideout';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Slideout/readme.md';
 
 export default {
 	title: 'Molecules/Slideout',
 	component: Slideout,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -147,13 +133,15 @@ export default {
 	},
 };
 
-export const Default = (args: SlideoutProps) => (
-	<Slideout {...args}>
-		<div>props.children will be rendered here</div>
-	</Slideout>
-);
+export const Default = {
+	render: (args: SlideoutProps) => (
+		<Slideout {...args}>
+			<div>props.children will be rendered here</div>
+		</Slideout>
+	),
 
-Default.args = {
-	active: true,
-	buttonContent: 'Click Me',
+	args: {
+		active: true,
+		buttonContent: 'Click Me',
+	},
 };

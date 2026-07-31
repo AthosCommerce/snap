@@ -1,33 +1,19 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
-import Readme from '../Search/readme.md';
+import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { SearchCollapsible, SearchCollapsibleProps } from './SearchCollapsible';
 
 export default {
 	title: 'Templates/SearchCollapsible',
 	component: SearchCollapsible,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -50,7 +36,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		toggleSidebarButtonText: {
 			description: 'Text to render in the toggle Sidebar button.',
@@ -189,28 +175,32 @@ const noresultsInstance = Snapify.search({
 	},
 });
 
-export const Default = (args: SearchCollapsibleProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SearchCollapsible {...args} controller={controller} />;
+export const Default = {
+	render: (args: SearchCollapsibleProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <SearchCollapsible {...args} controller={controller} />;
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 };
 
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const NoResults = {
+	render: (args: SearchCollapsibleProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <SearchCollapsible {...args} controller={controller} />;
 	},
-];
 
-export const NoResults = (args: SearchCollapsibleProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SearchCollapsible {...args} controller={controller} />;
+	loaders: [
+		async () => {
+			await noresultsInstance.search();
+			return {
+				controller: noresultsInstance,
+			};
+		},
+	],
 };
-
-NoResults.loaders = [
-	async () => {
-		await noresultsInstance.search();
-		return {
-			controller: noresultsInstance,
-		};
-	},
-];
