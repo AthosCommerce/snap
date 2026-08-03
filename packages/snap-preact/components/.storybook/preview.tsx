@@ -5,6 +5,7 @@ import { useGlobals, useEffect } from 'storybook/preview-api';
 import { observer } from 'mobx-react-lite';
 
 import { AutodocsPage } from './AutodocsPage';
+import { preserveArgTypesOrder } from './preserveArgTypesOrder';
 import { SnapTemplates, TemplatesStore } from '../../src';
 import { ThemeComplete, ThemeProvider } from '../src/providers/theme';
 import { base, bocachica, pike, snappy, snapnco } from '../src/themes';
@@ -164,6 +165,8 @@ const preview: Preview = {
 		themeDefaultColor_accent: {},
 	},
 	decorators,
+	// keep each story file's declared argTypes order as the Controls / docs table order
+	argTypesEnhancers: [preserveArgTypesOrder],
 	parameters: {
 		docs: {
 			page: AutodocsPage,

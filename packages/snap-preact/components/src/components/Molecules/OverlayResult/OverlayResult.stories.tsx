@@ -20,21 +20,21 @@ export default {
 	},
 	decorators: [(Story: any) => <Story />],
 	argTypes: {
-		controller: {
-			description: 'Controller reference',
-			table: {
-				type: {
-					summary: 'Controller',
-				},
-			},
-			control: false,
-		},
 		result: {
 			description: 'Result store Product reference',
 			type: { required: true },
 			table: {
 				type: {
 					summary: 'result store Product object',
+				},
+			},
+			control: false,
+		},
+		controller: {
+			description: 'Controller reference',
+			table: {
+				type: {
+					summary: 'Controller',
 				},
 			},
 			control: false,

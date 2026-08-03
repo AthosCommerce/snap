@@ -47,6 +47,26 @@ export default {
 		),
 	],
 	argTypes: {
+		controller: {
+			description: 'Autocomplete controller reference',
+			type: { required: true },
+			table: {
+				type: {
+					summary: 'Autocomplete controller object',
+				},
+			},
+			control: false,
+		},
+		input: {
+			description: 'input element reference',
+			type: { required: true },
+			table: {
+				type: {
+					summary: 'Element or String as CSS Selector',
+				},
+			},
+			control: false,
+		},
 		overlayColor: {
 			defaultValue: 'rgba(0,0,0,0.0)',
 			description: 'Slideout overlay color',
@@ -92,26 +112,6 @@ export default {
 				defaultValue: { summary: true },
 			},
 			control: { type: 'boolean' },
-		},
-		controller: {
-			description: 'Autocomplete controller reference',
-			type: { required: true },
-			table: {
-				type: {
-					summary: 'Autocomplete controller object',
-				},
-			},
-			control: false,
-		},
-		input: {
-			description: 'input element reference',
-			type: { required: true },
-			table: {
-				type: {
-					summary: 'Element or String as CSS Selector',
-				},
-			},
-			control: false,
 		},
 		layout: {
 			description: 'array of modules to render in specified layout',

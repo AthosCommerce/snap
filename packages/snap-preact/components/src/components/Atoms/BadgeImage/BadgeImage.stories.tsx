@@ -28,16 +28,6 @@ export default {
 		),
 	],
 	argTypes: {
-		tag: {
-			description: 'Badge location tag',
-			table: {
-				type: {
-					summary: 'string',
-				},
-				category: 'Templates Legal',
-			},
-			control: { type: 'text' },
-		},
 		url: {
 			description: 'Badge image url',
 			type: { required: true },
@@ -47,6 +37,16 @@ export default {
 				},
 				category: 'Templates Legal',
 				defaultValue: { summary: '' },
+			},
+			control: { type: 'text' },
+		},
+		tag: {
+			description: 'Badge location tag',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
 			},
 			control: { type: 'text' },
 		},

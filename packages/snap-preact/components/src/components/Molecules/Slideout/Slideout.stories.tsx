@@ -15,6 +15,17 @@ export default {
 		},
 	},
 	argTypes: {
+		buttonContent: {
+			description: 'Slideout button content (children), appended to buttonText',
+			type: { required: true },
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string, jsx',
+				},
+			},
+			control: { type: 'text' },
+		},
 		active: {
 			description: 'Initial state of the slideout.',
 			table: {
@@ -59,17 +70,6 @@ export default {
 					summary: 'string',
 				},
 				defaultValue: { summary: '' },
-			},
-			control: { type: 'text' },
-		},
-		buttonContent: {
-			description: 'Slideout button content (children), appended to buttonText',
-			type: { required: true },
-			table: {
-				category: 'Templates Legal',
-				type: {
-					summary: 'string, jsx',
-				},
 			},
 			control: { type: 'text' },
 		},

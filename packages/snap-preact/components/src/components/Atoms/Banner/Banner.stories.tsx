@@ -17,15 +17,6 @@ export default {
 		},
 	},
 	argTypes: {
-		controller: {
-			description: 'Controller reference',
-			table: {
-				type: {
-					summary: 'Controller',
-				},
-			},
-			control: false,
-		},
 		content: {
 			description: 'Banner content store reference',
 			type: { required: true },
@@ -50,6 +41,15 @@ export default {
 			control: {
 				type: 'select',
 			},
+		},
+		controller: {
+			description: 'Controller reference',
+			table: {
+				type: {
+					summary: 'Controller',
+				},
+			},
+			control: false,
 		},
 		...componentArgs,
 	},
