@@ -97,24 +97,43 @@ export type ThemeComponentProps<ComponentProps> = {
 
 type ThemeComponentTemplateUnNamedSelectors<TemplateComponentType extends string> = `${TemplateComponentType}`;
 
-type ThemeComponentOverridesUnNamedSelectors<ComponentType extends string> = `${ComponentType}` | `${string} ${ComponentType}`;
+// Comma-separated selectors: allows combining multiple selectors targeting the same component type (like CSS grouped selectors)
+// e.g. 'recommendation.crosssell icon.prev, recommendation.similar icon.prev'
+// The patterns use `${string}, ` as a prefix to accept any preceding comma-separated selectors,
+// while the ESLint rule validates that all parts target the same component type.
+
+type ThemeComponentOverridesUnNamedSelectors<ComponentType extends string> =
+	| `${ComponentType}`
+	| `${string} ${ComponentType}`
+	| `${string}, ${ComponentType}`
+	| `${string}, ${string} ${ComponentType}`;
 type ThemeComponentOverridesNamedSelectors<ComponentType extends string, ComponentNames extends string> =
 	| `${ComponentType}`
 	| `${string} ${ComponentType}`
 	| `${string} ${ComponentType}.${ComponentNames}`
-	| `${ComponentType}.${ComponentNames}`;
+	| `${ComponentType}.${ComponentNames}`
+	| `${string}, ${ComponentType}`
+	| `${string}, ${string} ${ComponentType}`
+	| `${string}, ${ComponentType}.${ComponentNames}`
+	| `${string}, ${string} ${ComponentType}.${ComponentNames}`;
 
 type ThemeComponentOverridesOpenNamedOnlySelectors<ComponentType extends string> =
 	| `${ComponentType}.${string}`
-	| `${string} ${ComponentType}.${string}`;
+	| `${string} ${ComponentType}.${string}`
+	| `${string}, ${ComponentType}.${string}`
+	| `${string}, ${string} ${ComponentType}.${string}`;
 
 type ThemeComponentUnNamedSelectorsStartingWithTemplate<TemplateComponentType extends string, SubComponentType extends string> =
 	| `${TemplateComponentType} ${SubComponentType}`
-	| `${TemplateComponentType} ${string} ${SubComponentType}`;
+	| `${TemplateComponentType} ${string} ${SubComponentType}`
+	| `${string}, ${TemplateComponentType} ${SubComponentType}`
+	| `${string}, ${TemplateComponentType} ${string} ${SubComponentType}`;
 
 type ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<TemplateComponentType extends string, SubComponentType extends string> =
 	| `${TemplateComponentType} ${SubComponentType}.${string}`
-	| `${TemplateComponentType} ${string} ${SubComponentType}.${string}`;
+	| `${TemplateComponentType} ${string} ${SubComponentType}.${string}`
+	| `${string}, ${TemplateComponentType} ${SubComponentType}.${string}`
+	| `${string}, ${TemplateComponentType} ${string} ${SubComponentType}.${string}`;
 
 type ThemeComponentNamedSelectorsStartingWithTemplate<
 	TemplateComponentType extends string,
@@ -124,7 +143,11 @@ type ThemeComponentNamedSelectorsStartingWithTemplate<
 	| `${TemplateComponentType} ${SubComponentType}`
 	| `${TemplateComponentType} ${string} ${SubComponentType}`
 	| `${TemplateComponentType} ${string} ${SubComponentType}.${ComponentNames}`
-	| `${TemplateComponentType} ${SubComponentType}.${ComponentNames}`;
+	| `${TemplateComponentType} ${SubComponentType}.${ComponentNames}`
+	| `${string}, ${TemplateComponentType} ${SubComponentType}`
+	| `${string}, ${TemplateComponentType} ${string} ${SubComponentType}`
+	| `${string}, ${TemplateComponentType} ${string} ${SubComponentType}.${ComponentNames}`
+	| `${string}, ${TemplateComponentType} ${SubComponentType}.${ComponentNames}`;
 
 export type ThemeComponentRestrictedProps<Props, LegalProps> = Partial<LegalProps & ThemeComponentAllowedProps<Props>>;
 type ThemeComponentAllowedProps<Props> = { themeStyleScript?: StyleScript<Props> };
