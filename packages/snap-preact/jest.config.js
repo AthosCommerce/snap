@@ -4,6 +4,8 @@ module.exports = {
 	displayName: 'snap-preact',
 	roots: ['<rootDir>/src', '<rootDir>/components/src'],
 	moduleNameMapper: {
+		// spread first so the workspace source mappings in the base config survive
+		...rootConfig.moduleNameMapper,
 		'^react$': 'preact/compat',
 		'^react-dom/test-utils$': 'preact/test-utils',
 		'^react-dom$': 'preact/compat',
@@ -20,5 +22,7 @@ module.exports = {
 		'^preact/jsx-runtime$': '<rootDir>/../../node_modules/preact/jsx-runtime/dist/jsxRuntime.js',
 	},
 	setupFilesAfterEnv: ['<rootDir>/components/src/setupTests.ts'],
-	testTimeout: 10000,
+	// No testTimeout here on purpose: it is a global-only Jest option, silently
+	// ignored in project config (jest warns "Unknown option"). Suites needing more
+	// than the 5s default call jest.setTimeout(10000) in-file.
 };

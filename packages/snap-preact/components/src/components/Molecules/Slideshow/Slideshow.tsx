@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
@@ -165,7 +166,7 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 	});
 };
 
-export function Slideshow(properties: SlideshowProps) {
+export const Slideshow = observer((properties: SlideshowProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -292,7 +293,7 @@ export function Slideshow(properties: SlideshowProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(autoPlay);
 	const [containerWidth, setContainerWidth] = useState(0);
-	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const slideshowRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
 
@@ -644,11 +645,15 @@ export function Slideshow(properties: SlideshowProps) {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		isPlaying,
-		isNextDisabled,
-		isPrevDisabled,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			isPlaying,
+			isNextDisabled,
+			isPrevDisabled,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return (
 		<CacheProvider>
@@ -732,12 +737,16 @@ export function Slideshow(properties: SlideshowProps) {
 
 							//deep merge with props.lang
 							const slideLang = deepmerge(defaultLang, props.lang || {});
-							const slideLangObj = useLang(slideLang as any, {
-								hasClickHandler,
-								imageAlt,
-								index,
-								slidesLength: normalizedSlides.length,
-							});
+							const slideLangObj = useLang(
+								slideLang as any,
+								{
+									hasClickHandler,
+									imageAlt,
+									index,
+									slidesLength: normalizedSlides.length,
+								},
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
+							);
 
 							return (
 								<div
@@ -798,10 +807,14 @@ export function Slideshow(properties: SlideshowProps) {
 
 							//deep merge with props.lang
 							const paginationLang = deepmerge(defaultLang, props.lang || {});
-							const paginationLangObj = useLang(paginationLang as any, {
-								index,
-								totalDots,
-							});
+							const paginationLangObj = useLang(
+								paginationLang as any,
+								{
+									index,
+									totalDots,
+								},
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
+							);
 							const selected = currentDotIndex === index;
 							const subpropsToUse = selected ? subProps.PaginationCurrentButton : subProps.PaginationButton;
 							return (
@@ -828,7 +841,7 @@ export function Slideshow(properties: SlideshowProps) {
 			</div>
 		</CacheProvider>
 	);
-}
+});
 
 export interface SlideshowLang {
 	pauseButton: Lang<{

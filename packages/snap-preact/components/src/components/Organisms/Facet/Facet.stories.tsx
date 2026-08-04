@@ -144,6 +144,30 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		rangeInputsSubmitOnBlur: {
+			defaultValue: false,
+			description: 'Submits the range inputs on blur.',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideRangeInputsSubmitButton: {
+			defaultValue: false,
+			description: 'Hides the range inputs submit button.',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		color: {
 			description: 'Select color',
 			table: {
@@ -421,6 +445,20 @@ export default {
 			control: {
 				type: 'object',
 			},
+		},
+		displayType: {
+			description:
+				'Override the API display type used to render the facet options - only list, grid and palette are interchangeable; misaligned overrides fall back to the API display type',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+			},
+			control: {
+				type: 'select',
+			},
+			options: ['list', 'grid', 'palette'],
 		},
 		...componentArgs,
 	},

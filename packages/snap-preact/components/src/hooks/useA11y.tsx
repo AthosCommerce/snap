@@ -41,7 +41,7 @@ export function useA11y(elem: any, tabIndex?: number, trapFocus?: boolean, escCa
 					}
 
 					e.preventDefault();
-					//this is needed to stop the event from bubbling up to the parent elements. in case they also have the same listener. IE: mobileSidebar and sortBy
+					//this is needed to stop the event from bubbling up to the parent elements. in case they also have the same listener. IE: sortBy
 					e.stopPropagation();
 					return;
 				}

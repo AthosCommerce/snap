@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, waitFor } from '@testing-library/preact';
 import { Result } from './Result';
 import { FALLBACK_IMAGE_URL } from '../../Atoms/Image';
 import { ThemeProvider } from '../../../providers';
@@ -10,12 +10,6 @@ import { MockData } from '@athoscommerce/snap-shared';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { SearchResponseModelResultVariants } from '@athoscommerce/snapi-types';
-
-const wait = (time?: number) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
-};
 
 const mockData = new MockData();
 const searchResponse = mockData.searchMeta();
@@ -188,65 +182,82 @@ describe('Result Component', () => {
 	});
 
 	it('can render addToCart button', async () => {
-		const controller = {
-			addToCart: jest.fn(),
-		};
+		jest.useFakeTimers();
+		const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-		// @ts-ignore
-		const rendered = render(<Result controller={controller} result={mockResults[1] as Product} hideAddToCartButton={false} />);
+		try {
+			const controller = {
+				addToCart: jest.fn(),
+			};
 
-		const resultElement = rendered.container.querySelector('.ss__result');
-		const addToCartElement = rendered.container.querySelector('.ss__result__button--addToCart');
+			// @ts-ignore
+			const rendered = render(<Result controller={controller} result={mockResults[1] as Product} hideAddToCartButton={false} />);
 
-		expect(resultElement).toBeInTheDocument();
-		expect(addToCartElement).toBeInTheDocument();
-		expect(addToCartElement?.innerHTML).toContain('Add To Cart');
+			const resultElement = rendered.container.querySelector('.ss__result');
+			const addToCartElement = rendered.container.querySelector('.ss__result__button--addToCart');
 
-		await userEvent.click(addToCartElement!);
+			expect(resultElement).toBeInTheDocument();
+			expect(addToCartElement).toBeInTheDocument();
+			expect(addToCartElement?.innerHTML).toContain('Add To Cart');
 
-		expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
-		expect(addToCartElement?.innerHTML).toContain('Added!');
+			await user.click(addToCartElement!);
 
-		await wait(2000);
+			expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
+			expect(addToCartElement?.innerHTML).toContain('Added!');
 
-		expect(addToCartElement?.innerHTML).toContain('Add To Cart');
+			// elapse the default addToCartButtonSuccessTimeout (2000ms) to reset the button label
+			await jest.advanceTimersByTimeAsync(2000);
+
+			await waitFor(() => expect(addToCartElement?.innerHTML).toContain('Add To Cart'));
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('can render addToCart button with custom text and timeout', async () => {
-		const normalText = 'normal atc';
-		const successText = 'success atc';
-		const timeout = 3000;
-		const controller = {
-			addToCart: jest.fn(),
-		};
+		jest.useFakeTimers();
+		const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-		const rendered = render(
-			<Result
-				// @ts-ignore
-				controller={controller}
-				result={mockResults[1] as Product}
-				hideAddToCartButton={false}
-				addToCartButtonText={normalText}
-				addToCartButtonSuccessText={successText}
-				addToCartButtonSuccessTimeout={timeout}
-			/>
-		);
+		try {
+			const normalText = 'normal atc';
+			const successText = 'success atc';
+			const timeout = 3000;
+			const controller = {
+				addToCart: jest.fn(),
+			};
 
-		const resultElement = rendered.container.querySelector('.ss__result');
-		const addToCartElement = rendered.container.querySelector('.ss__result__button--addToCart');
+			const rendered = render(
+				<Result
+					// @ts-ignore
+					controller={controller}
+					result={mockResults[1] as Product}
+					hideAddToCartButton={false}
+					addToCartButtonText={normalText}
+					addToCartButtonSuccessText={successText}
+					addToCartButtonSuccessTimeout={timeout}
+				/>
+			);
 
-		expect(resultElement).toBeInTheDocument();
-		expect(addToCartElement).toBeInTheDocument();
-		expect(addToCartElement?.innerHTML).toContain(normalText);
+			const resultElement = rendered.container.querySelector('.ss__result');
+			const addToCartElement = rendered.container.querySelector('.ss__result__button--addToCart');
 
-		await userEvent.click(addToCartElement!);
+			expect(resultElement).toBeInTheDocument();
+			expect(addToCartElement).toBeInTheDocument();
+			expect(addToCartElement?.innerHTML).toContain(normalText);
 
-		expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
-		expect(addToCartElement?.innerHTML).toContain(successText);
+			await user.click(addToCartElement!);
 
-		await wait(timeout);
+			expect(controller.addToCart).toHaveBeenCalledWith([mockResults[1]]);
+			expect(addToCartElement?.innerHTML).toContain(successText);
 
-		expect(addToCartElement?.innerHTML).toContain(normalText);
+			await jest.advanceTimersByTimeAsync(timeout);
+
+			await waitFor(() => expect(addToCartElement?.innerHTML).toContain(normalText));
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('can pass additional function to call on addToCart button click', async () => {

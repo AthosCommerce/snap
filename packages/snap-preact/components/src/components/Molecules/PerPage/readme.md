@@ -39,3 +39,24 @@ By default "Dropdown" is used. and will render a dropdown using the Select compo
 ```
 
 
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the PerPage component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `label` | The per-page selector label text | `options` (ListOption[]), `selectedOptions` (ListOption[]) |
+
+### Example
+
+```tsx
+<PerPage
+	controller={controller}
+	lang={{
+		label: {
+			value: 'Items per page',
+		},
+	}}
+/>
+```

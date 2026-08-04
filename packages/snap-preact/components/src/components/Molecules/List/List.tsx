@@ -5,6 +5,7 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
+import { observer } from 'mobx-react-lite';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
@@ -61,7 +62,7 @@ const defaultStyles: StyleScript<ListProps> = ({ horizontal }) => {
 	});
 };
 
-export function List(properties: ListProps) {
+export const List = observer((properties: ListProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -186,10 +187,14 @@ export function List(properties: ListProps) {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		options,
-		selectedOptions: selection,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			options,
+			selectedOptions: selection,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return typeof options == 'object' && options?.length ? (
 		<CacheProvider>
@@ -236,7 +241,7 @@ export function List(properties: ListProps) {
 			</div>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type ListProps = {
 	lang?: Partial<ListLang>;

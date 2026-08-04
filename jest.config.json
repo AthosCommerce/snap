@@ -5,7 +5,5 @@
 	],
 	"coverageReporters": ["json", "html", "text", "text-summary", "json-summary"],
 	"coverageDirectory": "<rootDir>/coverage/",
-	"collectCoverage": true,
-	"verbose": true,
 	"silent": true
 }

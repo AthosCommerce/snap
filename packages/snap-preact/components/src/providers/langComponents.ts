@@ -42,6 +42,7 @@ import type { LayoutSelectorLang } from '../components/Molecules/LayoutSelector'
 import type { ListLang } from '../components/Molecules/List';
 import type { LoadMoreLang } from '../components/Molecules/LoadMore';
 // import type { OverlayBadgeLang } from '../components/Molecules/OverlayBadge';
+import type { OverlayResultLang } from '../components/Molecules/OverlayResult';
 import type { PaginationLang } from '../components/Molecules/Pagination';
 import type { PerPageLang } from '../components/Molecules/PerPage';
 import type { RadioLang } from '../components/Molecules/Radio';
@@ -57,13 +58,15 @@ import type { SortByLang } from '../components/Molecules/SortBy';
 
 /* ORGANISMS */
 import type { ChatLang } from '../components/Organisms/Chat';
+// import type { AutocompleteLang } from '../components/Organisms/Autocomplete';
 import type { FacetLang } from '../components/Organisms/Facet';
 import type { FacetsHorizontalLang } from '../components/Organisms/FacetsHorizontal';
 // import type { FacetsLang } from '../components/Organisms/Facets';
 import type { FilterSummaryLang } from '../components/Organisms/FilterSummary';
-import type { MobileSidebarLang } from '../components/Organisms/MobileSidebar';
 import type { NoResultsLang } from '../components/Organisms/NoResults';
 import type { RecommendationBundleLang } from '../components/Templates/RecommendationBundle';
+// import type { BundledCTALang } from '../components/Templates/RecommendationBundle/BundleCTA';
+// import type { BundleSelectorLang } from '../components/Templates/RecommendationBundle/BundleSelector';
 // import type { ResultsLang } from '../components/Organisms/Results';
 import type { SearchHeaderLang } from '../components/Atoms/SearchHeader';
 import type { SidebarLang } from '../components/Organisms/Sidebar';
@@ -128,11 +131,12 @@ export type LangComponents = {
 	filter: FilterLang;
 	loadMore: LoadMoreLang;
 	// overlayBadge: OverlayBadgeLang
+	overlayResult: OverlayResultLang;
 	pagination: PaginationLang;
 	perPage: PerPageLang;
 	radioList: RadioListLang;
 	// rating: RatingLang
-	result: Partial<ResultLang>;
+	result: ResultLang;
 	searchInput: SearchInputLang;
 	select: SelectLang;
 	// slideout: SlideoutLang;
@@ -145,22 +149,25 @@ export type LangComponents = {
 
 	/* ORGANISMS */
 	chat: ChatLang;
+	// autocomplete: AutocompleteLang;
 	facet: FacetLang;
 	// facets: FacetsLang
 	facetsHorizontal: FacetsHorizontalLang;
 	filterSummary: FilterSummaryLang;
 	noResults: NoResultsLang;
 	recommendationBundle: RecommendationBundleLang;
+	// bundleCTA: BundledCTALang;
+	// bundleSelector: BundleSelectorLang;
 	// results: ResultsLang
 	searchHeader: SearchHeaderLang;
 	sidebar: SidebarLang;
-	mobileSidebar: MobileSidebarLang;
 	// toolbar: ToolbarLang
 
 	/* TEMPLATES */
 	// autocompleteTerms: AutocompleteTermsLang;
 	recommendation: RecommendationLang;
-	search: SearchLang;
 	autocompleteLayout: AutocompleteLayoutLang;
-	// searchHorizontal: SearchHorizontalLang
+	search: SearchLang;
+	searchHorizontal: SearchLang;
+	searchCollapsible: SearchLang;
 };

@@ -101,3 +101,23 @@ The `onSelect` prop allows for a custom callback function for when a selection h
 ```tsx
 <List options={store.sorting.options} onSelect={(e, option)=>{console.log(e, option)}} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the List component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `title` | Optional title text above the list | `options` (ListOption[]), `selectedOptions` (ListOption[]) |
+
+### Example
+
+```tsx
+<List
+	options={options}
+	lang={{
+		title: {
+			value: 'Select an option',
+		},
+	}}
+/>
+```

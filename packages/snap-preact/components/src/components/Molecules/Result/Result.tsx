@@ -268,12 +268,17 @@ export const Result = observer((properties: ResultProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		result: result,
-		controller: controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			result: result,
+			controller: controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);
+	const renderPrices = controller?.store?.config?.asyncState?.product?.price ? result.state.priceFetched : true;
 
 	return core ? (
 		<CacheProvider>
@@ -342,7 +347,7 @@ export const Result = observer((properties: ResultProps) => {
 					)}
 					{!hideRating && <Rating {...subProps.rating} />}
 
-					{!hidePricing && core.price && core.price > 0 ? (
+					{!hidePricing && renderPrices && core.price && core.price > 0 ? (
 						<div className="ss__result__details__pricing">
 							{isOnSale ? (
 								<>

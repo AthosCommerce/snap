@@ -344,13 +344,19 @@ const Result = withController(withTracking(observer((props) => {
 	const { trackingRef, controller, result } = props;
 	const { core } = result.mappings;
 
+	const handleAddToCart = async () => {
+		await controller.addToCart(result);
+		// optional: run post-cart actions after middleware has completed
+		window.location.assign('/cart');
+	};
+
 	return (
 		<div className="ss__result" ref={trackingRef}>
 			<a href={core.url}>
 				{ core.name }
 			</a>
 			<Price value={core.price} />
-			<button onClick={(e)=> controller.addToCart(result)}>Add to cart</button>
+			<button onClick={handleAddToCart}>Add to cart</button>
 		</div>
 	)
 })));

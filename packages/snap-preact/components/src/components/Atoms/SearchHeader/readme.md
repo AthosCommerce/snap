@@ -109,3 +109,31 @@ The `hideExpandedSearchText` prop hides the expanded search text.
 ```tsx
 <SearchHeader controller={controller} hideExpandedSearchText={true} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the SearchHeader component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `titleText` | The main search heading text | `pagination` (SearchPaginationStore), `search` (SearchQueryStore) |
+| `correctedQueryText` | Text shown when query was auto-corrected | `pagination` (SearchPaginationStore), `search` (SearchQueryStore) |
+| `noResultsText` | Text shown when no results are found | `pagination` (SearchPaginationStore), `search` (SearchQueryStore) |
+| `didYouMeanText` | "Did you mean" suggestion text | `pagination` (SearchPaginationStore), `search` (SearchQueryStore) |
+| `expandedSearchText` | Text shown when search was expanded | `pagination` (SearchPaginationStore), `search` (SearchQueryStore) |
+| `subtitleText` | Optional subtitle text | `pagination` (SearchPaginationStore), `search` (SearchQueryStore) |
+
+### Example
+
+```tsx
+<SearchHeader
+	controller={controller}
+	lang={{
+		titleText: {
+			value: (data) => `Results for "${data.search?.query?.string}"`,
+		},
+		noResultsText: {
+			value: (data) => `No results found for "${data.search?.query?.string}"`,
+		},
+	}}
+/>
+```

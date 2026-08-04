@@ -21,7 +21,7 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 
 	const defaultProps: Partial<ToolbarProps> = {
 		treePath: globalTreePath,
-		layout: ['mobileSidebar', 'filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination'],
+		layout: ['button.sidebar-toggle', 'filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination'],
 	};
 
 	const props = mergeProps('toolbar', globalTheme, defaultProps, properties);
@@ -38,10 +38,10 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 	const subProps: ToolbarSubProps = {
 		Layout: {
 			// default props
-			toggleSideBarButton,
 			internalClassName: 'ss__toolbar__layout',
 			// inherited props
 			...defined({
+				toggleSideBarButton,
 				disableStyles,
 			}),
 			// component theme overrides
@@ -77,7 +77,6 @@ export type ToolbarTemplatesLegalProps = {
 export type ModuleNames =
 	| 'searchHeader'
 	| 'filterSummary'
-	| 'mobileSidebar'
 	| 'layoutSelector'
 	| 'perPage'
 	| 'sortBy'

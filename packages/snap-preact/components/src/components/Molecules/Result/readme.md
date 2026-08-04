@@ -160,3 +160,29 @@ The `onDiscussClick` prop is a function called when the discuss product button i
 ```tsx
 <Result result={controller.store.results[0]} discussProductIcon={{ icon: 'chat' }} onDiscussClick={(e, result) => console.log(result)} />
 ```
+
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Result component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `addToCartButtonText` | Add to cart button text | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
+| `addToCartButtonSuccessText` | Text shown after item is added to cart | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
+
+### Example
+
+```tsx
+<Result
+	result={controller.store.results[0]}
+	lang={{
+		addToCartButtonText: {
+			value: 'Add to Bag',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Added!',
+		},
+	}}
+/>
+```
