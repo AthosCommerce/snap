@@ -547,6 +547,89 @@ describe('Chat Controller', () => {
 		});
 	});
 
+	describe('switchChat', () => {
+		const productsResponse: ProductsResponseModel = {
+			mappings: { core: { name: 'Product 1' } },
+			variants: { optionConfig: {}, data: [] },
+		};
+		const makeProduct = (id = 'prod1', parentId = 'parent1') =>
+			({
+				id,
+				mappings: { core: { parentId, name: `Product ${id}` } },
+			} as unknown as Product);
+
+		it('reloads the quickview when switching back to a chat with an active productQuery side-chat', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+
+			// products response arrives only after the user has switched to another
+			// chat — loadProductQuickview discards it, leaving the quickview slot empty
+			let resolveProducts: (value: ProductsResponseModel) => void;
+			controller.client.products = jest.fn(() => new Promise<ProductsResponseModel>((resolve) => (resolveProducts = resolve)));
+
+			const quickviewPromise = controller.productQuickView(makeProduct());
+			controller.store.createChat({ sessionId: 'session-b' });
+			resolveProducts!(productsResponse);
+			await quickviewPromise;
+			expect(controller.store.productQuickview).toBeNull();
+
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+			await controller.switchChat(chatA.id);
+
+			expect(controller.store.currentChat!.id).toBe(chatA.id);
+			expect(controller.client.products).toHaveBeenCalledWith({ parentId: 'parent1' });
+			expect(controller.store.productQuickview?.id).toBe('prod1');
+		});
+
+		it("replaces another chat's quickview with the target chat's productQuery product", async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct('prod1', 'parent1'));
+
+			controller.store.createChat({ sessionId: 'session-b' });
+			await controller.productQuickView(makeProduct('prod2', 'parent2'));
+			expect(controller.store.productQuickview?.id).toBe('prod2');
+
+			await controller.switchChat(chatA.id);
+
+			expect(controller.store.productQuickview?.id).toBe('prod1');
+		});
+
+		it('does not refetch when the quickview already shows the productQuery target', async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct());
+			controller.store.createChat({ sessionId: 'session-b' });
+
+			(controller.client.products as jest.Mock).mockClear();
+			await controller.switchChat(chatA.id);
+
+			expect(controller.client.products).not.toHaveBeenCalled();
+			expect(controller.store.productQuickview?.id).toBe('prod1');
+		});
+
+		it('does not reload the quickview for a dismissed productQuery side-chat', async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct());
+			chatA.dismissSideChat();
+			controller.store.createChat({ sessionId: 'session-b' });
+			controller.store.clearProductQuickview();
+
+			(controller.client.products as jest.Mock).mockClear();
+			await controller.switchChat(chatA.id);
+
+			expect(controller.client.products).not.toHaveBeenCalled();
+			expect(controller.store.productQuickview).toBeNull();
+		});
+	});
+
 	describe('compareProduct', () => {
 		it('adds a product to the comparison set', () => {
 			const controller = createController();
@@ -606,6 +689,96 @@ describe('Chat Controller', () => {
 
 			expect(sendSpy).toHaveBeenCalledWith(result, { requestType: 'productQuery' });
 			sendSpy.mockClear();
+		});
+
+		it('does not reload the quickview when it already shows the queried product', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest.fn().mockResolvedValue({
+				mappings: { core: { name: 'Test Product' } },
+				variants: {
+					optionConfig: { color: {} },
+					data: [
+						{ mappings: { core: { uid: 'var-red', available: true } }, options: { color: { value: 'Red' } } },
+						{ mappings: { core: { uid: 'var-blue', available: true } }, options: { color: { value: 'Blue' } } },
+					],
+				},
+			});
+
+			const result = {
+				id: 'prod1',
+				mappings: { core: { parentId: 'parent1', name: 'Test Product' } },
+			} as unknown as Product;
+
+			// initial discuss click loads the quickview
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.client.products).toHaveBeenCalledTimes(1);
+
+			// user picks a variant in the product information panel
+			const quickview = controller.store.productQuickview!;
+			const colorSelection = quickview.variants!.selections.find((selection) => selection.field === 'color')!;
+			colorSelection.select('Blue');
+			expect(colorSelection.selected?.value).toBe('Blue');
+
+			// discussing the same product again must not rebuild the quickview (would wipe selections)
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+
+			expect(controller.client.products).toHaveBeenCalledTimes(1);
+			expect(controller.store.productQuickview).toBe(quickview);
+			const selectionAfter = controller.store.productQuickview!.variants!.selections.find((selection) => selection.field === 'color')!;
+			expect(selectionAfter.selected?.value).toBe('Blue');
+		});
+
+		it('reloads the quickview when it shows a different product', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest.fn().mockResolvedValue({
+				mappings: { core: { name: 'Test Product' } },
+				variants: { optionConfig: {}, data: [] },
+			});
+
+			const productA = { id: 'prodA', mappings: { core: { parentId: 'parentA' } } } as unknown as Product;
+			const productB = { id: 'prodB', mappings: { core: { parentId: 'parentB' } } } as unknown as Product;
+
+			controller.productQuery(productA);
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.client.products).toHaveBeenCalledTimes(1);
+
+			controller.productQuery(productB);
+			await new Promise((resolve) => setTimeout(resolve));
+
+			expect(controller.client.products).toHaveBeenCalledTimes(2);
+			expect(controller.client.products).toHaveBeenLastCalledWith({ parentId: 'parentB' });
+			expect(controller.store.productQuickview!.id).toBe('prodB');
+		});
+
+		it('reloads the quickview when the previous load for the same product failed', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest
+				.fn()
+				.mockRejectedValueOnce(new Error('Network error'))
+				.mockResolvedValue({
+					mappings: { core: { name: 'Test Product' } },
+					variants: { optionConfig: {}, data: [] },
+				});
+
+			const result = { id: 'prod1', mappings: { core: { parentId: 'parent1' } } } as unknown as Product;
+
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.store.productQuickviewError).toBe('Failed to load product details. Please try again.');
+
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+
+			expect(controller.client.products).toHaveBeenCalledTimes(2);
+			expect(controller.store.productQuickviewError).toBeNull();
 		});
 
 		it('resets comparisons before sending the product query', () => {

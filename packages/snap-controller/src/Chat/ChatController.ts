@@ -556,6 +556,28 @@ export class ChatController extends AbstractController {
 		await this.loadProductQuickview(message.sourceProduct);
 	};
 
+	/** Switch the active chat session and re-sync the Product Information panel.
+	 * The panel renders from the single store.productQuickview slot, which belongs to
+	 * whichever chat last loaded it — and loadProductQuickview() discards responses that
+	 * arrive after the user switched away. Without a reload here, switching (back) to a
+	 * chat whose side panel targets a productQuery would show a permanently-loading blank
+	 * card (empty slot) or another chat's product. */
+	switchChat = async (id: string): Promise<void> => {
+		this.store.switchChat(id);
+
+		const chat = this.store.currentChat;
+		if (chat?.id !== id) return;
+
+		const activeMessage = chat.activeMessage;
+		if (activeMessage?.messageType !== 'productQuery' || chat.dismissedSideChatMessageId === activeMessage.id) return;
+
+		const sourceProduct = (activeMessage as any).sourceProduct as Product | undefined;
+		if (!sourceProduct || this.store.productQuickview?.id === sourceProduct.id) return;
+
+		this.store.clearProductQuickview();
+		await this.loadProductQuickview(sourceProduct);
+	};
+
 	compareProduct = (result: Product): void => {
 		// remove any 'discuss product' (productQuery) attachments so the previous product context disappears
 		const productQueryAttachments = (this.store.currentChat?.attachments.attached || []).filter(
@@ -609,7 +631,12 @@ export class ChatController extends AbstractController {
 		}
 		this.resetComparisonsForSingleProductFlow();
 		this.store.sendProductQuery(result, { requestType: 'productQuery' });
-		this.loadProductQuickview(result);
+		// skip the reload when the quickview already shows this product (e.g. Discuss
+		// clicked from the product information panel) — rebuilding it would wipe the
+		// user's variant selections; still reload if the previous attempt errored
+		if (this.store.productQuickview?.id !== result.id || this.store.productQuickviewError) {
+			this.loadProductQuickview(result);
+		}
 		this.focusInputDesktopOnly();
 	};
 

@@ -184,6 +184,24 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(select).toHaveBeenCalledWith('black');
 	});
 
+	it('discusses the quickview product so the attachment reflects the selected variant', () => {
+		const productQuery = jest.fn();
+		const product = {
+			id: 'variant-black',
+			display: { mappings: { core: { name: 'Boots', thumbnailImageUrl: 'variant-brown.jpg' } }, attributes: {} },
+			variants: { selections: [] },
+		};
+		const controller = makeController(product);
+		controller.productQuery = productQuery;
+		const sourceProduct = { id: 'variant-black', display: { mappings: { core: { name: 'Boots', thumbnailImageUrl: 'variant-black.jpg' } } } };
+		const rendered = render(
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct } as any} controller={controller} />
+		);
+		const discuss = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__discuss-product .ss__button')!;
+		fireEvent.click(discuss);
+		expect(productQuery).toHaveBeenCalledWith(product);
+	});
+
 	it('renders with classname', () => {
 		const className = 'classy';
 		const rendered = render(

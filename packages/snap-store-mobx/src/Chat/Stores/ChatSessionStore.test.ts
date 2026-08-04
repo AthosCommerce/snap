@@ -35,6 +35,31 @@ describe('ChatSessionStore productQuery messages', () => {
 		expect((store.chat[0] as any).sourceProduct.id).toBe('prod2');
 	});
 
+	it('pushProductQueryMessage preserves sourceMessageId when replacing a trailing productQuery message', () => {
+		const store = createStore();
+		store.chat.push({ id: 'inspiration-msg', messageType: 'inspirationResult' } as any);
+
+		// clicking a product from inspiration view — sourceMessageId points at the inspiration message
+		store.pushProductQueryMessage({ id: 'prod1' });
+		expect((store.chat[store.chat.length - 1] as any).sourceMessageId).toBe('inspiration-msg');
+
+		// clicking 'discuss' replaces the trailing productQuery — the link back to inspiration must survive
+		store.pushProductQueryMessage({ id: 'prod1' });
+		expect(store.chat.length).toBe(2);
+		expect((store.chat[store.chat.length - 1] as any).sourceMessageId).toBe('inspiration-msg');
+	});
+
+	it('popProductQueryMessage removes productQuery attachments', () => {
+		const store = createStore();
+		store.attachments.add({ type: 'product', requestType: 'productQuery', productId: 'prod1' } as any);
+		store.pushProductQueryMessage({ id: 'prod1' });
+		expect(store.attachments.attached.length).toBe(1);
+
+		store.popProductQueryMessage('inspiration-msg');
+
+		expect(store.attachments.attached.length).toBe(0);
+	});
+
 	it('popProductQueryMessage removes productQuery messages', () => {
 		const store = createStore();
 

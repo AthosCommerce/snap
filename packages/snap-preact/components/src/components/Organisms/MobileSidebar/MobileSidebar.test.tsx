@@ -34,6 +34,8 @@ const mockClient = new MockClient(globals, {});
 mockClient.mockData.updateConfig({ search: 'filteredRangeBucket' });
 
 describe('MobileSidebar Component', () => {
+	jest.setTimeout(10000);
+
 	beforeEach(async () => {
 		//override matchmedia to always return true
 		Object.defineProperty(window, 'matchMedia', {

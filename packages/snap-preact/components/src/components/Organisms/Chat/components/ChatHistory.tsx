@@ -136,7 +136,7 @@ const HistoryPopup = observer((props: { controller: ChatController; lang: Partia
 								<Button
 									className="ss__chat__history__chat__button"
 									onClick={() => {
-										controller.store.switchChat(chat.id);
+										controller.switchChat(chat.id);
 									}}
 									disabled={chat.id === store.currentChatId || store.loading || store.blocked}
 								>

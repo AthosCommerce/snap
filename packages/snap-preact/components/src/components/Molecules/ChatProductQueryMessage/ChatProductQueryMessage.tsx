@@ -58,6 +58,11 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 			'.ss__button__content': {
 				width: 'auto',
 			},
+			// pin the background so the Chat organism's generic `.ss__button:hover`
+			// lightening rule (higher specificity) doesn't recolor the banner
+			'&:not(.ss__button--disabled):hover': {
+				background: colorPrimary,
+			},
 			'&:focus-visible': {
 				outline: `2px solid ${colorPrimaryText}`,
 				outlineOffset: '-2px',
@@ -693,7 +698,9 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 									<Button
 										{...subProps.button}
 										icon="chat"
-										onClick={() => controller?.productQuery(sourceProduct)}
+										// pass the quickview product (not sourceProduct) — its display is masked
+										// to the active variant, so the attachment shows the selected variant
+										onClick={() => controller?.productQuery(product)}
 										lang={{ button: lang.discussButton }}
 									/>
 								</div>

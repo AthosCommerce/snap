@@ -16,6 +16,7 @@ describe('ChatOrganism Component', () => {
 			focusInput: () => {},
 			upload: () => {},
 			openChat: () => {},
+			switchChat: () => {},
 			store: {
 				chatEnabled: true,
 				open: false,

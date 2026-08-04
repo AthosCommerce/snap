@@ -367,8 +367,12 @@ export class ChatSessionStore {
 
 	public pushProductQueryMessage(result: any): void {
 		// capture the side-chat message that was active at click time so a back action
-		// can restore it even when it's not the last message in the chat
-		const sourceMessageId = this.activeMessage?.id;
+		// can restore it even when it's not the last message in the chat. When the active
+		// message is itself a trailing productQuery (e.g. 'discuss' clicked from the product
+		// panel), it's about to be replaced below — inherit its sourceMessageId so the back
+		// action still targets the original inspiration/comparison message.
+		const active = this.activeMessage;
+		const sourceMessageId = active?.messageType === 'productQuery' ? (active as ChatProductQueryMessageData).sourceMessageId : active?.id;
 		// drop any trailing productQuery so a fresh productQuery click replaces
 		// the side-chat target rather than stacking up
 		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
@@ -390,6 +394,10 @@ export class ChatSessionStore {
 		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
 			this.chat.pop();
 		}
+		// backing out ends the 'discuss product' context — drop its attachment so the
+		// product doesn't linger in the footer after returning to inspiration/comparison
+		const productQueryAttachments = this.attachments.attached.filter((item) => item.type === 'product' && item.requestType === 'productQuery');
+		productQueryAttachments.forEach((item) => this.attachments.remove(item.id));
 		this.activeMessageId = restoreActiveMessageId || null;
 		this.save();
 	}
