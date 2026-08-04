@@ -76,7 +76,26 @@ let templatesConfig: SnapTemplatesConfig = {
 		style: globalStyles,
 		// globalResultComponent: 'CustomResult',
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+				result: {
+					showQuickview: true,
+				},
+				// quickviewLayout: {
+				// 	layout: [['overlayBadge', 'calloutBadge'],['productDetail.mappings.core.price'], ['variantSelections'],
+				// 			['productDetailTable']],
+				// },
+				// productDetailTable: {
+				// 	details: [
+				// 		{ field: 'mappings.core.color', label: 'Color' },
+				// 		{ field: 'mappings.core.price', label: 'Price', type: 'price' },
+				// 		{ field: 'mappings.core.vendor', label: 'Vendor' },
+				// 		{ field: 'mappings.core.status', label: 'Status' },
+				// 	],
+				// }
+			},
 		},
 	},
 	recommendation: {
@@ -103,7 +122,19 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+		settings: {
+			quickview: {
+				displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
+			},
+		},
 	},
+	// quickview: {
+	// 	targets: [
+	// 		{
+	// 			component: 'ProductQuickviewSlideout',
+	// 		},
+	// 	],
+	// },
 	autocomplete: {
 		targets: [
 			{

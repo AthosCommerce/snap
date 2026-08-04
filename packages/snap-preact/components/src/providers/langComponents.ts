@@ -29,6 +29,7 @@ import type { FacetPaletteOptionsLang } from '../components/Molecules/FacetPalet
 import type { FacetSliderLang } from '../components/Molecules/FacetSlider';
 // import type { FacetToggleLang } from '../components/Molecules/FacetToggle';
 import type { FilterLang } from '../components/Molecules/Filter';
+import type { GalleryLang } from '../components/Molecules/Gallery';
 import type { GridLang } from '../components/Molecules/Grid';
 import type { LayoutSelectorLang } from '../components/Molecules/LayoutSelector';
 import type { ListLang } from '../components/Molecules/List';
@@ -55,6 +56,7 @@ import type { FacetsHorizontalLang } from '../components/Organisms/FacetsHorizon
 // import type { FacetsLang } from '../components/Organisms/Facets';
 import type { FilterSummaryLang } from '../components/Organisms/FilterSummary';
 import type { NoResultsLang } from '../components/Organisms/NoResults';
+import type { QuickviewLayoutLang } from '../components/Organisms/QuickviewLayout';
 import type { RecommendationBundleLang } from '../components/Templates/RecommendationBundle';
 // import type { BundledCTALang } from '../components/Templates/RecommendationBundle/BundleCTA';
 // import type { BundleSelectorLang } from '../components/Templates/RecommendationBundle/BundleSelector';
@@ -112,6 +114,7 @@ export type LangComponents = {
 	facetSlider: FacetSliderLang;
 	// facetToggle: FacetToggleLang
 	filter: FilterLang;
+	gallery: GalleryLang;
 	loadMore: LoadMoreLang;
 	// overlayBadge: OverlayBadgeLang
 	overlayResult: OverlayResultLang;
@@ -137,6 +140,7 @@ export type LangComponents = {
 	facetsHorizontal: FacetsHorizontalLang;
 	filterSummary: FilterSummaryLang;
 	noResults: NoResultsLang;
+	quickviewLayout: QuickviewLayoutLang;
 	recommendationBundle: RecommendationBundleLang;
 	// bundleCTA: BundledCTALang;
 	// bundleSelector: BundleSelectorLang;
