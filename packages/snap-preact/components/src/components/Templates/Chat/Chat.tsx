@@ -32,7 +32,7 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 	const { className, internalClassName, controller, disableStyles, treePath } = props;
 
-	// Lang scaffold — keeps the Template ready for future i18n overrides
+	// Lang scaffold — the organism owns the full ChatLang surface; props.lang flows through untouched
 	const defaultLang: Partial<ChatLang> = {};
 	const lang = deepmerge(defaultLang, props.lang || {});
 	useLang(lang as any, { controller });
@@ -51,10 +51,14 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 	const styling = mergeStyles<ChatProps>(props, defaultStyles);
 
+	// className/internalClassName stay on the template wrapper only — spreading them
+	// into the organism would duplicate user classes on two DOM levels
+	const organismProps = { ...props, className: undefined, internalClassName: undefined };
+
 	return (
 		<CacheProvider>
-			<div {...styling} className={classnames('ss__chat', className, internalClassName)}>
-				<ChatOrganism {...subProps.Chat} {...props} controller={controller} />
+			<div {...styling} className={classnames('ss__chat-template', className, internalClassName)}>
+				<ChatOrganism {...subProps.Chat} {...organismProps} controller={controller} />
 			</div>
 		</CacheProvider>
 	);

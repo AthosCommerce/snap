@@ -210,7 +210,8 @@ export class Colour {
 	/** Linear RGB mix between two hex colors. `amount` (0-1) is the proportion of `towardHex`
 	 * in the result. Returns the source `hex` unchanged when either input is invalid. */
 	static mixToward(hex: string | undefined, towardHex: string, amount: number): string {
-		if (!hex || !Colour.isHex(hex) || !Colour.isHex(towardHex)) return hex || '';
+		if (!hex) return '';
+		if (!Colour.isHex(hex) || !Colour.isHex(towardHex)) return hex;
 
 		const clamped = Math.max(0, Math.min(1, amount));
 

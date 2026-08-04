@@ -54,7 +54,7 @@ export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizont
 			limit: 9,
 		},
 
-		'facetsHorizontal mobileSidebar': {
+		'facetsHorizontal sidebar': {
 			layout: ['facets'],
 		},
 	},

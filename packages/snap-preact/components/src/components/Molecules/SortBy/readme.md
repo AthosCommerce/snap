@@ -44,3 +44,24 @@ By default "Dropdown" is used. and will render a dropdown using the Select compo
 ```tsx
 <SortBy controller={controller} type={'Radio'} label={'Sort By'}/>
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the SortBy component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `label` | The sort selector label text | `options` (ListOption[]), `selectedOptions` (ListOption[]) |
+
+### Example
+
+```tsx
+<SortBy
+	controller={controller}
+	lang={{
+		label: {
+			value: 'Sort Results',
+		},
+	}}
+/>
+```

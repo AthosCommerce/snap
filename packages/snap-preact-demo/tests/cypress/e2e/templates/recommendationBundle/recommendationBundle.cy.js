@@ -209,19 +209,19 @@ describe('BundledRecommendations', () => {
 		});
 
 		it('can click on a result and go to that page', function () {
-			cy.document().then((doc) => {
-				cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
-					cy.get(config?.selectors?.recommendation.activeSlide).should('exist');
-					let url = doc.querySelector(`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} a`).attributes
-						?.href?.value;
-					cy.get(`${config?.selectors?.recommendation.activeSlide} a`)
+			cy.get(config?.selectors?.recommendation.activeSlide).should('exist');
+			cy.get(`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} a`)
+				.first()
+				.invoke('attr', 'href')
+				.then((url) => {
+					expect(url).to.be.a('string').and.not.be.empty;
+					cy.get(`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} a`)
 						.first()
 						.click({ force: true })
 						.then(() => {
 							cy.location('href').should('include', url);
 						});
 				});
-			});
 		});
 
 		describe('Tests Custom Result Component', () => {

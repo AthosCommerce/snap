@@ -23,17 +23,8 @@ Alternatively if a `controller` prop is not provided, the `results` prop specifi
 <RecommendationEmail results={controller.store.results} />
 ```
 
-### resultProps
-The `resultProps` prop allows you to pass additional props to each result component. These props will be spread onto each rendered result, whether using the default `Result` component or a custom component specified by `resultComponent`.
-
-```tsx
-<RecommendationEmail controller={controller} resultProps={{ shortTitles: true }} />
-```
-
 ### resultComponent
 The `resultComponent` prop allows you to specify a custom component to render each result. If not provided, the default `Result` component will be used.
-
-Note: `resultProps` and `{ email: true }` will be spread as props onto each result component that is rendered.
 
 ```tsx
 import { CustomResult } from '../components/CustomResult';

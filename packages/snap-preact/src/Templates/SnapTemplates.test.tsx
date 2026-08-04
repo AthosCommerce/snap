@@ -1,14 +1,19 @@
 import { version } from '@athoscommerce/snap-toolbox';
 import {
+	applyAutomaticThemeOverrides,
 	createAutocompleteTargeters,
+	createChatTargeters,
 	createPlugins,
+	createSearchTargeters,
 	createSnapConfig,
 	DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS,
 	DEFAULT_FEATURES,
+	SnapTemplates,
 } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
+import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 describe('createPlugins with custom plugins', () => {
 	const baseConfigValues = {
@@ -426,6 +431,103 @@ describe('createSnapConfig with custom plugins', () => {
 		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
 		expect(customPluginEntry).toBeDefined();
 	});
+
+	it('should pass custom plugins to chat controller config', () => {
+		const customPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+				plugins: {
+					custom: {
+						chatPlugin: {
+							function: customPluginFn,
+						},
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// Check that chat controller has plugins array with our custom plugin
+		const chatControllerConfig = snapConfig.controllers?.chat?.[0];
+		expect(chatControllerConfig).toBeDefined();
+		expect(chatControllerConfig?.config?.plugins).toBeDefined();
+
+		const plugins = chatControllerConfig?.config?.plugins || [];
+		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
+		expect(customPluginEntry).toBeDefined();
+	});
+});
+
+describe('applyAutomaticThemeOverrides', () => {
+	it('adds shopify markets price formatter when markets plugin is configured', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'shopify',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			plugins: {
+				shopify: {
+					markets: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const resolved = applyAutomaticThemeOverrides(config);
+		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+
+		expect(priceConfig?.format).toBeDefined();
+	});
+
+	it('does not override an explicitly configured price formatter', () => {
+		const existingFormat = jest.fn();
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'shopify',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+				overrides: {
+					default: {
+						price: {
+							format: existingFormat,
+						},
+					},
+				},
+			},
+			plugins: {
+				shopify: {
+					markets: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const resolved = applyAutomaticThemeOverrides(config);
+		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+
+		expect(priceConfig?.format).toBe(existingFormat);
+	});
 });
 
 describe('createPlugins with built-in plugins', () => {
@@ -813,6 +915,128 @@ describe('createSnapConfig additional coverage', () => {
 		const searchConfig = snapConfig.controllers?.search?.[0];
 		expect(searchConfig?.config?.settings).toEqual(customSettings);
 	});
+
+	it('should not create chat controller when chat config not provided', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const snapConfig = createSnapConfig(baseConfig, templatesStore);
+
+		expect(snapConfig.controllers?.chat).toBeUndefined();
+	});
+
+	it('should create chat controller with correct id and targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const chatConfig = snapConfig.controllers?.chat?.[0];
+		expect(chatConfig?.config?.id).toBe('chat');
+		expect(chatConfig?.targeters).toHaveLength(1);
+		expect(chatConfig?.targeters?.[0].selector).toBe('#chat');
+	});
+
+	it('should pass chat settings to controller config with the templates languageCode', () => {
+		const customSettings = {
+			feedbackAfterMessages: 3,
+		};
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+				settings: customSettings,
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const chatConfig = snapConfig.controllers?.chat?.[0];
+		expect(chatConfig?.config?.settings).toEqual({
+			...customSettings,
+			languageCode: templatesStore.language,
+		});
+	});
+
+	it('should pass config.mode through to the snap config', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			config: {
+				...baseConfig.config,
+				mode: 'development',
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		expect(snapConfig.mode).toBe('development');
+	});
+});
+
+describe('createChatTargeters', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('returns no targeters when chat config not provided', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const targeters = createChatTargeters(baseConfig, templatesStore);
+
+		expect(targeters).toHaveLength(0);
+	});
+
+	it('creates a targeter for each chat target', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [
+					{ selector: '#chat', component: 'Chat' },
+					{ selector: '#chat-two', component: 'Chat' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createChatTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(2);
+		expect(targeters[0].selector).toBe('#chat');
+		expect(targeters[0].hideTarget).toBe(true);
+		expect(targeters[0].inject).toBeUndefined();
+		expect(targeters[0].component).toBeDefined();
+		expect(targeters[0].props?.templatesStore).toBe(templatesStore);
+		expect(targeters[0].props?.target).toBeDefined();
+		expect(targeters[1].selector).toBe('#chat-two');
+	});
+
+	it('injects an appended element and does not hide the target when targeting body', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [{ selector: 'body', component: 'Chat' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createChatTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].selector).toBe('body');
+		expect(targeters[0].hideTarget).toBe(false);
+		expect(targeters[0].inject).toBeDefined();
+		expect(targeters[0].inject?.action).toBe('append');
+
+		const element = targeters[0].inject?.element;
+		const injectedElem = typeof element == 'function' ? element(targeters[0], document.body) : element;
+		expect(injectedElem).toBeInstanceOf(HTMLDivElement);
+		expect((injectedElem as HTMLDivElement).className).toBe('ss__chat--target');
+	});
 });
 
 describe('SnapTemplatesConfigUnlocked theme overrides typing', () => {
@@ -937,5 +1161,249 @@ describe('createAutocompleteTargeters props.input', () => {
 
 		// Second targeter renders into a separate node; originalElem is #ac-dropdown, not the input
 		expect(targeters[1].props?.input).toBe('#header-search');
+	});
+});
+
+describe('createSearchTargeters autoRetarget and hideTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('sets autoRetarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].autoRetarget).toBe(true);
+	});
+
+	it('sets hideTarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].hideTarget).toBe(true);
+	});
+
+	it('applies autoRetarget and hideTarget to all search targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [
+					{ selector: '#search-1', component: 'Search' },
+					{ selector: '#search-2', component: 'Search' },
+					{ selector: '#search-3', component: 'Search' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(3);
+		targeters.forEach((targeter) => {
+			expect(targeter.autoRetarget).toBe(true);
+			expect(targeter.hideTarget).toBe(true);
+		});
+	});
+});
+
+describe('createAutocompleteTargeters autoRetarget and hideTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('sets autoRetarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [{ inputSelector: '.search-input', component: 'AutocompleteFixed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].autoRetarget).toBe(true);
+	});
+
+	it('sets hideTarget to true by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [{ inputSelector: '.search-input', component: 'AutocompleteFixed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].hideTarget).toBe(true);
+	});
+
+	it('applies autoRetarget and hideTarget to all autocomplete targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			autocomplete: {
+				targets: [
+					{ inputSelector: '.search-input-1', component: 'AutocompleteFixed' },
+					{ inputSelector: '.search-input-2', component: 'AutocompleteFixed' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createAutocompleteTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(2);
+		targeters.forEach((targeter) => {
+			expect(targeter.autoRetarget).toBe(true);
+			expect(targeter.hideTarget).toBe(true);
+		});
+	});
+});
+
+describe('globalResultComponent configuration', () => {
+	const baseConfigValues = {
+		config: {
+			platform: 'other' as const,
+			siteId: 'test123',
+		},
+		theme: {
+			extends: 'base' as const,
+		},
+	};
+
+	it('should apply one global result renderer across templates', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+			},
+		};
+
+		new SnapTemplates(config);
+
+		// Internally this is represented as a global result customComponent override.
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+	});
+
+	it('should merge global result renderer with existing overrides', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+				overrides: {
+					default: {
+						'recommendation.similar': {
+							slidesPerView: 3,
+						},
+					},
+				},
+			},
+		};
+
+		new SnapTemplates(config);
+
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect((config.theme.overrides?.default?.['recommendation.similar'] as any)?.slidesPerView).toBe(3);
+	});
+
+	it('should not override an existing result override', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'GlobalResult',
+				overrides: {
+					default: {
+						result: {
+							customComponent: 'SpecificResult',
+						},
+					},
+				},
+			},
+		};
+
+		new SnapTemplates(config);
+
+		// The specific override should take precedence over the global one (because it's merged second)
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('SpecificResult');
+	});
+
+	it('should apply globalResultComponent without overrides object', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			...baseConfigValues,
+			unlocked: true,
+			theme: {
+				extends: 'base',
+				globalResultComponent: 'CustomResult',
+			},
+		};
+
+		new SnapTemplates(config);
+
+		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect(config.theme.overrides?.default).toBeDefined();
+	});
+
+	it('should not add overrides if globalResultComponent is not specified', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfigValues,
+			theme: {
+				extends: 'base',
+			},
+		};
+
+		new SnapTemplates(config);
+		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
+		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
+	});
+});
+
+describe('SnapTemplates siteId context fallback', () => {
+	afterEach(() => {
+		delete window.athos;
+		document.body.innerHTML = '';
+	});
+
+	it('uses context siteId when template config omits config.siteId', () => {
+		document.body.innerHTML = `<script id="athos-context">siteId = 'siteid';</script>`;
+
+		const config = {
+			config: {
+				platform: 'other' as const,
+			},
+			theme: {
+				extends: 'base' as const,
+			},
+		} as SnapTemplatesConfig;
+
+		const snap = new SnapTemplates(config);
+
+		expect((snap.client as any).globals.siteId).toBe('siteid');
 	});
 });

@@ -23,13 +23,21 @@ import {
 	ChatAttachmentStore,
 } from '../Stores/ChatAttachmentStore';
 import type { StorageStore } from '@athoscommerce/snap-toolbox';
-import { MetaResponseModel, SearchResponseModelResult } from '@athoscommerce/snapi-types';
-import { ChatCompareStore } from './ChatCompareStore';
-import { SearchResultStore, Product } from '../../Search/Stores/SearchResultStore';
+import { MetaResponseModel, SearchResponseModelResult, SearchResponseModelResultCoreMappings } from '@athoscommerce/snapi-types';
+import { ChatCompareStore, ChatCompareItem } from './ChatCompareStore';
+import { SearchResultStore, Product } from '../../Search/Stores';
+import type { ChatStoreConfig } from '../../types';
+
+const chatResultConfig: ChatStoreConfig = { id: 'chat' };
+
+/** Thumbnail fallback chain shared by every surface that renders a product attachment. */
+export function getProductThumbnailUrl(core?: SearchResponseModelResultCoreMappings): string | undefined {
+	return core?.thumbnailImageUrl || core?.imageUrl || core?.parentImageUrl;
+}
 
 function createChatResultStore(results: SearchResponseModelResult[], meta: MetaResponseModel): SearchResultStore {
 	return new SearchResultStore({
-		config: {} as any,
+		config: chatResultConfig,
 		state: { loaded: true },
 		data: {
 			search: { results },
@@ -40,33 +48,36 @@ function createChatResultStore(results: SearchResponseModelResult[], meta: MetaR
 
 function createChatProduct(result: SearchResponseModelResult, meta: MetaResponseModel): Product {
 	return new Product({
-		config: {} as any,
+		config: chatResultConfig,
 		data: { result, meta },
 		position: 0,
 		responseId: '',
 	});
 }
 
+/** Plain serializable product shape persisted to storage in place of Product instances. */
+export type SerializedProduct = SearchResponseModelResult & { responseId?: string };
+
 /** Extract raw serializable data from a Product instance for storage. */
-function serializeProduct(product: any): any {
+function serializeProduct(product: Product | SerializedProduct): SerializedProduct {
 	if (!(product instanceof Product)) return product;
-	const raw: any = {
+	const raw: SerializedProduct = {
 		id: product.id,
 		responseId: product.responseId,
 		mappings: product.mappings,
-		attributes: product.attributes,
-		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag, value: b.value })) || [],
+		attributes: product.attributes as SearchResponseModelResult['attributes'],
+		badges: product.badges?.all?.map((b) => ({ tag: b.tag, value: b.value })) || [],
 	};
 	if (product.variants) {
 		raw.variants = {
-			data: product.variants.data.map((v: any) => ({
+			data: product.variants.data.map((v) => ({
 				mappings: v.mappings,
 				attributes: v.attributes,
 				options: v.options,
 				badges: v.badges,
 			})),
 			optionConfig: product.variants.optionConfig,
-		};
+		} as SearchResponseModelResult['variants'];
 	}
 	return raw;
 }
@@ -112,46 +123,56 @@ function serializeAttachmentsForStorage(items: (ChatAttachmentImage | ChatAttach
 	});
 }
 
+/** Message shape persisted to storage — Product/SearchResultStore instances replaced with plain data. */
+export type SerializedChatMessage =
+	| ChatUserMessage
+	| ChatResponseTextData
+	| ChatResponseContentData
+	| ChatResponseErrorData
+	| ChatResponseTopicDriftData
+	| ChatProductQueryMessageData
+	| (Omit<ChatResponseProductSearchResultData, 'results'> & { results: SerializedProduct[] })
+	| (Omit<ChatResponseInspirationResultData, 'inspirationSections'> & {
+			inspirationSections: (Omit<ChatResponseInspirationResultData['inspirationSections'][number], 'products'> & {
+				products: SerializedProduct[];
+			})[];
+	  })
+	| (Omit<ChatResponseProductAnswerData, 'sourceProduct'> & { sourceProduct: SerializedProduct })
+	| (Omit<ChatResponseProductComparisonData, 'searchResults'> & { searchResults: SerializedProduct[] })
+	| (Omit<ChatResponseProductRecommendationData, 'recommendationResult'> & {
+			recommendationResult: (Omit<ChatResponseProductRecommendationData['recommendationResult'][number], 'results'> & {
+				results: SerializedProduct[];
+			})[];
+	  });
+
 /** Convert a chat message array to a plain serializable form for localStorage. */
-function serializeChatForStorage(chat: ChatMessage[]): any[] {
-	return chat.map((message) => {
+function serializeChatForStorage(chat: ChatMessage[]): SerializedChatMessage[] {
+	return chat.map((message): SerializedChatMessage => {
 		switch (message.messageType) {
-			case 'productSearchResult': {
-				const msg = message as any;
-				return { ...msg, results: Array.from(msg.results || []).map(serializeProduct) };
-			}
-			case 'inspirationResult': {
-				const msg = message as any;
+			case 'productSearchResult':
+				return { ...message, results: Array.from(message.results || []).map(serializeProduct) };
+			case 'inspirationResult':
 				return {
-					...msg,
-					inspirationSections: msg.inspirationSections?.map((section: any) => ({
+					...message,
+					inspirationSections: message.inspirationSections?.map((section) => ({
 						...section,
 						products: Array.from(section.products || []).map(serializeProduct),
 					})),
 				};
-			}
-			case 'productAnswer': {
-				const msg = message as any;
-				return { ...msg, sourceProduct: serializeProduct(msg.sourceProduct) };
-			}
-			case 'productComparison': {
-				const msg = message as any;
-				return { ...msg, searchResults: Array.from(msg.searchResults || []).map(serializeProduct) };
-			}
-			case 'productRecommendation': {
-				const msg = message as any;
+			case 'productAnswer':
+				return { ...message, sourceProduct: serializeProduct(message.sourceProduct) };
+			case 'productComparison':
+				return { ...message, searchResults: Array.from(message.searchResults || []).map(serializeProduct) };
+			case 'productRecommendation':
 				return {
-					...msg,
-					recommendationResult: msg.recommendationResult?.map((rec: any) => ({
+					...message,
+					recommendationResult: message.recommendationResult?.map((rec) => ({
 						...rec,
 						results: Array.from(rec.results || []).map(serializeProduct),
 					})),
 				};
-			}
-			case 'productQuery': {
-				const msg = message as any;
-				return { ...msg, sourceProduct: serializeProduct(msg.sourceProduct) };
-			}
+			case 'productQuery':
+				return { ...message, sourceProduct: serializeProduct(message.sourceProduct) };
 			default:
 				return message;
 		}
@@ -205,7 +226,7 @@ type ChatSessionStoreConfig = {
 		feedback?: { rating?: 'UP' | 'DOWN' | null; dismissed?: boolean };
 		createdAt?: Date;
 		sessionEndTime?: Date;
-		committedComparisons?: any[];
+		committedComparisons?: ChatCompareItem[];
 		pendingRequest?: MoiRequestModel | null;
 	};
 	stores: {
@@ -243,6 +264,7 @@ export class ChatSessionStore {
 	public sessionLimitReached: boolean = false;
 	/** Whether raw stored results have been hydrated into Product/SearchResultStore instances. */
 	public hydrated: boolean = true;
+	private saveTimerId: ReturnType<typeof setTimeout> | null = null;
 
 	constructor(params: ChatSessionStoreConfig) {
 		const { id, sessionId, chat, attachments, actions, feedback, createdAt, sessionEndTime, committedComparisons, pendingRequest } =
@@ -303,10 +325,13 @@ export class ChatSessionStore {
 
 		makeObservable(this, {
 			chat: observable,
+			sessionId: observable,
+			hydrated: observable,
 			requestType: observable,
 			pendingRequest: observable,
 			actions: observable,
 			attachments: observable,
+			comparisons: observable,
 			feedback: observable,
 			dismissedSideChatMessageId: observable,
 			activeMessageId: observable,
@@ -335,17 +360,19 @@ export class ChatSessionStore {
 		// attachment so the footer reflects only the comparison products.
 		const target = this.chat.find((m) => m.id === id);
 		if (target?.messageType === 'productComparison') {
-			const productQueryAttachments = this.attachments.attached.filter(
-				(item) => item.type === 'product' && (item as any).requestType === 'productQuery'
-			);
+			const productQueryAttachments = this.attachments.attached.filter((item) => item.type === 'product' && item.requestType === 'productQuery');
 			productQueryAttachments.forEach((item) => this.attachments.remove(item.id));
 		}
 	}
 
 	public pushProductQueryMessage(result: any): void {
 		// capture the side-chat message that was active at click time so a back action
-		// can restore it even when it's not the last message in the chat
-		const sourceMessageId = this.activeMessage?.id;
+		// can restore it even when it's not the last message in the chat. When the active
+		// message is itself a trailing productQuery (e.g. 'discuss' clicked from the product
+		// panel), it's about to be replaced below — inherit its sourceMessageId so the back
+		// action still targets the original inspiration/comparison message.
+		const active = this.activeMessage;
+		const sourceMessageId = active?.messageType === 'productQuery' ? (active as ChatProductQueryMessageData).sourceMessageId : active?.id;
 		// drop any trailing productQuery so a fresh productQuery click replaces
 		// the side-chat target rather than stacking up
 		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
@@ -367,6 +394,10 @@ export class ChatSessionStore {
 		while (this.chat.length > 0 && this.chat[this.chat.length - 1]?.messageType === 'productQuery') {
 			this.chat.pop();
 		}
+		// backing out ends the 'discuss product' context — drop its attachment so the
+		// product doesn't linger in the footer after returning to inspiration/comparison
+		const productQueryAttachments = this.attachments.attached.filter((item) => item.type === 'product' && item.requestType === 'productQuery');
+		productQueryAttachments.forEach((item) => this.attachments.remove(item.id));
 		this.activeMessageId = restoreActiveMessageId || null;
 		this.save();
 	}
@@ -458,8 +489,6 @@ export class ChatSessionStore {
 		this.feedback = { rating: null, dismissed: false, justGiven: false };
 	}
 
-	private saveTimerId: ReturnType<typeof setTimeout> | null = null;
-
 	/** Persist the session to storage immediately (synchronous). */
 	public saveImmediate(): void {
 		if (this.saveTimerId !== null) {
@@ -501,26 +530,37 @@ export class ChatSessionStore {
 		this.saveImmediate();
 	}
 
-	/** Remove oldest stored sessions when exceeding the limit. Returns the ids removed. */
+	/** Remove oldest stored sessions when exceeding the limit. Returns the ids removed.
+	 * Rewrites the whole `chats` object rather than nulling leaves — StorageStore.set(path, null)
+	 * never deletes keys, so nulled entries would otherwise accumulate forever. */
 	public static pruneStoredSessions(storage: StorageStore, maxSessions: number = 10): string[] {
-		const prunedIds: string[] = [];
 		const storedChats = storage.get('chats');
-		if (storedChats) {
-			const chatIds = Object.keys(storedChats);
-			if (chatIds.length > maxSessions) {
-				chatIds
-					.sort((a, b) => {
-						const aTime = new Date(storedChats[a]?.createdAt || 0).getTime();
-						const bTime = new Date(storedChats[b]?.createdAt || 0).getTime();
-						return aTime - bTime;
-					})
-					.slice(0, chatIds.length - maxSessions)
-					.forEach((id) => {
-						storage.set(`chats.${id}`, null);
-						prunedIds.push(id);
-					});
-			}
+		if (!storedChats) {
+			return [];
 		}
+
+		const chatIds = Object.keys(storedChats).filter((id) => storedChats[id]);
+		const prunedIds =
+			chatIds.length > maxSessions
+				? [...chatIds]
+						.sort((a, b) => {
+							const aTime = new Date(storedChats[a]?.createdAt || 0).getTime();
+							const bTime = new Date(storedChats[b]?.createdAt || 0).getTime();
+							return aTime - bTime;
+						})
+						.slice(0, chatIds.length - maxSessions)
+				: [];
+
+		if (prunedIds.length || chatIds.length !== Object.keys(storedChats).length) {
+			const keptChats: Record<string, any> = {};
+			chatIds
+				.filter((id) => !prunedIds.includes(id))
+				.forEach((id) => {
+					keptChats[id] = storedChats[id];
+				});
+			storage.set('chats', keptChats);
+		}
+
 		return prunedIds;
 	}
 
@@ -528,36 +568,54 @@ export class ChatSessionStore {
 	public hydrateResults(meta: MetaResponseModel): void {
 		this.chat.forEach((message) => {
 			if (message.messageType === 'productSearchResult') {
-				const msg = message as any;
-				if (msg.results?.length && !(msg.results[0] instanceof Product)) {
-					msg.results = createChatResultStore(msg.results, meta);
+				if (message.results?.length && !(message.results[0] instanceof Product)) {
+					message.results = createChatResultStore(message.results, meta) as unknown as SearchResponseModelResult[];
 				}
 			} else if (message.messageType === 'inspirationResult') {
-				const msg = message as any;
-				msg.inspirationSections?.forEach((section: any) => {
+				message.inspirationSections?.forEach((section) => {
 					if (section.products?.length && !(section.products[0] instanceof Product)) {
-						section.products = createChatResultStore(section.products, meta);
+						section.products = createChatResultStore(section.products, meta) as unknown as SearchResponseModelResult[];
 					}
 				});
 			} else if (message.messageType === 'productAnswer') {
-				const msg = message as any;
-				if (msg.sourceProduct && !(msg.sourceProduct instanceof Product)) {
-					msg.sourceProduct = createChatProduct(msg.sourceProduct, meta);
+				if (message.sourceProduct && !(message.sourceProduct instanceof Product)) {
+					message.sourceProduct = createChatProduct(message.sourceProduct, meta) as unknown as SearchResponseModelResult;
 				}
 			} else if (message.messageType === 'productComparison') {
-				const msg = message as any;
-				if (msg.searchResults?.length && !(msg.searchResults[0] instanceof Product)) {
-					msg.searchResults = createChatResultStore(msg.searchResults, meta);
+				if (message.searchResults?.length && !(message.searchResults[0] instanceof Product)) {
+					message.searchResults = createChatResultStore(message.searchResults, meta) as unknown as SearchResponseModelResult[];
 				}
 			} else if (message.messageType === 'productRecommendation') {
-				const msg = message as any;
-				msg.recommendationResult?.forEach((rec: any) => {
+				message.recommendationResult?.forEach((rec) => {
 					if (rec.results?.length && !(rec.results[0] instanceof Product)) {
-						rec.results = createChatResultStore(rec.results, meta);
+						rec.results = createChatResultStore(rec.results, meta) as unknown as SearchResponseModelResult[];
 					}
 				});
 			}
 		});
+	}
+
+	/** Attach every compared product for a productComparison request. Returns the
+	 * attachment ids and display names of the products that were attached. */
+	private attachComparisonProducts(): { ids: string[]; names: string[] } {
+		const ids: string[] = [];
+		const names: string[] = [];
+		this.comparisons.compared.forEach((item) => {
+			const display = item.result?.display || item.result;
+			const attachment = this.attachments.add<ChatAttachmentProduct>({
+				type: 'product',
+				requestType: 'productComparison',
+				productId: item.result.id,
+				name: display.mappings?.core?.name,
+				thumbnailUrl: getProductThumbnailUrl(display.mappings?.core),
+			});
+			if (attachment) {
+				ids.push(attachment.id);
+				attachment.activate();
+				names.push(attachment.name || attachment.productId);
+			}
+		});
+		return { ids, names };
 	}
 
 	public request(request: ChatRequestModel, filterLabels?: FilterLabelMap): void {
@@ -604,7 +662,6 @@ export class ChatSessionStore {
 				this.chat.push({
 					id: uuidv4(),
 					messageType: 'user',
-					attachments: attachments.length > 0 ? attachments : undefined,
 					text: `Filter by ${filterTextArray.join(' and ')}`,
 					requestType: request.data.requestType,
 					request: request.data, // request is added here to conditionally display different text in MessageUser
@@ -626,20 +683,7 @@ export class ChatSessionStore {
 					attachedProduct.activate();
 				}
 			} else if (request.data.requestType === 'productComparison') {
-				this.comparisons.compared.forEach((item) => {
-					const d = item.result?.display || item.result;
-					const attachment = this.attachments.add<ChatAttachmentProduct>({
-						type: 'product',
-						requestType: 'productComparison',
-						productId: item.result.id,
-						name: d.mappings?.core?.name,
-						thumbnailUrl: d.mappings?.core?.thumbnailImageUrl || d.mappings?.core?.imageUrl || d.mappings?.core?.parentImageUrl,
-					});
-					if (attachment) {
-						attachments.push(attachment.id);
-						attachment.activate();
-					}
-				});
+				attachments.push(...this.attachComparisonProducts().ids);
 			}
 
 			this.chat.push({
@@ -665,22 +709,8 @@ export class ChatSessionStore {
 				});
 			}
 		} else if (request.data?.requestType === 'productComparison') {
-			const productNames: string[] = [];
-			this.comparisons.compared.forEach((item) => {
-				const d = item.result?.display || item.result;
-				const attachment = this.attachments.add<ChatAttachmentProduct>({
-					type: 'product',
-					requestType: 'productComparison',
-					productId: item.result.id,
-					name: d.mappings?.core?.name,
-					thumbnailUrl: d.mappings?.core?.thumbnailImageUrl || d.mappings?.core?.imageUrl || d.mappings?.core?.parentImageUrl,
-				});
-				if (attachment) {
-					attachments.push(attachment.id);
-					attachment.activate();
-					productNames.push(attachment.name || attachment.productId);
-				}
-			});
+			const { ids, names: productNames } = this.attachComparisonProducts();
+			attachments.push(...ids);
 
 			if (attachments.length > 0) {
 				this.chat.push({

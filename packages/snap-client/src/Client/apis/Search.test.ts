@@ -276,7 +276,7 @@ describe('Search Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/v1/products/abc123';
+		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/v1/products/abc123?siteId=8uyt2m';
 		const expectedParams = {
 			body: undefined,
 			headers: {},
@@ -285,6 +285,24 @@ describe('Search Api', () => {
 
 		expect(requestMock).toHaveBeenCalledWith(expectedUrl, expectedParams);
 		expect(result).toEqual(mockResponse);
+
+		requestMock.mockReset();
+	});
+
+	it('uses a configured origin for getProducts', async () => {
+		const api = new SearchAPI(new ApiConfiguration({ origin: 'https://custom-search.example.com' }));
+
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
+
+		await api.getProducts({
+			parentId: 'abc123',
+			siteId: '8uyt2m',
+		});
+
+		const expectedUrl = 'https://custom-search.example.com/v1/products/abc123?siteId=8uyt2m';
+		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
 
 		requestMock.mockReset();
 	});
@@ -334,7 +352,7 @@ describe('Search Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/custom/products/xyz789';
+		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/custom/products/xyz789?siteId=8uyt2m';
 		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
 
 		requestMock.mockReset();

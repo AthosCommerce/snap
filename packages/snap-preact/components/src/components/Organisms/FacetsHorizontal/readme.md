@@ -1,11 +1,14 @@
 # FacetsHorizontal
 
-Renders all facets in a horizontal display. Also incluses MobileSidebar.
+Renders all facets in a horizontal display.
 
 ## Sub-components
 - Facet
 - Dropdown
-- MobileSidebar
+- Icon
+- Button
+- Slideout
+- Sidebar
 
 ## Usage
 
@@ -38,7 +41,7 @@ The `iconCollapse` prop is the name of the icon to render when the facet is in i
 ```
 
 ### limit
-The `limit` prop will limit the maximum number of facets to display before displaying the overflow button and MobidleSidebar.
+The `limit` prop will limit the maximum number of facets to display before displaying the overflow button and sidebar slideout.
 
 ```tsx
 <FacetsHorizontal controller={controller} limit={6}/>
@@ -58,11 +61,11 @@ The `hideSelectedCountParenthesis` prop specifies if the parenthesis should rend
 <FacetsHorizontal controller={controller} hideSelectedCountParenthesis={true} />
 ```
 
-### alwaysShowFiltersButton
-The `alwaysShowFiltersButton` prop will always render the button and MobileSidebar, not just when facets are overflowing.
+### alwaysShowToggleSidebarButton
+The `alwaysShowToggleSidebarButton` prop will always render the sidebar-toggle button, not just when facets are overflowing.
 
 ```tsx
-<FacetsHorizontal controller={controller} alwaysShowFiltersButton={true} />
+<FacetsHorizontal controller={controller} alwaysShowToggleSidebarButton={true} />
 ```
 
 ### showClearAllText
@@ -88,11 +91,18 @@ The `clearAllIcon` prop specifies the icon displayed in the facet header when op
 <FacetsHorizontal controller={controller} clearAllIcon={'ban'} />
 ```
 
-### hideFiltersButton
-The `hideFiltersButton` specifies wether the filters button should be rendered or not. If true, the button will render when there are more filters to show than the limit prop allows (unless the alwaysShowFiltersButton prop is passed, which will ignore the limit). 
+### hideToggleSidebarButton
+The `hideToggleSidebarButton` prop specifies whether the toggle sidebar button should be rendered or not. If not hidden, the button will render when there are more filters to show than the limit prop allows (unless the `alwaysShowToggleSidebarButton` prop is passed, which will ignore the limit). 
 
 ```tsx
-<FacetsHorizontal controller={controller} hideFiltersButton={true}/>
+<FacetsHorizontal controller={controller} hideToggleSidebarButton={true}/>
+```
+
+### toggleSidebarButtonText
+The `toggleSidebarButtonText` prop specifies the text displayed in the toggle sidebar button. Defaults to 'Filters'.
+
+```tsx
+<FacetsHorizontal controller={controller} toggleSidebarButtonText={'Filters'}/>
 ```
 
 
@@ -101,4 +111,25 @@ The `onFacetOptionClick` callback function for when a facet option is clicked.
 
 ```tsx
 <FacetsHorizontal controller={controller} onFacetOptionClick={clickfunc}/>
+```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetsHorizontal component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `dropdownButton` | Facet dropdown button text/attributes | `selectedFacet` (IndividualFacetType), `facet` (IndividualFacetType) |
+| `toggleSidebarButtonText` | Sidebar toggle button text | `facets` (IndividualFacetType[]), `sidebarOpenState` (boolean) |
+
+### Example
+
+```tsx
+<FacetsHorizontal
+	controller={controller}
+	lang={{
+		toggleSidebarButtonText: {
+			value: (data) => data.sidebarOpenState ? 'Hide Filters' : 'Show Filters',
+		},
+	}}
+/>
 ```

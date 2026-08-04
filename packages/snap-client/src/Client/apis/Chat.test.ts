@@ -14,7 +14,7 @@ const baseTracking = {
 	userId: 'user-1',
 };
 
-describe('Chat API', () => {
+describe('Chat Api', () => {
 	let requestMock: jest.SpyInstance;
 
 	afterEach(() => {
@@ -108,15 +108,125 @@ describe('Chat API', () => {
 				})
 				.catch((e) => e);
 
-			// handle400Error passes non-400 errors through unchanged — no .err wrapper
+			// handleError passes non-400 errors through unchanged — no .err wrapper
 			expect(rejection.fetchDetails?.status).toBe(500);
 			expect(rejection.err).toBeDefined(); // the original Error from the abstract layer
-			// confirm it was NOT re-wrapped by handle400Error (err.message is the generic upstream error)
+			// confirm it was NOT re-wrapped by handleError (err.message is the generic upstream error)
 			expect(rejection.err?.message).not.toBe('Bad input');
 		});
 	});
 
-	describe('postStatus', () => {
+	describe('postMessage session context', () => {
+		it('omits the chatSessionId param when no session is established', async () => {
+			const fixture = mockData.chat('default');
+			requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(fixture), headers: new Headers() } as Response));
+
+			const api = new ChatAPI(new ApiConfiguration(apiConfig));
+			await api.postMessage({
+				siteId: '8uyt2m',
+				context: {},
+				tracking: baseTracking,
+				data: { requestType: 'general', message: 'hello' },
+			});
+
+			const [calledUrl] = (requestMock.mock.calls[0] as [string]) || [];
+			expect(calledUrl).not.toContain('chatSessionId');
+		});
+
+		it('applies the x-session-id response header as context when the body has none', async () => {
+			const fixture = { data: [{ messageType: 'text', id: 'msg-text-001', text: 'hello' }] };
+			requestMock = jest.spyOn(global.window, 'fetch').mockImplementation(() =>
+				Promise.resolve({
+					status: 200,
+					json: () => Promise.resolve(fixture),
+					headers: new Headers({ 'x-session-id': 'header-session-id' }),
+				} as Response)
+			);
+
+			const api = new ChatAPI(new ApiConfiguration(apiConfig));
+			const result = await api.postMessage({
+				siteId: '8uyt2m',
+				context: {},
+				tracking: baseTracking,
+				data: { requestType: 'general', message: 'hello' },
+			});
+
+			expect(result.context).toEqual({ sessionId: 'header-session-id' });
+		});
+
+		it('does not clobber a context provided in the response body', async () => {
+			const fixture = {
+				data: [{ messageType: 'text', id: 'msg-text-001', text: 'hello' }],
+				context: { sessionId: 'body-session-id' },
+			};
+			requestMock = jest.spyOn(global.window, 'fetch').mockImplementation(() =>
+				Promise.resolve({
+					status: 200,
+					json: () => Promise.resolve(fixture),
+					headers: new Headers({ 'x-session-id': 'header-session-id' }),
+				} as Response)
+			);
+
+			const api = new ChatAPI(new ApiConfiguration(apiConfig));
+			const result = await api.postMessage({
+				siteId: '8uyt2m',
+				context: {},
+				tracking: baseTracking,
+				data: { requestType: 'general', message: 'hello' },
+			});
+
+			expect(result.context).toEqual({ sessionId: 'body-session-id' });
+		});
+	});
+
+	describe('configured paths', () => {
+		it('uses configured paths for each endpoint', async () => {
+			requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() =>
+					Promise.resolve({ status: 200, json: () => Promise.resolve(mockData.chat('default')), headers: new Headers() } as Response)
+				);
+
+			const api = new ChatAPI(
+				new ApiConfiguration({
+					...apiConfig,
+					paths: {
+						send: '/custom/send',
+						status: '/custom/status',
+						init: '/custom/init',
+						uploadImage: '/custom/upload-image',
+					},
+				})
+			);
+
+			await api.postMessage({
+				siteId: '8uyt2m',
+				context: { sessionId: 's1' },
+				tracking: baseTracking,
+				data: { requestType: 'general', message: 'hello' },
+			});
+			expect((requestMock.mock.calls[0] as [string])[0]).toContain('/custom/send');
+
+			await api.getStatus({ siteId: '8uyt2m', tracking: baseTracking });
+			expect((requestMock.mock.calls[1] as [string])[0]).toContain('/custom/status');
+
+			await api.postInit({
+				siteId: '8uyt2m',
+				userId: 'user-1',
+				languageCode: 'en',
+				searchConfig: { sessionId: 'search-session-1' },
+				tracking: baseTracking,
+			});
+			expect((requestMock.mock.calls[2] as [string])[0]).toContain('/custom/init');
+
+			await api.postUploadImage({ siteId: '8uyt2m', image: new Blob(['data'], { type: 'image/png' }) });
+			expect((requestMock.mock.calls[3] as [string])[0]).toContain('/custom/upload-image');
+		});
+	});
+
+	describe('getStatus', () => {
 		it('calls /v1/chat/status and returns the response body', async () => {
 			const fixture = mockData.chatStatus();
 			requestMock = jest
@@ -124,19 +234,20 @@ describe('Chat API', () => {
 				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(fixture), headers: new Headers() } as Response));
 
 			const api = new ChatAPI(new ApiConfiguration(apiConfig));
-			const result = await api.postStatus({
+			const result = await api.getStatus({
 				siteId: '8uyt2m',
 				tracking: baseTracking,
 			});
 
-			const [calledUrl] = (requestMock.mock.calls[0] as [string]) || [];
+			const [calledUrl, calledInit] = requestMock.mock.calls[0] as [string, RequestInit];
 			expect(calledUrl).toContain('/v1/chat/status');
 			expect(calledUrl).toContain('siteId=8uyt2m');
+			expect(calledInit.headers).toEqual({});
 			expect(result).toEqual(fixture);
 		});
 	});
 
-	describe('chatInit', () => {
+	describe('postInit', () => {
 		it('calls /v1/chat/init and returns the response body', async () => {
 			const fixture = mockData.chatInit();
 			requestMock = jest
@@ -144,7 +255,7 @@ describe('Chat API', () => {
 				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(fixture), headers: new Headers() } as Response));
 
 			const api = new ChatAPI(new ApiConfiguration(apiConfig));
-			const result = await api.chatInit({
+			const result = await api.postInit({
 				siteId: '8uyt2m',
 				userId: 'user-1',
 				languageCode: 'en',
@@ -189,7 +300,7 @@ describe('Chat API', () => {
 			}
 		});
 
-		it('reshapes 400 errors via handle400Error', async () => {
+		it('reshapes 400 errors via handleError', async () => {
 			requestMock = jest.spyOn(global.window, 'fetch').mockImplementation(() =>
 				Promise.resolve({
 					status: 400,

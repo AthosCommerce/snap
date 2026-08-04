@@ -89,13 +89,26 @@ export default {
 		},
 		mobileDisplayAt: {
 			defaultValue: '',
-			description: 'Media query for when to render the mobileSidebar',
+			description:
+				'specifies a Boolean or CSS media query for when the Sidebar component should render in mobile view, which will render in a slideout',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string | boolean',
+				},
+				defaultValue: { summary: '' },
+			},
+			control: { type: 'text' },
+		},
+		sidebarWidth: {
+			defaultValue: '270px',
+			description: 'CSS width of the sidebar',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: '270px' },
 			},
 			control: { type: 'text' },
 		},

@@ -18,6 +18,7 @@ export class SearchQueryStore {
 	public didYouMean?: Query;
 	public originalQuery?: Query;
 	public matchType: SearchResponseModelSearchMatchTypeEnum;
+	public subject?: Query;
 
 	constructor(params: SearchQueryStoreConfig) {
 		const { services, data } = params || {};
@@ -39,6 +40,11 @@ export class SearchQueryStore {
 			observables.originalQuery = observable;
 		}
 
+		if (search?.subject) {
+			this.subject = new Query(services, search.subject);
+			observables.subject = observable;
+		}
+
 		this.matchType = search?.matchType as SearchResponseModelSearchMatchTypeEnum;
 		observables.matchType = observable;
 
@@ -51,6 +57,7 @@ type Observables = {
 	didYouMean?: typeof observable;
 	originalQuery?: typeof observable;
 	matchType?: typeof observable;
+	subject?: typeof observable;
 };
 
 export class Query {

@@ -1,9 +1,10 @@
 {
 	"name": "@athoscommerce/snap-preact",
-	"version": "1.7.0",
+	"version": "1.10.0",
 	"description": "Snap Preact",
 	"main": "dist/cjs/src/index.js",
 	"module": "dist/esm/src/index.js",
+	"types": "dist/esm/src/index.d.ts",
 	"author": "Athos Commerce",
 	"license": "MIT",
 	"repository": {
@@ -14,7 +15,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "rm -rf ./dist && rm -fr ./components/dist && tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2",
+		"build": "rm -rf ./dist && tsc",
+		"build:prod": "rm -rf ./dist && rm -rf ./components/dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "typedoc --out docs src/index.ts && storybook build -c ./components/.storybook -o ./components/docs",
 		"cypress": "cypress open --project components/tests",
 		"cypress:headless": "cypress run --component --project components/tests",
@@ -26,17 +28,18 @@
 		"storybook": "storybook dev -c ./components/.storybook -p 6006"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-client": "1.7.0",
-		"@athoscommerce/snap-controller": "1.7.0",
-		"@athoscommerce/snap-event-manager": "1.7.0",
-		"@athoscommerce/snap-logger": "1.7.0",
-		"@athoscommerce/snap-platforms": "1.7.0",
-		"@athoscommerce/snap-profiler": "1.7.0",
-		"@athoscommerce/snap-store-mobx": "1.7.0",
-		"@athoscommerce/snap-toolbox": "1.7.0",
-		"@athoscommerce/snap-tracker": "1.7.0",
-		"@athoscommerce/snap-url-manager": "1.7.0",
+		"@athoscommerce/snap-client": "1.10.0",
+		"@athoscommerce/snap-controller": "1.10.0",
+		"@athoscommerce/snap-event-manager": "1.10.0",
+		"@athoscommerce/snap-logger": "1.10.0",
+		"@athoscommerce/snap-platforms": "1.10.0",
+		"@athoscommerce/snap-profiler": "1.10.0",
+		"@athoscommerce/snap-store-mobx": "1.10.0",
+		"@athoscommerce/snap-toolbox": "1.10.0",
+		"@athoscommerce/snap-tracker": "1.10.0",
+		"@athoscommerce/snap-url-manager": "1.10.0",
 		"@emotion/react": "11.13.0",
+		"acorn": "8.16.0",
 		"classnames": "^2.3.2",
 		"colord": "^2.9.3",
 		"deepmerge": "4.3.1",
@@ -44,8 +47,8 @@
 		"dompurify": "^3.2.4",
 		"intersection-observer": "0.12.2",
 		"is-plain-object": "5.0.0",
-		"react-ranger": "2.1.0",
 		"marked": "^17.0.1",
+		"react-ranger": "2.1.0",
 		"swiper": "11.0.7"
 	},
 	"peerDependencies": {
@@ -54,7 +57,6 @@
 		"preact": "^10.28.4"
 	},
 	"devDependencies": {
-		"@cypress/react": "^8.0.2",
 		"@storybook/addon-actions": "7.6.7",
 		"@storybook/addon-controls": "7.6.7",
 		"@storybook/addon-docs": "7.6.7",
@@ -69,8 +71,7 @@
 		"@types/scheduler": "0.16.8",
 		"babel-loader": "9.1.3",
 		"css-loader": "^6.9.0",
-		"cypress": "^13.7.1",
-		"cypress-wait-until": "^1.7.2",
+		"cypress": "^14.2.1",
 		"esbuild-loader": "^4.4.2",
 		"mobx": "6.15.1",
 		"mobx-react-lite": "4.1.1",
@@ -84,7 +85,8 @@
 	},
 	"sideEffects": false,
 	"files": [
-		"dist/**/*"
+		"dist/**/*",
+		"webpack"
 	],
 	"exports": {
 		".": {
@@ -101,7 +103,8 @@
 			"types": "./dist/esm/toolbox/src/index.d.ts",
 			"import": "./dist/esm/toolbox/src/index.js",
 			"require": "./dist/cjs/toolbox/src/index.js"
-		}
+		},
+		"./webpack": "./webpack/index.js"
 	},
 	"gitHead": "c31d6fae1461ef16d593321c312c94b85dad7d96"
 }

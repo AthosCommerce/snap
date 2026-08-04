@@ -3,26 +3,34 @@ import { useEffect } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { Image } from '../../Atoms/Image';
-import { Button } from '../../Atoms/Button';
-import { Icon, Price } from '../../..';
+import { Button, ButtonProps } from '../../Atoms/Button';
+import { Price } from '../../Atoms/Price';
 import type { Product, VariantSelection } from '@athoscommerce/snap-store-mobx';
 
-const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor, primaryColorText }) => {
-	const colorPrimary = primaryColor || '#253B80';
+const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor, primaryColorText, theme }) => {
+	const colorPrimary = primaryColor || theme?.variables?.colors?.primary || '#253B80';
 	const colorPrimaryText = primaryColorText || '#fff';
+	const colorAccent = theme?.variables?.colors?.accent || '#D4A843';
+	const colorCta = theme?.variables?.colors?.accent || '#feeeae';
+	// neutral colors — no theme variable equivalents
+	const colorText = '#374151';
+	const colorBorder = '#E5E7EB';
+
 	return css({
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '1em',
 		paddingBottom: '1em',
 
-		'.ss__chat-product-query-message__header__back': {
+		'.ss__chat-product-query-message__header__back.ss__button': {
 			// Overlay banner pinned to the top of the secondary chat's scrollable messages
 			// container so it stays visible while the product details scroll underneath.
 			// Styling mirrors `.ss__chat__session-feedback` (dark primary bg, primary text,
@@ -35,6 +43,8 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 			zIndex: 2,
 			marginBottom: '-1em',
 			display: 'flex',
+			flexDirection: 'row-reverse',
+			justifyContent: 'flex-end',
 			alignItems: 'center',
 			gap: '10px',
 			padding: '8px 15px',
@@ -45,6 +55,14 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 			border: 'none',
 			font: 'inherit',
 			width: 'auto',
+			'.ss__button__content': {
+				width: 'auto',
+			},
+			// pin the background so the Chat organism's generic `.ss__button:hover`
+			// lightening rule (higher specificity) doesn't recolor the banner
+			'&:not(.ss__button--disabled):hover': {
+				background: colorPrimary,
+			},
 			'&:focus-visible': {
 				outline: `2px solid ${colorPrimaryText}`,
 				outlineOffset: '-2px',
@@ -100,7 +118,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 					'.ss__chat-product-query-message__header__product__details__price': {
 						fontWeight: 'bold',
 						fontSize: '1.1em',
-						color: '#D4A843',
+						color: colorAccent,
 						display: 'flex',
 						gap: '0.5em',
 						alignItems: 'center',
@@ -121,7 +139,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 						whiteSpace: 'nowrap',
 						cursor: 'pointer',
 						fontSize: '0.8em',
-						background: '#feeeae',
+						background: colorCta,
 						color: '#000',
 						justifyContent: 'center',
 						width: '100%',
@@ -131,7 +149,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 							stroke: '#000',
 						},
 						'&:not(.ss__button--disabled):hover': {
-							background: '#fde68a',
+							filter: 'brightness(0.97)',
 						},
 					},
 
@@ -166,7 +184,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 			'.ss__chat-product-query-message__variants__label': {
 				fontWeight: '600',
 				fontSize: '0.9em',
-				color: '#374151',
+				color: colorText,
 				textTransform: 'uppercase',
 				marginBottom: '0.5em',
 			},
@@ -176,12 +194,9 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 				flexWrap: 'wrap',
 				gap: '0.5em',
 
-				'.ss__chat-product-query-message__variants__swatch': {
+				'.ss__chat-product-query-message__variants__swatch.ss__button': {
 					display: 'flex',
 					flex: '1 1 auto',
-					flexDirection: 'column',
-					alignItems: 'center',
-					gap: '0.25em',
 					cursor: 'pointer',
 					padding: '0.25em',
 					borderRadius: '0.5em',
@@ -191,7 +206,14 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 					font: 'inherit',
 					color: 'inherit',
 
-					'&:hover': {
+					'.ss__button__content': {
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						gap: '0.25em',
+					},
+
+					'&:not(.ss__button--disabled):hover': {
 						borderColor: colorPrimary,
 					},
 
@@ -230,12 +252,12 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 						height: '48px',
 						objectFit: 'cover',
 						borderRadius: '50%',
-						border: '1px solid #E5E7EB',
+						border: `1px solid ${colorBorder}`,
 					},
 
 					'.ss__chat-product-query-message__variants__swatch__value': {
 						fontSize: '0.75em',
-						color: '#374151',
+						color: colorText,
 						textAlign: 'center',
 						maxWidth: '60px',
 						overflow: 'hidden',
@@ -271,7 +293,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 					wordBreak: 'break-word',
 					overflowWrap: 'anywhere',
 					textAlign: 'left',
-					borderBottom: '1px solid #E5E7EB',
+					borderBottom: `1px solid ${colorBorder}`,
 				},
 
 				'tbody tr:last-of-type th, tbody tr:last-of-type td': {
@@ -315,7 +337,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 		'.ss__chat-product-query-message__description': {
 			padding: '0 1em',
 			fontSize: '0.9em',
-			color: '#374151',
+			color: colorText,
 			lineHeight: '1.5',
 		},
 	});
@@ -365,7 +387,11 @@ const formatValue = (value: unknown): string => {
 	return stripHtml(String(value));
 };
 
-const collectInfoRows = (display: any, displayFields?: string[]): { key: string; label: string; value: string; rawKey: string }[] => {
+const collectInfoRows = (
+	display: any,
+	availabilityLabels: { inStock: string; outOfStock: string },
+	displayFields?: string[]
+): { key: string; label: string; value: string; rawKey: string }[] => {
 	const core = display?.mappings?.core || {};
 	const attributes = display?.attributes || {};
 	const filterByDisplayFields = displayFields && displayFields.length > 0;
@@ -389,7 +415,7 @@ const collectInfoRows = (display: any, displayFields?: string[]): { key: string;
 		merged.rating = ratingCount ? `${rating}/5.0 (${ratingCount} reviews)` : `${rating}/5.0`;
 	}
 	if (core.available != null) {
-		merged.availability = core.available ? 'In Stock' : 'Out of Stock';
+		merged.availability = core.available ? availabilityLabels.inStock : availabilityLabels.outOfStock;
 	}
 
 	// merge product attributes, skipping ones already shown on the card
@@ -427,6 +453,11 @@ const collectInfoRows = (display: any, displayFields?: string[]): { key: string;
 	return ordered;
 };
 
+const resolveLangValue = (langEntry?: { value?: unknown }): string | undefined =>
+	typeof langEntry?.value == 'function' ? (langEntry.value as () => string)() : (langEntry?.value as string | undefined);
+
+let warnedUnsupportedMessageType = false;
+
 export const ChatProductQueryMessage = observer((properties: ChatProductQueryMessageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -437,15 +468,25 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 	const props = mergeProps('chatProductQueryMessage', globalTheme, defaultProps, properties);
 
-	const { chatItem, controller, displayFields, className, internalClassName } = props;
+	const { chatItem, controller, displayFields, disableStyles, className, internalClassName, treePath } = props;
+
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatProductQueryMessage', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
+	const subProps: ChatProductQueryMessageSubProps = {
+		button: {
+			disableStyles,
+			theme: props.theme,
+			treePath,
+		},
+	};
 
 	const styling = mergeStyles<ChatProductQueryMessageProps>(props, defaultStyles);
 
 	const { messageType, sourceProduct } = chatItem;
-	if (messageType !== 'productQuery') {
-		console.warn('ChatProductQueryMessage received message with unsupported type:', messageType, 'Expected type: productQuery');
-		return null;
-	}
 
 	const product: Product | null | undefined = controller?.store.productQuickview;
 	const productQuickviewError: string | null | undefined = controller?.store.productQuickviewError;
@@ -455,28 +496,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const cameFromInspiration = sourceMessage?.messageType === 'inspirationResult';
 	const cameFromComparison = sourceMessage?.messageType === 'productComparison';
 
-	if (!product) {
-		return (
-			<CacheProvider>
-				<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
-					<div className={classnames('ss__chat-product-query-message__header')}>
-						<div className={classnames('ss__chat-product-query-message__header__product')}>
-							<div className={classnames('ss__chat-product-query-message__header__product__details')}>
-								<div className={classnames('ss__chat-product-query-message__header__product__details__name')}>
-									{productQuickviewError || 'Loading product details...'}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</CacheProvider>
-		);
-	}
-
-	const displayed = product.display;
-	const displayedCore = displayed.mappings?.core || {};
-
-	const variants = product.variants;
+	const variants = product?.variants;
 	const selections = variants?.selections || [];
 
 	// Ensure every selection has an initial value picked. Without this, entering
@@ -488,7 +508,9 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	// first available value. Single-value selections also get hidden from the UI
 	// (handled by `visibleSelections` below).
 	useEffect(() => {
-		const sourceId = (sourceProduct as any)?.id;
+		if (messageType !== 'productQuery' || !product) return;
+
+		const sourceId = sourceProduct?.id;
 		const matchedVariant = sourceId != null ? variants?.data?.find((variant) => variant.mappings?.core?.uid === sourceId) : undefined;
 
 		selections.forEach((selection: VariantSelection) => {
@@ -504,6 +526,89 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		});
 	}, [selections]);
 
+	//initialize lang
+	const defaultLang: Partial<ChatProductQueryMessageLang> = {
+		loadingText: {
+			value: 'Loading product details...',
+		},
+		backToComparisonButton: {
+			value: 'Back to comparison',
+			attributes: {
+				'aria-label': 'Back to comparison',
+			},
+		},
+		backToInspirationButton: {
+			value: 'Back to inspiration',
+			attributes: {
+				'aria-label': 'Back to inspiration',
+			},
+		},
+		addToCartButton: {
+			value: 'Add to Cart',
+		},
+		similarButton: {
+			value: 'Similar',
+		},
+		discussButton: {
+			value: 'Discuss',
+		},
+		inStockText: {
+			value: 'In Stock',
+		},
+		outOfStockText: {
+			value: 'Out of Stock',
+		},
+		unavailableText: {
+			value: 'unavailable',
+		},
+		variantsGroup: {
+			attributes: {
+				'aria-label': 'Variant selection',
+			},
+		},
+		productInformationTable: {
+			attributes: {
+				'aria-label': 'Product information',
+			},
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {
+		controller,
+		chatItem,
+	});
+
+	if (messageType !== 'productQuery') {
+		if (!warnedUnsupportedMessageType) {
+			console.warn('ChatProductQueryMessage received message with unsupported type:', messageType, 'Expected type: productQuery');
+			warnedUnsupportedMessageType = true;
+		}
+		return null;
+	}
+
+	if (!product) {
+		return (
+			<CacheProvider>
+				<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
+					<div className={classnames('ss__chat-product-query-message__header')}>
+						<div className={classnames('ss__chat-product-query-message__header__product')}>
+							<div className={classnames('ss__chat-product-query-message__header__product__details')}>
+								<div className={classnames('ss__chat-product-query-message__header__product__details__name')}>
+									{productQuickviewError || resolveLangValue(lang.loadingText)}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</CacheProvider>
+		);
+	}
+
+	const displayed = product.display;
+	const displayedCore = displayed.mappings?.core || {};
+
 	const visibleSelections = selections.filter((selection: VariantSelection) => selection.values.length > 1);
 
 	const displayedData = {
@@ -511,7 +616,11 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		attributes: displayed.attributes || {},
 	};
 
-	const allInfoRows = collectInfoRows(displayedData, displayFields);
+	const allInfoRows = collectInfoRows(
+		displayedData,
+		{ inStock: resolveLangValue(lang.inStockText)!, outOfStock: resolveLangValue(lang.outOfStockText)! },
+		displayFields
+	);
 	const descriptionRow = allInfoRows.find((row) => row.rawKey.toLowerCase() === 'description');
 	const infoRows = allInfoRows.filter((row) => row.rawKey.toLowerCase() !== 'description');
 
@@ -520,19 +629,19 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		controller?.store.clearProductQuickview();
 	};
 
+	const unavailableText = resolveLangValue(lang.unavailableText);
+
 	return (
 		<CacheProvider>
 			<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
 				{(cameFromInspiration || cameFromComparison) && (
-					<button
-						type="button"
-						className={classnames('ss__chat-product-query-message__header__back')}
-						aria-label={cameFromComparison ? 'Back to comparison' : 'Back to inspiration'}
+					<Button
+						{...subProps.button}
+						internalClassName={classnames('ss__chat-product-query-message__header__back')}
+						icon={{ icon: 'angle-left', size: '14px' }}
 						onClick={handleBack}
-					>
-						<Icon icon="angle-left" size="14px" />
-						<span>{cameFromComparison ? 'Back to comparison' : 'Back to inspiration'}</span>
-					</button>
+						lang={{ button: cameFromComparison ? lang.backToComparisonButton : lang.backToInspirationButton }}
+					/>
 				)}
 				<div className={classnames('ss__chat-product-query-message__header')}>
 					<div className={classnames('ss__chat-product-query-message__header__product')}>
@@ -547,12 +656,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 							{displayedCore.name && (
 								<div className={classnames('ss__chat-product-query-message__header__product__details__name')}>
 									{displayedCore.url ? (
-										<a
-											href={displayedCore.url as string}
-											onClick={(e) => controller?.track.product.click(e as any, product)}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
+										<a href={displayedCore.url as string} onClick={(e) => controller?.track.product.click(e as any, product)}>
 											{displayedCore.name}
 										</a>
 									) : (
@@ -571,21 +675,34 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 							<div className={classnames('ss__chat-product-query-message__header__product__actions')}>
 								<div className={classnames('ss__chat-product-query-message__header__product__actions__add-to-cart')}>
 									<Button
+										{...subProps.button}
 										icon="cart"
-										content={'Add to Cart'}
 										onClick={() => {
 											controller?.track.product.addToCart(product);
 											controller?.addToCart(product);
 										}}
+										lang={{ button: lang.addToCartButton }}
 									/>
 								</div>
 								{controller?.store.features.similarProducts.enabled && (
 									<div className={classnames('ss__chat-product-query-message__header__product__actions__show-similar')}>
-										<Button icon="search-thin" content={'Similar'} onClick={() => controller?.productSimilar(sourceProduct as any)} />
+										<Button
+											{...subProps.button}
+											icon="search-thin"
+											onClick={() => controller?.productSimilar(sourceProduct)}
+											lang={{ button: lang.similarButton }}
+										/>
 									</div>
 								)}
 								<div className={classnames('ss__chat-product-query-message__header__product__actions__discuss-product')}>
-									<Button icon="chat" content={'Discuss'} onClick={() => controller?.productQuery(sourceProduct as any)} />
+									<Button
+										{...subProps.button}
+										icon="chat"
+										// pass the quickview product (not sourceProduct) — its display is masked
+										// to the active variant, so the attachment shows the selected variant
+										onClick={() => controller?.productQuery(product)}
+										lang={{ button: lang.discussButton }}
+									/>
 								</div>
 							</div>
 						</div>
@@ -593,7 +710,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 				</div>
 
 				{visibleSelections.length > 0 && (
-					<div className={classnames('ss__chat-product-query-message__variants')} role="group" aria-label="Variant selection">
+					<div className={classnames('ss__chat-product-query-message__variants')} role="group" {...mergedLang.variantsGroup.attributes}>
 						{visibleSelections.map((selection: VariantSelection) => {
 							// If every value in this selection shares the same thumbnail (or none have
 							// one), the image carries no signal — show text only.
@@ -615,19 +732,26 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 											const isSelected = selection.selected?.value === selectionValue.value;
 
 											return (
-												<button
-													type="button"
+												<Button
+													{...subProps.button}
 													key={selectionValue.value}
-													className={classnames('ss__chat-product-query-message__variants__swatch', {
+													internalClassName={classnames('ss__chat-product-query-message__variants__swatch', {
 														'ss__chat-product-query-message__variants__swatch--selected': isSelected,
 														'ss__chat-product-query-message__variants__swatch--unavailable': isUnavailable,
 														'ss__chat-product-query-message__variants__swatch--text-only': !showThumbs,
 													})}
-													title={selectionValue.value}
-													role="radio"
-													aria-checked={isSelected}
-													aria-disabled={isUnavailable}
-													aria-label={`${formatLabel(selection.field)}: ${selectionValue.value}${isUnavailable ? ' (unavailable)' : ''}`}
+													{...({ role: 'radio', 'aria-checked': isSelected } as any)}
+													disabled={isUnavailable}
+													lang={{
+														button: {
+															attributes: {
+																title: selectionValue.value,
+																'aria-label': `${formatLabel(selection.field)}: ${selectionValue.value}${
+																	isUnavailable ? ` (${unavailableText})` : ''
+																}`,
+															},
+														},
+													}}
 													onClick={() => selection.select(selectionValue.value)}
 												>
 													{showThumbs && selectionValue.thumbnailImageUrl ? (
@@ -638,7 +762,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 														/>
 													) : null}
 													<span className={classnames('ss__chat-product-query-message__variants__swatch__value')}>{selectionValue.value}</span>
-												</button>
+												</Button>
 											);
 										})}
 									</div>
@@ -650,7 +774,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 				{infoRows.length > 0 && (
 					<div className={classnames('ss__chat-product-query-message__section')}>
-						<table className={classnames('ss__chat-product-query-message__section__table')} aria-label="Product information">
+						<table className={classnames('ss__chat-product-query-message__section__table')} {...mergedLang.productInformationTable.attributes}>
 							<tbody>
 								{infoRows.map((row) => (
 									<tr key={row.key}>
@@ -659,11 +783,11 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 											{row.rawKey === 'availability' ? (
 												<span
 													className={classnames({
-														'ss__chat-product-query-message__section__table__availability--in-stock': row.value === 'In Stock',
-														'ss__chat-product-query-message__section__table__availability--out-of-stock': row.value === 'Out of Stock',
+														'ss__chat-product-query-message__section__table__availability--in-stock': displayedCore.available,
+														'ss__chat-product-query-message__section__table__availability--out-of-stock': !displayedCore.available,
 													})}
 												>
-													{row.value === 'In Stock' ? `\u2713 ${row.value}` : row.value}
+													{displayedCore.available ? `✓ ${row.value}` : row.value}
 												</span>
 											) : row.rawKey.toLowerCase() === 'price' ? (
 												<span className="ss__chat-product-query-message__section__table__price">
@@ -688,27 +812,40 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	);
 });
 
+interface ChatProductQueryMessageSubProps {
+	button: Partial<ButtonProps>;
+}
+
 export type ChatProductQueryMessageProps = {
 	chatItem: ChatProductQueryMessageItem;
 	controller?: ChatController;
-	displayFields?: string[];
 	lang?: Partial<ChatProductQueryMessageLang>;
-	primaryColor?: string;
-	primaryColorText?: string;
 } & ChatProductQueryMessageTemplatesLegalProps &
 	ComponentProps<ChatProductQueryMessageProps>;
 
 export type ChatProductQueryMessageItem = {
 	id: string;
 	messageType: 'productQuery';
-	sourceProduct: any;
+	sourceProduct: Product;
 	sourceMessageId?: string;
 };
 
 export type ChatProductQueryMessageTemplatesLegalProps = {
-	chatItem: ChatProductQueryMessageItem;
+	displayFields?: string[];
+	primaryColor?: string;
+	primaryColorText?: string;
 };
 
 export interface ChatProductQueryMessageLang {
-	// placeholder for future lang overrides
+	loadingText?: Lang<never>;
+	backToComparisonButton?: Lang<never>;
+	backToInspirationButton?: Lang<never>;
+	addToCartButton?: Lang<never>;
+	similarButton?: Lang<never>;
+	discussButton?: Lang<never>;
+	inStockText?: Lang<never>;
+	outOfStockText?: Lang<never>;
+	unavailableText?: Lang<never>;
+	variantsGroup?: Lang<never>;
+	productInformationTable?: Lang<never>;
 }

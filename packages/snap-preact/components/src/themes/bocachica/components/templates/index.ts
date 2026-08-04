@@ -16,7 +16,7 @@ import { autocompleteModal } from './autocompleteModal';
 import { autocompleteFixed } from './autocompleteFixed';
 import { chat } from './chat';
 
-export const templates: ThemeResponsiveComplete = {
+export const templates = {
 	default: {
 		...chat.default,
 		...autocompleteSlideout.default,
@@ -81,4 +81,4 @@ export const templates: ThemeResponsiveComplete = {
 		...searchCollapsible.desktop,
 		...searchHorizontal.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

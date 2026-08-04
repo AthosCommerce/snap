@@ -16,6 +16,11 @@ export type BeaconSettings = {
 export type StoreConfig = {
 	id: string;
 	beacon?: BeaconSettings;
+	asyncState?: {
+		product?: {
+			price?: boolean;
+		};
+	};
 	[any: string]: unknown;
 };
 
@@ -84,16 +89,19 @@ export type VariantOptionConfigMappings = {
 	};
 };
 
+// Shared by Search/Autocomplete/Recommendation settings and Chat config
+export type QuickviewConfig = {
+	enabled: boolean;
+	displayFields?: string[];
+};
+
 // Chat Config
 export type ChatStoreConfig = StoreConfig & {
 	globals?: Partial<ChatRequestModel>;
 	settings?: ChatStoreConfigSettings;
+	/** Kept top-level (not in `globals`) because ChatRequestModel has no siteId —
+	 * it is only used to namespace the chat localStorage keys per site. */
 	siteId?: string;
-};
-
-export type QuickviewConfig = {
-	enabled: boolean;
-	displayFields?: string[];
 };
 
 export type ChatStoreConfigSettings = {
@@ -104,7 +112,6 @@ export type ChatStoreConfigSettings = {
 	/** Language code forwarded to chat init as `languageCode`. Sourced from the Snap
 	 * Templates configured locale; falls back to `navigator.language` when absent. */
 	languageCode?: string;
-	[key: string]: unknown;
 };
 
 // Search Config

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
 import { ChatInspirationResultMessage } from './ChatInspirationResultMessage';
 
@@ -38,7 +39,9 @@ describe('ChatInspirationResultMessage Component', () => {
 		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} />);
 		const buttons = rendered.container.querySelectorAll('.ss__chat-inspiration-result-message__inspiration-sections__section__queries__query');
 		expect(buttons.length).toBe(2);
-		expect(buttons[0].tagName).toBe('BUTTON');
+		expect(buttons[0]).toHaveClass('ss__button');
+		expect(buttons[0]).toHaveAttribute('role', 'button');
+		expect(buttons[0]).toHaveAttribute('tabindex', '0');
 		expect(buttons[0]).toHaveAttribute('aria-label', 'Search for "waterproof jacket"');
 	});
 
@@ -150,7 +153,28 @@ describe('ChatInspirationResultMessage Component', () => {
 			'.ss__chat-inspiration-result-message__inspiration-sections__section__products__product'
 		) as HTMLElement;
 
-		fireEvent.keyDown(product, { key: 'Enter' });
+		fireEvent.keyDown(product, { code: 'Enter' });
 		expect(productQuickView).toHaveBeenCalledTimes(1);
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} className={className} />);
+		const root = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} disableStyles={true} />);
+		const root = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} styleScript={styleScript} />);
+		const root = rendered.container.querySelector('.ss__chat-inspiration-result-message')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
 	});
 });

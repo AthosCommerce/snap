@@ -1,31 +1,3 @@
-/*
-	
-	- add lastUpdated date or attach dates to each message and use first/last message
-
-	General UI Improvements
-	 * Add more icons that are needed
-	 * Beautify?
-
-	Quickview (more info CTA)
-		* add more display
-		* add "add to cart" button
-		* clean up
-
-	Attachments General Improvements
-		* in chat history show which attachments were sent with which messages (add images to product attachments)
-		* product attachments should be more detailed - larger and more obvious because they change the discussion topic (context)
-		 + should show product name, image maybe other details
-		* allow for previous attachments to be re-attached
-	
-	Future (after demo)
-		*	Render product results
-			+ use SearchResultStore
-			+ should persist on page reload
-		* Image Attachment Improvements
-			+ ability to re-attach a previously attached image via '+' button (or similar)
-
-*/
-
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
@@ -46,6 +18,23 @@ import { isClickWithinProductLink, CLICK_DUPLICATION_TIMEOUT } from '../utils/is
 
 const KEY_ENTER = 13;
 
+const CHAT_DISABLED_MESSAGE = 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!';
+const CHAT_INPUT_SELECTOR = '.ss__chat__input input[type="text"]';
+const FEEDBACK_DISMISS_DELAY = 3000;
+
+/** Data keys the chat API accepts for each requestType — used to prune stale keys
+ * left behind when a request override changes the requestType of the merged params. */
+const REQUEST_TYPE_DATA_KEYS: Record<MoiRequestModel['requestType'], string[]> = {
+	general: ['message'],
+	productQuery: ['message', 'productId'],
+	productSearch: ['message', 'searchTerm', 'searchFilters'],
+	productComparison: ['message', 'productIds'],
+	imageSearch: ['message', 'attachedImageId'],
+	productSimilar: ['productId'],
+	inspiration: ['message'],
+	content: ['message'],
+};
+
 const defaultConfig: Partial<ChatControllerConfig> = {
 	id: 'chat',
 	beacon: {
@@ -53,6 +42,7 @@ const defaultConfig: Partial<ChatControllerConfig> = {
 	},
 	settings: {
 		feedbackAfterMessages: 3,
+		inputSelector: CHAT_INPUT_SELECTOR,
 	},
 };
 
@@ -94,18 +84,51 @@ export class ChatController extends AbstractController {
 
 		this.store.setConfig(this.config);
 
-		// attach config plugins and event middleware
-		this.use(this.config);
-
 		// initialization - check widget status
 		this.eventManager.on('init', async (_, next) => {
 			if (this.store.chatEnabled === null) {
 				await this.checkChatStatus();
 			}
-			next();
+			await next();
 		});
 
-		this.init();
+		// attach config plugins and event middleware
+		this.use(this.config);
+	}
+
+	public async init(): Promise<void> {
+		if (this._initialized) {
+			this.log.warn(`'init' middleware recalled`);
+		}
+		const initProfile = this.profiler.create({ type: 'event', name: 'init', context: this.config }).start();
+
+		try {
+			try {
+				await this.eventManager.fire('init', {
+					controller: this,
+				});
+			} catch (err: any) {
+				if (err?.message == 'cancelled') {
+					this.log.warn(`'init' middleware cancelled`);
+				} else {
+					this.log.error(`error in 'init' middleware`);
+					throw err;
+				}
+			}
+		} catch (err) {
+			if (err) {
+				console.error(err);
+				this.handleError(err);
+			}
+		}
+
+		// chat requests are never URL-driven — deliberately skip the urlManager → search
+		// subscription that AbstractController.init sets up, so browser back/forward
+		// navigation cannot submit unsent input text as a chat message
+		this._initialized = true;
+
+		initProfile.stop();
+		this.log.profile(initProfile);
 	}
 
 	/** Returns true when the request can proceed, false to abort the search.
@@ -115,7 +138,7 @@ export class ChatController extends AbstractController {
 			this.log.warn('Chat is disabled, preventing search request');
 			this.store.error = {
 				type: ErrorType.WARNING,
-				message: 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!',
+				message: CHAT_DISABLED_MESSAGE,
 			};
 			return false;
 		}
@@ -128,8 +151,10 @@ export class ChatController extends AbstractController {
 			const chat: ChatSessionStore | undefined = await this.startNewChat();
 			if (chat?.sessionId) {
 				request.context.sessionId = chat.sessionId;
+				return true;
 			}
-			return true;
+			// startNewChat surfaced its own error — without a sessionId the request cannot succeed
+			return false;
 		} catch {
 			return false;
 		}
@@ -147,67 +172,46 @@ export class ChatController extends AbstractController {
 	};
 
 	checkChatStatus = async (): Promise<boolean> => {
-		// @ts-ignore - globals is private
-		const siteId = this.client.globals.siteId;
 		try {
-			const response = await this.client.chatStatus({ siteId, tracking: this.getChatTrackingContext() });
+			const response = await this.client.chatStatus({ siteId: this.client.siteId, tracking: this.getChatTrackingContext() });
 			return this.store.handleChatStatusResponse(response);
 		} catch (err) {
+			// disable in memory only — a transient failure must not be persisted,
+			// otherwise chat stays disabled until the cached status expires
 			this.log.warn('chat status request failed; disabling chat', err);
-			return this.store.handleChatStatusResponse({
-				chatbot: {
-					status: {
-						enabled: false,
-					},
-					suggestedQuestions: [],
-					welcomeMessage: '',
-				},
-				features: {
-					imageSearch: { enabled: false },
-					similarProducts: { enabled: false },
-				},
-			});
+			this.store.chatEnabled = false;
+			return false;
 		}
 	};
 	startNewChat = async (): Promise<ChatSessionStore | undefined> => {
 		const enabled = await this.checkChatStatus();
 		if (!enabled) {
-			const message = 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!';
-			this.log.warn(message);
+			this.log.warn(CHAT_DISABLED_MESSAGE);
 			this.store.error = {
 				type: ErrorType.WARNING,
-				message,
+				message: CHAT_DISABLED_MESSAGE,
 			};
-			throw new Error(message);
+			throw new Error(CHAT_DISABLED_MESSAGE);
 		}
 		this.store.error = undefined;
 
 		const { userId, sessionId, shopperId } = this.tracker.getContext();
-		// @ts-ignore - globals is private
-		const siteId = this.client.globals.siteId; // TODO: get siteId from middleware request.siteId?
 		let chat: ChatSessionStore | undefined;
 
 		try {
 			this.store.initChatLoading = true;
-			// TODO: add store loading indicator for this api request
-			const bgFilters = this.config.settings?.bgFilters as Record<string, string> | undefined;
+			const bgFilters = this.config.settings?.bgFilters;
 			const response = await this.client.chatInit({
-				siteId,
+				siteId: this.client.siteId,
 				userId,
-				languageCode: (this.config.settings?.languageCode as string) || navigator.language,
+				languageCode: this.config.settings?.languageCode || navigator.language,
 				searchConfig: {
 					sessionId,
 					shopper: shopperId,
 					...(bgFilters ? { bgFilters } : {}),
-					// TODO: add these
-					// landingPage: '',
-					// tag: '',
-					// includeFacets: '',
-					// excludeFacets: '',
 				},
 				tracking: this.getChatTrackingContext(),
 			});
-			// TODO: handle if chatInit fails or denies new chat
 			if (response) {
 				const sessionEndTime = response.sessionEndTime ? new Date(response.sessionEndTime) : undefined;
 				if (this.store.currentChat && !this.store.currentChat.sessionId) {
@@ -235,10 +239,12 @@ export class ChatController extends AbstractController {
 		const { userId, shopperId } = this.tracker.getContext();
 		const tracking = this.getChatTrackingContext();
 
-		const productsToCompare = (this.store.currentChat?.comparisons.compared || []).map((item) => {
-			const d = item.result?.display || item.result;
-			return d.mappings.core.uid;
-		});
+		const productsToCompare = (this.store.currentChat?.comparisons.compared || [])
+			.map((item) => {
+				const d = item.result?.display || item.result;
+				return d?.mappings?.core?.uid;
+			})
+			.filter((uid): uid is string => !!uid);
 
 		const attachedImageIds = (this.store.currentChat?.attachments.attached || [])
 			.filter((attachment) => attachment.type === 'image' && attachment.state !== 'error')
@@ -401,10 +407,10 @@ export class ChatController extends AbstractController {
 			};
 		}
 
-		return request;
+		return deepmerge(request, this.config.globals || {});
 	}
 
-	handleFeedback = (thumbs: 'UP' | 'DOWN') => {
+	handleFeedback = (thumbs: 'UP' | 'DOWN'): void => {
 		const currentChat = this.store.currentChat;
 		if (!currentChat) return;
 
@@ -414,14 +420,13 @@ export class ChatController extends AbstractController {
 
 		this.track.product.feedback(thumbs);
 
-		// auto-dismiss the feedback bar after 3 seconds
 		setTimeout(() => {
 			currentChat.feedback.dismissed = true;
 			currentChat.save();
-		}, 3000);
+		}, FEEDBACK_DISMISS_DELAY);
 	};
 
-	upload = async (files: FileList | null) => {
+	upload = async (files: FileList | null): Promise<void> => {
 		if (!files || files.length === 0) return;
 
 		// ensure a chat exists (fresh session opened via bubble has no currentChat yet)
@@ -447,35 +452,38 @@ export class ChatController extends AbstractController {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
 			const fileName = file.name.toLowerCase();
+			let attachment: ChatAttachmentImage | undefined;
 
-			const base64Image = await convertToBase64(file);
-			const image = await base64ToBlob(base64Image);
-			const params = {
-				image,
-			};
+			try {
+				const base64Image = await convertToBase64(file);
+				const image = await base64ToBlob(base64Image);
 
-			const attachment = this.store.currentChat?.attachments.add<ChatAttachmentImage>({ type: 'image', base64: base64Image, fileName });
+				attachment = this.store.currentChat?.attachments.add<ChatAttachmentImage>({ type: 'image', base64: base64Image, fileName });
+				if (!attachment) continue;
 
-			if (attachment) {
-				try {
-					const response = await this.client.uploadImage(params);
-					attachment.update({
-						imageId: response.imageId,
-						imageUrl: response.imageUrl,
-						thumbnailUrl: response.thumbnailUrl,
-					});
-				} catch (err: any) {
-					const serverMessage = err?.responseBody?.errorMessage;
-					const errorMessage =
-						err?.fetchDetails?.status === 400 && serverMessage
-							? `${serverMessage}. Please try again.`
-							: 'Something went wrong behind the scenes. Please give it another shot in a moment.';
-					attachment.update({
-						error: {
-							message: errorMessage,
-						},
-					});
-				}
+				const response = await this.client.uploadImage({ image });
+				attachment.update({
+					imageId: response.imageId,
+					imageUrl: response.imageUrl,
+					thumbnailUrl: response.thumbnailUrl,
+				});
+			} catch (err: any) {
+				const serverMessage = err?.responseBody?.errorMessage;
+				const errorMessage =
+					err?.fetchDetails?.status === 400 && serverMessage
+						? `${serverMessage}. Please try again.`
+						: 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+
+				// a file-read failure happens before the attachment exists — create one
+				// so the failure still surfaces through the attachment error state
+				attachment = attachment || this.store.currentChat?.attachments.add<ChatAttachmentImage>({ type: 'image', fileName });
+				attachment?.update({
+					error: {
+						message: errorMessage,
+					},
+				});
+
+				this.handleError(err?.err || err, err?.fetchDetails);
 			}
 		}
 	};
@@ -548,6 +556,28 @@ export class ChatController extends AbstractController {
 		await this.loadProductQuickview(message.sourceProduct);
 	};
 
+	/** Switch the active chat session and re-sync the Product Information panel.
+	 * The panel renders from the single store.productQuickview slot, which belongs to
+	 * whichever chat last loaded it — and loadProductQuickview() discards responses that
+	 * arrive after the user switched away. Without a reload here, switching (back) to a
+	 * chat whose side panel targets a productQuery would show a permanently-loading blank
+	 * card (empty slot) or another chat's product. */
+	switchChat = async (id: string): Promise<void> => {
+		this.store.switchChat(id);
+
+		const chat = this.store.currentChat;
+		if (chat?.id !== id) return;
+
+		const activeMessage = chat.activeMessage;
+		if (activeMessage?.messageType !== 'productQuery' || chat.dismissedSideChatMessageId === activeMessage.id) return;
+
+		const sourceProduct = (activeMessage as any).sourceProduct as Product | undefined;
+		if (!sourceProduct || this.store.productQuickview?.id === sourceProduct.id) return;
+
+		this.store.clearProductQuickview();
+		await this.loadProductQuickview(sourceProduct);
+	};
+
 	compareProduct = (result: Product): void => {
 		// remove any 'discuss product' (productQuery) attachments so the previous product context disappears
 		const productQueryAttachments = (this.store.currentChat?.attachments.attached || []).filter(
@@ -572,11 +602,6 @@ export class ChatController extends AbstractController {
 
 		this.store.compareProduct(result);
 	};
-
-	// TODO: to be added in future
-	// inspirationRequest = (): void => {
-	// 	this.search({ data: { requestType: 'inspiration', message: this.store.inputValue } });
-	// };
 
 	/** Shared prep for productQuery/productSimilar: discard any in-progress or committed
 	 * comparison set so the new single-product flow starts cleanly. */
@@ -606,7 +631,12 @@ export class ChatController extends AbstractController {
 		}
 		this.resetComparisonsForSingleProductFlow();
 		this.store.sendProductQuery(result, { requestType: 'productQuery' });
-		this.loadProductQuickview(result);
+		// skip the reload when the quickview already shows this product (e.g. Discuss
+		// clicked from the product information panel) — rebuilding it would wipe the
+		// user's variant selections; still reload if the previous attempt errored
+		if (this.store.productQuickview?.id !== result.id || this.store.productQuickviewError) {
+			this.loadProductQuickview(result);
+		}
 		this.focusInputDesktopOnly();
 	};
 
@@ -676,7 +706,7 @@ export class ChatController extends AbstractController {
 	};
 
 	focusInput = (): void => {
-		const input = document.querySelector('.ss__chat__input input[type="text"]') as HTMLInputElement;
+		const input = document.querySelector(this.config.settings?.inputSelector || CHAT_INPUT_SELECTOR) as HTMLInputElement;
 		if (input) {
 			input.focus();
 		}
@@ -687,8 +717,24 @@ export class ChatController extends AbstractController {
 	private finalizeRequestData = (data: MoiRequestModel): MoiRequestModel | undefined => {
 		const finalized = { ...data } as MoiRequestModel & { message?: string };
 
+		// prune data keys that are not valid for the final requestType — merging
+		// overrides into the store-derived params can change the requestType while
+		// keys from the previous shape (productIds, searchFilters, ...) linger
+		const validKeys = REQUEST_TYPE_DATA_KEYS[finalized.requestType];
+		if (validKeys) {
+			Object.keys(finalized).forEach((key) => {
+				if (key !== 'requestType' && !validKeys.includes(key)) {
+					delete (finalized as Record<string, unknown>)[key];
+				}
+			});
+		}
+
+		// Strip HTML at the submit boundary — the message flows into both the API
+		// request body and the rendered user message, and override messages
+		// (openChat initial message, chat/send event, autocomplete input) bypass
+		// the input flow, so sanitizing the finalized message covers every path.
 		if (typeof finalized.message === 'string') {
-			finalized.message = finalized.message.trim();
+			finalized.message = filters.stripHTML(finalized.message).trim();
 		}
 
 		if (finalized.requestType === 'productSimilar') {
@@ -723,11 +769,13 @@ export class ChatController extends AbstractController {
 		// stops the second click in its tracks.
 		if (this.store.loading) return;
 
+		if (!this.initialized) {
+			await this.init();
+			// re-check the concurrency guard — another search may have started while init was awaited
+			if (this.store.loading) return;
+		}
+
 		this.store.error = undefined;
-		// Strip HTML from the input at the submit boundary — the value flows into
-		// both the API request body (via this.params) and the rendered user message,
-		// so sanitizing once here prevents tag injection / XSS in both flows.
-		this.store.inputValue = filters.stripHTML(this.store.inputValue);
 		const params = deepmerge(this.params, overrides || {});
 
 		const finalizedData = this.finalizeRequestData(params.data);
@@ -770,6 +818,22 @@ export class ChatController extends AbstractController {
 				return;
 			}
 
+			try {
+				await this.eventManager.fire('beforeSearch', {
+					controller: this,
+					request: params,
+				});
+			} catch (err: any) {
+				if (err?.message == 'cancelled') {
+					this.log.warn(`'beforeSearch' middleware cancelled`);
+					this.store.currentChat?.setPendingRequest(null);
+					return;
+				} else {
+					this.log.error(`error in 'beforeSearch' middleware`);
+					throw err;
+				}
+			}
+
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
 
 			const response = await this.client.chat(params);
@@ -782,8 +846,52 @@ export class ChatController extends AbstractController {
 				return;
 			}
 
+			const afterSearchProfile = this.profiler.create({ type: 'event', name: 'afterSearch', context: params }).start();
+
+			try {
+				await this.eventManager.fire('afterSearch', {
+					controller: this,
+					request: params,
+					response,
+				});
+			} catch (err: any) {
+				if (err?.message == 'cancelled') {
+					this.log.warn(`'afterSearch' middleware cancelled`);
+					afterSearchProfile.stop();
+					return;
+				} else {
+					this.log.error(`error in 'afterSearch' middleware`);
+					throw err;
+				}
+			}
+
+			afterSearchProfile.stop();
+			this.log.profile(afterSearchProfile);
+
 			this.store.update(response);
 			this.store.currentChat?.setPendingRequest(null);
+
+			const afterStoreProfile = this.profiler.create({ type: 'event', name: 'afterStore', context: params }).start();
+
+			try {
+				await this.eventManager.fire('afterStore', {
+					controller: this,
+					request: params,
+					response,
+				});
+			} catch (err: any) {
+				if (err?.message == 'cancelled') {
+					this.log.warn(`'afterStore' middleware cancelled`);
+					afterStoreProfile.stop();
+					return;
+				} else {
+					this.log.error(`error in 'afterStore' middleware`);
+					throw err;
+				}
+			}
+
+			afterStoreProfile.stop();
+			this.log.profile(afterStoreProfile);
 		} catch (err: any) {
 			// if user has switched away from this chat, suppress the error so it
 			// doesn't surface (e.g. "failed to fetch") on the new chat
@@ -837,7 +945,10 @@ export class ChatController extends AbstractController {
 						}
 					}
 
-					this.log.error(this.store.error);
+					// CS_003 flags the chat rather than setting store.error — only log when an error object exists
+					if (this.store.error) {
+						this.log.error(this.store.error);
+					}
 					this.handleError(err.err, err.fetchDetails);
 				} else {
 					this.store.error = {
@@ -917,7 +1028,7 @@ export class ChatController extends AbstractController {
 					uid: (displayCore?.uid as string) || display.id,
 					sku: displayCore?.sku as string | undefined,
 					qty: result.quantity || 1,
-					price: Number(displayCore?.price),
+					price: Number(displayCore?.price) || 0,
 				};
 				const data: ChatAddtocartSchemaData = {
 					chatSessionId,
@@ -925,7 +1036,7 @@ export class ChatController extends AbstractController {
 					results: [product],
 				};
 				this.eventManager.fire('track.product.addToCart', { controller: this, product: result, trackEvent: data });
-				this.config.beacon?.enabled && this.tracker.events.chat.addToCart({ data });
+				this.config.beacon?.enabled && this.tracker.events.chat.addToCart({ data, siteId: this.config.siteId });
 			},
 			clickThrough: (e: MouseEvent, result: Product | Banner): void => {
 				if (!result) {
@@ -957,7 +1068,7 @@ export class ChatController extends AbstractController {
 					results: [item],
 				};
 				this.eventManager.fire('track.product.clickThrough', { controller: this, event: e, product: result, trackEvent: data });
-				this.config.beacon?.enabled && this.tracker.events.chat.clickThrough({ data });
+				this.config.beacon?.enabled && this.tracker.events.chat.clickThrough({ data, siteId: this.config.siteId });
 			},
 			click: (e: MouseEvent, result: Product | Banner): void => {
 				if (!result) {
@@ -1040,7 +1151,7 @@ export class ChatController extends AbstractController {
 					results: [item],
 				};
 				this.eventManager.fire('track.product.impression', { controller: this, product: result, trackEvent: data });
-				this.config.beacon?.enabled && this.tracker.events.chat.impression({ data });
+				this.config.beacon?.enabled && this.tracker.events.chat.impression({ data, siteId: this.config.siteId });
 				this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
 				this.events[responseId].product[result.id].impression = true;
 
@@ -1061,14 +1172,20 @@ export class ChatController extends AbstractController {
 					feedback: thumbs === 'UP' ? ChatFeedbackSchemaDataFeedbackEnum.Positive : ChatFeedbackSchemaDataFeedbackEnum.Negative,
 				};
 				this.eventManager.fire('track.product.feedback', { controller: this, trackEvent: data });
-				this.config.beacon?.enabled && this.tracker.events.chat.feedback({ data });
+				this.config.beacon?.enabled && this.tracker.events.chat.feedback({ data, siteId: this.config.siteId });
 			},
 		},
 	};
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {
-		const products = typeof (_products as Product[]).slice == 'function' ? (_products as Product[]).slice() : [_products];
-
+		const products = typeof (_products as Product[])?.slice == 'function' ? (_products as Product[]).slice() : [_products];
+		if (!_products || products.length === 0) {
+			this.log.warn('No products provided to chat controller.addToCart');
+			return;
+		}
+		(products as Product[]).forEach((product) => {
+			this.track.product.addToCart(product);
+		});
 		if (products.length > 0) {
 			this.eventManager.fire('addToCart', { controller: this, products });
 		}

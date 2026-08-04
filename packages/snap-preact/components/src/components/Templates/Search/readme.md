@@ -35,10 +35,23 @@ const CustomResult = ({
 ```
 
 ### mobileDisplayAt
-The `mobileDisplayAt` prop specifies a CSS media query for when the MobileSidebar component will render. By default, the component will render at "991px".
+The `mobileDisplayAt` prop defines a CSS media query that determines when the Sidebar component switches to mobile view with a slideout. The default breakpoint is "991px". You can also pass a boolean value to enable or disable mobile view regardless of screen size.
 
 ```tsx
 <Search controller={controller} mobileDisplayAt={'400px'} />
+```
+
+or 
+
+```tsx
+<Search controller={controller} mobileDisplayAt={true} />
+```
+
+### sidebarWidth
+The `sidebarWidth` prop specifies the CSS width of the Sidebar component. By default, the sidebar width is `"270px"`.
+
+```tsx
+<Search controller={controller} sidebarWidth={'300px'} />
 ```
 
 ### hideSidebar
@@ -138,4 +151,29 @@ const layoutOptions: ListOption[] = [
 ]
 
 <Search controller={controller} layoutOptions={layoutOptions} />
+```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Search component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `toggleSidebarButtonText` | Sidebar toggle button text | `filters` (SearchFilterStore), `sidebarOpenState` (boolean) |
+
+### Example
+
+```tsx
+<Search
+	controller={controller}
+	lang={{
+		toggleSidebarButtonText: {
+			value: (data) => {
+				if (data.sidebarOpenState) {
+					return 'Close Sidebar';
+				}
+				return 'Open Sidebar';
+			},
+		},
+	}}
+/>
 ```

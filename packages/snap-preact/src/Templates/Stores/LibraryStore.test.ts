@@ -49,7 +49,6 @@ describe('LibraryStore', () => {
 			list: {},
 			loadMore: {},
 			loadingBar: {},
-			mobileSidebar: {},
 			modal: {},
 			noResults: {},
 			overlay: {},

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
 import { ChatSuggestedQuestions } from './ChatSuggestedQuestions';
 
@@ -38,5 +39,34 @@ describe('ChatSuggestedQuestions Component', () => {
 		const button = rendered.container.querySelector('.ss__chat-suggested-questions__item') as HTMLElement;
 		fireEvent.click(button);
 		expect(openChat).toHaveBeenCalledWith('Hello');
+	});
+
+	it('renders keyboard-accessible question buttons', () => {
+		const rendered = render(<ChatSuggestedQuestions controller={makeController()} questions={['Hello']} />);
+		const button = rendered.container.querySelector('.ss__chat-suggested-questions__item');
+		expect(button).toHaveClass('ss__button');
+		expect(button).toHaveAttribute('role', 'button');
+		expect(button).toHaveAttribute('tabindex', '0');
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(<ChatSuggestedQuestions controller={makeController()} questions={['Hello']} className={className} />);
+		const root = rendered.container.querySelector('.ss__chat-suggested-questions');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(<ChatSuggestedQuestions controller={makeController()} questions={['Hello']} disableStyles={true} />);
+		const root = rendered.container.querySelector('.ss__chat-suggested-questions');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(<ChatSuggestedQuestions controller={makeController()} questions={['Hello']} styleScript={styleScript} />);
+		const root = rendered.container.querySelector('.ss__chat-suggested-questions')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
 	});
 });

@@ -12,6 +12,7 @@ import type { ButtonLang } from '../components/Atoms/Button';
 // import type { LoadingBarLang } from '../components/Atoms/Loading';
 // import type { BannerLang, InlineBannerLang } from '../components/Atoms/Banner';
 // import type { OverlayLang } from '../components/Atoms/Overlay';
+import type { ChatLoadingIndicatorLang } from '../components/Atoms/ChatLoadingIndicator';
 import type { PaginationInfoLang } from '../components/Atoms/PaginationInfo';
 // import type { PriceLang } from '../components/Atoms/Price';
 // import type { SkeletonLang } from '../components/Atoms/Skeleton';
@@ -20,6 +21,13 @@ import type { PaginationInfoLang } from '../components/Atoms/PaginationInfo';
 /* MOLECULES */
 // import type { CalloutBadgeLang } from '../components/Molecules/CalloutBadge';
 // import type { CarouselLang } from '../components/Molecules/Carousel';
+import type { ChatAttachmentContextLang } from '../components/Molecules/ChatAttachmentContext';
+import type { ChatInspirationResultMessageLang } from '../components/Molecules/ChatInspirationResultMessage';
+import type { ChatMessageTextLang } from '../components/Molecules/ChatMessageText';
+import type { ChatMessageUserLang } from '../components/Molecules/ChatMessageUser';
+import type { ChatProductComparisonMessageLang } from '../components/Molecules/ChatProductComparisonMessage';
+import type { ChatProductQueryMessageLang } from '../components/Molecules/ChatProductQueryMessage';
+import type { ChatResultLang } from '../components/Molecules/ChatResult';
 import type { CheckboxLang } from '../components/Molecules/Checkbox';
 import type { ErrorHandlerLang } from '../components/Molecules/ErrorHandler';
 import type { FacetGridOptionsLang } from '../components/Molecules/FacetGridOptions';
@@ -34,12 +42,13 @@ import type { LayoutSelectorLang } from '../components/Molecules/LayoutSelector'
 import type { ListLang } from '../components/Molecules/List';
 import type { LoadMoreLang } from '../components/Molecules/LoadMore';
 // import type { OverlayBadgeLang } from '../components/Molecules/OverlayBadge';
+import type { OverlayResultLang } from '../components/Molecules/OverlayResult';
 import type { PaginationLang } from '../components/Molecules/Pagination';
 import type { PerPageLang } from '../components/Molecules/PerPage';
 import type { RadioLang } from '../components/Molecules/Radio';
 import type { RadioListLang } from '../components/Molecules/RadioList';
 // import type { RatingLang } from '../components/Molecules/Rating';
-// import type { ResultLang } from '../components/Molecules/Result';
+import type { ResultLang } from '../components/Molecules/Result';
 import type { SearchInputLang } from '../components/Molecules/SearchInput';
 import type { SelectLang } from '../components/Molecules/Select';
 // import type { SlideoutLang } from '../components/Molecules/Slideout';
@@ -48,13 +57,16 @@ import type { SortByLang } from '../components/Molecules/SortBy';
 // import type { VariantSelectionLang } from '../components/Molecules/VariantSelection';
 
 /* ORGANISMS */
+import type { ChatLang } from '../components/Organisms/Chat';
+// import type { AutocompleteLang } from '../components/Organisms/Autocomplete';
 import type { FacetLang } from '../components/Organisms/Facet';
 import type { FacetsHorizontalLang } from '../components/Organisms/FacetsHorizontal';
 // import type { FacetsLang } from '../components/Organisms/Facets';
 import type { FilterSummaryLang } from '../components/Organisms/FilterSummary';
-import type { MobileSidebarLang } from '../components/Organisms/MobileSidebar';
 import type { NoResultsLang } from '../components/Organisms/NoResults';
 import type { RecommendationBundleLang } from '../components/Templates/RecommendationBundle';
+// import type { BundledCTALang } from '../components/Templates/RecommendationBundle/BundleCTA';
+// import type { BundleSelectorLang } from '../components/Templates/RecommendationBundle/BundleSelector';
 // import type { ResultsLang } from '../components/Organisms/Results';
 import type { SearchHeaderLang } from '../components/Atoms/SearchHeader';
 import type { SidebarLang } from '../components/Organisms/Sidebar';
@@ -95,6 +107,14 @@ export type LangComponents = {
 	/* MOLECULES */
 	// calloutBadge: CalloutBadgeLang
 	// carousel: CarouselLang
+	chatAttachmentContext: ChatAttachmentContextLang;
+	chatInspirationResultMessage: ChatInspirationResultMessageLang;
+	chatLoadingIndicator: ChatLoadingIndicatorLang;
+	chatMessageText: ChatMessageTextLang;
+	chatMessageUser: ChatMessageUserLang;
+	chatProductComparisonMessage: ChatProductComparisonMessageLang;
+	chatProductQueryMessage: ChatProductQueryMessageLang;
+	chatResult: ChatResultLang;
 	checkbox: CheckboxLang;
 	slideshow: SlideshowLang;
 	grid: GridLang;
@@ -111,11 +131,12 @@ export type LangComponents = {
 	filter: FilterLang;
 	loadMore: LoadMoreLang;
 	// overlayBadge: OverlayBadgeLang
+	overlayResult: OverlayResultLang;
 	pagination: PaginationLang;
 	perPage: PerPageLang;
 	radioList: RadioListLang;
 	// rating: RatingLang
-	// result: ResultLang
+	result: ResultLang;
 	searchInput: SearchInputLang;
 	select: SelectLang;
 	// slideout: SlideoutLang;
@@ -127,22 +148,26 @@ export type LangComponents = {
 	// variantSelection: VariantSelectionLang
 
 	/* ORGANISMS */
+	chat: ChatLang;
+	// autocomplete: AutocompleteLang;
 	facet: FacetLang;
 	// facets: FacetsLang
 	facetsHorizontal: FacetsHorizontalLang;
 	filterSummary: FilterSummaryLang;
 	noResults: NoResultsLang;
 	recommendationBundle: RecommendationBundleLang;
+	// bundleCTA: BundledCTALang;
+	// bundleSelector: BundleSelectorLang;
 	// results: ResultsLang
 	searchHeader: SearchHeaderLang;
 	sidebar: SidebarLang;
-	mobileSidebar: MobileSidebarLang;
 	// toolbar: ToolbarLang
 
 	/* TEMPLATES */
 	// autocompleteTerms: AutocompleteTermsLang;
 	recommendation: RecommendationLang;
-	search: SearchLang;
 	autocompleteLayout: AutocompleteLayoutLang;
-	// searchHorizontal: SearchHorizontalLang
+	search: SearchLang;
+	searchHorizontal: SearchLang;
+	searchCollapsible: SearchLang;
 };

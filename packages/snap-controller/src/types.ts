@@ -129,7 +129,13 @@ export type ControllerConfig = StoreConfig & Attachments;
 // Search Config
 export type SearchControllerConfig = ControllerConfig & SearchStoreConfig;
 // Chat Config
-export type ChatControllerConfig = ControllerConfig & ChatStoreConfig;
+export type ChatControllerConfig = ControllerConfig &
+	ChatStoreConfig & {
+		settings?: {
+			/** CSS selector used by focusInput to locate the chat text input. */
+			inputSelector?: string;
+		};
+	};
 // Finder Config
 export type FinderControllerConfig = ControllerConfig & FinderStoreConfig;
 // Autocomplete config

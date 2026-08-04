@@ -7,6 +7,7 @@ import { useA11y, useDisplaySettings, useCustomComponentOverride } from '../../.
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Grid, GridProps } from '../Grid';
 import { ImageProps, Image } from '../../Atoms/Image';
+import { observer } from 'mobx-react-lite';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { colord, extend } from 'colord';
@@ -72,7 +73,7 @@ const defaultStyles: StyleScript<SwatchesProps> = ({ theme }) => {
 	});
 };
 
-export function Swatches(properties: SwatchesProps) {
+export const Swatches = observer((properties: SwatchesProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -266,7 +267,7 @@ export function Swatches(properties: SwatchesProps) {
 			</div>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type SwatchesProps = {
 	breakpoints?: BreakpointsProps;

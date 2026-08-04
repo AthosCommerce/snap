@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
 import { ChatMessageText } from './ChatMessageText';
 
@@ -109,5 +110,47 @@ describe('ChatMessageText Component', () => {
 			/>
 		);
 		expect(rendered.container.textContent).toContain('Safe content for the user');
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				className={className}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-text');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				disableStyles={true}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-text');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				styleScript={styleScript}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-text')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
 	});
 });

@@ -8,12 +8,6 @@ global.TextEncoder = TextEncoder;
 
 import { JSDOM } from 'jsdom';
 
-const wait = (time?: number) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
-};
-
 const createDocument = (contents: string) =>
 	new JSDOM(`
 		<!DOCTYPE html>
@@ -24,6 +18,19 @@ const createDocument = (contents: string) =>
 `);
 
 describe('DomTargeter', () => {
+	beforeEach(() => {
+		// DomTargeter schedules its retarget poller on the main realm's setTimeout, so the
+		// backoff schedule (300ms, 500ms, 700ms...) can be advanced virtually. The advances
+		// below mirror the real delays these tests used to sleep through.
+		jest.useFakeTimers();
+	});
+
+	afterEach(() => {
+		// discard, rather than run, any poller left pending by an abandoned targeter
+		jest.clearAllTimers();
+		jest.useRealTimers();
+	});
+
 	it('calls render function with each selected', () => {
 		const dom = createDocument(`
 			<div id="content">
@@ -269,7 +276,7 @@ describe('DomTargeter', () => {
 		);
 
 		// wait is needed due to promise usage (async)
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		expect(fn).toHaveBeenCalledTimes(1);
 
@@ -306,7 +313,7 @@ describe('DomTargeter', () => {
 		);
 
 		// wait is needed due to promise usage (async)
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		expect(fn).toHaveBeenCalledTimes(1);
 
@@ -344,11 +351,11 @@ describe('DomTargeter', () => {
 
 		expect(document.querySelector('.classToLookFor')).toBe(null);
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		document.getElementById('content')?.classList.add('classToLookFor');
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		expect(document.querySelector('.classToLookFor')).not.toBe(null);
 		expect(document.querySelector('.newThing')?.innerHTML).toBe('blah');
@@ -402,20 +409,20 @@ describe('DomTargeter', () => {
 
 		expect(document.querySelector('.classToLookFor')).toBe(null);
 
-		await wait(100);
+		await jest.advanceTimersByTimeAsync(100);
 		document.getElementById('content')?.classList.add('classToLookFor');
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 		expect(document.querySelector('.classToLookFor')).not.toBe(null);
 		expect(document.querySelector('#newThing')?.innerHTML).toBe('blah');
 
-		await wait(100);
+		await jest.advanceTimersByTimeAsync(100);
 		document.getElementById('newThing')?.classList.add('classToLookFor2');
 
-		await wait(100);
+		await jest.advanceTimersByTimeAsync(100);
 		expect(document.querySelector('#newThing')?.innerHTML).toBe('blah');
 
-		await wait(300);
+		await jest.advanceTimersByTimeAsync(300);
 		expect(document.querySelector('.classToLookFor2')).not.toBe(null);
 		expect(document.querySelector('#content')?.innerHTML).toBe('<div id="newThing" class="classToLookFor2">blah<div>tada</div></div>');
 	});
@@ -450,13 +457,13 @@ describe('DomTargeter', () => {
 
 		expect(document.querySelector('.classToLookFor')).toBe(null);
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		const contentElem: HTMLDivElement = document.querySelector('#content')!;
 		contentElem?.classList.add('classToLookFor');
 		contentElem?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		expect(document.querySelector('.classToLookFor')).not.toBe(null);
 
@@ -493,13 +500,13 @@ describe('DomTargeter', () => {
 
 		expect(document.querySelector('.classToLookFor')).toBe(null);
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		const contentElem: HTMLDivElement = document.querySelector('#content')!;
 		contentElem?.classList.add('classToLookFor');
 		contentElem?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
 
-		await wait(200);
+		await jest.advanceTimersByTimeAsync(200);
 
 		expect(document.querySelector('.classToLookFor')).not.toBe(null);
 
@@ -830,7 +837,7 @@ describe('DomTargeter', () => {
 		);
 
 		// Wait for async operations to complete
-		await wait(100);
+		await jest.advanceTimersByTimeAsync(100);
 
 		// Should have been called twice (first and third elements)
 		expect(successfulOnTarget).toHaveBeenCalledTimes(2);
@@ -958,7 +965,7 @@ describe('DomTargeter', () => {
 		);
 
 		// Wait for async operations to complete
-		await wait(100);
+		await jest.advanceTimersByTimeAsync(100);
 
 		// Should have been called once (first element)
 		expect(successfulOnTarget).toHaveBeenCalledTimes(1);
@@ -1029,7 +1036,7 @@ describe('DomTargeter', () => {
 		);
 
 		// Wait for async operations to complete
-		await wait(100);
+		await jest.advanceTimersByTimeAsync(100);
 
 		// Should have been called twice (sync-success and async-success)
 		expect(successfulOnTarget).toHaveBeenCalledTimes(2);
@@ -1421,7 +1428,7 @@ describe('DomTargeter', () => {
 			elem.className = 'dynamic';
 			document.getElementById('content')!.appendChild(elem);
 
-			await wait(500);
+			await jest.advanceTimersByTimeAsync(500);
 
 			// should not have been targeted because polling was stopped
 			expect(onTarget).toHaveBeenCalledTimes(0);
@@ -1445,7 +1452,7 @@ describe('DomTargeter', () => {
 			document.getElementById('content')!.appendChild(elem);
 			document.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
 
-			await wait(300);
+			await jest.advanceTimersByTimeAsync(300);
 
 			expect(onTarget).toHaveBeenCalledTimes(0);
 		});
@@ -1467,7 +1474,7 @@ describe('DomTargeter', () => {
 			elem.className = 'dynamic';
 			document.getElementById('content')!.appendChild(elem);
 
-			await wait(300);
+			await jest.advanceTimersByTimeAsync(300);
 
 			expect(onTarget).toHaveBeenCalledTimes(0);
 		});
