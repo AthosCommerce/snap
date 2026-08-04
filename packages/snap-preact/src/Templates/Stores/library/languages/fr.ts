@@ -559,6 +559,12 @@ export const fr: LangComponents = {
 		},
 	},
 	result: {
+		addToCartButtonText: {
+			value: 'Tout ajouter au panier',
+		},
+		addToCartButtonSuccessText: {
+			value: 'Ajouté !',
+		},
 		discussProductButton: {
 			attributes: {
 				'aria-label': 'Discuter de ce produit',
@@ -715,14 +721,6 @@ export const fr: LangComponents = {
 		infoText: {
 			// TODO: add begin & end range here
 			value: ({ pagination }) => `${pagination?.totalResults} produits`,
-		},
-	},
-	result: {
-		addToCartButtonText: {
-			value: 'Tout ajouter au panier',
-		},
-		addToCartButtonSuccessText: {
-			value: 'Ajouté !',
 		},
 	},
 	overlayResult: {

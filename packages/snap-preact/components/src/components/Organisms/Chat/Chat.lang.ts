@@ -1,5 +1,5 @@
 import { Lang } from '../../../hooks';
-import { LangAttributes, LangValue } from '../../../hooks/useLang';
+import { AdditionalLangData, LangAttributes, LangValue } from '../../../hooks/useLang';
 
 export interface ChatLang {
 	// bubble + suggested questions
@@ -168,7 +168,7 @@ export const chatDefaultLang: Partial<ChatLang> = {
 /** Resolves the plain-text `value` of a lang entry (invoking value functions with `data`). */
 export function langTextOf<T>(entry: (Partial<LangValue<T>> & Partial<LangAttributes<T>>) | undefined, data?: T): string | undefined {
 	const value = entry?.value;
-	return typeof value === 'function' ? value(data as T) : value;
+	return typeof value === 'function' ? value(data as T & AdditionalLangData) : value;
 }
 
 /** Resolves a single attribute of a lang entry (invoking attribute functions with `data`). */
@@ -178,5 +178,5 @@ export function langAttrOf<T>(
 	data?: T
 ): string | undefined {
 	const value = entry?.attributes?.[attribute];
-	return typeof value === 'function' ? value(data as T) : value;
+	return typeof value === 'function' ? value(data as T & AdditionalLangData) : value;
 }

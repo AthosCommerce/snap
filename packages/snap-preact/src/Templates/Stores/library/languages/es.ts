@@ -568,6 +568,12 @@ export const es: LangComponents = {
 		},
 	},
 	result: {
+		addToCartButtonText: {
+			value: 'Añadir todo al carrito',
+		},
+		addToCartButtonSuccessText: {
+			value: '¡Agregado!',
+		},
 		discussProductButton: {
 			attributes: {
 				'aria-label': 'Consultar sobre este producto',
@@ -587,14 +593,6 @@ export const es: LangComponents = {
 		},
 		ctaSubtotalTitle: {
 			value: (data) => `Subtotal para ${data.cartStore.count} artículos`,
-		},
-	},
-	result: {
-		addToCartButtonText: {
-			value: 'Añadir todo al carrito',
-		},
-		addToCartButtonSuccessText: {
-			value: '¡Agregado!',
 		},
 	},
 	overlayResult: {
