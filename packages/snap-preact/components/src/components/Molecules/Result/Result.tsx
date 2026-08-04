@@ -16,7 +16,7 @@ import type { SearchController, AutocompleteController, RecommendationController
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Icon, IconProps } from '../../Atoms/Icon';
+import { IconProps } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -50,6 +50,15 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 			'& .ss__result__badge': {
 				background: 'rgba(255, 255, 255, 0.5)',
 				padding: '10px',
+			},
+			'& .ss__result__discuss-product-button': {
+				position: 'absolute',
+				bottom: '8px',
+				left: '8px',
+				padding: 0,
+				border: 'none',
+				background: 'transparent',
+				cursor: 'pointer',
 			},
 		},
 
@@ -113,6 +122,7 @@ export const Result = observer((properties: ResultProps) => {
 		trackingRef,
 		treePath,
 		discussProductIcon,
+		onDiscussClick,
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('result', {
@@ -201,6 +211,17 @@ export const Result = observer((properties: ResultProps) => {
 			theme: props.theme,
 			treePath,
 		},
+		discussProductButton: {
+			// default props
+			internalClassName: 'ss__result__discuss-product-button',
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props.theme,
+			treePath,
+		},
 		button: {
 			// default props
 			internalClassName: 'ss__result__button--addToCart',
@@ -236,6 +257,12 @@ export const Result = observer((properties: ResultProps) => {
 	const defaultLang = {
 		addToCartButtonText: {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
+		},
+		discussProductButton: {
+			attributes: {
+				'aria-label': 'Discuss this product',
+				title: 'Discuss this product',
+			},
 		},
 	};
 
@@ -275,19 +302,20 @@ export const Result = observer((properties: ResultProps) => {
 							)}
 						</a>
 						{discussProductIcon && (
-							<span
-								className="ss__result__discuss-product-button"
+							<Button
+								{...subProps.discussProductButton}
+								icon={discussProductIcon}
 								onClick={(e) => {
 									e.preventDefault();
 									e.stopPropagation();
-									(window as any)?.athos?.fire?.('chat/productQuery', { result });
+									if (onDiscussClick) {
+										onDiscussClick(e, result);
+									} else {
+										(window as any)?.athos?.fire?.('chat/productQuery', { result });
+									}
 								}}
-								role="button"
-								title="Discuss this product"
-								style={{ position: 'absolute', bottom: '8px', left: '8px', cursor: 'pointer' }}
-							>
-								<Icon {...discussProductIcon} />
-							</span>
+								{...mergedLang.discussProductButton.all}
+							/>
 						)}
 					</div>
 				)}
@@ -358,6 +386,7 @@ interface ResultSubProps {
 	image: ImageProps;
 	rating: RatingProps;
 	button: ButtonProps;
+	discussProductButton: Partial<ButtonProps>;
 	variantSelection: Partial<VariantSelectionProps>;
 }
 export interface TruncateTitleProps {
@@ -391,11 +420,13 @@ export type ResultTemplatesLegalProps = {
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
 	discussProductIcon?: IconProps;
+	onDiscussClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 };
 
 export interface ResultLang {
 	addToCartButtonText: Lang<ResultPropData>;
 	addToCartButtonSuccessText: Lang<ResultPropData>;
+	discussProductButton: Lang<ResultPropData>;
 }
 
 interface ResultPropData {

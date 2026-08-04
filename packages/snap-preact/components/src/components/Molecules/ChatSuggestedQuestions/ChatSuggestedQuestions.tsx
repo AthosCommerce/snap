@@ -6,17 +6,19 @@ import classnames from 'classnames';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { useCustomComponentOverride } from '../../../hooks';
+import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import type { ChatResponseActionsData } from '@athoscommerce/snap-client';
 
-const defaultStyles: StyleScript<ChatSuggestedQuestionsProps> = ({ primaryColor }) => {
-	const colorPrimary = primaryColor || '#253B80';
+const defaultStyles: StyleScript<ChatSuggestedQuestionsProps> = ({ primaryColor, theme }) => {
+	const colorPrimary = primaryColor || theme?.variables?.colors?.primary || '#253B80';
 	return css({
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '10px',
-		'.ss__chat-suggested-questions__item': {
+		'.ss__chat-suggested-questions__item.ss__button': {
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'space-between',
@@ -30,7 +32,14 @@ const defaultStyles: StyleScript<ChatSuggestedQuestionsProps> = ({ primaryColor 
 			color: '#333',
 			textAlign: 'left',
 			width: '100%',
-			'&:hover': {
+			boxSizing: 'border-box',
+			'.ss__button__content': {
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'space-between',
+				gap: '12px',
+			},
+			'&:not(.ss__button--disabled):hover': {
 				borderColor: '#ccc',
 				boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
 			},
@@ -72,6 +81,12 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 
 	const { controller, questions, actions, disableStyles, className, internalClassName, treePath } = props;
 
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatSuggestedQuestions', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
 	const items: string[] = questions ?? actions?.map((action: { message: string }) => action.message) ?? [];
 
 	if (items.length === 0) {
@@ -79,6 +94,11 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 	}
 
 	const subProps: ChatSuggestedQuestionsSubProps = {
+		button: {
+			disableStyles,
+			theme: props.theme,
+			treePath,
+		},
 		icon: {
 			disableStyles,
 			theme: props.theme,
@@ -92,11 +112,10 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 		<CacheProvider>
 			<div className={classnames('ss__chat-suggested-questions', className, internalClassName)} {...styling}>
 				{items.map((item, index) => (
-					<button
-						type="button"
+					<Button
+						{...subProps.button}
 						key={index}
-						className="ss__chat-suggested-questions__item"
-						aria-label={item}
+						internalClassName="ss__chat-suggested-questions__item"
 						onClick={() => {
 							controller.openChat(item);
 						}}
@@ -105,7 +124,7 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 						<span className="ss__chat-suggested-questions__item__icon" aria-hidden="true">
 							<Icon {...subProps.icon} icon="chat" />
 						</span>
-					</button>
+					</Button>
 				))}
 			</div>
 		</CacheProvider>
@@ -113,6 +132,7 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 });
 
 interface ChatSuggestedQuestionsSubProps {
+	button: Partial<ButtonProps>;
 	icon: Partial<IconProps>;
 }
 

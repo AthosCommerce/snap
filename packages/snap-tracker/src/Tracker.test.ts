@@ -488,8 +488,6 @@ describe('Cart inferance from context', () => {
 	});
 	it('can set current cart from globals', async () => {
 		// set initial cart
-
-		// set initial cart
 		const cart = [
 			{ parentId: 'productUid1', uid: 'productUid1', sku: 'productSku1', qty: 1, price: 9.99 },
 			{ parentId: 'productUid2', uid: 'productUid2', sku: 'productSku2', qty: 2, price: 10.99 },
@@ -668,7 +666,7 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/impression'), expect.any(Object));
 	});
 
-	it('impression sends correct payload structure', () => {
+	it('impression sends correct payload structure', async () => {
 		const impressionData: ChatImpressionSchemaData = {
 			chatSessionId: 'session-abc',
 			responseId: 'response-xyz',
@@ -687,15 +685,15 @@ describe('Chat Events', () => {
 			],
 		};
 
-		const impressionSpy = jest.spyOn(tracker.events.chat, 'impression');
-
 		tracker.events.chat.impression({ data: impressionData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
 
-		expect(impressionSpy).toHaveBeenCalledWith({
-			data: impressionData,
-		});
+		const impressionCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/impression'));
+		expect(impressionCall).toBeDefined();
 
-		impressionSpy.mockRestore();
+		const body = JSON.parse(impressionCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(impressionData);
 	});
 
 	it('can send chat clickthrough events', async () => {
@@ -718,7 +716,7 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/clickthrough'), expect.any(Object));
 	});
 
-	it('clickthrough sends correct payload structure', () => {
+	it('clickthrough sends correct payload structure', async () => {
 		const clickthroughData: ChatClickthroughSchemaData = {
 			chatSessionId: 'session-abc',
 			responseId: 'response-xyz',
@@ -732,15 +730,15 @@ describe('Chat Events', () => {
 			],
 		};
 
-		const clickthroughSpy = jest.spyOn(tracker.events.chat, 'clickThrough');
-
 		tracker.events.chat.clickThrough({ data: clickthroughData });
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
-		expect(clickthroughSpy).toHaveBeenCalledWith({
-			data: clickthroughData,
-		});
+		const clickthroughCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/clickthrough'));
+		expect(clickthroughCall).toBeDefined();
 
-		clickthroughSpy.mockRestore();
+		const body = JSON.parse(clickthroughCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(clickthroughData);
 	});
 
 	it('can send chat addtocart events', async () => {
@@ -764,7 +762,7 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/addtocart'), expect.any(Object));
 	});
 
-	it('addtocart sends correct payload with product quantities', () => {
+	it('addtocart sends correct payload with product quantities', async () => {
 		const addToCartData: ChatAddtocartSchemaData = {
 			chatSessionId: 'session-abc',
 			responseId: 'response-xyz',
@@ -786,15 +784,15 @@ describe('Chat Events', () => {
 			],
 		};
 
-		const addToCartSpy = jest.spyOn(tracker.events.chat, 'addToCart');
-
 		tracker.events.chat.addToCart({ data: addToCartData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
 
-		expect(addToCartSpy).toHaveBeenCalledWith({
-			data: addToCartData,
-		});
+		const addToCartCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/addtocart'));
+		expect(addToCartCall).toBeDefined();
 
-		addToCartSpy.mockRestore();
+		const body = JSON.parse(addToCartCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(addToCartData);
 	});
 
 	it('addtocart also adds products to cart storage', async () => {
@@ -850,18 +848,17 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/feedback'), expect.any(Object));
 	});
 
-	it('feedback sends correct payload with feedback enum value', () => {
-		const feedbackSpy = jest.spyOn(tracker.events.chat, 'feedback');
-
-		// positive feedback
+	it('feedback sends correct payload with feedback enum value', async () => {
 		tracker.events.chat.feedback({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive } });
-		expect(feedbackSpy).toHaveBeenCalledWith({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive } });
-
-		// negative feedback
 		tracker.events.chat.feedback({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative } });
-		expect(feedbackSpy).toHaveBeenCalledWith({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative } });
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
-		feedbackSpy.mockRestore();
+		const feedbackCalls = mockFetchApi.mock.calls.filter(([url]) => url.includes('/chat/feedback'));
+		expect(feedbackCalls).toHaveLength(2);
+
+		const bodies = feedbackCalls.map(([, request]) => JSON.parse(request.body));
+		expect(bodies[0].data).toEqual({ chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive });
+		expect(bodies[1].data).toEqual({ chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative });
 	});
 
 	it('impression and addtocart events are batched via queueRequest', async () => {

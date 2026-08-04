@@ -38,7 +38,8 @@ export class ChatAttachmentStore {
 		switch (attachment.type) {
 			case 'image': {
 				// if there are currently any other attachments remove them
-				this.items.forEach((item) => {
+				// (iterate a copy — remove() splices this.items)
+				[...this.items].forEach((item) => {
 					this.remove(item.id);
 				});
 
@@ -51,7 +52,7 @@ export class ChatAttachmentStore {
 				// 'productSimilar' and 'productQuery' are single-product flows — replace any
 				// existing attachments so the conversation only targets the latest product
 				if (attachment.requestType === 'productSimilar' || attachment.requestType === 'productQuery') {
-					this.items.forEach((item) => {
+					[...this.items].forEach((item) => {
 						this.remove(item.id);
 					});
 
@@ -63,7 +64,7 @@ export class ChatAttachmentStore {
 
 				// For 'productQuery' or 'productComparison', continue with existing logic
 				// if there are currently any other attachments remove them
-				this.items.forEach((item) => {
+				[...this.items].forEach((item) => {
 					if (item.type !== 'product') {
 						this.remove(item.id);
 					}
@@ -105,7 +106,7 @@ export class ChatAttachmentStore {
 			}
 			case 'facet': {
 				// if there are currently any non-facet attachments remove them
-				this.items.forEach((item) => {
+				[...this.items].forEach((item) => {
 					if (item.type !== 'facet') {
 						this.remove(item.id);
 					}
@@ -216,8 +217,8 @@ type ChatAttachmentProductConfig = {
 	type: 'product';
 	id?: string;
 	productId: string;
-	thumbnailUrl: string;
-	name: string;
+	thumbnailUrl?: string;
+	name?: string;
 	requestType: 'productQuery' | 'productSimilar' | 'productComparison';
 	state?: AttachmentState;
 	error?: AttachmentError;
@@ -235,10 +236,10 @@ type ChatAttachmentFacetConfig = {
 };
 
 export class ChatAttachmentProduct extends ChatAttachment {
-	public type: 'product' | never = 'product';
+	public type = 'product' as const;
 	public productId: string;
-	public thumbnailUrl: string;
-	public name: string;
+	public thumbnailUrl?: string;
+	public name?: string;
 	public requestType: 'productQuery' | 'productSimilar' | 'productComparison';
 
 	constructor({ id, productId, thumbnailUrl, name, requestType, state, error }: ChatAttachmentProductConfig) {
@@ -260,7 +261,7 @@ export class ChatAttachmentProduct extends ChatAttachment {
 	}
 }
 export class ChatAttachmentFacet extends ChatAttachment {
-	public type: 'facet' | never = 'facet';
+	public type = 'facet' as const;
 	public key: string;
 	public facetLabel: string;
 	public value: string;
@@ -287,7 +288,7 @@ export class ChatAttachmentFacet extends ChatAttachment {
 	}
 }
 export class ChatAttachmentImage extends ChatAttachment {
-	public type: 'image' | never = 'image';
+	public type = 'image' as const;
 	public fileName?: string;
 	public imageId?: string;
 	public imageUrl?: string;
@@ -314,7 +315,7 @@ export class ChatAttachmentImage extends ChatAttachment {
 	}
 
 	// used to update attachment after upload or from
-	update = async ({
+	update = ({
 		imageId,
 		imageUrl,
 		thumbnailUrl,
@@ -324,7 +325,7 @@ export class ChatAttachmentImage extends ChatAttachment {
 		imageUrl?: string;
 		thumbnailUrl?: string;
 		error?: AttachmentError;
-	}): Promise<void> => {
+	}): void => {
 		if (imageId && imageUrl && thumbnailUrl) {
 			this.state = 'attached';
 			this.imageId = imageId;

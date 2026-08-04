@@ -290,6 +290,51 @@ describe('Result Component', () => {
 		expect(resultElement?.classList).toHaveLength(3);
 	});
 
+	it('does not render a discuss product button by default', () => {
+		const rendered = render(<Result result={mockResults[0] as Product} />);
+		expect(rendered.container.querySelector('.ss__result__discuss-product-button')).not.toBeInTheDocument();
+	});
+
+	it('renders a keyboard-accessible discuss product button when discussProductIcon is provided', () => {
+		const rendered = render(<Result result={mockResults[0] as Product} discussProductIcon={{ icon: 'chat' }} />);
+		const discussButton = rendered.container.querySelector('.ss__result__discuss-product-button');
+		expect(discussButton).toBeInTheDocument();
+		expect(discussButton).toHaveAttribute('role', 'button');
+		expect(discussButton).toHaveAttribute('tabindex', '0');
+		expect(discussButton).toHaveAttribute('aria-label', 'Discuss this product');
+		expect(discussButton?.querySelector('.ss__icon--chat')).toBeInTheDocument();
+	});
+
+	it('fires the chat/productQuery event on the athos event bus by default', async () => {
+		const fire = jest.fn();
+		(window as any).athos = { fire };
+
+		const rendered = render(<Result result={mockResults[0] as Product} discussProductIcon={{ icon: 'chat' }} />);
+		const discussButton = rendered.container.querySelector('.ss__result__discuss-product-button')!;
+		await userEvent.click(discussButton);
+
+		expect(fire).toHaveBeenCalledTimes(1);
+		expect(fire).toHaveBeenCalledWith('chat/productQuery', { result: mockResults[0] });
+
+		delete (window as any).athos;
+	});
+
+	it('uses onDiscussClick instead of the default event when provided', async () => {
+		const fire = jest.fn();
+		(window as any).athos = { fire };
+		const onDiscussClick = jest.fn();
+
+		const rendered = render(<Result result={mockResults[0] as Product} discussProductIcon={{ icon: 'chat' }} onDiscussClick={onDiscussClick} />);
+		const discussButton = rendered.container.querySelector('.ss__result__discuss-product-button')!;
+		await userEvent.click(discussButton);
+
+		expect(onDiscussClick).toHaveBeenCalledTimes(1);
+		expect(onDiscussClick.mock.calls[0][1]).toBe(mockResults[0]);
+		expect(fire).not.toHaveBeenCalled();
+
+		delete (window as any).athos;
+	});
+
 	it('can show variant selections with hideVariantSelections false', () => {
 		const mockVariantData: SearchResponseModelResultVariants = {
 			data: [

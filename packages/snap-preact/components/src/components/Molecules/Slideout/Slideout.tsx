@@ -130,8 +130,9 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	useEffect(() => {
 		if (!buttonSelector) return;
 
+		// string selectors bind to every matching element
 		const targets: Element[] = typeof buttonSelector == 'string' ? Array.from(document.querySelectorAll(buttonSelector)) : [buttonSelector];
-		const handler = typeof buttonSelector == 'string' ? () => toggleActive(true) : () => toggleActive();
+		const handler = () => toggleActive();
 
 		targets.forEach((target) => target.addEventListener('click', handler));
 		return () => {

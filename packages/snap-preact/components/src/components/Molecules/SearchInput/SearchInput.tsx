@@ -58,9 +58,6 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		clearSearchButton: {
 			icon: 'close-thin',
 		},
-		chatButton: {
-			icon: 'chat',
-		},
 	};
 
 	const props = mergeProps('searchInput', globalTheme, defaultProps, properties);
@@ -197,10 +194,6 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 			...chatButton,
 			internalClassName: 'ss__search-input__button--chat-button',
 			name: 'chat',
-			onClick: () => {
-				// @ts-ignore - this is a button, so it should have an onClick prop?
-				chatButton?.onClick && chatButton.onClick();
-			},
 			// inherited props
 			...defined({
 				disableStyles,

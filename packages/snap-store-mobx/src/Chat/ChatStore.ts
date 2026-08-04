@@ -1,16 +1,20 @@
-import { makeObservable, observable, computed, reaction } from 'mobx';
-import { ChatStoreConfig, StoreServices } from '../types';
+import { makeObservable, observable, computed, reaction, runInAction, IReactionDisposer } from 'mobx';
+import { ChatStoreConfig, SearchStoreConfig, StoreServices } from '../types';
 import { MetaStore } from '../Meta/MetaStore';
-import type { MetaResponseModel, SearchResponseModelFacet } from '@athoscommerce/snapi-types';
+import type { MetaResponseModel, SearchResponseModel, SearchResponseModelFacet } from '@athoscommerce/snapi-types';
 import { AbstractStore } from '../Abstract/AbstractStore';
-import type { ChatResponseModel, ChatRequestModel, ProductsResponseModel } from '@athoscommerce/snap-client';
+import type {
+	ChatResponseModel,
+	ChatRequestModel,
+	ChatResponseProductSearchResultData,
+	ChatStatusResponse,
+	ProductsResponseModel,
+} from '@athoscommerce/snap-client';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
-import { ChatSessionStore } from './Stores/ChatSessionStore';
+import { ChatSessionStore, getProductThumbnailUrl } from './Stores/ChatSessionStore';
 import { ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
-import { ChatStatusResponse } from '@athoscommerce/snap-client';
-import { Product, Variants } from '../Search/Stores/SearchResultStore';
-import { SearchFacetStore } from '../Search/Stores/SearchFacetStore';
+import { Product, Variants, SearchFacetStore } from '../Search/Stores';
 
 const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
 
@@ -50,13 +54,20 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	 * Compared against the live urlManager state to decide whether there are pending changes.
 	 * `null` means no facets have been seeded yet — there are no pending changes in that case. */
 	private appliedFilterSnapshot: string | null = null;
+	private activeFacetsSyncDisposer: IReactionDisposer;
+	private rangeActiveSyncDisposer: IReactionDisposer;
+	private urlManagerUnsubscribe: () => void;
 
 	constructor(config: ChatStoreConfig, services: StoreServices) {
 		super(config);
 
+		if (typeof services != 'object' || typeof services.urlManager?.subscribe != 'function') {
+			throw new Error(`Invalid service 'urlManager' passed to ChatStore. Missing "subscribe" function.`);
+		}
+
 		this.services = services;
 		this.urlManager = services.urlManager.detach(true);
-		this.urlManager.subscribe(() => {
+		this.urlManagerUnsubscribe = this.urlManager.subscribe(() => {
 			this.urlVersion++;
 		});
 
@@ -98,8 +109,8 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		// check for entries in storage
 		let latestChatId = '';
 		const storedChats = this.storage.get('chats');
-		storedChats &&
-			Object.keys(storedChats || {}).forEach((chatId) => {
+		if (storedChats) {
+			Object.keys(storedChats).forEach((chatId) => {
 				const chatData = storedChats[chatId];
 				if (chatData) {
 					const restoredChat = new ChatSessionStore({
@@ -118,6 +129,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 					latestChatId = chatId;
 				}
 			});
+		}
 
 		// Prefer the persisted active chat ID so switching chats survives page reloads.
 		// Fall back to the most recently created chat if the stored ID is missing or stale.
@@ -150,7 +162,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 		this.currentChatId = activeChatId;
 
-		makeObservable(this, {
+		makeObservable<ChatStore, 'appliedFilterSnapshot'>(this, {
 			meta: observable,
 			inputValue: observable,
 			open: observable,
@@ -160,7 +172,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			initChatLoading: observable,
 			blocked: computed,
 			currentChat: computed,
-			chatsIds: computed,
+			chatIds: computed,
 			features: observable,
 			suggestedQuestions: observable,
 			welcomeMessage: observable,
@@ -168,6 +180,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			productQuickviewError: observable,
 			facets: observable,
 			urlVersion: observable,
+			appliedFilterSnapshot: observable,
 			hasPendingFacetChanges: computed,
 			pendingFacetCount: computed,
 			searchFilters: computed,
@@ -179,24 +192,24 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		// Exception: when the user clicks "discuss product" on a carousel result, the
 		// active message becomes the productQuery side-chat, but the carousel is still
 		// the last real message — keep its facets visible alongside the product context.
-		reaction(
-			() => {
+		this.activeFacetsSyncDisposer = reaction(
+			(): ChatResponseProductSearchResultData | null => {
 				const chat = this.currentChat;
 				const active = chat?.activeMessage;
 				if (active?.messageType === 'productSearchResult') return active;
 				if (active?.messageType === 'productQuery' && chat) {
 					const messages = chat.chat;
 					const activeIdx = messages.findIndex((m) => m.id === active.id);
-					if (activeIdx > 0 && messages[activeIdx - 1].messageType === 'productSearchResult') {
-						return messages[activeIdx - 1];
+					const previousMessage = activeIdx > 0 ? messages[activeIdx - 1] : undefined;
+					if (previousMessage?.messageType === 'productSearchResult') {
+						return previousMessage;
 					}
 				}
 				return null;
 			},
 			(active) => {
 				if (active && active.id !== this.activeFacetsMessageId) {
-					const facets = (active as any).facets as SearchResponseModelFacet[] | undefined;
-					this.setActiveFacets(facets || [], active.id);
+					this.setActiveFacets(active.facets || [], active.id);
 				} else if (!active && this.activeFacetsMessageId !== null) {
 					this.setActiveFacets([], null);
 				}
@@ -220,7 +233,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 				high: entry.high === null || typeof entry.high === 'undefined' ? undefined : Number(entry.high),
 			};
 		};
-		reaction(
+		this.rangeActiveSyncDisposer = reaction(
 			() => {
 				void this.urlVersion;
 				const filterState = (this.urlManager.state as any)?.filter || {};
@@ -256,6 +269,13 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		);
 	}
 
+	/** Tear down the constructor reactions and the detached urlManager subscription. */
+	public dispose(): void {
+		this.activeFacetsSyncDisposer();
+		this.rangeActiveSyncDisposer();
+		this.urlManagerUnsubscribe();
+	}
+
 	/** Build a SearchFacetStore from raw facet data using the current detached urlManager.
 	 * Synthesizes meta entries for each facet so SearchFacetStore's display/meta filter
 	 * doesn't drop chat facets (the chat backend already decided what to send). */
@@ -277,12 +297,13 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			}
 		});
 
+		const config: SearchStoreConfig = { id: this.config.id };
 		return new SearchFacetStore({
-			config: {} as any,
+			config,
 			services: { ...this.services, urlManager: this.urlManager },
 			stores: { storage: this.storage },
 			data: {
-				search: { facets } as any,
+				search: { facets } as SearchResponseModel,
 				meta: { ...baseMeta, facets: facetMeta } as MetaResponseModel,
 			},
 		});
@@ -291,31 +312,35 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	/** Reset the detached urlManager and seed it with this message's filtered facet values,
 	 * then rebuild the root SearchFacetStore so the UI shows the matching display. */
 	public setActiveFacets(facets: SearchResponseModelFacet[], messageId: string | null): void {
-		// reset url state, then seed with the API-reported filtered values
-		this.urlManager.reset().go();
-		facets.forEach((facet) => {
-			// Slider/range facets carry the active selection on the facet itself rather
-			// than on individual bucket values.
-			if ((facet as any).type === 'range') {
-				const active = (facet as any).active as { low?: number; high?: number } | undefined;
-				const range = (facet as any).range as { low?: number; high?: number } | undefined;
-				if (active && range && (active.low !== range.low || active.high !== range.high)) {
-					this.urlManager.set(`filter.${facet.field}`, { low: active.low, high: active.high }).go();
+		// batched into a single action so observers of `hasPendingFacetChanges` never see
+		// the intermediate urlManager state paired with the previous snapshot
+		runInAction(() => {
+			// reset url state, then seed with the API-reported filtered values
+			this.urlManager.reset().go();
+			facets.forEach((facet) => {
+				// Slider/range facets carry the active selection on the facet itself rather
+				// than on individual bucket values.
+				if ((facet as any).type === 'range') {
+					const active = (facet as any).active as { low?: number; high?: number } | undefined;
+					const range = (facet as any).range as { low?: number; high?: number } | undefined;
+					if (active && range && (active.low !== range.low || active.high !== range.high)) {
+						this.urlManager.set(`filter.${facet.field}`, { low: active.low, high: active.high }).go();
+					}
+					return;
 				}
-				return;
-			}
-			const filteredValues = ((facet as any).values || []).filter((v: any) => v?.filtered);
-			filteredValues.forEach((v: any) => {
-				if (typeof v.low !== 'undefined' || typeof v.high !== 'undefined') {
-					this.urlManager.merge(`filter.${facet.field}`, [{ low: v.low, high: v.high }]).go();
-				} else if (typeof v.value !== 'undefined') {
-					this.urlManager.merge(`filter.${facet.field}`, v.value).go();
-				}
+				const filteredValues = ((facet as any).values || []).filter((v: any) => v?.filtered);
+				filteredValues.forEach((v: any) => {
+					if (typeof v.low !== 'undefined' || typeof v.high !== 'undefined') {
+						this.urlManager.merge(`filter.${facet.field}`, [{ low: v.low, high: v.high }]).go();
+					} else if (typeof v.value !== 'undefined') {
+						this.urlManager.merge(`filter.${facet.field}`, v.value).go();
+					}
+				});
 			});
+			this.facets = this.buildFacetStore(facets);
+			this.activeFacetsMessageId = messageId;
+			this.appliedFilterSnapshot = stableStringify((this.urlManager.state as any)?.filter);
 		});
-		this.facets = this.buildFacetStore(facets);
-		this.activeFacetsMessageId = messageId;
-		this.appliedFilterSnapshot = stableStringify((this.urlManager.state as any)?.filter);
 	}
 
 	/** Total number of selected facet values in the in-progress urlManager state, summed
@@ -386,7 +411,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		return this.chats.find((chat) => chat.id === this.currentChatId);
 	}
 
-	get chatsIds(): string[] {
+	get chatIds(): string[] {
 		return this.chats.map((chat) => chat.id);
 	}
 
@@ -422,6 +447,11 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.chats = [];
 		this.clearProductQuickview();
 		this.storage.clear();
+		this.impressionStorage.clear();
+		// clear meta so the next update() re-persists it — otherwise restored
+		// sessions could never hydrate after a reload
+		this.meta = undefined;
+		this.storedMetaData = null;
 		this.createChat();
 	}
 
@@ -489,6 +519,13 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		}
 		this.storage.set('chats', filtered);
 
+		// drop impression entries for every chat except the one being kept
+		const currentImpressions = this.impressionStorage.get([currentChat.id]);
+		this.impressionStorage.clear();
+		if (currentImpressions) {
+			this.impressionStorage.set([currentChat.id], currentImpressions);
+		}
+
 		this.chats = [currentChat];
 	}
 
@@ -523,6 +560,12 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public switchChat(id: string): void {
 		const chatExists = this.chats.find((chat) => chat.id === id);
 		if (chatExists) {
+			// abandon any in-flight request state from the previous chat — its
+			// response will be discarded by the controller, so the UI shouldn't
+			// keep showing its loading spinner or stale error
+			this.loading = false;
+			this.error = undefined;
+
 			// Lazily hydrate results when switching to a session for the first time
 			if (!chatExists.hydrated && this.storedMetaData) {
 				chatExists.hydrateResults(this.storedMetaData);
@@ -533,14 +576,14 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		}
 	}
 
-	public sendProductQuery(result: any, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void {
+	public sendProductQuery(result: Product, options: { requestType: 'productQuery' | 'productSimilar' | 'productComparison' }): void {
 		const display = result?.display || result;
 		this.currentChat?.attachments.add<ChatAttachmentProduct>({
 			type: 'product',
 			requestType: options.requestType,
 			productId: result.id,
 			name: display.mappings?.core?.name,
-			thumbnailUrl: display.mappings?.core?.thumbnailImageUrl || display.mappings?.core?.imageUrl || display.mappings?.core?.parentImageUrl,
+			thumbnailUrl: getProductThumbnailUrl(display.mappings?.core),
 		});
 
 		// for the productQuery flow we want the secondary chat to immediately
@@ -551,7 +594,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		}
 	}
 
-	public compareProduct(result: any): void {
+	public compareProduct(result: Product): void {
 		this.currentChat?.comparisons.add({
 			result,
 		});
@@ -618,9 +661,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		// }
 
 		this.currentChat?.update(data);
-		if (!this.meta) {
-			this.storage.set('meta', JSON.stringify(data.meta));
-		}
+		this.storage.set('meta', JSON.stringify(data.meta));
 		this.meta = new MetaStore({
 			data: {
 				meta: data.meta,
@@ -672,8 +713,9 @@ function cloneProductForQuickview(product: Product, meta: MetaResponseModel | un
 		attributes: JSON.parse(JSON.stringify(product.attributes || {})),
 		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag, value: b.value })) || [],
 	};
+	const config: ChatStoreConfig = { id: 'chat' };
 	return new Product({
-		config: {} as any,
+		config,
 		data: { result, meta: meta || ({} as MetaResponseModel) },
 		position: product.position ?? 0,
 		responseId: product.responseId,

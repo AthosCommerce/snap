@@ -6,6 +6,7 @@ export * from './components/Atoms/BadgeText';
 export * from './components/Atoms/Banner';
 export * from './components/Atoms/Breadcrumbs';
 export * from './components/Atoms/Button';
+export * from './components/Atoms/ChatLoadingIndicator';
 export * from './components/Atoms/Dropdown';
 export * from './components/Atoms/FormattedNumber';
 export * from './components/Atoms/Icon';

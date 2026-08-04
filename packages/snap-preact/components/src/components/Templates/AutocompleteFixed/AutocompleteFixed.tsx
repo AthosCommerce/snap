@@ -158,6 +158,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 				onClick: () => reset(),
 			},
 			chatButton: {
+				icon: 'chat',
 				onClick: () => controller.openChat(),
 			},
 			inputName: inputName,
@@ -244,34 +245,30 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 	delete acProps.styleScript;
 	delete acProps.themeStyleScript;
 
-	return (
-		<>
-			{layout?.length && active ? (
-				<CacheProvider>
-					<div {...styling} className={classNames('ss__autocomplete-fixed', className, internalClassName)}>
-						<Modal {...subProps.modal}>
-							<div className="ss__autocomplete-fixed__inner" ref={(e) => useA11y(e, 0, true, reset)}>
-								{renderInput ? (
-									<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
-								) : (
-									<></>
-								)}
-								<div className="ss__autocomplete-fixed__inner__layout-wrapper">
-									<AutocompleteLayout
-										{...acProps}
-										{...subProps.autocompleteLayout}
-										input={_input!}
-										controller={controller}
-										treePath={`${treePath} modal`}
-									/>
-								</div>
-							</div>
-						</Modal>
+	return layout?.length && active ? (
+		<CacheProvider>
+			<div {...styling} className={classNames('ss__autocomplete-fixed', className, internalClassName)}>
+				<Modal {...subProps.modal}>
+					<div className="ss__autocomplete-fixed__inner" ref={(e) => useA11y(e, 0, true, reset)}>
+						{renderInput ? (
+							<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
+						) : (
+							<></>
+						)}
+						<div className="ss__autocomplete-fixed__inner__layout-wrapper">
+							<AutocompleteLayout
+								{...acProps}
+								{...subProps.autocompleteLayout}
+								input={_input!}
+								controller={controller}
+								treePath={`${treePath} modal`}
+							/>
+						</div>
 					</div>
-				</CacheProvider>
-			) : null}
-		</>
-	);
+				</Modal>
+			</div>
+		</CacheProvider>
+	) : null;
 });
 
 interface inputBounds {

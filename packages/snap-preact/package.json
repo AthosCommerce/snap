@@ -44,8 +44,8 @@
 		"dompurify": "^3.2.4",
 		"intersection-observer": "0.12.2",
 		"is-plain-object": "5.0.0",
-		"react-ranger": "2.1.0",
 		"marked": "^17.0.1",
+		"react-ranger": "2.1.0",
 		"swiper": "11.0.7"
 	},
 	"peerDependencies": {

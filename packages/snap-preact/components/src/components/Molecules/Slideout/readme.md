@@ -129,7 +129,7 @@ The `rerender` prop determines whether the slideout content should be re-rendere
 ```
 
 ### buttonSelector
-The `buttonSelector` prop specifies a selector of an element to query for, to listen for clicks, to trigger the slideout. This is primarily used if you want to have an external element trigger the slide out. 
+The `buttonSelector` prop specifies a selector of an element to query for, to listen for clicks, to trigger the slideout. This is primarily used if you want to have an external element trigger the slide out. Clicking a matched element toggles the slideout open/closed. When a string selector is provided, the click handler is bound to every element matching the selector (`querySelectorAll`).
 
 ```tsx
 

@@ -73,9 +73,7 @@ export type SnapSearchControllerConfig = {
 
 export type SnapChatControllerConfig = {
 	mode?: keyof typeof AppMode | AppMode;
-	url?: UrlTranslatorConfig & {
-		initial?: InitialUrlConfig;
-	};
+	url?: UrlTranslatorConfig;
 	client?: {
 		globals: ClientGlobals;
 		config?: ClientConfig;

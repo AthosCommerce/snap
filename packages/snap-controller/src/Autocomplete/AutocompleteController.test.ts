@@ -1735,4 +1735,46 @@ describe('Autocomplete Controller', () => {
 		searchTrendingfn.mockClear();
 		trendingfn.mockClear();
 	});
+
+	describe('openChat', () => {
+		const createController = () =>
+			new AutocompleteController(acConfig, {
+				client: new MockClient(globals, {}),
+				store: new AutocompleteStore(acConfig, services),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+
+		afterEach(() => {
+			delete window.athos;
+		});
+
+		it('fires the chat/send event with the current input', () => {
+			const controller = createController();
+			controller.store.state.input = 'red dress';
+			const fireFn = jest.fn();
+			window.athos = { fire: fireFn };
+
+			controller.openChat();
+
+			expect(fireFn).toHaveBeenCalledWith('chat/send', { message: 'red dress' });
+		});
+
+		it('does not throw when the athos global is absent', () => {
+			const controller = createController();
+			delete window.athos;
+
+			expect(() => controller.openChat()).not.toThrow();
+		});
+
+		it('does not throw when the athos global has no fire function', () => {
+			const controller = createController();
+			window.athos = {};
+
+			expect(() => controller.openChat()).not.toThrow();
+		});
+	});
 });

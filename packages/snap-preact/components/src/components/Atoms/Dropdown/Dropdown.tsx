@@ -143,7 +143,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 				window.removeEventListener('scroll', updateCoords, true);
 			};
 		}
-	}, [usePortal, dropdownOpen]);
+	}, [usePortal, dropdownOpen, dropUp, boundaryRef]);
 
 	// Reset flip state when dropdown closes
 	useEffect(() => {
@@ -159,12 +159,15 @@ export const Dropdown = observer((properties: DropdownProps) => {
 	// useLayoutEffect fires before paint to avoid flash.
 	useLayoutEffect(() => {
 		if (usePortal && dropdownOpen && contentRef.current && coords.width > 0) {
-			// Measure against the would-be unflipped right edge so the check is
-			// stable regardless of the current flipX state. Reading rect.right
-			// after a flip reports the anchored edge instead of the natural one,
-			// which causes the dropdown to oscillate between flipped/unflipped on
-			// every scroll tick.
-			const contentWidth = contentRef.current.offsetWidth;
+			// Measure the width the content would occupy when unflipped so the check
+			// uses the same basis in both states. When unflipped the portal is given an
+			// explicit `width: coords.width` (and the content has minWidth 100%), so the
+			// rendered width is max(intrinsic, coords.width); when flipped the explicit
+			// width is dropped, so offsetWidth alone reports only the intrinsic width.
+			// Reading rect.right after a flip would report the anchored edge instead of
+			// the natural one, causing the dropdown to oscillate between flipped and
+			// unflipped on every scroll tick.
+			const contentWidth = Math.max(contentRef.current.offsetWidth, coords.width);
 			const limit = boundaryRef?.current?.getBoundingClientRect().right ?? window.innerWidth;
 			const shouldFlip = coords.left + contentWidth > limit;
 			setFlipX(shouldFlip);

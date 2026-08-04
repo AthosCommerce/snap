@@ -819,16 +819,18 @@ export class AutocompleteController extends AbstractController {
 
 			this.store.updateTrendingTerms(trending);
 		} catch (err) {
+			// clear any poisoned cache entry so the next call refetches instead of re-throwing
+			this.storage.set('terms', null);
 			this.log.error('Error fetching trending terms', err);
 		}
 	};
 
 	openChat = (): void => {
-		// loose focus
+		// lose focus
 		this.setFocused();
 
 		// fire chat send event — defaults to a 'general' request with the current input
-		window.searchspring.fire('chat/send', {
+		window.athos?.fire?.('chat/send', {
 			message: this.store.state.input,
 		});
 	};

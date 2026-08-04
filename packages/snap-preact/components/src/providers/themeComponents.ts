@@ -53,6 +53,7 @@ import type { ModalProps, ModalTemplatesLegalProps } from '../components/Molecul
 
 /* ORGANISMS */
 import type { BranchOverrideProps } from '../components/Organisms/BranchOverride';
+import type { ChatOrganismProps } from '../components/Organisms/Chat';
 import type { FacetProps, FacetTemplatesLegalProps } from '../components/Organisms/Facet';
 import type { FacetsHorizontalProps, FacetsHorizontalTemplatesLegalProps } from '../components/Organisms/FacetsHorizontal';
 import type { FacetsProps, FacetsTemplatesLegalProps } from '../components/Organisms/Facets';
@@ -185,6 +186,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'terms',
 	/* organisms */
 	'branchOverride',
+	'chat',
 	'facet',
 	'facets',
 	'facetsHorizontal',
@@ -637,6 +639,7 @@ export type ComponentTypePropsMap = {
 	variantSelection: VariantSelectionProps;
 	terms: TermsProps;
 	branchOverride: BranchOverrideProps;
+	chat: ChatOrganismProps;
 	facet: FacetProps;
 	facets: FacetsProps;
 	facetsHorizontal: FacetsHorizontalProps;

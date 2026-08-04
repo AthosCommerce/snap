@@ -64,10 +64,10 @@ export class SearchAPI extends API<SearchRequesterPaths> {
 		// /v1/products responses should not persist to sessionStorage — use the in-memory cache instead.
 		const response = await this.request<ProductsResponseModel>(
 			{
-				origin: `https://${queryParameters.siteId}.a.athoscommerce.net`,
 				path,
 				method: 'GET',
 				headers: {},
+				query: { siteId: queryParameters.siteId },
 			},
 			cacheKey,
 			this.memoryCache

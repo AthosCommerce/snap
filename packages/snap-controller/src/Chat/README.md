@@ -12,10 +12,11 @@ The `ChatController` is used for the AI-powered conversational shopping assistan
 | settings.quickview.enabled | enable the product quickview panel for chat product clicks | `false` |   |
 | settings.quickview.displayFields | array of field names to display in the product quickview panel | ➖ |   |
 | settings.bgFilters | `Record<string, string>` of background filters forwarded to the chat init API as `searchConfig.bgFilters` | ➖ |   |
+| settings.inputSelector | CSS selector used by `focusInput` to locate the chat text input | `'.ss__chat__input input[type="text"]'` |   |
 | beacon.enabled | enable or disable analytics tracking for chat events | `true` |   |
 
 ## Initialize
-The `init` method is called automatically during construction. It checks the chat status (cached in localStorage for 12 hours) to determine if chat is enabled for the current site and to populate `suggestedQuestions`, `welcomeMessage`, and `features`.
+The `init` method is invoked by the Snap integration after construction (like all other controllers, the ChatController does not initialize eagerly); if it has not been called by the time the first message is sent, `search()` initializes the controller lazily. It fires the `init` event, which checks the chat status (cached in sessionStorage for 10 minutes) to determine if chat is enabled for the current site and to populate `suggestedQuestions`, `welcomeMessage`, and `features`. Unlike other controllers, chat is never URL-driven — `init` intentionally does not subscribe the controller to URL state changes.
 
 ```js
 chatController.init();
@@ -101,7 +102,7 @@ chatController.resumePendingRequest();
 ```
 
 ## AddToCart
-Triggers the add-to-cart flow for one or more products. Fires the `addToCart` event so any registered middleware can react to it (no event is fired when the products array is empty). Takes a single Product or an array of Products as a parameter.
+Triggers the add-to-cart flow for one or more products. Tracks each product via `track.product.addToCart`, then fires the `addToCart` event so any registered middleware can react to it (a warning is logged and no event is fired when no products are provided). Takes a single Product or an array of Products as a parameter.
 
 ```js
 chatController.addToCart(result);
@@ -148,7 +149,21 @@ The controller automatically determines the request type based on the current co
 
 ### init
 - Called with `eventData` = { controller }
-- Done once automatically during construction — checks chat availability
+- Invoked when the `init` method is called — checks chat availability
+
+### beforeSearch
+- Called with `eventData` = { controller, request }
+- Invoked before a chat request is sent (asynchronous event can be awaited)
+- Middleware can cancel the request by returning `false`
+
+### afterSearch
+- Called with `eventData` = { controller, request, response }
+- Invoked after the chat API response is received, before the store is updated (asynchronous event can be awaited)
+- Middleware can cancel the store update by returning `false`
+
+### afterStore
+- Called with `eventData` = { controller, request, response }
+- Invoked after the store has been updated with the chat response (asynchronous event can be awaited)
 
 ### addToCart
 - Called with `eventData` = { controller, products }

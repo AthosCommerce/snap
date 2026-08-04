@@ -12,6 +12,14 @@ import type {
 	SuggestRequestModel,
 	ProductsRequestModel,
 	ProductsResponseModel,
+	ChatInitRequestModel,
+	ChatInitResponseModel,
+	ChatRequestModel,
+	ChatResponseModel,
+	ChatStatusRequestModel,
+	ChatStatusResponseModel,
+	UploadImageRequestModel,
+	UploadImageResponseModel,
 } from '../types';
 
 import type {
@@ -26,18 +34,9 @@ import type {
 
 import deepmerge from 'deepmerge';
 
-import {
-	ChatAPI,
-	ChatInitRequestModel,
-	ChatInitResponseModel,
-	ChatStatusRequestModel,
-	UploadImageRequestModel,
-	UploadImageResponseModel,
-	ChatRequestModel,
-	ChatStatusResponse,
-} from './apis/Chat';
+import { ChatAPI } from './apis/Chat';
 
-import { ChatResponseModel, transformSuggestResponse } from './transforms';
+import { transformSuggestResponse } from './transforms';
 
 const defaultConfig: ClientConfig = {
 	mode: AppMode.production,
@@ -135,9 +134,14 @@ export class Client {
 					headers: this.config.chat?.headers,
 					cache: this.config.chat?.cache,
 					globals: this.config.chat?.globals,
+					paths: this.config.chat?.paths,
 				})
 			),
 		};
+	}
+
+	public get siteId(): string {
+		return this.globals.siteId;
 	}
 
 	async meta(params?: MetaRequestModel): Promise<MetaResponseModel> {
@@ -203,22 +207,25 @@ export class Client {
 	}
 
 	async uploadImage(params: UploadImageRequestModel): Promise<UploadImageResponseModel> {
+		// object spread (not deepmerge) — params.image is a Blob and must not be deep-cloned
 		const mergedParams = { ...this.globals, ...params };
 		return this.requesters.chat.postUploadImage(mergedParams);
 	}
 
-	async chatStatus(params: ChatStatusRequestModel): Promise<ChatStatusResponse> {
-		return this.requesters.chat.postStatus(params);
+	async chatStatus(params: ChatStatusRequestModel): Promise<ChatStatusResponseModel> {
+		const mergedParams = deepmerge<ChatStatusRequestModel & ClientGlobals>(this.globals, params);
+		return this.requesters.chat.getStatus(mergedParams);
 	}
 
 	async chatInit(params: ChatInitRequestModel): Promise<ChatInitResponseModel> {
-		return this.requesters.chat.chatInit(params);
+		const mergedParams = deepmerge<ChatInitRequestModel & ClientGlobals>(this.globals, params);
+		return this.requesters.chat.postInit(mergedParams);
 	}
 
 	async chat(params: ChatRequestModel): Promise<{ meta: MetaResponseModel; chat: ChatResponseModel }> {
 		const mergedParams = deepmerge<ChatRequestModel & ClientGlobals>(this.globals, params);
 
-		const [meta, chat] = await Promise.all([this.meta({ siteId: this.globals.siteId || '' }), this.requesters.chat.postMessage(mergedParams)]);
+		const [meta, chat] = await Promise.all([this.meta({ siteId: mergedParams.siteId || '' }), this.requesters.chat.postMessage(mergedParams)]);
 		return { meta, chat };
 	}
 

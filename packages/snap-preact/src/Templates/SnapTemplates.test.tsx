@@ -1,6 +1,7 @@
 import { version } from '@athoscommerce/snap-toolbox';
 import {
 	createAutocompleteTargeters,
+	createChatTargeters,
 	createPlugins,
 	createSnapConfig,
 	DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS,
@@ -426,6 +427,43 @@ describe('createSnapConfig with custom plugins', () => {
 		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
 		expect(customPluginEntry).toBeDefined();
 	});
+
+	it('should pass custom plugins to chat controller config', () => {
+		const customPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+				plugins: {
+					custom: {
+						chatPlugin: {
+							function: customPluginFn,
+						},
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// Check that chat controller has plugins array with our custom plugin
+		const chatControllerConfig = snapConfig.controllers?.chat?.[0];
+		expect(chatControllerConfig).toBeDefined();
+		expect(chatControllerConfig?.config?.plugins).toBeDefined();
+
+		const plugins = chatControllerConfig?.config?.plugins || [];
+		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
+		expect(customPluginEntry).toBeDefined();
+	});
 });
 
 describe('createPlugins with built-in plugins', () => {
@@ -812,6 +850,128 @@ describe('createSnapConfig additional coverage', () => {
 
 		const searchConfig = snapConfig.controllers?.search?.[0];
 		expect(searchConfig?.config?.settings).toEqual(customSettings);
+	});
+
+	it('should not create chat controller when chat config not provided', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const snapConfig = createSnapConfig(baseConfig, templatesStore);
+
+		expect(snapConfig.controllers?.chat).toBeUndefined();
+	});
+
+	it('should create chat controller with correct id and targeters', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const chatConfig = snapConfig.controllers?.chat?.[0];
+		expect(chatConfig?.config?.id).toBe('chat');
+		expect(chatConfig?.targeters).toHaveLength(1);
+		expect(chatConfig?.targeters?.[0].selector).toBe('#chat');
+	});
+
+	it('should pass chat settings to controller config with the templates languageCode', () => {
+		const customSettings = {
+			feedbackAfterMessages: 3,
+		};
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+				settings: customSettings,
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const chatConfig = snapConfig.controllers?.chat?.[0];
+		expect(chatConfig?.config?.settings).toEqual({
+			...customSettings,
+			languageCode: templatesStore.language,
+		});
+	});
+
+	it('should pass config.mode through to the snap config', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			config: {
+				...baseConfig.config,
+				mode: 'development',
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		expect(snapConfig.mode).toBe('development');
+	});
+});
+
+describe('createChatTargeters', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('returns no targeters when chat config not provided', () => {
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		const targeters = createChatTargeters(baseConfig, templatesStore);
+
+		expect(targeters).toHaveLength(0);
+	});
+
+	it('creates a targeter for each chat target', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [
+					{ selector: '#chat', component: 'Chat' },
+					{ selector: '#chat-two', component: 'Chat' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createChatTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(2);
+		expect(targeters[0].selector).toBe('#chat');
+		expect(targeters[0].hideTarget).toBe(true);
+		expect(targeters[0].inject).toBeUndefined();
+		expect(targeters[0].component).toBeDefined();
+		expect(targeters[0].props?.templatesStore).toBe(templatesStore);
+		expect(targeters[0].props?.target).toBeDefined();
+		expect(targeters[1].selector).toBe('#chat-two');
+	});
+
+	it('injects an appended element and does not hide the target when targeting body', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [{ selector: 'body', component: 'Chat' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createChatTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(1);
+		expect(targeters[0].selector).toBe('body');
+		expect(targeters[0].hideTarget).toBe(false);
+		expect(targeters[0].inject).toBeDefined();
+		expect(targeters[0].inject?.action).toBe('append');
+
+		const element = targeters[0].inject?.element;
+		const injectedElem = typeof element == 'function' ? element(targeters[0], document.body) : element;
+		expect(injectedElem).toBeInstanceOf(HTMLDivElement);
+		expect((injectedElem as HTMLDivElement).className).toBe('ss__chat--target');
 	});
 });
 

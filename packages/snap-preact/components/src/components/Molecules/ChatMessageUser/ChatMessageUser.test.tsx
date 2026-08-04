@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
 import { ChatMessageUser } from './ChatMessageUser';
 
@@ -75,5 +76,32 @@ describe('ChatMessageUser Component', () => {
 		);
 		expect(rendered.queryByText('Searching products')).not.toBeInTheDocument();
 		expect(rendered.container.querySelector('.ss__chat-message-user__request-type')).not.toBeInTheDocument();
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(
+			<ChatMessageUser chatItem={{ id: '1', text: 'Hello there', requestType: 'general' }} controller={makeController()} className={className} />
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-user');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(
+			<ChatMessageUser chatItem={{ id: '1', text: 'Hello there', requestType: 'general' }} controller={makeController()} disableStyles={true} />
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-user');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(
+			<ChatMessageUser chatItem={{ id: '1', text: 'Hello there', requestType: 'general' }} controller={makeController()} styleScript={styleScript} />
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-user')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
 	});
 });

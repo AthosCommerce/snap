@@ -48,7 +48,7 @@ The id of the active `ChatSessionStore`. Persisted to localStorage so the active
 ## `chats` property
 An array of all `ChatSessionStore` instances. Chat history is persisted in local storage and previous conversations can be accessed here.
 
-## `chatsIds` getter
+## `chatIds` getter
 Returns an array of chat session IDs.
 
 ## `blocked` getter

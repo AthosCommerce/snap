@@ -11,10 +11,13 @@
 import * as fs from 'fs';
 import deepmerge from 'deepmerge';
 import type { MetaResponseModel, SearchResponseModel, AutocompleteResponseModel } from '@athoscommerce/snapi-types';
-import { RecommendCombinedResponseModel, ChatResponseModel, ChatStatusResponse } from '@athoscommerce/snap-client';
-
-type ChatInitResponseModel = { chatSessionId: string; sessionEndTime: string };
-type UploadImageResponseModel = { imageId: string; imageUrl: string; thumbnailUrl: string };
+import {
+	RecommendCombinedResponseModel,
+	ChatResponseModel,
+	ChatStatusResponse,
+	ChatInitResponseModel,
+	UploadImageResponseModel,
+} from '@athoscommerce/snap-client';
 
 type MockDataConfig = {
 	siteId?: string;
