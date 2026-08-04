@@ -86,3 +86,26 @@ The `onClick` prop allows for a custom callback function for when a facet value 
 ```tsx
 <FacetHierarchyOptions values={hierarchyFacet.values} onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the FacetHierarchyOptions component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `hierarchyOption` | Hierarchy option element text/attributes | `facet` (ValueFacet), `value` (FacetHierarchyValue) |
+
+### Example
+
+```tsx
+<FacetHierarchyOptions
+	values={facet.values}
+	lang={{
+		hierarchyOption: {
+			attributes: {
+				'aria-label': (data) => `${data.value.filtered ? 'selected' : 'filter by'} ${data.facet?.label} - ${data.value.label}`,
+			},
+		},
+	}}
+/>
+```

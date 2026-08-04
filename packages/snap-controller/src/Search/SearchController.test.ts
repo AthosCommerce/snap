@@ -115,7 +115,7 @@ describe('Search Controller', () => {
 		window.location = {
 			...window.location,
 			replace: jest.fn(),
-		};
+		} as unknown as string & Location;
 		(controller.client as MockClient).mockData.updateConfig({ search: 'wheel' });
 		await controller.search();
 		expect(window.location.replace).toHaveBeenCalledTimes(1);
@@ -146,7 +146,7 @@ describe('Search Controller', () => {
 		window.location = {
 			...window.location,
 			replace: jest.fn(),
-		};
+		} as unknown as string & Location;
 		(controller.client as MockClient).mockData.updateConfig({ search: '40745sk' });
 		await controller.search();
 		expect(window.location.replace).toHaveBeenCalledTimes(1);
@@ -185,7 +185,7 @@ describe('Search Controller', () => {
 		window.location = {
 			...window.location,
 			replace: jest.fn(),
-		};
+		} as unknown as string & Location;
 		(controller.client as MockClient).mockData.updateConfig({ search: 'wheel.redirectResponse.full' });
 		await controller.search();
 

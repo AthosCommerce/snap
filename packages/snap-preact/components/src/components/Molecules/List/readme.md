@@ -143,3 +143,25 @@ The `onOverflowButtonClick` prop allows for a custom callback function for when 
 ```tsx
 <List options={store.options} rows={1} columns={6} onOverflowButtonClick={(e, status, remainder)=>{console.log(e, status, remainder)}} />
 ```
+
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the List component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `title` | Optional title text above the list | `options` (ListOption[]), `selectedOptions` (ListOption[]) |
+
+### Example
+
+```tsx
+<List
+	options={options}
+	lang={{
+		title: {
+			value: 'Select an option',
+		},
+	}}
+/>
+```

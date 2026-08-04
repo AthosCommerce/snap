@@ -715,11 +715,8 @@ describe('Snap Preact', () => {
 			const client = new MockClient(searchConfig.client!.globals as ClientGlobals);
 			const snap = new Snap(searchConfig, { client });
 
-			// wait is needed due to promise usage (async)
-			await wait(200);
-
 			// after onTarget resolves element minHeight is removed
-			expect((contentElem as HTMLElement).style.minHeight).toBe('');
+			await waitFor(() => expect((contentElem as HTMLElement).style.minHeight).toBe(''));
 		});
 
 		it(`will render the component before the search resolves`, async () => {

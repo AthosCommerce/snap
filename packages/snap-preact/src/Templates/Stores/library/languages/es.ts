@@ -60,6 +60,8 @@ export const es: LangComponents = {
 	},
 	button: {},
 	search: {},
+	searchHorizontal: {},
+	searchCollapsible: {},
 	list: {},
 	radioList: {},
 	layoutSelector: {
@@ -76,6 +78,13 @@ export const es: LangComponents = {
 		titleText: {
 			value: 'Filtros',
 		},
+		applyButtonText: {
+			value: 'Aplicar',
+		},
+		clearButtonText: {
+			value: 'Borrar todo',
+		},
+		closeButtonText: {},
 	},
 	searchInput: {
 		placeholderText: {

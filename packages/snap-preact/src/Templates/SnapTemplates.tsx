@@ -42,8 +42,9 @@ import {
 	PluginAddToCartConfig,
 	pluginLogger,
 	PluginLoggerConfig,
+	pluginKlaviyoEvents,
+	PluginKlaviyoEventsConfig,
 } from '@athoscommerce/snap-platforms/common';
-
 import {
 	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -93,6 +94,7 @@ type TemplatePlugins =
 	| [typeof pluginScrollToTop, PluginScrollToTopConfig]
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
+	| [typeof pluginKlaviyoEvents, PluginKlaviyoEventsConfig]
 	// shopify
 	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
@@ -641,7 +643,6 @@ export function createPlugins(
 		templatesStore.library.import.plugins.common.backgroundFilters,
 		deepmerge(templateConfig.plugins?.common?.backgroundFilters || {}, controllerConfig?.plugins?.common?.backgroundFilters || {}),
 	]);
-
 	plugins.push([
 		templatesStore.library.import.plugins.common.scrollToTop,
 		deepmerge(templateConfig.plugins?.common?.scrollToTop || {}, controllerConfig?.plugins?.common?.scrollToTop || {}),
@@ -650,6 +651,10 @@ export function createPlugins(
 		templatesStore.library.import.plugins.common.logger,
 		deepmerge(templateConfig.plugins?.common?.logger || {}, controllerConfig?.plugins?.common?.logger || {}),
 	]);
+	const klaviyoEventsConfig = deepmerge(templateConfig.plugins?.common?.klaviyoEvents || {}, controllerConfig?.plugins?.common?.klaviyoEvents || {});
+	if (klaviyoEventsConfig?.enabled === true) {
+		plugins.push([templatesStore.library.import.plugins.common.klaviyoEvents, klaviyoEventsConfig]);
+	}
 
 	switch (templatesStore.platform) {
 		case 'shopify':
@@ -700,6 +705,7 @@ export function createPlugins(
 				templatesStore.library.import.plugins.common.addToCart,
 				deepmerge(templateConfig.plugins?.common?.addToCart || {}, controllerConfig?.plugins?.common?.addToCart || {}),
 			]);
+
 		default:
 			break;
 	}

@@ -875,9 +875,15 @@ describe('Autocomplete Controller', () => {
 		const form = inputEl!.form;
 		const beforeSubmitfn = jest.spyOn(controller.eventManager, 'fire');
 
-		form?.dispatchEvent(new Event('submit', { bubbles: true }));
-		//this timeout seems to be needed. Cant replace with waitFor
-		await new Promise((resolve) => setTimeout(resolve, INPUT_DELAY));
+		jest.useFakeTimers({ doNotFake: ['performance'] });
+		try {
+			form?.dispatchEvent(new Event('submit', { bubbles: true }));
+			// waitFor cannot assert the negative cases below, so elapse INPUT_DELAY on the fake clock instead
+			await jest.advanceTimersByTimeAsync(INPUT_DELAY);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 
 		expect(beforeSubmitfn).toHaveBeenCalledWith('beforeSubmit', {
 			controller,
@@ -914,9 +920,15 @@ describe('Autocomplete Controller', () => {
 		const beforeSubmitfn = jest.spyOn(controller.eventManager, 'fire');
 		const handlerSubmitfn = jest.spyOn(controller.handlers.input, 'formSubmit');
 
-		form?.dispatchEvent(new Event('submit', { bubbles: true }));
-		//this timeout seems to be needed. Cant replace with waitFor
-		await new Promise((resolve) => setTimeout(resolve, INPUT_DELAY));
+		jest.useFakeTimers({ doNotFake: ['performance'] });
+		try {
+			form?.dispatchEvent(new Event('submit', { bubbles: true }));
+			// waitFor cannot assert the negative cases below, so elapse INPUT_DELAY on the fake clock instead
+			await jest.advanceTimersByTimeAsync(INPUT_DELAY);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 
 		expect(beforeSubmitfn).not.toHaveBeenCalledWith('beforeSubmit', {
 			controller,
@@ -951,10 +963,16 @@ describe('Autocomplete Controller', () => {
 		const query = 'bumpers';
 		inputEl!.value = query;
 
-		inputEl!.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
+		jest.useFakeTimers({ doNotFake: ['performance'] });
+		try {
+			inputEl!.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
 
-		// this timeout seems to be needed. Cant replace with waitFor
-		await new Promise((resolve) => setTimeout(resolve, INPUT_DELAY));
+			// waitFor cannot assert the negative cases below, so elapse INPUT_DELAY on the fake clock instead
+			await jest.advanceTimersByTimeAsync(INPUT_DELAY);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 
 		expect(beforeSubmitfn).not.toHaveBeenCalledWith('beforeSubmit', {
 			controller,
@@ -1075,7 +1093,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1128,7 +1146,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1180,7 +1198,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		expect(controller.store.merchandising.redirect).toBe('https://athoscommerce.com/?redirect');
 		// change the input to a new query
@@ -1237,7 +1255,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1287,7 +1305,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl.focus();
 		inputEl.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, keyCode: KEY_ENTER }));
@@ -1358,7 +1376,7 @@ describe('Autocomplete Controller', () => {
 		window.location = {
 			...window.location,
 			href: '', // jest does not support window location changes
-		};
+		} as unknown as string & Location;
 
 		inputEl!.value = 'wh';
 		inputEl!.focus();

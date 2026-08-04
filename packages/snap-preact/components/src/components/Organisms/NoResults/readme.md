@@ -115,3 +115,30 @@ const list = [
 
 <NoResults contactsList={list} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the NoResults component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `suggestionsTitleText` | Suggestions section title | `controller` (SearchController) |
+| `suggestionsList` | Suggestions list HTML content | `controller` (SearchController) |
+| `contactsTitleText` | Contact info section title | `controller` (SearchController) |
+| `contactsList` | Contact info list HTML content | `controller` (SearchController) |
+
+### Example
+
+```tsx
+<NoResults
+	controller={controller}
+	lang={{
+		suggestionsTitleText: {
+			value: 'Try searching for:',
+		},
+		contactsTitleText: {
+			value: 'Need help? Contact us:',
+		},
+	}}
+/>
+```

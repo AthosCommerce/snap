@@ -30,6 +30,7 @@ import type {
 import type {
 	PluginAddToCartConfig,
 	PluginBackgroundFiltersConfig,
+	PluginKlaviyoEventsConfig,
 	PluginLoggerConfig,
 	PluginScrollToTopConfig,
 } from '@athoscommerce/snap-platforms/common';
@@ -140,6 +141,7 @@ export type CommonPlugins = {
 	scrollToTop?: PluginScrollToTopConfig;
 	logger?: PluginLoggerConfig;
 	addToCart?: PluginAddToCartConfig;
+	klaviyoEvents?: PluginKlaviyoEventsConfig;
 };
 export type ShopifyPlugins = {
 	backgroundFilters?: PluginShopifyBackgroundFiltersConfig;

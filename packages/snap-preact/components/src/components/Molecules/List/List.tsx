@@ -204,10 +204,14 @@ export const List = observer((properties: ListProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		options,
-		selectedOptions: selection,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			options,
+			selectedOptions: selection,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const limit = rows && columns ? columns * rows : options.length;
 	const remainder = Math.max(0, options.length - (limit - (overflowButtonInGrid ? 1 : 0)));

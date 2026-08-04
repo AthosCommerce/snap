@@ -57,6 +57,8 @@ export const fr: LangComponents = {
 	},
 	button: {},
 	search: {},
+	searchHorizontal: {},
+	searchCollapsible: {},
 	list: {},
 	radioList: {},
 	layoutSelector: {
@@ -66,6 +68,13 @@ export const fr: LangComponents = {
 		titleText: {
 			value: 'Filtres',
 		},
+		applyButtonText: {
+			value: 'Appliquer',
+		},
+		clearButtonText: {
+			value: 'Tout effacer',
+		},
+		closeButtonText: {},
 	},
 	searchInput: {
 		placeholderText: {

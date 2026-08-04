@@ -1,9 +1,10 @@
 {
 	"name": "@athoscommerce/snap-controller",
-	"version": "1.8.0",
+	"version": "1.10.0",
 	"description": "Snap Controllers",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
+	"types": "dist/esm/index.d.ts",
 	"author": "Athos Commerce",
 	"license": "MIT",
 	"repository": {
@@ -14,7 +15,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "rm -rf ./dist && rm -fr ./components/dist && tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2",
+		"build": "rm -rf ./dist && tsc",
+		"build:prod": "rm -rf ./dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "typedoc --out docs src/index.ts",
 		"dev": "tsc --watch",
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
@@ -23,18 +25,18 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-toolbox": "1.8.0",
+		"@athoscommerce/snap-toolbox": "1.10.0",
 		"css.escape": "1.5.1",
 		"deepmerge": "4.3.1"
 	},
 	"devDependencies": {
-		"@athoscommerce/snap-client": "1.8.0",
-		"@athoscommerce/snap-event-manager": "1.8.0",
-		"@athoscommerce/snap-logger": "1.8.0",
-		"@athoscommerce/snap-profiler": "1.8.0",
-		"@athoscommerce/snap-store-mobx": "1.8.0",
-		"@athoscommerce/snap-tracker": "1.8.0",
-		"@athoscommerce/snap-url-manager": "1.8.0"
+		"@athoscommerce/snap-client": "1.10.0",
+		"@athoscommerce/snap-event-manager": "1.10.0",
+		"@athoscommerce/snap-logger": "1.10.0",
+		"@athoscommerce/snap-profiler": "1.10.0",
+		"@athoscommerce/snap-store-mobx": "1.10.0",
+		"@athoscommerce/snap-tracker": "1.10.0",
+		"@athoscommerce/snap-url-manager": "1.10.0"
 	},
 	"sideEffects": false,
 	"files": [

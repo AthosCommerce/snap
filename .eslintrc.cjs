@@ -18,6 +18,16 @@ module.exports = {
 				'snap-config/validate-config': 'error',
 			},
 		},
+		{
+			// build-time webpack helpers consumed via require() by project webpack configs — must remain CommonJS
+			files: ['packages/snap-preact/webpack/**/*.js'],
+			parserOptions: {
+				sourceType: 'script',
+			},
+			rules: {
+				'@typescript-eslint/no-require-imports': 'off',
+			},
+		},
 	],
 	rules: {
 		// add rules... or dont...
@@ -35,10 +45,14 @@ module.exports = {
 		'@typescript-eslint/no-empty-function': 'error',
 		"@typescript-eslint/no-unused-vars": [
 			"error",
-			{ 
-				"varsIgnorePattern": "^(h|jsx|_+)$"
+			{
+				"varsIgnorePattern": "^(h|jsx|_+)$",
+				// typescript-eslint v8 changed the default to 'all'
+				"caughtErrors": "none"
 			}
 		],
+		// added to recommended in typescript-eslint v8; codebase relies on short-circuit expression statements
+		"@typescript-eslint/no-unused-expressions": "off",
 	},
 	settings: {
 		"preact": {

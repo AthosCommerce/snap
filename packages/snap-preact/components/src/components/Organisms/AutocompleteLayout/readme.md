@@ -168,3 +168,44 @@ The `viewportMaxHeight` prop will restrict autocomplete from overflowing the vie
 ```tsx
 <AutocompleteLayout controller={controller} input={'#searchInput'} viewportMaxHeight={true} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the AutocompleteLayout component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `facetsTitle` | Facets section title | `controller` (AutocompleteController) |
+| `contentTitle` | Content/results section title | `controller` (AutocompleteController) |
+| `closeButton` | Close button text | `controller` (AutocompleteController) |
+| `noResultsText` | No results message | `controller` (AutocompleteController) |
+| `seeMoreButton` | See more results button text | `controller` (AutocompleteController) |
+
+### Example
+
+```tsx
+<AutocompleteLayout
+	controller={controller}
+	input={'#searchInput'}
+	lang={{
+		facetsTitle: {
+			value: 'Filter By',
+		},
+		contentTitle: {
+			value: 'Products',
+		},
+		closeButton: {
+			value: 'Close',
+			attributes: {
+				'aria-label': 'close autocomplete',
+			},
+		},
+		noResultsText: {
+			value: (data) => `<p>No results found for "${data.controller?.store?.search?.query?.string}".</p>`,
+		},
+		seeMoreButton: {
+			value: (data) => `View all ${data.controller?.store?.pagination.totalResults} results`,
+		},
+	}}
+/>
+```

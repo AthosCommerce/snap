@@ -3,6 +3,44 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Bug Fixes
+
+- copy-paste error on displayName ([b575504](https://github.com/AthosCommerce/snap/commit/b57550426d878d6dd7c8d0a93295f263baaaa353))
+- **cypress:** make post-render assertions retry instead of relying on a fixed settle ([f7995ca](https://github.com/AthosCommerce/snap/commit/f7995cac171b2646932198637612b60a21a23698))
+- **cypress:** retry opening the templates autocomplete input instead of clicking once ([6243374](https://github.com/AthosCommerce/snap/commit/624337492d6f550f84a2d6271d46a163102efee0))
+- **search:** fixing tree path on slideout sidebar ([bd222ea](https://github.com/AthosCommerce/snap/commit/bd222ea7b45b01bf820b4fbf130d6516f9ace9d6))
+
+### Features
+
+- adding displayType to facet props ([58f69e9](https://github.com/AthosCommerce/snap/commit/58f69e954fc82c1ff39a9c894ad70257169388c6))
+- **facet:** adding two new props to facet for rangInputsSubmitOnBlur and hideRangeInputsSubmitButton ([bec4401](https://github.com/AthosCommerce/snap/commit/bec4401189864c2a54744e63d02f897f80d39095))
+- **pagination:** adding new props for pagination component improvements -- hidePages & ellipsisButton props ([b3bb6e1](https://github.com/AthosCommerce/snap/commit/b3bb6e14b1e15edadb03d64dc281f72236231835))
+- **preact:** adding webpack export for universal ES5 build and validation ([94e1dda](https://github.com/AthosCommerce/snap/commit/94e1dda3d47c6805c3d7fba8e326470a0d8e0877))
+- **translations:** adding activeBreakpoint to translations for responsive translation feature ([24926d3](https://github.com/AthosCommerce/snap/commit/24926d32f7db2d5ef286798b40d9b26b49ff470a))
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+- **test:** halve Jest CI time and make npm test the full-suite entry point ([7c9a3e9](https://github.com/AthosCommerce/snap/commit/7c9a3e94ed49e5b8c73a9e86aa7ad18ff5ab4e11))
+
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+### Bug Fixes
+
+- contain banners in autocomplete to prevent overflow ([9496374](https://github.com/AthosCommerce/snap/commit/949637410aab58f5457992561a300c1195507fb3))
+- **langcomponents:** adding searchHorizontal and searchCollapsible to the langComponents list ([4fd0b0d](https://github.com/AthosCommerce/snap/commit/4fd0b0d781d5c34196cc9a67332ebbed83803b5d))
+
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- add Klaviyo platform integration ([fc700c4](https://github.com/AthosCommerce/snap/commit/fc700c4ec142075740fc849befda11a6da5b27db))
+- adding docs sitemap generator and workflow adjustments around it ([54702be](https://github.com/AthosCommerce/snap/commit/54702be128ff7477b0111ba070051264cfd7dcaa))
+- adding subject to the types, tests and README for the Klaviyo plugin ([0db6e26](https://github.com/AthosCommerce/snap/commit/0db6e264b5f716591de9d879309ad85a8424720d))
+- enhance Klaviyo plugin integration with detailed usage instructions and configuration options ([eff80bc](https://github.com/AthosCommerce/snap/commit/eff80bc1b721e5cc9b7f36078e097dea0c0c8cf2))
+
 # [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
 
 ### Bug Fixes

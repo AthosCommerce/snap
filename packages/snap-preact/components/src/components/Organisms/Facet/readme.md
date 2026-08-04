@@ -160,6 +160,20 @@ The `rangeInputsInheritDefaultValues` prop enables the facet range input values 
 <Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsInheritDefaultValues={true}/>
 ```
 
+### rangeInputsSubmitOnBlur
+The `rangeInputsSubmitOnBlur` prop submits the range inputs when either input loses focus (blur).
+
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true}/>
+```
+
+### hideRangeInputsSubmitButton
+The `hideRangeInputsSubmitButton` prop hides the range inputs submit button.
+
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true} hideRangeInputsSubmitButton={true}/>
+```
+
 ### showClearAllText
 The `showClearAllText` prop specifies if the clear all text should render.
 
@@ -261,6 +275,33 @@ const displayProp = {
 <Facet facet={controller.store.facets[0]} display={displayProp} />
 ```
 
+### displayType
+The `displayType` prop overrides the display type provided by the meta API, changing which options component the facet renders with. Accepts `'list'`, `'grid'`, or `'palette'` — only these display types are interchangeable. If the facet's API display type is not one of these (eg. `'slider'`, `'hierarchy'`), or the override value is not one of these, the prop is ignored and the API display type is used. Note that while a `'palette'` facet can be displayed as any of the other types, fields not intended for palette display may not render well as a palette (option values are used as swatch colors).
+
+```tsx
+<Facet facet={controller.store.facets[0]} displayType={'list'} />
+```
+
+When using Snap Templates, `displayType` can be set via theme overrides — including responsively per breakpoint and scoped to a specific component tree. For example, to render autocomplete facets as a list across all breakpoints while keeping the API display type (eg. `palette`) on desktop and everywhere in search:
+
+```typescript
+new SnapTemplates({
+	config: {
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					'autocompleteFixed facet': {
+						displayType: 'list',
+					},
+				},
+			},
+		},
+	},
+	// ...
+});
+```
+
 ### optionsSlot
 The `optionsSlot` prop is a JSX element used to manually set the options component used, regardless of the facet.display type. Returns the facet,valueProps, limit, & previewOnFocus prop values.
 
@@ -299,4 +340,40 @@ The `horizontal` prop renders the facet horizontally.
 
 ```tsx
 <Facet facet={controller.store.facets[0]}  horizontal={true} />
+```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Facet component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `showMoreText` | Show more options button text | `facet` (ValueFacet \| RangeFacet) |
+| `showLessText` | Show less options button text | `facet` (ValueFacet \| RangeFacet) |
+| `dropdownButton` | Facet dropdown toggle button attributes | `facet` (ValueFacet \| RangeFacet) |
+| `clearAllText` | Clear all selections button text | `facet` (ValueFacet \| RangeFacet) |
+| `submitRangeButton` | Range input submit button text | `facet` (ValueFacet \| RangeFacet) |
+
+### Example
+
+```tsx
+<Facet
+	facet={controller.store.facets[0]}
+	lang={{
+		showMoreText: {
+			value: (data) => `Show more ${data.facet.label} options`,
+		},
+		showLessText: {
+			value: 'Show fewer options',
+		},
+		dropdownButton: {
+			attributes: {
+				'aria-label': (data) => `${data.facet.collapsed ? 'expand' : 'collapse'} ${data.facet.label} filter`,
+			},
+		},
+		clearAllText: {
+			value: 'Clear filters',
+		},
+	}}
+/>
 ```
