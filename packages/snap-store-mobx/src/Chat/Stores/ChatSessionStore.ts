@@ -631,6 +631,7 @@ export class ChatSessionStore {
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {
 			const searchFilters = request.data.searchFilters;
+			const message = 'message' in request.data ? (request.data as { message?: string }).message : undefined;
 			if (request.data.searchTerm) {
 				// for when a query is clicked from ChatInspirationResultMessage — the
 				// query text is the message even when section filters are attached
@@ -638,6 +639,17 @@ export class ChatSessionStore {
 					id: uuidv4(),
 					messageType: 'user',
 					text: request.data.searchTerm,
+					requestType: request.data.requestType,
+					request: request.data, // request is added here to conditionally display different text in MessageUser
+				});
+			} else if (message) {
+				// facet changes promote a typed message to productSearch (possibly with
+				// searchFilters: [] when all filters were cleared) — the typed text is
+				// the message; any filters still render from the attached request
+				this.chat.push({
+					id: uuidv4(),
+					messageType: 'user',
+					text: message,
 					requestType: request.data.requestType,
 					request: request.data, // request is added here to conditionally display different text in MessageUser
 				});

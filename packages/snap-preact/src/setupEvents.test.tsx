@@ -344,6 +344,18 @@ describe('setupEvents', () => {
 			expect(productQuerySpy).not.toHaveBeenCalled();
 			expect(openChatSpy).not.toHaveBeenCalled();
 		});
+
+		it('opens the chat before dispatching the product query', () => {
+			// openChat replaces an expired session with a fresh chat — it must run
+			// first or the attachment added by productQuery is discarded with it
+			const order: string[] = [];
+			openChatSpy.mockImplementationOnce(() => order.push('openChat'));
+			productQuerySpy.mockImplementationOnce(() => order.push('productQuery'));
+
+			eventManager.fire('chat/productQuery', { result: { id: 'product123' } });
+
+			expect(order).toEqual(['openChat', 'productQuery']);
+		});
 	});
 
 	describe('chat/productSimilar', () => {
@@ -366,6 +378,18 @@ describe('setupEvents', () => {
 
 			expect(productSimilarSpy).not.toHaveBeenCalled();
 			expect(openChatSpy).not.toHaveBeenCalled();
+		});
+
+		it('opens the chat before dispatching the similar-products search', () => {
+			// openChat replaces an expired session with a fresh chat — it must run
+			// first or the search productSimilar fires targets the discarded session
+			const order: string[] = [];
+			openChatSpy.mockImplementationOnce(() => order.push('openChat'));
+			productSimilarSpy.mockImplementationOnce(() => order.push('productSimilar'));
+
+			eventManager.fire('chat/productSimilar', { result: { id: 'product123' } });
+
+			expect(order).toEqual(['openChat', 'productSimilar']);
 		});
 	});
 });

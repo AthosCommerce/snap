@@ -54,10 +54,6 @@ export const ChatLoadingIndicator = (properties: ChatLoadingIndicatorProps) => {
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatLoadingIndicator', props);
 
-	if (!shouldRenderDefault) {
-		return overrideElement;
-	}
-
 	//initialize lang
 	const defaultLang: Partial<ChatLoadingIndicatorLang> = {
 		thinkingVerb: { value: 'Thinking' },
@@ -100,6 +96,12 @@ export const ChatLoadingIndicator = (properties: ChatLoadingIndicatorProps) => {
 		scheduleNext();
 		return () => clearTimeout(timeoutId);
 	}, [loading, verbsKey]);
+
+	// after all hooks — an override that resolves or fails mid-lifecycle must not
+	// change the hook count between renders
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	const styling = mergeStyles<ChatLoadingIndicatorProps>(props, defaultStyles);
 

@@ -112,8 +112,10 @@ export const setupEvents = () => {
 		});
 
 		controllers.map((controller) => {
-			(controller as ChatController).productQuery(result);
+			// openChat first — it replaces an expired session with a fresh chat,
+			// which would otherwise discard the attachment productQuery adds
 			(controller as ChatController).openChat();
+			(controller as ChatController).productQuery(result);
 		});
 
 		await next();
@@ -127,8 +129,10 @@ export const setupEvents = () => {
 		});
 
 		controllers.map((controller) => {
-			(controller as ChatController).productSimilar(result);
+			// openChat first — it replaces an expired session with a fresh chat,
+			// which would otherwise orphan the search productSimilar fires
 			(controller as ChatController).openChat();
+			(controller as ChatController).productSimilar(result);
 		});
 
 		await next();

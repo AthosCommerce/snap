@@ -198,6 +198,10 @@ export class ChatController extends AbstractController {
 		const { userId, sessionId, shopperId } = this.tracker.getContext();
 		let chat: ChatSessionStore | undefined;
 
+		// capture the chat this init belongs to — the user may switch chats while
+		// chatInit is in flight, and the new session must not attach to that chat
+		const chatAtRequest = this.store.currentChat;
+
 		try {
 			this.store.initChatLoading = true;
 			const bgFilters = this.config.settings?.bgFilters;
@@ -214,11 +218,11 @@ export class ChatController extends AbstractController {
 			});
 			if (response) {
 				const sessionEndTime = response.sessionEndTime ? new Date(response.sessionEndTime) : undefined;
-				if (this.store.currentChat && !this.store.currentChat.sessionId) {
-					this.store.currentChat.sessionId = response.chatSessionId;
-					this.store.currentChat.sessionEndTime = sessionEndTime;
-					this.store.currentChat.save();
-					chat = this.store.currentChat;
+				if (chatAtRequest && !chatAtRequest.sessionId) {
+					chatAtRequest.sessionId = response.chatSessionId;
+					chatAtRequest.sessionEndTime = sessionEndTime;
+					chatAtRequest.save();
+					chat = chatAtRequest;
 				} else {
 					chat = this.store.createChat({ sessionId: response.chatSessionId, sessionEndTime });
 				}
@@ -867,6 +871,12 @@ export class ChatController extends AbstractController {
 
 			afterSearchProfile.stop();
 			this.log.profile(afterSearchProfile);
+
+			// re-check after awaiting afterSearch middleware — the user may have
+			// switched chats while it ran, and update() writes to the current chat
+			if (this.store.currentChat?.id !== requestChatId) {
+				return;
+			}
 
 			this.store.update(response);
 			this.store.currentChat?.setPendingRequest(null);

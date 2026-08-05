@@ -119,6 +119,43 @@ describe('ChatSessionStore productSearch request messages', () => {
 		expect(store.chat.length).toBe(1);
 		expect((store.chat[0] as any).text).toBe('Filter by product_type Benches');
 	});
+
+	it('uses the typed message as the text when searchFilters are empty', () => {
+		const store = createStore();
+		// clearing all applied filters promotes the request to productSearch with
+		// searchFilters: [] while preserving the user's typed message
+		store.request({
+			context: {},
+			data: {
+				requestType: 'productSearch',
+				message: 'show me jackets',
+				searchFilters: [],
+			},
+			tracking: {},
+		} as any);
+
+		expect(store.chat.length).toBe(1);
+		expect(store.chat[0].messageType).toBe('user');
+		expect((store.chat[0] as any).text).toBe('show me jackets');
+	});
+
+	it('uses the typed message as the text when searchFilters are also present', () => {
+		const store = createStore();
+		store.request({
+			context: {},
+			data: {
+				requestType: 'productSearch',
+				message: 'show me jackets',
+				searchFilters: [{ key: 'product_type', options: [{ key: 'Benches' }] }],
+			},
+			tracking: {},
+		} as any);
+
+		expect(store.chat.length).toBe(1);
+		expect((store.chat[0] as any).text).toBe('show me jackets');
+		// the request stays attached so the filters still render on the message
+		expect((store.chat[0] as any).request.searchFilters.length).toBe(1);
+	});
 });
 
 describe('ChatSessionStore badge persistence', () => {

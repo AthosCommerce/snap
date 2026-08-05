@@ -57,10 +57,6 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatResultsDisplay', props);
 
-	if (!shouldRenderDefault) {
-		return overrideElement;
-	}
-
 	const currentChat = controller.store.currentChat;
 	const activeMessage = currentChat?.activeMessage;
 	const isSideChatOpen =
@@ -74,6 +70,12 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 	const isTabletRange = useMediaQuery('(min-width: 768px) and (max-width: 1200px)');
 	const isConstrained = !isNarrow && isSideChatOpen && isTabletRange;
 	const slidesToShow = isNarrow || isConstrained ? 1.9 : 2.9;
+
+	// after all hooks — an override that resolves or fails mid-lifecycle must not
+	// change the hook count between renders
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	const subProps: ChatResultsDisplaySubProps = {
 		slideshow: {

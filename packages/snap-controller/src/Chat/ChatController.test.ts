@@ -387,6 +387,67 @@ describe('Chat Controller', () => {
 		});
 	});
 
+	describe('chat switching during in-flight requests', () => {
+		it('does not apply a response to a chat the user switched to during afterSearch middleware', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'show me dresses';
+
+			let releaseAfterSearch!: () => void;
+			let notifyAfterSearchStarted!: () => void;
+			const afterSearchStarted = new Promise<void>((resolve) => (notifyAfterSearchStarted = resolve));
+			controller.on('afterSearch', async (_data, next: Next) => {
+				notifyAfterSearchStarted();
+				await new Promise<void>((resolve) => (releaseAfterSearch = resolve));
+				await next();
+			});
+
+			const searchPromise = controller.search();
+			await afterSearchStarted;
+
+			// user starts a new chat while afterSearch middleware is still running
+			const chatB = controller.store.createChat();
+
+			releaseAfterSearch();
+			await searchPromise;
+
+			// the response — and its sessionId — must not be applied to the new chat
+			expect(chatB.chat.length).toBe(0);
+			expect(chatB.sessionId).toBeUndefined();
+			expect(chatA.id).not.toBe(chatB.id);
+		});
+
+		it('attaches the initialized session to the chat that requested it, not a chat switched to mid-flight', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = true;
+			const chatA = controller.store.createChat();
+
+			let releaseInit!: () => void;
+			let notifyInitStarted!: () => void;
+			const initStarted = new Promise<void>((resolve) => (notifyInitStarted = resolve));
+			const originalChatInit = controller.client.chatInit.bind(controller.client);
+			controller.client.chatInit = jest.fn(async (params) => {
+				notifyInitStarted();
+				await new Promise<void>((resolve) => (releaseInit = resolve));
+				return originalChatInit(params);
+			});
+
+			const startPromise = controller.startNewChat();
+			await initStarted;
+
+			// user starts a new chat while chatInit is still in flight
+			const chatB = controller.store.createChat();
+
+			releaseInit();
+			const chat = await startPromise;
+
+			expect(chat?.id).toBe(chatA.id);
+			expect(chatA.sessionId).toBe('test-session-001');
+			expect(chatB.sessionId).toBeUndefined();
+		});
+	});
+
 	describe('request preparation', () => {
 		it('prevents search when chat is disabled', async () => {
 			const controller = createController();

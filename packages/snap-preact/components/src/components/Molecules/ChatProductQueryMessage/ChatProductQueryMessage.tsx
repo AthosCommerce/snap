@@ -472,10 +472,6 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatProductQueryMessage', props);
 
-	if (!shouldRenderDefault) {
-		return overrideElement;
-	}
-
 	const subProps: ChatProductQueryMessageSubProps = {
 		button: {
 			disableStyles,
@@ -525,6 +521,12 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 			}
 		});
 	}, [selections]);
+
+	// after all hooks — an override that resolves or fails mid-lifecycle must not
+	// change the hook count between renders
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	//initialize lang
 	const defaultLang: Partial<ChatProductQueryMessageLang> = {
