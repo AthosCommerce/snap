@@ -207,6 +207,33 @@ describe('ChatOrganism Component', () => {
 			expect(chat).toHaveClass(propTheme.components.chat.className);
 		});
 
+		it('falls back to default colors when theme variables are contextual keywords like currentColor', () => {
+			// the base templates theme defines colors as 'currentColor' when unconfigured; those
+			// must not defeat the chat's fallback colors (background: currentColor paints the
+			// text color and makes the header/bubble white-on-white)
+			const globalTheme = {
+				variables: {
+					colors: {
+						primary: 'currentColor',
+						secondary: 'currentColor',
+						accent: 'currentColor',
+					},
+				},
+			};
+			render(
+				<ThemeProvider theme={globalTheme as any}>
+					<ChatOrganism controller={makeController({ open: true })} />
+				</ThemeProvider>
+			);
+			// emotion injects via CSSOM insertRule, so rules are only readable through styleSheets
+			const styles = Array.from(document.styleSheets)
+				.flatMap((sheet) => Array.from(sheet.cssRules))
+				.map((rule) => rule.cssText)
+				.join('');
+			expect(styles).toMatch(/#253B80|rgb\(37, 59, 128\)/i);
+			expect(styles.toLowerCase()).not.toContain('currentcolor');
+		});
+
 		it('is theme prop overrides ThemeProvider', () => {
 			const globalTheme = {
 				components: {

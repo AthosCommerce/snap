@@ -5,14 +5,14 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
 
 const defaultStyles: StyleScript<ChatAttachmentContextProps> = ({ theme }) => {
-	const colorPrimary = theme?.variables?.colors?.primary || '#253B80';
+	const colorPrimary = Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	return css({
 		'.ss__chat-attachment-context__label': {
 			display: 'flex',

@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
@@ -15,7 +15,7 @@ import { Button, ButtonProps } from '../../Atoms/Button';
 import { Slideshow, SlideshowProps, SlideshowSlide } from '../Slideshow';
 
 const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = ({ theme }) => {
-	const colorPrimary = theme?.variables?.colors?.primary || '#253B80';
+	const colorPrimary = Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	return css({
 		'.ss__chat-inspiration-result-message__inspiration-sections': {
 			display: 'flex',

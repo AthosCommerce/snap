@@ -4,7 +4,7 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { useCustomComponentOverride } from '../../../hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -13,7 +13,7 @@ import type { ChatController } from '@athoscommerce/snap-controller';
 import type { ChatResponseActionsData } from '@athoscommerce/snap-client';
 
 const defaultStyles: StyleScript<ChatSuggestedQuestionsProps> = ({ primaryColor, theme }) => {
-	const colorPrimary = primaryColor || theme?.variables?.colors?.primary || '#253B80';
+	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	return css({
 		display: 'flex',
 		flexDirection: 'column',

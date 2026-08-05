@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath, withTracking } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -17,7 +17,7 @@ import type { ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 
 const defaultStyles: StyleScript<ChatResultProps> = ({ theme }) => {
-	const colorCta = theme?.variables?.colors?.accent || '#feeeae';
+	const colorCta = Colour.concrete(theme?.variables?.colors?.accent) || '#feeeae';
 	return css({
 		display: 'flex',
 		flexDirection: 'column',

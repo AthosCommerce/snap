@@ -69,4 +69,16 @@ describe('ChatSuggestedQuestions Component', () => {
 		const root = rendered.container.querySelector('.ss__chat-suggested-questions')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
 	});
+
+	it('falls back to the default primary color when the theme color is currentColor', () => {
+		const theme = { variables: { colors: { primary: 'currentColor' } } };
+		render(<ChatSuggestedQuestions controller={makeController()} questions={['Hello']} theme={theme as any} />);
+		const styles = Array.from(document.styleSheets)
+			.flatMap((sheet) => Array.from(sheet.cssRules))
+			.map((rule) => rule.cssText)
+			.filter((cssText) => cssText.includes('ss__chat-suggested-questions'))
+			.join('');
+		expect(styles).toMatch(/#253B80|rgb\(37, 59, 128\)/i);
+		expect(styles.toLowerCase()).not.toContain('currentcolor');
+	});
 });

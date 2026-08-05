@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
@@ -16,10 +16,10 @@ import { Price } from '../../Atoms/Price';
 import type { Product, VariantSelection } from '@athoscommerce/snap-store-mobx';
 
 const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor, primaryColorText, theme }) => {
-	const colorPrimary = primaryColor || theme?.variables?.colors?.primary || '#253B80';
+	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	const colorPrimaryText = primaryColorText || '#fff';
-	const colorAccent = theme?.variables?.colors?.accent || '#D4A843';
-	const colorCta = theme?.variables?.colors?.accent || '#feeeae';
+	const colorAccent = Colour.concrete(theme?.variables?.colors?.accent) || '#D4A843';
+	const colorCta = Colour.concrete(theme?.variables?.colors?.accent) || '#feeeae';
 	// neutral colors — no theme variable equivalents
 	const colorText = '#374151';
 	const colorBorder = '#E5E7EB';

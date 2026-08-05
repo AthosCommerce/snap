@@ -7,7 +7,7 @@ import DOMPurify from 'dompurify';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -22,7 +22,7 @@ import type {
 } from '@athoscommerce/snap-client';
 
 const defaultStyles: StyleScript<ChatMessageTextProps> = ({ primaryColor, primaryColorText, theme }) => {
-	const colorPrimary = primaryColor || theme?.variables?.colors?.primary || '#253B80';
+	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	const colorPrimaryText = primaryColorText || '#fff';
 	return css({
 		display: 'flex',
