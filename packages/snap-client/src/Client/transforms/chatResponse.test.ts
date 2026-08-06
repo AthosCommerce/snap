@@ -337,7 +337,16 @@ describe('transformChatResponse.actions', () => {
 			messageType: 'actions',
 			actions: [
 				{ message: 'Show me dresses', request: { requestType: 'productSearch', searchTerm: 'dresses' } },
-				{ message: 'Compare these', request: { requestType: 'productComparison', productIds: ['1', '2'] } },
+				{
+					message: 'Compare these',
+					request: {
+						requestType: 'productComparison',
+						productIdentities: [
+							{ parentId: 'parent-1', productId: '1' },
+							{ parentId: 'parent-2', productId: '2' },
+						],
+					},
+				},
 			],
 		};
 
