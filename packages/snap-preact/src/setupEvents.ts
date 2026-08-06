@@ -23,7 +23,7 @@ type ControllerChatSendBase = {
 	controllerIds?: (string | RegExp)[];
 };
 
-/** Payload for the `chat/send` global event. Carries an optional chat request to fire
+/** Payload for the `controller/chat/send` global event. Carries an optional chat request to fire
  * after opening the chat. The request shape is the same discriminated union the controller
  * uses internally — `requestType` may be omitted, in which case it defaults to `'general'`
  * when a `message` is supplied. */
@@ -81,7 +81,7 @@ export const setupEvents = () => {
 		await next();
 	});
 
-	eventManager.on('chat/send', async (data: ControllerChatSendData, next: Next) => {
+	eventManager.on('controller/chat/send', async (data: ControllerChatSendData, next: Next) => {
 		const { controllerIds, ...payload } = (data || {}) as ControllerChatSendData & { [key: string]: any };
 
 		const controllers = matchControllers(controllerIds).filter((controller) => {
@@ -104,7 +104,7 @@ export const setupEvents = () => {
 		await next();
 	});
 
-	eventManager.on('chat/productQuery', async (data: ControllerChatProductActionData, next: Next) => {
+	eventManager.on('controller/chat/productQuery', async (data: ControllerChatProductActionData, next: Next) => {
 		const { controllerIds, result } = data || {};
 
 		const controllers = matchControllers(controllerIds).filter((controller) => {
@@ -121,7 +121,7 @@ export const setupEvents = () => {
 		await next();
 	});
 
-	eventManager.on('chat/productSimilar', async (data: ControllerChatProductActionData, next: Next) => {
+	eventManager.on('controller/chat/productSimilar', async (data: ControllerChatProductActionData, next: Next) => {
 		const { controllerIds, result } = data || {};
 
 		const controllers = matchControllers(controllerIds).filter((controller) => {

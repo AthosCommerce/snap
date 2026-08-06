@@ -1,5 +1,3 @@
-// TODO: implement
-// how should localStorage be handled for attachments?
 import { v4 as uuidv4 } from 'uuid';
 import { makeObservable, observable, computed } from 'mobx';
 import { CHAT_COMPARISON_MAX } from './ChatCompareStore';
@@ -13,8 +11,12 @@ export type ChatAttachmentAddAttachment = ChatAttachmentImageConfig | ChatAttach
 
 export class ChatAttachmentStore {
 	public items: ChatAttachments[] = [];
+	/** Mirrors ChatCompareStore.maxItems so the attachment bar and the comparison tray agree. */
+	private maxProducts: number;
 
-	constructor() {
+	constructor(maxProducts: number = CHAT_COMPARISON_MAX) {
+		this.maxProducts = maxProducts;
+
 		makeObservable(this, {
 			items: observable,
 			attached: computed,
@@ -62,7 +64,6 @@ export class ChatAttachmentStore {
 					return newAttachment as T;
 				}
 
-				// For 'productQuery' or 'productComparison', continue with existing logic
 				// if there are currently any other attachments remove them
 				[...this.items].forEach((item) => {
 					if (item.type !== 'product') {
@@ -83,10 +84,10 @@ export class ChatAttachmentStore {
 					return existingProductAttachment as T;
 				}
 
-				// productComparison supports up to CHAT_COMPARISON_MAX products (matches ChatCompareStore.maxItems);
+				// productComparison supports up to maxProducts (matches ChatCompareStore.maxItems);
 				// trim oldest active/attached product attachments to keep total below the cap.
 				const productAttachments = this.items.filter((item) => item.type === 'product' && (item.state === 'active' || item.state === 'attached'));
-				while (productAttachments.length >= CHAT_COMPARISON_MAX) {
+				while (productAttachments.length >= this.maxProducts) {
 					const toRemove = productAttachments.pop();
 					if (toRemove) {
 						this.remove(toRemove.id);

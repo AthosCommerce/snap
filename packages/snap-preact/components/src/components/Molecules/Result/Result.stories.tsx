@@ -221,7 +221,8 @@ export default {
 			},
 		},
 		onDiscussClick: {
-			description: 'function to run on discuss product button click (defaults to firing the chat/productQuery event on the athos event bus)',
+			description:
+				'function to run on discuss product button click (defaults to firing the controller/chat/productQuery event on the athos event bus)',
 			table: {
 				category: 'Templates Legal',
 				type: {

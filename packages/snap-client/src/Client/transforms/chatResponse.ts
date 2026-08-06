@@ -29,8 +29,9 @@ import type {
 	MoiResponseModelText,
 	MoiResponseModelError,
 	MoiResponseModelTopicDrift,
+	RawResult,
 } from '../../types';
-import { RawResult, SearchResponseType, transformSearchResponse } from './searchResponse';
+import { SearchResponseType, transformSearchResponse } from './searchResponse';
 
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
 	if (!response.data || response.data.length === 0) {
@@ -125,7 +126,7 @@ transformChatResponse.productData = (data: MoiResponseModelProductSearchResult, 
 		// specific
 		text: data.text,
 		results: data.searchResult?.results?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
-		facets: mapFacetToSearchResultFacets(data.searchResult),
+		facets: transformChatResponse.facets(data.searchResult),
 		filterSummary: data.searchResult?.filterSummary || [],
 	};
 };
@@ -196,7 +197,7 @@ transformChatResponse.productRecommendation = (
 
 		recommendationResult: data.recommendationResult?.map((rec) => ({
 			...rec,
-			results: rec.results?.map((result) => ({ ...result, responseId })) as SearchResponseModelResult[],
+			results: rec.results?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
 		})),
 		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct, responseId),
 		text: data.text,
@@ -252,13 +253,14 @@ const parseRangeBounds = (value: any): { low: number | undefined; high: number |
 	return null;
 };
 
-const mapFacetToSearchResultFacets = (searchResult: MoiResponseModelSearchResult): SearchResponseModelFacet[] => {
+transformChatResponse.facets = (searchResult: MoiResponseModelSearchResult): SearchResponseModelFacet[] => {
 	const facets = searchResult?.facets || [];
 	const transformedFacets = facets.map((facet) => {
 		const transformedFacet: any = {
 			field: facet.field,
 			label: facet.label,
 			type: 'value',
+			filtered: (facet.values || []).some((value: any) => value.active),
 		};
 
 		// Continuous slider (e.g. price) — upstream sends `type: 'slider'` with

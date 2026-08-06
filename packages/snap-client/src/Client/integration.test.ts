@@ -117,10 +117,10 @@ describe('Snap Client Integration Tests', () => {
 			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation((url: any) => {
 				const urlStr = typeof url === 'string' ? url : url.toString();
 				if (urlStr.includes('/v1/search')) {
-					return Promise.resolve({ status: 200, json: () => Promise.resolve(mockLegacySearchResponse), headers: new Headers() } as Response);
+					return Promise.resolve({ status: 200, json: () => Promise.resolve(mockLegacySearchResponse) } as Response);
 				}
 				// meta calls (/v1/meta) and beacon/tracker calls all return empty objects
-				return Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response);
+				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
 			});
 
 			const controller = new SearchController(searchConfig, {
@@ -175,7 +175,7 @@ describe('Snap Client Integration Tests', () => {
 		it('Cache can be disabled via requester configs', async () => {
 			// mock fetch - all responses return empty objects
 			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation(() => {
-				return Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response);
+				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
 			});
 
 			// Directly test the Client (not the full SearchController stack) to verify that
@@ -224,7 +224,7 @@ describe('Snap Client Integration Tests', () => {
 		it('Cache can be disabled via client mode', async () => {
 			// mock fetch - all responses return empty objects
 			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation(() => {
-				return Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response);
+				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
 			});
 
 			// Directly test the Client (not the full SearchController stack) to verify that

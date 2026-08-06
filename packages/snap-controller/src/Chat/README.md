@@ -83,7 +83,7 @@ chatController.compareProduct(result2);
 ```
 
 ## OpenChat
-Opens the chat UI. Optionally accepts an initial message to start a conversation immediately. With no message, a new chat session is created if none exists and the input is focused. If the persisted active session has expired (past the `sessionEndTime` returned by `chatInit`) a fresh session is created so the user lands in a usable chat rather than the expired placeholder. If the reopened session has a pending (unanswered) request, it is resumed — see [ResumePendingRequest](#resumependingrequest). Also exposed as the global event `chat/send` (fire via `window.athos.fire('chat/send', { message })`).
+Opens the chat UI. Optionally accepts an initial message to start a conversation immediately. With no message, a new chat session is created if none exists and the input is focused. If the persisted active session has expired (past the `sessionEndTime` returned by `chatInit`) a fresh session is created so the user lands in a usable chat rather than the expired placeholder. If the reopened session has a pending (unanswered) request, it is resumed — see [ResumePendingRequest](#resumependingrequest). Also exposed as the global event `controller/chat/send` (fire via `window.athos.fire('controller/chat/send', { message })`).
 
 ```js
 chatController.openChat();
@@ -95,7 +95,7 @@ chatController.openChat('I am looking for running shoes');
 ## ResumePendingRequest
 Re-sends a request that was in flight when the user navigated away before the response arrived. While a request is being sent, its data is persisted on the current session as `pendingRequest` and cleared once the response (or an error surfaced to the user) comes back. On the next page the session rehydrates from storage with that pending request intact, and reopening the chat — via `openChat()` or the bubble toggle — resumes it: the request data is re-sent verbatim without pushing a new user message (the original message is already in the persisted history).
 
-The resume is a no-op when there is nothing pending, a request is already loading, or the session has expired. It is also deferred one tick so an explicit send issued while opening (the `chat/send` flow calls `openChat()` then `search()` in the same tick) takes priority over the resume.
+The resume is a no-op when there is nothing pending, a request is already loading, or the session has expired. It is also deferred one tick so an explicit send issued while opening (the `controller/chat/send` flow calls `openChat()` then `search()` in the same tick) takes priority over the resume.
 
 ```js
 chatController.resumePendingRequest();

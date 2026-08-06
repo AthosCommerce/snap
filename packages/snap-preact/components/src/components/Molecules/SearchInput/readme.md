@@ -102,7 +102,7 @@ const buttonProps = {
 ```
 
 ### chatButton
-The `chatButton` prop specifies props to pass to the open chat button component. Takes any `Button` component props. 
+The `chatButton` prop specifies props to pass to the open chat button component. Takes any `Button` component props. The button only renders when an `icon` is supplied, so sites without chat are unaffected.
 
 ```jsx
 const buttonProps = {
@@ -125,6 +125,13 @@ The `hideClearSearchButton` prop hides the clear search button.
 
 ```tsx
 <SearchInput hideClearSearchButton={true} />
+```
+
+### hideChatButton
+The `hideChatButton` prop hides the open chat button.
+
+```jsx
+<SearchInput hideChatButton={true} />
 ```
 
 ### hideCloseSearchButton

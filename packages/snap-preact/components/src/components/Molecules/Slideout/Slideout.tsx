@@ -101,7 +101,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	isActiveRef.current = isActive;
 
 	const toggleActive = (force?: boolean) => {
-		const next = typeof force !== 'undefined' ? force : !isActiveRef.current;
+		const next = typeof force === 'boolean' ? force : !isActiveRef.current;
 		setActive(next);
 		if (next) {
 			setRenderContent(true);

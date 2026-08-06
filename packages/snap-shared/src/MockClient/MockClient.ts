@@ -1,5 +1,5 @@
 import type { MetaResponseModel, SearchResponseModel, AutocompleteResponseModel } from '@athoscommerce/snapi-types';
-import { Client, ClientGlobals, ClientConfig, TrendingResponseModel, ChatResponseModel, ChatStatusResponse } from '@athoscommerce/snap-client';
+import { Client, ClientGlobals, ClientConfig, TrendingResponseModel, ChatResponseModel, ChatStatusResponseModel } from '@athoscommerce/snap-client';
 import { MockData } from '../MockData/MockData';
 
 /*
@@ -76,7 +76,7 @@ export class MockClient extends Client {
 		return this.mockData.chatMeta();
 	}
 
-	async chatStatus(): Promise<ChatStatusResponse> {
+	async chatStatus(): Promise<ChatStatusResponseModel> {
 		if (this.mockConfig.delay) await wait(this.mockConfig.delay);
 
 		return this.mockData.chatStatus();

@@ -605,8 +605,8 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 				id: 'chat',
 				plugins: createPlugins(templateConfig, templatesStore, 'chat'),
 				settings: {
-					...(templateConfig.chat.settings || {}),
 					languageCode: templatesStore.language,
+					...(templateConfig.chat.settings || {}),
 				},
 			},
 			targeters: createChatTargeters(templateConfig, templatesStore),
@@ -629,10 +629,14 @@ export function createPlugins(
 		controllerConfig = templateConfig[controllerType] || {};
 	}
 
-	plugins.push([
-		templatesStore.library.import.plugins.common.backgroundFilters,
-		deepmerge(templateConfig.plugins?.common?.backgroundFilters || {}, controllerConfig?.plugins?.common?.backgroundFilters || {}),
-	]);
+	// backgroundFilters writes `config.globals.filters`, which the chat endpoint has no
+	// field for — chat carries background filters via `settings.bgFilters` instead
+	if (controllerType !== 'chat') {
+		plugins.push([
+			templatesStore.library.import.plugins.common.backgroundFilters,
+			deepmerge(templateConfig.plugins?.common?.backgroundFilters || {}, controllerConfig?.plugins?.common?.backgroundFilters || {}),
+		]);
+	}
 	plugins.push([
 		templatesStore.library.import.plugins.common.scrollToTop,
 		deepmerge(templateConfig.plugins?.common?.scrollToTop || {}, controllerConfig?.plugins?.common?.scrollToTop || {}),

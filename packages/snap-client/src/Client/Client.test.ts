@@ -129,6 +129,11 @@ describe('Snap Client', () => {
 		expect(client.products).toBeDefined();
 	});
 
+	it('has a public siteId accessor', () => {
+		const client = new Client({ siteId: '8uyt2m' });
+		expect(client.siteId).toBe('8uyt2m');
+	});
+
 	describe('each fetch method uses the expected requester', () => {
 		beforeEach(() => {
 			jest.useFakeTimers({ doNotFake: ['performance'] });
@@ -600,11 +605,6 @@ describe('Snap Client', () => {
 
 			expect(fetchApiMock).toHaveBeenCalledTimes(1);
 			fetchApiMock.mockReset();
-		});
-
-		it('has a public siteId accessor', () => {
-			const client = new Client({ siteId: '8uyt2m' });
-			expect(client.siteId).toBe('8uyt2m');
 		});
 
 		describe('with custom fetchApi', () => {

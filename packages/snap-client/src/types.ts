@@ -6,12 +6,45 @@ import type {
 	MetaResponseModel,
 	SearchResponseModelResultCoreMappings,
 	SearchResponseModelResultVariants,
-	SearchResponseModelResultVariantsData,
+	SearchResponseModelResultBadges,
 	SearchResponseModelFacet,
 } from '@athoscommerce/snapi-types';
-import type { RawResult } from './Client/transforms/searchResponse';
 
 export type HTTPHeaders = { [key: string]: string };
+
+export type RawResult = {
+	available: string;
+	badges?: SearchResponseModelResultBadges[];
+	variants?: SearchResponseModelResultVariants;
+	brand?: string;
+	collection_handle?: string[];
+	collection_id?: string[];
+	handle?: string;
+	id: string;
+	imageUrl: string;
+	intellisuggestData?: string;
+	intellisuggestSignature?: string;
+	msrp?: string;
+	name: string;
+	parentId: string;
+	parentImageUrl: string;
+	price: string;
+	product_type?: string[];
+	product_type_unigram?: string;
+	sku: string;
+	ss_available?: string;
+	ss_best_selling?: string;
+	ss_days_since_published?: string;
+	ss_id?: string;
+	ss_image_hover?: string;
+	ss_images?: string[];
+	ss_inventory_count?: string;
+	ss_tags?: string[];
+	thumbnailImageUrl?: string;
+	uid?: string;
+	url?: string;
+	children?: [];
+};
 
 export type SearchRequesterPaths = {
 	autocomplete?: string;
@@ -32,8 +65,6 @@ export type ProductsResponseModel = {
 	};
 	variants: SearchResponseModelResultVariants;
 };
-
-export type ProductVariant = SearchResponseModelResultVariantsData & { attributes?: Record<string, unknown> };
 
 export type MetaRequesterPaths = {
 	meta?: string;
@@ -343,12 +374,6 @@ export type ChatStatusResponseModel = {
 	};
 };
 
-// back-compat alias — prefer ChatStatusResponseModel
-export type ChatStatusResponse = ChatStatusResponseModel;
-
-/** Maximum characters the chat backend accepts in a request `message`. */
-export const CHAT_MAX_MESSAGE_LENGTH = 256;
-
 // DISCRIMINATOR: "requestType" === general, productQuery, productComparison, productSearch, inspiration, imageSearch, content, productSimilar
 export type MoiRequestModel =
 	| MoiRequestModelGeneral
@@ -558,7 +583,7 @@ export type MoiResponseModelError = BaseResponseProperties & {
 	errorMessage: string;
 };
 
-export type ChatBadRequestResponse = {
+export type ChatBadRequestResponseModel = {
 	errors: string[];
 	errorMessage: string;
 };
@@ -581,21 +606,18 @@ export type ChatResponseModel = {
 	};
 };
 
-export type ChatResponseTextData = {
+export type ChatResponseTextData = BaseResponseProperties & {
 	messageType: 'text';
-	id: string;
 	text: string;
 };
 
-export type ChatResponseContentData = {
+export type ChatResponseContentData = BaseResponseProperties & {
 	messageType: 'content';
-	id: string;
 	text: string;
 };
 
-export type ChatResponseTopicDriftData = {
+export type ChatResponseTopicDriftData = BaseResponseProperties & {
 	messageType: 'topicDrift';
-	id: string;
 	driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
 	messageForDrift: string;
 	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';

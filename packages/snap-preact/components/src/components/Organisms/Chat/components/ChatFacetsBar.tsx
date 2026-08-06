@@ -7,17 +7,29 @@ import deepmerge from 'deepmerge';
 import { observer } from 'mobx-react-lite';
 
 import type { ChatController } from '@athoscommerce/snap-controller';
-import { ValueFacet, RangeFacet, FacetValue, FacetRangeValue } from '@athoscommerce/snap-store-mobx';
+import { ValueFacet, RangeFacet, FacetValue, FacetRangeValue, ChatFacetValue } from '@athoscommerce/snap-store-mobx';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../../providers';
-import { Colour, mergeProps, mergeStyles } from '../../../../utilities';
+import { Colour, defined, mergeProps, mergeStyles } from '../../../../utilities';
 import { ComponentProps, StyleScript } from '../../../../types';
 import { useLang } from '../../../../hooks';
 import { useA11y } from '../../../../hooks/useA11y';
-import { Button } from '../../../Atoms/Button';
-import { Dropdown } from '../../../Atoms/Dropdown';
-import { Icon } from '../../../Atoms/Icon';
-import { FacetSlider } from '../../../Molecules/FacetSlider';
+import { Button, ButtonProps } from '../../../Atoms/Button';
+import { Dropdown, DropdownProps } from '../../../Atoms/Dropdown';
+import { Icon, IconProps } from '../../../Atoms/Icon';
+import { FacetSlider, FacetSliderProps } from '../../../Molecules/FacetSlider';
 import { ChatLang, chatDefaultLang, langTextOf } from '../Chat.lang';
+
+/** Range buckets are identified by their bounds, every other option by its value string.
+ * The store takes the shape as-is, so the discriminator never round-trips through a string. */
+const facetOptionValue = (option?: FacetValue | FacetRangeValue): ChatFacetValue => {
+	if (option && ('low' in option || 'high' in option)) {
+		const range = option as FacetRangeValue;
+		return { low: range.low, high: range.high };
+	}
+	return (option as FacetValue)?.value || (option as FacetValue)?.label || '';
+};
+
+const facetOptionKey = (value: ChatFacetValue): string => (typeof value === 'string' ? value : `${value.low ?? '*'}:${value.high ?? '*'}`);
 
 const defaultStyles: StyleScript<ChatFacetsBarProps> = ({ primaryColorBg, primaryColorFg }) => {
 	const colorPrimary = primaryColorBg!;
@@ -107,8 +119,15 @@ const FacetButton = (props: { label: string; open?: boolean }) => <Button icon={
 // Slider dropdown grows to fill the remaining chat width from its anchor,
 // so the price range slider isn't cramped inside a 150px-wide dropdown.
 const SliderFacetDropdown = observer(
-	(props: { facet: RangeFacet; label: string; controller: ChatController; chatRef: RefObject<HTMLDivElement>; multiselectFacets?: boolean }) => {
-		const { facet, label, controller, chatRef, multiselectFacets } = props;
+	(props: {
+		facet: RangeFacet;
+		label: string;
+		controller: ChatController;
+		chatRef: RefObject<HTMLDivElement>;
+		multiselectFacets?: boolean;
+		subProps: ChatFacetsBarSubProps;
+	}) => {
+		const { facet, label, controller, chatRef, multiselectFacets, subProps } = props;
 		const anchorRef = useRef<HTMLDivElement>(null);
 		const [width, setWidth] = useState<number | null>(null);
 
@@ -133,6 +152,7 @@ const SliderFacetDropdown = observer(
 		return (
 			<div ref={anchorRef} className="ss__chat__actions__facet ss__chat__actions__facet--range">
 				<Dropdown
+					{...subProps.dropdown}
 					usePortal
 					dropUp
 					button={<FacetButton label={label} />}
@@ -148,6 +168,7 @@ const SliderFacetDropdown = observer(
 					<div className="ss__chat__actions__facet__options">
 						<div className="ss__chat__actions__facet__slider" style={{ padding: '12px 16px' }}>
 							<FacetSlider
+								{...subProps.facetSlider}
 								facet={facet}
 								onChange={() => {
 									if (!multiselectFacets) {
@@ -182,10 +203,49 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 
 	const props = mergeProps('chatFacetsBar', globalTheme, defaultProps, properties);
 
-	const { className, internalClassName, controller, chatRef, multiselectFacets, primaryColorBg, primaryColorFg } = props;
+	const { className, internalClassName, controller, chatRef, multiselectFacets, primaryColorBg, primaryColorFg, disableStyles, treePath } = props;
 	const { store } = controller;
 	const colorPrimary = primaryColorBg!;
 	const colorPrimaryText = primaryColorFg!;
+
+	const subProps: ChatFacetsBarSubProps = {
+		dropdown: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+		facetSlider: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+		button: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+		icon: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+	};
 
 	const lang = deepmerge(chatDefaultLang, props.lang || {});
 	const mergedLang = useLang(
@@ -216,17 +276,13 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 		// once the user deselects locally.
 		const applied = ((facet as ValueFacet).values || []).filter((value) => {
 			if (!value) return false;
-			const optionValue =
-				'low' in value && 'high' in value
-					? `${(value as FacetRangeValue).low ?? '*'}:${(value as FacetRangeValue).high ?? '*'}`
-					: (value as FacetValue).value || (value as FacetValue).label;
-			return controller.store.isFacetSelected(facet.field, optionValue);
+			return controller.store.isFacetSelected(facet.field, facetOptionValue(value));
 		}).length;
 
 		return applied > 0 ? `${base} (${applied})` : base;
 	};
 
-	const toggleFacetOption = (field: string, optionValue: string): void => {
+	const toggleFacetOption = (field: string, optionValue: ChatFacetValue): void => {
 		// Non-multiselect: clicking an already-selected value toggles it off.
 		// `addFacet` is idempotent against an existing urlManager value, so without
 		// the toggle the state wouldn't change, `hasPendingFacetChanges` would stay
@@ -241,12 +297,13 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 		}
 	};
 
-	const renderFacetOption = (facet: ValueFacet, optionValue: string, label: string | undefined): JSX.Element => {
+	const renderFacetOption = (facet: ValueFacet, optionValue: ChatFacetValue, label: string | undefined): JSX.Element => {
+		const optionKey = facetOptionKey(optionValue);
 		if (multiselectFacets) {
 			const isSelected = controller.store.isFacetSelected(facet.field, optionValue);
 			return (
 				<div
-					key={optionValue}
+					key={optionKey}
 					className="ss__chat__actions__facet__option--checkbox"
 					role="checkbox"
 					aria-checked={isSelected}
@@ -268,7 +325,7 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 							'ss__chat__actions__facet__option__checkbox--checked': isSelected,
 						})}
 					>
-						{isSelected && <Icon icon="check-thin" size="10px" />}
+						{isSelected && <Icon {...subProps.icon} icon="check-thin" size="10px" />}
 					</div>
 					<span className="ss__chat__actions__facet__option__label">{label}</span>
 				</div>
@@ -276,7 +333,7 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 		}
 		return (
 			<Button
-				key={optionValue}
+				key={optionKey}
 				className={classnames({
 					'ss__chat__actions__facet__option--selected': controller.store.isFacetSelected(facet.field, optionValue),
 				})}
@@ -332,12 +389,14 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 										controller={controller}
 										chatRef={chatRef}
 										multiselectFacets={multiselectFacets}
+										subProps={subProps}
 									/>
 								);
 							}
 							return (
 								<div className={`ss__chat__actions__facet ss__chat__actions__facet--${facet.type}`} key={facet.field}>
 									<Dropdown
+										{...subProps.dropdown}
 										usePortal
 										dropUp
 										boundaryRef={chatRef}
@@ -415,17 +474,7 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 										}}
 									>
 										<div className="ss__chat__actions__facet__options">
-											{facet.type === 'range-buckets'
-												? (facet as ValueFacet).values.map((option) => {
-														const rangeOption = option as FacetRangeValue;
-														const optionValue = `${rangeOption.low ?? '*'}:${rangeOption.high ?? '*'}`;
-														return renderFacetOption(facet as ValueFacet, optionValue, rangeOption.label);
-												  })
-												: (facet as ValueFacet).values.map((option) => {
-														const valueOption = option as FacetValue;
-														const optionValue = valueOption.value || valueOption.label;
-														return renderFacetOption(facet as ValueFacet, optionValue, valueOption.label);
-												  })}
+											{(facet as ValueFacet).values.map((option) => renderFacetOption(facet as ValueFacet, facetOptionValue(option), option?.label))}
 										</div>
 									</Dropdown>
 								</div>
@@ -446,3 +495,10 @@ export type ChatFacetsBarProps = {
 	primaryColorBg?: string;
 	primaryColorFg?: string;
 } & ComponentProps<ChatFacetsBarProps>;
+
+interface ChatFacetsBarSubProps {
+	dropdown: Partial<DropdownProps>;
+	facetSlider: Partial<FacetSliderProps>;
+	button: Partial<ButtonProps>;
+	icon: Partial<IconProps>;
+}

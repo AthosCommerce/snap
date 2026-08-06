@@ -252,7 +252,7 @@ export const ChatResult = withTracking(
 			<CacheProvider>
 				<div className={classnames('ss__chat-result', className, internalClassName)} ref={trackingRef} {...styling}>
 					<div className="ss__chat-result__image">
-						<OverlayBadge controller={controller as any} result={result} renderEmpty={true}>
+						<OverlayBadge controller={controller} result={result} renderEmpty={true}>
 							<Image
 								{...subProps.image}
 								className={'ss__chat-result__detail-slot__image'}

@@ -1,5 +1,5 @@
 import { makeObservable, observable, computed, reaction, runInAction, IReactionDisposer } from 'mobx';
-import { ChatStoreConfig, SearchStoreConfig, StoreServices } from '../types';
+import { ChatFacetValue, ChatStoreConfig, SearchStoreConfig, StoreServices } from '../types';
 import { MetaStore } from '../Meta/MetaStore';
 import type { MetaResponseModel, SearchResponseModel, SearchResponseModelFacet } from '@athoscommerce/snapi-types';
 import { AbstractStore } from '../Abstract/AbstractStore';
@@ -7,7 +7,7 @@ import type {
 	ChatResponseModel,
 	ChatRequestModel,
 	ChatResponseProductSearchResultData,
-	ChatStatusResponse,
+	ChatStatusResponseModel,
 	ProductsResponseModel,
 } from '@athoscommerce/snap-client';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
@@ -41,7 +41,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public initChatLoading: boolean = false;
 	public suggestedQuestions: string[] = [];
 	public welcomeMessage: string = '';
-	public features: ChatStatusResponse['features'] = { imageSearch: { enabled: false }, similarProducts: { enabled: false } };
+	public features: ChatStatusResponseModel['features'] = { imageSearch: { enabled: false }, similarProducts: { enabled: false } };
 	public productQuickview: Product | null = null;
 	public productQuickviewError: string | null = null;
 	/** Raw meta kept for lazy hydration of inactive chat sessions. */
@@ -66,7 +66,9 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		}
 
 		this.services = services;
-		this.urlManager = services.urlManager.detach(true);
+		// reuse an already-detached manager (createChatController passes one) so the
+		// controller and the store share a single instance and WatcherPool
+		this.urlManager = services.urlManager.detached ? services.urlManager : services.urlManager.detach(true);
 		this.urlManagerUnsubscribe = this.urlManager.subscribe(() => {
 			this.urlVersion++;
 		});
@@ -114,6 +116,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 				const chatData = storedChats[chatId];
 				if (chatData) {
 					const restoredChat = new ChatSessionStore({
+						config: this.config,
 						data: {
 							...chatData,
 							id: chatId,
@@ -138,7 +141,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		const storedMeta = this.storage.get('meta');
 		if (storedMeta) {
 			try {
-				const metaData = JSON.parse(storedMeta);
+				const metaData = typeof storedMeta === 'string' ? JSON.parse(storedMeta) : storedMeta;
 				this.meta = new MetaStore({
 					data: {
 						meta: metaData,
@@ -269,11 +272,14 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		);
 	}
 
-	/** Tear down the constructor reactions and the detached urlManager subscription. */
+	/** Tear down the constructor reactions, the detached urlManager subscription and any
+	 * pending session saves. Integrators that discard a chat controller (e.g. on an SPA
+	 * route change) should call this to avoid leaking reactions and timers. */
 	public dispose(): void {
 		this.activeFacetsSyncDisposer();
 		this.rangeActiveSyncDisposer();
 		this.urlManagerUnsubscribe();
+		this.chats.forEach((chat) => chat.destroy());
 	}
 
 	/** Build a SearchFacetStore from raw facet data using the current detached urlManager.
@@ -301,7 +307,9 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		return new SearchFacetStore({
 			config,
 			services: { ...this.services, urlManager: this.urlManager },
-			stores: { storage: this.storage },
+			// scratch storage — SearchFacetStore persists collapse state on construction and
+			// on every toggle, which against the chat blob would rewrite the whole session
+			stores: { storage: new StorageStore() },
 			data: {
 				search: { facets } as SearchResponseModel,
 				meta: { ...baseMeta, facets: facetMeta } as MetaResponseModel,
@@ -425,7 +433,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		return isBlocked;
 	}
 
-	private applyChatStatusResponse(response: ChatStatusResponse): boolean {
+	private applyChatStatusResponse(response: ChatStatusResponseModel): boolean {
 		const { chatbot, features } = response;
 		const { status, suggestedQuestions, welcomeMessage } = chatbot;
 		this.chatEnabled = status.enabled === true;
@@ -435,7 +443,7 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		return this.chatEnabled;
 	}
 
-	public handleChatStatusResponse(response: ChatStatusResponse): boolean {
+	public handleChatStatusResponse(response: ChatStatusResponseModel): boolean {
 		const enabled = this.applyChatStatusResponse(response);
 		// Always persist on a real API response — restarts the 10-minute expiration
 		// so each new chat session refreshes the cache.
@@ -537,11 +545,18 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.error = undefined;
 
 		// Prune old sessions before creating a new one to keep storage bounded,
-		// and drop impression entries for any chat that was pruned.
+		// and drop impression entries for any chat that was pruned. `set(key, null)`
+		// stores null rather than deleting, so rebuild the map without the pruned ids.
 		const prunedChatIds = ChatSessionStore.pruneStoredSessions(this.storage);
-		prunedChatIds.forEach((id) => this.impressionStorage.set([id], null));
+		if (prunedChatIds.length) {
+			const remaining = { ...this.impressionStorage.state };
+			prunedChatIds.forEach((id) => delete remaining[id]);
+			this.impressionStorage.clear();
+			Object.keys(remaining).forEach((id) => this.impressionStorage.set([id], remaining[id]));
+		}
 
 		const newChat = new ChatSessionStore({
+			config: this.config,
 			data: {
 				sessionId: data?.sessionId,
 				sessionEndTime: data?.sessionEndTime,
@@ -600,29 +615,26 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		});
 	}
 
-	public addFacet(facet: { key: string; value: string }): void {
-		const value = parseFacetValue(facet.value);
-		this.urlManager.merge(`filter.${facet.key}`, Array.isArray(value) ? value : value).go();
+	public addFacet(facet: { key: string; value: ChatFacetValue }): void {
+		this.urlManager.merge(`filter.${facet.key}`, facet.value).go();
 	}
 
-	public removeFacet(key: string, value: string): void {
-		const parsed = parseFacetValue(value);
-		this.urlManager.remove(`filter.${key}`, parsed).go();
+	public removeFacet(key: string, value: ChatFacetValue): void {
+		this.urlManager.remove(`filter.${key}`, value).go();
 	}
 
 	public clearPendingFacets(): void {
 		this.urlManager.remove('filter').go();
 	}
 
-	public isFacetSelected(key: string, value: string): boolean {
+	public isFacetSelected(key: string, value: ChatFacetValue): boolean {
 		// touch the version so mobx re-runs this when urlManager state changes (the
 		// underlying UrlManager isn't a mobx observable, so we mirror its updates here)
 		void this.urlVersion;
 		const filterState = (this.urlManager.state as any)?.filter;
 		if (!filterState || !filterState[key]) return false;
 		const stored = Array.isArray(filterState[key]) ? filterState[key] : [filterState[key]];
-		const parsed = parseFacetValue(value);
-		return stored.some((entry: any) => facetValueEquals(entry, parsed));
+		return stored.some((entry: any) => facetValueEquals(entry, value));
 	}
 
 	public request(request: ChatRequestModel): void {
@@ -655,13 +667,11 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	}
 
 	public update(data: { chat: ChatResponseModel; meta: MetaResponseModel }): void {
-		// TODO: handle error
-		// if(err?.responseBody?.errorMessage || err?.responseBody?.errorCode) {
-		// 	const errorMessage = err?.responseBody?.errorMessage || 'An unknown error has occurred.';
-		// }
+		this.error = undefined;
+		this.loaded = true;
 
 		this.currentChat?.update(data);
-		this.storage.set('meta', JSON.stringify(data.meta));
+		this.storage.set('meta', data.meta);
 		this.meta = new MetaStore({
 			data: {
 				meta: data.meta,
@@ -682,18 +692,6 @@ function stableStringify(value: any): string {
 	}
 	const keys = Object.keys(value).sort();
 	return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(value[k])}`).join(',')}}`;
-}
-
-/** Convert a chat-facet UI value into the URL-state shape — range buckets arrive as "low:high". */
-function parseFacetValue(value: string): string | { low?: number; high?: number } {
-	if (typeof value === 'string' && value.includes(':')) {
-		const [low, high] = value.split(':');
-		return {
-			low: low === '*' ? undefined : Number(low),
-			high: high === '*' ? undefined : Number(high),
-		};
-	}
-	return value;
 }
 
 function facetValueEquals(a: any, b: any): boolean {

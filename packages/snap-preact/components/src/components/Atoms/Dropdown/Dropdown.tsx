@@ -173,7 +173,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 			setFlipX(shouldFlip);
 			if (shouldFlip) setFlipRight(Math.max(0, window.innerWidth - limit));
 		}
-	}, [usePortal, dropdownOpen, coords.left, coords.width]);
+	}, [usePortal, dropdownOpen, coords.left, coords.width, boundaryRef]);
 
 	const toggleOpenDropdown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, state?: boolean) => {
 		if (stateful) {
@@ -272,7 +272,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 						}, 300);
 					}}
 				>
-					{cloneWithProps(button, { open: dropdownOpen, disabled, toggleOpen: toggleOpenDropdown, treePath })}
+					{cloneWithProps(button, { open: dropdownOpen, ...(disabled !== undefined ? { disabled } : {}), toggleOpen: toggleOpenDropdown, treePath })}
 				</div>
 
 				{!usePortal
@@ -303,7 +303,11 @@ export const Dropdown = observer((properties: DropdownProps) => {
 	);
 });
 
-export type DropdownProps = DropdownTemplatesLegalProps & ComponentProps<DropdownProps>;
+export type DropdownProps = {
+	/** Constrains the portal to this element's horizontal bounds instead of the viewport. */
+	boundaryRef?: MutableRef<HTMLElement | null>;
+} & DropdownTemplatesLegalProps &
+	ComponentProps<DropdownProps>;
 export type DropdownTemplatesLegalProps = {
 	button: string | JSX.Element;
 	content?: string | JSX.Element;
@@ -323,5 +327,4 @@ export type DropdownTemplatesLegalProps = {
 	disableA11y?: boolean;
 	usePortal?: boolean;
 	dropUp?: boolean;
-	boundaryRef?: { current: HTMLElement | null };
 };

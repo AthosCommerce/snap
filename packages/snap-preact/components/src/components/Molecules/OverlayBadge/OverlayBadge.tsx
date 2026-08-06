@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../p
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
 import { useComponent, useCustomComponentOverride } from '../../../hooks';
-import type { AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
+import type { AutocompleteController, ChatController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
 
@@ -123,7 +123,7 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 					name: slot.name,
 					top: index == 0,
 					bottom: index == sectionSlots.length - 1,
-					badges: result?.display?.badges?.atLocation(`${section}/${slot.tag}`).slice(0, limit),
+					badges: result?.display.badges?.atLocation(`${section}/${slot.tag}`).slice(0, limit),
 				}))
 				.filter((slot) => slot.badges?.length);
 
@@ -181,7 +181,7 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 
 export type OverlayBadgeProps = {
 	result: Product;
-	controller: SearchController | AutocompleteController | RecommendationController;
+	controller?: SearchController | AutocompleteController | RecommendationController | ChatController;
 } & OverlayBadgeTemplatesLegalProps &
 	ComponentProps<OverlayBadgeProps>;
 

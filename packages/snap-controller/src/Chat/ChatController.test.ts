@@ -1242,14 +1242,14 @@ describe('Chat Controller', () => {
 			eventSpy.mockClear();
 		});
 
-		it('track.product.feedback fires event', () => {
+		it('track.feedback fires event', () => {
 			const controller = createController({ beacon: { enabled: true } });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
 
-			controller.track.product.feedback('UP');
+			controller.track.feedback('UP');
 
-			expect(eventSpy).toHaveBeenCalledWith('track.product.feedback', expect.objectContaining({ controller }));
+			expect(eventSpy).toHaveBeenCalledWith('track.feedback', expect.objectContaining({ controller }));
 			eventSpy.mockClear();
 		});
 
@@ -1279,8 +1279,8 @@ describe('Chat Controller', () => {
 
 			logSpy.mockClear();
 
-			controller.track.product.feedback('UP');
-			expect(logSpy).toHaveBeenCalledWith('No chatSessionId available for track.product.feedback');
+			controller.track.feedback('UP');
+			expect(logSpy).toHaveBeenCalledWith('No chatSessionId available for track.feedback');
 
 			logSpy.mockClear();
 		});
@@ -1338,7 +1338,7 @@ describe('Chat Controller', () => {
 			controller.store.createChat({ sessionId: 'test-session-001' });
 
 			// Use non-zero low to avoid UrlManager falsy-value serialization issue
-			controller.store.addFacet({ key: 'price', value: '10:50' });
+			controller.store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
 
 			const params = controller.params;
 			const priceFilter = (params.data as any).searchFilters.find((f: any) => f.key === 'price');
@@ -1609,7 +1609,7 @@ describe('Chat Controller', () => {
 			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 
-			// mirrors the setupEvents chat/send flow: openChat() then search() in the same tick
+			// mirrors the setupEvents controller/chat/send flow: openChat() then search() in the same tick
 			controller.openChat();
 			const searchPromise = controller.search({ data: { requestType: 'general', message: 'new message' } } as any);
 			await searchPromise;

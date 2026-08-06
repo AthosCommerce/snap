@@ -3,13 +3,13 @@ import { Icon, Price, Image, OverlayBadge, CalloutBadge, Rating, ResultProps } f
 import type { SearchController, AutocompleteController, RecommendationController, ChatController } from '@athoscommerce/snap-controller';
 
 const openChatProductQuery = (result: any, controller?: SearchController | AutocompleteController | RecommendationController | ChatController) => {
-	window.athos.fire('chat/productQuery', { result });
+	window.athos.fire('controller/chat/productQuery', { result });
 	if (controller?.type === 'autocomplete') {
 		(controller as AutocompleteController).setFocused();
 	}
 };
 const openChatProductSimilar = (result: any, controller?: SearchController | AutocompleteController | RecommendationController | ChatController) => {
-	window.athos.fire('chat/productSimilar', { result });
+	window.athos.fire('controller/chat/productSimilar', { result });
 	if (controller?.type === 'autocomplete') {
 		(controller as AutocompleteController).setFocused();
 	}

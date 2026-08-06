@@ -16,7 +16,7 @@ import type { SearchController, AutocompleteController, RecommendationController
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { IconProps } from '../../Atoms/Icon';
+import { IconProps, IconType } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -296,10 +296,7 @@ export const Result = observer((properties: ResultProps) => {
 							}}
 						>
 							{!hideBadge ? (
-								<OverlayBadge
-									{...subProps.overlayBadge}
-									controller={controller as SearchController | AutocompleteController | RecommendationController}
-								>
+								<OverlayBadge {...subProps.overlayBadge} controller={controller}>
 									<Image {...subProps.image} />
 								</OverlayBadge>
 							) : (
@@ -315,8 +312,18 @@ export const Result = observer((properties: ResultProps) => {
 									e.stopPropagation();
 									if (onDiscussClick) {
 										onDiscussClick(e, result);
+									} else if (controller?.type === 'chat') {
+										// rendered inside a Chat — go straight to the controller
+										(controller as ChatController).productQuery(result);
 									} else {
-										(window as any)?.athos?.fire?.('chat/productQuery', { result });
+										// otherwise hand off to an integrated Chat via the global bus,
+										// which the integration layer wires up (see setupEvents)
+										const fire = (window as any)?.athos?.fire;
+										if (typeof fire === 'function') {
+											fire('controller/chat/productQuery', { result });
+										} else {
+											controller?.log?.warn('discussProductIcon requires an onDiscussClick handler or an integrated Chat');
+										}
 									}
 								}}
 								{...mergedLang.discussProductButton.all}
@@ -424,7 +431,7 @@ export type ResultTemplatesLegalProps = {
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
-	discussProductIcon?: IconProps;
+	discussProductIcon?: IconType | Partial<IconProps>;
 	onDiscussClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 };
 

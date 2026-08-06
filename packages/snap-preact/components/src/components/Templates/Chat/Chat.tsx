@@ -6,8 +6,6 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
-import { useLang } from '../../../hooks';
-import deepmerge from 'deepmerge';
 
 import { ChatOrganism, ChatOrganismProps, ChatTemplatesLegalProps, ChatLang } from '../../Organisms/Chat';
 import type { ChatController } from '@athoscommerce/snap-controller';
@@ -32,11 +30,6 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 	const { className, internalClassName, controller, disableStyles, treePath } = props;
 
-	// Lang scaffold — the organism owns the full ChatLang surface; props.lang flows through untouched
-	const defaultLang: Partial<ChatLang> = {};
-	const lang = deepmerge(defaultLang, props.lang || {});
-	useLang(lang as any, { controller });
-
 	const subProps: ChatSubProps = {
 		Chat: {
 			// inherited props
@@ -53,7 +46,9 @@ export const Chat = observer((properties: ChatProps): JSX.Element => {
 
 	// className/internalClassName stay on the template wrapper only — spreading them
 	// into the organism would duplicate user classes on two DOM levels
-	const organismProps = { ...props, className: undefined, internalClassName: undefined };
+	// treePath is omitted too — the organism calls mergeProps('chat') itself, and passing
+	// this one down would append a second 'chat' segment (ss-path="chat chat")
+	const organismProps = { ...props, className: undefined, internalClassName: undefined, treePath: undefined };
 
 	return (
 		<CacheProvider>

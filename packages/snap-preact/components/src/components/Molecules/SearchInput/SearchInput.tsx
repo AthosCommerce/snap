@@ -105,6 +105,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		hideSubmitSearchButton,
 		hideClearSearchButton,
 		hideCloseSearchButton,
+		hideChatButton,
 		inputRef,
 		inputName,
 		onChange,
@@ -269,7 +270,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 					{!hideClearSearchButton && clearSearchButton && inputValue?.length ? (
 						<Button {...subProps.clearSearchButton} {...mergedLang.clearSearchButton.all} />
 					) : null}
-					{chatButton ? <Button {...subProps.chatButton} {...mergedLang.chatButton.all} /> : null}
+					{!hideChatButton && chatButton?.icon ? <Button {...subProps.chatButton} {...mergedLang.chatButton.all} /> : null}
 
 					{!hideSubmitSearchButton && submitSearchButton && <Button {...subProps.submitSearchButton} {...mergedLang.submitSearchButton.all} />}
 				</div>
@@ -294,6 +295,7 @@ export type SearchInputTemplatesLegalProps = {
 	hideSubmitSearchButton?: boolean;
 	hideClearSearchButton?: boolean;
 	hideCloseSearchButton?: boolean;
+	hideChatButton?: boolean;
 	inputName?: string;
 	disabled?: boolean;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;

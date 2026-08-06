@@ -96,8 +96,28 @@ export type LibraryImports = {
 				RecommendationEmail: (args?: any) => Promise<JSXComponent>;
 			};
 		};
+		chat: {
+			Chat: (args?: any) => Promise<JSXComponent>;
+		};
+		chatLoadingIndicator: LibraryComponentImport;
+		chatAttachmentContext: LibraryComponentImport;
+		chatInspirationResultMessage: LibraryComponentImport;
+		chatMessageText: LibraryComponentImport;
+		chatMessageUser: LibraryComponentImport;
+		chatProductComparisonMessage: LibraryComponentImport;
+		chatProductQueryMessage: LibraryComponentImport;
+		chatResult: LibraryComponentImport;
+		chatResultsDisplay: LibraryComponentImport;
+		chatSuggestedQuestions: LibraryComponentImport;
+		chatComparisonsTray: LibraryComponentImport;
+		chatComposer: LibraryComponentImport;
+		chatFacetsBar: LibraryComponentImport;
+		chatHistory: LibraryComponentImport;
+		chatMessages: LibraryComponentImport;
+		chatSessionFeedback: LibraryComponentImport;
+		chatSideChat: LibraryComponentImport;
+		chatTopicDrift: LibraryComponentImport;
 		/* individual library components */
-		chat: LibraryComponentImport;
 		badge: LibraryComponentImport;
 		result: LibraryComponentImport;
 		overlayResult: LibraryComponentImport;
@@ -188,6 +208,24 @@ export class LibraryStore {
 			email: LibraryComponentMap;
 		};
 		chat: LibraryComponentMap;
+		chatLoadingIndicator: LibraryComponentMap;
+		chatAttachmentContext: LibraryComponentMap;
+		chatInspirationResultMessage: LibraryComponentMap;
+		chatMessageText: LibraryComponentMap;
+		chatMessageUser: LibraryComponentMap;
+		chatProductComparisonMessage: LibraryComponentMap;
+		chatProductQueryMessage: LibraryComponentMap;
+		chatResult: LibraryComponentMap;
+		chatResultsDisplay: LibraryComponentMap;
+		chatSuggestedQuestions: LibraryComponentMap;
+		chatComparisonsTray: LibraryComponentMap;
+		chatComposer: LibraryComponentMap;
+		chatFacetsBar: LibraryComponentMap;
+		chatHistory: LibraryComponentMap;
+		chatMessages: LibraryComponentMap;
+		chatSessionFeedback: LibraryComponentMap;
+		chatSideChat: LibraryComponentMap;
+		chatTopicDrift: LibraryComponentMap;
 		badge: LibraryComponentMap;
 		result: LibraryComponentMap;
 		overlayResult: LibraryComponentMap;
@@ -258,6 +296,24 @@ export class LibraryStore {
 			email: {},
 		},
 		chat: {},
+		chatLoadingIndicator: {},
+		chatAttachmentContext: {},
+		chatInspirationResultMessage: {},
+		chatMessageText: {},
+		chatMessageUser: {},
+		chatProductComparisonMessage: {},
+		chatProductQueryMessage: {},
+		chatResult: {},
+		chatResultsDisplay: {},
+		chatSuggestedQuestions: {},
+		chatComparisonsTray: {},
+		chatComposer: {},
+		chatFacetsBar: {},
+		chatHistory: {},
+		chatMessages: {},
+		chatSessionFeedback: {},
+		chatSideChat: {},
+		chatTopicDrift: {},
 		badge: {},
 		result: {},
 		overlayResult: {},
@@ -486,6 +542,24 @@ export class LibraryStore {
 					return this.components.chat.Chat || (this.components.chat.Chat = (await import('./library/components/Chat')).Chat);
 				},
 			},
+			chatLoadingIndicator: {},
+			chatAttachmentContext: {},
+			chatInspirationResultMessage: {},
+			chatMessageText: {},
+			chatMessageUser: {},
+			chatProductComparisonMessage: {},
+			chatProductQueryMessage: {},
+			chatResult: {},
+			chatResultsDisplay: {},
+			chatSuggestedQuestions: {},
+			chatComparisonsTray: {},
+			chatComposer: {},
+			chatFacetsBar: {},
+			chatHistory: {},
+			chatMessages: {},
+			chatSessionFeedback: {},
+			chatSideChat: {},
+			chatTopicDrift: {},
 			badge: {},
 			result: {
 				Result: async () => {
@@ -617,7 +691,10 @@ export class LibraryStore {
 	async addComponentImport(type: TemplateCustomComponentTypes, name: string, componentFn: (args?: any) => Promise<JSXComponent> | JSXComponent) {
 		// only allow certain types based on unlocked status
 		if (this.allowedComponentTypes.includes(type) && this.components[type]) {
-			this.import.component[type][name] = async () => {
+			// `chat` declares its library entry with literal keys so template targets stay
+			// literal-checked; custom overrides register by arbitrary name, hence the cast
+			const componentImports = this.import.component[type] as LibraryComponentImport;
+			componentImports[name] = async () => {
 				return (
 					this.components[type][name] ||
 					(this.components[type][name] = await CustomComponent({

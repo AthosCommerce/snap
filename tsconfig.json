@@ -23,7 +23,6 @@
 		"**/*.spec.tsx",
 		"**/*.test.ts",
 		"**/*.test.tsx",
-		"**/setupTests.ts",
 		"**/*.stories.tsx",
 		"**/__tests__/*",
 		"**/__mocks__/*",

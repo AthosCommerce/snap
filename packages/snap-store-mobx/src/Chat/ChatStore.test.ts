@@ -187,7 +187,7 @@ describe('ChatStore.createChat — impression cleanup', () => {
 		store.createChat(); // 11 existing + guard → prunes the single oldest (chat-0)
 
 		const impressions = readLocalStorage(`${key}-impressions`);
-		expect(impressions['chat-0']).toBeNull();
+		expect(impressions['chat-0']).toBeUndefined();
 		expect(impressions['chat-10']).toEqual({ resp: { prod: true } });
 	});
 });
@@ -386,8 +386,7 @@ describe('ChatStore — update() and meta handling', () => {
 
 		const stored = readLocalStorage(key);
 		expect(stored.meta).toBeDefined();
-		const parsedMeta = JSON.parse(stored.meta);
-		expect(parsedMeta).toEqual(mockMeta);
+		expect(stored.meta).toEqual(mockMeta);
 	});
 
 	it('subsequent updates re-persist meta so the stored snapshot stays fresh', () => {
@@ -400,8 +399,7 @@ describe('ChatStore — update() and meta handling', () => {
 		store.update({ chat: mockChat, meta: secondMeta });
 
 		const storedAfterSecond = readLocalStorage(key);
-		const parsedMeta = JSON.parse(storedAfterSecond.meta);
-		expect(parsedMeta).toEqual(secondMeta);
+		expect(storedAfterSecond.meta).toEqual(secondMeta);
 	});
 });
 
@@ -544,9 +542,9 @@ describe('ChatStore — facets and detached urlManager', () => {
 		const store = createStore();
 		store.setActiveFacets(createChatFacets(), 'msg-1');
 
-		store.addFacet({ key: 'price', value: '10:50' });
+		store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
 
-		expect(store.isFacetSelected('price', '10:50')).toBe(true);
+		expect(store.isFacetSelected('price', { low: 10, high: 50 })).toBe(true);
 		expect(store.searchFilters).toContainEqual({ key: 'price', options: [{ low: '10', high: '50' }] });
 		expect(store.hasPendingFacetChanges).toBe(true);
 	});
@@ -642,12 +640,12 @@ describe('ChatStore — facets and detached urlManager', () => {
 		const store = createStore();
 		store.setActiveFacets(createChatFacets(), 'msg-1');
 
-		store.addFacet({ key: 'price', value: '10:50' });
+		store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
 
 		const priceFacet = store.facets.find((facet: any) => facet.field === 'price') as RangeFacet;
 		expect(priceFacet.active).toEqual({ low: 10, high: 50 });
 
-		store.removeFacet('price', '10:50');
+		store.removeFacet('price', { low: 10, high: 50 });
 		expect(priceFacet.active).toEqual({ low: 0, high: 100 });
 	});
 });
@@ -749,7 +747,7 @@ describe('ChatStore — reset()', () => {
 
 		// the next update re-persists meta — restored sessions can hydrate after a reload
 		store.update({ chat: mockChat, meta: mockMeta });
-		expect(JSON.parse(readLocalStorage(key).meta)).toEqual(mockMeta);
+		expect(readLocalStorage(key).meta).toEqual(mockMeta);
 
 		const chat = store.currentChat!;
 		chat.hydrated = false;

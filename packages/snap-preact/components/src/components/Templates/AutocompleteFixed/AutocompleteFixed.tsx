@@ -157,8 +157,9 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 			closeSearchButton: {
 				onClick: () => reset(),
 			},
+			// wiring only — no default `icon`, so the button stays hidden until a site
+			// opts in by supplying one via theme or props (see SearchInput.hideChatButton)
 			chatButton: {
-				icon: 'chat',
 				onClick: () => controller.openChat(),
 			},
 			inputName: inputName,

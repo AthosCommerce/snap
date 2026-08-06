@@ -21,6 +21,8 @@ const KEY_ENTER = 13;
 const CHAT_DISABLED_MESSAGE = 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!';
 const CHAT_INPUT_SELECTOR = '.ss__chat__input input[type="text"]';
 const FEEDBACK_DISMISS_DELAY = 3000;
+/** Keep in sync with the theme breakpoint the Chat components use. */
+const DEFAULT_MOBILE_BREAKPOINT = 767;
 
 /** Data keys the chat API accepts for each requestType — used to prune stale keys
  * left behind when a request override changes the requestType of the merged params. */
@@ -35,7 +37,7 @@ const REQUEST_TYPE_DATA_KEYS: Record<MoiRequestModel['requestType'], string[]> =
 	content: ['message'],
 };
 
-const defaultConfig: Partial<ChatControllerConfig> = {
+const defaultConfig: ChatControllerConfig = {
 	id: 'chat',
 	beacon: {
 		enabled: true,
@@ -52,8 +54,8 @@ type ChatTrackMethods = {
 		click: (e: MouseEvent, result: Product | Banner) => void;
 		impression: (result: Product | Banner) => void;
 		addToCart: (result: Product) => void;
-		feedback: (thumbs: 'UP' | 'DOWN') => void;
 	};
+	feedback: (thumbs: 'UP' | 'DOWN') => void;
 };
 
 export class ChatController extends AbstractController {
@@ -96,40 +98,9 @@ export class ChatController extends AbstractController {
 		this.use(this.config);
 	}
 
-	public async init(): Promise<void> {
-		if (this._initialized) {
-			this.log.warn(`'init' middleware recalled`);
-		}
-		const initProfile = this.profiler.create({ type: 'event', name: 'init', context: this.config }).start();
-
-		try {
-			try {
-				await this.eventManager.fire('init', {
-					controller: this,
-				});
-			} catch (err: any) {
-				if (err?.message == 'cancelled') {
-					this.log.warn(`'init' middleware cancelled`);
-				} else {
-					this.log.error(`error in 'init' middleware`);
-					throw err;
-				}
-			}
-		} catch (err) {
-			if (err) {
-				console.error(err);
-				this.handleError(err);
-			}
-		}
-
-		// chat requests are never URL-driven — deliberately skip the urlManager → search
-		// subscription that AbstractController.init sets up, so browser back/forward
-		// navigation cannot submit unsent input text as a chat message
-		this._initialized = true;
-
-		initProfile.stop();
-		this.log.profile(initProfile);
-	}
+	// chat requests are never URL-driven — skip the urlManager → search subscription so
+	// browser back/forward navigation cannot submit unsent input text as a chat message
+	protected subscribeToUrlManager = false;
 
 	/** Returns true when the request can proceed, false to abort the search.
 	 * Ensures chat is enabled and seeds the request with a session id (creating one if needed). */
@@ -258,35 +229,10 @@ export class ChatController extends AbstractController {
 			.filter((attachment) => attachment.type === 'product' && (attachment as ChatAttachmentProduct).requestType !== 'productComparison')
 			.map((attachment) => (attachment as ChatAttachmentProduct).productId);
 
-		// Build searchFilters from the detached urlManager state — that's the
-		// single source of truth for the in-progress facet selection on the
-		// active facets display. Range/slider selections are emitted as
-		// `{ low, high }` strings, value selections as `{ key }`.
 		// Only emit when the user has actually changed the facets; the urlManager is
 		// seeded from the active productSearchResult's filtered values, so an untouched
 		// facet bar would otherwise promote every follow-up message to productSearch.
-		const searchFilters: { key: string; options: ({ key: string } | { low: string; high: string })[] }[] = [];
-		const filterState = (this.store.urlManager.state as any)?.filter as Record<string, any> | undefined;
-		if (filterState && this.store.hasPendingFacetChanges) {
-			Object.keys(filterState).forEach((field) => {
-				const raw = filterState[field];
-				const values = Array.isArray(raw) ? raw : [raw];
-				const options: ({ key: string } | { low: string; high: string })[] = [];
-				values.forEach((v) => {
-					if (typeof v === 'object' && v !== null) {
-						const low = v.low;
-						const high = v.high;
-						if (low == null && high == null) return;
-						options.push({ low: low == null ? '*' : String(low), high: high == null ? '*' : String(high) });
-					} else {
-						options.push({ key: String(v) });
-					}
-				});
-				if (options.length > 0) {
-					searchFilters.push({ key: field, options });
-				}
-			});
-		}
+		const searchFilters = this.store.hasPendingFacetChanges ? this.store.searchFilters : [];
 
 		const attachedImageId = attachedImageIds.length > 0 ? attachedImageIds[0] : undefined;
 		const similarProducts = this.store.currentChat?.attachments.attached.filter(
@@ -422,7 +368,7 @@ export class ChatController extends AbstractController {
 		currentChat.feedback.justGiven = true;
 		currentChat.save();
 
-		this.track.product.feedback(thumbs);
+		this.track.feedback(thumbs);
 
 		setTimeout(() => {
 			currentChat.feedback.dismissed = true;
@@ -460,12 +406,11 @@ export class ChatController extends AbstractController {
 
 			try {
 				const base64Image = await convertToBase64(file);
-				const image = await base64ToBlob(base64Image);
 
 				attachment = this.store.currentChat?.attachments.add<ChatAttachmentImage>({ type: 'image', base64: base64Image, fileName });
 				if (!attachment) continue;
 
-				const response = await this.client.uploadImage({ image });
+				const response = await this.client.uploadImage({ image: file });
 				attachment.update({
 					imageId: response.imageId,
 					imageUrl: response.imageUrl,
@@ -621,7 +566,8 @@ export class ChatController extends AbstractController {
 
 	/** Focus the input on desktop — skipped on mobile so the virtual keyboard doesn't pop up. */
 	private focusInputDesktopOnly = (): void => {
-		const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+		const breakpoint = this.config.settings?.mobileBreakpoint ?? DEFAULT_MOBILE_BREAKPOINT;
+		const isMobile = typeof window !== 'undefined' && window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
 		if (!isMobile) {
 			this.focusInput();
 		}
@@ -735,7 +681,7 @@ export class ChatController extends AbstractController {
 
 		// Strip HTML at the submit boundary — the message flows into both the API
 		// request body and the rendered user message, and override messages
-		// (openChat initial message, chat/send event, autocomplete input) bypass
+		// (openChat initial message, controller/chat/send event, autocomplete input) bypass
 		// the input flow, so sanitizing the finalized message covers every path.
 		if (typeof finalized.message === 'string') {
 			finalized.message = filters.stripHTML(finalized.message).trim();
@@ -748,6 +694,12 @@ export class ChatController extends AbstractController {
 
 		if ((finalized.message?.length || 0) > CHAT_MAX_MESSAGE_LENGTH) {
 			this.log.warn(`chat message exceeds ${CHAT_MAX_MESSAGE_LENGTH} characters; request not sent`);
+			// surface it — `search()` cleared store.error just above, so without this
+			// the message simply vanishes with no feedback to the shopper
+			this.store.error = {
+				type: ErrorType.WARNING,
+				message: `Message is too long. Please keep it under ${CHAT_MAX_MESSAGE_LENGTH} characters.`,
+			};
 			return undefined;
 		}
 
@@ -766,6 +718,16 @@ export class ChatController extends AbstractController {
 		return finalized;
 	};
 
+	/** The user switched chats mid-request. Apply the response to the chat that made it and
+	 * clear its pending request — otherwise reopening that chat re-POSTs the same message. */
+	private applyResponseToBackgroundChat = (requestChatId: string | undefined, response: { chat: any; meta: any }): void => {
+		if (!requestChatId) return;
+		const requestChat = this.store.chats.find((chat) => chat.id === requestChatId);
+		if (!requestChat) return;
+		requestChat.update(response);
+		requestChat.setPendingRequest(null);
+	};
+
 	search = async (overrides?: Partial<ChatRequestModel>): Promise<void> => {
 		// Drop concurrent calls — a spam-click on a suggested question used to fire
 		// one `search` per click since the await on prepareRequest yielded the loop
@@ -780,7 +742,10 @@ export class ChatController extends AbstractController {
 		}
 
 		this.store.error = undefined;
-		const params = deepmerge(this.params, overrides || {});
+		// an override array replaces rather than appends — deepmerge's default concat
+		// would send every `searchFilters` entry twice when the params getter and the
+		// caller both derive them from the same pending facet selection
+		const params = deepmerge(this.params, overrides || {}, { arrayMerge: (destinationArray, sourceArray) => sourceArray });
 
 		const finalizedData = this.finalizeRequestData(params.data);
 		if (!finalizedData) return;
@@ -845,8 +810,10 @@ export class ChatController extends AbstractController {
 			searchProfile.stop();
 			this.log.profile(searchProfile);
 
-			// user started a new chat while this request was in flight — drop the response
+			// user started a new chat while this request was in flight — apply the
+			// response to the chat that asked for it rather than the visible one
 			if (this.store.currentChat?.id !== requestChatId) {
+				this.applyResponseToBackgroundChat(requestChatId, response);
 				return;
 			}
 
@@ -875,6 +842,7 @@ export class ChatController extends AbstractController {
 			// re-check after awaiting afterSearch middleware — the user may have
 			// switched chats while it ran, and update() writes to the current chat
 			if (this.store.currentChat?.id !== requestChatId) {
+				this.applyResponseToBackgroundChat(requestChatId, response);
 				return;
 			}
 
@@ -1005,7 +973,7 @@ export class ChatController extends AbstractController {
 	};
 
 	/** Schedule a resume for after the current tick, so an explicit send issued in
-	 * the same tick (e.g. the chat/send event fires openChat() then search())
+	 * the same tick (e.g. the controller/chat/send event fires openChat() then search())
 	 * takes priority — by the time this runs, that send holds the loading flag
 	 * and has replaced pendingRequest. */
 	private scheduleResume = (): void => {
@@ -1169,21 +1137,21 @@ export class ChatController extends AbstractController {
 					this.store.impressionStorage.set([chatId, responseId, productId], true);
 				}
 			},
-			feedback: (thumbs: 'UP' | 'DOWN'): void => {
-				const chatSessionId = this.store.currentChat?.sessionId;
+		},
+		feedback: (thumbs: 'UP' | 'DOWN'): void => {
+			const chatSessionId = this.store.currentChat?.sessionId;
 
-				if (!chatSessionId) {
-					this.log.warn('No chatSessionId available for track.product.feedback');
-					return;
-				}
+			if (!chatSessionId) {
+				this.log.warn('No chatSessionId available for track.feedback');
+				return;
+			}
 
-				const data: ChatFeedbackSchemaData = {
-					chatSessionId,
-					feedback: thumbs === 'UP' ? ChatFeedbackSchemaDataFeedbackEnum.Positive : ChatFeedbackSchemaDataFeedbackEnum.Negative,
-				};
-				this.eventManager.fire('track.product.feedback', { controller: this, trackEvent: data });
-				this.config.beacon?.enabled && this.tracker.events.chat.feedback({ data, siteId: this.config.siteId });
-			},
+			const data: ChatFeedbackSchemaData = {
+				chatSessionId,
+				feedback: thumbs === 'UP' ? ChatFeedbackSchemaDataFeedbackEnum.Positive : ChatFeedbackSchemaDataFeedbackEnum.Negative,
+			};
+			this.eventManager.fire('track.feedback', { controller: this, trackEvent: data });
+			this.config.beacon?.enabled && this.tracker.events.chat.feedback({ data, siteId: this.config.siteId });
 		},
 	};
 
@@ -1209,10 +1177,4 @@ function convertToBase64(file: File): Promise<string> {
 		reader.onload = () => resolve(reader.result as string);
 		reader.onerror = (error) => reject(error);
 	});
-}
-
-async function base64ToBlob(base64Image: string): Promise<Blob> {
-	const fetchedImage = await fetch(base64Image);
-	const blob = await fetchedImage.blob();
-	return blob;
 }

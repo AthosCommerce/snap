@@ -1,6 +1,7 @@
 import { computed, makeObservable, observable } from 'mobx';
 
 import type { Product } from '../../Search/Stores';
+import type { ChatStoreConfig } from '../../types';
 
 /** Maximum number of products that can be added to a chat comparison. */
 export const CHAT_COMPARISON_MAX = 4;
@@ -12,9 +13,11 @@ export type ChatCompareItem = {
 export class ChatCompareStore {
 	public items: ChatCompareItem[] = [];
 	public committedItems: ChatCompareItem[] = [];
-	public maxItems: number = CHAT_COMPARISON_MAX;
+	public maxItems: number;
 
-	constructor() {
+	constructor(config?: ChatStoreConfig) {
+		this.maxItems = config?.settings?.comparison?.max || CHAT_COMPARISON_MAX;
+
 		makeObservable(this, {
 			items: observable,
 			committedItems: observable,

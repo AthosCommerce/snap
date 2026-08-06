@@ -67,5 +67,5 @@ export const chatAccentThemeComponents = ({
 				},
 			},
 		},
-	} as Theme['components'];
+	};
 };

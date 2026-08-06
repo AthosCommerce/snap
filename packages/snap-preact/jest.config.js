@@ -13,7 +13,7 @@ module.exports = {
 		'\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
 		'^swiper/react$': '<rootDir>/__mocks__/swiperReactMock.js',
 		'^swiper/modules$': '<rootDir>/__mocks__/swiperModulesMock.js',
-		'^marked$': '<rootDir>/__mocks__/markedMock.js',
+		'^marked$': '<rootDir>/../../node_modules/marked/lib/marked.umd.js',
 		'^@testing-library/preact$': '<rootDir>/../../node_modules/@testing-library/preact/dist/cjs/index.js',
 		'^preact$': '<rootDir>/../../node_modules/preact/dist/preact.js',
 		'^preact/compat$': '<rootDir>/../../node_modules/preact/compat/dist/compat.js',

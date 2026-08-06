@@ -101,6 +101,20 @@ describe('ChatMessageText Component', () => {
 		expect(textEl?.innerHTML).not.toContain('onerror');
 	});
 
+	it('strips javascript: URLs produced by markdown link syntax', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: '[click](javascript:alert(1))', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+			/>
+		);
+		const textEl = rendered.container.querySelector('.ss__chat-message-text__text-wrapper__text');
+		// marked turns this into an <a href="javascript:...">; DOMPurify must drop the href
+		expect(textEl?.innerHTML).not.toContain('javascript:');
+		expect(textEl?.textContent).toContain('click');
+	});
+
 	it('preserves legitimate plain text content', () => {
 		const rendered = render(
 			<ChatMessageText

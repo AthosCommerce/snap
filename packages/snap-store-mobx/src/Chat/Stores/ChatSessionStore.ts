@@ -28,16 +28,20 @@ import { ChatCompareStore, ChatCompareItem } from './ChatCompareStore';
 import { SearchResultStore, Product } from '../../Search/Stores';
 import type { ChatStoreConfig } from '../../types';
 
-const chatResultConfig: ChatStoreConfig = { id: 'chat' };
+/** Chat products are built from the owning ChatStore's config so `settings.variants`
+ * applies to them the same way it does to search results. */
+function chatResultConfig(config?: ChatStoreConfig): ChatStoreConfig {
+	return { id: config?.id || 'chat', settings: { variants: config?.settings?.variants } };
+}
 
 /** Thumbnail fallback chain shared by every surface that renders a product attachment. */
 export function getProductThumbnailUrl(core?: SearchResponseModelResultCoreMappings): string | undefined {
 	return core?.thumbnailImageUrl || core?.imageUrl || core?.parentImageUrl;
 }
 
-function createChatResultStore(results: SearchResponseModelResult[], meta: MetaResponseModel): SearchResultStore {
+function createChatResultStore(results: SearchResponseModelResult[], meta: MetaResponseModel, config?: ChatStoreConfig): SearchResultStore {
 	return new SearchResultStore({
-		config: chatResultConfig,
+		config: chatResultConfig(config),
 		state: { loaded: true },
 		data: {
 			search: { results },
@@ -46,9 +50,9 @@ function createChatResultStore(results: SearchResponseModelResult[], meta: MetaR
 	});
 }
 
-function createChatProduct(result: SearchResponseModelResult, meta: MetaResponseModel): Product {
+function createChatProduct(result: SearchResponseModelResult, meta: MetaResponseModel, config?: ChatStoreConfig): Product {
 	return new Product({
-		config: chatResultConfig,
+		config: chatResultConfig(config),
 		data: { result, meta },
 		position: 0,
 		responseId: '',
@@ -229,6 +233,7 @@ type ChatSessionStoreConfig = {
 		committedComparisons?: ChatCompareItem[];
 		pendingRequest?: MoiRequestModel | null;
 	};
+	config?: ChatStoreConfig;
 	stores: {
 		storage: StorageStore;
 	};
@@ -249,8 +254,8 @@ export class ChatSessionStore {
 	public actions: ChatActions = [];
 	public id: string;
 	public sessionId?: string;
-	public attachments: ChatAttachmentStore = new ChatAttachmentStore();
-	public comparisons: ChatCompareStore = new ChatCompareStore();
+	public attachments: ChatAttachmentStore;
+	public comparisons: ChatCompareStore;
 	public storage: StorageStore;
 	public feedback: ChatFeedback = { rating: null, dismissed: false, justGiven: false };
 	public createdAt: Date = new Date();
@@ -265,6 +270,7 @@ export class ChatSessionStore {
 	/** Whether raw stored results have been hydrated into Product/SearchResultStore instances. */
 	public hydrated: boolean = true;
 	private saveTimerId: ReturnType<typeof setTimeout> | null = null;
+	private storeConfig?: ChatStoreConfig;
 
 	constructor(params: ChatSessionStoreConfig) {
 		const { id, sessionId, chat, attachments, actions, feedback, createdAt, sessionEndTime, committedComparisons, pendingRequest } =
@@ -273,6 +279,9 @@ export class ChatSessionStore {
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
 		this.storage = stores.storage;
+		this.storeConfig = params.config;
+		this.comparisons = new ChatCompareStore(params.config);
+		this.attachments = new ChatAttachmentStore(this.comparisons.maxItems);
 		this.actions = actions || [];
 		this.createdAt = createdAt ? new Date(createdAt) : new Date();
 		this.sessionEndTime = sessionEndTime ? new Date(sessionEndTime) : undefined;
@@ -523,6 +532,14 @@ export class ChatSessionStore {
 		}, 0);
 	}
 
+	/** Cancel a pending debounced save so a discarded session can't write itself back. */
+	public destroy(): void {
+		if (this.saveTimerId !== null) {
+			clearTimeout(this.saveTimerId);
+			this.saveTimerId = null;
+		}
+	}
+
 	public setPendingRequest(data: MoiRequestModel | null): void {
 		this.pendingRequest = data;
 		// persist synchronously — this field must survive an immediate navigation/unload,
@@ -569,26 +586,26 @@ export class ChatSessionStore {
 		this.chat.forEach((message) => {
 			if (message.messageType === 'productSearchResult') {
 				if (message.results?.length && !(message.results[0] instanceof Product)) {
-					message.results = createChatResultStore(message.results, meta) as unknown as SearchResponseModelResult[];
+					message.results = createChatResultStore(message.results, meta, this.storeConfig) as unknown as SearchResponseModelResult[];
 				}
 			} else if (message.messageType === 'inspirationResult') {
 				message.inspirationSections?.forEach((section) => {
 					if (section.products?.length && !(section.products[0] instanceof Product)) {
-						section.products = createChatResultStore(section.products, meta) as unknown as SearchResponseModelResult[];
+						section.products = createChatResultStore(section.products, meta, this.storeConfig) as unknown as SearchResponseModelResult[];
 					}
 				});
 			} else if (message.messageType === 'productAnswer') {
 				if (message.sourceProduct && !(message.sourceProduct instanceof Product)) {
-					message.sourceProduct = createChatProduct(message.sourceProduct, meta) as unknown as SearchResponseModelResult;
+					message.sourceProduct = createChatProduct(message.sourceProduct, meta, this.storeConfig) as unknown as SearchResponseModelResult;
 				}
 			} else if (message.messageType === 'productComparison') {
 				if (message.searchResults?.length && !(message.searchResults[0] instanceof Product)) {
-					message.searchResults = createChatResultStore(message.searchResults, meta) as unknown as SearchResponseModelResult[];
+					message.searchResults = createChatResultStore(message.searchResults, meta, this.storeConfig) as unknown as SearchResponseModelResult[];
 				}
 			} else if (message.messageType === 'productRecommendation') {
 				message.recommendationResult?.forEach((rec) => {
 					if (rec.results?.length && !(rec.results[0] instanceof Product)) {
-						rec.results = createChatResultStore(rec.results, meta) as unknown as SearchResponseModelResult[];
+						rec.results = createChatResultStore(rec.results, meta, this.storeConfig) as unknown as SearchResponseModelResult[];
 					}
 				});
 			}
@@ -626,7 +643,7 @@ export class ChatSessionStore {
 
 		// remove any attachments that failed to upload
 		const errorAttachments = this.attachments.items.filter((item) => item.state === 'error');
-		errorAttachments.forEach((item) => this.attachments.items.splice(this.attachments.items.indexOf(item), 1));
+		errorAttachments.forEach((item) => this.attachments.remove(item.id));
 
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {
@@ -761,22 +778,24 @@ export class ChatSessionStore {
 			// convert raw results to Product instances (via SearchResultStore) so
 			// display components can use result.display for mask-aware rendering
 			if (messageData.messageType === 'productSearchResult' && messageData.results?.length) {
-				messageData.results = createChatResultStore(messageData.results as SearchResponseModelResult[], meta) as any;
+				messageData.results = createChatResultStore(messageData.results as SearchResponseModelResult[], meta, this.storeConfig) as any;
 			} else if (messageData.messageType === 'inspirationResult' && messageData.inspirationSections?.length) {
 				messageData.inspirationSections = messageData.inspirationSections.map((section) => ({
 					...section,
 					products: section.products?.length
-						? (createChatResultStore(section.products as SearchResponseModelResult[], meta) as any)
+						? (createChatResultStore(section.products as SearchResponseModelResult[], meta, this.storeConfig) as any)
 						: section.products,
 				}));
 			} else if (messageData.messageType === 'productAnswer' && messageData.sourceProduct) {
-				(messageData as any).sourceProduct = createChatProduct(messageData.sourceProduct as SearchResponseModelResult, meta);
+				(messageData as any).sourceProduct = createChatProduct(messageData.sourceProduct as SearchResponseModelResult, meta, this.storeConfig);
 			} else if (messageData.messageType === 'productComparison' && messageData.searchResults?.length) {
-				messageData.searchResults = createChatResultStore(messageData.searchResults as SearchResponseModelResult[], meta) as any;
+				messageData.searchResults = createChatResultStore(messageData.searchResults as SearchResponseModelResult[], meta, this.storeConfig) as any;
 			} else if (messageData.messageType === 'productRecommendation' && messageData.recommendationResult?.length) {
 				messageData.recommendationResult = messageData.recommendationResult.map((rec) => ({
 					...rec,
-					results: rec.results?.length ? (createChatResultStore(rec.results as SearchResponseModelResult[], meta) as any) : rec.results,
+					results: rec.results?.length
+						? (createChatResultStore(rec.results as SearchResponseModelResult[], meta, this.storeConfig) as any)
+						: rec.results,
 				}));
 			}
 

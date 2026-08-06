@@ -422,7 +422,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 		hideMessageTypeIndicatorText: false,
 		buttonBelowMessage: false,
 		poweredByText: 'Powered by Athos Commerce.',
-		privacyPolicyUrl: 'https://athoscommerce.com/legal/privacy-policy/',
 	};
 
 	let props = mergeProps('chat', globalTheme, defaultProps, properties);
@@ -746,14 +745,14 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 									<Button
 										className="ss__chat__header__button--new"
 										aria-label={langAttrOf(lang.newChatButton, 'aria-label')}
-										icon={{ icon: controller.store.initChatLoading ? 'spinner' : 'plus2', title: langAttrOf(lang.newChatButton, 'title') }}
+										icon={{ icon: controller.store.initChatLoading ? 'spinner' : 'plus-rounded', title: langAttrOf(lang.newChatButton, 'title') }}
 										onClick={() => controller.store.createChat()}
 									/>
 									{store.chats.length > 1 && <ChatHistory {...subProps.history} controller={controller} />}
 									<Button
 										className="ss__chat__header__button--close"
 										aria-label={langAttrOf(lang.closeChatButton, 'aria-label')}
-										icon={{ icon: 'close2', title: langAttrOf(lang.closeChatButton, 'title') }}
+										icon={{ icon: 'close-rounded', title: langAttrOf(lang.closeChatButton, 'title') }}
 										onClick={() => controller.handlers.button.click()}
 									/>
 								</div>

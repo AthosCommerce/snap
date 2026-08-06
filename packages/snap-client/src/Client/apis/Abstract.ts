@@ -27,13 +27,9 @@ export class API<PathConfigurationType> {
 	private retryCount = 0;
 
 	public cache: NetworkCache;
-	public memoryCache: NetworkCache;
 
 	constructor(public configuration: ApiConfiguration<PathConfigurationType>) {
 		this.cache = new NetworkCache(this.configuration.cache);
-		// Memory-only cache for endpoints that should never persist to sessionStorage
-		// (e.g. /v1/products — quickview lookups don't need to survive a page reload).
-		this.memoryCache = new NetworkCache({ ...this.configuration.cache, type: 'memory' });
 	}
 
 	protected get mode(): AppMode {

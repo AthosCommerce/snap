@@ -50,6 +50,10 @@ The following settings can be configured in the `ChatControllerConfig`:
 | `settings.quickview.enabled` | `boolean` | `false` | Enable the product quickview panel for chat product clicks |
 | `settings.quickview.displayFields` | `string[]` | — | Fields to display in the product quickview panel |
 | `settings.bgFilters` | `Record<string, string>` | — | Background filters forwarded to the chat init API as `searchConfig.bgFilters` |
+| `settings.inputSelector` | `string` | `'.ss__chat__input input[type="text"]'` | CSS selector `focusInput` uses to locate the chat text input |
+| `settings.languageCode` | `string` | `navigator.language` | Language code forwarded to chat init. Snap Templates supplies the configured locale |
+| `settings.mobileBreakpoint` | `number` | `767` | Max viewport width treated as mobile (input focus is skipped there). Match your theme breakpoint |
+| `settings.comparison.max` | `number` | `4` | Maximum products in a chat comparison |
 | `beacon` | `{ enabled: boolean }` | `{ enabled: true }` | Enable or disable analytics tracking for chat events |
 | `globals` | `Partial<ChatRequestModel>` | — | Default request parameters applied to all chat requests |
 | `middleware` | `object` | — | Event middleware hooks (see [Middleware](https://athoscommerce.github.io/snap/reference-snap-preact-middleware)) |
@@ -109,8 +113,8 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 | `title` | `string` | `'Athos Conversational Assistant'` | Primary header title. |
 | `subtitle` | `string` | `'Your Guided Discovery Expert'` | Secondary header title. |
 | `position` | `'left' \| 'right'` | `'right'` | Which side of the viewport the chat panel and launcher bubble anchor to. |
-| `offset` | `string \| number` | — | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
-| `multiselectFacets` | `boolean` | `true` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
+| `offset` | `string \| number` | `'20px'` (set by the shipped themes) | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
+| `multiselectFacets` | `boolean` | `false` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
 | `disableBubbleSuggestedQuestions` | `boolean` | `false` | Hide the suggested-question chips that appear on the launcher bubble before the chat has been opened. |
 | `primaryColorBg` | `string` | `'#253B80'` | Primary brand colour — background of headers, buttons, and accents. |
 | `primaryColorFg` | `string` | `'#fff'` | Foreground (text/icon) colour paired with `primaryColorBg`. |
@@ -118,6 +122,8 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 | `primaryAccentColorFg` | `string` | `'#000000'` | Foreground colour paired with `primaryAccentColorBg`. |
 | `secondaryAccentColorBg` | `string` | `'#000000'` | Secondary accent colour (e.g. the "Discuss Product" icon background on `ChatResult`). |
 | `secondaryAccentColorFg` | `string` | `'#ffffff'` | Foreground colour paired with `secondaryAccentColorBg`. |
+| `poweredByText` | `string` | `'Powered by Athos Commerce.'` | Attribution text in the composer disclaimer. |
+| `privacyPolicyUrl` | `string` | — | Link target for the disclaimer's privacy-policy link. The link is omitted entirely unless you set this — point it at **your** privacy policy, since you are the data controller for shopper conversations. |
 
 In addition, every prop inherited from `ComponentProps` is also accepted — most notably `className`, `style`, `styleScript`, `theme`, and `disableStyles` for styling overrides.
 
@@ -201,27 +207,27 @@ The following global events are registered on the Snap event manager and can be 
 
 ```js
 // open the chat (no request fired)
-window.athos.fire('chat/send');
+window.athos.fire('controller/chat/send');
 
 // open the chat and send a plain text message — defaults to a 'general' request
-window.athos.fire('chat/send', { message: 'Show me winter jackets' });
+window.athos.fire('controller/chat/send', { message: 'Show me winter jackets' });
 
 // open the chat and send a typed request (any MoiRequestModel variant works)
-window.athos.fire('chat/send', {
+window.athos.fire('controller/chat/send', {
     requestType: 'productSearch',
     searchTerm: 'red dress',
 });
 
 // open the chat and ask about a specific product
-window.athos.fire('chat/productQuery', { result: productData });
+window.athos.fire('controller/chat/productQuery', { result: productData });
 
 // open the chat and find products similar to the given one (sends the request immediately)
-window.athos.fire('chat/productSimilar', { result: productData });
+window.athos.fire('controller/chat/productSimilar', { result: productData });
 ```
 
 All events accept an optional `controllerIds` array (string or RegExp) to target specific chat controller instances.
 
-The `chat/send` event accepts the same discriminated union the chat backend uses — `general`, `productQuery`, `productSearch`, `productComparison`, `imageSearch`, `productSimilar`, `inspiration`, and `content`. If `requestType` is omitted and a `message` is provided, the request defaults to `general`. If neither is provided, the chat is opened without firing a request.
+The `controller/chat/send` event accepts the same discriminated union the chat backend uses — `general`, `productQuery`, `productSearch`, `productComparison`, `imageSearch`, `productSimilar`, `inspiration`, and `content`. If `requestType` is omitted and a `message` is provided, the request defaults to `general`. If neither is provided, the chat is opened without firing a request.
 
 
 ## Request Types

@@ -749,6 +749,9 @@ export class Snap {
 
 						this._controllerPromises[controller.config.id] = new Promise(async (resolve) => {
 							try {
+								// `_initialized` is only set after the awaited init fires, so two chat
+								// targeters would otherwise both re-run the init middleware
+								let initialized = false;
 								const targetFunction = async (target: ExtendedTarget, elem: Element, originalElem: Element) => {
 									const onTarget = target.onTarget as OnTarget;
 									onTarget && (await onTarget(target, elem, originalElem));
@@ -805,7 +808,10 @@ export class Snap {
 												if (cntrlr) resolve(cntrlr);
 											}
 										);
-										if (!cntrlr.initialized) cntrlr.init();
+										if (!initialized) {
+											initialized = true;
+											if (!cntrlr.initialized) cntrlr.init();
+										}
 										targetFunction({ controller: cntrlr, ...target }, elem, originalElem!);
 										cntrlr.addTargeter(targeter);
 									});

@@ -1812,7 +1812,7 @@ describe('Autocomplete Controller', () => {
 			delete window.athos;
 		});
 
-		it('fires the chat/send event with the current input', () => {
+		it('fires the controller/chat/send event with the current input', () => {
 			const controller = createController();
 			controller.store.state.input = 'red dress';
 			const fireFn = jest.fn();
@@ -1820,7 +1820,7 @@ describe('Autocomplete Controller', () => {
 
 			controller.openChat();
 
-			expect(fireFn).toHaveBeenCalledWith('chat/send', { message: 'red dress' });
+			expect(fireFn).toHaveBeenCalledWith('controller/chat/send', { message: 'red dress' });
 		});
 
 		it('does not throw when the athos global is absent', () => {

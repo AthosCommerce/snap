@@ -274,10 +274,10 @@ describe('setupEvents', () => {
 		});
 	});
 
-	describe('chat/send', () => {
+	describe('controller/chat/send', () => {
 		it('opens the chat without dispatching a request when no data is passed', () => {
 			expect(() => {
-				eventManager.fire('chat/send');
+				eventManager.fire('controller/chat/send');
 			}).not.toThrow();
 
 			expect(openChatSpy).toHaveBeenCalledTimes(1);
@@ -286,7 +286,7 @@ describe('setupEvents', () => {
 
 		it('dispatches a general request when a message is passed', () => {
 			expect(() => {
-				eventManager.fire('chat/send', { message: 'hello' });
+				eventManager.fire('controller/chat/send', { message: 'hello' });
 			}).not.toThrow();
 
 			expect(openChatSpy).toHaveBeenCalledTimes(1);
@@ -296,7 +296,7 @@ describe('setupEvents', () => {
 
 		it('dispatches a request with an explicit requestType', () => {
 			expect(() => {
-				eventManager.fire('chat/send', { requestType: 'inspiration', message: 'outfit ideas' });
+				eventManager.fire('controller/chat/send', { requestType: 'inspiration', message: 'outfit ideas' });
 			}).not.toThrow();
 
 			expect(openChatSpy).toHaveBeenCalledTimes(1);
@@ -306,7 +306,7 @@ describe('setupEvents', () => {
 
 		it('only invokes chat type controllers', () => {
 			expect(() => {
-				eventManager.fire('chat/send', { controllerIds: ['search'], message: 'hello' });
+				eventManager.fire('controller/chat/send', { controllerIds: ['search'], message: 'hello' });
 			}).not.toThrow();
 
 			expect(openChatSpy).not.toHaveBeenCalled();
@@ -315,7 +315,7 @@ describe('setupEvents', () => {
 
 		it('can pass exact match controllerId', () => {
 			expect(() => {
-				eventManager.fire('chat/send', { controllerIds: ['chat'], message: 'hello' });
+				eventManager.fire('controller/chat/send', { controllerIds: ['chat'], message: 'hello' });
 			}).not.toThrow();
 
 			expect(openChatSpy).toHaveBeenCalledTimes(1);
@@ -323,12 +323,12 @@ describe('setupEvents', () => {
 		});
 	});
 
-	describe('chat/productQuery', () => {
+	describe('controller/chat/productQuery', () => {
 		it('invokes productQuery with the result and opens the chat', () => {
 			const result = { id: 'product123' };
 
 			expect(() => {
-				eventManager.fire('chat/productQuery', { result });
+				eventManager.fire('controller/chat/productQuery', { result });
 			}).not.toThrow();
 
 			expect(productQuerySpy).toHaveBeenCalledTimes(1);
@@ -338,7 +338,7 @@ describe('setupEvents', () => {
 
 		it('only invokes chat type controllers', () => {
 			expect(() => {
-				eventManager.fire('chat/productQuery', { controllerIds: ['search'], result: { id: 'product123' } });
+				eventManager.fire('controller/chat/productQuery', { controllerIds: ['search'], result: { id: 'product123' } });
 			}).not.toThrow();
 
 			expect(productQuerySpy).not.toHaveBeenCalled();
@@ -352,18 +352,18 @@ describe('setupEvents', () => {
 			openChatSpy.mockImplementationOnce(() => order.push('openChat'));
 			productQuerySpy.mockImplementationOnce(() => order.push('productQuery'));
 
-			eventManager.fire('chat/productQuery', { result: { id: 'product123' } });
+			eventManager.fire('controller/chat/productQuery', { result: { id: 'product123' } });
 
 			expect(order).toEqual(['openChat', 'productQuery']);
 		});
 	});
 
-	describe('chat/productSimilar', () => {
+	describe('controller/chat/productSimilar', () => {
 		it('invokes productSimilar with the result and opens the chat', () => {
 			const result = { id: 'product123' };
 
 			expect(() => {
-				eventManager.fire('chat/productSimilar', { result });
+				eventManager.fire('controller/chat/productSimilar', { result });
 			}).not.toThrow();
 
 			expect(productSimilarSpy).toHaveBeenCalledTimes(1);
@@ -373,7 +373,7 @@ describe('setupEvents', () => {
 
 		it('only invokes chat type controllers', () => {
 			expect(() => {
-				eventManager.fire('chat/productSimilar', { controllerIds: ['search'], result: { id: 'product123' } });
+				eventManager.fire('controller/chat/productSimilar', { controllerIds: ['search'], result: { id: 'product123' } });
 			}).not.toThrow();
 
 			expect(productSimilarSpy).not.toHaveBeenCalled();
@@ -387,7 +387,7 @@ describe('setupEvents', () => {
 			openChatSpy.mockImplementationOnce(() => order.push('openChat'));
 			productSimilarSpy.mockImplementationOnce(() => order.push('productSimilar'));
 
-			eventManager.fire('chat/productSimilar', { result: { id: 'product123' } });
+			eventManager.fire('controller/chat/productSimilar', { result: { id: 'product123' } });
 
 			expect(order).toEqual(['openChat', 'productSimilar']);
 		});

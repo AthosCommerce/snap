@@ -116,7 +116,6 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 
 	const defaultProps: Partial<ChatComposerProps> = {
 		poweredByText: 'Powered by Athos Commerce.',
-		privacyPolicyUrl: 'https://athoscommerce.com/legal/privacy-policy/',
 		treePath: globalTreePath,
 	};
 
@@ -224,10 +223,15 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 				</div>
 				<div className={'ss__chat__disclaimer'}>
 					<i>
-						{poweredByText} {langTextOf(lang.disclaimerText)}{' '}
-						<a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">
-							{langTextOf(lang.privacyPolicyLinkText)}
-						</a>
+						{poweredByText} {langTextOf(lang.disclaimerText)}
+						{privacyPolicyUrl && (
+							<>
+								{' '}
+								<a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">
+									{langTextOf(lang.privacyPolicyLinkText)}
+								</a>
+							</>
+						)}
 					</i>
 				</div>
 			</div>

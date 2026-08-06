@@ -316,7 +316,7 @@ describe('Result Component', () => {
 		expect(discussButton?.querySelector('.ss__icon--chat')).toBeInTheDocument();
 	});
 
-	it('fires the chat/productQuery event on the athos event bus by default', async () => {
+	it('fires the controller/chat/productQuery event on the athos event bus by default', async () => {
 		const fire = jest.fn();
 		(window as any).athos = { fire };
 
@@ -325,7 +325,7 @@ describe('Result Component', () => {
 		await userEvent.click(discussButton);
 
 		expect(fire).toHaveBeenCalledTimes(1);
-		expect(fire).toHaveBeenCalledWith('chat/productQuery', { result: mockResults[0] });
+		expect(fire).toHaveBeenCalledWith('controller/chat/productQuery', { result: mockResults[0] });
 
 		delete (window as any).athos;
 	});

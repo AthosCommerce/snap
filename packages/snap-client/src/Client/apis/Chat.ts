@@ -1,7 +1,6 @@
 import { API, Json } from './Abstract';
-import { defined } from './Recommend';
 import {
-	ChatBadRequestResponse,
+	ChatBadRequestResponseModel,
 	ChatInitRequestModel,
 	ChatInitResponseModel,
 	ChatRequesterPaths,
@@ -17,8 +16,11 @@ import {
 	UploadImageResponseModel,
 } from '../../types';
 import { transformChatResponse } from '../transforms/chatResponse';
+import { defined } from '../utils/defined';
 
 const JSON_HEADERS: HTTPHeaders = { 'Content-Type': 'application/json' };
+
+export const CHAT_MAX_MESSAGE_LENGTH = 256;
 
 const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> => {
 	return defined({
@@ -43,7 +45,7 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 
 	private handleError(err: any): never {
 		if (err?.fetchDetails?.status === 400) {
-			const body = err?.responseBody as ChatBadRequestResponse;
+			const body = err?.responseBody as ChatBadRequestResponseModel;
 			throw {
 				err: new Error(body?.errorMessage || 'Bad Request'),
 				fetchDetails: err.fetchDetails,
@@ -57,8 +59,9 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 		const userId = requestParameters.personalization?.shopper || requestParameters.tracking.userId;
 		const chatSessionId = requestParameters.context?.sessionId;
 
+		let response: MoiResponseModel;
 		try {
-			const response = await this.request<MoiResponseModel>({
+			response = await this.request<MoiResponseModel>({
 				path: this.configuration.paths.send || '/v1/chat/send',
 				method: 'POST',
 				headers: JSON_HEADERS,
@@ -70,23 +73,23 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 				},
 				body: requestParameters.data,
 			});
-
-			// some error conditions (e.g. session limit CS_003) are returned as a
-			// 200 response with an errorCode body — surface as a thrown error so
-			// the controller's existing error handling can react
-			const errorBody = response as unknown as ChatBadRequestResponse & { errorCode?: string };
-			if (errorBody?.errorCode) {
-				throw {
-					err: new Error(errorBody.errorMessage || 'Bad Request'),
-					fetchDetails: { status: 200, message: 'OK' },
-					responseBody: errorBody,
-				};
-			}
-
-			return transformChatResponse(response);
 		} catch (err: any) {
 			this.handleError(err);
 		}
+
+		// some error conditions (e.g. session limit CS_003) are returned as a
+		// 200 response with an errorCode body — surface as a thrown error so
+		// the controller's existing error handling can react
+		const errorBody = response as unknown as ChatBadRequestResponseModel & { errorCode?: string };
+		if (errorBody?.errorCode) {
+			throw {
+				err: new Error(errorBody.errorMessage || 'Bad Request'),
+				fetchDetails: { status: 200, message: 'OK' },
+				responseBody: errorBody,
+			};
+		}
+
+		return transformChatResponse(response);
 	}
 
 	async getStatus(queryParameters: ChatStatusRequestModel & ClientGlobals): Promise<ChatStatusResponseModel> {

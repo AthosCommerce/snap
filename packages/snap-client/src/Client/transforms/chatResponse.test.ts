@@ -397,6 +397,28 @@ describe('transformChatResponse.productRecommendation', () => {
 		expect(result.recommendationResult[0].profile.tag).toBe('similar');
 		expect((result.recommendationResult[0].results[0] as any).responseId).toBe('resp-123');
 	});
+
+	it('runs recommendation results through the product transform', () => {
+		const data: MoiResponseModelProductRecommendation = {
+			messageType: 'productRecommendation',
+			id: 'rec-1',
+			recommendationResult: [
+				{
+					results: [rawProduct as any],
+					profile: { name: 'Similar', tag: 'similar', type: 'product', limit: 4 },
+				},
+			],
+			sourceProduct: rawProduct as any,
+			text: 'You might also like these',
+		};
+
+		const recommended = transformChatResponse.productRecommendation(data, 'resp-123').recommendationResult[0].results[0];
+
+		// results must be mapped like every other message branch — SearchResultStore
+		// reads `mappings.core`, and `id` must be the uid rather than the catalog id
+		expect(recommended.id).toBe('182146');
+		expect(recommended.mappings?.core).toEqual(expect.objectContaining({ name: 'Test Dress', sku: 'TEST-SKU', uid: '182146' }));
+	});
 });
 
 describe('transformChatResponse.productData facets', () => {
@@ -511,7 +533,7 @@ describe('transformChatResponse.productData facets', () => {
 		);
 
 		// no usable slider bounds and no values — plain value facet without options
-		expect(result.facets).toEqual([{ field: 'price', label: 'Price', type: 'value' }]);
+		expect(result.facets).toEqual([{ field: 'price', label: 'Price', type: 'value', filtered: false }]);
 	});
 
 	it('falls through when a slider has no range payload at all', () => {
@@ -528,7 +550,7 @@ describe('transformChatResponse.productData facets', () => {
 			'resp-1'
 		);
 
-		expect(result.facets).toEqual([{ field: 'price', label: 'Price', type: 'value' }]);
+		expect(result.facets).toEqual([{ field: 'price', label: 'Price', type: 'value', filtered: false }]);
 	});
 
 	it('synthesizes a slider from price range buckets', () => {
@@ -609,6 +631,7 @@ describe('transformChatResponse.productData facets', () => {
 				field: 'weight',
 				label: 'Weight',
 				type: 'range-buckets',
+				filtered: true,
 				values: [
 					{ filtered: false, low: undefined, high: 10, label: 'Under 10', count: 3 },
 					{ filtered: true, low: 10, high: undefined, label: '10+', count: 7 },
@@ -636,6 +659,7 @@ describe('transformChatResponse.productData facets', () => {
 				field: 'category',
 				label: 'Category',
 				type: 'value',
+				filtered: true,
 				values: [{ filtered: true, value: 'Dresses', label: 'Dresses', count: 20 }],
 			},
 		]);

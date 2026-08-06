@@ -99,6 +99,7 @@ export type LangComponents = {
 	// banner: BannerLang
 	// inlineBanner: InlineBannerLang
 	// overlay: OverlayLang
+	chatLoadingIndicator: ChatLoadingIndicatorLang;
 	paginationInfo: PaginationInfoLang;
 	// price: PriceLang
 	// skeleton: SkeletonLang
@@ -109,7 +110,6 @@ export type LangComponents = {
 	// carousel: CarouselLang
 	chatAttachmentContext: ChatAttachmentContextLang;
 	chatInspirationResultMessage: ChatInspirationResultMessageLang;
-	chatLoadingIndicator: ChatLoadingIndicatorLang;
 	chatMessageText: ChatMessageTextLang;
 	chatMessageUser: ChatMessageUserLang;
 	chatProductComparisonMessage: ChatProductComparisonMessageLang;

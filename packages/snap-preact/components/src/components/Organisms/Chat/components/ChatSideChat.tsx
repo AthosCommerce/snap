@@ -259,7 +259,7 @@ export const ChatSideChat = observer((properties: ChatSideChatProps): JSX.Elemen
 						<Button
 							className="ss__chat__header__button--close"
 							aria-label={langAttrOf(lang.closeChatButton, 'aria-label')}
-							icon={{ icon: 'close2', title: langAttrOf(lang.closeChatButton, 'title') }}
+							icon={{ icon: 'close-rounded', title: langAttrOf(lang.closeChatButton, 'title') }}
 							onClick={() => onDismiss && onDismiss()}
 						/>
 					</div>

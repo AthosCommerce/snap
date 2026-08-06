@@ -14,7 +14,7 @@ import type { MetaResponseModel, SearchResponseModel, AutocompleteResponseModel 
 import {
 	RecommendCombinedResponseModel,
 	ChatResponseModel,
-	ChatStatusResponse,
+	ChatStatusResponseModel,
 	ChatInitResponseModel,
 	UploadImageResponseModel,
 } from '@athoscommerce/snap-client';
@@ -158,7 +158,7 @@ export class MockData {
 		}
 	}
 
-	chatStatus(file?: string): ChatStatusResponse {
+	chatStatus(file?: string): ChatStatusResponseModel {
 		const chatStatusFile = `${__dirname}/chat/${this.config.siteId}/${file || this.config.chatStatus}.json`;
 		try {
 			return getJSON(chatStatusFile);

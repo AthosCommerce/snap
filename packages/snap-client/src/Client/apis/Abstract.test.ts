@@ -280,16 +280,19 @@ describe('Abstract Api', () => {
 			query: { siteId: '8uyt2m' },
 		};
 
-		//@ts-ignore
-		const response = await api.request(context);
+		try {
+			//@ts-ignore
+			const response = await api.request(context);
 
-		// the base API ignores the x-session-id header (only ChatAPI applies it)
-		expect(response).toEqual({ found: true });
-
-		// restore the shared fetch mock implementation
-		fetchWithSessionHeader.mockImplementation(() =>
-			Promise.resolve({ status: 200, json: () => Promise.resolve(), headers: new Headers() } as Response)
-		);
+			// the base API ignores the x-session-id header (only ChatAPI applies it)
+			expect(response).toEqual({ found: true });
+		} finally {
+			// restore the shared fetch mock implementation even if the assertion fails,
+			// so a failure here does not cascade into every later test in the file
+			fetchWithSessionHeader.mockImplementation(() =>
+				Promise.resolve({ status: 200, json: () => Promise.resolve(), headers: new Headers() } as Response)
+			);
+		}
 	});
 
 	it('can handle subDomain parameter in createFetchParams', async () => {
