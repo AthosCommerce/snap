@@ -20,12 +20,19 @@ controller.store.results.map(result => {
 ### Product Add To Cart
 Tracks product add to cart events. It is recommended to invoke on each product `onClick` event via the `controller.addToCart()` method available on all controller types.
 
+`controller.addToCart()` returns a Promise that settles after add-to-cart middleware has completed (it will reject if middleware cancels or throws). This makes it safe to run post-cart actions after a successful `await`.
+
 ```tsx
 controller.store.results.map(result => {
+	const handleAddToCart = async () => {
+		await controller.addToCart(result);
+		// optional: open cart drawer or redirect after cart middleware finishes
+	};
+
 	return (
 		<a href={core.url} onMouseDown={(e)=> controller.track.product.click(e, result) }>
 			{result.name}
-			<button onClick={(e)=> controller.addToCart(result)}>Add to cart</button>
+			<button onClick={handleAddToCart}>Add to cart</button>
 		</a>
 	)
 })
@@ -59,12 +66,16 @@ const CustomResult = withController(withTracking((props) => {
 	const { trackingRef, controller, result } = props;
 	const { core } = result.mappings;
 
+	const handleAddToCart = async () => {
+		await controller.addToCart(result);
+	};
+
 	return (
 		<div className="ss__result" ref={trackingRef}>
 			<a href={core.url}>
 				{ core.name }
 			</a>
-			<button onClick={(e)=> controller.addToCart(result)}>Add to cart</button>
+			<button onClick={handleAddToCart}>Add to cart</button>
 		</div>
 	)
 }));
@@ -85,12 +96,16 @@ const Results = withController((props) => {
 			{
 				controller.store.results.map(result => {
 					const { core } = result.mappings;
+					const handleAddToCart = async () => {
+						await controller.addToCart(result);
+					};
+
 					return (
 						<ResultTracker key={result.id} result={result} controller={controller}>
 							<a href={core.url}>
 								{ core.name }
 							</a>
-							<button onClick={(e)=> controller.addToCart(result)}>Add to cart</button>
+							<button onClick={handleAddToCart}>Add to cart</button>
 						</ResultTracker>
 					)
 				})

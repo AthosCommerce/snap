@@ -16,6 +16,11 @@ export type BeaconSettings = {
 export type StoreConfig = {
 	id: string;
 	beacon?: BeaconSettings;
+	asyncState?: {
+		product?: {
+			price?: boolean;
+		};
+	};
 	[any: string]: unknown;
 };
 
@@ -43,7 +48,6 @@ export type SearchStoreConfigSettings = {
 		onPageShow?: boolean;
 	};
 	variants?: VariantConfig;
-	quickview?: QuickviewConfig;
 	history?: {
 		url?: string;
 		max?: number;
@@ -84,27 +88,41 @@ export type VariantOptionConfigMappings = {
 	};
 };
 
-// Chat Config
-export type ChatStoreConfig = StoreConfig & {
-	globals?: Partial<ChatRequestModel>;
-	settings?: ChatStoreConfigSettings;
-	siteId?: string;
-};
-
+// Shared by Search/Autocomplete/Recommendation settings and Chat config
 export type QuickviewConfig = {
 	enabled: boolean;
 	displayFields?: string[];
 };
 
+// Chat Config
+export type ChatStoreConfig = StoreConfig & {
+	globals?: Partial<ChatRequestModel>;
+	settings?: ChatStoreConfigSettings;
+	/** Kept top-level (not in `globals`) because ChatRequestModel has no siteId —
+	 * it is only used to namespace the chat localStorage keys per site. */
+	siteId?: string;
+};
+
+/** A chat facet selection: a plain option value, or the bounds of a range bucket.
+ * Callers pass the shape directly — the store never infers one from the other. */
+export type ChatFacetValue = string | { low?: number; high?: number };
+
 export type ChatStoreConfigSettings = {
+	/** CSS selector used by focusInput to locate the chat text input. */
+	inputSelector?: string;
+	/** Max viewport width treated as mobile — should match the theme breakpoint. Defaults to 767. */
+	mobileBreakpoint?: number;
+	variants?: VariantConfig;
 	quickview?: QuickviewConfig;
+	comparison?: {
+		max?: number;
+	};
 	feedbackAfterMessages?: number;
 	/** Background filters forwarded to the chat init API as `searchConfig.bgFilters`. */
 	bgFilters?: Record<string, string>;
 	/** Language code forwarded to chat init as `languageCode`. Sourced from the Snap
 	 * Templates configured locale; falls back to `navigator.language` when absent. */
 	languageCode?: string;
-	[key: string]: unknown;
 };
 
 // Search Config
@@ -163,7 +181,6 @@ export type AutocompleteStoreConfigSettings = {
 		showResults?: boolean;
 	};
 	variants?: VariantConfig;
-	quickview?: QuickviewConfig;
 	history?: {
 		enabled?: boolean;
 		limit?: number;
@@ -201,7 +218,6 @@ export type RecommendationStoreConfig = StoreConfig & {
 	settings?: {
 		variants?: VariantConfig;
 		searchOnPageShow?: boolean;
-		quickview?: QuickviewConfig;
 	};
 };
 

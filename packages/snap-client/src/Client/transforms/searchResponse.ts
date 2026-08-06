@@ -1,5 +1,7 @@
 import { unescapeHTML } from '@athoscommerce/snap-toolbox';
 
+import type { RawResult } from '../../types';
+
 import {
 	SearchRequestModel,
 	SearchRequestModelFilterValue,
@@ -22,7 +24,7 @@ import {
 	SearchResponseModelTracking,
 } from '@athoscommerce/snapi-types';
 
-export const CORE_FIELDS = [
+const CORE_FIELDS = [
 	'uid',
 	'sku',
 	'available',
@@ -51,40 +53,6 @@ type SortingOption = {
 	direction: string;
 	label: string;
 	active?: number;
-};
-
-export type RawResult = {
-	available: string;
-	badges?: SearchResponseModelResultBadges[];
-	variants?: SearchResponseModelResultVariants;
-	brand?: string;
-	collection_handle?: string[];
-	collection_id?: string[];
-	handle?: string;
-	id: string;
-	imageUrl: string;
-	intellisuggestData?: string;
-	intellisuggestSignature?: string;
-	msrp?: string;
-	name: string;
-	parentId: string;
-	parentImageUrl: string;
-	price: string;
-	product_type?: string[];
-	product_type_unigram?: string;
-	sku: string;
-	ss_available?: string;
-	ss_best_selling?: string;
-	ss_days_since_published?: string;
-	ss_id?: string;
-	ss_image_hover?: string;
-	ss_images?: string[];
-	ss_inventory_count?: string;
-	ss_tags?: string[];
-	thumbnailImageUrl?: string;
-	uid?: string;
-	url?: string;
-	children?: [];
 };
 
 type FacetValue = {
@@ -175,10 +143,11 @@ export type SearchResponseType = {
 		matchType?: SearchResponseModelSearchMatchTypeEnum;
 		corrected?: string;
 		original?: string;
+		subject?: string;
 	};
 };
 
-export class Result implements SearchResponseModelResult {
+class Result implements SearchResponseModelResult {
 	constructor(result: SearchResponseModelResult & { responseId: string }) {
 		Object.assign(this, result);
 	}
@@ -439,10 +408,12 @@ transformSearchResponse.search = (
 		didYouMean?: string;
 		matchType?: SearchResponseModelSearchMatchTypeEnum;
 		originalQuery?: string;
+		subject?: string;
 	} = {
 		query: request?.search?.query?.string,
 		didYouMean: response?.didYouMean?.query,
 		matchType: response?.query?.matchType,
+		subject: response?.query?.subject,
 	};
 
 	if (response?.query?.corrected && response?.query.original) {
@@ -461,7 +432,7 @@ transformSearchResponse.tracking = (response: SearchResponseType): SearchRespons
 };
 
 // used for HTML entities decoding
-export function decodeProperty(encoded: string | string[] | SearchResponseModelResultBadges[] | SearchResponseModelResultVariants) {
+function decodeProperty(encoded: string | string[] | SearchResponseModelResultBadges[] | SearchResponseModelResultVariants) {
 	if (Array.isArray(encoded)) {
 		return encoded.map((item) => {
 			if (typeof item === 'string') {

@@ -2,18 +2,20 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
-// import { Lang } from '../../../hooks';
 import { ChatRequestModel, ChatResponseInspirationResultData } from '@athoscommerce/snap-client';
 import { Image } from '../../Atoms/Image';
-import { Icon, IconProps } from '../../Atoms/Icon';
+import { Button, ButtonProps } from '../../Atoms/Button';
 import { Slideshow, SlideshowProps, SlideshowSlide } from '../Slideshow';
 
-const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
+const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = ({ theme }) => {
+	const colorPrimary = Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	return css({
 		'.ss__chat-inspiration-result-message__inspiration-sections': {
 			display: 'flex',
@@ -38,8 +40,9 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 					display: 'flex',
 					gap: '1em',
 					flexWrap: 'wrap',
-					'.ss__chat-inspiration-result-message__inspiration-sections__section__queries__query': {
+					'.ss__chat-inspiration-result-message__inspiration-sections__section__queries__query.ss__button': {
 						display: 'inline-flex',
+						flexDirection: 'row-reverse',
 						alignItems: 'center',
 						gap: '0.5em',
 						background: '#fff',
@@ -49,8 +52,11 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 						cursor: 'pointer',
 						font: 'inherit',
 						color: 'inherit',
+						'.ss__button__content': {
+							width: 'auto',
+						},
 						'&:focus-visible': {
-							outline: '2px solid #253B80',
+							outline: `2px solid ${colorPrimary}`,
 							outlineOffset: '2px',
 						},
 					},
@@ -81,6 +87,8 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = () => {
 	});
 };
 
+let warnedUnsupportedMessageType = false;
+
 export const ChatInspirationResultMessage = observer((properties: ChatInspirationResultMessageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -92,6 +100,12 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 	const props = mergeProps('chatInspirationResultMessage', globalTheme, defaultProps, properties);
 
 	const { chatItem, controller, onProductQuickView, disableStyles, className, internalClassName, treePath } = props;
+
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatInspirationResultMessage', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	const subProps: ChatInspirationResultMessageSubProps = {
 		slideshow: {
@@ -110,25 +124,14 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 			showPagination: false,
 			centerInsufficientSlides: false,
 		},
-		icon: {
+		queryButton: {
 			disableStyles,
 			theme: props?.theme,
 			treePath,
-			size: '1em',
 		},
 	};
 
 	const styling = mergeStyles<ChatInspirationResultMessageProps>(props, defaultStyles);
-
-	//initialize lang
-	// const defaultLang = {
-	// 	// label: {
-	// 	// 	value: label,
-	// 	// },
-	// };
-
-	//deep merge with props.lang
-	// const lang = deepmerge(defaultLang, props.lang || {});
 
 	const handleProductClick = (e: any, product: any): void => {
 		// buttons/links should be clickable without triggering the product click
@@ -138,17 +141,12 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 		onProductQuickView?.();
 	};
 
-	const handleProductKeyDown = (e: any, product: any): void => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			controller?.productQuickView(product);
-			onProductQuickView?.();
-		}
-	};
-
 	const { messageType, inspirationSections } = chatItem;
 	if (messageType !== 'inspirationResult') {
-		console.warn('ChatInspirationResultMessage received message with unsupported type:', messageType, 'Expected type: inspirationResult');
+		if (!warnedUnsupportedMessageType) {
+			console.warn('ChatInspirationResultMessage received message with unsupported type:', messageType, 'Expected type: inspirationResult');
+			warnedUnsupportedMessageType = true;
+		}
 		return null;
 	}
 
@@ -173,13 +171,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 
 	return inspirationSections.length ? (
 		<CacheProvider>
-			<div
-				className={classnames('ss__chat-inspiration-result-message', className, internalClassName)}
-				{...styling}
-				// lang={{
-				// 	buttonLabel: lang.label,
-				// }}
-			>
+			<div className={classnames('ss__chat-inspiration-result-message', className, internalClassName)} {...styling}>
 				<div className={classnames('ss__chat-inspiration-result-message__inspiration-sections')}>
 					{inspirationSections.map((section, index) => (
 						<div key={index} className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section')}>
@@ -188,44 +180,70 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 								{section.clusterDescription}
 							</div>
 							<div className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__queries')}>
-								{section.searchQueries.map((searchTerm, index) => (
-									<button
-										type="button"
-										key={index}
-										className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__queries__query')}
-										aria-label={`Search for "${searchTerm}"`}
-										onClick={() => {
-											if (controller?.store.loading || controller?.store.blocked) return;
-											const searchFilters = getSectionSearchFilters(section);
-											controller?.search({
-												data: {
-													requestType: 'productSearch',
-													searchTerm,
-													...(searchFilters.length ? { searchFilters } : {}),
-												},
-											} as Partial<ChatRequestModel>);
-										}}
-									>
-										<Icon {...subProps.icon} icon="search" />
-										{searchTerm}
-									</button>
-								))}
+								{section.searchQueries.map((searchTerm, index) => {
+									const queryDefaultLang = {
+										searchQueryButton: {
+											attributes: {
+												'aria-label': `Search for "${searchTerm}"`,
+											},
+										},
+									};
+									const queryLang = deepmerge(queryDefaultLang, props.lang || {});
+									const queryMergedLang = useLang(queryLang as any, {
+										controller,
+										chatItem,
+										searchTerm,
+									});
+									return (
+										<Button
+											{...subProps.queryButton}
+											key={index}
+											internalClassName={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__queries__query')}
+											icon={{ icon: 'search', size: '1em' }}
+											content={searchTerm}
+											onClick={() => {
+												if (controller?.store.loading || controller?.store.blocked) return;
+												const searchFilters = getSectionSearchFilters(section);
+												controller?.search({
+													data: {
+														requestType: 'productSearch',
+														searchTerm,
+														...(searchFilters.length ? { searchFilters } : {}),
+													},
+												} as Partial<ChatRequestModel>);
+											}}
+											{...queryMergedLang.searchQueryButton.attributes}
+										/>
+									);
+								})}
 							</div>
 							<div className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__products')}>
 								<Slideshow
 									{...subProps.slideshow}
 									slides={section.products.map((product: any): SlideshowSlide => {
 										const display = product?.display || product;
+										const productDefaultLang = {
+											openProductButton: {
+												attributes: {
+													'aria-label': `Open ${display?.mappings?.core?.name || 'product'}`,
+												},
+											},
+										};
+										const productLang = deepmerge(productDefaultLang, props.lang || {});
+										const productMergedLang = useLang(productLang as any, {
+											controller,
+											chatItem,
+											product,
+										});
 										return {
 											content: (
 												<div
 													key={product.id}
 													className={classnames('ss__chat-inspiration-result-message__inspiration-sections__section__products__product')}
 													role="button"
-													tabIndex={0}
-													aria-label={`Open ${display?.mappings?.core?.name || 'product'}`}
+													ref={(e) => useA11y(e)}
 													onClick={(e: any) => handleProductClick(e, product)}
-													onKeyDown={(e: any) => handleProductKeyDown(e, product)}
+													{...productMergedLang.openProductButton.attributes}
 												>
 													<Image
 														alt={display?.mappings?.core?.name || ''}
@@ -247,7 +265,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 
 interface ChatInspirationResultMessageSubProps {
 	slideshow: Partial<SlideshowProps>;
-	icon: Partial<IconProps>;
+	queryButton: Partial<ButtonProps>;
 }
 
 export type ChatInspirationResultMessageProps = {
@@ -255,16 +273,9 @@ export type ChatInspirationResultMessageProps = {
 	controller?: ChatController;
 	onProductQuickView?: () => void;
 	lang?: Partial<ChatInspirationResultMessageLang>;
-} & ChatInspirationResultMessageTemplatesLegalProps &
-	ComponentProps<ChatInspirationResultMessageProps>;
-
-export type ChatInspirationResultMessageTemplatesLegalProps = {
-	chatItem: ChatResponseInspirationResultData;
-};
+} & ComponentProps<ChatInspirationResultMessageProps>;
 
 export interface ChatInspirationResultMessageLang {
-	// label: Lang<{
-	// 	options: ListOption[];
-	// 	selectedOptions: ListOption[];
-	// }>;
+	searchQueryButton?: Lang<never>;
+	openProductButton?: Lang<never>;
 }

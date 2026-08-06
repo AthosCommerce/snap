@@ -231,6 +231,31 @@ describe('SearchInput Component', () => {
 		expect(closeButton).not.toBeInTheDocument();
 	});
 
+	it('does not render a chat button by default', () => {
+		const rendered = render(<SearchInput value={''} />);
+		const chatButton = rendered.container.querySelector('.ss__search-input__button--chat-button');
+		expect(chatButton).not.toBeInTheDocument();
+	});
+
+	it('renders the chat button when the chatButton prop is provided', () => {
+		const rendered = render(<SearchInput value={''} chatButton={{ icon: 'chat' }} />);
+		const chatButton = rendered.container.querySelector('.ss__search-input__button--chat-button');
+		expect(chatButton).toBeInTheDocument();
+		const icon = chatButton?.querySelector('.ss__icon');
+		expect(icon?.classList).toContain('ss__icon--chat');
+		expect(chatButton).toHaveAttribute('aria-label', 'Open Chat');
+	});
+
+	it('passes the click event to the chatButton onClick', async () => {
+		const onClickFn = jest.fn();
+		const rendered = render(<SearchInput value={''} chatButton={{ icon: 'chat', onClick: onClickFn }} />);
+		const chatButton = rendered.container.querySelector('.ss__search-input__button--chat-button')!;
+		await userEvent.click(chatButton);
+		expect(onClickFn).toHaveBeenCalledTimes(1);
+		expect(onClickFn.mock.calls[0][0]).toBeTruthy();
+		expect(onClickFn.mock.calls[0][0].type).toBe('click');
+	});
+
 	it('is themeable with ThemeProvider', () => {
 		const rendered = render(
 			<ThemeProvider theme={theme}>

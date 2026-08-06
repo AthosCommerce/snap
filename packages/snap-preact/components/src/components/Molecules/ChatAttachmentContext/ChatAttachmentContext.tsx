@@ -2,15 +2,17 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { Icon, IconProps } from '../../Atoms/Icon';
 
-const defaultStyles: StyleScript<ChatAttachmentContextProps> = () => {
+const defaultStyles: StyleScript<ChatAttachmentContextProps> = ({ theme }) => {
+	const colorPrimary = Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	return css({
 		'.ss__chat-attachment-context__label': {
 			display: 'flex',
@@ -20,7 +22,7 @@ const defaultStyles: StyleScript<ChatAttachmentContextProps> = () => {
 			color: '#555',
 			marginBottom: '0.5em',
 
-			'.ss__chat-attachment-context__label__close': {
+			'.ss__chat-attachment-context__label__close.ss__button': {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -35,7 +37,7 @@ const defaultStyles: StyleScript<ChatAttachmentContextProps> = () => {
 					background: '#eee',
 				},
 				'&:focus-visible': {
-					outline: '2px solid #253B80',
+					outline: `2px solid ${colorPrimary}`,
 					outlineOffset: '2px',
 				},
 			},
@@ -56,13 +58,21 @@ const defaultStyles: StyleScript<ChatAttachmentContextProps> = () => {
 				background: '#f9fafb',
 				maxWidth: 'calc(50% - 0.25em)',
 
+				'.ss__chat-attachment-context__item__main': {
+					display: 'flex',
+					alignItems: 'center',
+					gap: '0.5em',
+					flex: 1,
+					minWidth: 0,
+				},
+
 				'&.ss__chat-attachment-context__item--clickable': {
 					cursor: 'pointer',
 					'&:hover': {
-						borderColor: '#253B80',
+						borderColor: colorPrimary,
 					},
-					'&:focus-visible': {
-						outline: '2px solid #253B80',
+					'.ss__chat-attachment-context__item__main:focus-visible': {
+						outline: `2px solid ${colorPrimary}`,
 						outlineOffset: '2px',
 					},
 				},
@@ -103,7 +113,7 @@ const defaultStyles: StyleScript<ChatAttachmentContextProps> = () => {
 						width: '4px',
 						height: '4px',
 						borderRadius: '50%',
-						background: '#253B80',
+						background: colorPrimary,
 						animation: 'ss-chat-attachment-context-pulse 1s ease-in-out infinite',
 						'&:nth-of-type(2)': { animationDelay: '0.2s' },
 						'&:nth-of-type(3)': { animationDelay: '0.4s' },
@@ -130,7 +140,7 @@ const defaultStyles: StyleScript<ChatAttachmentContextProps> = () => {
 	});
 };
 
-export const ChatAttachmentContext = observer((properties: ChatAttachmentContextProps): JSX.Element => {
+export const ChatAttachmentContext = observer((properties: ChatAttachmentContextProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -142,6 +152,12 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 
 	const { title, items, onClose, disableStyles, className, internalClassName, treePath } = props;
 
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatAttachmentContext', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
 	if (!items || items.length === 0) {
 		return <></>;
 	}
@@ -152,7 +168,7 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 			theme: props.theme,
 			treePath,
 		},
-		icon: {
+		closeButton: {
 			disableStyles,
 			theme: props.theme,
 			treePath,
@@ -166,13 +182,21 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 
 	const styling = mergeStyles<ChatAttachmentContextProps>(props, defaultStyles);
 
-	const handleItemKeyDown = (e: any, onClick?: () => void): void => {
-		if (!onClick) return;
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			onClick();
-		}
+	//initialize lang
+	const defaultLang: Partial<ChatAttachmentContextLang> = {
+		closeButton: {
+			attributes: {
+				'aria-label': `Close ${title}`,
+			},
+		},
 	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {
+		title,
+		items,
+	});
 
 	return (
 		<CacheProvider>
@@ -180,14 +204,75 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 				<div className={'ss__chat-attachment-context__label'}>
 					<span>{title}</span>
 					{onClose && (
-						<button type="button" className={'ss__chat-attachment-context__label__close'} onClick={onClose} aria-label={`Close ${title}`}>
-							<Icon {...subProps.icon} icon={'close-thin'} size={'12px'} />
-						</button>
+						<Button
+							{...subProps.closeButton}
+							internalClassName={'ss__chat-attachment-context__label__close'}
+							onClick={onClose}
+							icon={{ icon: 'close-thin', size: '12px' }}
+							{...mergedLang.closeButton.attributes}
+						/>
 					)}
 				</div>
 				<div className={'ss__chat-attachment-context__items'}>
 					{items.map((item) => {
 						const isClickable = !!item.onClick;
+
+						const itemDefaultLang = {
+							openItemButton: {
+								attributes: {
+									'aria-label': `Open ${item.name}`,
+								},
+							},
+							loadingIndicator: {
+								attributes: {
+									'aria-label': `Loading ${item.name}`,
+								},
+							},
+							removeButton: {
+								attributes: {
+									'aria-label': `Remove ${item.name}`,
+								},
+							},
+							uploadFailedText: {
+								value: `Upload Failed - ${item.name}`,
+							},
+						};
+						const itemLang = deepmerge(itemDefaultLang, props.lang || {});
+						const itemMergedLang = useLang(itemLang as any, {
+							title,
+							items,
+							item,
+						});
+
+						const itemContent = item.hasError ? (
+							<>
+								<div className={'ss__chat-attachment-context__item__error-icon'} aria-hidden="true">
+									!
+								</div>
+								{item.errorMessage ? (
+									<div className={'ss__chat-attachment-context__item__error-message'}>{item.errorMessage}</div>
+								) : (
+									<div className={'ss__chat-attachment-context__item__error-message'} {...itemMergedLang.uploadFailedText.value} />
+								)}
+							</>
+						) : (
+							<>
+								<div className={'ss__chat-attachment-context__item__content'}>
+									{item.imageUrl && <Image {...subProps.image} className={item.isLoading ? 'loading' : ''} src={item.imageUrl} alt={item.name} />}
+									{item.isLoading && (
+										<div className={'ss__chat-attachment-context__item__loading'} role="status" {...itemMergedLang.loadingIndicator.attributes}>
+											<div className={'ss__chat-attachment-context__item__loading__dot'}></div>
+											<div className={'ss__chat-attachment-context__item__loading__dot'}></div>
+											<div className={'ss__chat-attachment-context__item__loading__dot'}></div>
+										</div>
+									)}
+								</div>
+								<div className={'ss__chat-attachment-context__item__name'} title={item.name}>
+									{item.name}
+								</div>
+							</>
+						);
+
 						return (
 							<div
 								key={item.id}
@@ -195,41 +280,24 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 									'ss__chat-attachment-context__item--error': item.hasError,
 									'ss__chat-attachment-context__item--clickable': isClickable,
 								})}
-								onClick={item.onClick}
-								onKeyDown={(e: any) => handleItemKeyDown(e, item.onClick)}
-								role={isClickable ? 'button' : undefined}
-								tabIndex={isClickable ? 0 : undefined}
-								aria-label={isClickable ? `Open ${item.name}` : undefined}
 							>
-								{item.hasError ? (
-									<>
-										<div className={'ss__chat-attachment-context__item__error-icon'} aria-hidden="true">
-											!
-										</div>
-										<div className={'ss__chat-attachment-context__item__error-message'}>{item.errorMessage || `Upload Failed - ${item.name}`}</div>
-									</>
+								{isClickable ? (
+									<div
+										className={'ss__chat-attachment-context__item__main'}
+										role="button"
+										ref={(e) => useA11y(e)}
+										onClick={item.onClick}
+										{...itemMergedLang.openItemButton.attributes}
+									>
+										{itemContent}
+									</div>
 								) : (
-									<>
-										<div className={'ss__chat-attachment-context__item__content'}>
-											{item.imageUrl && <Image {...subProps.image} className={item.isLoading ? 'loading' : ''} src={item.imageUrl} alt={item.name} />}
-											{item.isLoading && (
-												<div className={'ss__chat-attachment-context__item__loading'} role="status" aria-label={`Loading ${item.name}`}>
-													<div className={'ss__chat-attachment-context__item__loading__dot'}></div>
-													<div className={'ss__chat-attachment-context__item__loading__dot'}></div>
-													<div className={'ss__chat-attachment-context__item__loading__dot'}></div>
-												</div>
-											)}
-										</div>
-										<div className={'ss__chat-attachment-context__item__name'} title={item.name}>
-											{item.name}
-										</div>
-									</>
+									<div className={'ss__chat-attachment-context__item__main'}>{itemContent}</div>
 								)}
 								{item.onRemove && (items.length > 1 || !onClose || isClickable) && (
 									<Button
 										{...subProps.removeButton}
 										className={'ss__chat-attachment-context__item__remove'}
-										aria-label={`Remove ${item.name}`}
 										onClick={(e: any) => {
 											e.stopPropagation();
 											if (!item.isLoading) item.onRemove?.();
@@ -238,6 +306,7 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 											icon: 'close-thin',
 											size: '0.6em',
 										}}
+										{...itemMergedLang.removeButton.attributes}
 									/>
 								)}
 							</div>
@@ -251,7 +320,7 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 
 interface ChatAttachmentContextSubProps {
 	image: Partial<ImageProps>;
-	icon: Partial<IconProps>;
+	closeButton: Partial<ButtonProps>;
 	removeButton: Partial<ButtonProps>;
 }
 
@@ -270,4 +339,13 @@ export type ChatAttachmentContextProps = {
 	title: string;
 	items: ChatAttachmentContextItem[];
 	onClose?: () => void;
+	lang?: Partial<ChatAttachmentContextLang>;
 } & ComponentProps<ChatAttachmentContextProps>;
+
+export interface ChatAttachmentContextLang {
+	closeButton?: Lang<never>;
+	openItemButton?: Lang<never>;
+	loadingIndicator?: Lang<never>;
+	removeButton?: Lang<never>;
+	uploadFailedText?: Lang<never>;
+}

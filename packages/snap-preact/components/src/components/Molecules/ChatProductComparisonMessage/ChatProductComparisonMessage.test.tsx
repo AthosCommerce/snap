@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
 import { ChatProductComparisonMessage } from './ChatProductComparisonMessage';
 
@@ -43,5 +44,36 @@ describe('ChatProductComparisonMessage Component', () => {
 		const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} />);
 		const table = rendered.container.querySelector('table');
 		expect(table).toHaveAttribute('aria-label', 'Product comparison');
+	});
+
+	it('renders keyboard-accessible product header buttons', () => {
+		const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} />);
+		const headerButton = rendered.container.querySelector('.ss__chat-product-comparison-message__table__product-header__link');
+		expect(headerButton).toBeInTheDocument();
+		expect(headerButton).toHaveClass('ss__button');
+		expect(headerButton).toHaveAttribute('role', 'button');
+		expect(headerButton).toHaveAttribute('tabindex', '0');
+		expect(headerButton).toHaveAttribute('aria-label', 'View details for Product One');
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} className={className} />);
+		const root = rendered.container.querySelector('.ss__chat-product-comparison-message');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} disableStyles={true} />);
+		const root = rendered.container.querySelector('.ss__chat-product-comparison-message');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} styleScript={styleScript} />);
+		const root = rendered.container.querySelector('.ss__chat-product-comparison-message')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
 	});
 });

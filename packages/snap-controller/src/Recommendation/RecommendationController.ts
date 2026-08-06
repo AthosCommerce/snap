@@ -415,7 +415,7 @@ export class RecommendationController extends AbstractController {
 			this.track.product.addToCart(product);
 		});
 		if (products.length > 0) {
-			this.eventManager.fire('addToCart', { controller: this, products });
+			await this.eventManager.fire('addToCart', { controller: this, products });
 		}
 	};
 }

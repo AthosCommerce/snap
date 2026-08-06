@@ -166,8 +166,8 @@ import { RecommendationBundle } from '@athoscommerce/snap-preact/components';
 
 import './Bundled.scss';
 
-const addToCart = (data) => {
-	// handle adding products to the cart
+const openCart = () => {
+	// open cart drawer or redirect to cart
 };
 
 export const Bundled = observer((props) => {
@@ -182,7 +182,18 @@ export const Bundled = observer((props) => {
 
 	const parameters = store?.profile?.display?.templateParameters;
 
-	return store.results.length > 0 && <RecommendationBundle controller={controller} onAddToCart={(e, data) => addToCart(data)} title={parameters?.title} />;
+	return (
+		store.results.length > 0 && (
+			<RecommendationBundle
+				controller={controller}
+				onAddToCart={async () => {
+					// controller.addToCart is already awaited by RecommendationBundle
+					openCart();
+				}}
+				title={parameters?.title}
+			/>
+		)
+	);
 });
 ```
 

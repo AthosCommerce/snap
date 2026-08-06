@@ -11,10 +11,13 @@
 import * as fs from 'fs';
 import deepmerge from 'deepmerge';
 import type { MetaResponseModel, SearchResponseModel, AutocompleteResponseModel } from '@athoscommerce/snapi-types';
-import { RecommendCombinedResponseModel, ChatResponseModel, ChatStatusResponse } from '@athoscommerce/snap-client';
-
-type ChatInitResponseModel = { chatSessionId: string; sessionEndTime: string };
-type UploadImageResponseModel = { imageId: string; imageUrl: string; thumbnailUrl: string };
+import {
+	RecommendCombinedResponseModel,
+	ChatResponseModel,
+	ChatStatusResponseModel,
+	ChatInitResponseModel,
+	UploadImageResponseModel,
+} from '@athoscommerce/snap-client';
 
 type MockDataConfig = {
 	siteId?: string;
@@ -155,7 +158,7 @@ export class MockData {
 		}
 	}
 
-	chatStatus(file?: string): ChatStatusResponse {
+	chatStatus(file?: string): ChatStatusResponseModel {
 		const chatStatusFile = `${__dirname}/chat/${this.config.siteId}/${file || this.config.chatStatus}.json`;
 		try {
 			return getJSON(chatStatusFile);

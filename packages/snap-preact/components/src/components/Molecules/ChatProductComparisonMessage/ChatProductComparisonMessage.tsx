@@ -2,13 +2,15 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Image } from '../../Atoms/Image';
+import { Button, ButtonProps } from '../../Atoms/Button';
 import type { ChatController } from '@athoscommerce/snap-controller';
-// import { Lang } from '../../../hooks';
 import { ChatResponseProductComparisonData } from '@athoscommerce/snap-client';
 
 const defaultStyles: StyleScript<ChatProductComparisonMessageProps> = () => {
@@ -50,7 +52,7 @@ const defaultStyles: StyleScript<ChatProductComparisonMessageProps> = () => {
 				textAlign: 'center',
 				minWidth: '120px',
 
-				'.ss__chat-product-comparison-message__table__product-header__link': {
+				'.ss__chat-product-comparison-message__table__product-header__link.ss__button': {
 					background: 'none',
 					border: 'none',
 					padding: 0,
@@ -92,6 +94,8 @@ const defaultStyles: StyleScript<ChatProductComparisonMessageProps> = () => {
 	});
 };
 
+let warnedUnsupportedMessageType = false;
+
 export const ChatProductComparisonMessage = observer((properties: ChatProductComparisonMessageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -102,27 +106,52 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 
 	const props = mergeProps('chatProductComparisonMessage', globalTheme, defaultProps, properties);
 
-	const { chatItem, controller, className, internalClassName } = props;
+	const { chatItem, controller, disableStyles, className, internalClassName, treePath } = props;
 
-	// const subProps: ChatProductComparisonMessageSubProps = {
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatProductComparisonMessage', props);
 
-	// };
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
+	const subProps: ChatProductComparisonMessageSubProps = {
+		productHeaderButton: {
+			disableStyles,
+			theme: props.theme,
+			treePath,
+		},
+	};
 
 	const styling = mergeStyles<ChatProductComparisonMessageProps>(props, defaultStyles);
 
 	//initialize lang
-	// const defaultLang = {
-	// 	// label: {
-	// 	// 	value: label,
-	// 	// },
-	// };
+	const defaultLang: Partial<ChatProductComparisonMessageLang> = {
+		comparisonTable: {
+			value: 'Product comparison',
+			attributes: {
+				'aria-label': 'Product comparison',
+			},
+		},
+		featureColumnHeader: {
+			attributes: {
+				'aria-label': 'Feature',
+			},
+		},
+	};
 
 	//deep merge with props.lang
-	// const lang = deepmerge(defaultLang, props.lang || {});
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {
+		controller,
+		chatItem,
+	});
 
 	const { messageType, comparisonData, searchResults } = chatItem;
 	if (messageType !== 'productComparison') {
-		console.warn('ChatProductComparisonMessage received message with unsupported type:', messageType, 'Expected type: productComparison');
+		if (!warnedUnsupportedMessageType) {
+			console.warn('ChatProductComparisonMessage received message with unsupported type:', messageType, 'Expected type: productComparison');
+			warnedUnsupportedMessageType = true;
+		}
 		return null;
 	}
 
@@ -139,11 +168,11 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 		<CacheProvider>
 			<div className={classnames('ss__chat-product-comparison-message', className, internalClassName)} {...styling}>
 				<div className={classnames('ss__chat-product-comparison-message__table-wrapper')}>
-					<table className={classnames('ss__chat-product-comparison-message__table')} aria-label="Product comparison">
-						<caption className="ss__chat-product-comparison-message__table__caption">Product comparison</caption>
+					<table className={classnames('ss__chat-product-comparison-message__table')} {...mergedLang.comparisonTable.attributes}>
+						<caption className="ss__chat-product-comparison-message__table__caption" {...mergedLang.comparisonTable.value} />
 						<thead>
 							<tr>
-								<th scope="col" aria-label="Feature" />
+								<th scope="col" {...mergedLang.featureColumnHeader.attributes} />
 								{headings.map((heading) => {
 									const product = searchResults.find((r: any) => r?.id === heading);
 									const display = getDisplay(product);
@@ -153,13 +182,26 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 										controller.track.product.click(e, product as any);
 										controller.productQuickView(product as any);
 									};
+									const productDefaultLang = {
+										viewProductButton: {
+											attributes: {
+												'aria-label': `View details for ${productName}`,
+											},
+										},
+									};
+									const productLang = deepmerge(productDefaultLang, props.lang || {});
+									const productMergedLang = useLang(productLang as any, {
+										controller,
+										chatItem,
+										product,
+									});
 									return (
 										<th key={heading} scope="col" className={classnames('ss__chat-product-comparison-message__table__product-header')}>
-											<button
-												type="button"
-												className={classnames('ss__chat-product-comparison-message__table__product-header__link')}
+											<Button
+												{...subProps.productHeaderButton}
+												internalClassName={classnames('ss__chat-product-comparison-message__table__product-header__link')}
 												onClick={handleOpenProduct}
-												aria-label={`View details for ${productName}`}
+												{...productMergedLang.viewProductButton.attributes}
 											>
 												{allProductsHaveImage && (
 													<Image
@@ -169,7 +211,7 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 													/>
 												)}
 												<div className={classnames('ss__chat-product-comparison-message__table__product-header__name')}>{productName}</div>
-											</button>
+											</Button>
 										</th>
 									);
 								})}
@@ -196,24 +238,18 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 	) : null;
 });
 
-// interface ChatProductComparisonMessageSubProps {
-
-// }
+interface ChatProductComparisonMessageSubProps {
+	productHeaderButton: Partial<ButtonProps>;
+}
 
 export type ChatProductComparisonMessageProps = {
 	chatItem: ChatResponseProductComparisonData;
 	controller?: ChatController;
 	lang?: Partial<ChatProductComparisonMessageLang>;
-} & ChatProductComparisonMessageTemplatesLegalProps &
-	ComponentProps<ChatProductComparisonMessageProps>;
-
-export type ChatProductComparisonMessageTemplatesLegalProps = {
-	chatItem: ChatResponseProductComparisonData;
-};
+} & ComponentProps<ChatProductComparisonMessageProps>;
 
 export interface ChatProductComparisonMessageLang {
-	// label: Lang<{
-	// 	options: ListOption[];
-	// 	selectedOptions: ListOption[];
-	// }>;
+	comparisonTable?: Lang<never>;
+	featureColumnHeader?: Lang<never>;
+	viewProductButton?: Lang<never>;
 }

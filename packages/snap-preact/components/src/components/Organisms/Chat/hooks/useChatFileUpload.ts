@@ -1,4 +1,4 @@
-import { useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { RefObject } from 'preact';
 
 export type UseChatFileUploadOptions = {
@@ -38,6 +38,15 @@ export const useChatFileUpload = ({ enabled, onUpload }: UseChatFileUploadOption
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isDraggingFile, setIsDraggingFile] = useState(false);
 	const dragCounterRef = useRef(0);
+
+	// Reset drag state when uploads become disabled mid-drag (e.g. loading starts)
+	// so the drop overlay cannot get stuck on screen.
+	useEffect(() => {
+		if (!enabled) {
+			dragCounterRef.current = 0;
+			setIsDraggingFile(false);
+		}
+	}, [enabled]);
 
 	const onDragEnter = (e: any): void => {
 		if (!enabled || !hasFiles(e as DragEvent)) return;

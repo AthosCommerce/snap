@@ -80,3 +80,25 @@ The `onClick` prop allows for a custom callback function for when the radio is c
 ```tsx
     <Radio onClick={(e)=>{console.log(e)}} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Radio component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `radio` | Radio element text/attributes | `disabled` (boolean), `checkedState` (boolean) |
+
+### Example
+
+```tsx
+<Radio
+	lang={{
+		radio: {
+			attributes: {
+				'aria-label': (data) => `radio option is ${data.checkedState ? 'selected' : 'not selected'}`,
+			},
+		},
+	}}
+/>
+```

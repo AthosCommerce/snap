@@ -17,6 +17,7 @@ export class AutocompleteQueryStore {
 	public originalQuery?: Query;
 	public correctedQuery?: Query;
 	public matchType: SearchResponseModelSearchMatchTypeEnum;
+	public subject?: Query;
 
 	constructor(params: AutocompleteQueryStoreConfig) {
 		const { services, data } = params || {};
@@ -33,6 +34,11 @@ export class AutocompleteQueryStore {
 			observables.correctedQuery = observable;
 		}
 
+		if (search?.subject) {
+			this.subject = new Query(services.urlManager, search.subject);
+			observables.subject = observable;
+		}
+
 		this.matchType = search?.matchType as SearchResponseModelSearchMatchTypeEnum;
 		observables.matchType = observable;
 
@@ -45,6 +51,7 @@ type Observables = {
 	query?: typeof observable;
 	correctedQuery?: typeof observable;
 	matchType?: typeof observable;
+	subject?: typeof observable;
 };
 
 class Query {

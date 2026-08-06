@@ -7,5 +7,3 @@ const Swiper = ({ children }) => h('div', { className: 'swiper-mock' }, children
 const SwiperSlide = ({ children }) => h('div', { className: 'swiper-slide-mock' }, children);
 
 module.exports = { Swiper, SwiperSlide };
-module.exports.Swiper = Swiper;
-module.exports.SwiperSlide = SwiperSlide;

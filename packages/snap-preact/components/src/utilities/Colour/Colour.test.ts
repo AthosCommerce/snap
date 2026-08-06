@@ -590,4 +590,91 @@ describe('Color class', () => {
 			expect(Colour.opacity('rgb(58, 35, 173, 0)', 255)).toBe('rgba(58, 35, 173, 0)');
 		});
 	});
+
+	describe('mixToward static function', () => {
+		it('mixes linearly toward the target color', () => {
+			expect(Colour.mixToward('#000000', '#ffffff', 0)).toBe('#000000');
+			expect(Colour.mixToward('#000000', '#ffffff', 1)).toBe('#ffffff');
+			expect(Colour.mixToward('#000000', '#ffffff', 0.5)).toBe('#808080');
+			expect(Colour.mixToward('#ff0000', '#0000ff', 0.5)).toBe('#800080');
+		});
+
+		it('clamps the amount to the 0-1 range', () => {
+			expect(Colour.mixToward('#336699', '#ffffff', -1)).toBe('#336699');
+			expect(Colour.mixToward('#336699', '#ffffff', 2)).toBe('#ffffff');
+		});
+
+		it('returns an invalid source hex unchanged', () => {
+			expect(Colour.mixToward('green', '#ffffff', 0.5)).toBe('green');
+			expect(Colour.mixToward('#nope', '#ffffff', 0.5)).toBe('#nope');
+			expect(Colour.mixToward('rgb(58, 35, 173)', '#ffffff', 0.5)).toBe('rgb(58, 35, 173)');
+		});
+
+		it('returns the source unchanged when the target hex is invalid', () => {
+			expect(Colour.mixToward('#336699', 'white', 0.5)).toBe('#336699');
+		});
+
+		it('returns an empty string when no source is provided', () => {
+			expect(Colour.mixToward(undefined, '#ffffff', 0.5)).toBe('');
+			expect(Colour.mixToward('', '#ffffff', 0.5)).toBe('');
+		});
+	});
+
+	describe('darkenHex instance method', () => {
+		it('mixes toward black with a default amount of 0.3', () => {
+			expect(new Colour('#ffffff').darkenHex()).toBe('#b3b3b3');
+			expect(new Colour('#ffffff').darkenHex(1)).toBe('#000000');
+			expect(new Colour('#ffffff').darkenHex(0)).toBe('#ffffff');
+		});
+
+		it('reliably darkens light inputs', () => {
+			const darkened = new Colour('#feeeae').darkenHex(0.1);
+			expect(darkened).toBe('#e5d69d');
+		});
+
+		it('returns invalid colors unchanged', () => {
+			expect(new Colour('green').darkenHex()).toBe('green');
+		});
+	});
+
+	describe('lightenHex instance method', () => {
+		it('mixes toward white with a default amount of 0.3', () => {
+			expect(new Colour('#000000').lightenHex()).toBe('#4d4d4d');
+			expect(new Colour('#000000').lightenHex(1)).toBe('#ffffff');
+			expect(new Colour('#000000').lightenHex(0)).toBe('#000000');
+		});
+
+		it('reliably lightens dark inputs', () => {
+			expect(new Colour('#253b80').lightenHex(0.95)).toBe('#f4f5f9');
+		});
+
+		it('returns invalid colors unchanged', () => {
+			expect(new Colour('green').lightenHex()).toBe('green');
+		});
+	});
+
+	describe('concrete static function', () => {
+		it('returns concrete color values unchanged', () => {
+			expect(Colour.concrete('#253B80')).toBe('#253B80');
+			expect(Colour.concrete('#f00')).toBe('#f00');
+			expect(Colour.concrete('rgb(58, 35, 173)')).toBe('rgb(58, 35, 173)');
+			expect(Colour.concrete('rgba(58, 35, 173, 0.5)')).toBe('rgba(58, 35, 173, 0.5)');
+			expect(Colour.concrete('navy')).toBe('navy');
+		});
+
+		it('returns undefined for contextual CSS keywords that defeat fallbacks', () => {
+			expect(Colour.concrete('currentColor')).toBeUndefined();
+			expect(Colour.concrete('currentcolor')).toBeUndefined();
+			expect(Colour.concrete('CURRENTCOLOR')).toBeUndefined();
+			expect(Colour.concrete('inherit')).toBeUndefined();
+			expect(Colour.concrete('initial')).toBeUndefined();
+			expect(Colour.concrete('unset')).toBeUndefined();
+			expect(Colour.concrete('revert')).toBeUndefined();
+		});
+
+		it('returns undefined for empty values', () => {
+			expect(Colour.concrete(undefined)).toBeUndefined();
+			expect(Colour.concrete('')).toBeUndefined();
+		});
+	});
 });

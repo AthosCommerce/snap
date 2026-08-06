@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- adding subject to the types, tests and README for the Klaviyo plugin ([0db6e26](https://github.com/AthosCommerce/snap/commit/0db6e264b5f716591de9d879309ad85a8424720d))
+
+# [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
 # [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
 
 ### Bug Fixes

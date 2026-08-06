@@ -156,6 +156,12 @@ const defaultStyles: StyleScript<AutocompleteProps> = ({
 				display: 'none',
 			},
 		},
+		'.ss__banner': {
+			'iframe, img': {
+				maxWidth: '100%',
+				height: 'auto',
+			},
+		},
 		'.ss__autocomplete__content': {
 			display: 'flex',
 			flex: `1 1 ${hideFacets ? 'auto' : '0%'}`,
@@ -528,9 +534,13 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 	return visible ? (
 		<CacheProvider>
 			<div
@@ -591,11 +601,15 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 
 												//deep merge with props.lang
 												const suggestionLang = deepmerge(defaultLang, props.lang || {});
-												const suggestionTermLangObj = useLang(suggestionLang as any, {
-													controller,
-													term,
-													index: idx,
-												});
+												const suggestionTermLangObj = useLang(
+													suggestionLang as any,
+													{
+														controller,
+														term,
+														index: idx,
+													},
+													{ activeBreakpoint: globalTheme?.activeBreakpoint }
+												);
 
 												return (
 													<div
@@ -639,11 +653,15 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 
 												//deep merge with props.lang
 												const trendingLang = deepmerge(defaultLang, props.lang || {});
-												const trendingTermLangObj = useLang(trendingLang as any, {
-													controller,
-													term,
-													index: idx,
-												});
+												const trendingTermLangObj = useLang(
+													trendingLang as any,
+													{
+														controller,
+														term,
+														index: idx,
+													},
+													{ activeBreakpoint: globalTheme?.activeBreakpoint }
+												);
 
 												return (
 													<div
@@ -687,11 +705,15 @@ export const Autocomplete = observer((properties: AutocompleteProps) => {
 
 												//deep merge with props.lang
 												const historyLang = deepmerge(defaultLang, props.lang || {});
-												const historyTermLangObj = useLang(historyLang as any, {
-													controller,
-													term,
-													index: idx,
-												});
+												const historyTermLangObj = useLang(
+													historyLang as any,
+													{
+														controller,
+														term,
+														index: idx,
+													},
+													{ activeBreakpoint: globalTheme?.activeBreakpoint }
+												);
 
 												return (
 													<div

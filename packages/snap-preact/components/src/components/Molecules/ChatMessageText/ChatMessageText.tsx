@@ -4,16 +4,25 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { ChatResultsDisplay, ChatResultsDisplayProps } from '../ChatResultsDisplay';
+import { ChatResultsDisplay, ChatResultsDisplayItem, ChatResultsDisplayProps } from '../ChatResultsDisplay';
 import type { ChatController } from '@athoscommerce/snap-controller';
+import type {
+	ChatResponseTextData,
+	ChatResponseInspirationResultData,
+	ChatResponseProductComparisonData,
+	ChatResponseErrorData,
+	ChatResponseTopicDriftData,
+} from '@athoscommerce/snap-client';
 
-const defaultStyles: StyleScript<ChatMessageTextProps> = ({ primaryColor, primaryColorText }) => {
-	const colorPrimary = primaryColor || '#253B80';
+const defaultStyles: StyleScript<ChatMessageTextProps> = ({ primaryColor, primaryColorText, theme }) => {
+	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	const colorPrimaryText = primaryColorText || '#fff';
 	return css({
 		display: 'flex',
@@ -165,6 +174,12 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 		treePath,
 	} = props;
 
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatMessageText', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
 	const subProps: ChatMessageTextSubProps = {
 		sideChatButton: {
 			disableStyles,
@@ -185,22 +200,77 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 
 	const styling = mergeStyles<ChatMessageTextProps>(props, defaultStyles);
 
+	//initialize lang
+	const defaultLang: Partial<ChatMessageTextLang> = {
+		viewInspirationButton: {
+			attributes: {
+				'aria-label': 'View inspiration',
+				title: 'View inspiration',
+			},
+		},
+		closeInspirationButton: {
+			value: 'Close inspiration',
+			attributes: {
+				'aria-label': 'Close inspiration',
+				title: 'Close inspiration',
+			},
+		},
+		exploreInspirationButton: {
+			value: 'Explore Inspiration Scenarios',
+			attributes: {
+				'aria-label': 'Explore Inspiration Scenarios',
+			},
+		},
+		viewComparisonButton: {
+			attributes: {
+				'aria-label': 'View comparison',
+				title: 'View comparison',
+			},
+		},
+		closeComparisonButton: {
+			value: 'Close comparison',
+			attributes: {
+				'aria-label': 'Close comparison',
+				title: 'Close comparison',
+			},
+		},
+		exploreComparisonButton: {
+			value: 'Explore Comparison Data',
+			attributes: {
+				'aria-label': 'Explore Comparison Data',
+			},
+		},
+		showDetailsButton: {
+			value: 'Show Details',
+			attributes: {
+				'aria-label': 'Show comparison details',
+			},
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {
+		controller,
+		chatItem,
+	});
+
 	const text =
 		chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || chatItem.messageForDrift || '';
 	const currentChat = controller.store.currentChat;
-	const sideChatLabels: Record<string, { open: string; close: string; explore: string }> = {
-		inspirationResult: { open: 'View inspiration', close: 'Close inspiration', explore: 'Explore Inspiration Scenarios' },
-		productComparison: { open: 'View comparison', close: 'Close comparison', explore: 'Explore Comparison Data' },
+	const sideChatLangKeys: Record<string, { open: SideChatLangKey; close: SideChatLangKey; explore: SideChatLangKey }> = {
+		inspirationResult: { open: 'viewInspirationButton', close: 'closeInspirationButton', explore: 'exploreInspirationButton' },
+		productComparison: { open: 'viewComparisonButton', close: 'closeComparisonButton', explore: 'exploreComparisonButton' },
 	};
-	const sideChatLabel = sideChatLabels[chatItem?.messageType as string];
-	const hasSideChatView = !!sideChatLabel && !!chatItem?.id;
+	const sideChatKeys = sideChatLangKeys[chatItem?.messageType as string];
+	const hasSideChatView = !!sideChatKeys && !!chatItem?.id;
 	const isSideChatActive = hasSideChatView && !!sideChatOpen && currentChat?.activeMessage?.id === chatItem.id;
 
 	const toggleSideChat = () => {
 		if (isSideChatActive) {
 			currentChat?.dismissSideChat();
 		} else {
-			currentChat?.setActiveMessage(chatItem.id);
+			currentChat?.setActiveMessage(chatItem.id!);
 		}
 	};
 
@@ -223,13 +293,12 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 									className={classnames('ss__chat-message-text__view-side-chat', {
 										'ss__chat-message-text__view-side-chat--active': isSideChatActive,
 									})}
-									aria-label={isSideChatActive ? sideChatLabel.close : sideChatLabel.open}
 									aria-pressed={isSideChatActive}
 									icon={{
 										icon: isSideChatActive ? 'close-thin' : 'angle-right',
-										title: isSideChatActive ? sideChatLabel.close : sideChatLabel.open,
 									}}
 									onClick={toggleSideChat}
+									{...mergedLang[isSideChatActive ? sideChatKeys.close : sideChatKeys.open].attributes}
 								/>
 							) : null}
 						</div>
@@ -238,14 +307,12 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 						<Button
 							{...subProps.showDetailsButton}
 							className="ss__chat-message-text__show-details"
-							aria-label="Show comparison details"
-							icon={{ icon: 'angle-right', title: 'Show Details' }}
+							icon={{ icon: 'angle-right' }}
 							onClick={() => {
-								currentChat?.setActiveMessage(chatItem.id);
+								currentChat?.setActiveMessage(chatItem.id!);
 							}}
-						>
-							<>Show Details</>
-						</Button>
+							lang={{ button: lang.showDetailsButton }}
+						/>
 					)}
 					{chatItem && (
 						<ChatResultsDisplay
@@ -263,12 +330,10 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 						className={classnames('ss__chat-message-text__explore', {
 							'ss__chat-message-text__explore--active': isSideChatActive,
 						})}
-						aria-label={isSideChatActive ? sideChatLabel.close : sideChatLabel.explore}
 						aria-pressed={isSideChatActive}
 						onClick={toggleSideChat}
-					>
-						<>{isSideChatActive ? sideChatLabel.close : sideChatLabel.explore}</>
-					</Button>
+						{...mergedLang[isSideChatActive ? sideChatKeys.close : sideChatKeys.explore].all}
+					/>
 				) : null}
 			</div>
 		</CacheProvider>
@@ -281,14 +346,22 @@ interface ChatMessageTextSubProps {
 	resultsDisplay: Partial<ChatResultsDisplayProps>;
 }
 
+export type ChatMessageTextItem = ChatResultsDisplayItem &
+	Partial<Pick<ChatResponseTextData, 'text'>> &
+	Partial<Pick<ChatResponseInspirationResultData, 'overallSummary'>> &
+	Partial<Pick<ChatResponseProductComparisonData, 'comparisonData'>> &
+	Partial<Pick<ChatResponseErrorData, 'errorMessage'>> &
+	Partial<Pick<ChatResponseTopicDriftData, 'messageForDrift'>>;
+
 export type ChatMessageTextProps = {
-	chatItem: any;
+	chatItem: ChatMessageTextItem;
 	controller: ChatController;
 	scrollToBottom: () => void;
 	onProductQuickView?: () => void;
 	showDetailsButton?: boolean;
 	sideChatOpen?: boolean;
 	buttonBelowMessage?: boolean;
+	lang?: Partial<ChatMessageTextLang>;
 } & ChatMessageTextTemplatesLegalProps &
 	ComponentProps<ChatMessageTextProps>;
 
@@ -298,3 +371,15 @@ export type ChatMessageTextTemplatesLegalProps = {
 	primaryAccentColor?: string;
 	primaryAccentColorText?: string;
 };
+
+type SideChatLangKey = keyof ChatMessageTextLang;
+
+export interface ChatMessageTextLang {
+	viewInspirationButton?: Lang<never>;
+	closeInspirationButton?: Lang<never>;
+	exploreInspirationButton?: Lang<never>;
+	viewComparisonButton?: Lang<never>;
+	closeComparisonButton?: Lang<never>;
+	exploreComparisonButton?: Lang<never>;
+	showDetailsButton?: Lang<never>;
+}

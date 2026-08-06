@@ -1,5 +1,3 @@
-// TODO: implement
-// how should localStorage be handled for attachments?
 import { v4 as uuidv4 } from 'uuid';
 import { makeObservable, observable, computed } from 'mobx';
 import { CHAT_COMPARISON_MAX } from './ChatCompareStore';
@@ -13,8 +11,12 @@ export type ChatAttachmentAddAttachment = ChatAttachmentImageConfig | ChatAttach
 
 export class ChatAttachmentStore {
 	public items: ChatAttachments[] = [];
+	/** Mirrors ChatCompareStore.maxItems so the attachment bar and the comparison tray agree. */
+	private maxProducts: number;
 
-	constructor() {
+	constructor(maxProducts: number = CHAT_COMPARISON_MAX) {
+		this.maxProducts = maxProducts;
+
 		makeObservable(this, {
 			items: observable,
 			attached: computed,
@@ -38,7 +40,8 @@ export class ChatAttachmentStore {
 		switch (attachment.type) {
 			case 'image': {
 				// if there are currently any other attachments remove them
-				this.items.forEach((item) => {
+				// (iterate a copy — remove() splices this.items)
+				[...this.items].forEach((item) => {
 					this.remove(item.id);
 				});
 
@@ -51,7 +54,7 @@ export class ChatAttachmentStore {
 				// 'productSimilar' and 'productQuery' are single-product flows — replace any
 				// existing attachments so the conversation only targets the latest product
 				if (attachment.requestType === 'productSimilar' || attachment.requestType === 'productQuery') {
-					this.items.forEach((item) => {
+					[...this.items].forEach((item) => {
 						this.remove(item.id);
 					});
 
@@ -61,9 +64,8 @@ export class ChatAttachmentStore {
 					return newAttachment as T;
 				}
 
-				// For 'productQuery' or 'productComparison', continue with existing logic
 				// if there are currently any other attachments remove them
-				this.items.forEach((item) => {
+				[...this.items].forEach((item) => {
 					if (item.type !== 'product') {
 						this.remove(item.id);
 					}
@@ -82,10 +84,10 @@ export class ChatAttachmentStore {
 					return existingProductAttachment as T;
 				}
 
-				// productComparison supports up to CHAT_COMPARISON_MAX products (matches ChatCompareStore.maxItems);
+				// productComparison supports up to maxProducts (matches ChatCompareStore.maxItems);
 				// trim oldest active/attached product attachments to keep total below the cap.
 				const productAttachments = this.items.filter((item) => item.type === 'product' && (item.state === 'active' || item.state === 'attached'));
-				while (productAttachments.length >= CHAT_COMPARISON_MAX) {
+				while (productAttachments.length >= this.maxProducts) {
 					const toRemove = productAttachments.pop();
 					if (toRemove) {
 						this.remove(toRemove.id);
@@ -105,7 +107,7 @@ export class ChatAttachmentStore {
 			}
 			case 'facet': {
 				// if there are currently any non-facet attachments remove them
-				this.items.forEach((item) => {
+				[...this.items].forEach((item) => {
 					if (item.type !== 'facet') {
 						this.remove(item.id);
 					}
@@ -216,8 +218,12 @@ type ChatAttachmentProductConfig = {
 	type: 'product';
 	id?: string;
 	productId: string;
-	thumbnailUrl: string;
-	name: string;
+	// parent product id and selected-variant uid for the API's productIdentity payload —
+	// optional because attachments persisted before they existed lack them
+	parentId?: string;
+	variantUid?: string;
+	thumbnailUrl?: string;
+	name?: string;
 	requestType: 'productQuery' | 'productSimilar' | 'productComparison';
 	state?: AttachmentState;
 	error?: AttachmentError;
@@ -235,17 +241,21 @@ type ChatAttachmentFacetConfig = {
 };
 
 export class ChatAttachmentProduct extends ChatAttachment {
-	public type: 'product' | never = 'product';
+	public type = 'product' as const;
 	public productId: string;
-	public thumbnailUrl: string;
-	public name: string;
+	public parentId?: string;
+	public variantUid?: string;
+	public thumbnailUrl?: string;
+	public name?: string;
 	public requestType: 'productQuery' | 'productSimilar' | 'productComparison';
 
-	constructor({ id, productId, thumbnailUrl, name, requestType, state, error }: ChatAttachmentProductConfig) {
+	constructor({ id, productId, parentId, variantUid, thumbnailUrl, name, requestType, state, error }: ChatAttachmentProductConfig) {
 		super({ data: { id, state, error } });
 
 		this.state = state ?? 'attached';
 		this.productId = productId;
+		this.parentId = parentId;
+		this.variantUid = variantUid;
 		this.thumbnailUrl = thumbnailUrl;
 		this.name = name;
 		this.requestType = requestType;
@@ -253,6 +263,8 @@ export class ChatAttachmentProduct extends ChatAttachment {
 		makeObservable(this, {
 			type: observable,
 			productId: observable,
+			parentId: observable,
+			variantUid: observable,
 			thumbnailUrl: observable,
 			name: observable,
 			requestType: observable,
@@ -260,7 +272,7 @@ export class ChatAttachmentProduct extends ChatAttachment {
 	}
 }
 export class ChatAttachmentFacet extends ChatAttachment {
-	public type: 'facet' | never = 'facet';
+	public type = 'facet' as const;
 	public key: string;
 	public facetLabel: string;
 	public value: string;
@@ -287,7 +299,7 @@ export class ChatAttachmentFacet extends ChatAttachment {
 	}
 }
 export class ChatAttachmentImage extends ChatAttachment {
-	public type: 'image' | never = 'image';
+	public type = 'image' as const;
 	public fileName?: string;
 	public imageId?: string;
 	public imageUrl?: string;
@@ -314,7 +326,7 @@ export class ChatAttachmentImage extends ChatAttachment {
 	}
 
 	// used to update attachment after upload or from
-	update = async ({
+	update = ({
 		imageId,
 		imageUrl,
 		thumbnailUrl,
@@ -324,7 +336,7 @@ export class ChatAttachmentImage extends ChatAttachment {
 		imageUrl?: string;
 		thumbnailUrl?: string;
 		error?: AttachmentError;
-	}): Promise<void> => {
+	}): void => {
 		if (imageId && imageUrl && thumbnailUrl) {
 			this.state = 'attached';
 			this.imageId = imageId;

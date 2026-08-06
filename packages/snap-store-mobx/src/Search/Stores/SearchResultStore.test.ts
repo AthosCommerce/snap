@@ -3,7 +3,7 @@ import { MockData } from '@athoscommerce/snap-shared';
 import { SearchResponseModelResult, SearchResponseModelResultCoreMappings } from '@athoscommerce/snapi-types';
 
 import { Banner, Product, SearchResultStore, ProductMask, Variants, Variant, VariantSelection, VariantData, Badges } from './SearchResultStore';
-import type { SearchStoreConfig, StoreConfigs, VariantConfig } from '../../types';
+import type { SearchStoreConfig, VariantConfig } from '../../types';
 
 const mockData = new MockData();
 

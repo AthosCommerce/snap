@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+- **test:** halve Jest CI time and make npm test the full-suite entry point ([7c9a3e9](https://github.com/AthosCommerce/snap/commit/7c9a3e94ed49e5b8c73a9e86aa7ad18ff5ab4e11))
+
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-event-manager
+
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+**Note:** Version bump only for package @athoscommerce/snap-event-manager
+
+# [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
+
+**Note:** Version bump only for package @athoscommerce/snap-event-manager
+
 # [1.7.0](https://github.com/AthosCommerce/snap/compare/v1.6.0...v1.7.0) (2026-06-11)
 
 **Note:** Version bump only for package @athoscommerce/snap-event-manager

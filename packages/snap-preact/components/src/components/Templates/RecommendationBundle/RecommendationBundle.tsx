@@ -179,7 +179,6 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		ctaButtonSuccessText: 'Bundle Added!',
 		ctaButtonSuccessTimeout: 2000,
 		ctaInline: true,
-		onAddToCart: (e, items) => controller?.addToCart && controller.addToCart(items),
 		title: properties.controller?.store?.profile?.display?.templateParameters?.title,
 		description: properties.controller?.store?.profile?.display?.templateParameters?.description,
 		treePath: globalTreePath,
@@ -433,12 +432,12 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 			}
 		}
 	};
-	const addToCart = (e: MouseEvent) => {
+	const addToCart = async (e: MouseEvent): Promise<void> => {
 		// add to cart tracking
-		controller.addToCart(selectedItems);
+		await controller.addToCart(selectedItems);
 
 		//call the function passed
-		onAddToCart && onAddToCart(e, selectedItems);
+		onAddToCart && (await onAddToCart(e, selectedItems));
 	};
 
 	const setSeedwidth = () => {
@@ -518,6 +517,16 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 						{resolvedResultComponent ? (
 							cloneWithProps(resolvedResultComponent, {
 								controller: controller,
+								theme: isNamedResultComponent
+									? deepmerge(props.theme || {}, {
+											components: {
+												// in order to preserve theme overrides for resultComponent vs. customComponent
+												result: {
+													customComponent: resultComponent,
+												},
+											},
+									  })
+									: props.theme,
 								treePath: treePath,
 								result: result,
 								seed: isSeed,
@@ -605,6 +614,16 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 																onProductSelect,
 																result: seed,
 																treePath,
+																theme: isNamedResultComponent
+																	? deepmerge(props.theme || {}, {
+																			components: {
+																				// in order to preserve theme overrides for resultComponent vs. customComponent
+																				result: {
+																					customComponent: resultComponent,
+																				},
+																			},
+																	  })
+																	: props.theme,
 															});
 														} else if (shouldWaitForNamedResultComponent) {
 															return null;
@@ -713,7 +732,7 @@ export type RecommendationBundleProps = {
 export type RecommendationBundleTemplatesLegalProps = {
 	resultComponent?: string;
 	limit?: number;
-	onAddToCart?: (e: MouseEvent, items: Product[]) => void;
+	onAddToCart?: (e: MouseEvent, items: Product[]) => void | Promise<void>;
 	title?: JSX.Element | string;
 	preselectedCount?: number;
 	hideCheckboxes?: boolean;

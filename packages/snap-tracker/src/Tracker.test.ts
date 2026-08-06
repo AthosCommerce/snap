@@ -243,36 +243,57 @@ describe('Tracker', () => {
 	});
 
 	it('will make preflight request when there are cart products set', async () => {
-		const tracker = new Tracker(globals, config);
-		const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
-		// simulate product cart tracking
-		const productData = [{ parentId: 'product123', uid: 'product123', sku: 'product123', qty: 1, price: 10.99 }];
-		tracker.storage.cart.set(productData);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		jest.useFakeTimers();
 
-		expect(sendPreflight).toHaveBeenCalledTimes(1);
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			// simulate product cart tracking
+			const productData = [{ parentId: 'product123', uid: 'product123', sku: 'product123', qty: 1, price: 10.99 }];
+			tracker.storage.cart.set(productData);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('will make preflight request when there are viewed products set', async () => {
-		const tracker = new Tracker(globals, config);
-		const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
-		// simulate product view tracking
-		const productData = { sku: 'product123' };
-		tracker.track.product.view(productData);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		jest.useFakeTimers();
 
-		expect(sendPreflight).toHaveBeenCalledTimes(1);
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			// simulate product view tracking
+			const productData = { sku: 'product123' };
+			tracker.track.product.view(productData);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('will make preflight request when there is a shopperId set', async () => {
-		const tracker = new Tracker(globals, config);
-		const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
-		// simulate shopper login
-		const shopperData = { id: 'shopper123' };
-		tracker.track.shopper.login(shopperData);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		jest.useFakeTimers();
 
-		expect(sendPreflight).toHaveBeenCalledTimes(1);
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			// simulate shopper login
+			const shopperData = { id: 'shopper123' };
+			tracker.track.shopper.login(shopperData);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('can retarget DOM elements', () => {
@@ -462,6 +483,8 @@ describe('Cart inferance from context', () => {
 	let config: TrackerConfig & BeaconConfig;
 	let mockFetchApi: jest.Mock;
 	beforeEach(() => {
+		// installed before the Tracker is constructed so its deferred constructor work is faked too
+		jest.useFakeTimers();
 		jest.clearAllMocks();
 		resetAllCookies();
 		localStorageMock.clear();
@@ -471,6 +494,11 @@ describe('Cart inferance from context', () => {
 		} as Response);
 		config = { mode: 'development', apis: { fetch: mockFetchApi } };
 		tracker = new Tracker(globals, config);
+	});
+
+	afterEach(() => {
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
 	});
 
 	it('empty cart should not trigger any requests', async () => {
@@ -483,12 +511,10 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, 0));
+		await jest.advanceTimersByTimeAsync(0);
 		expect(mockFetchApi).not.toHaveBeenCalled();
 	});
 	it('can set current cart from globals', async () => {
-		// set initial cart
-
 		// set initial cart
 		const cart = [
 			{ parentId: 'productUid1', uid: 'productUid1', sku: 'productSku1', qty: 1, price: 9.99 },
@@ -501,7 +527,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 
 		expect(tracker.storage.cart.get()).toEqual(cart);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/add'), expect.any(Object));
@@ -519,7 +545,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart2);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/add'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -535,7 +561,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart3);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/add'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -551,7 +577,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart4);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/remove'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -567,7 +593,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart4); // should be previous cart
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/log/snap'), expect.any(Object));
 		expect(mockFetchApi).not.toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -583,7 +609,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart6);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/remove'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -600,7 +626,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart7);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/remove'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -668,7 +694,7 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/impression'), expect.any(Object));
 	});
 
-	it('impression sends correct payload structure', () => {
+	it('impression sends correct payload structure', async () => {
 		const impressionData: ChatImpressionSchemaData = {
 			chatSessionId: 'session-abc',
 			responseId: 'response-xyz',
@@ -687,15 +713,15 @@ describe('Chat Events', () => {
 			],
 		};
 
-		const impressionSpy = jest.spyOn(tracker.events.chat, 'impression');
-
 		tracker.events.chat.impression({ data: impressionData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
 
-		expect(impressionSpy).toHaveBeenCalledWith({
-			data: impressionData,
-		});
+		const impressionCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/impression'));
+		expect(impressionCall).toBeDefined();
 
-		impressionSpy.mockRestore();
+		const body = JSON.parse(impressionCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(impressionData);
 	});
 
 	it('can send chat clickthrough events', async () => {
@@ -718,7 +744,7 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/clickthrough'), expect.any(Object));
 	});
 
-	it('clickthrough sends correct payload structure', () => {
+	it('clickthrough sends correct payload structure', async () => {
 		const clickthroughData: ChatClickthroughSchemaData = {
 			chatSessionId: 'session-abc',
 			responseId: 'response-xyz',
@@ -732,15 +758,15 @@ describe('Chat Events', () => {
 			],
 		};
 
-		const clickthroughSpy = jest.spyOn(tracker.events.chat, 'clickThrough');
-
 		tracker.events.chat.clickThrough({ data: clickthroughData });
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
-		expect(clickthroughSpy).toHaveBeenCalledWith({
-			data: clickthroughData,
-		});
+		const clickthroughCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/clickthrough'));
+		expect(clickthroughCall).toBeDefined();
 
-		clickthroughSpy.mockRestore();
+		const body = JSON.parse(clickthroughCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(clickthroughData);
 	});
 
 	it('can send chat addtocart events', async () => {
@@ -764,7 +790,7 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/addtocart'), expect.any(Object));
 	});
 
-	it('addtocart sends correct payload with product quantities', () => {
+	it('addtocart sends correct payload with product quantities', async () => {
 		const addToCartData: ChatAddtocartSchemaData = {
 			chatSessionId: 'session-abc',
 			responseId: 'response-xyz',
@@ -786,15 +812,15 @@ describe('Chat Events', () => {
 			],
 		};
 
-		const addToCartSpy = jest.spyOn(tracker.events.chat, 'addToCart');
-
 		tracker.events.chat.addToCart({ data: addToCartData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
 
-		expect(addToCartSpy).toHaveBeenCalledWith({
-			data: addToCartData,
-		});
+		const addToCartCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/addtocart'));
+		expect(addToCartCall).toBeDefined();
 
-		addToCartSpy.mockRestore();
+		const body = JSON.parse(addToCartCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(addToCartData);
 	});
 
 	it('addtocart also adds products to cart storage', async () => {
@@ -850,18 +876,17 @@ describe('Chat Events', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/feedback'), expect.any(Object));
 	});
 
-	it('feedback sends correct payload with feedback enum value', () => {
-		const feedbackSpy = jest.spyOn(tracker.events.chat, 'feedback');
-
-		// positive feedback
+	it('feedback sends correct payload with feedback enum value', async () => {
 		tracker.events.chat.feedback({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive } });
-		expect(feedbackSpy).toHaveBeenCalledWith({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive } });
-
-		// negative feedback
 		tracker.events.chat.feedback({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative } });
-		expect(feedbackSpy).toHaveBeenCalledWith({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative } });
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
-		feedbackSpy.mockRestore();
+		const feedbackCalls = mockFetchApi.mock.calls.filter(([url]) => url.includes('/chat/feedback'));
+		expect(feedbackCalls).toHaveLength(2);
+
+		const bodies = feedbackCalls.map(([, request]) => JSON.parse(request.body));
+		expect(bodies[0].data).toEqual({ chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive });
+		expect(bodies[1].data).toEqual({ chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative });
 	});
 
 	it('impression and addtocart events are batched via queueRequest', async () => {

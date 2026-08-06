@@ -715,11 +715,8 @@ describe('Snap Preact', () => {
 			const client = new MockClient(searchConfig.client!.globals as ClientGlobals);
 			const snap = new Snap(searchConfig, { client });
 
-			// wait is needed due to promise usage (async)
-			await wait(200);
-
 			// after onTarget resolves element minHeight is removed
-			expect((contentElem as HTMLElement).style.minHeight).toBe('');
+			await waitFor(() => expect((contentElem as HTMLElement).style.minHeight).toBe(''));
 		});
 
 		it(`will render the component before the search resolves`, async () => {
@@ -1244,6 +1241,182 @@ describe('Snap Preact', () => {
 			await snap.getController('finder');
 			await wait();
 			expect(onTarget).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe('creates chat controllers via config', () => {
+		it(`can create a chat controller`, async () => {
+			const baseConfig = generateBaseConfig();
+			const chatConfig = {
+				...baseConfig,
+				controllers: {
+					chat: [
+						{
+							config: {
+								id: 'chat',
+							},
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(chatConfig.client!.globals as ClientGlobals);
+			const snap = new Snap(chatConfig, { client });
+
+			const chat = await snap.getController('chat');
+			expect(chat.id).toBe('chat');
+			expect(chat.type).toBe('chat');
+
+			// chat does not react to browser history state changes
+			expect(chat.urlManager.detached).toBeDefined();
+
+			// it has not searched and is not searching
+			expect(chat.store.loading).toBe(false);
+			expect(chat.store.loaded).toBe(false);
+		});
+
+		it(`can create multiple chat controllers`, async () => {
+			const baseConfig = generateBaseConfig();
+			const chatConfig = {
+				...baseConfig,
+				controllers: {
+					chat: [
+						{
+							config: {
+								id: 'chatOne',
+							},
+						},
+						{
+							config: {
+								id: 'chatTwo',
+							},
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(chatConfig.client!.globals as ClientGlobals);
+			const snap = new Snap(chatConfig, { client });
+			const [chatOne, chatTwo] = await snap.getControllers('chatOne', 'chatTwo');
+			expect(chatOne.id).toBe('chatOne');
+			expect(chatOne.type).toBe('chat');
+			expect(chatTwo.id).toBe('chatTwo');
+			expect(chatTwo.type).toBe('chat');
+		});
+
+		it(`logs an error when targeter has invalid configuration`, async () => {
+			const baseConfig = generateBaseConfig();
+			document.body.innerHTML = `<script id="athos-context"></script><div id="athos-chat"></div>`;
+
+			const chatConfig = {
+				...baseConfig,
+				controllers: {
+					chat: [
+						{
+							config: {
+								id: 'chat',
+							},
+							targeters: [
+								{
+									name: 'chatTargeter',
+									selector: '#athos-chat',
+									component: async () => Component,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(chatConfig.client!.globals as ClientGlobals);
+			const logger = new Logger();
+			const spy = jest.spyOn(logger, 'error');
+
+			new Snap(chatConfig, { client, logger });
+			await wait();
+			expect(spy).toHaveBeenCalledTimes(0);
+
+			// @ts-ignore - deleting required property
+			delete chatConfig.controllers.chat[0].targeters[0].selector;
+			new Snap(chatConfig, { client, logger });
+			await wait();
+			expect(spy).toHaveBeenCalledTimes(1);
+
+			chatConfig.controllers.chat[0].targeters[0].selector = '#athos-chat';
+			// @ts-ignore - deleting required property
+			delete chatConfig.controllers.chat[0].targeters[0].component;
+			new Snap(chatConfig, { client, logger });
+			await wait();
+			expect(spy).toHaveBeenCalledTimes(2);
+
+			spy.mockClear();
+		});
+
+		it(`creates targeter provided in config`, async () => {
+			const baseConfig = generateBaseConfig();
+			document.body.innerHTML = `<script id="athos-context"></script><div id="athos-chat"></div>`;
+
+			const chatConfig = {
+				...baseConfig,
+				controllers: {
+					chat: [
+						{
+							config: {
+								id: 'chat',
+							},
+							targeters: [
+								{
+									name: 'chatTargeter',
+									selector: '#athos-chat',
+									component: async () => Component,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(chatConfig.client!.globals as ClientGlobals);
+			const snap = new Snap(chatConfig, { client });
+			const chat = await snap.getController('chat');
+			await wait();
+			expect(chat.id).toBe('chat');
+			expect(chat.targeters.chatTargeter).toBeDefined();
+		});
+
+		it(`injects into an appended element when targeting body`, async () => {
+			const baseConfig = generateBaseConfig();
+			document.body.innerHTML = `<script id="athos-context"></script>`;
+
+			const chatConfig = {
+				...baseConfig,
+				controllers: {
+					chat: [
+						{
+							config: {
+								id: 'chat',
+							},
+							targeters: [
+								{
+									name: 'chatTargeter',
+									selector: 'body',
+									component: async () => Component,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(chatConfig.client!.globals as ClientGlobals);
+			const snap = new Snap(chatConfig, { client });
+			await snap.getController('chat');
+
+			await waitFor(() => {
+				const injected = document.querySelector('body > .ss__chat--target');
+				expect(injected).not.toBeNull();
+				expect(injected?.querySelector('.injectedComponent')).not.toBeNull();
+			});
 		});
 	});
 

@@ -2,18 +2,22 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath, withTracking } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
-import { CalloutBadge, OverlayBadge, Price } from '../../..';
-import { useCustomComponentOverride } from '../../../hooks';
+import { Price } from '../../Atoms/Price';
+import { CalloutBadge } from '../CalloutBadge';
+import { OverlayBadge } from '../OverlayBadge';
+import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 
-const defaultStyles: StyleScript<ChatResultProps> = () => {
+const defaultStyles: StyleScript<ChatResultProps> = ({ theme }) => {
+	const colorCta = Colour.concrete(theme?.variables?.colors?.accent) || '#feeeae';
 	return css({
 		display: 'flex',
 		flexDirection: 'column',
@@ -96,7 +100,7 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 					boxSizing: 'border-box',
 
 					'&.ss__chat-result__image__icons__icon--cart': {
-						backgroundColor: '#feeeae',
+						backgroundColor: colorCta,
 						svg: {
 							fill: '#000',
 							stroke: '#000',
@@ -119,6 +123,17 @@ const defaultStyles: StyleScript<ChatResultProps> = () => {
 
 			'.ss__chat-result__content__title--primary': {
 				padding: '0 0.5em',
+
+				'&.ss__button': {
+					display: 'block',
+					background: 'none',
+					border: 'none',
+					color: 'inherit',
+					font: 'inherit',
+					textAlign: 'left',
+					cursor: 'pointer',
+					width: 'auto',
+				},
 			},
 			'.ss__chat-result__content__title--secondary': {
 				padding: '0 0.5em',
@@ -146,7 +161,7 @@ export const ChatResult = withTracking(
 
 		const props = mergeProps('chatResult', globalTheme, defaultProps, properties);
 
-		const { controller, result, scrollToBottom, trackingRef, disableStyles, className, internalClassName, treePath } = props;
+		const { controller, result, scrollToBottom, onProductClick, trackingRef, disableStyles, className, internalClassName, treePath } = props;
 
 		const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatResult', {
 			...props,
@@ -179,15 +194,69 @@ export const ChatResult = withTracking(
 
 		const styling = mergeStyles<ChatResultProps>(props, defaultStyles);
 
+		const productName = result.display.mappings.core?.name;
+
+		//initialize lang
+		const defaultLang: Partial<ChatResultLang> = {
+			similarButton: {
+				value: 'Similar',
+				attributes: {
+					'aria-label': `Show similar to ${productName || 'product'}`,
+				},
+			},
+			compareButton: {
+				value: 'Compare',
+				attributes: {
+					'aria-label': `Compare ${productName || 'product'}`,
+				},
+			},
+			addedToComparisonButton: {
+				attributes: {
+					'aria-label': `${productName || 'Product'} added to comparison`,
+					title: 'Added to comparison',
+				},
+			},
+			discussButton: {
+				attributes: {
+					'aria-label': `Discuss ${productName || 'product'}`,
+					title: 'Discuss Product',
+				},
+			},
+			addToCartButton: {
+				attributes: {
+					'aria-label': `Add ${productName || 'product'} to cart`,
+					title: 'Add to Cart',
+				},
+			},
+			configureButton: {
+				attributes: {
+					'aria-label': `Configure ${productName || 'product'}`,
+					title: 'Configure',
+				},
+			},
+			productLink: {
+				attributes: {
+					'aria-label': `Open ${productName || 'product'}`,
+				},
+			},
+		};
+
+		//deep merge with props.lang
+		const lang = deepmerge(defaultLang, props.lang || {});
+		const mergedLang = useLang(lang as any, {
+			controller,
+			result,
+		});
+
 		return (
 			<CacheProvider>
 				<div className={classnames('ss__chat-result', className, internalClassName)} ref={trackingRef} {...styling}>
 					<div className="ss__chat-result__image">
-						<OverlayBadge controller={controller as any} result={result} renderEmpty={true}>
+						<OverlayBadge controller={controller} result={result} renderEmpty={true}>
 							<Image
 								{...subProps.image}
 								className={'ss__chat-result__detail-slot__image'}
-								alt={result.display.mappings.core?.name || ''}
+								alt={productName || ''}
 								src={result.display.mappings.core?.imageUrl || result.display.mappings.core?.parentImageUrl || ''}
 							/>
 						</OverlayBadge>
@@ -196,23 +265,16 @@ export const ChatResult = withTracking(
 								<Button
 									{...subProps.button}
 									className={'ss__chat-result__image__buttons__similar'}
-									content={'Similar'}
-									aria-label={`Show similar to ${result.display.mappings.core?.name || 'product'}`}
 									onClick={() => {
 										controller.productSimilar(result);
 									}}
+									{...mergedLang.similarButton.all}
 								/>
 							)}
 							<Button
 								{...subProps.button}
 								className={'ss__chat-result__image__buttons__compare'}
-								content={isInComparison ? undefined : 'Compare'}
-								icon={isInComparison ? { icon: 'check-thin', title: 'Added to comparison' } : undefined}
-								aria-label={
-									isInComparison
-										? `${result.display.mappings.core?.name || 'Product'} added to comparison`
-										: `Compare ${result.display.mappings.core?.name || 'product'}`
-								}
+								icon={isInComparison ? { icon: 'check-thin' } : undefined}
 								aria-pressed={isInComparison}
 								onClick={() => {
 									// toggle: clicking again removes it from comparison, matching the 'x' icon in the comparison view
@@ -222,27 +284,23 @@ export const ChatResult = withTracking(
 									}
 									controller.compareProduct(result);
 								}}
+								{...(isInComparison ? mergedLang.addedToComparisonButton.attributes : mergedLang.compareButton.all)}
 							/>
 						</div>
 						<div className="ss__chat-result__image__icons">
 							<Button
 								{...subProps.button}
 								className={'ss__chat-result__image__icons__icon--inquire'}
-								icon={{ icon: 'chat', title: 'Discuss Product' }}
-								aria-label={`Discuss ${result.display.mappings.core?.name || 'product'}`}
+								icon={{ icon: 'chat' }}
 								onClick={() => {
 									controller.productQuery(result);
 								}}
+								{...mergedLang.discussButton.attributes}
 							/>
 							<Button
 								{...subProps.button}
 								className={'ss__chat-result__image__icons__icon--cart'}
-								icon={{ icon: 'cart', title: isConfigurable ? 'Configure' : 'Add to Cart' }}
-								aria-label={
-									isConfigurable
-										? `Configure ${result.display.mappings.core?.name || 'product'}`
-										: `Add ${result.display.mappings.core?.name || 'product'} to cart`
-								}
+								icon={{ icon: 'cart' }}
 								onClick={() => {
 									// configurable products need a variant selection — open the product
 									// information panel so the user can pick options before adding to cart
@@ -253,14 +311,24 @@ export const ChatResult = withTracking(
 									controller.track.product.addToCart(result);
 									controller.addToCart(result);
 								}}
+								{...(isConfigurable ? mergedLang.configureButton.attributes : mergedLang.addToCartButton.attributes)}
 							/>
 						</div>
 					</div>
 					<div className="ss__chat-result__content">
-						{result.display.mappings.core?.name && (
-							<div className="ss__chat-result__content__title--primary">{result.display.mappings.core?.name}</div>
-						)}
-						{result.display.mappings.core?.price && (
+						{productName &&
+							(onProductClick ? (
+								<Button
+									{...subProps.button}
+									internalClassName={'ss__chat-result__content__title--primary'}
+									content={productName}
+									onClick={(e) => onProductClick(e)}
+									{...mergedLang.productLink.attributes}
+								/>
+							) : (
+								<div className="ss__chat-result__content__title--primary">{productName}</div>
+							))}
+						{result.display.mappings.core?.price != null && (
 							<div className="ss__chat-result__content__price">
 								<Price value={result.display.mappings.core?.price} />
 							</div>
@@ -278,9 +346,26 @@ interface ChatResultSubProps {
 	image: Partial<ImageProps>;
 }
 
-export interface ChatResultProps extends ComponentProps {
+export type ChatResultProps = {
 	result: Product;
 	controller: ChatController;
 	scrollToBottom: () => void;
+	onProductClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+	lang?: Partial<ChatResultLang>;
 	trackingRef?: (el: HTMLElement | null) => void;
+} & ComponentProps<ChatResultProps>;
+
+export interface ChatResultLang {
+	similarButton?: Lang<ChatResultLangData>;
+	compareButton?: Lang<ChatResultLangData>;
+	addedToComparisonButton?: Lang<ChatResultLangData>;
+	discussButton?: Lang<ChatResultLangData>;
+	addToCartButton?: Lang<ChatResultLangData>;
+	configureButton?: Lang<ChatResultLangData>;
+	productLink?: Lang<ChatResultLangData>;
+}
+
+interface ChatResultLangData {
+	result: Product;
+	controller?: ChatController;
 }

@@ -33,7 +33,7 @@ import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
 import { default as createSearchController } from './create/createSearchController';
 import type { RecommendationInstantiator, RecommendationInstantiatorConfig } from './Instantiators/RecommendationInstantiator';
 import type { SnapControllerServices, SnapControllerConfig, InitialUrlConfig, SnapFeatures } from './types';
-import { configureSnapFeatures } from './utils';
+import { applyChatBodyInject, configureSnapFeatures } from './utils';
 import { setupEvents } from './setupEvents';
 import type { TemplatesStore } from './Templates/Stores/TemplateStore';
 
@@ -749,6 +749,9 @@ export class Snap {
 
 						this._controllerPromises[controller.config.id] = new Promise(async (resolve) => {
 							try {
+								// `_initialized` is only set after the awaited init fires, so two chat
+								// targeters would otherwise both re-run the init middleware
+								let initialized = false;
 								const targetFunction = async (target: ExtendedTarget, elem: Element, originalElem: Element) => {
 									const onTarget = target.onTarget as OnTarget;
 									onTarget && (await onTarget(target, elem, originalElem));
@@ -771,7 +774,7 @@ export class Snap {
 								};
 
 								if (!controller?.targeters || controller?.targeters.length === 0) {
-									await this._createController(
+									const cntrlr = await this._createController(
 										ControllerTypes.chat,
 										controller.config,
 										controller.services,
@@ -781,6 +784,7 @@ export class Snap {
 											if (cntrlr) resolve(cntrlr);
 										}
 									);
+									if (!cntrlr.initialized) cntrlr.init();
 								}
 
 								controller?.targeters?.forEach((target, target_index) => {
@@ -791,19 +795,7 @@ export class Snap {
 										throw new Error(`Targets at index ${target_index} missing component value (Component).`);
 									}
 
-									// Chat mounts at the document level — if the consumer aimed at <body>
-									// directly, give DomTargeter a child to render into instead of stomping on body.
-									if (target.selector === 'body' && !target.inject) {
-										target = {
-											...target,
-											inject: {
-												action: 'append',
-												element: () => {
-													return document.createElement('div');
-												},
-											},
-										};
-									}
+									target = applyChatBodyInject(target);
 
 									const targeter = new DomTargeter([{ ...target }], async (target: Target, elem: Element, originalElem?: Element) => {
 										const cntrlr = await this._createController(
@@ -816,6 +808,10 @@ export class Snap {
 												if (cntrlr) resolve(cntrlr);
 											}
 										);
+										if (!initialized) {
+											initialized = true;
+											if (!cntrlr.initialized) cntrlr.init();
+										}
 										targetFunction({ controller: cntrlr, ...target }, elem, originalElem!);
 										cntrlr.addTargeter(targeter);
 									});

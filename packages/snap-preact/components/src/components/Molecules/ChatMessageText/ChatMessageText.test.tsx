@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
 import { ChatMessageText } from './ChatMessageText';
 
@@ -100,6 +101,20 @@ describe('ChatMessageText Component', () => {
 		expect(textEl?.innerHTML).not.toContain('onerror');
 	});
 
+	it('strips javascript: URLs produced by markdown link syntax', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: '[click](javascript:alert(1))', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+			/>
+		);
+		const textEl = rendered.container.querySelector('.ss__chat-message-text__text-wrapper__text');
+		// marked turns this into an <a href="javascript:...">; DOMPurify must drop the href
+		expect(textEl?.innerHTML).not.toContain('javascript:');
+		expect(textEl?.textContent).toContain('click');
+	});
+
 	it('preserves legitimate plain text content', () => {
 		const rendered = render(
 			<ChatMessageText
@@ -109,5 +124,47 @@ describe('ChatMessageText Component', () => {
 			/>
 		);
 		expect(rendered.container.textContent).toContain('Safe content for the user');
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				className={className}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-text');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				disableStyles={true}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-text');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(
+			<ChatMessageText
+				chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+				controller={makeController()}
+				scrollToBottom={() => undefined}
+				styleScript={styleScript}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-message-text')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
 	});
 });

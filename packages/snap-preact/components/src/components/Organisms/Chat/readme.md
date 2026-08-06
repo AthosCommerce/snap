@@ -5,6 +5,18 @@ The full conversational-search experience. Renders the chat bubble, expanded pri
 The `Chat` organism is consumed by `Templates/Chat` and registered automatically in the SnapTemplates library, but it can also be rendered directly with any `ChatController`.
 
 ## Sub-components
+Internal (in `./components/`):
+- ChatHistory (header history dropdown + popup)
+- ChatSideChat (secondary panel: inspiration / comparison / product detail)
+- ChatMessages (message thread, welcome state, new-messages pill)
+- ChatSessionFeedback (thumbs up/down strip)
+- ChatComparisonsTray (compare-products tray)
+- ChatFacetsBar (footer facet dropdowns incl. range slider)
+- ChatAttachments (attachment context strips)
+- ChatTopicDrift (topic-drift and high-volume banners)
+- ChatComposer (input + upload + send + disclaimer)
+
+Molecules/Atoms:
 - ChatMessageUser
 - ChatMessageText
 - ChatSuggestedQuestions
@@ -17,9 +29,9 @@ The `Chat` organism is consumed by `Templates/Chat` and registered automatically
 
 ## Usage
 ```tsx
-import { Chat } from '@athoscommerce/snap-preact/components';
+import { ChatOrganism } from '@athoscommerce/snap-preact/components';
 
-<Chat controller={chatController} />
+<ChatOrganism controller={chatController} />
 ```
 
 ### controller
@@ -45,6 +57,12 @@ When true, the suggested-question chips don't render above the chat bubble while
 
 ### primaryColorBg, primaryColorFg, primaryAccentColorBg, primaryAccentColorFg, secondaryAccentColorBg, secondaryAccentColorFg
 Templates-legal color tokens. Drive the bubble background, header strip, user-message bubble, Add-to-Cart button, and Compare / Similar buttons respectively. All defaults match the Athos brand.
+
+### poweredByText, privacyPolicyUrl
+Disclaimer line under the composer. `poweredByText` replaces the leading "Powered by Athos Commerce." text, and `privacyPolicyUrl` changes the privacy policy link target. The rest of the disclaimer copy is translatable via the `disclaimerText` and `privacyPolicyLinkText` lang keys.
+
+### lang
+All user-facing strings (header buttons, history popup, loading verbs, feedback strip, comparisons tray, facet bar, topic-drift banners, composer placeholders, disclaimer, expired message, and aria-labels) are overridable via the `lang` prop — see `ChatLang` in `Chat.lang.ts` for the full key list and English defaults.
 
 ### hideMessageTypeIndicatorText
 When true, the request-type indicator text above a user message (e.g. "Searching products", "Comparing products") is not rendered. Defaults to false.

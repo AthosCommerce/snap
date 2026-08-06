@@ -1,5 +1,7 @@
 export * from './Client/Client';
 
+export { CHAT_MAX_MESSAGE_LENGTH } from './Client/apis/Chat';
+
 export {
 	ClientGlobals,
 	ClientConfig,
@@ -11,25 +13,18 @@ export {
 	RecommendationRequestFilterModel,
 	ProductsRequestModel,
 	ProductsResponseModel,
-	ProductVariant,
-} from './types';
-
-export {
-	ChatResponseModel,
-	ChatResponseTextData,
-	ChatResponseContentData,
-	ChatResponseProductSearchResultData,
-	ChatResponseInspirationResultData,
-	ChatResponseProductAnswerData,
-	ChatResponseActionsData,
-	ChatResponseProductRecommendationData,
-	ChatResponseProductComparisonData,
-	ChatResponseErrorData,
-	ChatResponseTopicDriftData,
-} from './Client/transforms';
-export {
-	CHAT_MAX_MESSAGE_LENGTH,
+	ChatTrackingContext,
+	ChatRequestModel,
+	ChatStatusRequestModel,
+	ChatStatusResponseModel,
+	ChatInitRequestModel,
+	ChatInitResponseModel,
+	ChatBadRequestResponseModel,
+	ChatFilterSummaryEntry,
+	UploadImageRequestModel,
+	UploadImageResponseModel,
 	MoiRequestModel,
+	ProductIdentity,
 	MoiRequestModelGeneral,
 	MoiRequestModelProductQuery,
 	MoiRequestModelProductSearch,
@@ -38,13 +33,15 @@ export {
 	MoiRequestModelProductSimilar,
 	MoiRequestModelInspiration,
 	MoiRequestModelContent,
-	MoiResponseModelProductSearchResult,
-	ChatRequestModel,
-	ChatStatusResponse,
-	ChatStatusRequestModel,
-	ChatTrackingContext,
-	ChatInitRequestModel,
-	ChatInitResponseModel,
-	UploadImageRequestModel,
-	UploadImageResponseModel,
-} from './Client/apis/Chat';
+	ChatResponseModel,
+	ChatResponseTextData,
+	ChatResponseContentData,
+	ChatResponseTopicDriftData,
+	ChatResponseActionsData,
+	ChatResponseProductSearchResultData,
+	ChatResponseInspirationResultData,
+	ChatResponseProductAnswerData,
+	ChatResponseProductComparisonData,
+	ChatResponseProductRecommendationData,
+	ChatResponseErrorData,
+} from './types';

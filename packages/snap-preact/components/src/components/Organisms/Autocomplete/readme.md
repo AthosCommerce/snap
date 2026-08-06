@@ -316,3 +316,52 @@ const customOnClickFunc = (e) => {
 ```tsx
 <Autocomplete controller={controller} input={'#searchInput'} onTermClick={customOnClickFunc} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Autocomplete component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `termsTitle` | Suggestion terms section title | `controller` (AutocompleteController) |
+| `trendingTitle` | Trending terms section title | `controller` (AutocompleteController) |
+| `historyTitle` | Search history section title | `controller` (AutocompleteController) |
+| `facetsTitle` | Facets section title | `controller` (AutocompleteController) |
+| `contentTitle` | Content/results section title | `controller` (AutocompleteController) |
+| `closeButton` | Close button text | `controller` (AutocompleteController) |
+| `trendingTerm` | Individual trending term text/attributes | `controller` (AutocompleteController), `term` (Term), `index` (number) |
+| `suggestionsTerm` | Individual suggestion term text/attributes | `controller` (AutocompleteController), `term` (Term), `index` (number) |
+| `historyTerm` | Individual history term text/attributes | `controller` (AutocompleteController), `term` (Term), `index` (number) |
+| `noResultsText` | No results message | `controller` (AutocompleteController) |
+| `seeMoreButton` | See more results button text | `controller` (AutocompleteController) |
+
+### Example
+
+```tsx
+<Autocomplete
+	controller={controller}
+	input={'#searchInput'}
+	lang={{
+		termsTitle: {
+			value: 'Suggestions',
+		},
+		trendingTitle: {
+			value: 'Popular Searches',
+		},
+		historyTitle: {
+			value: 'Recent Searches',
+		},
+		closeButton: {
+			value: 'Close',
+			attributes: {
+				'aria-label': 'close autocomplete',
+			},
+		},
+		noResultsText: {
+			value: (data) => `<p>No results found for "${data.controller?.store?.search?.query?.string}".</p>`,
+		},
+		seeMoreButton: {
+			value: (data) => `See all ${data.controller?.store?.pagination.totalResults} results`,
+		},
+	}}
+/>
+```

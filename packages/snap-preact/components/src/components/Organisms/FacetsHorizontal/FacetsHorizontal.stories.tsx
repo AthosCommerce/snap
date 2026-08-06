@@ -62,9 +62,9 @@ export default {
 			},
 			control: { type: 'number' },
 		},
-		alwaysShowFiltersButton: {
+		alwaysShowToggleSidebarButton: {
 			defaultValue: false,
-			description: 'Always render MobileSidebar regardless of facet overflow set my limit prop',
+			description: 'Always render sidebar toggle button regardless of facet overflow set by limit prop',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -74,15 +74,25 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
-		hideFiltersButton: {
+		hideToggleSidebarButton: {
 			defaultValue: false,
-			description: 'Hide the filters button',
+			description: 'Hide the toggle sidebar button',
 			table: {
 				category: 'Templates Legal',
 				type: { summary: 'boolean' },
 				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
+		},
+		toggleSidebarButtonText: {
+			defaultValue: 'Filters',
+			description: 'Text to display in the toggle sidebar button',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'string' },
+				defaultValue: { summary: 'Filters' },
+			},
+			control: { type: 'text' },
 		},
 		onFacetOptionClick: {
 			description: 'Callback function for when a facet option is clicked',

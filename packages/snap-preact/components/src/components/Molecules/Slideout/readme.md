@@ -22,7 +22,7 @@ When using the `buttonContent` prop, render the component where you want the but
 ```
 
 ### children
-The children provided to the component will be displayed within the slideout - the slideout content. When using a component here, it will be passed additional props (`active` and `toggleActive`) from the slideout component which can be used for referencing and toggling of the `active` state.
+The children provided to the component will be displayed within the slideout - the slideout content. When using a component here, it will be passed additional props (`active` and `toggleActive`) from the slideout component which can be used for referencing and toggling of the `active` state. `toggleActive` flips the state when called with no argument, and accepts an optional boolean to set it explicitly (`toggleActive(false)` always closes). Non-boolean arguments are ignored, so passing it directly as an event handler is safe.
 
 ```tsx
 <Slideout buttonContent={'click me'}>
@@ -129,7 +129,7 @@ The `rerender` prop determines whether the slideout content should be re-rendere
 ```
 
 ### buttonSelector
-The `buttonSelector` prop specifies a selector of an element to query for, to listen for clicks, to trigger the slideout. This is primarily used if you want to have an external element trigger the slide out. 
+The `buttonSelector` prop specifies a selector of an element to query for, to listen for clicks, to trigger the slideout. This is primarily used if you want to have an external element trigger the slide out. Clicking a matched element toggles the slideout open/closed. When a string selector is provided, the click handler is bound to every element matching the selector (`querySelectorAll`).
 
 ```tsx
 

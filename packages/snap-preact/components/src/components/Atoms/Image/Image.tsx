@@ -3,6 +3,7 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import { observer } from 'mobx-react-lite';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
@@ -32,7 +33,7 @@ const defaultStyles: StyleScript<ImageProps> = ({ height }) => {
 	});
 };
 
-export function Image(properties: ImageProps) {
+export const Image = observer((properties: ImageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -94,7 +95,7 @@ export function Image(properties: ImageProps) {
 			</div>
 		</CacheProvider>
 	);
-}
+});
 
 export type ImageProps = ImageTemplatesLegalProps & ComponentProps<ImageProps>;
 

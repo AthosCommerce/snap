@@ -1,6 +1,6 @@
-import { ChatCompareStore, CHAT_COMPARISON_MAX } from './ChatCompareStore';
+import { ChatCompareStore, ChatCompareItem, CHAT_COMPARISON_MAX } from './ChatCompareStore';
 
-const makeItem = (id: string) => ({ result: { id } });
+const makeItem = (id: string) => ({ result: { id } } as ChatCompareItem);
 
 describe('ChatCompareStore', () => {
 	it('has CHAT_COMPARISON_MAX equal to 4', () => {
@@ -35,8 +35,8 @@ describe('ChatCompareStore', () => {
 	// and is pushed unconditionally (as long as maxItems is not reached).
 	it('add pushes an item lacking result.id (dedup guard short-circuits)', () => {
 		const store = new ChatCompareStore();
-		store.add({ result: {} });
-		store.add({ result: {} });
+		store.add({ result: {} } as ChatCompareItem);
+		store.add({ result: {} } as ChatCompareItem);
 		expect(store.compared.length).toBe(2);
 	});
 

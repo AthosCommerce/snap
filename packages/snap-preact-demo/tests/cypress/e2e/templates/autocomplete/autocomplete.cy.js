@@ -30,6 +30,29 @@ const config = {
 	query: 'dress',
 };
 
+// The fixed autocomplete input only exists once snap has bound its input targeter and the overlay
+// has opened. A single click can land before that binding, in which case nothing opens and the
+// input is never found. Re-check before each click and only click while the input is absent - the
+// open button toggles, so clicking unconditionally would just close an overlay that had opened.
+const openAutocompleteInput = () => {
+	if (!config.selectors.website.openInputButton) return;
+
+	cy.waitUntil(
+		() =>
+			cy.get('body').then(($body) => {
+				if ($body.find(config.selectors.website.input).length) return true;
+
+				cy.get(config.selectors.website.openInputButton).first().click({ force: true });
+				return false;
+			}),
+		{
+			timeout: 20000,
+			interval: 1000,
+			errorMsg: 'openAutocompleteInput: input never appeared after clicking the open button',
+		}
+	);
+};
+
 describe('Autocomplete', () => {
 	describe('Setup', () => {
 		it('has valid config', () => {
@@ -85,13 +108,13 @@ describe('Autocomplete', () => {
 			});
 
 			cy.visit(config.url);
+			cy.addLocalSnap();
+			cy.waitForBundle();
 
 			cy.snapController('autocomplete').then(({ store }) => {
-				if (config.selectors.website.openInputButton) {
-					cy.get(config.selectors.website.openInputButton).first().click({ force: true });
-				}
+				openAutocompleteInput();
 
-				cy.get(config.selectors.website.input).first().should('exist').click().focus();
+				cy.get(config.selectors.website.input, { timeout: 20000 }).first().should('exist').click({ force: true }).focus();
 
 				// TODO: remove - but is currently needed for cases where we are getting no trending terms back from the API
 				if (store.trending.length) {
@@ -110,9 +133,7 @@ describe('Autocomplete', () => {
 		});
 
 		it('can make single letter query', function () {
-			if (config.selectors.website.openInputButton) {
-				cy.get(config.selectors.website.openInputButton).first().click({ force: true });
-			}
+			openAutocompleteInput();
 
 			cy.get(config.selectors.website.input).first().should('exist').focus().type(config.startingQuery, { force: true });
 
@@ -161,20 +182,20 @@ describe('Autocomplete', () => {
 					cy.get(config.selectors.website.input).first().clear({ force: true }).type(config.query, { force: true });
 					cy.wait('@autocomplete').should('exist');
 				}
-				cy.wait(200);
+				cy.get(`${config.selectors.autocomplete.facet} a`)
+					.should('have.length.greaterThan', 0)
+					.then((facetOptions) => {
+						const firstOption = facetOptions[0];
+						const optionURL = firstOption.href;
+						cy.get(firstOption).rightclick({ force: true }); // trigger onFocus event
 
-				cy.get(`${config.selectors.autocomplete.facet} a`).then((facetOptions) => {
-					const firstOption = facetOptions[0];
-					const optionURL = firstOption.href;
-					cy.wait(200);
-					cy.get(firstOption).rightclick({ force: true }); // trigger onFocus event
-					cy.wait(200);
-
-					cy.snapController('autocomplete').then(({ store }) => {
-						cy.wrap(store.services.urlManager.state.filter).should('exist');
-						cy.wrap(store.services.urlManager.href).should('contain', optionURL);
+						cy.snapController('autocomplete').then((controller) => {
+							// wrap the controller and walk the path with .its() so each retry re-reads the
+							// urlManager - it is replaced on update, so a wrapped value would stay stale
+							cy.wrap(controller).its('store.services.urlManager.state.filter').should('exist');
+							cy.wrap(controller).its('store.services.urlManager.href').should('contain', optionURL);
+						});
 					});
-				});
 			});
 		});
 
@@ -225,9 +246,7 @@ describe('Autocomplete', () => {
 			cy.window().then((win) => (win.ssFirstLoad = true));
 
 			cy.snapController('autocomplete').then(() => {
-				if (config.selectors.website.openInputButton) {
-					cy.get(config.selectors.website.openInputButton).first().click({ force: true });
-				}
+				openAutocompleteInput();
 
 				cy.get(config.selectors.website.input).first().should('exist').should('have.value', config.query).click().focus({ force: true });
 				cy.wait('@autocomplete').should('exist');

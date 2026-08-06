@@ -3,7 +3,6 @@ import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
-// import { CustomResult } from './components/Result';
 
 const { siteId, clientConfig } = getDemoConfig();
 
@@ -75,6 +74,7 @@ let templatesConfig: SnapTemplatesConfig = {
 			// },
 		},
 		style: globalStyles,
+		// globalResultComponent: 'CustomResult',
 		overrides: {
 			default: {
 				result: {

@@ -129,6 +129,16 @@ export class Colour {
 		return Colour.mixToward(this.hex, '#ffffff', amount);
 	}
 
+	/** Returns the color only if it is a concrete value that can be manipulated and paired with
+	 * other colors. Contextual CSS keywords (currentColor and the CSS-wide keywords) resolve
+	 * against surrounding styles, so they would defeat `|| fallback` chains — those return undefined. */
+	static concrete(color: string | undefined): string | undefined {
+		if (!color || ['currentcolor', 'inherit', 'initial', 'unset', 'revert'].includes(color.toLowerCase())) {
+			return undefined;
+		}
+		return color;
+	}
+
 	static isRgb(color: string): boolean {
 		return Boolean(
 			color.match(/^rgba?\([0-9]{1,3}[\s,\,]+[0-9]{1,3}[\s,\,]+[0-9]{1,3}[\s,\,]*\)$/i) ||
@@ -210,7 +220,8 @@ export class Colour {
 	/** Linear RGB mix between two hex colors. `amount` (0-1) is the proportion of `towardHex`
 	 * in the result. Returns the source `hex` unchanged when either input is invalid. */
 	static mixToward(hex: string | undefined, towardHex: string, amount: number): string {
-		if (!hex || !Colour.isHex(hex) || !Colour.isHex(towardHex)) return hex || '';
+		if (!hex) return '';
+		if (!Colour.isHex(hex) || !Colour.isHex(towardHex)) return hex;
 
 		const clamped = Math.max(0, Math.min(1, amount));
 

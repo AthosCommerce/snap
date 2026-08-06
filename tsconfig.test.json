@@ -1,0 +1,51 @@
+{
+	// Type-checks the test files, which nothing else in the repo does:
+	// the root tsconfig `exclude` drops *.test.ts(x) from builds, and .eslintrc.cjs
+	// ignores them. ts-jest runs transpile-only (isolatedModules), so this config is
+	// the sole type-safety gate for tests. Run via `npm run typecheck:tests`.
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"declaration": false,
+		"declarationMap": false,
+		"types": ["jest", "node"],
+		// needed by snap-preact's .tsx tests; harmless for the .ts-only packages
+		"jsx": "react-jsx",
+		"jsxImportSource": "@emotion/react",
+		// resolve workspace imports to source so this needs no prior build
+		"paths": {
+			"@athoscommerce/snap-preact": ["./packages/snap-preact/src"],
+			"@athoscommerce/snap-preact/components": ["./packages/snap-preact/components/src"],
+			"@athoscommerce/snap-preact/toolbox": ["./packages/snap-preact/toolbox/src"],
+			"@athoscommerce/snap-platforms/common": ["./packages/snap-platforms/common/src"],
+			"@athoscommerce/snap-platforms/bigcommerce": ["./packages/snap-platforms/bigcommerce/src"],
+			"@athoscommerce/snap-platforms/magento2": ["./packages/snap-platforms/magento2/src"],
+			"@athoscommerce/snap-platforms/shopify": ["./packages/snap-platforms/shopify/src"],
+			"@athoscommerce/snap-client": ["./packages/snap-client/src"],
+			"@athoscommerce/snap-controller": ["./packages/snap-controller/src"],
+			"@athoscommerce/snap-event-manager": ["./packages/snap-event-manager/src"],
+			"@athoscommerce/snap-logger": ["./packages/snap-logger/src"],
+			"@athoscommerce/snap-profiler": ["./packages/snap-profiler/src"],
+			"@athoscommerce/snap-store-mobx": ["./packages/snap-store-mobx/src"],
+			"@athoscommerce/snap-toolbox": ["./packages/snap-toolbox/src"],
+			"@athoscommerce/snap-tracker": ["./packages/snap-tracker/src"],
+			"@athoscommerce/snap-url-manager": ["./packages/snap-url-manager/src"],
+			"@athoscommerce/snap-shared": ["./packages/snap-shared"]
+		}
+	},
+	"include": [
+		"packages/*/src/**/*.test.ts",
+		"packages/*/src/**/*.test.tsx",
+		"packages/snap-preact/components/src/**/*.test.ts",
+		"packages/snap-preact/components/src/**/*.test.tsx",
+		"packages/snap-preact/components/src/setupTests.ts",
+		"packages/snap-platforms/*/src/**/*.test.ts",
+		// ambient `declare module` shims (is-plain-object, css.escape, asset imports).
+		// The package builds get these free via `include: ["src"]`; globbing only test
+		// files would miss them and produce spurious TS7016 errors.
+		"packages/*/src/**/*.d.ts",
+		"packages/snap-preact/components/src/**/*.d.ts"
+	],
+	// the parent's exclude list drops test files, so it must be replaced entirely
+	"exclude": ["**/node_modules/*", "**/dist/**", "**/coverage/*"]
+}

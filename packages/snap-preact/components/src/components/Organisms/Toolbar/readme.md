@@ -6,7 +6,6 @@ Renders a search results toolbar.
 
 - SearchHeader
 - FilterSummary
-- MobileSidebar
 - LayoutSelector
 - PerPage
 - SortBy
@@ -33,15 +32,15 @@ The `_` module is used a seperator module to center,left,right justify the other
 
 available modules to use in the layout are 
 
-`searchHeader`, `filterSummary`,  `breadcrumbs`, `mobileSidebar`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
+`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
 
 
 ```tsx
-<Toolbar controller={controller.store.results} layout={['mobileSidebar', 'filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>
+<Toolbar controller={controller.store.results} layout={['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>
 ```
 
 ### toggleSideBarButton
-The required `toggleSideBarButton` prop specifies an element to be used as the toggleSideBarButton. This element will render in the layout as `button.sidebar-toggle`. If it is not provided in the layout, the button will not render.
+The `toggleSideBarButton` prop specifies an element to be used as the toggleSideBarButton. This element will render in the layout as `button.sidebar-toggle`. If it is not provided in the layout, the button will not render.
 
 ```tsx
 

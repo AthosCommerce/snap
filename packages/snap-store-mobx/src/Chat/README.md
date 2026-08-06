@@ -48,7 +48,7 @@ The id of the active `ChatSessionStore`. Persisted to localStorage so the active
 ## `chats` property
 An array of all `ChatSessionStore` instances. Chat history is persisted in local storage and previous conversations can be accessed here.
 
-## `chatsIds` getter
+## `chatIds` getter
 Returns an array of chat session IDs.
 
 ## `blocked` getter
@@ -131,16 +131,16 @@ Attaches a product to the current chat context for discussion. The `options.requ
 Resets the detached `urlManager`, seeds it with the API-reported filtered values from the message's facets, and rebuilds the root `SearchFacetStore`. Called automatically when the active message changes.
 
 ### `addFacet(facet)`
-Selects a facet value on the detached `urlManager`. Accepts `{ key, value }` where `value` may be a plain string or a range encoded as `"low:high"`.
+Selects a facet value on the detached `urlManager`. Accepts `{ key, value }` where `value` is a `ChatFacetValue` — either a plain option string or a range as `{ low, high }`.
 
 ### `removeFacet(key, value)`
-Removes a specific facet selection by key and value.
+Removes a specific facet selection by key and `ChatFacetValue`.
 
 ### `clearPendingFacets()`
 Clears all selected facet filters from the detached `urlManager`.
 
 ### `isFacetSelected(key, value)`
-Returns `true` if the specified facet filter is currently selected on the detached `urlManager`.
+Returns `true` if the specified facet filter is currently selected on the detached `urlManager`. Takes the same `ChatFacetValue` shape as `addFacet`.
 
 ### `request(request)`
 Snapshots the current facet labels and forwards the outgoing chat request to the current `ChatSessionStore` so it can render the user-facing message text. Called internally before a search.
@@ -217,3 +217,6 @@ Clears the conversation, attachments, actions, and feedback on this session.
 
 ### `ChatSessionStore.pruneStoredSessions(storage, maxSessions = 10)` (static)
 Removes the oldest stored sessions when the count in storage exceeds `maxSessions`, and returns an array of the pruned session ids (oldest first; empty when nothing was pruned). Called by `ChatStore.createChat` before adding a new session, which uses the returned ids to clean up their `impressionStorage` entries.
+
+### `dispose()`
+Tears down the constructor reactions, the detached `urlManager` subscription and any pending debounced session saves. Call this when discarding a chat controller (for example on an SPA route change) so reactions and timers are not leaked.

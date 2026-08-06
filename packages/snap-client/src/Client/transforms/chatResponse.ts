@@ -1,12 +1,22 @@
 import {
 	SearchResponseModelResult,
 	SearchResponseModelFacet,
-	SearchResponseModelResultCoreMappings,
 	SearchResponseModelFacetValueAllOfValues,
 	SearchResponseModelFacetRangeBucketsAllOfValues,
 	SearchRequestModelFilterRangeAllOfValue,
 } from '@athoscommerce/snapi-types';
 import type {
+	ChatResponseModel,
+	ChatResponseTextData,
+	ChatResponseContentData,
+	ChatResponseTopicDriftData,
+	ChatResponseActionsData,
+	ChatResponseProductSearchResultData,
+	ChatResponseInspirationResultData,
+	ChatResponseProductAnswerData,
+	ChatResponseProductComparisonData,
+	ChatResponseProductRecommendationData,
+	ChatResponseErrorData,
 	MoiResponseModel,
 	MoiResponseModelActions,
 	MoiResponseModelContent,
@@ -19,38 +29,18 @@ import type {
 	MoiResponseModelText,
 	MoiResponseModelError,
 	MoiResponseModelTopicDrift,
-} from '../apis/Chat';
-import { CORE_FIELDS, decodeProperty, RawResult, Result } from './searchResponse';
-
-type BaseResponseProperties = {
-	id: string;
-};
-
-export type ChatResponseModel = {
-	data: (
-		| ChatResponseTextData
-		| ChatResponseContentData
-		| ChatResponseActionsData
-		| ChatResponseProductSearchResultData
-		| ChatResponseInspirationResultData
-		| ChatResponseProductAnswerData
-		| ChatResponseProductComparisonData
-		| ChatResponseProductRecommendationData
-		| ChatResponseErrorData
-	)[];
-	context: {
-		sessionId: string;
-	};
-};
+	RawResult,
+} from '../../types';
+import { SearchResponseType, transformSearchResponse } from './searchResponse';
 
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
-	const unknownError: ChatResponseErrorData = {
-		messageType: 'errorResponse',
-		id: '',
-		errorMessage: 'An unknown error has occurred',
-	};
-
 	if (!response.data || response.data.length === 0) {
+		const unknownError: ChatResponseErrorData = {
+			messageType: 'errorResponse',
+			id: '',
+			errorMessage: 'An unknown error has occurred',
+		};
+
 		return {
 			data: [unknownError],
 			context: response.context,
@@ -82,45 +72,34 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 			} else if (data.messageType === 'topicDrift') {
 				return transformChatResponse.topicDrift(data);
 			} else {
-				// unknown messageTypes
-				return unknownError;
+				// drop unknown messageTypes (forward compatibility)
+				return undefined;
 			}
 		})
-		.filter((data) => data !== undefined);
+		.filter((data): data is ChatResponseModel['data'][number] => data !== undefined);
 
 	return {
-		data: (transformedData || []) as ChatResponseModel['data'],
+		data: transformedData,
 		context: response.context,
 	};
 }
 
-export type ChatResponseTextData = {
-	messageType: 'text';
-	id: string;
-	text: string;
-};
-
 transformChatResponse.text = (data: MoiResponseModelText): ChatResponseTextData => {
-	return data;
-};
-
-export type ChatResponseContentData = {
-	messageType: 'content';
-	id: string;
-	text: string;
+	return {
+		messageType: data.messageType,
+		id: data.id,
+		text: data.text,
+	};
 };
 
 transformChatResponse.content = (data: MoiResponseModelContent): ChatResponseContentData => {
-	return data;
+	return {
+		messageType: data.messageType,
+		id: data.id,
+		text: data.text,
+	};
 };
 
-export type ChatResponseTopicDriftData = {
-	messageType: 'topicDrift';
-	id: string;
-	driftType: 'SCOPE_DRIFT' | 'CATEGORY_DRIFT' | 'NO_DRIFT';
-	messageForDrift: string;
-	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
-};
 transformChatResponse.topicDrift = (data: MoiResponseModelTopicDrift): ChatResponseTopicDriftData => {
 	return {
 		messageType: data.messageType,
@@ -131,10 +110,6 @@ transformChatResponse.topicDrift = (data: MoiResponseModelTopicDrift): ChatRespo
 	};
 };
 
-export type ChatResponseActionsData = {
-	messageType: 'actions';
-	actions: MoiResponseModelActions['actions']; // no change
-};
 transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseActionsData => {
 	return {
 		messageType: data.messageType,
@@ -142,13 +117,6 @@ transformChatResponse.actions = (data: MoiResponseModelActions): ChatResponseAct
 	};
 };
 
-export type ChatResponseProductSearchResultData = BaseResponseProperties & {
-	messageType: 'productSearchResult';
-	text: string;
-	results: SearchResponseModelResult[];
-	facets: SearchResponseModelFacet[];
-	filterSummary: { field: string; value: string; label?: string; filterLabel?: string; filterValue?: string }[];
-};
 transformChatResponse.productData = (data: MoiResponseModelProductSearchResult, responseId: string): ChatResponseProductSearchResultData => {
 	return {
 		// base
@@ -158,22 +126,11 @@ transformChatResponse.productData = (data: MoiResponseModelProductSearchResult, 
 		// specific
 		text: data.text,
 		results: data.searchResult?.results?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
-		facets: mapFacetToSearchResultFacets(data.searchResult),
-		filterSummary: ((data.searchResult as any)?.filterSummary || []) as ChatResponseProductSearchResultData['filterSummary'],
+		facets: transformChatResponse.facets(data.searchResult),
+		filterSummary: data.searchResult?.filterSummary || [],
 	};
 };
 
-export type ChatResponseInspirationResultData = BaseResponseProperties & {
-	messageType: 'inspirationResult';
-	overallSummary: string;
-	inspirationSections: {
-		filterSummary: ChatResponseProductSearchResultData['filterSummary'];
-		clusterDescription: string;
-		clusterTitle: string;
-		products: SearchResponseModelResult[];
-		searchQueries: string[];
-	}[];
-};
 transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResult, responseId: string): ChatResponseInspirationResultData => {
 	return {
 		// base
@@ -192,11 +149,6 @@ transformChatResponse.inspirationResult = (data: MoiResponseModelInspirationResu
 	};
 };
 
-export type ChatResponseProductAnswerData = BaseResponseProperties & {
-	messageType: 'productAnswer';
-	text: string;
-	sourceProduct: SearchResponseModelResult;
-};
 transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer, responseId: string): ChatResponseProductAnswerData => {
 	return {
 		messageType: data.messageType,
@@ -207,19 +159,6 @@ transformChatResponse.productAnswer = (data: MoiResponseModelProductAnswer, resp
 	};
 };
 
-export type ChatResponseProductComparisonData = BaseResponseProperties & {
-	messageType: 'productComparison';
-	searchResults: SearchResponseModelResult[];
-	comparisonData: {
-		features: {
-			featureName: string;
-			values: {
-				[heading: string]: string;
-			};
-		}[];
-		summary: string;
-	};
-};
 transformChatResponse.productComparison = (data: MoiResponseModelProductComparison, responseId: string): ChatResponseProductComparisonData => {
 	const rawSearchResults = Array.isArray(data.searchResults) ? data.searchResults : [data.searchResults];
 
@@ -248,20 +187,6 @@ transformChatResponse.productComparison = (data: MoiResponseModelProductComparis
 	};
 };
 
-export type ChatResponseProductRecommendationData = BaseResponseProperties & {
-	messageType: 'productRecommendation';
-	recommendationResult: {
-		results: SearchResponseModelResult[];
-		profile: {
-			name: string;
-			tag: string;
-			type: string;
-			limit: number;
-		};
-	}[];
-	sourceProduct: SearchResponseModelResult;
-	text: string;
-};
 transformChatResponse.productRecommendation = (
 	data: MoiResponseModelProductRecommendation,
 	responseId: string
@@ -272,17 +197,13 @@ transformChatResponse.productRecommendation = (
 
 		recommendationResult: data.recommendationResult?.map((rec) => ({
 			...rec,
-			results: rec.results?.map((result) => ({ ...result, responseId })) as SearchResponseModelResult[],
+			results: rec.results?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
 		})),
 		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct, responseId),
 		text: data.text,
 	};
 };
 
-export type ChatResponseErrorData = BaseResponseProperties & {
-	messageType: 'errorResponse';
-	errorMessage: string;
-};
 transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorData => {
 	return {
 		messageType: data.messageType,
@@ -293,45 +214,7 @@ transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorDa
 };
 
 const mapProductToSearchResultProduct = (product: RawResult, responseId: string): SearchResponseModelResult => {
-	const coreFieldValues: SearchResponseModelResultCoreMappings = CORE_FIELDS.reduce((coreFields, key) => {
-		if (typeof product[key as keyof RawResult] != 'undefined') {
-			return {
-				...coreFields,
-				[key]: decodeProperty(product[key as keyof RawResult] || ''),
-			};
-		}
-		return coreFields;
-	}, {});
-
-	if (coreFieldValues.price) coreFieldValues.price = +coreFieldValues.price;
-	if (coreFieldValues.msrp) coreFieldValues.msrp = +coreFieldValues.msrp;
-	if (coreFieldValues.available?.toString() === 'true') {
-		coreFieldValues.available = true;
-	} else if (coreFieldValues.available?.toString() === 'false') {
-		coreFieldValues.available = false;
-	}
-	const attributes = Object.keys(product)
-		.filter((k) => CORE_FIELDS.indexOf(k) == -1)
-		// remove 'badges' from attributes - but only if it is an object
-		.filter((k) => !(k == 'badges' && Array.isArray(product[k]) && typeof product[k]?.[0] == 'object'))
-		.filter((k) => !(k == 'variants'))
-		.reduce((attributes, key) => {
-			return {
-				...attributes,
-				[key]: decodeProperty(product[key as keyof RawResult] || ''),
-			};
-		}, {});
-
-	return new Result({
-		id: product.uid,
-		responseId,
-		mappings: {
-			core: coreFieldValues,
-		},
-		attributes,
-		badges: Array.isArray(product.badges) && typeof product.badges[0] == 'object' ? product.badges : [],
-		variants: product.variants,
-	});
+	return transformSearchResponse.result(product, { responseId } as SearchResponseType);
 };
 
 /** Derive overall low/high bounds from a list of range buckets. Treats `*` and missing
@@ -370,13 +253,14 @@ const parseRangeBounds = (value: any): { low: number | undefined; high: number |
 	return null;
 };
 
-const mapFacetToSearchResultFacets = (searchResult: MoiResponseModelSearchResult): SearchResponseModelFacet[] => {
+transformChatResponse.facets = (searchResult: MoiResponseModelSearchResult): SearchResponseModelFacet[] => {
 	const facets = searchResult?.facets || [];
 	const transformedFacets = facets.map((facet) => {
 		const transformedFacet: any = {
 			field: facet.field,
 			label: facet.label,
 			type: 'value',
+			filtered: (facet.values || []).some((value: any) => value.active),
 		};
 
 		// Continuous slider (e.g. price) — upstream sends `type: 'slider'` with
