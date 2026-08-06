@@ -218,6 +218,10 @@ type ChatAttachmentProductConfig = {
 	type: 'product';
 	id?: string;
 	productId: string;
+	// parent product id and selected-variant uid for the API's productIdentity payload —
+	// optional because attachments persisted before they existed lack them
+	parentId?: string;
+	variantUid?: string;
 	thumbnailUrl?: string;
 	name?: string;
 	requestType: 'productQuery' | 'productSimilar' | 'productComparison';
@@ -239,15 +243,19 @@ type ChatAttachmentFacetConfig = {
 export class ChatAttachmentProduct extends ChatAttachment {
 	public type = 'product' as const;
 	public productId: string;
+	public parentId?: string;
+	public variantUid?: string;
 	public thumbnailUrl?: string;
 	public name?: string;
 	public requestType: 'productQuery' | 'productSimilar' | 'productComparison';
 
-	constructor({ id, productId, thumbnailUrl, name, requestType, state, error }: ChatAttachmentProductConfig) {
+	constructor({ id, productId, parentId, variantUid, thumbnailUrl, name, requestType, state, error }: ChatAttachmentProductConfig) {
 		super({ data: { id, state, error } });
 
 		this.state = state ?? 'attached';
 		this.productId = productId;
+		this.parentId = parentId;
+		this.variantUid = variantUid;
 		this.thumbnailUrl = thumbnailUrl;
 		this.name = name;
 		this.requestType = requestType;
@@ -255,6 +263,8 @@ export class ChatAttachmentProduct extends ChatAttachment {
 		makeObservable(this, {
 			type: observable,
 			productId: observable,
+			parentId: observable,
+			variantUid: observable,
 			thumbnailUrl: observable,
 			name: observable,
 			requestType: observable,

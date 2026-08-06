@@ -3,7 +3,7 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
-import { ChatRequestModel, ChatTrackingContext, MoiRequestModel, CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
+import { ChatRequestModel, ChatTrackingContext, MoiRequestModel, ProductIdentity, CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
 import type { ChatAttachmentImage, ChatAttachmentProduct, Product, Banner, ChatSessionStore } from '@athoscommerce/snap-store-mobx';
 import {
 	type Product as BeaconProduct,
@@ -28,13 +28,48 @@ const DEFAULT_MOBILE_BREAKPOINT = 767;
  * left behind when a request override changes the requestType of the merged params. */
 const REQUEST_TYPE_DATA_KEYS: Record<MoiRequestModel['requestType'], string[]> = {
 	general: ['message'],
-	productQuery: ['message', 'productId'],
+	productQuery: ['message', 'productIdentity'],
 	productSearch: ['message', 'searchTerm', 'searchFilters'],
-	productComparison: ['message', 'productIds'],
+	productComparison: ['message', 'productIdentities'],
 	imageSearch: ['message', 'attachedImageId'],
-	productSimilar: ['productId'],
+	productSimilar: ['productIdentity'],
 	inspiration: ['message'],
 	content: ['message'],
+};
+
+/** Build the productIdentity payload node from a result's core mappings. The variant API
+ * behind productQuery/productSimilar/productComparison needs the parent product id alongside
+ * the product id — `parentId` equals `uid` when the result is not a variant, so fall back
+ * to the product id when the field is absent. */
+const productIdentityFromCore = (core?: { uid?: string; parentId?: string }): ProductIdentity | undefined => {
+	const productId = core?.uid;
+	if (!productId) return undefined;
+	return { parentId: core?.parentId || productId, productId };
+};
+
+/** Same identity shape from a product attachment. `variantUid` captures the variant the
+ * shopper had selected when attaching — the API identity — while `productId` remains the
+ * chat-local result id components use for lookups. Attachments persisted before these
+ * fields existed fall back to their product id. Keep the productId derivation in sync
+ * with the productQuery attachment lookup in ChatSessionStore.request(). */
+const productIdentityFromAttachment = (attachment: { productId: string; parentId?: string; variantUid?: string }): ProductIdentity => {
+	return { parentId: attachment.parentId || attachment.productId, productId: attachment.variantUid || attachment.productId };
+};
+
+/** Pending requests persisted before the productIdentity payload migration still carry
+ * `productId`/`productIds` — reshape them so a resumed request matches the current API. */
+const migratePendingRequest = (pending: MoiRequestModel | null | undefined): MoiRequestModel | null | undefined => {
+	if (!pending) return pending;
+	const legacy = pending as MoiRequestModel & { productId?: string; productIds?: string[] };
+	if ((pending.requestType === 'productQuery' || pending.requestType === 'productSimilar') && !pending.productIdentity && legacy.productId) {
+		const { productId, ...rest } = legacy;
+		return { ...rest, productIdentity: { parentId: productId!, productId: productId! } } as MoiRequestModel;
+	}
+	if (pending.requestType === 'productComparison' && !pending.productIdentities && legacy.productIds) {
+		const { productIds, ...rest } = legacy;
+		return { ...rest, productIdentities: productIds!.map((id) => ({ parentId: id, productId: id })) } as MoiRequestModel;
+	}
+	return pending;
 };
 
 const defaultConfig: ChatControllerConfig = {
@@ -217,17 +252,17 @@ export class ChatController extends AbstractController {
 		const productsToCompare = (this.store.currentChat?.comparisons.compared || [])
 			.map((item) => {
 				const d = item.result?.display || item.result;
-				return d?.mappings?.core?.uid;
+				return productIdentityFromCore(d?.mappings?.core);
 			})
-			.filter((uid): uid is string => !!uid);
+			.filter((identity): identity is ProductIdentity => !!identity);
 
 		const attachedImageIds = (this.store.currentChat?.attachments.attached || [])
 			.filter((attachment) => attachment.type === 'image' && attachment.state !== 'error')
 			.map((attachment) => (attachment as ChatAttachmentImage).imageId);
 
-		const attachedProductIds = (this.store.currentChat?.attachments.attached || [])
+		const attachedProductIdentities = (this.store.currentChat?.attachments.attached || [])
 			.filter((attachment) => attachment.type === 'product' && (attachment as ChatAttachmentProduct).requestType !== 'productComparison')
-			.map((attachment) => (attachment as ChatAttachmentProduct).productId);
+			.map((attachment) => productIdentityFromAttachment(attachment as ChatAttachmentProduct));
 
 		// Only emit when the user has actually changed the facets; the urlManager is
 		// seeded from the active productSearchResult's filtered values, so an untouched
@@ -251,11 +286,11 @@ export class ChatController extends AbstractController {
 			};
 		}
 
-		if (attachedProductIds.length == 1) {
+		if (attachedProductIdentities.length == 1) {
 			chatRequest = {
 				requestType: 'productQuery',
 				message: this.store.inputValue,
-				productId: attachedProductIds[0],
+				productIdentity: attachedProductIdentities[0],
 			};
 		}
 
@@ -263,7 +298,7 @@ export class ChatController extends AbstractController {
 			chatRequest = {
 				requestType: 'productComparison',
 				message: this.store.inputValue,
-				productIds: productsToCompare,
+				productIdentities: productsToCompare,
 			};
 		} else {
 			// if no new comparison is being assembled but a committed comparison
@@ -278,24 +313,26 @@ export class ChatController extends AbstractController {
 			const activeMessageType = activeMessage?.messageType;
 			// Don't reuse a dismissed productComparison — the user intentionally closed it
 			const isDismissedComparison = activeMessage && this.store.currentChat?.dismissedSideChatMessageId === activeMessage.id;
-			const activeComparisonProductIds =
+			const activeComparisonIdentities =
 				activeMessageType === 'productComparison' && !isDismissedComparison
 					? ((activeMessage as any)?.searchResults || [])
-							.map((result: any) => result?.mappings?.core?.uid)
-							.filter((uid: string | undefined): uid is string => !!uid)
+							.map((result: any) => productIdentityFromCore(result?.mappings?.core))
+							.filter((identity: ProductIdentity | undefined): identity is ProductIdentity => !!identity)
 					: [];
 			const committedComparisons = this.store.currentChat?.comparisons.committed || [];
-			if (activeComparisonProductIds.length > 1) {
+			if (activeComparisonIdentities.length > 1) {
 				chatRequest = {
 					requestType: 'productComparison',
 					message: this.store.inputValue,
-					productIds: activeComparisonProductIds,
+					productIdentities: activeComparisonIdentities,
 				};
 			} else if (committedComparisons.length > 1 && !isDismissedComparison) {
 				chatRequest = {
 					requestType: 'productComparison',
 					message: this.store.inputValue,
-					productIds: committedComparisons.map((item: any) => (item.result?.display || item.result).mappings.core.uid),
+					productIdentities: committedComparisons
+						.map((item: any) => productIdentityFromCore((item.result?.display || item.result)?.mappings?.core))
+						.filter((identity: ProductIdentity | undefined): identity is ProductIdentity => !!identity),
 				};
 			} else {
 				// If the side chat was dismissed (via the toggle button) but the
@@ -309,7 +346,7 @@ export class ChatController extends AbstractController {
 					chatRequest = {
 						requestType: 'productComparison',
 						message: this.store.inputValue,
-						productIds: comparisonAttachments.map((item: any) => item.productId),
+						productIdentities: comparisonAttachments.map((item: any) => productIdentityFromAttachment(item)),
 					};
 				}
 			}
@@ -336,7 +373,7 @@ export class ChatController extends AbstractController {
 		if (similarProducts?.length === 1) {
 			chatRequest = {
 				requestType: 'productSimilar',
-				productId: similarProducts[0].productId,
+				productIdentity: productIdentityFromAttachment(similarProducts[0]),
 			};
 		}
 
@@ -669,7 +706,7 @@ export class ChatController extends AbstractController {
 
 		// prune data keys that are not valid for the final requestType — merging
 		// overrides into the store-derived params can change the requestType while
-		// keys from the previous shape (productIds, searchFilters, ...) linger
+		// keys from the previous shape (productIdentities, searchFilters, ...) linger
 		const validKeys = REQUEST_TYPE_DATA_KEYS[finalized.requestType];
 		if (validKeys) {
 			Object.keys(finalized).forEach((key) => {
@@ -950,7 +987,7 @@ export class ChatController extends AbstractController {
 	 * mid-flight). The user message is already in the persisted history, so the
 	 * stored request data is sent verbatim without pushing a new message. */
 	resumePendingRequest = async (): Promise<void> => {
-		const pending = this.store.currentChat?.pendingRequest;
+		const pending = migratePendingRequest(this.store.currentChat?.pendingRequest);
 		if (!pending || this.store.loading || this.store.currentChat?.isExpired) return;
 
 		const { userId, shopperId } = this.tracker.getContext();

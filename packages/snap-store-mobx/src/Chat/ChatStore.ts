@@ -597,6 +597,8 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			type: 'product',
 			requestType: options.requestType,
 			productId: result.id,
+			parentId: display.mappings?.core?.parentId || result.id,
+			variantUid: display.mappings?.core?.uid,
 			name: display.mappings?.core?.name,
 			thumbnailUrl: getProductThumbnailUrl(display.mappings?.core),
 		});

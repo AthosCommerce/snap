@@ -106,6 +106,8 @@ function serializeAttachmentsForStorage(items: (ChatAttachmentImage | ChatAttach
 				type: 'product',
 				id: item.id,
 				productId: item.productId,
+				parentId: item.parentId,
+				variantUid: item.variantUid,
 				thumbnailUrl: item.thumbnailUrl,
 				name: item.name,
 				requestType: item.requestType,
@@ -623,6 +625,8 @@ export class ChatSessionStore {
 				type: 'product',
 				requestType: 'productComparison',
 				productId: item.result.id,
+				parentId: display.mappings?.core?.parentId || item.result.id,
+				variantUid: display.mappings?.core?.uid,
 				name: display.mappings?.core?.name,
 				thumbnailUrl: getProductThumbnailUrl(display.mappings?.core),
 			});
@@ -705,8 +709,10 @@ export class ChatSessionStore {
 					attachedImage.activate();
 				}
 			} else if (request.data.requestType === 'productQuery') {
-				const productId = request.data.productId;
-				const attachedProduct = this.attachments.attached.find((item) => item.type == 'product' && item.productId == productId);
+				// the request's productId is the attachment's variantUid when one was captured —
+				// mirror productIdentityFromAttachment in ChatController
+				const productId = request.data.productIdentity?.productId;
+				const attachedProduct = this.attachments.attached.find((item) => item.type == 'product' && (item.variantUid || item.productId) == productId);
 				if (attachedProduct) {
 					attachments.push(attachedProduct.id);
 					attachedProduct.activate();

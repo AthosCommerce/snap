@@ -24,6 +24,7 @@ export {
 	UploadImageRequestModel,
 	UploadImageResponseModel,
 	MoiRequestModel,
+	ProductIdentity,
 	MoiRequestModelGeneral,
 	MoiRequestModelProductQuery,
 	MoiRequestModelProductSearch,

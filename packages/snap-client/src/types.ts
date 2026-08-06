@@ -390,10 +390,15 @@ export type MoiRequestModelGeneral = {
 	message: string;
 };
 
+export type ProductIdentity = {
+	parentId: string;
+	productId: string;
+};
+
 export type MoiRequestModelProductQuery = {
 	requestType: 'productQuery';
 	message: string;
-	productId: string;
+	productIdentity: ProductIdentity;
 };
 
 export type MoiRequestModelProductSearch = {
@@ -409,7 +414,7 @@ export type MoiRequestModelProductSearch = {
 export type MoiRequestModelProductComparison = {
 	requestType: 'productComparison';
 	message?: string;
-	productIds: string[];
+	productIdentities: ProductIdentity[];
 };
 
 export type MoiRequestModelImageSearch = {
@@ -420,7 +425,7 @@ export type MoiRequestModelImageSearch = {
 
 export type MoiRequestModelProductSimilar = {
 	requestType: 'productSimilar';
-	productId: string;
+	productIdentity: ProductIdentity;
 };
 
 export type MoiRequestModelInspiration = {

@@ -684,8 +684,38 @@ describe('ChatStore — sendProductQuery() and compareProduct()', () => {
 		expect(attachment.type).toBe('product');
 		expect(attachment.requestType).toBe('productSimilar');
 		expect(attachment.productId).toBe('prod-1');
+		expect(attachment.parentId).toBe('prod-1');
 		expect(attachment.name).toBe('Widget');
 		expect(attachment.thumbnailUrl).toBe('http://example.com/thumb-prod-1.jpg');
+	});
+
+	it('attaches the parent product id from the core mappings when present', () => {
+		const store = createStore();
+		store.createChat();
+
+		const product = createProduct('prod-1', 'Widget');
+		product.mappings.core!.parentId = 'parent-1';
+		store.sendProductQuery(product, { requestType: 'productQuery' });
+
+		const attachment = store.currentChat!.attachments.items[0] as ChatAttachmentProduct;
+		expect(attachment.productId).toBe('prod-1');
+		expect(attachment.parentId).toBe('parent-1');
+		expect(attachment.variantUid).toBe('prod-1');
+	});
+
+	it('captures the selected variant uid from the display mask', () => {
+		const store = createStore();
+		store.createChat();
+
+		const product = createProduct('prod-1', 'Widget');
+		product.mappings.core!.parentId = 'parent-1';
+		product.mask.merge({ mappings: { core: { uid: 'variant-2' } } });
+		store.sendProductQuery(product, { requestType: 'productQuery' });
+
+		const attachment = store.currentChat!.attachments.items[0] as ChatAttachmentProduct;
+		expect(attachment.productId).toBe('prod-1');
+		expect(attachment.parentId).toBe('parent-1');
+		expect(attachment.variantUid).toBe('variant-2');
 	});
 
 	it('pushes a productQuery message for the productQuery flow only', () => {

@@ -503,6 +503,85 @@ describe('Chat Controller', () => {
 
 			expect(params.personalization?.shopper).toBe('shopper123');
 		});
+
+		it('constructs productQuery params with a productIdentity from the attached product', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			// display reflects the shopper's variant selection — its uid differs from the result id
+			const result = {
+				id: 'result-1',
+				display: { mappings: { core: { uid: 'variant-1', parentId: 'parent-1', name: 'Test Product' } } },
+				mappings: { core: { uid: 'result-1', parentId: 'parent-1', name: 'Test Product' } },
+			} as unknown as Product;
+			controller.store.sendProductQuery(result, { requestType: 'productQuery' });
+			controller.store.inputValue = 'price ?';
+
+			expect(controller.params.data).toEqual({
+				requestType: 'productQuery',
+				message: 'price ?',
+				productIdentity: { parentId: 'parent-1', productId: 'variant-1' },
+			});
+		});
+
+		it('constructs productSimilar params with a productIdentity from the attached product', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			const result = {
+				id: 'result-1',
+				display: { mappings: { core: { uid: 'variant-1', parentId: 'parent-1', name: 'Test Product' } } },
+				mappings: { core: { uid: 'result-1', parentId: 'parent-1', name: 'Test Product' } },
+			} as unknown as Product;
+			controller.store.sendProductQuery(result, { requestType: 'productSimilar' });
+
+			expect(controller.params.data).toEqual({
+				requestType: 'productSimilar',
+				productIdentity: { parentId: 'parent-1', productId: 'variant-1' },
+			});
+		});
+
+		it('constructs productComparison params with productIdentities from the compared products', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			const product1 = {
+				id: 'result-1',
+				display: { mappings: { core: { uid: 'variant-1', parentId: 'parent-1' } } },
+				mappings: { core: { uid: 'result-1', parentId: 'parent-1' } },
+			} as unknown as Product;
+			const product2 = {
+				id: 'result-2',
+				display: { mappings: { core: { uid: 'variant-2', parentId: 'parent-2' } } },
+				mappings: { core: { uid: 'result-2', parentId: 'parent-2' } },
+			} as unknown as Product;
+			controller.store.compareProduct(product1);
+			controller.store.compareProduct(product2);
+
+			expect(controller.params.data).toEqual({
+				requestType: 'productComparison',
+				message: '',
+				productIdentities: [
+					{ parentId: 'parent-1', productId: 'variant-1' },
+					{ parentId: 'parent-2', productId: 'variant-2' },
+				],
+			});
+		});
+
+		it('falls back to the product id as parentId when core mappings lack one', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			const result = {
+				id: 'prod-1',
+				display: { mappings: { core: { uid: 'prod-1', name: 'Test Product' } } },
+				mappings: { core: { uid: 'prod-1', name: 'Test Product' } },
+			} as unknown as Product;
+			controller.store.sendProductQuery(result, { requestType: 'productQuery' });
+			controller.store.inputValue = 'price ?';
+
+			expect((controller.params.data as any).productIdentity).toEqual({ parentId: 'prod-1', productId: 'prod-1' });
+		});
 	});
 
 	describe('productQuickView', () => {
@@ -1446,7 +1525,7 @@ describe('Chat Controller', () => {
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 			controller.store.inputValue = 'show me similar stuff';
 
-			await controller.search({ data: { requestType: 'productSimilar', productId: 'prod-1' } } as any);
+			await controller.search({ data: { requestType: 'productSimilar', productIdentity: { parentId: 'parent-1', productId: 'prod-1' } } } as any);
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			const sentData = chatSpy.mock.calls[0][0].data;
@@ -1461,7 +1540,15 @@ describe('Chat Controller', () => {
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 			controller.store.inputValue = '';
 
-			await controller.search({ data: { requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } } as any);
+			await controller.search({
+				data: {
+					requestType: 'productComparison',
+					productIdentities: [
+						{ parentId: 'parent-1', productId: 'prod-1' },
+						{ parentId: 'parent-2', productId: 'prod-2' },
+					],
+				},
+			} as any);
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			const sentData = chatSpy.mock.calls[0][0].data;
@@ -1476,7 +1563,15 @@ describe('Chat Controller', () => {
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 			controller.store.inputValue = 'which is warmer?';
 
-			await controller.search({ data: { requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } } as any);
+			await controller.search({
+				data: {
+					requestType: 'productComparison',
+					productIdentities: [
+						{ parentId: 'parent-1', productId: 'prod-1' },
+						{ parentId: 'parent-2', productId: 'prod-2' },
+					],
+				},
+			} as any);
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			expect((chatSpy.mock.calls[0][0].data as any).message).toBe('which is warmer?');
@@ -1600,6 +1695,43 @@ describe('Chat Controller', () => {
 			await controller.resumePendingRequest();
 
 			expect(chatSpy).not.toHaveBeenCalled();
+		});
+
+		it('migrates a persisted legacy productId pending request to the productIdentity shape', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'productSimilar', productId: 'prod-1' } as any);
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data as any;
+			expect(sentData).toEqual({
+				requestType: 'productSimilar',
+				productIdentity: { parentId: 'prod-1', productId: 'prod-1' },
+			});
+		});
+
+		it('migrates a persisted legacy productIds pending request to the productIdentities shape', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } as any);
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data as any;
+			expect(sentData).toEqual({
+				requestType: 'productComparison',
+				productIdentities: [
+					{ parentId: 'prod-1', productId: 'prod-1' },
+					{ parentId: 'prod-2', productId: 'prod-2' },
+				],
+			});
 		});
 
 		it('a new message sent right after opening wins over the pending resume', async () => {
@@ -1834,7 +1966,7 @@ describe('Chat Controller', () => {
 
 			const sentData = chatSpy.mock.calls[0][0].data as any;
 			expect(sentData.requestType).toBe('general');
-			expect(sentData.productIds).toBeUndefined();
+			expect(sentData.productIdentities).toBeUndefined();
 			chatSpy.mockClear();
 		});
 	});
