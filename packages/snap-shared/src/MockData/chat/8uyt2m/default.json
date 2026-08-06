@@ -1,0 +1,12 @@
+{
+	"data": [
+		{
+			"messageType": "text",
+			"id": "msg-text-001",
+			"text": "Hello! I'd be happy to help you find what you're looking for. What kind of products are you interested in?"
+		}
+	],
+	"context": {
+		"sessionId": "test-session-001"
+	}
+}

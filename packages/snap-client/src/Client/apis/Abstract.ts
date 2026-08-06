@@ -36,11 +36,11 @@ export class API<PathConfigurationType> {
 		return this.configuration.mode;
 	}
 
-	protected async request<T>(context: RequestOpts, cacheKey?: string): Promise<T> {
+	protected async request<T>(context: RequestOpts, cacheKey?: string, cache: NetworkCache = this.cache): Promise<T> {
 		const { url, init } = this.createFetchParams(context);
 
 		if (cacheKey) {
-			const cachedResponse = this.cache.get(`${context.path}/${cacheKey}`) || this.cache.get(`${context.path}/*`);
+			const cachedResponse = cache.get(`${context.path}/${cacheKey}`) || cache.get(`${context.path}/*`);
 			if (cachedResponse) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
 				this.retryDelay = 1000;
@@ -52,14 +52,16 @@ export class API<PathConfigurationType> {
 
 		try {
 			response = await this.fetchApi(url, init);
+
 			responseJSON = await response?.json();
+			responseJSON = this.handleResponseHeaders(responseJSON, response?.headers);
 
 			if (response.status >= 200 && response.status < 300) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
 				this.retryDelay = 1000;
 				if (cacheKey) {
 					// save in the cache before returning
-					this.cache.set(`${context.path}/${cacheKey}`, responseJSON);
+					cache.set(`${context.path}/${cacheKey}`, responseJSON);
 				}
 				return responseJSON;
 			} else if (response.status == 429) {
@@ -79,23 +81,31 @@ export class API<PathConfigurationType> {
 			throw new Error('Unexpected Response Status.');
 		} catch (err: any) {
 			if (err.message == 'Rate limited.') {
-				return await this.request(context, cacheKey);
+				return await this.request(context, cacheKey, cache);
 			}
 
 			// throw an object with fetch details
-			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init } };
+			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init }, responseBody: responseJSON };
 		}
 	}
 
+	// hook allowing API subclasses to apply response header data to the parsed response body
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	protected handleResponseHeaders(responseJSON: Json, headers?: Headers): Json {
+		return responseJSON;
+	}
+
 	private createFetchParams(context: RequestOpts) {
-		// grab siteID out of context to generate apiHost fo URL
+		// grab siteID out of context to generate apiHost for URL
 		const siteId = context?.body?.siteId || context?.query?.siteId;
-		if (!siteId) {
+		const configuredOrigin = context.origin || this.configuration.origin;
+		if (!siteId && !configuredOrigin) {
+			// siteId is only needed to build the default host
 			throw new Error(`Request failed. Missing "siteId" parameter.`);
 		}
 
 		const siteIdHost = `https://${siteId}.a${context.subDomain ? `.${context.subDomain}` : ''}.athoscommerce.net`;
-		const origin = (context.origin || this.configuration.origin || siteIdHost).replace(/\/$/, '');
+		const origin = (configuredOrigin || siteIdHost).replace(/\/$/, '');
 
 		let url = `${origin}/${context.path.replace(/^\//, '')}`;
 

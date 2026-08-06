@@ -175,6 +175,7 @@ export interface ButtonLang {
 export type ButtonNames =
 	| 'close'
 	| 'apply'
+	| 'chat'
 	| 'clear'
 	| 'slideout'
 	| 'sidebar-toggle'

@@ -795,28 +795,46 @@ export class AutocompleteController extends AbstractController {
 
 	searchTrending = async (options?: { limit?: number }): Promise<void> => {
 		let trending;
-		const storedTerms = this.storage.get('terms');
-		if (storedTerms && !options?.limit) {
-			// terms exist in storage, update store
-			trending = JSON.parse(storedTerms);
-		} else {
-			// query for trending terms, save to storage, update store
-			const trendingParams = {
-				limit: options?.limit || this.config.settings?.trending?.limit || 5,
-			};
+		try {
+			const storedTerms = this.storage.get('terms');
+			if (storedTerms && !options?.limit) {
+				// terms exist in storage, update store
+				trending = JSON.parse(storedTerms);
+			} else {
+				// query for trending terms, save to storage, update store
+				const trendingParams = {
+					limit: options?.limit || this.config.settings?.trending?.limit || 5,
+				};
 
-			const trendingProfile = this.profiler.create({ type: 'event', name: 'trending', context: trendingParams }).start();
+				const trendingProfile = this.profiler.create({ type: 'event', name: 'trending', context: trendingParams }).start();
 
-			trending = await this.client.trending(trendingParams);
+				trending = await this.client.trending(trendingParams);
 
-			trendingProfile.stop();
-			this.log.profile(trendingProfile);
-			if (trending?.trending.queries?.length) {
-				this.storage.set('terms', JSON.stringify(trending));
+				trendingProfile.stop();
+				this.log.profile(trendingProfile);
+				if (trending?.trending.queries?.length) {
+					this.storage.set('terms', JSON.stringify(trending));
+				}
 			}
+		} catch (err) {
+			// clear any poisoned cache entry so the next call refetches instead of re-throwing
+			this.storage.set('terms', null);
+			this.log.error('Error fetching trending terms', err);
+			return;
 		}
 
 		this.store.updateTrendingTerms(trending);
+	};
+
+	openChat = (): void => {
+		// lose focus
+		this.setFocused();
+
+		// fire chat send event — defaults to a 'general' request with the current input.
+		// An empty input sends no `message` at all, so the event opens the chat without
+		// dispatching a request the controller would only warn about.
+		const message = this.store.state.input?.trim();
+		window.athos?.fire?.('controller/chat/send', message ? { message } : {});
 	};
 
 	search = async (): Promise<void> => {

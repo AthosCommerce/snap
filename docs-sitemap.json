@@ -41,6 +41,10 @@
 			"url": "/snap-recommendations-legacy",
 			"title": "Recommendations (legacy)"
 		},
+		"docs/SNAP_CHAT.md": {
+			"url": "/snap-chat",
+			"title": "Chat"
+		},
 		"docs/SNAP_FINDER.md": {
 			"url": "/snap-finder",
 			"title": "Finder"
@@ -129,6 +133,10 @@
 			"url": "/reference-controller-recommendation",
 			"title": "RecommendationController"
 		},
+		"packages/snap-controller/src/Chat/README.md": {
+			"url": "/reference-controller-chat",
+			"title": "ChatController"
+		},
 		"packages/snap-store-mobx/README.md": {
 			"url": "/reference-store",
 			"title": "Store"
@@ -152,6 +160,10 @@
 		"packages/snap-store-mobx/src/Finder/README.md": {
 			"url": "/reference-store-finder",
 			"title": "FinderStore"
+		},
+		"packages/snap-store-mobx/src/Chat/README.md": {
+			"url": "/reference-store-chat",
+			"title": "ChatStore"
 		},
 		"packages/snap-toolbox/src/StorageStore/README.md": {
 			"url": "/reference-store-storage",

@@ -16,6 +16,7 @@ import type { SnapFeatures } from '../types';
 import type { SnapConfig, ExtendedTarget } from '../Snap';
 import type {
 	AutocompleteTargetConfig,
+	ChatTargetConfig,
 	CustomPlugins,
 	PluginsConfigsUnlocked,
 	RecsTemplateTypes,
@@ -63,7 +64,7 @@ import {
 	pluginBase as pluginMagento2Base,
 	PluginBaseConfig as PluginMagento2BaseConfig,
 } from '@athoscommerce/snap-platforms/magento2';
-import { combineMerge } from '../utils';
+import { applyChatBodyInject, combineMerge } from '../utils';
 
 export const TEMPLATE_EDITOR_COOKIE = 'athosEditor';
 export const TEMPLATE_EDITOR_UI_PARAM = 'athos-editor';
@@ -326,6 +327,38 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 	});
 };
 
+export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] => {
+	// initial target configs
+	const targetConfigs = templateConfig.chat?.targets || [];
+
+	let mergedConfigs: ChatTargetConfig[];
+	if (templatesStore.settings.editMode) {
+		const overrideConfigs = (templatesStore.storage.get('overrides.targets.chat') || []) as ChatTargetConfig[];
+		mergedConfigs = deepmerge<ChatTargetConfig[]>(targetConfigs, overrideConfigs, { arrayMerge: combineMerge });
+	} else {
+		mergedConfigs = targetConfigs;
+	}
+
+	return mergedConfigs.map((targetConfig) => {
+		const target = templatesStore.addTarget({ ...targetConfig, type: 'chat' });
+
+		const targeter: ExtendedTarget = {
+			selector: targetConfig.selector,
+			hideTarget: true,
+			component: async () => {
+				const componentImportPromises = [];
+				componentImportPromises.push(templatesStore.library.import.component.chat[targetConfig.component]());
+
+				await Promise.all(componentImportPromises);
+				return TemplateSelect;
+			},
+			props: { target, templatesStore },
+		};
+
+		return applyChatBodyInject(targeter);
+	});
+};
+
 export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
 	// initial target configs
 	const targetConfigs = templateConfig.autocomplete?.targets || [];
@@ -423,6 +456,7 @@ export function createRecommendationComponentMapping(
 export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked, templatesStore: TemplatesStore): SnapConfig {
 	const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 	const snapConfig: SnapConfig = {
+		mode: templateConfig.config?.mode,
 		features: templateConfig.features || DEFAULT_FEATURES,
 		client: {
 			globals: {},
@@ -564,13 +598,30 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
 	}
 
+	/* CHAT CONTROLLER */
+	if (templateConfig.chat && snapConfig.controllers) {
+		const chatControllerConfig = {
+			config: {
+				id: 'chat',
+				plugins: createPlugins(templateConfig, templatesStore, 'chat'),
+				settings: {
+					languageCode: templatesStore.language,
+					...(templateConfig.chat.settings || {}),
+				},
+			},
+			targeters: createChatTargeters(templateConfig, templatesStore),
+		};
+
+		snapConfig.controllers.chat = [chatControllerConfig];
+	}
+
 	return snapConfig;
 }
 
 export function createPlugins(
 	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked,
 	templatesStore: TemplatesStore,
-	controllerType?: 'autocomplete' | 'search' | 'recommendation'
+	controllerType?: 'autocomplete' | 'search' | 'recommendation' | 'chat'
 ): PluginGrouping[] {
 	const plugins: TemplatePluginGrouping = [];
 	let controllerConfig;
@@ -578,10 +629,14 @@ export function createPlugins(
 		controllerConfig = templateConfig[controllerType] || {};
 	}
 
-	plugins.push([
-		templatesStore.library.import.plugins.common.backgroundFilters,
-		deepmerge(templateConfig.plugins?.common?.backgroundFilters || {}, controllerConfig?.plugins?.common?.backgroundFilters || {}),
-	]);
+	// backgroundFilters writes `config.globals.filters`, which the chat endpoint has no
+	// field for — chat carries background filters via `settings.bgFilters` instead
+	if (controllerType !== 'chat') {
+		plugins.push([
+			templatesStore.library.import.plugins.common.backgroundFilters,
+			deepmerge(templateConfig.plugins?.common?.backgroundFilters || {}, controllerConfig?.plugins?.common?.backgroundFilters || {}),
+		]);
+	}
 	plugins.push([
 		templatesStore.library.import.plugins.common.scrollToTop,
 		deepmerge(templateConfig.plugins?.common?.scrollToTop || {}, controllerConfig?.plugins?.common?.scrollToTop || {}),

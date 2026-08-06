@@ -76,10 +76,17 @@ let templatesConfig: SnapTemplatesConfig = {
 		style: globalStyles,
 		// globalResultComponent: 'CustomResult',
 		overrides: {
-			default: {},
+			default: {
+				result: {
+					discussProductIcon: { icon: 'chat' },
+				},
+			},
 		},
 	},
 	recommendation: {
+		settings: {
+			branch: 'production',
+		},
 		email: {
 			Email: {
 				component: 'RecommendationEmail',
@@ -103,6 +110,20 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+	},
+	chat: {
+		targets: [
+			{
+				selector: 'body',
+				component: 'Chat',
+			},
+		],
+		settings: {
+			quickview: {
+				enabled: true,
+				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+			},
+		},
 	},
 	autocomplete: {
 		targets: [

@@ -168,6 +168,11 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 				onClick: () => reset(),
 				icon: 'angle-left',
 			},
+			// wiring only — no default `icon`, so the button stays hidden until a site
+			// opts in by supplying one via theme or props (see SearchInput.hideChatButton)
+			chatButton: {
+				onClick: () => controller.openChat(),
+			},
 			inputName: inputName,
 			// inherited props
 			...defined({
