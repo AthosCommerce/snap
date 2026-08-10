@@ -20,6 +20,7 @@ export interface RequestOpts {
 	body?: HTTPBody;
 	origin?: string; // override url origin
 	subDomain?: string; // optional subdomain for requests
+	siteId?: string; // used to build the default host without being sent as a query param
 }
 
 export class API<PathConfigurationType> {
@@ -97,7 +98,7 @@ export class API<PathConfigurationType> {
 
 	private createFetchParams(context: RequestOpts) {
 		// grab siteID out of context to generate apiHost for URL
-		const siteId = context?.body?.siteId || context?.query?.siteId;
+		const siteId = context?.siteId || context?.body?.siteId || context?.query?.siteId;
 		const configuredOrigin = context.origin || this.configuration.origin;
 		if (!siteId && !configuredOrigin) {
 			// siteId is only needed to build the default host
