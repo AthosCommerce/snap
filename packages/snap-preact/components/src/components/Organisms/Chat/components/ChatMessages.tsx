@@ -7,7 +7,6 @@ import { observer } from 'mobx-react-lite';
 
 import type { ChatController } from '@athoscommerce/snap-controller';
 import type { ChatMessage } from '@athoscommerce/snap-store-mobx';
-import { ChatResponseActionsData } from '@athoscommerce/snap-client';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../../providers';
 import { Colour, mergeProps, mergeStyles } from '../../../../utilities';
 import { ComponentProps, StyleScript } from '../../../../types';
@@ -28,7 +27,7 @@ const PLAIN_TEXT_MESSAGE_TYPES = ['errorResponse', 'topicDrift'];
 const defaultStyles: StyleScript<ChatMessagesProps> = ({ primaryColorBg, primaryColorFg }) => {
 	const colorPrimary = primaryColorBg!;
 	const colorPrimaryText = primaryColorFg!;
-	const colorPrimaryHover = new Colour(colorPrimary).darkenHex();
+	const colorPrimaryHover = new Colour(colorPrimary).mixBlack();
 	return css({
 		'.ss__chat__messages__end': {
 			height: '1px',
@@ -184,7 +183,8 @@ export const ChatMessages = observer((properties: ChatMessagesProps): JSX.Elemen
 		{
 			newMessagesButton: lang.newMessagesButton!,
 		} as any,
-		{ controller }
+		{ controller },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const styling = mergeStyles<ChatMessagesProps>(props, defaultStyles);
@@ -230,11 +230,6 @@ export const ChatMessages = observer((properties: ChatMessagesProps): JSX.Elemen
 					primaryColorText={primaryColorFg}
 				/>
 			);
-		}
-
-		// `actions` messages exist at runtime but are not part of the ChatMessage union (store type gap)
-		if ((chatItem.messageType as string) === 'actions') {
-			return <ChatSuggestedQuestions actions={(chatItem as unknown as ChatResponseActionsData).actions} controller={controller} />;
 		}
 
 		if (chatItem.messageType === 'productComparison') {
@@ -335,6 +330,9 @@ export const ChatMessages = observer((properties: ChatMessagesProps): JSX.Elemen
 							</div>
 						);
 					})}
+				{store.currentChat?.actions?.map((action, index) => (
+					<ChatSuggestedQuestions {...subProps.suggestedQuestions} key={`actions-${index}`} actions={action.data} controller={controller} />
+				))}
 				<div className="ss__chat__messages__end" ref={messagesEndRef} />
 				{showNewMessages && messagesOverflow && (
 					<div

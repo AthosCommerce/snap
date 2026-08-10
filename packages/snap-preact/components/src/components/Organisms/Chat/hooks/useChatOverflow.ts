@@ -30,7 +30,6 @@ export type UseChatOverflowResult = {
 	/** True when the messages container is overflowing (used to switch comparison tray between in-flow and overlay). */
 	messagesOverflow: boolean;
 	/** Live ref tracking whether the user is currently near the bottom. */
-	isNearBottomRef: RefObject<boolean>;
 	/** Imperatively scroll the messages container to the bottom (smooth). */
 	scrollToBottom: () => void;
 	/** Conditional scroll: only scrolls if the user is already near the bottom. */
@@ -150,7 +149,6 @@ export const useChatOverflow = ({
 		showNewMessages,
 		setShowNewMessages,
 		messagesOverflow,
-		isNearBottomRef,
 		scrollToBottom,
 		scrollToBottomIfNear,
 	};

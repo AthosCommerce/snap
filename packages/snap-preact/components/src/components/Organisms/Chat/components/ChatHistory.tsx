@@ -100,6 +100,7 @@ const HistoryButton = (props: { disabled?: boolean; open?: boolean; title?: stri
 );
 
 const HistoryPopup = observer((props: { controller: ChatController; lang: Partial<ChatLang>; newChatLabel?: string; toggleOpen?: () => void }) => {
+	const globalThemeInner: Theme = useTheme();
 	const { controller, lang, newChatLabel, toggleOpen } = props;
 	const { store } = controller;
 	const mergedLang = useLang(
@@ -107,7 +108,8 @@ const HistoryPopup = observer((props: { controller: ChatController; lang: Partia
 			historyTitle: lang.historyTitle!,
 			historyClearButton: lang.historyClearButton!,
 		} as any,
-		{ controller }
+		{ controller },
+		{ activeBreakpoint: globalThemeInner?.activeBreakpoint }
 	);
 
 	return (

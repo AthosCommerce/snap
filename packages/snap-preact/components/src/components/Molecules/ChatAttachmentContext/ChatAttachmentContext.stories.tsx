@@ -52,15 +52,15 @@ export const Default = (args: ChatAttachmentContextProps) => <ChatAttachmentCont
 Default.args = {
 	title: 'Attachments',
 	items: [
-		{ id: '1', name: 'photo.png', imageUrl: 'https://via.placeholder.com/64' },
-		{ id: '2', name: 'screenshot.png', imageUrl: 'https://via.placeholder.com/64' },
+		{ id: '1', name: 'photo.png', imageUrl: 'https://picsum.photos/64/64' },
+		{ id: '2', name: 'screenshot.png', imageUrl: 'https://picsum.photos/64/64' },
 	],
 };
 
 export const Loading = (args: ChatAttachmentContextProps) => <ChatAttachmentContext {...args} />;
 Loading.args = {
 	title: 'Attachments',
-	items: [{ id: '1', name: 'uploading.png', imageUrl: 'https://via.placeholder.com/64', isLoading: true }],
+	items: [{ id: '1', name: 'uploading.png', imageUrl: 'https://picsum.photos/64/64', isLoading: true }],
 };
 
 export const Error = (args: ChatAttachmentContextProps) => <ChatAttachmentContext {...args} />;

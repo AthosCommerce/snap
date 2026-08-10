@@ -6,11 +6,11 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { Colour, mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
-import { Image } from '../../Atoms/Image';
+import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Price } from '../../Atoms/Price';
 import type { Product, VariantSelection } from '@athoscommerce/snap-store-mobx';
@@ -456,8 +456,6 @@ const collectInfoRows = (
 const resolveLangValue = (langEntry?: { value?: unknown }): string | undefined =>
 	typeof langEntry?.value == 'function' ? (langEntry.value as () => string)() : (langEntry?.value as string | undefined);
 
-let warnedUnsupportedMessageType = false;
-
 export const ChatProductQueryMessage = observer((properties: ChatProductQueryMessageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -473,6 +471,15 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatProductQueryMessage', props);
 
 	const subProps: ChatProductQueryMessageSubProps = {
+		image: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
 		button: {
 			disableStyles,
 			theme: props.theme,
@@ -577,16 +584,17 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-		chatItem,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+			chatItem,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	if (messageType !== 'productQuery') {
-		if (!warnedUnsupportedMessageType) {
-			console.warn('ChatProductQueryMessage received message with unsupported type:', messageType, 'Expected type: productQuery');
-			warnedUnsupportedMessageType = true;
-		}
+		controller?.log?.warn('ChatProductQueryMessage received message with unsupported type:', messageType, 'Expected type: productQuery');
 		return null;
 	}
 
@@ -649,6 +657,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 					<div className={classnames('ss__chat-product-query-message__header__product')}>
 						{(displayedCore.imageUrl || displayedCore.parentImageUrl) && (
 							<Image
+								{...subProps.image}
 								className={classnames('ss__chat-product-query-message__header__product__image')}
 								src={(displayedCore.imageUrl || displayedCore.parentImageUrl) as string}
 								alt={(displayedCore.name as string) || ''}
@@ -758,6 +767,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 												>
 													{showThumbs && selectionValue.thumbnailImageUrl ? (
 														<Image
+															{...subProps.image}
 															className={classnames('ss__chat-product-query-message__variants__swatch__image')}
 															src={selectionValue.thumbnailImageUrl}
 															alt={selectionValue.value}
@@ -816,6 +826,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 interface ChatProductQueryMessageSubProps {
 	button: Partial<ButtonProps>;
+	image: Partial<ImageProps>;
 }
 
 export type ChatProductQueryMessageProps = {

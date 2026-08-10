@@ -23,7 +23,7 @@ const defaultStyles: StyleScript<ChatComparisonsTrayProps> = ({ primaryColorBg, 
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '0.5em',
-		background: new Colour(colorPrimary).lightenHex(0.95),
+		background: new Colour(colorPrimary).mixWhite(0.95),
 		padding: '0.5em 1em',
 
 		'.ss__chat__content__header__comparisons__header': {
@@ -154,7 +154,8 @@ export const ChatComparisonsTray = observer((properties: ChatComparisonsTrayProp
 			comparisonsAddText: lang.comparisonsAddText!,
 			comparisonsCompareButton: lang.comparisonsCompareButton!,
 		} as any,
-		{ controller, count: comparisons?.compared.length || 0, max: comparisons?.maxItems || 0 }
+		{ controller, count: comparisons?.compared.length || 0, max: comparisons?.maxItems || 0 },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const styling = mergeStyles<ChatComparisonsTrayProps>(props, defaultStyles);

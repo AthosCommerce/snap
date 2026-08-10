@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatMessageText } from './ChatMessageText';
 
 describe('ChatMessageText Component', () => {
@@ -166,5 +168,81 @@ describe('ChatMessageText Component', () => {
 		);
 		const root = rendered.container.querySelector('.ss__chat-message-text')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatMessageText: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatMessageText
+						chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+						controller={makeController()}
+						scrollToBottom={() => undefined}
+					/>
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-message-text');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatMessageText.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatMessageText: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ChatMessageText
+					chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+					controller={makeController()}
+					scrollToBottom={() => undefined}
+					theme={propTheme}
+				/>
+			);
+			const element = rendered.container.querySelector('.ss__chat-message-text');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatMessageText.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatMessageText: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatMessageText: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatMessageText
+						chatItem={{ id: '1', text: 'Hello world', messageType: 'general' }}
+						controller={makeController()}
+						scrollToBottom={() => undefined}
+						theme={propTheme}
+					/>
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-message-text');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatMessageText.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatMessageText.className);
+		});
 	});
 });

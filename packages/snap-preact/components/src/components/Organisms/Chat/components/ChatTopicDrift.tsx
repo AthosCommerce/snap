@@ -25,7 +25,7 @@ const defaultStyles: StyleScript<ChatTopicDriftProps> = ({ primaryColorBg, prima
 		alignItems: 'center',
 		gap: '12px',
 		padding: '12px 16px',
-		border: `1px solid ${new Colour(colorPrimary).lightenHex(0.6)}`,
+		border: `1px solid ${new Colour(colorPrimary).mixWhite(0.6)}`,
 		borderRadius: '8px',
 		backgroundColor: '#fff',
 		'.ss__chat__topic-drift__icon--info': {
@@ -63,7 +63,7 @@ const defaultStyles: StyleScript<ChatTopicDriftProps> = ({ primaryColorBg, prima
 			cursor: 'pointer',
 			whiteSpace: 'nowrap',
 			'&:not(.ss__button--disabled):hover': {
-				background: new Colour(colorPrimary).darkenHex(),
+				background: new Colour(colorPrimary).mixBlack(),
 			},
 		},
 		'.ss__chat__topic-drift__icon--close': {
@@ -104,7 +104,8 @@ export const ChatTopicDrift = observer((properties: ChatTopicDriftProps): JSX.El
 			topicDriftMessage: lang.topicDriftMessage!,
 			topicDriftSubMessage: lang.topicDriftSubMessage!,
 		} as any,
-		{ controller }
+		{ controller },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const styling = mergeStyles<ChatTopicDriftProps>(props, defaultStyles);

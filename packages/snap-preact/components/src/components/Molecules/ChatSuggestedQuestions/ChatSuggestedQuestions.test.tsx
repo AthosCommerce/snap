@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatSuggestedQuestions } from './ChatSuggestedQuestions';
 
 describe('ChatSuggestedQuestions Component', () => {
@@ -80,5 +82,65 @@ describe('ChatSuggestedQuestions Component', () => {
 			.join('');
 		expect(styles).toMatch(/#253B80|rgb\(37, 59, 128\)/i);
 		expect(styles.toLowerCase()).not.toContain('currentcolor');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatSuggestedQuestions: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatSuggestedQuestions controller={makeController()} questions={['What is on sale?']} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-suggested-questions');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatSuggestedQuestions.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatSuggestedQuestions: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(<ChatSuggestedQuestions controller={makeController()} questions={['What is on sale?']} theme={propTheme} />);
+			const element = rendered.container.querySelector('.ss__chat-suggested-questions');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatSuggestedQuestions.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatSuggestedQuestions: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatSuggestedQuestions: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatSuggestedQuestions controller={makeController()} questions={['What is on sale?']} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-suggested-questions');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatSuggestedQuestions.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatSuggestedQuestions.className);
+		});
 	});
 });

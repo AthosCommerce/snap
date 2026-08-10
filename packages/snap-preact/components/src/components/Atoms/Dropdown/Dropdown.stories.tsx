@@ -168,6 +168,26 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		dropUp: {
+			description: 'boolean to anchor portalled content above the button instead of below it (requires usePortal).',
+			table: {
+				type: {
+					summary: 'boolean',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		boundaryRef: {
+			description: 'ref to an element that constrains portalled content horizontally instead of the viewport (requires usePortal).',
+			table: {
+				type: {
+					summary: 'MutableRef<HTMLElement | null>',
+				},
+			},
+			control: { type: 'none' },
+		},
 		onToggle: {
 			description: 'Executes when the internal state changes, gets passed the event and the internal state - used with internal state only',
 			table: {

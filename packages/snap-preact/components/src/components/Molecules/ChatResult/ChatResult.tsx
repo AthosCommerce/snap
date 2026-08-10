@@ -243,10 +243,14 @@ export const ChatResult = withTracking(
 
 		//deep merge with props.lang
 		const lang = deepmerge(defaultLang, props.lang || {});
-		const mergedLang = useLang(lang as any, {
-			controller,
-			result,
-		});
+		const mergedLang = useLang(
+			lang as any,
+			{
+				controller,
+				result,
+			},
+			{ activeBreakpoint: globalTheme?.activeBreakpoint }
+		);
 
 		return (
 			<CacheProvider>

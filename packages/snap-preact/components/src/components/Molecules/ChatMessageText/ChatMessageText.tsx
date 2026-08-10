@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useMemo } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -174,6 +175,10 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 		treePath,
 	} = props;
 
+	const text =
+		chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || chatItem.messageForDrift || '';
+	const sanitizedHtml = useMemo(() => DOMPurify.sanitize(marked.parse(text) as string), [text]);
+
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatMessageText', props);
 
 	if (!shouldRenderDefault) {
@@ -250,13 +255,15 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-		chatItem,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+			chatItem,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
-	const text =
-		chatItem.overallSummary || chatItem.text || chatItem.comparisonData?.summary || chatItem.errorMessage || chatItem.messageForDrift || '';
 	const currentChat = controller.store.currentChat;
 	const sideChatLangKeys: Record<string, { open: SideChatLangKey; close: SideChatLangKey; explore: SideChatLangKey }> = {
 		inspirationResult: { open: 'viewInspirationButton', close: 'closeInspirationButton', explore: 'exploreInspirationButton' },
@@ -283,10 +290,7 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 				<div className="ss__chat-message-text__bubble">
 					{text && (
 						<div className="ss__chat-message-text__text-wrapper">
-							<div
-								className="ss__chat-message-text__text-wrapper__text"
-								dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(text) as string) }}
-							/>
+							<div className="ss__chat-message-text__text-wrapper__text" dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
 							{hasSideChatView && !buttonBelowMessage ? (
 								<Button
 									{...subProps.sideChatButton}

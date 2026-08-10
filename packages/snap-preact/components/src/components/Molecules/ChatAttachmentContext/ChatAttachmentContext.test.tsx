@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatAttachmentContext } from './ChatAttachmentContext';
 
 describe('ChatAttachmentContext Component', () => {
@@ -69,5 +71,65 @@ describe('ChatAttachmentContext Component', () => {
 		const rendered = render(<ChatAttachmentContext title="Attachments" items={baseItems} styleScript={styleScript} />);
 		const root = rendered.container.querySelector('.ss__chat-attachment-context')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatAttachmentContext: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatAttachmentContext title="Attachments" items={baseItems} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-attachment-context');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatAttachmentContext.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatAttachmentContext: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(<ChatAttachmentContext title="Attachments" items={baseItems} theme={propTheme} />);
+			const element = rendered.container.querySelector('.ss__chat-attachment-context');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatAttachmentContext.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatAttachmentContext: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatAttachmentContext: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatAttachmentContext title="Attachments" items={baseItems} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-attachment-context');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatAttachmentContext.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatAttachmentContext.className);
+		});
 	});
 });

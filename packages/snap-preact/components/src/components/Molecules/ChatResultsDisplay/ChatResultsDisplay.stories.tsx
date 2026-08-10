@@ -66,7 +66,7 @@ const mockResult = (id: string, name: string): any => ({
 		mappings: {
 			core: {
 				name,
-				imageUrl: `https://via.placeholder.com/240x240?text=${encodeURIComponent(name)}`,
+				imageUrl: `https://picsum.photos/seed/${encodeURIComponent(name)}/240/240`,
 				price: Math.round(Math.random() * 80 + 20),
 			},
 		},

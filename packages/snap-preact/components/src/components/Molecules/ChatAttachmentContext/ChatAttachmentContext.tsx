@@ -193,10 +193,14 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		title,
-		items,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			title,
+			items,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return (
 		<CacheProvider>
@@ -238,11 +242,15 @@ export const ChatAttachmentContext = observer((properties: ChatAttachmentContext
 							},
 						};
 						const itemLang = deepmerge(itemDefaultLang, props.lang || {});
-						const itemMergedLang = useLang(itemLang as any, {
-							title,
-							items,
-							item,
-						});
+						const itemMergedLang = useLang(
+							itemLang as any,
+							{
+								title,
+								items,
+								item,
+							},
+							{ activeBreakpoint: globalTheme?.activeBreakpoint }
+						);
 
 						const itemContent = item.hasError ? (
 							<>

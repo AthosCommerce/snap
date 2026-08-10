@@ -142,7 +142,8 @@ export const ChatSideChat = observer((properties: ChatSideChatProps): JSX.Elemen
 			productComparisonTitle: lang.productComparisonTitle!,
 			productComparisonSubtitle: lang.productComparisonSubtitle!,
 		} as any,
-		{ controller, count: comparisonCount }
+		{ controller, count: comparisonCount },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const { swipeOffset, swipeAnimating, swipeHandlers } = useChatGestures({

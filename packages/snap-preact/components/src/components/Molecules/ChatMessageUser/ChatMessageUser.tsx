@@ -255,10 +255,14 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-		chatItem,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+			chatItem,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return (
 		<CacheProvider>
@@ -285,11 +289,15 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 											},
 										};
 										const attachmentLang = deepmerge(attachmentDefaultLang, props.lang || {});
-										const attachmentMergedLang = useLang(attachmentLang as any, {
-											controller,
-											chatItem,
-											attachment,
-										});
+										const attachmentMergedLang = useLang(
+											attachmentLang as any,
+											{
+												controller,
+												chatItem,
+												attachment,
+											},
+											{ activeBreakpoint: globalTheme?.activeBreakpoint }
+										);
 										return (
 											<li
 												className={classnames('ss__chat-message-user__attachment__product', {

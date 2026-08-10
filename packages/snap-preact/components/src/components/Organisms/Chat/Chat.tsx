@@ -11,7 +11,7 @@ import type { ChatAttachmentProduct } from '@athoscommerce/snap-store-mobx';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
-import { useLang, useMediaQuery } from '../../../hooks';
+import { useLang, useMediaQuery, useCustomComponentOverride } from '../../../hooks';
 import { useA11y } from '../../../hooks/useA11y';
 import { Button } from '../../Atoms/Button';
 import { Icon } from '../../Atoms/Icon';
@@ -72,7 +72,7 @@ const defaultStyles: StyleScript<ChatOrganismProps & ChatStylingProps> = ({
 	const horizontalAnchor = isRight ? 'right' : 'left';
 	const colorPrimary = primaryColorBg!;
 	const colorPrimaryText = primaryColorFg!;
-	const colorPrimaryHover = new Colour(colorPrimary).darkenHex();
+	const colorPrimaryHover = new Colour(colorPrimary).mixBlack();
 	const offsetValue = offset !== undefined ? (typeof offset === 'number' ? `${offset}px` : offset) : undefined;
 	return css({
 		position: 'fixed',
@@ -109,7 +109,7 @@ const defaultStyles: StyleScript<ChatOrganismProps & ChatStylingProps> = ({
 			background: 'none',
 			color: 'inherit',
 			'&:not(.ss__button--disabled):hover': {
-				background: new Colour(colorPrimary).lightenHex(0.85),
+				background: new Colour(colorPrimary).mixWhite(0.85),
 			},
 			svg: {
 				fill: colorPrimary,
@@ -343,7 +343,7 @@ const defaultStyles: StyleScript<ChatOrganismProps & ChatStylingProps> = ({
 				overscrollBehavior: 'contain',
 				margin: 0,
 				maxHeight: '100%',
-				background: new Colour(colorPrimary).lightenHex(0.95),
+				background: new Colour(colorPrimary).mixWhite(0.95),
 			},
 			'.ss__chat__content__footer': {
 				padding: '1em',
@@ -367,7 +367,7 @@ const defaultStyles: StyleScript<ChatOrganismProps & ChatStylingProps> = ({
 					gap: '8px',
 					borderRadius: '6px',
 					border: `2px dashed ${colorPrimary}`,
-					backgroundColor: new Colour(colorPrimary).lightenHex(0.9),
+					backgroundColor: new Colour(colorPrimary).mixWhite(0.9),
 					color: colorPrimary,
 					fontWeight: 'bold',
 					pointerEvents: 'none' as const,
@@ -398,7 +398,7 @@ const defaultStyles: StyleScript<ChatOrganismProps & ChatStylingProps> = ({
 	});
 };
 
-export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Element => {
+export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
@@ -425,6 +425,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 	};
 
 	let props = mergeProps('chat', globalTheme, defaultProps, properties);
+
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chat', props);
 
 	const {
 		className,
@@ -497,7 +499,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 			expiredMessage: lang.expiredMessage!,
 			dropOverlayText: lang.dropOverlayText!,
 		} as any,
-		{ controller }
+		{ controller },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -566,8 +569,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 
 	const hasSideChat = !!shouldShowSideChat;
 
-	// Lock body scrolling (wheel + touch) to the chat while it is open
-	useChatScrollLock({ open: store.open, chatRef });
+	// Lock body scrolling (wheel + touch) to the chat while it is open. Mobile only —
+	// on desktop the chat is a side panel and the page behind it stays scrollable.
+	useChatScrollLock({ open: store.open && isMobile, chatRef });
 
 	// Close chat on Escape key (or dismiss side chat first when it's open)
 	useEffect(() => {
@@ -668,6 +672,10 @@ export const ChatOrganism = observer((properties: ChatOrganismProps): JSX.Elemen
 	// unavailable message stays visible (with the input disabled).
 	if (!controller.store.chatEnabled && !wasVisibleRef.current) {
 		return <></>;
+	}
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
 	}
 
 	return (

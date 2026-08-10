@@ -990,13 +990,13 @@ describe('Chat Controller', () => {
 		it('sends an initial message when provided', async () => {
 			const controller = createController();
 			controller.store.chatEnabled = true;
-			const searchSpy = jest.spyOn(controller, 'search');
+			const searchSpy = jest.spyOn(controller, 'search').mockResolvedValue();
 
 			controller.openChat('test message');
 
 			expect(controller.store.open).toBe(true);
 			expect(searchSpy).toHaveBeenCalledWith({ data: { message: 'test message' } });
-			searchSpy.mockClear();
+			searchSpy.mockRestore();
 		});
 	});
 

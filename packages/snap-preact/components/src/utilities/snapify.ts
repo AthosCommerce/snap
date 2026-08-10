@@ -144,7 +144,7 @@ function createRecommendationController(config: CreateConfig): RecommendationCon
 }
 
 function createChatController(config: CreateConfig): ChatController {
-	const urlManager = new UrlManager(new UrlTranslator(), reactLinker);
+	const urlManager = new UrlManager(new UrlTranslator(), reactLinker).detach(true);
 
 	const cntrlr = new ChatController(config.controller as ChatControllerConfig, {
 		client: new Client(config.client.globals, config.client.config),
