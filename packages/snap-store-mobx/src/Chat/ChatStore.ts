@@ -44,6 +44,8 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public features: ChatStatusResponseModel['features'] = { imageSearch: { enabled: false }, similarProducts: { enabled: false } };
 	public productQuickview: Product | null = null;
 	public productQuickviewError: string | null = null;
+	/** Count of externally-mounted launchers (e.g. inline ChatButton). >0 hides the built-in bubble. */
+	public launcherCount: number = 0;
 	/** Raw meta kept for lazy hydration of inactive chat sessions. */
 	private storedMetaData: MetaResponseModel | null = null;
 	/** Tracks which message currently owns the displayed facets — guards against redundant rebuilds. */
@@ -181,6 +183,8 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			welcomeMessage: observable,
 			productQuickview: observable,
 			productQuickviewError: observable,
+			launcherCount: observable,
+			hasExternalLauncher: computed,
 			facets: observable,
 			urlVersion: observable,
 			appliedFilterSnapshot: observable,
@@ -421,6 +425,23 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 	get chatIds(): string[] {
 		return this.chats.map((chat) => chat.id);
+	}
+
+	get hasExternalLauncher(): boolean {
+		return this.launcherCount > 0;
+	}
+
+	/** Registers an externally-mounted launcher (e.g. inline ChatButton) and returns
+	 * a disposer that unregisters it. The disposer is idempotent. */
+	public registerLauncher(): () => void {
+		runInAction(() => this.launcherCount++);
+		let disposed = false;
+		return () => {
+			if (!disposed) {
+				disposed = true;
+				runInAction(() => this.launcherCount--);
+			}
+		};
 	}
 
 	get blocked(): boolean {

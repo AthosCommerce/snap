@@ -64,6 +64,7 @@ import type { ModalProps, ModalTemplatesLegalProps } from '../components/Molecul
 /* ORGANISMS */
 import type { BranchOverrideProps } from '../components/Organisms/BranchOverride';
 import type { ChatOrganismProps } from '../components/Organisms/Chat';
+import type { ChatButtonOrganismProps, ChatButtonTemplatesLegalProps } from '../components/Organisms/ChatButton';
 import type { ChatComparisonsTrayProps } from '../components/Organisms/Chat/components/ChatComparisonsTray';
 import type { ChatComposerProps } from '../components/Organisms/Chat/components/ChatComposer';
 import type { ChatFacetsBarProps } from '../components/Organisms/Chat/components/ChatFacetsBar';
@@ -214,6 +215,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	/* organisms */
 	'branchOverride',
 	'chat',
+	'chatButton',
 	'chatComparisonsTray',
 	'chatComposer',
 	'chatFacetsBar',
@@ -307,6 +309,7 @@ export type ThemeComponents =
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatOrganismProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonOrganismProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> } &
@@ -430,6 +433,7 @@ export type ThemeComponentsRestricted =
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
@@ -525,6 +529,7 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatOrganismProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonOrganismProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> & WithCustomComponent } &
@@ -640,6 +645,7 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	/* ORGANISMS */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'branchOverride'>]?: Partial<BranchOverrideProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chat'>]?: Partial<ChatOrganismProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatButton'>]?: Partial<ChatButtonOrganismProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> } &
@@ -746,6 +752,7 @@ export type ComponentTypePropsMap = {
 	terms: TermsProps;
 	branchOverride: BranchOverrideProps;
 	chat: ChatOrganismProps;
+	chatButton: ChatButtonOrganismProps;
 	chatLoadingIndicator: ChatLoadingIndicatorProps;
 	chatAttachmentContext: ChatAttachmentContextProps;
 	chatInspirationResultMessage: ChatInspirationResultMessageProps;

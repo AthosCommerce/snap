@@ -232,6 +232,24 @@ let config: SnapConfig = {
 					},
 				},
 				targeters: [
+					// inline launcher left of the search input — hides the floating bubble while mounted
+					{
+						selector: 'input.athos-ac',
+						inject: {
+							action: 'before',
+							element: () => {
+								const container = document.createElement('div');
+								container.className = 'ss__chat--inline-target';
+								return container;
+							},
+						},
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).ChatButton;
+						},
+						props: {
+							content: 'Ask AI',
+						},
+					},
 					{
 						selector: 'body',
 						component: async () => {

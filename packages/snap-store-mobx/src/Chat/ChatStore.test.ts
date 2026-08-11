@@ -498,6 +498,55 @@ describe('ChatStore — services validation', () => {
 	});
 });
 
+describe('ChatStore — external launcher registration', () => {
+	beforeEach(() => {
+		window.localStorage.clear();
+		window.sessionStorage.clear();
+	});
+
+	it('hasExternalLauncher is false until a launcher registers', () => {
+		const store = createStore();
+		expect(store.hasExternalLauncher).toBe(false);
+
+		const dispose = store.registerLauncher();
+		expect(store.hasExternalLauncher).toBe(true);
+
+		dispose();
+		expect(store.hasExternalLauncher).toBe(false);
+	});
+
+	it('tracks multiple launchers and each disposer only decrements once', () => {
+		const store = createStore();
+		const dispose1 = store.registerLauncher();
+		const dispose2 = store.registerLauncher();
+		expect(store.launcherCount).toBe(2);
+
+		dispose1();
+		dispose1();
+		expect(store.launcherCount).toBe(1);
+		expect(store.hasExternalLauncher).toBe(true);
+
+		dispose2();
+		expect(store.launcherCount).toBe(0);
+		expect(store.hasExternalLauncher).toBe(false);
+	});
+
+	it('hasExternalLauncher is observable', () => {
+		const store = createStore();
+		const seen: boolean[] = [];
+		const stop = reaction(
+			() => store.hasExternalLauncher,
+			(value) => seen.push(value)
+		);
+
+		const dispose = store.registerLauncher();
+		dispose();
+		stop();
+
+		expect(seen).toEqual([true, false]);
+	});
+});
+
 describe('ChatStore — facets and detached urlManager', () => {
 	beforeEach(() => {
 		window.localStorage.clear();

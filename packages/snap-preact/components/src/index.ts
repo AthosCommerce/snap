@@ -76,9 +76,11 @@ export * from './components/Organisms/Toolbar';
 export * from './components/Organisms/Autocomplete';
 export * from './components/Organisms/TermsList';
 export { ChatOrganism, type ChatOrganismProps } from './components/Organisms/Chat';
+export { ChatButtonOrganism, type ChatButtonOrganismProps } from './components/Organisms/ChatButton';
 
 // TEMPLATES
 export * from './components/Templates/Chat';
+export * from './components/Templates/ChatButton';
 export * from './components/Templates/Recommendation';
 export * from './components/Templates/RecommendationBundle';
 export * from './components/Templates/RecommendationBundleEasyAdd';

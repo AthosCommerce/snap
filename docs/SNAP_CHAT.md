@@ -116,6 +116,7 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 | `offset` | `string \| number` | `'20px'` (set by the shipped themes) | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
 | `multiselectFacets` | `boolean` | `false` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
 | `disableBubbleSuggestedQuestions` | `boolean` | `false` | Hide the suggested-question chips that appear on the launcher bubble before the chat has been opened. |
+| `hideBubble` | `boolean` | `false` | Hide the built-in floating bubble launcher (and its suggested-question chips). Not usually needed — mounting a `ChatButton` hides the bubble automatically — but useful for deterministic suppression (see [Inline launcher](#inline-launcher-chatbutton)). |
 | `primaryColorBg` | `string` | `'#253B80'` | Primary brand colour — background of headers, buttons, and accents. |
 | `primaryColorFg` | `string` | `'#fff'` | Foreground (text/icon) colour paired with `primaryColorBg`. |
 | `primaryAccentColorBg` | `string` | `'#feeeae'` | Accent colour for highlights (e.g. the add-to-cart icon background). |
@@ -127,9 +128,9 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 
 In addition, every prop inherited from `ComponentProps` is also accepted — most notably `className`, `style`, `styleScript`, `theme`, and `disableStyles` for styling overrides.
 
-### Mounting at `body`
+### Chat targeter injection
 
-The `Chat` component is fixed-positioned and is normally mounted at the document level. When a chat targeter's `selector` is exactly `'body'` and no `inject` config is supplied, Snap automatically attaches the following `inject` so the component renders into a fresh appended `<div>` rather than replacing the body contents:
+Chat targeters never render *into* the matched element. Unless a targeter defines its own `inject`, Snap automatically attaches one so the component renders into a fresh `<div>` appended to the matched element, and the element is never hidden while the targeter waits to mount:
 
 ```js
 inject: {
@@ -140,7 +141,78 @@ inject: {
 },
 ```
 
-This default is only applied when (a) the selector is the literal string `'body'` and (b) the targeter does not already define its own `inject`. Any other selector — or an explicit `inject` on a body-selector targeter — is left untouched.
+The appended container gets the class `ss__chat--target` when the selector is `'body'` (the normal mount point for the fixed-positioned `Chat` component), and `ss__chat--inline-target` for any other selector (e.g. a `ChatButton` mounted inside a nav — the nav's own children are left untouched). A targeter with an explicit `inject` is left as-is.
+
+> Note: prior to the introduction of `ChatButton`, only `'body'` selectors received this treatment — a chat targeter at any other selector emptied and hid the matched element (the default `DomTargeter` behavior). If you relied on that, set `inject` or `emptyTarget` explicitly on the targeter.
+
+### Inline launcher (`ChatButton`)
+
+By default the `Chat` component renders a floating bubble launcher in the corner of the viewport. To render the launcher inline in your own markup instead (e.g. in the site navigation), add a second targeter to the same chat controller using the `ChatButton` component:
+
+```js
+import { Chat, ChatButton } from '@athoscommerce/snap-preact/components';
+
+const snap = new Snap({
+    client: {
+        globals: {
+            siteId: 'REPLACE_WITH_YOUR_SITE_ID',
+        },
+    },
+    controllers: {
+        chat: [
+            {
+                config: {
+                    id: 'chat',
+                },
+                targeters: [
+                    {
+                        selector: '.my-nav',
+                        component: async () => {
+                            return ChatButton;
+                        },
+                        props: {
+                            content: 'Ask AI',
+                        },
+                    },
+                    {
+                        selector: 'body',
+                        component: async () => {
+                            return Chat;
+                        },
+                    },
+                ],
+            },
+        ],
+    },
+});
+```
+
+Both targeters share the one chat controller — clicking the `ChatButton` opens the same chat overlay the bubble would. While a `ChatButton` is mounted it registers itself with the chat store, and the `Chat` component hides its floating bubble and suggested-question chips automatically. If the button's selector is never found on a page, the floating bubble remains as the fallback launcher; to suppress the bubble unconditionally instead, set `hideBubble: true` in the `Chat` targeter's props.
+
+With Snap Templates, add a `ChatButton` target to the chat `targets` array:
+
+```js
+chat: {
+    targets: [
+        { selector: '.my-nav', component: 'ChatButton' },
+        { selector: 'body', component: 'Chat' },
+    ],
+},
+```
+
+If the inline selector renders late (e.g. injected by the host site's own scripts), raw Snap configs can set `autoRetarget: true` on the targeter; Snap Templates targeters have it enabled already.
+
+#### ChatButton Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `controller` | `ChatController` | — (injected) | The chat controller for this targeter. Do not set manually. |
+| `content` | `string \| JSX.Element` | — | Label content rendered inside the button. Omit for an icon-only button. |
+| `children` | `ComponentChildren` | — | Alternative to `content`. |
+| `icon` | `IconType \| Partial<IconProps> \| boolean` | `'chat'` | Icon rendered after the content. Pass `false` for a text-only button, or an `IconProps` object for a custom icon. |
+| `lang` | `Partial<ChatButtonLang>` | — | `openChatButton` / `closeChatButton` entries providing the `aria-label`/`title` for each state. |
+
+The button renders as a pill styled from the theme's primary color (white background, colored border/text, rounded corners, hover shadow). Restyle it via the `chatButton` theme component key, `styleScript`, or plain CSS against `.ss__chat-button`; pass `disableStyles` to remove the default styling.
 
 ### Providing props via the targeter config
 

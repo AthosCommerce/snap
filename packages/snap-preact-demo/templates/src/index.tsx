@@ -80,6 +80,9 @@ let templatesConfig: SnapTemplatesConfig = {
 				result: {
 					discussProductIcon: { icon: 'chat' },
 				},
+				chatButton: {
+					children: 'Ask AI',
+				},
 			},
 		},
 	},
@@ -113,6 +116,11 @@ let templatesConfig: SnapTemplatesConfig = {
 	},
 	chat: {
 		targets: [
+			{
+				// appended into the search form; positioned left of the input via globalStyles
+				selector: '.ss__demo__search__form',
+				component: 'ChatButton',
+			},
 			{
 				selector: 'body',
 				component: 'Chat',

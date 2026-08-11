@@ -772,6 +772,36 @@ fieldset {
 	-ms-flex: 1 0 auto;
 	-moz-flex: 1 0 auto;
 	flex: 1 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* places the inline chat launcher to the left of the search input */
+.ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__chat--inline-target {
+	-webkit-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
+	-moz-flex: 0 0 auto;
+	flex: 0 0 auto;
+	-webkit-order: -1;
+	-ms-flex-order: -1;
+	order: -1;
+}
+
+.ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__input {
+	-webkit-flex: 1 1 auto;
+	-ms-flex: 1 1 auto;
+	-moz-flex: 1 1 auto;
+	flex: 1 1 auto;
+}
+
+/* the autocomplete target is a zero-size flex item since the form became a flex row;
+   re-anchor it below the form so the dropdown renders under the input again */
+.ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__autocomplete--target {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
 }
 
 .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__input {

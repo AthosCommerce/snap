@@ -467,6 +467,11 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 
 	const { store } = controller;
 
+	// The built-in bubble (and its suggested-question chips) yields to an external
+	// launcher — either an inline ChatButton registered on the store, or an explicit
+	// hideBubble prop for deterministic suppression.
+	const hideLauncher = !!props.hideBubble || store.hasExternalLauncher;
+
 	// Track that the widget has been visible so a mid-session disable (status check
 	// flips chatEnabled to false) keeps it mounted with the unavailable message
 	// instead of vanishing. A disabled status at bootstrap still renders nothing.
@@ -696,7 +701,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 					)}
 					{...styling}
 				>
-					{!disableBubbleSuggestedQuestions && !store.open && !store.currentChat && store.suggestedQuestions?.length > 0 && (
+					{!hideLauncher && !disableBubbleSuggestedQuestions && !store.open && !store.currentChat && store.suggestedQuestions?.length > 0 && (
 						<div className="ss__chat__suggested-questions">
 							{store.suggestedQuestions.map((question) => (
 								<div
@@ -713,15 +718,17 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 							))}
 						</div>
 					)}
-					<button
-						type="button"
-						className={'ss__chat__bubble'}
-						aria-label={store.open ? langAttrOf(lang.closeChatButton, 'aria-label') : langAttrOf(lang.openChatButton, 'aria-label')}
-						aria-expanded={store.open}
-						onClick={() => controller.handlers.button.click()}
-					>
-						<Icon icon="chat" title={langAttrOf(lang.openChatButton, 'title')} />
-					</button>
+					{!hideLauncher && (
+						<button
+							type="button"
+							className={'ss__chat__bubble'}
+							aria-label={store.open ? langAttrOf(lang.closeChatButton, 'aria-label') : langAttrOf(lang.openChatButton, 'aria-label')}
+							aria-expanded={store.open}
+							onClick={() => controller.handlers.button.click()}
+						>
+							<Icon icon="chat" title={langAttrOf(lang.openChatButton, 'title')} />
+						</button>
+					)}
 					{store.open && shouldShowSideChat && activeMessage ? (
 						<ChatSideChat
 							{...subProps.sideChat}
@@ -843,6 +850,7 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 						</div>
 					) : null}
 				</div>
+				{/* chrome for the overlay display mode — a future displayType ('slideout'/'inline') would swap this out */}
 				<Overlay style={{ zIndex: 1001 }} color="transparent" active={store.open} onClick={() => controller.handlers.button.click()} />
 			</>
 		</CacheProvider>
@@ -863,6 +871,9 @@ export type ChatTemplatesLegalProps = {
 	offset?: string | number;
 	multiselectFacets?: boolean;
 	disableBubbleSuggestedQuestions?: boolean;
+	/** Hides the built-in bubble launcher (and its suggested-question chips) even when
+	 * no external launcher is registered — for setups that always provide their own. */
+	hideBubble?: boolean;
 	position?: 'left' | 'right';
 	primaryColorBg?: string;
 	primaryColorFg?: string;

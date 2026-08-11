@@ -113,6 +113,20 @@ export const es: LangComponents = {
 			},
 		},
 	},
+	chatButton: {
+		openChatButton: {
+			attributes: {
+				'aria-label': 'Abrir chat',
+				title: 'Abrir chat',
+			},
+		},
+		closeChatButton: {
+			attributes: {
+				'aria-label': 'Cerrar chat',
+				title: 'Cerrar chat',
+			},
+		},
+	},
 	chat: {
 		openChatButton: {
 			attributes: {

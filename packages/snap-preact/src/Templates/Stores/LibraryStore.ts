@@ -98,7 +98,9 @@ export type LibraryImports = {
 		};
 		chat: {
 			Chat: (args?: any) => Promise<JSXComponent>;
+			ChatButton: (args?: any) => Promise<JSXComponent>;
 		};
+		chatButton: LibraryComponentImport;
 		chatLoadingIndicator: LibraryComponentImport;
 		chatAttachmentContext: LibraryComponentImport;
 		chatInspirationResultMessage: LibraryComponentImport;
@@ -208,6 +210,7 @@ export class LibraryStore {
 			email: LibraryComponentMap;
 		};
 		chat: LibraryComponentMap;
+		chatButton: LibraryComponentMap;
 		chatLoadingIndicator: LibraryComponentMap;
 		chatAttachmentContext: LibraryComponentMap;
 		chatInspirationResultMessage: LibraryComponentMap;
@@ -296,6 +299,7 @@ export class LibraryStore {
 			email: {},
 		},
 		chat: {},
+		chatButton: {},
 		chatLoadingIndicator: {},
 		chatAttachmentContext: {},
 		chatInspirationResultMessage: {},
@@ -541,7 +545,11 @@ export class LibraryStore {
 				Chat: async () => {
 					return this.components.chat.Chat || (this.components.chat.Chat = (await import('./library/components/Chat')).Chat);
 				},
+				ChatButton: async () => {
+					return this.components.chat.ChatButton || (this.components.chat.ChatButton = (await import('./library/components/ChatButton')).ChatButton);
+				},
 			},
+			chatButton: {},
 			chatLoadingIndicator: {},
 			chatAttachmentContext: {},
 			chatInspirationResultMessage: {},

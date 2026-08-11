@@ -1418,6 +1418,58 @@ describe('Snap Preact', () => {
 				expect(injected?.querySelector('.injectedComponent')).not.toBeNull();
 			});
 		});
+
+		it(`supports a second targeter at a custom selector without emptying or hiding the host`, async () => {
+			const baseConfig = generateBaseConfig();
+			document.body.innerHTML = `<script id="athos-context"></script><nav id="nav"><a class="nav-link" href="/">Home</a></nav>`;
+
+			const chatConfig = {
+				...baseConfig,
+				controllers: {
+					chat: [
+						{
+							config: {
+								id: 'chat',
+							},
+							targeters: [
+								{
+									name: 'chatButtonTargeter',
+									selector: '#nav',
+									component: async () => Component,
+								},
+								{
+									name: 'chatTargeter',
+									selector: 'body',
+									component: async () => Component,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(chatConfig.client!.globals as ClientGlobals);
+			const snap = new Snap(chatConfig, { client });
+			const chat = await snap.getController('chat');
+
+			await waitFor(() => {
+				// the host keeps its own children and gets an appended container
+				const nav = document.querySelector('#nav') as HTMLElement;
+				expect(nav.querySelector('.nav-link')).not.toBeNull();
+				expect(nav.style.visibility).not.toBe('hidden');
+
+				const inlineInjected = nav.querySelector(':scope > .ss__chat--inline-target');
+				expect(inlineInjected).not.toBeNull();
+				expect(inlineInjected?.querySelector('.injectedComponent')).not.toBeNull();
+
+				// the body targeter still renders alongside it
+				expect(document.querySelector('body > .ss__chat--target .injectedComponent')).not.toBeNull();
+			});
+
+			// both targeters registered on the single chat controller
+			expect(chat.targeters.chatButtonTargeter).toBeDefined();
+			expect(chat.targeters.chatTargeter).toBeDefined();
+		});
 	});
 
 	describe('creates recommendation controllers via config', () => {

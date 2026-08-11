@@ -64,7 +64,7 @@ import {
 	pluginBase as pluginMagento2Base,
 	PluginBaseConfig as PluginMagento2BaseConfig,
 } from '@athoscommerce/snap-platforms/magento2';
-import { applyChatBodyInject, combineMerge } from '../utils';
+import { applyChatTargetInject, combineMerge } from '../utils';
 
 export const TEMPLATE_EDITOR_COOKIE = 'athosEditor';
 export const TEMPLATE_EDITOR_UI_PARAM = 'athos-editor';
@@ -344,7 +344,9 @@ export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templat
 
 		const targeter: ExtendedTarget = {
 			selector: targetConfig.selector,
-			hideTarget: true,
+			// inline selectors (e.g. a nav slot) may render after DOMContentLoaded;
+			// re-injection at already-targeted elements is prevented by DomTargeter
+			autoRetarget: true,
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.chat[targetConfig.component]());
@@ -355,7 +357,7 @@ export const createChatTargeters = (templateConfig: SnapTemplatesConfig, templat
 			props: { target, templatesStore },
 		};
 
-		return applyChatBodyInject(targeter);
+		return applyChatTargetInject(targeter);
 	});
 };
 
