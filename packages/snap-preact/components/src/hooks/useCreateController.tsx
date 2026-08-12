@@ -35,9 +35,13 @@ export const useCreateController = <ControllerType extends Controllers>(
 					}
 				}
 
-				snap.createController(type, configToCreate).then((controller: Controllers) => {
+				try {
+					const controller = await snap.createController(type, configToCreate);
 					setController(controller);
-				});
+				} catch (err) {
+					// eslint-disable-next-line no-console
+					console.error(`useCreateController: failed to create controller "${config.id}"`, err);
+				}
 			});
 	}, []);
 
