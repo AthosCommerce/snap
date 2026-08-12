@@ -17,8 +17,25 @@ export const useCreateController = <ControllerType extends Controllers>(
 			.then((controller: Controllers) => {
 				setController(controller);
 			})
-			.catch(() => {
-				snap.createController(type, config).then((controller: Controllers) => {
+			.catch(async () => {
+				let configToCreate = config;
+
+				// dynamically created recommendation controllers (ex. no-results recommendations) don't go through
+				// the RecommendationInstantiator, so inherit its plugins/middleware from the original config to keep behavior consistent
+				if (type === 'recommendation' && !config.plugins && !config.middleware) {
+					try {
+						const instantiator = await snap.getInstantiator('recommendation');
+						configToCreate = {
+							...config,
+							plugins: instantiator.config.config.plugins,
+							middleware: instantiator.config.config.middleware,
+						};
+					} catch {
+						// no recommendation instantiator configured - proceed without inherited attachments
+					}
+				}
+
+				snap.createController(type, configToCreate).then((controller: Controllers) => {
 					setController(controller);
 				});
 			});
