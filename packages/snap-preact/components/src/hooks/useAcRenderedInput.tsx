@@ -1,5 +1,5 @@
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
-import { useState, MutableRef, useEffect } from 'preact/hooks';
+import { useState, MutableRef, useEffect, useRef } from 'preact/hooks';
 
 const RENDERED_INPUT_SELECTOR = '.autocomplete__search-input input';
 
@@ -20,11 +20,14 @@ export function useAcRenderedInput({
 }) {
 	const [_input, setInput] = useState<Element | null>(input);
 	const [renderedInputInitialized, setRenderedInputInitialized] = useState(false);
+	const boundController = useRef<AutocompleteController | null>(null);
 
+	// adds the rendered input to the controller's selector (once) and binds it
 	const bindRenderedInput = async (cntrlr: AutocompleteController) => {
 		if (!cntrlr.config.selector.includes(RENDERED_INPUT_SELECTOR)) {
 			cntrlr.config.selector = `${cntrlr.config.selector}, ${RENDERED_INPUT_SELECTOR}`;
 		}
+		boundController.current = cntrlr;
 		await cntrlr.bind();
 	};
 
@@ -44,24 +47,17 @@ export function useAcRenderedInput({
 		});
 	};
 
-	// the rendered input is shared by every autocomplete tab, but only one controller is bound to
-	// it at a time. When the active tab changes the controller changes with it, so the new
-	// controller must be bound (and given focus) or it will never see input events.
+	// the rendered input is shared by every autocomplete tab, but each tab has its own controller.
+	// when the active tab changes the incoming controller must be bound (and given focus) or it
+	// will never see input events. the ref check skips the controller onClick just bound.
 	useEffect(() => {
-		if (!renderedInputInitialized) {
+		if (!renderedInputInitialized || boundController.current === controller) {
 			return;
 		}
 
-		let cancelled = false;
 		bindRenderedInput(controller).then(() => {
-			if (!cancelled) {
-				renderedInputRef?.current?.focus();
-			}
+			renderedInputRef?.current?.focus();
 		});
-
-		return () => {
-			cancelled = true;
-		};
 	}, [controller, renderedInputInitialized]);
 
 	useEffect(() => {

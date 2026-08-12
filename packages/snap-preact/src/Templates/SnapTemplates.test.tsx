@@ -594,8 +594,8 @@ describe('createSnapConfig with custom plugins', () => {
 		const templatesStore = new TemplatesStore({ config });
 		const snapConfig = createSnapConfig(config, templatesStore);
 
-		expect(snapConfig.controllers?.search?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize']);
-		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize']);
+		expect(snapConfig.controllers?.search?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize', 'rq', 'page']);
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize', 'rq', 'page']);
 
 		// no catalog param means no prefixing at all
 		expect(snapConfig.controllers?.search?.[1]?.url?.settings?.corePrefixParams).toBeUndefined();
