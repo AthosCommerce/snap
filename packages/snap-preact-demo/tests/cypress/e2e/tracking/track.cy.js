@@ -202,6 +202,22 @@ describe('Tracking Beacon 2.0', () => {
 		let renderCounter = 0;
 		let impressionCounter = 0;
 		let initialResponseId;
+
+		// the API includes the typed input in its responseId hash, so extending 'ape' to 'apex' returns
+		// a new responseId even when the resolved query and results are identical. Replay the first
+		// search response for subsequent requests so the repeated-search beacon suppression
+		// (triggered by an unchanged responseId) can be verified deterministically.
+		let firstSearchResponse;
+		cy.intercept('GET', /\/v1\/autocomplete/, (req) => {
+			if (firstSearchResponse) {
+				req.reply(firstSearchResponse);
+			} else {
+				req.continue((res) => {
+					firstSearchResponse = res.body;
+				});
+			}
+		});
+
 		cy.intercept('POST', /analytics.athoscommerce.net\/beacon\/v2\/.*\/autocomplete\/render/, (req) => {
 			renderCounter++;
 			req.reply({ success: true });
@@ -236,11 +252,11 @@ describe('Tracking Beacon 2.0', () => {
 				req.reply({ success: true });
 			});
 
-			// append 'x' to make 'apex' - should return cached response (same responseId)
+			// append 'x' to make 'apex' - the replayed response has the same responseId
 			cy.get('input[name="q"]').type('x');
 
 			// allow a window for any (unwanted) render/impression beacon to arrive, then verify the
-			// store settled on the cached response and that no new beacons were sent
+			// store settled on the replayed response and that no new beacons were sent
 			cy.wait(500);
 			cy.snapController('autocomplete').then(({ store }) => {
 				expect(store.results.find((result) => result.type === 'product').responseId).to.equal(initialResponseId);
