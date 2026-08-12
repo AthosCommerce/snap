@@ -11,7 +11,7 @@ import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
-import type { PluginFunction } from '@athoscommerce/snap-controller';
+import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, TabsConfig } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -175,6 +175,11 @@ export type PluginsConfigsUnlocked = PluginsConfigsLocked & {
 	custom?: CustomPlugins;
 };
 
+export type TemplatesSearchTabConfigLocked = SearchTabConfig & { plugins?: PluginsConfigsLocked };
+export type TemplatesSearchTabConfigUnlocked = SearchTabConfig & { plugins?: PluginsConfigsUnlocked };
+export type TemplatesAutocompleteTabConfigLocked = AutocompleteTabConfig & { plugins?: PluginsConfigsLocked };
+export type TemplatesAutocompleteTabConfigUnlocked = AutocompleteTabConfig & { plugins?: PluginsConfigsUnlocked };
+
 export type TemplatesStoreConfig = TemplatesStoreConfigLocked | TemplatesStoreConfigUnlocked;
 
 export type TemplatesStoreConfigLocked = {
@@ -190,14 +195,17 @@ export type TemplatesStoreConfigLocked = {
 	translations?: {
 		[currencyName in LanguageCodes]?: LangComponentOverrides;
 	};
+	tabsConfig?: TabsConfig;
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
+		tabs?: TemplatesSearchTabConfigLocked[];
 		targets: SearchTargetConfig[];
 		globals?: SearchStoreConfig['globals'];
 		settings?: SearchStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
 	};
 	autocomplete?: {
+		tabs?: TemplatesAutocompleteTabConfigLocked[];
 		targets: AutocompleteTargetConfig[];
 		action?: string;
 		globals?: AutocompleteStoreConfig['globals'];
@@ -228,11 +236,13 @@ export type TemplatesStoreConfigUnlocked = Omit<
 	theme: TemplatesStoreThemeConfigUnlocked;
 	components?: TemplateStoreComponentConfigUnlocked;
 	plugins?: PluginsConfigsUnlocked;
-	search?: Omit<NonNullable<TemplatesStoreConfigLocked['search']>, 'plugins'> & {
+	search?: Omit<NonNullable<TemplatesStoreConfigLocked['search']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
+		tabs?: TemplatesSearchTabConfigUnlocked[];
 	};
-	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins'> & {
+	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
+		tabs?: TemplatesAutocompleteTabConfigUnlocked[];
 	};
 	recommendation?: Omit<NonNullable<TemplatesStoreConfigLocked['recommendation']>, 'plugins'> & {
 		plugins?: PluginsConfigsUnlocked;

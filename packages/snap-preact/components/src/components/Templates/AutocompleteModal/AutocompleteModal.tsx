@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
 import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<AutocompleteModalProps> = ({ width, height, theme }) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -98,7 +99,12 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		buttonSelector = input;
 	}
 
-	const { layout, disableStyles, overlayColor, controller, renderInput, className, internalClassName, treePath } = props;
+	const { layout, disableStyles, overlayColor, renderInput, className, internalClassName, treePath, tabManager } = props;
+
+	let controller = props.controller;
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as AutocompleteController;
+	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
 
@@ -116,7 +122,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		return () => {
 			controller.eventManager.events['focusChange']?.remove(onFocusChange);
 		};
-	}, []);
+	}, [controller]);
 
 	const reset = () => {
 		controller.setFocused();
@@ -128,6 +134,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 			// default props
 			layout: layout,
 			onReset: () => reset(),
+			tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -236,6 +243,7 @@ interface AutocompleteModalSubProps {
 export type AutocompleteModalProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteModalTemplatesLegalProps, 'resultComponent'> &
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;

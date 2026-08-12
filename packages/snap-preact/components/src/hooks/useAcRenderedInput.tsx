@@ -1,6 +1,8 @@
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { useState, MutableRef, useEffect } from 'preact/hooks';
 
+const RENDERED_INPUT_SELECTOR = '.autocomplete__search-input input';
+
 export function useAcRenderedInput({
 	input,
 	controller,
@@ -19,6 +21,13 @@ export function useAcRenderedInput({
 	const [_input, setInput] = useState<Element | null>(input);
 	const [renderedInputInitialized, setRenderedInputInitialized] = useState(false);
 
+	const bindRenderedInput = async (cntrlr: AutocompleteController) => {
+		if (!cntrlr.config.selector.includes(RENDERED_INPUT_SELECTOR)) {
+			cntrlr.config.selector = `${cntrlr.config.selector}, ${RENDERED_INPUT_SELECTOR}`;
+		}
+		await cntrlr.bind();
+	};
+
 	const onClick = () => {
 		if (setActive) {
 			setActive(true);
@@ -28,13 +37,32 @@ export function useAcRenderedInput({
 		setTimeout(async () => {
 			if (!renderedInputInitialized) {
 				setInput(renderedInputRef!.current);
-				controller.config.selector = `${controller.config.selector}, .autocomplete__search-input input`;
-				await controller.bind();
+				await bindRenderedInput(controller);
 				renderedInputRef?.current?.focus();
 			}
 			setRenderedInputInitialized(true);
 		});
 	};
+
+	// the rendered input is shared by every autocomplete tab, but only one controller is bound to
+	// it at a time. When the active tab changes the controller changes with it, so the new
+	// controller must be bound (and given focus) or it will never see input events.
+	useEffect(() => {
+		if (!renderedInputInitialized) {
+			return;
+		}
+
+		let cancelled = false;
+		bindRenderedInput(controller).then(() => {
+			if (!cancelled) {
+				renderedInputRef?.current?.focus();
+			}
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [controller, renderedInputInitialized]);
 
 	useEffect(() => {
 		// track pointer-initiated focus to avoid rendering the overlay between mousedown and mouseup,
