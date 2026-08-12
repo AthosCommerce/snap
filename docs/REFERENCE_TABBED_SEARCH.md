@@ -105,7 +105,7 @@ With the above, browsing the blog tab with a colour refinement produces:
 /search.html?q=winter&tab=blog#/blogfilter:color:Black
 ```
 
-The `query` and `page` parameters stay unprefixed and are shared across every tab - a shopper searches once and every tab searches the same term. Only `filter`, `pageSize`, and `sort` are namespaced per catalog, so each tab keeps its own refinements while you switch between them.
+The `query` parameter stays unprefixed and is shared across every tab - a shopper searches once and every tab searches the same term. The `filter`, `sort`, `pageSize`, `rq`, and `page` parameters are namespaced per catalog, so each tab keeps its own refinements and pagination position while you switch between them.
 
 When a catalog has no `catalogs` entry, the tab `id` is used as its URL value and none of its parameters are namespaced.
 

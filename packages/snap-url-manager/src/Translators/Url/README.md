@@ -136,7 +136,7 @@ console.log(setUrlManager.href); // /search.html#/ss-que:bright/ss-p:3/ss-filter
 
 ```
 
-The `settings.corePrefixParams` configuration narrows the prefix to the named core parameters, leaving the rest unprefixed. This is useful when some state should be namespaced while other state stays shared - for example, tabbed search namespaces each catalog's filters and sorts but shares a single query across every tab.
+The `settings.corePrefixParams` configuration narrows the prefix to the named core parameters, leaving the rest unprefixed. This is useful when some state should be namespaced while other state stays shared - for example, tabbed search namespaces each catalog's refinement and pagination state but shares a single query across every tab.
 
 ```js
 import { UrlManager, UrlTranslator } from '@athoscommerce/snap-url-manager';

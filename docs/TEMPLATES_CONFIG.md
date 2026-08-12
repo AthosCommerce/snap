@@ -300,11 +300,11 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 | `tabsConfig.catalogs` | Per-catalog URL configuration, keyed by `siteId` | Object | ➖ |
 | `tabsConfig.catalogs[siteId].param` | URL identifier for the catalog | String | ➖ |
 
-`tabsConfig.catalogs[siteId].param` does two things. It is the value written to `tabParam` in the URL, and it namespaces that catalog's `filter` and `sort` parameters so two tabs can hold different refinements at the same time.
+`tabsConfig.catalogs[siteId].param` does two things. It is the value written to `tabParam` in the URL, and it namespaces that catalog's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
 
 Because it is keyed by `siteId` rather than by tab, a search tab and an autocomplete tab for the same catalog share one identifier. This is what allows a shopper to submit from a tabbed autocomplete and land on the matching tab of the search results page.
 
-The `query` and `page` parameters are deliberately **not** namespaced - a single query applies across every tab.
+The `query` parameter is deliberately **not** namespaced - a single query applies across every tab.
 
 When a catalog has no `catalogs` entry, the tab `id` is used as its URL value and none of its parameters are namespaced.
 
