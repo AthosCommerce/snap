@@ -52,7 +52,7 @@ export const chatAccentThemeComponents = ({
 							stroke: primaryAccentColorFg,
 						},
 						'&:not(.ss__button--disabled):hover': {
-							background: new Colour(primaryAccentColorBg).darkenHex(),
+							background: new Colour(primaryAccentColorBg).mixBlack(),
 						},
 					},
 					'.ss__chat-product-query-message__header__product__actions__show-similar .ss__button, .ss__chat-product-query-message__header__product__actions__discuss-product .ss__button':
@@ -61,7 +61,7 @@ export const chatAccentThemeComponents = ({
 							color: secondaryAccentColorFg,
 							border: `1px solid ${secondaryAccentColorFg}`,
 							'&:not(.ss__button--disabled):hover': {
-								background: new Colour(secondaryAccentColorBg).darkenHex(),
+								background: new Colour(secondaryAccentColorBg).mixBlack(),
 							},
 						},
 				},

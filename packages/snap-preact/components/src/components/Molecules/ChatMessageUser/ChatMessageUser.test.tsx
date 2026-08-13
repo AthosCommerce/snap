@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatMessageUser } from './ChatMessageUser';
 
 describe('ChatMessageUser Component', () => {
@@ -103,5 +105,67 @@ describe('ChatMessageUser Component', () => {
 		);
 		const root = rendered.container.querySelector('.ss__chat-message-user')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatMessageUser: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatMessageUser chatItem={{ id: '1', text: 'Hello there', requestType: 'general' }} controller={makeController()} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-message-user');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatMessageUser.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatMessageUser: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ChatMessageUser chatItem={{ id: '1', text: 'Hello there', requestType: 'general' }} controller={makeController()} theme={propTheme} />
+			);
+			const element = rendered.container.querySelector('.ss__chat-message-user');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatMessageUser.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatMessageUser: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatMessageUser: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatMessageUser chatItem={{ id: '1', text: 'Hello there', requestType: 'general' }} controller={makeController()} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-message-user');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatMessageUser.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatMessageUser.className);
+		});
 	});
 });

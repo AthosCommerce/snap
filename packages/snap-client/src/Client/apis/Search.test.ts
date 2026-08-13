@@ -276,7 +276,7 @@ describe('Search Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/v1/products/abc123?siteId=8uyt2m';
+		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/v1/products/abc123';
 		const expectedParams = {
 			body: undefined,
 			headers: {},
@@ -301,7 +301,7 @@ describe('Search Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		const expectedUrl = 'https://custom-search.example.com/v1/products/abc123?siteId=8uyt2m';
+		const expectedUrl = 'https://custom-search.example.com/v1/products/abc123';
 		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
 
 		requestMock.mockReset();
@@ -352,7 +352,7 @@ describe('Search Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/custom/products/xyz789?siteId=8uyt2m';
+		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/custom/products/xyz789';
 		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
 
 		requestMock.mockReset();

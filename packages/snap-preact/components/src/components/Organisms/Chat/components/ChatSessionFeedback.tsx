@@ -27,7 +27,7 @@ const defaultStyles: StyleScript<ChatSessionFeedbackProps> = ({ primaryColorBg, 
 		alignItems: 'center',
 		gap: '10px',
 		padding: '8px 15px',
-		background: new Colour(colorPrimary).darkenHex(0.1),
+		background: new Colour(colorPrimary).mixBlack(0.1),
 		color: colorPrimaryText,
 		fontSize: '14px',
 		borderRadius: '8px',
@@ -112,7 +112,8 @@ export const ChatSessionFeedback = observer((properties: ChatSessionFeedbackProp
 			feedbackPrompt: lang.feedbackPrompt!,
 			feedbackThanks: lang.feedbackThanks!,
 		} as any,
-		{ controller }
+		{ controller },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const styling = mergeStyles<ChatSessionFeedbackProps>(props, defaultStyles);
@@ -168,12 +169,7 @@ export const ChatSessionFeedback = observer((properties: ChatSessionFeedbackProp
 						role="button"
 						ref={(e) => useA11y(e)}
 						aria-label={langAttrOf(lang.feedbackDismissButton, 'aria-label')}
-						onClick={() => {
-							if (store.currentChat) {
-								store.currentChat.feedback.dismissed = true;
-								store.currentChat.save();
-							}
-						}}
+						onClick={() => store.currentChat?.dismissFeedback()}
 					>
 						<Icon icon="close-thin" size="14px" />
 					</span>

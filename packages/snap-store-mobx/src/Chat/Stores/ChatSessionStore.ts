@@ -351,6 +351,11 @@ export class ChatSessionStore {
 		});
 	}
 
+	public dismissFeedback(): void {
+		this.feedback.dismissed = true;
+		this.save();
+	}
+
 	public dismissSideChat(): void {
 		// clear the override first so the fallback (last eligible message) is what we
 		// dismiss — otherwise closing while viewing an older message would leave the

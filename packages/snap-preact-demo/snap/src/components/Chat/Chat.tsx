@@ -10,7 +10,6 @@ import {
 	Chat as LibraryChat,
 } from '@athoscommerce/snap-preact/components';
 import type { Snap } from '@athoscommerce/snap-preact';
-import { ChatController } from '@athoscommerce/snap-controller';
 
 type ChatProps = {
 	controller: ChatController;

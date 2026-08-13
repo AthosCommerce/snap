@@ -5,10 +5,10 @@ import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
-import { Image } from '../../Atoms/Image';
+import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { ChatResponseProductComparisonData } from '@athoscommerce/snap-client';
@@ -94,8 +94,6 @@ const defaultStyles: StyleScript<ChatProductComparisonMessageProps> = () => {
 	});
 };
 
-let warnedUnsupportedMessageType = false;
-
 export const ChatProductComparisonMessage = observer((properties: ChatProductComparisonMessageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -115,6 +113,15 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 	}
 
 	const subProps: ChatProductComparisonMessageSubProps = {
+		image: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
 		productHeaderButton: {
 			disableStyles,
 			theme: props.theme,
@@ -141,17 +148,18 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-		chatItem,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+			chatItem,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const { messageType, comparisonData, searchResults } = chatItem;
 	if (messageType !== 'productComparison') {
-		if (!warnedUnsupportedMessageType) {
-			console.warn('ChatProductComparisonMessage received message with unsupported type:', messageType, 'Expected type: productComparison');
-			warnedUnsupportedMessageType = true;
-		}
+		controller?.log?.warn('ChatProductComparisonMessage received message with unsupported type:', messageType, 'Expected type: productComparison');
 		return null;
 	}
 
@@ -190,11 +198,15 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 										},
 									};
 									const productLang = deepmerge(productDefaultLang, props.lang || {});
-									const productMergedLang = useLang(productLang as any, {
-										controller,
-										chatItem,
-										product,
-									});
+									const productMergedLang = useLang(
+										productLang as any,
+										{
+											controller,
+											chatItem,
+											product,
+										},
+										{ activeBreakpoint: globalTheme?.activeBreakpoint }
+									);
 									return (
 										<th key={heading} scope="col" className={classnames('ss__chat-product-comparison-message__table__product-header')}>
 											<Button
@@ -205,6 +217,7 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 											>
 												{allProductsHaveImage && (
 													<Image
+														{...subProps.image}
 														className={classnames('ss__chat-product-comparison-message__table__product-header__image')}
 														src={(display.mappings.core.imageUrl || display.mappings.core.parentImageUrl) as string}
 														alt={productName}
@@ -240,6 +253,7 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 
 interface ChatProductComparisonMessageSubProps {
 	productHeaderButton: Partial<ButtonProps>;
+	image: Partial<ImageProps>;
 }
 
 export type ChatProductComparisonMessageProps = {

@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatResult } from './ChatResult';
 
 describe('ChatResult Component', () => {
@@ -132,5 +134,67 @@ describe('ChatResult Component', () => {
 		);
 		const root = rendered.container.querySelector('.ss__chat-result')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatResult: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatResult result={mockResult as any} controller={mockController as any} scrollToBottom={() => undefined} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-result');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatResult.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatResult: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ChatResult result={mockResult as any} controller={mockController as any} scrollToBottom={() => undefined} theme={propTheme} />
+			);
+			const element = rendered.container.querySelector('.ss__chat-result');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatResult.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatResult: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatResult: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatResult result={mockResult as any} controller={mockController as any} scrollToBottom={() => undefined} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-result');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatResult.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatResult.className);
+		});
 	});
 });

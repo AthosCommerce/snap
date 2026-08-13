@@ -58,6 +58,7 @@ import type { SortByLang } from '../components/Molecules/SortBy';
 
 /* ORGANISMS */
 import type { ChatLang } from '../components/Organisms/Chat';
+import type { ChatButtonLang } from '../components/Organisms/ChatButton';
 // import type { AutocompleteLang } from '../components/Organisms/Autocomplete';
 import type { FacetLang } from '../components/Organisms/Facet';
 import type { FacetsHorizontalLang } from '../components/Organisms/FacetsHorizontal';
@@ -149,6 +150,7 @@ export type LangComponents = {
 
 	/* ORGANISMS */
 	chat: ChatLang;
+	chatButton: ChatButtonLang;
 	// autocomplete: AutocompleteLang;
 	facet: FacetLang;
 	// facets: FacetsLang

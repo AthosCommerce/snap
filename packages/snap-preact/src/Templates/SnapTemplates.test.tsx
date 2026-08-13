@@ -1007,12 +1007,41 @@ describe('createChatTargeters', () => {
 
 		expect(targeters).toHaveLength(2);
 		expect(targeters[0].selector).toBe('#chat');
-		expect(targeters[0].hideTarget).toBe(true);
-		expect(targeters[0].inject).toBeUndefined();
+		// custom selectors get an appended container instead of emptying/hiding the host
+		expect(targeters[0].hideTarget).toBe(false);
+		expect(targeters[0].autoRetarget).toBe(true);
+		expect(targeters[0].inject?.action).toBe('append');
 		expect(targeters[0].component).toBeDefined();
 		expect(targeters[0].props?.templatesStore).toBe(templatesStore);
 		expect(targeters[0].props?.target).toBeDefined();
 		expect(targeters[1].selector).toBe('#chat-two');
+
+		const element = targeters[0].inject?.element;
+		const host = document.createElement('nav');
+		const injectedElem = typeof element == 'function' ? element(targeters[0], host) : element;
+		expect((injectedElem as HTMLDivElement).className).toBe('ss__chat--inline-target');
+	});
+
+	it('supports a ChatButton component target alongside the Chat body target', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			chat: {
+				targets: [
+					{ selector: '.my-nav', component: 'ChatButton' },
+					{ selector: 'body', component: 'Chat' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createChatTargeters(config, templatesStore);
+
+		expect(targeters).toHaveLength(2);
+		expect(targeters[0].selector).toBe('.my-nav');
+		expect(targeters[0].hideTarget).toBe(false);
+		expect(targeters[0].inject?.action).toBe('append');
+		expect(templatesStore.library.import.component.chat.ChatButton).toBeDefined();
+		expect(targeters[1].selector).toBe('body');
 	});
 
 	it('injects an appended element and does not hide the target when targeting body', () => {

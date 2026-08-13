@@ -2,8 +2,6 @@ import { url, StorageStore } from '@athoscommerce/snap-toolbox';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 
 const DEFAULT_SITE_ID = 'atkzs2';
-// QA origin for the chat (asklo) backend - chat has no per-siteId origin yet
-const QA_CHAT_ORIGIN = 'https://asklo-backend.service-qa.ksearchnet.com';
 
 export function getDemoConfig() {
 	let siteId = DEFAULT_SITE_ID;
@@ -72,9 +70,6 @@ export function getDemoConfig() {
 			suggest: {
 				origin: customOrigin,
 			},
-			chat: {
-				origin: customOrigin,
-			},
 		};
 	} else if (!siteId.startsWith('at')) {
 		clientConfig = {
@@ -89,9 +84,6 @@ export function getDemoConfig() {
 			},
 			suggest: {
 				origin: `https://${siteId}.a.searchspring.io`,
-			},
-			chat: {
-				origin: QA_CHAT_ORIGIN,
 			},
 		};
 	}

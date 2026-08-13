@@ -44,8 +44,8 @@ const defaultStyles: StyleScript<ChatFacetsBarProps> = ({ primaryColorBg, primar
 			flexDirection: 'column',
 			gap: '6px',
 			padding: '8px 10px',
-			background: new Colour(colorPrimary).lightenHex(0.95),
-			border: `1px solid ${new Colour(colorPrimary).lightenHex(0.85)}`,
+			background: new Colour(colorPrimary).mixWhite(0.95),
+			border: `1px solid ${new Colour(colorPrimary).mixWhite(0.85)}`,
 			borderRadius: '8px',
 		},
 		'.ss__chat__actions--title': {
@@ -71,7 +71,7 @@ const defaultStyles: StyleScript<ChatFacetsBarProps> = ({ primaryColorBg, primar
 				fontSize: '14px',
 				color: '#333',
 				'&:hover': {
-					background: new Colour(colorPrimary).lightenHex(0.97),
+					background: new Colour(colorPrimary).mixWhite(0.97),
 				},
 			},
 		},
@@ -103,7 +103,7 @@ const defaultStyles: StyleScript<ChatFacetsBarProps> = ({ primaryColorBg, primar
 				lineHeight: '1.4',
 				cursor: 'pointer',
 				'&:not(.ss__button--disabled):hover': {
-					background: new Colour(colorPrimary).darkenHex(),
+					background: new Colour(colorPrimary).mixBlack(),
 				},
 				'&.ss__button--disabled': {
 					opacity: 0.5,
@@ -198,12 +198,24 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ChatFacetsBarProps> = {
+		facetLimit: 10,
 		treePath: globalTreePath,
 	};
 
 	const props = mergeProps('chatFacetsBar', globalTheme, defaultProps, properties);
 
-	const { className, internalClassName, controller, chatRef, multiselectFacets, primaryColorBg, primaryColorFg, disableStyles, treePath } = props;
+	const {
+		className,
+		internalClassName,
+		controller,
+		chatRef,
+		multiselectFacets,
+		facetLimit,
+		primaryColorBg,
+		primaryColorFg,
+		disableStyles,
+		treePath,
+	} = props;
 	const { store } = controller;
 	const colorPrimary = primaryColorBg!;
 	const colorPrimaryText = primaryColorFg!;
@@ -252,7 +264,8 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 		{
 			facetsTitle: lang.facetsTitle!,
 		} as any,
-		{ controller }
+		{ controller },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
 
 	const styling = mergeStyles<ChatFacetsBarProps>(props, defaultStyles);
@@ -377,7 +390,7 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 						)}
 					</div>
 					<div className="ss__chat__actions--facets">
-						{store.facets.slice(0, 10).map((facet: ValueFacet | RangeFacet) => {
+						{store.facets.slice(0, facetLimit).map((facet: ValueFacet | RangeFacet) => {
 							// range/slider facets render via FacetSlider; everything else needs at least one value to be useful
 							if (facet.type !== 'range' && !(facet as ValueFacet).values?.length) return null;
 							if (facet.type === 'range') {
@@ -423,7 +436,7 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 																border: 'none',
 																borderBottom: '1px solid #f0f0f0',
 																'&:hover': {
-																	background: new Colour(colorPrimary).lightenHex(0.95),
+																	background: new Colour(colorPrimary).mixWhite(0.95),
 																},
 																'&:last-child': {
 																	borderBottom: 'none',
@@ -463,7 +476,7 @@ export const ChatFacetsBar = observer((properties: ChatFacetsBarProps): JSX.Elem
 																boxSizing: 'border-box',
 																background: '#fff',
 																'&:hover': {
-																	background: new Colour(colorPrimary).lightenHex(0.95),
+																	background: new Colour(colorPrimary).mixWhite(0.95),
 																},
 																'&.ss__chat__actions__facet__option--selected': {
 																	fontWeight: 'bold',
@@ -491,6 +504,8 @@ export type ChatFacetsBarProps = {
 	controller: ChatController;
 	chatRef: RefObject<HTMLDivElement>;
 	multiselectFacets?: boolean;
+	/** Maximum number of facets rendered in the bar. */
+	facetLimit?: number;
 	lang?: Partial<ChatLang>;
 	primaryColorBg?: string;
 	primaryColorFg?: string;

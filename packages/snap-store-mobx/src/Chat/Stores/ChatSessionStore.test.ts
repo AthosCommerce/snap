@@ -1,6 +1,8 @@
+import { StorageStore } from '@athoscommerce/snap-toolbox';
+
 import { ChatSessionStore } from './ChatSessionStore';
 
-// minimal mock for StorageStore — only `set` and `get` are needed by ChatSessionStore
+// a spy-backed storage, used only where a test asserts the number of writes
 const createMockStorage = () =>
 	({
 		state: {},
@@ -8,11 +10,16 @@ const createMockStorage = () =>
 		get: jest.fn(),
 	} as any);
 
+// everything else uses a real StorageStore against jsdom localStorage, as every sibling store test does
 const createStore = () =>
 	new ChatSessionStore({
 		data: { sessionId: 'test-session' },
-		stores: { storage: createMockStorage() },
+		stores: { storage: new StorageStore({ type: 'local', key: 'ss-chat-session-test' }) },
 	});
+
+beforeEach(() => {
+	localStorage.clear();
+});
 
 describe('ChatSessionStore productQuery messages', () => {
 	it('pushProductQueryMessage adds a productQuery chat message', () => {

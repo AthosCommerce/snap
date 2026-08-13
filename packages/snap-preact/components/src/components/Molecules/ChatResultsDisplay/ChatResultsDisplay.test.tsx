@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatResultsDisplay } from './ChatResultsDisplay';
 
 describe('ChatResultsDisplay Component', () => {
@@ -102,5 +104,81 @@ describe('ChatResultsDisplay Component', () => {
 		);
 		const root = rendered.container.querySelector('.ss__chat-results-display')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatResultsDisplay: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatResultsDisplay
+						chatItem={{ messageType: 'productSearch', results: [mockResult('1'), mockResult('2')] }}
+						controller={makeController()}
+						scrollToBottom={() => undefined}
+					/>
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-results-display');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatResultsDisplay.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatResultsDisplay: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ChatResultsDisplay
+					chatItem={{ messageType: 'productSearch', results: [mockResult('1'), mockResult('2')] }}
+					controller={makeController()}
+					scrollToBottom={() => undefined}
+					theme={propTheme}
+				/>
+			);
+			const element = rendered.container.querySelector('.ss__chat-results-display');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatResultsDisplay.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatResultsDisplay: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatResultsDisplay: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatResultsDisplay
+						chatItem={{ messageType: 'productSearch', results: [mockResult('1'), mockResult('2')] }}
+						controller={makeController()}
+						scrollToBottom={() => undefined}
+						theme={propTheme}
+					/>
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-results-display');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatResultsDisplay.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatResultsDisplay.className);
+		});
 	});
 });

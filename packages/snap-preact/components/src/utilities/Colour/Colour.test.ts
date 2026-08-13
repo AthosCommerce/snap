@@ -614,42 +614,43 @@ describe('Color class', () => {
 			expect(Colour.mixToward('#336699', 'white', 0.5)).toBe('#336699');
 		});
 
-		it('returns an empty string when no source is provided', () => {
-			expect(Colour.mixToward(undefined, '#ffffff', 0.5)).toBe('');
-			expect(Colour.mixToward('', '#ffffff', 0.5)).toBe('');
+		it('returns undefined when no source is provided', () => {
+			// matches Colour.brightness, which also returns undefined for a missing source
+			expect(Colour.mixToward(undefined, '#ffffff', 0.5)).toBeUndefined();
+			expect(Colour.mixToward('', '#ffffff', 0.5)).toBeUndefined();
 		});
 	});
 
-	describe('darkenHex instance method', () => {
+	describe('mixBlack instance method', () => {
 		it('mixes toward black with a default amount of 0.3', () => {
-			expect(new Colour('#ffffff').darkenHex()).toBe('#b3b3b3');
-			expect(new Colour('#ffffff').darkenHex(1)).toBe('#000000');
-			expect(new Colour('#ffffff').darkenHex(0)).toBe('#ffffff');
+			expect(new Colour('#ffffff').mixBlack()).toBe('#b3b3b3');
+			expect(new Colour('#ffffff').mixBlack(1)).toBe('#000000');
+			expect(new Colour('#ffffff').mixBlack(0)).toBe('#ffffff');
 		});
 
 		it('reliably darkens light inputs', () => {
-			const darkened = new Colour('#feeeae').darkenHex(0.1);
+			const darkened = new Colour('#feeeae').mixBlack(0.1);
 			expect(darkened).toBe('#e5d69d');
 		});
 
 		it('returns invalid colors unchanged', () => {
-			expect(new Colour('green').darkenHex()).toBe('green');
+			expect(new Colour('green').mixBlack()).toBe('green');
 		});
 	});
 
-	describe('lightenHex instance method', () => {
+	describe('mixWhite instance method', () => {
 		it('mixes toward white with a default amount of 0.3', () => {
-			expect(new Colour('#000000').lightenHex()).toBe('#4d4d4d');
-			expect(new Colour('#000000').lightenHex(1)).toBe('#ffffff');
-			expect(new Colour('#000000').lightenHex(0)).toBe('#000000');
+			expect(new Colour('#000000').mixWhite()).toBe('#4d4d4d');
+			expect(new Colour('#000000').mixWhite(1)).toBe('#ffffff');
+			expect(new Colour('#000000').mixWhite(0)).toBe('#000000');
 		});
 
 		it('reliably lightens dark inputs', () => {
-			expect(new Colour('#253b80').lightenHex(0.95)).toBe('#f4f5f9');
+			expect(new Colour('#253b80').mixWhite(0.95)).toBe('#f4f5f9');
 		});
 
 		it('returns invalid colors unchanged', () => {
-			expect(new Colour('green').lightenHex()).toBe('green');
+			expect(new Colour('green').mixWhite()).toBe('green');
 		});
 	});
 

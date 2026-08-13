@@ -71,7 +71,7 @@ export class SearchAPI extends API<SearchRequesterPaths> {
 				path,
 				method: 'GET',
 				headers: {},
-				query: { siteId: queryParameters.siteId },
+				siteId: queryParameters.siteId,
 			},
 			cacheKey,
 			this.memoryCache

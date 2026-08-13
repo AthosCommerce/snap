@@ -316,6 +316,10 @@ describe('Result Component', () => {
 		expect(discussButton?.querySelector('.ss__icon--chat')).toBeInTheDocument();
 	});
 
+	afterEach(() => {
+		delete (window as any).athos;
+	});
+
 	it('fires the controller/chat/productQuery event on the athos event bus by default', async () => {
 		const fire = jest.fn();
 		(window as any).athos = { fire };
@@ -326,8 +330,6 @@ describe('Result Component', () => {
 
 		expect(fire).toHaveBeenCalledTimes(1);
 		expect(fire).toHaveBeenCalledWith('controller/chat/productQuery', { result: mockResults[0] });
-
-		delete (window as any).athos;
 	});
 
 	it('uses onDiscussClick instead of the default event when provided', async () => {
@@ -342,8 +344,6 @@ describe('Result Component', () => {
 		expect(onDiscussClick).toHaveBeenCalledTimes(1);
 		expect(onDiscussClick.mock.calls[0][1]).toBe(mockResults[0]);
 		expect(fire).not.toHaveBeenCalled();
-
-		delete (window as any).athos;
 	});
 
 	it('can show variant selections with hideVariantSelections false', () => {

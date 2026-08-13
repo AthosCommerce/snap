@@ -33,7 +33,7 @@ import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
 import { default as createSearchController } from './create/createSearchController';
 import type { RecommendationInstantiator, RecommendationInstantiatorConfig } from './Instantiators/RecommendationInstantiator';
 import type { SnapControllerServices, SnapControllerConfig, InitialUrlConfig, SnapFeatures } from './types';
-import { applyChatBodyInject, configureSnapFeatures } from './utils';
+import { applyChatTargetInject, configureSnapFeatures } from './utils';
 import { setupEvents } from './setupEvents';
 import type { TemplatesStore } from './Templates/Stores/TemplateStore';
 
@@ -795,7 +795,7 @@ export class Snap {
 										throw new Error(`Targets at index ${target_index} missing component value (Component).`);
 									}
 
-									target = applyChatBodyInject(target);
+									target = applyChatTargetInject(target);
 
 									const targeter = new DomTargeter([{ ...target }], async (target: Target, elem: Element, originalElem?: Element) => {
 										const cntrlr = await this._createController(

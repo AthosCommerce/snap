@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatLoadingIndicator } from './ChatLoadingIndicator';
 
 describe('ChatLoadingIndicator Component', () => {
@@ -59,5 +61,65 @@ describe('ChatLoadingIndicator Component', () => {
 		const root = rendered.container.querySelector('.ss__chat-loading-indicator')!;
 		const styles = getComputedStyle(root);
 		expect(styles.background).toBe('rgb(10, 20, 30)');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatLoadingIndicator: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatLoadingIndicator loading={true} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-loading-indicator');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatLoadingIndicator.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatLoadingIndicator: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(<ChatLoadingIndicator loading={true} theme={propTheme} />);
+			const element = rendered.container.querySelector('.ss__chat-loading-indicator');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatLoadingIndicator.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatLoadingIndicator: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatLoadingIndicator: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatLoadingIndicator loading={true} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-loading-indicator');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatLoadingIndicator.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatLoadingIndicator.className);
+		});
 	});
 });

@@ -10,7 +10,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { ChatRequestModel, ChatResponseInspirationResultData } from '@athoscommerce/snap-client';
-import { Image } from '../../Atoms/Image';
+import { Image, ImageProps } from '../../Atoms/Image';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Slideshow, SlideshowProps, SlideshowSlide } from '../Slideshow';
 
@@ -87,8 +87,6 @@ const defaultStyles: StyleScript<ChatInspirationResultMessageProps> = ({ theme }
 	});
 };
 
-let warnedUnsupportedMessageType = false;
-
 export const ChatInspirationResultMessage = observer((properties: ChatInspirationResultMessageProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
@@ -108,6 +106,15 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 	}
 
 	const subProps: ChatInspirationResultMessageSubProps = {
+		image: {
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
 		slideshow: {
 			// inherited props
 			...defined({
@@ -143,10 +150,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 
 	const { messageType, inspirationSections } = chatItem;
 	if (messageType !== 'inspirationResult') {
-		if (!warnedUnsupportedMessageType) {
-			console.warn('ChatInspirationResultMessage received message with unsupported type:', messageType, 'Expected type: inspirationResult');
-			warnedUnsupportedMessageType = true;
-		}
+		controller?.log?.warn('ChatInspirationResultMessage received message with unsupported type:', messageType, 'Expected type: inspirationResult');
 		return null;
 	}
 
@@ -189,11 +193,15 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 										},
 									};
 									const queryLang = deepmerge(queryDefaultLang, props.lang || {});
-									const queryMergedLang = useLang(queryLang as any, {
-										controller,
-										chatItem,
-										searchTerm,
-									});
+									const queryMergedLang = useLang(
+										queryLang as any,
+										{
+											controller,
+											chatItem,
+											searchTerm,
+										},
+										{ activeBreakpoint: globalTheme?.activeBreakpoint }
+									);
 									return (
 										<Button
 											{...subProps.queryButton}
@@ -230,11 +238,15 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 											},
 										};
 										const productLang = deepmerge(productDefaultLang, props.lang || {});
-										const productMergedLang = useLang(productLang as any, {
-											controller,
-											chatItem,
-											product,
-										});
+										const productMergedLang = useLang(
+											productLang as any,
+											{
+												controller,
+												chatItem,
+												product,
+											},
+											{ activeBreakpoint: globalTheme?.activeBreakpoint }
+										);
 										return {
 											content: (
 												<div
@@ -246,6 +258,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 													{...productMergedLang.openProductButton.attributes}
 												>
 													<Image
+														{...subProps.image}
 														alt={display?.mappings?.core?.name || ''}
 														src={display?.mappings?.core?.imageUrl || display?.mappings?.core?.parentImageUrl || ''}
 													/>
@@ -266,6 +279,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 interface ChatInspirationResultMessageSubProps {
 	slideshow: Partial<SlideshowProps>;
 	queryButton: Partial<ButtonProps>;
+	image: Partial<ImageProps>;
 }
 
 export type ChatInspirationResultMessageProps = {

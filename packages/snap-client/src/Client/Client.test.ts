@@ -364,7 +364,7 @@ describe('Snap Client', () => {
 				headers: {},
 				method: 'GET',
 				path: '/v1/products/abc123',
-				query: { siteId: '8uyt2m' },
+				siteId: '8uyt2m',
 			};
 
 			const productsCacheKey = '{"parentId":"abc123","siteId":"8uyt2m"}';

@@ -17,10 +17,12 @@ declare global {
 	type RecommendationController = ControllerTypes.RecommendationController;
 	type SearchController = ControllerTypes.SearchController;
 	type AutocompleteController = ControllerTypes.AutocompleteController;
+	type ChatController = ControllerTypes.ChatController;
 
 	// store types
 	type AbstractStore = StoreTypes.AbstractStore;
 	type AutocompleteStore = StoreTypes.AutocompleteStore;
+	type ChatStore = StoreTypes.ChatStore;
 	type FinderStore = StoreTypes.FinderStore;
 	type RecommendationStore = StoreTypes.RecommendationStore;
 	type SearchStore = StoreTypes.SearchStore;

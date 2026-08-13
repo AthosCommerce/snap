@@ -115,18 +115,18 @@ export class Colour {
 		return new Colour(Colour.opacity(this.hex, -offset));
 	}
 
-	/** Returns a hex string mixed linearly toward black. `amount` (0-1) is the proportion
-	 * of black in the result — 0.9 yields a near-black with a slight tint of the original.
-	 * Uses linear RGB mixing so light inputs reliably produce darker outputs. */
-	darkenHex(amount: number = 0.3): string {
-		return Colour.mixToward(this.hex, '#000000', amount);
+	/** Returns a hex string mixed linearly toward black. `amount` is a 0-1 proportion of
+	 * black in the result — note this differs from `darken(offset)`, which takes a 0-100
+	 * offset and returns a chainable `Colour`. 0.9 yields a near-black with a slight tint. */
+	mixBlack(amount: number = 0.3): string {
+		return Colour.mixToward(this.hex, '#000000', amount) ?? this.hex ?? '';
 	}
 
-	/** Returns a hex string mixed linearly toward white. `amount` (0-1) is the proportion
-	 * of white in the result — 0.9 yields a near-white with a slight tint of the original.
-	 * Uses linear RGB mixing so dark inputs reliably produce paler outputs. */
-	lightenHex(amount: number = 0.3): string {
-		return Colour.mixToward(this.hex, '#ffffff', amount);
+	/** Returns a hex string mixed linearly toward white. `amount` is a 0-1 proportion of
+	 * white in the result — note this differs from `lighten(offset)`, which takes a 0-100
+	 * offset and returns a chainable `Colour`. 0.9 yields a near-white with a slight tint. */
+	mixWhite(amount: number = 0.3): string {
+		return Colour.mixToward(this.hex, '#ffffff', amount) ?? this.hex ?? '';
 	}
 
 	/** Returns the color only if it is a concrete value that can be manipulated and paired with
@@ -219,8 +219,8 @@ export class Colour {
 
 	/** Linear RGB mix between two hex colors. `amount` (0-1) is the proportion of `towardHex`
 	 * in the result. Returns the source `hex` unchanged when either input is invalid. */
-	static mixToward(hex: string | undefined, towardHex: string, amount: number): string {
-		if (!hex) return '';
+	static mixToward(hex: string | undefined, towardHex: string, amount: number): string | undefined {
+		if (!hex) return undefined;
 		if (!Colour.isHex(hex) || !Colour.isHex(towardHex)) return hex;
 
 		const clamped = Math.max(0, Math.min(1, amount));

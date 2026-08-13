@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { render } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatProductComparisonMessage } from './ChatProductComparisonMessage';
 
 describe('ChatProductComparisonMessage Component', () => {
@@ -75,5 +77,65 @@ describe('ChatProductComparisonMessage Component', () => {
 		const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} styleScript={styleScript} />);
 		const root = rendered.container.querySelector('.ss__chat-product-comparison-message')!;
 		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatProductComparisonMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatProductComparisonMessage chatItem={baseChatItem as any} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-product-comparison-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatProductComparisonMessage.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatProductComparisonMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(<ChatProductComparisonMessage chatItem={baseChatItem as any} theme={propTheme} />);
+			const element = rendered.container.querySelector('.ss__chat-product-comparison-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatProductComparisonMessage.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatProductComparisonMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatProductComparisonMessage: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatProductComparisonMessage chatItem={baseChatItem as any} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-product-comparison-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatProductComparisonMessage.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatProductComparisonMessage.className);
+		});
 	});
 });

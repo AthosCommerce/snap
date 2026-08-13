@@ -67,6 +67,6 @@ export type ChatProps = {
 	controller: ChatController;
 	lang?: Partial<ChatLang>;
 } & ChatTemplatesLegalProps &
-	Omit<ComponentProps, 'customComponent'>;
+	ComponentProps<ChatProps>;
 
 export type { ChatTemplatesLegalProps, ChatLang };

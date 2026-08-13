@@ -55,8 +55,8 @@ const mockChatItem: any = {
 		],
 	},
 	searchResults: [
-		{ id: 'p1', display: { mappings: { core: { name: 'Alpine Wool Beanie', imageUrl: 'https://via.placeholder.com/80' } } } },
-		{ id: 'p2', display: { mappings: { core: { name: 'Trailhead Cotton Cap', imageUrl: 'https://via.placeholder.com/80' } } } },
+		{ id: 'p1', display: { mappings: { core: { name: 'Alpine Wool Beanie', imageUrl: 'https://picsum.photos/80/80' } } } },
+		{ id: 'p2', display: { mappings: { core: { name: 'Trailhead Cotton Cap', imageUrl: 'https://picsum.photos/80/80' } } } },
 	],
 };
 

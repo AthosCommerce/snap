@@ -110,6 +110,8 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 	const renderSlideshow = (results: Product[], key?: string | number) => {
 		const slides: SlideshowSlide[] = results.map((result: Product) => ({
 			content: (
+				// deliberately not role="button" — the title Button inside provides the
+				// keyboard path, and marking this wrapper interactive would nest interactives
 				<div key={result.id} className="ss__chat-results-display__result" onClick={(e: any) => handleResultClick(e, result)}>
 					<ChatResult
 						{...subProps.chatResult}
@@ -126,27 +128,24 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 			),
 		}));
 
-		return (
-			<div key={key} className={classnames('ss__chat-results-display', className, internalClassName)} {...styling}>
-				<Slideshow {...subProps.slideshow} slides={slides} />
-			</div>
-		);
+		return <Slideshow {...subProps.slideshow} key={key} slides={slides} />;
 	};
 
 	// the store hydrates message results into Product instances before they reach this component
-	if (chatItem.messageType === 'productRecommendation' && chatItem.recommendationResult?.length) {
-		return (
-			<CacheProvider>
-				<>
-					{chatItem.recommendationResult.map((recommendation, index) =>
-						recommendation.results?.length ? renderSlideshow(recommendation.results as Product[], index) : null
-					)}
-				</>
-			</CacheProvider>
-		);
-	}
+	const isRecommendation = chatItem.messageType === 'productRecommendation' && !!chatItem.recommendationResult?.length;
+	if (!isRecommendation && !chatItem.results?.length) return null;
 
-	return chatItem.results?.length ? <CacheProvider>{renderSlideshow(chatItem.results as Product[])}</CacheProvider> : null;
+	return (
+		<CacheProvider>
+			<div className={classnames('ss__chat-results-display', className, internalClassName)} {...styling}>
+				{isRecommendation
+					? chatItem.recommendationResult!.map((recommendation, index) =>
+							recommendation.results?.length ? renderSlideshow(recommendation.results as Product[], index) : null
+					  )
+					: renderSlideshow(chatItem.results as Product[])}
+			</div>
+		</CacheProvider>
+	);
 });
 
 interface ChatResultsDisplaySubProps {
