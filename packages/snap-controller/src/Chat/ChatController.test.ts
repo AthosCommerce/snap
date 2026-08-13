@@ -30,7 +30,20 @@ let chatConfig: ChatControllerConfig;
 const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker);
 
 // mocks fetch so beacon client does not make network requests
-jest.spyOn(global.window, 'fetch').mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+// (blob supports the upload flow's base64 → Blob conversion)
+jest
+	.spyOn(global.window, 'fetch')
+	.mockImplementation(() =>
+		Promise.resolve({ status: 200, json: () => Promise.resolve({}), blob: () => Promise.resolve(new Blob(['image'])) } as unknown as Response)
+	);
+
+function asFileList(files: File[]): FileList {
+	return {
+		length: files.length,
+		item: (index: number) => files[index],
+		...files.reduce((acc, file, index) => ({ ...acc, [index]: file }), {}),
+	} as unknown as FileList;
+}
 
 // mock window.matchMedia for jsdom (used by productQuery/productSimilar to detect mobile)
 Object.defineProperty(window, 'matchMedia', {
@@ -374,6 +387,67 @@ describe('Chat Controller', () => {
 		});
 	});
 
+	describe('chat switching during in-flight requests', () => {
+		it('does not apply a response to a chat the user switched to during afterSearch middleware', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'show me dresses';
+
+			let releaseAfterSearch!: () => void;
+			let notifyAfterSearchStarted!: () => void;
+			const afterSearchStarted = new Promise<void>((resolve) => (notifyAfterSearchStarted = resolve));
+			controller.on('afterSearch', async (_data, next: Next) => {
+				notifyAfterSearchStarted();
+				await new Promise<void>((resolve) => (releaseAfterSearch = resolve));
+				await next();
+			});
+
+			const searchPromise = controller.search();
+			await afterSearchStarted;
+
+			// user starts a new chat while afterSearch middleware is still running
+			const chatB = controller.store.createChat();
+
+			releaseAfterSearch();
+			await searchPromise;
+
+			// the response — and its sessionId — must not be applied to the new chat
+			expect(chatB.chat.length).toBe(0);
+			expect(chatB.sessionId).toBeUndefined();
+			expect(chatA.id).not.toBe(chatB.id);
+		});
+
+		it('attaches the initialized session to the chat that requested it, not a chat switched to mid-flight', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = true;
+			const chatA = controller.store.createChat();
+
+			let releaseInit!: () => void;
+			let notifyInitStarted!: () => void;
+			const initStarted = new Promise<void>((resolve) => (notifyInitStarted = resolve));
+			const originalChatInit = controller.client.chatInit.bind(controller.client);
+			controller.client.chatInit = jest.fn(async (params) => {
+				notifyInitStarted();
+				await new Promise<void>((resolve) => (releaseInit = resolve));
+				return originalChatInit(params);
+			});
+
+			const startPromise = controller.startNewChat();
+			await initStarted;
+
+			// user starts a new chat while chatInit is still in flight
+			const chatB = controller.store.createChat();
+
+			releaseInit();
+			const chat = await startPromise;
+
+			expect(chat?.id).toBe(chatA.id);
+			expect(chatA.sessionId).toBe('test-session-001');
+			expect(chatB.sessionId).toBeUndefined();
+		});
+	});
+
 	describe('request preparation', () => {
 		it('prevents search when chat is disabled', async () => {
 			const controller = createController();
@@ -428,6 +502,85 @@ describe('Chat Controller', () => {
 			const params = controller.params;
 
 			expect(params.personalization?.shopper).toBe('shopper123');
+		});
+
+		it('constructs productQuery params with a productIdentity from the attached product', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			// display reflects the shopper's variant selection — its uid differs from the result id
+			const result = {
+				id: 'result-1',
+				display: { mappings: { core: { uid: 'variant-1', parentId: 'parent-1', name: 'Test Product' } } },
+				mappings: { core: { uid: 'result-1', parentId: 'parent-1', name: 'Test Product' } },
+			} as unknown as Product;
+			controller.store.sendProductQuery(result, { requestType: 'productQuery' });
+			controller.store.inputValue = 'price ?';
+
+			expect(controller.params.data).toEqual({
+				requestType: 'productQuery',
+				message: 'price ?',
+				productIdentity: { parentId: 'parent-1', productId: 'variant-1' },
+			});
+		});
+
+		it('constructs productSimilar params with a productIdentity from the attached product', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			const result = {
+				id: 'result-1',
+				display: { mappings: { core: { uid: 'variant-1', parentId: 'parent-1', name: 'Test Product' } } },
+				mappings: { core: { uid: 'result-1', parentId: 'parent-1', name: 'Test Product' } },
+			} as unknown as Product;
+			controller.store.sendProductQuery(result, { requestType: 'productSimilar' });
+
+			expect(controller.params.data).toEqual({
+				requestType: 'productSimilar',
+				productIdentity: { parentId: 'parent-1', productId: 'variant-1' },
+			});
+		});
+
+		it('constructs productComparison params with productIdentities from the compared products', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			const product1 = {
+				id: 'result-1',
+				display: { mappings: { core: { uid: 'variant-1', parentId: 'parent-1' } } },
+				mappings: { core: { uid: 'result-1', parentId: 'parent-1' } },
+			} as unknown as Product;
+			const product2 = {
+				id: 'result-2',
+				display: { mappings: { core: { uid: 'variant-2', parentId: 'parent-2' } } },
+				mappings: { core: { uid: 'result-2', parentId: 'parent-2' } },
+			} as unknown as Product;
+			controller.store.compareProduct(product1);
+			controller.store.compareProduct(product2);
+
+			expect(controller.params.data).toEqual({
+				requestType: 'productComparison',
+				message: '',
+				productIdentities: [
+					{ parentId: 'parent-1', productId: 'variant-1' },
+					{ parentId: 'parent-2', productId: 'variant-2' },
+				],
+			});
+		});
+
+		it('falls back to the product id as parentId when core mappings lack one', () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			const result = {
+				id: 'prod-1',
+				display: { mappings: { core: { uid: 'prod-1', name: 'Test Product' } } },
+				mappings: { core: { uid: 'prod-1', name: 'Test Product' } },
+			} as unknown as Product;
+			controller.store.sendProductQuery(result, { requestType: 'productQuery' });
+			controller.store.inputValue = 'price ?';
+
+			expect((controller.params.data as any).productIdentity).toEqual({ parentId: 'prod-1', productId: 'prod-1' });
 		});
 	});
 
@@ -534,6 +687,89 @@ describe('Chat Controller', () => {
 		});
 	});
 
+	describe('switchChat', () => {
+		const productsResponse: ProductsResponseModel = {
+			mappings: { core: { name: 'Product 1' } },
+			variants: { optionConfig: {}, data: [] },
+		};
+		const makeProduct = (id = 'prod1', parentId = 'parent1') =>
+			({
+				id,
+				mappings: { core: { parentId, name: `Product ${id}` } },
+			} as unknown as Product);
+
+		it('reloads the quickview when switching back to a chat with an active productQuery side-chat', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+
+			// products response arrives only after the user has switched to another
+			// chat — loadProductQuickview discards it, leaving the quickview slot empty
+			let resolveProducts: (value: ProductsResponseModel) => void;
+			controller.client.products = jest.fn(() => new Promise<ProductsResponseModel>((resolve) => (resolveProducts = resolve)));
+
+			const quickviewPromise = controller.productQuickView(makeProduct());
+			controller.store.createChat({ sessionId: 'session-b' });
+			resolveProducts!(productsResponse);
+			await quickviewPromise;
+			expect(controller.store.productQuickview).toBeNull();
+
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+			await controller.switchChat(chatA.id);
+
+			expect(controller.store.currentChat!.id).toBe(chatA.id);
+			expect(controller.client.products).toHaveBeenCalledWith({ parentId: 'parent1' });
+			expect(controller.store.productQuickview?.id).toBe('prod1');
+		});
+
+		it("replaces another chat's quickview with the target chat's productQuery product", async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct('prod1', 'parent1'));
+
+			controller.store.createChat({ sessionId: 'session-b' });
+			await controller.productQuickView(makeProduct('prod2', 'parent2'));
+			expect(controller.store.productQuickview?.id).toBe('prod2');
+
+			await controller.switchChat(chatA.id);
+
+			expect(controller.store.productQuickview?.id).toBe('prod1');
+		});
+
+		it('does not refetch when the quickview already shows the productQuery target', async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct());
+			controller.store.createChat({ sessionId: 'session-b' });
+
+			(controller.client.products as jest.Mock).mockClear();
+			await controller.switchChat(chatA.id);
+
+			expect(controller.client.products).not.toHaveBeenCalled();
+			expect(controller.store.productQuickview?.id).toBe('prod1');
+		});
+
+		it('does not reload the quickview for a dismissed productQuery side-chat', async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct());
+			chatA.dismissSideChat();
+			controller.store.createChat({ sessionId: 'session-b' });
+			controller.store.clearProductQuickview();
+
+			(controller.client.products as jest.Mock).mockClear();
+			await controller.switchChat(chatA.id);
+
+			expect(controller.client.products).not.toHaveBeenCalled();
+			expect(controller.store.productQuickview).toBeNull();
+		});
+	});
+
 	describe('compareProduct', () => {
 		it('adds a product to the comparison set', () => {
 			const controller = createController();
@@ -556,7 +792,7 @@ describe('Chat Controller', () => {
 
 			// add a productQuery attachment first
 			controller.store.sendProductQuery(
-				{ id: 'prod-q', display: { mappings: { core: { name: 'Query Product', thumbnailImageUrl: 'thumb.jpg' } } } },
+				{ id: 'prod-q', display: { mappings: { core: { name: 'Query Product', thumbnailImageUrl: 'thumb.jpg' } } } } as unknown as Product,
 				{ requestType: 'productQuery' }
 			);
 			const productQueryAttachments = controller.store.currentChat!.attachments.attached.filter((item) => item.type === 'product');
@@ -593,6 +829,96 @@ describe('Chat Controller', () => {
 
 			expect(sendSpy).toHaveBeenCalledWith(result, { requestType: 'productQuery' });
 			sendSpy.mockClear();
+		});
+
+		it('does not reload the quickview when it already shows the queried product', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest.fn().mockResolvedValue({
+				mappings: { core: { name: 'Test Product' } },
+				variants: {
+					optionConfig: { color: {} },
+					data: [
+						{ mappings: { core: { uid: 'var-red', available: true } }, options: { color: { value: 'Red' } } },
+						{ mappings: { core: { uid: 'var-blue', available: true } }, options: { color: { value: 'Blue' } } },
+					],
+				},
+			});
+
+			const result = {
+				id: 'prod1',
+				mappings: { core: { parentId: 'parent1', name: 'Test Product' } },
+			} as unknown as Product;
+
+			// initial discuss click loads the quickview
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.client.products).toHaveBeenCalledTimes(1);
+
+			// user picks a variant in the product information panel
+			const quickview = controller.store.productQuickview!;
+			const colorSelection = quickview.variants!.selections.find((selection) => selection.field === 'color')!;
+			colorSelection.select('Blue');
+			expect(colorSelection.selected?.value).toBe('Blue');
+
+			// discussing the same product again must not rebuild the quickview (would wipe selections)
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+
+			expect(controller.client.products).toHaveBeenCalledTimes(1);
+			expect(controller.store.productQuickview).toBe(quickview);
+			const selectionAfter = controller.store.productQuickview!.variants!.selections.find((selection) => selection.field === 'color')!;
+			expect(selectionAfter.selected?.value).toBe('Blue');
+		});
+
+		it('reloads the quickview when it shows a different product', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest.fn().mockResolvedValue({
+				mappings: { core: { name: 'Test Product' } },
+				variants: { optionConfig: {}, data: [] },
+			});
+
+			const productA = { id: 'prodA', mappings: { core: { parentId: 'parentA' } } } as unknown as Product;
+			const productB = { id: 'prodB', mappings: { core: { parentId: 'parentB' } } } as unknown as Product;
+
+			controller.productQuery(productA);
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.client.products).toHaveBeenCalledTimes(1);
+
+			controller.productQuery(productB);
+			await new Promise((resolve) => setTimeout(resolve));
+
+			expect(controller.client.products).toHaveBeenCalledTimes(2);
+			expect(controller.client.products).toHaveBeenLastCalledWith({ parentId: 'parentB' });
+			expect(controller.store.productQuickview!.id).toBe('prodB');
+		});
+
+		it('reloads the quickview when the previous load for the same product failed', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+
+			controller.client.products = jest
+				.fn()
+				.mockRejectedValueOnce(new Error('Network error'))
+				.mockResolvedValue({
+					mappings: { core: { name: 'Test Product' } },
+					variants: { optionConfig: {}, data: [] },
+				});
+
+			const result = { id: 'prod1', mappings: { core: { parentId: 'parent1' } } } as unknown as Product;
+
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.store.productQuickviewError).toBe('Failed to load product details. Please try again.');
+
+			controller.productQuery(result);
+			await new Promise((resolve) => setTimeout(resolve));
+
+			expect(controller.client.products).toHaveBeenCalledTimes(2);
+			expect(controller.store.productQuickviewError).toBeNull();
 		});
 
 		it('resets comparisons before sending the product query', () => {
@@ -664,13 +990,13 @@ describe('Chat Controller', () => {
 		it('sends an initial message when provided', async () => {
 			const controller = createController();
 			controller.store.chatEnabled = true;
-			const searchSpy = jest.spyOn(controller, 'search');
+			const searchSpy = jest.spyOn(controller, 'search').mockResolvedValue();
 
 			controller.openChat('test message');
 
 			expect(controller.store.open).toBe(true);
 			expect(searchSpy).toHaveBeenCalledWith({ data: { message: 'test message' } });
-			searchSpy.mockClear();
+			searchSpy.mockRestore();
 		});
 	});
 
@@ -995,14 +1321,14 @@ describe('Chat Controller', () => {
 			eventSpy.mockClear();
 		});
 
-		it('track.product.feedback fires event', () => {
+		it('track.feedback fires event', () => {
 			const controller = createController({ beacon: { enabled: true } });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
 
-			controller.track.product.feedback('UP');
+			controller.track.feedback('UP');
 
-			expect(eventSpy).toHaveBeenCalledWith('track.product.feedback', expect.objectContaining({ controller }));
+			expect(eventSpy).toHaveBeenCalledWith('track.feedback', expect.objectContaining({ controller }));
 			eventSpy.mockClear();
 		});
 
@@ -1032,8 +1358,8 @@ describe('Chat Controller', () => {
 
 			logSpy.mockClear();
 
-			controller.track.product.feedback('UP');
-			expect(logSpy).toHaveBeenCalledWith('No chatSessionId available for track.product.feedback');
+			controller.track.feedback('UP');
+			expect(logSpy).toHaveBeenCalledWith('No chatSessionId available for track.feedback');
 
 			logSpy.mockClear();
 		});
@@ -1057,227 +1383,6 @@ describe('Chat Controller', () => {
 			expect(logSpy).toHaveBeenCalledWith('No result provided to track.product.addToCart');
 
 			logSpy.mockClear();
-		});
-	});
-
-	describe('facet selection', () => {
-		it('addFacet updates urlManager state and isFacetSelected returns true', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(false);
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(true);
-		});
-
-		it('removeFacet clears the value from urlManager state', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(true);
-
-			controller.store.removeFacet('color', 'red');
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(false);
-		});
-
-		it('removeFacet removes specific value while keeping others for the same field', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-			controller.store.addFacet({ key: 'color', value: 'blue' });
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(true);
-			expect(controller.store.isFacetSelected('color', 'blue')).toBe(true);
-
-			controller.store.removeFacet('color', 'red');
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(false);
-			expect(controller.store.isFacetSelected('color', 'blue')).toBe(true);
-		});
-
-		it('removeFacet removes the filter key entirely when the last value is removed', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-			controller.store.removeFacet('color', 'red');
-
-			const filterState = (controller.store.urlManager.state as any)?.filter;
-			expect(filterState?.color).toBeUndefined();
-		});
-
-		it('setActiveFacets seeds the urlManager with server-reported filtered values', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.setActiveFacets(
-				[
-					{
-						field: 'color',
-						type: 'value',
-						values: [
-							{ value: 'red', label: 'Red', count: 5, filtered: true },
-							{ value: 'blue', label: 'Blue', count: 3, filtered: false },
-						],
-					} as any,
-				],
-				'msg-1'
-			);
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(true);
-			expect(controller.store.isFacetSelected('color', 'blue')).toBe(false);
-		});
-
-		it('removing a seeded facet value updates isFacetSelected', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.setActiveFacets(
-				[
-					{
-						field: 'color',
-						type: 'value',
-						values: [
-							{ value: 'red', label: 'Red', count: 5, filtered: true },
-							{ value: 'blue', label: 'Blue', count: 3, filtered: false },
-						],
-					} as any,
-				],
-				'msg-1'
-			);
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(true);
-
-			controller.store.removeFacet('color', 'red');
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(false);
-		});
-
-		it('removing a seeded facet value removes it from urlManager filter state', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.setActiveFacets(
-				[
-					{
-						field: 'color',
-						type: 'value',
-						values: [{ value: 'red', label: 'Red', count: 5, filtered: true }],
-					} as any,
-				],
-				'msg-1'
-			);
-
-			const filterBefore = (controller.store.urlManager.state as any)?.filter;
-			expect(filterBefore?.color).toBeDefined();
-
-			controller.store.removeFacet('color', 'red');
-
-			const filterAfter = (controller.store.urlManager.state as any)?.filter;
-			expect(filterAfter?.color).toBeUndefined();
-		});
-
-		it('clearPendingFacets removes all filter state', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-			controller.store.addFacet({ key: 'size', value: 'large' });
-
-			controller.store.clearPendingFacets();
-
-			expect(controller.store.isFacetSelected('color', 'red')).toBe(false);
-			expect(controller.store.isFacetSelected('size', 'large')).toBe(false);
-		});
-
-		it('addFacet with range-bucket value works with isFacetSelected', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			// Use non-zero low to avoid UrlManager falsy-value serialization issue
-			controller.store.addFacet({ key: 'price', value: '10:50' });
-
-			expect(controller.store.isFacetSelected('price', '10:50')).toBe(true);
-			expect(controller.store.isFacetSelected('price', '50:100')).toBe(false);
-		});
-
-		it('removeFacet with range-bucket value clears the selection', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'price', value: '10:50' });
-			controller.store.removeFacet('price', '10:50');
-
-			expect(controller.store.isFacetSelected('price', '10:50')).toBe(false);
-		});
-	});
-
-	describe('hasPendingFacetChanges', () => {
-		it('is false when no facets have been changed', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			expect(controller.store.hasPendingFacetChanges).toBe(false);
-		});
-
-		it('is true after addFacet', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-
-			expect(controller.store.hasPendingFacetChanges).toBe(true);
-		});
-
-		it('is true after removing a seeded facet value', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.setActiveFacets(
-				[
-					{
-						field: 'color',
-						type: 'value',
-						values: [{ value: 'red', label: 'Red', count: 5, filtered: true }],
-					} as any,
-				],
-				'msg-1'
-			);
-
-			// snapshot was taken — no changes yet
-			expect(controller.store.hasPendingFacetChanges).toBe(false);
-
-			controller.store.removeFacet('color', 'red');
-
-			expect(controller.store.hasPendingFacetChanges).toBe(true);
-		});
-
-		it('is false when changes match the applied snapshot', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.setActiveFacets(
-				[
-					{
-						field: 'color',
-						type: 'value',
-						values: [{ value: 'red', label: 'Red', count: 5, filtered: true }],
-					} as any,
-				],
-				'msg-1'
-			);
-
-			// remove then re-add the same value — should match the snapshot again
-			controller.store.removeFacet('color', 'red');
-			expect(controller.store.hasPendingFacetChanges).toBe(true);
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-			expect(controller.store.hasPendingFacetChanges).toBe(false);
 		});
 	});
 
@@ -1312,7 +1417,7 @@ describe('Chat Controller', () => {
 			controller.store.createChat({ sessionId: 'test-session-001' });
 
 			// Use non-zero low to avoid UrlManager falsy-value serialization issue
-			controller.store.addFacet({ key: 'price', value: '10:50' });
+			controller.store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
 
 			const params = controller.params;
 			const priceFilter = (params.data as any).searchFilters.find((f: any) => f.key === 'price');
@@ -1420,7 +1525,7 @@ describe('Chat Controller', () => {
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 			controller.store.inputValue = 'show me similar stuff';
 
-			await controller.search({ data: { requestType: 'productSimilar', productId: 'prod-1' } } as any);
+			await controller.search({ data: { requestType: 'productSimilar', productIdentity: { parentId: 'parent-1', productId: 'prod-1' } } } as any);
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			const sentData = chatSpy.mock.calls[0][0].data;
@@ -1435,7 +1540,15 @@ describe('Chat Controller', () => {
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 			controller.store.inputValue = '';
 
-			await controller.search({ data: { requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } } as any);
+			await controller.search({
+				data: {
+					requestType: 'productComparison',
+					productIdentities: [
+						{ parentId: 'parent-1', productId: 'prod-1' },
+						{ parentId: 'parent-2', productId: 'prod-2' },
+					],
+				},
+			} as any);
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			const sentData = chatSpy.mock.calls[0][0].data;
@@ -1450,7 +1563,15 @@ describe('Chat Controller', () => {
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 			controller.store.inputValue = 'which is warmer?';
 
-			await controller.search({ data: { requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } } as any);
+			await controller.search({
+				data: {
+					requestType: 'productComparison',
+					productIdentities: [
+						{ parentId: 'parent-1', productId: 'prod-1' },
+						{ parentId: 'parent-2', productId: 'prod-2' },
+					],
+				},
+			} as any);
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			expect((chatSpy.mock.calls[0][0].data as any).message).toBe('which is warmer?');
@@ -1576,6 +1697,43 @@ describe('Chat Controller', () => {
 			expect(chatSpy).not.toHaveBeenCalled();
 		});
 
+		it('migrates a persisted legacy productId pending request to the productIdentity shape', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'productSimilar', productId: 'prod-1' } as any);
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data as any;
+			expect(sentData).toEqual({
+				requestType: 'productSimilar',
+				productIdentity: { parentId: 'prod-1', productId: 'prod-1' },
+			});
+		});
+
+		it('migrates a persisted legacy productIds pending request to the productIdentities shape', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'productComparison', productIds: ['prod-1', 'prod-2'] } as any);
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			const sentData = chatSpy.mock.calls[0][0].data as any;
+			expect(sentData).toEqual({
+				requestType: 'productComparison',
+				productIdentities: [
+					{ parentId: 'prod-1', productId: 'prod-1' },
+					{ parentId: 'prod-2', productId: 'prod-2' },
+				],
+			});
+		});
+
 		it('a new message sent right after opening wins over the pending resume', async () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
@@ -1583,7 +1741,7 @@ describe('Chat Controller', () => {
 			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
 			const chatSpy = jest.spyOn(controller.client, 'chat');
 
-			// mirrors the setupEvents chat/send flow: openChat() then search() in the same tick
+			// mirrors the setupEvents controller/chat/send flow: openChat() then search() in the same tick
 			controller.openChat();
 			const searchPromise = controller.search({ data: { requestType: 'general', message: 'new message' } } as any);
 			await searchPromise;
@@ -1591,6 +1749,496 @@ describe('Chat Controller', () => {
 
 			expect(chatSpy).toHaveBeenCalledTimes(1);
 			expect((chatSpy.mock.calls[0][0].data as any).message).toBe('new message');
+		});
+	});
+
+	describe('init', () => {
+		it('does not initialize during construction', () => {
+			const controller = createController();
+
+			expect(controller.initialized).toBe(false);
+		});
+
+		it('checks chat status when init is called', async () => {
+			const controller = createController();
+			const statusSpy = jest.spyOn(controller.client, 'chatStatus');
+
+			await controller.init();
+
+			expect(controller.initialized).toBe(true);
+			expect(statusSpy).toHaveBeenCalledTimes(1);
+			expect(controller.store.chatEnabled).toBe(true);
+			statusSpy.mockClear();
+		});
+
+		it('initializes lazily on the first search', async () => {
+			const controller = createController();
+			expect(controller.initialized).toBe(false);
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+
+			await controller.search();
+
+			expect(controller.initialized).toBe(true);
+		});
+
+		it('does not search when the urlManager state changes after init', async () => {
+			const controller = createController();
+			await controller.init();
+			const searchSpy = jest.spyOn(controller, 'search').mockResolvedValue();
+
+			controller.urlManager.set('query', 'history navigation').go();
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			expect(searchSpy).not.toHaveBeenCalled();
+			controller.urlManager.remove('query').go();
+			searchSpy.mockRestore();
+		});
+
+		it('does not persist a synthesized disabled status when the status check fails', async () => {
+			const controller = createController();
+			controller.client.chatStatus = jest.fn().mockRejectedValue(new Error('Network error'));
+			const setSpy = jest.spyOn(controller.store.statusStorage, 'set');
+
+			const result = await controller.checkChatStatus();
+
+			expect(result).toBe(false);
+			expect(controller.store.chatEnabled).toBe(false);
+			expect(setSpy).not.toHaveBeenCalled();
+			setSpy.mockRestore();
+		});
+	});
+
+	describe('lifecycle events', () => {
+		it('fires beforeSearch, afterSearch, and afterStore in order around the request', async () => {
+			const order: string[] = [];
+			const controller = createController({
+				middleware: {
+					beforeSearch: async (_search: any, next: Next) => {
+						order.push('beforeSearch');
+						await next();
+					},
+					afterSearch: async (_search: any, next: Next) => {
+						order.push('afterSearch');
+						await next();
+					},
+					afterStore: async (_search: any, next: Next) => {
+						order.push('afterStore');
+						await next();
+					},
+				},
+			});
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+
+			const originalChat = controller.client.chat.bind(controller.client);
+			controller.client.chat = jest.fn(async (params) => {
+				order.push('request');
+				return originalChat(params);
+			});
+			jest.spyOn(controller.store, 'update').mockImplementation(() => {
+				order.push('storeUpdate');
+			});
+
+			await controller.search();
+
+			expect(order).toEqual(['beforeSearch', 'request', 'afterSearch', 'storeUpdate', 'afterStore']);
+		});
+
+		it('beforeSearch middleware cancellation skips the request', async () => {
+			const controller = createController({
+				middleware: {
+					beforeSearch: async () => false,
+				},
+			});
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			const warnSpy = jest.spyOn(controller.log, 'warn');
+
+			await controller.search();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(warnSpy).toHaveBeenCalledWith(`'beforeSearch' middleware cancelled`);
+			expect(controller.store.loading).toBe(false);
+			expect(controller.store.currentChat?.pendingRequest).toBeNull();
+			warnSpy.mockClear();
+		});
+
+		it('afterSearch middleware cancellation skips the store update', async () => {
+			const controller = createController({
+				middleware: {
+					afterSearch: async () => false,
+				},
+			});
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+			const updateSpy = jest.spyOn(controller.store, 'update');
+			const warnSpy = jest.spyOn(controller.log, 'warn');
+
+			await controller.search();
+
+			expect(updateSpy).not.toHaveBeenCalled();
+			expect(warnSpy).toHaveBeenCalledWith(`'afterSearch' middleware cancelled`);
+			expect(controller.store.loading).toBe(false);
+			updateSpy.mockRestore();
+			warnSpy.mockClear();
+		});
+	});
+
+	describe('config globals', () => {
+		it('merges config.globals into the request params', () => {
+			const controller = createController({ globals: { personalization: { shopper: 'global-shopper' } } });
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.inputValue = 'hello';
+
+			const params = controller.params;
+
+			expect(params.personalization?.shopper).toBe('global-shopper');
+		});
+
+		it('passes config.globals through to the chat API request', async () => {
+			const controller = createController({ globals: { personalization: { shopper: 'global-shopper' } } });
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'hello';
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.search();
+
+			expect(chatSpy).toHaveBeenCalledWith(expect.objectContaining({ personalization: { shopper: 'global-shopper' } }));
+			chatSpy.mockClear();
+		});
+	});
+
+	describe('request finalization', () => {
+		it('strips HTML from override messages', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.search({ data: { requestType: 'general', message: '  <b>hello</b> world  ' } } as Partial<ChatRequestModel>);
+
+			expect((chatSpy.mock.calls[0][0].data as any).message).toBe('hello world');
+			chatSpy.mockClear();
+		});
+
+		it('inherits the requestType from params for message-only overrides', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.search({ data: { message: 'follow-up question' } } as Partial<ChatRequestModel>);
+
+			const sentData = chatSpy.mock.calls[0][0].data as any;
+			expect(sentData.requestType).toBe('general');
+			expect(sentData.message).toBe('follow-up question');
+			chatSpy.mockClear();
+		});
+
+		it('prunes store-derived data keys when an override changes the requestType', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+
+			const product1 = {
+				id: 'prod1',
+				display: { mappings: { core: { uid: 'uid1' } } },
+				mappings: { core: { uid: 'uid1' } },
+			} as unknown as Product;
+			const product2 = {
+				id: 'prod2',
+				display: { mappings: { core: { uid: 'uid2' } } },
+				mappings: { core: { uid: 'uid2' } },
+			} as unknown as Product;
+			controller.store.compareProduct(product1);
+			controller.store.compareProduct(product2);
+			expect(controller.params.data.requestType).toBe('productComparison');
+
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+			await controller.search({ data: { requestType: 'general', message: 'hello' } } as Partial<ChatRequestModel>);
+
+			const sentData = chatSpy.mock.calls[0][0].data as any;
+			expect(sentData.requestType).toBe('general');
+			expect(sentData.productIdentities).toBeUndefined();
+			chatSpy.mockClear();
+		});
+	});
+
+	describe('session initialization failure', () => {
+		it('does not send the chat request when no session could be obtained', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+			controller.client.chatInit = jest.fn().mockRejectedValue(new Error('Init failed'));
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.search();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(controller.store.error).toBeDefined();
+			expect(controller.store.error!.message).toBe("We couldn't start a new chat just now. Please try again in a moment.");
+			expect(controller.store.loading).toBe(false);
+			chatSpy.mockClear();
+		});
+	});
+
+	describe('CS_003 session limit', () => {
+		it('flags the chat without logging an undefined error', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+			const logSpy = jest.spyOn(controller.log, 'error');
+
+			controller.client.chat = jest.fn(() => {
+				throw {
+					err: new Error('Session limit exceeded'),
+					fetchDetails: { status: 400, url: 'test.com' },
+					responseBody: { errorCode: 'CS_003' },
+				};
+			});
+
+			await controller.search();
+
+			expect(controller.store.currentChat!.sessionLimitReached).toBe(true);
+			expect(controller.store.error).toBeUndefined();
+			expect(logSpy).not.toHaveBeenCalled();
+			logSpy.mockClear();
+		});
+	});
+
+	describe('cross-chat guards', () => {
+		it('clears loading and drops the response when the user switches chats mid-flight', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			const chatB = controller.store.createChat({ sessionId: 'session-b' });
+			controller.store.switchChat(chatA.id);
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'message on chat a';
+
+			let resolveChat: () => void;
+			const originalChat = controller.client.chat.bind(controller.client);
+			controller.client.chat = jest.fn(
+				(params) =>
+					new Promise((resolve) => {
+						resolveChat = () => resolve(originalChat(params));
+					})
+			);
+
+			const searchPromise = controller.search();
+			await new Promise((resolve) => setTimeout(resolve));
+			expect(controller.store.loading).toBe(true);
+
+			controller.store.switchChat(chatB.id);
+			expect(controller.store.loading).toBe(false);
+
+			const updateSpy = jest.spyOn(controller.store, 'update');
+			resolveChat!();
+			await searchPromise;
+
+			expect(controller.store.loading).toBe(false);
+			expect(updateSpy).not.toHaveBeenCalled();
+			updateSpy.mockRestore();
+
+			// a subsequent send on the new chat works
+			controller.client.chat = jest.fn(originalChat);
+			controller.store.inputValue = 'message on chat b';
+			await controller.search();
+
+			expect(controller.client.chat).toHaveBeenCalledTimes(1);
+			expect(controller.store.loading).toBe(false);
+		});
+
+		it('suppresses errors from a request belonging to a previously active chat', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			const chatB = controller.store.createChat({ sessionId: 'session-b' });
+			controller.store.switchChat(chatA.id);
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'message on chat a';
+
+			let rejectChat: () => void;
+			controller.client.chat = jest.fn(
+				() =>
+					new Promise((_resolve, reject) => {
+						rejectChat = () => reject({ err: new Error('fail'), fetchDetails: { status: 500, url: 'test.com' } });
+					})
+			);
+			const handleError = jest.spyOn(controller, 'handleError');
+
+			const searchPromise = controller.search();
+			await new Promise((resolve) => setTimeout(resolve));
+
+			controller.store.switchChat(chatB.id);
+			rejectChat!();
+			await searchPromise;
+
+			expect(controller.store.error).toBeUndefined();
+			expect(handleError).not.toHaveBeenCalled();
+			handleError.mockClear();
+		});
+	});
+
+	describe('focusInput', () => {
+		afterEach(() => {
+			document.body.innerHTML = '';
+		});
+
+		it('focuses the default chat input selector', () => {
+			document.body.innerHTML = '<div class="ss__chat__input"><input type="text" /></div>';
+			const controller = createController();
+
+			controller.focusInput();
+
+			expect(document.activeElement).toBe(document.querySelector('.ss__chat__input input[type="text"]'));
+		});
+
+		it('uses a configured inputSelector', () => {
+			document.body.innerHTML = '<input type="text" id="custom-chat-input" />';
+			const controller = createController({ settings: { inputSelector: '#custom-chat-input' } });
+
+			controller.focusInput();
+
+			expect(document.activeElement).toBe(document.querySelector('#custom-chat-input'));
+		});
+
+		it('does not throw when the input is not present', () => {
+			const controller = createController();
+
+			expect(() => controller.focusInput()).not.toThrow();
+		});
+	});
+
+	describe('openChat expired session', () => {
+		it('creates a fresh chat when opening into an expired session', () => {
+			const controller = createController();
+			const expiredChat = controller.store.createChat({ sessionId: 'expired-session', sessionEndTime: new Date(Date.now() - 1000) });
+			expect(controller.store.currentChat!.isExpired).toBe(true);
+
+			controller.openChat();
+
+			expect(controller.store.open).toBe(true);
+			expect(controller.store.currentChat!.id).not.toBe(expiredChat.id);
+			expect(controller.store.currentChat!.isExpired).toBe(false);
+		});
+	});
+
+	describe('upload', () => {
+		it('does nothing when no files are provided', async () => {
+			const controller = createController();
+
+			await controller.upload(null);
+
+			expect(controller.store.currentChat).toBeUndefined();
+		});
+
+		it('uploads a file and updates the attachment with the response', async () => {
+			const controller = createController();
+			controller.client.uploadImage = jest.fn().mockResolvedValue({ imageId: 'img-1', imageUrl: 'url-1', thumbnailUrl: 'thumb-1' });
+
+			await controller.upload(asFileList([new File(['a'], 'Photo.PNG', { type: 'image/png' })]));
+
+			expect(controller.store.currentChat).toBeDefined();
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.fileName).toBe('photo.png');
+			expect(attachment.imageId).toBe('img-1');
+			expect(attachment.state).toBe('attached');
+		});
+
+		it('sets the server error message on the attachment for 400 responses and reports the error', async () => {
+			const controller = createController();
+			const handleError = jest.spyOn(controller, 'handleError');
+			const error = new Error('bad image');
+			controller.client.uploadImage = jest.fn().mockRejectedValue({
+				err: error,
+				fetchDetails: { status: 400, url: 'test.com' },
+				responseBody: { errorMessage: 'Image format not supported' },
+			});
+
+			await controller.upload(asFileList([new File(['a'], 'photo.png', { type: 'image/png' })]));
+
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.state).toBe('error');
+			expect(attachment.error?.message).toBe('Image format not supported. Please try again.');
+			expect(handleError).toHaveBeenCalledWith(error, { status: 400, url: 'test.com' });
+			handleError.mockClear();
+		});
+
+		it('continues uploading remaining files when one file fails', async () => {
+			const controller = createController();
+			controller.client.uploadImage = jest
+				.fn()
+				.mockRejectedValueOnce({ err: new Error('fail'), fetchDetails: { status: 500, url: 'test.com' } })
+				.mockResolvedValueOnce({ imageId: 'img-2', imageUrl: 'url-2', thumbnailUrl: 'thumb-2' });
+
+			await controller.upload(asFileList([new File(['a'], 'one.png', { type: 'image/png' }), new File(['b'], 'two.png', { type: 'image/png' })]));
+
+			expect(controller.client.uploadImage).toHaveBeenCalledTimes(2);
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.imageId).toBe('img-2');
+			expect(attachment.state).toBe('attached');
+		});
+
+		it('surfaces a file read failure as an attachment error without calling the API', async () => {
+			const controller = createController();
+			const OriginalFileReader = window.FileReader;
+			class FailingFileReader {
+				public onload: (() => void) | null = null;
+				public onerror: ((err: unknown) => void) | null = null;
+				readAsDataURL() {
+					setTimeout(() => this.onerror?.(new Error('read failed')));
+				}
+			}
+			(window as any).FileReader = FailingFileReader;
+			const uploadSpy = jest.spyOn(controller.client, 'uploadImage');
+
+			await controller.upload(asFileList([new File(['a'], 'photo.png', { type: 'image/png' })]));
+
+			(window as any).FileReader = OriginalFileReader;
+
+			expect(uploadSpy).not.toHaveBeenCalled();
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.state).toBe('error');
+			expect(attachment.error?.message).toBe('Something went wrong behind the scenes. Please give it another shot in a moment.');
+			uploadSpy.mockClear();
+		});
+	});
+
+	describe('addToCart tracking', () => {
+		it('tracks addToCart per product', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			const trackSpy = jest.spyOn(controller.track.product, 'addToCart');
+
+			const products = [
+				{ id: 'prod1', responseId: 'resp1', display: { mappings: { core: { uid: 'uid1', price: 10 } } }, mappings: { core: {} } },
+				{ id: 'prod2', responseId: 'resp1', display: { mappings: { core: { uid: 'uid2', price: 20 } } }, mappings: { core: {} } },
+			] as unknown as Product[];
+
+			await controller.addToCart(products);
+
+			expect(trackSpy).toHaveBeenCalledTimes(2);
+			trackSpy.mockRestore();
+		});
+
+		it('warns and does not fire the event when no products are provided', async () => {
+			const controller = createController();
+			const warnSpy = jest.spyOn(controller.log, 'warn');
+			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
+
+			await controller.addToCart(undefined as unknown as Product);
+
+			expect(warnSpy).toHaveBeenCalledWith('No products provided to chat controller.addToCart');
+			expect(eventSpy).not.toHaveBeenCalled();
+			warnSpy.mockClear();
+			eventSpy.mockClear();
 		});
 	});
 });

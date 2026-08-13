@@ -65,6 +65,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 		displayAt,
 		transitionSpeed,
 		overlayColor,
+		onChange,
 		disableStyles,
 		className,
 		internalClassName,
@@ -100,7 +101,7 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	isActiveRef.current = isActive;
 
 	const toggleActive = (force?: boolean) => {
-		const next = typeof force !== 'undefined' ? force : !isActiveRef.current;
+		const next = typeof force === 'boolean' ? force : !isActiveRef.current;
 		setActive(next);
 		if (next) {
 			setRenderContent(true);
@@ -109,14 +110,15 @@ export const Slideout = observer((properties: SlideoutProps) => {
 				setRenderContent(false);
 			}, 250);
 		}
+
+		document.body.style.overflow = next ? 'hidden' : '';
+		onChange && onChange(next);
 	};
 
 	//this is used to update active state if active prop is changed from parent component.
 	useEffect(() => {
 		setRenderContent(Boolean(active));
-		if (isActive !== active) {
-			setActive(Boolean(active));
-		}
+		setActive(Boolean(active));
 	}, [active]);
 
 	const isVisible = useMediaQuery(displayAt!, () => {
@@ -130,8 +132,9 @@ export const Slideout = observer((properties: SlideoutProps) => {
 	useEffect(() => {
 		if (!buttonSelector) return;
 
+		// string selectors bind to every matching element
 		const targets: Element[] = typeof buttonSelector == 'string' ? Array.from(document.querySelectorAll(buttonSelector)) : [buttonSelector];
-		const handler = typeof buttonSelector == 'string' ? () => toggleActive(true) : () => toggleActive();
+		const handler = () => toggleActive();
 
 		targets.forEach((target) => target.addEventListener('click', handler));
 		return () => {
@@ -175,6 +178,7 @@ export type SlideoutTemplatesLegalProps = {
 	slideDirection?: SlideDirectionType;
 	rerender?: boolean;
 	buttonSelector?: string | Element;
+	onChange?: (active: boolean) => void;
 };
 
 export type SlideDirectionType = 'top' | 'right' | 'bottom' | 'left';

@@ -10,7 +10,7 @@ import { Tracker } from '@athoscommerce/snap-tracker';
 import type { SnapControllerServices, SnapChatControllerConfig } from '../types';
 
 export default (config: SnapChatControllerConfig, services?: SnapControllerServices): ChatController => {
-	const urlManager = services?.urlManager || new UrlManager(new UrlTranslator(config.url), reactLinker);
+	const urlManager = (services?.urlManager || new UrlManager(new UrlTranslator(config.url), reactLinker)).detach(true);
 
 	// set client mode
 	if (config.mode && config.client) {
@@ -19,8 +19,7 @@ export default (config: SnapChatControllerConfig, services?: SnapControllerServi
 	}
 
 	const client = services?.client || new Client(config.client!.globals, config.client!.config);
-	// @ts-ignore - globals is private on Client
-	const siteId: string | undefined = config.client?.globals?.siteId || client.globals?.siteId;
+	const siteId: string | undefined = config.client?.globals?.siteId || client.siteId;
 
 	const cntrlr = new ChatController(
 		config.controller,

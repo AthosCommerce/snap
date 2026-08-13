@@ -7,6 +7,7 @@ import { componentArgs, highlightedCode } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
+import { iconPaths } from '../../..';
 
 export default {
 	title: 'Organisms/Sidebar',
@@ -88,6 +89,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -98,6 +100,172 @@ export default {
 				type: { summary: 'number' },
 			},
 			control: { type: 'number' },
+		},
+		hideHeader: {
+			description: 'hides the sidebar header',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideClearButtonText: {
+			description: 'hides the clear button text',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideApplyButtonText: {
+			description: 'hides the apply button text',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideCloseButtonText: {
+			description: 'hides the close button text',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideCloseButton: {
+			description: 'hides the close sidebar button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: true },
+			},
+			control: { type: 'boolean' },
+		},
+		closeButtonIcon: {
+			description: 'Icon to render in the close sidebar button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+				defaultValue: { summary: 'close-thin' },
+			},
+			options: [...Object.keys(iconPaths)],
+			control: {
+				type: 'select',
+			},
+		},
+		closeButtonText: {
+			description: 'Text to render in the close sidebar button',
+			type: { required: false },
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+			},
+			control: { type: 'text' },
+		},
+		hideFooter: {
+			description: 'hides the sidebar footer',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideApplyButton: {
+			description: 'hides the apply facets button component',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: true },
+			},
+			control: { type: 'boolean' },
+		},
+		applyButtonText: {
+			description: 'Text to render in the apply facets button',
+			type: { required: false },
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+				defaultValue: { summary: 'Apply' },
+			},
+			control: { type: 'text' },
+		},
+		applyButtonIcon: {
+			description: 'Icon to render in the apply facets button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+			},
+			options: [...Object.keys(iconPaths)],
+			control: {
+				type: 'select',
+			},
+		},
+		hideClearButton: {
+			description: 'hides the clear all filters button component',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: true },
+			},
+			control: { type: 'boolean' },
+		},
+		clearButtonText: {
+			description: 'Text to render in the clear all facets button',
+			type: { required: false },
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+				defaultValue: { summary: 'Clear All' },
+			},
+			control: { type: 'text' },
+		},
+		clearButtonIcon: {
+			description: 'Icon to render in the clear filters button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+			},
+			options: [...Object.keys(iconPaths)],
+			control: {
+				type: 'select',
+			},
+		},
+		onToggleSidebar: {
+			description: 'Callback function invoked when the close, apply, or clear button is clicked',
+			table: {
+				type: {
+					summary: '() => void',
+				},
+			},
+			action: 'onToggleSidebar',
 		},
 		...componentArgs,
 	},

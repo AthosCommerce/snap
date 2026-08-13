@@ -9,6 +9,11 @@
  *
  */
 
+import { filters } from '@athoscommerce/snap-toolbox';
+
+// same formatting the Price component applies to cart totals
+const formatPrice = (value) => filters.currency(value);
+
 const config = {
 	url: 'https://localhost:2222/templates/bundle.html',
 	disableGA: '', // disable google analytic events (example: 'UA-123456-1')
@@ -107,12 +112,12 @@ describe('BundledRecommendations', () => {
 					.should('have.text', 'Subtotal for 4 items');
 				//strike
 				if (store.results.filter((result) => result.mappings.core.msrp).length) {
-					cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(`$${store.cart.msrp}`);
+					cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(formatPrice(store.cart.msrp));
 				}
 				//price
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__price .ss__price`)
 					.should('exist')
-					.contains(`$${store.cart.price}`);
+					.contains(formatPrice(store.cart.price));
 				//button
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__button`)
 					.should('exist')
@@ -131,12 +136,12 @@ describe('BundledRecommendations', () => {
 							.should('have.text', 'Subtotal for 3 items');
 						//strike
 						if (store.results.filter((result) => result.mappings.core.msrp).length) {
-							cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(`$${store.cart.msrp}`);
+							cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(formatPrice(store.cart.msrp));
 						}
 						//price
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__price .ss__price`)
 							.should('exist')
-							.contains(`$${store.cart.price}`);
+							.contains(formatPrice(store.cart.price));
 						//button
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__button`)
 							.should('exist')
@@ -209,19 +214,19 @@ describe('BundledRecommendations', () => {
 		});
 
 		it('can click on a result and go to that page', function () {
-			cy.document().then((doc) => {
-				cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
-					cy.get(config?.selectors?.recommendation.activeSlide).should('exist');
-					let url = doc.querySelector(`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} a`).attributes
-						?.href?.value;
-					cy.get(`${config?.selectors?.recommendation.activeSlide} a`)
+			cy.get(config?.selectors?.recommendation.activeSlide).should('exist');
+			cy.get(`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} a`)
+				.first()
+				.invoke('attr', 'href')
+				.then((url) => {
+					expect(url).to.be.a('string').and.not.be.empty;
+					cy.get(`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} a`)
 						.first()
 						.click({ force: true })
 						.then(() => {
 							cy.location('href').should('include', url);
 						});
 				});
-			});
 		});
 
 		describe('Tests Custom Result Component', () => {

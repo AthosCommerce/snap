@@ -1,5 +1,8 @@
 import { h } from 'preact';
+import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatInspirationResultMessage } from './ChatInspirationResultMessage';
 
 describe('ChatInspirationResultMessage Component', () => {
@@ -38,7 +41,9 @@ describe('ChatInspirationResultMessage Component', () => {
 		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} />);
 		const buttons = rendered.container.querySelectorAll('.ss__chat-inspiration-result-message__inspiration-sections__section__queries__query');
 		expect(buttons.length).toBe(2);
-		expect(buttons[0].tagName).toBe('BUTTON');
+		expect(buttons[0]).toHaveClass('ss__button');
+		expect(buttons[0]).toHaveAttribute('role', 'button');
+		expect(buttons[0]).toHaveAttribute('tabindex', '0');
 		expect(buttons[0]).toHaveAttribute('aria-label', 'Search for "waterproof jacket"');
 	});
 
@@ -150,7 +155,88 @@ describe('ChatInspirationResultMessage Component', () => {
 			'.ss__chat-inspiration-result-message__inspiration-sections__section__products__product'
 		) as HTMLElement;
 
-		fireEvent.keyDown(product, { key: 'Enter' });
+		fireEvent.keyDown(product, { code: 'Enter' });
 		expect(productQuickView).toHaveBeenCalledTimes(1);
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} className={className} />);
+		const root = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} disableStyles={true} />);
+		const root = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} styleScript={styleScript} />);
+		const root = rendered.container.querySelector('.ss__chat-inspiration-result-message')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatInspirationResultMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatInspirationResultMessage.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatInspirationResultMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} theme={propTheme} />);
+			const element = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatInspirationResultMessage.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatInspirationResultMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatInspirationResultMessage: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatInspirationResultMessage chatItem={baseChatItem as any} controller={makeController()} theme={propTheme} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-inspiration-result-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatInspirationResultMessage.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatInspirationResultMessage.className);
+		});
 	});
 });

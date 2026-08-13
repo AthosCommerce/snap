@@ -555,7 +555,7 @@ export class AutocompleteController extends AbstractController {
 					this.setFocused(e.target as HTMLInputElement);
 				});
 			},
-			formSubmit: async (e: React.FormEvent<HTMLInputElement>): Promise<void> => {
+			formSubmit: async (e: SubmitEvent): Promise<void> => {
 				const form = e.target as HTMLFormElement;
 				const input: HTMLInputElement | null = form.querySelector(`input[${INPUT_ATTRIBUTE}]`);
 
@@ -591,7 +591,7 @@ export class AutocompleteController extends AbstractController {
 
 				form.submit();
 			},
-			formElementChange: (e: React.ChangeEvent<HTMLInputElement>): void => {
+			formElementChange: (e: Event): void => {
 				const input = e.target as HTMLInputElement;
 				const form = input?.form;
 				const searchInput = form?.querySelector(`input[${INPUT_ATTRIBUTE}]`);
@@ -816,21 +816,25 @@ export class AutocompleteController extends AbstractController {
 					this.storage.set('terms', JSON.stringify(trending));
 				}
 			}
-
-			this.store.updateTrendingTerms(trending);
 		} catch (err) {
+			// clear any poisoned cache entry so the next call refetches instead of re-throwing
+			this.storage.set('terms', null);
 			this.log.error('Error fetching trending terms', err);
+			return;
 		}
+
+		this.store.updateTrendingTerms(trending);
 	};
 
 	openChat = (): void => {
-		// loose focus
+		// lose focus
 		this.setFocused();
 
-		// fire chat send event — defaults to a 'general' request with the current input
-		window.searchspring.fire('chat/send', {
-			message: this.store.state.input,
-		});
+		// fire chat send event — defaults to a 'general' request with the current input.
+		// An empty input sends no `message` at all, so the event opens the chat without
+		// dispatching a request the controller would only warn about.
+		const message = this.store.state.input?.trim();
+		window.athos?.fire?.('controller/chat/send', message ? { message } : {});
 	};
 
 	search = async (): Promise<void> => {
@@ -1012,7 +1016,7 @@ export class AutocompleteController extends AbstractController {
 			this.track.product.addToCart(product);
 		});
 		if (products.length > 0) {
-			this.eventManager.fire('addToCart', { controller: this, products });
+			await this.eventManager.fire('addToCart', { controller: this, products });
 		}
 	};
 }

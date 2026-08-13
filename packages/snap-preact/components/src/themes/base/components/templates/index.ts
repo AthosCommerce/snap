@@ -15,10 +15,12 @@ import { autocompleteSlideout } from './autocompleteSlideout';
 import { autocompleteModal } from './autocompleteModal';
 import { autocompleteFixed } from './autocompleteFixed';
 import { chat } from './chat';
+import { chatButton } from './chatButton';
 
-export const templates: ThemeResponsiveComplete = {
+export const templates = {
 	default: {
 		...chat.default,
+		...chatButton.default,
 		...autocompleteSlideout.default,
 		...autocompleteModal.default,
 		...autocompleteFixed.default,
@@ -35,6 +37,7 @@ export const templates: ThemeResponsiveComplete = {
 	},
 	mobile: {
 		...chat.mobile,
+		...chatButton.mobile,
 		...autocompleteSlideout.mobile,
 		...autocompleteModal.mobile,
 		...autocompleteFixed.mobile,
@@ -51,6 +54,7 @@ export const templates: ThemeResponsiveComplete = {
 	},
 	tablet: {
 		...chat.tablet,
+		...chatButton.tablet,
 		...autocompleteSlideout.tablet,
 		...autocompleteModal.tablet,
 		...autocompleteFixed.tablet,
@@ -67,6 +71,7 @@ export const templates: ThemeResponsiveComplete = {
 	},
 	desktop: {
 		...chat.desktop,
+		...chatButton.desktop,
 		...autocompleteSlideout.desktop,
 		...autocompleteModal.desktop,
 		...autocompleteFixed.desktop,
@@ -81,4 +86,4 @@ export const templates: ThemeResponsiveComplete = {
 		...searchCollapsible.desktop,
 		...searchHorizontal.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

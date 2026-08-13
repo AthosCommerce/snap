@@ -19,10 +19,10 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 		...properties,
 	};
 
-	props.onAddToCart = (e: any) => {
-		setAddedToCart(true);
+	props.onAddToCart = async (e: any) => {
+		await properties.onAddToCart(e);
 
-		properties.onAddToCart(e);
+		setAddedToCart(true);
 
 		setTimeout(() => setAddedToCart(false), properties.ctaButtonSuccessTimeout);
 	};
@@ -67,9 +67,13 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge({}, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		cartStore,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			cartStore,
+		},
+		{ activeBreakpoint: props?.theme?.activeBreakpoint }
+	);
 	return (
 		<div className={`${classNamePrefix}__wrapper__cta`}>
 			{ctaSlot ? (
@@ -122,7 +126,7 @@ export interface BundleSelectorSubProps {
 export interface BundledCTAProps extends ComponentProps {
 	ctaSlot?: JSX.Element | React.FunctionComponent<BundledCTAProps>;
 	cartStore: CartStore;
-	onAddToCart: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+	onAddToCart: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void | Promise<void>;
 	ctaIcon?: IconType | Partial<IconProps> | false;
 	ctaButtonText?: string;
 	ctaButtonSuccessText?: string;

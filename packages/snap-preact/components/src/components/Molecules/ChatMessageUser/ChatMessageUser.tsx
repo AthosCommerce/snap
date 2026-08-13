@@ -2,16 +2,18 @@ import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
+import deepmerge from 'deepmerge';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { mergeProps, mergeStyles } from '../../../utilities';
+import { Colour, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hooks';
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import type { ChatController } from '@athoscommerce/snap-controller';
 
-const defaultStyles: StyleScript<ChatMessageUserProps> = ({ primaryColor, primaryColorText }) => {
-	const colorPrimary = primaryColor || '#253B80';
+const defaultStyles: StyleScript<ChatMessageUserProps> = ({ primaryColor, primaryColorText, theme }) => {
+	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	const colorPrimaryText = primaryColorText || '#fff';
 	return css({
 		display: 'flex',
@@ -93,24 +95,24 @@ const defaultStyles: StyleScript<ChatMessageUserProps> = ({ primaryColor, primar
 	});
 };
 
-function getRequestTypeLabel(chatItem: any): string | undefined {
+function getRequestTypeLangKey(chatItem: ChatMessageUserItem): RequestTypeLangKey | undefined {
 	const requestType = chatItem.requestType;
 	if (!requestType || requestType === 'general') return undefined;
 
 	switch (requestType) {
 		case 'productQuery':
-			return 'Asking about product';
+			return 'requestTypeProductQuery';
 		case 'productComparison':
-			return 'Comparing products';
+			return 'requestTypeProductComparison';
 		case 'productSearch':
 			if (chatItem.request?.searchFilters?.length && !chatItem.request?.searchTerm) {
-				return 'Filtering products';
+				return 'requestTypeProductFilter';
 			}
-			return 'Searching products';
+			return 'requestTypeProductSearch';
 		case 'imageSearch':
-			return 'Searching by image';
+			return 'requestTypeImageSearch';
 		case 'productSimilar':
-			return 'Finding similar products';
+			return 'requestTypeProductSimilar';
 		default:
 			return undefined;
 	}
@@ -156,6 +158,12 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 	const { controller, chatItem, onProductQuickView, hideMessageTypeIndicatorText, disableStyles, className, internalClassName, treePath } = props;
 	const { store } = controller;
 
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatMessageUser', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
+
 	const subProps: ChatMessageUserSubProps = {
 		image: {
 			disableStyles,
@@ -170,7 +178,8 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 	};
 
 	const styling = mergeStyles<ChatMessageUserProps>(props, defaultStyles);
-	const requestTypeLabel = getRequestTypeLabel(chatItem);
+
+	const requestTypeLangKey = getRequestTypeLangKey(chatItem);
 
 	const handleProductAttachmentClick = (attachment: any): void => {
 		if (!attachment?.productId) return;
@@ -185,13 +194,6 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 		if (product) {
 			controller.productQuickView(product);
 			onProductQuickView?.(product);
-		}
-	};
-
-	const handleProductAttachmentKeyDown = (e: any, attachment: any): void => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			handleProductAttachmentClick(attachment);
 		}
 	};
 
@@ -217,6 +219,51 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 	const hasAttachments = resolved.length > 0 || filterOptions.length > 0;
 	const hiddenFacetCount = Math.max(0, filterOptions.length - 1);
 
+	//initialize lang
+	const defaultLang: Partial<ChatMessageUserLang> = {
+		requestTypeProductQuery: {
+			value: 'Asking about product',
+		},
+		requestTypeProductComparison: {
+			value: 'Comparing products',
+		},
+		requestTypeProductFilter: {
+			value: 'Filtering products',
+		},
+		requestTypeProductSearch: {
+			value: 'Searching products',
+		},
+		requestTypeImageSearch: {
+			value: 'Searching by image',
+		},
+		requestTypeProductSimilar: {
+			value: 'Finding similar products',
+		},
+		facetAttachment: {
+			attributes: {
+				'aria-label': filterOptions.length ? `Filter: ${filterOptions[0].facetKey} = ${filterOptions[0].label}` : '',
+				title: filterOptions.length ? `Filter: ${filterOptions[0].facetKey} = ${filterOptions[0].label}` : '',
+			},
+		},
+		facetOverflow: {
+			attributes: {
+				'aria-label': `${hiddenFacetCount} additional filter${hiddenFacetCount === 1 ? '' : 's'}`,
+				title: `${hiddenFacetCount} more filter${hiddenFacetCount === 1 ? '' : 's'}`,
+			},
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+			chatItem,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
+
 	return (
 		<CacheProvider>
 			<div className={classnames('ss__chat-message-user', className, internalClassName)} {...styling}>
@@ -228,35 +275,41 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 									case 'image':
 										return (
 											<li className="ss__chat-message-user__attachment__image" key={attachment.id}>
-												<Image
-													{...subProps.image}
-													style={{ height: '200px', width: '200px' }}
-													src={attachment.thumbnailUrl || attachment.base64 || ''}
-													alt={''}
-												/>
+												<Image {...subProps.image} src={attachment.thumbnailUrl || attachment.base64 || ''} alt={''} />
 											</li>
 										);
 									case 'product': {
 										const canOpen = !!findProductInChat(store.currentChat?.chat, attachment.productId);
+										const attachmentDefaultLang = {
+											productAttachmentButton: {
+												attributes: {
+													'aria-label': `View details for ${attachment.name}`,
+													title: `View details for ${attachment.name}`,
+												},
+											},
+										};
+										const attachmentLang = deepmerge(attachmentDefaultLang, props.lang || {});
+										const attachmentMergedLang = useLang(
+											attachmentLang as any,
+											{
+												controller,
+												chatItem,
+												attachment,
+											},
+											{ activeBreakpoint: globalTheme?.activeBreakpoint }
+										);
 										return (
 											<li
 												className={classnames('ss__chat-message-user__attachment__product', {
 													'ss__chat-message-user__attachment__product--clickable': canOpen,
 												})}
 												key={attachment.id}
+												ref={(e) => canOpen && useA11y(e)}
 												role={canOpen ? 'button' : undefined}
-												tabIndex={canOpen ? 0 : undefined}
-												aria-label={canOpen ? `View details for ${attachment.name}` : undefined}
 												onClick={canOpen ? () => handleProductAttachmentClick(attachment) : undefined}
-												onKeyDown={canOpen ? (e: any) => handleProductAttachmentKeyDown(e, attachment) : undefined}
-												title={canOpen ? `View details for ${attachment.name}` : undefined}
+												{...(canOpen ? attachmentMergedLang.productAttachmentButton.attributes : {})}
 											>
-												<Image
-													{...subProps.image}
-													style={{ height: '200px', width: '200px' }}
-													src={attachment.thumbnailUrl || ''}
-													alt={attachment.name}
-												/>
+												<Image {...subProps.image} src={attachment.thumbnailUrl || ''} alt={attachment.name} />
 											</li>
 										);
 									}
@@ -265,12 +318,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 								}
 							})}
 							{filterOptions.length > 0 && (
-								<li
-									className="ss__chat-message-user__attachment__facet"
-									key="facet-first"
-									title={`Filter: ${filterOptions[0].facetKey} = ${filterOptions[0].label}`}
-									aria-label={`Filter: ${filterOptions[0].facetKey} = ${filterOptions[0].label}`}
-								>
+								<li className="ss__chat-message-user__attachment__facet" key="facet-first" {...mergedLang.facetAttachment.attributes}>
 									<Icon {...subProps.icon} icon="filter-funnel" size={27} />
 								</li>
 							)}
@@ -278,8 +326,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 								<li
 									className="ss__chat-message-user__attachment__facet ss__chat-message-user__attachment__facet--overflow"
 									key="facet-overflow"
-									title={`${hiddenFacetCount} more filter${hiddenFacetCount === 1 ? '' : 's'}`}
-									aria-label={`${hiddenFacetCount} additional filter${hiddenFacetCount === 1 ? '' : 's'}`}
+									{...mergedLang.facetOverflow.attributes}
 								>
 									<>+{hiddenFacetCount}</>
 								</li>
@@ -287,7 +334,9 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 						</ul>
 					)}
 					<div className="ss__chat-message-user__text-wrapper">
-						{requestTypeLabel && !hideMessageTypeIndicatorText ? <div className="ss__chat-message-user__request-type">{requestTypeLabel}</div> : null}
+						{requestTypeLangKey && !hideMessageTypeIndicatorText ? (
+							<div className="ss__chat-message-user__request-type" {...mergedLang[requestTypeLangKey].all} />
+						) : null}
 						{chatItem.text ? <div className="ss__chat-message-user__text">{chatItem.text}</div> : null}
 					</div>
 				</div>
@@ -301,10 +350,22 @@ interface ChatMessageUserSubProps {
 	icon: Partial<IconProps>;
 }
 
+// mirrors the ChatUserMessage type from the snap-store-mobx ChatSessionStore, with a
+// loose `messageType` so the full ChatMessage union can be passed by the Chat organism
+export type ChatMessageUserItem = {
+	id: string;
+	messageType?: string;
+	text?: string;
+	attachments?: string[];
+	requestType?: string;
+	request?: Record<string, any>;
+};
+
 export type ChatMessageUserProps = {
-	chatItem: any;
+	chatItem: ChatMessageUserItem;
 	controller: ChatController;
 	onProductQuickView?: (product: any) => void;
+	lang?: Partial<ChatMessageUserLang>;
 } & ChatMessageUserTemplatesLegalProps &
 	ComponentProps<ChatMessageUserProps>;
 
@@ -313,3 +374,17 @@ export type ChatMessageUserTemplatesLegalProps = {
 	primaryColorText?: string;
 	hideMessageTypeIndicatorText?: boolean;
 };
+
+type RequestTypeLangKey = keyof ChatMessageUserLang;
+
+export interface ChatMessageUserLang {
+	requestTypeProductQuery?: Lang<never>;
+	requestTypeProductComparison?: Lang<never>;
+	requestTypeProductFilter?: Lang<never>;
+	requestTypeProductSearch?: Lang<never>;
+	requestTypeImageSearch?: Lang<never>;
+	requestTypeProductSimilar?: Lang<never>;
+	productAttachmentButton?: Lang<never>;
+	facetAttachment?: Lang<never>;
+	facetOverflow?: Lang<never>;
+}

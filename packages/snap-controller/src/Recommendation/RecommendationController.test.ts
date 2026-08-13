@@ -385,8 +385,47 @@ describe('Recommendation Controller', () => {
 
 		const eventfn = jest.spyOn(controller.eventManager, 'fire');
 
-		controller.addToCart([controller.store.results[0], controller.store.results[1]]);
+		await controller.addToCart([controller.store.results[0], controller.store.results[1]]);
 
+		expect(eventfn).toHaveBeenCalledWith('addToCart', { controller, products: [controller.store.results[0], controller.store.results[1]] });
+
+		controller.tracker.cookies.cart.clear();
+	});
+
+	it('awaits addToCart middleware completion', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		await controller.search();
+
+		let resolveFire = () => {};
+		const firePromise = new Promise<void>((resolve) => {
+			resolveFire = resolve;
+		});
+
+		const eventfn = jest.spyOn(controller.eventManager, 'fire').mockImplementation(async () => {
+			await firePromise;
+		});
+
+		let settled = false;
+		const addToCartPromise = controller.addToCart([controller.store.results[0], controller.store.results[1]]).then(() => {
+			settled = true;
+		});
+
+		await Promise.resolve();
+		expect(settled).toBe(false);
+
+		resolveFire();
+		await addToCartPromise;
+
+		expect(settled).toBe(true);
 		expect(eventfn).toHaveBeenCalledWith('addToCart', { controller, products: [controller.store.results[0], controller.store.results[1]] });
 
 		controller.tracker.cookies.cart.clear();

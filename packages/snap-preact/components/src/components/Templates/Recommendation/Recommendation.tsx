@@ -168,7 +168,7 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {});
+	const mergedLang = useLang(lang as any, {}, { activeBreakpoint: globalTheme?.activeBreakpoint });
 
 	return (Array.isArray(children) && children.length) || resultsToRender?.length ? (
 		<CacheProvider>
@@ -205,6 +205,16 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 														controller,
 														result,
 														treePath: subProps.result.treePath,
+														theme: isNamedResultComponent
+															? deepmerge(props.theme || {}, {
+																	components: {
+																		// in order to preserve theme overrides for resultComponent vs. customComponent
+																		result: {
+																			customComponent: resultComponent,
+																		},
+																	},
+															  })
+															: props.theme,
 													});
 												} else {
 													if (shouldWaitForNamedResultComponent) {

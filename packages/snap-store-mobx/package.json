@@ -1,9 +1,10 @@
 {
 	"name": "@athoscommerce/snap-store-mobx",
-	"version": "1.7.0",
+	"version": "1.10.0",
 	"description": "Snap MobX Store",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
+	"types": "dist/esm/index.d.ts",
 	"author": "Athos Commerce",
 	"license": "MIT",
 	"repository": {
@@ -14,7 +15,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "rm -rf ./dist && rm -fr ./components/dist && tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2",
+		"build": "rm -rf ./dist && tsc",
+		"build:prod": "rm -rf ./dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "typedoc --out docs src/index.ts",
 		"dev": "tsc --watch",
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
@@ -23,16 +25,17 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-toolbox": "1.7.0",
+		"@athoscommerce/snap-toolbox": "1.10.0",
 		"deepmerge": "4.3.1",
-		"is-plain-object": "5.0.0"
+		"is-plain-object": "5.0.0",
+		"uuid": "9.0.1"
 	},
 	"peerDependencies": {
 		"mobx": "^6.15.1"
 	},
 	"devDependencies": {
-		"@athoscommerce/snap-client": "1.7.0",
-		"@athoscommerce/snap-url-manager": "1.7.0",
+		"@athoscommerce/snap-client": "1.10.0",
+		"@athoscommerce/snap-url-manager": "1.10.0",
 		"mobx": "6.15.1"
 	},
 	"sideEffects": false,

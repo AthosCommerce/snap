@@ -115,7 +115,7 @@ export const Button = observer((properties: ButtonProps) => {
 
 	//deep merge with props.lang
 	const langs = deepmerge(defaultLang, lang || {});
-	const mergedLang = useLang(langs as any, {});
+	const mergedLang = useLang(langs as any, {}, { activeBreakpoint: globalTheme?.activeBreakpoint });
 
 	// @ts-ignore - additionalProps may contain dangerouslySetInnerHTML which is fine to spread on the element, but doesn't fit the ButtonProps type definition so we need to ignore it here.
 	const hasDangerouslySetInnerHTML = Boolean(additionalProps.dangerouslySetInnerHTML);
@@ -153,6 +153,9 @@ export type ButtonProps = {
 	lang?: Partial<ButtonLang>;
 	name?: ButtonNames;
 	content?: string | JSX.Element;
+	title?: string;
+	// applies to native buttons only
+	type?: 'button' | 'submit' | 'reset';
 } & ButtonTemplatesLegalProps &
 	ComponentProps<ButtonProps>;
 

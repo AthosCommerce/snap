@@ -20,3 +20,10 @@ Optional list of strings used in place of the defaults. The verb cycles randomly
 ```tsx
 <ChatLoadingIndicator loading={true} verbs={['Thinking', 'Cooking', 'Brewing']} />
 ```
+
+### lang
+The default verbs can be translated via the `lang` prop (`thinkingVerb`, `searchingVerb`, `analyzingVerb`, `generatingVerb`, `processingVerb`).
+
+```tsx
+<ChatLoadingIndicator loading={true} lang={{ thinkingVerb: { value: 'Pensando' } }} />
+```

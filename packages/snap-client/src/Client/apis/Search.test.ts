@@ -289,6 +289,24 @@ describe('Search Api', () => {
 		requestMock.mockReset();
 	});
 
+	it('uses a configured origin for getProducts', async () => {
+		const api = new SearchAPI(new ApiConfiguration({ origin: 'https://custom-search.example.com' }));
+
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
+
+		await api.getProducts({
+			parentId: 'abc123',
+			siteId: '8uyt2m',
+		});
+
+		const expectedUrl = 'https://custom-search.example.com/v1/products/abc123';
+		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
+
+		requestMock.mockReset();
+	});
+
 	it('caches getProducts in memoryCache only (not sessionStorage)', async () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 		const mockResponse = { mappings: { core: { name: 'Cached Product' } } };

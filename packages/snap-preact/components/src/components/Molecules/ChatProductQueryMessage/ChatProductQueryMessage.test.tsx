@@ -1,5 +1,8 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { css } from '@emotion/react';
+import { render, fireEvent } from '@testing-library/preact';
+
+import { ThemeProvider } from '../../../providers';
 import { ChatProductQueryMessage } from './ChatProductQueryMessage';
 
 describe('ChatProductQueryMessage Component', () => {
@@ -44,6 +47,25 @@ describe('ChatProductQueryMessage Component', () => {
 			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
 		);
 		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
+	});
+
+	it('renders the action buttons with their labels', () => {
+		const product = {
+			display: {
+				mappings: { core: { name: 'Wool Hat', price: 25 } },
+				attributes: {},
+			},
+			variants: { selections: [] },
+		};
+		const rendered = render(
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
+		);
+		const addToCart = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__add-to-cart .ss__button');
+		const similar = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__show-similar .ss__button');
+		const discuss = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__discuss-product .ss__button');
+		expect(addToCart).toHaveTextContent('Add to Cart');
+		expect(similar).toHaveTextContent('Similar');
+		expect(discuss).toHaveTextContent('Discuss');
 	});
 
 	it('auto-selects the variant whose uid matches the clicked result id', () => {
@@ -133,5 +155,161 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(swatches[0]).toHaveAttribute('role', 'radio');
 		expect(swatches[0]).toHaveAttribute('aria-checked', 'true');
 		expect(swatches[1]).toHaveAttribute('aria-disabled', 'true');
+	});
+
+	it('does not select unavailable swatches on click', () => {
+		const select = jest.fn();
+		const product = {
+			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
+			variants: {
+				selections: [
+					{
+						field: 'color',
+						values: [
+							{ value: 'black', available: true },
+							{ value: 'brown', available: false },
+						],
+						selected: { value: 'black' },
+						select,
+					},
+				],
+			},
+		};
+		const rendered = render(
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
+		);
+		const swatches = rendered.container.querySelectorAll('.ss__chat-product-query-message__variants__swatch');
+		fireEvent.click(swatches[1]);
+		expect(select).not.toHaveBeenCalled();
+
+		fireEvent.click(swatches[0]);
+		expect(select).toHaveBeenCalledWith('black');
+	});
+
+	it('discusses the quickview product so the attachment reflects the selected variant', () => {
+		const productQuery = jest.fn();
+		const product = {
+			id: 'variant-black',
+			display: { mappings: { core: { name: 'Boots', thumbnailImageUrl: 'variant-brown.jpg' } }, attributes: {} },
+			variants: { selections: [] },
+		};
+		const controller = makeController(product);
+		controller.productQuery = productQuery;
+		const sourceProduct = { id: 'variant-black', display: { mappings: { core: { name: 'Boots', thumbnailImageUrl: 'variant-black.jpg' } } } };
+		const rendered = render(
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct } as any} controller={controller} />
+		);
+		const discuss = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__discuss-product .ss__button')!;
+		fireEvent.click(discuss);
+		expect(productQuery).toHaveBeenCalledWith(product);
+	});
+
+	it('renders with classname', () => {
+		const className = 'classy';
+		const rendered = render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
+				controller={makeController(null)}
+				className={className}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-product-query-message');
+		expect(root).toBeInTheDocument();
+		expect(root).toHaveClass(className);
+	});
+
+	it('can disable styles', () => {
+		const rendered = render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
+				controller={makeController(null)}
+				disableStyles={true}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-product-query-message');
+		expect(root?.classList).toHaveLength(1);
+	});
+
+	it('renders with a custom styleScript', () => {
+		const styleScript = () => css({ padding: '11px' });
+		const rendered = render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
+				controller={makeController(null)}
+				styleScript={styleScript}
+			/>
+		);
+		const root = rendered.container.querySelector('.ss__chat-product-query-message')!;
+		expect(getComputedStyle(root).padding).toBe('11px');
+	});
+
+	describe('theming works', () => {
+		it('is themeable with ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatProductQueryMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(null)} />
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-product-query-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(globalTheme.components.chatProductQueryMessage.className);
+		});
+
+		it('is themeable with theme prop', () => {
+			const propTheme = {
+				components: {
+					chatProductQueryMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const rendered = render(
+				<ChatProductQueryMessage
+					chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
+					controller={makeController(null)}
+					theme={propTheme}
+				/>
+			);
+			const element = rendered.container.querySelector('.ss__chat-product-query-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatProductQueryMessage.className);
+		});
+
+		it('is theme prop overrides ThemeProvider', () => {
+			const globalTheme = {
+				components: {
+					chatProductQueryMessage: {
+						className: 'classy',
+					},
+				},
+			};
+			const propTheme = {
+				components: {
+					chatProductQueryMessage: {
+						className: 'classier',
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<ChatProductQueryMessage
+						chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
+						controller={makeController(null)}
+						theme={propTheme}
+					/>
+				</ThemeProvider>
+			);
+			const element = rendered.container.querySelector('.ss__chat-product-query-message');
+			expect(element).toBeInTheDocument();
+			expect(element).toHaveClass(propTheme.components.chatProductQueryMessage.className);
+			expect(element).not.toHaveClass(globalTheme.components.chatProductQueryMessage.className);
+		});
 	});
 });

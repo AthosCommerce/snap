@@ -6,6 +6,7 @@ export * from './components/Atoms/BadgeText';
 export * from './components/Atoms/Banner';
 export * from './components/Atoms/Breadcrumbs';
 export * from './components/Atoms/Button';
+export * from './components/Atoms/ChatLoadingIndicator';
 export * from './components/Atoms/Dropdown';
 export * from './components/Atoms/FormattedNumber';
 export * from './components/Atoms/Icon';
@@ -68,7 +69,6 @@ export * from './components/Organisms/Facet';
 export * from './components/Organisms/Facets';
 export * from './components/Organisms/FacetsHorizontal';
 export * from './components/Organisms/FilterSummary';
-export * from './components/Organisms/MobileSidebar';
 export * from './components/Organisms/NoResults';
 export * from './components/Organisms/Results';
 export * from './components/Organisms/Sidebar';
@@ -76,9 +76,11 @@ export * from './components/Organisms/Toolbar';
 export * from './components/Organisms/Autocomplete';
 export * from './components/Organisms/TermsList';
 export { ChatOrganism, type ChatOrganismProps } from './components/Organisms/Chat';
+export { ChatButtonOrganism, type ChatButtonOrganismProps } from './components/Organisms/ChatButton';
 
 // TEMPLATES
 export * from './components/Templates/Chat';
+export * from './components/Templates/ChatButton';
 export * from './components/Templates/Recommendation';
 export * from './components/Templates/RecommendationBundle';
 export * from './components/Templates/RecommendationBundleEasyAdd';

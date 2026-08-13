@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 
 // jsdom does not implement ResizeObserver, which the Slideshow component relies on.
-if (typeof global.ResizeObserver === 'undefined') {
-	global.ResizeObserver = class ResizeObserver {
+if (typeof globalThis.ResizeObserver === 'undefined') {
+	globalThis.ResizeObserver = class ResizeObserver {
 		observe() {
 			/* no-op */
 		}

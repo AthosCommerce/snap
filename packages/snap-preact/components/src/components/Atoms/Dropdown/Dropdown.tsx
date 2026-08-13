@@ -143,7 +143,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 				window.removeEventListener('scroll', updateCoords, true);
 			};
 		}
-	}, [usePortal, dropdownOpen]);
+	}, [usePortal, dropdownOpen, dropUp, boundaryRef]);
 
 	// Reset flip state when dropdown closes
 	useEffect(() => {
@@ -159,18 +159,21 @@ export const Dropdown = observer((properties: DropdownProps) => {
 	// useLayoutEffect fires before paint to avoid flash.
 	useLayoutEffect(() => {
 		if (usePortal && dropdownOpen && contentRef.current && coords.width > 0) {
-			// Measure against the would-be unflipped right edge so the check is
-			// stable regardless of the current flipX state. Reading rect.right
-			// after a flip reports the anchored edge instead of the natural one,
-			// which causes the dropdown to oscillate between flipped/unflipped on
-			// every scroll tick.
-			const contentWidth = contentRef.current.offsetWidth;
+			// Measure the width the content would occupy when unflipped so the check
+			// uses the same basis in both states. When unflipped the portal is given an
+			// explicit `width: coords.width` (and the content has minWidth 100%), so the
+			// rendered width is max(intrinsic, coords.width); when flipped the explicit
+			// width is dropped, so offsetWidth alone reports only the intrinsic width.
+			// Reading rect.right after a flip would report the anchored edge instead of
+			// the natural one, causing the dropdown to oscillate between flipped and
+			// unflipped on every scroll tick.
+			const contentWidth = Math.max(contentRef.current.offsetWidth, coords.width);
 			const limit = boundaryRef?.current?.getBoundingClientRect().right ?? window.innerWidth;
 			const shouldFlip = coords.left + contentWidth > limit;
 			setFlipX(shouldFlip);
 			if (shouldFlip) setFlipRight(Math.max(0, window.innerWidth - limit));
 		}
-	}, [usePortal, dropdownOpen, coords.left, coords.width]);
+	}, [usePortal, dropdownOpen, coords.left, coords.width, boundaryRef]);
 
 	const toggleOpenDropdown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, state?: boolean) => {
 		if (stateful) {
@@ -269,7 +272,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 						}, 300);
 					}}
 				>
-					{cloneWithProps(button, { open: dropdownOpen, disabled, toggleOpen: toggleOpenDropdown, treePath })}
+					{cloneWithProps(button, { open: dropdownOpen, ...(disabled !== undefined ? { disabled } : {}), toggleOpen: toggleOpenDropdown, treePath })}
 				</div>
 
 				{!usePortal
@@ -300,7 +303,11 @@ export const Dropdown = observer((properties: DropdownProps) => {
 	);
 });
 
-export type DropdownProps = DropdownTemplatesLegalProps & ComponentProps<DropdownProps>;
+export type DropdownProps = {
+	/** Constrains the portal to this element's horizontal bounds instead of the viewport. */
+	boundaryRef?: MutableRef<HTMLElement | null>;
+} & DropdownTemplatesLegalProps &
+	ComponentProps<DropdownProps>;
 export type DropdownTemplatesLegalProps = {
 	button: string | JSX.Element;
 	content?: string | JSX.Element;
@@ -320,5 +327,4 @@ export type DropdownTemplatesLegalProps = {
 	disableA11y?: boolean;
 	usePortal?: boolean;
 	dropUp?: boolean;
-	boundaryRef?: { current: HTMLElement | null };
 };

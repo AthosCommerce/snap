@@ -3,6 +3,7 @@ import { ThemeResponsiveComplete } from '../../../../providers';
 // TEMPLATES
 import { autocompleteFixed } from './autocompleteFixed';
 import { chat } from './chat';
+import { chatButton } from './chatButton';
 import { autocompleteModal } from './autocompleteModal';
 import { autocompleteSlideout } from './autocompleteSlideout';
 import { recommendation } from './recommendation';
@@ -16,9 +17,10 @@ import { search } from './search';
 import { searchHorizontal } from './searchHorizontal';
 import { searchCollapsible } from './searchCollapsible';
 
-export const templates: ThemeResponsiveComplete = {
+export const templates = {
 	default: {
 		...chat.default,
+		...chatButton.default,
 		...autocompleteFixed.default,
 		...autocompleteModal.default,
 		...autocompleteSlideout.default,
@@ -35,6 +37,7 @@ export const templates: ThemeResponsiveComplete = {
 	},
 	mobile: {
 		...chat.mobile,
+		...chatButton.mobile,
 		...autocompleteFixed.mobile,
 		...autocompleteModal.mobile,
 		...autocompleteSlideout.mobile,
@@ -51,6 +54,7 @@ export const templates: ThemeResponsiveComplete = {
 	},
 	tablet: {
 		...chat.tablet,
+		...chatButton.tablet,
 		...autocompleteFixed.tablet,
 		...autocompleteModal.tablet,
 		...autocompleteSlideout.tablet,
@@ -67,6 +71,7 @@ export const templates: ThemeResponsiveComplete = {
 	},
 	desktop: {
 		...chat.desktop,
+		...chatButton.desktop,
 		...autocompleteFixed.desktop,
 		...autocompleteModal.desktop,
 		...autocompleteSlideout.desktop,
@@ -81,4 +86,4 @@ export const templates: ThemeResponsiveComplete = {
 		...searchCollapsible.desktop,
 		...searchHorizontal.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

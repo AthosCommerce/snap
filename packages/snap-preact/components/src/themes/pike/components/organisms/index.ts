@@ -6,21 +6,19 @@ import { facet } from './facet';
 import { facets } from './facets';
 import { facetsHorizontal } from './facetsHorizontal';
 import { filterSummary } from './filterSummary';
-import { mobileSidebar } from './mobileSidebar';
 import { noResults } from './noResults';
 import { results } from './results';
 import { sidebar } from './sidebar';
 import { termsList } from './termsList';
 import { toolbar } from './toolbar';
 
-export const organisms: ThemeResponsiveComplete = {
+export const organisms = {
 	default: {
 		...autocomplete.default,
 		...facet.default,
 		...facets.default,
 		...facetsHorizontal.default,
 		...filterSummary.default,
-		...mobileSidebar.default,
 		...noResults.default,
 		...results.default,
 		...sidebar.default,
@@ -33,7 +31,6 @@ export const organisms: ThemeResponsiveComplete = {
 		...facets.mobile,
 		...facetsHorizontal.mobile,
 		...filterSummary.mobile,
-		...mobileSidebar.mobile,
 		...noResults.mobile,
 		...results.mobile,
 		...sidebar.mobile,
@@ -46,7 +43,6 @@ export const organisms: ThemeResponsiveComplete = {
 		...facets.tablet,
 		...facetsHorizontal.tablet,
 		...filterSummary.tablet,
-		...mobileSidebar.tablet,
 		...noResults.tablet,
 		...results.tablet,
 		...sidebar.tablet,
@@ -59,11 +55,10 @@ export const organisms: ThemeResponsiveComplete = {
 		...facets.desktop,
 		...facetsHorizontal.desktop,
 		...filterSummary.desktop,
-		...mobileSidebar.desktop,
 		...noResults.desktop,
 		...results.desktop,
 		...sidebar.desktop,
 		...toolbar.desktop,
 		...termsList.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

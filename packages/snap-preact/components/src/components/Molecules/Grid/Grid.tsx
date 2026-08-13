@@ -5,6 +5,7 @@ import { useState } from 'preact/hooks';
 import classnames from 'classnames';
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
+import { observer } from 'mobx-react-lite';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, ListOption, SwatchOption, StyleScript } from '../../../types';
@@ -132,7 +133,7 @@ const defaultStyles: StyleScript<GridProps> = ({ gapSize, columns, theme, disabl
 	});
 };
 
-export function Grid(properties: GridProps) {
+export const Grid = observer((properties: GridProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 	const defaultProps: Partial<GridProps> = {
@@ -259,10 +260,14 @@ export function Grid(properties: GridProps) {
 
 		//deep merge with props.lang
 		const lang = deepmerge(defaultLang, props.lang || {});
-		const mergedLang = useLang(lang as any, {
-			limited,
-			remainder,
-		});
+		const mergedLang = useLang(
+			lang as any,
+			{
+				limited,
+				remainder,
+			},
+			{ activeBreakpoint: globalTheme?.activeBreakpoint }
+		);
 
 		return showButton && remainder > 0 && options.length !== limit ? (
 			<div
@@ -343,7 +348,7 @@ export function Grid(properties: GridProps) {
 			</div>
 		</CacheProvider>
 	) : null;
-}
+});
 
 export type GridProps = {
 	lang?: Partial<GridLang>;

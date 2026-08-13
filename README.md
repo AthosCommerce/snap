@@ -17,7 +17,7 @@ Documentation for each package can be found in its respective README file (`/pac
 # Prerequisite
 
 ## Node.js
-We recommend usage of Node.js v16 or higher.
+CI runs Node.js 24 (see `.github/workflows/test.yml`); match that locally. There is no `engines` field pinning it, but the toolchain is no longer exercised against older releases.
 ## NPM v7.x
 
 NPM v7.x is required for its workspaces feature
@@ -28,14 +28,22 @@ NPM v7.7.0 is optional for executing scripts in workspaces
 While at the <b>repo root</b>, the following commands are available:
 
 ## Install dependencies
+Use `ci` rather than `install` — the lockfile is the source of truth:
 ```shell
-npm install
+npm ci
 ```
 
+Always run TypeScript through the local install. The toolchain is pinned as two aliased packages — `@typescript/native` (`typescript@7.0.2`, what `tsc` actually runs) and `typescript` (`@typescript/typescript6@6.0.2`, the compatibility API used by ESLint, Jest and TypeDoc). From a directory without `node_modules`, `npx tsc` silently falls through to whatever compiler is installed globally and reports confusing, unrelated errors. That is a missing-install symptom, not a code or config error — install first.
+
 ## Build
-Executes `npm run build` across all packages sequentially
+Builds the ESM package outputs needed for local development:
 ```shell
 npm run build
+```
+
+Builds the complete ESM, CJS, and demo production outputs:
+```shell
+npm run build:prod
 ```
 ## Dev
 Executes `npm run dev` across all packages sequentially. All packages will be linked with hot reloading
@@ -67,14 +75,47 @@ npm run storybook:preact
 ```
 
 ## Tests (unit + headless E2E)
+
+Runs everything — Jest, then `npm run build`, then both headless Cypress suites. It stops at the first failure, cheapest step first, so a broken unit test surfaces in seconds rather than after a build:
+
 ```shell
 npm run test
 ```
 
-## Cypress E2E Tests
-Only applies to `packages/snap-preact-demo`
+To run just the Jest suite (no build required — cross-package `@athoscommerce/*` imports are mapped to each package's `src/` via `moduleNameMapper` in `jest.base.config.json`, so it runs straight from a fresh clone and always exercises current source rather than a possibly-stale `dist/`):
+
 ```shell
-npm run cypress
+npm run test:core
+```
+
+Coverage is opt-in, since instrumenting every file slows the run:
+
+```shell
+npm run test:coverage
+```
+
+Jest runs transpile-only, so it does not report type errors. Test files are type-checked separately (nothing else in the repo covers them — the build and lint configs both exclude `*.test.ts`):
+
+```shell
+npm run typecheck:tests
+```
+
+The Cypress suites need a build first, but only the fast ESM-only one. Run them together, or individually while iterating:
+
+```shell
+npm run build && npm run test:e2e
+```
+
+```shell
+npm run test:e2e:components
+npm run test:e2e:demo
+```
+
+## Cypress (interactive)
+The headless runs above are covered by `npm run test:e2e`. To open the Cypress UI instead, run it from the package that owns the suite — the demo for E2E specs, `snap-preact` for component specs. Both need a build first (`npm run build`).
+```shell
+npm run cypress --workspace=@athoscommerce/snap-preact-demo
+npm run cypress --workspace=@athoscommerce/snap-preact
 ```
 
 ## Clean
@@ -82,5 +123,4 @@ Removes all package and root `node_modules` directories and package-lock.json; a
 ```shell
 npm run clean
 ```
-
 

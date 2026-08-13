@@ -23,6 +23,92 @@ describe('ChatAttachmentStore remove()', () => {
 	});
 });
 
+describe('ChatAttachmentStore add() image branch', () => {
+	it('removes ALL existing attachments when adding an image (no skips while splicing)', () => {
+		const store = createStore();
+		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'blue', label: 'Blue', count: 3 });
+		expect(store.items.length).toBe(2);
+
+		store.add({ type: 'image', fileName: 'photo.jpg' });
+
+		expect(store.items.length).toBe(1);
+		expect(store.items[0].type).toBe('image');
+	});
+
+	it('replaces a previous image with the new one', () => {
+		const store = createStore();
+		store.add({ type: 'image', fileName: 'first.jpg' });
+		store.add({ type: 'image', fileName: 'second.jpg' });
+
+		expect(store.items.length).toBe(1);
+		expect((store.items[0] as any).fileName).toBe('second.jpg');
+	});
+});
+
+describe('ChatAttachmentStore add() product branch', () => {
+	const productConfig = (id: string, requestType: 'productQuery' | 'productSimilar' | 'productComparison' = 'productComparison') => ({
+		type: 'product' as const,
+		productId: id,
+		thumbnailUrl: `http://example.com/${id}.jpg`,
+		name: `Product ${id}`,
+		requestType,
+	});
+
+	it('productSimilar replaces ALL existing attachments including multiple facets', () => {
+		const store = createStore();
+		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'blue', label: 'Blue', count: 3 });
+
+		store.add(productConfig('prod-1', 'productSimilar'));
+
+		expect(store.items.length).toBe(1);
+		expect((store.items[0] as any).productId).toBe('prod-1');
+	});
+
+	it('dedupes an already-attached product and updates its requestType', () => {
+		const store = createStore();
+		const first = store.add(productConfig('prod-1', 'productQuery'));
+		const second = store.add(productConfig('prod-1', 'productComparison'));
+
+		expect(second).toBe(first);
+		expect(store.items.length).toBe(1);
+		expect((first as any).requestType).toBe('productComparison');
+	});
+
+	it('caps comparison attachments at the comparison max by trimming the oldest', () => {
+		const store = createStore();
+		for (let i = 1; i <= 5; i++) {
+			store.add(productConfig(`prod-${i}`));
+		}
+
+		const productIds = store.items.filter((item) => item.type === 'product').map((item: any) => item.productId);
+		expect(productIds.length).toBe(4);
+		expect(productIds).not.toContain('prod-1');
+		expect(productIds).toContain('prod-5');
+	});
+});
+
+describe('ChatAttachmentStore add() facet dedup', () => {
+	it('returns the existing attachment for the same facet key/value', () => {
+		const store = createStore();
+		const first = store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+		const second = store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+
+		expect(second).toBe(first);
+		expect(store.items.length).toBe(1);
+	});
+
+	it('removes non-facet attachments when adding a facet', () => {
+		const store = createStore();
+		store.add({ type: 'image', fileName: 'photo.jpg' });
+		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+
+		expect(store.items.length).toBe(1);
+		expect(store.items[0].type).toBe('facet');
+	});
+});
+
 describe('ChatAttachmentStore add() product requestType stamp', () => {
 	it('does not set requestType on surviving non-product attachments when adding a product', () => {
 		const store = createStore();

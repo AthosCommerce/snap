@@ -4,6 +4,7 @@ import deepmerge from 'deepmerge';
 import { Snap } from '@athoscommerce/snap-preact';
 
 import { getContext } from '@athoscommerce/snap-toolbox';
+
 // import { afterSearch } from './middleware/plugins/afterSearch';
 import { afterStore, mutateResultsURL } from './middleware/plugins/afterStore';
 import { combineMerge } from './middleware/functions';
@@ -231,6 +232,25 @@ let config: SnapConfig = {
 					},
 				},
 				targeters: [
+					// inline launcher left of the search form — injected as a sibling of the form so
+					// the form's box stays equal to the input's box for the autocomplete overlay
+					{
+						selector: '.ss__demo__search__form',
+						inject: {
+							action: 'before',
+							element: () => {
+								const container = document.createElement('div');
+								container.className = 'ss__chat--inline-target';
+								return container;
+							},
+						},
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).ChatButton;
+						},
+						props: {
+							content: 'Ask AI',
+						},
+					},
 					{
 						selector: 'body',
 						component: async () => {
@@ -240,6 +260,8 @@ let config: SnapConfig = {
 							avatar: 'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Gemini_Generated_Image_vz2c2tvz2c2tvz2c.png?v=1771603960',
 							buttonBelowMessage: true,
 							hideMessageTypeIndicatorText: true,
+							// keep the floating bubble launcher alongside the inline ChatButton
+							hideBubble: false,
 						},
 					},
 				],

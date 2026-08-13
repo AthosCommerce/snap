@@ -3,7 +3,6 @@ import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
-// import { CustomResult } from './components/Result';
 
 const { siteId, clientConfig } = getDemoConfig();
 
@@ -75,10 +74,18 @@ let templatesConfig: SnapTemplatesConfig = {
 			// },
 		},
 		style: globalStyles,
+		// globalResultComponent: 'CustomResult',
 		overrides: {
 			default: {
 				result: {
 					discussProductIcon: { icon: 'chat' },
+				},
+				chatButton: {
+					children: 'Ask AI',
+				},
+				chat: {
+					// keep the floating bubble launcher alongside the inline ChatButton
+					hideBubble: false,
 				},
 			},
 		},
@@ -113,6 +120,12 @@ let templatesConfig: SnapTemplatesConfig = {
 	},
 	chat: {
 		targets: [
+			{
+				// appended beside the search form (not inside it, which would move the box the
+				// autocomplete overlay anchors to); ordered left of the form via website.css
+				selector: '.ss__demo__search',
+				component: 'ChatButton',
+			},
 			{
 				selector: 'body',
 				component: 'Chat',

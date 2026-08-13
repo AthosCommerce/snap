@@ -58,9 +58,6 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		clearSearchButton: {
 			icon: 'close-thin',
 		},
-		chatButton: {
-			icon: 'chat',
-		},
 	};
 
 	const props = mergeProps('searchInput', globalTheme, defaultProps, properties);
@@ -108,6 +105,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		hideSubmitSearchButton,
 		hideClearSearchButton,
 		hideCloseSearchButton,
+		hideChatButton,
 		inputRef,
 		inputName,
 		onChange,
@@ -197,10 +195,6 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 			...chatButton,
 			internalClassName: 'ss__search-input__button--chat-button',
 			name: 'chat',
-			onClick: () => {
-				// @ts-ignore - this is a button, so it should have an onClick prop?
-				chatButton?.onClick && chatButton.onClick();
-			},
 			// inherited props
 			...defined({
 				disableStyles,
@@ -244,7 +238,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {});
+	const mergedLang = useLang(lang as any, {}, { activeBreakpoint: globalTheme?.activeBreakpoint });
 
 	return (
 		<CacheProvider>
@@ -276,7 +270,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 					{!hideClearSearchButton && clearSearchButton && inputValue?.length ? (
 						<Button {...subProps.clearSearchButton} {...mergedLang.clearSearchButton.all} />
 					) : null}
-					{chatButton ? <Button {...subProps.chatButton} {...mergedLang.chatButton.all} /> : null}
+					{!hideChatButton && chatButton?.icon ? <Button {...subProps.chatButton} {...mergedLang.chatButton.all} /> : null}
 
 					{!hideSubmitSearchButton && submitSearchButton && <Button {...subProps.submitSearchButton} {...mergedLang.submitSearchButton.all} />}
 				</div>
@@ -301,6 +295,7 @@ export type SearchInputTemplatesLegalProps = {
 	hideSubmitSearchButton?: boolean;
 	hideClearSearchButton?: boolean;
 	hideCloseSearchButton?: boolean;
+	hideChatButton?: boolean;
 	inputName?: string;
 	disabled?: boolean;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;

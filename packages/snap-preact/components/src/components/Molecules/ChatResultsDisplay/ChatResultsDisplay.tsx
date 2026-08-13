@@ -6,10 +6,13 @@ import classnames from 'classnames';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript } from '../../../types';
+import { useMediaQuery, useCustomComponentOverride } from '../../../hooks';
 import { Slideshow, SlideshowProps, SlideshowSlide } from '../Slideshow';
 import { ChatResult, ChatResultProps } from '../ChatResult';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
+import type { ChatResponseProductRecommendationData } from '@athoscommerce/snap-client';
+import type { SearchResponseModelResult } from '@athoscommerce/snapi-types';
 
 const defaultStyles: StyleScript<ChatResultsDisplayProps> = () => {
 	return css({
@@ -21,10 +24,6 @@ const defaultStyles: StyleScript<ChatResultsDisplayProps> = () => {
 			width: '100%',
 			display: 'flex',
 			cursor: 'pointer',
-			'&:focus-visible': {
-				outline: '2px solid #253B80',
-				outlineOffset: '2px',
-			},
 		},
 	});
 };
@@ -56,6 +55,8 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 
 	const { chatItem, controller, scrollToBottom, onProductQuickView, disableStyles, className, internalClassName, treePath } = props;
 
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatResultsDisplay', props);
+
 	const currentChat = controller.store.currentChat;
 	const activeMessage = currentChat?.activeMessage;
 	const isSideChatOpen =
@@ -63,11 +64,18 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 		['inspirationResult', 'productComparison', 'productQuery'].includes(activeMessage.messageType) &&
 		currentChat?.dismissedSideChatMessageId !== activeMessage.id;
 
-	const isNarrow = typeof window !== 'undefined' && window.innerWidth < 550;
+	const isNarrow = useMediaQuery('(max-width: 549px)');
 	// only the tablet range needs the narrower slideshow when the side chat is open;
 	// at >= 1200px there's room to keep 2.9 slides alongside the secondary chat
-	const isConstrained = !isNarrow && isSideChatOpen && typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth <= 1200;
+	const isTabletRange = useMediaQuery('(min-width: 768px) and (max-width: 1200px)');
+	const isConstrained = !isNarrow && isSideChatOpen && isTabletRange;
 	const slidesToShow = isNarrow || isConstrained ? 1.9 : 2.9;
+
+	// after all hooks — an override that resolves or fails mid-lifecycle must not
+	// change the hook count between renders
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	const subProps: ChatResultsDisplaySubProps = {
 		slideshow: {
@@ -99,51 +107,45 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 		onProductQuickView?.();
 	};
 
-	const handleResultKeyDown = (e: any, result: Product): void => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			controller.productQuickView(result);
-			onProductQuickView?.();
-		}
-	};
-
 	const renderSlideshow = (results: Product[], key?: string | number) => {
 		const slides: SlideshowSlide[] = results.map((result: Product) => ({
 			content: (
-				<div
-					key={result.id}
-					className="ss__chat-results-display__result"
-					role="button"
-					tabIndex={0}
-					aria-label={`Open ${(result as any)?.display?.mappings?.core?.name || 'product'}`}
-					onClick={(e: any) => handleResultClick(e, result)}
-					onKeyDown={(e: any) => handleResultKeyDown(e, result)}
-				>
-					<ChatResult {...subProps.chatResult} result={result} controller={controller} scrollToBottom={scrollToBottom} />
+				// deliberately not role="button" — the title Button inside provides the
+				// keyboard path, and marking this wrapper interactive would nest interactives
+				<div key={result.id} className="ss__chat-results-display__result" onClick={(e: any) => handleResultClick(e, result)}>
+					<ChatResult
+						{...subProps.chatResult}
+						result={result}
+						controller={controller}
+						scrollToBottom={scrollToBottom}
+						onProductClick={(e) => {
+							controller.track.product.click(e as any, result);
+							controller.productQuickView(result);
+							onProductQuickView?.();
+						}}
+					/>
 				</div>
 			),
 		}));
 
-		return (
-			<div key={key} className={classnames('ss__chat-results-display', className, internalClassName)} {...styling}>
-				<Slideshow {...subProps.slideshow} slides={slides} />
-			</div>
-		);
+		return <Slideshow {...subProps.slideshow} key={key} slides={slides} />;
 	};
 
-	if (chatItem.messageType === 'productRecommendation' && chatItem.recommendationResult?.length) {
-		return (
-			<CacheProvider>
-				<>
-					{chatItem.recommendationResult.map((recommendation: any, index: number) =>
-						recommendation.results?.length > 0 ? renderSlideshow(recommendation.results, index) : null
-					)}
-				</>
-			</CacheProvider>
-		);
-	}
+	// the store hydrates message results into Product instances before they reach this component
+	const isRecommendation = chatItem.messageType === 'productRecommendation' && !!chatItem.recommendationResult?.length;
+	if (!isRecommendation && !chatItem.results?.length) return null;
 
-	return chatItem.results?.length > 0 ? <CacheProvider>{renderSlideshow(chatItem.results)}</CacheProvider> : null;
+	return (
+		<CacheProvider>
+			<div className={classnames('ss__chat-results-display', className, internalClassName)} {...styling}>
+				{isRecommendation
+					? chatItem.recommendationResult!.map((recommendation, index) =>
+							recommendation.results?.length ? renderSlideshow(recommendation.results as Product[], index) : null
+					  )
+					: renderSlideshow(chatItem.results as Product[])}
+			</div>
+		</CacheProvider>
+	);
 });
 
 interface ChatResultsDisplaySubProps {
@@ -151,8 +153,17 @@ interface ChatResultsDisplaySubProps {
 	chatResult: Partial<ChatResultProps>;
 }
 
+export type ChatResultsDisplayItem = {
+	id?: string;
+	messageType?: string;
+	results?: (Product | SearchResponseModelResult)[];
+	recommendationResult?: (Omit<ChatResponseProductRecommendationData['recommendationResult'][number], 'results'> & {
+		results?: (Product | SearchResponseModelResult)[];
+	})[];
+};
+
 export type ChatResultsDisplayProps = {
-	chatItem: any;
+	chatItem: ChatResultsDisplayItem;
 	controller: ChatController;
 	scrollToBottom: () => void;
 	onProductQuickView?: () => void;

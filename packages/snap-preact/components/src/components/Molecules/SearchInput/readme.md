@@ -102,7 +102,7 @@ const buttonProps = {
 ```
 
 ### chatButton
-The `chatButton` prop specifies props to pass to the open chat button component. Takes any `Button` component props. 
+The `chatButton` prop specifies props to pass to the open chat button component. Takes any `Button` component props. The button only renders when an `icon` is supplied, so sites without chat are unaffected.
 
 ```jsx
 const buttonProps = {
@@ -127,6 +127,13 @@ The `hideClearSearchButton` prop hides the clear search button.
 <SearchInput hideClearSearchButton={true} />
 ```
 
+### hideChatButton
+The `hideChatButton` prop hides the open chat button.
+
+```jsx
+<SearchInput hideChatButton={true} />
+```
+
 ### hideCloseSearchButton
 The `hideCloseSearchButton` prop hides the close search button.
 
@@ -144,4 +151,44 @@ useEffect(() => {
 },[])
 
 <SearchInput inputRef={renderedInputRef} />
+```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the SearchInput component. Lang entries for this component primarily use `attributes` to set HTML attributes like `placeholder` and `aria-label`.
+
+| Lang Key | Description | Attributes |
+|---|---|---|
+| `placeholderText` | Search input placeholder | `placeholder` |
+| `closeSearchButton` | Close search button | `aria-label` |
+| `clearSearchButton` | Clear search button | `aria-label` |
+| `submitSearchButton` | Submit search button | `aria-label` |
+
+### Example
+
+```tsx
+<SearchInput
+	lang={{
+		placeholderText: {
+			attributes: {
+				placeholder: 'Search our store...',
+			},
+		},
+		closeSearchButton: {
+			attributes: {
+				'aria-label': 'Close search',
+			},
+		},
+		clearSearchButton: {
+			attributes: {
+				'aria-label': 'Clear search input',
+			},
+		},
+		submitSearchButton: {
+			attributes: {
+				'aria-label': 'Submit search',
+			},
+		},
+	}}
+/>
 ```

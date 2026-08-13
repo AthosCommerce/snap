@@ -4,6 +4,7 @@ import { AppMode } from '@athoscommerce/snap-toolbox';
 import { transformRecommendationFiltersPost } from '../transforms';
 import { ProfileRequestModel, ProfileResponseModel, RecommendResponseModel, RecommendRequestModel, RecommendPostRequestModel } from '../../types';
 import { DEVELOPMENT_MODE_PARAM } from './Search';
+import { defined } from '../utils/defined';
 
 class Deferred {
 	promise: Promise<any>;
@@ -27,7 +28,7 @@ const BATCH_TIMEOUT = 150;
 export class RecommendAPI extends API<RecommendRequesterPaths> {
 	private batches: {
 		[key: string]: {
-			timeout: number | NodeJS.Timeout;
+			timeout: number | ReturnType<typeof setTimeout>;
 			request: RecommendPostRequestModel;
 			entries: BatchEntry[];
 		};
@@ -214,20 +215,4 @@ function sortBatchEntries(a: BatchEntry, b: BatchEntry) {
 		return 1;
 	}
 	return 0;
-}
-
-type DefinedProps = {
-	[key: string]: any;
-};
-
-export function defined(properties: Record<string, any>): DefinedProps {
-	const definedProps: DefinedProps = {};
-
-	Object.keys(properties).map((key) => {
-		if (properties[key] !== undefined) {
-			definedProps[key] = properties[key];
-		}
-	});
-
-	return definedProps;
 }

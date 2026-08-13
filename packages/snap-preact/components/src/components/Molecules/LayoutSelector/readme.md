@@ -94,3 +94,24 @@ The `showSingleOption` prop specifies if the component should render if the prov
 ```tsx
 <LayoutSelector showSingleOption={true} onSelect={(e, option) => callback()} options={layoutOptions.slice(0, 1)} />
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the LayoutSelector component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `label` | The selector label text | `options` (ListOption[]), `selectedOptions` (ListOption[]) |
+
+### Example
+
+```tsx
+<LayoutSelector
+	options={layoutOptions}
+	lang={{
+		label: {
+			value: 'Grid Layout',
+		},
+	}}
+/>
+```

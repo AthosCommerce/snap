@@ -50,6 +50,10 @@ The following settings can be configured in the `ChatControllerConfig`:
 | `settings.quickview.enabled` | `boolean` | `false` | Enable the product quickview panel for chat product clicks |
 | `settings.quickview.displayFields` | `string[]` | — | Fields to display in the product quickview panel |
 | `settings.bgFilters` | `Record<string, string>` | — | Background filters forwarded to the chat init API as `searchConfig.bgFilters` |
+| `settings.inputSelector` | `string` | `'.ss__chat__input input[type="text"]'` | CSS selector `focusInput` uses to locate the chat text input |
+| `settings.languageCode` | `string` | `navigator.language` | Language code forwarded to chat init. Snap Templates supplies the configured locale |
+| `settings.mobileBreakpoint` | `number` | `767` | Max viewport width treated as mobile (input focus is skipped there). Match your theme breakpoint |
+| `settings.comparison.max` | `number` | `4` | Maximum products in a chat comparison |
 | `beacon` | `{ enabled: boolean }` | `{ enabled: true }` | Enable or disable analytics tracking for chat events |
 | `globals` | `Partial<ChatRequestModel>` | — | Default request parameters applied to all chat requests |
 | `middleware` | `object` | — | Event middleware hooks (see [Middleware](https://athoscommerce.github.io/snap/reference-snap-preact-middleware)) |
@@ -109,21 +113,24 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 | `title` | `string` | `'Athos Conversational Assistant'` | Primary header title. |
 | `subtitle` | `string` | `'Your Guided Discovery Expert'` | Secondary header title. |
 | `position` | `'left' \| 'right'` | `'right'` | Which side of the viewport the chat panel and launcher bubble anchor to. |
-| `offset` | `string \| number` | — | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
-| `multiselectFacets` | `boolean` | `true` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
+| `offset` | `string \| number` | `'20px'` (set by the shipped themes) | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
+| `multiselectFacets` | `boolean` | `false` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
 | `disableBubbleSuggestedQuestions` | `boolean` | `false` | Hide the suggested-question chips that appear on the launcher bubble before the chat has been opened. |
+| `hideBubble` | `boolean` | unset | Overrides the built-in floating bubble launcher (and its suggested-question chips). Left unset, the bubble hides itself automatically while a `ChatButton` is mounted. `true` suppresses it unconditionally; `false` keeps it visible alongside a `ChatButton` so both launchers are available (see [Inline launcher](#inline-launcher-chatbutton)). |
 | `primaryColorBg` | `string` | `'#253B80'` | Primary brand colour — background of headers, buttons, and accents. |
 | `primaryColorFg` | `string` | `'#fff'` | Foreground (text/icon) colour paired with `primaryColorBg`. |
 | `primaryAccentColorBg` | `string` | `'#feeeae'` | Accent colour for highlights (e.g. the add-to-cart icon background). |
 | `primaryAccentColorFg` | `string` | `'#000000'` | Foreground colour paired with `primaryAccentColorBg`. |
 | `secondaryAccentColorBg` | `string` | `'#000000'` | Secondary accent colour (e.g. the "Discuss Product" icon background on `ChatResult`). |
 | `secondaryAccentColorFg` | `string` | `'#ffffff'` | Foreground colour paired with `secondaryAccentColorBg`. |
+| `poweredByText` | `string` | `'Powered by Athos Commerce.'` | Attribution text in the composer disclaimer. |
+| `privacyPolicyUrl` | `string` | — | Link target for the disclaimer's privacy-policy link. The link is omitted entirely unless you set this — point it at **your** privacy policy, since you are the data controller for shopper conversations. |
 
 In addition, every prop inherited from `ComponentProps` is also accepted — most notably `className`, `style`, `styleScript`, `theme`, and `disableStyles` for styling overrides.
 
-### Mounting at `body`
+### Chat targeter injection
 
-The `Chat` component is fixed-positioned and is normally mounted at the document level. When a chat targeter's `selector` is exactly `'body'` and no `inject` config is supplied, Snap automatically attaches the following `inject` so the component renders into a fresh appended `<div>` rather than replacing the body contents:
+Chat targeters never render *into* the matched element. Unless a targeter defines its own `inject`, Snap automatically attaches one so the component renders into a fresh `<div>` appended to the matched element, and the element is never hidden while the targeter waits to mount:
 
 ```js
 inject: {
@@ -134,7 +141,80 @@ inject: {
 },
 ```
 
-This default is only applied when (a) the selector is the literal string `'body'` and (b) the targeter does not already define its own `inject`. Any other selector — or an explicit `inject` on a body-selector targeter — is left untouched.
+The appended container gets the class `ss__chat--target` when the selector is `'body'` (the normal mount point for the fixed-positioned `Chat` component), and `ss__chat--inline-target` for any other selector (e.g. a `ChatButton` mounted inside a nav — the nav's own children are left untouched). A targeter with an explicit `inject` is left as-is.
+
+> Note: prior to the introduction of `ChatButton`, only `'body'` selectors received this treatment — a chat targeter at any other selector emptied and hid the matched element (the default `DomTargeter` behavior). If you relied on that, set `inject` or `emptyTarget` explicitly on the targeter.
+
+### Inline launcher (`ChatButton`)
+
+By default the `Chat` component renders a floating bubble launcher in the corner of the viewport. To render the launcher inline in your own markup instead (e.g. in the site navigation), add a second targeter to the same chat controller using the `ChatButton` component:
+
+```js
+import { Chat, ChatButton } from '@athoscommerce/snap-preact/components';
+
+const snap = new Snap({
+    client: {
+        globals: {
+            siteId: 'REPLACE_WITH_YOUR_SITE_ID',
+        },
+    },
+    controllers: {
+        chat: [
+            {
+                config: {
+                    id: 'chat',
+                },
+                targeters: [
+                    {
+                        selector: '.my-nav',
+                        component: async () => {
+                            return ChatButton;
+                        },
+                        props: {
+                            content: 'Ask AI',
+                        },
+                    },
+                    {
+                        selector: 'body',
+                        component: async () => {
+                            return Chat;
+                        },
+                    },
+                ],
+            },
+        ],
+    },
+});
+```
+
+Both targeters share the one chat controller — clicking the `ChatButton` opens the same chat overlay the bubble would. While a `ChatButton` is mounted it registers itself with the chat store, and the `Chat` component hides its floating bubble and suggested-question chips automatically. If the button's selector is never found on a page, the floating bubble remains as the fallback launcher. Set `hideBubble` in the `Chat` targeter's props to override that: `true` suppresses the bubble unconditionally, `false` keeps it visible so the inline button and the floating bubble are both available.
+
+The autocomplete overlay anchors to the box of the element the autocomplete target is injected into, so mount the `ChatButton` **beside** the search form rather than inside it — otherwise the form's box grows to include the button and the overlay renders offset from the input.
+
+With Snap Templates, add a `ChatButton` target to the chat `targets` array:
+
+```js
+chat: {
+    targets: [
+        { selector: '.my-nav', component: 'ChatButton' },
+        { selector: 'body', component: 'Chat' },
+    ],
+},
+```
+
+If the inline selector renders late (e.g. injected by the host site's own scripts), raw Snap configs can set `autoRetarget: true` on the targeter; Snap Templates targeters have it enabled already.
+
+#### ChatButton Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `controller` | `ChatController` | — (injected) | The chat controller for this targeter. Do not set manually. |
+| `content` | `string \| JSX.Element` | — | Label content rendered inside the button. Omit for an icon-only button. |
+| `children` | `ComponentChildren` | — | Alternative to `content`. |
+| `icon` | `IconType \| Partial<IconProps> \| boolean` | `'chat'` | Icon rendered after the content. Pass `false` for a text-only button, or an `IconProps` object for a custom icon. |
+| `lang` | `Partial<ChatButtonLang>` | — | `openChatButton` / `closeChatButton` entries providing the `aria-label`/`title` for each state. |
+
+The button renders as a pill styled from the theme's primary color (white background, colored border/text, rounded corners, hover shadow). Restyle it via the `chatButton` theme component key, `styleScript`, or plain CSS against `.ss__chat-button`; pass `disableStyles` to remove the default styling.
 
 ### Providing props via the targeter config
 
@@ -201,27 +281,27 @@ The following global events are registered on the Snap event manager and can be 
 
 ```js
 // open the chat (no request fired)
-window.athos.fire('chat/send');
+window.athos.fire('controller/chat/send');
 
 // open the chat and send a plain text message — defaults to a 'general' request
-window.athos.fire('chat/send', { message: 'Show me winter jackets' });
+window.athos.fire('controller/chat/send', { message: 'Show me winter jackets' });
 
 // open the chat and send a typed request (any MoiRequestModel variant works)
-window.athos.fire('chat/send', {
+window.athos.fire('controller/chat/send', {
     requestType: 'productSearch',
     searchTerm: 'red dress',
 });
 
 // open the chat and ask about a specific product
-window.athos.fire('chat/productQuery', { result: productData });
+window.athos.fire('controller/chat/productQuery', { result: productData });
 
 // open the chat and find products similar to the given one (sends the request immediately)
-window.athos.fire('chat/productSimilar', { result: productData });
+window.athos.fire('controller/chat/productSimilar', { result: productData });
 ```
 
 All events accept an optional `controllerIds` array (string or RegExp) to target specific chat controller instances.
 
-The `chat/send` event accepts the same discriminated union the chat backend uses — `general`, `productQuery`, `productSearch`, `productComparison`, `imageSearch`, `productSimilar`, `inspiration`, and `content`. If `requestType` is omitted and a `message` is provided, the request defaults to `general`. If neither is provided, the chat is opened without firing a request.
+The `controller/chat/send` event accepts the same discriminated union the chat backend uses — `general`, `productQuery`, `productSearch`, `productComparison`, `imageSearch`, `productSimilar`, `inspiration`, and `content`. If `requestType` is omitted and a `message` is provided, the request defaults to `general`. If neither is provided, the chat is opened without firing a request.
 
 
 ## Request Types

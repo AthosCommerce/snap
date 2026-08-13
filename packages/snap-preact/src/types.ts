@@ -73,9 +73,7 @@ export type SnapSearchControllerConfig = {
 
 export type SnapChatControllerConfig = {
 	mode?: keyof typeof AppMode | AppMode;
-	url?: UrlTranslatorConfig & {
-		initial?: InitialUrlConfig;
-	};
+	url?: UrlTranslatorConfig;
 	client?: {
 		globals: ClientGlobals;
 		config?: ClientConfig;
@@ -119,7 +117,14 @@ export type SnapRecommendationControllerConfig = {
 
 export type GlobalThemeStyleScript = (props: { name?: string; variables: ThemeVariables }) => CSSInterpolation;
 
-export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DeepPartial<T> = T extends (...args: any[]) => any
+	? T
+	: T extends readonly (infer U)[]
+	? Array<DeepPartial<U>>
+	: T extends object
+	? { [P in keyof T]?: DeepPartial<T[P]> }
+	: T;
 
 declare global {
 	interface Window {

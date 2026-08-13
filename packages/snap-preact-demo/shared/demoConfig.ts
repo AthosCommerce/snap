@@ -16,12 +16,12 @@ export function getDemoConfig() {
 	const urlChatOriginParam = urlObj?.params.query.chatOrigin;
 
 	// determine siteId first so we can namespace the config storage
+	// the shared store remembers the last-used siteId so paramless page loads keep it
+	const sharedStore = new StorageStore({ type: 'local', key: 'athos-demo-config' });
 	if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
 		siteId = urlSiteIdParam;
 	} else {
-		// fall back to the legacy shared store for backwards compat
-		const legacyStore = new StorageStore({ type: 'local', key: 'athos-demo-config' });
-		const storedSiteId = legacyStore.get('siteId');
+		const storedSiteId = sharedStore.get('siteId');
 		if (storedSiteId) siteId = storedSiteId;
 	}
 
@@ -30,6 +30,7 @@ export function getDemoConfig() {
 
 	if (urlSiteIdParam && urlSiteIdParam.match(/[a-zA-Z0-9]{6}/)) {
 		configStore.set('siteId', siteId);
+		sharedStore.set('siteId', siteId);
 
 		// clear previously stored storage
 		window.localStorage.removeItem('athos-history');
@@ -69,9 +70,6 @@ export function getDemoConfig() {
 			suggest: {
 				origin: customOrigin,
 			},
-			chat: {
-				origin: 'https://asklo-backend.service-qa.ksearchnet.com',
-			},
 		};
 	} else if (!siteId.startsWith('at')) {
 		clientConfig = {
@@ -86,9 +84,6 @@ export function getDemoConfig() {
 			},
 			suggest: {
 				origin: `https://${siteId}.a.searchspring.io`,
-			},
-			chat: {
-				origin: 'https://asklo-backend.service-qa.ksearchnet.com',
 			},
 		};
 	}

@@ -297,12 +297,17 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		result: result,
-		controller: controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			result: result,
+			controller: controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const isOnSale = Boolean(core?.msrp && core?.price && core?.price < core?.msrp);
+	const renderPrices = controller?.store?.config?.asyncState?.product?.price ? result.state.priceFetched : true;
 
 	return core ? (
 		<CacheProvider>
@@ -359,7 +364,7 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 
 							{!hideRating && <Rating {...subProps.rating} />}
 
-							{!hidePricing && core.price && core.price > 0 ? (
+							{!hidePricing && renderPrices && core.price && core.price > 0 ? (
 								<div className="ss__overlay-result__details__pricing">
 									{isOnSale ? (
 										<>

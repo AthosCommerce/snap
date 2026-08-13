@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { css } from '@emotion/react';
 import { observer } from 'mobx-react-lite';
+import deepmerge from 'deepmerge';
 
 import type { RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
@@ -39,7 +40,7 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 
 	const props = mergeProps('recommendationEmail', globalTheme, defaultProps, properties);
 
-	const { controller, results, resultProps, resultWidth, treePath, disableStyles, internalClassName, className } = props;
+	const { controller, results, resultWidth, treePath, disableStyles, internalClassName, className } = props;
 	const resultComponent = props.resultComponent;
 	const snap = useSnap();
 	const isNamedResultComponent = typeof resultComponent === 'string';
@@ -83,8 +84,20 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 							return cloneWithProps(resolvedResultComponent, {
 								controller,
 								result,
-								...resultProps,
 								email: true,
+								theme: isNamedResultComponent
+									? deepmerge(props.theme || {}, {
+											components: {
+												// in order to preserve theme overrides for resultComponent vs. customComponent
+												result: {
+													customComponent: resultComponent,
+												},
+												image: {
+													lazy: false,
+												},
+											},
+									  })
+									: props.theme,
 								treePath,
 							});
 						} else {
@@ -103,7 +116,6 @@ export const RecommendationEmail = observer((properties: RecommendationEmailProp
 										},
 									}}
 									{...subProps.result}
-									{...resultProps}
 								/>
 							);
 						}
@@ -125,7 +137,6 @@ export type RecommendationEmailProps = {
 
 export type RecommendationEmailTemplatesLegalProps = {
 	resultComponent?: string;
-	resultProps?: Partial<ResultProps> | Record<string, any>;
 	resultWidth?: string;
 };
 

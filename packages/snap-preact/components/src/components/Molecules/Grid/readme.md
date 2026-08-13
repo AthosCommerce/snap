@@ -152,3 +152,28 @@ const selectedOption: SwatchOption = [
 ```
 
 
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Grid component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `showMoreText` | Show more button text | `limited` (boolean), `remainder` (number), `overflowButtonInGrid` (boolean) |
+| `showLessText` | Show less button text | `limited` (boolean), `remainder` (number), `overflowButtonInGrid` (boolean) |
+
+### Example
+
+```tsx
+<Grid
+	options={options}
+	lang={{
+		showMoreText: {
+			value: (data) => data.overflowButtonInGrid ? `+ ${data.remainder}` : 'Show More',
+		},
+		showLessText: {
+			value: (data) => data.overflowButtonInGrid ? `- ${data.remainder}` : 'Show Less',
+		},
+	}}
+/>
+```
