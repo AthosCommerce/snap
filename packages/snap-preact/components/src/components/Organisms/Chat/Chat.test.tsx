@@ -102,6 +102,14 @@ describe('ChatOrganism Component', () => {
 		expect(rendered.container.querySelector('.ss__chat__suggested-questions')).toBeNull();
 	});
 
+	it('keeps the bubble alongside an external launcher when hideBubble is false', () => {
+		const controller = makeController({ hasExternalLauncher: true, suggestedQuestions: ['What is new?'] });
+		const rendered = render(<ChatOrganism controller={controller} hideBubble={false} />);
+
+		expect(rendered.container.querySelector('.ss__chat__bubble')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__chat__suggested-questions')?.textContent).toContain('What is new?');
+	});
+
 	it('shows suggested questions next to the bubble when closed with no session', () => {
 		const controller = makeController({ suggestedQuestions: ['What is new?'] });
 		const rendered = render(<ChatOrganism controller={controller} />);

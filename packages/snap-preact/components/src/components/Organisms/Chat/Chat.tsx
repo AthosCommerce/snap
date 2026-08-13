@@ -468,9 +468,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 	const { store } = controller;
 
 	// The built-in bubble (and its suggested-question chips) yields to an external
-	// launcher — either an inline ChatButton registered on the store, or an explicit
-	// hideBubble prop for deterministic suppression.
-	const hideLauncher = !!props.hideBubble || store.hasExternalLauncher;
+	// launcher by default. An explicit hideBubble wins either way: `true` always
+	// suppresses it, `false` keeps it alongside an inline ChatButton.
+	const hideLauncher = props.hideBubble ?? store.hasExternalLauncher;
 
 	// Track that the widget has been visible so a mid-session disable (status check
 	// flips chatEnabled to false) keeps it mounted with the unavailable message
@@ -871,8 +871,9 @@ export type ChatTemplatesLegalProps = {
 	offset?: string | number;
 	multiselectFacets?: boolean;
 	disableBubbleSuggestedQuestions?: boolean;
-	/** Hides the built-in bubble launcher (and its suggested-question chips) even when
-	 * no external launcher is registered — for setups that always provide their own. */
+	/** Overrides the built-in bubble launcher (and its suggested-question chips) visibility.
+	 * `true` always hides it, `false` always shows it — including alongside an inline
+	 * ChatButton. Left unset, the bubble hides itself whenever an external launcher registers. */
 	hideBubble?: boolean;
 	position?: 'left' | 'right';
 	primaryColorBg?: string;

@@ -232,9 +232,10 @@ let config: SnapConfig = {
 					},
 				},
 				targeters: [
-					// inline launcher left of the search input — hides the floating bubble while mounted
+					// inline launcher left of the search form — injected as a sibling of the form so
+					// the form's box stays equal to the input's box for the autocomplete overlay
 					{
-						selector: 'input.athos-ac',
+						selector: '.ss__demo__search__form',
 						inject: {
 							action: 'before',
 							element: () => {
@@ -259,6 +260,8 @@ let config: SnapConfig = {
 							avatar: 'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Gemini_Generated_Image_vz2c2tvz2c2tvz2c.png?v=1771603960',
 							buttonBelowMessage: true,
 							hideMessageTypeIndicatorText: true,
+							// keep the floating bubble launcher alongside the inline ChatButton
+							hideBubble: false,
 						},
 					},
 				],

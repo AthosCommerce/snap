@@ -83,6 +83,10 @@ let templatesConfig: SnapTemplatesConfig = {
 				chatButton: {
 					children: 'Ask AI',
 				},
+				chat: {
+					// keep the floating bubble launcher alongside the inline ChatButton
+					hideBubble: false,
+				},
 			},
 		},
 	},
@@ -117,8 +121,9 @@ let templatesConfig: SnapTemplatesConfig = {
 	chat: {
 		targets: [
 			{
-				// appended into the search form; positioned left of the input via globalStyles
-				selector: '.ss__demo__search__form',
+				// appended beside the search form (not inside it, which would move the box the
+				// autocomplete overlay anchors to); ordered left of the form via website.css
+				selector: '.ss__demo__search',
 				component: 'ChatButton',
 			},
 			{

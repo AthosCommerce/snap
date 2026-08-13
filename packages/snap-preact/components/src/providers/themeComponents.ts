@@ -63,7 +63,7 @@ import type { ModalProps, ModalTemplatesLegalProps } from '../components/Molecul
 
 /* ORGANISMS */
 import type { BranchOverrideProps } from '../components/Organisms/BranchOverride';
-import type { ChatOrganismProps } from '../components/Organisms/Chat';
+import type { ChatOrganismProps, ChatTemplatesLegalProps } from '../components/Organisms/Chat';
 import type { ChatButtonOrganismProps, ChatButtonTemplatesLegalProps } from '../components/Organisms/ChatButton';
 import type { ChatComparisonsTrayProps } from '../components/Organisms/Chat/components/ChatComparisonsTray';
 import type { ChatComposerProps } from '../components/Organisms/Chat/components/ChatComposer';
@@ -433,6 +433,7 @@ export type ThemeComponentsRestricted =
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: unknown } &

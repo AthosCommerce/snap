@@ -116,7 +116,7 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 | `offset` | `string \| number` | `'20px'` (set by the shipped themes) | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
 | `multiselectFacets` | `boolean` | `false` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
 | `disableBubbleSuggestedQuestions` | `boolean` | `false` | Hide the suggested-question chips that appear on the launcher bubble before the chat has been opened. |
-| `hideBubble` | `boolean` | `false` | Hide the built-in floating bubble launcher (and its suggested-question chips). Not usually needed — mounting a `ChatButton` hides the bubble automatically — but useful for deterministic suppression (see [Inline launcher](#inline-launcher-chatbutton)). |
+| `hideBubble` | `boolean` | unset | Overrides the built-in floating bubble launcher (and its suggested-question chips). Left unset, the bubble hides itself automatically while a `ChatButton` is mounted. `true` suppresses it unconditionally; `false` keeps it visible alongside a `ChatButton` so both launchers are available (see [Inline launcher](#inline-launcher-chatbutton)). |
 | `primaryColorBg` | `string` | `'#253B80'` | Primary brand colour — background of headers, buttons, and accents. |
 | `primaryColorFg` | `string` | `'#fff'` | Foreground (text/icon) colour paired with `primaryColorBg`. |
 | `primaryAccentColorBg` | `string` | `'#feeeae'` | Accent colour for highlights (e.g. the add-to-cart icon background). |
@@ -187,7 +187,9 @@ const snap = new Snap({
 });
 ```
 
-Both targeters share the one chat controller — clicking the `ChatButton` opens the same chat overlay the bubble would. While a `ChatButton` is mounted it registers itself with the chat store, and the `Chat` component hides its floating bubble and suggested-question chips automatically. If the button's selector is never found on a page, the floating bubble remains as the fallback launcher; to suppress the bubble unconditionally instead, set `hideBubble: true` in the `Chat` targeter's props.
+Both targeters share the one chat controller — clicking the `ChatButton` opens the same chat overlay the bubble would. While a `ChatButton` is mounted it registers itself with the chat store, and the `Chat` component hides its floating bubble and suggested-question chips automatically. If the button's selector is never found on a page, the floating bubble remains as the fallback launcher. Set `hideBubble` in the `Chat` targeter's props to override that: `true` suppresses the bubble unconditionally, `false` keeps it visible so the inline button and the floating bubble are both available.
+
+The autocomplete overlay anchors to the box of the element the autocomplete target is injected into, so mount the `ChatButton` **beside** the search form rather than inside it — otherwise the form's box grows to include the button and the overlay renders offset from the input.
 
 With Snap Templates, add a `ChatButton` target to the chat `targets` array:
 
