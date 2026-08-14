@@ -76,10 +76,24 @@ let templatesConfig: SnapTemplatesConfig = {
 		style: globalStyles,
 		// globalResultComponent: 'CustomResult',
 		overrides: {
-			default: {},
+			default: {
+				result: {
+					discussProductIcon: { icon: 'chat' },
+				},
+				chatButton: {
+					children: 'Ask AI',
+				},
+				chat: {
+					// keep the floating bubble launcher alongside the inline ChatButton
+					hideBubble: false,
+				},
+			},
 		},
 	},
 	recommendation: {
+		settings: {
+			branch: 'production',
+		},
 		email: {
 			Email: {
 				component: 'RecommendationEmail',
@@ -103,6 +117,26 @@ let templatesConfig: SnapTemplatesConfig = {
 				component: 'Search',
 			},
 		],
+	},
+	chat: {
+		targets: [
+			{
+				// appended beside the search form (not inside it, which would move the box the
+				// autocomplete overlay anchors to); ordered left of the form via website.css
+				selector: '.ss__demo__search',
+				component: 'ChatButton',
+			},
+			{
+				selector: 'body',
+				component: 'Chat',
+			},
+		],
+		settings: {
+			quickview: {
+				enabled: true,
+				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+			},
+		},
 	},
 	autocomplete: {
 		targets: [

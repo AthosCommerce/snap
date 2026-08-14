@@ -102,6 +102,20 @@ The `usePortal` prop specifies if the dropdown content should be rendered in a p
 <Dropdown usePortal>Hello World!</Dropdown>
 ```
 
+### dropUp
+The `dropUp` prop anchors portalled content above the button instead of below it. Useful when the dropdown sits near the bottom of the viewport. Only applies when `usePortal` is set.
+
+```tsx
+<Dropdown usePortal dropUp>Hello World!</Dropdown>
+```
+
+### boundaryRef
+The `boundaryRef` prop constrains portalled content to the horizontal bounds of the referenced element instead of the viewport. The anchor is clamped to that element's range, so the dropdown stays visible when the button scrolls out of view (for example inside a horizontally-scrolling row), and the content flips to the boundary's right edge rather than overflowing it. Only applies when `usePortal` is set.
+
+```tsx
+<Dropdown usePortal boundaryRef={containerRef}>Hello World!</Dropdown>
+```
+
 ### Events
 
 #### onClick

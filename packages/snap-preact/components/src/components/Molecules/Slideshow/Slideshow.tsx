@@ -687,7 +687,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						aria-label={`Slide group ${currentIndex} of ${totalDots}`}
 						// Touch events
 						// @ts-ignore - touch events
-						onTouchStart={touchDragging ? (event) => handleDragStart(event.touches[0]) : undefined}
+						onTouchStart={touchDragging ? (event: TouchEvent) => handleDragStart(event.touches[0].clientX) : undefined}
 						// @ts-ignore - touch events
 						onTouchMove={
 							touchDragging
@@ -706,6 +706,9 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						onMouseDown={
 							touchDragging
 								? (event: MouseEvent) => {
+										// Only initiate dragging with the primary (left) mouse button.
+										// Right/middle clicks should not start a drag (e.g. opening the context menu).
+										if (event.button !== 0) return;
 										event.preventDefault();
 										handleDragStart(event.clientX);
 								  }

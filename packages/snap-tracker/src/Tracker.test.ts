@@ -1,6 +1,14 @@
 import { Tracker } from './Tracker';
 import { TrackerConfig, TrackErrorEvent, OrderTransactionData } from './types';
-import type { BeaconConfig, Product } from '@athoscommerce/beacon';
+import type {
+	BeaconConfig,
+	Product,
+	ChatImpressionSchemaData,
+	ChatClickthroughSchemaData,
+	ChatAddtocartSchemaData,
+	ChatFeedbackSchemaData,
+} from '@athoscommerce/beacon';
+import { ChatFeedbackSchemaDataFeedbackEnum } from '@athoscommerce/beacon';
 
 const PREFLIGHT_DEBOUNCE_TIMEOUT = 300;
 // mocks fetch so beacon client does not make network requests
@@ -624,5 +632,321 @@ describe('Cart inferance from context', () => {
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
 		mockFetchApi.mockClear();
 		expect(mockFetchApi).not.toHaveBeenCalled();
+	});
+});
+
+describe('Chat Events', () => {
+	const QUEUE_DEBOUNCE_TIMEOUT = 300;
+	let tracker: Tracker;
+	let chatConfig: TrackerConfig & BeaconConfig;
+	let mockFetchApi: jest.Mock;
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		resetAllCookies();
+		localStorageMock.clear();
+		mockFetchApi = jest.fn().mockResolvedValue({
+			status: 200,
+			json: () => Promise.resolve({}),
+		} as Response);
+		chatConfig = { mode: 'development', apis: { fetch: mockFetchApi } };
+		tracker = new Tracker(globals, chatConfig);
+	});
+
+	it('has chat event methods on the tracker', () => {
+		expect(tracker.events.chat).toBeDefined();
+		expect(tracker.events.chat.impression).toBeDefined();
+		expect(tracker.events.chat.clickThrough).toBeDefined();
+		expect(tracker.events.chat.addToCart).toBeDefined();
+		expect(tracker.events.chat.feedback).toBeDefined();
+	});
+
+	it('can send chat impression events', async () => {
+		const impressionData: ChatImpressionSchemaData = {
+			chatSessionId: 'session-123',
+			responseId: 'response-456',
+			results: [
+				{
+					type: 'product',
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+				},
+			],
+		};
+
+		tracker.events.chat.impression({ data: impressionData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/impression'), expect.any(Object));
+	});
+
+	it('can send impression with empty results for zero-result responses', async () => {
+		const impressionData: ChatImpressionSchemaData = {
+			chatSessionId: 'session-abc',
+			responseId: 'response-xyz',
+			results: [],
+		};
+
+		tracker.events.chat.impression({ data: impressionData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/impression'), expect.any(Object));
+	});
+
+	it('impression sends correct payload structure', async () => {
+		const impressionData: ChatImpressionSchemaData = {
+			chatSessionId: 'session-abc',
+			responseId: 'response-xyz',
+			results: [
+				{
+					type: 'product',
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+				},
+				{
+					type: 'product',
+					parentId: 'parent-2',
+					uid: 'uid-2',
+				},
+			],
+		};
+
+		tracker.events.chat.impression({ data: impressionData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		const impressionCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/impression'));
+		expect(impressionCall).toBeDefined();
+
+		const body = JSON.parse(impressionCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(impressionData);
+	});
+
+	it('can send chat clickthrough events', async () => {
+		const clickthroughData: ChatClickthroughSchemaData = {
+			chatSessionId: 'session-123',
+			responseId: 'response-456',
+			results: [
+				{
+					type: 'product',
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+				},
+			],
+		};
+
+		tracker.events.chat.clickThrough({ data: clickthroughData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/clickthrough'), expect.any(Object));
+	});
+
+	it('clickthrough sends correct payload structure', async () => {
+		const clickthroughData: ChatClickthroughSchemaData = {
+			chatSessionId: 'session-abc',
+			responseId: 'response-xyz',
+			results: [
+				{
+					type: 'product',
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+				},
+			],
+		};
+
+		tracker.events.chat.clickThrough({ data: clickthroughData });
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		const clickthroughCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/clickthrough'));
+		expect(clickthroughCall).toBeDefined();
+
+		const body = JSON.parse(clickthroughCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(clickthroughData);
+	});
+
+	it('can send chat addtocart events', async () => {
+		const addToCartData: ChatAddtocartSchemaData = {
+			chatSessionId: 'session-123',
+			responseId: 'response-456',
+			results: [
+				{
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+					qty: 1,
+					price: 19.99,
+				},
+			],
+		};
+
+		tracker.events.chat.addToCart({ data: addToCartData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/addtocart'), expect.any(Object));
+	});
+
+	it('addtocart sends correct payload with product quantities', async () => {
+		const addToCartData: ChatAddtocartSchemaData = {
+			chatSessionId: 'session-abc',
+			responseId: 'response-xyz',
+			results: [
+				{
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+					qty: 2,
+					price: 29.99,
+				},
+				{
+					parentId: 'parent-2',
+					uid: 'uid-2',
+					sku: 'sku-2',
+					qty: 1,
+					price: 14.99,
+				},
+			],
+		};
+
+		tracker.events.chat.addToCart({ data: addToCartData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		const addToCartCall = mockFetchApi.mock.calls.find(([url]) => url.includes('/chat/addtocart'));
+		expect(addToCartCall).toBeDefined();
+
+		const body = JSON.parse(addToCartCall![1].body);
+		expect(body.context).toBeDefined();
+		expect(body.data).toEqual(addToCartData);
+	});
+
+	it('addtocart also adds products to cart storage', async () => {
+		const addToCartData: ChatAddtocartSchemaData = {
+			chatSessionId: 'session-123',
+			responseId: 'response-456',
+			results: [
+				{
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+					qty: 1,
+					price: 19.99,
+				},
+			],
+		};
+
+		tracker.events.chat.addToCart({ data: addToCartData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		const cartItems = tracker.storage.cart.get();
+		expect(cartItems).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					parentId: 'parent-1',
+					uid: 'uid-1',
+				}),
+			])
+		);
+	});
+
+	it('can send positive chat feedback events', async () => {
+		const feedbackData: ChatFeedbackSchemaData = {
+			chatSessionId: 'session-123',
+			feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive,
+		};
+
+		tracker.events.chat.feedback({ data: feedbackData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/feedback'), expect.any(Object));
+	});
+
+	it('can send negative chat feedback events', async () => {
+		const feedbackData: ChatFeedbackSchemaData = {
+			chatSessionId: 'session-123',
+			feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative,
+		};
+
+		tracker.events.chat.feedback({ data: feedbackData });
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/feedback'), expect.any(Object));
+	});
+
+	it('feedback sends correct payload with feedback enum value', async () => {
+		tracker.events.chat.feedback({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive } });
+		tracker.events.chat.feedback({ data: { chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative } });
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		const feedbackCalls = mockFetchApi.mock.calls.filter(([url]) => url.includes('/chat/feedback'));
+		expect(feedbackCalls).toHaveLength(2);
+
+		const bodies = feedbackCalls.map(([, request]) => JSON.parse(request.body));
+		expect(bodies[0].data).toEqual({ chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Positive });
+		expect(bodies[1].data).toEqual({ chatSessionId: 'session-abc', feedback: ChatFeedbackSchemaDataFeedbackEnum.Negative });
+	});
+
+	it('impression and addtocart events are batched via queueRequest', async () => {
+		const impressionData: ChatImpressionSchemaData = {
+			chatSessionId: 'session-batch',
+			responseId: 'response-1',
+			results: [
+				{
+					type: 'product',
+					parentId: 'parent-1',
+					uid: 'uid-1',
+				},
+			],
+		};
+
+		const addToCartData: ChatAddtocartSchemaData = {
+			chatSessionId: 'session-batch',
+			responseId: 'response-1',
+			results: [
+				{
+					parentId: 'parent-1',
+					uid: 'uid-1',
+					sku: 'sku-1',
+					qty: 1,
+					price: 9.99,
+				},
+			],
+		};
+
+		// send both events before the queue flushes
+		tracker.events.chat.impression({ data: impressionData });
+		tracker.events.chat.addToCart({ data: addToCartData });
+
+		// should not have been sent yet (queued)
+		expect(mockFetchApi).not.toHaveBeenCalledWith(expect.stringContaining('/chat/impression'), expect.any(Object));
+
+		// wait for queue to flush
+		await new Promise((resolve) => setTimeout(resolve, QUEUE_DEBOUNCE_TIMEOUT));
+
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/impression'), expect.any(Object));
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/addtocart'), expect.any(Object));
+	});
+
+	it('clickthrough and feedback events are sent immediately', async () => {
+		const clickthroughData: ChatClickthroughSchemaData = {
+			chatSessionId: 'session-immediate',
+			responseId: 'response-1',
+			results: [
+				{
+					type: 'product',
+					parentId: 'parent-1',
+					uid: 'uid-1',
+				},
+			],
+		};
+
+		tracker.events.chat.clickThrough({ data: clickthroughData });
+
+		// immediate events should fire without waiting for queue debounce
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/chat/clickthrough'), expect.any(Object));
 	});
 });

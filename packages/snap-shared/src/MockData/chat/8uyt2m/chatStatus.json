@@ -1,0 +1,17 @@
+{
+	"chatbot": {
+		"status": {
+			"enabled": true
+		},
+		"suggestedQuestions": [
+			"I want to buy a dress",
+			"Do you have summer clothes?",
+			"Show me accessories under $50"
+		],
+		"welcomeMessage": "Hi there! How can I assist you today?"
+	},
+	"features": {
+		"imageSearch": { "enabled": true },
+		"similarProducts": { "enabled": true }
+	}
+}

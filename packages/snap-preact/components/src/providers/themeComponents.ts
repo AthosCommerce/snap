@@ -6,6 +6,7 @@ import type { BadgeTextProps, BadgeTextTemplatesLegalProps } from '../components
 import type { BreadcrumbsProps, BreadcrumbsTemplatesLegalProps } from '../components/Atoms/Breadcrumbs';
 import type { ButtonNames, ButtonProps, ButtonTemplatesLegalProps } from '../components/Atoms/Button';
 import type { DropdownProps, DropdownTemplatesLegalProps } from '../components/Atoms/Dropdown';
+import type { ChatLoadingIndicatorProps } from '../components/Atoms/ChatLoadingIndicator';
 import type { FormattedNumberProps, FormattedNumberTemplatesLegalProps } from '../components/Atoms/FormattedNumber';
 import type { IconProps, IconNames, IconTemplatesLegalProps } from '../components/Atoms/Icon';
 import type { ImageProps, ImageTemplatesLegalProps } from '../components/Atoms/Image';
@@ -22,6 +23,15 @@ import type { SkeletonProps, SkeletonTemplatesLegalProps } from '../components/A
 import type { CalloutBadgeProps, CalloutBadgeTemplatesLegalProps } from '../components/Molecules/CalloutBadge';
 import type { CarouselProps, CarouselTemplatesLegalProps } from '../components/Molecules/Carousel';
 import type { CheckboxProps, CheckboxTemplatesLegalProps } from '../components/Molecules/Checkbox';
+import type { ChatAttachmentContextProps } from '../components/Molecules/ChatAttachmentContext';
+import type { ChatInspirationResultMessageProps } from '../components/Molecules/ChatInspirationResultMessage';
+import type { ChatMessageTextProps, ChatMessageTextTemplatesLegalProps } from '../components/Molecules/ChatMessageText';
+import type { ChatMessageUserProps, ChatMessageUserTemplatesLegalProps } from '../components/Molecules/ChatMessageUser';
+import type { ChatProductComparisonMessageProps } from '../components/Molecules/ChatProductComparisonMessage';
+import type { ChatProductQueryMessageProps, ChatProductQueryMessageTemplatesLegalProps } from '../components/Molecules/ChatProductQueryMessage';
+import type { ChatResultProps } from '../components/Molecules/ChatResult';
+import type { ChatResultsDisplayProps } from '../components/Molecules/ChatResultsDisplay';
+import type { ChatSuggestedQuestionsProps, ChatSuggestedQuestionsTemplatesLegalProps } from '../components/Molecules/ChatSuggestedQuestions';
 import type { ErrorHandlerProps, ErrorHandlerTemplatesLegalProps } from '../components/Molecules/ErrorHandler';
 import type { FacetGridOptionsProps, FacetGridOptionsTemplatesLegalProps } from '../components/Molecules/FacetGridOptions';
 import type { FacetHierarchyOptionsProps, FacetHierarchyOptionsTemplatesLegalProps } from '../components/Molecules/FacetHierarchyOptions';
@@ -53,6 +63,16 @@ import type { ModalProps, ModalTemplatesLegalProps } from '../components/Molecul
 
 /* ORGANISMS */
 import type { BranchOverrideProps } from '../components/Organisms/BranchOverride';
+import type { ChatOrganismProps, ChatTemplatesLegalProps } from '../components/Organisms/Chat';
+import type { ChatButtonOrganismProps, ChatButtonTemplatesLegalProps } from '../components/Organisms/ChatButton';
+import type { ChatComparisonsTrayProps } from '../components/Organisms/Chat/components/ChatComparisonsTray';
+import type { ChatComposerProps } from '../components/Organisms/Chat/components/ChatComposer';
+import type { ChatFacetsBarProps } from '../components/Organisms/Chat/components/ChatFacetsBar';
+import type { ChatHistoryProps } from '../components/Organisms/Chat/components/ChatHistory';
+import type { ChatMessagesProps } from '../components/Organisms/Chat/components/ChatMessages';
+import type { ChatSessionFeedbackProps } from '../components/Organisms/Chat/components/ChatSessionFeedback';
+import type { ChatSideChatProps } from '../components/Organisms/Chat/components/ChatSideChat';
+import type { ChatTopicDriftProps } from '../components/Organisms/Chat/components/ChatTopicDrift';
 import type { FacetProps, FacetTemplatesLegalProps } from '../components/Organisms/Facet';
 import type { FacetsHorizontalProps, FacetsHorizontalTemplatesLegalProps } from '../components/Organisms/FacetsHorizontal';
 import type { FacetsProps, FacetsTemplatesLegalProps } from '../components/Organisms/Facets';
@@ -141,6 +161,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'breadcrumbs',
 	'button',
 	'dropdown',
+	'chatLoadingIndicator',
 	'formattedNumber',
 	'icon',
 	'image',
@@ -157,6 +178,15 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'calloutBadge',
 	'carousel',
 	'checkbox',
+	'chatAttachmentContext',
+	'chatInspirationResultMessage',
+	'chatMessageText',
+	'chatMessageUser',
+	'chatProductComparisonMessage',
+	'chatProductQueryMessage',
+	'chatResult',
+	'chatResultsDisplay',
+	'chatSuggestedQuestions',
 	'grid',
 	'layoutSelector',
 	'list',
@@ -184,6 +214,16 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'terms',
 	/* organisms */
 	'branchOverride',
+	'chat',
+	'chatButton',
+	'chatComparisonsTray',
+	'chatComposer',
+	'chatFacetsBar',
+	'chatHistory',
+	'chatMessages',
+	'chatSessionFeedback',
+	'chatSideChat',
+	'chatTopicDrift',
 	'facet',
 	'facets',
 	'facetsHorizontal',
@@ -268,6 +308,45 @@ export type ThemeComponents =
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatOrganismProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonOrganismProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageText'>]?: Partial<ChatMessageTextTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageUser'>]?: Partial<ChatMessageUserTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResult'>]?: Partial<ChatResultProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComposer'>]?: Partial<ChatComposerProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatHistory'>]?: Partial<ChatHistoryProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessages'>]?: Partial<ChatMessagesProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSideChat'>]?: Partial<ChatSideChatProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatTopicDrift'>]?: Partial<ChatTopicDriftProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatOrganismProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageText'>]?: Partial<ChatMessageTextProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageUser'>]?: Partial<ChatMessageUserProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResult'>]?: Partial<ChatResultProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComposer'>]?: Partial<ChatComposerProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatHistory'>]?: Partial<ChatHistoryProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessages'>]?: Partial<ChatMessagesProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSideChat'>]?: Partial<ChatSideChatProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatTopicDrift'>]?: Partial<ChatTopicDriftProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'facet', string>]?: Partial<FacetProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetsHorizontal'>]?: Partial<FacetsHorizontalProps> } &
@@ -354,6 +433,8 @@ export type ThemeComponentsRestricted =
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
@@ -448,6 +529,26 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chat'>]?: Partial<ChatOrganismProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatButton'>]?: Partial<ChatButtonOrganismProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageText'>]?: Partial<ChatMessageTextTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageUser'>]?: Partial<ChatMessageUserTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResult'>]?: Partial<ChatResultProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComposer'>]?: Partial<ChatComposerProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatHistory'>]?: Partial<ChatHistoryProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessages'>]?: Partial<ChatMessagesProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSideChat'>]?: Partial<ChatSideChatProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatTopicDrift'>]?: Partial<ChatTopicDriftProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> & WithCustomComponent } &
@@ -544,6 +645,26 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'branchOverride'>]?: Partial<BranchOverrideProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chat'>]?: Partial<ChatOrganismProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatButton'>]?: Partial<ChatButtonOrganismProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatLoadingIndicator'>]?: Partial<ChatLoadingIndicatorProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatAttachmentContext'>]?: Partial<ChatAttachmentContextProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatInspirationResultMessage'>]?: Partial<ChatInspirationResultMessageProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatMessageText'>]?: Partial<ChatMessageTextTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatMessageUser'>]?: Partial<ChatMessageUserTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatResult'>]?: Partial<ChatResultProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatComposer'>]?: Partial<ChatComposerProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatHistory'>]?: Partial<ChatHistoryProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatMessages'>]?: Partial<ChatMessagesProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatSideChat'>]?: Partial<ChatSideChatProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatTopicDrift'>]?: Partial<ChatTopicDriftProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facet'>]?: Partial<FacetTemplatesLegalProps> } &
 	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'facet'>]?: unknown } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
@@ -631,6 +752,26 @@ export type ComponentTypePropsMap = {
 	variantSelection: VariantSelectionProps;
 	terms: TermsProps;
 	branchOverride: BranchOverrideProps;
+	chat: ChatOrganismProps;
+	chatButton: ChatButtonOrganismProps;
+	chatLoadingIndicator: ChatLoadingIndicatorProps;
+	chatAttachmentContext: ChatAttachmentContextProps;
+	chatInspirationResultMessage: ChatInspirationResultMessageProps;
+	chatMessageText: ChatMessageTextProps;
+	chatMessageUser: ChatMessageUserProps;
+	chatProductComparisonMessage: ChatProductComparisonMessageProps;
+	chatProductQueryMessage: ChatProductQueryMessageProps;
+	chatResult: ChatResultProps;
+	chatResultsDisplay: ChatResultsDisplayProps;
+	chatSuggestedQuestions: ChatSuggestedQuestionsProps;
+	chatComparisonsTray: ChatComparisonsTrayProps;
+	chatComposer: ChatComposerProps;
+	chatFacetsBar: ChatFacetsBarProps;
+	chatHistory: ChatHistoryProps;
+	chatMessages: ChatMessagesProps;
+	chatSessionFeedback: ChatSessionFeedbackProps;
+	chatSideChat: ChatSideChatProps;
+	chatTopicDrift: ChatTopicDriftProps;
 	facet: FacetProps;
 	facets: FacetsProps;
 	facetsHorizontal: FacetsHorizontalProps;

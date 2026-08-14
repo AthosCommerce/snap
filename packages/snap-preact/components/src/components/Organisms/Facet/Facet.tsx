@@ -663,16 +663,10 @@ const FacetContent = (
 	// submits the current low/high range input values to the url manager, clamping/swapping as needed.
 	// used by the submit button, the Enter key, and (optionally) blur, so it works even when the
 	// submit button isn't rendered (e.g. when rangeInputsSubmitButtonText is an empty string).
-const submitRange = () => {
-	if (
-		facet?.services?.urlManager &&
-		typeof low === 'number' &&
-		Number.isFinite(low) &&
-		typeof high === 'number' &&
-		Number.isFinite(high)
-	) {
-		let currentLow = low;
-		let currentHigh = high;
+	const submitRange = () => {
+		if (facet?.services?.urlManager && typeof low === 'number' && Number.isFinite(low) && typeof high === 'number' && Number.isFinite(high)) {
+			let currentLow = low;
+			let currentHigh = high;
 
 			//adjust ranges if high and low have swapped.
 			if (currentHigh < currentLow) {

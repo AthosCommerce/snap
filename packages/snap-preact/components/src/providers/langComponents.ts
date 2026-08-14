@@ -12,6 +12,7 @@ import type { ButtonLang } from '../components/Atoms/Button';
 // import type { LoadingBarLang } from '../components/Atoms/Loading';
 // import type { BannerLang, InlineBannerLang } from '../components/Atoms/Banner';
 // import type { OverlayLang } from '../components/Atoms/Overlay';
+import type { ChatLoadingIndicatorLang } from '../components/Atoms/ChatLoadingIndicator';
 import type { PaginationInfoLang } from '../components/Atoms/PaginationInfo';
 // import type { PriceLang } from '../components/Atoms/Price';
 // import type { SkeletonLang } from '../components/Atoms/Skeleton';
@@ -20,6 +21,13 @@ import type { PaginationInfoLang } from '../components/Atoms/PaginationInfo';
 /* MOLECULES */
 // import type { CalloutBadgeLang } from '../components/Molecules/CalloutBadge';
 // import type { CarouselLang } from '../components/Molecules/Carousel';
+import type { ChatAttachmentContextLang } from '../components/Molecules/ChatAttachmentContext';
+import type { ChatInspirationResultMessageLang } from '../components/Molecules/ChatInspirationResultMessage';
+import type { ChatMessageTextLang } from '../components/Molecules/ChatMessageText';
+import type { ChatMessageUserLang } from '../components/Molecules/ChatMessageUser';
+import type { ChatProductComparisonMessageLang } from '../components/Molecules/ChatProductComparisonMessage';
+import type { ChatProductQueryMessageLang } from '../components/Molecules/ChatProductQueryMessage';
+import type { ChatResultLang } from '../components/Molecules/ChatResult';
 import type { CheckboxLang } from '../components/Molecules/Checkbox';
 import type { ErrorHandlerLang } from '../components/Molecules/ErrorHandler';
 import type { FacetGridOptionsLang } from '../components/Molecules/FacetGridOptions';
@@ -49,6 +57,8 @@ import type { SortByLang } from '../components/Molecules/SortBy';
 // import type { VariantSelectionLang } from '../components/Molecules/VariantSelection';
 
 /* ORGANISMS */
+import type { ChatLang } from '../components/Organisms/Chat';
+import type { ChatButtonLang } from '../components/Organisms/ChatButton';
 // import type { AutocompleteLang } from '../components/Organisms/Autocomplete';
 import type { FacetLang } from '../components/Organisms/Facet';
 import type { FacetsHorizontalLang } from '../components/Organisms/FacetsHorizontal';
@@ -90,6 +100,7 @@ export type LangComponents = {
 	// banner: BannerLang
 	// inlineBanner: InlineBannerLang
 	// overlay: OverlayLang
+	chatLoadingIndicator: ChatLoadingIndicatorLang;
 	paginationInfo: PaginationInfoLang;
 	// price: PriceLang
 	// skeleton: SkeletonLang
@@ -98,6 +109,13 @@ export type LangComponents = {
 	/* MOLECULES */
 	// calloutBadge: CalloutBadgeLang
 	// carousel: CarouselLang
+	chatAttachmentContext: ChatAttachmentContextLang;
+	chatInspirationResultMessage: ChatInspirationResultMessageLang;
+	chatMessageText: ChatMessageTextLang;
+	chatMessageUser: ChatMessageUserLang;
+	chatProductComparisonMessage: ChatProductComparisonMessageLang;
+	chatProductQueryMessage: ChatProductQueryMessageLang;
+	chatResult: ChatResultLang;
 	checkbox: CheckboxLang;
 	slideshow: SlideshowLang;
 	grid: GridLang;
@@ -131,6 +149,8 @@ export type LangComponents = {
 	// variantSelection: VariantSelectionLang
 
 	/* ORGANISMS */
+	chat: ChatLang;
+	chatButton: ChatButtonLang;
 	// autocomplete: AutocompleteLang;
 	facet: FacetLang;
 	// facets: FacetsLang

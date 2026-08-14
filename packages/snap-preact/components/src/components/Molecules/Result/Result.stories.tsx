@@ -208,6 +208,30 @@ export default {
 				type: 'object',
 			},
 		},
+		discussProductIcon: {
+			description: 'icon props for the discuss product button rendered over the result image',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'object',
+				},
+			},
+			control: {
+				type: 'object',
+			},
+		},
+		onDiscussClick: {
+			description:
+				'function to run on discuss product button click (defaults to firing the controller/chat/productQuery event on the athos event bus)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'function',
+				},
+			},
+			control: { type: 'none' },
+			action: 'onDiscussClick',
+		},
 		layout: {
 			description: 'Results layout',
 			defaultValue: ResultsLayout.grid,

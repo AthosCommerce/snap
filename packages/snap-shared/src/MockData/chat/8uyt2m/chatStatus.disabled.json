@@ -1,0 +1,17 @@
+{
+	"chatbot": {
+		"status": {
+			"enabled": false,
+			"disableReason": {
+				"code": 1,
+				"message": "Chat is disabled for this site"
+			}
+		},
+		"suggestedQuestions": [],
+		"welcomeMessage": ""
+	},
+	"features": {
+		"imageSearch": { "enabled": false },
+		"similarProducts": { "enabled": false }
+	}
+}

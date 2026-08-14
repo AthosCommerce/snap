@@ -1,0 +1,27 @@
+# ChatInspirationResultMessage
+
+Renders an `inspirationResult` chat message. Each `inspirationSection` is rendered as a card with a cluster title, description, a row of keyboard-accessible "search query" buttons (each clicks-through to a productSearch via `controller.search()`), and a horizontal slideshow of product thumbnails.
+
+When a section includes a `filterSummary` (the filters the backend applied when building the cluster), clicking one of its search-query buttons sends those filters along with the query as `searchFilters` on the productSearch request. Entries sharing a `field` are grouped into a single `searchFilters` entry with multiple options; distinct fields become separate entries. Sections without a `filterSummary` send the query alone.
+
+## Sub-components
+- Image
+- Slideshow
+
+## Usage
+```tsx
+import { ChatInspirationResultMessage } from '@athoscommerce/snap-preact/components';
+```
+
+### chatItem
+The chat message to render. Must have `messageType === 'inspirationResult'` and a non-empty `inspirationSections` array. Messages of other types render nothing and emit a `console.warn`.
+
+```tsx
+<ChatInspirationResultMessage chatItem={chatItem} controller={controller} />
+```
+
+### controller
+Optional `ChatController` reference. Required for the search-query buttons and thumbnail clicks to trigger any action.
+
+### onProductQuickView
+Optional callback fired after a product thumbnail is clicked and the quickview is opened. Useful for mobile UIs that need to toggle a panel.

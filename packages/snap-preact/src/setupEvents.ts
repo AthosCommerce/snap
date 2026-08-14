@@ -1,4 +1,13 @@
-import { AbstractController } from '@athoscommerce/snap-controller';
+import { AbstractController, ChatController } from '@athoscommerce/snap-controller';
+import type {
+	MoiRequestModelProductQuery,
+	MoiRequestModelProductSearch,
+	MoiRequestModelProductComparison,
+	MoiRequestModelImageSearch,
+	MoiRequestModelProductSimilar,
+	MoiRequestModelInspiration,
+	MoiRequestModelContent,
+} from '@athoscommerce/snap-client';
 import { EventManager, Next } from '@athoscommerce/snap-event-manager';
 import { Product, SearchStore } from '@athoscommerce/snap-store-mobx';
 
@@ -8,6 +17,29 @@ type ControllerSelectVariantOptionsData = {
 };
 type ControllerRecommendationUpdateData = {
 	controllerIds?: (string | RegExp)[];
+};
+
+type ControllerChatSendBase = {
+	controllerIds?: (string | RegExp)[];
+};
+
+/** Payload for the `controller/chat/send` global event. Carries an optional chat request to fire
+ * after opening the chat. The request shape is the same discriminated union the controller
+ * uses internally — `requestType` may be omitted, in which case it defaults to `'general'`
+ * when a `message` is supplied. */
+export type ControllerChatSendData =
+	| (ControllerChatSendBase & { requestType?: 'general'; message?: string })
+	| (ControllerChatSendBase & MoiRequestModelProductQuery)
+	| (ControllerChatSendBase & MoiRequestModelProductSearch)
+	| (ControllerChatSendBase & MoiRequestModelProductComparison)
+	| (ControllerChatSendBase & MoiRequestModelImageSearch)
+	| (ControllerChatSendBase & MoiRequestModelProductSimilar)
+	| (ControllerChatSendBase & MoiRequestModelInspiration)
+	| (ControllerChatSendBase & MoiRequestModelContent);
+
+type ControllerChatProductActionData = {
+	controllerIds?: (string | RegExp)[];
+	result?: any;
 };
 
 export const setupEvents = () => {
@@ -44,6 +76,63 @@ export const setupEvents = () => {
 
 		controllers.map((controller) => {
 			controller.search();
+		});
+
+		await next();
+	});
+
+	eventManager.on('controller/chat/send', async (data: ControllerChatSendData, next: Next) => {
+		const { controllerIds, ...payload } = (data || {}) as ControllerChatSendData & { [key: string]: any };
+
+		const controllers = matchControllers(controllerIds).filter((controller) => {
+			return Boolean(controller.type === 'chat');
+		});
+
+		// A request is dispatched only when the payload carries either an explicit
+		// requestType or a message. With nothing to send the event still opens the chat.
+		const hasRequest = 'requestType' in payload || 'message' in payload;
+		const requestData = hasRequest ? { requestType: 'general', ...payload } : null;
+
+		controllers.map((controller) => {
+			const chatController = controller as ChatController;
+			chatController.openChat();
+			if (requestData) {
+				chatController.search({ data: requestData as any });
+			}
+		});
+
+		await next();
+	});
+
+	eventManager.on('controller/chat/productQuery', async (data: ControllerChatProductActionData, next: Next) => {
+		const { controllerIds, result } = data || {};
+
+		const controllers = matchControllers(controllerIds).filter((controller) => {
+			return Boolean(controller.type === 'chat');
+		});
+
+		controllers.map((controller) => {
+			// openChat first — it replaces an expired session with a fresh chat,
+			// which would otherwise discard the attachment productQuery adds
+			(controller as ChatController).openChat();
+			(controller as ChatController).productQuery(result);
+		});
+
+		await next();
+	});
+
+	eventManager.on('controller/chat/productSimilar', async (data: ControllerChatProductActionData, next: Next) => {
+		const { controllerIds, result } = data || {};
+
+		const controllers = matchControllers(controllerIds).filter((controller) => {
+			return Boolean(controller.type === 'chat');
+		});
+
+		controllers.map((controller) => {
+			// openChat first — it replaces an expired session with a fresh chat,
+			// which would otherwise orphan the search productSimilar fires
+			(controller as ChatController).openChat();
+			(controller as ChatController).productSimilar(result);
 		});
 
 		await next();

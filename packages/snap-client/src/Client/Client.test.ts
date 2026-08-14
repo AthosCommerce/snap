@@ -52,8 +52,13 @@ describe('Snap Client', () => {
 			expect(name).toBe(name);
 			// @ts-ignore - verifying private property
 			expect(requester.mode).toBe(AppMode.production);
-			// @ts-ignore - verifying private property
-			expect(requester.cache.config.enabled).toBe(true);
+			if (name === 'chat') {
+				// @ts-ignore - verifying private property
+				expect(requester.cache.config.enabled).toBe(false);
+			} else {
+				// @ts-ignore - verifying private property
+				expect(requester.cache.config.enabled).toBe(true);
+			}
 		}
 	});
 
@@ -121,6 +126,12 @@ describe('Snap Client', () => {
 		expect(client.trending).toBeDefined();
 		expect(client.recommend).toBeDefined();
 		expect(client.meta).toBeDefined();
+		expect(client.products).toBeDefined();
+	});
+
+	it('has a public siteId accessor', () => {
+		const client = new Client({ siteId: '8uyt2m' });
+		expect(client.siteId).toBe('8uyt2m');
 	});
 
 	describe('each fetch method uses the expected requester', () => {
@@ -330,6 +341,42 @@ describe('Snap Client', () => {
 			fetchApiMock.mockReset();
 		});
 
+		it('Products method', async () => {
+			const mockResponse = {
+				mappings: { core: { name: 'Test Product' } },
+				variants: { optionConfig: {}, data: [] },
+			};
+
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockResponse) } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' });
+
+			//@ts-ignore
+			const searchRequester = client.requesters.search;
+
+			const searchRequesterSpy = jest.spyOn(searchRequester, 'request' as never);
+
+			await client.products({ parentId: 'abc123' });
+
+			const productsRequest = {
+				headers: {},
+				method: 'GET',
+				path: '/v1/products/abc123',
+				siteId: '8uyt2m',
+			};
+
+			const productsCacheKey = '{"parentId":"abc123","siteId":"8uyt2m"}';
+
+			expect(searchRequesterSpy).toHaveBeenCalledTimes(1);
+			// getProducts routes through the memory-only cache so /v1/products responses don't persist to sessionStorage.
+			expect(searchRequesterSpy).toHaveBeenCalledWith(productsRequest, productsCacheKey, searchRequester.memoryCache);
+
+			expect(fetchApiMock).toHaveBeenCalledTimes(1);
+			fetchApiMock.mockReset();
+		});
+
 		it('Recommend method', async () => {
 			const client = new Client({ siteId: '8uyt2m' }, { mode: 'development' });
 
@@ -389,6 +436,174 @@ describe('Snap Client', () => {
 			]);
 
 			expect(fetchApiMock).toHaveBeenCalledTimes(3);
+			fetchApiMock.mockReset();
+		});
+
+		it('Chat method', async () => {
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() =>
+					Promise.resolve({ status: 200, json: () => Promise.resolve(mockData.chat('default')), headers: new Headers() } as Response)
+				);
+
+			const client = new Client({ siteId: '8uyt2m' });
+
+			//@ts-ignore
+			const chatRequester = client.requesters.chat;
+			//@ts-ignore
+			const metaRequester = client.requesters.meta;
+
+			const chatRequesterSpy = jest.spyOn(chatRequester, 'request' as never);
+			const metaRequesterSpy = jest.spyOn(metaRequester, 'request' as never);
+
+			await client.chat({
+				context: { sessionId: 's1' },
+				tracking: {
+					pageUrl: 'https://example.com',
+					sessionId: 'tracker-session-1',
+					pageLoadId: 'page-load-1',
+					userId: 'user-1',
+				},
+				data: { requestType: 'general', message: 'hello' },
+			});
+
+			const chatRequest = {
+				path: '/v1/chat/send',
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				query: {
+					siteId: '8uyt2m',
+					chatSessionId: 's1',
+					userId: 'user-1',
+					pageUrl: 'https://example.com',
+					sessionId: 'tracker-session-1',
+					pageLoadId: 'page-load-1',
+				},
+				body: { requestType: 'general', message: 'hello' },
+			};
+
+			expect(chatRequesterSpy).toHaveBeenCalledTimes(1);
+			expect(chatRequesterSpy.mock.calls).toEqual([[chatRequest]]);
+
+			// chat merges globals so the meta call uses the merged siteId
+			expect(metaRequesterSpy).toHaveBeenCalledTimes(1);
+
+			expect(fetchApiMock).toHaveBeenCalledTimes(2);
+			fetchApiMock.mockReset();
+		});
+
+		it('ChatStatus method', async () => {
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' });
+
+			//@ts-ignore
+			const chatRequester = client.requesters.chat;
+
+			const chatRequesterSpy = jest.spyOn(chatRequester, 'request' as never);
+
+			// siteId is not required — it is merged in from the client globals
+			await client.chatStatus({
+				tracking: {
+					pageUrl: 'https://example.com',
+					sessionId: 'tracker-session-1',
+					pageLoadId: 'page-load-1',
+				},
+			});
+
+			const statusRequest = {
+				path: '/v1/chat/status',
+				method: 'GET',
+				headers: {},
+				query: {
+					siteId: '8uyt2m',
+					pageUrl: 'https://example.com',
+					sessionId: 'tracker-session-1',
+					pageLoadId: 'page-load-1',
+				},
+			};
+
+			expect(chatRequesterSpy).toHaveBeenCalledTimes(1);
+			expect(chatRequesterSpy.mock.calls).toEqual([[statusRequest]]);
+
+			expect(fetchApiMock).toHaveBeenCalledTimes(1);
+			fetchApiMock.mockReset();
+		});
+
+		it('ChatInit method', async () => {
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' });
+
+			//@ts-ignore
+			const chatRequester = client.requesters.chat;
+
+			const chatRequesterSpy = jest.spyOn(chatRequester, 'request' as never);
+
+			const initParams = {
+				userId: 'user-1',
+				languageCode: 'en',
+				searchConfig: { sessionId: 'search-session-1' },
+				tracking: {
+					pageUrl: 'https://example.com',
+					sessionId: 'tracker-session-1',
+					pageLoadId: 'page-load-1',
+				},
+			};
+
+			// siteId is not required — it is merged in from the client globals
+			await client.chatInit(initParams);
+
+			const initRequest = {
+				path: '/v1/chat/init',
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				query: {
+					siteId: '8uyt2m',
+					pageUrl: 'https://example.com',
+					sessionId: 'tracker-session-1',
+					pageLoadId: 'page-load-1',
+				},
+				body: { siteId: '8uyt2m', ...initParams },
+			};
+
+			expect(chatRequesterSpy).toHaveBeenCalledTimes(1);
+			expect(chatRequesterSpy.mock.calls).toEqual([[initRequest]]);
+
+			expect(fetchApiMock).toHaveBeenCalledTimes(1);
+			fetchApiMock.mockReset();
+		});
+
+		it('UploadImage method', async () => {
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' });
+
+			//@ts-ignore
+			const chatRequester = client.requesters.chat;
+
+			const chatRequesterSpy = jest.spyOn(chatRequester, 'request' as never);
+
+			await client.uploadImage({ image: new Blob(['fake-image-data'], { type: 'image/png' }) });
+
+			const uploadRequest = {
+				path: '/v1/chat/upload-image',
+				method: 'POST',
+				headers: {},
+				query: { siteId: '8uyt2m' },
+				body: expect.any(FormData),
+			};
+
+			expect(chatRequesterSpy).toHaveBeenCalledTimes(1);
+			expect(chatRequesterSpy.mock.calls).toEqual([[uploadRequest]]);
+
+			expect(fetchApiMock).toHaveBeenCalledTimes(1);
 			fetchApiMock.mockReset();
 		});
 
