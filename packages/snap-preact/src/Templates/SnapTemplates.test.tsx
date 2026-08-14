@@ -1655,10 +1655,11 @@ describe('SnapTemplates tab managers', () => {
 
 	it('returns the same store for every target of a controller type', () => {
 		const snap = new SnapTemplates(tabbedConfig);
+		const { templates, controllers } = snap;
 
-		expect(snap.getTabManager('search')).toBe(snap.getTabManager('search'));
-		expect(snap.getTabManager('autocomplete')).toBe(snap.getTabManager('autocomplete'));
-		expect(snap.getTabManager('search')).not.toBe(snap.getTabManager('autocomplete'));
+		expect(templates.getTabManager('search', controllers)).toBe(templates.getTabManager('search', controllers));
+		expect(templates.getTabManager('autocomplete', controllers)).toBe(templates.getTabManager('autocomplete', controllers));
+		expect(templates.getTabManager('search', controllers)).not.toBe(templates.getTabManager('autocomplete', controllers));
 	});
 
 	it('returns nothing when there are fewer than two tabs', () => {
@@ -1668,8 +1669,8 @@ describe('SnapTemplates tab managers', () => {
 			autocomplete: { ...tabbedConfig.autocomplete!, tabs: undefined },
 		});
 
-		expect(snap.getTabManager('search')).toBeUndefined();
-		expect(snap.getTabManager('autocomplete')).toBeUndefined();
+		expect(snap.templates.getTabManager('search', snap.controllers)).toBeUndefined();
+		expect(snap.templates.getTabManager('autocomplete', snap.controllers)).toBeUndefined();
 	});
 });
 

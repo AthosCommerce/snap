@@ -9,9 +9,10 @@ import {
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
+import { TabManagerStore } from './TabManagerStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
-import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, TabsConfig } from '@athoscommerce/snap-controller';
+import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, TabsConfig, AbstractController } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -288,6 +289,8 @@ export class TemplatesStore {
 
 	window: WindowProperties = { innerWidth: 0 };
 
+	private tabManagers: { search?: TabManagerStore; autocomplete?: TabManagerStore } = {};
+
 	constructor(params: TemplatesStoreParams) {
 		const { config, settings } = params || {};
 		this.config = config;
@@ -423,6 +426,23 @@ export class TemplatesStore {
 
 	public getTarget(type: TemplateTypes, targetIndex: number): TargetStore | undefined {
 		return getTargetArray(this.targets, type)?.[targetIndex];
+	}
+
+	// one store per controller type
+	public getTabManager(type: 'search' | 'autocomplete', controllers: { [id: string]: AbstractController }): TabManagerStore | undefined {
+		const tabs = this.config[type]?.tabs;
+
+		if (!tabs || tabs.length < 2) {
+			return undefined;
+		}
+
+		if (!this.tabManagers[type]) {
+			const tabControllers = tabs.map((tab) => controllers[tab.id]).filter((controller) => Boolean(controller));
+
+			this.tabManagers[type] = new TabManagerStore(tabs, tabControllers, this.config.tabsConfig);
+		}
+
+		return this.tabManagers[type];
 	}
 
 	public addTheme(config: ThemeStoreThemeConfig) {

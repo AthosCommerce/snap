@@ -6,7 +6,7 @@ import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSe
 
 import { DomTargeter, url, cookies, version, getContext } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
-import { TAB_ID_DEFAULT_PARAM, TabManagerStore, getActiveTabConfig, getTabParam } from './Stores/TabManagerStore';
+import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig, getTabParam } from './Stores/TabManagerStore';
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
@@ -174,7 +174,6 @@ export const applyAutomaticThemeOverrides = (
 
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
-	private tabManagers: { search?: TabManagerStore; autocomplete?: TabManagerStore } = {};
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
 		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
@@ -295,24 +294,6 @@ export class SnapTemplates extends Snap {
 		}
 
 		return this.controllers[type];
-	}
-
-	// one store per controller type for the entire integration - the tab controllers are shared by
-	// every target, so a store per target would diverge on `active` and stack duplicate subscriptions
-	public getTabManager(type: 'search' | 'autocomplete'): TabManagerStore | undefined {
-		const tabs = this.templates.config[type]?.tabs;
-
-		if (!tabs || tabs.length < 2) {
-			return undefined;
-		}
-
-		if (!this.tabManagers[type]) {
-			const controllers = tabs.map((tab) => this.controllers[tab.id]).filter((controller) => Boolean(controller));
-
-			this.tabManagers[type] = new TabManagerStore(tabs, controllers, this.templates.config.tabsConfig);
-		}
-
-		return this.tabManagers[type];
 	}
 }
 

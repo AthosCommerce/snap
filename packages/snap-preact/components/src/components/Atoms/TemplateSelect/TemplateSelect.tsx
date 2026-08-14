@@ -25,9 +25,10 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 		controller.log.error(error);
 	}
 
-	// the store is owned by the snap instance so that every target for a controller type shares one
 	const tabManager =
-		controller.type === ControllerTypes.search || controller.type === ControllerTypes.autocomplete ? snap.getTabManager(controller.type) : undefined;
+		controller.type === ControllerTypes.search || controller.type === ControllerTypes.autocomplete
+			? templatesStore.getTabManager(controller.type, snap.controllers)
+			: undefined;
 
 	// ensuring that theme and component are ready to render
 	return !loading && theme && Component ? (
