@@ -5,12 +5,21 @@ import type {
 	SearchController,
 	SearchTabConfig,
 	AutocompleteTabConfig,
+	TabConfig,
 	TabsConfig,
 } from '@athoscommerce/snap-controller';
 import { ControllerTypes } from '@athoscommerce/snap-controller';
+import { url } from '@athoscommerce/snap-toolbox';
 import type { Next } from '@athoscommerce/snap-event-manager';
 
 export const TAB_ID_DEFAULT_PARAM = 'view';
+
+type RedirectSettings = {
+	merchandising?: boolean;
+	singleResult?: boolean;
+};
+
+type RedirectableConfig = { settings?: { redirects?: RedirectSettings } };
 
 export type Tab = {
 	id: string;
@@ -19,7 +28,27 @@ export type Tab = {
 	siteId: string;
 	prefetch: boolean;
 	label?: string;
+	// configured redirects, restored whenever the tab becomes active again
+	redirects: RedirectSettings;
 };
+
+export function getTabParam(tab: TabConfig, config?: TabsConfig): string {
+	return config?.catalogs?.[tab.siteId]?.param || tab.id;
+}
+
+// resolves the active tab straight from the url - tab controllers begin searching as soon as they
+// are targeted, which happens before any TabManagerStore exists
+export function getActiveTabConfig<TabType extends TabConfig>(tabs: TabType[], config?: TabsConfig): TabType | undefined {
+	const defaultTab = tabs.filter((tab) => tab.default)[0] || tabs[0];
+	const paramValue = url(window.location.href)?.params.query[config?.tabParam || TAB_ID_DEFAULT_PARAM];
+
+	if (!paramValue) {
+		return defaultTab;
+	}
+
+	const activeParam = decodeURIComponent(paramValue);
+	return tabs.filter((tab) => getTabParam(tab, config) == activeParam)[0] || defaultTab;
+}
 
 export class TabManagerStore {
 	public tabs: Tab[] = [];
@@ -43,10 +72,11 @@ export class TabManagerStore {
 				id: tabConfig.id,
 				label: tabConfig.label,
 				siteId: tabConfig.siteId,
-				param: config?.catalogs?.[tabConfig.siteId]?.param || tabConfig.id,
+				param: getTabParam(tabConfig, config),
 				controller: cntrlr,
 				// search-tab only setting - autocomplete has nothing to fetch until the shopper types
 				prefetch: 'prefetch' in tabConfig ? tabConfig.prefetch ?? true : true,
+				redirects: { ...((cntrlr.config as RedirectableConfig).settings?.redirects || {}) },
 			};
 
 			if (cntrlr.type == ControllerTypes.autocomplete) {
@@ -80,7 +110,7 @@ export class TabManagerStore {
 					const nextTab = (nextParam && this.getTabByParam(nextParam)) || this.getTab(startingTabConfig.id);
 
 					if (nextTab) {
-						this.setActive(nextTab.id);
+						this.setActive(nextTab.id, false);
 					}
 				});
 			}
@@ -98,32 +128,49 @@ export class TabManagerStore {
 
 		// the active tab always searches - the rest only when they opt into prefetching
 		this.tabs.forEach((tab) => {
+			if (tab.id != this.active?.id) {
+				this.setRedirects(tab, false);
+			}
+
 			if (tab.prefetch || tab.id == this.active?.id) {
 				this.searchTab(tab);
 			}
 		});
 	}
 
-	public setActive = (id: string) => {
+	public setActive = (id: string, updateUrl = true) => {
 		const tabToSelect = this.getTab(id);
 
 		if (!tabToSelect || tabToSelect.id === this.active?.id) {
 			return;
 		}
 
-		const previousController = this.active?.controller;
+		const previousTab = this.active;
 
+		this.setRedirects(previousTab, false);
 		this.active = tabToSelect;
+		this.setRedirects(tabToSelect, true);
 
 		if (tabToSelect.controller.type == ControllerTypes.search) {
-			// to remove page chain: `.remove('page')` to urlManager.set(...)
-			(tabToSelect.controller as SearchController).urlManager.set(this.param, tabToSelect.param).go();
+			if (updateUrl) {
+				// to remove page chain: `.remove('page')` to urlManager.set(...)
+				(tabToSelect.controller as SearchController).urlManager.set(this.param, tabToSelect.param).go();
+			}
+
 			this.searchTab(tabToSelect);
 		}
+	};
 
-		if (tabToSelect.controller.type == ControllerTypes.autocomplete) {
-			this.syncAutocompleteState(previousController, tabToSelect.controller as AutocompleteController);
+	// every tab shares the url and the autocomplete input, so an inactive tab landing on a single
+	// result or a merchandising redirect would navigate away from the tab the shopper is viewing
+	private setRedirects = (tab: Tab | undefined, enabled: boolean) => {
+		if (!tab) {
+			return;
 		}
+
+		const config = tab.controller.config as RedirectableConfig;
+		config.settings = config.settings || {};
+		config.settings.redirects = enabled ? { ...tab.redirects } : { merchandising: false, singleResult: false };
 	};
 
 	private searchTab = (tab: Tab) => {
@@ -135,27 +182,6 @@ export class TabManagerStore {
 
 		if (!searchController.store.loading && !searchController.store.loaded) {
 			searchController.search();
-		}
-	};
-
-	// Autocomplete tabs all share a single input element, but each tab has its own controller with
-	// its own store. Without carrying the query and focus across, the newly active controller
-	// renders with an empty `state.input`, which blanks the shared input - and that empty value is
-	// then read back by every bound controller, resetting their stores and closing the autocomplete.
-	private syncAutocompleteState = (previousController: AbstractController | undefined, nextController: AutocompleteController) => {
-		if (!previousController || previousController.type !== ControllerTypes.autocomplete) {
-			return;
-		}
-
-		const previousState = (previousController as AutocompleteController).store.state;
-		const query = previousState.input;
-
-		nextController.store.state.input = query;
-		nextController.store.state.focusedInput = previousState.focusedInput;
-
-		if (query) {
-			// run the shared query against the newly active tab
-			nextController.urlManager.set({ query }).go();
 		}
 	};
 

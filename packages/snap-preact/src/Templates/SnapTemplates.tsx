@@ -6,7 +6,7 @@ import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSe
 
 import { DomTargeter, url, cookies, version, getContext } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
-import { TAB_ID_DEFAULT_PARAM } from './Stores/TabManagerStore';
+import { TAB_ID_DEFAULT_PARAM, TabManagerStore, getActiveTabConfig, getTabParam } from './Stores/TabManagerStore';
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
@@ -174,6 +174,7 @@ export const applyAutomaticThemeOverrides = (
 
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
+	private tabManagers: { search?: TabManagerStore; autocomplete?: TabManagerStore } = {};
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
 		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
@@ -294,6 +295,24 @@ export class SnapTemplates extends Snap {
 		}
 
 		return this.controllers[type];
+	}
+
+	// one store per controller type for the entire integration - the tab controllers are shared by
+	// every target, so a store per target would diverge on `active` and stack duplicate subscriptions
+	public getTabManager(type: 'search' | 'autocomplete'): TabManagerStore | undefined {
+		const tabs = this.templates.config[type]?.tabs;
+
+		if (!tabs || tabs.length < 2) {
+			return undefined;
+		}
+
+		if (!this.tabManagers[type]) {
+			const controllers = tabs.map((tab) => this.controllers[tab.id]).filter((controller) => Boolean(controller));
+
+			this.tabManagers[type] = new TabManagerStore(tabs, controllers, this.templates.config.tabsConfig);
+		}
+
+		return this.tabManagers[type];
 	}
 }
 
@@ -488,6 +507,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		const searchTabs = templateConfig.search.tabs || [];
 		const searchTargeters = createSearchTargeters(templateConfig, templatesStore);
 		const searchSettings = templateConfig.search.settings || {};
+		const searchGlobals = templateConfig.search.globals || {};
 
 		snapConfig.controllers.search = [];
 
@@ -496,7 +516,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 				config: {
 					id: 'search',
 					plugins: createPlugins(templateConfig, templatesStore, 'search'),
-					globals: templateConfig.search.globals || {},
+					globals: searchGlobals,
 					settings: searchSettings,
 				},
 				targeters: searchTargeters,
@@ -504,8 +524,9 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		} else {
 			// when tabs are configured, the tab controllers do all of the searching - an additional
 			// non-tab controller would only produce a redundant API request, so the targeters are
-			// attached to the default tab controller instead
-			const defaultTab = searchTabs.filter((tab) => tab.default)[0] || searchTabs[0];
+			// attached to the active tab controller instead. targeting kicks off a search before the
+			// TabManagerStore exists to gate redirects, so this must be the tab the shopper is viewing
+			const targetedTab = getActiveTabConfig(searchTabs, templateConfig.tabsConfig) || searchTabs[0];
 
 			searchTabs.forEach((tab) => {
 				const tabParam = templateConfig.tabsConfig?.catalogs?.[tab.siteId]?.param;
@@ -531,10 +552,10 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 								singleResult: true,
 							},
 						},
-						globals: tab.globals,
+						globals: deepmerge(searchGlobals, tab.globals || {}),
 					},
 					services: createTabServices(snapConfig, tab.siteId),
-					...(tab === defaultTab ? { targeters: searchTargeters } : {}),
+					...(tab === targetedTab ? { targeters: searchTargeters } : {}),
 				});
 			});
 		}
@@ -549,6 +570,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 
 		const autocompleteSelector = templateConfig.autocomplete.targets.map((target) => target.inputSelector).join(', ');
 		const autocompleteTabs = templateConfig.autocomplete.tabs || [];
+		const autocompleteGlobals = templateConfig.autocomplete.globals || {};
 		const autocompleteTargeters = createAutocompleteTargeters(templateConfig, templatesStore);
 
 		// merge the responsive settings if there are any
@@ -570,8 +592,9 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 					plugins: createPlugins(templateConfig, templatesStore, 'autocomplete'),
 					selector: autocompleteSelector,
 					action: templateConfig.autocomplete.action || '',
-					globals: templateConfig.autocomplete.globals || {},
+					globals: autocompleteGlobals,
 					settings: autocompleteControllerSettings,
+					tabConfig: templateConfig.tabsConfig,
 				},
 				targeters: autocompleteTargeters,
 			});
@@ -595,6 +618,13 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 								[templateConfig.tabsConfig?.tabParam || TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
 							},
 						},
+						// every url the autocomplete builds must carry the tab it belongs to
+						globals: [
+							{
+								param: templateConfig.tabsConfig?.tabParam || TAB_ID_DEFAULT_PARAM,
+								value: getTabParam(tab, templateConfig.tabsConfig),
+							},
+						],
 					},
 					config: {
 						id: tab.id,
@@ -602,7 +632,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 						selector: autocompleteSelector,
 						action: templateConfig.autocomplete!.action || '',
 						settings: deepmerge(autocompleteControllerSettings, tab.settings || {}),
-						globals: tab.globals,
+						globals: deepmerge(autocompleteGlobals, tab.globals || {}),
 					},
 					services: createTabServices(snapConfig, tab.siteId),
 					...(tab === defaultTab ? { targeters: autocompleteTargeters } : {}),

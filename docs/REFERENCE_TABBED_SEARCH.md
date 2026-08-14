@@ -1,7 +1,7 @@
 ## Tabbed Search
 
 > [!IMPORTANT]
-> Tabbed search is currently available in **Snap Templates only**. It is driven entirely by Snap Templates configuration and is not available to Snap Preact integrations that construct controllers directly.
+> Tabbed search is currently available in **Snap Templates only**. It is driven entirely by Snap Templates configuration and is not available to standard Snap integrations.
 
 Tabs let a single search or autocomplete experience span multiple catalogs. Each tab is backed by its own controller scoped to its own `siteId`, and shoppers switch between them with the `tabSelection` component.
 
@@ -162,9 +162,11 @@ search: {
 
 `prefetch` applies to search tabs only - autocomplete has nothing to fetch until the shopper types.
 
+Be aware that this also changes what reporting sees for that tab's `siteId`. A deferred tab only records a search when a shopper actually selects it, so its search volume will be far lower than a prefetched tab's, and its impression and click-through rates will be correspondingly higher. Metrics are not comparable across the default tab's `siteId` and a `prefetch: false` tab's `siteId`.
+
 ### Per-Tab Globals, Settings and Plugins
 
-Each tab accepts `globals`, `settings` and `plugins` that apply to that tab alone. This is how you give one catalog a background filter, a different page size, or its own plugin set. `settings` are merged over the feature level settings; `globals` and `plugins` apply to the tab only.
+Each tab accepts `globals`, `settings` and `plugins` that apply to that tab alone. This is how you give one catalog a background filter, a different page size, or its own plugin set. `settings` and `globals` are merged over the feature level values; `plugins` apply to the tab only.
 
 ```tsx
 search: {

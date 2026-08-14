@@ -90,8 +90,10 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 	const { layout, disableStyles, renderInput, overlayColor, className, internalClassName, offset, treePath, tabManager } = props;
 
 	let controller = props.controller;
+	let controllers: AutocompleteController[] = [controller];
 	if (tabManager && tabManager.active) {
 		controller = tabManager.active?.controller as AutocompleteController;
+		controllers = tabManager.tabs.map((tab) => tab.controller as AutocompleteController);
 	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
@@ -230,7 +232,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 	if (input) {
 		_input = useAcRenderedInput({
 			input: input as Element,
-			controller,
+			controllers,
 			renderedInputRef,
 			renderInput: Boolean(renderInput),
 			buttonSelector,

@@ -102,8 +102,10 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 	const { layout, disableStyles, overlayColor, renderInput, className, internalClassName, treePath, tabManager } = props;
 
 	let controller = props.controller;
+	let controllers: AutocompleteController[] = [controller];
 	if (tabManager && tabManager.active) {
 		controller = tabManager.active?.controller as AutocompleteController;
+		controllers = tabManager.tabs.map((tab) => tab.controller as AutocompleteController);
 	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
@@ -192,7 +194,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 	if (input) {
 		_input = useAcRenderedInput({
 			input: input as Element,
-			controller,
+			controllers,
 			renderedInputRef,
 			renderInput: Boolean(renderInput),
 			buttonSelector,

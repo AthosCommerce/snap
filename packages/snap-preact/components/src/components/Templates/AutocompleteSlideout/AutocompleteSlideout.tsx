@@ -64,8 +64,10 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 	const { layout, disableStyles, slideDirection, overlayColor, renderInput, className, internalClassName, treePath, width, tabManager } = props;
 
 	let controller = props.controller;
+	let controllers: AutocompleteController[] = [controller];
 	if (tabManager && tabManager.active) {
 		controller = tabManager.active?.controller as AutocompleteController;
+		controllers = tabManager.tabs.map((tab) => tab.controller as AutocompleteController);
 	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
@@ -144,7 +146,7 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 
 		_input = useAcRenderedInput({
 			input: input as Element,
-			controller,
+			controllers,
 			renderedInputRef,
 			renderInput: Boolean(renderInput),
 			buttonSelector,

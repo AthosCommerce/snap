@@ -119,7 +119,7 @@ const urlManager = new UrlManager(
 		urlRoot: '/search.html',
 		settings: {
 			coreType: 'hash',
-			corePrefix: 'ss-',
+			corePrefix: 'athos-',
 		},
 		parameters: {
 			core: {
@@ -132,7 +132,7 @@ const urlManager = new UrlManager(
 
 const setUrlManager = urlManager.set({ query: 'bright', page: 3, filter: { color: ['blue'] } });
 
-console.log(setUrlManager.href); // /search.html#/ss-que:bright/ss-p:3/ss-filter:color:blue
+console.log(setUrlManager.href); // /search.html#/athos-que:bright/athos-p:3/athos-filter:color:blue
 
 ```
 

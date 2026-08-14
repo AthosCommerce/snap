@@ -24,6 +24,12 @@ const createUrlManager = (url = '', tabParam = TAB_PARAM) => {
 	return new UrlManager(translator, reactLinker, undefined, undefined, undefined, [], { url });
 };
 
+// attached to the jsdom url so that popstate reaches the url manager subscriptions
+const createLiveUrlManager = (tabParam = TAB_PARAM) => {
+	const translator = new UrlTranslator({ parameters: { custom: { [tabParam]: { type: 'query' } } } });
+	return new UrlManager(translator, reactLinker);
+};
+
 const createController = (id: string, urlManager: UrlManager) => {
 	const config = { id, globals: {}, settings: {} };
 
@@ -204,6 +210,33 @@ describe('TabManagerStore', () => {
 		});
 	});
 
+	describe('back/forward navigation', () => {
+		beforeEach(() => {
+			window.history.replaceState(null, '', '/');
+		});
+
+		it('activates the tab from the url without pushing another history entry', () => {
+			const controllers = tabs.map((tab) => createController(tab.id, createLiveUrlManager()));
+			controllers.forEach((controller) => jest.spyOn(controller, 'search').mockResolvedValue(undefined as any));
+			const tabManager = new TabManagerStore(tabs, controllers, config);
+
+			tabManager.setActive('Blog');
+			expect(window.location.search).toBe(`?${TAB_PARAM}=blog`);
+
+			const pushState = jest.spyOn(window.history, 'pushState');
+
+			// browser back to the entry without a tab param
+			window.history.replaceState(null, '', '/');
+			window.dispatchEvent(new PopStateEvent('popstate'));
+
+			expect(tabManager.active?.id).toBe('Products');
+			expect(pushState).not.toHaveBeenCalled();
+			expect(window.location.search).toBe('');
+
+			pushState.mockRestore();
+		});
+	});
+
 	describe('prefetch', () => {
 		it('searches every tab by default', () => {
 			const { controllers, searchSpies } = setup(tabs);
@@ -262,6 +295,56 @@ describe('TabManagerStore', () => {
 			expect(tabManager.getTabByParam('blog')?.id).toBe('Blog');
 			expect(tabManager.getTab('blog')).toBeUndefined();
 			expect(tabManager.getTabByParam('Blog')).toBeUndefined();
+		});
+	});
+
+	describe('redirects', () => {
+		it('leaves redirects enabled on the active tab and disables them everywhere else', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers, config);
+
+			expect(tabManager.active?.id).toBe('Products');
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+		});
+
+		it('moves the enabled redirects along with the active tab', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers, config);
+
+			tabManager.setActive('Blog');
+
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+		});
+
+		it('restores the tab specific configured values rather than a blanket enable', () => {
+			const { controllers } = setup(tabs);
+			controllers[1].config.settings!.redirects = { merchandising: true, singleResult: false };
+			const tabManager = new TabManagerStore(tabs, controllers, config);
+
+			tabManager.setActive('Blog');
+
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: true, singleResult: false });
+		});
+
+		it('disables redirects on inactive autocomplete tabs', () => {
+			const acTabs: AutocompleteTabConfig[] = [
+				{ id: 'ACProducts', siteId: 'abc123' },
+				{ id: 'ACBlog', siteId: 'xyz789' },
+			];
+			const controllers = setupAutocomplete(acTabs);
+			controllers.forEach((controller) => (controller.config.settings!.redirects = { merchandising: true, singleResult: true }));
+
+			const tabManager = new TabManagerStore(acTabs, controllers, config);
+
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+
+			tabManager.setActive('ACBlog');
+
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
 		});
 	});
 

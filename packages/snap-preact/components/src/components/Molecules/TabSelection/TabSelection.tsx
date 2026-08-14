@@ -123,7 +123,7 @@ export const TabSelection = observer((properties: TabSelectionProps) => {
 							<Button
 								key={tab.id}
 								{...subProps.button}
-								internalClassName={classnames('ss__tab-selection__button', {
+								internalClassName={classnames('ss__tab-selection__button', `ss__tab-selection__button--${tab.id}`, {
 									'ss__tab-selection__button--active': active,
 								})}
 								disabled={disabled}

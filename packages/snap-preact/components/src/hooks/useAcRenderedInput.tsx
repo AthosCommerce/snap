@@ -5,14 +5,14 @@ const RENDERED_INPUT_SELECTOR = '.autocomplete__search-input input';
 
 export function useAcRenderedInput({
 	input,
-	controller,
+	controllers,
 	renderInput,
 	buttonSelector,
 	renderedInputRef,
 	setActive,
 }: {
 	input: Element;
-	controller: AutocompleteController;
+	controllers: AutocompleteController[];
 	renderedInputRef: MutableRef<HTMLInputElement | null>;
 	renderInput: boolean;
 	buttonSelector?: string | Element;
@@ -23,14 +23,15 @@ export function useAcRenderedInput({
 	const boundController = useRef<AutocompleteController | null>(null);
 
 	// adds the rendered input to the controller's selector (once) and binds it
-	const bindRenderedInput = async (cntrlr: AutocompleteController) => {
-		if (!cntrlr.config.selector.includes(RENDERED_INPUT_SELECTOR)) {
-			cntrlr.config.selector = `${cntrlr.config.selector}, ${RENDERED_INPUT_SELECTOR}`;
+	const bindRenderedInput = async (cntrlrs: AutocompleteController[]) => {
+		for (const cntrlr of cntrlrs) {
+			if (!cntrlr.config.selector.includes(RENDERED_INPUT_SELECTOR)) {
+				cntrlr.config.selector = `${cntrlr.config.selector}, ${RENDERED_INPUT_SELECTOR}`;
+			}
+			boundController.current = cntrlr;
+			await cntrlr.bind();
 		}
-		boundController.current = cntrlr;
-		await cntrlr.bind();
 	};
-
 	const onClick = () => {
 		if (setActive) {
 			setActive(true);
@@ -40,25 +41,12 @@ export function useAcRenderedInput({
 		setTimeout(async () => {
 			if (!renderedInputInitialized) {
 				setInput(renderedInputRef!.current);
-				await bindRenderedInput(controller);
+				await bindRenderedInput(controllers);
 				renderedInputRef?.current?.focus();
 			}
 			setRenderedInputInitialized(true);
 		});
 	};
-
-	// the rendered input is shared by every autocomplete tab, but each tab has its own controller.
-	// when the active tab changes the incoming controller must be bound (and given focus) or it
-	// will never see input events. the ref check skips the controller onClick just bound.
-	useEffect(() => {
-		if (!renderedInputInitialized || boundController.current === controller) {
-			return;
-		}
-
-		bindRenderedInput(controller).then(() => {
-			renderedInputRef?.current?.focus();
-		});
-	}, [controller, renderedInputInitialized]);
 
 	useEffect(() => {
 		// track pointer-initiated focus to avoid rendering the overlay between mousedown and mouseup,
