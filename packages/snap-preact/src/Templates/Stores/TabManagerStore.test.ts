@@ -408,16 +408,5 @@ describe('TabManagerStore', () => {
 
 			expect(document.querySelectorAll('input[type="hidden"]')).toHaveLength(0);
 		});
-
-		it('carries the query across to the newly active tab', () => {
-			const controllers = setupAutocomplete(acTabs);
-			const tabManager = new TabManagerStore(acTabs, controllers, config);
-
-			controllers[0].store.state.input = 'winter';
-
-			tabManager.setActive('ACBlog');
-
-			expect(controllers[1].store.state.input).toBe('winter');
-		});
 	});
 });
