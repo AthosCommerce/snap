@@ -456,7 +456,7 @@ describe('createSnapConfig with custom plugins', () => {
 				settings: {
 					infinite: { backfill: 5 },
 				},
-				tabs: [{ id: 'tabbed', siteId: 'abc123' }],
+				tabs: [{ id: 'tabbed', siteId: 'abc123', param: 'tabbed' }],
 			},
 		};
 
@@ -475,7 +475,9 @@ describe('createSnapConfig with custom plugins', () => {
 
 		// inherits base settings while retaining tab specific overrides
 		expect(tabControllerConfig?.config?.settings?.infinite?.backfill).toBe(5);
-		expect(tabControllerConfig?.config?.settings?.redirects?.singleResult).toBe(true);
+
+		// redirect settings are left to the controller defaults - the TabManagerStore gates them per tab
+		expect(tabControllerConfig?.config?.settings?.redirects).toBeUndefined();
 	});
 
 	it('should attach the targeters to the default tab controller', () => {
@@ -491,15 +493,15 @@ describe('createSnapConfig with custom plugins', () => {
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
 				tabs: [
-					{ id: 'first', siteId: 'abc123' },
-					{ id: 'second', siteId: 'abc123', default: true },
+					{ id: 'first', siteId: 'abc123', param: 'first' },
+					{ id: 'second', siteId: 'abc123', param: 'second', default: true },
 				],
 			},
 			autocomplete: {
 				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
 				tabs: [
-					{ id: 'acFirst', siteId: 'abc123' },
-					{ id: 'acSecond', siteId: 'abc123', default: true },
+					{ id: 'acFirst', siteId: 'abc123', param: 'first' },
+					{ id: 'acSecond', siteId: 'abc123', param: 'second', default: true },
 				],
 			},
 		};
@@ -520,7 +522,7 @@ describe('createSnapConfig with custom plugins', () => {
 
 	it('should attach the search targeters to the tab the url marks as active', () => {
 		const originalLocation = window.location.href;
-		window.history.replaceState(null, '', '/?view=blog');
+		window.history.replaceState(null, '', `/?${TAB_ID_DEFAULT_PARAM}=blog`);
 
 		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
@@ -531,17 +533,11 @@ describe('createSnapConfig with custom plugins', () => {
 			theme: {
 				extends: 'base',
 			},
-			tabsConfig: {
-				catalogs: {
-					abc123: { param: 'prod' },
-					xyz789: { param: 'blog' },
-				},
-			},
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
 				tabs: [
-					{ id: 'products', siteId: 'abc123', default: true },
-					{ id: 'blog', siteId: 'xyz789' },
+					{ id: 'products', siteId: 'abc123', param: 'prod', default: true },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
 				],
 			},
 		};
@@ -557,7 +553,7 @@ describe('createSnapConfig with custom plugins', () => {
 		window.history.replaceState(null, '', originalLocation);
 	});
 
-	it('should apply the corePrefix from tabsConfig.catalogs by siteId', () => {
+	it('should apply the corePrefix from each tab param', () => {
 		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
 			config: {
@@ -567,25 +563,18 @@ describe('createSnapConfig with custom plugins', () => {
 			theme: {
 				extends: 'base',
 			},
-			tabsConfig: {
-				catalogs: {
-					abc123: { param: 'prod' },
-					xyz789: { param: 'blog' },
-				},
-			},
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
 				tabs: [
-					{ id: 'products', siteId: 'abc123' },
-					{ id: 'blog', siteId: 'xyz789' },
-					{ id: 'unmapped', siteId: 'nomatch' },
+					{ id: 'products', siteId: 'abc123', param: 'prod' },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
 				],
 			},
 			autocomplete: {
 				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
 				tabs: [
-					{ id: 'acProducts', siteId: 'abc123' },
-					{ id: 'acBlog', siteId: 'xyz789' },
+					{ id: 'acProducts', siteId: 'abc123', param: 'prod' },
+					{ id: 'acBlog', siteId: 'xyz789', param: 'blog' },
 				],
 			},
 		};
@@ -595,9 +584,8 @@ describe('createSnapConfig with custom plugins', () => {
 
 		expect(snapConfig.controllers?.search?.[0]?.url?.settings?.corePrefix).toBe('prod');
 		expect(snapConfig.controllers?.search?.[1]?.url?.settings?.corePrefix).toBe('blog');
-		expect(snapConfig.controllers?.search?.[2]?.url?.settings?.corePrefix).toBeUndefined();
 
-		// autocomplete tabs sharing a siteId with a search tab get the same param
+		// an autocomplete tab configured with the same param as a search tab shares its namespace
 		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.settings?.corePrefix).toBe('prod');
 		expect(snapConfig.controllers?.autocomplete?.[1]?.url?.settings?.corePrefix).toBe('blog');
 	});
@@ -612,21 +600,16 @@ describe('createSnapConfig with custom plugins', () => {
 			theme: {
 				extends: 'base',
 			},
-			tabsConfig: {
-				catalogs: {
-					abc123: { param: 'prod' },
-				},
-			},
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
 				tabs: [
-					{ id: 'products', siteId: 'abc123' },
-					{ id: 'unmapped', siteId: 'nomatch' },
+					{ id: 'products', siteId: 'abc123', param: 'prod' },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
 				],
 			},
 			autocomplete: {
 				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
-				tabs: [{ id: 'acProducts', siteId: 'abc123' }],
+				tabs: [{ id: 'acProducts', siteId: 'abc123', param: 'prod' }],
 			},
 		};
 
@@ -635,12 +618,9 @@ describe('createSnapConfig with custom plugins', () => {
 
 		expect(snapConfig.controllers?.search?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize', 'rq', 'page']);
 		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize', 'rq', 'page']);
-
-		// no catalog param means no prefixing at all
-		expect(snapConfig.controllers?.search?.[1]?.url?.settings?.corePrefixParams).toBeUndefined();
 	});
 
-	it('should register the configured tabParam as a custom query parameter', () => {
+	it('should register the tab param as a custom query parameter', () => {
 		const config: SnapTemplatesConfigUnlocked = {
 			unlocked: true,
 			config: {
@@ -650,39 +630,13 @@ describe('createSnapConfig with custom plugins', () => {
 			theme: {
 				extends: 'base',
 			},
-			tabsConfig: {
-				tabParam: 'tab',
-			},
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
-				tabs: [{ id: 'products', siteId: 'abc123' }],
+				tabs: [{ id: 'products', siteId: 'abc123', param: 'prod' }],
 			},
 			autocomplete: {
 				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
-				tabs: [{ id: 'acProducts', siteId: 'abc123' }],
-			},
-		};
-
-		const templatesStore = new TemplatesStore({ config });
-		const snapConfig = createSnapConfig(config, templatesStore);
-
-		expect(snapConfig.controllers?.search?.[0]?.url?.parameters?.custom).toEqual({ tab: { type: 'query' } });
-		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.parameters?.custom).toEqual({ tab: { type: 'query' } });
-	});
-
-	it('should register the default tab param when tabParam is not configured', () => {
-		const config: SnapTemplatesConfigUnlocked = {
-			unlocked: true,
-			config: {
-				platform: 'other',
-				siteId: 'test123',
-			},
-			theme: {
-				extends: 'base',
-			},
-			search: {
-				targets: [{ selector: '#search', component: 'Search' }],
-				tabs: [{ id: 'products', siteId: 'abc123' }],
+				tabs: [{ id: 'acProducts', siteId: 'abc123', param: 'prod' }],
 			},
 		};
 
@@ -690,6 +644,35 @@ describe('createSnapConfig with custom plugins', () => {
 		const snapConfig = createSnapConfig(config, templatesStore);
 
 		expect(snapConfig.controllers?.search?.[0]?.url?.parameters?.custom).toEqual({ [TAB_ID_DEFAULT_PARAM]: { type: 'query' } });
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.parameters?.custom).toEqual({ [TAB_ID_DEFAULT_PARAM]: { type: 'query' } });
+	});
+
+	it('should carry each autocomplete tab param in its url globals', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [
+					{ id: 'acProducts', siteId: 'abc123', param: 'prod' },
+					{ id: 'acBlog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// every url an autocomplete tab builds carries its own param, so submitting from a tab lands
+		// on the search tab configured with the matching param
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.globals).toEqual([{ param: TAB_ID_DEFAULT_PARAM, value: 'prod' }]);
+		expect(snapConfig.controllers?.autocomplete?.[1]?.url?.globals).toEqual([{ param: TAB_ID_DEFAULT_PARAM, value: 'blog' }]);
 	});
 
 	it('should pass custom plugins, action and base settings to autocomplete tab controller configs', () => {
@@ -717,7 +700,7 @@ describe('createSnapConfig with custom plugins', () => {
 						},
 					},
 				},
-				tabs: [{ id: 'tabbed', siteId: 'abc123' }],
+				tabs: [{ id: 'tabbed', siteId: 'abc123', param: 'tabbed' }],
 			},
 		};
 
@@ -762,9 +745,9 @@ describe('createSnapConfig with custom plugins', () => {
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
 				tabs: [
-					{ id: 'inherits', siteId: 'abc123' },
-					{ id: 'overrides', siteId: 'abc123', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
-					{ id: 'none', siteId: 'abc123', plugins: {} },
+					{ id: 'inherits', siteId: 'abc123', param: 'inherits' },
+					{ id: 'overrides', siteId: 'abc123', param: 'overrides', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
+					{ id: 'none', siteId: 'abc123', param: 'none', plugins: {} },
 				],
 			},
 		};
@@ -811,9 +794,9 @@ describe('createSnapConfig with custom plugins', () => {
 			autocomplete: {
 				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
 				tabs: [
-					{ id: 'inherits', siteId: 'abc123' },
-					{ id: 'overrides', siteId: 'abc123', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
-					{ id: 'none', siteId: 'abc123', plugins: {} },
+					{ id: 'inherits', siteId: 'abc123', param: 'inherits' },
+					{ id: 'overrides', siteId: 'abc123', param: 'overrides', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
+					{ id: 'none', siteId: 'abc123', param: 'none', plugins: {} },
 				],
 			},
 		};
@@ -1640,15 +1623,15 @@ describe('SnapTemplates tab managers', () => {
 		search: {
 			targets: [{ selector: '#search', component: 'Search' }],
 			tabs: [
-				{ id: 'products', siteId: 'abc123' },
-				{ id: 'blog', siteId: 'xyz789' },
+				{ id: 'products', siteId: 'abc123', param: 'prod' },
+				{ id: 'blog', siteId: 'xyz789', param: 'blog' },
 			],
 		},
 		autocomplete: {
 			targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
 			tabs: [
-				{ id: 'acProducts', siteId: 'abc123' },
-				{ id: 'acBlog', siteId: 'xyz789' },
+				{ id: 'acProducts', siteId: 'abc123', param: 'prod' },
+				{ id: 'acBlog', siteId: 'xyz789', param: 'blog' },
 			],
 		},
 	};
@@ -1665,7 +1648,7 @@ describe('SnapTemplates tab managers', () => {
 	it('returns nothing when there are fewer than two tabs', () => {
 		const snap = new SnapTemplates({
 			...tabbedConfig,
-			search: { ...tabbedConfig.search!, tabs: [{ id: 'products', siteId: 'abc123' }] },
+			search: { ...tabbedConfig.search!, tabs: [{ id: 'products', siteId: 'abc123', param: 'prod' }] },
 			autocomplete: { ...tabbedConfig.autocomplete!, tabs: undefined },
 		});
 

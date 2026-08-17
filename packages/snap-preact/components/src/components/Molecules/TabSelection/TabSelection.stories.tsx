@@ -87,12 +87,12 @@ export default {
 	},
 };
 
-const tabsConfig = [
-	{ id: 'TabSelectionProducts', siteId: 'atkzs2', label: 'Products' },
-	{ id: 'TabSelectionSale', siteId: 'atkzs2', label: 'Sale' },
+const tabConfigs = [
+	{ id: 'TabSelectionProducts', siteId: 'atkzs2', param: 'products', label: 'Products' },
+	{ id: 'TabSelectionSale', siteId: 'atkzs2', param: 'sale', label: 'Sale' },
 ];
 
-const controllers = tabsConfig.map((tab) =>
+const controllers = tabConfigs.map((tab) =>
 	Snapify.search({
 		id: tab.id,
 		globals: {
@@ -110,7 +110,7 @@ Default.loaders = [
 		await Promise.all(controllers.map((controller) => controller.search()));
 
 		return {
-			tabManager: new TabManagerStore(tabsConfig, controllers, { tabParam: 'tab' }),
+			tabManager: new TabManagerStore(tabConfigs, controllers),
 		};
 	},
 ];

@@ -129,32 +129,23 @@ export type RecommendationControllerConfig = ControllerConfig & RecommendationSt
 
 export type ControllerConfigs = SearchControllerConfig | AutocompleteControllerConfig | FinderControllerConfig | RecommendationControllerConfig;
 
-// Global tab configuration
-export type TabsConfig = {
-	tabParam?: string;
-	catalogs?: {
-		[siteId: string]: {
-			param: string;
-		};
-	};
-};
-
 // General tab config values
 export type TabConfig = {
 	id: string;
+	param: string;
 	siteId: string;
 	label?: string;
 	default?: boolean;
 	globals?: any;
+	prefetch?: boolean;
 };
 
 export type SearchTabConfig = TabConfig & {
 	settings?: SearchStoreConfigSettings;
 	config?: SearchControllerConfig;
-	prefetch?: boolean;
 };
 
-export type AutocompleteTabConfig = TabConfig & {
+export type AutocompleteTabConfig = Omit<TabConfig, 'prefetch'> & {
 	settings?: AutocompleteStoreConfigSettings;
 	config?: AutocompleteControllerConfig;
 };

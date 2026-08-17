@@ -851,7 +851,7 @@ translations: {
 
 Tabs let a single search or autocomplete experience span multiple catalogs. Each tab is backed by its own controller scoped to its own `siteId`, and shoppers switch between them with the `tabSelection` component.
 
-Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id` and the `siteId` it queries.
+Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id`, the `siteId` it queries, and the `param` that identifies its catalog in the URL.
 
 ```tsx
 new SnapTemplates({
@@ -866,12 +866,14 @@ new SnapTemplates({
 			{
 				id: 'Products',
 				siteId: '8uyt2m',
+				param: 'prod',
 				label: 'Products',
 				default: true,
 			},
 			{
 				id: 'Blog',
 				siteId: 'atkzs2',
+				param: 'blog',
 				label: 'Blog',
 			},
 		],
@@ -889,5 +891,8 @@ The `tabSelection` module is already present in the default layouts, so no theme
 
 > [!IMPORTANT]
 > Tab `id` values **must be unique across the entire configuration**, including between search tabs and autocomplete tabs. A duplicate id is silently skipped, so the affected tab simply never renders.
+
+> [!IMPORTANT]
+> When tabs are used in both `search` and `autocomplete`, a tab for a given catalog must be configured with the same `siteId` and the same `param` in both. Unlike `id`, `param` is meant to be shared - it is what carries a shopper from the tab they submitted in to the matching tab of the results page.
 
 For full Tabbed Search documentation, see [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md).

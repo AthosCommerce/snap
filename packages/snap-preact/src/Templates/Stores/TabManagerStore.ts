@@ -1,18 +1,10 @@
 import { makeObservable, observable, action } from 'mobx';
-import type {
-	AbstractController,
-	AutocompleteController,
-	SearchController,
-	SearchTabConfig,
-	AutocompleteTabConfig,
-	TabConfig,
-	TabsConfig,
-} from '@athoscommerce/snap-controller';
+import type { AbstractController, AutocompleteController, SearchController, TabConfig } from '@athoscommerce/snap-controller';
 import { ControllerTypes } from '@athoscommerce/snap-controller';
 import { url } from '@athoscommerce/snap-toolbox';
 import type { Next } from '@athoscommerce/snap-event-manager';
 
-export const TAB_ID_DEFAULT_PARAM = 'view';
+export const TAB_ID_DEFAULT_PARAM = 'tab';
 
 type RedirectSettings = {
 	merchandising?: boolean;
@@ -32,22 +24,18 @@ export type Tab = {
 	redirects: RedirectSettings;
 };
 
-export function getTabParam(tab: TabConfig, config?: TabsConfig): string {
-	return config?.catalogs?.[tab.siteId]?.param || tab.id;
-}
-
 // resolves the active tab straight from the url - tab controllers begin searching as soon as they
 // are targeted, which happens before any TabManagerStore exists
-export function getActiveTabConfig<TabType extends TabConfig>(tabs: TabType[], config?: TabsConfig): TabType | undefined {
+export function getActiveTabConfig<TabType extends TabConfig>(tabs: TabType[]): TabType | undefined {
 	const defaultTab = tabs.filter((tab) => tab.default)[0] || tabs[0];
-	const paramValue = url(window.location.href)?.params.query[config?.tabParam || TAB_ID_DEFAULT_PARAM];
+	const paramValue = url(window.location.href)?.params.query[TAB_ID_DEFAULT_PARAM];
 
 	if (!paramValue) {
 		return defaultTab;
 	}
 
 	const activeParam = decodeURIComponent(paramValue);
-	return tabs.filter((tab) => getTabParam(tab, config) == activeParam)[0] || defaultTab;
+	return tabs.filter((tab) => tab.param == activeParam)[0] || defaultTab;
 }
 
 export class TabManagerStore {
@@ -55,13 +43,13 @@ export class TabManagerStore {
 	public active: Tab | undefined;
 	public param: string;
 
-	constructor(tabs: SearchTabConfig[] | AutocompleteTabConfig[], controllers: AbstractController[], config?: TabsConfig) {
-		this.param = config?.tabParam || TAB_ID_DEFAULT_PARAM;
+	constructor(tabConfigs: TabConfig[], controllers: AbstractController[]) {
+		this.param = TAB_ID_DEFAULT_PARAM;
 
-		const startingTabConfig = tabs.filter((tab) => tab.default)[0] || tabs[0];
+		const startingTabConfig = tabConfigs.filter((tab) => tab.default)[0] || tabConfigs[0];
 		let urlParam: string | undefined;
 
-		tabs.forEach((tabConfig) => {
+		tabConfigs.forEach((tabConfig) => {
 			const cntrlr = controllers.filter((controller) => controller.id == tabConfig.id)[0];
 
 			if (!cntrlr) {
@@ -72,7 +60,7 @@ export class TabManagerStore {
 				id: tabConfig.id,
 				label: tabConfig.label,
 				siteId: tabConfig.siteId,
-				param: getTabParam(tabConfig, config),
+				param: tabConfig.param,
 				controller: cntrlr,
 				// search-tab only setting - autocomplete has nothing to fetch until the shopper types
 				prefetch: 'prefetch' in tabConfig ? tabConfig.prefetch ?? true : true,

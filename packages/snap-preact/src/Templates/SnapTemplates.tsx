@@ -6,7 +6,7 @@ import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSe
 
 import { DomTargeter, url, cookies, version, getContext } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
-import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig, getTabParam } from './Stores/TabManagerStore';
+import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerStore';
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
@@ -507,10 +507,10 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 			// non-tab controller would only produce a redundant API request, so the targeters are
 			// attached to the active tab controller instead. targeting kicks off a search before the
 			// TabManagerStore exists to gate redirects, so this must be the tab the shopper is viewing
-			const targetedTab = getActiveTabConfig(searchTabs, templateConfig.tabsConfig) || searchTabs[0];
+			const targetedTab = getActiveTabConfig(searchTabs) || searchTabs[0];
 
 			searchTabs.forEach((tab) => {
-				const tabParam = templateConfig.tabsConfig?.catalogs?.[tab.siteId]?.param;
+				const tabParam = tab.param;
 
 				snapConfig.controllers!.search!.push({
 					url: {
@@ -520,7 +520,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 						},
 						parameters: {
 							custom: {
-								[templateConfig.tabsConfig?.tabParam || TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
+								[TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
 							},
 						},
 					},
@@ -529,9 +529,6 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 						plugins: tab.plugins ? createTabPlugins(tab.plugins, templatesStore) : createPlugins(templateConfig, templatesStore, 'search'),
 						settings: {
 							...deepmerge(searchSettings, tab.settings || {}),
-							redirects: {
-								singleResult: true,
-							},
 						},
 						globals: deepmerge(searchGlobals, tab.globals || {}),
 					},
@@ -575,7 +572,6 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 					action: templateConfig.autocomplete.action || '',
 					globals: autocompleteGlobals,
 					settings: autocompleteControllerSettings,
-					tabConfig: templateConfig.tabsConfig,
 				},
 				targeters: autocompleteTargeters,
 			});
@@ -586,7 +582,7 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 			const defaultTab = autocompleteTabs.filter((tab) => tab.default)[0] || autocompleteTabs[0];
 
 			autocompleteTabs.forEach((tab) => {
-				const tabParam = templateConfig.tabsConfig?.catalogs?.[tab.siteId]?.param;
+				const tabParam = tab.param;
 
 				snapConfig.controllers!.autocomplete!.push({
 					url: {
@@ -596,14 +592,14 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 						},
 						parameters: {
 							custom: {
-								[templateConfig.tabsConfig?.tabParam || TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
+								[TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
 							},
 						},
 						// every url the autocomplete builds must carry the tab it belongs to
 						globals: [
 							{
-								param: templateConfig.tabsConfig?.tabParam || TAB_ID_DEFAULT_PARAM,
-								value: getTabParam(tab, templateConfig.tabsConfig),
+								param: TAB_ID_DEFAULT_PARAM,
+								value: tab.param,
 							},
 						],
 					},

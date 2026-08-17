@@ -1,6 +1,6 @@
 # TabSelection
 
-Renders a set of tabs for switching between the catalogs configured in `tabsConfig`. Each tab is bound to its own controller, and selecting one makes that controller's results the active set.
+Renders a set of tabs for switching between the catalogs configured in the TabManagerStore. Each tab is bound to its own controller, and selecting one makes that controller's results the active set.
 
 ## Sub-components
 - Button

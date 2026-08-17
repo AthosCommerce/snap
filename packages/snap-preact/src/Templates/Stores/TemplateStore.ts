@@ -12,7 +12,7 @@ import { TargetStore } from './TargetStore';
 import { TabManagerStore } from './TabManagerStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
-import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, TabsConfig, AbstractController } from '@athoscommerce/snap-controller';
+import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, AbstractController, TabConfig } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -196,7 +196,6 @@ export type TemplatesStoreConfigLocked = {
 	translations?: {
 		[currencyName in LanguageCodes]?: LangComponentOverrides;
 	};
-	tabsConfig?: TabsConfig;
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
 		tabs?: TemplatesSearchTabConfigLocked[];
@@ -435,11 +434,19 @@ export class TemplatesStore {
 		if (!tabs || tabs.length < 2) {
 			return undefined;
 		}
+		const mappedTabs: TabConfig[] = tabs.map((tab) => ({
+			id: tab.id,
+			param: tab.param,
+			siteId: tab.siteId,
+			label: tab.label,
+			default: tab.default,
+			prefetch: (tab as TemplatesSearchTabConfigUnlocked).prefetch,
+		}));
 
 		if (!this.tabManagers[type]) {
 			const tabControllers = tabs.map((tab) => controllers[tab.id]).filter((controller) => Boolean(controller));
 
-			this.tabManagers[type] = new TabManagerStore(tabs, tabControllers, this.config.tabsConfig);
+			this.tabManagers[type] = new TabManagerStore(mappedTabs, tabControllers);
 		}
 
 		return this.tabManagers[type];

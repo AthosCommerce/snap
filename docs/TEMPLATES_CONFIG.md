@@ -11,7 +11,6 @@ Snap templates is configuration based. The configuration defines which features 
 | `translations` | Custom language translations |
 | `url` | URL translator configuration |
 | `theme` | Theme configuration |
-| `tabsConfig` | Global tabbed search configuration options |
 | `search` | Search feature target declarations |
 | `autocomplete` | Autocomplete feature target declarations |
 | `recommendation` | Recommendation feature target declarations |
@@ -291,29 +290,13 @@ Tabs are supported for the `search` and `autocomplete` features. A minimum of tw
 
 See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md) for a complete walkthrough.
 
-##### Global tabs configuration
-
-| Configuration Option | Description | Type | Default |
-|----------------------|-------------|------|---------|
-| `tabsConfig` | Global tab configuration shared by all features | Object | ➖ |
-| `tabsConfig.tabParam` | URL parameter name that holds the active tab | String | 'view' |
-| `tabsConfig.catalogs` | Per-catalog URL configuration, keyed by `siteId` | Object | ➖ |
-| `tabsConfig.catalogs[siteId].param` | URL identifier for the catalog | String | ➖ |
-
-`tabsConfig.catalogs[siteId].param` does two things. It is the value written to `tabParam` in the URL, and it namespaces that catalog's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
-
-Because it is keyed by `siteId` rather than by tab, a search tab and an autocomplete tab for the same catalog share one identifier. This is what allows a shopper to submit from a tabbed autocomplete and land on the matching tab of the search results page.
-
-The `query` parameter is deliberately **not** namespaced - a single query applies across every tab.
-
-When a catalog has no `catalogs` entry, the tab `id` is used as its URL value and none of its parameters are namespaced.
-
 ##### Tab configuration
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `tabs[].id` | Unique tab identifier, also used as the controller id | String | Required |
 | `tabs[].siteId` | Athos Site ID the tab queries | String | Required |
+| `tabs[].param` | URL identifier for the tab's catalog | String | Required |
 | `tabs[].label` | Display label for the tab | String | `tabs[].id` |
 | `tabs[].default` | Selects this tab on initial load | Boolean | first tab |
 | `tabs[].globals` | Request globals for this tab only | Object | ➖ |
@@ -322,6 +305,15 @@ When a catalog has no `catalogs` entry, the tab `id` is used as its URL value an
 | `search.tabs[].prefetch` | Search this tab before it is selected | Boolean | true |
 
 `tabs[].id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. The id becomes the controller id, and controllers share a single registry - a duplicate id is silently skipped and the affected tab never renders.
+
+`tabs[].param` does two things. It is the value written to the URL when the tab is selected, and it namespaces that tab's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
+
+The URL parameter holding the active tab is always `tab` - it is registered as a custom query parameter on every tab controller and is not configurable.
+
+The `query` parameter is deliberately **not** namespaced - a single query applies across every tab.
+
+> [!IMPORTANT]
+> When tabs are used in both `search` and `autocomplete`, a tab for a given catalog **must be configured with the same `siteId` and the same `param` in both features**. Unlike `id`, which must be unique across the entire configuration, `param` is meant to be shared between the two. This pairing is what allows a shopper to submit from a tabbed autocomplete and land on the matching tab of the search results page - an autocomplete tab whose `param` matches no search tab drops the shopper on the default tab.
 
 `tabs[].plugins` **replaces** the feature level `plugins` for that tab rather than merging with them. Supplying an empty object runs no plugins for that tab.
 

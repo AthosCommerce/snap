@@ -11,7 +11,7 @@ For the full list of configuration options see [Tabs](https://github.com/athosco
 
 ### Defining Tabs
 
-Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id` and the `siteId` it queries.
+Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id`, the `siteId` it queries, and the `param` that identifies its catalog in the URL.
 
 ```tsx
 new SnapTemplates({
@@ -26,12 +26,14 @@ new SnapTemplates({
 			{
 				id: 'Products',
 				siteId: '8uyt2m',
+				param: 'prod',
 				label: 'Products',
 				default: true,
 			},
 			{
 				id: 'Blog',
 				siteId: 'atkzs2',
+				param: 'blog',
 				label: 'Blog',
 			},
 		],
@@ -75,29 +77,17 @@ theme: {
 
 ### Catalog URL Configuration
 
-Without further configuration the tab `id` is written to the URL, and every tab shares the same filter and sort parameters. Adding `tabsConfig` gives each catalog its own URL identity:
+Each tab's `param` is its identity in the URL. It does two things: it is the value written to the `tab` query parameter when the tab is selected, and it namespaces that tab's parameters so two tabs can hold different refinements at the same time.
 
 ```tsx
-new SnapTemplates({
+search: {
+	tabs: [
+		{ id: 'Products', siteId: '8uyt2m', param: 'prod', label: 'Products', default: true },
+		{ id: 'Blog', siteId: 'atkzs2', param: 'blog', label: 'Blog' },
+	],
 	...
-	tabsConfig: {
-		tabParam: 'tab',
-		catalogs: {
-			'8uyt2m': {
-				param: 'prod',
-			},
-			'atkzs2': {
-				param: 'blog',
-			},
-		},
-	},
-	...
-});
+}
 ```
-
-`tabParam` is the URL parameter that holds the active tab. It defaults to `view`.
-
-`catalogs[siteId].param` does two things: it is the value written to `tabParam`, and it namespaces that catalog's parameters so two tabs can hold different refinements at the same time.
 
 With the above, browsing the blog tab with a colour refinement produces:
 
@@ -105,37 +95,35 @@ With the above, browsing the blog tab with a colour refinement produces:
 /search.html?q=winter&tab=blog#/blogfilter:color:Black
 ```
 
-The `query` parameter stays unprefixed and is shared across every tab - a shopper searches once and every tab searches the same term. The `filter`, `sort`, `pageSize`, `rq`, and `page` parameters are namespaced per catalog, so each tab keeps its own refinements and pagination position while you switch between them.
+The URL parameter holding the active tab is always `tab` and is not configurable.
 
-When a catalog has no `catalogs` entry, the tab `id` is used as its URL value and none of its parameters are namespaced.
+The `query` parameter stays unprefixed and is shared across every tab - a shopper searches once and every tab searches the same term. The `filter`, `sort`, `pageSize`, `rq`, and `page` parameters are namespaced per tab, so each tab keeps its own refinements and pagination position while you switch between them.
+
+Keep `param` values short and URL safe - they are visible to shoppers and they prefix every namespaced parameter.
 
 ### Matching Autocomplete Tabs to Search Tabs
 
-A shopper who searches from the blog tab of a tabbed autocomplete should land on the blog tab of the results page. This works because `catalogs` is keyed by `siteId` rather than by tab id - a search tab and an autocomplete tab for the same catalog resolve to the same identifier.
+A shopper who searches from the blog tab of a tabbed autocomplete should land on the blog tab of the results page. Submitting writes the autocomplete tab's `param` to the URL, and the results page selects the search tab configured with that same `param`.
 
-To wire it up, define tabs for both features against the same `siteId` values. The tab `id` values must still be unique; prefixing the autocomplete ids, as below, is a simple way to keep them distinct.
+> [!IMPORTANT]
+> A tab for a given catalog **must be configured with the same `siteId` and the same `param` in both `search` and `autocomplete`**. Unlike `id`, which must be unique across the entire configuration, `param` is meant to be shared between the two features. An autocomplete tab whose `param` matches no search tab drops the shopper on the default tab.
+
+The tab `id` values must still be unique; prefixing the autocomplete ids, as below, is a simple way to keep them distinct while the `siteId` and `param` pairs stay identical.
 
 ```tsx
 new SnapTemplates({
 	...
-	tabsConfig: {
-		tabParam: 'tab',
-		catalogs: {
-			'8uyt2m': { param: 'prod' },
-			'atkzs2': { param: 'blog' },
-		},
-	},
 	search: {
 		tabs: [
-			{ id: 'Products', siteId: '8uyt2m', label: 'Products', default: true },
-			{ id: 'Blog', siteId: 'atkzs2', label: 'Blog' },
+			{ id: 'Products', siteId: '8uyt2m', param: 'prod', label: 'Products', default: true },
+			{ id: 'Blog', siteId: 'atkzs2', param: 'blog', label: 'Blog' },
 		],
 		targets: [{ selector: '#athos-templates', component: 'Search' }],
 	},
 	autocomplete: {
 		tabs: [
-			{ id: 'ACProducts', siteId: '8uyt2m', label: 'Products', default: true },
-			{ id: 'ACBlog', siteId: 'atkzs2', label: 'Blog' },
+			{ id: 'ACProducts', siteId: '8uyt2m', param: 'prod', label: 'Products', default: true },
+			{ id: 'ACBlog', siteId: 'atkzs2', param: 'blog', label: 'Blog' },
 		],
 		targets: [{ inputSelector: 'input#search-input', component: 'AutocompleteModal' }],
 	},
@@ -153,8 +141,8 @@ Setting `prefetch: false` defers a tab's request until it is selected. That tab 
 ```tsx
 search: {
 	tabs: [
-		{ id: 'Products', siteId: '8uyt2m', label: 'Products', default: true },
-		{ id: 'Blog', siteId: 'atkzs2', label: 'Blog', prefetch: false },
+		{ id: 'Products', siteId: '8uyt2m', param: 'prod', label: 'Products', default: true },
+		{ id: 'Blog', siteId: 'atkzs2', param: 'blog', label: 'Blog', prefetch: false },
 	],
 	...
 }
@@ -179,6 +167,7 @@ search: {
 		{
 			id: 'Products',
 			siteId: '8uyt2m',
+			param: 'prod',
 			label: 'Products',
 			default: true,
 			globals: {
@@ -195,6 +184,7 @@ search: {
 		{
 			id: 'Blog',
 			siteId: 'atkzs2',
+			param: 'blog',
 			label: 'Blog',
 			// no plugins run for this tab
 			plugins: {},
@@ -216,8 +206,8 @@ The selector takes the form `<template>.<tab id>`, and **the tab id is lowercase
 ```tsx
 search: {
 	tabs: [
-		{ id: 'Products', siteId: '8uyt2m', default: true },
-		{ id: 'Blog', siteId: 'atkzs2' },
+		{ id: 'Products', siteId: '8uyt2m', param: 'prod', default: true },
+		{ id: 'Blog', siteId: 'atkzs2', param: 'blog' },
 	],
 	...
 },
