@@ -12,6 +12,7 @@ import { DomTargeter } from '@athoscommerce/snap-toolbox';
 
 import { AbstractController } from './AbstractController';
 import type { ControllerConfig } from '../types';
+import type { SearchOutcome } from '../SearchOperation/SearchOperation';
 
 describe('Search Controller', () => {
 	const globals = { siteId: 'ga9kq2' };
@@ -21,8 +22,8 @@ describe('Search Controller', () => {
 	};
 
 	class TestController extends AbstractController {
-		async search() {
-			return;
+		async search(): Promise<SearchOutcome> {
+			return 'complete';
 		}
 	}
 

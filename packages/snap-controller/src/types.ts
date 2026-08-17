@@ -62,6 +62,13 @@ export type AfterStoreObj = {
 	response: any;
 };
 
+// fired when a search is cancelled via `controller.searching.cancel()`. Searches superseded by a
+// newer search, or stopped by middleware returning false, do not fire this event
+export type CancelledEventObj = {
+	controller: AbstractController;
+	reason?: string;
+};
+
 export type RestorePositionObj = {
 	controller: AbstractController;
 	element?: ElementPositionObj;

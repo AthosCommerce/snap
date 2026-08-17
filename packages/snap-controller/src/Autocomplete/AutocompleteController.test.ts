@@ -1795,4 +1795,193 @@ describe('Autocomplete Controller', () => {
 		searchTrendingfn.mockClear();
 		trendingfn.mockClear();
 	});
+	describe('search operations', () => {
+		// acConfig shares its nested `settings` object with other tests in this file (it is copied
+		// shallowly), so these tests build their own fully specified config instead - trending and
+		// history are explicitly off so binding does not pull in unrelated fixtures
+		const makeConfig = () =>
+			({
+				...acConfig,
+				settings: {
+					...acConfigBase.settings,
+					trending: { enabled: false },
+					history: { enabled: false },
+				},
+			} as AutocompleteStoreConfig);
+
+		const makeController = (delay?: number) => {
+			// the jsdom URL persists across tests in this file and other tests leave a query on it.
+			// Clear it first, then build the UrlManager, so it starts from a clean query state -
+			// otherwise typing the same query it already holds is not a change and triggers no search
+			window.history.replaceState({}, '', '/');
+
+			const localUrlManager = new UrlManager(new QueryStringTranslator({ queryParameter: 'search_query' }), reactLinker);
+			const config = makeConfig();
+
+			return new AutocompleteController(config, {
+				client: new MockClient(globals, {}, delay ? { delay } : {}),
+				store: new AutocompleteStore(config, { urlManager: localUrlManager }),
+				urlManager: localUrlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+		};
+
+		const typeInto = (value: string) => {
+			const input = document.querySelector('#search_query') as HTMLInputElement;
+			input.value = value;
+			input.dispatchEvent(new Event('input', { bubbles: true }));
+			return input;
+		};
+
+		it('creates a pending operation on input so searching covers the debounce', async () => {
+			const controller = makeController();
+			// the response query must match what is searched or the stale response guard discards it
+			(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'autocomplete.query.wh' });
+			await controller.bind();
+
+			expect(controller.searching).toBeUndefined();
+
+			typeInto('wh');
+
+			// defined immediately on the keystroke, before INPUT_DELAY has elapsed
+			const pendingOperation = controller.searching;
+			expect(pendingOperation).toBeDefined();
+			expect(pendingOperation!.pending).toBe(true);
+			expect(pendingOperation!.params.search?.query?.string).toBe('wh');
+			// nothing has been requested yet - the operation is only covering the debounce window
+			expect(controller.store.loading).toBe(false);
+
+			// this is what the debounce ultimately triggers - the search must adopt the pending
+			// operation rather than superseding it with an identical one
+			controller.urlManager = controller.urlManager.set('query', 'wh');
+			await expect(controller.search()).resolves.toBe('complete');
+
+			expect(pendingOperation!.pending).toBe(false);
+			expect(controller.searching).toBeUndefined();
+			expect(controller.store.loading).toBe(false);
+			expect(controller.store.results.length).toBeGreaterThan(0);
+
+			// the adopted operation is the one that reported the outcome
+			await expect(pendingOperation!.promise).resolves.toBe('complete');
+		});
+
+		it('supersedes the previous pending operation on each keystroke without firing cancelled', async () => {
+			const controller = makeController();
+			(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'autocomplete.query.wh' });
+			await controller.bind();
+
+			const cancelledSpy = jest.fn();
+			controller.on('cancelled', async (_obj: any, next: any) => {
+				cancelledSpy();
+				await next();
+			});
+
+			typeInto('w');
+			const firstOperation = controller.searching!;
+			expect(firstOperation.pending).toBe(true);
+
+			typeInto('wh');
+			const secondOperation = controller.searching!;
+
+			// each keystroke takes over from the last
+			expect(secondOperation).not.toBe(firstOperation);
+			expect(secondOperation.pending).toBe(true);
+			expect(firstOperation.cancelled).toBe(true);
+			expect(firstOperation.reason).toBe('superseded');
+			await expect(firstOperation.promise).resolves.toBe('cancelled');
+
+			// superseding is routine internal behavior - integrators are not notified
+			expect(cancelledSpy).not.toHaveBeenCalled();
+
+			// the surviving operation is adopted by the search the debounce triggers
+			controller.urlManager = controller.urlManager.set('query', 'wh');
+			await expect(controller.search()).resolves.toBe('complete');
+			expect(secondOperation.pending).toBe(false);
+			expect(controller.searching).toBeUndefined();
+		});
+
+		it('cancelling during the debounce prevents the search entirely and fires cancelled', async () => {
+			const controller = makeController();
+			await controller.bind();
+
+			const cancelledSpy = jest.fn();
+			controller.on('cancelled', async (_obj: any, next: any) => {
+				cancelledSpy();
+				await next();
+			});
+
+			const autocompletefn = jest.spyOn(controller.client, 'autocomplete');
+
+			typeInto('dress');
+			const operation = controller.searching!;
+			operation.cancel('user navigated away');
+
+			await expect(operation.promise).resolves.toBe('cancelled');
+			expect(controller.searching).toBeUndefined();
+
+			// wait past the debounce window - the search must never run
+			await new Promise((resolve) => setTimeout(resolve, INPUT_DELAY));
+
+			expect(autocompletefn).not.toHaveBeenCalled();
+			expect(controller.store.loading).toBe(false);
+			await waitFor(() => expect(cancelledSpy).toHaveBeenCalledTimes(1));
+
+			autocompletefn.mockClear();
+		});
+
+		it('releases the pending operation when the input is emptied', async () => {
+			const controller = makeController();
+			await controller.bind();
+
+			// an empty input still creates a pending operation, but no search will ever run for it
+			typeInto('');
+			const operation = controller.searching;
+			expect(operation?.pending).toBe(true);
+
+			// the debounce reaches its empty-input branch and releases the operation
+			await expect(operation!.promise).resolves.toBe('cancelled');
+			await waitFor(() => expect(controller.searching).toBeUndefined());
+			expect(controller.store.loading).toBe(false);
+		});
+
+		it('supersedes an in-flight search so the latest query wins', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			// the fixture responds for 'wh', which is the query that must ultimately win
+			(controller.client as MockClient).mockData.updateConfig({ autocomplete: 'autocomplete.query.wh' });
+			controller.urlManager = controller.urlManager.reset().set('query', 'w');
+
+			const promiseFirst = controller.search();
+			const firstOperation = controller.searching!;
+
+			// a newer query arrives before the first response lands
+			controller.urlManager = controller.urlManager.reset().set('query', 'wh');
+			const promiseSecond = controller.search();
+			const secondOperation = controller.searching!;
+
+			expect(firstOperation.signal!.aborted).toBe(true);
+			expect(secondOperation).not.toBe(firstOperation);
+
+			await expect(promiseFirst).resolves.toBe('cancelled');
+			await expect(promiseSecond).resolves.toBe('complete');
+
+			expect(controller.store.loading).toBe(false);
+			expect(controller.searching).toBeUndefined();
+			expect(controller.store.error).toBeUndefined();
+		});
+
+		it('creates no operation when there is no query to search', async () => {
+			const controller = makeController();
+			await controller.init();
+
+			controller.urlManager = controller.urlManager.reset();
+
+			await expect(controller.search()).resolves.toBe('complete');
+			expect(controller.searching).toBeUndefined();
+		});
+	});
 });

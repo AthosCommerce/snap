@@ -1,7 +1,7 @@
 import { AutocompleteRequestModel, AutocompleteResponseModel, SearchRequestModel, SearchResponseModel } from '@athoscommerce/snapi-types';
 
 import { API } from '.';
-import { SearchRequesterPaths } from '../../types';
+import { ClientRequestOptions, SearchRequesterPaths } from '../../types';
 import { AppMode } from '@athoscommerce/snap-toolbox';
 import { SearchResponseType, transformSearchResponse } from '../transforms/searchResponse';
 import { transformSearchRequest } from '../transforms';
@@ -9,7 +9,7 @@ import { transformSearchRequest } from '../transforms';
 export const DEVELOPMENT_MODE_PARAM = 'test';
 
 export class SearchAPI extends API<SearchRequesterPaths> {
-	private async getEndpoint(requestParameters: SearchRequestModel | AutocompleteRequestModel, path: string) {
+	private async getEndpoint(requestParameters: SearchRequestModel | AutocompleteRequestModel, path: string, options?: ClientRequestOptions) {
 		const searchRequestParameters = transformSearchRequest(requestParameters);
 		searchRequestParameters.ajaxCatalog = this.configuration.initiator;
 		searchRequestParameters.resultsFormat = 'native';
@@ -32,6 +32,7 @@ export class SearchAPI extends API<SearchRequesterPaths> {
 				method: 'GET',
 				headers: {},
 				query: searchRequestParameters,
+				signal: options?.signal,
 			},
 			JSON.stringify(cacheParameters)
 		);
@@ -39,19 +40,19 @@ export class SearchAPI extends API<SearchRequesterPaths> {
 		return transformSearchResponse(searchResponse, requestParameters);
 	}
 
-	public async getAutocomplete(queryParameters: AutocompleteRequestModel): Promise<AutocompleteResponseModel> {
-		return this.getEndpoint(queryParameters, this.configuration.paths.autocomplete || '/v1/autocomplete');
+	public async getAutocomplete(queryParameters: AutocompleteRequestModel, options?: ClientRequestOptions): Promise<AutocompleteResponseModel> {
+		return this.getEndpoint(queryParameters, this.configuration.paths.autocomplete || '/v1/autocomplete', options);
 	}
 
-	public async getSearch(queryParameters: SearchRequestModel): Promise<SearchResponseModel> {
-		return this.getEndpoint(queryParameters, this.configuration.paths.search || '/v1/search');
+	public async getSearch(queryParameters: SearchRequestModel, options?: ClientRequestOptions): Promise<SearchResponseModel> {
+		return this.getEndpoint(queryParameters, this.configuration.paths.search || '/v1/search', options);
 	}
 
-	public async getCategory(queryParameters: SearchRequestModel): Promise<SearchResponseModel> {
-		return this.getEndpoint(queryParameters, this.configuration.paths.category || '/v1/category');
+	public async getCategory(queryParameters: SearchRequestModel, options?: ClientRequestOptions): Promise<SearchResponseModel> {
+		return this.getEndpoint(queryParameters, this.configuration.paths.category || '/v1/category', options);
 	}
 
-	public async getFinder(queryParameters: SearchRequestModel): Promise<SearchResponseModel> {
-		return this.getEndpoint(queryParameters, this.configuration.paths.finder || '/v1/finder');
+	public async getFinder(queryParameters: SearchRequestModel, options?: ClientRequestOptions): Promise<SearchResponseModel> {
+		return this.getEndpoint(queryParameters, this.configuration.paths.finder || '/v1/finder', options);
 	}
 }

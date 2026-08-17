@@ -13,6 +13,7 @@ import { MockClient } from '@athoscommerce/snap-shared';
 
 import { SearchController, getStorableRequestParams, generateHrefSelector } from './SearchController';
 import type { SearchControllerConfig, BeforeSearchObj, RestorePositionObj, ElementPositionObj, AfterSearchObj } from '../types';
+import type { SearchOperation } from '../SearchOperation/SearchOperation';
 import type { MetaResponseModel, SearchRequestModel, SearchResponseModel } from '@athoscommerce/snapi-types';
 
 const globals = { siteId: 'ga9kq2' };
@@ -1161,9 +1162,16 @@ describe('Search Controller', () => {
 			expect(searchfn).toHaveBeenCalledTimes(page);
 
 			// asserting that search API has been called the same number of times as the current page parameter
-			expect(searchfn).toHaveBeenNthCalledWith(1, expect.objectContaining({ pagination: {} }));
-			expect(searchfn).toHaveBeenNthCalledWith(2, expect.objectContaining({ pagination: { page: 2 }, search: { redirectResponse: 'full' } }));
-			expect(searchfn).toHaveBeenNthCalledWith(3, expect.objectContaining({ pagination: { page: 3 }, search: { redirectResponse: 'full' } }));
+			// every backfill request shares the operation's signal, so one cancel aborts the whole batch
+			const backfillSignal = searchfn.mock.calls[0][1]?.signal;
+			expect(backfillSignal).toBeDefined();
+			expect(searchfn).toHaveBeenNthCalledWith(1, expect.objectContaining({ pagination: {} }), { signal: backfillSignal });
+			expect(searchfn).toHaveBeenNthCalledWith(2, expect.objectContaining({ pagination: { page: 2 }, search: { redirectResponse: 'full' } }), {
+				signal: backfillSignal,
+			});
+			expect(searchfn).toHaveBeenNthCalledWith(3, expect.objectContaining({ pagination: { page: 3 }, search: { redirectResponse: 'full' } }), {
+				signal: backfillSignal,
+			});
 
 			expect(controller.store.results.length).toBe(mockClient.mockData.search().pagination?.totalResults);
 
@@ -1262,9 +1270,16 @@ describe('Search Controller', () => {
 			expect(searchfn).toHaveBeenCalledTimes(page);
 
 			// asserting that search API has been called the same number of times as the current page parameter
-			expect(searchfn).toHaveBeenNthCalledWith(1, expect.objectContaining({ pagination: {} }));
-			expect(searchfn).toHaveBeenNthCalledWith(2, expect.objectContaining({ pagination: { page: 2 }, search: { redirectResponse: 'full' } }));
-			expect(searchfn).toHaveBeenNthCalledWith(3, expect.objectContaining({ pagination: { page: 3 }, search: { redirectResponse: 'full' } }));
+			// every backfill request shares the operation's signal, so one cancel aborts the whole batch
+			const backfillSignal = searchfn.mock.calls[0][1]?.signal;
+			expect(backfillSignal).toBeDefined();
+			expect(searchfn).toHaveBeenNthCalledWith(1, expect.objectContaining({ pagination: {} }), { signal: backfillSignal });
+			expect(searchfn).toHaveBeenNthCalledWith(2, expect.objectContaining({ pagination: { page: 2 }, search: { redirectResponse: 'full' } }), {
+				signal: backfillSignal,
+			});
+			expect(searchfn).toHaveBeenNthCalledWith(3, expect.objectContaining({ pagination: { page: 3 }, search: { redirectResponse: 'full' } }), {
+				signal: backfillSignal,
+			});
 
 			expect(controller.store.results.length).toBe(pageSize * page);
 
@@ -1367,6 +1382,216 @@ describe('Search Controller', () => {
 			const elem = document.querySelector('.outer') as HTMLElement;
 			const selector = generateHrefSelector(elem, href);
 			expect(selector).toBe(`DIV.outer DIV DIV SPAN A[href*=\"${href}\"]`);
+		});
+	});
+	describe('search operations', () => {
+		const makeController = (delay?: number, config?: Partial<SearchControllerConfig>) => {
+			const cfg = { ...searchConfig, ...config } as SearchControllerConfig;
+			return new SearchController(cfg, {
+				client: new MockClient(globals, {}, delay ? { delay } : {}),
+				store: new SearchStore(cfg as SearchStoreConfig, services),
+				urlManager: new UrlManager(new QueryStringTranslator(), reactLinker),
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+		};
+
+		it('exposes the operation while in flight and clears it when idle', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			expect(controller.searching).toBeUndefined();
+
+			const searchPromise = controller.search();
+			const operation = controller.searching;
+
+			expect(operation).toBeDefined();
+			expect(operation!.params).toBeDefined();
+			expect(operation!.pending).toBe(false);
+			expect(controller.store.loading).toBe(true);
+
+			// the promise returned by search() reports the same outcome as the operation's promise
+			await expect(searchPromise).resolves.toBe('complete');
+			await expect(operation!.promise).resolves.toBe('complete');
+
+			expect(controller.searching).toBeUndefined();
+			expect(controller.store.loading).toBe(false);
+			expect(controller.store.loaded).toBe(true);
+		});
+
+		it('cancels an in-flight search, leaves the store untouched and fires the cancelled event', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			const cancelledSpy = jest.fn();
+			controller.on('cancelled', async ({ controller: cntrlr, reason }: any, next: Next) => {
+				cancelledSpy({ id: cntrlr.config.id, reason });
+				await next();
+			});
+
+			const searchPromise = controller.search();
+			const operation = controller.searching!;
+
+			operation.cancel('test');
+
+			// resolves at cancel time, without waiting for the aborted request to unwind
+			await expect(operation.promise).resolves.toBe('cancelled');
+			expect(operation.signal!.aborted).toBe(true);
+
+			await expect(searchPromise).resolves.toBe('cancelled');
+
+			expect(controller.store.results.length).toBe(0);
+			expect(controller.store.error).toBeUndefined();
+			expect(controller.store.loading).toBe(false);
+			expect(controller.searching).toBeUndefined();
+
+			await waitFor(() => expect(cancelledSpy).toHaveBeenCalledWith({ id: controller.config.id, reason: 'test' }));
+
+			// a subsequent search still works normally
+			await expect(controller.search()).resolves.toBe('complete');
+			expect(controller.store.results.length).toBeGreaterThan(0);
+		});
+
+		it('reports middleware cancellation as cancelled without firing the cancelled event', async () => {
+			const controller = makeController();
+			await controller.init();
+
+			const cancelledSpy = jest.fn();
+			controller.on('cancelled', async (_obj: any, next: Next) => {
+				cancelledSpy();
+				await next();
+			});
+			controller.on('beforeSearch', () => false);
+
+			await expect(controller.search()).resolves.toBe('cancelled');
+
+			expect(controller.store.results.length).toBe(0);
+			expect(controller.store.loading).toBe(false);
+			expect(cancelledSpy).not.toHaveBeenCalled();
+		});
+
+		it('supersedes an overlapping search so only the newest one owns the store', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			// search A - slow, and superseded before it can come back
+			const promiseA = controller.search();
+			const operationA = controller.searching!;
+
+			// search B - triggered while A is still out
+			controller.urlManager = controller.urlManager.set('query', 'dress');
+			const promiseB = controller.search();
+			const operationB = controller.searching!;
+
+			expect(operationB).not.toBe(operationA);
+			expect(operationA.signal!.aborted).toBe(true);
+			expect(operationA.reason).toBe('superseded');
+
+			await expect(promiseA).resolves.toBe('cancelled');
+			// A must not have cleared the loading flag out from under B
+			expect(controller.store.loading).toBe(true);
+
+			await expect(promiseB).resolves.toBe('complete');
+			expect(controller.store.loading).toBe(false);
+			expect(controller.searching).toBeUndefined();
+			expect(controller.store.results.length).toBeGreaterThan(0);
+		});
+
+		it('does not let a search superseded inside afterSearch middleware write to the store', async () => {
+			const controller = makeController();
+			await controller.init();
+
+			let superseding = false;
+			let operationA: SearchOperation<SearchRequestModel> | undefined;
+			const updatefn = jest.spyOn(controller.store, 'update');
+
+			controller.on('afterSearch', async (_obj: AfterSearchObj, next: Next) => {
+				if (!superseding) {
+					superseding = true;
+					operationA = controller.searching;
+					// a newer search runs to completion while this one sits inside middleware,
+					// past its client call - the only thing protecting the store now is the guard
+					controller.urlManager = controller.urlManager.set('query', 'shoes');
+					await controller.search();
+				}
+				await next();
+			});
+
+			// this is search A - it is superseded by search B from inside its own afterSearch
+			await expect(controller.search()).resolves.toBe('cancelled');
+
+			expect(operationA!.cancelled).toBe(true);
+			// only search B applied results, so the store was updated exactly once
+			expect(updatefn).toHaveBeenCalledTimes(1);
+			expect(controller.store.loading).toBe(false);
+			expect(controller.searching).toBeUndefined();
+
+			updatefn.mockClear();
+		});
+
+		it('cancels the whole backfill batch with one cancel', async () => {
+			const controller = makeController(50, {
+				settings: { infinite: { backfill: 5 } },
+			} as Partial<SearchControllerConfig>);
+			(controller.client as MockClient).mockData.updateConfig({ search: 'infinite.page1', siteId: '8uyt2m' });
+			await controller.init();
+
+			const searchfn = jest.spyOn(controller.client, 'search');
+
+			controller.urlManager = controller.urlManager.set('page', 3);
+			const searchPromise = controller.search();
+
+			// the requests go out after the awaited beforeSearch middleware
+			await waitFor(() => expect(searchfn).toHaveBeenCalledTimes(3));
+
+			const operation = controller.searching!;
+
+			// every request in the batch was issued with the operation's signal
+			searchfn.mock.calls.forEach((call) => {
+				expect(call[1]?.signal).toBe(operation.signal);
+			});
+
+			operation.cancel();
+
+			await expect(searchPromise).resolves.toBe('cancelled');
+			expect(operation.signal!.aborted).toBe(true);
+			expect(controller.store.results.length).toBe(0);
+			expect(controller.store.loading).toBe(false);
+
+			searchfn.mockClear();
+		});
+
+		it('resolves error and records the store error when the request fails', async () => {
+			const controller = makeController();
+			await controller.init();
+
+			jest.spyOn(controller.client, 'search').mockImplementation(() => Promise.reject({ err: new Error('failed'), fetchDetails: { status: 500 } }));
+
+			await expect(controller.search()).resolves.toBe('error');
+
+			expect(controller.store.error?.code).toBe(500);
+			expect(controller.store.loading).toBe(false);
+			expect(controller.searching).toBeUndefined();
+		});
+
+		it('resolves complete without a request when params have not changed', async () => {
+			const controller = makeController();
+			await controller.init();
+
+			await expect(controller.search()).resolves.toBe('complete');
+
+			const searchfn = jest.spyOn(controller.client, 'search');
+
+			// same params as the search that just loaded - the dedupe guard short circuits it
+			await expect(controller.search()).resolves.toBe('complete');
+
+			expect(searchfn).not.toHaveBeenCalled();
+			expect(controller.searching).toBeUndefined();
+			expect(controller.store.loading).toBe(false);
+
+			searchfn.mockClear();
 		});
 	});
 });

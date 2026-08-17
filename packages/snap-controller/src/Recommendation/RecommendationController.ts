@@ -1,7 +1,8 @@
 import deepmerge from 'deepmerge';
 
-import { ErrorType, Product } from '@athoscommerce/snap-store-mobx';
+import { Product } from '@athoscommerce/snap-store-mobx';
 import { AbstractController } from '../Abstract/AbstractController';
+import { SearchOperation } from '../SearchOperation/SearchOperation';
 import { ControllerTypes } from '../types';
 import {
 	type Product as BeaconProduct,
@@ -15,6 +16,7 @@ import {
 } from '@athoscommerce/beacon';
 import type { Banner, RecommendationStore } from '@athoscommerce/snap-store-mobx';
 import type { RecommendRequestModel } from '@athoscommerce/snap-client';
+import type { SearchOutcome } from '../SearchOperation/SearchOperation';
 import type { RecommendationControllerConfig, ControllerServices, ContextVariables } from '../types';
 import { CLICK_DUPLICATION_TIMEOUT, isClickWithinProductLink } from '../utils/isClickWithinProductLink';
 
@@ -41,6 +43,7 @@ const defaultConfig: RecommendationControllerConfig = {
 export class RecommendationController extends AbstractController {
 	public type = ControllerTypes.recommendation;
 	declare store: RecommendationStore;
+	declare searching?: SearchOperation<RecommendRequestModel>;
 	declare config: RecommendationControllerConfig;
 
 	private beaconType: 'recommendations' | 'bundles' = 'recommendations';
@@ -269,7 +272,9 @@ export class RecommendationController extends AbstractController {
 		return params as RecommendRequestModel;
 	}
 
-	search = async (): Promise<void> => {
+	search = async (): Promise<SearchOutcome> => {
+		let operation: SearchOperation<RecommendRequestModel> | undefined;
+
 		try {
 			if (!this.initialized) {
 				await this.init();
@@ -277,6 +282,7 @@ export class RecommendationController extends AbstractController {
 
 			const params = this.params;
 
+			operation = this.createSearchOperation(params);
 			this.store.loading = true;
 
 			try {
@@ -287,7 +293,8 @@ export class RecommendationController extends AbstractController {
 			} catch (err: any) {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'beforeSearch' middleware cancelled`);
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'beforeSearch' middleware`);
 					throw err;
@@ -296,7 +303,16 @@ export class RecommendationController extends AbstractController {
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
 
+			// no signal is passed here: recommendation requests are batched, so one POST serves every
+			// co-batched profile and aborting it would take out other consumers' recommendations.
+			// Cancelling still prevents results being applied, it just cannot stop the request.
 			const { meta, profile, results, responseId } = await this.client.recommend(params);
+
+			// the request is back - bail if this search was cancelled or replaced while it was out
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
+
 			searchProfile.stop();
 			this.log.profile(searchProfile);
 
@@ -314,7 +330,8 @@ export class RecommendationController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterSearch' middleware cancelled`);
 					afterSearchProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterSearch' middleware`);
 					throw err;
@@ -323,6 +340,11 @@ export class RecommendationController extends AbstractController {
 
 			afterSearchProfile.stop();
 			this.log.profile(afterSearchProfile);
+
+			// awaited middleware above can let a newer search take over - it owns the store now
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
 
 			// update the store
 			this.store.update({
@@ -349,7 +371,8 @@ export class RecommendationController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterStore' middleware cancelled`);
 					afterStoreProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterStore' middleware`);
 					throw err;
@@ -359,50 +382,20 @@ export class RecommendationController extends AbstractController {
 			afterStoreProfile.stop();
 			this.log.profile(afterStoreProfile);
 		} catch (err: any) {
-			if (err) {
-				if (err.err && err.fetchDetails) {
-					switch (err.fetchDetails.status) {
-						case 429: {
-							this.store.error = {
-								code: 429,
-								type: ErrorType.WARNING,
-								message: 'Too many requests try again later',
-							};
-							break;
-						}
-
-						case 500: {
-							this.store.error = {
-								code: 500,
-								type: ErrorType.ERROR,
-								message: 'Invalid Search Request or Service Unavailable',
-							};
-							break;
-						}
-
-						default: {
-							this.store.error = {
-								type: ErrorType.ERROR,
-								message: err.err.message,
-							};
-							break;
-						}
-					}
-
-					this.log.error(this.store.error);
-					this.handleError(err.err, err.fetchDetails);
-				} else {
-					this.store.error = {
-						type: ErrorType.ERROR,
-						message: `Something went wrong... - ${err}`,
-					};
-					this.log.error(err);
-					this.handleError(err);
-				}
+			if (operation) {
+				this.handleSearchOperationError(operation, err);
+			} else {
+				// failed before the operation existed (init or params) - report it the same way
+				this.log.error(err);
+				this.handleError(err);
 			}
 		} finally {
-			this.store.loading = false;
+			if (operation) {
+				this.settleSearchOperation(operation, 'complete');
+			}
 		}
+
+		return operation?.promise || 'error';
 	};
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {

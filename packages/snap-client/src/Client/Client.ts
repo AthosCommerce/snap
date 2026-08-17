@@ -4,6 +4,7 @@ import { SuggestAPI, RecommendAPI, ApiConfiguration, SearchAPI, MetaAPI } from '
 import type {
 	ClientGlobals,
 	ClientConfig,
+	ClientRequestOptions,
 	TrendingRequestModel,
 	TrendingResponseModel,
 	ProfileRequestModel,
@@ -116,7 +117,10 @@ export class Client {
 		return this.requesters.meta.getMeta(params);
 	}
 
-	async autocomplete(params: AutocompleteRequestModel = {}): Promise<{ meta: MetaResponseModel; search: AutocompleteResponseModel }> {
+	async autocomplete(
+		params: AutocompleteRequestModel = {},
+		options?: ClientRequestOptions
+	): Promise<{ meta: MetaResponseModel; search: AutocompleteResponseModel }> {
 		if (!params.search?.query?.string) {
 			throw 'query string parameter is required';
 		}
@@ -137,7 +141,7 @@ export class Client {
 			suggestParams.disableSpellCorrect = true;
 		}
 
-		const suggestResults = await this.requesters.suggest.getSuggest(suggestParams);
+		const suggestResults = await this.requesters.suggest.getSuggest(suggestParams, options);
 		const transformedSuggestResults = transformSuggestResponse(suggestResults);
 
 		// determine the query to use for the search request
@@ -153,7 +157,7 @@ export class Client {
 			params.search.query.string = q;
 		}
 
-		const searchResults = await this.requesters.search.getAutocomplete(params);
+		const searchResults = await this.requesters.search.getAutocomplete(params, options);
 
 		const autocompleteResponse = {
 			...searchResults,
@@ -164,24 +168,26 @@ export class Client {
 		return { meta, search };
 	}
 
-	async search(params: SearchRequestModel = {}): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
+	async search(params: SearchRequestModel = {}, options?: ClientRequestOptions): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
 		params = deepmerge(this.globals, params);
 
-		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getSearch(params)]);
+		// the signal is deliberately not passed to meta - it is long cached and shared by every
+		// requester, so one consumer must not be able to abort it
+		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getSearch(params, options)]);
 		return { meta, search };
 	}
 
-	async category(params: SearchRequestModel = {}): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
+	async category(params: SearchRequestModel = {}, options?: ClientRequestOptions): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
 		params = deepmerge(this.globals, params);
 
-		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getCategory(params)]);
+		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getCategory(params, options)]);
 		return { meta, search };
 	}
 
-	async finder(params: SearchRequestModel = {}): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
+	async finder(params: SearchRequestModel = {}, options?: ClientRequestOptions): Promise<{ meta: MetaResponseModel; search: SearchResponseModel }> {
 		params = deepmerge(this.globals, params);
 
-		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getFinder(params)]);
+		const [meta, search] = await Promise.all([this.meta({ siteId: params.siteId || '' }), this.requesters.search.getFinder(params, options)]);
 		return { meta, search };
 	}
 

@@ -164,6 +164,36 @@ const { meta, search } = await client.search({
 });
 ```
 
+## Request options (cancellation)
+The `search`, `category`, `finder` and `autocomplete` methods accept an optional second argument carrying per-request options. Pass an `AbortSignal` as `signal` to make the request cancellable.
+
+```js
+const client = new Client(globals, clientConfig);
+const controller = new AbortController();
+
+const searchPromise = client.search({ search: { query: { string: 'dress' } } }, { signal: controller.signal });
+
+controller.abort();
+```
+
+An aborted request rejects with the client's usual error shape, where `err` is an `AbortError`:
+
+```js
+try {
+  await searchPromise;
+} catch ({ err, fetchDetails }) {
+  if (err.name === 'AbortError') {
+    // the request was cancelled
+  }
+}
+```
+
+Notes:
+
+- Aborted requests are never retried, including when the abort happens while waiting to retry a rate limited (429) request.
+- The signal is applied only to the search, category, finder, autocomplete and suggest requests it is passed to. Meta requests are excluded because their response is long cached and shared by every requester, so one consumer must not be able to abort it. The `recommend` and `trending` methods do not accept a signal - recommendation requests are batched, meaning a single request serves several profiles.
+- Requests served from the cache resolve normally regardless of the signal, since there is no request in flight to abort.
+
 ## `search` method
 Makes a request to the Athos Search API and returns a promise.  
 
@@ -176,7 +206,7 @@ const { meta, search } = await client.search({
       string: 'dress'
     }
   }
-});
+}, { signal }); // signal is optional - see Request options
 ```
 
 ## `autocomplete` method
@@ -194,7 +224,7 @@ const { meta, search } = await client.autocomplete({
       string: 'yellw',
     }
   }
-});
+}, { signal }); // signal is optional - see Request options
 ```
 
 ## `category` method
@@ -210,7 +240,7 @@ const { meta, search } = await client.category({
     type: 'value',
     background: true,
   }]
-});
+}, { signal }); // signal is optional - see Request options
 ```
 
 ## `meta` method
@@ -244,7 +274,7 @@ const { meta, search } = await client.finder({
     background: false,
     value: "red",
   }]
-});
+}, { signal }); // signal is optional - see Request options
 ```
 
 ## `recommend` method

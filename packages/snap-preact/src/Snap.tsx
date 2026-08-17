@@ -23,6 +23,7 @@ import type {
 	RecommendationControllerConfig,
 	ControllerConfigs,
 	ContextVariables,
+	SearchOutcome,
 } from '@athoscommerce/snap-controller';
 import type { TrackerConfig, TrackerGlobals, TrackErrorEvent } from '@athoscommerce/snap-tracker';
 import type { Target, OnTarget } from '@athoscommerce/snap-toolbox';
@@ -665,7 +666,7 @@ export class Snap {
 							window.athos.controller[cntrlr.config.id] = this.controllers[cntrlr.config.id] = cntrlr;
 							this._controllerPromises[cntrlr.config.id] = new Promise((resolve) => resolve(cntrlr));
 
-							let searchPromise: Promise<void> | null = null;
+							let searchPromise: Promise<SearchOutcome> | null = null;
 
 							const runSearch = async () => {
 								if (!searchPromise) {

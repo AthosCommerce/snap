@@ -668,4 +668,77 @@ describe('Recommendation Controller', () => {
 		expect(handleError).toHaveBeenCalledWith(error, { status: 500, url: 'test.com' });
 		handleError.mockClear();
 	});
+	describe('search operations', () => {
+		const makeController = (delay?: number) =>
+			new RecommendationController(recommendConfig, {
+				client: new MockClient(globals, {}, delay ? { delay } : {}),
+				store: new RecommendationStore(recommendConfig, services),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+
+		it('exposes the operation while in flight and clears it when idle', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			expect(controller.searching).toBeUndefined();
+
+			const searchPromise = controller.search();
+			const operation = controller.searching;
+
+			expect(operation).toBeDefined();
+			expect(controller.store.loading).toBe(true);
+
+			await expect(searchPromise).resolves.toBe('complete');
+			await expect(operation!.promise).resolves.toBe('complete');
+			expect(controller.searching).toBeUndefined();
+			expect(controller.store.loading).toBe(false);
+		});
+
+		it('cancels without applying results, though the batched request still resolves', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			const updatefn = jest.spyOn(controller.store, 'update');
+			const recommendfn = jest.spyOn(controller.client, 'recommend');
+
+			const searchPromise = controller.search();
+			const operation = controller.searching!;
+
+			operation.cancel('test');
+
+			await expect(searchPromise).resolves.toBe('cancelled');
+
+			// recommendation requests are batched, so the request itself is never aborted -
+			// cancelling only stops the results being applied
+			expect(recommendfn).toHaveBeenCalledTimes(1);
+			// called with params only - no options argument carrying a signal
+			expect(recommendfn.mock.calls[0].length).toBe(1);
+			expect(updatefn).not.toHaveBeenCalled();
+			expect(controller.store.error).toBeUndefined();
+			expect(controller.store.loading).toBe(false);
+			expect(controller.searching).toBeUndefined();
+
+			updatefn.mockClear();
+			recommendfn.mockClear();
+		});
+
+		it('does not fire the render beacon for a cancelled search', async () => {
+			const controller = makeController(50);
+			await controller.init();
+
+			const renderfn = jest.spyOn(controller.tracker.events.recommendations, 'render');
+
+			const searchPromise = controller.search();
+			controller.searching!.cancel();
+
+			await expect(searchPromise).resolves.toBe('cancelled');
+			expect(renderfn).not.toHaveBeenCalled();
+
+			renderfn.mockClear();
+		});
+	});
 });

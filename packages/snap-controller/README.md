@@ -55,6 +55,40 @@ Most controllers will provide a means of manipulating the request and response u
 controller.search();
 ```
 
+`search` resolves with the outcome of the search - `'complete'`, `'cancelled'` or `'error'` - and never rejects, so it is safe to call without handling a rejection. Search errors are reported on `store.error` rather than thrown.
+
+```js
+const outcome = await controller.search();
+```
+
+### In-flight searches
+While a search is underway the controller exposes it as `controller.searching`, which is `undefined` when idle. Code that started the search can simply await the outcome `search` returns; `controller.searching` is for everything else - the most common trigger is a UrlManager change, where nothing retains the promise.
+
+```js
+// wait on a search someone else started
+const outcome = await controller.searching?.promise;
+
+// stop it instead
+controller.searching?.cancel('navigating away');
+```
+
+A `SearchOperation` provides:
+
+| Property | Description |
+| --- | --- |
+| `promise` | Resolves with `'complete'`, `'cancelled'` or `'error'`. Never rejects. |
+| `params` | The request this search is for. |
+| `cancel(reason?)` | Aborts the request and prevents the response being applied to the store. |
+
+Cancelling aborts the underlying network request, leaves the store untouched and fires the `cancelled` event. A cancelled search is not an error: it sets no `store.error` and sends no error beacon. `store.loading` ends up `false` either way, and later searches behave normally.
+
+Notes on specific controllers:
+
+- Starting a new search supersedes any search still in flight - the older one has its request aborted and resolves `'cancelled'`, since only one search can apply results to the store. This resolves `'cancelled'` without firing the `cancelled` event, which is reserved for cancellation an integrator asked for.
+- `AutocompleteController` creates the operation as soon as input is received, so `controller.searching` covers the input debounce as well as the request. Each keystroke supersedes the previous operation, so the latest query always wins.
+- `SearchController` infinite backfill issues several requests for one search; they share a single operation, so one `cancel()` aborts all of them.
+- `RecommendationController` requests are batched with other recommendation profiles, so `cancel()` prevents results being applied but cannot abort the underlying request.
+
 ## Stores
 Different controller types will utilize different Snap Stores (typically of the same name). Each `store` will provide different properties and methods for its unique purposes. See the documentation for more details.
 
@@ -72,6 +106,20 @@ controller.on('init', async (eventData, next) => {
 ```
 
 Note: Groups of middleware (plugins) can be attached using the `plugin` method.
+
+Middleware can stop a search by returning `false` instead of calling `await next()`. The search resolves with the `'cancelled'` outcome and the store is left untouched.
+
+The `cancelled` event fires when a search is stopped via `controller.searching.cancel()`. Its `eventData` contains the `controller` and the optional `reason` passed to `cancel`. Searches superseded by a newer search, and searches stopped by middleware returning `false`, resolve with the `'cancelled'` outcome but do **not** fire this event - it is reserved for cancellation that was explicitly requested.
+
+```js
+controller.on('cancelled', async (eventData, next) => {
+	const { controller, reason } = eventData;
+
+	controller.log.debug('search cancelled', reason);
+
+	await next();
+});
+```
 
 The data available within a middleware (first parameter) is determined by what gets passed into the `fire` method. For existing events on the controller, the `fire` method is already being called when appropriate to the event, and the `eventData` will typically be an object containing a reference to the controller and any other details that may be of importance to the particular event. Custom events can be created as needed; but keep in mind that any middleware tied to the event should be bound (using `on` or `plugin`) prior to the execution of the `fire` method.
 

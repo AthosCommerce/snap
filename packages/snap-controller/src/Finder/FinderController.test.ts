@@ -500,6 +500,69 @@ describe('Finder Controller', () => {
 
 				handleError.mockClear();
 			});
+			describe('search operations', () => {
+				const makeController = (delay?: number, cfg?: FinderControllerConfig) =>
+					new FinderController(cfg || config, {
+						client: new MockClient(globals, {}, delay ? { delay } : {}),
+						store: new FinderStore(cfg || config, services),
+						urlManager,
+						eventManager: new EventManager(),
+						profiler: new Profiler(),
+						logger: new Logger(),
+						tracker: new Tracker(globals),
+					});
+
+				it('exposes the operation while in flight and clears it when idle', async () => {
+					const controller = makeController(50);
+					await controller.init();
+
+					expect(controller.searching).toBeUndefined();
+
+					const searchPromise = controller.search();
+					const operation = controller.searching;
+
+					expect(operation).toBeDefined();
+					expect(controller.store.loading).toBe(true);
+
+					await expect(searchPromise).resolves.toBe('complete');
+					await expect(operation!.promise).resolves.toBe('complete');
+					expect(controller.searching).toBeUndefined();
+					expect(controller.store.loading).toBe(false);
+				});
+
+				it('cancels an in-flight search without applying results', async () => {
+					const controller = makeController(50);
+					await controller.init();
+
+					const updatefn = jest.spyOn(controller.store, 'update');
+
+					const searchPromise = controller.search();
+					const operation = controller.searching!;
+
+					operation.cancel('test');
+
+					await expect(searchPromise).resolves.toBe('cancelled');
+					expect(operation.signal!.aborted).toBe(true);
+					expect(updatefn).not.toHaveBeenCalled();
+					expect(controller.store.error).toBeUndefined();
+					expect(controller.store.loading).toBe(false);
+					expect(controller.searching).toBeUndefined();
+
+					updatefn.mockClear();
+				});
+
+				it('creates no operation when selections are persisted', async () => {
+					const persistedConfig = { ...config, persist: { enabled: true } } as FinderControllerConfig;
+					const controller = makeController(undefined, persistedConfig);
+					await controller.init();
+
+					// a persisted store short circuits the search before any operation exists
+					controller.store.persisted = true;
+
+					await expect(controller.search()).resolves.toBe('complete');
+					expect(controller.searching).toBeUndefined();
+				});
+			});
 		});
 	});
 });

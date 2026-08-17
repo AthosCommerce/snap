@@ -2,10 +2,13 @@ import deepmerge from 'deepmerge';
 import cssEscape from 'css.escape';
 
 import { AbstractController } from '../Abstract/AbstractController';
-import { ErrorType, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
+import { MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { getSearchParams } from '../utils/getParams';
+import { SearchOperation } from '../SearchOperation/SearchOperation';
 import { ControllerTypes, PageContextVariable } from '../types';
+
+import type { SearchOutcome } from '../SearchOperation/SearchOperation';
 
 import type { Product, Banner, SearchStore, ValueFacet, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
 import type {
@@ -92,6 +95,7 @@ export class SearchController extends AbstractController {
 	public type = ControllerTypes.search;
 	declare store: SearchStore;
 	declare config: SearchControllerConfig;
+	declare searching?: SearchOperation<SearchRequestModel>;
 	storage: StorageStore;
 	private previousResults: Array<SearchResponseModelResult> = [];
 	private page: PageContextVariable = {
@@ -686,7 +690,9 @@ export class SearchController extends AbstractController {
 		return params;
 	}
 
-	search = async (): Promise<void> => {
+	search = async (): Promise<SearchOutcome> => {
+		let operation: SearchOperation<SearchRequestModel> | undefined;
+
 		try {
 			if (!this.initialized) {
 				await this.init();
@@ -697,6 +703,8 @@ export class SearchController extends AbstractController {
 				// save it to the history store
 				this.store.history.save(params.search.query.string);
 			}
+
+			operation = this.createSearchOperation(params);
 			this.store.loading = true;
 
 			try {
@@ -707,7 +715,8 @@ export class SearchController extends AbstractController {
 			} catch (err: any) {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'beforeSearch' middleware cancelled`);
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'beforeSearch' middleware`);
 					throw err;
@@ -718,7 +727,8 @@ export class SearchController extends AbstractController {
 			const prevStringyParams = this.storage.get('lastStringyParams');
 			if (this.store.loaded && stringyParams === prevStringyParams) {
 				// no param change - not searching
-				return;
+				operation.resolve('complete');
+				return operation.promise;
 			}
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
@@ -735,7 +745,8 @@ export class SearchController extends AbstractController {
 				if (preventBackfill || dontBackfill) {
 					this.storage.set('scrollMap', {});
 					this.urlManager.set('page', 1).go();
-					return;
+					operation.resolve('complete');
+					return operation.promise;
 				}
 
 				// infinite backfill is enabled AND we have not yet fetched any results
@@ -760,7 +771,9 @@ export class SearchController extends AbstractController {
 								}
 							}
 							backfillRequestsParams.push(backfillParams);
-							return this.client[this.page.type](backfillParams);
+							// every request in the batch shares the operation's signal, so cancelling
+							// the operation aborts the whole backfill
+							return this.client[this.page.type](backfillParams, { signal: operation!.signal });
 						});
 
 					const backfillResponses = await Promise.all(backfillRequests);
@@ -786,7 +799,7 @@ export class SearchController extends AbstractController {
 				} else {
 					// infinite with no backfills.
 
-					const infiniteResponse = await this.client[this.page.type](params);
+					const infiniteResponse = await this.client[this.page.type](params, { signal: operation.signal });
 					meta = infiniteResponse.meta;
 					search = infiniteResponse.search;
 
@@ -801,13 +814,18 @@ export class SearchController extends AbstractController {
 				// clear previousResults to prevent infinite scroll from using them
 				this.previousResults = [];
 
-				const searchResponse = await this.client[this.page.type](params);
+				const searchResponse = await this.client[this.page.type](params, { signal: operation.signal });
 				meta = searchResponse.meta;
 				search = searchResponse.search;
 
 				const responseId = search.tracking.responseId;
 				this.events[responseId] = { product: {}, banner: {} };
 			}
+			// the request is back - bail if this search was cancelled or replaced while it was out
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
+
 			// need to reconsolidate in order for references to be preserved
 			const response = { meta, search };
 
@@ -826,7 +844,8 @@ export class SearchController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterSearch' middleware cancelled`);
 					afterSearchProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterSearch' middleware`);
 					throw err;
@@ -835,6 +854,11 @@ export class SearchController extends AbstractController {
 
 			afterSearchProfile.stop();
 			this.log.profile(afterSearchProfile);
+
+			// awaited middleware above can let a newer search take over - it owns the store now
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
 
 			// store previous results for infinite usage (need to alsways store in case switch to infinite after pagination)
 			this.previousResults = JSON.parse(JSON.stringify(response.search.results));
@@ -857,7 +881,8 @@ export class SearchController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterStore' middleware cancelled`);
 					afterStoreProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterStore' middleware`);
 					throw err;
@@ -867,50 +892,20 @@ export class SearchController extends AbstractController {
 			afterStoreProfile.stop();
 			this.log.profile(afterStoreProfile);
 		} catch (err: any) {
-			if (err) {
-				if (err.err && err.fetchDetails) {
-					switch (err.fetchDetails.status) {
-						case 429: {
-							this.store.error = {
-								code: 429,
-								type: ErrorType.WARNING,
-								message: 'Too many requests try again later',
-							};
-							break;
-						}
-
-						case 500: {
-							this.store.error = {
-								code: 500,
-								type: ErrorType.ERROR,
-								message: 'Invalid Search Request or Service Unavailable',
-							};
-							break;
-						}
-
-						default: {
-							this.store.error = {
-								type: ErrorType.ERROR,
-								message: err.err.message,
-							};
-							break;
-						}
-					}
-
-					this.log.error(this.store.error);
-					this.handleError(err.err, err.fetchDetails);
-				} else {
-					this.store.error = {
-						type: ErrorType.ERROR,
-						message: `Something went wrong... - ${err}`,
-					};
-					this.log.error(err);
-					this.handleError(err);
-				}
+			if (operation) {
+				this.handleSearchOperationError(operation, err);
+			} else {
+				// failed before the operation existed (init or params) - report it the same way
+				this.log.error(err);
+				this.handleError(err);
 			}
 		} finally {
-			this.store.loading = false;
+			if (operation) {
+				this.settleSearchOperation(operation, 'complete');
+			}
 		}
+
+		return operation?.promise || 'error';
 	};
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {

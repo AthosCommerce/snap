@@ -186,4 +186,25 @@ describe('Suggest Api', () => {
 
 		requestMock.mockReset();
 	});
+
+	it('threads an abort signal through getSuggest', async () => {
+		// earlier tests in this file leave cached responses behind, which would short circuit the fetch
+		window.sessionStorage.clear();
+
+		const api = new SuggestAPI(new ApiConfiguration({}));
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+		const controller = new AbortController();
+
+		await api.getSuggest({ siteId: '8uyt2m', query: 'dress' }, { signal: controller.signal });
+		expect((requestMock.mock.calls[0][1] as RequestInit).signal).toBe(controller.signal);
+
+		requestMock.mockClear();
+		await api.getSuggest({ siteId: '8uyt2m', query: 'other' });
+		expect('signal' in ((requestMock.mock.calls[0][1] as RequestInit) || {})).toBe(false);
+
+		requestMock.mockReset();
+	});
 });

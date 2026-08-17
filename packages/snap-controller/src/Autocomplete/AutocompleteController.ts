@@ -1,10 +1,13 @@
 import deepmerge from 'deepmerge';
 
-import { ErrorType, Product, Banner, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
+import { Product, Banner, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
 import { getSearchParams } from '../utils/getParams';
+import { SearchOperation } from '../SearchOperation/SearchOperation';
 import { ControllerTypes } from '../types';
+
+import type { SearchOutcome } from '../SearchOperation/SearchOperation';
 
 import { AutocompleteStore } from '@athoscommerce/snap-store-mobx';
 import type { AutocompleteControllerConfig, AutocompleteAfterSearchObj, AfterStoreObj, ControllerServices, ContextVariables } from '../types';
@@ -78,6 +81,7 @@ type AutocompleteTrackMethods = {
 export class AutocompleteController extends AbstractController {
 	public type = ControllerTypes.autocomplete;
 	declare store: AutocompleteStore;
+	declare searching?: SearchOperation<AutocompleteRequestModel>;
 	declare config: AutocompleteControllerConfig;
 	public storage: StorageStore;
 
@@ -638,7 +642,14 @@ export class AutocompleteController extends AbstractController {
 					});
 				}
 
-				// TODO cancel any current requests?
+				// take over from whatever search was underway - createSearchOperation supersedes it,
+				// aborting an in-flight request or discarding a prior pending operation. Creating the
+				// operation here (before the debounce) means `searching` covers the whole span from
+				// keystroke to results, and cancelling it also clears the pending debounce timer
+				this.createSearchOperation<AutocompleteRequestModel>(
+					{ search: { query: { string: value } } },
+					{ pending: true, onDiscard: () => clearTimeout(this.handlers.input.timeoutDelay) }
+				);
 
 				clearTimeout(this.handlers.input.timeoutDelay);
 
@@ -649,6 +660,9 @@ export class AutocompleteController extends AbstractController {
 
 				this.handlers.input.timeoutDelay = setTimeout(() => {
 					if (!value) {
+						// no search will run for this input - release the pending operation
+						this.settlePendingOperation();
+
 						// there is no input value - reset state of store
 						this.store.reset();
 
@@ -819,7 +833,9 @@ export class AutocompleteController extends AbstractController {
 		this.store.updateTrendingTerms(trending);
 	};
 
-	search = async (): Promise<void> => {
+	search = async (): Promise<SearchOutcome> => {
+		let operation: SearchOperation<AutocompleteRequestModel> | undefined;
+
 		try {
 			if (!this.initialized) {
 				await this.init();
@@ -827,18 +843,29 @@ export class AutocompleteController extends AbstractController {
 
 			// if urlManager has no query, there will be no need to get params and no query
 			if (!this.urlManager.state.query) {
-				return;
+				this.settlePendingOperation();
+				return 'complete';
 			}
 
 			const params = this.params;
 
 			// if params have no query do not search
 			if (!params?.search?.query?.string) {
-				return;
+				this.settlePendingOperation();
+				return 'complete';
+			}
+
+			// the input handler creates a pending operation on keystroke so `searching` covers the
+			// debounce too - adopt it here rather than superseding it with an identical search
+			if (this.searching?.pending && !this.searching.cancelled) {
+				operation = this.searching as SearchOperation<AutocompleteRequestModel>;
+				operation.start(params);
+			} else {
+				operation = this.createSearchOperation(params);
 			}
 
 			this.store.loading = true;
-			// clear the redirect URL until proper abort functionality is implemented
+			// a redirect from a previous response no longer applies to the query being searched
 			this.store.merchandising.redirect = '';
 
 			try {
@@ -849,7 +876,8 @@ export class AutocompleteController extends AbstractController {
 			} catch (err: any) {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'beforeSearch' middleware cancelled`);
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'beforeSearch' middleware`);
 					throw err;
@@ -858,7 +886,12 @@ export class AutocompleteController extends AbstractController {
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
 
-			const { meta, search } = await this.client.autocomplete(params);
+			const { meta, search } = await this.client.autocomplete(params, { signal: operation.signal });
+
+			// the request is back - bail if this search was cancelled or superseded by a newer keystroke
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
 
 			searchProfile.stop();
 			this.log.profile(searchProfile);
@@ -899,7 +932,8 @@ export class AutocompleteController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterSearch' middleware cancelled`);
 					afterSearchProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterSearch' middleware`);
 					throw err;
@@ -908,6 +942,11 @@ export class AutocompleteController extends AbstractController {
 
 			afterSearchProfile.stop();
 			this.log.profile(afterSearchProfile);
+
+			// awaited middleware above can let a newer keystroke take over - it owns the store now
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
 
 			// update the store
 			this.store.update({ meta, search });
@@ -932,7 +971,8 @@ export class AutocompleteController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterStore' middleware cancelled`);
 					afterStoreProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterStore' middleware`);
 					throw err;
@@ -942,51 +982,32 @@ export class AutocompleteController extends AbstractController {
 			afterStoreProfile.stop();
 			this.log.profile(afterStoreProfile);
 		} catch (err: any) {
-			if (err) {
-				if (err.err && err.fetchDetails) {
-					switch (err.fetchDetails.status) {
-						case 429: {
-							this.store.error = {
-								code: 429,
-								type: ErrorType.WARNING,
-								message: 'Too many requests try again later',
-							};
-							break;
-						}
-
-						case 500: {
-							this.store.error = {
-								code: 500,
-								type: ErrorType.ERROR,
-								message: 'Invalid Search Request or Service Unavailable',
-							};
-							break;
-						}
-
-						default: {
-							this.store.error = {
-								type: ErrorType.ERROR,
-								message: err.err.message,
-							};
-							break;
-						}
-					}
-
-					this.log.error(this.store.error);
-					this.handleError(err.err, err.fetchDetails);
-				} else {
-					this.store.error = {
-						type: ErrorType.ERROR,
-						message: `Something went wrong... - ${err}`,
-					};
-					this.log.error(err);
-					this.handleError(err);
-				}
+			if (operation) {
+				this.handleSearchOperationError(operation, err);
+			} else {
+				// failed before the operation existed (init or params) - report it the same way
+				this.log.error(err);
+				this.handleError(err);
 			}
 		} finally {
-			this.store.loading = false;
+			if (operation) {
+				this.settleSearchOperation(operation, 'complete');
+			}
 		}
+
+		return operation?.promise || 'error';
 	};
+
+	/*
+		Releases a pending operation created by the input handler when the debounced search turns out
+		not to run (the input was emptied, or the query resolved to nothing), so `searching` does not
+		stay defined with a search that will never happen.
+	*/
+	private settlePendingOperation(): void {
+		if (this.searching?.pending) {
+			this.settleSearchOperation(this.searching, 'cancelled');
+		}
+	}
 
 	addToCart = async (_products: Product[] | Product): Promise<void> => {
 		const products = typeof (_products as Product[])?.slice == 'function' ? (_products as Product[]).slice() : [_products];

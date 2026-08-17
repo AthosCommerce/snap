@@ -1,11 +1,11 @@
 import deepmerge from 'deepmerge';
 
-import { ErrorType } from '@athoscommerce/snap-store-mobx';
-
 import { AbstractController } from '../Abstract/AbstractController';
 import { getSearchParams } from '../utils/getParams';
+import { SearchOperation } from '../SearchOperation/SearchOperation';
 import { ControllerTypes } from '../types';
 import type { FinderStore } from '@athoscommerce/snap-store-mobx';
+import type { SearchOutcome } from '../SearchOperation/SearchOperation';
 import type { FinderControllerConfig, ControllerServices, ContextVariables } from '../types';
 
 const defaultConfig: FinderControllerConfig = {
@@ -29,6 +29,7 @@ const defaultConfig: FinderControllerConfig = {
 export class FinderController extends AbstractController {
 	public type = ControllerTypes.finder;
 	declare store: FinderStore;
+	declare searching?: SearchOperation<Record<string, any>>;
 	declare config: FinderControllerConfig;
 
 	constructor(
@@ -115,18 +116,21 @@ export class FinderController extends AbstractController {
 		this.store.setService('urlManager', this.urlManager);
 	};
 
-	search = async (): Promise<void> => {
+	search = async (): Promise<SearchOutcome> => {
+		let operation: SearchOperation<Record<string, any>> | undefined;
+
 		try {
 			if (!this.initialized) {
 				await this.init();
 			}
 
 			if (this.store.persisted) {
-				return;
+				return 'complete';
 			}
 
 			const params = this.params;
 
+			operation = this.createSearchOperation(params);
 			this.store.loading = true;
 			try {
 				await this.eventManager.fire('beforeSearch', {
@@ -136,7 +140,8 @@ export class FinderController extends AbstractController {
 			} catch (err: any) {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'beforeSearch' middleware cancelled`);
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'beforeSearch' middleware`);
 					throw err;
@@ -145,7 +150,12 @@ export class FinderController extends AbstractController {
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
 
-			const { meta, search } = await this.client.finder(params);
+			const { meta, search } = await this.client.finder(params, { signal: operation.signal });
+
+			// the request is back - bail if this search was cancelled or replaced while it was out
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
 
 			searchProfile.stop();
 			this.log.profile(searchProfile);
@@ -165,7 +175,8 @@ export class FinderController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterSearch' middleware cancelled`);
 					afterSearchProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterSearch' middleware`);
 					throw err;
@@ -174,6 +185,11 @@ export class FinderController extends AbstractController {
 
 			afterSearchProfile.stop();
 			this.log.profile(afterSearchProfile);
+
+			// awaited middleware above can let a newer search take over - it owns the store now
+			if (this.searchOperationSuperseded(operation)) {
+				return operation.promise;
+			}
 
 			// update the store
 			this.store.update({ meta, search });
@@ -193,7 +209,8 @@ export class FinderController extends AbstractController {
 				if (err?.message == 'cancelled') {
 					this.log.warn(`'afterStore' middleware cancelled`);
 					afterStoreProfile.stop();
-					return;
+					operation.resolve('cancelled');
+					return operation.promise;
 				} else {
 					this.log.error(`error in 'afterStore' middleware`);
 					throw err;
@@ -203,49 +220,19 @@ export class FinderController extends AbstractController {
 			afterStoreProfile.stop();
 			this.log.profile(afterStoreProfile);
 		} catch (err: any) {
-			if (err) {
-				if (err.err && err.fetchDetails) {
-					switch (err.fetchDetails.status) {
-						case 429: {
-							this.store.error = {
-								code: 429,
-								type: ErrorType.WARNING,
-								message: 'Too many requests try again later',
-							};
-							break;
-						}
-
-						case 500: {
-							this.store.error = {
-								code: 500,
-								type: ErrorType.ERROR,
-								message: 'Invalid Search Request or Service Unavailable',
-							};
-							break;
-						}
-
-						default: {
-							this.store.error = {
-								type: ErrorType.ERROR,
-								message: err.err.message,
-							};
-							break;
-						}
-					}
-
-					this.log.error(this.store.error);
-					this.handleError(err.err, err.fetchDetails);
-				} else {
-					this.store.error = {
-						type: ErrorType.ERROR,
-						message: `Something went wrong... - ${err}`,
-					};
-					this.log.error(err);
-					this.handleError(err);
-				}
+			if (operation) {
+				this.handleSearchOperationError(operation, err);
+			} else {
+				// failed before the operation existed (init or params) - report it the same way
+				this.log.error(err);
+				this.handleError(err);
 			}
 		} finally {
-			this.store.loading = false;
+			if (operation) {
+				this.settleSearchOperation(operation, 'complete');
+			}
 		}
+
+		return operation?.promise || 'error';
 	};
 }

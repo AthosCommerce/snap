@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import { AppMode, version } from '@athoscommerce/snap-toolbox';
 
+import { abortError } from '../utils/abortError';
 import { fibonacci } from '../utils/fibonacci';
 import { NetworkCache } from '../NetworkCache/NetworkCache';
 import { CacheConfig, HTTPHeaders, GenericGlobals } from '../../types';
@@ -20,6 +21,7 @@ export interface RequestOpts {
 	body?: HTTPBody;
 	origin?: string; // override url origin
 	subDomain?: string; // optional subdomain for requests
+	signal?: AbortSignal; // optional signal to abort the request
 }
 
 export class API<PathConfigurationType> {
@@ -51,6 +53,12 @@ export class API<PathConfigurationType> {
 		let responseJSON;
 
 		try {
+			// aborted before the request went out - also catches aborts that happened during a retry
+			// delay, since retries re-enter this method
+			if (context.signal?.aborted) {
+				throw abortError();
+			}
+
 			response = await this.fetchApi(url, init);
 			responseJSON = await response?.json();
 
@@ -82,8 +90,10 @@ export class API<PathConfigurationType> {
 				return await this.request(context, cacheKey);
 			}
 
-			// throw an object with fetch details
-			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init } };
+			// throw an object with fetch details - the signal is omitted, it is not a detail of the
+			// request and would leak a live AbortSignal into error payloads
+			const { signal: _, ...fetchInit } = init;
+			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...fetchInit } };
 		}
 	}
 
@@ -114,11 +124,16 @@ export class API<PathConfigurationType> {
 
 		const headers = { ...this.configuration.headers, ...context.headers };
 
-		const init = {
+		const init: RequestInit = {
 			method: context.method,
 			headers: headers,
 			body,
 		};
+
+		// only set when provided so unsignalled requests produce an identical init object
+		if (context.signal) {
+			init.signal = context.signal;
+		}
 
 		return { url, init };
 	}

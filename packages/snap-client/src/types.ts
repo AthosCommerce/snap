@@ -3,6 +3,12 @@ import type { MetaRequestModel, SearchResponseModelResult, SearchRequestModel, M
 
 export type HTTPHeaders = { [key: string]: string };
 
+// per-request options that are not part of the request payload - kept separate so they are
+// never merged into globals or serialized into the querystring
+export type ClientRequestOptions = {
+	signal?: AbortSignal;
+};
+
 export type SearchRequesterPaths = {
 	autocomplete?: string;
 	search?: string;

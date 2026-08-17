@@ -36,25 +36,33 @@ Cypress.Commands.add('addLocalSnap', () => {
 
 Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	const defaultOptions = {
-		// Minimum settle before the controller is handed back. Many specs rely on this command
-		// as a page settle and then assert synchronously on things that are only ready *after*
-		// the store loads - theme stylescripts, targeter bindings, autocomplete input sync - so
-		// resolving as soon as `loaded` flips is not safe. This matches the floor of the original
-		// implementation (a 300ms delay plus one 150ms poll); shortening it fails on slower CI.
-		settle: 450,
+		// Readiness is state based - there is no timing here. The controller is handed back once it
+		// exists, is not searching, and (by default) has loaded. `controller.searching` is defined
+		// from the moment a search is triggered - for autocomplete, from the keystroke, so it also
+		// covers the input debounce - and is cleared once the search settles, after `afterStore`.
+		// That makes trigger-then-read race free without the old 450ms floor: a search started by a
+		// click or `url.go()` raises it synchronously, so the first poll already observes it.
+		//
+		// Specs that read a store which never loads - an autocomplete controller on a page where
+		// nothing was typed, or a page whose bundle was removed - must pass `{ loaded: false }`,
+		// otherwise this waits for a load that will never happen.
+		loaded: true,
 		delay: 0,
 		timeout: Cypress.config('defaultCommandTimeout'),
 		interval: 20,
 	};
 
 	const mergedOptions = { ...defaultOptions, ...options };
-	const startedAt = Date.now();
 
 	const getSettledController = (window) => {
 		const controller = window.athos?.controller?.[controllerId];
 		if (!controller) return;
-		if (controller.store.loading) return;
-		if (Date.now() - startedAt < mergedOptions.settle) return;
+
+		// a search is underway - keep polling until it settles. `searching` is feature detected
+		// because the branch override specs load a bundle built before it existed
+		if (controller.store.loading || controller.searching !== undefined) return;
+
+		if (mergedOptions.loaded && !controller.store.loaded) return;
 
 		return controller;
 	};
@@ -68,7 +76,7 @@ Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	return cy.waitUntil(() => cy.window({ log: false }).then((window) => getSettledController(window) ?? false), {
 		timeout: mergedOptions.timeout,
 		interval: mergedOptions.interval,
-		errorMsg: `snapController('${controllerId}'): controller never became available or store never stopped loading`,
+		errorMsg: `snapController('${controllerId}'): controller never became available, or a search never settled`,
 	});
 });
 

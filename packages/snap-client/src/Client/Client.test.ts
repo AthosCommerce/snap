@@ -641,4 +641,85 @@ describe('Snap Client', () => {
 			});
 		});
 	});
+
+	describe('request options', () => {
+		beforeEach(() => {
+			jest.clearAllMocks();
+		});
+
+		it('passes the signal to the search request but never to meta', async () => {
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockData.search()) } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' }, { mode: 'development' });
+			const controller = new AbortController();
+
+			//@ts-ignore
+			const searchRequesterSpy = jest.spyOn(client.requesters.search, 'request' as never);
+			//@ts-ignore
+			const metaRequesterSpy = jest.spyOn(client.requesters.meta, 'request' as never);
+
+			await client.search({ siteId: '8uyt2m' }, { signal: controller.signal });
+
+			expect((searchRequesterSpy.mock.calls[0][0] as any).signal).toBe(controller.signal);
+			expect((metaRequesterSpy.mock.calls[0][0] as any).signal).toBeUndefined();
+
+			fetchApiMock.mockReset();
+		});
+
+		it('passes the signal to both suggest and autocomplete requests but never to meta', async () => {
+			const fetchApiMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockData.autocomplete()) } as Response));
+
+			const client = new Client({ siteId: '8uyt2m' }, { mode: 'development' });
+			const controller = new AbortController();
+
+			//@ts-ignore
+			const searchRequesterSpy = jest.spyOn(client.requesters.search, 'request' as never);
+			//@ts-ignore
+			const suggestRequesterSpy = jest.spyOn(client.requesters.suggest, 'request' as never);
+			//@ts-ignore
+			const metaRequesterSpy = jest.spyOn(client.requesters.meta, 'request' as never);
+
+			await client.autocomplete({ search: { query: { string: 'hello' } } }, { signal: controller.signal });
+
+			expect((suggestRequesterSpy.mock.calls[0][0] as any).signal).toBe(controller.signal);
+			expect((searchRequesterSpy.mock.calls[0][0] as any).signal).toBe(controller.signal);
+			expect((metaRequesterSpy.mock.calls[0][0] as any).signal).toBeUndefined();
+
+			fetchApiMock.mockReset();
+		});
+
+		it('aborts an in-flight search without retrying', async () => {
+			// the jsdom fetch mock ignores init, so a custom fetchApi is needed to observe the signal
+			const abortableFetch = jest.fn((_url: any, init?: RequestInit) => {
+				return new Promise<Response>((resolve, reject) => {
+					if (!init?.signal) {
+						// meta has no signal - let it resolve normally
+						return resolve({ status: 200, json: () => Promise.resolve(mockData.meta()) } as Response);
+					}
+					init.signal.addEventListener('abort', () => {
+						const err = new Error('The user aborted a request.');
+						err.name = 'AbortError';
+						reject(err);
+					});
+				});
+			});
+
+			const client = new Client({ siteId: '8uyt2m' }, { mode: 'development', fetchApi: abortableFetch as any });
+			const controller = new AbortController();
+
+			const searchPromise = client.search({ siteId: '8uyt2m' }, { signal: controller.signal });
+			controller.abort();
+
+			await expect(searchPromise).rejects.toMatchObject({
+				err: expect.objectContaining({ name: 'AbortError' }),
+			});
+
+			// one meta call plus one aborted search call - no retries
+			expect(abortableFetch).toHaveBeenCalledTimes(2);
+		});
+	});
 });

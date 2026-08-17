@@ -79,7 +79,7 @@ describe('Autocomplete', () => {
 
 	describe('Tests Autocomplete', () => {
 		it('has a controller with an empty store', function () {
-			cy.snapController('autocomplete').then(({ store }) => {
+			cy.snapController('autocomplete', { loaded: false }).then(({ store }) => {
 				expect(store.results.length).to.equal(0);
 				expect(store.terms.length).to.equal(0);
 				expect(store.state.input).to.equal(undefined);
@@ -111,7 +111,7 @@ describe('Autocomplete', () => {
 			cy.addLocalSnap();
 			cy.waitForBundle();
 
-			cy.snapController('autocomplete').then(({ store }) => {
+			cy.snapController('autocomplete', { loaded: false }).then(({ store }) => {
 				openAutocompleteInput();
 
 				cy.get(config.selectors.website.input, { timeout: 20000 }).first().should('exist').click({ force: true }).focus();
@@ -245,7 +245,7 @@ describe('Autocomplete', () => {
 			// set flag on window to ensure page doesn't reload
 			cy.window().then((win) => (win.ssFirstLoad = true));
 
-			cy.snapController('autocomplete').then(() => {
+			cy.snapController('autocomplete', { loaded: false }).then(() => {
 				openAutocompleteInput();
 
 				cy.get(config.selectors.website.input).first().should('exist').should('have.value', config.query).click().focus({ force: true });

@@ -371,4 +371,124 @@ describe('Abstract Api', () => {
 
 		expect(fetchfn429).toHaveBeenCalledTimes((config.maxRetry || 0) + 1);
 	});
+
+	describe('abort signal', () => {
+		const config: ApiConfigurationParameters = {
+			origin: 'https://athoscommerce.com',
+			fetchApi: global.window.fetch,
+			headers: customHeaders,
+		};
+
+		const context = {
+			path: '/v1/autocomplete',
+			method: 'POST',
+			headers: customHeaders,
+			body: { siteId: '8uyt2m' },
+		};
+
+		it('only adds signal to the fetch init when one is provided', () => {
+			const api = new API(new ApiConfiguration(config));
+
+			//@ts-ignore - private method
+			expect('signal' in api.createFetchParams(context).init).toBe(false);
+
+			const controller = new AbortController();
+			//@ts-ignore - private method
+			const withSignal = api.createFetchParams({ ...context, signal: controller.signal });
+			expect(withSignal.init.signal).toBe(controller.signal);
+		});
+
+		it('does not fetch when the signal is already aborted', async () => {
+			const api = new API(new ApiConfiguration(config));
+			const fetchfn = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			// the spy is shared across this file and earlier tests leave calls on it
+			fetchfn.mockClear();
+
+			const controller = new AbortController();
+			controller.abort();
+
+			//@ts-ignore - protected method
+			await expect(api.request({ ...context, signal: controller.signal })).rejects.toMatchObject({
+				err: expect.objectContaining({ name: 'AbortError' }),
+			});
+
+			expect(fetchfn).not.toHaveBeenCalled();
+
+			fetchfn.mockClear();
+		});
+
+		it('does not leak the signal into fetchDetails', async () => {
+			const api = new API(new ApiConfiguration(config));
+			const fetchfn = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 500, json: () => Promise.resolve({}) } as Response));
+
+			const controller = new AbortController();
+
+			//@ts-ignore - protected method
+			const rejection: any = await api.request({ ...context, signal: controller.signal }).catch((err: any) => err);
+
+			expect(rejection.fetchDetails).toStrictEqual({
+				body: '{"siteId":"8uyt2m"}',
+				headers: { customheader: 'customkey' },
+				message: 'FAILED',
+				method: 'POST',
+				status: 500,
+				url: 'https://athoscommerce.com/v1/autocomplete',
+			});
+
+			fetchfn.mockClear();
+		});
+
+		it('stops retrying a 429 when the signal aborts during the retry delay', async () => {
+			const api = new API(new ApiConfiguration({ ...config, maxRetry: 5 }));
+			const controller = new AbortController();
+
+			// abort as soon as the first attempt has been made - the retry delay is in progress, so
+			// the recursive re-entry must bail instead of continuing to retry
+			const fetchfn429 = jest.spyOn(global.window, 'fetch').mockImplementation(() => {
+				controller.abort();
+				return Promise.resolve({ status: 429, json: () => Promise.resolve({}) } as Response);
+			});
+
+			//@ts-ignore - protected method
+			await expect(api.request({ ...context, signal: controller.signal })).rejects.toMatchObject({
+				err: expect.objectContaining({ name: 'AbortError' }),
+			});
+
+			expect(fetchfn429).toHaveBeenCalledTimes(1);
+
+			fetchfn429.mockClear();
+		});
+
+		it('surfaces a fetch abort as an AbortError rejection', async () => {
+			// the jsdom fetch mock ignores init, so a custom fetchApi is used to simulate a real abort
+			const abortableFetch = jest.fn((_url: any, init?: RequestInit) => {
+				return new Promise<Response>((resolve, reject) => {
+					init?.signal?.addEventListener('abort', () => {
+						const err = new Error('The user aborted a request.');
+						err.name = 'AbortError';
+						reject(err);
+					});
+				});
+			});
+
+			const api = new API(new ApiConfiguration({ ...config, fetchApi: abortableFetch as any, maxRetry: 3 }));
+			const controller = new AbortController();
+
+			//@ts-ignore - protected method
+			const requestPromise = api.request({ ...context, signal: controller.signal });
+			controller.abort();
+
+			await expect(requestPromise).rejects.toMatchObject({
+				err: expect.objectContaining({ name: 'AbortError' }),
+			});
+
+			// an abort must never be retried
+			expect(abortableFetch).toHaveBeenCalledTimes(1);
+		});
+	});
 });

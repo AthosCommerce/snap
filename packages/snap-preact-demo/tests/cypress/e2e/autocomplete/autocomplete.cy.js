@@ -56,7 +56,7 @@ describe('Autocomplete', () => {
 
 	describe('Tests Autocomplete', () => {
 		it('has a controller with an empty store', function () {
-			cy.snapController('autocomplete').then(({ store }) => {
+			cy.snapController('autocomplete', { loaded: false }).then(({ store }) => {
 				expect(store.results.length).to.equal(0);
 				expect(store.terms.length).to.equal(0);
 				expect(store.state.input).to.equal(undefined);
@@ -85,7 +85,7 @@ describe('Autocomplete', () => {
 
 			cy.visit(config.url);
 
-			cy.snapController('autocomplete').then(({ store }) => {
+			cy.snapController('autocomplete', { loaded: false }).then(({ store }) => {
 				if (config.selectors.website.openInputButton) {
 					cy.get(config.selectors.website.openInputButton).first().click({ force: true });
 				}
@@ -240,7 +240,7 @@ describe('Autocomplete', () => {
 			cy.get(config.selectors.autocomplete.main).should('exist');
 
 			// select a facet
-			cy.snapController('autocomplete').then(({ store }) => {
+			cy.snapController('autocomplete', { loaded: false }).then(({ store }) => {
 				if (store.facets.length == 0) {
 					cy.get(config.selectors.website.input).first().clear({ force: true }).type(config.startingQuery, { force: true });
 					cy.wait('@autocomplete').should('exist');

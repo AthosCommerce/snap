@@ -248,4 +248,31 @@ describe('Search Api', () => {
 
 		requestMock.mockReset();
 	});
+
+	it('threads an abort signal through every search endpoint', async () => {
+		const api = new SearchAPI(new ApiConfiguration({}));
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+		const controller = new AbortController();
+		const params = { siteId: '8uyt2m', search: { query: { string: 'dress' } } };
+
+		await api.getSearch(params, { signal: controller.signal });
+		await api.getCategory(params, { signal: controller.signal });
+		await api.getFinder(params, { signal: controller.signal });
+		await api.getAutocomplete(params, { signal: controller.signal });
+
+		expect(requestMock).toHaveBeenCalledTimes(4);
+		requestMock.mock.calls.forEach(([, init]) => {
+			expect((init as RequestInit).signal).toBe(controller.signal);
+		});
+
+		// without options the init carries no signal key at all
+		requestMock.mockClear();
+		await api.getSearch({ siteId: '8uyt2m', search: { query: { string: 'other' } } });
+		expect('signal' in ((requestMock.mock.calls[0][1] as RequestInit) || {})).toBe(false);
+
+		requestMock.mockReset();
+	});
 });

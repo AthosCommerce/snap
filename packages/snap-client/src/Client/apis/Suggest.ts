@@ -1,5 +1,6 @@
 import { API } from './Abstract';
 import {
+	ClientRequestOptions,
 	HTTPHeaders,
 	SuggestRequesterPaths,
 	SuggestRequestModel,
@@ -9,7 +10,7 @@ import {
 } from '../../types';
 
 export class SuggestAPI extends API<SuggestRequesterPaths> {
-	async getSuggest(queryParameters: SuggestRequestModel): Promise<SuggestResponseModel> {
+	async getSuggest(queryParameters: SuggestRequestModel, options?: ClientRequestOptions): Promise<SuggestResponseModel> {
 		const headerParameters: HTTPHeaders = {};
 
 		const response = await this.request<SuggestResponseModel>(
@@ -18,6 +19,7 @@ export class SuggestAPI extends API<SuggestRequesterPaths> {
 				method: 'GET',
 				headers: headerParameters,
 				query: queryParameters,
+				signal: options?.signal,
 			},
 			JSON.stringify(queryParameters)
 		);

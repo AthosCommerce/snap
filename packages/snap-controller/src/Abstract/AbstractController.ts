@@ -1,4 +1,8 @@
 import { DomTargeter } from '@athoscommerce/snap-toolbox';
+import { ErrorType } from '@athoscommerce/snap-store-mobx';
+
+import { SearchOperation, isAbortError } from '../SearchOperation/SearchOperation';
+import type { SearchOutcome } from '../SearchOperation/SearchOperation';
 
 import type { Client } from '@athoscommerce/snap-client';
 import type { AbstractStore } from '@athoscommerce/snap-store-mobx';
@@ -10,6 +14,13 @@ import type { Tracker, TrackErrorEvent } from '@athoscommerce/snap-tracker';
 import type { Target, OnTarget } from '@athoscommerce/snap-toolbox';
 
 import type { ControllerServices, ControllerConfig, Attachments, ContextVariables, PluginFunction } from '../types';
+
+// mirrors the inline shape of AbstractStore.error
+type SearchStoreError = {
+	code?: number;
+	type?: ErrorType;
+	message?: string;
+};
 
 export abstract class AbstractController {
 	public id: string;
@@ -27,6 +38,10 @@ export abstract class AbstractController {
 	public targeters: {
 		[key: string]: DomTargeter;
 	} = {};
+
+	// the search currently underway, undefined when idle. Code that triggered the search can
+	// await the outcome returned by search() instead - this is the handle for everyone else
+	public searching?: SearchOperation<any>;
 
 	protected _initialized = false;
 
@@ -217,7 +232,138 @@ export abstract class AbstractController {
 		});
 	}
 
-	public abstract search(): Promise<void>;
+	public abstract search(): Promise<SearchOutcome>;
+
+	/*
+		Creates the operation for a search that is about to run and makes it the current one.
+
+		Any search already underway is superseded: a controller has one store, so two searches
+		can never both apply their results. The older one has its request aborted and resolves
+		'cancelled' with the reason 'superseded' - no `cancelled` event, since nothing external
+		asked for it.
+	*/
+	protected createSearchOperation<ParamsType>(
+		params: ParamsType,
+		options?: { pending?: boolean; onDiscard?: () => void }
+	): SearchOperation<ParamsType> {
+		this.searching?.supersede();
+
+		const operation: SearchOperation<ParamsType> = new SearchOperation<ParamsType>(params, {
+			pending: options?.pending,
+			onCancel: (reason?: string) => {
+				// external cancellation only - fire and forget so cancel() stays synchronous
+				this.eventManager.fire('cancelled', { controller: this, reason }).catch((err) => {
+					this.log.error(`error in 'cancelled' middleware`, err);
+				});
+			},
+			onDiscard: () => {
+				// a discarded pending operation has no running search() to clean up after it
+				if (this.searching === operation && operation.pending) {
+					this.searching = undefined;
+				}
+
+				options?.onDiscard?.();
+			},
+		});
+
+		this.searching = operation;
+
+		return operation;
+	}
+
+	/*
+		Settles an operation and, when it is still the current one, releases the controller's
+		in-flight state. The identity check is what keeps a superseded search from clearing the
+		loading flag out from under the search that replaced it.
+	*/
+	protected settleSearchOperation(operation: SearchOperation<any>, outcome: SearchOutcome): void {
+		operation.resolve(outcome);
+
+		if (this.searching === operation) {
+			this.searching = undefined;
+			this.store.loading = false;
+		}
+	}
+
+	/*
+		True when the operation must not apply anything else to the store - it was cancelled, or a
+		newer search has taken over. Checked after each await in search() where a store write follows.
+	*/
+	protected searchOperationSuperseded(operation: SearchOperation<any>): boolean {
+		if (operation.cancelled || this.searching !== operation) {
+			operation.resolve('cancelled');
+			return true;
+		}
+
+		return false;
+	}
+
+	/*
+		Maps a failed search onto the store. Cancellations exit first: an aborted request is not an
+		error, so it produces no store error, no log entry and no error beacon.
+	*/
+	protected handleSearchOperationError(operation: SearchOperation<any>, err: any): void {
+		if (operation.cancelled || isAbortError(err)) {
+			operation.resolve('cancelled');
+			return;
+		}
+
+		if (err) {
+			if (err.err && err.fetchDetails) {
+				let searchError: SearchStoreError;
+
+				switch (err.fetchDetails.status) {
+					case 429: {
+						searchError = {
+							code: 429,
+							type: ErrorType.WARNING,
+							message: 'Too many requests try again later',
+						};
+						break;
+					}
+
+					case 500: {
+						searchError = {
+							code: 500,
+							type: ErrorType.ERROR,
+							message: 'Invalid Search Request or Service Unavailable',
+						};
+						break;
+					}
+
+					default: {
+						searchError = {
+							type: ErrorType.ERROR,
+							message: err.err.message,
+						};
+						break;
+					}
+				}
+
+				// only the current search may write to the store
+				if (this.searching === operation) {
+					this.store.error = searchError;
+				}
+
+				this.log.error(searchError);
+				this.handleError(err.err, err.fetchDetails);
+			} else {
+				const searchError: SearchStoreError = {
+					type: ErrorType.ERROR,
+					message: `Something went wrong... - ${err}`,
+				};
+
+				if (this.searching === operation) {
+					this.store.error = searchError;
+				}
+
+				this.log.error(err);
+				this.handleError(err);
+			}
+		}
+
+		operation.resolve('error');
+	}
 
 	public async plugin(func: PluginFunction, ...args: unknown[]): Promise<void> {
 		await func(this, ...args);
