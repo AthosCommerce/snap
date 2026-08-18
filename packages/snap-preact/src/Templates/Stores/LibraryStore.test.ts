@@ -70,6 +70,7 @@ describe('LibraryStore', () => {
 			slideshow: {},
 			sortBy: {},
 			swatches: {},
+			tabSelection: {},
 			terms: {},
 			termsList: {},
 			toolbar: {},

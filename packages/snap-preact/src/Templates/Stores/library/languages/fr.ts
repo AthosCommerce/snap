@@ -152,6 +152,18 @@ export const fr: LangComponents = {
 			value: 'Trier Par',
 		},
 	},
+	tabSelection: {
+		tabList: {
+			attributes: {
+				'aria-label': 'Onglets de résultats',
+			},
+		},
+		tabButton: {
+			attributes: {
+				'aria-label': (data) => `${data.tab.label || data.tab.id}${typeof data.resultCount == 'number' ? `, ${data.resultCount} résultats` : ''}`,
+			},
+		},
+	},
 	perPage: {
 		label: {
 			value: 'Par page',
