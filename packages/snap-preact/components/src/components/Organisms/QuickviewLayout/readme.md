@@ -1,13 +1,13 @@
 # QuickviewLayout
 
-`QuickviewLayout` is the rendering engine of the Quickview feature. It is a MobX `observer` that subscribes to a `QuickviewController`'s store and renders the active quickview product (`controller.store.product`) — image(s), name, variant selectors, action buttons, description, and an attributes table — arranged by a configurable, module-based `layout` prop (the same pattern as `AutocompleteLayout`).
+`QuickviewLayout` is the rendering engine of the Quickview feature. It is a MobX `observer` that subscribes to a `QuickviewManager`'s store and renders the active quickview product (`quickviewManager.store.product`) — image(s), name, variant selectors, action buttons, description, and an attributes table — arranged by a configurable, module-based `layout` prop (the same pattern as `AutocompleteLayout`).
 
 It is composed inside a presentation container that owns the open/close shell:
 
 - **`ProductQuickviewModal`** (`Templates/ProductQuickviewModal`) — renders `QuickviewLayout` inside a centered `Modal`. This is the default variant injected by Snap templates.
 - **`ProductQuickviewSlideout`** (`Templates/ProductQuickviewSlideout`) — renders `QuickviewLayout` inside a side-panel `Slideout`.
 
-The state half of the feature lives on `QuickviewController` (`@athoscommerce/snap-controller`) and its `QuickviewStore` (`@athoscommerce/snap-store-mobx`). A quickview is opened by calling `quickview(result)` on a source controller (`SearchController`, `AutocompleteController`, or `RecommendationController`) — the `Result` molecule's quickview button does this — which delegates to the singleton `QuickviewController`.
+The state half of the feature lives on `QuickviewManager` (`@athoscommerce/snap-controller`) and its `QuickviewStore` (`@athoscommerce/snap-store-mobx`). A quickview is opened by calling `quickview(result)` on a source controller (`SearchController`, `AutocompleteController`, or `RecommendationController`) — the `Result` molecule's quickview button does this — which forwards to the shared `QuickviewManager` the controller received as its `quickview` service.
 
 ## Usage
 
@@ -15,16 +15,16 @@ When using Snap templates a quickview controller is always created and a single 
 
 ```tsx
 // Default (centered modal)
-<ProductQuickviewModal controller={quickviewController} />
+<ProductQuickviewModal quickviewManager={quickviewManager} />
 
 // Slide-out panel
-<ProductQuickviewSlideout controller={quickviewController} slideDirection="right" width="500px" />
+<ProductQuickviewSlideout quickviewManager={quickviewManager} slideDirection="right" width="500px" />
 
 // The layout engine on its own (rare — normally used via a container)
-<QuickviewLayout controller={quickviewController} onReset={() => quickviewController.store.close()} />
+<QuickviewLayout quickviewManager={quickviewManager} onReset={() => quickviewManager.store.close()} />
 ```
 
-The `controller` must be a `QuickviewController` — the components warn and render `null` when the controller is missing or its `type` is not `'quickview'`. Because the feature is driven by the shared singleton store, only one container needs to be mounted; there is no per-`Result` scoping.
+The `quickviewManager` must be a `QuickviewManager` — the components warn and render `null` when it is missing. Because the feature is driven by the shared singleton store, only one container needs to be mounted; there is no per-`Result` scoping.
 
 ## Layout
 
@@ -53,7 +53,7 @@ Each module returns `null` when it has nothing to show (no description, no displ
 
 | prop | type | required | description |
 |---|---|:---:|---|
-| `controller` | `QuickviewController` | ✔️ | The component subscribes to `controller.store`. Renders `null` (with a console warning) when missing or not of type `'quickview'`. |
+| `quickviewManager` | `QuickviewManager` | ✔️ | The component subscribes to `quickviewManager.store`. Renders `null` (with a console warning) when missing. |
 | `onReset` | `() => void` | | Called by the close button. The container passes `store.close()`; falls back to `store.close()` when rendered standalone. |
 | `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
 | `disabledOverlayBadges` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
@@ -92,7 +92,7 @@ When `product.variants.selections` is non-empty the `variantSelections` module r
 
 ## `displayFields` and labels
 
-`store.quickviewConfig.displayFields` is an optional `string[]` selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from `controller.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
+`store.quickviewConfig.displayFields` is an optional `string[]` selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
 
 ## Recommendations
 
@@ -112,7 +112,7 @@ Recommendations require a Snap templates context (`useSnap().templates`); render
 
 ## Tracking
 
-Both containers wrap the layout in the exported `QuickviewTracker` component whenever a product is displayed. It uses the `useTracking` hook (`track: { click: false }`) to observe the quickview content and calls `controller.track.product.impression(product)` once the content has actually been viewed (the standard impression thresholds apply: ≥70% visible for at least 1s). The `QuickviewController` delegates the call to the controller that opened the quickview with `{ quickView: true }`, and quickview impressions dedup separately from grid impressions there — one of each kind per product per response.
+Both containers wrap the layout in the exported `QuickviewTracker` component whenever a product is displayed. It uses the `useTracking` hook (`track: { click: false }`) to observe the quickview content and calls `quickviewManager.track.product.impression(product)` once the content has actually been viewed (the standard impression thresholds apply: ≥70% visible for at least 1s). The `QuickviewManager` delegates the call to the controller that opened the quickview with `{ quickView: true }`, and quickview impressions dedup separately from grid impressions there — one of each kind per product per response.
 
 The tracker is keyed by `responseId`-`product.id`, so displaying a different product (or the same product from a new search response) remounts it and the new product view is observed and tracked. Because the impression fires from the containers, a standalone `QuickviewLayout` does not track impressions on its own.
 
@@ -147,4 +147,4 @@ Generic click tracking is disabled inside the quickview (`track: { click: false 
 
 - Rendered inside a `CacheProvider` so emotion styles are scoped correctly when portaled.
 - Container clicks call `stopPropagation` so they don't reach the `AutocompleteController`'s document click handler (which would close an open autocomplete behind the quickview).
-- The layout does not fetch data; `QuickviewController` loads product data (`/v1/products`) and the layout renders whatever the store provides.
+- The layout does not fetch data; `QuickviewManager` loads product data (`/v1/products`) and the layout renders whatever the store provides.

@@ -177,11 +177,11 @@ export default {
 		},
 	},
 	argTypes: {
-		controller: {
-			description: 'QuickviewController exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
+		quickviewManager: {
+			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
 			table: {
 				type: {
-					summary: 'QuickviewController',
+					summary: 'QuickviewManager',
 				},
 			},
 			control: { type: 'none' },
@@ -287,22 +287,22 @@ export default {
 	args: {},
 };
 
-export const Default = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={defaultController} />;
+export const Default = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} quickviewManager={defaultController} />;
 Default.args = {};
 
-export const Loading = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={loadingController} />;
+export const Loading = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} quickviewManager={loadingController} />;
 Loading.args = {};
 
-export const ErrorState = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={errorController} />;
+export const ErrorState = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} quickviewManager={errorController} />;
 ErrorState.args = {};
 
-export const WithVariantSelectors = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={variantsController} />;
+export const WithVariantSelectors = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} quickviewManager={variantsController} />;
 WithVariantSelectors.args = {};
 
-export const WithDisplayFields = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={displayFieldsController} />;
+export const WithDisplayFields = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} quickviewManager={displayFieldsController} />;
 WithDisplayFields.args = {};
 
-export const WithImageCarousel = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} controller={imageCarouselController} />;
+export const WithImageCarousel = (args: QuickviewLayoutProps) => <QuickviewLayout {...args} quickviewManager={imageCarouselController} />;
 WithImageCarousel.args = {};
 
 // Recommendations require a Snap templates context to populate (see readme → Recommendations).
@@ -311,7 +311,7 @@ WithImageCarousel.args = {};
 export const WithRecommendations = (args: QuickviewLayoutProps) => (
 	<QuickviewLayout
 		{...args}
-		controller={defaultController}
+		quickviewManager={defaultController}
 		layout={[['c1', 'c2'], ['recommendation.quickview']]}
 		recommendation={{ component: 'Recommendation', resultComponent: 'Result' }}
 	/>

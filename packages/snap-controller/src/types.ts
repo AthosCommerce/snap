@@ -1,11 +1,5 @@
-import type {
-	AbstractController,
-	AutocompleteController,
-	SearchController,
-	FinderController,
-	RecommendationController,
-	QuickviewController,
-} from './index';
+import type { AbstractController, AutocompleteController, SearchController, FinderController, RecommendationController } from './index';
+import type { QuickviewManager } from './Quickview/QuickviewManager';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 
 import type { Client } from '@athoscommerce/snap-client';
@@ -14,13 +8,11 @@ import type {
 	AutocompleteStore,
 	FinderStore,
 	RecommendationStore,
-	QuickviewStore,
 	StoreConfig,
 	SearchStoreConfig,
 	FinderStoreConfig,
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
-	QuickviewStoreConfig,
 	Product,
 	QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
@@ -78,14 +70,15 @@ export type RestorePositionObj = {
 	controller: AbstractController;
 	element?: ElementPositionObj;
 };
+
 export type ProductQuickviewObj = {
-	controller: SearchController | AutocompleteController | RecommendationController | QuickviewController;
+	controller: SearchController | AutocompleteController | RecommendationController;
 	result: Product;
 	productsData?: ProductsResponseModel;
 	config: QuickviewConfig;
 };
 
-// Overrides passed to `track.*` methods. `quickView` is set by QuickviewController when
+// Overrides passed to `track.*` methods. `quickView` is set by the QuickviewManager when
 // delegating tracking calls to the originating (source) controller, so the resulting beacon
 // event is flagged as having occurred within the quickview modal rather than the source page.
 export type TrackEventOverrides = {
@@ -103,19 +96,21 @@ export enum ControllerTypes {
 	autocomplete = 'autocomplete',
 	finder = 'finder',
 	recommendation = 'recommendation',
-	quickview = 'quickview',
 }
 
-export type Controllers = SearchController | AutocompleteController | FinderController | RecommendationController | QuickviewController;
+export type Controllers = SearchController | AutocompleteController | FinderController | RecommendationController;
 
 export type ControllerServices = {
 	client: Client;
-	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | QuickviewStore;
+	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore;
 	urlManager: UrlManager;
 	eventManager: EventManager;
 	profiler: Profiler;
 	logger: Logger;
 	tracker: Tracker;
+	// Optional: only controllers wired to a quickview manager can open the quickview modal.
+	// Shared across every controller in a Snap instance — one modal, many openers.
+	quickview?: QuickviewManager;
 };
 
 export type Attachments = {
@@ -150,12 +145,5 @@ export type FinderControllerConfig = ControllerConfig & FinderStoreConfig;
 export type AutocompleteControllerConfig = ControllerConfig & AutocompleteStoreConfig;
 // Recommendation config
 export type RecommendationControllerConfig = ControllerConfig & RecommendationStoreConfig;
-// Quickview config
-export type QuickviewControllerConfig = ControllerConfig & QuickviewStoreConfig;
 
-export type ControllerConfigs =
-	| SearchControllerConfig
-	| AutocompleteControllerConfig
-	| FinderControllerConfig
-	| RecommendationControllerConfig
-	| QuickviewControllerConfig;
+export type ControllerConfigs = SearchControllerConfig | AutocompleteControllerConfig | FinderControllerConfig | RecommendationControllerConfig;

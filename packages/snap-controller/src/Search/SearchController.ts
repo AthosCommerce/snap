@@ -118,12 +118,8 @@ export class SearchController extends AbstractController {
 		};
 	} = {};
 
-	constructor(
-		config: SearchControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
-		context?: ContextVariables
-	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+	constructor(config: SearchControllerConfig, services: ControllerServices, context?: ContextVariables) {
+		super(config, services, context);
 
 		// deep merge config with defaults
 		this.config = deepmerge(defaultConfig, this.config);

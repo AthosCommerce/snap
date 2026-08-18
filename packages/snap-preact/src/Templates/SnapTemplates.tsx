@@ -11,16 +11,10 @@ import { TargetStore } from './Stores/TargetStore';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { type AutocompleteStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type {
-	AutocompleteController,
-	PluginFunction,
-	PluginGrouping,
-	QuickviewControllerConfig,
-	SearchController,
-} from '@athoscommerce/snap-controller';
+import type { AutocompleteController, PluginFunction, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
 import type { RecommendationComponentObject, RecommendationInstantiatorConfig } from '../Instantiators/RecommendationInstantiator';
 import type { SnapFeatures } from '../types';
-import type { SnapConfig, ExtendedTarget, SnapConfigControllerDefinition } from '../Snap';
+import type { SnapConfig, ExtendedTarget } from '../Snap';
 import type {
 	AutocompleteTargetConfig,
 	CustomPlugins,
@@ -382,7 +376,7 @@ export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, te
 
 	return targetConfigs.map((targetConfig, index) => {
 		// Quickview isn't part of the editable targets registry (it's appended to <body> and driven by the
-		// QuickviewController), so build a TargetStore directly rather than via addTarget. This lets the
+		// QuickviewManager), so build a TargetStore directly rather than via addTarget. This lets the
 		// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
 		// provides the global templates ThemeProvider. Without it the quickview renders outside the
 		// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
@@ -610,20 +604,16 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
 	}
 
-	/* QUICKVIEW CONTROLLER — always present; injects quickview component(s) into <body>. */
-	if (snapConfig.controllers) {
-		const settings = templateConfig.quickview?.settings;
+	/* QUICKVIEW MANAGER — always present; injects quickview component(s) into <body>. */
+	const quickviewSettings = templateConfig.quickview?.settings;
 
-		const quickviewControllerConfig: SnapConfigControllerDefinition<QuickviewControllerConfig> = {
-			config: {
-				id: 'quickview',
-				...(settings ? { settings } : {}),
-			},
-			targeters: createQuickviewTargeters(templateConfig, templatesStore),
-		};
-
-		snapConfig.controllers.quickview = [quickviewControllerConfig];
-	}
+	snapConfig.quickview = {
+		config: {
+			id: 'quickview',
+			...(quickviewSettings ? { settings: quickviewSettings } : {}),
+		},
+		targeters: createQuickviewTargeters(templateConfig, templatesStore),
+	};
 
 	return snapConfig;
 }

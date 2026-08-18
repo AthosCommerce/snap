@@ -1,7 +1,7 @@
 # QuickviewStore
-The quickview store holds the state for the product quickview modal. It extends the AbstractStore and is the `store` of the dedicated `QuickviewController` — it is reached at `quickviewController.store`.
+The quickview store holds the state for the product quickview modal. It extends the AbstractStore and is the `store` of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) — it is reached at `window.athos.quickview.store`.
 
-The store is typically driven by the `QuickviewController`, which opens it in a loading state, fetches additional product data from `/v1/products`, and then calls `update` to populate the modal. Other controllers (`SearchController`, `AutocompleteController`, `RecommendationController`) trigger this flow via their `quickview(result)` method, which fires the global `controller/quickview` event.
+The store is typically driven by the `QuickviewManager`, which opens it in a loading state, fetches additional product data from `/v1/products`, and then calls `update` to populate the modal. Controllers (`SearchController`, `AutocompleteController`, `RecommendationController`) trigger this flow via their `quickview(result)` method, which forwards to the manager.
 
 ## Constructor
 The store is constructed with a `QuickviewStoreConfig` (the standard `StoreConfig` plus an optional `settings.quickview` of type `QuickviewConfig`). The config is stored on the inherited `config` property.
@@ -18,7 +18,7 @@ During the loading phase this is set to the source result that triggered the qui
 Boolean stating whether the modal should be rendered. Set to `true` by `update`, `setLoading(true, ...)`, and `setError(error)`; set to `false` by `close` and `reset`.
 
 ## `loading` property
-Inherited from the AbstractStore. `true` while the `QuickviewController` is awaiting `/v1/products`; the modal renders a loading branch in this state. Cleared by `update`, `setError`, and `reset`.
+Inherited from the AbstractStore. `true` while the `QuickviewManager` is awaiting `/v1/products`; the modal renders a loading branch in this state. Cleared by `update`, `setError`, and `reset`.
 
 ## `quickviewConfig` property
 The per-quickview `QuickviewConfig` for the currently-open modal, set on each `update()` and read by the modal (e.g. `displayFields`, `imagesField`). This is the effective config (controller-level `settings.quickview` defaults merged with the per-call override). It is distinct from the store-level `config` property (the `QuickviewStoreConfig`).
@@ -35,9 +35,6 @@ The per-quickview `QuickviewConfig` for the currently-open modal, set on each `u
 ## `error` property
 A `QuickviewError` (`{ message: string, cause?: unknown }`) or `undefined`. When set, the modal renders an error branch (with `role="alert"`) instead of the product. Cleared by `update`, `setLoading(true, ...)`, `setError(undefined)`, and `reset`.
 
-## `meta` property
-A `MetaStore` reference forwarded from the originating controller's store, so badge and facet-label consumers (e.g. `OverlayBadge`, attribute facet labels) can read `store.meta` off the quickview singleton.
-
 ## `update` method
 `update({ result, productsData?, config?, storeConfig?, meta? })`
 
@@ -49,7 +46,7 @@ Builds (or reuses) the `Product` instance, applies variants from `productsData`,
 | `productsData` | Data from `/v1/products`: `{ mappings?: { core? }, variants?: { data?, optionConfig? } }`. When it contains `variants.data` (and the product has a `Variants` instance), the variants are updated with `autoSelect: true` so a default variant is picked as soon as the data arrives; `variants.optionConfig` is applied first so each selection gets its configured `type` (`dropdown`/`swatches`) and `count`. |
 | `config` | Per-quickview `QuickviewConfig` (see above). Stored on `quickviewConfig`. Honors `config.clone` (default `true`). |
 | `storeConfig` | Optional store-config passthrough, used when cloning so the clone's variants pick up the existing `settings.variants` configuration. |
-| `meta` | Optional raw meta data passthrough for badges processing on the cloned product. |
+| `meta` | Optional raw meta data passthrough for badges processing on the cloned product. The store does not retain it — badge and facet-label consumers read meta off the originating controller's store (`quickviewManager.sourceController.store.meta`). |
 
 After running, `product` and `quickviewConfig` are set, `isOpen` is `true`, and `loading` and `error` are cleared.
 

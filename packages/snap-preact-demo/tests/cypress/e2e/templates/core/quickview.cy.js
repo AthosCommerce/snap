@@ -51,11 +51,17 @@ describe('ProductQuickview', () => {
 	});
 
 	it('renders variant selectors when the product has variants', () => {
-		// Defensive: only some demo products carry variants. If they do, the modal
-		// should render at least one VariantSelection; otherwise we skip this assertion.
-		cy.snapController().then(({ store }) => {
-			const product = store.quickview && store.quickview.product;
-			const selections = product && product.variants && product.variants.selections;
+		// The displayed product lives on the quickview manager's store, not on any controller.
+		// Assert the manager and product resolve first, so this test can never silently pass
+		// without having looked at anything.
+		cy.window().then((win) => {
+			expect(win.athos.quickview, 'quickview manager on window.athos').to.exist;
+			const product = win.athos.quickview.store.product;
+			expect(product, 'open quickview product').to.exist;
+
+			// Only some demo products carry variants. If this one does, the modal should render
+			// at least one VariantSelection.
+			const selections = product.variants && product.variants.selections;
 			if (selections && selections.length > 0) {
 				cy.get(config.selectors.variants).should('have.length.greaterThan', 0);
 			}

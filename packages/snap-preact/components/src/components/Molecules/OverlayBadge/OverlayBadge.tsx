@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../providers';
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
-import type { AutocompleteController, RecommendationController, SearchController, QuickviewController } from '@athoscommerce/snap-controller';
+import type { AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
 import { useComponent, useCustomComponentOverride } from '../../../hooks';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
@@ -181,7 +181,7 @@ export const OverlayBadge = observer((properties: OverlayBadgeProps) => {
 
 export type OverlayBadgeProps = {
 	result: Product;
-	controller: SearchController | AutocompleteController | RecommendationController | QuickviewController;
+	controller: SearchController | AutocompleteController | RecommendationController;
 } & OverlayBadgeTemplatesLegalProps &
 	ComponentProps<OverlayBadgeProps>;
 

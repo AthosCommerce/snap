@@ -1414,29 +1414,95 @@ describe('Snap Preact', () => {
 		});
 	});
 
-	describe('creates quickview controllers via config', () => {
-		it('creates a quickview controller and registers it on window.athos.controller', async () => {
+	describe('creates the quickview manager via config', () => {
+		it('creates a quickview manager and registers it on window.athos.quickview', async () => {
 			const baseConfig = generateBaseConfig();
-			const quickviewConfig = {
+			const snap = new Snap({ ...baseConfig, quickview: { config: { id: 'quickview' } } });
+
+			expect(snap.quickview).toBeDefined();
+			expect(snap.quickview!.type).toBe('quickview');
+			expect(snap.quickview!.config.id).toBe('quickview');
+
+			expect(window.athos.quickview).toBeDefined();
+			expect(window.athos.quickview).toBe(snap.quickview);
+		});
+
+		it('defaults the manager config when none is provided', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({ ...baseConfig, quickview: {} });
+
+			expect(snap.quickview!.config.id).toBe('quickview');
+		});
+
+		it('does not create a manager when there is no quickview config', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap(baseConfig);
+
+			expect(snap.quickview).toBeUndefined();
+			expect(window.athos.quickview).toBeUndefined();
+		});
+
+		it('passes the manager to controllers as the quickview service', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
+				...baseConfig,
+				quickview: { config: { id: 'quickview' } },
+				controllers: {
+					search: [{ config: { id: 'search' } }],
+				},
+			});
+
+			// created ahead of the controllers, so the service is there from construction
+			const search = await snap.getController('search');
+			expect(search.quickviewManager).toBe(snap.quickview);
+
+			const autocomplete = await snap.createController('autocomplete', { id: 'ac', selector: '#ac-input' });
+			expect(autocomplete.quickviewManager).toBe(snap.quickview);
+		});
+
+		it('leaves controllers without a manager when there is no quickview config', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
 				...baseConfig,
 				controllers: {
-					quickview: [
-						{
-							config: {
-								id: 'quickview',
-							},
-						},
-					],
+					search: [{ config: { id: 'search' } }],
 				},
-			};
-			const snap = new Snap(quickviewConfig);
+			});
 
-			const quickview = await snap.getController('quickview');
-			expect(quickview.id).toBe('quickview');
-			expect(quickview.type).toBe('quickview');
+			const search = await snap.getController('search');
+			expect(search.quickviewManager).toBeUndefined();
+		});
 
-			expect(window.athos.controller['quickview']).toBeDefined();
-			expect(window.athos.controller['quickview'].type).toBe('quickview');
+		it('renders a targeted component with the manager', async () => {
+			const baseConfig = generateBaseConfig();
+
+			const QuickviewComponent = jest.fn((_props: Record<string, unknown>) => null);
+			const snap = new Snap({
+				...baseConfig,
+				quickview: {
+					config: { id: 'quickview' },
+					targeters: [{ selector: '#athos-content', component: () => QuickviewComponent }],
+				},
+			});
+
+			await wait(50);
+
+			expect(QuickviewComponent).toHaveBeenCalled();
+			expect(QuickviewComponent.mock.calls[0][0]).toEqual(expect.objectContaining({ quickviewManager: snap.quickview, snap }));
+		});
+
+		it('logs an error when a quickview targeter is missing a selector or component', async () => {
+			const baseConfig = generateBaseConfig();
+			const logger = new Logger();
+			const spy = jest.spyOn(logger, 'error');
+
+			// @ts-ignore - intentionally invalid targeter
+			new Snap({ ...baseConfig, quickview: { targeters: [{ component: () => Component }] } }, { logger });
+			expect(spy).toHaveBeenCalledTimes(1);
+
+			// @ts-ignore - intentionally invalid targeter
+			new Snap({ ...baseConfig, quickview: { targeters: [{ selector: '#athos-content' }] } }, { logger });
+			expect(spy).toHaveBeenCalledTimes(2);
 		});
 	});
 

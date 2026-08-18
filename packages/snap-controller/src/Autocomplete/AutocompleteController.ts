@@ -107,12 +107,8 @@ export class AutocompleteController extends AbstractController {
 		};
 	} = {};
 
-	constructor(
-		config: AutocompleteControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
-		context?: ContextVariables
-	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+	constructor(config: AutocompleteControllerConfig, services: ControllerServices, context?: ContextVariables) {
+		super(config, services, context);
 
 		// deep merge config with defaults
 		this.config = deepmerge(defaultConfig, this.config);

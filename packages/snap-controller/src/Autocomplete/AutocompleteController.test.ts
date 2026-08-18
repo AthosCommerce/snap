@@ -1883,17 +1883,10 @@ describe('Autocomplete Controller quickview', () => {
 
 		urlManager = new UrlManager(new QueryStringTranslator({ queryParameter: 'search_query' }), reactLinker);
 		services = { urlManager };
-		originalAthos = (window as any).athos;
 	});
 
-	afterEach(() => {
-		(window as any).athos = originalAthos;
-	});
-
-	it('quickview fires controller/quickview with the core parentId and the originating controller', async () => {
-		const fire = jest.fn();
-		// @ts-ignore
-		window.athos = { fire };
+	it('quickview forwards the result and itself to the quickview manager', async () => {
+		const show = jest.fn();
 		const controller = new AutocompleteController(acConfig, {
 			client: new MockClient(globals, {}),
 			store: new AutocompleteStore(acConfig, services),
@@ -1902,35 +1895,17 @@ describe('Autocomplete Controller quickview', () => {
 			profiler: new Profiler(),
 			logger: new Logger(),
 			tracker: new Tracker(globals),
+			quickview: { show } as any,
 		});
 
 		const result: any = { id: 'ac-child-1', mappings: { core: { parentId: 'ac-parent-1' } } };
 		await controller.quickview(result);
 
-		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'ac-parent-1', controller }));
+		expect(show).toHaveBeenCalledWith(result, expect.objectContaining({ controller }));
 
 		const fallbackResult: any = { id: 'ac-1' };
 		await controller.quickview(fallbackResult);
 
-		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'ac-1', controller }));
-	});
-
-	it('quickview warns and does not fire when no result provided', async () => {
-		const fire = jest.fn();
-		// @ts-ignore
-		window.athos = { fire };
-		const controller = new AutocompleteController(acConfig, {
-			client: new MockClient(globals, {}),
-			store: new AutocompleteStore(acConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		await controller.quickview(undefined as any);
-
-		expect(fire).not.toHaveBeenCalled();
+		expect(show).toHaveBeenCalledWith(fallbackResult, expect.objectContaining({ controller }));
 	});
 });

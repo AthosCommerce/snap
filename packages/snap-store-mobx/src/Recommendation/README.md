@@ -40,9 +40,9 @@ See [SearchStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-
 
 ## Quickview
 
-`RecommendationStore` no longer exposes a `quickview` property. The `QuickviewStore` is now the store of the dedicated `QuickviewController` and is reached at `quickviewController.store`. It holds the state for the product quickview modal:
+`RecommendationStore` no longer exposes a `quickview` property. The `QuickviewStore` is now the store of the shared `QuickviewManager` and is reached at `window.athos.quickview.store`. It holds the state for the product quickview modal:
 
 - Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `quickviewConfig?: QuickviewConfig`, `error?: QuickviewError`.
 - Actions: `update({ result, productsData?, config?, storeConfig?, meta? })`, `close()`, `reset()`, `setLoading(loading, product?)`, `setError(error | undefined)`.
 
-`RecommendationController` still exposes a `quickview(result)` method that fires the global `controller/quickview` event handled by the `QuickviewController`. See the [RecommendationController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Recommendation) for the full usage, and the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the complete observable surface.
+`RecommendationController` still exposes a `quickview(result)` method that forwards to the `QuickviewManager`. See the [RecommendationController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Recommendation) for the full usage, and the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the complete observable surface.

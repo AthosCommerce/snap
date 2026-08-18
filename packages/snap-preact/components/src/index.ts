@@ -41,9 +41,6 @@ export * from './components/Molecules/OverlayBadge';
 export * from './components/Molecules/Pagination';
 export * from './components/Molecules/PerPage';
 export * from './components/Molecules/ProductDetailTable';
-export * from './components/Organisms/QuickviewLayout';
-export * from './components/Templates/ProductQuickviewModal';
-export * from './components/Templates/ProductQuickviewSlideout';
 export * from './components/Molecules/Gallery';
 export * from './components/Molecules/Radio';
 export * from './components/Molecules/RadioList';
@@ -73,6 +70,8 @@ export * from './components/Organisms/Autocomplete';
 export * from './components/Organisms/TermsList';
 
 // TEMPLATES
+export * from './components/Templates/ProductQuickviewModal';
+export * from './components/Templates/ProductQuickviewSlideout';
 export * from './components/Templates/Recommendation';
 export * from './components/Templates/RecommendationBundle';
 export * from './components/Templates/RecommendationBundleEasyAdd';

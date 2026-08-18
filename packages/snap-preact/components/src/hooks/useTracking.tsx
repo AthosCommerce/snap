@@ -1,11 +1,12 @@
 import { Banner, BannerContent, ContentType, MerchandisingContentBanner, Product } from '@athoscommerce/snap-store-mobx';
-import type { SearchController, AutocompleteController, RecommendationController, QuickviewController } from '@athoscommerce/snap-controller';
+import type { SearchController, AutocompleteController, RecommendationController, QuickviewManager } from '@athoscommerce/snap-controller';
 import { useEffect, type MutableRef } from 'preact/hooks';
 import { createImpressionObserver } from '../utilities';
 import { TRACKING_ATTRIBUTE } from '../providers/withTracking';
+import { UseIntersectionOptions } from './useIntersectionAdvanced';
 
 interface UseTrackingProps {
-	controller: SearchController | AutocompleteController | RecommendationController | QuickviewController;
+	controller: SearchController | AutocompleteController | RecommendationController | QuickviewManager;
 	result: Product;
 	banner?: Banner;
 	type?: ContentType;
@@ -13,6 +14,7 @@ interface UseTrackingProps {
 	track?: {
 		impression?: boolean;
 		click?: boolean;
+		options?: UseIntersectionOptions;
 	};
 }
 
@@ -34,7 +36,7 @@ export function useTracking({ controller, result, banner, type, content, track }
 		...track,
 	};
 
-	const { ref, inViewport } = createImpressionObserver();
+	const { ref, inViewport } = createImpressionObserver(track?.options);
 	useEffect(() => {
 		if (inViewport && mergedTrack.impression) {
 			if (type && content && !result && ['search', 'autocomplete'].includes(controller?.type || '')) {

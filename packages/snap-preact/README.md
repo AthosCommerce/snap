@@ -186,7 +186,6 @@ Available controllers:
 - [AutocompleteController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete)
 - [FinderController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Finder)
 - [RecommendationController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Recommendation)
-- [QuickviewController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview)
 
 ```js
 const config = {
@@ -269,25 +268,34 @@ const snap = new Snap(config);
 const { search } = snap.controllers;
 ```
 
-#### quickview controllers
-Quickview controllers defined under `config.controllers.quickview` behave slightly differently from the other controller types. If a quickview controller entry has no `targeters` (or an empty `targeters` array), the controller is still created immediately. This is done so that the controller is available for the global `controller/quickview` event (see below) without requiring a DOM target.
+#### quickview
+Quickview is configured at the top level of the config, not under `controllers` — the [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) is not a controller. It is created eagerly, before any controller, and passed to each one as the `quickview` service — which is what backs every controller's inherited `quickview(result)` method. It is also published at `snap.quickview` and `window.athos.quickview` for external access.
 
 ```js
 const config = {
-	controllers: {
-		quickview: [
+	quickview: {
+		config: {
+			id: 'quickview',
+		},
+		targeters: [
 			{
-				config: {
-					id: 'quickview',
+				selector: 'body',
+				inject: {
+					action: 'append',
+					element: () => {
+						const el = document.createElement('div');
+						el.id = 'athos-quickview';
+						return el;
+					},
 				},
+				component: async () => (await import('@athoscommerce/snap-preact/components')).ProductQuickviewModal,
 			},
 		],
 	},
 }
 ```
 
-##### controller/quickview event
-Snap Preact registers a global `controller/quickview` event handler on the shared `eventManager`. When the event is fired (for example, by calling `controller.quickview(result)` on any controller — this fires `controller/quickview` via the integration global), the handler looks through all registered controllers (`window.athos.controller`) for a controller of type `quickview` (regardless of its `id`) and invokes its `quickview()` method with the event data. If no quickview-type controller has been created, a console warning is logged and the event is ignored.
+Targeted components receive the manager as a `quickviewManager` prop (alongside `snap`). Both `config` and `targeters` are optional: with no config the manager defaults to `{ id: 'quickview' }`, and with no targeters nothing is rendered but the manager still exists for programmatic use.
 
 ## properties
 After instantiating an instance of Snap, the following properties can be accessed. 

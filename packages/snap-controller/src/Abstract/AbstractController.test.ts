@@ -12,8 +12,8 @@ import { DomTargeter } from '@athoscommerce/snap-toolbox';
 
 import { AbstractController } from './AbstractController';
 import { FinderController } from '../Finder/FinderController';
-import { QuickviewController } from '../Quickview/QuickviewController';
-import { FinderStore, QuickviewStore } from '@athoscommerce/snap-store-mobx';
+import { SearchController } from '../Search/SearchController';
+import { FinderStore } from '@athoscommerce/snap-store-mobx';
 import type { ControllerConfig } from '../types';
 
 describe('Search Controller', () => {
@@ -566,59 +566,66 @@ describe('Search Controller', () => {
 	});
 
 	describe('AbstractController quickview', () => {
-		let originalAthos: any;
+		const result: any = { id: 'child-1', type: 'product', mappings: { core: { parentId: 'parent-1' } } };
 
-		beforeEach(() => {
-			originalAthos = (window as any).athos;
-		});
-
-		afterEach(() => {
-			(window as any).athos = originalAthos;
-		});
-
-		it('fires the global event with correct payload', async () => {
-			const fire = jest.fn();
-			(window as any).athos = { fire };
-
-			const finderConfig = {
-				id: 'test-finder',
-				url: '',
-				fields: [{ field: 'category' }],
-			};
-
+		// A search controller is the realistic opener: the manager delegates add-to-cart and product
+		// tracking back to whoever opened the quickview, which finder controllers cannot service.
+		const searchController = (quickview?: any) => {
+			const config = { id: 'test-search' };
 			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
-			const finderServices = { urlManager };
 
-			const controller = new FinderController(finderConfig, {
+			return new SearchController(config, {
 				client: new MockClient(globals, {}),
-				store: new FinderStore(finderConfig, finderServices),
+				store: new SearchStore(config, { urlManager }),
 				urlManager,
 				eventManager: new EventManager(),
 				profiler: new Profiler(),
 				logger: new Logger(),
 				tracker: new Tracker(globals),
+				quickview,
 			});
+		};
 
-			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
+		it('forwards to the injected quickview manager with the result, products data and itself', async () => {
+			const show = jest.fn();
+			const controller = searchController({ show });
+
 			const productsData: any = { variants: { data: [] } };
 
 			await controller.quickview(result, productsData, { displayFields: ['color'] });
 
-			expect(fire).toHaveBeenCalledTimes(1);
-			expect(fire).toHaveBeenCalledWith(
-				'controller/quickview',
+			// a thin forwarder — the manager derives parentId, meta and the effective config itself
+			expect(show).toHaveBeenCalledTimes(1);
+			expect(show).toHaveBeenCalledWith(
+				result,
 				expect.objectContaining({
-					result,
 					productsData,
-					parentId: 'parent-1',
+					config: { displayFields: ['color'] },
 					controller,
 				})
 			);
 		});
 
-		it('warns when the global is missing', async () => {
-			delete (window as any).athos;
+		it('exposes the injected manager as quickviewManager', () => {
+			const manager = { show: jest.fn() };
+			expect(searchController(manager).quickviewManager).toBe(manager);
+		});
 
+		it('warns when no quickview service was passed', async () => {
+			const controller = searchController();
+			const spy = jest.spyOn(controller.log, 'warn');
+
+			await controller.quickview(result);
+
+			expect(spy).toHaveBeenCalledWith(`quickview ignored — no 'quickview' service was passed to this controller`);
+		});
+
+		it('throws when the quickview service cannot show', () => {
+			expect(() => searchController({})).toThrow(`Invalid service 'quickview' passed to controller. Missing "show" function.`);
+		});
+
+		it('warns and does not forward for controller types that cannot open the quickview', async () => {
+			const show = jest.fn();
 			const finderConfig = {
 				id: 'test-finder',
 				url: '',
@@ -626,53 +633,25 @@ describe('Search Controller', () => {
 			};
 
 			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
-			const finderServices = { urlManager };
 
 			const controller = new FinderController(finderConfig, {
 				client: new MockClient(globals, {}),
-				store: new FinderStore(finderConfig, finderServices),
+				store: new FinderStore(finderConfig, { urlManager }),
 				urlManager,
 				eventManager: new EventManager(),
 				profiler: new Profiler(),
 				logger: new Logger(),
 				tracker: new Tracker(globals),
+				quickview: { show } as any,
 			});
 
 			const spy = jest.spyOn(controller.log, 'warn');
-			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 
 			await controller.quickview(result);
 
-			expect(spy).toHaveBeenCalledWith(`quickview ignored — no 'athos' integration global found on window`);
-		});
-
-		it('QuickviewController override does not call the global fire', async () => {
-			const fire = jest.fn();
-			(window as any).athos = { fire };
-
-			const quickviewServices = {
-				store: new QuickviewStore({ id: 'quickview' }),
-				client: { search: jest.fn(), products: jest.fn().mockResolvedValue({ variants: { data: [] } }) } as any,
-				urlManager: { subscribe: () => {}, detach: () => ({ subscribe: () => {} }) } as any,
-				eventManager: { fire: jest.fn().mockResolvedValue(undefined), on: jest.fn() } as any,
-				profiler: { create: () => ({ stop: () => {} }), setNamespace: () => {} } as any,
-				logger: { dev: () => {}, warn: () => {}, error: () => {}, setNamespace: () => {} } as any,
-				tracker: { track: {} } as any,
-			};
-
-			const controller = new QuickviewController({ id: 'quickview' }, quickviewServices as any);
-			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
-
-			await controller.quickview(result, undefined, undefined, { parentId: 'parent-1' });
-
-			expect(fire).not.toHaveBeenCalled();
-			expect(quickviewServices.eventManager.fire).toHaveBeenCalledWith(
-				'quickview',
-				expect.objectContaining({
-					controller,
-					result,
-				})
-			);
+			// finder has no addToCart or product tracking for the manager to delegate back to
+			expect(show).not.toHaveBeenCalled();
+			expect(spy).toHaveBeenCalledWith(`quickview ignored — 'finder' controllers cannot open the quickview`);
 		});
 	});
 });

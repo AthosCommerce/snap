@@ -64,10 +64,10 @@ import { QuickviewLayout } from './QuickviewLayout';
 import { useSnap } from '../../../providers';
 import { useComponent, useCreateController } from '../../../hooks';
 
-// Build a controller-shaped object whose `store` mirrors the QuickviewStore API the
+// Build a manager-shaped object whose `store` mirrors the QuickviewStore API the
 // component reads. Tests set modal state directly on `store`. The shape matches what a
-// real QuickviewController exposes via QuickviewStore.
-function makeController(overrides: any = {}) {
+// real QuickviewManager exposes via QuickviewStore.
+function makeQuickviewManager(overrides: any = {}) {
 	const defaultStore = {
 		isOpen: false,
 		product: undefined,
@@ -81,21 +81,29 @@ function makeController(overrides: any = {}) {
 		product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() },
 	};
 
-	const controller: any = {
+	// The layout reads facet display labels off the controller that opened the quickview, not
+	// off the quickview store — `sourceController.store.meta` is where they live.
+	const defaultSourceController = {
+		store: { meta: { data: { facets: {} } } },
+		log: { warn: jest.fn(), error: jest.fn() },
+	};
+
+	const quickviewManager: any = {
 		type: 'quickview',
 		store: defaultStore,
 		track: defaultTrack,
+		sourceController: defaultSourceController,
 		...overrides,
 	};
 
 	// Merge override store properties into default store
 	if (overrides.store) {
-		controller.store = { ...defaultStore, ...overrides.store };
+		quickviewManager.store = { ...defaultStore, ...overrides.store };
 	}
 
-	controller.store.close ??= jest.fn();
-	const close = controller.store.close;
-	return { controller, close };
+	quickviewManager.store.close ??= jest.fn();
+	const close = quickviewManager.store.close;
+	return { quickviewManager, close };
 }
 
 describe('QuickviewLayout', () => {
@@ -106,8 +114,8 @@ describe('QuickviewLayout', () => {
 	});
 
 	it('renders nothing visible when closed', () => {
-		const { controller } = makeController();
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const { quickviewManager } = makeQuickviewManager();
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
 	});
 
@@ -116,11 +124,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Widget', thumbnailImageUrl: 'http://example.com/widget.jpg' } },
 			attributes: { color: 'red', size: 'M' },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product, quickviewConfig: { displayFields: ['color', 'size'] } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.getByText('Widget')).toBeInTheDocument();
 		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
@@ -134,11 +142,11 @@ describe('QuickviewLayout', () => {
 
 	it('invokes store.close when the close button is clicked', () => {
 		const product = { mappings: { core: { name: 'Widget' } }, attributes: {} };
-		const { controller, close } = makeController({
+		const { quickviewManager, close } = makeQuickviewManager({
 			store: { isOpen: true, product, close: jest.fn() },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 		const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
 		expect(closeButton).not.toBeNull();
 		fireEvent.click(closeButton);
@@ -148,11 +156,11 @@ describe('QuickviewLayout', () => {
 
 	it('opens when the store quickview is open and renders the product', () => {
 		const storeProduct = { id: 'mine', mappings: { core: { name: 'Mine' } }, attributes: { size: 'M' } };
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
@@ -161,7 +169,7 @@ describe('QuickviewLayout', () => {
 	it('renders a loading indicator when store.loading is true', () => {
 		// During loading the store holds the source result as `product` (set by setLoading)
 		// before the cloned/fetched product replaces it.
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
 				loading: true,
@@ -169,7 +177,7 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__loading')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__product-quickview__title')).toBeNull();
@@ -181,7 +189,7 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: { color: 'red', size: 'M' },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
 				loading: false,
@@ -190,7 +198,7 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.getByText('size')).toBeInTheDocument();
 		expect(rendered.getByText('M')).toBeInTheDocument();
@@ -204,16 +212,21 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: { color: 'red', size: 'M' },
 		};
-		const { controller } = makeController({
-			store: {
-				meta: {
-					data: {
-						facets: {
-							size: { label: 'Size' },
-							color: { label: 'Color' },
+		const { quickviewManager } = makeQuickviewManager({
+			sourceController: {
+				store: {
+					meta: {
+						data: {
+							facets: {
+								size: { label: 'Size' },
+								color: { label: 'Color' },
+							},
 						},
 					},
 				},
+				log: { warn: jest.fn(), error: jest.fn() },
+			},
+			store: {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
@@ -221,7 +234,7 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// Pretty labels are rendered…
 		expect(rendered.getByText('Size')).toBeInTheDocument();
@@ -237,11 +250,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: { sku: 'ABC-123' },
 		};
-		const { controller } = makeController({
-			store: { meta: { data: { facets: {} } }, isOpen: true, loading: false, product: storeProduct, quickviewConfig: { displayFields: ['sku'] } },
+		const { quickviewManager } = makeQuickviewManager({
+			store: { isOpen: true, loading: false, product: storeProduct, quickviewConfig: { displayFields: ['sku'] } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.getByText('sku')).toBeInTheDocument();
 		expect(rendered.getByText('ABC-123')).toBeInTheDocument();
@@ -253,7 +266,7 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: { tags: ['new', 'sale', 'featured'] },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
 				loading: false,
@@ -262,7 +275,7 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.getByText('new, sale, featured')).toBeInTheDocument();
 	});
@@ -277,7 +290,7 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: { tags: observableTags },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
 				loading: false,
@@ -286,7 +299,7 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.getByText('new, sale, featured')).toBeInTheDocument();
 	});
@@ -294,7 +307,7 @@ describe('QuickviewLayout', () => {
 	it('mounts during error state while the store is open (source product retained)', () => {
 		// On error the store still holds the source result as `product` (setLoading set it,
 		// update never replaced it), so the shared modal mounts and shows the error message.
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
 				loading: false,
@@ -303,12 +316,12 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 		expect(rendered.container.querySelector('.ss__product-quickview__error')).not.toBeNull();
 	});
 
 	it('renders the error message when quickview.error is set', () => {
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
 				loading: false,
@@ -317,7 +330,7 @@ describe('QuickviewLayout', () => {
 			},
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const errorEl = rendered.container.querySelector('.ss__product-quickview__error');
 		expect(errorEl).not.toBeNull();
@@ -339,11 +352,11 @@ describe('QuickviewLayout', () => {
 			},
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -357,11 +370,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: { gallery: ['http://example.com/a.jpg', 'http://example.com/b.jpg'] },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'gallery' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -374,11 +387,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', images: observable.array(['http://example.com/a.jpg', 'http://example.com/b.jpg']) } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -391,11 +404,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', images: ['http://example.com/only.jpg'] } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// A single image renders as a one-slide Slideshow (not a multi-image carousel).
 		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
@@ -409,11 +422,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', images: ['http://example.com/a.jpg', 'http://example.com/b.jpg'] } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// No imagesField configured → default candidate 'images' has >1 → carousel.
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
@@ -429,11 +442,11 @@ describe('QuickviewLayout', () => {
 			},
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -453,11 +466,11 @@ describe('QuickviewLayout', () => {
 			},
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: ['primaryImages', 'gallery'] } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -471,11 +484,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// No images/ss_images present → single core image renders as one slide.
 		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
@@ -491,11 +504,11 @@ describe('QuickviewLayout', () => {
 			},
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
 		expect(imgs).toHaveLength(3);
@@ -510,11 +523,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', images: ['http://example.com/only.jpg'] } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// One image in the list → fall back to the single core image, rendered as one slide.
 		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
@@ -554,11 +567,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color', label: 'Color', selected: { value: 'Blue' }, values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// The active variant has no own images array, so only the single variant image renders (one slide).
 		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
@@ -595,11 +608,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color', label: 'Color', selected: { value: 'Blue' }, values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
 		expect(carousel).not.toBeNull();
@@ -615,11 +628,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: { color: 'red' },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { displayFields: ['color'] } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const slideshowColumn = rendered.container.querySelector('.ss__quickview-layout__column--c1');
 		const detailsColumn = rendered.container.querySelector('.ss__quickview-layout__column--c2');
@@ -641,13 +654,13 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', price: 20 } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(
 			<QuickviewLayout
-				controller={controller}
+				quickviewManager={quickviewManager}
 				layout={[['c1', 'c2', 'c3', 'c4']]}
 				column1={{ layout: ['slideshow'], width: '25%' }}
 				column2={{ layout: [['productDetail.mappings.core.name']], width: '25%' }}
@@ -678,13 +691,13 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
 		const rendered = render(
 			<QuickviewLayout
-				controller={controller}
+				quickviewManager={quickviewManager}
 				layout={[['c3', 'c4']]}
 				// c3 renders the More info button, but the product has no url → empty → collapses.
 				column3={{ layout: [['button.more-info']], width: '50%' }}
@@ -699,19 +712,19 @@ describe('QuickviewLayout', () => {
 		expect(c4!.querySelector('.ss__product-quickview__title')).not.toBeNull();
 	});
 
-	it('renders an Add to Cart button that calls controller.addToCart with the product', () => {
+	it('renders an Add to Cart button that calls quickviewManager.addToCart with the product', () => {
 		const addToCart = jest.fn();
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			addToCart,
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const button = rendered.container.querySelector('.ss__product-quickview__add-to-cart') as HTMLElement;
 		expect(button).not.toBeNull();
@@ -727,11 +740,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', description: '<p>A great product.</p>' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const desc = rendered.container.querySelector('.ss__product-quickview__description');
 		expect(desc).not.toBeNull();
@@ -744,11 +757,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__description')).toBeNull();
 	});
@@ -760,11 +773,11 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 			variants: { selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }] },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const vs = rendered.container.querySelector('.ss__variant-selection-mock[data-field="color"]');
 		expect(vs).not.toBeNull();
@@ -778,11 +791,11 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 			variants: { selections: [{ field: 'size', type: 'dropdown', values: [], select: () => undefined }] },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const vs = rendered.container.querySelector('.ss__variant-selection-mock[data-field="size"]');
 		expect(vs!.getAttribute('data-type')).toBe('dropdown');
@@ -795,11 +808,11 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 			variants: { selections: [{ field: 'color', values: [], select: () => undefined }] },
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const vs = rendered.container.querySelector('.ss__variant-selection-mock[data-field="color"]');
 		// Empty data-type → QuickviewLayout passed `undefined`, letting VariantSelection default.
@@ -815,11 +828,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color', label: 'Color', type: 'swatches', selected: { value: 'Indigo' }, values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const title = rendered.container.querySelector('.ss__product-quickview__variant-title');
 		expect(title).not.toBeNull();
@@ -836,11 +849,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const title = rendered.container.querySelector('.ss__product-quickview__variant-title');
 		expect(title!.textContent).toBe('color');
@@ -858,11 +871,11 @@ describe('QuickviewLayout', () => {
 				],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection.size']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelection.size']]} />);
 
 		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
 		expect(selections).toHaveLength(1);
@@ -879,11 +892,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color_family', type: 'swatches', values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection.color-family']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelection.color-family']]} />);
 
 		const selection = rendered.container.querySelector('.ss__variant-selection-mock');
 		expect(selection).not.toBeNull();
@@ -899,11 +912,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection.material']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelection.material']]} />);
 
 		expect(rendered.container.querySelector('.ss__variant-selection-mock')).toBeNull();
 	});
@@ -917,11 +930,11 @@ describe('QuickviewLayout', () => {
 				selections: [{ field: 'color', type: 'swatches', values: [], select: () => undefined }],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelection' as any]]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelection' as any]]} />);
 
 		expect(rendered.container.querySelector('.ss__variant-selection-mock')).toBeNull();
 	});
@@ -938,11 +951,11 @@ describe('QuickviewLayout', () => {
 				],
 			},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['variantSelections']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelections']]} />);
 
 		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
 		expect(selections).toHaveLength(2);
@@ -955,11 +968,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', price: 20 } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['productDetail.mappings.core.price']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['productDetail.mappings.core.price']]} />);
 
 		const pricing = rendered.container.querySelector('.ss__product-detail--price');
 		expect(pricing).not.toBeNull();
@@ -974,11 +987,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', url: '/products/apex-bottle' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const button = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
 		expect(button).not.toBeNull();
@@ -997,12 +1010,12 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const clickThrough = jest.fn();
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 			track: { product: { clickThrough } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		const button = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
 		expect(button).not.toBeNull();
@@ -1023,11 +1036,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['slideshow']]} disabledOverlayBadges={true} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['slideshow']]} disabledOverlayBadges={true} />);
 
 		// With disabledOverlayBadges the slideshow renders without any badge wrappers.
 		expect(rendered.container.querySelector('.ss__overlay-badge-mock')).toBeNull();
@@ -1042,11 +1055,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['slideshow'], ['calloutBadge']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['slideshow'], ['calloutBadge']]} />);
 
 		// The `slideshow` module wraps the slideshow in OverlayBadge by default.
 		const overlay = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__overlay-badge-mock');
@@ -1062,11 +1075,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} layout={[['calloutBadge'], ['calloutBadge.callout-secondary']]} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['calloutBadge'], ['calloutBadge.callout-secondary']]} />);
 
 		const badges = rendered.container.querySelectorAll('.ss__callout-badge-mock');
 		expect(badges).toHaveLength(2);
@@ -1081,11 +1094,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__go-to-product')).toBeNull();
 	});
@@ -1096,11 +1109,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// Gallery not open initially.
 		expect(document.querySelector('.ss__gallery')).toBeNull();
@@ -1120,11 +1133,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', images: ['http://example.com/a.jpg', 'http://example.com/b.jpg', 'http://example.com/c.jpg'] } },
 			attributes: {},
 		};
-		const { controller } = makeController({
+		const { quickviewManager } = makeQuickviewManager({
 			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
 		});
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// Click the third carousel image (index 2).
 		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
@@ -1141,7 +1154,7 @@ describe('QuickviewLayout', () => {
 		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 		// First render: no controller — component should render null without throwing.
-		const rendered = render(<QuickviewLayout controller={undefined as any} />);
+		const rendered = render(<QuickviewLayout quickviewManager={undefined as any} />);
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
 
 		// Second render: real controller with an open store and a product.
@@ -1150,10 +1163,10 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 
 		expect(() => {
-			rendered.rerender(<QuickviewLayout controller={controller} />);
+			rendered.rerender(<QuickviewLayout quickviewManager={quickviewManager} />);
 		}).not.toThrow();
 
 		// No hook-order error logged by Preact.
@@ -1173,9 +1186,9 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
+		const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 
-		render(<QuickviewLayout controller={controller} />);
+		render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		fireEvent.keyDown(window, { key: 'Escape' });
 		expect(close).toHaveBeenCalledTimes(1);
@@ -1188,9 +1201,9 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const close = jest.fn();
-		const { controller } = makeController({ store: { isOpen: true, product: storeProduct, close } });
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct, close } });
 
-		const rendered = render(<QuickviewLayout controller={controller} />);
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// Open the gallery by clicking the product image.
 		const img = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img') as HTMLElement;
@@ -1233,11 +1246,11 @@ describe('QuickviewLayout', () => {
 				shouldWaitForNamedOverride: false,
 			}));
 
-			const { controller } = makeController({
+			const { quickviewManager } = makeQuickviewManager({
 				store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X', parentId: 'parent-1' } } } },
 			});
 
-			const { container } = render(<QuickviewLayout controller={controller as any} layout={[['recommendation.similar']]} />);
+			const { container } = render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.similar']]} />);
 
 			const rec = container.querySelector('.ss__product-quickview__recommendations .ss__rec-stub');
 			expect(rec).toBeInTheDocument();
@@ -1273,11 +1286,11 @@ describe('QuickviewLayout', () => {
 				shouldWaitForNamedOverride: false,
 			}));
 
-			const { controller } = makeController({
+			const { quickviewManager } = makeQuickviewManager({
 				store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X', parentId: 'parent-1' } } } },
 			});
 
-			render(<QuickviewLayout controller={controller as any} layout={[['recommendation.similar']]} />);
+			render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.similar']]} />);
 
 			await waitFor(() => expect(search).toHaveBeenCalled());
 			expect(recsController.config.globals.products).toEqual(['parent-1']);
@@ -1293,13 +1306,13 @@ describe('QuickviewLayout', () => {
 			}));
 			(useComponent as jest.Mock).mockReturnValue({ ComponentOverride: () => null, shouldWaitForNamedOverride: false });
 
-			const { controller } = makeController({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
 
 			// Flat layout references `recommendation.quickview` only; column2 is never referenced by the
 			// layout (no `c2` token), so its `recommendation.similar` must NOT spawn a controller/search.
 			render(
 				<QuickviewLayout
-					controller={controller as any}
+					quickviewManager={quickviewManager as any}
 					layout={[['recommendation.quickview']]}
 					column2={{ width: 'auto', layout: [['recommendation.similar']] }}
 				/>
@@ -1317,8 +1330,8 @@ describe('QuickviewLayout', () => {
 				shouldWaitForNamedOverride: false,
 			});
 
-			const { controller } = makeController({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
-			const { container } = render(<QuickviewLayout controller={controller as any} layout={[['recommendation.similar']]} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
+			const { container } = render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.similar']]} />);
 
 			expect(container.querySelector('.ss__product-quickview__recommendations')).not.toBeInTheDocument();
 		});
@@ -1326,8 +1339,8 @@ describe('QuickviewLayout', () => {
 		it('renders nothing when Snap templates are unavailable', () => {
 			(useSnap as jest.Mock).mockReturnValue(undefined);
 
-			const { controller } = makeController({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
-			const { container } = render(<QuickviewLayout controller={controller as any} layout={[['recommendation.trending']]} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
+			const { container } = render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.trending']]} />);
 
 			expect(container.querySelector('.ss__product-quickview__recommendations')).not.toBeInTheDocument();
 		});
@@ -1341,8 +1354,8 @@ describe('QuickviewLayout', () => {
 		};
 
 		it('renders the content as a dialog with a useA11y focus trap', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
 			expect(content).toHaveAttribute('role', 'dialog');
@@ -1353,8 +1366,8 @@ describe('QuickviewLayout', () => {
 		});
 
 		it('renders a keyboard-focusable close button with its default aria-label', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
 			expect(closeButton).toHaveAttribute('role', 'button');
@@ -1364,8 +1377,8 @@ describe('QuickviewLayout', () => {
 		});
 
 		it('closes exactly once when Escape fires inside the focus trap (no double-handling by the window listener)', () => {
-			const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
 			fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
@@ -1373,8 +1386,8 @@ describe('QuickviewLayout', () => {
 		});
 
 		it('Escape inside the focus trap closes the gallery first, then the quickview', () => {
-			const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			// Open the gallery by clicking the product image.
 			const img = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img') as HTMLElement;
@@ -1391,8 +1404,8 @@ describe('QuickviewLayout', () => {
 		});
 
 		it('traps Tab within the quickview content', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
 			const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
@@ -1410,22 +1423,22 @@ describe('QuickviewLayout', () => {
 		});
 
 		it('renders the default button texts via lang', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			expect(rendered.getByText('Add to Cart')).toBeInTheDocument();
 			expect(rendered.getByText('More info')).toBeInTheDocument();
 		});
 
 		it('lang props override the default strings', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 			const lang = {
 				quickview: { attributes: { 'aria-label': 'Schnellansicht' } },
 				closeButton: { attributes: { 'aria-label': 'Schließen' } },
 				addToCartButton: { value: 'In den Warenkorb' },
 				moreInfoButton: { value: 'Mehr Infos' },
 			};
-			const rendered = render(<QuickviewLayout controller={controller} lang={lang} />);
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} lang={lang} />);
 
 			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
 			expect(content).toHaveAttribute('aria-label', 'Schnellansicht');
@@ -1435,12 +1448,12 @@ describe('QuickviewLayout', () => {
 		});
 
 		it('renders the loading text via lang and supports overriding it', () => {
-			const { controller } = makeController({ store: { isOpen: true, loading: true, product: undefined } });
-			const rendered = render(<QuickviewLayout controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, loading: true, product: undefined } });
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 			expect(rendered.container.querySelector('.ss__product-quickview__loading')?.innerHTML).toBe('Loading…');
 
-			const { controller: controller2 } = makeController({ store: { isOpen: true, loading: true, product: undefined } });
-			const rendered2 = render(<QuickviewLayout controller={controller2} lang={{ loadingText: { value: 'Lädt…' } }} />);
+			const { quickviewManager: quickviewManager2 } = makeQuickviewManager({ store: { isOpen: true, loading: true, product: undefined } });
+			const rendered2 = render(<QuickviewLayout quickviewManager={quickviewManager2} lang={{ loadingText: { value: 'Lädt…' } }} />);
 			expect(rendered2.container.querySelector('.ss__product-quickview__loading')?.innerHTML).toBe('Lädt…');
 		});
 	});

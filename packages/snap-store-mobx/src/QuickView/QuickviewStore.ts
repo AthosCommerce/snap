@@ -1,6 +1,5 @@
 import { action, makeObservable, observable } from 'mobx';
 import { AbstractStore } from '../Abstract/AbstractStore';
-import { MetaStore } from '../Meta/MetaStore';
 import { Product } from '../Search/Stores';
 import type { QuickviewStoreConfig, StoreConfigs, SearchStoreConfig } from '../types';
 
@@ -30,10 +29,9 @@ export type QuickviewUpdateArgs = {
 	result: Product;
 	productsData?: QuickviewProductsData;
 	config?: QuickviewConfig;
-	// Optional store-config passthrough, used when cloning so variants pick up the existing variants settings.
 	storeConfig?: StoreConfigs;
-	// Optional meta passthrough for badges processing.
-	meta?: any;
+	// Optional raw meta data passthrough for badges processing.
+	meta?: Record<string, any>;
 };
 
 export type QuickviewError = {
@@ -48,9 +46,6 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 	// modal (displayFields, imagesField). Distinct from the store-level `config` (QuickviewStoreConfig).
 	public quickviewConfig: QuickviewConfig | undefined = undefined;
 	public error: QuickviewError | undefined = undefined;
-	// Forwarded from the originating controller's store so badge/facet-label consumers
-	// (OverlayBadge, attribute facet labels) can read `store.meta` off the singleton.
-	public meta?: MetaStore;
 
 	constructor(config: QuickviewStoreConfig) {
 		super(config);
@@ -95,7 +90,7 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 	// Build (or reuse) the Product instance and populate variants from productsData.
 	// Honors config.clone (default true). When clone is false, the source result is used
 	// directly and variant interactions in the modal will mutate the source result tile.
-	public update({ result, productsData, config, storeConfig, meta }: QuickviewUpdateArgs): void {
+	public update({ result, productsData, config, meta, storeConfig }: QuickviewUpdateArgs): void {
 		if (!result) return;
 
 		let product: Product;

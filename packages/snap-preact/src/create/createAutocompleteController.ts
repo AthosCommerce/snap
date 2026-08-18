@@ -28,6 +28,7 @@ export default (config: SnapAutocompleteControllerConfig, services?: SnapControl
 			profiler: services?.profiler || new Profiler(),
 			logger: services?.logger || new Logger({ mode: config.mode }),
 			tracker: services?.tracker || new Tracker(config.client!.globals),
+			quickview: services?.quickview,
 		},
 		config.context
 	);

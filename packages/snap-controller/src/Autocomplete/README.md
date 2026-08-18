@@ -65,7 +65,7 @@ autocompleteController.search();
 ```
 
 ## AddToCart
-This will invoke an addToCart event (see below). Takes an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewController` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
+This will invoke an addToCart event (see below). Takes an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewManager` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
 
 ```js
 autocompleteController.addToCart([autocompleteController.store.results[0]]);
@@ -73,17 +73,17 @@ autocompleteController.addToCart([autocompleteController.store.results[0]]);
 
 ## QuickView
 
-The Autocomplete controller exposes a `quickview` method for opening the product quickview modal. The modal state no longer lives on `AutocompleteController` — it is owned by a dedicated `QuickviewController` (default id `quickview`; the global handler resolves it by controller type) at `quickviewController.store` (a `QuickviewStore`). A single `<ProductQuickview />` is rendered once: the Snap framework injects it into `<body>`, so consumers no longer render one per result.
+The Autocomplete controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `AutocompleteController` — it is owned by the `QuickviewManager` (see `snap-controller`), reachable at `window.athos.quickview` / `snap.quickview`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: the Snap framework injects it into `<body>`, so consumers no longer render one per result.
 
 ### `quickview(result, productsData?, config?)`
 
-Requests the product quickview modal for the given result. The Autocomplete controller computes the product's parent (`result.mappings.core.parentId || result.id`), merges the controller-level `settings.quickview` config with the per-call override, and fires a global `controller/quickview` event (`window.athos.fire(...)`) carrying `{ result, productsData, parentId, config, meta, controller }`. It no longer touches a local `store.quickview`. The dedicated `QuickviewController` handles that event: it opens the modal, fetches `/v1/products`, fires the `quickview` middleware, and updates its own store.
+Requests the product quickview modal for the given result. This method is a thin forwarder: it calls `show(result, { productsData, config, controller: this })` on the manager it was given as the `quickview` service, and warns if it has none. The manager derives everything else from the controller passed to it — the product's parent (`result.mappings.core.parentId`), the effective config, and the meta store — then opens the modal, fetches `/v1/products`, fires the `quickview` middleware on **this controller's** event manager, and updates its own store.
 
 | param | type | description |
 |---|---|---|
-| `result` | `Product` (required) | The source result to preview. Autocomplete resolves the parent via `result.mappings.core.parentId || result.id`. |
-| `productsData` | `ProductsResponseModel` (optional) | If passed, the `QuickviewController` skips its own `/v1/products` call and uses this data as-is. |
-| `config` | `QuickviewConfig` (optional) | Per-call override; merged with `settings.quickview` from the controller config (caller wins). |
+| `result` | `Product` (required) | The source result to preview. It must carry `mappings.core.parentId` (the id used for the `/v1/products` request) — results without one are ignored with a warning. |
+| `productsData` | `ProductsResponseModel` (optional) | If passed, the `QuickviewManager` skips its `/v1/products` call and uses this data as-is. |
+| `config` | `QuickviewConfig` (optional) | Per-call override. Precedence: manager `settings.quickview` < this controller's `settings.quickview` < this argument. |
 
 ```tsx
 <button onClick={() => controller.quickview(result)}>Quick View</button>
@@ -91,7 +91,7 @@ Requests the product quickview modal for the given result. The Autocomplete cont
 
 ### Closing the modal
 
-Closing is handled by the `QuickviewController`'s store: call `quickviewController.store.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `quickviewController.store.reset()` to also clear the product reference.
+Closing is handled by the manager's store: call `window.athos.quickview.store.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `.store.reset()` to also clear the product reference.
 
 ## Events
 ### init
@@ -145,7 +145,7 @@ Closing is handled by the `QuickviewController`'s store: call `quickviewControll
 - Called with `eventData` = { controller, product, trackEvent } 
 - Always invoked after `track.product.addToCart()` method has been invoked
 
-For the `track.product.*` events above, `trackEvent` includes `quickView: true` when the tracked interaction was delegated from the `QuickviewController` (i.e. it occurred within the quickview modal).
+For the `track.product.*` events above, `trackEvent` includes `quickView: true` when the tracked interaction was delegated from the `QuickviewManager` (i.e. it occurred within the quickview modal).
 
 Impressions are deduped per product per response: `track.product.impression` sends at most one regular impression and one quickview-delegated impression for each result of a response. The two kinds dedup separately, so opening the quickview still sends an impression for a product whose grid impression was already tracked (and vice versa).
 
@@ -158,10 +158,10 @@ Impressions are deduped per product per response: `track.product.impression` sen
 - Always invoked after `addToCart()` method has been invoked
 
 ### quickview
-- This middleware fires on the dedicated `QuickviewController` (the controller that handles the global `controller/quickview` event), not on `AutocompleteController`
+- This middleware fires on `AutocompleteController`'s own event manager — the controller that opened the quickview — so attaching it here scopes interception to autocomplete-originated quickviews
 - Called with `eventData` = `ProductQuickviewObj` = { controller, result, productsData?, config }
-- Fires after the optional `/v1/products` fetch resolves and before the `QuickviewController`'s `store.update` runs
-- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewController` reads them back after the await and passes them to `store.update`
+- Fires after the optional `/v1/products` fetch resolves and before the manager's `store.update` runs
+- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewManager` reads them back after the await and passes them to `store.update`
 - Throw `new Error('cancelled')` to short-circuit: `store.reset()` is called and no modal renders
 - Any other thrown error surfaces as `store.error` and the modal renders the error branch
 

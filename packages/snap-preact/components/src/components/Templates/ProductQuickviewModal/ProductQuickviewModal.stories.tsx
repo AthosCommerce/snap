@@ -6,7 +6,7 @@ import { ProductQuickviewModal, ProductQuickviewModalProps } from './ProductQuic
 import { componentArgs, highlightedCode } from '../../../utilities';
 import Readme from '../../Organisms/QuickviewLayout/readme.md';
 
-// Build a fresh mock controller per story so each Storybook story renders independently.
+// Build a fresh mock quickview manager per story so each Storybook story renders independently.
 function buildMockController(overrides: any = {}): any {
 	const base: any = {
 		type: 'quickview',
@@ -89,12 +89,12 @@ export default {
 		},
 	},
 	argTypes: {
-		controller: {
-			description: 'QuickviewController exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
+		quickviewManager: {
+			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
 			type: { required: true },
 			table: {
 				type: {
-					summary: 'QuickviewController',
+					summary: 'QuickviewManager',
 				},
 			},
 			control: { type: 'none' },
@@ -181,11 +181,11 @@ export default {
 	args: {},
 };
 
-export const Default = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} controller={defaultController} />;
+export const Default = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} quickviewManager={defaultController} />;
 Default.args = {};
 
-export const Loading = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} controller={loadingController} />;
+export const Loading = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} quickviewManager={loadingController} />;
 Loading.args = {};
 
-export const ErrorState = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} controller={errorController} />;
+export const ErrorState = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} quickviewManager={errorController} />;
 ErrorState.args = {};

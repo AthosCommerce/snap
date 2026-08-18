@@ -10,7 +10,8 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SlideDirectionType, Slideout } from '../../Molecules/Slideout';
 import { QuickviewLayout, QuickviewTracker, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 
-import type { QuickviewController } from '@athoscommerce/snap-controller';
+import type { QuickviewManager } from '@athoscommerce/snap-controller';
+import type { Product } from '@athoscommerce/snap-store-mobx';
 
 const defaultStyles: StyleScript<ProductQuickviewSlideoutProps> = () => {
 	return css({
@@ -53,7 +54,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 
 	const props = mergeProps('productQuickviewSlideout', globalTheme, defaultProps, properties);
 	const {
-		controller,
+		quickviewManager,
 		className,
 		internalClassName,
 		disableStyles,
@@ -78,7 +79,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 	const wasOpenRef = useRef(false);
 
 	useEffect(() => {
-		const isOpenNow = Boolean(controller?.store?.isOpen);
+		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
 		if (isOpenNow && !wasOpenRef.current) {
 			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
 			const closeEl = wrapperRef.current?.querySelector<HTMLElement>('.ss__product-quickview__close');
@@ -92,15 +93,15 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 
 	const styling = mergeStyles<ProductQuickviewSlideoutProps>(props, defaultStyles);
 
-	if (!controller || controller.type !== 'quickview') {
-		console.warn(`[ProductQuickviewSlideout] No controller provided; quickview cannot function without a QuickviewController instance.`);
+	if (!quickviewManager) {
+		console.warn(`[ProductQuickviewSlideout] No quickviewManager provided; quickview cannot function without a QuickviewManager instance.`);
 		return null;
 	}
 
-	const store = controller.store;
+	const store = quickviewManager.store;
+	const product = store.product as Product | undefined;
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
-	const product = store.product;
 
 	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
 		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
@@ -108,7 +109,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 
 	const layoutContent = (
 		<QuickviewLayout
-			controller={controller}
+			quickviewManager={quickviewManager}
 			onReset={onClose}
 			theme={props.theme}
 			treePath={treePath}
@@ -143,7 +144,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 					    product's impression is observed and tracked (the Slideout keeps children
 					    mounted across open/close since rerender is false) */}
 					{product ? (
-						<QuickviewTracker key={`${product.responseId}-${product.id}`} controller={controller} product={product}>
+						<QuickviewTracker key={`${product.responseId}-${product.id}`} quickviewManager={quickviewManager} product={product}>
 							{layoutContent}
 						</QuickviewTracker>
 					) : (
@@ -156,7 +157,7 @@ export const ProductQuickviewSlideout = observer((properties: ProductQuickviewSl
 });
 
 export type ProductQuickviewSlideoutProps = {
-	controller: QuickviewController;
+	quickviewManager: QuickviewManager;
 	slideDirection?: SlideDirectionType;
 	width?: string;
 	overlayColor?: string;

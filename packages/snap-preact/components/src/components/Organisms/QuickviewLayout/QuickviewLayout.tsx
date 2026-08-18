@@ -20,10 +20,9 @@ import { OverlayBadge } from '../../Molecules/OverlayBadge';
 import { CalloutBadge } from '../../Molecules/CalloutBadge';
 import { Gallery } from '../../Molecules/Gallery';
 
-import type { QuickviewController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
-import type { RecommendationController, RecommendationControllerConfig } from '@athoscommerce/snap-controller';
+import type { RecommendationController, RecommendationControllerConfig, QuickviewManager } from '@athoscommerce/snap-controller';
 import type { RecommendationProps, RecommendationGridProps } from '../../../';
 import type { LibraryImports } from '../../../../../src/Templates/Stores/LibraryStore';
 
@@ -220,19 +219,22 @@ const collectRecommendationProfiles = (layout: unknown, columns: Record<string, 
 
 // Impression-tracking wrapper used by the quickview containers (ProductQuickviewModal /
 // ProductQuickviewSlideout). Containers mount it keyed by response/product so each displayed
-// product is observed and tracked once via the standard useTracking hook (the impression is
-// delegated to the originating controller with `quickView: true`). Click tracking is disabled —
-// quickview interactions are not clickThroughs; only the "More info" button tracks one.
+// product is observed and tracked once via the standard useTracking hook. Tracking goes through
+// the manager, which delegates to the originating controller with `quickView: true` — that flag
+// both marks the beacon event as a quickview view and gives it its own dedup slot, so the
+// impression still sends for a product whose grid impression was already tracked on the same
+// response. Click tracking is disabled — quickview interactions are not clickThroughs; only the
+// "More info" button tracks one.
 export const QuickviewTracker = ({
-	controller,
+	quickviewManager,
 	product,
 	children,
 }: {
-	controller: QuickviewController;
+	quickviewManager: QuickviewManager;
 	product: Product;
 	children: ComponentChildren;
 }) => {
-	const { trackingRef } = useTracking({ controller, result: product, track: { click: false } });
+	const { trackingRef } = useTracking({ controller: quickviewManager, result: product, track: { click: false, options: { threshold: 0 } } });
 	return (
 		<div className="ss__product-quickview__tracker" ref={trackingRef as MutableRef<HTMLDivElement>}>
 			{children}
@@ -281,7 +283,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const props = mergeProps('quickviewLayout', globalTheme, defaultProps, properties);
 	const {
-		controller,
+		quickviewManager,
 		className,
 		internalClassName,
 		disableStyles,
@@ -327,13 +329,13 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
 	const mergedLang = useLang(lang as any, {
-		controller,
+		quickviewManager,
 	});
 
 	// Hoist the slide-sync inputs before any conditional return so the hooks below
 	// are unconditional. All reads use optional chaining and safely produce defaults when
-	// controller/product are absent.
-	const product = controller?.store?.product as Product | undefined;
+	// the manager/product are absent.
+	const product = quickviewManager?.store?.product as Product | undefined;
 	const core = product?.display?.mappings?.core || product?.mappings?.core;
 	const image: string | undefined = core?.imageUrl || core?.thumbnailImageUrl;
 	// Resolve the image-list field. `config.imagesField` accepts a single field name or an
@@ -341,7 +343,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// Each candidate is looked up on mappings.core first, then attributes; the first that
 	// resolves to MORE THAN ONE image wins and is rendered as a 1-per-view slideshow. If none
 	// qualify, the modal falls back to the single core image below.
-	const configuredImagesField = controller?.store?.quickviewConfig?.imagesField;
+	const configuredImagesField = quickviewManager?.store?.quickviewConfig?.imagesField;
 	const imageFieldCandidates: string[] = configuredImagesField
 		? Array.isArray(configuredImagesField)
 			? configuredImagesField
@@ -381,16 +383,16 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// trap (useA11y on the content div handles Escape — with stopPropagation — when focus
 	// is within it).
 	useEffect(() => {
-		const isOpenNow = Boolean(controller?.store?.isOpen);
+		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
 		if (!isOpenNow) return;
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === 'Escape' && !galleryOpen) {
-				controller.store.close();
+				quickviewManager.store.close();
 			}
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [controller?.store?.isOpen, galleryOpen]);
+	}, [quickviewManager?.store?.isOpen, galleryOpen]);
 
 	// Recommendation modules. `findModule` runs inside .map()/recursion and must not call hooks, so
 	// resolve every referenced profile's controller + components here (stable order) and let
@@ -460,19 +462,19 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const styling = mergeStyles<QuickviewLayoutProps>(props, defaultStyles);
 
-	if (!controller || controller.type !== 'quickview') {
-		console.warn(`[QuickviewLayout] No controller provided; quickview cannot function without a QuickviewController instance.`);
+	if (!quickviewManager) {
+		console.warn(`[QuickviewLayout] No quickviewManager provided; quickview cannot function without a QuickviewManager instance.`);
 		return null;
 	}
 
-	const store = controller.store;
+	const store = quickviewManager.store;
 	const loading = Boolean(store.loading);
 	const displayFields: string[] | undefined = store.quickviewConfig?.displayFields;
 	const error: { message: string; cause?: unknown } | undefined = store.error;
 
 	// Look up the display label for a field name from meta.facets[field].label.
 	// Falls back to the raw field name when no meta entry exists.
-	const metaFacets = controller.store.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
+	const metaFacets = quickviewManager.sourceController?.store.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
 	const labelFor = (field: string): string => metaFacets?.[field]?.label || field;
 
 	// Close is delegated to the container (Modal/Slideout) via onReset; fall back to the
@@ -583,7 +585,13 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					{disabledOverlayBadges ? (
 						slideshowContent
 					) : (
-						<OverlayBadge result={product} controller={controller} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
+						<OverlayBadge
+							result={product}
+							controller={quickviewManager.sourceController!}
+							theme={props.theme}
+							treePath={treePath}
+							{...defined({ disableStyles })}
+						>
 							{slideshowContent}
 						</OverlayBadge>
 					)}
@@ -676,7 +684,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					name="add-to-cart"
 					internalClassName="ss__product-quickview__add-to-cart"
 					lang={{ button: lang.addToCartButton }}
-					onClick={() => product && controller.addToCart([product])}
+					onClick={() => product && quickviewManager.addToCart([product])}
 					theme={props.theme}
 					treePath={treePath}
 					{...defined({ disableStyles })}
@@ -695,7 +703,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 						// track the redirect to the product page as a quickview clickThrough
 						// before navigating away (delegated with `quickView: true`)
 						if (product) {
-							controller.track.product.clickThrough(e as unknown as MouseEvent, product);
+							quickviewManager.track.product.clickThrough(e as unknown as MouseEvent, product);
 						}
 						window.location.href = url;
 					}}
@@ -748,7 +756,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	let layout = props.layout;
 	if (typeof layout === 'string') {
-		controller.log.warn(`unsupported layout found. ${props.layout}`);
+		quickviewManager.sourceController?.log.warn(`unsupported layout found. ${props.layout}`);
 		layout = [];
 	}
 
@@ -768,32 +776,33 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	return (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__quickview-layout', className, internalClassName)}>
-				{error ? (
+				{/* The dialog div only exists while there is something to show — the Slideout keeps
+				    children mounted while closed, and an empty `aria-modal` dialog would tell
+				    assistive tech the rest of the page is inert. */}
+				{error || loading || product ? (
 					<div {...contentProps}>
 						{closeButton}
-						<div className="ss__product-quickview__error" role="alert">
-							{error.message}
-						</div>
-					</div>
-				) : loading ? (
-					<div {...contentProps}>
-						{closeButton}
-						<div className="ss__product-quickview__loading" {...mergedLang.loadingText?.all}></div>
-					</div>
-				) : product ? (
-					<div {...contentProps}>
-						{closeButton}
-						{(layout as ModuleNamesWithColumns[])?.map((module) => findModule(module))}
-						<Gallery
-							images={galleryImages}
-							open={galleryOpen}
-							startIndex={galleryIndex}
-							onClose={() => setGalleryOpen(false)}
-							alt={name}
-							theme={props.theme}
-							treePath={treePath}
-							{...defined({ disableStyles })}
-						/>
+						{error ? (
+							<div className="ss__product-quickview__error" role="alert">
+								{error.message}
+							</div>
+						) : loading ? (
+							<div className="ss__product-quickview__loading" {...mergedLang.loadingText?.all}></div>
+						) : (
+							<>
+								{(layout as ModuleNamesWithColumns[])?.map((module) => findModule(module))}
+								<Gallery
+									images={galleryImages}
+									open={galleryOpen}
+									startIndex={galleryIndex}
+									onClose={() => setGalleryOpen(false)}
+									alt={name}
+									theme={props.theme}
+									treePath={treePath}
+									{...defined({ disableStyles })}
+								/>
+							</>
+						)}
 					</div>
 				) : null}
 			</div>
@@ -824,7 +833,7 @@ export type QuickviewColumn = {
 };
 
 export type QuickviewLayoutProps = {
-	controller: QuickviewController;
+	quickviewManager: QuickviewManager;
 	onReset?: () => void;
 	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
@@ -832,13 +841,13 @@ export type QuickviewLayoutProps = {
 
 export interface QuickviewLayoutLang {
 	quickview: Lang<{
-		controller: QuickviewController;
+		quickviewManager: QuickviewManager;
 	}>;
 	closeButton: Lang<never>;
 	addToCartButton: Lang<never>;
 	moreInfoButton: Lang<never>;
 	loadingText: Lang<{
-		controller: QuickviewController;
+		quickviewManager: QuickviewManager;
 	}>;
 }
 

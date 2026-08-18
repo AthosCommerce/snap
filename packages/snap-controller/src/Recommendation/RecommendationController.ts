@@ -58,12 +58,8 @@ export class RecommendationController extends AbstractController {
 		};
 	} = {};
 
-	constructor(
-		config: RecommendationControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
-		context?: ContextVariables
-	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+	constructor(config: RecommendationControllerConfig, services: ControllerServices, context?: ContextVariables) {
+		super(config, services, context);
 
 		if (!config.tag) {
 			throw new Error(`Invalid config passed to RecommendationController. The "tag" attribute is required.`);

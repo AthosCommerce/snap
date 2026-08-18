@@ -739,21 +739,12 @@ describe('Recommendation Controller', () => {
 });
 
 describe('Recommendation Controller quickview', () => {
-	let originalAthos: any;
-
 	beforeEach(() => {
 		recommendConfig.id = uuidv4().split('-').join('');
-		originalAthos = (window as any).athos;
 	});
 
-	afterEach(() => {
-		(window as any).athos = originalAthos;
-	});
-
-	it('quickview fires controller/quickview with the core parentId and the originating controller', async () => {
-		const fire = jest.fn();
-		// @ts-ignore
-		window.athos = { fire };
+	it('quickview forwards the result and itself to the quickview manager', async () => {
+		const show = jest.fn();
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
 			store: new RecommendationStore(recommendConfig, services),
@@ -762,35 +753,17 @@ describe('Recommendation Controller quickview', () => {
 			profiler: new Profiler(),
 			logger: new Logger(),
 			tracker: new Tracker(globals),
+			quickview: { show } as any,
 		});
 
 		const result: any = { id: 'rec-child-1', mappings: { core: { parentId: 'rec-parent-1' } } };
 		await controller.quickview(result);
 
-		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result, parentId: 'rec-parent-1', controller }));
+		expect(show).toHaveBeenCalledWith(result, expect.objectContaining({ controller }));
 
 		const fallbackResult: any = { id: 'rec-1' };
 		await controller.quickview(fallbackResult);
 
-		expect(fire).toHaveBeenCalledWith('controller/quickview', expect.objectContaining({ result: fallbackResult, parentId: 'rec-1', controller }));
-	});
-
-	it('quickview warns and does not fire when no result provided', async () => {
-		const fire = jest.fn();
-		// @ts-ignore
-		window.athos = { fire };
-		const controller = new RecommendationController(recommendConfig, {
-			client: new MockClient(globals, {}),
-			store: new RecommendationStore(recommendConfig, services),
-			urlManager,
-			eventManager: new EventManager(),
-			profiler: new Profiler(),
-			logger: new Logger(),
-			tracker: new Tracker(globals),
-		});
-
-		await controller.quickview(undefined as any);
-
-		expect(fire).not.toHaveBeenCalled();
+		expect(show).toHaveBeenCalledWith(fallbackResult, expect.objectContaining({ controller }));
 	});
 });

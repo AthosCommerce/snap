@@ -10,15 +10,16 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Modal } from '../../Molecules/Modal';
 import { QuickviewLayout, QuickviewTracker, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 
-import type { QuickviewController } from '@athoscommerce/snap-controller';
+import type { QuickviewManager } from '@athoscommerce/snap-controller';
+import type { Product } from '@athoscommerce/snap-store-mobx';
 
 const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 	return css({
-		// Take the wrapper out of normal flow. `Result` renders this template as a sibling of the
-		// result `<article>`, which makes it a direct child of the Results CSS grid — left in flow
-		// it would occupy a grid cell and shift the layout when the modal opens. The modal's
-		// content and overlay are both `position: fixed`, so an absolute, zero-size wrapper has no
-		// visual effect while keeping it out of the grid.
+		// Take the wrapper out of normal flow. The modal is injected into its own container at the
+		// end of `<body>`, but a consumer may still render it inside a grid (e.g. as a sibling of a
+		// result `<article>`), where in-flow it would occupy a cell and shift the layout when opened.
+		// The modal's content and overlay are both `position: fixed`, so an absolute, zero-size
+		// wrapper has no visual effect while keeping it out of any grid.
 		position: 'absolute',
 		width: 0,
 		height: 0,
@@ -89,7 +90,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 
 	const props = mergeProps('productQuickviewModal', globalTheme, defaultProps, properties);
 	const {
-		controller,
+		quickviewManager,
 		className,
 		internalClassName,
 		disableStyles,
@@ -113,7 +114,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	const wasOpenRef = useRef(false);
 
 	useEffect(() => {
-		const isOpenNow = Boolean(controller?.store?.isOpen);
+		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
 		if (isOpenNow && !wasOpenRef.current) {
 			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
 			const closeEl = wrapperRef.current?.querySelector<HTMLElement>('.ss__product-quickview__close');
@@ -127,15 +128,15 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 
 	const styling = mergeStyles<ProductQuickviewModalProps>(props, defaultStyles);
 
-	if (!controller || controller.type !== 'quickview') {
-		console.warn(`[ProductQuickviewModal] No controller provided; quickview cannot function without a QuickviewController instance.`);
+	if (!quickviewManager) {
+		console.warn(`[ProductQuickviewModal] No quickviewManager provided; quickview cannot function without a QuickviewManager instance.`);
 		return null;
 	}
 
-	const store = controller.store;
+	const store = quickviewManager.store;
+	const product = store.product as Product | undefined;
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
-	const product = store.product;
 
 	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
 		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
@@ -143,7 +144,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 
 	const layoutContent = (
 		<QuickviewLayout
-			controller={controller}
+			quickviewManager={quickviewManager}
 			onReset={onClose}
 			theme={props.theme}
 			treePath={treePath}
@@ -171,7 +172,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 					{/* keyed by response/product so a product change while open remounts the tracker
 					    and the new product's impression is observed and tracked */}
 					{product ? (
-						<QuickviewTracker key={`${product.responseId}-${product.id}`} controller={controller} product={product}>
+						<QuickviewTracker key={`${product.responseId}-${product.id}`} quickviewManager={quickviewManager} product={product}>
 							{layoutContent}
 						</QuickviewTracker>
 					) : (
@@ -184,7 +185,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 });
 
 export type ProductQuickviewModalProps = {
-	controller: QuickviewController;
+	quickviewManager: QuickviewManager;
 	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
 	Omit<ComponentProps, 'customComponent'>;

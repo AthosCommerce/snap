@@ -31,7 +31,7 @@ jest.mock('../../Molecules/CalloutBadge', () => {
 
 import { ProductQuickviewModal } from './ProductQuickviewModal';
 
-function makeController(overrides: any = {}) {
+function makeQuickviewManager(overrides: any = {}) {
 	const defaultStore = {
 		isOpen: false,
 		product: undefined,
@@ -45,7 +45,7 @@ function makeController(overrides: any = {}) {
 		product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() },
 	};
 
-	const controller: any = {
+	const quickviewManager: any = {
 		type: 'quickview',
 		store: defaultStore,
 		track: defaultTrack,
@@ -53,12 +53,12 @@ function makeController(overrides: any = {}) {
 	};
 
 	if (overrides.store) {
-		controller.store = { ...defaultStore, ...overrides.store };
+		quickviewManager.store = { ...defaultStore, ...overrides.store };
 	}
 
-	controller.store.close ??= jest.fn();
-	const close = controller.store.close;
-	return { controller, close };
+	quickviewManager.store.close ??= jest.fn();
+	const close = quickviewManager.store.close;
+	return { quickviewManager, close };
 }
 
 const storeProduct = {
@@ -69,31 +69,31 @@ const storeProduct = {
 
 describe('ProductQuickviewModal', () => {
 	it('renders no modal content when the store is closed', () => {
-		const { controller } = makeController({ store: { isOpen: false, product: storeProduct } });
-		const rendered = render(<ProductQuickviewModal controller={controller} />);
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: false, product: storeProduct } });
+		const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
 	});
 
 	it('renders the quickview layout content inside the modal when open', () => {
-		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewModal controller={controller} />);
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+		const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 		expect(rendered.container.querySelector('.ss__product-quickview')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
 	});
 
-	it('renders null and warns when no quickview controller is provided', () => {
+	it('renders null and warns when no quickview manager is provided', () => {
 		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-		const { controller } = makeController({ type: 'search', store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewModal controller={controller} />);
+		// @ts-ignore - omitting the required manager is the case under test
+		const rendered = render(<ProductQuickviewModal />);
 		expect(rendered.container.querySelector('.ss__product-quickview')).toBeNull();
 		expect(warn).toHaveBeenCalled();
 		warn.mockRestore();
 	});
 
 	it('closes the store when the overlay is clicked', () => {
-		const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewModal controller={controller} />);
+		const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+		const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 		const overlay = rendered.container.querySelector('.ss__modal__overlay') as HTMLElement;
 		expect(overlay).not.toBeNull();
 		fireEvent.click(overlay);
@@ -101,16 +101,16 @@ describe('ProductQuickviewModal', () => {
 	});
 
 	it('closes the store when the close button is clicked', () => {
-		const { controller, close } = makeController({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewModal controller={controller} />);
+		const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+		const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 		const closeEl = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
 		fireEvent.click(closeEl);
 		expect(close).toHaveBeenCalled();
 	});
 
 	it('focuses the close button when the modal opens', () => {
-		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-		render(<ProductQuickviewModal controller={controller} />);
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+		render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 		const closeEl = document.querySelector('.ss__product-quickview__close') as HTMLElement;
 		expect(closeEl).not.toBeNull();
 		expect(document.activeElement).toBe(closeEl);
@@ -122,24 +122,24 @@ describe('ProductQuickviewModal', () => {
 		outerButton.focus();
 		expect(document.activeElement).toBe(outerButton);
 
-		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewModal controller={controller} />);
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+		const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 		expect(document.activeElement).toBe(document.querySelector('.ss__product-quickview__close'));
 
-		const { controller: closedController } = makeController({ store: { isOpen: false, product: storeProduct } });
-		rendered.rerender(<ProductQuickviewModal controller={closedController} />);
+		const { quickviewManager: closedManager } = makeQuickviewManager({ store: { isOpen: false, product: storeProduct } });
+		rendered.rerender(<ProductQuickviewModal quickviewManager={closedManager} />);
 
 		expect(document.activeElement).toBe(outerButton);
 		document.body.removeChild(outerButton);
 	});
 
 	it('forwards lang to the quickview layout', () => {
-		const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 		const lang = {
 			quickview: { attributes: { 'aria-label': 'Schnellansicht' } },
 			closeButton: { attributes: { 'aria-label': 'Schließen' } },
 		};
-		const rendered = render(<ProductQuickviewModal controller={controller} lang={lang} />);
+		const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} lang={lang} />);
 
 		expect(rendered.container.querySelector('.ss__product-quickview__content')).toHaveAttribute('aria-label', 'Schnellansicht');
 		expect(rendered.container.querySelector('.ss__product-quickview__close')).toHaveAttribute('aria-label', 'Schließen');
@@ -204,26 +204,26 @@ describe('ProductQuickviewModal', () => {
 		};
 
 		it('tracks an impression for the displayed product when the quickview content is viewed', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-			render(<ProductQuickviewModal controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 
 			triggerIntersection();
 
-			expect(controller.track.product.impression).toHaveBeenCalledTimes(1);
-			expect(controller.track.product.impression).toHaveBeenCalledWith(storeProduct);
+			expect(quickviewManager.track.product.impression).toHaveBeenCalledTimes(1);
+			expect(quickviewManager.track.product.impression).toHaveBeenCalledWith(storeProduct);
 		});
 
 		it('does not track a click when the quickview content is clicked', () => {
-			const { controller } = makeController({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<ProductQuickviewModal controller={controller} />);
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<ProductQuickviewModal quickviewManager={quickviewManager} />);
 
 			triggerIntersection();
 
 			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
 			fireEvent.click(content);
 
-			expect(controller.track.product.click).not.toHaveBeenCalled();
-			expect(controller.track.product.clickThrough).not.toHaveBeenCalled();
+			expect(quickviewManager.track.product.click).not.toHaveBeenCalled();
+			expect(quickviewManager.track.product.clickThrough).not.toHaveBeenCalled();
 		});
 	});
 });

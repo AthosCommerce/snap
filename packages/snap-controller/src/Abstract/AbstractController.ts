@@ -9,6 +9,7 @@ import type { Logger } from '@athoscommerce/snap-logger';
 import type { Tracker, TrackErrorEvent } from '@athoscommerce/snap-tracker';
 import type { Target, OnTarget } from '@athoscommerce/snap-toolbox';
 
+import type { QuickviewManager, SourceController } from '../Quickview/QuickviewManager';
 import type { ControllerServices, ControllerConfig, Attachments, ContextVariables, PluginFunction } from '../types';
 
 export abstract class AbstractController {
@@ -23,6 +24,9 @@ export abstract class AbstractController {
 	public log: Logger;
 	public tracker: Tracker;
 	public context: ContextVariables;
+	// The shared quickview manager, when one was provided. Absent for controllers created without
+	// it, in which case `quickview()` warns and no-ops.
+	public quickviewManager?: QuickviewManager;
 
 	public targeters: {
 		[key: string]: DomTargeter;
@@ -88,40 +92,30 @@ export abstract class AbstractController {
 		}
 	};
 
+	// Open the quickview for a result belonging to this controller's response. A thin forwarder:
+	// every derivation (config precedence, meta, parent id) happens in the manager, which reads
+	// what it needs off the controller passed here.
 	public quickview = async (result: Product, productsData?: ProductsResponseModel, config?: QuickviewConfig): Promise<void> => {
-		if (!result) {
-			this.log.warn('No result provided to quickview');
+		if (!this.quickviewManager) {
+			this.log.warn(`quickview ignored — no 'quickview' service was passed to this controller`);
 			return;
 		}
 
-		// Controller-level quickview defaults underlay the caller-provided config.
-		const effectiveConfig: QuickviewConfig = {
-			...((this.config as { settings?: { quickview?: QuickviewConfig } })?.settings?.quickview || {}),
-			...(config || {}),
-		};
-
-		const parentId = (result.mappings?.core?.parentId as string) || result.id;
-
-		const integration = (window as any)?.athos;
-		if (!integration?.fire) {
-			this.log.warn(`quickview ignored — no 'athos' integration global found on window`);
+		// The manager delegates add-to-cart and product tracking back to the opener, which finder
+		// controllers cannot service. Checked here rather than typed away because `quickview()` is
+		// declared on the base class shared by all controller types.
+		const source = this as unknown as Partial<SourceController>;
+		if (typeof source.addToCart != 'function' || typeof source.track?.product?.impression != 'function') {
+			this.log.warn(`quickview ignored — '${this.type}' controllers cannot open the quickview`);
 			return;
 		}
 
-		// Delegate to the dedicated quickview controller via the global event channel.
-		integration.fire('controller/quickview', {
-			result,
-			productsData,
-			parentId,
-			config: effectiveConfig,
-			meta: (this.store as any).meta,
-			controller: this,
-		});
+		await this.quickviewManager.show(result, { productsData, config, controller: source as SourceController });
 	};
 
 	constructor(
 		config: ControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
+		{ client, store, urlManager, eventManager, profiler, logger, tracker, quickview }: ControllerServices,
 		context: ContextVariables = {}
 	) {
 		if (typeof config != 'object' || typeof config.id != 'string' || !config.id.match(/^[a-zA-Z0-9_-]*$/)) {
@@ -163,6 +157,11 @@ export abstract class AbstractController {
 			throw new Error(`Invalid service 'tracker' passed to controller. Missing "track" object.`);
 		}
 
+		// optional service - only validated when provided
+		if (typeof quickview != 'undefined' && typeof quickview?.show != 'function') {
+			throw new Error(`Invalid service 'quickview' passed to controller. Missing "show" function.`);
+		}
+
 		this.id = config.id;
 		this.config = config;
 		this.client = client;
@@ -172,6 +171,7 @@ export abstract class AbstractController {
 		this.profiler = profiler;
 		this.log = logger;
 		this.tracker = tracker;
+		this.quickviewManager = quickview;
 		this.context = context;
 
 		// configure the logger
