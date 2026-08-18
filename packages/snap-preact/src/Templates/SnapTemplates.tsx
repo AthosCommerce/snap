@@ -7,6 +7,7 @@ import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSe
 import { DomTargeter, url, cookies, version, getContext } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
 
+import type { ThemeComponentsRestrictedSelectors, ThemeComponentsRestrictedSelectorsUnlocked } from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { type AutocompleteStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
@@ -79,6 +80,60 @@ export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 	url?: UrlTranslatorConfig;
 	features?: SnapFeatures;
 };
+
+type SnapTemplatesConfigThemeOverridesTyped<
+	DefaultSelectors extends string,
+	MobileSelectors extends string,
+	TabletSelectors extends string,
+	DesktopSelectors extends string
+> = {
+	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors>;
+	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors>;
+	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors>;
+	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors>;
+};
+
+export function validateTemplatesConfig<
+	DefaultSelectors extends string = never,
+	MobileSelectors extends string = never,
+	TabletSelectors extends string = never,
+	DesktopSelectors extends string = never
+>(
+	config: SnapTemplatesConfig & {
+		theme?: {
+			overrides?: SnapTemplatesConfigThemeOverridesTyped<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
+		};
+	}
+): SnapTemplatesConfig {
+	return config;
+}
+
+type SnapTemplatesConfigThemeOverridesTypedUnlocked<
+	DefaultSelectors extends string,
+	MobileSelectors extends string,
+	TabletSelectors extends string,
+	DesktopSelectors extends string
+> = {
+	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors>;
+	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors>;
+	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors>;
+	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors>;
+};
+
+export function validateTemplatesConfigUnlocked<
+	DefaultSelectors extends string = never,
+	MobileSelectors extends string = never,
+	TabletSelectors extends string = never,
+	DesktopSelectors extends string = never
+>(
+	config: SnapTemplatesConfigUnlocked & {
+		theme?: {
+			overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
+		};
+	}
+): SnapTemplatesConfigUnlocked {
+	return config;
+}
 
 type TemplatePlugins =
 	// common

@@ -296,7 +296,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalProps> };
 
 // prettier-ignore
-export type ThemeComponentsRestricted =
+type ThemeComponentsRestrictedNamed =
 	/* ATOMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgePill'>]?: Partial<BadgePillTemplatesLegalProps> } &
@@ -349,13 +349,11 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'sortBy'>]?: Partial<SortByTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: unknown } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> } &
@@ -373,26 +371,79 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundle'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleEasyAdd'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleList'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleVertical'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationGrid'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> } & 
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'search'>]?: Partial<SearchTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> };
 
+/*
+	Props allowed on a selector segment that uses an open (user supplied) name, e.g. `facet.price`.
+
+	Such a segment can either end a tree path or begin a deeper one, and a pattern index signature
+	such as `facet.${string}` unavoidably matches both `facet.price` and `facet.price facetSlider`.
+	The value type therefore has to accept the props of the named component *and* of anything that
+	may be nested below it — but unlike the `unknown` it replaces, it still rejects props that do
+	not exist on any component.
+*/
+export type ThemeComponentOpenNamedProps = NonNullable<ThemeComponentsRestrictedNamed[keyof ThemeComponentsRestrictedNamed]>;
+
+// prettier-ignore
+export type ThemeComponentsRestricted =
+	ThemeComponentsRestrictedNamed &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundle'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleEasyAdd'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleList'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleVertical'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationGrid'>]?: ThemeComponentOpenNamedProps };
+
+type ThemeComponentOpenNamedComponentTypes =
+	| 'facet'
+	| 'variantSelection'
+	| 'recommendation'
+	| 'recommendationBundle'
+	| 'recommendationBundleEasyAdd'
+	| 'recommendationBundleList'
+	| 'recommendationBundleVertical'
+	| 'recommendationGrid';
+
+type ThemeComponentSelectorSegment<Selector extends string> = Selector extends `${string} ${infer Rest}`
+	? ThemeComponentSelectorSegment<Rest>
+	: Selector;
+
+type ThemeComponentSelectorUnknown = { 'unknown theme override selector': never };
+
+/*
+	Resolves a tree path selector to the props of the component it targets — `facet.price facetSlider`
+	resolves to FacetSlider. Because this reads a single literal key it stays precise where the pattern
+	index signatures of `ThemeComponentsRestricted` cannot, but it only applies to selectors that are
+	known at the point of the check, which is why it is reachable through `validateTemplatesConfig` only.
+*/
+export type ThemeComponentSelectorProps<Selector extends string> = ThemeComponentSegmentProps<ThemeComponentSelectorSegment<Selector> & string>;
+
+type ThemeComponentSegmentProps<Segment extends string> = Segment extends keyof ThemeComponentsRestrictedNamed
+	? NonNullable<ThemeComponentsRestrictedNamed[Segment]>
+	: Segment extends `${infer ComponentType}.${string}`
+	? ComponentType extends ThemeComponentOpenNamedComponentTypes
+		? NonNullable<ThemeComponentsRestrictedNamed[ComponentType]>
+		: ThemeComponentSelectorUnknown
+	: ThemeComponentSelectorUnknown;
+
+export type ThemeComponentsRestrictedSelectors<Selectors extends string> = {
+	[Selector in Selectors]: ThemeComponentSelectorProps<Selector>;
+};
+
 type WithCustomComponent = { customComponent?: string };
 
 // prettier-ignore
-export type ThemeComponentsRestrictedWithCustomComponent =
+type ThemeComponentsRestrictedWithCustomComponentNamed =
 	/* ATOMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgePill'>]?: Partial<BadgePillTemplatesLegalProps> & WithCustomComponent } &
@@ -443,13 +494,11 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'sortBy'>]?: Partial<SortByTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: unknown } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> & WithCustomComponent } &
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> & WithCustomComponent } &
@@ -466,21 +515,48 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundle'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleEasyAdd'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleList'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleVertical'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationGrid'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'search'>]?: Partial<SearchTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> & WithCustomComponent };
+
+/*
+	Unlocked counterpart to `ThemeComponentsRestricted` / `ThemeComponentSelectorProps` — same
+	precision, but resolved against the WithCustomComponent (Snap integration migration path)
+	prop family instead of the locked one.
+*/
+// prettier-ignore
+export type ThemeComponentsRestrictedWithCustomComponent =
+	ThemeComponentsRestrictedWithCustomComponentNamed &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundle'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleEasyAdd'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleList'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleVertical'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationGrid'>]?: ThemeComponentOpenNamedProps & WithCustomComponent };
+
+export type ThemeComponentSelectorPropsUnlocked<Selector extends string> = ThemeComponentSegmentPropsUnlocked<
+	ThemeComponentSelectorSegment<Selector> & string
+>;
+
+type ThemeComponentSegmentPropsUnlocked<Segment extends string> = Segment extends keyof ThemeComponentsRestrictedWithCustomComponentNamed
+	? NonNullable<ThemeComponentsRestrictedWithCustomComponentNamed[Segment]>
+	: Segment extends `${infer ComponentType}.${string}`
+	? ComponentType extends ThemeComponentOpenNamedComponentTypes
+		? NonNullable<ThemeComponentsRestrictedWithCustomComponentNamed[ComponentType]>
+		: ThemeComponentSelectorUnknown
+	: ThemeComponentSelectorUnknown;
+
+export type ThemeComponentsRestrictedSelectorsUnlocked<Selectors extends string> = {
+	[Selector in Selectors]: ThemeComponentSelectorPropsUnlocked<Selector>;
+};
 
 // prettier-ignore
 export type ThemeComponentTemplateOverrides<Template extends string, Props, LegalProps> =
@@ -539,13 +615,13 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'sortBy'>]?: Partial<SortByTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'variantSelection'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'variantSelection'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'branchOverride'>]?: Partial<BranchOverrideProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facet'>]?: Partial<FacetTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'facet'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'facet'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> } &
@@ -563,17 +639,17 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendation'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendation'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleList'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleList'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleVertical'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleVertical'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationGrid'>]?: unknown } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationGrid'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> } & 
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'search'>]?: Partial<SearchTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &

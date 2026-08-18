@@ -2,7 +2,7 @@
 Theming in Snap Templates is the primary method of customizing a template. A theme configuration defines a theme from the library to extend, theme variables, component props and responsive changes via overrides as well as global styles and product cart component specification.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -27,7 +27,7 @@ new SnapTemplates({
 		],
 	},
 	...
-});
+}));
 ```
 
 ### Theme Configuration Overview
@@ -51,7 +51,7 @@ The `extends` property is the base theme name to start from and will already con
 Each theme includes a common set of shared variables (for example, colors and breakpoints) that remain compatible when switching between themes.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -65,7 +65,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 ### Theme `style`
@@ -86,14 +86,14 @@ const globalStyles = (theme) => {
 	};
 };
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
 		style: globalStyles,
 	},
 	...
-});
+}));
 ```
 
 ### Theme `globalResultComponent`
@@ -112,7 +112,7 @@ If a more specific template-level override is set with `resultComponent`, that s
 **Usage Example:**
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	config: { ... },
 	components: {
 		result: {
@@ -131,7 +131,7 @@ new SnapTemplates({
 			},
 		},
 	},
-});
+}));
 ```
 
 ### Theme `overrides`
@@ -141,6 +141,41 @@ Themes and components provide their own default component prop configurations. T
 
 1. `default`: Base component overrides that apply to all viewport sizes.
 2. Responsive keys such as `mobile`, `tablet`, and `desktop`: Breakpoint-specific overrides that are merged on top of `default`.
+
+
+#### Typed Override Selectors with `validateTemplatesConfig`
+
+Most selectors are typed to the component they target out of the box. Selectors that carry an open, site-specific name — such as `facet.<field>` or `recommendation.<profile>` — are the exception: with a config that is annotated as `SnapTemplatesConfig`, they fall back to accepting the props of any component, so a typo is not caught.
+
+Wrapping the config in `validateTemplatesConfig` types every selector against the exact component it targets, including the open-named ones:
+
+```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+const templatesConfig = validateTemplatesConfig({
+	config: { ... },
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'facet.price': {
+					clearAllIcon: 'cog', // typed as Facet props
+					showTicks: false, // error: not a Facet prop
+				},
+				'facet.price facetSlider': {
+					showTicks: false, // typed as FacetSlider props
+				},
+			},
+		},
+	},
+});
+
+new SnapTemplates(templatesConfig);
+```
+
+The selectors have to be read from the object literal, so the config must be passed straight to `validateTemplatesConfig`. Annotating the variable as `SnapTemplatesConfig` instead — or assigning the object to a variable first — keeps the looser typing.
+
+For an unlocked configuration (`unlocked: true`, see [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration)), import `validateTemplatesConfigUnlocked` instead — it types selectors the same way, additionally allowing the `customComponent` field that unlocked configs support.
 
 
 #### Templates Legal Props
@@ -155,7 +190,7 @@ To see the full list of templates legal props for each component, refer to the *
 ```tsx
 import { css } from '@emotion/react';
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -174,7 +209,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 
@@ -188,7 +223,7 @@ Some components contain multiple subcomponents of the same type. For instance, t
 Here's an example that demonstrates targeting specific subcomponents:
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -213,7 +248,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 ##### The `resultComponent` Override Prop
@@ -232,7 +267,7 @@ Valid values are:
 **Usage Example (Locked Configuration):**
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	config: { ... },
 	components: {
 		result: {
@@ -256,7 +291,7 @@ new SnapTemplates({
 			},
 		},
 	},
-});
+}));
 ```
 
 ##### The `customComponent` Override Prop
@@ -277,7 +312,7 @@ First, register your custom component in the configuration:
 ```tsx
 import { MyCustomResult } from './components/MyCustomResult';
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: { ... },
 	components: {
@@ -297,13 +332,13 @@ new SnapTemplates({
 		},
 	},
 	// ...
-} as SnapTemplatesConfigUnlocked);
+}));
 ```
 
 You can also target specific instances using more specific selectors:
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: { ... },
 	components: {
@@ -336,7 +371,7 @@ new SnapTemplates({
 		},
 	},
 	// ...
-} as SnapTemplatesConfigUnlocked);
+}));
 ```
 
 **Custom Component Props:**
@@ -377,7 +412,7 @@ Each responsive override object can define additional prop configurations that b
 In the following example, the number of columns for the `search results` component is adjusted for each breakpoint. The default configuration sets the number of columns to 4, but this is overridden for mobile (1 column), tablet (2 columns), and desktop (3 columns) based on the viewport size.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -405,5 +440,5 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
