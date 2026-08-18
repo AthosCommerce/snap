@@ -10,6 +10,7 @@ import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { SearchController } from '@athoscommerce/snap-controller';
 import { Layout, LayoutProps } from '../Layout';
 import { ButtonProps } from '../../Atoms/Button';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<ToolbarProps> = ({}) => {
 	return css({});
@@ -25,7 +26,7 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 	};
 
 	const props = mergeProps('toolbar', globalTheme, defaultProps, properties);
-	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, treePath, layout } = props;
+	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, treePath, layout, tabManager } = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('toolbar', props);
 
@@ -39,6 +40,7 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 		Layout: {
 			// default props
 			internalClassName: 'ss__toolbar__layout',
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				toggleSideBarButton,
@@ -66,6 +68,7 @@ export const Toolbar = observer((properties: ToolbarProps) => {
 export type ToolbarProps = {
 	controller: SearchController;
 	name?: ToolbarNames;
+	tabManager?: TabManagerStore;
 } & ToolbarTemplatesLegalProps &
 	ComponentProps<ToolbarProps>;
 
@@ -83,6 +86,7 @@ export type ModuleNames =
 	| 'pagination'
 	| 'paginationInfo'
 	| 'breadcrumbs'
+	| 'tabSelection'
 	| '_'
 	| 'button.sidebar-toggle'
 	| 'banner.header'
