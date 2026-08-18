@@ -53,6 +53,7 @@ export * from './components/Molecules/SearchInput';
 export * from './components/Molecules/Select';
 export * from './components/Molecules/Slideout';
 export * from './components/Molecules/SortBy';
+export * from './components/Molecules/TabSelection';
 export * from './components/Molecules/TemplatesEditor';
 export * from './components/Molecules/Swatches';
 export * from './components/Molecules/Slideshow';

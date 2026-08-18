@@ -163,6 +163,38 @@ describe('List Component', () => {
 		expect(selected).not.toBeInTheDocument();
 	});
 
+	it('resyncs the selection when the selected prop returns to an earlier value', () => {
+		const { container, rerender } = render(<List options={options} selected={options[0]} />);
+
+		const selectedLabel = () => container.querySelector('.ss__list__option--selected .ss__list__option__label')?.innerHTML;
+
+		expect(selectedLabel()).toBe(options[0].label);
+
+		rerender(<List options={options} selected={options[1]} />);
+
+		expect(selectedLabel()).toBe(options[1].label);
+
+		// back to the value the prop held on mount - eg. switching back to the previously viewed tab
+		rerender(<List options={options} selected={options[0]} />);
+
+		expect(selectedLabel()).toBe(options[0].label);
+	});
+
+	it('does not revert a selection made before the selected prop catches up', async () => {
+		const selectFn = jest.fn();
+
+		const { container, rerender } = render(<List options={options} selected={options[0]} onSelect={selectFn} />);
+
+		const optionElements = container.querySelectorAll('.ss__list__option');
+
+		await userEvent.click(optionElements[1]);
+
+		// the store has not updated yet, so 'selected' still holds the previous option
+		rerender(<List options={options} selected={options[0]} onSelect={selectFn} />);
+
+		expect(container.querySelector('.ss__list__option--selected .ss__list__option__label')?.innerHTML).toBe(options[1].label);
+	});
+
 	it('can use requireSelection to prevent empty selection', async () => {
 		const selectFn = jest.fn();
 		const selectIndex = 1;
