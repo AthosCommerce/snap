@@ -6,6 +6,7 @@ export { Colour } from './Colour/Colour';
 export * from './parseProps';
 export * from './mergeProps';
 export * from './mergeStyles';
+export * from './selectionKey';
 export * from './storybook';
 export * from './defaultBadgeComponentMap';
 export * from './createImpressionObserver';

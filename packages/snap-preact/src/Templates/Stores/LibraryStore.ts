@@ -149,6 +149,7 @@ export type LibraryImports = {
 		slideout: LibraryComponentImport;
 		sortBy: LibraryComponentImport;
 		swatches: LibraryComponentImport;
+		tabSelection: LibraryComponentImport;
 		variantSelection: LibraryComponentImport;
 		productDetailTable: LibraryComponentImport;
 		terms: LibraryComponentImport;
@@ -242,6 +243,7 @@ export class LibraryStore {
 		slideout: LibraryComponentMap;
 		sortBy: LibraryComponentMap;
 		swatches: LibraryComponentMap;
+		tabSelection: LibraryComponentMap;
 		variantSelection: LibraryComponentMap;
 		productDetailTable: LibraryComponentMap;
 		terms: LibraryComponentMap;
@@ -314,6 +316,7 @@ export class LibraryStore {
 		slideout: {},
 		sortBy: {},
 		swatches: {},
+		tabSelection: {},
 		variantSelection: {},
 		productDetailTable: {},
 		terms: {},
@@ -565,6 +568,7 @@ export class LibraryStore {
 			slideout: {},
 			sortBy: {},
 			swatches: {},
+			tabSelection: {},
 			variantSelection: {},
 			productDetailTable: {},
 			terms: {},

@@ -15,6 +15,8 @@ import type {
 	RecommendationStoreConfig,
 	Product,
 	QuickviewConfig,
+	SearchStoreConfigSettings,
+	AutocompleteStoreConfigSettings,
 } from '@athoscommerce/snap-store-mobx';
 import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Tracker, ProductViewEvent } from '@athoscommerce/snap-tracker';
@@ -147,3 +149,24 @@ export type AutocompleteControllerConfig = ControllerConfig & AutocompleteStoreC
 export type RecommendationControllerConfig = ControllerConfig & RecommendationStoreConfig;
 
 export type ControllerConfigs = SearchControllerConfig | AutocompleteControllerConfig | FinderControllerConfig | RecommendationControllerConfig;
+
+// General tab config values
+export type TabConfig = {
+	id: string;
+	param: string;
+	siteId: string;
+	label?: string;
+	default?: boolean;
+	globals?: any;
+	prefetch?: boolean;
+};
+
+export type SearchTabConfig = TabConfig & {
+	settings?: SearchStoreConfigSettings;
+	config?: SearchControllerConfig;
+};
+
+export type AutocompleteTabConfig = Omit<TabConfig, 'prefetch'> & {
+	settings?: AutocompleteStoreConfigSettings;
+	config?: AutocompleteControllerConfig;
+};

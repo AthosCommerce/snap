@@ -47,6 +47,7 @@ import type { SelectLang } from '../components/Molecules/Select';
 // import type { SlideoutLang } from '../components/Molecules/Slideout';
 import type { SortByLang } from '../components/Molecules/SortBy';
 // import type { SwatchesLang } from '../components/Molecules/Swatches';
+import type { TabSelectionLang } from '../components/Molecules/TabSelection';
 // import type { VariantSelectionLang } from '../components/Molecules/VariantSelection';
 
 /* ORGANISMS */
@@ -127,6 +128,7 @@ export type LangComponents = {
 	select: SelectLang;
 	// slideout: SlideoutLang;
 	sortBy: SortByLang;
+	tabSelection: TabSelectionLang;
 	['terms.history']: TermsLang;
 	['terms.suggestions']: TermsLang;
 	['terms.trending']: TermsLang;

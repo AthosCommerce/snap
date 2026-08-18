@@ -115,7 +115,26 @@ let templatesConfig: SnapTemplatesConfig = {
 			},
 		},
 	},
+	quickview: {
+		targets: [
+			{
+				component: 'ProductQuickviewSlideout',
+			},
+		],
+	},
 	search: {
+		tabs: [
+			{
+				id: 'products',
+				param: 'products',
+				siteId,
+			},
+			{
+				id: 'other',
+				param: 'other',
+				siteId: 'atz34m',
+			},
+		],
 		targets: [
 			{
 				selector: '#athos-layout',

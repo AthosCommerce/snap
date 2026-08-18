@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+### Features
+
+- **tabbedsearch:** adding tabbed search ([226af09](https://github.com/AthosCommerce/snap/commit/226af09a3b8512f7aaa259512e05a45545e12546))
+
 # [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
 
 ### Performance Improvements

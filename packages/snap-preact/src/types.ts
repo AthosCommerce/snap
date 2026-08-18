@@ -74,7 +74,12 @@ export type SnapSearchControllerConfig = {
 
 export type SnapAutocompleteControllerConfig = {
 	mode?: keyof typeof AppMode | AppMode;
-	url?: UrlTranslatorConfig;
+	url?: UrlTranslatorConfig & {
+		globals?: {
+			param: string;
+			value: string;
+		}[];
+	};
 	client?: {
 		globals: ClientGlobals;
 		config?: ClientConfig;

@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { render, fireEvent, act } from '@testing-library/preact';
+import { observable, runInAction } from 'mobx';
 
 // QuickviewLayout (rendered inside the Slideout) pulls in Carousel/VariantSelection/badges; mock the
 // heavy molecules so these container tests stay focused on open/close + focus behavior.
@@ -110,6 +111,26 @@ describe('ProductQuickviewSlideout', () => {
 	it('focuses the close button when the slideout opens', () => {
 		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 		render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
+		const closeEl = document.querySelector('.ss__product-quickview__close') as HTMLElement;
+		expect(closeEl).not.toBeNull();
+		expect(document.activeElement).toBe(closeEl);
+	});
+
+	it('focuses the close button when the store opens after mount', async () => {
+		// The store must be observable so the (memoized) observer template re-renders on open,
+		// matching how the real QuickviewManager store drives it. Assigned after the factory
+		// because makeQuickviewManager spreads the store, which would strip observability.
+		const { quickviewManager } = makeQuickviewManager();
+		quickviewManager.store = observable({ isOpen: false, product: storeProduct, loading: false, close: jest.fn() });
+		render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
+		expect(document.querySelector('.ss__product-quickview__close')).toBeNull();
+
+		await act(async () => {
+			runInAction(() => {
+				quickviewManager.store.isOpen = true;
+			});
+		});
+
 		const closeEl = document.querySelector('.ss__product-quickview__close') as HTMLElement;
 		expect(closeEl).not.toBeNull();
 		expect(document.activeElement).toBe(closeEl);
