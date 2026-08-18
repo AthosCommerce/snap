@@ -144,6 +144,7 @@ export type LibraryImports = {
 		slideout: LibraryComponentImport;
 		sortBy: LibraryComponentImport;
 		swatches: LibraryComponentImport;
+		tabSelection: LibraryComponentImport;
 		variantSelection: LibraryComponentImport;
 		terms: LibraryComponentImport;
 		branchOverride: LibraryComponentImport;
@@ -234,6 +235,7 @@ export class LibraryStore {
 		slideout: LibraryComponentMap;
 		sortBy: LibraryComponentMap;
 		swatches: LibraryComponentMap;
+		tabSelection: LibraryComponentMap;
 		variantSelection: LibraryComponentMap;
 		terms: LibraryComponentMap;
 		branchOverride: LibraryComponentMap;
@@ -303,6 +305,7 @@ export class LibraryStore {
 		slideout: {},
 		sortBy: {},
 		swatches: {},
+		tabSelection: {},
 		variantSelection: {},
 		terms: {},
 		branchOverride: {},
@@ -536,6 +539,7 @@ export class LibraryStore {
 			slideout: {},
 			sortBy: {},
 			swatches: {},
+			tabSelection: {},
 			variantSelection: {},
 			terms: {},
 			branchOverride: {},
