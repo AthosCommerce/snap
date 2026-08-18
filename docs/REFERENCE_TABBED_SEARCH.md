@@ -243,7 +243,8 @@ See [Theme `overrides` with Cascading Component Props](https://github.com/athosc
 
 Two constraints are worth knowing:
 
-- A tab id only becomes a selector if it consists of letters, numbers and dashes. An id containing spaces, underscores or dots produces no named selector, and the override is silently ignored.
+- A tab id only becomes a selector if it consists of letters, numbers and dashes.
+- An id containing spaces, underscores or dots produces no named selector, and the override is silently ignored.
 
 ### Customizing the TabSelection Component
 
