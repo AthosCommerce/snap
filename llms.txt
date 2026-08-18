@@ -85,6 +85,7 @@ Repository: https://github.com/athoscommerce/snap
 - [Event Manager](https://athoscommerce.github.io/snap/packages/snap-event-manager/README.md)
 - [Tracker](https://athoscommerce.github.io/snap/packages/snap-tracker/README.md)
 - [Variants](https://athoscommerce.github.io/snap/docs/REFERENCE_VARIANTS.md)
+- [Tabbed Search](https://athoscommerce.github.io/snap/docs/REFERENCE_TABBED_SEARCH.md)
 - [Custom Recommendation Templates](https://athoscommerce.github.io/snap/docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md)
 - [Custom Badge Templates](https://athoscommerce.github.io/snap/docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md)
 - [Build & Deploy](https://athoscommerce.github.io/snap/docs/BUILD_DEPLOY.md)
