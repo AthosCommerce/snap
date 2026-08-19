@@ -390,7 +390,7 @@ type ThemeComponentsRestrictedNamed =
 	may be nested below it — but unlike the `unknown` it replaces, it still rejects props that do
 	not exist on any component.
 */
-export type ThemeComponentOpenNamedProps = NonNullable<ThemeComponentsRestrictedNamed[keyof ThemeComponentsRestrictedNamed]>;
+type ThemeComponentOpenNamedProps = NonNullable<ThemeComponentsRestrictedNamed[keyof ThemeComponentsRestrictedNamed]>;
 
 // prettier-ignore
 export type ThemeComponentsRestricted =
