@@ -13,9 +13,9 @@ module.exports = {
 	overrides: [
 		{
 			files: ['**/index.ts', '**/index.tsx'],
-			plugins: ['snap-config'],
+			plugins: ['@athoscommerce/snap-config'],
 			rules: {
-				'snap-config/validate-config': 'error',
+				'@athoscommerce/snap-config/validate-config': 'error',
 			},
 		},
 		{

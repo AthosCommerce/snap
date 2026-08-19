@@ -1,0 +1,31 @@
+{
+	"name": "@athoscommerce/eslint-plugin-snap-config",
+	"version": "1.11.0",
+	"description": "ESLint rules for validating Snap Templates config objects",
+	"main": "index.cjs",
+	"author": "Athos Commerce",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/AthosCommerce/snap.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"test": "jest",
+		"test:watch": "jest --watch"
+	},
+	"peerDependencies": {
+		"eslint": ">=8"
+	},
+	"devDependencies": {
+		"@typescript-eslint/parser": "8.62.1",
+		"eslint": "8.57.0",
+		"jest": "29.7.0"
+	},
+	"files": [
+		"index.cjs",
+		"validate-config.cjs"
+	]
+}

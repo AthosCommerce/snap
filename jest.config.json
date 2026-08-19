@@ -1,7 +1,8 @@
 {
 	"bail": true,
 	"projects": [
-		"<rootDir>/packages/snap-*/jest.config.js"
+		"<rootDir>/packages/snap-*/jest.config.js",
+		"<rootDir>/packages/snap-preact/toolbox/src/eslint-rules/jest.config.js"
 	],
 	"coverageReporters": ["json", "html", "text", "text-summary", "json-summary"],
 	"coverageDirectory": "<rootDir>/coverage/",
