@@ -111,6 +111,9 @@ describe('QuickviewLayout', () => {
 		(useSnap as jest.Mock).mockReset();
 		(useCreateController as jest.Mock).mockReset();
 		(useComponent as jest.Mock).mockReset();
+		// useComponent is now called unconditionally (hooks cannot be conditional), so the
+		// default mock must honor its return contract.
+		(useComponent as jest.Mock).mockReturnValue({ ComponentOverride: undefined, shouldWaitForNamedOverride: false });
 	});
 
 	it('renders nothing visible when closed', () => {

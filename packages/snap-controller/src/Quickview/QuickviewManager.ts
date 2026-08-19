@@ -130,6 +130,8 @@ export class QuickviewManager {
 				resolvedProductsData = await source.client.products({ parentId });
 			} catch (err) {
 				source.log.warn('Failed to load /v1/products for quickview', err);
+				// generic error message as this is displayed to the user in QuickviewLayout
+				this.store.setError({ message: `Failed to load quickview data`, cause: err });
 			}
 			if (superseded()) return;
 		}
@@ -155,7 +157,8 @@ export class QuickviewManager {
 				return;
 			}
 			source.log.error(`error in 'quickview' middleware`, err);
-			this.store.setError({ message: `'quickview' middleware error`, cause: err });
+			// generic error message as this is displayed to the user in QuickviewLayout
+			this.store.setError({ message: `Failed to load quickview`, cause: err });
 			return;
 		}
 

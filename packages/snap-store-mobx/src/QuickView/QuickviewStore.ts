@@ -105,9 +105,18 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 			// isn't the raw array the Product constructor expects.
 			const rawResult = JSON.parse(JSON.stringify(result));
 
+			// Seed variants from the source result's serialized variant data — a round-tripped
+			// Variant matches the raw VariantData shape — so the clone keeps the variants the
+			// source result already carried when the /v1/products fetch is skipped
+			// (fetchProductData: false) or fails. The seed (even when empty) also guarantees a
+			// Variants instance exists for the productsData update below to populate.
 			product = new Product({
 				data: {
-					result: { ...rawResult, badges: undefined, variants: { data: [] } },
+					result: {
+						...rawResult,
+						badges: undefined,
+						variants: { data: rawResult.variants?.data || [], optionConfig: rawResult.variants?.optionConfig },
+					},
 					meta: meta || {},
 				},
 				config: storeConfig,

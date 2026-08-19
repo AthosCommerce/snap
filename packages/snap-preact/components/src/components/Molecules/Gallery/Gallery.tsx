@@ -11,6 +11,7 @@ import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
 import { Lang, useA11y, useLang } from '../../../hooks';
 import { Button } from '../../Atoms/Button';
+import { Image } from '../../Atoms/Image';
 
 const defaultStyles: StyleScript<GalleryProps> = () => {
 	return css({
@@ -354,11 +355,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 						/>
 					)}
 
-					<img
-						className="ss__gallery__image"
+					<Image
+						internalClassName="ss__gallery__image"
 						src={currentSrc}
 						alt={alt || ''}
-						draggable={false}
 						style={{
 							transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
 							cursor: zoom > zoomMin ? (dragRef.current ? 'grabbing' : 'grab') : 'default',
@@ -367,6 +367,9 @@ export const Gallery = observer((properties: GalleryProps) => {
 						onPointerMove={onPointerMove}
 						onPointerUp={endDrag}
 						onPointerLeave={endDrag}
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
 					/>
 
 					{count > 1 && (

@@ -297,11 +297,10 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		recommendation,
 	} = props;
 
+	// NOTE: the `!shouldRenderDefault` return lives below the last hook call — every hook in this
+	// component must run unconditionally on every render (shouldRenderDefault can flip while
+	// mounted, e.g. when a pending customComponent import resolves or fails).
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('quickview', props);
-
-	if (!shouldRenderDefault) {
-		return overrideElement;
-	}
 
 	//initialize lang
 	const defaultLang = {
@@ -384,7 +383,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// is within it).
 	useEffect(() => {
 		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
-		if (!isOpenNow) return;
+		if (!shouldRenderDefault || !isOpenNow) return;
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === 'Escape' && !galleryOpen) {
 				quickviewManager.store.close();
@@ -392,17 +391,23 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [quickviewManager?.store?.isOpen, galleryOpen]);
+	}, [shouldRenderDefault, quickviewManager?.store?.isOpen, galleryOpen]);
 
 	// Recommendation modules. `findModule` runs inside .map()/recursion and must not call hooks, so
 	// resolve every referenced profile's controller + components here (stable order) and let
 	// findModule read from this map. Mirrors Organisms/NoResults.
-	const recommendationProfiles = collectRecommendationProfiles(props.layout, {
-		c1: column1?.layout,
-		c2: column2?.layout,
-		c3: column3?.layout,
-		c4: column4?.layout,
-	});
+	// The profile list and template availability are frozen on mount: the per-profile hook calls
+	// below must keep a stable count/order for the lifetime of this instance, and a responsive
+	// theme override could otherwise change the list while mounted. Profiles added by such a
+	// change render only after a remount.
+	const recommendationProfiles = useRef(
+		collectRecommendationProfiles(props.layout, {
+			c1: column1?.layout,
+			c2: column2?.layout,
+			c3: column3?.layout,
+			c4: column4?.layout,
+		})
+	).current;
 
 	type RecEntry = {
 		Component?: (p: RecommendationProps | RecommendationGridProps) => h.JSX.Element | null;
@@ -411,28 +416,22 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	};
 	const recsByProfile = new Map<string, RecEntry>();
 	const snapTemplates = snap as SnapTemplates;
+	const hasTemplates = useRef(Boolean(snapTemplates?.templates)).current;
+
+	const componentName = hasTemplates ? recommendation?.component || 'Recommendation' : undefined;
+	const resultComponentName = hasTemplates ? ((recommendation?.resultComponent || 'Result') as string) : undefined;
+
+	const ResultComponent = useComponent(snapTemplates?.templates?.library.import.component.result || {}, resultComponentName).ComponentOverride;
+	const Component = useComponent(snapTemplates?.templates?.library.import.component.recommendation.default || {}, componentName).ComponentOverride;
 
 	for (const profile of recommendationProfiles) {
-		const componentName = recommendation?.component || 'Recommendation';
-		const resultComponentName = (recommendation?.resultComponent || 'Result') as string;
-
 		const mergedConfig = Object.assign({ id: '', tag: profile, branch: 'production' }, recommendation?.config) as RecommendationControllerConfig & {
 			id: string;
 		};
 		mergedConfig.tag = profile; // the module name always wins for tag
 		mergedConfig.id = mergedConfig.id || `quickview-${profile}`;
 
-		const recsController = snapTemplates?.templates
-			? useCreateController<RecommendationController>(snapTemplates, 'recommendation', mergedConfig)
-			: undefined;
-
-		const ResultComponent = snapTemplates?.templates?.library.import.component.result
-			? useComponent(snapTemplates.templates.library.import.component.result, resultComponentName).ComponentOverride
-			: undefined;
-
-		const Component = snapTemplates?.templates?.library.import.component.recommendation.default
-			? useComponent(snapTemplates.templates.library.import.component.recommendation.default, componentName).ComponentOverride
-			: undefined;
+		const recsController = hasTemplates ? useCreateController<RecommendationController>(snapTemplates, 'recommendation', mergedConfig) : undefined;
 
 		recsByProfile.set(profile, {
 			Component: Component as RecEntry['Component'],
@@ -449,16 +448,27 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// so it re-runs (and finally seeds + searches) once they resolve; otherwise the search is skipped and
 	// never retried because the seed/profile deps don't change after mount.
 	const resolvedRecsKey = recommendationProfiles.map((profile) => (recsByProfile.get(profile)?.recsController ? profile : '')).join(',');
+	// The seed each controller was last searched with. The effect re-runs whenever ANOTHER
+	// profile's controller resolves (resolvedRecsKey), so without this an already-seeded
+	// controller would get search() called again — re-firing middleware and re-sending the
+	// render beacon.
+	const seededRecsRef = useRef(new Map<string, string>());
 	useEffect(() => {
-		if (!recommendationSeed) return;
+		if (!shouldRenderDefault || !recommendationSeed) return;
 		recsByProfile.forEach(({ recsController }) => {
 			if (!recsController) return;
+			if (seededRecsRef.current.get(recsController.config.id) === recommendationSeed) return;
+			seededRecsRef.current.set(recsController.config.id, recommendationSeed);
 			recsController.config.globals = { ...recsController.config.globals, products: [recommendationSeed] };
 			recsController.search();
 		});
 		// recsByProfile is rebuilt each render but holds the same (memoized) controller instances;
 		// re-run when the seed, the set of profiles, or the set of resolved controllers changes.
-	}, [recommendationSeed, recommendationProfiles.join(','), resolvedRecsKey]);
+	}, [shouldRenderDefault, recommendationSeed, recommendationProfiles.join(','), resolvedRecsKey]);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	const styling = mergeStyles<QuickviewLayoutProps>(props, defaultStyles);
 

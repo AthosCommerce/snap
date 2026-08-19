@@ -32,16 +32,6 @@ const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 		// Modal's same-specificity rule (which would otherwise win on source-order since
 		// Modal's styles are emitted after ours), and use !important on the positioning
 		// properties so theme overrides can't accidentally re-anchor the modal to its tile.
-		//
-		// Z-index hierarchy:
-		//   Page content : 0
-		//   Autocomplete : 10002 (Autocomplete/AutocompleteLayout) — quickview must paint above it
-		//   Modal overlay: 10005 (overridden below)
-		//   Modal content: 10006
-		//   Dropdown portal (e.g. variant <select> options): 10007  ← rendered to document.body
-		//     from the VariantSelection Dropdown atom, z-index is hardcoded inline in
-		//     Dropdown.tsx, so we instead keep our modal content BELOW it to let the
-		//     dropdown options paint on top.
 		'&.ss__product-quickview .ss__modal__content': {
 			position: 'fixed !important' as any,
 			top: '50% !important' as any,
