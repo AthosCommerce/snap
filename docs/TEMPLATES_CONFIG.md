@@ -256,6 +256,7 @@ In addition to the common target properties, the following properties apply to t
 | `search` | Search configuration | Object | ➖ |
 | `search.globals` | Search request globals | Object | ➖ |
 | `search.plugins` | Search specific plugins configurations | Object | ➖ |
+| `search.tabs` | Search tab configurations - see [Tabs](#tabs) | Array | ➖ |
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
 | `search.targets[].component` | Component to use for search | String | Required |
@@ -274,10 +275,50 @@ In addition to the common target properties, the following properties apply to t
 | `autocomplete.action` | URL to navigate to on form submission (required if input is not inside a `<form>`) | String | ➖ |
 | `autocomplete.globals` | Autocomplete request globals | Object | ➖ |
 | `autocomplete.plugins` | Autocomplete specific plugins configurations | Object | ➖ |
+| `autocomplete.tabs` | Autocomplete tab configurations - see [Tabs](#tabs) | Array | ➖ |
 | `autocomplete.targets` | Autocomplete target configurations | Array | Required |
 | `autocomplete.targets[].inputSelector` | DOM selector for the autocomplete `<input>` element | String | Required |
 | `autocomplete.targets[].selector` | DOM selector where the component injects; defaults to `inputSelector` | String | ➖ |
 | `autocomplete.targets[].component` | Component to use for autocomplete | String | 'AutocompleteFixed' |
+
+#### Tabs
+
+Tabs allow a single search or autocomplete experience to span multiple catalogs. Each tab is backed by its own controller, scoped to its own `siteId`, and shoppers switch between them with the `tabSelection` component.
+
+Tabs are supported for the `search` and `autocomplete` features. A minimum of two tabs is required for the `tabSelection` component to render.
+
+See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md) for a complete walkthrough.
+
+##### Tab configuration
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `tabs[].id` | Unique tab identifier, also used as the controller id | String | Required |
+| `tabs[].siteId` | Athos Site ID the tab queries | String | Required |
+| `tabs[].param` | URL identifier for the tab's catalog | String | Required |
+| `tabs[].label` | Display label for the tab | String | `tabs[].id` |
+| `tabs[].default` | Selects this tab on initial load | Boolean | first tab |
+| `tabs[].globals` | Request globals for this tab only | Object | ➖ |
+| `tabs[].settings` | Store settings for this tab only, merged over the feature level settings | Object | ➖ |
+| `tabs[].plugins` | Plugins for this tab only, replacing the feature level plugins | Object | ➖ |
+| `search.tabs[].prefetch` | Search this tab before it is selected | Boolean | true |
+
+`tabs[].id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. The id becomes the controller id, and controllers share a single registry - a duplicate id is silently skipped and the affected tab never renders.
+
+`tabs[].param` does two things. It is the value written to the URL when the tab is selected, and it namespaces that tab's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
+
+The URL parameter holding the active tab is always `tab` - it is registered as a custom query parameter on every tab controller and is not configurable.
+
+The `query` parameter is deliberately **not** namespaced - a single query applies across every tab.
+
+> [!IMPORTANT]
+> When tabs are used in both `search` and `autocomplete`, a tab for a given catalog **must be configured with the same `siteId` and the same `param` in both features**. Unlike `id`, which must be unique across the entire configuration, `param` is meant to be shared between the two. This pairing is what allows a shopper to submit from a tabbed autocomplete and land on the matching tab of the search results page - an autocomplete tab whose `param` matches no search tab drops the shopper on the default tab.
+
+`tabs[].plugins` **replaces** the feature level `plugins` for that tab rather than merging with them. Supplying an empty object runs no plugins for that tab.
+
+`prefetch` applies to search tabs only - autocomplete has nothing to fetch until the shopper types. Setting it to `false` defers a tab's request until it is selected, at the cost of showing no result count on that tab beforehand.
+
+Targets are attached to the default tab's controller, so adding tabs does not produce an additional request for the untabbed controller.
 
 #### Recommendation
 In addition to the defining recommendation targets, the recommendation configuration also contains the following following properties:

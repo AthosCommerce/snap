@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+### Bug Fixes
+
+- **preact/components:** adding selectionKey state and keeping state to value + label and setting state on change (instead of keeping only original) ([720a9ba](https://github.com/AthosCommerce/snap/commit/720a9ba9248b49a85f6dc8774735cfbb78ff34de))
+- **usecreatecontroller:** dynamically created recommendation controllers now add plugins from the config ([756ce5e](https://github.com/AthosCommerce/snap/commit/756ce5ef998f7f30c23c9b9984226edfc246f299))
+
+### Features
+
+- **tabbedsearch:** adding tabbed search ([226af09](https://github.com/AthosCommerce/snap/commit/226af09a3b8512f7aaa259512e05a45545e12546))
+
 # [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
 
 ### Bug Fixes

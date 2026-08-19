@@ -10,7 +10,14 @@ import { Tracker } from '@athoscommerce/snap-tracker';
 import type { SnapControllerServices, SnapAutocompleteControllerConfig } from '../types';
 
 export default (config: SnapAutocompleteControllerConfig, services?: SnapControllerServices): AutocompleteController => {
-	const urlManager = (services?.urlManager || new UrlManager(new UrlTranslator(config.url), reactLinker)).detach();
+	//grab the url globals and pull them out of the translatorConfig
+	const { globals: urlGlobals, ...translatorConfig } = config.url || {};
+
+	let urlManager = (services?.urlManager || new UrlManager(new UrlTranslator(translatorConfig), reactLinker)).detach();
+
+	if (urlGlobals?.length) {
+		urlManager = urlManager.withGlobals(Object.fromEntries(urlGlobals.map(({ param, value }) => [param, [value]])));
+	}
 
 	// set client mode
 	if (config.mode && config.client) {

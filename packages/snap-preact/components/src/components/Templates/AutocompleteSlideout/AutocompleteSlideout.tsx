@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
 import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<AutocompleteSlideoutProps> = ({}) => {
 	return css({
@@ -36,7 +37,7 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 	const defaultProps: Partial<AutocompleteSlideoutProps> = {
 		slideDirection: 'left',
 		overlayColor: 'rgba(0,0,0,0.8)',
-		layout: [['button.see-more'], ['termsList'], ['content']],
+		layout: [['button.see-more'], ['termsList'], ['tabSelection'], ['content']],
 		width: '500px',
 		renderInput: true,
 	};
@@ -60,7 +61,14 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 		buttonSelector = input;
 	}
 
-	const { layout, disableStyles, slideDirection, controller, overlayColor, renderInput, className, internalClassName, treePath, width } = props;
+	const { layout, disableStyles, slideDirection, overlayColor, renderInput, className, internalClassName, treePath, width, tabManager } = props;
+
+	let controller = props.controller;
+	let controllers: AutocompleteController[] = [controller];
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as AutocompleteController;
+		controllers = tabManager.tabs.map((tab) => tab.controller as AutocompleteController);
+	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
 
@@ -74,6 +82,7 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 			// default props
 			onReset: () => reset(),
 			layout: layout,
+			tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -137,7 +146,7 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 
 		_input = useAcRenderedInput({
 			input: input as Element,
-			controller,
+			controllers,
 			renderedInputRef,
 			renderInput: Boolean(renderInput),
 			buttonSelector,
@@ -190,6 +199,7 @@ interface AutocompleteSlideoutSubProps {
 export type AutocompleteSlideoutProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteSlideoutTemplatesLegalProps, 'resultComponent'> &
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;

@@ -507,6 +507,13 @@ var documents = [
 				searchable: true,
 			},
 			{
+				label: 'Tabbed Search',
+				route: '/reference-tabbed-search',
+				type: 'markdown',
+				url: './docs/REFERENCE_TABBED_SEARCH.md',
+				searchable: true,
+			},
+			{
 				label: 'Custom Recommendation Templates',
 				route: '/reference-custom-recommendation-templates',
 				type: 'markdown',

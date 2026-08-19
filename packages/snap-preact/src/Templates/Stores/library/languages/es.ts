@@ -178,6 +178,18 @@ export const es: LangComponents = {
 			value: 'Clasificar por',
 		},
 	},
+	tabSelection: {
+		tabList: {
+			attributes: {
+				'aria-label': 'Pestañas de resultados',
+			},
+		},
+		tabButton: {
+			attributes: {
+				'aria-label': (data) => `${data.tab.label || data.tab.id}${typeof data.resultCount == 'number' ? `, ${data.resultCount} resultados` : ''}`,
+			},
+		},
+	},
 	facetsHorizontal: {
 		dropdownButton: {
 			attributes: {

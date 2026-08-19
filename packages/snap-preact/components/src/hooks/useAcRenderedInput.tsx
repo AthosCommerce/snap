@@ -1,16 +1,18 @@
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
-import { useState, MutableRef, useEffect } from 'preact/hooks';
+import { useState, MutableRef, useEffect, useRef } from 'preact/hooks';
+
+const RENDERED_INPUT_SELECTOR = '.autocomplete__search-input input';
 
 export function useAcRenderedInput({
 	input,
-	controller,
+	controllers,
 	renderInput,
 	buttonSelector,
 	renderedInputRef,
 	setActive,
 }: {
 	input: Element;
-	controller: AutocompleteController;
+	controllers: AutocompleteController[];
 	renderedInputRef: MutableRef<HTMLInputElement | null>;
 	renderInput: boolean;
 	buttonSelector?: string | Element;
@@ -18,7 +20,18 @@ export function useAcRenderedInput({
 }) {
 	const [_input, setInput] = useState<Element | null>(input);
 	const [renderedInputInitialized, setRenderedInputInitialized] = useState(false);
+	const boundController = useRef<AutocompleteController | null>(null);
 
+	// adds the rendered input to the controller's selector (once) and binds it
+	const bindRenderedInput = async (cntrlrs: AutocompleteController[]) => {
+		for (const cntrlr of cntrlrs) {
+			if (!cntrlr.config.selector.includes(RENDERED_INPUT_SELECTOR)) {
+				cntrlr.config.selector = `${cntrlr.config.selector}, ${RENDERED_INPUT_SELECTOR}`;
+			}
+			boundController.current = cntrlr;
+			await cntrlr.bind();
+		}
+	};
 	const onClick = () => {
 		if (setActive) {
 			setActive(true);
@@ -28,8 +41,7 @@ export function useAcRenderedInput({
 		setTimeout(async () => {
 			if (!renderedInputInitialized) {
 				setInput(renderedInputRef!.current);
-				controller.config.selector = `${controller.config.selector}, .autocomplete__search-input input`;
-				await controller.bind();
+				await bindRenderedInput(controllers);
 				renderedInputRef?.current?.focus();
 			}
 			setRenderedInputInitialized(true);
