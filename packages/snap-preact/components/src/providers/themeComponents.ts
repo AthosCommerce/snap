@@ -299,7 +299,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesNamedSelectors<'searchHorizontal', string>]?: Partial<SearchHorizontalProps> };
 
 // prettier-ignore
-type ThemeComponentsRestrictedNamed =
+type ThemeComponentsRestrictedNamedProps =
 	/* ATOMS */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgePill'>]?: Partial<BadgePillTemplatesLegalProps> } &
@@ -372,11 +372,8 @@ type ThemeComponentsRestrictedNamed =
 	/* TEMPLATES */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteTemplate'>]?: Partial<AutocompleteLayoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteFixed'>]?: Partial<AutocompleteFixedTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteFixed'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
@@ -385,13 +382,24 @@ type ThemeComponentsRestrictedNamed =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> } & 
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'search'>]?: Partial<SearchTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'search'>]?: unknown } &
-
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchCollapsible'>]?: unknown } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> }
 
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchHorizontal'>]?: unknown }
+/*
+	Template selectors carrying an open (user supplied) name, e.g. `search.tabbed`. Their value type
+	is `unknown` and so must stay out of `ThemeComponentsRestrictedNamedProps` — a union containing
+	`unknown` absorbs every other member, which would reduce `ThemeComponentOpenNamedProps` to `{}`.
+*/
+// prettier-ignore
+type ThemeComponentsRestrictedTemplateOpenNamed =
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteFixed'>]?: unknown } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'search'>]?: unknown } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchCollapsible'>]?: unknown } &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchHorizontal'>]?: unknown };
+
+type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & ThemeComponentsRestrictedTemplateOpenNamed;
 
 /*
 	Props allowed on a selector segment that uses an open (user supplied) name, e.g. `facet.price`.
@@ -402,7 +410,7 @@ type ThemeComponentsRestrictedNamed =
 	may be nested below it — but unlike the `unknown` it replaces, it still rejects props that do
 	not exist on any component.
 */
-type ThemeComponentOpenNamedProps = NonNullable<ThemeComponentsRestrictedNamed[keyof ThemeComponentsRestrictedNamed]>;
+type ThemeComponentOpenNamedProps = NonNullable<ThemeComponentsRestrictedNamedProps[keyof ThemeComponentsRestrictedNamedProps]>;
 
 // prettier-ignore
 export type ThemeComponentsRestricted =
