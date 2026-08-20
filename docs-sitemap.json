@@ -29,6 +29,10 @@
 			"url": "/snap-setup",
 			"title": "Setup"
 		},
+		"docs/SNAP_FEATURES.md": {
+			"url": "/snap-features",
+			"title": "Features"
+		},
 		"docs/SNAP_SEARCH.md": {
 			"url": "/snap-search",
 			"title": "Search"
