@@ -24,7 +24,7 @@ type ResultsProps = {
 const resultsTheme = {
 	components: {
 		result: {
-			showQuickview: true,
+			hideQuickviewButton: false,
 		},
 	},
 };

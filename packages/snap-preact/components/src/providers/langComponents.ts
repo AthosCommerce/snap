@@ -38,6 +38,7 @@ import type { LoadMoreLang } from '../components/Molecules/LoadMore';
 import type { OverlayResultLang } from '../components/Molecules/OverlayResult';
 import type { PaginationLang } from '../components/Molecules/Pagination';
 import type { PerPageLang } from '../components/Molecules/PerPage';
+import type { QuantityPickerLang } from '../components/Molecules/QuantityPicker';
 import type { RadioLang } from '../components/Molecules/Radio';
 import type { RadioListLang } from '../components/Molecules/RadioList';
 // import type { RatingLang } from '../components/Molecules/Rating';
@@ -121,6 +122,7 @@ export type LangComponents = {
 	overlayResult: OverlayResultLang;
 	pagination: PaginationLang;
 	perPage: PerPageLang;
+	quantityPicker: QuantityPickerLang;
 	radioList: RadioListLang;
 	// rating: RatingLang
 	result: ResultLang;

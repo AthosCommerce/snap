@@ -15,6 +15,16 @@ const fireTouch = (node: Element, type: 'touchstart' | 'touchend', point: { clie
 	fireEvent(node, event);
 };
 
+// jsdom has no PointerEvent constructor (fireEvent.pointerDown drops clientX/clientY) and no
+// onpointerdown IDL attribute, so preact registers the listener under the camelCase type
+// ("PointerDown" rather than "pointerdown"). Dispatch a MouseEvent under that type — the handlers
+// only read clientX/clientY/pointerId. Returns false when preventDefault was called.
+const firePointer = (node: Element, type: 'PointerDown' | 'PointerMove' | 'PointerUp', init: { clientX: number; clientY: number }) => {
+	const event = new MouseEvent(type, { bubbles: true, cancelable: true, ...init });
+	(event as any).pointerId = 1;
+	return fireEvent(node, event);
+};
+
 describe('Gallery', () => {
 	it('renders nothing when closed', () => {
 		render(<Gallery images={IMAGES} open={false} />);
@@ -28,7 +38,7 @@ describe('Gallery', () => {
 
 	it('opens at the provided startIndex and shows that image', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={1} />);
-		const img = document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		expect(img).not.toBeNull();
 		expect(img.getAttribute('src')).toBe(IMAGES[1]);
 		// Counter reflects 1-based position.
@@ -37,7 +47,7 @@ describe('Gallery', () => {
 
 	it('advances to the next image (and wraps around)', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={2} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		expect(img().getAttribute('src')).toBe(IMAGES[2]);
 
 		fireEvent.click(document.querySelector('.ss__gallery__nav--next')!);
@@ -47,7 +57,7 @@ describe('Gallery', () => {
 
 	it('goes to the previous image (and wraps around)', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={0} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 
 		fireEvent.click(document.querySelector('.ss__gallery__nav--prev')!);
 		expect(img().getAttribute('src')).toBe(IMAGES[2]);
@@ -68,45 +78,91 @@ describe('Gallery', () => {
 		}
 	});
 
+	// The zoom transform is passed as a `style` prop to the Image atom, which merges it into the
+	// emotion styles on the `.ss__gallery__image` wrapper — so read it via getComputedStyle.
+	const transform = () => getComputedStyle(document.querySelector('.ss__gallery__image')!).transform;
+
 	it('zooms in and out via the toolbar buttons (scale transform)', () => {
 		render(<Gallery images={IMAGES} open={true} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
 		const zoomIn = document.querySelector('.ss__gallery__zoom-in')!;
 		const zoomOut = document.querySelector('.ss__gallery__zoom-out')!;
 
 		// Starts at scale(1); zoom-out disabled at minimum.
-		expect(img().style.transform).toContain('scale(1)');
+		expect(transform()).toContain('scale(1)');
 		expect(zoomOut.className).toContain('ss__button--disabled');
 
 		// Clicking the disabled zoom-out must not drop below the minimum scale.
-		const transformAtMin = img().style.transform;
+		const transformAtMin = transform();
 		fireEvent.click(zoomOut);
-		expect(img().style.transform).toBe(transformAtMin);
-		expect(img().style.transform).toContain('scale(1)');
+		expect(transform()).toBe(transformAtMin);
+		expect(transform()).toContain('scale(1)');
 
 		fireEvent.click(zoomIn);
-		expect(img().style.transform).toContain('scale(1.5)');
+		expect(transform()).toContain('scale(1.5)');
 		expect(zoomOut.className).not.toContain('ss__button--disabled');
 
 		fireEvent.click(zoomOut);
-		expect(img().style.transform).toContain('scale(1)');
+		expect(transform()).toContain('scale(1)');
 	});
 
 	it('does not zoom past the maximum', () => {
 		render(<Gallery images={IMAGES} open={true} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
 		const zoomIn = document.querySelector('.ss__gallery__zoom-in')!;
 
 		// MIN=1, MAX=4, STEP=0.5 → 6 clicks would be 4.0 (clamped). Click extra to ensure clamp.
 		for (let i = 0; i < 10; i++) fireEvent.click(zoomIn);
-		expect(img().style.transform).toContain('scale(4)');
+		expect(transform()).toContain('scale(4)');
 		expect(zoomIn.className).toContain('ss__button--disabled');
 
 		// Clicking the now-disabled zoom-in must not push past the maximum scale.
-		const transformAtMax = img().style.transform;
+		const transformAtMax = transform();
 		fireEvent.click(zoomIn);
-		expect(img().style.transform).toBe(transformAtMax);
-		expect(img().style.transform).toContain('scale(4)');
+		expect(transform()).toBe(transformAtMax);
+		expect(transform()).toContain('scale(4)');
+	});
+
+	it('pans the image by dragging while zoomed in', () => {
+		render(<Gallery images={IMAGES} open={true} />);
+		const img = document.querySelector('.ss__gallery__image img')!;
+		fireEvent.click(document.querySelector('.ss__gallery__zoom-in')!);
+
+		firePointer(img, 'PointerDown', { clientX: 100, clientY: 100 });
+		firePointer(img, 'PointerMove', { clientX: 140, clientY: 130 });
+		expect(transform()).toContain('translate(40px, 30px)');
+
+		// Drag ends on pointerup; further movement must not pan.
+		firePointer(img, 'PointerUp', { clientX: 140, clientY: 130 });
+		firePointer(img, 'PointerMove', { clientX: 200, clientY: 200 });
+		expect(transform()).toContain('translate(40px, 30px)');
+	});
+
+	it('does not pan on drag when not zoomed', () => {
+		render(<Gallery images={IMAGES} open={true} />);
+		const img = document.querySelector('.ss__gallery__image img')!;
+
+		firePointer(img, 'PointerDown', { clientX: 100, clientY: 100 });
+		firePointer(img, 'PointerMove', { clientX: 140, clientY: 130 });
+		expect(transform()).toContain('translate(0px, 0px)');
+	});
+
+	it('suppresses native image dragging so pointer-panning can work', () => {
+		render(<Gallery images={IMAGES} open={true} />);
+		const img = document.querySelector('.ss__gallery__image img')!;
+
+		// A default-draggable <img> starts a native HTML5 drag on mousedown, which cancels the
+		// pointermove stream the pan relies on.
+		expect(img.getAttribute('draggable')).toBe('false');
+		// Touch gestures must not be claimed by the browser (scroll/pinch) while panning. jsdom's
+		// getComputedStyle does not support touch-action, so check the CSSOM rules emotion inserted.
+		const cssText = Array.from(document.styleSheets)
+			.flatMap((sheet) => Array.from(sheet.cssRules).map((rule) => rule.cssText))
+			.join('');
+		expect(cssText).toContain('touch-action: none');
+
+		// While zoomed, pointerdown is cancelled to block selection/drag defaults from hijacking the pan.
+		fireEvent.click(document.querySelector('.ss__gallery__zoom-in')!);
+		const notPrevented = firePointer(img, 'PointerDown', { clientX: 100, clientY: 100 });
+		expect(notPrevented).toBe(false);
 	});
 
 	it('invokes onClose when the close button is clicked', () => {
@@ -122,7 +178,7 @@ describe('Gallery', () => {
 	it('invokes onClose on Escape and navigates with arrow keys', () => {
 		const onClose = jest.fn();
 		render(<Gallery images={IMAGES} open={true} startIndex={0} onClose={onClose} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 
 		fireEvent.keyDown(window, { key: 'ArrowRight' });
 		expect(img().getAttribute('src')).toBe(IMAGES[1]);
@@ -136,7 +192,7 @@ describe('Gallery', () => {
 		render(<Gallery images={IMAGES} open={true} onClose={onClose} />);
 
 		// Clicking the image must NOT close.
-		fireEvent.click(document.querySelector('img.ss__gallery__image')!);
+		fireEvent.click(document.querySelector('.ss__gallery__image img')!);
 		expect(onClose).not.toHaveBeenCalled();
 
 		// Clicking the stage backdrop itself closes.
@@ -146,7 +202,7 @@ describe('Gallery', () => {
 
 	it('paginates to the next image on a left swipe (touch)', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={0} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		const stage = document.querySelector('.ss__gallery__stage')!;
 
 		// Swipe left (start right, end left) → next image.
@@ -157,7 +213,7 @@ describe('Gallery', () => {
 
 	it('paginates to the previous image on a right swipe (touch)', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={1} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		const stage = document.querySelector('.ss__gallery__stage')!;
 
 		// Swipe right (start left, end right) → previous image.
@@ -168,7 +224,7 @@ describe('Gallery', () => {
 
 	it('ignores small or vertical swipes', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={0} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		const stage = document.querySelector('.ss__gallery__stage')!;
 
 		// Below threshold → no change.
@@ -184,7 +240,7 @@ describe('Gallery', () => {
 
 	it('does not paginate on swipe while zoomed in', () => {
 		render(<Gallery images={IMAGES} open={true} startIndex={0} />);
-		const img = () => document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const img = () => document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		const stage = document.querySelector('.ss__gallery__stage')!;
 
 		// Zoom in first; horizontal drag then pans rather than paginating.
@@ -201,7 +257,7 @@ describe('Gallery', () => {
 		// Counter only shown for multiple images.
 		expect(document.querySelector('.ss__gallery__counter')).toBeNull();
 		// But the (zoomable) image is still rendered.
-		expect(document.querySelector('img.ss__gallery__image')).not.toBeNull();
+		expect(document.querySelector('.ss__gallery__image img')).not.toBeNull();
 	});
 
 	describe('accessibility and lang', () => {

@@ -753,7 +753,7 @@ describe('Recommendation Controller quickview', () => {
 			profiler: new Profiler(),
 			logger: new Logger(),
 			tracker: new Tracker(globals),
-			quickview: { show } as any,
+			quickviewManager: { show } as any,
 		});
 
 		const result: any = { id: 'rec-child-1', mappings: { core: { parentId: 'rec-parent-1' } } };

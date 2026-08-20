@@ -570,7 +570,7 @@ describe('Search Controller', () => {
 
 		// A search controller is the realistic opener: the manager delegates add-to-cart and product
 		// tracking back to whoever opened the quickview, which finder controllers cannot service.
-		const searchController = (quickview?: any) => {
+		const searchController = (quickviewManager?: any) => {
 			const config = { id: 'test-search' };
 			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
 
@@ -582,7 +582,7 @@ describe('Search Controller', () => {
 				profiler: new Profiler(),
 				logger: new Logger(),
 				tracker: new Tracker(globals),
-				quickview,
+				quickviewManager,
 			});
 		};
 
@@ -642,7 +642,7 @@ describe('Search Controller', () => {
 				profiler: new Profiler(),
 				logger: new Logger(),
 				tracker: new Tracker(globals),
-				quickview: { show } as any,
+				quickviewManager: { show } as any,
 			});
 
 			const spy = jest.spyOn(controller.log, 'warn');

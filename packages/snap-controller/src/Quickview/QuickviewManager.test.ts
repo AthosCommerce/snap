@@ -45,7 +45,7 @@ describe('QuickviewManager', () => {
 		expect(manager.store.isOpen).toBe(false);
 	});
 
-	it("opens loading, fetches the result's parent on the source controller client, fires the middleware, then updates the store", async () => {
+	it("opens loading, fetches the result's parent on the source controller client, updates the store, then fires the middleware with the store product", async () => {
 		const manager = new QuickviewManager(services());
 		const controller = sourceController();
 		const result = product('p1', { mappings: { core: { parentId: 'parent-1' } } });
@@ -53,7 +53,7 @@ describe('QuickviewManager', () => {
 		await manager.show(result, { controller });
 
 		expect(controller.client.products).toHaveBeenCalledWith({ parentId: 'parent-1' });
-		expect(controller.eventManager.fire).toHaveBeenCalledWith('quickview', expect.objectContaining({ controller, result }));
+		expect(controller.eventManager.fire).toHaveBeenCalledWith('quickview', { controller, product: manager.store.product });
 		expect(manager.store.isOpen).toBe(true);
 		expect(manager.store.loading).toBe(false);
 	});
@@ -181,7 +181,7 @@ describe('QuickviewManager', () => {
 
 		await manager.show(product(), { controller });
 
-		expect(manager.store.error?.message).toBe(`'quickview' middleware error`);
+		expect(manager.store.error?.message).toBe(`Failed to load quickview`);
 		expect(manager.store.loading).toBe(false);
 	});
 

@@ -265,6 +265,10 @@
 			"url": "/reference-tabbed-search",
 			"title": "Tabbed Search"
 		},
+		"docs/REFERENCE_QUICKVIEW.md": {
+			"url": "/reference-quickview",
+			"title": "Quickview"
+		},
 		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
 			"url": "/reference-custom-recommendation-templates",
 			"title": "Custom Recommendation Templates"

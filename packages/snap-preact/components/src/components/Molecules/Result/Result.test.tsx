@@ -713,9 +713,9 @@ describe('Result quickview integration', () => {
 		expect(rendered.container.querySelector('.ss__result__quickview')).toBeNull();
 	});
 
-	it('renders the quickview eye icon overlayed on the image when showQuickview is true', () => {
+	it('renders the quickview eye icon overlayed on the image when hideQuickviewButton is false', () => {
 		const { controller } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 		const quickview = rendered.container.querySelector('.ss__result__image-wrapper .ss__result__quickview');
 		expect(quickview).not.toBeNull();
 		expect(quickview!.querySelector('.ss__icon--eye')).not.toBeNull();
@@ -723,35 +723,35 @@ describe('Result quickview integration', () => {
 
 	it('calls controller.quickview when the icon is clicked', async () => {
 		const { controller, set } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 		const icon = rendered.container.querySelector('.ss__result__quickview')!;
 		await userEvent.click(icon);
 		expect(set).toHaveBeenCalledTimes(1);
 		expect(set).toHaveBeenCalledWith(baseResult);
 	});
 
-	it('does not mount inline ProductQuickview when store quickview targets a different product', () => {
+	it('does not mount inline quickview when store quickview targets a different product', () => {
 		const otherProduct = { id: 'other', mappings: { core: { name: 'Other' } }, attributes: {} };
 		const controller: any = {
 			store: { quickview: { isOpen: true, product: otherProduct, close: jest.fn() } },
 			quickview: jest.fn(),
 		};
 
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 
 		// New behavior: the wrapper isn't even mounted when this result is not the active quickview.
-		expect(rendered.container.querySelector('.ss__product-quickview')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview')).toBeNull();
 	});
 
-	it('does not render a ProductQuickview modal inside the result', () => {
+	it('does not render a quickview modal inside the result', () => {
 		const { controller } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
-		expect(rendered.container.querySelector('.ss__product-quickview')).toBeNull();
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
+		expect(rendered.container.querySelector('.ss__quickview')).toBeNull();
 	});
 
 	it('quickview button has tabindex="0"', () => {
 		const { controller } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 		const button = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
 		expect(button).not.toBeNull();
 		expect(button.getAttribute('tabindex')).toBe('0');
@@ -759,7 +759,7 @@ describe('Result quickview integration', () => {
 
 	it('Enter key on quickview button calls controller.quickview with the result', () => {
 		const { controller, set } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 		const button = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
 		fireEvent.keyDown(button, { key: 'Enter', code: 'Enter' });
 		expect(set).toHaveBeenCalledTimes(1);
@@ -768,7 +768,7 @@ describe('Result quickview integration', () => {
 
 	it('Space key on quickview button calls controller.quickview with the result', () => {
 		const { controller, set } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 		const button = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
 		fireEvent.keyDown(button, { key: ' ', code: 'Space' });
 		expect(set).toHaveBeenCalledTimes(1);
@@ -777,7 +777,7 @@ describe('Result quickview integration', () => {
 
 	it('other keys on quickview button do NOT call controller.quickview', () => {
 		const { controller, set } = makeController();
-		const rendered = render(<Result result={baseResult} controller={controller} showQuickview={true} />);
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} />);
 		const button = rendered.container.querySelector('.ss__result__quickview') as HTMLElement;
 		fireEvent.keyDown(button, { key: 'a', code: 'KeyA' });
 		expect(set).not.toHaveBeenCalled();

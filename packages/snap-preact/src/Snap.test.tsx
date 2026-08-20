@@ -1415,31 +1415,27 @@ describe('Snap Preact', () => {
 	});
 
 	describe('creates the quickview manager via config', () => {
-		it('creates a quickview manager and registers it on window.athos.quickview', async () => {
+		it('creates a quickview manager from the quickview config', async () => {
 			const baseConfig = generateBaseConfig();
 			const snap = new Snap({ ...baseConfig, quickview: { config: { id: 'quickview' } } });
 
-			expect(snap.quickview).toBeDefined();
-			expect(snap.quickview!.type).toBe('quickview');
-			expect(snap.quickview!.config.id).toBe('quickview');
-
-			expect(window.athos.quickview).toBeDefined();
-			expect(window.athos.quickview).toBe(snap.quickview);
+			expect(snap['quickviewManager']).toBeDefined();
+			expect(snap['quickviewManager']!.type).toBe('quickview');
+			expect(snap['quickviewManager']!.config.id).toBe('quickview');
 		});
 
 		it('defaults the manager config when none is provided', async () => {
 			const baseConfig = generateBaseConfig();
 			const snap = new Snap({ ...baseConfig, quickview: {} });
 
-			expect(snap.quickview!.config.id).toBe('quickview');
+			expect(snap['quickviewManager']!.config.id).toBe('quickview');
 		});
 
 		it('does not create a manager when there is no quickview config', async () => {
 			const baseConfig = generateBaseConfig();
 			const snap = new Snap(baseConfig);
 
-			expect(snap.quickview).toBeUndefined();
-			expect(window.athos.quickview).toBeUndefined();
+			expect(snap['quickviewManager']).toBeUndefined();
 		});
 
 		it('passes the manager to controllers as the quickview service', async () => {
@@ -1454,10 +1450,10 @@ describe('Snap Preact', () => {
 
 			// created ahead of the controllers, so the service is there from construction
 			const search = await snap.getController('search');
-			expect(search.quickviewManager).toBe(snap.quickview);
+			expect(search.quickviewManager).toBe(snap['quickviewManager']);
 
 			const autocomplete = await snap.createController('autocomplete', { id: 'ac', selector: '#ac-input' });
-			expect(autocomplete.quickviewManager).toBe(snap.quickview);
+			expect(autocomplete.quickviewManager).toBe(snap['quickviewManager']);
 		});
 
 		it('leaves controllers without a manager when there is no quickview config', async () => {
@@ -1488,7 +1484,7 @@ describe('Snap Preact', () => {
 			await wait(50);
 
 			expect(QuickviewComponent).toHaveBeenCalled();
-			expect(QuickviewComponent.mock.calls[0][0]).toEqual(expect.objectContaining({ quickviewManager: snap.quickview, snap }));
+			expect(QuickviewComponent.mock.calls[0][0]).toEqual(expect.objectContaining({ quickviewManager: snap['quickviewManager'], snap }));
 		});
 
 		it('logs an error when a quickview targeter is missing a selector or component', async () => {

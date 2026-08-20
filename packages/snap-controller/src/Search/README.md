@@ -61,7 +61,7 @@ searchController.addToCart([searchController.store.results[0]]);
 
 ## Quickview
 
-The Search controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `SearchController` — it is owned by the `QuickviewManager` (see `snap-controller`), reachable at `window.athos.quickview` / `snap.quickview`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: the Snap framework injects it into `<body>`, so consumers no longer render one per result.
+The Search controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `SearchController` — it is owned by the `QuickviewManager` (see `snap-controller`), exposed on the controller as `controller.quickviewManager`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: the Snap framework injects it into `<body>` — there is no per-result modal.
 
 ### `quickview(result, productsData?, config?)`
 
@@ -79,10 +79,10 @@ Requests the product quickview modal for the given result. This method is a thin
 
 ### Closing the modal
 
-Closing is handled by the manager's store: call `window.athos.quickview.store.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `.store.reset()` to also clear the product reference.
+Closing is handled by the manager's store: call `controller.quickviewManager.store.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `.store.reset()` to also clear the product reference.
 
 ```js
-window.athos.quickview.store.close();
+controller.quickviewManager.store.close();
 ```
 
 ## Search History

@@ -19,6 +19,7 @@ import { ProductDetailTable } from '../../Molecules/ProductDetailTable';
 import { OverlayBadge } from '../../Molecules/OverlayBadge';
 import { CalloutBadge } from '../../Molecules/CalloutBadge';
 import { Gallery } from '../../Molecules/Gallery';
+import { QuantityPicker } from '../../Molecules/QuantityPicker';
 
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
@@ -28,7 +29,7 @@ import type { LibraryImports } from '../../../../../src/Templates/Stores/Library
 
 const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, column3, column4 }) => {
 	return css({
-		'& .ss__product-quickview__content': {
+		'& .ss__quickview__content': {
 			// extra top padding keeps the close button clear of top content (e.g. overlay badges)
 			padding: '48px 20px 20px 20px',
 			minWidth: '320px',
@@ -78,25 +79,25 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
 			alignContent: column4?.alignContent,
 		},
-		'& .ss__product-quickview__slideshow': {
+		'& .ss__quickview__slideshow': {
 			marginBottom: 0,
 		},
-		'& .ss__product-quickview__title': {
+		'& .ss__quickview__title': {
 			fontSize: '1.4em',
 			paddingRight: '32px', // leave room for the close button
 		},
-		'& .ss__product-quickview__variant': {
+		'& .ss__quickview__variant': {
 			marginBottom: '12px',
 			// Slideshow centers its track when there are fewer swatches than slidesPerView — left-align instead.
 			'& .ss__slideshow__track--centered': {
 				justifyContent: 'flex-start',
 			},
 		},
-		'& .ss__product-quickview__variant-title': {
+		'& .ss__quickview__variant-title': {
 			marginBottom: '6px',
 			fontWeight: 600,
 		},
-		'& .ss__product-quickview__image': {
+		'& .ss__quickview__image': {
 			display: 'block',
 			maxWidth: '100%',
 			marginBottom: '12px',
@@ -106,7 +107,7 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 				maxWidth: '100%',
 			},
 		},
-		'& .ss__product-quickview__carousel': {
+		'& .ss__quickview__carousel': {
 			// Slideshow defaults its slide images to objectFit:cover; the quickview hero image should
 			// display uncropped at its natural aspect ratio instead.
 			'& .ss__slideshow__slide img': {
@@ -125,7 +126,7 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 				width: 'auto',
 			},
 		},
-		'& .ss__product-quickview__variants': {
+		'& .ss__quickview__variants': {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '12px',
@@ -135,10 +136,10 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			// every swatch) when its container is narrow — have room to render.
 			width: '100%',
 		},
-		'& .ss__product-quickview__description': {
+		'& .ss__quickview__description': {
 			lineHeight: 1.4,
 		},
-		'& .ss__product-quickview__close': {
+		'& .ss__quickview__close': {
 			position: 'absolute',
 			top: '12px',
 			right: '12px',
@@ -149,19 +150,19 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			lineHeight: 1,
 			zIndex: 1,
 		},
-		'& .ss__product-quickview__loading': {
+		'& .ss__quickview__loading': {
 			padding: '40px',
 			textAlign: 'center',
 			minWidth: '200px',
 		},
-		'& .ss__product-quickview__error': {
+		'& .ss__quickview__error': {
 			padding: '40px',
 			textAlign: 'center',
 			minWidth: '200px',
 			color: '#b00020',
 		},
 		'@media (min-width: 768px)': {
-			'& .ss__product-quickview__content': {
+			'& .ss__quickview__content': {
 				maxWidth: '880px',
 			},
 			'& .ss__quickview-layout__column.ss__quickview-layout__column--c1': {
@@ -217,8 +218,8 @@ const collectRecommendationProfiles = (layout: unknown, columns: Record<string, 
 	return Array.from(profiles).sort();
 };
 
-// Impression-tracking wrapper used by the quickview containers (ProductQuickviewModal /
-// ProductQuickviewSlideout). Containers mount it keyed by response/product so each displayed
+// Impression-tracking wrapper used by the quickview containers (QuickviewModal /
+// QuickviewSlideout). Containers mount it keyed by response/product so each displayed
 // product is observed and tracked once via the standard useTracking hook. Tracking goes through
 // the manager, which delegates to the originating controller with `quickView: true` — that flag
 // both marks the beacon event as a quickview view and gives it its own dedup slot, so the
@@ -236,7 +237,7 @@ export const QuickviewTracker = ({
 }) => {
 	const { trackingRef } = useTracking({ controller: quickviewManager, result: product, track: { click: false, options: { threshold: 0 } } });
 	return (
-		<div className="ss__product-quickview__tracker" ref={trackingRef as MutableRef<HTMLDivElement>}>
+		<div className="ss__quickview__tracker" ref={trackingRef as MutableRef<HTMLDivElement>}>
 			{children}
 		</div>
 	);
@@ -273,6 +274,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 				['productDetail.mappings.core.name'],
 				['calloutBadge'],
 				['variantSelections'],
+				['quantityPicker'],
 				['button.add-to-cart', 'button.more-info'],
 				['productDetail.mappings.core.description'],
 				['productDetailTable'],
@@ -505,7 +507,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// containers (AutocompleteModal/AutocompleteSlideout): useA11y traps Tab within the
 	// content and wires Escape to the callback above.
 	const contentProps = {
-		className: 'ss__product-quickview__content',
+		className: 'ss__quickview__content',
 		role: 'dialog' as const,
 		'aria-modal': 'true' as const,
 		ref: (e: HTMLDivElement | null) => useA11y(e, 0, true, handleEscape),
@@ -533,7 +535,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const slideshowContent =
 		slidesData.length > 0 ? (
 			<Slideshow
-				className="ss__product-quickview__carousel"
+				className="ss__quickview__carousel"
 				startIndex={targetSlide}
 				slidesToShow={1}
 				slidesToMove={1}
@@ -591,7 +593,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		if (module == 'slideshow') {
 			if (!slideshowContent || !product) return null;
 			return (
-				<div className="ss__product-quickview__slideshow">
+				<div className="ss__quickview__slideshow">
 					{disabledOverlayBadges ? (
 						slideshowContent
 					) : (
@@ -627,11 +629,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			if (!path || !product) return null;
 			// Preserve the legacy quickview classnames so existing styles/themes/tests keep matching.
 			const legacyClass =
-				field === 'name'
-					? 'ss__product-quickview__title'
-					: field === 'description'
-					? 'ss__product-quickview__description'
-					: `ss__product-quickview__${field}`;
+				field === 'name' ? 'ss__quickview__title' : field === 'description' ? 'ss__quickview__description' : `ss__quickview__${field}`;
 			return (
 				<ProductDetail
 					result={product}
@@ -652,10 +650,10 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		if (module == 'variantSelections') {
 			if (!selections || selections.length === 0) return null;
 			return (
-				<div className="ss__product-quickview__variants">
+				<div className="ss__quickview__variants">
 					{selections.map((selection) => (
-						<div key={selection.field} className="ss__product-quickview__variant">
-							<div className="ss__product-quickview__variant-title">{selection.label || selection.field}</div>
+						<div key={selection.field} className="ss__quickview__variant">
+							<div className="ss__quickview__variant-title">{selection.label || selection.field}</div>
 							<VariantSelection
 								selection={selection}
 								type={selection.type as VariantSelectionTemplatesLegalProps['type']}
@@ -674,8 +672,8 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			const selection = selections?.find((selection) => selection.field === name || fieldNameToComponentName(selection.field) === name);
 			if (!name || !selection) return null;
 			return (
-				<div className="ss__product-quickview__variant">
-					<div className="ss__product-quickview__variant-title">{selection.label || selection.field}</div>
+				<div className="ss__quickview__variant">
+					<div className="ss__quickview__variant-title">{selection.label || selection.field}</div>
 					<VariantSelection
 						selection={selection}
 						type={selection.type as VariantSelectionTemplatesLegalProps['type']}
@@ -692,7 +690,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			return (
 				<Button
 					name="add-to-cart"
-					internalClassName="ss__product-quickview__add-to-cart"
+					internalClassName="ss__quickview__add-to-cart"
 					lang={{ button: lang.addToCartButton }}
 					onClick={() => product && quickviewManager.addToCart([product])}
 					theme={props.theme}
@@ -707,7 +705,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			return (
 				<Button
 					name="more-info"
-					internalClassName="ss__product-quickview__go-to-product"
+					internalClassName="ss__quickview__go-to-product"
 					lang={{ button: lang.moreInfoButton }}
 					onClick={(e) => {
 						// track the redirect to the product page as a quickview clickThrough
@@ -724,6 +722,22 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			);
 		}
 
+		// `quantityPicker` binds to the observable `product.quantity`, which `button.add-to-cart`
+		// (via the cart store) picks up when the product is added.
+		if (module == 'quantityPicker') {
+			if (!product) return null;
+			return (
+				<QuantityPicker
+					internalClassName="ss__quickview__quantity-picker"
+					value={product.quantity}
+					onChange={(e, value) => (product.quantity = value)}
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
+				/>
+			);
+		}
+
 		if (module == 'productDetailTable') {
 			if (!product) return null;
 			const details = (displayFields || []).map((field) => ({ field, label: labelFor(field) }));
@@ -731,7 +745,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 				<ProductDetailTable
 					result={product}
 					details={details}
-					className="ss__product-quickview__attributes"
+					className="ss__quickview__attributes"
 					theme={props.theme}
 					treePath={treePath}
 					{...defined({ disableStyles })}
@@ -746,7 +760,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			const recsController = entry?.recsController;
 			if (!RecComponent || !recsController?.store?.loaded) return null;
 			return (
-				<div className="ss__product-quickview__recommendations">
+				<div className="ss__quickview__recommendations">
 					<RecComponent
 						controller={recsController}
 						title={recsController.store?.profile?.display?.templateParameters?.title}
@@ -773,7 +787,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const closeButton = (
 		<Button
 			name="close"
-			internalClassName="ss__product-quickview__close"
+			internalClassName="ss__quickview__close"
 			icon="close-thin"
 			lang={{ button: lang.closeButton }}
 			onClick={() => onClose()}
@@ -793,11 +807,11 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					<div {...contentProps}>
 						{closeButton}
 						{error ? (
-							<div className="ss__product-quickview__error" role="alert">
+							<div className="ss__quickview__error" role="alert">
 								{error.message}
 							</div>
 						) : loading ? (
-							<div className="ss__product-quickview__loading" {...mergedLang.loadingText?.all}></div>
+							<div className="ss__quickview__loading" {...mergedLang.loadingText?.all}></div>
 						) : (
 							<>
 								{(layout as ModuleNamesWithColumns[])?.map((module) => findModule(module))}
@@ -830,6 +844,7 @@ export type QuickviewModuleNames =
 	| `productDetail.${string}`
 	| 'button.add-to-cart'
 	| 'button.more-info'
+	| 'quantityPicker'
 	| 'productDetailTable'
 	| `recommendation.${string}`
 	| '_';

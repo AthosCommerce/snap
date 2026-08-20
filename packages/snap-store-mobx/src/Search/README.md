@@ -6,7 +6,7 @@ The meta property is an object containing the meta data retrieved from the Athos
 
 ## Quickview
 
-`SearchStore` no longer exposes a `quickview` property. The quickview modal store (`QuickviewStore`) is now the store of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) and is reached at `window.athos.quickview.store`. `SearchController` still exposes a `quickview(result)` method that forwards to the manager.
+The quickview modal state does not live on `SearchStore` — it is held by the `QuickviewStore`, the store of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview), reached via any controller at `controller.quickviewManager.store`. `SearchController` exposes a `quickview(result)` method that forwards to the manager.
 
 See the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the full observable surface, and the controller READMEs for usage of the `quickview(result)` method.
 

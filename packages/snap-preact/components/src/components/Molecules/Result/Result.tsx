@@ -95,7 +95,7 @@ export const Result = observer((properties: ResultProps) => {
 		quickviewButtonText: 'Quick View',
 		hideAddToCartButton: true,
 		hideRating: true,
-		showQuickview: false,
+		hideQuickviewButton: true,
 	};
 
 	const props = mergeProps('result', globalTheme, defaultProps, properties);
@@ -122,7 +122,8 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonSuccessTimeout,
 		quickviewButtonText,
 		hideRating,
-		showQuickview,
+		hideQuickviewButton,
+		onQuickviewClick,
 		trackingRef,
 		treePath,
 	} = props;
@@ -215,6 +216,7 @@ export const Result = observer((properties: ResultProps) => {
 		},
 		quickviewButton: {
 			// default props
+			name: 'quickview',
 			internalClassName: 'ss__result__quickview',
 			icon: {
 				internalClassName: 'ss__result__quickview__icon',
@@ -222,7 +224,12 @@ export const Result = observer((properties: ResultProps) => {
 				size: '20px',
 				title: quickviewButtonText,
 			},
-			onClick: () => controller?.quickview(result),
+			onClick: (e) => {
+				if (onQuickviewClick) {
+					onQuickviewClick(e, result);
+				}
+				controller?.quickview(result);
+			},
 			// inherited props
 			...defined({
 				disableStyles,
@@ -314,7 +321,7 @@ export const Result = observer((properties: ResultProps) => {
 								<Image {...subProps.image} />
 							)}
 						</a>
-						{showQuickview && controller && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
+						{!hideQuickviewButton && controller && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
 					</div>
 				)}
 
@@ -408,10 +415,11 @@ export type ResultTemplatesLegalProps = {
 	hideRating?: boolean;
 	hideVariantSelections?: boolean;
 	hideAddToCartButton?: boolean;
-	showQuickview?: boolean;
+	hideQuickviewButton?: boolean;
 	addToCartButtonText?: string;
 	quickviewButtonText?: string;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
+	onQuickviewClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;
 	addToCartButtonSuccessTimeout?: number;
 	detailSlot?: JSX.Element | JSX.Element[];

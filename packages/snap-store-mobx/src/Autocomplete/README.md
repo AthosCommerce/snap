@@ -113,12 +113,12 @@ Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap
 
 ## Quickview
 
-`AutocompleteStore` no longer exposes a `quickview` property. The `QuickviewStore` is now the store of the shared `QuickviewManager` and is reached at `window.athos.quickview.store`. It holds the state for the product quickview modal:
+The quickview modal state does not live on `AutocompleteStore` — it is held by the `QuickviewStore`, the store of the shared `QuickviewManager`, reached via any controller at `controller.quickviewManager.store`:
 
 - Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `quickviewConfig?: QuickviewConfig`, `error?: QuickviewError`.
 - Actions: `update({ result, productsData?, config?, storeConfig?, meta? })`, `close()`, `reset()`, `setLoading(loading, product?)`, `setError(error | undefined)`.
 
-`AutocompleteController` still exposes a `quickview(result)` method that forwards to the `QuickviewManager`. See the [AutocompleteController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete) for the full usage, and the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the complete observable surface.
+`AutocompleteController` exposes a `quickview(result)` method that forwards to the `QuickviewManager`. See the [AutocompleteController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete) for the full usage, and the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the complete observable surface.
 
 ## `merchandising` property
 Contains redirect and banner merchandising data that the Search API returned. See [SearchStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Search) `merchandising` property

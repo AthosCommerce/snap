@@ -55,6 +55,7 @@ describe('LibraryStore', () => {
 			pagination: {},
 			paginationInfo: {},
 			perPage: {},
+			quantityPicker: {},
 			price: {},
 			productDetail: {},
 			productDetailTable: {},

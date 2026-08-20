@@ -392,6 +392,23 @@ export const fr: LangComponents = {
 			},
 		},
 	},
+	quantityPicker: {
+		quantityInput: {
+			attributes: {
+				'aria-label': 'quantité',
+			},
+		},
+		decrementButton: {
+			attributes: {
+				'aria-label': 'diminuer la quantité',
+			},
+		},
+		incrementButton: {
+			attributes: {
+				'aria-label': 'augmenter la quantité',
+			},
+		},
+	},
 	// toggle: {
 	// 	toggleSwitch: {
 	// 		attributes: {

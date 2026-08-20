@@ -14,11 +14,9 @@ import type {
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
 	Product,
-	QuickviewConfig,
 	SearchStoreConfigSettings,
 	AutocompleteStoreConfigSettings,
 } from '@athoscommerce/snap-store-mobx';
-import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Tracker, ProductViewEvent } from '@athoscommerce/snap-tracker';
 import type { Profiler } from '@athoscommerce/snap-profiler';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
@@ -73,11 +71,9 @@ export type RestorePositionObj = {
 	element?: ElementPositionObj;
 };
 
-export type ProductQuickviewObj = {
+export type QuickviewObj = {
 	controller: SearchController | AutocompleteController | RecommendationController;
-	result: Product;
-	productsData?: ProductsResponseModel;
-	config: QuickviewConfig;
+	product: Product;
 };
 
 // Overrides passed to `track.*` methods. `quickView` is set by the QuickviewManager when
@@ -112,7 +108,7 @@ export type ControllerServices = {
 	tracker: Tracker;
 	// Optional: only controllers wired to a quickview manager can open the quickview modal.
 	// Shared across every controller in a Snap instance — one modal, many openers.
-	quickview?: QuickviewManager;
+	quickviewManager?: QuickviewManager;
 };
 
 export type Attachments = {

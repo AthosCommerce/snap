@@ -1,5 +1,5 @@
 # QuickviewStore
-The quickview store holds the state for the product quickview modal. It extends the AbstractStore and is the `store` of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) — it is reached at `window.athos.quickview.store`.
+The quickview store holds the state for the product quickview modal. It extends the AbstractStore and is the `store` of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) — it is reached via any controller at `controller.quickviewManager.store`.
 
 The store is typically driven by the `QuickviewManager`, which opens it in a loading state, fetches additional product data from `/v1/products`, and then calls `update` to populate the modal. Controllers (`SearchController`, `AutocompleteController`, `RecommendationController`) trigger this flow via their `quickview(result)` method, which forwards to the manager.
 

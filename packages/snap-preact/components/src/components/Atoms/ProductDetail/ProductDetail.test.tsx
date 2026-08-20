@@ -111,9 +111,9 @@ describe('ProductDetail Component', () => {
 	});
 
 	it('passes through an external className', () => {
-		const rendered = render(<ProductDetail result={mockResult} field={'mappings.core.name'} className={'ss__product-quickview__title'} />);
+		const rendered = render(<ProductDetail result={mockResult} field={'mappings.core.name'} className={'ss__quickview__title'} />);
 		const el = rendered.container.querySelector('.ss__product-detail')!;
-		expect(el).toHaveClass('ss__product-quickview__title');
+		expect(el).toHaveClass('ss__quickview__title');
 	});
 });
 

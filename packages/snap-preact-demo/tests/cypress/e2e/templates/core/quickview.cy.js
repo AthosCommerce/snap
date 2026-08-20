@@ -7,17 +7,17 @@ const config = {
 		result: '.ss__result',
 		quickviewButton: '.ss__result__quickview',
 		quickviewIcon: '.ss__result__quickview__icon',
-		quickview: '.ss__product-quickview',
-		modal: '.ss__product-quickview .ss__modal',
-		modalOpen: '.ss__product-quickview .ss__modal--open',
-		modalContent: '.ss__product-quickview .ss__modal__content',
-		closeButton: '.ss__product-quickview__close',
-		attributes: '.ss__product-quickview__attributes',
+		quickview: '.ss__quickview',
+		modal: '.ss__quickview .ss__modal',
+		modalOpen: '.ss__quickview .ss__modal--open',
+		modalContent: '.ss__quickview .ss__modal__content',
+		closeButton: '.ss__quickview__close',
+		attributes: '.ss__quickview__attributes',
 		variants: '.ss__variant-selection',
 	},
 };
 
-describe('ProductQuickview', () => {
+describe('Quickview', () => {
 	before(() => {
 		cy.visit(config.url);
 
@@ -38,7 +38,7 @@ describe('ProductQuickview', () => {
 	it('opens the single shared modal when the quickview icon is clicked', () => {
 		cy.get(config.selectors.quickviewButton).first().click({ force: true });
 
-		// A single shared ProductQuickview is injected at body > #athos-quickview,
+		// A single shared quickview component is injected at body > #athos-quickview,
 		// so exactly one modal instance should exist regardless of result count.
 		cy.get('body > #athos-quickview').should('exist');
 		cy.get(config.selectors.quickview).should('have.length', 1);
@@ -54,9 +54,9 @@ describe('ProductQuickview', () => {
 		// The displayed product lives on the quickview manager's store, not on any controller.
 		// Assert the manager and product resolve first, so this test can never silently pass
 		// without having looked at anything.
-		cy.window().then((win) => {
-			expect(win.athos.quickview, 'quickview manager on window.athos').to.exist;
-			const product = win.athos.quickview.store.product;
+		cy.snapController().then((controller) => {
+			expect(controller.quickviewManager, 'quickview manager on the controller').to.exist;
+			const product = controller.quickviewManager.store.product;
 			expect(product, 'open quickview product').to.exist;
 
 			// Only some demo products carry variants. If this one does, the modal should render

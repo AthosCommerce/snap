@@ -1895,7 +1895,7 @@ describe('Autocomplete Controller quickview', () => {
 			profiler: new Profiler(),
 			logger: new Logger(),
 			tracker: new Tracker(globals),
-			quickview: { show } as any,
+			quickviewManager: { show } as any,
 		});
 
 		const result: any = { id: 'ac-child-1', mappings: { core: { parentId: 'ac-parent-1' } } };

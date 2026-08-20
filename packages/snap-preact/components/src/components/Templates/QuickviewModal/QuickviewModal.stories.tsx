@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 
-import { ProductQuickviewModal, ProductQuickviewModalProps } from './ProductQuickviewModal';
+import { QuickviewModal, QuickviewModalProps } from './QuickviewModal';
 import { componentArgs, highlightedCode } from '../../../utilities';
 import Readme from '../../Organisms/QuickviewLayout/readme.md';
 
@@ -67,8 +67,8 @@ const errorController = buildMockController({
 });
 
 export default {
-	title: 'Templates/ProductQuickviewModal',
-	component: ProductQuickviewModal,
+	title: 'Templates/QuickviewModal',
+	component: QuickviewModal,
 	tags: ['autodocs'],
 	parameters: {
 		docs: {
@@ -181,11 +181,11 @@ export default {
 	args: {},
 };
 
-export const Default = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} quickviewManager={defaultController} />;
+export const Default = (args: QuickviewModalProps) => <QuickviewModal {...args} quickviewManager={defaultController} />;
 Default.args = {};
 
-export const Loading = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} quickviewManager={loadingController} />;
+export const Loading = (args: QuickviewModalProps) => <QuickviewModal {...args} quickviewManager={loadingController} />;
 Loading.args = {};
 
-export const ErrorState = (args: ProductQuickviewModalProps) => <ProductQuickviewModal {...args} quickviewManager={errorController} />;
+export const ErrorState = (args: QuickviewModalProps) => <QuickviewModal {...args} quickviewManager={errorController} />;
 ErrorState.args = {};

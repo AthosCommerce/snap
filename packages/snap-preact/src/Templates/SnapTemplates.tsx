@@ -24,7 +24,6 @@ import type {
 	AutocompleteTargetConfig,
 	CustomPlugins,
 	PluginsConfigsUnlocked,
-	QuickviewTargetConfig,
 	RecsTemplateTypes,
 	SearchTargetConfig,
 	TemplatesStoreConfigLocked,
@@ -389,41 +388,38 @@ export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig,
 }
 
 export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
-	// Quickview is always present; when no targets are configured, default to a single ProductQuickviewModal.
-	const targetConfigs: QuickviewTargetConfig[] = templateConfig.quickview?.targets?.length
-		? templateConfig.quickview.targets
-		: [{ component: 'ProductQuickviewModal' }];
+	return (
+		templateConfig.quickview?.targets?.map((targetConfig, index) => {
+			// Quickview isn't part of the editable targets registry (it's appended to <body> and driven by the
+			// QuickviewManager), so build a TargetStore directly rather than via addTarget. This lets the
+			// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
+			// provides the global templates ThemeProvider. Without it the quickview renders outside the
+			// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
+			// `quickviewLayout`) are silently dropped.
+			const target = new TargetStore({
+				target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
+			});
 
-	return targetConfigs.map((targetConfig, index) => {
-		// Quickview isn't part of the editable targets registry (it's appended to <body> and driven by the
-		// QuickviewManager), so build a TargetStore directly rather than via addTarget. This lets the
-		// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
-		// provides the global templates ThemeProvider. Without it the quickview renders outside the
-		// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
-		// `quickviewLayout`) are silently dropped.
-		const target = new TargetStore({
-			target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
-		});
-
-		const targeter: ExtendedTarget = {
-			selector: targetConfig.selector || 'body',
-			inject: {
-				action: 'append' as const,
-				element: () => {
-					const el = document.createElement('div');
-					el.id = index === 0 ? 'athos-quickview' : `athos-quickview-${index}`;
-					return el;
+			const targeter: ExtendedTarget = {
+				selector: targetConfig.selector || 'body',
+				inject: {
+					action: 'append' as const,
+					element: () => {
+						const el = document.createElement('div');
+						el.id = index === 0 ? 'athos-quickview' : `athos-quickview-${index}`;
+						return el;
+					},
 				},
-			},
-			component: async () => {
-				await templatesStore.library.import.component.quickview[targetConfig.component]();
-				return TemplateSelect;
-			},
-			props: { target, templatesStore },
-		};
+				component: async () => {
+					await templatesStore.library.import.component.quickview[targetConfig.component]();
+					return TemplateSelect;
+				},
+				props: { target, templatesStore },
+			};
 
-		return targeter;
-	});
+			return targeter;
+		}) || []
+	);
 }
 
 export function createRecommendationComponentMapping(
@@ -717,16 +713,17 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
 	}
 
-	/* QUICKVIEW MANAGER — always present; injects quickview component(s) into <body>. */
-	const quickviewSettings = templateConfig.quickview?.settings;
-
-	snapConfig.quickview = {
-		config: {
-			id: 'quickview',
-			...(quickviewSettings ? { settings: quickviewSettings } : {}),
-		},
-		targeters: createQuickviewTargeters(templateConfig, templatesStore),
-	};
+	/* QUICKVIEW MANAGER — injects quickview component(s) into <body> when enabled */
+	if (templateConfig.quickview) {
+		const quickviewSettings = templateConfig.quickview?.settings;
+		snapConfig.quickview = {
+			config: {
+				id: 'quickview',
+				...(quickviewSettings ? { settings: quickviewSettings } : {}),
+			},
+			targeters: createQuickviewTargeters(templateConfig, templatesStore),
+		};
+	}
 
 	return snapConfig;
 }

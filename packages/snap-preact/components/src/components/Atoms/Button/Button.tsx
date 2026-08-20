@@ -189,4 +189,7 @@ export type ButtonNames =
 	| 'submit-search'
 	| 'reset-facet'
 	| 'add-to-cart'
-	| 'more-info';
+	| 'quickview'
+	| 'more-info'
+	| 'increment'
+	| 'decrement';

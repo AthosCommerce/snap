@@ -1462,7 +1462,7 @@ describe('Search Controller quickview', () => {
 			profiler: new Profiler(),
 			logger: new Logger(),
 			tracker: new Tracker(globals),
-			quickview: { show } as any,
+			quickviewManager: { show } as any,
 		});
 
 		const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };

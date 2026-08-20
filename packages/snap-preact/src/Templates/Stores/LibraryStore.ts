@@ -82,8 +82,8 @@ export type LibraryImports = {
 			AutocompleteSlideout: (args?: any) => Promise<JSXComponent>;
 		};
 		quickview: {
-			ProductQuickviewModal: (args?: any) => Promise<JSXComponent>;
-			ProductQuickviewSlideout: (args?: any) => Promise<JSXComponent>;
+			QuickviewModal: (args?: any) => Promise<JSXComponent>;
+			QuickviewSlideout: (args?: any) => Promise<JSXComponent>;
 		};
 		recommendation: {
 			bundle: {
@@ -142,6 +142,7 @@ export type LibraryImports = {
 		overlayBadge: LibraryComponentImport;
 		pagination: LibraryComponentImport;
 		perPage: LibraryComponentImport;
+		quantityPicker: LibraryComponentImport;
 		radioList: LibraryComponentImport;
 		rating: LibraryComponentImport;
 		searchInput: LibraryComponentImport;
@@ -236,6 +237,7 @@ export class LibraryStore {
 		overlayBadge: LibraryComponentMap;
 		pagination: LibraryComponentMap;
 		perPage: LibraryComponentMap;
+		quantityPicker: LibraryComponentMap;
 		radioList: LibraryComponentMap;
 		rating: LibraryComponentMap;
 		searchInput: LibraryComponentMap;
@@ -309,6 +311,7 @@ export class LibraryStore {
 		overlayBadge: {},
 		pagination: {},
 		perPage: {},
+		quantityPicker: {},
 		radioList: {},
 		rating: {},
 		searchInput: {},
@@ -415,18 +418,16 @@ export class LibraryStore {
 				},
 			},
 			quickview: {
-				ProductQuickviewModal: async () => {
+				QuickviewModal: async () => {
 					return (
-						this.components.quickview.ProductQuickviewModal ||
-						(this.components.quickview.ProductQuickviewModal = (await import('./library/components/ProductQuickviewModal')).ProductQuickviewModal)
+						this.components.quickview.QuickviewModal ||
+						(this.components.quickview.QuickviewModal = (await import('./library/components/QuickviewModal')).QuickviewModal)
 					);
 				},
-				ProductQuickviewSlideout: async () => {
+				QuickviewSlideout: async () => {
 					return (
-						this.components.quickview.ProductQuickviewSlideout ||
-						(this.components.quickview.ProductQuickviewSlideout = (
-							await import('./library/components/ProductQuickviewSlideout')
-						).ProductQuickviewSlideout)
+						this.components.quickview.QuickviewSlideout ||
+						(this.components.quickview.QuickviewSlideout = (await import('./library/components/QuickviewSlideout')).QuickviewSlideout)
 					);
 				},
 			},
@@ -561,6 +562,7 @@ export class LibraryStore {
 			overlayBadge: {},
 			pagination: {},
 			perPage: {},
+			quantityPicker: {},
 			radioList: {},
 			rating: {},
 			searchInput: {},

@@ -99,18 +99,30 @@ The `addToCartButtonSuccessTimeout` prop specifies the number of ms to show the 
 <Result result={controller.store.results[0]} addToCartButtonText={'Add To Cart'} addToCartButtonSuccessText={'added!'} addToCartButtonSuccessTimeout={4000} />
 ```
 
-### showQuickview
-The `showQuickview` prop will render a quickview `<Button />` (with an eye `<Icon />`) overlaid on the product image. Clicking the button (or pressing Enter/Space while focused) invokes `controller.quickview(result)`. Defaults to `false`. The button only renders when a `controller` prop has also been provided and the image is not hidden.
+### hideQuickviewButton
+The `hideQuickviewButton` prop prevents the quickview `<Button />` (with an eye `<Icon />`) from being rendered overlaid on the product image. Clicking the button (or pressing Enter/Space while focused) invokes `controller.quickview(result)`. Defaults to `true`. The button only renders when a `controller` prop has also been provided and the image is not hidden.
 
 ```tsx
-<Result result={controller.store.results[0]} controller={controller} showQuickview={true} />
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} />
 ```
 
 ### quickviewButtonText
 The `quickviewButtonText` prop changes the accessible label (`aria-label` and icon title) of the quickview button. Defaults to `'Quick View'`. The `aria-label` can also be set via `lang.quickviewButtonText.attributes['aria-label']`.
 
 ```tsx
-<Result result={controller.store.results[0]} controller={controller} showQuickview={true} quickviewButtonText={'Peek'} />
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} quickviewButtonText={'Peek'} />
+```
+
+### onQuickviewClick
+The `onQuickviewClick` prop is a function to be called on quickview button click. In addition to the built in quickview function on the controller.
+
+```tsx
+
+const clickFunc = (e, result) => {
+	console.log('quickview!', e, result);
+}
+
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} onQuickviewClick={clickFunc} />
 ```
 
 ### hideImage

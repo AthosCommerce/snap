@@ -17,7 +17,7 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 	return css({
 		position: 'fixed',
 		inset: 0,
-		zIndex: 10010, // above the quickview modal content (10006) and the dropdown portal (10007); full ladder in ProductQuickviewModal defaultStyles
+		zIndex: 10010, // above the quickview modal content (10006) and the dropdown portal (10007); full ladder in QuickviewModal defaultStyles
 		display: 'flex',
 		flexDirection: 'column',
 		background: 'rgba(0, 0, 0, 0.9)',
@@ -67,6 +67,7 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			maxHeight: '80vh',
 			objectFit: 'contain',
 			userSelect: 'none',
+			touchAction: 'none',
 			transformOrigin: 'center center',
 			transition: 'transform 0.05s linear',
 		},
@@ -223,7 +224,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 		return () => window.removeEventListener('keydown', onKey);
 	}, [open, index, count]);
 
-	// Dialog focus management — same pattern as ProductQuickviewModal/ProductQuickviewSlideout:
+	// Dialog focus management — same pattern as QuickviewModal/QuickviewSlideout:
 	// remember what had focus before the gallery opened (the gallery portals to document.body,
 	// outside any surrounding focus trap), move focus into the gallery on open, restore on close.
 	const rootRef = useRef<HTMLElement | null>(null);
@@ -250,6 +251,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 	// Drag-to-pan when zoomed in.
 	const onPointerDown = (e: any) => {
 		if (zoom <= zoomMin) return;
+		// Block the browser defaults (native image drag, text selection) that would cancel the
+		// pointermove stream, and capture the pointer so the drag survives leaving the image bounds.
+		e.preventDefault();
+		e.currentTarget?.setPointerCapture?.(e.pointerId);
 		dragRef.current = { startX: e.clientX, startY: e.clientY, baseX: pan.x, baseY: pan.y };
 	};
 	const onPointerMove = (e: any) => {
@@ -359,6 +364,7 @@ export const Gallery = observer((properties: GalleryProps) => {
 						internalClassName="ss__gallery__image"
 						src={currentSrc}
 						alt={alt || ''}
+						draggable={false}
 						style={{
 							transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
 							cursor: zoom > zoomMin ? (dragRef.current ? 'grabbing' : 'grab') : 'default',

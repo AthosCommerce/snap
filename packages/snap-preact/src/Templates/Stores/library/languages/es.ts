@@ -404,6 +404,23 @@ export const es: LangComponents = {
 			},
 		},
 	},
+	quantityPicker: {
+		quantityInput: {
+			attributes: {
+				'aria-label': 'cantidad',
+			},
+		},
+		decrementButton: {
+			attributes: {
+				'aria-label': 'disminuir la cantidad',
+			},
+		},
+		incrementButton: {
+			attributes: {
+				'aria-label': 'aumentar la cantidad',
+			},
+		},
+	},
 	// toggle: {
 	// 	toggleSwitch: {
 	// 		attributes: {

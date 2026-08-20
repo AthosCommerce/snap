@@ -38,6 +38,7 @@ import type { LoadMoreProps, LoadMoreTemplatesLegalProps } from '../components/M
 import type { OverlayBadgeProps, OverlayBadgeTemplatesLegalProps } from '../components/Molecules/OverlayBadge';
 import type { PaginationProps, PaginationTemplatesLegalProps } from '../components/Molecules/Pagination';
 import type { PerPageProps, PerPageTemplatesLegalProps } from '../components/Molecules/PerPage';
+import type { QuantityPickerProps, QuantityPickerTemplatesLegalProps } from '../components/Molecules/QuantityPicker';
 import type { RadioProps, RadioTemplatesLegalProps } from '../components/Molecules/Radio';
 import type { RadioListProps, RadioListTemplatesLegalProps } from '../components/Molecules/RadioList';
 import type { RatingProps, RatingTemplatesLegalProps } from '../components/Molecules/Rating';
@@ -89,8 +90,8 @@ import type { SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps } fro
 import type { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../components/Templates/AutocompleteModal';
 import type { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../components/Templates/AutocompleteFixed';
 import type { QuickviewLayoutTemplatesLegalProps } from '../components/Organisms/QuickviewLayout';
-import type { ProductQuickviewModalProps } from '../components/Templates/ProductQuickviewModal';
-import type { ProductQuickviewSlideoutProps } from '../components/Templates/ProductQuickviewSlideout';
+import type { QuickviewModalProps } from '../components/Templates/QuickviewModal';
+import type { QuickviewSlideoutProps } from '../components/Templates/QuickviewSlideout';
 import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../components/Molecules/Slideshow';
 import type { StyleScript } from '../types';
 
@@ -179,6 +180,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'overlayBadge',
 	'pagination',
 	'perPage',
+	'quantityPicker',
 	'overlayResult',
 	'radioList',
 	'rating',
@@ -263,6 +265,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quantityPicker'>]?: Partial<QuantityPickerProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultProps> } &
@@ -296,8 +299,8 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteSlideout', string>]?: Partial<AutocompleteSlideoutProps>} & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteModal', string>]?: Partial<AutocompleteModalProps> } & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteFixed', string>]?: Partial<AutocompleteFixedProps>} & 
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'productQuickviewModal'>]?: Partial<ProductQuickviewModalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'productQuickviewSlideout'>]?: Partial<ProductQuickviewSlideoutProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewModal'>]?: Partial<QuickviewModalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'recommendation', string>]?: Partial<RecommendationProps>} & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundle', string>]?: Partial<RecommendationBundleProps> } & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundleEasyAdd', string>]?: Partial<RecommendationBundleEasyAddProps>} & 
@@ -354,6 +357,7 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quantityPicker'>]?: Partial<QuantityPickerTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
@@ -394,8 +398,8 @@ export type ThemeComponentsRestricted =
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'productQuickviewModal'>]?: Partial<ProductQuickviewModalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'productQuickviewSlideout'>]?: Partial<ProductQuickviewSlideoutProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewModal'>]?: Partial<QuickviewModalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
@@ -463,6 +467,7 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quantityPicker'>]?: Partial<QuantityPickerTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> & WithCustomComponent } &
@@ -502,8 +507,8 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'productQuickviewModal'>]?: Partial<ProductQuickviewModalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'productQuickviewSlideout'>]?: Partial<ProductQuickviewSlideoutProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewModal'>]?: Partial<QuickviewModalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> & WithCustomComponent } &
@@ -572,6 +577,7 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'perPage'>]?: Partial<PerPageTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quantityPicker'>]?: Partial<QuantityPickerTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'rating'>]?: Partial<RatingTemplatesLegalProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
@@ -610,8 +616,8 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewLayout'>]?: Partial<QuickviewLayoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'productQuickviewModal'>]?: Partial<ProductQuickviewModalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'productQuickviewSlideout'>]?: Partial<ProductQuickviewSlideoutProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewModal'>]?: Partial<QuickviewModalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
 	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendation'>]?: unknown } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
@@ -671,6 +677,7 @@ export type ComponentTypePropsMap = {
 	overlayBadge: OverlayBadgeProps;
 	pagination: PaginationProps;
 	perPage: PerPageProps;
+	quantityPicker: QuantityPickerProps;
 	radioList: RadioListProps;
 	rating: RatingProps;
 	searchInput: SearchInputProps;

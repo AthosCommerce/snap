@@ -7,13 +7,19 @@ import classnames from 'classnames';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
-import { Modal } from '../../Molecules/Modal';
-import { QuickviewLayout, QuickviewTracker, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
+import { Modal, ModalProps } from '../../Molecules/Modal';
+import {
+	QuickviewLayout,
+	QuickviewLayoutProps,
+	QuickviewTracker,
+	QuickviewLayoutLang,
+	QuickviewLayoutTemplatesLegalProps,
+} from '../../Organisms/QuickviewLayout';
 
 import type { QuickviewManager } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 
-const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
+const defaultStyles: StyleScript<QuickviewModalProps> = () => {
 	return css({
 		// Take the wrapper out of normal flow. The modal is injected into its own container at the
 		// end of `<body>`, but a consumer may still render it inside a grid (e.g. as a sibling of a
@@ -28,11 +34,11 @@ const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 		// is centered in the viewport rather than positioned relative to the source Result tile.
 		// Modal's default is `position: absolute` inside its (relative) wrapper, which lives
 		// inside the Results grid cell — that's why the modal was being clipped to a tile.
-		// We compound the wrapper class (`&.ss__product-quickview`) into the selector to beat
+		// We compound the wrapper class (`&.ss__quickview`) into the selector to beat
 		// Modal's same-specificity rule (which would otherwise win on source-order since
 		// Modal's styles are emitted after ours), and use !important on the positioning
 		// properties so theme overrides can't accidentally re-anchor the modal to its tile.
-		'&.ss__product-quickview .ss__modal__content': {
+		'&.ss__quickview .ss__modal__content': {
 			position: 'fixed !important' as any,
 			top: '50% !important' as any,
 			left: '50% !important' as any,
@@ -48,7 +54,7 @@ const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 		},
 		// Lower the Modal's Overlay backdrop too so it stays below both the modal content
 		// (10006) and the dropdown portal (10007) but above page content and autocomplete.
-		'&.ss__product-quickview .ss__modal__overlay': {
+		'&.ss__quickview .ss__modal__overlay': {
 			zIndex: '10005 !important' as any,
 		},
 		// Below the desktop breakpoint (where QuickviewLayout stacks to a single column) the
@@ -56,12 +62,12 @@ const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 		// wrapper class is compounded into the content selector so this beats QuickviewLayout's
 		// same-specificity min/max width rule on the content div.
 		'@media (max-width: 767px)': {
-			'&.ss__product-quickview .ss__modal__content': {
+			'&.ss__quickview .ss__modal__content': {
 				width: '100vw',
 				maxWidth: '100vw',
 				borderRadius: 0,
 			},
-			'&.ss__product-quickview .ss__product-quickview__content': {
+			'&.ss__quickview .ss__quickview__content': {
 				minWidth: 'auto',
 				maxWidth: '100%',
 			},
@@ -69,16 +75,16 @@ const defaultStyles: StyleScript<ProductQuickviewModalProps> = () => {
 	});
 };
 
-export const ProductQuickviewModal = observer((properties: ProductQuickviewModalProps) => {
+export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
-	const defaultProps: Partial<ProductQuickviewModalProps> = {
+	const defaultProps: Partial<QuickviewModalProps> = {
 		treePath: globalTreePath,
 		disabledOverlayBadges: false,
 	};
 
-	const props = mergeProps('productQuickviewModal', globalTheme, defaultProps, properties);
+	const props = mergeProps('quickviewModal', globalTheme, defaultProps, properties);
 	const {
 		quickviewManager,
 		className,
@@ -107,7 +113,7 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
 		if (isOpenNow && !wasOpenRef.current) {
 			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
-			const closeEl = wrapperRef.current?.querySelector<HTMLElement>('.ss__product-quickview__close');
+			const closeEl = wrapperRef.current?.querySelector<HTMLElement>('.ss__quickview__close');
 			closeEl?.focus();
 		} else if (!isOpenNow && wasOpenRef.current) {
 			previousFocusRef.current?.focus?.();
@@ -116,10 +122,10 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 		wasOpenRef.current = isOpenNow;
 	});
 
-	const styling = mergeStyles<ProductQuickviewModalProps>(props, defaultStyles);
+	const styling = mergeStyles<QuickviewModalProps>(props, defaultStyles);
 
 	if (!quickviewManager) {
-		console.warn(`[ProductQuickviewModal] No quickviewManager provided; quickview cannot function without a QuickviewManager instance.`);
+		console.warn(`[QuickviewModal] No quickviewManager provided; quickview cannot function without a QuickviewManager instance.`);
 		return null;
 	}
 
@@ -128,20 +134,38 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	const isOpen = Boolean(store.isOpen);
 	const onClose = () => store.close();
 
-	const layoutProps: Partial<QuickviewLayoutTemplatesLegalProps> & { lang?: Partial<QuickviewLayoutLang> } = {
-		...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
+	const subProps: QuickviewModalSubProps = {
+		quickviewLayout: {
+			// default props
+			onReset: onClose,
+			...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
+		modal: {
+			// default props
+			// lockScroll is disabled: Modal's scroll-lock toggles `body { overflow: hidden }`,
+			// which removes the page scrollbar and reflows the results wider by the scrollbar
+			// width when the modal opens. The fixed full-viewport overlay already masks the
+			// background and the fixed-centered content stays put, so locking isn't needed.
+			lockScroll: false,
+			onOverlayClick: onClose,
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
 	};
 
-	const layoutContent = (
-		<QuickviewLayout
-			quickviewManager={quickviewManager}
-			onReset={onClose}
-			theme={props.theme}
-			treePath={treePath}
-			{...layoutProps}
-			{...defined({ disableStyles })}
-		/>
-	);
+	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} />;
 
 	return (
 		<CacheProvider>
@@ -151,14 +175,10 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 			<div
 				{...styling}
 				ref={wrapperRef}
-				className={classnames('ss__product-quickview', 'ss__product-quickview-modal', className, internalClassName)}
+				className={classnames('ss__quickview', 'ss__quickview-modal', className, internalClassName)}
 				onClick={(e) => e.stopPropagation()}
 			>
-				{/* lockScroll is disabled: Modal's scroll-lock toggles `body { overflow: hidden }`,
-				    which removes the page scrollbar and reflows the results wider by the scrollbar
-				    width when the modal opens. The fixed full-viewport overlay already masks the
-				    background and the fixed-centered content stays put, so locking isn't needed. */}
-				<Modal open={isOpen} lockScroll={false} onOverlayClick={onClose} theme={props.theme} treePath={treePath} {...defined({ disableStyles })}>
+				<Modal {...subProps.modal} open={isOpen}>
 					{/* keyed by response/product so a product change while open remounts the tracker
 					    and the new product's impression is observed and tracked */}
 					{product ? (
@@ -174,7 +194,12 @@ export const ProductQuickviewModal = observer((properties: ProductQuickviewModal
 	);
 });
 
-export type ProductQuickviewModalProps = {
+interface QuickviewModalSubProps {
+	quickviewLayout: Partial<QuickviewLayoutProps>;
+	modal: Partial<ModalProps>;
+}
+
+export type QuickviewModalProps = {
 	quickviewManager: QuickviewManager;
 	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &

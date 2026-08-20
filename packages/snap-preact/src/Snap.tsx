@@ -160,10 +160,7 @@ export class Snap {
 
 	public eventManager: EventManager;
 	public templates?: TemplatesStore;
-	// Coordinates the shared quickview modal. Created eagerly (no network) so it can be handed to
-	// every controller as the 'quickview' service, which is what backs `controller.quickview()`.
-	// Also published at `window.athos.quickview` for external access.
-	public quickview?: QuickviewManager;
+	private quickviewManager?: QuickviewManager;
 
 	public getInstantiator = (id: string): Promise<RecommendationInstantiator> => {
 		return this._instantiatorPromises[id] || Promise.reject(`getInstantiator could not find instantiator with id: ${id}`);
@@ -248,7 +245,7 @@ export class Snap {
 					profiler: services?.profiler,
 					logger: services?.logger,
 					tracker: services?.tracker || this.tracker,
-					quickview: services?.quickview || this.quickview,
+					quickviewManager: services?.quickviewManager || this.quickviewManager,
 				}
 			);
 		}
@@ -652,14 +649,12 @@ export class Snap {
 			try {
 				const { config: quickviewConfig, services: quickviewServices, targeters } = this.config.quickview;
 
-				this.quickview = new QuickviewManager(
+				this.quickviewManager = new QuickviewManager(
 					{
 						store: quickviewServices?.store,
 					},
 					quickviewConfig
 				);
-
-				window.athos.quickview = this.quickview;
 
 				targeters?.forEach((target, index) => {
 					if (!target.selector) {
@@ -677,7 +672,7 @@ export class Snap {
 							const Component = await (target as ExtendedTarget).component!();
 
 							setTimeout(() => {
-								render(<Component quickviewManager={this.quickview} snap={this} {...(target as ExtendedTarget).props} />, elem);
+								render(<Component quickviewManager={this.quickviewManager} snap={this} {...(target as ExtendedTarget).props} />, elem);
 							});
 						} catch (err) {
 							this.logger.error(err);
@@ -716,7 +711,7 @@ export class Snap {
 									profiler: controller.services?.profiler,
 									logger: controller.services?.logger,
 									tracker: controller.services?.tracker || this.tracker,
-									quickview: controller.services?.quickview || this.quickview,
+									quickviewManager: controller.services?.quickviewManager || this.quickviewManager,
 								}
 							);
 
@@ -1073,6 +1068,7 @@ export class Snap {
 							tracker: this.tracker,
 							logger: this.logger,
 							snap: this,
+							quickviewManager: this.quickviewManager,
 						},
 						this.context
 					);

@@ -28,7 +28,7 @@ export type SnapControllerServices = {
 	profiler?: Profiler;
 	logger?: Logger;
 	tracker?: Tracker;
-	quickview?: QuickviewManager;
+	quickviewManager?: QuickviewManager;
 };
 
 type UrlParameterConfig<Type> = {

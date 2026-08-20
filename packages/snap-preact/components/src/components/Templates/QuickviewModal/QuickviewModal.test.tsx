@@ -1,8 +1,7 @@
 import { h } from 'preact';
 import { render, fireEvent, act } from '@testing-library/preact';
-import { observable, runInAction } from 'mobx';
 
-// QuickviewLayout (rendered inside the Slideout) pulls in Carousel/VariantSelection/badges; mock the
+// QuickviewLayout (rendered inside the Modal) pulls in Carousel/VariantSelection/badges; mock the
 // heavy molecules so these container tests stay focused on open/close + focus behavior.
 jest.mock('../../Molecules/Carousel', () => {
 	const { h: hh } = require('preact');
@@ -30,7 +29,7 @@ jest.mock('../../Molecules/CalloutBadge', () => {
 	};
 });
 
-import { ProductQuickviewSlideout } from './ProductQuickviewSlideout';
+import { QuickviewModal } from './QuickviewModal';
 
 function makeQuickviewManager(overrides: any = {}) {
 	const defaultStore = {
@@ -68,33 +67,34 @@ const storeProduct = {
 	attributes: {},
 };
 
-describe('ProductQuickviewSlideout', () => {
-	it('renders no slideout content when the store is closed', () => {
+describe('QuickviewModal', () => {
+	it('renders no modal content when the store is closed', () => {
 		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: false, product: storeProduct } });
-		const rendered = render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
+		expect(rendered.container.querySelector('.ss__quickview__content')).toBeNull();
 	});
 
-	it('renders the quickview layout content inside the slideout when open', () => {
+	it('renders the quickview layout content inside the modal when open', () => {
 		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
+		expect(rendered.container.querySelector('.ss__quickview')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
 	});
 
 	it('renders null and warns when no quickview manager is provided', () => {
 		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 		// @ts-ignore - omitting the required manager is the case under test
-		const rendered = render(<ProductQuickviewSlideout />);
-		expect(rendered.container.querySelector('.ss__product-quickview')).toBeNull();
+		const rendered = render(<QuickviewModal />);
+		expect(rendered.container.querySelector('.ss__quickview')).toBeNull();
 		expect(warn).toHaveBeenCalled();
 		warn.mockRestore();
 	});
 
-	it('closes the store when the overlay is clicked (onChange sync)', () => {
+	it('closes the store when the overlay is clicked', () => {
 		const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
-		const overlay = rendered.container.querySelector('.ss__slideout__overlay') as HTMLElement;
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
+		const overlay = rendered.container.querySelector('.ss__modal__overlay') as HTMLElement;
 		expect(overlay).not.toBeNull();
 		fireEvent.click(overlay);
 		expect(close).toHaveBeenCalled();
@@ -102,38 +102,35 @@ describe('ProductQuickviewSlideout', () => {
 
 	it('closes the store when the close button is clicked', () => {
 		const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-		const rendered = render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
-		const closeEl = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
+		const closeEl = rendered.container.querySelector('.ss__quickview__close') as HTMLElement;
 		fireEvent.click(closeEl);
 		expect(close).toHaveBeenCalled();
 	});
 
-	it('focuses the close button when the slideout opens', () => {
+	it('focuses the close button when the modal opens', () => {
 		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-		render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
-		const closeEl = document.querySelector('.ss__product-quickview__close') as HTMLElement;
+		render(<QuickviewModal quickviewManager={quickviewManager} />);
+		const closeEl = document.querySelector('.ss__quickview__close') as HTMLElement;
 		expect(closeEl).not.toBeNull();
 		expect(document.activeElement).toBe(closeEl);
 	});
 
-	it('focuses the close button when the store opens after mount', async () => {
-		// The store must be observable so the (memoized) observer template re-renders on open,
-		// matching how the real QuickviewManager store drives it. Assigned after the factory
-		// because makeQuickviewManager spreads the store, which would strip observability.
-		const { quickviewManager } = makeQuickviewManager();
-		quickviewManager.store = observable({ isOpen: false, product: storeProduct, loading: false, close: jest.fn() });
-		render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
-		expect(document.querySelector('.ss__product-quickview__close')).toBeNull();
+	it('restores focus to the previously focused element when the modal closes', () => {
+		const outerButton = document.createElement('button');
+		document.body.appendChild(outerButton);
+		outerButton.focus();
+		expect(document.activeElement).toBe(outerButton);
 
-		await act(async () => {
-			runInAction(() => {
-				quickviewManager.store.isOpen = true;
-			});
-		});
+		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
+		expect(document.activeElement).toBe(document.querySelector('.ss__quickview__close'));
 
-		const closeEl = document.querySelector('.ss__product-quickview__close') as HTMLElement;
-		expect(closeEl).not.toBeNull();
-		expect(document.activeElement).toBe(closeEl);
+		const { quickviewManager: closedManager } = makeQuickviewManager({ store: { isOpen: false, product: storeProduct } });
+		rendered.rerender(<QuickviewModal quickviewManager={closedManager} />);
+
+		expect(document.activeElement).toBe(outerButton);
+		document.body.removeChild(outerButton);
 	});
 
 	it('forwards lang to the quickview layout', () => {
@@ -142,10 +139,10 @@ describe('ProductQuickviewSlideout', () => {
 			quickview: { attributes: { 'aria-label': 'Schnellansicht' } },
 			closeButton: { attributes: { 'aria-label': 'Schließen' } },
 		};
-		const rendered = render(<ProductQuickviewSlideout quickviewManager={quickviewManager} lang={lang} />);
+		const rendered = render(<QuickviewModal quickviewManager={quickviewManager} lang={lang} />);
 
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).toHaveAttribute('aria-label', 'Schnellansicht');
-		expect(rendered.container.querySelector('.ss__product-quickview__close')).toHaveAttribute('aria-label', 'Schließen');
+		expect(rendered.container.querySelector('.ss__quickview__content')).toHaveAttribute('aria-label', 'Schnellansicht');
+		expect(rendered.container.querySelector('.ss__quickview__close')).toHaveAttribute('aria-label', 'Schließen');
 	});
 
 	describe('impression tracking', () => {
@@ -208,7 +205,7 @@ describe('ProductQuickviewSlideout', () => {
 
 		it('tracks an impression for the displayed product when the quickview content is viewed', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-			render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
+			render(<QuickviewModal quickviewManager={quickviewManager} />);
 
 			triggerIntersection();
 
@@ -218,11 +215,11 @@ describe('ProductQuickviewSlideout', () => {
 
 		it('does not track a click when the quickview content is clicked', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<ProductQuickviewSlideout quickviewManager={quickviewManager} />);
+			const rendered = render(<QuickviewModal quickviewManager={quickviewManager} />);
 
 			triggerIntersection();
 
-			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
 			fireEvent.click(content);
 
 			expect(quickviewManager.track.product.click).not.toHaveBeenCalled();

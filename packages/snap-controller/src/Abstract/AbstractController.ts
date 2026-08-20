@@ -115,7 +115,7 @@ export abstract class AbstractController {
 
 	constructor(
 		config: ControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker, quickview }: ControllerServices,
+		{ client, store, urlManager, eventManager, profiler, logger, tracker, quickviewManager: quickview }: ControllerServices,
 		context: ContextVariables = {}
 	) {
 		if (typeof config != 'object' || typeof config.id != 'string' || !config.id.match(/^[a-zA-Z0-9_-]*$/)) {

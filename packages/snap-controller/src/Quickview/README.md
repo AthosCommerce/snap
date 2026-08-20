@@ -1,8 +1,8 @@
 # QuickviewManager
 
-The `QuickviewManager` owns the product quickview modal state. It is **not a controller** — quickview has no search lifecycle, no url state and no tracking identity of its own. The product it displays is a clone of a result that belongs to another controller's response, so tracking and add-to-cart are delegated back to that controller (flagged `quickView: true`) rather than reimplemented here. It fetches product data from the API `products` endpoint (`/v1/products`) on demand and populates a `QuickviewStore` that a single quickview component (`ProductQuickviewModal` / `ProductQuickviewSlideout`) renders.
+The `QuickviewManager` owns the product quickview modal state. It is **not a controller** — quickview has no search lifecycle, no url state and no tracking identity of its own. The product it displays is a clone of a result that belongs to another controller's response, so tracking and add-to-cart are delegated back to that controller (flagged `quickView: true`) rather than reimplemented here. It fetches product data from the API `products` endpoint (`/v1/products`) on demand and populates a `QuickviewStore` that a single quickview component (`QuickviewModal` / `QuickviewSlideout`) renders.
 
-One manager is created per Snap instance, passed to every controller as the `quickview` service, and also exposed as `snap.quickview` and `window.athos.quickview`.
+One manager is created per Snap instance, passed to every controller as the `quickview` service, and exposed on each controller as `controller.quickviewManager`.
 
 It lives in `snap-controller` rather than `snap-preact` because it has no rendering dependency — the quickview components consume the manager, not the reverse — which is what lets it be injected into controllers as an ordinary service instead of being looked up off the window.
 

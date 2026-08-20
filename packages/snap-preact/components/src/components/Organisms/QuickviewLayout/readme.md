@@ -4,21 +4,21 @@
 
 It is composed inside a presentation container that owns the open/close shell:
 
-- **`ProductQuickviewModal`** (`Templates/ProductQuickviewModal`) — renders `QuickviewLayout` inside a centered `Modal`. This is the default variant injected by Snap templates.
-- **`ProductQuickviewSlideout`** (`Templates/ProductQuickviewSlideout`) — renders `QuickviewLayout` inside a side-panel `Slideout`.
+- **`QuickviewModal`** (`Templates/QuickviewModal`) — renders `QuickviewLayout` inside a centered `Modal`. This is the default variant injected by Snap templates.
+- **`QuickviewSlideout`** (`Templates/QuickviewSlideout`) — renders `QuickviewLayout` inside a side-panel `Slideout`.
 
 The state half of the feature lives on `QuickviewManager` (`@athoscommerce/snap-controller`) and its `QuickviewStore` (`@athoscommerce/snap-store-mobx`). A quickview is opened by calling `quickview(result)` on a source controller (`SearchController`, `AutocompleteController`, or `RecommendationController`) — the `Result` molecule's quickview button does this — which forwards to the shared `QuickviewManager` the controller received as its `quickview` service.
 
 ## Usage
 
-When using Snap templates a quickview controller is always created and a single container is injected into `<body>` (in a `#athos-quickview` element). `ProductQuickviewModal` is the default; supply a `quickview` controller definition that resolves `ProductQuickviewSlideout` from the library to use the slide-out instead.
+When using Snap templates a quickview controller is always created and a single container is injected into `<body>` (in a `#athos-quickview` element). `QuickviewModal` is the default; supply a `quickview` controller definition that resolves `QuickviewSlideout` from the library to use the slide-out instead.
 
 ```tsx
 // Default (centered modal)
-<ProductQuickviewModal quickviewManager={quickviewManager} />
+<QuickviewModal quickviewManager={quickviewManager} />
 
 // Slide-out panel
-<ProductQuickviewSlideout quickviewManager={quickviewManager} slideDirection="right" width="500px" />
+<QuickviewSlideout quickviewManager={quickviewManager} slideDirection="right" width="500px" />
 
 // The layout engine on its own (rare — normally used via a container)
 <QuickviewLayout quickviewManager={quickviewManager} onReset={() => quickviewManager.store.close()} />
@@ -38,14 +38,15 @@ Each module name maps to a library component (so theme selectors and `customComp
 - `variantSelection.<field>` — a single `VariantSelection` for the matching selection field (e.g. `variantSelection.color`). The field also matches its component-name form (`color_family` → `color-family`), so `variantSelection.<field>` theme selectors can target it. A bare `variantSelection` module is not supported.
 - `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid. The path's final segment names the component, so `productDetail.<name>` theme selectors can target it (e.g. `productDetail.description`).
 - `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`). Clicking More info tracks a clickThrough for the product (`controller.track.product.clickThrough`, delegated with `quickView: true`) before navigating to the product page.
+- `quantityPicker` — the `QuantityPicker` molecule bound to the observable `product.quantity`, so `button.add-to-cart` adds the selected quantity to the cart. Not part of any default layout — opt in by adding it to a `layout` (typically next to `button.add-to-cart`).
 - `productDetailTable` — the `ProductDetailTable` molecule (opt-in via `displayFields`).
 - `recommendation.<profile>` — a recommendation carousel for the named profile. `<profile>` becomes the `RecommendationController` **tag**; the controller is seeded with the currently-viewed product (`mappings.core.parentId || product.id`) and rendered through the theme's `Recommendation` component (configurable via the `recommendation` prop). The profile also names the component, so `recommendation.<profile>` theme selectors can target it. Renders `null` until the controller's store is loaded.
 - `_` — a flexible separator.
 
 Columns `c1`–`c4` recurse into their own `column1`–`column4` layouts.
 
-- **`ProductQuickviewModal` default** — a two-column row: `layout: [['c1', 'c2']]` with `column1 = { layout: ['slideshow'], width: '45%' }` and `column2 = { layout: [['productDetail.mappings.core.name'],['calloutBadge'],['variantSelections'],['button.add-to-cart','button.more-info'],['productDetail.mappings.core.description'],['productDetailTable'],['recommendation.quickview']], width: 'auto' }`. Columns stack into a single column below the `768px` breakpoint; configured column widths apply from `768px` up. (`ProductQuickviewModal` sets no layout of its own, so it inherits these `QuickviewLayout` defaults.)
-- **`ProductQuickviewSlideout` default** — a single stacked column: `layout: [['slideshow'], ['productDetail.mappings.core.name'], ['calloutBadge'], ['variantSelections'], ['button.add-to-cart', 'button.more-info'], ['productDetail.mappings.core.description'], ['productDetailTable']]`.
+- **`QuickviewModal` default** — a two-column row: `layout: [['c1', 'c2']]` with `column1 = { layout: ['slideshow'], width: '45%' }` and `column2 = { layout: [['productDetail.mappings.core.name'],['calloutBadge'],['variantSelections'],['button.add-to-cart','button.more-info'],['productDetail.mappings.core.description'],['productDetailTable'],['recommendation.quickview']], width: 'auto' }`. Columns stack into a single column below the `768px` breakpoint; configured column widths apply from `768px` up. (`QuickviewModal` sets no layout of its own, so it inherits these `QuickviewLayout` defaults.)
+- **`QuickviewSlideout` default** — a single stacked column: `layout: [['slideshow'], ['productDetail.mappings.core.name'], ['calloutBadge'], ['variantSelections'], ['button.add-to-cart', 'button.more-info'], ['productDetail.mappings.core.description'], ['productDetailTable']]`.
 
 Each module returns `null` when it has nothing to show (no description, no displayed attributes, no variant selections, no slideshow), so empty columns and rows collapse.
 
@@ -62,7 +63,7 @@ Each module returns `null` when it has nothing to show (no description, no displ
 | `customComponent` | `string` | | Name of a custom template component override, resolved via the Snap templates library. |
 | `className`, `internalClassName`, `disableStyles`, `theme`, `treePath` | inherited | | Standard `ComponentProps`. |
 
-`ProductQuickviewModal` / `ProductQuickviewSlideout` accept the same `layout` / `column1`–`column4` props and pass them through to `QuickviewLayout`. `ProductQuickviewSlideout` additionally accepts `slideDirection`, `width`, and `overlayColor`.
+`QuickviewModal` / `QuickviewSlideout` accept the same `layout` / `column1`–`column4` props and pass them through to `QuickviewLayout`. `QuickviewSlideout` additionally accepts `slideDirection`, `width`, and `overlayColor`.
 
 ## States
 
@@ -120,9 +121,9 @@ Generic click tracking is disabled inside the quickview (`track: { click: false 
 
 ## Styling & containers
 
-`ProductQuickviewModal` positions the `Modal` content `fixed` and centered (`translate(-50%, -50%)`, with `!important` so theme overrides cannot re-anchor it to the source `Result` tile). The z-index hierarchy is: autocomplete (`10002`) < overlay (`10005`) < content (`10006`) < dropdown portals (`10007`), so the quickview paints above an open autocomplete while variant `<select>` lists still paint above it. The container wrapper is taken out of flow (`position: absolute`, zero size) so mounting inside a CSS grid doesn't shift layout, and scroll lock is disabled so opening doesn't reflow the page.
+`QuickviewModal` positions the `Modal` content `fixed` and centered (`translate(-50%, -50%)`, with `!important` so theme overrides cannot re-anchor it to the source `Result` tile). The z-index hierarchy is: autocomplete (`10002`) < overlay (`10005`) < content (`10006`) < dropdown portals (`10007`), so the quickview paints above an open autocomplete while variant `<select>` lists still paint above it. The container wrapper is taken out of flow (`position: absolute`, zero size) so mounting inside a CSS grid doesn't shift layout, and scroll lock is disabled so opening doesn't reflow the page.
 
-`ProductQuickviewSlideout` keeps the same z-index ladder and syncs an overlay dismiss back to `store.close()` via the `Slideout`'s `onToggle` callback, so `store.isOpen` stays the single source of truth.
+`QuickviewSlideout` keeps the same z-index ladder and syncs an overlay dismiss back to `store.close()` via the `Slideout`'s `onToggle` callback, so `store.isOpen` stays the single source of truth.
 
 ## Accessibility
 

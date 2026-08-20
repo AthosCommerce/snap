@@ -14,7 +14,7 @@ jest.mock('../../Molecules/Slideshow', () => {
 				'div',
 				{ className: `ss__slideshow-mock ${className || ''}` },
 				(slides || []).map((slide: any, i: number) =>
-					hh('div', { key: i, className: 'ss__product-quickview__image', onClick: slide?.onClick }, hh('img', { src: slide?.src, alt: slide?.alt }))
+					hh('div', { key: i, className: 'ss__quickview__image', onClick: slide?.onClick }, hh('img', { src: slide?.src, alt: slide?.alt }))
 				)
 			),
 	};
@@ -119,7 +119,7 @@ describe('QuickviewLayout', () => {
 	it('renders nothing visible when closed', () => {
 		const { quickviewManager } = makeQuickviewManager();
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__content')).toBeNull();
 	});
 
 	it('renders the product name, image, and attributes when open', () => {
@@ -134,7 +134,7 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		expect(rendered.getByText('Widget')).toBeInTheDocument();
-		const img = rendered.container.querySelector('.ss__product-quickview__image img') as HTMLImageElement | null;
+		const img = rendered.container.querySelector('.ss__quickview__image img') as HTMLImageElement | null;
 		expect(img).not.toBeNull();
 		expect(img!.getAttribute('src')).toBe('http://example.com/widget.jpg');
 		expect(rendered.getByText('color')).toBeInTheDocument();
@@ -150,7 +150,7 @@ describe('QuickviewLayout', () => {
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
-		const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
+		const closeButton = rendered.container.querySelector('.ss__quickview__close') as HTMLElement;
 		expect(closeButton).not.toBeNull();
 		fireEvent.click(closeButton);
 
@@ -165,7 +165,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
 	});
 
@@ -182,8 +182,8 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		expect(rendered.container.querySelector('.ss__product-quickview__loading')).not.toBeNull();
-		expect(rendered.container.querySelector('.ss__product-quickview__title')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__loading')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__title')).toBeNull();
 	});
 
 	it('filters attributes by displayFields', () => {
@@ -320,7 +320,7 @@ describe('QuickviewLayout', () => {
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
-		expect(rendered.container.querySelector('.ss__product-quickview__error')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__error')).not.toBeNull();
 	});
 
 	it('renders the error message when quickview.error is set', () => {
@@ -335,12 +335,12 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const errorEl = rendered.container.querySelector('.ss__product-quickview__error');
+		const errorEl = rendered.container.querySelector('.ss__quickview__error');
 		expect(errorEl).not.toBeNull();
 		expect(errorEl!.textContent).toBe('Failed to display quickview');
 		// Loading and product branches must NOT render.
-		expect(rendered.container.querySelector('.ss__product-quickview__loading')).toBeNull();
-		expect(rendered.container.querySelector('.ss__product-quickview__title')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__loading')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__title')).toBeNull();
 	});
 
 	it('renders a carousel when the configured imagesField resolves to multiple images', () => {
@@ -361,10 +361,10 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
 		// One slide image per URL in the list.
-		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(3);
+		expect(carousel!.querySelectorAll('.ss__quickview__image img')).toHaveLength(3);
 	});
 
 	it('reads imagesField from attributes when not present on mappings.core', () => {
@@ -379,9 +379,9 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__quickview__image img')).toHaveLength(2);
 	});
 
 	it('coerces a MobX observable array of images into carousel slides', () => {
@@ -396,9 +396,9 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__quickview__image img')).toHaveLength(2);
 	});
 
 	it('falls back to the single image when imagesField resolves to a single image', () => {
@@ -414,7 +414,7 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// A single image renders as a one-slide Slideshow (not a multi-image carousel).
-		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
+		const slides = rendered.container.querySelectorAll('.ss__quickview__image img');
 		expect(slides).toHaveLength(1);
 		expect((slides[0] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/main.jpg');
 	});
@@ -432,9 +432,9 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// No imagesField configured → default candidate 'images' has >1 → carousel.
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__quickview__image img')).toHaveLength(2);
 	});
 
 	it("defaults to the 'ss_images' field when no imagesField is configured and 'images' is absent", () => {
@@ -451,9 +451,9 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
-		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(2);
+		expect(carousel!.querySelectorAll('.ss__quickview__image img')).toHaveLength(2);
 	});
 
 	it('accepts an array of candidate field names and uses the first that has multiple images', () => {
@@ -475,10 +475,10 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
 		// 'primaryImages' has only 1 → skipped; 'gallery' has 3 → used.
-		expect(carousel!.querySelectorAll('.ss__product-quickview__image img')).toHaveLength(3);
+		expect(carousel!.querySelectorAll('.ss__quickview__image img')).toHaveLength(3);
 	});
 
 	it('renders the single image when neither the configured nor default image fields have multiple images', () => {
@@ -494,7 +494,7 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// No images/ss_images present → single core image renders as one slide.
-		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
+		const slides = rendered.container.querySelectorAll('.ss__quickview__image img');
 		expect(slides).toHaveLength(1);
 		expect((slides[0] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/main.jpg');
 	});
@@ -513,7 +513,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
+		const imgs = rendered.container.querySelectorAll('.ss__quickview__carousel .ss__quickview__image img');
 		expect(imgs).toHaveLength(3);
 		expect(imgs[0].getAttribute('src')).toBe('http://example.com/a.jpg');
 		expect(imgs[1].getAttribute('src')).toBe('http://example.com/b.jpg');
@@ -533,7 +533,7 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// One image in the list → fall back to the single core image, rendered as one slide.
-		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
+		const slides = rendered.container.querySelectorAll('.ss__quickview__image img');
 		expect(slides).toHaveLength(1);
 		expect((slides[0] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/main.jpg');
 	});
@@ -577,7 +577,7 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// The active variant has no own images array, so only the single variant image renders (one slide).
-		const slides = rendered.container.querySelectorAll('.ss__product-quickview__image img');
+		const slides = rendered.container.querySelectorAll('.ss__quickview__image img');
 		expect(slides).toHaveLength(1);
 		expect((slides[0] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/variant.jpg');
 	});
@@ -617,9 +617,9 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const carousel = rendered.container.querySelector('.ss__product-quickview__carousel');
+		const carousel = rendered.container.querySelector('.ss__quickview__carousel');
 		expect(carousel).not.toBeNull();
-		const imgs = carousel!.querySelectorAll('.ss__product-quickview__image img');
+		const imgs = carousel!.querySelectorAll('.ss__quickview__image img');
 		expect(imgs).toHaveLength(2);
 		expect((imgs[0] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/v1.jpg');
 		expect((imgs[1] as HTMLImageElement).getAttribute('src')).toBe('http://example.com/v2.jpg');
@@ -642,13 +642,13 @@ describe('QuickviewLayout', () => {
 		expect(slideshowColumn).not.toBeNull();
 		expect(detailsColumn).not.toBeNull();
 		// Image lives in the slideshow column…
-		expect(slideshowColumn!.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img')).not.toBeNull();
+		expect(slideshowColumn!.querySelector('.ss__quickview__slideshow .ss__quickview__image img')).not.toBeNull();
 		// …and the title, attributes table, and add-to-cart live in the details column.
-		expect(detailsColumn!.querySelector('.ss__product-quickview__title')).not.toBeNull();
-		expect(detailsColumn!.querySelector('.ss__product-quickview__attributes')).not.toBeNull();
-		expect(detailsColumn!.querySelector('.ss__product-quickview__add-to-cart')).not.toBeNull();
+		expect(detailsColumn!.querySelector('.ss__quickview__title')).not.toBeNull();
+		expect(detailsColumn!.querySelector('.ss__quickview__attributes')).not.toBeNull();
+		expect(detailsColumn!.querySelector('.ss__quickview__add-to-cart')).not.toBeNull();
 		// Image is NOT in the details column.
-		expect(detailsColumn!.querySelector('.ss__product-quickview__image img')).toBeNull();
+		expect(detailsColumn!.querySelector('.ss__quickview__image img')).toBeNull();
 	});
 
 	it('renders all four columns, each with its configured modules', () => {
@@ -682,10 +682,10 @@ describe('QuickviewLayout', () => {
 		expect(c4).not.toBeNull();
 
 		// Each module lands in its own column.
-		expect(c1!.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img')).not.toBeNull();
-		expect(c2!.querySelector('.ss__product-quickview__title')).not.toBeNull();
+		expect(c1!.querySelector('.ss__quickview__slideshow .ss__quickview__image img')).not.toBeNull();
+		expect(c2!.querySelector('.ss__quickview__title')).not.toBeNull();
 		expect(c3!.querySelector('.ss__product-detail--price .ss__price')).not.toBeNull();
-		expect(c4!.querySelector('.ss__product-quickview__add-to-cart')).not.toBeNull();
+		expect(c4!.querySelector('.ss__quickview__add-to-cart')).not.toBeNull();
 	});
 
 	it('collapses a c3/c4 column whose modules have nothing to show', () => {
@@ -712,7 +712,7 @@ describe('QuickviewLayout', () => {
 		expect(rendered.container.querySelector('.ss__quickview-layout__column--c3')).toBeNull();
 		const c4 = rendered.container.querySelector('.ss__quickview-layout__column--c4');
 		expect(c4).not.toBeNull();
-		expect(c4!.querySelector('.ss__product-quickview__title')).not.toBeNull();
+		expect(c4!.querySelector('.ss__quickview__title')).not.toBeNull();
 	});
 
 	it('renders an Add to Cart button that calls quickviewManager.addToCart with the product', () => {
@@ -729,12 +729,37 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const button = rendered.container.querySelector('.ss__product-quickview__add-to-cart') as HTMLElement;
+		const button = rendered.container.querySelector('.ss__quickview__add-to-cart') as HTMLElement;
 		expect(button).not.toBeNull();
 		button.click();
 
 		expect(addToCart).toHaveBeenCalledTimes(1);
 		expect(addToCart).toHaveBeenCalledWith([storeProduct]);
+	});
+
+	it('renders a quantity picker via the quantityPicker module and updates product.quantity', async () => {
+		const storeProduct = observable({
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			quantity: 1,
+		});
+		const { quickviewManager } = makeQuickviewManager({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['quantityPicker']]} />);
+
+		const picker = rendered.container.querySelector('.ss__quickview__quantity-picker');
+		expect(picker).not.toBeNull();
+		const input = picker!.querySelector('.ss__quantity-picker__input') as HTMLInputElement;
+		expect(input.value).toBe('1');
+
+		const incrementButton = picker!.querySelector('.ss__quantity-picker__button--increment') as HTMLElement;
+		fireEvent.click(incrementButton);
+
+		expect(storeProduct.quantity).toBe(2);
+		await waitFor(() => expect(input.value).toBe('2'));
 	});
 
 	it('renders the description from mappings.core.description', () => {
@@ -749,7 +774,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const desc = rendered.container.querySelector('.ss__product-quickview__description');
+		const desc = rendered.container.querySelector('.ss__quickview__description');
 		expect(desc).not.toBeNull();
 		expect(desc!.innerHTML).toContain('A great product.');
 	});
@@ -766,7 +791,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		expect(rendered.container.querySelector('.ss__product-quickview__description')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__description')).toBeNull();
 	});
 
 	it('passes type="swatches" to VariantSelection when the selection type is swatches', () => {
@@ -837,7 +862,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const title = rendered.container.querySelector('.ss__product-quickview__variant-title');
+		const title = rendered.container.querySelector('.ss__quickview__variant-title');
 		expect(title).not.toBeNull();
 		// Only the label — the selected value is not appended.
 		expect(title!.textContent).toBe('Color');
@@ -858,7 +883,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const title = rendered.container.querySelector('.ss__product-quickview__variant-title');
+		const title = rendered.container.querySelector('.ss__quickview__variant-title');
 		expect(title!.textContent).toBe('color');
 	});
 
@@ -883,7 +908,7 @@ describe('QuickviewLayout', () => {
 		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
 		expect(selections).toHaveLength(1);
 		expect(selections[0].getAttribute('data-field')).toBe('size');
-		expect(rendered.container.querySelector('.ss__product-quickview__variant-title')!.textContent).toBe('size');
+		expect(rendered.container.querySelector('.ss__quickview__variant-title')!.textContent).toBe('size');
 	});
 
 	it('matches a variantSelection.<field> module against the component-name form of the field', () => {
@@ -962,7 +987,7 @@ describe('QuickviewLayout', () => {
 
 		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
 		expect(selections).toHaveLength(2);
-		expect(rendered.container.querySelector('.ss__product-quickview__variants')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__variants')).not.toBeNull();
 	});
 
 	it('renders the price via the productDetail module from core mappings', () => {
@@ -996,7 +1021,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const button = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
+		const button = rendered.container.querySelector('.ss__quickview__go-to-product') as HTMLElement;
 		expect(button).not.toBeNull();
 
 		// Stub navigation to assert the target without leaving the test page.
@@ -1020,7 +1045,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		const button = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
+		const button = rendered.container.querySelector('.ss__quickview__go-to-product') as HTMLElement;
 		expect(button).not.toBeNull();
 
 		const original = window.location.href;
@@ -1049,7 +1074,7 @@ describe('QuickviewLayout', () => {
 		expect(rendered.container.querySelector('.ss__overlay-badge-mock')).toBeNull();
 		expect(rendered.container.querySelector('.ss__callout-badge-mock')).toBeNull();
 		// The image still renders, just not wrapped in the badge overlay.
-		expect(rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__slideshow .ss__quickview__image img')).not.toBeNull();
 	});
 
 	it('wraps the slideshow in overlay badges by default and renders callout badges when that module is in the layout', () => {
@@ -1065,9 +1090,9 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['slideshow'], ['calloutBadge']]} />);
 
 		// The `slideshow` module wraps the slideshow in OverlayBadge by default.
-		const overlay = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__overlay-badge-mock');
+		const overlay = rendered.container.querySelector('.ss__quickview__slideshow .ss__overlay-badge-mock');
 		expect(overlay).not.toBeNull();
-		expect(overlay!.querySelector('.ss__product-quickview__image img')).not.toBeNull();
+		expect(overlay!.querySelector('.ss__quickview__image img')).not.toBeNull();
 		// The `calloutBadge` module renders the callout badges as their own block.
 		expect(rendered.container.querySelector('.ss__callout-badge-mock')).not.toBeNull();
 	});
@@ -1103,7 +1128,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-		expect(rendered.container.querySelector('.ss__product-quickview__go-to-product')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__go-to-product')).toBeNull();
 	});
 
 	it('opens the fullscreen gallery when the single image is clicked', () => {
@@ -1121,11 +1146,11 @@ describe('QuickviewLayout', () => {
 		// Gallery not open initially.
 		expect(document.querySelector('.ss__gallery')).toBeNull();
 
-		const img = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img') as HTMLElement;
+		const img = rendered.container.querySelector('.ss__quickview__slideshow .ss__quickview__image img') as HTMLElement;
 		fireEvent.click(img);
 
 		// Gallery (portaled to body) now shows the clicked image.
-		const galleryImg = document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const galleryImg = document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		expect(galleryImg).not.toBeNull();
 		expect(galleryImg.getAttribute('src')).toBe('http://example.com/main.jpg');
 	});
@@ -1143,10 +1168,10 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// Click the third carousel image (index 2).
-		const imgs = rendered.container.querySelectorAll('.ss__product-quickview__carousel .ss__product-quickview__image img');
+		const imgs = rendered.container.querySelectorAll('.ss__quickview__carousel .ss__quickview__image img');
 		fireEvent.click(imgs[2] as HTMLElement);
 
-		const galleryImg = document.querySelector('img.ss__gallery__image') as HTMLImageElement;
+		const galleryImg = document.querySelector('.ss__gallery__image img') as HTMLImageElement;
 		expect(galleryImg).not.toBeNull();
 		expect(galleryImg.getAttribute('src')).toBe('http://example.com/c.jpg');
 		// Counter shows position 3 of 3.
@@ -1158,7 +1183,7 @@ describe('QuickviewLayout', () => {
 
 		// First render: no controller — component should render null without throwing.
 		const rendered = render(<QuickviewLayout quickviewManager={undefined as any} />);
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__content')).toBeNull();
 
 		// Second render: real controller with an open store and a product.
 		const storeProduct = {
@@ -1177,7 +1202,7 @@ describe('QuickviewLayout', () => {
 		expect(hookOrderErrors).toHaveLength(0);
 
 		// Modal content renders after controller appears.
-		expect(rendered.container.querySelector('.ss__product-quickview__content')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__content')).not.toBeNull();
 		expect(rendered.getByText('Mine')).toBeInTheDocument();
 
 		consoleError.mockRestore();
@@ -1209,7 +1234,7 @@ describe('QuickviewLayout', () => {
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 		// Open the gallery by clicking the product image.
-		const img = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img') as HTMLElement;
+		const img = rendered.container.querySelector('.ss__quickview__slideshow .ss__quickview__image img') as HTMLElement;
 		fireEvent.click(img);
 
 		// Gallery is now open; Escape should NOT call store.close.
@@ -1255,7 +1280,7 @@ describe('QuickviewLayout', () => {
 
 			const { container } = render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.similar']]} />);
 
-			const rec = container.querySelector('.ss__product-quickview__recommendations .ss__rec-stub');
+			const rec = container.querySelector('.ss__quickview__recommendations .ss__rec-stub');
 			expect(rec).toBeInTheDocument();
 			expect(rec).toHaveAttribute('data-name', 'similar');
 			expect(rec?.textContent).toBe('Similar Items');
@@ -1336,7 +1361,7 @@ describe('QuickviewLayout', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
 			const { container } = render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.similar']]} />);
 
-			expect(container.querySelector('.ss__product-quickview__recommendations')).not.toBeInTheDocument();
+			expect(container.querySelector('.ss__quickview__recommendations')).not.toBeInTheDocument();
 		});
 
 		it('renders nothing when Snap templates are unavailable', () => {
@@ -1345,7 +1370,7 @@ describe('QuickviewLayout', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
 			const { container } = render(<QuickviewLayout quickviewManager={quickviewManager as any} layout={[['recommendation.trending']]} />);
 
-			expect(container.querySelector('.ss__product-quickview__recommendations')).not.toBeInTheDocument();
+			expect(container.querySelector('.ss__quickview__recommendations')).not.toBeInTheDocument();
 		});
 	});
 
@@ -1360,7 +1385,7 @@ describe('QuickviewLayout', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
 			expect(content).toHaveAttribute('role', 'dialog');
 			expect(content).toHaveAttribute('aria-modal', 'true');
 			expect(content).toHaveAttribute('aria-label', 'Quickview');
@@ -1372,7 +1397,7 @@ describe('QuickviewLayout', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-			const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
+			const closeButton = rendered.container.querySelector('.ss__quickview__close') as HTMLElement;
 			expect(closeButton).toHaveAttribute('role', 'button');
 			expect(closeButton).toHaveAttribute('tabindex', '0');
 			expect(closeButton).toHaveAttribute('ss-a11y');
@@ -1383,7 +1408,7 @@ describe('QuickviewLayout', () => {
 			const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
 			fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
 			expect(close).toHaveBeenCalledTimes(1);
 		});
@@ -1393,11 +1418,11 @@ describe('QuickviewLayout', () => {
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
 			// Open the gallery by clicking the product image.
-			const img = rendered.container.querySelector('.ss__product-quickview__slideshow .ss__product-quickview__image img') as HTMLElement;
+			const img = rendered.container.querySelector('.ss__quickview__slideshow .ss__quickview__image img') as HTMLElement;
 			fireEvent.click(img);
 			expect(document.querySelector('.ss__gallery')).not.toBeNull();
 
-			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
 			fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
 			expect(document.querySelector('.ss__gallery')).toBeNull();
 			expect(close).not.toHaveBeenCalled();
@@ -1410,9 +1435,9 @@ describe('QuickviewLayout', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
-			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
-			const closeButton = rendered.container.querySelector('.ss__product-quickview__close') as HTMLElement;
-			const moreInfoButton = rendered.container.querySelector('.ss__product-quickview__go-to-product') as HTMLElement;
+			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
+			const closeButton = rendered.container.querySelector('.ss__quickview__close') as HTMLElement;
+			const moreInfoButton = rendered.container.querySelector('.ss__quickview__go-to-product') as HTMLElement;
 			expect(moreInfoButton).not.toBeNull();
 
 			// Tab from the last focusable element wraps to the first (the close button).
@@ -1443,9 +1468,9 @@ describe('QuickviewLayout', () => {
 			};
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} lang={lang} />);
 
-			const content = rendered.container.querySelector('.ss__product-quickview__content') as HTMLElement;
+			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
 			expect(content).toHaveAttribute('aria-label', 'Schnellansicht');
-			expect(rendered.container.querySelector('.ss__product-quickview__close')).toHaveAttribute('aria-label', 'Schließen');
+			expect(rendered.container.querySelector('.ss__quickview__close')).toHaveAttribute('aria-label', 'Schließen');
 			expect(rendered.getByText('In den Warenkorb')).toBeInTheDocument();
 			expect(rendered.getByText('Mehr Infos')).toBeInTheDocument();
 		});
@@ -1453,11 +1478,11 @@ describe('QuickviewLayout', () => {
 		it('renders the loading text via lang and supports overriding it', () => {
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, loading: true, product: undefined } });
 			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
-			expect(rendered.container.querySelector('.ss__product-quickview__loading')?.innerHTML).toBe('Loading…');
+			expect(rendered.container.querySelector('.ss__quickview__loading')?.innerHTML).toBe('Loading…');
 
 			const { quickviewManager: quickviewManager2 } = makeQuickviewManager({ store: { isOpen: true, loading: true, product: undefined } });
 			const rendered2 = render(<QuickviewLayout quickviewManager={quickviewManager2} lang={{ loadingText: { value: 'Lädt…' } }} />);
-			expect(rendered2.container.querySelector('.ss__product-quickview__loading')?.innerHTML).toBe('Lädt…');
+			expect(rendered2.container.querySelector('.ss__quickview__loading')?.innerHTML).toBe('Lädt…');
 		});
 	});
 });

@@ -5,7 +5,6 @@ import { QuickviewStore } from '@athoscommerce/snap-store-mobx';
 import type { ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Product, QuickviewConfig, QuickviewStoreConfig } from '@athoscommerce/snap-store-mobx';
 import type { AutocompleteController, RecommendationController, SearchController } from '../index';
-import type { ProductQuickviewObj } from '../types';
 
 // The controller that triggered the quickview. FinderController is excluded: the manager delegates
 // add-to-cart and product tracking back to the opener, and finder has neither.
@@ -36,7 +35,7 @@ const defaultConfig: QuickviewManagerConfig = {
  * Lives here rather than in snap-preact because it has no rendering dependency — the quickview
  * components consume it, not the reverse — which lets it be passed to controllers as the
  * `quickview` service instead of being looked up off the window. Within Snap it is created from
- * `config.quickview` and exposed as `snap.quickview` / `window.athos.quickview`.
+ * `config.quickview` and exposed on each controller as `controller.quickviewManager`.
  *
  * `show()` always runs on behalf of a source controller; there is no standalone mode.
  */
@@ -136,48 +135,31 @@ export class QuickviewManager {
 			if (superseded()) return;
 		}
 
-		// Fire the 'quickview' middleware on the originating controller's event manager — controllers
-		// own plugin/middleware attachment, which also scopes interception per controller. Listeners
-		// can inspect/mutate productsData/config on the event, or throw `new Error('cancelled')` to
-		// short-circuit before the store update.
-		const eventObj: ProductQuickviewObj = {
-			controller: source,
-			result,
-			productsData: resolvedProductsData,
-			config: effectiveConfig,
-		};
-
-		try {
-			await source.eventManager.fire('quickview', eventObj);
-		} catch (err: any) {
-			if (superseded()) return;
-			if (err?.message == 'cancelled') {
-				source.log.warn(`'quickview' middleware cancelled`);
-				this.store.reset();
-				return;
-			}
-			source.log.error(`error in 'quickview' middleware`, err);
-			// generic error message as this is displayed to the user in QuickviewLayout
-			this.store.setError({ message: `Failed to load quickview`, cause: err });
-			return;
-		}
-
 		if (superseded()) return;
 
-		// Wrap update() so a bad clone/variants payload surfaces via store.error instead of
-		// leaving the modal stuck in loading state. `meta?.data` is the raw meta the cloned
-		// Product needs for badge processing.
-		// The impression for the displayed product is not tracked here — the quickview containers
-		// (ProductQuickviewModal / ProductQuickviewSlideout) observe their content via useTracking
-		// and call track.product.impression when it is actually viewed.
 		try {
 			this.store.update({
-				result: eventObj.result,
-				productsData: eventObj.productsData,
-				config: eventObj.config,
-				storeConfig: eventObj.controller.store.config,
+				result,
+				productsData: resolvedProductsData,
+				config: effectiveConfig,
+				storeConfig: source.store.config,
 				meta: meta?.data,
 			});
+
+			try {
+				await source.eventManager.fire('quickview', { controller: source, product: this.store.product });
+			} catch (err: any) {
+				if (superseded()) return;
+				if (err?.message == 'cancelled') {
+					source.log.warn(`'quickview' middleware cancelled`);
+					this.store.reset();
+					return;
+				}
+				source.log.error(`error in 'quickview' middleware`, err);
+				// generic error message as this is displayed to the user in QuickviewLayout
+				this.store.setError({ message: `Failed to load quickview`, cause: err });
+				return;
+			}
 		} catch (err) {
 			source.log.warn('quickview.update failed', err);
 			this.store.setError({ message: 'Failed to display quickview', cause: err });

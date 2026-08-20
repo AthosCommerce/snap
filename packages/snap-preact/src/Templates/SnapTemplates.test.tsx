@@ -1214,21 +1214,11 @@ describe('createSnapConfig additional coverage', () => {
 		expect(snapConfig.controllers?.autocomplete).toBeUndefined();
 	});
 
-	it('createSnapConfig always adds a quickview manager targeting body', () => {
-		const templatesStore = new TemplatesStore({ config: baseConfig });
-		const snapConfig = createSnapConfig(baseConfig, templatesStore);
-
-		const def = snapConfig.quickview!;
-		expect(def.config!.id).toBe('quickview');
-		expect(def.targeters?.[0].selector).toBe('body');
-		expect(def.targeters?.[0].inject?.action).toBe('append');
-	});
-
 	it('createSnapConfig passes quickview settings through to the manager config', () => {
 		const config: SnapTemplatesConfig = {
 			...baseConfig,
 			quickview: {
-				targets: [{ component: 'ProductQuickviewSlideout' }],
+				targets: [{ component: 'QuickviewSlideout' }],
 				settings: { quickview: { displayFields: ['color'] } },
 			},
 		};
@@ -1246,7 +1236,7 @@ describe('createSnapConfig additional coverage', () => {
 		const config: SnapTemplatesConfig = {
 			...baseConfig,
 			quickview: {
-				targets: [{ component: 'ProductQuickviewModal' }, { selector: '#custom-qv', component: 'ProductQuickviewSlideout' }],
+				targets: [{ component: 'QuickviewModal' }, { selector: '#custom-qv', component: 'QuickviewSlideout' }],
 			},
 		};
 		const templatesStore = new TemplatesStore({ config });
@@ -1262,14 +1252,14 @@ describe('createSnapConfig additional coverage', () => {
 		const config: SnapTemplatesConfig = {
 			...baseConfig,
 			quickview: {
-				targets: [{ component: 'ProductQuickviewSlideout' }],
+				targets: [{ component: 'QuickviewSlideout' }],
 			},
 		};
 		const templatesStore = new TemplatesStore({ config });
 
 		// Stub the dynamic component import so resolving the targeter doesn't pull in the real
 		// quickview component tree (Carousel → swiper ESM, which jest can't transform here).
-		templatesStore.library.import.component.quickview.ProductQuickviewSlideout = jest.fn().mockResolvedValue(undefined) as any;
+		templatesStore.library.import.component.quickview.QuickviewSlideout = jest.fn().mockResolvedValue(undefined) as any;
 
 		const snapConfig = createSnapConfig(config, templatesStore);
 
@@ -1285,7 +1275,7 @@ describe('createSnapConfig additional coverage', () => {
 		const props = targeter.props as { target: TargetStore; templatesStore: TemplatesStore };
 		expect(props.templatesStore).toBe(templatesStore);
 		expect(props.target).toBeInstanceOf(TargetStore);
-		expect(props.target.component).toBe('ProductQuickviewSlideout');
+		expect(props.target.component).toBe('QuickviewSlideout');
 		expect(props.target.theme).toEqual({ location: 'local', name: 'global' });
 	});
 

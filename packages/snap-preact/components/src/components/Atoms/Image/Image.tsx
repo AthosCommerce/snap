@@ -135,4 +135,5 @@ export type ImageTemplatesLegalProps = {
 	onLoad?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onClick?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	lazy?: boolean;
+	draggable?: boolean;
 };

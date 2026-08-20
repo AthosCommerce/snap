@@ -81,7 +81,7 @@ let templatesConfig: SnapTemplatesConfig = {
 					// iconColor: 'red'
 				},
 				result: {
-					showQuickview: true,
+					hideQuickviewButton: false,
 				},
 				// quickviewLayout: {
 				// 	layout: [['overlayBadge', 'calloutBadge'],['productDetail.mappings.core.price'], ['variantSelections'],
@@ -118,7 +118,7 @@ let templatesConfig: SnapTemplatesConfig = {
 	quickview: {
 		targets: [
 			{
-				component: 'ProductQuickviewSlideout',
+				component: 'QuickviewSlideout',
 			},
 		],
 	},
