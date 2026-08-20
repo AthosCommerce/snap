@@ -13,17 +13,29 @@
 			"url": "/reference-migration",
 			"title": "Migration Guide"
 		},
-		"docs/SNAP_SETUP.md": {
-			"url": "/snap-setup",
-			"title": "Setup"
+		"docs/ACCESSIBILITY_STATEMENT.md": {
+			"url": "/about-accessibility",
+			"title": "Accessibility Statement"
+		},
+		"docs/GLOSSARY.md": {
+			"url": "/glossary",
+			"title": "Glossary"
 		},
 		"docs/SNAP_OVERVIEW.md": {
 			"url": "/snap-overview",
 			"title": "Overview"
 		},
+		"docs/SNAP_SETUP.md": {
+			"url": "/snap-setup",
+			"title": "Setup"
+		},
 		"docs/SNAP_SEARCH.md": {
 			"url": "/snap-search",
 			"title": "Search"
+		},
+		"docs/SNAP_CATEGORY_PAGES.md": {
+			"url": "/snap-category-pages",
+			"title": "Category Pages"
 		},
 		"docs/SNAP_AUTOCOMPLETE.md": {
 			"url": "/snap-autocomplete",
@@ -84,6 +96,62 @@
 		"docs/SNAP_CLIENT.md": {
 			"url": "/snap-client",
 			"title": "Snap Client"
+		},
+		"packages/snap-platforms/common/README.md": {
+			"url": "/package-platforms-common",
+			"title": "Common"
+		},
+		"packages/snap-platforms/shopify/README.md": {
+			"url": "/reference-platforms-shopify",
+			"title": "Shopify"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION_SHOPIFY.md": {
+			"url": "/build-deploy-integration-shopify",
+			"title": "Deployment"
+		},
+		"packages/snap-platforms/bigcommerce/README.md": {
+			"url": "/reference-platforms-bigcommerce",
+			"title": "BigCommerce"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION_BIGCOMMERCE.md": {
+			"url": "/build-deploy-integration-bigcommerce",
+			"title": "Deployment"
+		},
+		"packages/snap-platforms/magento2/README.md": {
+			"url": "/reference-platforms-magento2",
+			"title": "Magento2"
+		},
+		"docs/BUILD_DEPLOY_INTEGRATION_MAGENTO2.md": {
+			"url": "/build-deploy-integration-magento2",
+			"title": "Deployment"
+		},
+		"docs/BUILD_DEPLOY.md": {
+			"url": "/build-deploy",
+			"title": "Build & Deploy"
+		},
+		"docs/BUILD_DEPLOY_CHECKLIST.md": {
+			"url": "/build-deploy-ckecklist",
+			"title": "QA Checklist"
+		},
+		"docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md": {
+			"url": "/build-deploy-performance-optimization",
+			"title": "Performance Optimization"
+		},
+		"docs/REFERENCE_VARIANTS.md": {
+			"url": "/reference-variants",
+			"title": "Variants"
+		},
+		"docs/REFERENCE_TABBED_SEARCH.md": {
+			"url": "/reference-tabbed-search",
+			"title": "Tabbed Search"
+		},
+		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
+			"url": "/reference-custom-recommendation-templates",
+			"title": "Custom Recommendation Templates"
+		},
+		"docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md": {
+			"url": "/reference-custom-badge-templates",
+			"title": "Custom Badge Templates"
 		},
 		"packages/snap-preact/README.md": {
 			"url": "/reference-snap-preact",
@@ -209,26 +277,6 @@
 			"url": "/reference-profiler",
 			"title": "Profiler"
 		},
-		"packages/snap-platforms/README.md": {
-			"url": "/reference-platforms",
-			"title": "Platforms"
-		},
-		"packages/snap-platforms/common/README.md": {
-			"url": "/package-platforms-common",
-			"title": "Common"
-		},
-		"packages/snap-platforms/shopify/README.md": {
-			"url": "/reference-platforms-shopify",
-			"title": "Shopify"
-		},
-		"packages/snap-platforms/bigcommerce/README.md": {
-			"url": "/reference-platforms-bigcommerce",
-			"title": "BigCommerce"
-		},
-		"packages/snap-platforms/magento2/README.md": {
-			"url": "/reference-platforms-magento2",
-			"title": "Magento2"
-		},
 		"packages/snap-url-manager/README.md": {
 			"url": "/reference-url-manager",
 			"title": "Url Manager"
@@ -256,54 +304,6 @@
 		"packages/snap-tracker/README.md": {
 			"url": "/reference-tracker",
 			"title": "Tracker"
-		},
-		"docs/REFERENCE_VARIANTS.md": {
-			"url": "/reference-variants",
-			"title": "Variants"
-		},
-		"docs/REFERENCE_TABBED_SEARCH.md": {
-			"url": "/reference-tabbed-search",
-			"title": "Tabbed Search"
-		},
-		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
-			"url": "/reference-custom-recommendation-templates",
-			"title": "Custom Recommendation Templates"
-		},
-		"docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md": {
-			"url": "/reference-custom-badge-templates",
-			"title": "Custom Badge Templates"
-		},
-		"docs/BUILD_DEPLOY.md": {
-			"url": "/build-deploy",
-			"title": "Build & Deploy"
-		},
-		"docs/BUILD_DEPLOY_INTEGRATION.md": {
-			"url": "/build-deploy-integration",
-			"title": "Integration"
-		},
-		"docs/BUILD_DEPLOY_INTEGRATION_SHOPIFY.md": {
-			"url": "/build-deploy-integration-shopify",
-			"title": "Shopify"
-		},
-		"docs/BUILD_DEPLOY_INTEGRATION_BIGCOMMERCE.md": {
-			"url": "/build-deploy-integration-bigcommerce",
-			"title": "BigCommerce"
-		},
-		"docs/BUILD_DEPLOY_INTEGRATION_MAGENTO2.md": {
-			"url": "/build-deploy-integration-magento2",
-			"title": "Magento 2"
-		},
-		"docs/BUILD_DEPLOY_CHECKLIST.md": {
-			"url": "/build-deploy-ckecklist",
-			"title": "QA Checklist"
-		},
-		"docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md": {
-			"url": "/build-deploy-performance-optimization",
-			"title": "Performance Optimization"
-		},
-		"docs/ACCESSIBILITY_STATEMENT.md": {
-			"url": "/about-accessibility",
-			"title": "Accessibility Statement"
 		}
 	}
 }

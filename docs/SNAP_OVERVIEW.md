@@ -1,14 +1,26 @@
 # Overview
 
-Snap is built using the Model View Controller (MVC) pattern internally. When constructing an instance of the `Snap` class, the configuration object that is provided contains all the controllers that the project will use and where they will be rendered on the page. Each controller can be configured with various settings and custom functionality can be implemented via middleware to tie into the search lifecycle.
+Snap is built using the Model View Controller (MVC) pattern. When constructing an instance of the Snap class, the configuration object that is provided contains all the controllers that the project will use and where they will be rendered on the page. Each controller can be configured with various settings and custom functionality can be implemented via middleware to tie into the search lifecycle.
 
-Each controller contains a `controller.search()` method that is used to trigger a search to Athos API with parameters derived from the `controller.urlManager` state. A urlManager contains the state of the url (query and hash parameters), or in the case of Autocomplete, Recommendations, and Finder, is detached from the url and contains it's own state.
+<img src='/images/snap-search-lifecycle.svg'/>
 
-Data that is returned from the API is then stored in each controller's `controller.store`. The data schema is unique to each controller type (Search, Autocomplete, Recommendations, Finder) 
-
-A root level Preact component is rendered to the target selector(s) for each controller. The component will contain a reference to the controller via `props.controller`. Data from `props.controller.store` can then be rendered within the component and sub-components and will be reactive to changes in the store.
-
-Links attached to facet values, pagination, sort by, etc.. that are clicked will update the urlManager state and trigger a new search and re-render of the component.
+ 
+**1. Config → controllers.**
+You pass a config object listing every controller your project uses and the DOM target each one renders to.
+ 
+**2. Controller → search.**
+Each controller exposes `controller.search()`, which reads state from `controller.urlManager` and sends it to the Athos API. For `Search` controllers, urlManager tracks URL query/hash params. `Autocomplete`, `Recommendations`, and `Finder` controllers keep their urlManager detached from the URL — so, for example, opening an autocomplete dropdown never touches the browser's address bar or fires a full-page search.
+ 
+**3. API → store.**
+The response lands in `controller.store`. Each controller type (`Search`, `Autocomplete`, `Recommendations`, `Finder`) has its own store schema.
+ 
+**4. Store → component.**
+A root Preact component renders to the controller's target, receiving the controller via `props.controller`. It and its children read from `props.controller.store` and re-render automatically when the store changes.
+ 
+**5. Interaction → urlManager → loop.**
+Clicking a facet, page number, or sort option updates the urlManager state, which triggers a new `controller.search()` — and the cycle repeats from step 2.
+ 
+---
 
 
 Here is an example of the bare minimum configuration to create a search controller and render a root level `Content` component to the page.

@@ -16,18 +16,25 @@ var documents = [
 				url: './docs/REFERENCE_MIGRATION.md',
 				searchable: true,
 			},
+			{
+				label: 'Accessibility Statement',
+				route: '/about-accessibility',
+				type: 'markdown',
+				url: './docs/ACCESSIBILITY_STATEMENT.md',
+				searchable: true,
+			},
+			{
+				label: 'Glossary',
+				route: '/glossary',
+				type: 'markdown',
+				url: './docs/GLOSSARY.md',
+				searchable: true,
+			},
 		],
 	},
 	{
 		categoryName: 'Snap Integration',
 		links: [
-			{
-				label: 'Setup',
-				route: '/snap-setup',
-				type: 'markdown',
-				url: './docs/SNAP_SETUP.md',
-				searchable: true,
-			},
 			{
 				label: 'Overview',
 				route: '/snap-overview',
@@ -36,10 +43,24 @@ var documents = [
 				searchable: true,
 			},
 			{
+				label: 'Setup',
+				route: '/snap-setup',
+				type: 'markdown',
+				url: './docs/SNAP_SETUP.md',
+				searchable: true,
+			},
+			{
 				label: 'Search',
 				route: '/snap-search',
 				type: 'markdown',
 				url: './docs/SNAP_SEARCH.md',
+				searchable: true,
+			},
+			{
+				label: 'Category Pages',
+				route: '/snap-category-pages',
+				type: 'markdown',
+				url: './docs/SNAP_CATEGORY_PAGES.md',
 				searchable: true,
 			},
 			{
@@ -151,7 +172,6 @@ var documents = [
 		],
 	},
 	{
-		categoryName: 'Packages',
 		categoryName: 'API Integration',
 		links: [
 			{
@@ -164,7 +184,125 @@ var documents = [
 		],
 	},
 	{
-		categoryName: 'Reference',
+		categoryName: 'Platforms',
+		links: [
+			{
+				label: 'Common',
+				route: '/package-platforms-common',
+				type: 'markdown',
+				url: './packages/snap-platforms/common/README.md',
+			},
+			{
+				label: 'Shopify',
+				route: '/reference-platforms-shopify',
+				type: 'markdown',
+				url: './packages/snap-platforms/shopify/README.md',
+				searchable: true,
+				links: [
+					{
+						label: 'Deployment',
+						route: '/build-deploy-integration-shopify',
+						type: 'markdown',
+						url: './docs/BUILD_DEPLOY_INTEGRATION_SHOPIFY.md',
+						searchable: true,
+					},
+				],
+			},
+			{
+				label: 'BigCommerce',
+				route: '/reference-platforms-bigcommerce',
+				type: 'markdown',
+				url: './packages/snap-platforms/bigcommerce/README.md',
+				searchable: true,
+				links: [
+					{
+						label: 'Deployment',
+						route: '/build-deploy-integration-bigcommerce',
+						type: 'markdown',
+						url: './docs/BUILD_DEPLOY_INTEGRATION_BIGCOMMERCE.md',
+						searchable: true,
+					},
+				],
+			},
+			{
+				label: 'Magento2',
+				route: '/reference-platforms-magento2',
+				type: 'markdown',
+				url: './packages/snap-platforms/magento2/README.md',
+				searchable: true,
+				links: [
+					{
+						label: 'Deployment',
+						route: '/build-deploy-integration-magento2',
+						type: 'markdown',
+						url: './docs/BUILD_DEPLOY_INTEGRATION_MAGENTO2.md',
+						searchable: true,
+					},
+				],
+			},
+		],
+	},
+	{
+		categoryName: 'Build & Deploy',
+		links: [
+			{
+				label: 'Build & Deploy',
+				route: '/build-deploy',
+				type: 'markdown',
+				url: './docs/BUILD_DEPLOY.md',
+				searchable: true,
+			},
+			{
+				label: 'QA Checklist',
+				route: '/build-deploy-ckecklist',
+				type: 'markdown',
+				url: './docs/BUILD_DEPLOY_CHECKLIST.md',
+				searchable: true,
+			},
+			{
+				label: 'Performance Optimization',
+				route: '/build-deploy-performance-optimization',
+				type: 'markdown',
+				url: './docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md',
+				searchable: true,
+			},
+		],
+	},
+	{
+		categoryName: 'Customization',
+		links: [
+			{
+				label: 'Variants',
+				route: '/reference-variants',
+				type: 'markdown',
+				url: './docs/REFERENCE_VARIANTS.md',
+				searchable: true,
+			},
+			{
+				label: 'Tabbed Search',
+				route: '/reference-tabbed-search',
+				type: 'markdown',
+				url: './docs/REFERENCE_TABBED_SEARCH.md',
+				searchable: true,
+			},
+			{
+				label: 'Custom Recommendation Templates',
+				route: '/reference-custom-recommendation-templates',
+				type: 'markdown',
+				url: './docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md',
+				searchable: true,
+			},
+			{
+				label: 'Custom Badge Templates',
+				route: '/reference-custom-badge-templates',
+				type: 'markdown',
+				url: './docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md',
+				searchable: true,
+			},
+		],
+	},
+	{
+		categoryName: 'Package Reference',
 		links: [
 			{
 				label: 'Preact Components',
@@ -253,13 +391,6 @@ var documents = [
 						searchable: true,
 					},
 				],
-			},
-			{
-				label: 'Recommendation Instantiator',
-				route: '/reference-instantiator-recommendation',
-				type: 'markdown',
-				url: './packages/snap-preact/src/Instantiators/README.md',
-				searchable: true,
 			},
 			{
 				label: 'Store',
@@ -406,42 +537,6 @@ var documents = [
 				searchable: true,
 			},
 			{
-				label: 'Platforms',
-				route: '/reference-platforms',
-				type: 'markdown',
-				url: './packages/snap-platforms/README.md',
-				searchable: true,
-				links: [
-					{
-						label: 'Common',
-						route: '/package-platforms-common',
-						type: 'markdown',
-						url: './packages/snap-platforms/common/README.md',
-					},
-					{
-						label: 'Shopify',
-						route: '/reference-platforms-shopify',
-						type: 'markdown',
-						url: './packages/snap-platforms/shopify/README.md',
-						searchable: true,
-					},
-					{
-						label: 'BigCommerce',
-						route: '/reference-platforms-bigcommerce',
-						type: 'markdown',
-						url: './packages/snap-platforms/bigcommerce/README.md',
-						searchable: true,
-					},
-					{
-						label: 'Magento2',
-						route: '/reference-platforms-magento2',
-						type: 'markdown',
-						url: './packages/snap-platforms/magento2/README.md',
-						searchable: true,
-					},
-				],
-			},
-			{
 				label: 'Url Manager',
 				route: '/reference-url-manager',
 				type: 'markdown',
@@ -499,99 +594,11 @@ var documents = [
 				url: './packages/snap-tracker/README.md',
 				searchable: true,
 			},
-			{
-				label: 'Variants',
-				route: '/reference-variants',
-				type: 'markdown',
-				url: './docs/REFERENCE_VARIANTS.md',
-				searchable: true,
-			},
-			{
-				label: 'Tabbed Search',
-				route: '/reference-tabbed-search',
-				type: 'markdown',
-				url: './docs/REFERENCE_TABBED_SEARCH.md',
-				searchable: true,
-			},
-			{
-				label: 'Custom Recommendation Templates',
-				route: '/reference-custom-recommendation-templates',
-				type: 'markdown',
-				url: './docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md',
-				searchable: true,
-			},
-			{
-				label: 'Custom Badge Templates',
-				route: '/reference-custom-badge-templates',
-				type: 'markdown',
-				url: './docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md',
-				searchable: true,
-			},
-			{
-				label: 'Build & Deploy',
-				route: '/build-deploy',
-				type: 'markdown',
-				url: './docs/BUILD_DEPLOY.md',
-				searchable: true,
-				links: [
-					{
-						label: 'Integration',
-						route: '/build-deploy-integration',
-						type: 'markdown',
-						url: './docs/BUILD_DEPLOY_INTEGRATION.md',
-						searchable: true,
-						links: [
-							{
-								label: 'Shopify',
-								route: '/build-deploy-integration-shopify',
-								type: 'markdown',
-								url: './docs/BUILD_DEPLOY_INTEGRATION_SHOPIFY.md',
-								searchable: true,
-							},
-							{
-								label: 'BigCommerce',
-								route: '/build-deploy-integration-bigcommerce',
-								type: 'markdown',
-								url: './docs/BUILD_DEPLOY_INTEGRATION_BIGCOMMERCE.md',
-								searchable: true,
-							},
-							{
-								label: 'Magento 2',
-								route: '/build-deploy-integration-magento2',
-								type: 'markdown',
-								url: './docs/BUILD_DEPLOY_INTEGRATION_MAGENTO2.md',
-								searchable: true,
-							},
-						],
-					},
-					{
-						label: 'QA Checklist',
-						route: '/build-deploy-ckecklist',
-						type: 'markdown',
-						url: './docs/BUILD_DEPLOY_CHECKLIST.md',
-						searchable: true,
-					},
-					{
-						label: 'Performance Optimization',
-						route: '/build-deploy-performance-optimization',
-						type: 'markdown',
-						url: './docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md',
-						searchable: true,
-					},
-				],
-			},
 		],
 	},
 	{
 		searchable: false,
 		links: [
-			{
-				label: 'Accessibility Statement',
-				route: '/about-accessibility',
-				type: 'markdown',
-				url: './docs/ACCESSIBILITY_STATEMENT.md',
-				searchable: true,
-			},
 			{
 				label: 'Github Repository',
 				type: 'external',
