@@ -91,7 +91,7 @@ describe('Recommendations', () => {
 							//get the initial active product
 							const intialActive = doc.querySelector(
 								`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} .ss__result__details__title a`
-							).innerHTML;
+							).textContent;
 
 							//click the prev button
 							cy.get(integration?.selectors?.recommendation.prevArrow)
@@ -99,7 +99,7 @@ describe('Recommendations', () => {
 								.then(($button) => {
 									const newerActiveTitle = doc.querySelector(
 										`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} .ss__result__details__title a`
-									).innerHTML;
+									).textContent;
 
 									//these should not match
 									expect(newerActiveTitle).to.not.equal(intialActive);
@@ -119,7 +119,7 @@ describe('Recommendations', () => {
 							//get the initial active product
 							const intialActive = doc.querySelector(
 								`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} .ss__result__details__title a`
-							).innerHTML;
+							).textContent;
 							let newActive;
 							//click the next button
 							cy.get(integration?.selectors?.recommendation.nextArrow)
@@ -128,7 +128,7 @@ describe('Recommendations', () => {
 									//get the new active product
 									newActive = doc.querySelector(
 										`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} .ss__result__details__title a`
-									).innerHTML;
+									).textContent;
 
 									//get the new active again
 

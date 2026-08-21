@@ -70,13 +70,17 @@ describe('BundledRecommendations', () => {
 		});
 
 		it('renders cta section', function () {
+			let initialCartCount;
+
 			cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
 				cy.get(config?.selectors?.recommendation.cta).should('exist');
+
+				initialCartCount = store.cart.count;
 
 				//title
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__title`)
 					.should('exist')
-					.should('have.text', 'Subtotal for 4 items');
+					.should('have.text', `Subtotal for ${initialCartCount} items`);
 
 				//price
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__price .ss__price`)
@@ -98,10 +102,13 @@ describe('BundledRecommendations', () => {
 				.click({ force: true })
 				.then(() => {
 					cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
+						//unchecking the seed item should remove exactly one item from the cart
+						expect(store.cart.count).to.equal(initialCartCount - 1);
+
 						//title
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__title`)
 							.should('exist')
-							.should('have.text', 'Subtotal for 3 items');
+							.should('have.text', `Subtotal for ${store.cart.count} items`);
 						//strike
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(`$${store.cart.msrp}`);
 
@@ -128,7 +135,7 @@ describe('BundledRecommendations', () => {
 					//get the initial active product
 					const intialActive = doc.querySelector(
 						`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-					).innerHTML;
+					).textContent;
 					let newActive;
 					//click the next button
 					cy.get(config?.selectors?.recommendation.nextArrow)
@@ -137,7 +144,7 @@ describe('BundledRecommendations', () => {
 							//get the new active product
 							newActive = doc.querySelector(
 								`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-							).innerHTML;
+							).textContent;
 
 							//get the new active again
 
@@ -163,7 +170,7 @@ describe('BundledRecommendations', () => {
 					//get the initial active product
 					const intialActive = doc.querySelector(
 						`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-					).innerHTML;
+					).textContent;
 
 					//click the prev button
 					cy.get(config?.selectors?.recommendation.prevArrow)
@@ -171,7 +178,7 @@ describe('BundledRecommendations', () => {
 						.then(($button) => {
 							const newerActiveTitle = doc.querySelector(
 								`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-							).innerHTML;
+							).textContent;
 
 							//these should not match
 							expect(newerActiveTitle).to.not.equal(intialActive);
