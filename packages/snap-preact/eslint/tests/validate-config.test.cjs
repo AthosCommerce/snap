@@ -1,5 +1,5 @@
 const { RuleTester } = require('eslint');
-const rule = require('./validate-config.cjs');
+const rule = require('../src/validate-config.cjs');
 
 const ruleTester = new RuleTester({
 	parser: require.resolve('@typescript-eslint/parser'),

@@ -2,7 +2,7 @@
 	"name": "snap-preact-eslintplugin",
 	"private": true,
 	"description": "ESLint rules for validating Snap Templates config objects",
-	"main": "./index.cjs",
+	"main": "./src/index.cjs",
 	"sideEffects": false,
 	"scripts": {
 		"test": "jest",

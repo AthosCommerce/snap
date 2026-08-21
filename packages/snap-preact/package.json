@@ -85,8 +85,7 @@
 	"files": [
 		"dist/**/*",
 		"webpack",
-		"toolbox/src/eslint-rules/index.cjs",
-		"toolbox/src/eslint-rules/validate-config.cjs"
+		"eslint/src"
 	],
 	"exports": {
 		".": {
@@ -105,7 +104,7 @@
 			"require": "./dist/cjs/toolbox/src/index.js"
 		},
 		"./webpack": "./webpack/index.js",
-		"./eslintplugin": "./toolbox/src/eslint-rules/index.cjs"
+		"./eslintplugin": "./eslint/src/index.cjs"
 	},
 	"gitHead": "c31d6fae1461ef16d593321c312c94b85dad7d96"
 }
