@@ -26,6 +26,10 @@ module.exports = {
 				'"{{ value }}" is not a valid resultComponent. Must be one of: {{ validKeys }}.',
 			noResultComponents:
 				'"{{ value }}" is not a valid resultComponent. No keys found in components.result.',
+			invalidGlobalResultComponent:
+				'"{{ value }}" is not a valid globalResultComponent. Must be one of: {{ validKeys }}.',
+			noGlobalResultComponents:
+				'"{{ value }}" is not a valid globalResultComponent. No keys found in components.result.',
 			duplicateTabId:
 				'Tab id "{{ id }}" is used by more than one tab controller. Every search/autocomplete tab id must be unique, since it becomes the controller id.',
 			mismatchedTabParam:
@@ -97,6 +101,28 @@ module.exports = {
 							context.report({
 								node: resultNode,
 								messageId: 'invalidResultComponent',
+								data: {
+									value,
+									validKeys: validResultKeys.join(', '),
+								},
+							});
+						}
+					}
+
+					// Validate theme.globalResultComponent against components.result, same as resultComponent
+					const globalResultComponentNode = collectGlobalResultComponentNode(init);
+					if (globalResultComponentNode) {
+						const { node: globalResultNode, value } = globalResultComponentNode;
+						if (validResultKeys.length === 0) {
+							context.report({
+								node: globalResultNode,
+								messageId: 'noGlobalResultComponents',
+								data: { value },
+							});
+						} else if (!validResultKeys.includes(value)) {
+							context.report({
+								node: globalResultNode,
+								messageId: 'invalidGlobalResultComponent',
 								data: {
 									value,
 									validKeys: validResultKeys.join(', '),
@@ -358,6 +384,30 @@ module.exports = {
 			}
 
 			return results;
+		}
+
+		/**
+		 * Find the theme.globalResultComponent string literal node, if present.
+		 * It renders the same way resultComponent does (default result override),
+		 * so it validates against the same components.result keys.
+		 */
+		function collectGlobalResultComponentNode(configObjectExpression) {
+			const themeProp = findProperty(configObjectExpression, 'theme');
+			if (!themeProp || themeProp.value.type !== 'ObjectExpression') return null;
+
+			const globalResultComponentProp = findProperty(themeProp.value, 'globalResultComponent');
+			if (
+				!globalResultComponentProp ||
+				globalResultComponentProp.value.type !== 'Literal' ||
+				typeof globalResultComponentProp.value.value !== 'string'
+			) {
+				return null;
+			}
+
+			return {
+				node: globalResultComponentProp.value,
+				value: globalResultComponentProp.value.value,
+			};
 		}
 
 		/**

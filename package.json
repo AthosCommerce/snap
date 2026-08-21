@@ -40,7 +40,6 @@
   },
   "prettier": "@searchspring/prettier",
   "devDependencies": {
-    "@athoscommerce/eslint-plugin-snap-config": "file:./packages/snap-preact/toolbox/src/eslint-rules",
     "@athoscommerce/snapi-types": "1.0.7",
     "@searchspring/prettier": "1.0.2",
     "@testing-library/jest-dom": "6.2.0",

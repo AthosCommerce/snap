@@ -46,6 +46,15 @@ ruleTester.run('validate-config', rule, {
 			`,
 		},
 		{
+			name: 'globalResultComponent matching registered/provided result keys',
+			code: `
+				const config: SnapTemplatesConfig = {
+					components: { result: { CustomResult: { component: 'CustomResult' } } },
+					theme: { extends: 'base', globalResultComponent: 'CustomResult' },
+				};
+			`,
+		},
+		{
 			name: 'no tabs configured',
 			code: `
 				const config: SnapTemplatesConfigLocked = {
@@ -103,6 +112,16 @@ ruleTester.run('validate-config', rule, {
 				};
 			`,
 			errors: [{ messageId: 'invalidResultComponent' }],
+		},
+		{
+			name: 'globalResultComponent not among registered/provided result keys',
+			code: `
+				const config: SnapTemplatesConfig = {
+					components: { result: { CustomResult: { component: 'CustomResult' } } },
+					theme: { extends: 'base', globalResultComponent: 'CustomResuelt' },
+				};
+			`,
+			errors: [{ messageId: 'invalidGlobalResultComponent' }],
 		},
 		{
 			name: 'duplicate tab id across search and autocomplete',
