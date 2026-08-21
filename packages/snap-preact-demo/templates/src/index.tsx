@@ -5,7 +5,7 @@ import { globalStyles } from './styles';
 import { getDemoConfig } from '../../shared/demoConfig';
 
 const { siteId, clientConfig } = getDemoConfig();
-
+//test
 // const siteId = '8uyt2m';
 // const clientConfig = {
 // 	meta: {
