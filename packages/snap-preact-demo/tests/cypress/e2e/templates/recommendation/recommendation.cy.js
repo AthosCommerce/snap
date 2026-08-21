@@ -119,20 +119,26 @@ describe('Recommendations', () => {
 							cy.get(integration?.selectors?.recommendation.activeSlide).should('exist');
 
 							//get the initial active product
-							const intialActive = doc.querySelector(
+							const initialActiveLink = doc.querySelector(
 								`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} .ss__result__details__title a`
-							).textContent;
+							);
+							expect(initialActiveLink).to.exist;
+							const initialActive = initialActiveLink.textContent.trim();
+							expect(initialActive).to.not.be.empty;
 
 							//click the prev button
 							cy.get(integration?.selectors?.recommendation.prevArrow)
 								.click()
 								.then(($button) => {
-									const newerActiveTitle = doc.querySelector(
+									const newerActiveLink = doc.querySelector(
 										`${integration?.selectors?.recommendation.activeSlide} ${integration?.selectors?.recommendation.result} .ss__result__details__title a`
-									).textContent;
+									);
+									expect(newerActiveLink).to.exist;
+									const newerActiveTitle = newerActiveLink.textContent.trim();
+									expect(newerActiveTitle).to.not.be.empty;
 
 									//these should not match
-									expect(newerActiveTitle).to.not.equal(intialActive);
+									expect(newerActiveTitle).to.not.equal(initialActive);
 								});
 						});
 					});
@@ -152,7 +158,7 @@ describe('Recommendations', () => {
 							)
 								.should('be.visible')
 								.invoke('text')
-								.then((intialActive) => {
+								.then((initialActive) => {
 									// Click next with force option
 									cy.get(integration?.selectors?.recommendation.nextArrow)
 										.click({ force: true })
@@ -171,7 +177,7 @@ describe('Recommendations', () => {
 														.getAttribute('data-swiper-slide-index');
 													const storeTitle = store.results[parseInt(newerActiveIndex)].display.mappings.core.name;
 
-													expect(newActive).to.not.equal(intialActive);
+													expect(newActive).to.not.equal(initialActive);
 													expect(newActive).to.equal(storeTitle);
 												});
 										});
