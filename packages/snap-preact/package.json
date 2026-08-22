@@ -84,7 +84,8 @@
 	"sideEffects": false,
 	"files": [
 		"dist/**/*",
-		"webpack"
+		"webpack",
+		"eslint/src"
 	],
 	"exports": {
 		".": {
@@ -102,7 +103,8 @@
 			"import": "./dist/esm/toolbox/src/index.js",
 			"require": "./dist/cjs/toolbox/src/index.js"
 		},
-		"./webpack": "./webpack/index.js"
+		"./webpack": "./webpack/index.js",
+		"./eslintplugin": "./eslint/src/index.cjs"
 	},
 	"gitHead": "c31d6fae1461ef16d593321c312c94b85dad7d96"
 }
