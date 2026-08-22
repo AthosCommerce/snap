@@ -66,7 +66,7 @@ const config = {
 						},
 					},
 				},
-				targets: [
+				targeters: [
 					{
 						selector: '#athos-content',
 						component: () => Content,
@@ -91,7 +91,7 @@ const config = {
 						},
 					},
 				},
-				targets: [
+				targeters: [
 					{
 						selector: 'input.athos-ac',
 						component: () => Autocomplete,
@@ -202,7 +202,7 @@ Each array entry contains an object with the following properties:
 
 `config` - required controller config for the corresponding controller. See Controller specific documentation for all available configuration options.
 
-`targets` - optional array of Target objects. Targets that have been found will have the corresponding controller provided to the target component `controller` prop and the controller's `search` method invoked.
+`targeters` - optional array of Target objects. Targets that have been found will have the corresponding controller provided to the target component `controller` prop and the controller's `search` method invoked.
 
 ```js
 type ExtendedTarget = {
@@ -240,7 +240,7 @@ const config = {
 				config: {
 					id: 'search',
 				},
-				targets: [
+				targeters: [
 					{
 						selector: '#athos-content',
 						component: () => Content,

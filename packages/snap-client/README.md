@@ -68,6 +68,7 @@ type CacheConfig = {
 	enabled?: boolean;
 	ttl?: number;
 	maxSize?: number;
+	type?: 'memory' | 'sessionStorage';
 	purgeable?: boolean;
 	entries?: { [key: string]: Response };
 };
@@ -84,9 +85,11 @@ Each requester in the Snap Client has its own cache settings, which can be confi
 
   `ttl`: to adjust how long the requests are stored (in ms) - Defaults to `300000`,
 
-  `maxSize`: to adjust the maximum size of the cache allowed to be stored in localStorage (in kb - Defaults to `200`,
+  `maxSize`: to adjust the maximum size of the cache allowed to be stored (in kb) - Defaults to `1000`,
 
-  `purgeable`: to allow auto purging of the requests from localstorage when maxSize is hit, based on time remaining to expiration.  - Defaults to `true` with the exception of `meta`,
+  `type`: the storage backend to use - `'memory'` or `'sessionStorage'` - Defaults to `'sessionStorage'`,
+
+  `purgeable`: to allow auto purging of cache entries when maxSize is hit, based on time remaining to expiration - Defaults to `true` with the exception of `meta`,
 
   `entries`: to allow preload the cache. This is primarily used in Email Recommendations. 
 
