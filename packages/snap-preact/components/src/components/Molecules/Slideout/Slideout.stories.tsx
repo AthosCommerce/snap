@@ -143,6 +143,15 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		onChange: {
+			description: 'called with the new active state whenever the slideout is toggled',
+			table: {
+				type: {
+					summary: '(active: boolean) => void',
+				},
+			},
+			control: 'none',
+		},
 		...componentArgs,
 	},
 };

@@ -514,6 +514,13 @@ var documents = [
 				searchable: true,
 			},
 			{
+				label: 'Quickview',
+				route: '/reference-quickview',
+				type: 'markdown',
+				url: './docs/REFERENCE_QUICKVIEW.md',
+				searchable: true,
+			},
+			{
 				label: 'Custom Recommendation Templates',
 				route: '/reference-custom-recommendation-templates',
 				type: 'markdown',

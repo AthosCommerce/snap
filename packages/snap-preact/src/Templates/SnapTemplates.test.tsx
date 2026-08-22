@@ -11,9 +11,10 @@ import {
 } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
+import { TargetStore } from './Stores/TargetStore';
+import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSelect';
 import { TAB_ID_DEFAULT_PARAM } from './Stores/TabManagerStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
-import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 describe('createPlugins with custom plugins', () => {
 	const baseConfigValues = {
@@ -1211,6 +1212,71 @@ describe('createSnapConfig additional coverage', () => {
 		const snapConfig = createSnapConfig(baseConfig, templatesStore);
 
 		expect(snapConfig.controllers?.autocomplete).toBeUndefined();
+	});
+
+	it('createSnapConfig passes quickview settings through to the manager config', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				targets: [{ component: 'QuickviewSlideout' }],
+				settings: { quickview: { displayFields: ['color'] } },
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const def = snapConfig.quickview!;
+		expect(def.config!.id).toBe('quickview');
+		expect(def.config!.settings?.quickview?.displayFields).toEqual(['color']);
+		expect(def.targeters).toHaveLength(1);
+		expect(def.targeters?.[0].selector).toBe('body');
+	});
+
+	it('createSnapConfig creates a targeter per configured quickview target', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				targets: [{ component: 'QuickviewModal' }, { selector: '#custom-qv', component: 'QuickviewSlideout' }],
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const def = snapConfig.quickview!;
+		expect(def.targeters).toHaveLength(2);
+		expect(def.targeters?.[0].selector).toBe('body');
+		expect(def.targeters?.[1].selector).toBe('#custom-qv');
+	});
+
+	it('renders quickview targets through TemplateSelect so the templates ThemeProvider wraps the component', async () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				targets: [{ component: 'QuickviewSlideout' }],
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+
+		// Stub the dynamic component import so resolving the targeter doesn't pull in the real
+		// quickview component tree (Carousel → swiper ESM, which jest can't transform here).
+		templatesStore.library.import.component.quickview.QuickviewSlideout = jest.fn().mockResolvedValue(undefined) as any;
+
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const targeter = snapConfig.quickview!.targeters![0];
+
+		// TemplateSelect is the wrapper that provides the global templates ThemeProvider — without it
+		// theme overrides (e.g. `quickviewLayout`) are dropped because the component falls back to
+		// production-mode prop merging.
+		const Component = await targeter.component!();
+		expect(Component).toBe(TemplateSelect);
+
+		// TemplateSelect resolves the theme/component from these props.
+		const props = targeter.props as { target: TargetStore; templatesStore: TemplatesStore };
+		expect(props.templatesStore).toBe(templatesStore);
+		expect(props.target).toBeInstanceOf(TargetStore);
+		expect(props.target.component).toBe('QuickviewSlideout');
+		expect(props.target.theme).toEqual({ location: 'local', name: 'global' });
 	});
 
 	it('should create search controller with correct id', () => {

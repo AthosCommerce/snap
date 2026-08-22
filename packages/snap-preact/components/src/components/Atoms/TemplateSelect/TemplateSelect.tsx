@@ -11,7 +11,9 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 	const { loading } = templatesStore;
 
 	if (!target) {
-		controller.log.error(`Target was not provided!`);
+		// Quickview targets render without a controller (the quickview manager is not one), so
+		// fall back to the console when there is no controller logger to use.
+		controller ? controller.log.error(`Target was not provided!`) : console.error(`[TemplateSelect] Target was not provided!`);
 		return null;
 	}
 
@@ -22,36 +24,42 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 
 	if (!loading && !theme && !templatesStore.settings?.editMode) {
 		const error = `Theme "${target.theme.name}" not found in library for target "${target.selector}"`;
-		controller.log.error(error);
+		controller ? controller.log.error(error) : console.error(`[TemplateSelect] ${error}`);
 	}
 
 	const tabManager =
-		controller.type === ControllerTypes.search || controller.type === ControllerTypes.autocomplete
+		controller?.type === ControllerTypes.search || controller?.type === ControllerTypes.autocomplete
 			? templatesStore.getTabManager(controller.type, snap.controllers)
 			: undefined;
 
 	// ensuring that theme and component are ready to render
-	return !loading && theme && Component ? (
+	if (loading || !theme || !Component) {
+		return null;
+	}
+
+	// Quickview targets render without a controller — the shared quickview manager arrives via
+	// `otherProps` instead — so the ControllerProvider is only wrapped when there is one to provide.
+	const content = (
+		<div className="ss__template-select">
+			<Component
+				controller={controller}
+				tabManager={tabManager}
+				name={tabManager?.active?.id ? tabManager?.active?.id.toLowerCase() : undefined}
+				{...otherProps}
+			/>
+		</div>
+	);
+
+	return (
 		<SnapProvider snap={snap}>
-			<ThemeProvider theme={theme}>
-				<ControllerProvider controller={controller}>
-					<div className="ss__template-select">
-						<Component
-							controller={controller}
-							tabManager={tabManager}
-							name={tabManager?.active?.id ? tabManager?.active?.id.toLowerCase() : undefined}
-							{...otherProps}
-						/>
-					</div>
-				</ControllerProvider>
-			</ThemeProvider>
+			<ThemeProvider theme={theme}>{controller ? <ControllerProvider controller={controller}>{content}</ControllerProvider> : content}</ThemeProvider>
 		</SnapProvider>
-	) : null;
+	);
 });
 export interface TemplateSelectProps {
 	templatesStore: TemplatesStore;
 	target: TargetStore;
-	controller: Controllers;
+	controller?: Controllers;
 	snap: SnapTemplates;
 	theme?: Theme;
 }

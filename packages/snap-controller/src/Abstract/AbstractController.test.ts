@@ -11,6 +11,9 @@ import { MockClient } from '@athoscommerce/snap-shared';
 import { DomTargeter } from '@athoscommerce/snap-toolbox';
 
 import { AbstractController } from './AbstractController';
+import { FinderController } from '../Finder/FinderController';
+import { SearchController } from '../Search/SearchController';
+import { FinderStore } from '@athoscommerce/snap-store-mobx';
 import type { ControllerConfig } from '../types';
 
 describe('Search Controller', () => {
@@ -560,5 +563,95 @@ describe('Search Controller', () => {
 		});
 
 		trackerTrackError.mockClear();
+	});
+
+	describe('AbstractController quickview', () => {
+		const result: any = { id: 'child-1', type: 'product', mappings: { core: { parentId: 'parent-1' } } };
+
+		// A search controller is the realistic opener: the manager delegates add-to-cart and product
+		// tracking back to whoever opened the quickview, which finder controllers cannot service.
+		const searchController = (quickviewManager?: any) => {
+			const config = { id: 'test-search' };
+			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
+
+			return new SearchController(config, {
+				client: new MockClient(globals, {}),
+				store: new SearchStore(config, { urlManager }),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+				quickviewManager,
+			});
+		};
+
+		it('forwards to the injected quickview manager with the result, products data and itself', async () => {
+			const show = jest.fn();
+			const controller = searchController({ show });
+
+			const productsData: any = { variants: { data: [] } };
+
+			await controller.quickview(result, productsData, { displayFields: ['color'] });
+
+			// a thin forwarder — the manager derives parentId, meta and the effective config itself
+			expect(show).toHaveBeenCalledTimes(1);
+			expect(show).toHaveBeenCalledWith(
+				result,
+				expect.objectContaining({
+					productsData,
+					config: { displayFields: ['color'] },
+					controller,
+				})
+			);
+		});
+
+		it('exposes the injected manager as quickviewManager', () => {
+			const manager = { show: jest.fn() };
+			expect(searchController(manager).quickviewManager).toBe(manager);
+		});
+
+		it('warns when no quickview service was passed', async () => {
+			const controller = searchController();
+			const spy = jest.spyOn(controller.log, 'warn');
+
+			await controller.quickview(result);
+
+			expect(spy).toHaveBeenCalledWith(`quickview ignored — no 'quickview' service was passed to this controller`);
+		});
+
+		it('throws when the quickview service cannot show', () => {
+			expect(() => searchController({})).toThrow(`Invalid service 'quickview' passed to controller. Missing "show" function.`);
+		});
+
+		it('warns and does not forward for controller types that cannot open the quickview', async () => {
+			const show = jest.fn();
+			const finderConfig = {
+				id: 'test-finder',
+				url: '',
+				fields: [{ field: 'category' }],
+			};
+
+			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
+
+			const controller = new FinderController(finderConfig, {
+				client: new MockClient(globals, {}),
+				store: new FinderStore(finderConfig, { urlManager }),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+				quickviewManager: { show } as any,
+			});
+
+			const spy = jest.spyOn(controller.log, 'warn');
+
+			await controller.quickview(result);
+
+			// finder has no addToCart or product tracking for the manager to delegate back to
+			expect(show).not.toHaveBeenCalled();
+			expect(spy).toHaveBeenCalledWith(`quickview ignored — 'finder' controllers cannot open the quickview`);
+		});
 	});
 });

@@ -76,7 +76,26 @@ let templatesConfig: SnapTemplatesConfig = {
 		style: globalStyles,
 		// globalResultComponent: 'CustomResult',
 		overrides: {
-			default: {},
+			default: {
+				facet: {
+					// iconColor: 'red'
+				},
+				result: {
+					hideQuickviewButton: false,
+				},
+				// quickviewLayout: {
+				// 	layout: [['overlayBadge', 'calloutBadge'],['productDetail.mappings.core.price'], ['variantSelections'],
+				// 			['productDetailTable']],
+				// },
+				// productDetailTable: {
+				// 	details: [
+				// 		{ field: 'mappings.core.color', label: 'Color' },
+				// 		{ field: 'mappings.core.price', label: 'Price', type: 'price' },
+				// 		{ field: 'mappings.core.vendor', label: 'Vendor' },
+				// 		{ field: 'mappings.core.status', label: 'Status' },
+				// 	],
+				// }
+			},
 		},
 	},
 	recommendation: {
@@ -96,14 +115,45 @@ let templatesConfig: SnapTemplatesConfig = {
 			},
 		},
 	},
+	quickview: {
+		targets: [
+			{
+				component: 'QuickviewSlideout',
+			},
+		],
+	},
 	search: {
+		tabs: [
+			{
+				id: 'products',
+				param: 'products',
+				siteId,
+			},
+			{
+				id: 'other',
+				param: 'other',
+				siteId: 'atz34m',
+			},
+		],
 		targets: [
 			{
 				selector: '#athos-layout',
 				component: 'Search',
 			},
 		],
+		settings: {
+			quickview: {
+				displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
+			},
+		},
 	},
+	// quickview: {
+	// 	targets: [
+	// 		{
+	// 			component: 'ProductQuickviewSlideout',
+	// 		},
+	// 	],
+	// },
 	autocomplete: {
 		targets: [
 			{

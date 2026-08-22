@@ -32,6 +32,10 @@ The `SearchController` is used when making queries to the API `search` endpoint.
 | settings.infinite.backfill | number of pages allowed for backfill | ➖ |   |
 | settings.restorePosition.enabled | boolean to enable/disable using `restorePosition` event middleware to restore the window scroll position when navigating back to previous page (when using infinite this is automatically set to true) | false |   |
 | settings.restorePosition.onPageShow | boolean to enable/disable having restorePosition occur on the 'pageshow' window event (requires `restorePosition.enable`) | false |   |
+| settings.quickview.displayFields | array of product attribute field names that should appear in the modal's attribute table (preserves order). When omitted, no attributes are shown. Field labels are looked up from `meta.facets[field].label` with a fallback to the raw field name. | ➖ |   |
+| settings.quickview.clone | when `false`, the source result is used by reference inside the modal — variant selection in the modal then mutates the source result tile. When `true` (default), the source is deep-cloned into an independent Product graph. | true |   |
+| settings.quickview.fetchProductData | when `false`, the `/v1/products` endpoint is NOT called and the modal renders whatever variants/attributes the source result already carries. When `true` (default), the controller fetches full product data (including variants) while the modal displays in a loading state. | true |   |
+| settings.quickview.imagesField | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate that resolves to more than one image is rendered in a 1-per-view carousel instead of the single core image. When omitted, defaults to trying `images` then `ss_images`. Each field is expected to be an array of image URLs (real array or MobX observable array). | `images`, `ss_images` |   |
 
 
 ## Initialize
@@ -49,10 +53,36 @@ searchController.search();
 ```
 
 ## AddToCart
-This will invoke an addToCart event (see below). Takes an array of Products as a parameter. 
+This will invoke an addToCart event (see below). Takes an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewManager` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
 
 ```js
 searchController.addToCart([searchController.store.results[0]]);
+```
+
+## Quickview
+
+The Search controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `SearchController` — it is owned by the `QuickviewManager` (see `snap-controller`), exposed on the controller as `controller.quickviewManager`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: the Snap framework injects it into `<body>` — there is no per-result modal.
+
+### `quickview(result, productsData?, config?)`
+
+Requests the product quickview modal for the given result. This method is a thin forwarder: it calls `show(result, { productsData, config, controller: this })` on the manager it was given as the `quickview` service, and warns if it has none. The manager derives everything else from the controller passed to it — the product's parent (`result.mappings.core.parentId`), the effective config, and the meta store — then opens the modal, fetches `/v1/products`, fires the `quickview` middleware on **this controller's** event manager, and updates its own store.
+
+| param | type | description |
+|---|---|---|
+| `result` | `Product` (required) | The source result to preview. It must carry `mappings.core.parentId` (the id used for the `/v1/products` request) — results without one are ignored with a warning. |
+| `productsData` | `ProductsResponseModel` (optional) | If passed, the `QuickviewManager` skips its `/v1/products` call and uses this data as-is. Useful for tests, prefetching, or middleware-driven flows. |
+| `config` | `QuickviewConfig` (optional) | Per-call override. Precedence: manager `settings.quickview` < this controller's `settings.quickview` < this argument. |
+
+```tsx
+<button onClick={() => controller.quickview(result)}>Quick View</button>
+```
+
+### Closing the modal
+
+Closing is handled by the manager's store: call `controller.quickviewManager.store.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `.store.reset()` to also clear the product reference.
+
+```js
+controller.quickviewManager.store.close();
 ```
 
 ## Search History
@@ -248,6 +278,10 @@ export class Content extends Component {
 - Called with `eventData` = { controller, product, trackEvent } 
 - Always invoked after `track.product.addToCart()` method has been invoked
 
+For the `track.product.*` events above, `trackEvent` includes `quickView: true` when the tracked interaction was delegated from the `QuickviewManager` (i.e. it occurred within the quickview modal).
+
+Impressions are deduped per product per response: `track.product.impression` sends at most one regular impression and one quickview-delegated impression for each result of a response. The two kinds dedup separately, so opening the quickview still sends an impression for a product whose grid impression was already tracked (and vice versa).
+
 ### track.product.redirect
 - Called with `eventData` = { controller, redirectURL, trackEvent } 
 - Always invoked after `track.product.redirect()` method has been invoked
@@ -255,6 +289,23 @@ export class Content extends Component {
 ### addToCart
 - Called with `eventData` = { controller, products } 
 - Always invoked after `addToCart()` method has been invoked
+
+### quickview
+- This middleware fires on `SearchController`'s own event manager — the controller that opened the quickview — so attaching it here scopes interception to search-originated quickviews
+- Called with `eventData` = `ProductQuickviewObj` = { controller, result, productsData?, config }
+- Fires after the optional `/v1/products` fetch resolves and before the manager's `store.update` runs
+- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewManager` reads them back after the await and passes them to `store.update`
+- Throw `new Error('cancelled')` to short-circuit: `store.reset()` is called and no modal renders
+- Any other thrown error surfaces as `store.error` and the modal renders the error branch
+
+```ts
+controller.on('quickview', async (eventObj, next) => {
+    if (someCondition(eventObj.result)) {
+        eventObj.config.displayFields = ['custom', 'fields', 'here'];
+    }
+    await next();
+});
+```
 
 ## Variants
 For variant integration details, see [Variant Integration Docs](https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)

@@ -31,12 +31,8 @@ export class FinderController extends AbstractController {
 	declare store: FinderStore;
 	declare config: FinderControllerConfig;
 
-	constructor(
-		config: FinderControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
-		context?: ContextVariables
-	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+	constructor(config: FinderControllerConfig, services: ControllerServices, context?: ContextVariables) {
+		super(config, services, context);
 
 		// deep merge config with defaults
 		this.config = deepmerge(defaultConfig, this.config);

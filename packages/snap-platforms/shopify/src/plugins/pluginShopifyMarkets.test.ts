@@ -31,6 +31,11 @@ type MockController = {
 	store: {
 		results: MockResult[];
 	};
+	quickviewManager?: {
+		store: {
+			product?: MockResult;
+		};
+	};
 	log: {
 		warn: jest.Mock;
 	};
@@ -38,7 +43,8 @@ type MockController = {
 };
 
 const createController = (results: MockResult[]): MockController => {
-	let afterStoreHandler: ((payload: { controller: MockController }, next: () => Promise<void>) => Promise<void>) | undefined;
+	type EventHandler = (payload: { controller: MockController }, next: () => Promise<void>) => Promise<void>;
+	const handlers: Record<string, EventHandler> = {};
 
 	const controller: MockController = {
 		config: {},
@@ -51,22 +57,24 @@ const createController = (results: MockResult[]): MockController => {
 		log: {
 			warn: jest.fn(),
 		},
-		on: jest.fn((event: string, handler: typeof afterStoreHandler) => {
-			if (event === 'afterStore') {
-				afterStoreHandler = handler;
-			}
+		on: jest.fn((event: string, handler: EventHandler) => {
+			handlers[event] = handler;
 		}),
 	};
 
-	const runAfterStore = async () => {
-		if (!afterStoreHandler) {
-			throw new Error('afterStore handler was not registered');
+	const runEvent = async (event: string) => {
+		const handler = handlers[event];
+		if (!handler) {
+			throw new Error(`${event} handler was not registered`);
 		}
 
-		await afterStoreHandler({ controller }, async () => Promise.resolve());
+		await handler({ controller }, async () => Promise.resolve());
 	};
 
-	return Object.assign(controller, { runAfterStore });
+	const runAfterStore = async () => runEvent('afterStore');
+	const runQuickview = async () => runEvent('quickview');
+
+	return Object.assign(controller, { runAfterStore, runQuickview });
 };
 
 const makeFetchResponse = (
@@ -585,5 +593,167 @@ describe('shopify/pluginShopifyMarkets', () => {
 		expect(productResult.variants!.data[3].mappings.core.msrp).toBe(23);
 
 		expect(productResult.state.priceFetched).toBe(true);
+	});
+
+	describe('quickview event', () => {
+		const createQuickviewProduct = (parentId: string): MockResult => ({
+			type: 'product',
+			mappings: {
+				core: {
+					parentId,
+					price: 5,
+					msrp: 10,
+				},
+			},
+			variants: {
+				data: [{ mappings: { core: { uid: '1001', price: 5, msrp: 10 } } }, { mappings: { core: { uid: '1002', price: 7, msrp: 14 } } }],
+			},
+			state: {},
+		});
+
+		it('applies cached pricing to the quickview product without refetching', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(
+				makeFetchResponse([
+					{
+						id: '123',
+						price: 12,
+						msrp: 20,
+						variants: [
+							{ id: '1001', price: 12, msrp: 20 },
+							{ id: '1002', price: 15, msrp: 25 },
+						],
+					},
+				])
+			);
+			(global as any).fetch = fetchMock;
+
+			const productResult: MockResult = {
+				type: 'product',
+				mappings: {
+					core: {
+						parentId: '123',
+						price: 5,
+						msrp: 10,
+					},
+				},
+				state: {},
+			};
+
+			const controller = createController([productResult]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+				baseCurrency: 'USD',
+			});
+
+			await (controller as any).runAfterStore();
+
+			const quickviewProduct = createQuickviewProduct('123');
+			controller.quickviewManager = { store: { product: quickviewProduct } };
+
+			await (controller as any).runQuickview();
+
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+			expect(quickviewProduct.mappings.core.price).toBe(12);
+			expect(quickviewProduct.mappings.core.msrp).toBe(20);
+			expect(quickviewProduct.variants!.data[0].mappings.core.price).toBe(12);
+			expect(quickviewProduct.variants!.data[0].mappings.core.msrp).toBe(20);
+			expect(quickviewProduct.variants!.data[1].mappings.core.price).toBe(15);
+			expect(quickviewProduct.variants!.data[1].mappings.core.msrp).toBe(25);
+			expect(quickviewProduct.state.priceFetched).toBe(true);
+		});
+
+		it('fetches pricing for the quickview product when not cached', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(
+				makeFetchResponse([
+					{
+						id: '777',
+						price: 42,
+						msrp: 60,
+						variants: [
+							{ id: '1001', price: 42, msrp: 60 },
+							{ id: '1002', price: 44, msrp: 62 },
+						],
+					},
+				])
+			);
+			(global as any).fetch = fetchMock;
+
+			const quickviewProduct = createQuickviewProduct('777');
+			const controller = createController([]);
+			controller.quickviewManager = { store: { product: quickviewProduct } };
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+				baseCurrency: 'USD',
+			});
+
+			await (controller as any).runQuickview();
+
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+			expect(quickviewProduct.mappings.core.price).toBe(42);
+			expect(quickviewProduct.mappings.core.msrp).toBe(60);
+			expect(quickviewProduct.variants!.data[0].mappings.core.price).toBe(42);
+			expect(quickviewProduct.variants!.data[1].mappings.core.price).toBe(44);
+			expect(quickviewProduct.state.priceFetched).toBe(true);
+		});
+
+		it('does not fetch when active currency matches base currency and still sets priceFetched', async () => {
+			// @ts-ignore
+			window.Shopify.currency.active = 'USD';
+
+			const fetchMock = jest.fn();
+			(global as any).fetch = fetchMock;
+
+			const quickviewProduct = createQuickviewProduct('123');
+			const controller = createController([]);
+			controller.quickviewManager = { store: { product: quickviewProduct } };
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+				baseCurrency: 'USD',
+			});
+
+			await (controller as any).runQuickview();
+
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(quickviewProduct.mappings.core.price).toBe(5);
+			expect(quickviewProduct.state.priceFetched).toBe(true);
+		});
+
+		it('does nothing when the quickview store has no product', async () => {
+			const fetchMock = jest.fn();
+			(global as any).fetch = fetchMock;
+
+			const controller = createController([]);
+			controller.quickviewManager = { store: { product: undefined } };
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+				baseCurrency: 'USD',
+			});
+
+			await expect((controller as any).runQuickview()).resolves.toBeUndefined();
+			expect(fetchMock).not.toHaveBeenCalled();
+		});
+
+		it('sets priceFetched and warns when the fetch fails', async () => {
+			const fetchMock = jest.fn().mockRejectedValue(new Error('network error'));
+			(global as any).fetch = fetchMock;
+
+			const quickviewProduct = createQuickviewProduct('888');
+			const controller = createController([]);
+			controller.quickviewManager = { store: { product: quickviewProduct } };
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+				baseCurrency: 'USD',
+			});
+
+			await (controller as any).runQuickview();
+
+			expect(controller.log.warn).toHaveBeenCalledWith('[shopifyMarkets] Quickview request failed:', expect.any(Error));
+			expect(quickviewProduct.state.priceFetched).toBe(true);
+		});
 	});
 });
