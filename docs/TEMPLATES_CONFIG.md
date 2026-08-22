@@ -18,10 +18,9 @@ Snap templates is configuration based. The configuration defines which features 
 Here is a minimal example starting configuration to enable search and autocomplete using the `pike` theme.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const templatesConfig: SnapTemplatesConfig = {
+const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
 		language: 'en',
@@ -46,7 +45,7 @@ const templatesConfig: SnapTemplatesConfig = {
 			},
 		],
 	},
-}
+});
 
 new SnapTemplates(templatesConfig);
 ```
@@ -77,17 +76,16 @@ It is possible to switch language and currency at run-time using methods on the 
 
 ### Unlocked Configuration
 
-By default, Snap Templates operates in "locked" mode, which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode by importing and using the `SnapTemplatesConfigUnlocked` type, and setting the `unlocked` setting to `true`.
+By default, Snap Templates operates in "locked" mode, which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode by wrapping your config in `validateTemplatesConfigUnlocked` and setting the `unlocked` setting to `true`.
 
 #### Locked Mode (Default)
 
-In locked mode, no special type import or `unlocked` flag is required. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates.
+In locked mode, no `unlocked` flag is required — just wrap your config in `validateTemplatesConfig`. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfig = {
+const config = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
 		platform: 'shopify',
@@ -96,7 +94,7 @@ const config: SnapTemplatesConfig = {
 		extends: 'pike',
 	},
 	// ... standard configuration options
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -105,7 +103,7 @@ new SnapTemplates(config);
 
 To enable unlocked mode you must:
 
-1. Import and use the `SnapTemplatesConfigUnlocked` type for your config variable
+1. Wrap your config in `validateTemplatesConfigUnlocked` instead of `validateTemplatesConfig`
 2. Set `unlocked: true` in the config object
 
 This makes additional configuration capabilities available:
@@ -115,10 +113,9 @@ This makes additional configuration capabilities available:
 2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfigUnlocked = {
+const config = validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -128,7 +125,7 @@ const config: SnapTemplatesConfigUnlocked = {
 		extends: 'pike',
 	},
 	// ... configuration with advanced options
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -157,7 +154,7 @@ The example below demonstrates both approaches for French language translations:
 
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	translations: {
 		fr: {
@@ -179,6 +176,7 @@ new SnapTemplates({
 		}
 	},
 	...
+}));
 ```
 
 
@@ -203,7 +201,7 @@ Snap Templates was built to intentionally not support custom Preact components c
 ```tsx
 import { SychronousCustomResult } from './components/Result';
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	components: {
 		result: {
@@ -215,6 +213,7 @@ new SnapTemplates({
 		},
 	},
 	...
+}));
 ```
 
 ### URL Translator Configuration
