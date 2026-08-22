@@ -21,6 +21,14 @@ type ResultsProps = {
 	controller: SearchController;
 };
 
+const resultsTheme = {
+	components: {
+		result: {
+			showQuickview: true,
+		},
+	},
+};
+
 const resultsBreakpoints = {
 	0: {
 		columns: 2,
@@ -47,7 +55,7 @@ export const Results = withController(
 
 				<Profile name="results" controller={controller}>
 					<div id="ss_results">
-						<ResultsComponent breakpoints={resultsBreakpoints} controller={controller} results={results} />
+						<ResultsComponent breakpoints={resultsBreakpoints} controller={controller} results={results} theme={resultsTheme} />
 					</div>
 				</Profile>
 

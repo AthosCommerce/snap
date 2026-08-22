@@ -78,7 +78,15 @@ describe('VariantSelection Component', () => {
 		it('renders as list with type', () => {
 			mount(<VariantSelection selection={selection} type={'list'} />);
 			cy.get('.ss__variant-selection__list').should('exist');
-			cy.get('.ss__list__option').should('have.length', selection.values.length);
+
+			// the VariantSelection list is capped at rows: 1, columns: 6 with an in-grid overflow indicator
+			const limit = 6;
+			if (selection.values.length > limit) {
+				cy.get('.ss__list__option').should('have.length', limit);
+				cy.get('.ss__list__show-more-wrapper').should('contain.text', `+ ${selection.values.length - limit + 1}`);
+			} else {
+				cy.get('.ss__list__option').should('have.length', selection.values.length);
+			}
 		});
 	});
 

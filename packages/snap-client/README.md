@@ -52,6 +52,7 @@ type ClientConfig = {
 	fetchApi?: WindowOrWorkerGlobalScope['fetch'];
 	meta?: RequesterConfig<MetaRequestModel, MetaRequesterPaths>;
 	search?: RequesterConfig<SearchRequestModel, SearchRequesterPaths>; // also used by autocomplete, category, and finder
+	products?: RequesterConfig<ProductsRequestModel, ProductsRequesterPaths>;
 	recommend?: RequesterConfig<RecommendRequestModel, RecommendRequesterPaths>;
 	suggest?: RequesterConfig<SuggestRequestModel, SuggestRequesterPaths>; // also used by trending
 };
@@ -68,6 +69,7 @@ type CacheConfig = {
 	enabled?: boolean;
 	ttl?: number;
 	maxSize?: number;
+	type?: 'memory' | 'sessionStorage';
 	purgeable?: boolean;
 	entries?: { [key: string]: Response };
 };
@@ -84,9 +86,11 @@ Each requester in the Snap Client has its own cache settings, which can be confi
 
   `ttl`: to adjust how long the requests are stored (in ms) - Defaults to `300000`,
 
-  `maxSize`: to adjust the maximum size of the cache allowed to be stored in localStorage (in kb - Defaults to `200`,
+  `maxSize`: to adjust the maximum size of the cache (in kb) - Defaults to `1000`,
 
-  `purgeable`: to allow auto purging of the requests from localstorage when maxSize is hit, based on time remaining to expiration.  - Defaults to `true` with the exception of `meta`,
+  `type`: to specify where the cache is stored, either `'memory'` or `'sessionStorage'` - Defaults to `'sessionStorage'` with the exception of `products` which always uses `'memory'`,
+
+  `purgeable`: to allow auto purging of the requests from the cache when maxSize is hit, based on time remaining to expiration.  - Defaults to `true` with the exception of `meta`,
 
   `entries`: to allow preload the cache. This is primarily used in Email Recommendations. 
 
@@ -128,10 +132,10 @@ const metaResponse = {
     ]
 };
 
-const metaKey = `/v1/meta{"siteId":"atkzs2"}`;
+const metaKey = `/v1/meta/{"siteId":"atkzs2"}`;
 
 const clientConfig = {
-  search: {
+  meta: {
     cache: {
       entries: {
         [metaKey]: metaResponse
@@ -244,6 +248,16 @@ const { meta, search } = await client.finder({
     background: false,
     value: "red",
   }]
+});
+```
+
+## `products` method
+Makes a `GET` request to the Athos Products API (`/v1/products/[parentId]`) and returns a promise. The `parentId` parameter is required. The `siteId` is sourced from globals automatically, but if provided that siteId would be used. The default origin is `https://[siteId].a.athoscommerce.net` and can be overridden via the `products.origin` client config. Responses are cached in memory only (not in sessionStorage).
+
+```js
+const client = new Client(globals, clientConfig);
+const product = await client.products({
+  parentId: 'product123'
 });
 ```
 

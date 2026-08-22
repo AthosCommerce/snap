@@ -493,6 +493,81 @@ describe('Search Controller', () => {
 		storagefn.mockClear();
 	});
 
+	it('passes quickView override through track.product methods and addToCart to beacon events', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const impressionfn = jest.spyOn(controller.tracker.events.search, 'impression');
+		const clickThroughfn = jest.spyOn(controller.tracker.events.search, 'clickThrough');
+		const addToCartfn = jest.spyOn(controller.tracker.events.search, 'addToCart');
+
+		await controller.search();
+
+		const results = controller.store.results;
+
+		controller.track.product.impression(results[0], { quickView: true });
+		controller.track.product.clickThrough(new MouseEvent('click'), results[0], { quickView: true });
+		controller.track.product.addToCart(results[0] as Product, { quickView: true });
+		await controller.addToCart(results[1] as Product, { quickView: true });
+
+		const withQuickView = expect.objectContaining({ data: expect.objectContaining({ quickView: true }) });
+		expect(impressionfn).toHaveBeenCalledWith(withQuickView);
+		expect(clickThroughfn).toHaveBeenCalledWith(withQuickView);
+		expect(addToCartfn).toHaveBeenNthCalledWith(1, withQuickView);
+		expect(addToCartfn).toHaveBeenNthCalledWith(2, withQuickView);
+
+		controller.track.product.clickThrough(new MouseEvent('click'), results[2]);
+		expect(clickThroughfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.not.objectContaining({ quickView: true }) }));
+
+		controller.tracker.cookies.cart.clear();
+		impressionfn.mockClear();
+		clickThroughfn.mockClear();
+		addToCartfn.mockClear();
+	});
+
+	it('dedupes quickView impressions separately from regular impressions', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const impressionfn = jest.spyOn(controller.tracker.events.search, 'impression');
+
+		await controller.search();
+
+		const result = controller.store.results[0];
+
+		// a regular impression must not suppress the quickview impression (and vice versa)
+		controller.track.product.impression(result);
+		controller.track.product.impression(result, { quickView: true });
+		expect(impressionfn).toHaveBeenCalledTimes(2);
+		expect(impressionfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.objectContaining({ quickView: true }) }));
+
+		// repeat impressions of either kind are deduped
+		controller.track.product.impression(result, { quickView: true });
+		controller.track.product.impression(result);
+		expect(impressionfn).toHaveBeenCalledTimes(2);
+
+		// quickview impression first must not suppress the regular impression
+		const other = controller.store.results[1];
+		controller.track.product.impression(other, { quickView: true });
+		controller.track.product.impression(other);
+		expect(impressionfn).toHaveBeenCalledTimes(4);
+		expect(impressionfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.not.objectContaining({ quickView: true }) }));
+
+		impressionfn.mockClear();
+	});
+
 	it('can set enabled for hierarchy filters', async () => {
 		const _config: SearchStoreConfig = {
 			...searchConfig,
@@ -1368,5 +1443,68 @@ describe('Search Controller', () => {
 			const selector = generateHrefSelector(elem, href);
 			expect(selector).toBe(`DIV.outer DIV DIV SPAN A[href*=\"${href}\"]`);
 		});
+	});
+});
+
+describe('Search Controller quickview', () => {
+	let originalAthos: any;
+
+	beforeEach(() => {
+		searchConfig = { ...searchConfigDefault };
+		searchConfig.id = uuidv4().split('-').join('');
+		originalAthos = (window as any).athos;
+	});
+
+	afterEach(() => {
+		(window as any).athos = originalAthos;
+	});
+
+	it('quickview fires controller/quickview with a search parentId, merged config, meta and originating controller', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
+
+		await controller.quickview(result, undefined, { displayFields: ['color'] });
+
+		expect(fire).toHaveBeenCalledWith(
+			'controller/quickview',
+			expect.objectContaining({
+				result,
+				parentId: 'parent-1',
+				config: expect.objectContaining({ displayFields: ['color'] }),
+				meta: controller.store.meta,
+				controller,
+			})
+		);
+	});
+
+	it('quickview warns and does not fire when no result provided', async () => {
+		const fire = jest.fn();
+		// @ts-ignore
+		window.athos = { fire };
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		await controller.quickview(undefined as any);
+
+		expect(fire).not.toHaveBeenCalled();
 	});
 });

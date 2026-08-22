@@ -186,6 +186,7 @@ Available controllers:
 - [AutocompleteController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete)
 - [FinderController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Finder)
 - [RecommendationController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Recommendation)
+- [QuickviewController](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview)
 
 ```js
 const config = {
@@ -194,6 +195,7 @@ const config = {
 		autocomplete: [],
 		finder: [],
 		recommendation: [],
+		quickview: [],
 	}
 }
 ```
@@ -266,6 +268,26 @@ For example, if using the `config` example above:
 const snap = new Snap(config);
 const { search } = snap.controllers;
 ```
+
+#### quickview controllers
+Quickview controllers defined under `config.controllers.quickview` behave slightly differently from the other controller types. If a quickview controller entry has no `targeters` (or an empty `targeters` array), the controller is still created immediately. This is done so that the controller is available for the global `controller/quickview` event (see below) without requiring a DOM target.
+
+```js
+const config = {
+	controllers: {
+		quickview: [
+			{
+				config: {
+					id: 'quickview',
+				},
+			},
+		],
+	},
+}
+```
+
+##### controller/quickview event
+Snap Preact registers a global `controller/quickview` event handler on the shared `eventManager`. When the event is fired (for example, by calling `controller.quickview(result)` on any controller — this fires `controller/quickview` via the integration global), the handler looks through all registered controllers (`window.athos.controller`) for a controller of type `quickview` (regardless of its `id`) and invokes its `quickview()` method with the event data. If no quickview-type controller has been created, a console warning is logged and the event is ignored.
 
 ## properties
 After instantiating an instance of Snap, the following properties can be accessed. 

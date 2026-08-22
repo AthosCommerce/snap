@@ -11,6 +11,9 @@ import { MockClient } from '@athoscommerce/snap-shared';
 import { DomTargeter } from '@athoscommerce/snap-toolbox';
 
 import { AbstractController } from './AbstractController';
+import { FinderController } from '../Finder/FinderController';
+import { QuickviewController } from '../Quickview/QuickviewController';
+import { FinderStore, QuickviewStore } from '@athoscommerce/snap-store-mobx';
 import type { ControllerConfig } from '../types';
 
 describe('Search Controller', () => {
@@ -560,5 +563,116 @@ describe('Search Controller', () => {
 		});
 
 		trackerTrackError.mockClear();
+	});
+
+	describe('AbstractController quickview', () => {
+		let originalAthos: any;
+
+		beforeEach(() => {
+			originalAthos = (window as any).athos;
+		});
+
+		afterEach(() => {
+			(window as any).athos = originalAthos;
+		});
+
+		it('fires the global event with correct payload', async () => {
+			const fire = jest.fn();
+			(window as any).athos = { fire };
+
+			const finderConfig = {
+				id: 'test-finder',
+				url: '',
+				fields: [{ field: 'category' }],
+			};
+
+			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
+			const finderServices = { urlManager };
+
+			const controller = new FinderController(finderConfig, {
+				client: new MockClient(globals, {}),
+				store: new FinderStore(finderConfig, finderServices),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+
+			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
+			const productsData: any = { variants: { data: [] } };
+
+			await controller.quickview(result, productsData, { displayFields: ['color'] });
+
+			expect(fire).toHaveBeenCalledTimes(1);
+			expect(fire).toHaveBeenCalledWith(
+				'controller/quickview',
+				expect.objectContaining({
+					result,
+					productsData,
+					parentId: 'parent-1',
+					controller,
+				})
+			);
+		});
+
+		it('warns when the global is missing', async () => {
+			delete (window as any).athos;
+
+			const finderConfig = {
+				id: 'test-finder',
+				url: '',
+				fields: [{ field: 'category' }],
+			};
+
+			const urlManager = new UrlManager(new QueryStringTranslator(), reactLinker).detach();
+			const finderServices = { urlManager };
+
+			const controller = new FinderController(finderConfig, {
+				client: new MockClient(globals, {}),
+				store: new FinderStore(finderConfig, finderServices),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+
+			const spy = jest.spyOn(controller.log, 'warn');
+			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
+
+			await controller.quickview(result);
+
+			expect(spy).toHaveBeenCalledWith(`quickview ignored — no 'athos' integration global found on window`);
+		});
+
+		it('QuickviewController override does not call the global fire', async () => {
+			const fire = jest.fn();
+			(window as any).athos = { fire };
+
+			const quickviewServices = {
+				store: new QuickviewStore({ id: 'quickview' }),
+				client: { search: jest.fn(), products: jest.fn().mockResolvedValue({ variants: { data: [] } }) } as any,
+				urlManager: { subscribe: () => {}, detach: () => ({ subscribe: () => {} }) } as any,
+				eventManager: { fire: jest.fn().mockResolvedValue(undefined), on: jest.fn() } as any,
+				profiler: { create: () => ({ stop: () => {} }), setNamespace: () => {} } as any,
+				logger: { dev: () => {}, warn: () => {}, error: () => {}, setNamespace: () => {} } as any,
+				tracker: { track: {} } as any,
+			};
+
+			const controller = new QuickviewController({ id: 'quickview' }, quickviewServices as any);
+			const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
+
+			await controller.quickview(result, undefined, undefined, { parentId: 'parent-1' });
+
+			expect(fire).not.toHaveBeenCalled();
+			expect(quickviewServices.eventManager.fire).toHaveBeenCalledWith(
+				'quickview',
+				expect.objectContaining({
+					controller,
+					result,
+				})
+			);
+		});
 	});
 });

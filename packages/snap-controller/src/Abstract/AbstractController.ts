@@ -1,7 +1,7 @@
 import { DomTargeter } from '@athoscommerce/snap-toolbox';
 
-import type { Client } from '@athoscommerce/snap-client';
-import type { AbstractStore } from '@athoscommerce/snap-store-mobx';
+import type { Client, ProductsResponseModel } from '@athoscommerce/snap-client';
+import type { AbstractStore, Product, QuickviewConfig } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 import type { Profiler } from '@athoscommerce/snap-profiler';
@@ -86,6 +86,37 @@ export abstract class AbstractController {
 
 			this.eventManager.fire('error', { controller: this, error: err });
 		}
+	};
+
+	public quickview = async (result: Product, productsData?: ProductsResponseModel, config?: QuickviewConfig): Promise<void> => {
+		if (!result) {
+			this.log.warn('No result provided to quickview');
+			return;
+		}
+
+		// Controller-level quickview defaults underlay the caller-provided config.
+		const effectiveConfig: QuickviewConfig = {
+			...((this.config as { settings?: { quickview?: QuickviewConfig } })?.settings?.quickview || {}),
+			...(config || {}),
+		};
+
+		const parentId = (result.mappings?.core?.parentId as string) || result.id;
+
+		const integration = (window as any)?.athos;
+		if (!integration?.fire) {
+			this.log.warn(`quickview ignored — no 'athos' integration global found on window`);
+			return;
+		}
+
+		// Delegate to the dedicated quickview controller via the global event channel.
+		integration.fire('controller/quickview', {
+			result,
+			productsData,
+			parentId,
+			config: effectiveConfig,
+			meta: (this.store as any).meta,
+			controller: this,
+		});
 	};
 
 	constructor(

@@ -1,0 +1,15 @@
+import createQuickviewController from './createQuickviewController';
+import { QuickviewController } from '@athoscommerce/snap-controller';
+
+describe('createQuickviewController', () => {
+	it('creates a QuickviewController with a QuickviewStore', () => {
+		const controller = createQuickviewController({
+			client: { globals: { siteId: '8uyt2v' } },
+			controller: { id: 'quickview' },
+		} as any);
+
+		expect(controller).toBeInstanceOf(QuickviewController);
+		expect(controller.store.isOpen).toBeDefined();
+		expect(controller.type).toBe('quickview');
+	});
+});
