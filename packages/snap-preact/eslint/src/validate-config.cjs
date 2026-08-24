@@ -2,7 +2,8 @@
  * ESLint rule: validate-config
  *
  * Validates component reference props against the appropriate
- * section in `components` based on the property path context.
+ * section in `components` based on the property path context, and
+ * validates search/autocomplete tab controller configs.
  */
 
 const PROVIDED_COMPONENT_KEYS = {
@@ -14,7 +15,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description:
-				'Validate that customComponent and resultComponent values match keys in components',
+				'Validate that customComponent and resultComponent values match keys in components, and that tab controllers are configured consistently',
 		},
 		messages: {
 			invalidCustomComponent:
@@ -25,6 +26,18 @@ module.exports = {
 				'"{{ value }}" is not a valid resultComponent. Must be one of: {{ validKeys }}.',
 			noResultComponents:
 				'"{{ value }}" is not a valid resultComponent. No keys found in components.result.',
+			invalidGlobalResultComponent:
+				'"{{ value }}" is not a valid globalResultComponent. Must be one of: {{ validKeys }}.',
+			noGlobalResultComponents:
+				'"{{ value }}" is not a valid globalResultComponent. No keys found in components.result.',
+			duplicateTabId:
+				'Tab id "{{ id }}" is used by more than one tab controller. Every search/autocomplete tab id must be unique, since it becomes the controller id.',
+			mismatchedTabParam:
+				'Tab "{{ id }}" (siteId "{{ siteId }}") uses param "{{ param }}", but other tabs sharing siteId "{{ siteId }}" use param "{{ expectedParam }}". Tab controllers across search and autocomplete that share a siteId must use the same param.',
+			duplicateSiteIdInFeature:
+				'Tab "{{ id }}" uses siteId "{{ siteId }}", which is already used by another tab in {{ feature }}.tabs. Tabs within the same feature must target unique siteIds.',
+			mismatchedTabSiteId:
+				'Tab "{{ id }}" (param "{{ param }}") uses siteId "{{ siteId }}", but other tabs sharing param "{{ param }}" use siteId "{{ expectedSiteId }}". Tab controllers that share a param must use the same siteId.',
 		},
 		schema: [],
 	},
@@ -95,9 +108,174 @@ module.exports = {
 							});
 						}
 					}
+
+					// Validate theme.globalResultComponent against components.result, same as resultComponent
+					const globalResultComponentNode = collectGlobalResultComponentNode(init);
+					if (globalResultComponentNode) {
+						const { node: globalResultNode, value } = globalResultComponentNode;
+						if (validResultKeys.length === 0) {
+							context.report({
+								node: globalResultNode,
+								messageId: 'noGlobalResultComponents',
+								data: { value },
+							});
+						} else if (!validResultKeys.includes(value)) {
+							context.report({
+								node: globalResultNode,
+								messageId: 'invalidGlobalResultComponent',
+								data: {
+									value,
+									validKeys: validResultKeys.join(', '),
+								},
+							});
+						}
+					}
+
+					// Validate search/autocomplete tab controller configs
+					validateTabs(init, context);
 				}
 			},
 		};
+
+		/**
+		 * Validate that every search/autocomplete tab id is unique (it becomes the
+		 * controller id), that siteIds are unique within a feature's tabs, and that
+		 * tabs sharing a siteId or a param (across search and autocomplete, or
+		 * within a feature) agree on the other value too — a siteId and its param
+		 * identify the same catalog, so they must move together.
+		 */
+		function validateTabs(configObjectExpression, context) {
+			const tabs = collectTabs(configObjectExpression);
+			if (tabs.length === 0) return;
+
+			const tabsById = new Map();
+			for (const tab of tabs) {
+				if (tab.id === undefined) continue;
+				if (!tabsById.has(tab.id)) tabsById.set(tab.id, []);
+				tabsById.get(tab.id).push(tab);
+			}
+			for (const [id, group] of tabsById) {
+				if (group.length > 1) {
+					for (const tab of group) {
+						context.report({
+							node: tab.idNode,
+							messageId: 'duplicateTabId',
+							data: { id },
+						});
+					}
+				}
+			}
+
+			const tabsByFeatureAndSiteId = new Map();
+			for (const tab of tabs) {
+				if (tab.siteId === undefined) continue;
+				const key = `${tab.feature} ${tab.siteId}`;
+				if (!tabsByFeatureAndSiteId.has(key)) tabsByFeatureAndSiteId.set(key, []);
+				tabsByFeatureAndSiteId.get(key).push(tab);
+			}
+			for (const group of tabsByFeatureAndSiteId.values()) {
+				if (group.length > 1) {
+					for (const tab of group) {
+						context.report({
+							node: tab.siteIdNode,
+							messageId: 'duplicateSiteIdInFeature',
+							data: { id: tab.id, siteId: tab.siteId, feature: tab.feature },
+						});
+					}
+				}
+			}
+
+			const tabsBySiteId = new Map();
+			for (const tab of tabs) {
+				if (tab.siteId === undefined || tab.param === undefined) continue;
+				if (!tabsBySiteId.has(tab.siteId)) tabsBySiteId.set(tab.siteId, []);
+				tabsBySiteId.get(tab.siteId).push(tab);
+			}
+			for (const [siteId, group] of tabsBySiteId) {
+				// only enforce when the siteId is shared across both search and autocomplete tabs
+				if (!group.some((tab) => tab.feature === 'search') || !group.some((tab) => tab.feature === 'autocomplete')) {
+					continue;
+				}
+
+				const expectedParam = group[0].param;
+				for (const tab of group) {
+					if (tab.param !== expectedParam) {
+						context.report({
+							node: tab.paramNode,
+							messageId: 'mismatchedTabParam',
+							data: { id: tab.id, siteId, param: tab.param, expectedParam },
+						});
+					}
+				}
+			}
+
+			const tabsByParam = new Map();
+			for (const tab of tabs) {
+				if (tab.param === undefined || tab.siteId === undefined) continue;
+				if (!tabsByParam.has(tab.param)) tabsByParam.set(tab.param, []);
+				tabsByParam.get(tab.param).push(tab);
+			}
+			for (const [param, group] of tabsByParam) {
+				const expectedSiteId = group[0].siteId;
+				for (const tab of group) {
+					if (tab.siteId !== expectedSiteId) {
+						context.report({
+							node: tab.siteIdNode,
+							messageId: 'mismatchedTabSiteId',
+							data: { id: tab.id, param, siteId: tab.siteId, expectedSiteId },
+						});
+					}
+				}
+			}
+		}
+
+		/**
+		 * Collect { feature, id, idNode, siteId, siteIdNode, param, paramNode } for
+		 * every tab in config.search.tabs and config.autocomplete.tabs.
+		 */
+		function collectTabs(configObjectExpression) {
+			const tabs = [];
+
+			for (const feature of ['search', 'autocomplete']) {
+				const featureProp = findProperty(configObjectExpression, feature);
+				if (!featureProp || featureProp.value.type !== 'ObjectExpression') continue;
+
+				const tabsProp = findProperty(featureProp.value, 'tabs');
+				if (!tabsProp || tabsProp.value.type !== 'ArrayExpression') continue;
+
+				for (const element of tabsProp.value.elements) {
+					if (!element || element.type !== 'ObjectExpression') continue;
+
+					const idProp = findProperty(element, 'id');
+					const siteIdProp = findProperty(element, 'siteId');
+					const paramProp = findProperty(element, 'param');
+
+					tabs.push({
+						feature,
+						id: literalStringValue(idProp),
+						idNode: idProp?.value,
+						siteId: literalStringValue(siteIdProp),
+						siteIdNode: siteIdProp?.value,
+						param: literalStringValue(paramProp),
+						paramNode: paramProp?.value,
+					});
+				}
+			}
+
+			return tabs;
+		}
+
+		/**
+		 * Get the string value of a property whose value is a string literal,
+		 * or undefined if the property is missing or not a string literal
+		 * (e.g. a computed/spread value we can't statically check).
+		 */
+		function literalStringValue(property) {
+			if (!property || property.value.type !== 'Literal' || typeof property.value.value !== 'string') {
+				return undefined;
+			}
+			return property.value.value;
+		}
 
 		/**
 		 * Extract all explicitly registered keys from all sections in components.*
@@ -206,6 +384,30 @@ module.exports = {
 			}
 
 			return results;
+		}
+
+		/**
+		 * Find the theme.globalResultComponent string literal node, if present.
+		 * It renders the same way resultComponent does (default result override),
+		 * so it validates against the same components.result keys.
+		 */
+		function collectGlobalResultComponentNode(configObjectExpression) {
+			const themeProp = findProperty(configObjectExpression, 'theme');
+			if (!themeProp || themeProp.value.type !== 'ObjectExpression') return null;
+
+			const globalResultComponentProp = findProperty(themeProp.value, 'globalResultComponent');
+			if (
+				!globalResultComponentProp ||
+				globalResultComponentProp.value.type !== 'Literal' ||
+				typeof globalResultComponentProp.value.value !== 'string'
+			) {
+				return null;
+			}
+
+			return {
+				node: globalResultComponentProp.value,
+				value: globalResultComponentProp.value.value,
+			};
 		}
 
 		/**
