@@ -52,6 +52,13 @@ The `disabled` prop disables the input and both buttons and prevents the `onChan
 <QuantityPicker disabled={true} />
 ```
 
+### label
+The `label` prop displays a label inline with the buttons and input. No label is rendered when omitted.
+
+```tsx
+<QuantityPicker label={'Quantity'} />
+```
+
 ### hideButtons
 The `hideButtons` prop hides the increment and decrement buttons. The input remains usable and the `onChange` callback is still invoked when typing a new value.
 

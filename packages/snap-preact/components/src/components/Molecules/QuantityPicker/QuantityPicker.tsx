@@ -20,6 +20,15 @@ const defaultStyles: StyleScript<QuantityPickerProps> = () => {
 		'&.ss__quantity-picker--disabled': {
 			opacity: 0.7,
 		},
+		'& .ss__quantity-picker__label-wrapper': {
+			display: 'inline-flex',
+			alignItems: 'center',
+		},
+		'& .ss__quantity-picker__controls-wrapper': {
+			display: 'inline-flex',
+			alignItems: 'center',
+			gap: '5px',
+		},
 		'& .ss__quantity-picker__input': {
 			width: '60px',
 			textAlign: 'center',
@@ -49,6 +58,7 @@ export const QuantityPicker = observer((properties: QuantityPickerProps) => {
 		step,
 		disabled,
 		hideButtons,
+		label,
 		onChange,
 		disableStyles,
 		className,
@@ -164,47 +174,54 @@ export const QuantityPicker = observer((properties: QuantityPickerProps) => {
 				className={classnames('ss__quantity-picker', { 'ss__quantity-picker--disabled': disabled }, className, internalClassName)}
 				{...additionalProps}
 			>
-				{!hideButtons && (
-					<Button
-						{...subProps.button}
-						name="decrement"
-						internalClassName={classnames(subProps.button.internalClassName, 'ss__quantity-picker__button--decrement')}
-						disabled={disabled || quantity <= minimum}
-						onClick={(e) => commit(e, quantity - step!)}
-						icon={'minus-thin'}
-						{...mergedLang.decrementButton?.attributes}
-					/>
+				{label && (
+					<div className="ss__quantity-picker__label-wrapper">
+						<span className="ss__quantity-picker__label">{label}</span>
+					</div>
 				)}
-				<input
-					className="ss__quantity-picker__input"
-					type="number"
-					inputMode="numeric"
-					min={minimum}
-					max={max}
-					step={step}
-					value={editingValue ?? quantity}
-					disabled={disabled}
-					onInput={(e) => setEditingValue((e.target as HTMLInputElement).value)}
-					onBlur={(e) => {
-						if (editingValue !== undefined) {
-							const parsed = parseFloat(editingValue);
-							commit(e, isNaN(parsed) ? quantity : parsed);
-							setEditingValue(undefined);
-						}
-					}}
-					{...mergedLang.quantityInput?.all}
-				/>
-				{!hideButtons && (
-					<Button
-						{...subProps.button}
-						name="increment"
-						internalClassName={classnames(subProps.button.internalClassName, 'ss__quantity-picker__button--increment')}
-						disabled={disabled || (typeof max == 'number' && quantity >= max)}
-						onClick={(e) => commit(e, quantity + step!)}
-						icon={'plus-thin'}
-						{...mergedLang.incrementButton?.attributes}
+				<div className="ss__quantity-picker__controls-wrapper">
+					{!hideButtons && (
+						<Button
+							{...subProps.button}
+							name="decrement"
+							internalClassName={classnames(subProps.button.internalClassName, 'ss__quantity-picker__button--decrement')}
+							disabled={disabled || quantity <= minimum}
+							onClick={(e) => commit(e, quantity - step!)}
+							icon={'minus-thin'}
+							{...mergedLang.decrementButton?.attributes}
+						/>
+					)}
+					<input
+						className="ss__quantity-picker__input"
+						type="number"
+						inputMode="numeric"
+						min={minimum}
+						max={max}
+						step={step}
+						value={editingValue ?? quantity}
+						disabled={disabled}
+						onInput={(e) => setEditingValue((e.target as HTMLInputElement).value)}
+						onBlur={(e) => {
+							if (editingValue !== undefined) {
+								const parsed = parseFloat(editingValue);
+								commit(e, isNaN(parsed) ? quantity : parsed);
+								setEditingValue(undefined);
+							}
+						}}
+						{...mergedLang.quantityInput?.all}
 					/>
-				)}
+					{!hideButtons && (
+						<Button
+							{...subProps.button}
+							name="increment"
+							internalClassName={classnames(subProps.button.internalClassName, 'ss__quantity-picker__button--increment')}
+							disabled={disabled || (typeof max == 'number' && quantity >= max)}
+							onClick={(e) => commit(e, quantity + step!)}
+							icon={'plus-thin'}
+							{...mergedLang.incrementButton?.attributes}
+						/>
+					)}
+				</div>
 			</div>
 		</CacheProvider>
 	);
@@ -229,6 +246,7 @@ export type QuantityPickerTemplatesLegalProps = {
 	step?: number;
 	disabled?: boolean;
 	hideButtons?: boolean;
+	label?: string;
 	onChange?: (e: QuantityPickerChangeEvent, value: number) => void;
 };
 

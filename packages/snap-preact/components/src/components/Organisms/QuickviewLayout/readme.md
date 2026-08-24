@@ -32,7 +32,7 @@ The `quickviewManager` must be a `QuickviewManager` — the components warn and 
 
 Each module name maps to a library component (so theme selectors and `customComponent` overrides resolve, the same way `AutocompleteLayout` uses `terms.history` / `button.see-more`):
 
-- `slideshow` — the slideshow region (a `Slideshow` of one or more images; nav/pagination appear only for multiple images). Wrapped in `OverlayBadge` so overlay badges paint over it, unless `disabledOverlayBadges` is set.
+- `slideshow` — the slideshow region (a `Slideshow` of one or more images; nav/pagination appear only for multiple images). Wrapped in `OverlayBadge` so overlay badges paint over it, unless `hideBadge` is set.
 - `calloutBadge` — the `CalloutBadge` molecule (callout badges rendered as their own block). Use `calloutBadge.<tag>` to pass a custom `tag` prop to `CalloutBadge` (e.g. `calloutBadge.callout-secondary`); the bare `calloutBadge` uses the component's default tag (`callout`). A custom tag also names the component, so `calloutBadge.<tag>` theme selectors can target it.
 - `variantSelections` — one `VariantSelection` per variant selection.
 - `variantSelection.<field>` — a single `VariantSelection` for the matching selection field (e.g. `variantSelection.color`). The field also matches its component-name form (`color_family` → `color-family`), so `variantSelection.<field>` theme selectors can target it. A bare `variantSelection` module is not supported.
@@ -57,7 +57,7 @@ Each module returns `null` when it has nothing to show (no description, no displ
 | `quickviewManager` | `QuickviewManager` | ✔️ | The component subscribes to `quickviewManager.store`. Renders `null` (with a console warning) when missing. |
 | `onClose` | `() => void` | | Hook into the quickview close. Will always call `quickviewManager.close()` in addition. |
 | `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
-| `disabledOverlayBadges` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
+| `hideBadge` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
 | `column1`–`column4` | `Column` | | `{ layout, width, alignContent }` configs for the `c1`–`c4` columns. |
 | `recommendation` | `{ component?, resultComponent?, config? }` | | Config for every `recommendation.<profile>` module (see Recommendations). |
 | `customComponent` | `string` | | Name of a custom template component override, resolved via the Snap templates library. |
@@ -93,7 +93,7 @@ When `product.variants.selections` is non-empty the `variantSelections` module r
 
 ## `displayFields` and labels
 
-`store.quickviewConfig.displayFields` is an optional `string[]` selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
+`store.quickviewConfig.displayFields` is an optional `string[]` — or a `(result) => string[]` function receiving the modal's product — selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
 
 ## Recommendations
 

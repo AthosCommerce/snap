@@ -98,6 +98,23 @@ The trigger is up to your components. The library `Result` component renders one
 <button onClick={() => controller.quickview(result)}>Quick View</button>
 ```
 
+### Opening a Quickview Programmatically
+
+Every `SearchController`, `AutocompleteController` and `RecommendationController` exposes `quickview(result, productsData?, config?)`. and accepts optional config overrides.
+
+```js
+// from a controller
+await controller.quickview(result);
+
+// per-call settings override and pre-fetched data
+await controller.quickview(result, { displayFields: ['color'] });
+```
+
+The `result` must be a product carrying `mappings.core.parentId` - otherwise a warning is logged and nothing opens.
+
+> [!IMPORTANT]
+> `FinderController` cannot open quickviews - it has no `addToCart` or product tracking for the manager to delegate back to. Calling `quickview()` on a finder logs a warning and no-ops.
+
 ### Quickview Settings
 
 The quickview behaviour is controlled by a `quickview` settings object:
@@ -105,17 +122,11 @@ The quickview behaviour is controlled by a `quickview` settings object:
 | option | description | default value |
 |---|---|:---:|
 | `displayFields` | array of product attribute field names rendered in the modal's attribute table (order preserved). Attributes are opt-in - when omitted, no table renders. Field labels are looked up from the source controller's meta (`meta.facets[field].label`) with a fallback to the raw field name. | ➖ |
-| `clone` | when `false`, the source result is used by reference inside the modal - variant selection in the modal then mutates the source result tile. When `true`, the source is deep-cloned into an independent product. | `true` |
-| `fetchProductData` | when `false`, the `/v1/products` endpoint is not called and the modal renders whatever variants/attributes the source result already carries. | `true` |
+| `clone` | when enabled (default), the source is deep-cloned into an independent product. When disabled, the source result is used by reference inside the modal - variant selection in the modal then mutates the source result tile. | `true` |
+| `fetchProductData` | when enabled (default), the controller fetches full product data from the `/v1/products` endpoint. When disabled, the endpoint is not called and the modal renders whatever variants/attributes the source result already carries. | `true` |
 | `imagesField` | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate resolving to more than one image renders as a slideshow instead of the single core image. | `['images', 'ss_images']` |
 
-Settings can be supplied at three levels, resolved per `show()` call with the most specific winning:
-
-```
-manager settings  <  source controller settings  <  per-call options.config
-```
-
-In Snap Templates the manager level is `quickview.settings`, and the controller level is the feature's `settings.quickview` - which also means tabs can carry their own quickview settings via `tabs[].settings`:
+In Snap Templates the manager-level settings are `quickview.settings`, and controller-level settings are the feature's `settings.quickview` - which also means tabs can carry their own quickview settings via `tabs[].settings`:
 
 ```tsx
 new SnapTemplates({
@@ -165,7 +176,7 @@ theme: {
 
 ### Customizing the Layout
 
-Both containers render the [QuickviewLayout](https://github.com/athoscommerce/snap/tree/main/packages/snap-preact/components/src/components/Organisms/QuickviewLayout) organism, which arranges named **modules** via a `layout` prop - the same pattern as `AutocompleteLayout`. The theme selectors are `quickviewModal`, `quickviewSlideout` and `quickviewLayout`.
+Both containers render the [QuickviewLayout](https://athoscommerce.github.io/snap/reference-quickview-layout) organism, which arranges named **modules** via a `layout` prop - the same pattern as `AutocompleteLayout`. The theme selectors are `quickviewModal`, `quickviewSlideout` and `quickviewLayout`.
 
 Available modules include `slideshow`, `calloutBadge` (or `calloutBadge.<tag>` for a custom badge tag), `variantSelections` (or a single `variantSelection.<field>`), `productDetail.<path>` (any product field by dot-path, e.g. `productDetail.mappings.core.name`), `button.add-to-cart`, `button.more-info`, `quantityPicker`, `productDetailTable` (driven by `displayFields`), `recommendation.<profile>` (a recommendation carousel seeded with the viewed product), the `_` separator, and columns `c1`-`c4` which recurse into `column1`-`column4` configs.
 
@@ -208,33 +219,7 @@ quickviewLayout: {
 },
 ```
 
-See the [QuickviewLayout documentation](https://github.com/athoscommerce/snap/tree/main/packages/snap-preact/components/src/components/Organisms/QuickviewLayout) for the full module, prop, and lang reference.
-
-### Opening a Quickview Programmatically
-
-Every `SearchController`, `AutocompleteController` and `RecommendationController` exposes `quickview(result, productsData?, config?)`. The manager itself is available on each of these controllers as `controller.quickviewManager`, whose `show(result, options)` accepts the same per-call config override and pre-fetched product data:
-
-```js
-// from a controller
-await controller.quickview(result);
-
-// per-call settings override and pre-fetched data
-await controller.quickview(result, productsData, { displayFields: ['color'] });
-
-// equivalent, via the manager
-await controller.quickviewManager.show(result, {
-	controller,
-	config: { displayFields: ['color'] },
-	productsData, // skips the /v1/products request
-});
-```
-
-The manager also exposes `open()` and `close()`, which toggle the store's `isOpen` flag - `close()` is what the close button, overlay click, and Escape key call.
-
-The `result` must be a product carrying `mappings.core.parentId` - otherwise a warning is logged and nothing opens.
-
-> [!IMPORTANT]
-> `FinderController` cannot open quickviews - it has no `addToCart` or product tracking for the manager to delegate back to. Calling `quickview()` on a finder logs a warning and no-ops.
+See the [QuickviewLayout documentation](https://athoscommerce.github.io/snap/reference-quickview-layout) for the full module, prop, and lang reference.
 
 ### The `quickview` Event
 
@@ -251,5 +236,4 @@ Throwing `new Error('cancelled')` from a listener resets the store and aborts th
 
 ### Further Reading
 
-- [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) - manager API, `show()` options, config precedence, events
-- [QuickviewLayout](https://github.com/athoscommerce/snap/tree/main/packages/snap-preact/components/src/components/Organisms/QuickviewLayout) - layout modules, images, variants, tracking, accessibility
+- [QuickviewManager](https://athoscommerce.github.io/snap/reference-quickview-manager) - manager API, `show()` options, config precedence, events

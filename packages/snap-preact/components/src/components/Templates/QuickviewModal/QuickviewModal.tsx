@@ -81,7 +81,25 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 
 	const defaultProps: Partial<QuickviewModalProps> = {
 		treePath: globalTreePath,
-		disabledOverlayBadges: false,
+		hideBadge: false,
+		layout: [['c1', 'c2']],
+		column1: {
+			layout: ['slideshow'],
+			width: '45%',
+		},
+		column2: {
+			layout: [
+				['productDetail.mappings.core.name'],
+				['calloutBadge'],
+				['variantSelections'],
+				['quantityPicker'],
+				['button.add-to-cart'],
+				['productDetail.mappings.core.description'],
+				['productDetailTable'],
+				['button.more-info'],
+			],
+			width: 'auto',
+		},
 	};
 
 	const props = mergeProps('quickviewModal', globalTheme, defaultProps, properties);
@@ -92,7 +110,7 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 		disableStyles,
 		treePath,
 		layout,
-		disabledOverlayBadges,
+		hideBadge,
 		column1,
 		column2,
 		column3,
@@ -138,7 +156,7 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 		quickviewLayout: {
 			// default props
 			onClose,
-			...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
+			...defined({ hideBadge, column1, column2, column3, column4, recommendation, lang }),
 			// inherited props
 			...defined({
 				disableStyles,
@@ -165,7 +183,7 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 		},
 	};
 
-	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} />;
+	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} layout={layout} />;
 
 	return (
 		<CacheProvider>

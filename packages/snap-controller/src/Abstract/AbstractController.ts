@@ -95,7 +95,7 @@ export abstract class AbstractController {
 	// Open the quickview for a result belonging to this controller's response. A thin forwarder:
 	// every derivation (config precedence, meta, parent id) happens in the manager, which reads
 	// what it needs off the controller passed here.
-	public quickview = async (result: Product, productsData?: ProductsResponseModel, config?: QuickviewConfig): Promise<void> => {
+	public quickview = async (result: Product, config?: QuickviewConfig, productsData?: ProductsResponseModel): Promise<void> => {
 		if (!this.quickviewManager) {
 			this.log.warn(`quickview ignored — no 'quickview' service was passed to this controller`);
 			return;

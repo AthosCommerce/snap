@@ -46,16 +46,17 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		slideDirection: 'right',
 		width: '500px',
 		overlayColor: 'rgba(0,0,0,0.8)',
-		disabledOverlayBadges: false,
+		hideBadge: false,
 		layout: [
 			['slideshow'],
 			['productDetail.mappings.core.name'],
 			['calloutBadge'],
 			['variantSelections'],
 			['quantityPicker'],
-			['button.add-to-cart', 'button.more-info'],
+			['button.add-to-cart'],
 			['productDetail.mappings.core.description'],
 			['productDetailTable'],
+			['button.more-info'],
 		],
 	};
 
@@ -67,7 +68,7 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		disableStyles,
 		treePath,
 		layout,
-		disabledOverlayBadges,
+		hideBadge,
 		column1,
 		column2,
 		column3,
@@ -114,7 +115,7 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		quickviewLayout: {
 			// default props
 			onClose,
-			...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
+			...defined({ hideBadge, column1, column2, column3, column4, recommendation, lang }),
 			// inherited props
 			...defined({
 				disableStyles,
@@ -143,7 +144,7 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		},
 	};
 
-	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} />;
+	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} layout={layout} />;
 
 	return (
 		<CacheProvider>

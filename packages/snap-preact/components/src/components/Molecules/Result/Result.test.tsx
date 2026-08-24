@@ -703,6 +703,7 @@ describe('Result quickview integration', () => {
 		const controller: any = {
 			store: { quickview: { isOpen: false, product: undefined, close: jest.fn() } },
 			quickview: set,
+			quickviewManager: { show: jest.fn() },
 		};
 		return { controller, set };
 	};

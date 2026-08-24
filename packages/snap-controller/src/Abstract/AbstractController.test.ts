@@ -592,7 +592,7 @@ describe('Search Controller', () => {
 
 			const productsData: any = { variants: { data: [] } };
 
-			await controller.quickview(result, productsData, { displayFields: ['color'] });
+			await controller.quickview(result, { displayFields: ['color'] }, productsData);
 
 			// a thin forwarder — the manager derives parentId, meta and the effective config itself
 			expect(show).toHaveBeenCalledTimes(1);

@@ -92,7 +92,6 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: 'Add To Cart',
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
-		quickviewButtonText: 'Quick View',
 		hideAddToCartButton: true,
 		hideRating: true,
 		hideQuickviewButton: true,
@@ -275,8 +274,9 @@ export const Result = observer((properties: ResultProps) => {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
 		},
 		quickviewButtonText: {
+			value: quickviewButtonText,
 			attributes: {
-				'aria-label': quickviewButtonText,
+				'aria-label': quickviewButtonText || 'Quick View',
 			},
 		},
 	};
@@ -321,7 +321,7 @@ export const Result = observer((properties: ResultProps) => {
 								<Image {...subProps.image} />
 							)}
 						</a>
-						{!hideQuickviewButton && controller && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
+						{!hideQuickviewButton && controller?.quickviewManager && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
 					</div>
 				)}
 

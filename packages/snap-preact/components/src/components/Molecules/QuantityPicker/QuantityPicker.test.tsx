@@ -169,6 +169,26 @@ describe('QuantityPicker Component', () => {
 		expect(styles.width).toBe('60px');
 	});
 
+	it('does not render a label by default', () => {
+		const rendered = render(<QuantityPicker />);
+		const labelElement = rendered.container.querySelector('.ss__quantity-picker__label');
+
+		expect(labelElement).not.toBeInTheDocument();
+	});
+
+	it('renders the label prop in a span inline with the buttons and input', () => {
+		const rendered = render(<QuantityPicker label="Quantity" />);
+		const pickerElement = rendered.container.querySelector('.ss__quantity-picker')!;
+		const labelWrapperElement = rendered.container.querySelector('.ss__quantity-picker__label-wrapper')!;
+		const labelElement = rendered.container.querySelector('.ss__quantity-picker__label')!;
+
+		expect(labelElement).toBeInTheDocument();
+		expect(labelElement.tagName).toBe('SPAN');
+		expect(labelElement).toHaveTextContent('Quantity');
+		expect(pickerElement.firstElementChild).toBe(labelWrapperElement);
+		expect(labelWrapperElement.firstElementChild).toBe(labelElement);
+	});
+
 	it('respects the hideButtons prop', async () => {
 		const changeFn = jest.fn();
 		const rendered = render(<QuantityPicker startValue={5} max={10} hideButtons onChange={changeFn} />);

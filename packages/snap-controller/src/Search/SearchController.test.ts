@@ -1467,7 +1467,7 @@ describe('Search Controller quickview', () => {
 
 		const result: any = { id: 'child-1', mappings: { core: { parentId: 'parent-1' } } };
 
-		await controller.quickview(result, undefined, { displayFields: ['color'] });
+		await controller.quickview(result, { displayFields: ['color'] });
 
 		// the manager derives parentId, meta and the effective config from the controller it is given
 		expect(show).toHaveBeenCalledWith(

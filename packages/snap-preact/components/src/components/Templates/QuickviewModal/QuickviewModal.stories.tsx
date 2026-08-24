@@ -109,7 +109,7 @@ export default {
 			},
 			control: 'none',
 		},
-		disabledOverlayBadges: {
+		hideBadge: {
 			description: 'Render the `slideshow` module without the `OverlayBadge` wrapper',
 			table: {
 				category: 'Templates Legal',

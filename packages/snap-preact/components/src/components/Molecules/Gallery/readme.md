@@ -23,7 +23,7 @@ The `images` prop accepts an array of image URL strings to display in the galler
 ```
 
 ### open
-The `open` prop controls the visibility of the gallery overlay. When `false`, the gallery is not rendered.
+The `open` prop controls the visibility of the gallery overlay.
 
 ```tsx
 <Gallery images={imageUrls} open={true} />

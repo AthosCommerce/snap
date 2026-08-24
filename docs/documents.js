@@ -519,6 +519,24 @@ var documents = [
 				type: 'markdown',
 				url: './docs/REFERENCE_QUICKVIEW.md',
 				searchable: true,
+				links: [
+					{
+						label: 'QuickviewManager',
+						route: '/reference-quickview-manager',
+						type: 'markdown',
+						url: './packages/snap-controller/src/Quickview/README.md',
+						searchable: true,
+						hidden: true,
+					},
+					{
+						label: 'Layout',
+						route: '/reference-quickview-layout',
+						type: 'markdown',
+						url: './packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md',
+						searchable: true,
+						hidden: true,
+					},
+				],
 			},
 			{
 				label: 'Custom Recommendation Templates',

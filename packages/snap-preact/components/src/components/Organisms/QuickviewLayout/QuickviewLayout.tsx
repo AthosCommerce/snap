@@ -79,6 +79,16 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
 			alignContent: column4?.alignContent,
 		},
+		// Modules whose element renders nothing (e.g. a ProductDetail resolving an absent field)
+		// can leave an empty row/column in the DOM — hide it so the flex gap doesn't show.
+		'& .ss__quickview-layout__column:empty, & .ss__quickview-layout__row:empty': {
+			display: 'none',
+		},
+		// The `_` module: a flexible spacer that pushes its siblings apart.
+		'& .ss__quickview-layout__separator': {
+			flexGrow: 1,
+			flexShrink: 1,
+		},
 		'& .ss__quickview__slideshow': {
 			marginBottom: 0,
 		},
@@ -263,40 +273,12 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const defaultProps: Partial<QuickviewLayoutProps> = {
 		treePath: globalTreePath,
-		layout: [['c1', 'c2']],
-		disabledOverlayBadges: false,
-		column1: {
-			layout: ['slideshow'],
-			width: '45%',
-		},
-		column2: {
-			layout: [
-				['productDetail.mappings.core.name'],
-				['calloutBadge'],
-				['variantSelections'],
-				['quantityPicker'],
-				['button.add-to-cart', 'button.more-info'],
-				['productDetail.mappings.core.description'],
-				['productDetailTable'],
-			],
-			width: 'auto',
-		},
+		hideBadge: false,
 	};
 
 	const props = mergeProps('quickviewLayout', globalTheme, defaultProps, properties);
-	const {
-		quickviewManager,
-		className,
-		internalClassName,
-		disableStyles,
-		treePath,
-		disabledOverlayBadges,
-		column1,
-		column2,
-		column3,
-		column4,
-		recommendation,
-	} = props;
+	const { quickviewManager, className, internalClassName, disableStyles, treePath, hideBadge, column1, column2, column3, column4, recommendation } =
+		props;
 
 	// NOTE: the `!shouldRenderDefault` return lives below the last hook call — every hook in this
 	// component must run unconditionally on every render (shouldRenderDefault can flip while
@@ -480,7 +462,9 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const store = quickviewManager.store;
 	const loading = Boolean(store.loading);
-	const displayFields: string[] | undefined = store.quickviewConfig?.displayFields;
+	const configuredDisplayFields = store.quickviewConfig?.displayFields;
+	const displayFields: string[] | undefined =
+		typeof configuredDisplayFields === 'function' ? (product ? configuredDisplayFields(product) : undefined) : configuredDisplayFields;
 	const error: { message: string; cause?: unknown } | undefined = store.error;
 
 	// Look up the display label for a field name from meta.facets[field].label.
@@ -596,7 +580,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			if (!slideshowContent || !product) return null;
 			return (
 				<div className="ss__quickview__slideshow">
-					{disabledOverlayBadges ? (
+					{hideBadge ? (
 						slideshowContent
 					) : (
 						<OverlayBadge
@@ -879,8 +863,8 @@ export interface QuickviewLayoutLang {
 }
 
 export type QuickviewLayoutTemplatesLegalProps = {
-	layout?: ModuleNamesWithColumns[];
-	disabledOverlayBadges?: boolean;
+	layout: ModuleNamesWithColumns[];
+	hideBadge?: boolean;
 	column1?: QuickviewColumn;
 	column2?: QuickviewColumn;
 	column3?: QuickviewColumn;

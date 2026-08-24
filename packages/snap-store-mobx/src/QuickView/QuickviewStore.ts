@@ -10,7 +10,7 @@ export type QuickviewProductsData = {
 };
 
 export type QuickviewConfig = {
-	displayFields?: string[];
+	displayFields?: string[] | ((result: Product) => string[]);
 	// When false, the source `result` is used directly as the modal's product (no cloning).
 	// Variant selection in the modal will then mutate the source result tile. Default: true.
 	clone?: boolean;

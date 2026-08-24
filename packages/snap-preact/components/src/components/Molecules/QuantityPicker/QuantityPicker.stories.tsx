@@ -106,6 +106,16 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		label: {
+			description: 'Label displayed inline with the buttons and input',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+			},
+			control: { type: 'text' },
+		},
 		onChange: {
 			description: 'Quantity change event handler - invoked with the event and the new value',
 			table: {
@@ -139,4 +149,9 @@ export const HiddenButtons = (args: QuantityPickerProps) => <QuantityPicker {...
 HiddenButtons.args = {
 	startValue: 3,
 	hideButtons: true,
+};
+
+export const Label = (args: QuantityPickerProps) => <QuantityPicker {...args} />;
+Label.args = {
+	label: 'Quantity',
 };
