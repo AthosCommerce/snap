@@ -65,7 +65,7 @@ Requests the product quickview modal for the given result. This method is a thin
 
 ### Closing the modal
 
-Closing is handled by the manager's store: call `controller.quickviewManager.store.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `.store.reset()` to also clear the product reference.
+Call the QuickviewManager close method `controller.quickviewManager.close()` to hide the modal while retaining `product` (note that calling `quickview()` again will re-enter the loading state and re-fetch), or `.store.reset()` to also clear the product reference.
 
 ## Events
 ### init

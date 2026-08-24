@@ -5,7 +5,7 @@ import {
 	type SearchStoreConfig,
 	type AutocompleteStoreConfigSettings,
 	type AutocompleteStoreConfig,
-	type QuickviewStoreConfigSettings,
+	type QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
@@ -220,7 +220,7 @@ export type TemplatesStoreConfigLocked = {
 	};
 	quickview?: {
 		targets: QuickviewTargetConfig[];
-		settings?: QuickviewStoreConfigSettings;
+		settings?: QuickviewConfig;
 	};
 	recommendation?: {
 		email?: {

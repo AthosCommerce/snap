@@ -192,12 +192,8 @@ export type RecommendationStoreConfig = StoreConfig & {
 
 export type StoreConfigs = SearchStoreConfig | AutocompleteStoreConfig | FinderStoreConfig | RecommendationStoreConfig;
 
-export type QuickviewStoreConfigSettings = {
-	quickview?: QuickviewConfig;
-};
-
 export type QuickviewStoreConfig = StoreConfig & {
-	settings?: QuickviewStoreConfigSettings;
+	settings?: QuickviewConfig;
 };
 
 export type StoreServices = {

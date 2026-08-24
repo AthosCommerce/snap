@@ -74,7 +74,6 @@ function makeQuickviewManager(overrides: any = {}) {
 		loading: false,
 		quickviewConfig: undefined,
 		error: undefined,
-		close: jest.fn(),
 	};
 
 	const defaultTrack = {
@@ -101,8 +100,8 @@ function makeQuickviewManager(overrides: any = {}) {
 		quickviewManager.store = { ...defaultStore, ...overrides.store };
 	}
 
-	quickviewManager.store.close ??= jest.fn();
-	const close = quickviewManager.store.close;
+	quickviewManager.close ??= jest.fn();
+	const close = quickviewManager.close;
 	return { quickviewManager, close };
 }
 
@@ -1228,8 +1227,8 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg' } },
 			attributes: {},
 		};
-		const close = jest.fn();
-		const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct, close } });
+
+		const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} />);
 
@@ -1237,7 +1236,7 @@ describe('QuickviewLayout', () => {
 		const img = rendered.container.querySelector('.ss__quickview__slideshow .ss__quickview__image img') as HTMLElement;
 		fireEvent.click(img);
 
-		// Gallery is now open; Escape should NOT call store.close.
+		// Gallery is now open; Escape should NOT call quickviewManager.close.
 		fireEvent.keyDown(window, { key: 'Escape' });
 		expect(close).not.toHaveBeenCalled();
 

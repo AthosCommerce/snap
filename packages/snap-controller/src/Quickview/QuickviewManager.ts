@@ -2,7 +2,7 @@ import deepmerge from 'deepmerge';
 
 import { QuickviewStore } from '@athoscommerce/snap-store-mobx';
 
-import type { ProductsResponseModel } from '@athoscommerce/snap-client';
+import type { ProductsRequestModel, ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Product, QuickviewConfig, QuickviewStoreConfig } from '@athoscommerce/snap-store-mobx';
 import type { AutocompleteController, RecommendationController, SearchController } from '../index';
 
@@ -80,6 +80,14 @@ export class QuickviewManager {
 		},
 	};
 
+	public open = () => {
+		this.store.isOpen = true;
+	};
+
+	public close = () => {
+		this.store.isOpen = false;
+	};
+
 	/**
 	 * Open the quickview for the given result and populate the store. All derivation lives here
 	 * (config precedence, meta) so callers — including `AbstractController.quickview()` —
@@ -110,14 +118,15 @@ export class QuickviewManager {
 
 		// Config precedence: manager defaults < source controller settings < per-call config.
 		const effectiveConfig: QuickviewConfig = {
-			...(this.config?.settings?.quickview || {}),
+			...(this.config?.settings || {}),
 			...((source.config as { settings?: { quickview?: QuickviewConfig } } | undefined)?.settings?.quickview || {}),
 			...(config || {}),
 		};
 
 		// Open the modal immediately in loading state, scoped to the triggering result.
-		this.store.setLoading(true, result);
-
+		this.store.error = undefined;
+		this.store.loading = true;
+		this.open();
 		const parentId = result.mappings?.core?.parentId as string;
 
 		let resolvedProductsData: ProductsResponseModel | undefined = productsData;
@@ -126,11 +135,15 @@ export class QuickviewManager {
 		// /v1/products call and rely on whatever data is already on the source result.
 		if (!resolvedProductsData && effectiveConfig.fetchProductData !== false) {
 			try {
-				resolvedProductsData = await source.client.products({ parentId });
+				const params: ProductsRequestModel = { parentId };
+				if (source.config.globals?.siteId) {
+					params.siteId = source.config.globals?.siteId;
+				}
+				resolvedProductsData = await source.client.products(params);
 			} catch (err) {
-				source.log.warn('Failed to load /v1/products for quickview', err);
+				source.log.error('Failed to load /v1/products for quickview', err);
 				// generic error message as this is displayed to the user in QuickviewLayout
-				this.store.setError({ message: `Failed to load quickview data`, cause: err });
+				this.store.error = { message: `Failed to load quickview data`, cause: err };
 			}
 			if (superseded()) return;
 		}
@@ -157,12 +170,14 @@ export class QuickviewManager {
 				}
 				source.log.error(`error in 'quickview' middleware`, err);
 				// generic error message as this is displayed to the user in QuickviewLayout
-				this.store.setError({ message: `Failed to load quickview`, cause: err });
+				this.store.error = { message: `Failed to load quickview`, cause: err };
 				return;
 			}
 		} catch (err) {
 			source.log.warn('quickview.update failed', err);
-			this.store.setError({ message: 'Failed to display quickview', cause: err });
+			this.store.error = { message: 'Failed to display quickview', cause: err };
+		} finally {
+			this.store.loading = false;
 		}
 	};
 }

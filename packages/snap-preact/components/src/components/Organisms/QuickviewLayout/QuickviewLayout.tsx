@@ -290,7 +290,6 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		internalClassName,
 		disableStyles,
 		treePath,
-		onReset,
 		disabledOverlayBadges,
 		column1,
 		column2,
@@ -388,7 +387,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		if (!shouldRenderDefault || !isOpenNow) return;
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === 'Escape' && !galleryOpen) {
-				quickviewManager.store.close();
+				quickviewManager.close();
 			}
 		};
 		window.addEventListener('keydown', onKey);
@@ -489,9 +488,12 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const metaFacets = quickviewManager.sourceController?.store.meta?.data?.facets as Record<string, { label?: string } | undefined> | undefined;
 	const labelFor = (field: string): string => metaFacets?.[field]?.label || field;
 
-	// Close is delegated to the container (Modal/Slideout) via onReset; fall back to the
-	// store directly so the layout still works when rendered standalone.
-	const onClose = onReset || (() => store.close());
+	// Close is delegated to the container (Modal/Slideout) via onClose; fall back to the
+	// manager directly so the layout still works when rendered standalone.
+	const onClose = () => {
+		quickviewManager.close();
+		props.onClose && props.onClose();
+	};
 
 	// Escape inside the focus trap: the gallery layers above the quickview, so close it
 	// first; otherwise close the quickview itself.
@@ -859,7 +861,7 @@ export type QuickviewColumn = {
 
 export type QuickviewLayoutProps = {
 	quickviewManager: QuickviewManager;
-	onReset?: () => void;
+	onClose?: () => void;
 	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
 	ComponentProps<QuickviewLayoutProps>;

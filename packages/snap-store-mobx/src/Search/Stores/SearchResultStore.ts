@@ -441,6 +441,10 @@ export class Variants {
 				custom: this.active.custom,
 			};
 
+			// deliberately omit `badges` when the active variant has none so display falls back to
+			// product-level badges instead of masking them with an empty set. This keeps badges carried
+			// onto quickview clones (built with empty meta, sharing the source Badges instance) from
+			// being wiped on every variant selection — and applies to all variant tiles, not just quickview.
 			if (activeBadges.all.length) {
 				maskData.badges = activeBadges;
 			}

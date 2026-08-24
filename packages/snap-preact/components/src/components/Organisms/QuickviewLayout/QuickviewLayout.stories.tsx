@@ -178,7 +178,7 @@ export default {
 	},
 	argTypes: {
 		quickviewManager: {
-			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
+			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close })',
 			table: {
 				type: {
 					summary: 'QuickviewManager',
@@ -195,8 +195,8 @@ export default {
 			},
 			control: { type: 'text' },
 		},
-		onReset: {
-			description: 'Called by the close button (containers pass `store.close()`); falls back to `store.close()` when omitted',
+		onClose: {
+			description: 'Called by the close button (defaults to `quickviewManager.close()`)',
 			table: {
 				type: {
 					summary: '() => void',

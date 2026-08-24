@@ -56,35 +56,8 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 			quickviewConfig: observable,
 			error: observable,
 			update: action,
-			close: action,
 			reset: action,
-			setLoading: action,
-			setError: action,
 		});
-	}
-
-	// Open the modal in a loading state for the given source product/result. The source is
-	// stored as `product` immediately so consumers can scope the modal by `product.id` during
-	// the fetch (only a spinner renders in this phase — no mutation risk). `update` later
-	// replaces it with the cloned product. Clears any prior error so a retry starts fresh.
-	public setLoading(loading: boolean, product?: Product): void {
-		this.loading = loading;
-		if (loading) {
-			this.isOpen = true;
-			this.product = product;
-			this.error = undefined;
-		}
-	}
-
-	// Surface a fatal error from the controller (e.g. an exception inside update()).
-	// The modal will render an error branch instead of the product. Flips loading off
-	// to ensure the spinner doesn't remain stuck.
-	public setError(error: QuickviewError | undefined): void {
-		this.error = error;
-		this.loading = false;
-		if (error) {
-			this.isOpen = true;
-		}
 	}
 
 	// Build (or reuse) the Product instance and populate variants from productsData.
@@ -157,13 +130,7 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 
 		this.product = product;
 		this.quickviewConfig = config;
-		this.isOpen = true;
-		this.loading = false;
 		this.error = undefined;
-	}
-
-	public close(): void {
-		this.isOpen = false;
 	}
 
 	public reset(): void {

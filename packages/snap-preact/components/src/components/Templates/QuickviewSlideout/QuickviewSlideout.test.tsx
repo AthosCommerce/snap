@@ -57,8 +57,8 @@ function makeQuickviewManager(overrides: any = {}) {
 		quickviewManager.store = { ...defaultStore, ...overrides.store };
 	}
 
-	quickviewManager.store.close ??= jest.fn();
-	const close = quickviewManager.store.close;
+	quickviewManager.close ??= jest.fn();
+	const close = quickviewManager.close;
 	return { quickviewManager, close };
 }
 

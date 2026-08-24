@@ -108,12 +108,12 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 	const store = quickviewManager.store;
 	const product = store.product as Product | undefined;
 	const isOpen = Boolean(store.isOpen);
-	const onClose = () => store.close();
+	const onClose = () => quickviewManager.close();
 
 	const subProps: QuickviewSlideoutSubProps = {
 		quickviewLayout: {
 			// default props
-			onReset: onClose,
+			onClose,
 			...defined({ layout, disabledOverlayBadges, column1, column2, column3, column4, recommendation, lang }),
 			// inherited props
 			...defined({

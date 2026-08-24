@@ -34,9 +34,9 @@ describe('QuickviewManager', () => {
 		expect(manager.type).toBe('quickview');
 		expect(manager.config.id).toBe('quickview');
 
-		const configured = new QuickviewManager(services(), { id: 'qv', settings: { quickview: { clone: false } } });
+		const configured = new QuickviewManager(services(), { id: 'qv', settings: { clone: false } });
 		expect(configured.config.id).toBe('qv');
-		expect(configured.config.settings?.quickview?.clone).toBe(false);
+		expect(configured.config.settings?.clone).toBe(false);
 	});
 
 	it('creates its own store when none is passed', () => {
@@ -133,15 +133,15 @@ describe('QuickviewManager', () => {
 
 		await manager.show(product(), { controller });
 
-		expect(controller.log.warn).toHaveBeenCalledWith('Failed to load /v1/products for quickview', expect.any(Error));
+		expect(controller.log.error).toHaveBeenCalledWith('Failed to load /v1/products for quickview', expect.any(Error));
 		expect(manager.store.isOpen).toBe(true);
 		expect(manager.store.loading).toBe(false);
 	});
 
-	it('underlays its own settings.quickview beneath the source controller config and the per-call config', async () => {
+	it('underlays its own settings beneath the source controller config and the per-call config', async () => {
 		const manager = new QuickviewManager(services(), {
 			id: 'quickview',
-			settings: { quickview: { displayFields: ['manager'], clone: false, imagesField: 'manager_images' } },
+			settings: { displayFields: ['manager'], clone: false, imagesField: 'manager_images' },
 		});
 		const controller = sourceController({ config: { id: 'search', settings: { quickview: { clone: true, imagesField: 'source_images' } } } });
 
@@ -343,7 +343,7 @@ describe('QuickviewManager', () => {
 
 		// the modal opens in a loading state, then the shopper dismisses it
 		expect(manager.store.isOpen).toBe(true);
-		manager.store.close();
+		manager.close();
 
 		resolveFetch!({ variants: { data: [] } });
 		await call;

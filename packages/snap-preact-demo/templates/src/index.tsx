@@ -138,7 +138,7 @@ let templatesConfig: SnapTemplatesConfig = {
 		targets: [
 			{
 				selector: '#athos-layout',
-				component: 'Search',
+				component: 'SearchHorizontal',
 			},
 		],
 		settings: {

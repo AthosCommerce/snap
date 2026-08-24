@@ -21,10 +21,10 @@ The config is optional and defaults to `{ id: 'quickview' }`.
 | option | description | default value |
 |---|---|:---:|
 | id | unique identifier for the manager (namespaces the logger, passed to the store) | `quickview` |
-| settings.quickview.displayFields | array of product attribute field names that should appear in the modal's attribute table (preserves order). When omitted, no attributes are shown. Field labels are looked up from `meta.facets[field].label` with a fallback to the raw field name. | ➖ |
-| settings.quickview.clone | when `false`, the source result is used by reference inside the modal — variant selection in the modal then mutates the source result tile. When `true` (default), the source is deep-cloned into an independent Product graph. | true |
-| settings.quickview.fetchProductData | when `false`, the `/v1/products` endpoint is NOT called and the modal renders whatever variants/attributes the source result already carries. | true |
-| settings.quickview.imagesField | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate that resolves to more than one image is rendered in a 1-per-view carousel instead of the single core image. | `images`, `ss_images` |
+| settings.displayFields | array of product attribute field names that should appear in the modal's attribute table (preserves order). When omitted, no attributes are shown. Field labels are looked up from `meta.facets[field].label` with a fallback to the raw field name. | ➖ |
+| settings.clone | when `false`, the source result is used by reference inside the modal — variant selection in the modal then mutates the source result tile. When `true` (default), the source is deep-cloned into an independent Product graph. | true |
+| settings.fetchProductData | when `false`, the `/v1/products` endpoint is NOT called and the modal renders whatever variants/attributes the source result already carries. | true |
+| settings.imagesField | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate that resolves to more than one image is rendered in a 1-per-view carousel instead of the single core image. | `images`, `ss_images` |
 
 ## How quickviews are triggered
 
@@ -59,25 +59,25 @@ Opens the quickview for the given result and populates the store.
 | `result` | `Product` (required) | The source result to preview. It must be a product and carry `mappings.core.parentId` — the id used for the `/v1/products` request; otherwise a warning is logged and nothing happens. |
 | `options.controller` | `SearchController \| AutocompleteController \| RecommendationController` (required) | The controller that opened the quickview. The manager runs on its services and uses it for delegated actions (`addToCart`, tracking) and to fire the `quickview` middleware. |
 | `options.productsData` | `ProductsResponseModel` | If passed, the manager skips the `/v1/products` call and uses this data as-is. Useful for tests, prefetching, or middleware-driven flows. |
-| `options.config` | `QuickviewConfig` | Per-call override; wins over both the source controller's and the manager's `settings.quickview`. |
+| `options.config` | `QuickviewConfig` | Per-call override; wins over both the source controller's `settings.quickview` and the manager's `settings`. |
 
 The meta store is not a parameter — it is always read from `options.controller.store.meta` and forwarded into the cloned `Product` for badge processing. Facet-label consumers read it from the source controller directly (`quickviewManager.sourceController.store.meta`); the quickview store does not retain it.
 
 Config precedence, resolved inside `show()`:
 
 ```
-manager config.settings.quickview  <  source controller config.settings.quickview  <  options.config
+manager config.settings  <  source controller config.settings.quickview  <  options.config
 ```
 
 ## Events
 
 ### `quickview`
 
-Fired on the **source controller's** event manager (not the manager's) after product data resolves and before the store is updated. Controllers own plugin and middleware attachment, so middleware is registered the same way as any other controller event — which also scopes interception per controller:
+Fired on the **source controller's** event manager (not the manager's) after product data resolves and the store is updated — the store's built `Product` is passed as `product`, so middleware can inspect or mutate what is about to render. Controllers own plugin and middleware attachment, so middleware is registered the same way as any other controller event — which also scopes interception per controller:
 
 ```js
-searchController.on('quickview', async ({ controller, result, productsData, config }, next) => {
-	// inspect or mutate productsData / config
+searchController.on('quickview', async ({ controller, product }, next) => {
+	// inspect or mutate the quickview product
 	await next();
 });
 ```
@@ -87,9 +87,7 @@ Throwing `new Error('cancelled')` from a listener resets the store and aborts th
 | property | type | description |
 |---|---|---|
 | `controller` | `SearchController \| AutocompleteController \| RecommendationController` | The controller that opened the quickview |
-| `result` | `Product` | The source result |
-| `productsData` | `ProductsResponseModel` | Resolved product data (mutable) |
-| `config` | `QuickviewConfig` | The resolved effective config (mutable) |
+| `product` | `Product` | The store's built quickview product (mutable) |
 
 ## Superseded and dismissed quickviews
 

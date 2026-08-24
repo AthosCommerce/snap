@@ -57,12 +57,13 @@ export const Image = observer((properties: ImageProps) => {
 		onError,
 		onLoad,
 		onClick,
+		onPointerDown,
+		onPointerMove,
+		onPointerUp,
+		onPointerLeave,
 		className,
 		internalClassName,
-		style: _,
-		styleScript: __,
-		themeStyleScript: ___,
-		...additionalProps
+		draggable,
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('image', props);
@@ -109,7 +110,19 @@ export const Image = observer((properties: ImageProps) => {
 						hoverSrc && setHover(false);
 						onMouseOut && onMouseOut(e);
 					}}
-					{...additionalProps}
+					onPointerDown={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerDown && onPointerDown(e);
+					}}
+					onPointerMove={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerMove && onPointerMove(e);
+					}}
+					onPointerUp={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerUp && onPointerUp(e);
+					}}
+					onPointerLeave={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerLeave && onPointerLeave(e);
+					}}
+					draggable={draggable}
 				/>
 			</div>
 		</CacheProvider>

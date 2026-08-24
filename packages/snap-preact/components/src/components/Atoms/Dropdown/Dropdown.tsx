@@ -105,7 +105,9 @@ export const Dropdown = observer((properties: DropdownProps) => {
 					onToggle && onToggle(e, false);
 				}
 			}
-		});
+			// capture phase so outside clicks close the dropdown even inside the quickview wrapper,
+			// which stops click propagation; the contentRef guard above covers the portaled options
+		}, true);
 	}
 
 	// Position the portal BEFORE the browser paints — with a regular effect the dropdown

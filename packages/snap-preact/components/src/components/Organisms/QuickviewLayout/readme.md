@@ -21,7 +21,7 @@ When using Snap templates a quickview controller is always created and a single 
 <QuickviewSlideout quickviewManager={quickviewManager} slideDirection="right" width="500px" />
 
 // The layout engine on its own (rare — normally used via a container)
-<QuickviewLayout quickviewManager={quickviewManager} onReset={() => quickviewManager.store.close()} />
+<QuickviewLayout quickviewManager={quickviewManager} />
 ```
 
 The `quickviewManager` must be a `QuickviewManager` — the components warn and render `null` when it is missing. Because the feature is driven by the shared singleton store, only one container needs to be mounted; there is no per-`Result` scoping.
@@ -38,15 +38,15 @@ Each module name maps to a library component (so theme selectors and `customComp
 - `variantSelection.<field>` — a single `VariantSelection` for the matching selection field (e.g. `variantSelection.color`). The field also matches its component-name form (`color_family` → `color-family`), so `variantSelection.<field>` theme selectors can target it. A bare `variantSelection` module is not supported.
 - `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid. The path's final segment names the component, so `productDetail.<name>` theme selectors can target it (e.g. `productDetail.description`).
 - `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`). Clicking More info tracks a clickThrough for the product (`controller.track.product.clickThrough`, delegated with `quickView: true`) before navigating to the product page.
-- `quantityPicker` — the `QuantityPicker` molecule bound to the observable `product.quantity`, so `button.add-to-cart` adds the selected quantity to the cart. Not part of any default layout — opt in by adding it to a `layout` (typically next to `button.add-to-cart`).
+- `quantityPicker` — the `QuantityPicker` molecule bound to the observable `product.quantity`, so `button.add-to-cart` adds the selected quantity to the cart. Part of both default layouts, between `variantSelections` and the action buttons.
 - `productDetailTable` — the `ProductDetailTable` molecule (opt-in via `displayFields`).
 - `recommendation.<profile>` — a recommendation carousel for the named profile. `<profile>` becomes the `RecommendationController` **tag**; the controller is seeded with the currently-viewed product (`mappings.core.parentId || product.id`) and rendered through the theme's `Recommendation` component (configurable via the `recommendation` prop). The profile also names the component, so `recommendation.<profile>` theme selectors can target it. Renders `null` until the controller's store is loaded.
 - `_` — a flexible separator.
 
 Columns `c1`–`c4` recurse into their own `column1`–`column4` layouts.
 
-- **`QuickviewModal` default** — a two-column row: `layout: [['c1', 'c2']]` with `column1 = { layout: ['slideshow'], width: '45%' }` and `column2 = { layout: [['productDetail.mappings.core.name'],['calloutBadge'],['variantSelections'],['button.add-to-cart','button.more-info'],['productDetail.mappings.core.description'],['productDetailTable'],['recommendation.quickview']], width: 'auto' }`. Columns stack into a single column below the `768px` breakpoint; configured column widths apply from `768px` up. (`QuickviewModal` sets no layout of its own, so it inherits these `QuickviewLayout` defaults.)
-- **`QuickviewSlideout` default** — a single stacked column: `layout: [['slideshow'], ['productDetail.mappings.core.name'], ['calloutBadge'], ['variantSelections'], ['button.add-to-cart', 'button.more-info'], ['productDetail.mappings.core.description'], ['productDetailTable']]`.
+- **`QuickviewModal` default** — a two-column row: `layout: [['c1', 'c2']]` with `column1 = { layout: ['slideshow'], width: '45%' }` and `column2 = { layout: [['productDetail.mappings.core.name'],['calloutBadge'],['variantSelections'],['quantityPicker'],['button.add-to-cart','button.more-info'],['productDetail.mappings.core.description'],['productDetailTable']], width: 'auto' }`. Columns stack into a single column below the `768px` breakpoint; configured column widths apply from `768px` up. (`QuickviewModal` sets no layout of its own, so it inherits these `QuickviewLayout` defaults.)
+- **`QuickviewSlideout` default** — a single stacked column: `layout: [['slideshow'], ['productDetail.mappings.core.name'], ['calloutBadge'], ['variantSelections'], ['quantityPicker'], ['button.add-to-cart', 'button.more-info'], ['productDetail.mappings.core.description'], ['productDetailTable']]`.
 
 Each module returns `null` when it has nothing to show (no description, no displayed attributes, no variant selections, no slideshow), so empty columns and rows collapse.
 
@@ -55,7 +55,7 @@ Each module returns `null` when it has nothing to show (no description, no displ
 | prop | type | required | description |
 |---|---|:---:|---|
 | `quickviewManager` | `QuickviewManager` | ✔️ | The component subscribes to `quickviewManager.store`. Renders `null` (with a console warning) when missing. |
-| `onReset` | `() => void` | | Called by the close button. The container passes `store.close()`; falls back to `store.close()` when rendered standalone. |
+| `onClose` | `() => void` | | Hook into the quickview close. Will always call `quickviewManager.close()` in addition. |
 | `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
 | `disabledOverlayBadges` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
 | `column1`–`column4` | `Column` | | `{ layout, width, alignContent }` configs for the `c1`–`c4` columns. |
