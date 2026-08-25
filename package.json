@@ -15,7 +15,7 @@
     "build:feed": "node ./docs/generateFeed.js",
     "build:metrics": "node ./metrics/generate",
     "build:sitemap": "node ./docs/generateDocsSitemap.js",
-    "test": "npm run test:core && npm run build && npm run test:e2e",
+    "test": "npm run typecheck:tests && npm run test:core && npm run build && npm run test:e2e",
     "test:core": "jest",
     "test:coverage": "jest --coverage",
     "typecheck:tests": "tsc --noEmit -p tsconfig.test.json",
