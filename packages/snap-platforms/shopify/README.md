@@ -149,9 +149,9 @@ When used through `SnapTemplates` on Shopify, enabling `markets` also automatica
 1. Register the plugin in your SnapTemplates config:
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const config = {
+const config = validateTemplatesConfig({
 	config: {
 		siteId: 'your-site-id',
 		platform: 'shopify',
@@ -169,7 +169,7 @@ const config = {
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
-};
+});
 
 new SnapTemplates(config);
 ```
