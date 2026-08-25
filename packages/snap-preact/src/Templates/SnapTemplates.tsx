@@ -104,8 +104,8 @@ export function validateTemplatesConfig<
 	TabletSelectors extends string = never,
 	DesktopSelectors extends string = never
 >(
-	config: SnapTemplatesConfig & {
-		theme?: {
+	config: Omit<SnapTemplatesConfig, 'theme'> & {
+		theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
 			overrides?: SnapTemplatesConfigThemeOverridesTyped<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
 		};
 	}
@@ -131,8 +131,8 @@ export function validateTemplatesConfigUnlocked<
 	TabletSelectors extends string = never,
 	DesktopSelectors extends string = never
 >(
-	config: SnapTemplatesConfigUnlocked & {
-		theme?: {
+	config: Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
+		theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
 			overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
 		};
 	}
