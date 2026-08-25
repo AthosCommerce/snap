@@ -202,6 +202,159 @@ export type TemplateDefaultComponentTypes = typeof DEFAULT_CUSTOM_COMPONENT_TYPE
 export type TemplateCustomComponentTypes = typeof ALL_CUSTOM_COMPONENT_TYPES[number];
 
 /*
+	The component registry — the single source of truth for every theme component type family in
+	this file. Each entry names the component's full props type, its templates-legal props type,
+	and flags describing its selector behavior:
+
+	- `names`:             the component has a fixed set of named instances (e.g. `toolbar.top`).
+	- `openNamed`:         selectors carry an open (user supplied) name, e.g. `facet.<field>`,
+	                       resolved precisely by `ThemeComponentSegmentPropsIn` below.
+	- `templateOpenNamed`: template selectors carrying an open name, e.g. `search.<tab>` — their
+	                       pattern values are `unknown` (accept anything).
+	- `template`:          TEMPLATES-section component; excluded from the custom component type
+	                       consts above (see the `_customComponentTypesInSync` assertion).
+
+	Adding a component means adding one entry here (plus one string in ALL_CUSTOM_COMPONENT_TYPES,
+	which the assertion below keeps in sync) — every family and resolver derives from this table.
+
+	`branchOverride` has no TemplatesLegalProps type; its full props double as its legal props.
+*/
+type ThemeComponentRegistryEntry = {
+	props: unknown;
+	legal: unknown;
+	names?: string;
+	openNamed?: true;
+	templateOpenNamed?: true;
+	template?: true;
+};
+
+type ThemeComponentRegistry = {
+	/* ATOMS */
+	badgeImage: { props: BadgeImageProps; legal: BadgeImageTemplatesLegalProps };
+	badgePill: { props: BadgePillProps; legal: BadgePillTemplatesLegalProps };
+	badgeRectangle: { props: BadgeRectangleProps; legal: BadgeRectangleTemplatesLegalProps };
+	badgeText: { props: BadgeTextProps; legal: BadgeTextTemplatesLegalProps };
+	breadcrumbs: { props: BreadcrumbsProps; legal: BreadcrumbsTemplatesLegalProps };
+	button: { props: ButtonProps; legal: ButtonTemplatesLegalProps; names: ButtonNames };
+	dropdown: { props: DropdownProps; legal: DropdownTemplatesLegalProps };
+	formattedNumber: { props: FormattedNumberProps; legal: FormattedNumberTemplatesLegalProps };
+	icon: { props: IconProps; legal: IconTemplatesLegalProps; names: IconNames };
+	image: { props: ImageProps; legal: ImageTemplatesLegalProps };
+	loadingBar: { props: LoadingBarProps; legal: LoadingBarTemplatesLegalProps };
+	banner: { props: BannerProps; legal: BannerTemplatesLegalProps; names: BannerNames };
+	inlineBanner: { props: InlineBannerProps; legal: InlineBannerTemplatesLegalProps };
+	overlay: { props: OverlayProps; legal: OverlayTemplatesLegalProps };
+	paginationInfo: { props: PaginationInfoProps; legal: PaginationInfoTemplatesLegalProps };
+	price: { props: PriceProps; legal: PriceTemplatesLegalProps; names: PriceNames };
+	skeleton: { props: SkeletonProps; legal: SkeletonTemplatesLegalProps };
+	slideshow: { props: SlideshowProps; legal: SlideshowTemplatesLegalProps };
+	// toggle: { props: ToggleProps; legal: ToggleTemplatesLegalProps };
+	/* MOLECULES */
+	modal: { props: ModalProps; legal: ModalTemplatesLegalProps };
+	calloutBadge: { props: CalloutBadgeProps; legal: CalloutBadgeTemplatesLegalProps };
+	carousel: { props: CarouselProps; legal: CarouselTemplatesLegalProps };
+	checkbox: { props: CheckboxProps; legal: CheckboxTemplatesLegalProps };
+	grid: { props: GridProps; legal: GridTemplatesLegalProps };
+	layoutSelector: { props: LayoutSelectorProps; legal: LayoutSelectorTemplatesLegalProps };
+	list: { props: ListProps; legal: ListTemplatesLegalProps };
+	radio: { props: RadioProps; legal: RadioTemplatesLegalProps };
+	errorHandler: { props: ErrorHandlerProps; legal: ErrorHandlerTemplatesLegalProps };
+	facetGridOptions: { props: FacetGridOptionsProps; legal: FacetGridOptionsTemplatesLegalProps };
+	facetHierarchyOptions: { props: FacetHierarchyOptionsProps; legal: FacetHierarchyOptionsTemplatesLegalProps };
+	facetListOptions: { props: FacetListOptionsProps; legal: FacetListOptionsTemplatesLegalProps };
+	facetPaletteOptions: { props: FacetPaletteOptionsProps; legal: FacetPaletteOptionsTemplatesLegalProps };
+	facetSlider: { props: FacetSliderProps; legal: FacetSliderTemplatesLegalProps };
+	// facetToggle: { props: FacetToggleProps; legal: FacetToggleTemplatesLegalProps };
+	filter: { props: FilterProps; legal: FilterTemplatesLegalProps; names: FilterNames };
+	loadMore: { props: LoadMoreProps; legal: LoadMoreTemplatesLegalProps };
+	overlayBadge: { props: OverlayBadgeProps; legal: OverlayBadgeTemplatesLegalProps };
+	pagination: { props: PaginationProps; legal: PaginationTemplatesLegalProps };
+	perPage: { props: PerPageProps; legal: PerPageTemplatesLegalProps };
+	radioList: { props: RadioListProps; legal: RadioListTemplatesLegalProps };
+	rating: { props: RatingProps; legal: RatingTemplatesLegalProps };
+	result: { props: ResultProps; legal: ResultTemplatesLegalProps; names: ResultNames };
+	overlayResult: { props: OverlayResultProps; legal: OverlayResultTemplatesLegalProps };
+	searchInput: { props: SearchInputProps; legal: SearchInputTemplatesLegalProps };
+	select: { props: SelectProps; legal: SelectTemplatesLegalProps };
+	slideout: { props: SlideoutProps; legal: SlideoutTemplatesLegalProps };
+	sortBy: { props: SortByProps; legal: SortByTemplatesLegalProps };
+	swatches: { props: SwatchesProps; legal: SwatchesTemplatesLegalProps };
+	tabSelection: { props: TabSelectionProps; legal: TabSelectionTemplatesLegalProps };
+	variantSelection: { props: VariantSelectionProps; legal: VariantSelectionTemplatesLegalProps; openNamed: true };
+	terms: { props: TermsProps; legal: TermsTemplatesLegalProps; names: TermsNames };
+	/* ORGANISMS */
+	branchOverride: { props: BranchOverrideProps; legal: BranchOverrideProps };
+	facet: { props: FacetProps; legal: FacetTemplatesLegalProps; openNamed: true };
+	facets: { props: FacetsProps; legal: FacetsTemplatesLegalProps };
+	facetsHorizontal: { props: FacetsHorizontalProps; legal: FacetsHorizontalTemplatesLegalProps };
+	filterSummary: { props: FilterSummaryProps; legal: FilterSummaryTemplatesLegalProps };
+	noResults: { props: NoResultsProps; legal: NoResultsTemplatesLegalProps };
+	results: { props: ResultsProps; legal: ResultsTemplatesLegalProps };
+	searchHeader: { props: SearchHeaderProps; legal: SearchHeaderTemplatesLegalProps };
+	sidebar: { props: SidebarProps; legal: SidebarTemplatesLegalProps };
+	toolbar: { props: ToolbarProps; legal: ToolbarTemplatesLegalProps; names: ToolbarNames };
+	termsList: { props: TermsListProps; legal: TermsListTemplatesLegalProps };
+	/* TEMPLATES */
+	autocompleteTemplate: { props: AutocompleteLayoutProps; legal: AutocompleteLayoutTemplatesLegalProps; template: true };
+	autocompleteFixed: { props: AutocompleteFixedProps; legal: AutocompleteFixedTemplatesLegalProps; templateOpenNamed: true; template: true };
+	autocompleteModal: { props: AutocompleteModalProps; legal: AutocompleteModalTemplatesLegalProps; templateOpenNamed: true; template: true };
+	autocompleteSlideout: { props: AutocompleteSlideoutProps; legal: AutocompleteSlideoutTemplatesLegalProps; templateOpenNamed: true; template: true };
+	recommendation: { props: RecommendationProps; legal: RecommendationTemplatesLegalProps; openNamed: true; template: true };
+	recommendationBundle: { props: RecommendationBundleProps; legal: RecommendationBundleTemplatesLegalProps; openNamed: true; template: true };
+	recommendationBundleEasyAdd: {
+		props: RecommendationBundleEasyAddProps;
+		legal: RecommendationBundleEasyAddTemplatesLegalProps;
+		openNamed: true;
+		template: true;
+	};
+	recommendationBundleList: {
+		props: RecommendationBundleListProps;
+		legal: RecommendationBundleListTemplatesLegalProps;
+		openNamed: true;
+		template: true;
+	};
+	recommendationBundleVertical: {
+		props: RecommendationBundleVerticalProps;
+		legal: RecommendationBundleVerticalTemplatesLegalProps;
+		openNamed: true;
+		template: true;
+	};
+	recommendationGrid: { props: RecommendationGridProps; legal: RecommendationGridTemplatesLegalProps; openNamed: true; template: true };
+	recommendationEmail: { props: RecommendationEmailProps; legal: RecommendationEmailTemplatesLegalProps; template: true };
+	search: { props: SearchProps; legal: SearchTemplatesLegalProps; templateOpenNamed: true; template: true };
+	searchCollapsible: { props: SearchCollapsibleProps; legal: SearchCollapsibleTemplatesLegalProps; templateOpenNamed: true; template: true };
+	searchHorizontal: { props: SearchHorizontalProps; legal: SearchHorizontalTemplatesLegalProps; templateOpenNamed: true; template: true };
+};
+
+type AssertExtends<T extends U, U> = T;
+type AssertEqual<A, B> = [A] extends [B] ? ([B] extends [A] ? true : never) : never;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _themeComponentRegistryShapeCheck = AssertExtends<ThemeComponentRegistry, Record<string, ThemeComponentRegistryEntry>>;
+
+type ThemeComponentKeys = keyof ThemeComponentRegistry & string;
+
+type ThemeComponentKeysWhere<Flag extends keyof ThemeComponentRegistryEntry> = {
+	[C in ThemeComponentKeys]: ThemeComponentRegistry[C] extends Record<Flag, unknown> ? C : never;
+}[ThemeComponentKeys];
+
+type ThemeComponentNamedKeys = ThemeComponentKeysWhere<'names'>;
+type ThemeComponentTemplateOpenNamedKeys = ThemeComponentKeysWhere<'templateOpenNamed'>;
+type ThemeComponentTemplateKeys = ThemeComponentKeysWhere<'template'>;
+type ThemeComponentAnyOpenNamedKeys = ThemeComponentKeysWhere<'openNamed'> | ThemeComponentTemplateOpenNamedKeys;
+type ThemeComponentPlainKeys = Exclude<ThemeComponentKeys, ThemeComponentNamedKeys | ThemeComponentAnyOpenNamedKeys>;
+type ThemeComponentUnNamedRestrictedKeys = Exclude<ThemeComponentKeys, ThemeComponentNamedKeys>;
+
+type ThemeComponentPropsOf<C extends ThemeComponentKeys> = ThemeComponentRegistry[C]['props'];
+type ThemeComponentLegalOf<C extends ThemeComponentKeys> = ThemeComponentRegistry[C]['legal'];
+type ThemeComponentNamesOf<C extends ThemeComponentKeys> = ThemeComponentRegistry[C] extends { names: infer N } ? N & string : never;
+
+// The custom component type consts above stay hand-written (types cannot emit runtime arrays);
+// this assertion turns any drift between them and the registry into a compile error.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _customComponentTypesInSync = AssertEqual<TemplateCustomComponentTypes, Exclude<ThemeComponentKeys, ThemeComponentTemplateKeys> | 'badge'>;
+
+/*
 
 	theme: {
 		components: {
@@ -214,176 +367,14 @@ export type TemplateCustomComponentTypes = typeof ALL_CUSTOM_COMPONENT_TYPES[num
 
 // prettier-ignore
 export type ThemeComponents =
-	/* ATOMS */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeImage'>]?: Partial<BadgeImageProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgePill'>]?: Partial<BadgePillProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeRectangle'>]?: Partial<BadgeRectangleProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeText'>]?: Partial<BadgeTextProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'breadcrumbs'>]?: Partial<BreadcrumbsProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'button', ButtonNames>]?: Partial<ButtonProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'dropdown'>]?: Partial<DropdownProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'formattedNumber'>]?: Partial<FormattedNumberProps> }&
-	{ [K in ThemeComponentOverridesNamedSelectors<'icon', IconNames>]?: Partial<IconProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'image'>]?: Partial<ImageProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadingBar'>]?: Partial<LoadingBarProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'banner', BannerNames>]?: Partial<BannerProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'inlineBanner'>]?: Partial<InlineBannerProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlay'>]?: Partial<OverlayProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'paginationInfo'>]?: Partial<PaginationInfoProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideshow'>]?: Partial<SlideshowProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'price', PriceNames>]?: Partial<PriceProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'skeleton'>]?: Partial<SkeletonProps> } &
-	// { [K in UnNamedThemeComponentSelectors<'toggle'>]?: RestrictedThemeComponentProps<ToggleProps> } &
-	
-	/* MOLECULES */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'layoutSelector'>]?: Partial<LayoutSelectorProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'list'>]?: Partial<ListProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'radio'>]?: Partial<RadioProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'errorHandler'>]?: Partial<ErrorHandlerProps>} &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetGridOptions'>]?: Partial<FacetGridOptionsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetHierarchyOptions'>]?: Partial<FacetHierarchyOptionsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetListOptions'>]?: Partial<FacetListOptionsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetPaletteOptions'>]?: Partial<FacetPaletteOptionsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderProps> } &
-	// { [K in UnNamedThemeComponentSelectors<'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: Partial<OverlayResultProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: Partial<SearchInputProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: Partial<SelectProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideout'>]?: Partial<SlideoutProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'sortBy'>]?: Partial<SortByProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'tabSelection'>]?: Partial<TabSelectionProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'variantSelection', string>]?: Partial<VariantSelectionProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsProps> } &
-
-	/* ORGANISMS */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'facet', string>]?: Partial<FacetProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetsHorizontal'>]?: Partial<FacetsHorizontalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'filterSummary'>]?: Partial<FilterSummaryProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'noResults'>]?: Partial<NoResultsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'results'>]?: Partial<ResultsProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHeader'>]?: Partial<SearchHeaderProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'sidebar'>]?: Partial<SidebarProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'toolbar', ToolbarNames>]?: Partial<ToolbarProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'termsList'>]?: Partial<TermsListProps> } &
-
-	 /* TEMPLATES */ 
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteTemplate'>]?: Partial<AutocompleteLayoutProps> } & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteSlideout', string>]?: Partial<AutocompleteSlideoutProps>} & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteModal', string>]?: Partial<AutocompleteModalProps> } & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteFixed', string>]?: Partial<AutocompleteFixedProps>} & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'recommendation', string>]?: Partial<RecommendationProps>} & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundle', string>]?: Partial<RecommendationBundleProps> } & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundleEasyAdd', string>]?: Partial<RecommendationBundleEasyAddProps>} & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundleList', string>]?: Partial<RecommendationBundleListProps> } & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundleVertical', string>]?: Partial<RecommendationBundleVerticalProps>} & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationGrid', string>]?: Partial<RecommendationGridProps> } & 
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationEmail'>]?: Partial<RecommendationEmailProps>} & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'search', string>]?: Partial<SearchProps> } & 
-	{ [K in ThemeComponentOverridesNamedSelectors<'searchCollapsible', string>]?: Partial<SearchCollapsibleProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'searchHorizontal', string>]?: Partial<SearchHorizontalProps> };
+	{ [C in ThemeComponentPlainKeys as ThemeComponentOverridesUnNamedSelectors<C>]?: Partial<ThemeComponentPropsOf<C>> } &
+	{ [C in ThemeComponentNamedKeys as ThemeComponentOverridesNamedSelectors<C, ThemeComponentNamesOf<C>>]?: Partial<ThemeComponentPropsOf<C>> } &
+	{ [C in ThemeComponentAnyOpenNamedKeys as ThemeComponentOverridesNamedSelectors<C, string>]?: Partial<ThemeComponentPropsOf<C>> };
 
 // prettier-ignore
 type ThemeComponentsRestrictedNamedProps =
-	/* ATOMS */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgePill'>]?: Partial<BadgePillTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeRectangle'>]?: Partial<BadgeRectangleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeText'>]?: Partial<BadgeTextTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'breadcrumbs'>]?: Partial<BreadcrumbsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'button', ButtonNames>]?: Partial<ButtonTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'dropdown'>]?: Partial<DropdownTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'formattedNumber'>]?: Partial<FormattedNumberTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'icon', IconNames>]?: Partial<IconTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'image'>]?: Partial<ImageTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadingBar'>]?: Partial<LoadingBarTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'banner', BannerNames>]?: Partial<BannerTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'inlineBanner'>]?: Partial<InlineBannerTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlay'>]?: Partial<OverlayTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'paginationInfo'>]?: Partial<PaginationInfoTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'price', PriceNames>]?: Partial<PriceTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'skeleton'>]?: Partial<SkeletonTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideshow'>]?: Partial<SlideshowTemplatesLegalProps> } &
-	// { [K in UnNamedThemeComponentSelectors<'toggle'>]?: RestrictedThemeComponentProps<ToggleProps> } &
-	
-	/* MOLECULES */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } & 
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'layoutSelector'>]?: Partial<LayoutSelectorTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'list'>]?: Partial<ListTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'radio'>]?: Partial<RadioTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'errorHandler'>]?: Partial<ErrorHandlerTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetGridOptions'>]?: Partial<FacetGridOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetHierarchyOptions'>]?: Partial<FacetHierarchyOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetListOptions'>]?: Partial<FacetListOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetPaletteOptions'>]?: Partial<FacetPaletteOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> } &
-	// { [K in UnNamedThemeComponentSelectors<'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: Partial<OverlayResultTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: Partial<SearchInputTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: Partial<SelectTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideout'>]?: Partial<SlideoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'sortBy'>]?: Partial<SortByTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'tabSelection'>]?: Partial<TabSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
-
-	/* ORGANISMS */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'noResults'>]?: Partial<NoResultsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'results'>]?: Partial<ResultsTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHeader'>]?: Partial<SearchHeaderTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'sidebar'>]?: Partial<SidebarTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'toolbar', ToolbarNames>]?: Partial<ToolbarTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'termsList'>]?: Partial<TermsListTemplatesLegalProps> } &
-
-
-	/* TEMPLATES */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteTemplate'>]?: Partial<AutocompleteLayoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteFixed'>]?: Partial<AutocompleteFixedTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> } & 
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'search'>]?: Partial<SearchTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> }
+	{ [C in ThemeComponentUnNamedRestrictedKeys as ThemeComponentOverridesUnNamedSelectors<C>]?: Partial<ThemeComponentLegalOf<C>> } &
+	{ [C in ThemeComponentNamedKeys as ThemeComponentOverridesNamedSelectors<C, ThemeComponentNamesOf<C>>]?: Partial<ThemeComponentLegalOf<C>> }
 
 /*
 	Template selectors carrying an open (user supplied) name, e.g. `search.tabbed`. Their value type
@@ -391,14 +382,9 @@ type ThemeComponentsRestrictedNamedProps =
 	a family containing `unknown` (e.g. via `T[keyof T]`) absorbs every other member and collapses
 	to `{}`, silently disabling prop checking for anything derived from it.
 */
-// prettier-ignore
-type ThemeComponentsRestrictedTemplateOpenNamed =
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteFixed'>]?: unknown } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'search'>]?: unknown } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchCollapsible'>]?: unknown } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchHorizontal'>]?: unknown };
+type ThemeComponentsRestrictedTemplateOpenNamed = {
+	[C in ThemeComponentTemplateOpenNamedKeys as ThemeComponentOverridesOpenNamedOnlySelectors<C>]?: unknown;
+};
 
 type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & ThemeComponentsRestrictedTemplateOpenNamed;
 
@@ -413,15 +399,7 @@ type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & Them
 	`validateTemplatesConfigUnlocked` (see `ThemeComponentSegmentPropsIn` below), which reads the
 	literal selector keys instead.
 */
-type ThemeComponentOpenNamedComponentTypes =
-	| 'facet'
-	| 'variantSelection'
-	| 'recommendation'
-	| 'recommendationBundle'
-	| 'recommendationBundleEasyAdd'
-	| 'recommendationBundleList'
-	| 'recommendationBundleVertical'
-	| 'recommendationGrid';
+type ThemeComponentOpenNamedComponentTypes = ThemeComponentKeysWhere<'openNamed'>;
 
 // prettier-ignore
 export type ThemeComponentsRestricted =
@@ -475,93 +453,9 @@ type WithRequiredCustomComponent = { customComponent: string; [customProp: strin
 
 // prettier-ignore
 type ThemeComponentsRestrictedWithCustomComponentNamed =
-	/* ATOMS */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgePill'>]?: Partial<BadgePillTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeRectangle'>]?: Partial<BadgeRectangleTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'badgeText'>]?: Partial<BadgeTextTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'breadcrumbs'>]?: Partial<BreadcrumbsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'button', ButtonNames>]?: Partial<ButtonTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'dropdown'>]?: Partial<DropdownTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'formattedNumber'>]?: Partial<FormattedNumberTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'icon', IconNames>]?: Partial<IconTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'image'>]?: Partial<ImageTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadingBar'>]?: Partial<LoadingBarTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'banner', BannerNames>]?: Partial<BannerTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'inlineBanner'>]?: Partial<InlineBannerTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlay'>]?: Partial<OverlayTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'paginationInfo'>]?: Partial<PaginationInfoTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'price', PriceNames>]?: Partial<PriceTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'skeleton'>]?: Partial<SkeletonTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideshow'>]?: Partial<SlideshowTemplatesLegalProps> & WithCustomComponent } &
-
-	/* MOLECULES */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'layoutSelector'>]?: Partial<LayoutSelectorTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'list'>]?: Partial<ListTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'radio'>]?: Partial<RadioTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'errorHandler'>]?: Partial<ErrorHandlerTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetGridOptions'>]?: Partial<FacetGridOptionsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetHierarchyOptions'>]?: Partial<FacetHierarchyOptionsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetListOptions'>]?: Partial<FacetListOptionsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetPaletteOptions'>]?: Partial<FacetPaletteOptionsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: Partial<OverlayResultTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: Partial<SearchInputTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: Partial<SelectTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'slideout'>]?: Partial<SlideoutTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'sortBy'>]?: Partial<SortByTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'tabSelection'>]?: Partial<TabSelectionTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> & WithCustomComponent } &
-
-	/* ORGANISMS */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'branchOverride'>]?: Partial<BranchOverrideProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facet'>]?: Partial<FacetTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facets'>]?: Partial<FacetsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'noResults'>]?: Partial<NoResultsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'results'>]?: Partial<ResultsTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHeader'>]?: Partial<SearchHeaderTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'sidebar'>]?: Partial<SidebarTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'toolbar', ToolbarNames>]?: Partial<ToolbarTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'termsList'>]?: Partial<TermsListTemplatesLegalProps> & WithCustomComponent } &
-
-	/* TEMPLATES */
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteTemplate'>]?: Partial<AutocompleteLayoutTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteFixed'>]?: Partial<AutocompleteFixedTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteFixed'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'search'>]?: Partial<SearchTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'search'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchCollapsible'>]?: unknown } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchHorizontal'>]?: unknown };
+	{ [C in ThemeComponentUnNamedRestrictedKeys as ThemeComponentOverridesUnNamedSelectors<C>]?: Partial<ThemeComponentLegalOf<C>> & WithCustomComponent } &
+	{ [C in ThemeComponentNamedKeys as ThemeComponentOverridesNamedSelectors<C, ThemeComponentNamesOf<C>>]?: Partial<ThemeComponentLegalOf<C>> & WithCustomComponent } &
+	{ [C in ThemeComponentTemplateOpenNamedKeys as ThemeComponentOverridesOpenNamedOnlySelectors<C>]?: unknown };
 
 /*
 	Unlocked counterpart to `ThemeComponentsRestricted` / `ThemeComponentSelectorProps` — same
@@ -583,158 +477,26 @@ export type ThemeComponentsRestrictedSelectorsUnlocked<Selectors extends string>
 	[Selector in Selectors]: ThemeComponentSelectorPropsUnlocked<Selector>;
 };
 
+/*
+	The sub-component members depend only on `Template`, so they live in their own alias — its
+	instantiation is cached per distinct template literal instead of per (template, props) pair.
+*/
+// prettier-ignore
+type ThemeComponentTemplateSubOverrides<Template extends string> =
+	{ [C in ThemeComponentUnNamedRestrictedKeys as ThemeComponentUnNamedSelectorsStartingWithTemplate<Template, C>]?: Partial<ThemeComponentLegalOf<C>> } &
+	{ [C in ThemeComponentNamedKeys as ThemeComponentNamedSelectorsStartingWithTemplate<Template, C, ThemeComponentNamesOf<C>>]?: Partial<ThemeComponentLegalOf<C>> } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template, ThemeComponentOpenNamedComponentTypes>]?: unknown };
+
 // prettier-ignore
 export type ThemeComponentTemplateOverrides<Template extends string, Props, LegalProps> =
 	/* WITH TEMPLATE */
 	{ [K in ThemeComponentTemplateUnNamedSelectors<Template>]?: ThemeComponentRestrictedProps<Props, LegalProps> } &
+	ThemeComponentTemplateSubOverrides<Template>;
 
-	/* ATOMS */
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template, 'badgeImage'>]?: Partial<BadgeImageTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'badgePill'>]?: Partial<BadgePillTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'badgeRectangle'>]?: Partial<BadgeRectangleTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'badgeText'>]?: Partial<BadgeTextTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'breadcrumbs'>]?: Partial<BreadcrumbsTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template, 'button', ButtonNames>]?: Partial<ButtonTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'dropdown'>]?: Partial<DropdownTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'formattedNumber'>]?: Partial<FormattedNumberTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template, 'icon', IconNames>]?: Partial<IconTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'image'>]?: Partial<ImageTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'loadingBar'>]?: Partial<LoadingBarTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'banner', BannerNames>]?: Partial<BannerTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'inlineBanner'>]?: Partial<InlineBannerTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlay'>]?: Partial<OverlayTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'paginationInfo'>]?: Partial<PaginationInfoTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'price', PriceNames>]?: Partial<PriceTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'skeleton'>]?: Partial<SkeletonTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'slideshow'>]?: Partial<SlideshowTemplatesLegalProps> } &
-	// { [K in StartsWithTemplateHavingUnNamedThemeComponentSelectors<Template,'toggle'>]?: RestrictedThemeComponentProps<ToggleProps> } &
-	
-	/* MOLECULES */
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'modal'>]?: Partial<ModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } & 
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'carousel'>]?: Partial<CarouselTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'grid'>]?: Partial<GridTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'layoutSelector'>]?: Partial<LayoutSelectorTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'list'>]?: Partial<ListTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'radio'>]?: Partial<RadioTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'errorHandler'>]?: Partial<ErrorHandlerTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetGridOptions'>]?: Partial<FacetGridOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetHierarchyOptions'>]?: Partial<FacetHierarchyOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetListOptions'>]?: Partial<FacetListOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetPaletteOptions'>]?: Partial<FacetPaletteOptionsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> } &
-	// { [K in StartsWithTemplateHavingUnNamedThemeComponentSelectors<Template,'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'perPage'>]?: Partial<PerPageTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'rating'>]?: Partial<RatingTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlayResult'>]?: Partial<OverlayResultTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchInput'>]?: Partial<SearchInputTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'select'>]?: Partial<SelectTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'slideout'>]?: Partial<SlideoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'sortBy'>]?: Partial<SortByTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'tabSelection'>]?: Partial<TabSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
-
-	/* ORGANISMS */
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'branchOverride'>]?: Partial<BranchOverrideProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facet'>]?: Partial<FacetTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template, ThemeComponentOpenNamedComponentTypes>]?: unknown } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'noResults'>]?: Partial<NoResultsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'results'>]?: Partial<ResultsTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchHeader'>]?: Partial<SearchHeaderTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'sidebar'>]?: Partial<SidebarTemplatesLegalProps> } &
-	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'toolbar', ToolbarNames>]?: Partial<ToolbarTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'termsList'>]?: Partial<TermsListTemplatesLegalProps> } &
-
-
-	/* TEMPLATES */
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteTemplate'>]?: Partial<AutocompleteLayoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteFixed'>]?: Partial<AutocompleteFixedTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> } & 
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'search'>]?: Partial<SearchTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchHorizontal'>]?: Partial<SearchHorizontalTemplatesLegalProps> };
-
-// Component type to props mapping for typed component config
-export type ComponentTypePropsMap = {
-	result: ResultProps;
-	badge: OverlayBadgeProps;
-	overlayResult: OverlayResultProps;
-	badgeImage: BadgeImageProps;
-	badgePill: BadgePillProps;
-	badgeRectangle: BadgeRectangleProps;
-	badgeText: BadgeTextProps;
-	breadcrumbs: BreadcrumbsProps;
-	button: ButtonProps;
-	dropdown: DropdownProps;
-	formattedNumber: FormattedNumberProps;
-	icon: IconProps;
-	image: ImageProps;
-	loadingBar: LoadingBarProps;
-	banner: BannerProps;
-	inlineBanner: InlineBannerProps;
-	overlay: OverlayProps;
-	paginationInfo: PaginationInfoProps;
-	slideshow: SlideshowProps;
-	price: PriceProps;
-	skeleton: SkeletonProps;
-	modal: ModalProps;
-	calloutBadge: CalloutBadgeProps;
-	carousel: CarouselProps;
-	checkbox: CheckboxProps;
-	grid: GridProps;
-	layoutSelector: LayoutSelectorProps;
-	list: ListProps;
-	radio: RadioProps;
-	errorHandler: ErrorHandlerProps;
-	facetGridOptions: FacetGridOptionsProps;
-	facetHierarchyOptions: FacetHierarchyOptionsProps;
-	facetListOptions: FacetListOptionsProps;
-	facetPaletteOptions: FacetPaletteOptionsProps;
-	facetSlider: FacetSliderProps;
-	filter: FilterProps;
-	loadMore: LoadMoreProps;
-	overlayBadge: OverlayBadgeProps;
-	pagination: PaginationProps;
-	perPage: PerPageProps;
-	radioList: RadioListProps;
-	rating: RatingProps;
-	searchInput: SearchInputProps;
-	select: SelectProps;
-	slideout: SlideoutProps;
-	sortBy: SortByProps;
-	swatches: SwatchesProps;
-	tabSelection: TabSelectionProps;
-	variantSelection: VariantSelectionProps;
-	terms: TermsProps;
-	branchOverride: BranchOverrideProps;
-	facet: FacetProps;
-	facets: FacetsProps;
-	facetsHorizontal: FacetsHorizontalProps;
-	filterSummary: FilterSummaryProps;
-	noResults: NoResultsProps;
-	results: ResultsProps;
-	searchHeader: SearchHeaderProps;
-	sidebar: SidebarProps;
-	toolbar: ToolbarProps;
-	termsList: TermsListProps;
+// Component type to props mapping for typed component config. Keys come from the runtime const
+// (kept in sync with the registry by `_customComponentTypesInSync`); prop types come from the
+// registry, so a const key missing from the registry fails to compile. `badge` is a consts-only
+// alias of `overlayBadge` and never enters the registry.
+export type ComponentTypePropsMap = { badge: OverlayBadgeProps } & {
+	[C in Exclude<TemplateCustomComponentTypes, 'badge'>]: ThemeComponentPropsOf<C>;
 };
