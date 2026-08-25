@@ -147,7 +147,7 @@ Themes and components provide their own default component prop configurations. T
 
 Most selectors are typed to the component they target out of the box. Selectors that carry an open, site-specific name — such as `facet.<field>` or `recommendation.<profile>` — are the exception: with a config that is annotated as `SnapTemplatesConfig`, they fall back to accepting the props of any component, so a typo is not caught.
 
-Wrapping the config in `validateTemplatesConfig` types every selector against the exact component it targets, including the open-named ones:
+Wrapping the config in `validateTemplatesConfig` types each selector against the component its final segment targets, including the open-named ones. Note that only the last segment of a tree path selector is checked — a typo in an earlier segment (e.g. `'facett.price facetSlider'`) is not caught:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
@@ -173,7 +173,7 @@ const templatesConfig = validateTemplatesConfig({
 new SnapTemplates(templatesConfig);
 ```
 
-The selectors have to be read from the object literal, so the config must be passed straight to `validateTemplatesConfig`. Annotating the variable as `SnapTemplatesConfig` instead — or assigning the object to a variable first — keeps the looser typing.
+The selectors have to be read from the object literal, so the config must be written inline in the `validateTemplatesConfig(...)` call — passing a config that was assigned to a variable (or otherwise typed) beforehand is a compile error, not a fallback. To keep the looser pattern-based typing instead, skip the wrapper and annotate the config as `SnapTemplatesConfig`.
 
 For an unlocked configuration (`unlocked: true`, see [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration)), import `validateTemplatesConfigUnlocked` instead — it types selectors the same way, additionally allowing the `customComponent` field that unlocked configs support.
 
@@ -188,6 +188,7 @@ To see the full list of templates legal props for each component, refer to the *
 
 
 ```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import { css } from '@emotion/react';
 
 new SnapTemplates(validateTemplatesConfig({
@@ -310,6 +311,7 @@ Unlike `resultComponent`, `customComponent` does not use built-in fallback names
 First, register your custom component in the configuration:
 
 ```tsx
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 import { MyCustomResult } from './components/MyCustomResult';
 
 new SnapTemplates(validateTemplatesConfigUnlocked({

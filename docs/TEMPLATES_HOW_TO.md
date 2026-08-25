@@ -853,7 +853,7 @@ Tabs let a single search or autocomplete experience span multiple catalogs. Each
 Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id`, the `siteId` it queries, and the `param` that identifies its catalog in the URL.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
 	},
@@ -883,7 +883,7 @@ new SnapTemplates({
 			},
 		],
 	},
-});
+}));
 ```
 
 The `tabSelection` module is already present in the default layouts, so no theme changes are needed to make the tabs appear.

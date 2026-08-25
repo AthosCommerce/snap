@@ -387,8 +387,9 @@ type ThemeComponentsRestrictedNamedProps =
 
 /*
 	Template selectors carrying an open (user supplied) name, e.g. `search.tabbed`. Their value type
-	is `unknown` and so must stay out of `ThemeComponentsRestrictedNamedProps` — a union containing
-	`unknown` absorbs every other member, which would reduce `ThemeComponentOpenNamedProps` to `{}`.
+	is `unknown` and so must stay out of `ThemeComponentsRestrictedNamedProps` — a union derived from
+	a family containing `unknown` (e.g. via `T[keyof T]`) absorbs every other member and collapses
+	to `{}`, silently disabling prop checking for anything derived from it.
 */
 // prettier-ignore
 type ThemeComponentsRestrictedTemplateOpenNamed =
@@ -402,28 +403,16 @@ type ThemeComponentsRestrictedTemplateOpenNamed =
 type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & ThemeComponentsRestrictedTemplateOpenNamed;
 
 /*
-	Props allowed on a selector segment that uses an open (user supplied) name, e.g. `facet.price`.
+	The component types whose override selectors carry an open (user supplied) name. This union is
+	the single source for every open-named selector family below — the selector types distribute
+	over it, so adding a component here is the only edit needed.
 
-	Such a segment can either end a tree path or begin a deeper one, and a pattern index signature
-	such as `facet.${string}` unavoidably matches both `facet.price` and `facet.price facetSlider`.
-	The value type therefore has to accept the props of the named component *and* of anything that
-	may be nested below it — but unlike the `unknown` it replaces, it still rejects props that do
-	not exist on any component.
+	Their pattern index signature values stay `unknown`: a pattern such as `facet.${string}`
+	unavoidably matches both `facet.price` and `facet.price facetSlider`, so it cannot be typed
+	to one component. Precise per-selector checking lives in `validateTemplatesConfig` /
+	`validateTemplatesConfigUnlocked` (see `ThemeComponentSegmentPropsIn` below), which reads the
+	literal selector keys instead.
 */
-type ThemeComponentOpenNamedProps = NonNullable<ThemeComponentsRestrictedNamedProps[keyof ThemeComponentsRestrictedNamedProps]>;
-
-// prettier-ignore
-export type ThemeComponentsRestricted =
-	ThemeComponentsRestrictedNamed &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundle'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleEasyAdd'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleList'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleVertical'>]?: ThemeComponentOpenNamedProps } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationGrid'>]?: ThemeComponentOpenNamedProps };
-
 type ThemeComponentOpenNamedComponentTypes =
 	| 'facet'
 	| 'variantSelection'
@@ -434,6 +423,11 @@ type ThemeComponentOpenNamedComponentTypes =
 	| 'recommendationBundleVertical'
 	| 'recommendationGrid';
 
+// prettier-ignore
+export type ThemeComponentsRestricted =
+	ThemeComponentsRestrictedNamed &
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<ThemeComponentOpenNamedComponentTypes>]?: unknown };
+
 type ThemeComponentSelectorSegment<Selector extends string> = Selector extends `${string} ${infer Rest}`
 	? ThemeComponentSelectorSegment<Rest>
 	: Selector;
@@ -441,26 +435,43 @@ type ThemeComponentSelectorSegment<Selector extends string> = Selector extends `
 type ThemeComponentSelectorUnknown = { 'unknown theme override selector': never };
 
 /*
-	Resolves a tree path selector to the props of the component it targets — `facet.price facetSlider`
-	resolves to FacetSlider. Because this reads a single literal key it stays precise where the pattern
-	index signatures of `ThemeComponentsRestricted` cannot, but it only applies to selectors that are
-	known at the point of the check, which is why it is reachable through `validateTemplatesConfig` only.
-*/
-export type ThemeComponentSelectorProps<Selector extends string> = ThemeComponentSegmentProps<ThemeComponentSelectorSegment<Selector> & string>;
+	Resolves a tree path selector to the props of the component its final segment targets —
+	`facet.price facetSlider` resolves to FacetSlider. Because this reads a single literal key it
+	stays precise where the pattern index signatures of `ThemeComponentsRestricted` cannot, but it
+	only applies to selectors that are known at the point of the check, which is why it is
+	reachable through `validateTemplatesConfig` only.
 
-type ThemeComponentSegmentProps<Segment extends string> = Segment extends keyof ThemeComponentsRestrictedNamed
-	? NonNullable<ThemeComponentsRestrictedNamed[Segment]>
+	The resolution is shared between the locked and unlocked families via `NamedMap` (which
+	named-selector map to resolve against) and `OpenNamedExtra` (a type unioned onto open-named
+	resolutions — `never` adds nothing; the unlocked family passes the custom component prop bag).
+*/
+type ThemeComponentSegmentPropsIn<NamedMap, OpenNamedExtra, Segment extends string> = Segment extends keyof NamedMap
+	? NonNullable<NamedMap[Segment]>
 	: Segment extends `${infer ComponentType}.${string}`
-	? ComponentType extends ThemeComponentOpenNamedComponentTypes
-		? NonNullable<ThemeComponentsRestrictedNamed[ComponentType]>
+	? ComponentType extends ThemeComponentOpenNamedComponentTypes & keyof NamedMap
+		? NonNullable<NamedMap[ComponentType]> | OpenNamedExtra
 		: ThemeComponentSelectorUnknown
 	: ThemeComponentSelectorUnknown;
+
+export type ThemeComponentSelectorProps<Selector extends string> = ThemeComponentSegmentPropsIn<
+	ThemeComponentsRestrictedNamed,
+	never,
+	ThemeComponentSelectorSegment<Selector> & string
+>;
 
 export type ThemeComponentsRestrictedSelectors<Selectors extends string> = {
 	[Selector in Selectors]: ThemeComponentSelectorProps<Selector>;
 };
 
 type WithCustomComponent = { customComponent?: string };
+
+/*
+	An override that mounts a custom component receives that component's own props, which are
+	arbitrary by design ("any additional props passed through overrides"). A required
+	`customComponent` therefore unlocks an open prop bag, while overrides without one keep
+	the strict per-component checking.
+*/
+type WithRequiredCustomComponent = { customComponent: string; [customProp: string]: unknown };
 
 // prettier-ignore
 type ThemeComponentsRestrictedWithCustomComponentNamed =
@@ -560,26 +571,13 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 // prettier-ignore
 export type ThemeComponentsRestrictedWithCustomComponent =
 	ThemeComponentsRestrictedWithCustomComponentNamed &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'variantSelection'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'facet'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendation'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundle'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleEasyAdd'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleList'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationBundleVertical'>]?: ThemeComponentOpenNamedProps & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'recommendationGrid'>]?: ThemeComponentOpenNamedProps & WithCustomComponent };
+	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<ThemeComponentOpenNamedComponentTypes>]?: unknown };
 
-export type ThemeComponentSelectorPropsUnlocked<Selector extends string> = ThemeComponentSegmentPropsUnlocked<
+export type ThemeComponentSelectorPropsUnlocked<Selector extends string> = ThemeComponentSegmentPropsIn<
+	ThemeComponentsRestrictedWithCustomComponentNamed,
+	WithRequiredCustomComponent,
 	ThemeComponentSelectorSegment<Selector> & string
 >;
-
-type ThemeComponentSegmentPropsUnlocked<Segment extends string> = Segment extends keyof ThemeComponentsRestrictedWithCustomComponentNamed
-	? NonNullable<ThemeComponentsRestrictedWithCustomComponentNamed[Segment]>
-	: Segment extends `${infer ComponentType}.${string}`
-	? ComponentType extends ThemeComponentOpenNamedComponentTypes
-		? NonNullable<ThemeComponentsRestrictedWithCustomComponentNamed[ComponentType]>
-		: ThemeComponentSelectorUnknown
-	: ThemeComponentSelectorUnknown;
 
 export type ThemeComponentsRestrictedSelectorsUnlocked<Selectors extends string> = {
 	[Selector in Selectors]: ThemeComponentSelectorPropsUnlocked<Selector>;
@@ -643,13 +641,12 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'tabSelection'>]?: Partial<TabSelectionTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'variantSelection'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'branchOverride'>]?: Partial<BranchOverrideProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facet'>]?: Partial<FacetTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'facet'>]?: ThemeComponentOpenNamedProps } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template, ThemeComponentOpenNamedComponentTypes>]?: unknown } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facets'>]?: Partial<FacetsTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetsHorizontal'>]?: Partial<FacetsHorizontalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'filterSummary'>]?: Partial<FilterSummaryTemplatesLegalProps> } &
@@ -667,17 +664,11 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendation'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleList'>]?: Partial<RecommendationBundleListTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleList'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleVertical'>]?: Partial<RecommendationBundleVerticalTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationBundleVertical'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationGrid'>]?: Partial<RecommendationGridTemplatesLegalProps> } &
-	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'recommendationGrid'>]?: ThemeComponentOpenNamedProps } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationEmail'>]?: Partial<RecommendationEmailTemplatesLegalProps> } & 
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'search'>]?: Partial<SearchTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'searchCollapsible'>]?: Partial<SearchCollapsibleTemplatesLegalProps> } &

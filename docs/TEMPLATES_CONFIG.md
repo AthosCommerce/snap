@@ -199,6 +199,7 @@ Snap Templates was built to intentionally not support custom Preact components c
 | `components.result[name]` | Custom result component definition | Function (component) | ➖ |
 
 ```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import { SychronousCustomResult } from './components/Result';
 
 new SnapTemplates(validateTemplatesConfig({

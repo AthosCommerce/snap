@@ -114,6 +114,35 @@ ruleTester.run('validate-config', rule, {
 				});
 			`,
 		},
+		{
+			name: 'inline new SnapTemplates config with matching registered components',
+			code: `
+				new SnapTemplates({
+					components: {
+						result: { CustomResult: { component: 'CustomResult' } },
+					},
+					theme: {
+						overrides: { default: { search: { resultComponent: 'CustomResult' } } },
+					},
+				});
+			`,
+		},
+		{
+			name: 'unrelated constructors with object arguments are ignored',
+			code: `
+				new SomeOtherThing({
+					overrides: { default: { 'facet.size': { customComponent: 'NotRegistered' } } },
+				});
+			`,
+		},
+		{
+			name: 'multi-argument calls inside new SnapTemplates are not unwrapped',
+			code: `
+				new SnapTemplates(deepmerge({
+					overrides: { default: { 'facet.size': { customComponent: 'NotRegistered' } } },
+				}, extraConfig));
+			`,
+		},
 	],
 	invalid: [
 		{
@@ -232,6 +261,45 @@ ruleTester.run('validate-config', rule, {
 				});
 			`,
 			errors: [{ messageId: 'invalidResultComponent' }],
+		},
+		{
+			name: 'inline new SnapTemplates config with an unregistered customComponent',
+			code: `
+				new SnapTemplates({
+					components: { facet: { CustomFacet: { component: 'CustomFacet' } } },
+					overrides: { default: { 'facet.size': { customComponent: 'WrongName' } } },
+				});
+			`,
+			errors: [{ messageId: 'invalidCustomComponent' }],
+		},
+		{
+			name: 'inline new SnapHybrid config with duplicate tab ids',
+			code: `
+				new SnapHybrid({
+					search: { tabs: [{ id: 'main', siteId: 'aaa111' }, { id: 'main', siteId: 'bbb222' }] },
+				});
+			`,
+			errors: [{ messageId: 'duplicateTabId' }, { messageId: 'duplicateTabId' }],
+		},
+		{
+			name: 'wrapped config inside new SnapTemplates reports exactly once',
+			code: `
+				new SnapTemplates(validateTemplatesConfig({
+					components: { facet: { CustomFacet: { component: 'CustomFacet' } } },
+					overrides: { default: { 'facet.size': { customComponent: 'WrongName' } } },
+				}));
+			`,
+			errors: [{ messageId: 'invalidCustomComponent' }],
+		},
+		{
+			name: 'aliased wrapper call inside new SnapTemplates is unwrapped and validated',
+			code: `
+				new SnapTemplates(vtc({
+					components: { facet: { CustomFacet: { component: 'CustomFacet' } } },
+					overrides: { default: { 'facet.size': { customComponent: 'WrongName' } } },
+				}));
+			`,
+			errors: [{ messageId: 'invalidCustomComponent' }],
 		},
 	],
 });

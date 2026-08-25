@@ -14,7 +14,7 @@ For the full list of configuration options see [Tabs](https://github.com/athosco
 Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id`, the `siteId` it queries, and the `param` that identifies its catalog in the URL.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
 	},
@@ -44,7 +44,7 @@ new SnapTemplates({
 			},
 		],
 	},
-});
+}));
 ```
 
 Two or more tabs are required - the `tabSelection` component does not render for a single tab.
@@ -111,7 +111,7 @@ A shopper who searches from the blog tab of a tabbed autocomplete should land on
 The tab `id` values must still be unique; prefixing the autocomplete ids, as below, is a simple way to keep them distinct while the `siteId` and `param` pairs stay identical.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	search: {
 		tabs: [
@@ -127,7 +127,7 @@ new SnapTemplates({
 		],
 		targets: [{ inputSelector: 'input#search-input', component: 'AutocompleteModal' }],
 	},
-});
+}));
 ```
 
 Submitting from the `ACBlog` tab writes `tab=blog` and the results page opens on the `Blog` tab.

@@ -11,6 +11,7 @@ const PROVIDED_COMPONENT_KEYS = {
 };
 
 const VALIDATE_CONFIG_FUNCTION_NAMES = ['validateTemplatesConfig', 'validateTemplatesConfigUnlocked'];
+const TEMPLATES_CONSTRUCTOR_NAMES = ['SnapTemplates', 'SnapHybrid'];
 
 module.exports = {
 	meta: {
@@ -20,18 +21,12 @@ module.exports = {
 				'Validate that customComponent and resultComponent values match keys in components, and that tab controllers are configured consistently',
 		},
 		messages: {
-			invalidCustomComponent:
-				'"{{ value }}" is not a valid customComponent for "{{ componentType }}". Must be one of: {{ validKeys }}.',
-			noCustomComponents:
-				'"{{ value }}" is not a valid customComponent. No keys found in components.{{ componentType }}.',
-			invalidResultComponent:
-				'"{{ value }}" is not a valid resultComponent. Must be one of: {{ validKeys }}.',
-			noResultComponents:
-				'"{{ value }}" is not a valid resultComponent. No keys found in components.result.',
-			invalidGlobalResultComponent:
-				'"{{ value }}" is not a valid globalResultComponent. Must be one of: {{ validKeys }}.',
-			noGlobalResultComponents:
-				'"{{ value }}" is not a valid globalResultComponent. No keys found in components.result.',
+			invalidCustomComponent: '"{{ value }}" is not a valid customComponent for "{{ componentType }}". Must be one of: {{ validKeys }}.',
+			noCustomComponents: '"{{ value }}" is not a valid customComponent. No keys found in components.{{ componentType }}.',
+			invalidResultComponent: '"{{ value }}" is not a valid resultComponent. Must be one of: {{ validKeys }}.',
+			noResultComponents: '"{{ value }}" is not a valid resultComponent. No keys found in components.result.',
+			invalidGlobalResultComponent: '"{{ value }}" is not a valid globalResultComponent. Must be one of: {{ validKeys }}.',
+			noGlobalResultComponents: '"{{ value }}" is not a valid globalResultComponent. No keys found in components.result.',
 			duplicateTabId:
 				'Tab id "{{ id }}" is used by more than one tab controller. Every search/autocomplete tab id must be unique, since it becomes the controller id.',
 			mismatchedTabParam:
@@ -50,14 +45,9 @@ module.exports = {
 				const typeAnnotation = node.id?.typeAnnotation?.typeAnnotation;
 				if (!typeAnnotation) return;
 
-				const typeName =
-					typeAnnotation.typeName?.name ||
-					typeAnnotation.typeName?.right?.name;
+				const typeName = typeAnnotation.typeName?.name || typeAnnotation.typeName?.right?.name;
 
-				if (
-					typeName === 'SnapTemplatesConfig' ||
-					typeName === 'SnapTemplatesConfigUnlocked' ||
-					typeName === 'SnapTemplatesConfigLocked') {
+				if (typeName === 'SnapTemplatesConfig' || typeName === 'SnapTemplatesConfigUnlocked' || typeName === 'SnapTemplatesConfigLocked') {
 					const init = node.init;
 					if (!init || init.type !== 'ObjectExpression') return;
 
@@ -75,6 +65,28 @@ module.exports = {
 
 				validateConfigObject(configArg, context);
 			},
+
+			// Find inline configs passed directly to new SnapTemplates({...}) / new SnapHybrid({...})
+			NewExpression(node) {
+				const calleeName = node.callee?.name;
+				if (!TEMPLATES_CONSTRUCTOR_NAMES.includes(calleeName)) return;
+
+				let [configArg] = node.arguments;
+				// Unwrap a single-argument wrapper call (e.g. an aliased validateTemplatesConfig import)
+				// around the inline config. Calls named validateTemplatesConfig* are skipped here since
+				// the CallExpression path already reports on them.
+				if (
+					configArg &&
+					configArg.type === 'CallExpression' &&
+					configArg.arguments.length === 1 &&
+					!VALIDATE_CONFIG_FUNCTION_NAMES.includes(configArg.callee?.name)
+				) {
+					[configArg] = configArg.arguments;
+				}
+				if (!configArg || configArg.type !== 'ObjectExpression') return;
+
+				validateConfigObject(configArg, context);
+			},
 		};
 
 		/**
@@ -86,78 +98,76 @@ module.exports = {
 			// Extract explicitly registered component keys from components.*
 			const registeredComponentKeys = extractRegisteredComponentKeys(init);
 
-				// Validate customComponent nodes using the original path-based lookup
-				const customComponentNodes = collectCustomComponentNodes(init);
-				for (const { node: ccNode, value, componentType } of customComponentNodes) {
-					const validKeys = registeredComponentKeys[componentType] || [];
-					if (validKeys.length === 0) {
-						context.report({
-							node: ccNode,
-							messageId: 'noCustomComponents',
-							data: { value, componentType },
-						});
-					} else if (!validKeys.includes(value)) {
-						context.report({
-							node: ccNode,
-							messageId: 'invalidCustomComponent',
-							data: {
-								value,
-								componentType,
-								validKeys: validKeys.join(', '),
-							},
-						});
-					}
+			// Validate customComponent nodes using the original path-based lookup
+			const customComponentNodes = collectCustomComponentNodes(init);
+			for (const { node: ccNode, value, componentType } of customComponentNodes) {
+				const validKeys = registeredComponentKeys[componentType] || [];
+				if (validKeys.length === 0) {
+					context.report({
+						node: ccNode,
+						messageId: 'noCustomComponents',
+						data: { value, componentType },
+					});
+				} else if (!validKeys.includes(value)) {
+					context.report({
+						node: ccNode,
+						messageId: 'invalidCustomComponent',
+						data: {
+							value,
+							componentType,
+							validKeys: validKeys.join(', '),
+						},
+					});
 				}
-
-				// Validate resultComponent nodes against components.result
-				const resultComponentNodes = collectResultComponentNodes(init);
-				const validResultKeys = Array.from(
-					new Set([...(PROVIDED_COMPONENT_KEYS.result || []), ...(registeredComponentKeys.result || [])])
-				);
-				for (const { node: resultNode, value } of resultComponentNodes) {
-					if (validResultKeys.length === 0) {
-						context.report({
-							node: resultNode,
-							messageId: 'noResultComponents',
-							data: { value },
-						});
-					} else if (!validResultKeys.includes(value)) {
-						context.report({
-							node: resultNode,
-							messageId: 'invalidResultComponent',
-							data: {
-								value,
-								validKeys: validResultKeys.join(', '),
-							},
-						});
-					}
-				}
-
-				// Validate theme.globalResultComponent against components.result, same as resultComponent
-				const globalResultComponentNode = collectGlobalResultComponentNode(init);
-				if (globalResultComponentNode) {
-					const { node: globalResultNode, value } = globalResultComponentNode;
-					if (validResultKeys.length === 0) {
-						context.report({
-							node: globalResultNode,
-							messageId: 'noGlobalResultComponents',
-							data: { value },
-						});
-					} else if (!validResultKeys.includes(value)) {
-						context.report({
-							node: globalResultNode,
-							messageId: 'invalidGlobalResultComponent',
-							data: {
-								value,
-								validKeys: validResultKeys.join(', '),
-							},
-						});
-					}
-				}
-
-				// Validate search/autocomplete tab controller configs
-				validateTabs(init, context);
 			}
+
+			// Validate resultComponent nodes against components.result
+			const resultComponentNodes = collectResultComponentNodes(init);
+			const validResultKeys = Array.from(new Set([...(PROVIDED_COMPONENT_KEYS.result || []), ...(registeredComponentKeys.result || [])]));
+			for (const { node: resultNode, value } of resultComponentNodes) {
+				if (validResultKeys.length === 0) {
+					context.report({
+						node: resultNode,
+						messageId: 'noResultComponents',
+						data: { value },
+					});
+				} else if (!validResultKeys.includes(value)) {
+					context.report({
+						node: resultNode,
+						messageId: 'invalidResultComponent',
+						data: {
+							value,
+							validKeys: validResultKeys.join(', '),
+						},
+					});
+				}
+			}
+
+			// Validate theme.globalResultComponent against components.result, same as resultComponent
+			const globalResultComponentNode = collectGlobalResultComponentNode(init);
+			if (globalResultComponentNode) {
+				const { node: globalResultNode, value } = globalResultComponentNode;
+				if (validResultKeys.length === 0) {
+					context.report({
+						node: globalResultNode,
+						messageId: 'noGlobalResultComponents',
+						data: { value },
+					});
+				} else if (!validResultKeys.includes(value)) {
+					context.report({
+						node: globalResultNode,
+						messageId: 'invalidGlobalResultComponent',
+						data: {
+							value,
+							validKeys: validResultKeys.join(', '),
+						},
+					});
+				}
+			}
+
+			// Validate search/autocomplete tab controller configs
+			validateTabs(init, context);
+		}
 
 		/**
 		 * Validate that every search/autocomplete tab id is unique (it becomes the
@@ -314,12 +324,7 @@ module.exports = {
 				if (prop.type === 'Property' && prop.value.type === 'ObjectExpression') {
 					const sectionName = getPropertyName(prop);
 					result[sectionName] = Array.from(
-						new Set([
-							...(result[sectionName] || []),
-							...prop.value.properties
-						.filter((p) => p.type === 'Property')
-						.map((p) => getPropertyName(p)),
-						])
+						new Set([...(result[sectionName] || []), ...prop.value.properties.filter((p) => p.type === 'Property').map((p) => getPropertyName(p))])
 					);
 				}
 			}
@@ -337,11 +342,7 @@ module.exports = {
 				for (const prop of node.properties) {
 					if (prop.type === 'Property') {
 						const name = getPropertyName(prop);
-						if (
-							name === 'customComponent' &&
-							prop.value.type === 'Literal' &&
-							typeof prop.value.value === 'string'
-						) {
+						if (name === 'customComponent' && prop.value.type === 'Literal' && typeof prop.value.value === 'string') {
 							const componentType = extractComponentTypeFromPath(parentPath);
 							results.push({
 								node: prop.value,
@@ -349,14 +350,10 @@ module.exports = {
 								componentType,
 							});
 						} else {
-							results.push(
-								...collectCustomComponentNodes(prop.value, [...parentPath, name])
-							);
+							results.push(...collectCustomComponentNodes(prop.value, [...parentPath, name]));
 						}
 					} else if (prop.type === 'SpreadElement') {
-						results.push(
-							...collectCustomComponentNodes(prop.argument, parentPath)
-						);
+						results.push(...collectCustomComponentNodes(prop.argument, parentPath));
 					}
 				}
 			} else if (node.type === 'ArrayExpression') {
@@ -381,11 +378,7 @@ module.exports = {
 				for (const prop of node.properties) {
 					if (prop.type === 'Property') {
 						const name = getPropertyName(prop);
-						if (
-							name === 'resultComponent' &&
-							prop.value.type === 'Literal' &&
-							typeof prop.value.value === 'string'
-						) {
+						if (name === 'resultComponent' && prop.value.type === 'Literal' && typeof prop.value.value === 'string') {
 							results.push({
 								node: prop.value,
 								value: prop.value.value,
@@ -465,9 +458,7 @@ module.exports = {
 		 * Find a property by name in an ObjectExpression
 		 */
 		function findProperty(objectExpression, name) {
-			return objectExpression.properties.find(
-				(p) => p.type === 'Property' && getPropertyName(p) === name
-			);
+			return objectExpression.properties.find((p) => p.type === 'Property' && getPropertyName(p) === name);
 		}
 
 		/**
