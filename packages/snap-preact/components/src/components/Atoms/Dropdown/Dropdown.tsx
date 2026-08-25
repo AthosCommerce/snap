@@ -234,7 +234,7 @@ export const Dropdown = observer((properties: DropdownProps) => {
 					? (content || children) && contentElement
 					: (content || children) &&
 					  createPortal(
-						<div className={globalTheme.name ? `ss__theme__${globalTheme.name}` : undefined}>
+							<div className={globalTheme.name ? `ss__theme__${globalTheme.name}` : 'ss__theme__global'}>
 								<div
 									className={classnames('ss__dropdown__portal', className, internalClassName, { 'ss__dropdown__portal--open': dropdownOpen })}
 									css={styling.css}
