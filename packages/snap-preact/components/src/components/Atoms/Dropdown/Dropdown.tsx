@@ -234,19 +234,21 @@ export const Dropdown = observer((properties: DropdownProps) => {
 					? (content || children) && contentElement
 					: (content || children) &&
 					  createPortal(
-							<div
-								className={classnames('ss__dropdown__portal', className, internalClassName, { 'ss__dropdown__portal--open': dropdownOpen })}
-								css={styling.css}
-								style={{
-									position: 'absolute',
-									top: coords.top,
-									left: coords.left,
-									width: coords.width,
-									zIndex: 9999,
-									pointerEvents: dropdownOpen ? 'auto' : 'none',
-								}}
-							>
-								{contentElement}
+							<div className="ss__theme__global">
+								<div
+									className={classnames('ss__dropdown__portal', className, internalClassName, { 'ss__dropdown__portal--open': dropdownOpen })}
+									css={styling.css}
+									style={{
+										position: 'absolute',
+										top: coords.top,
+										left: coords.left,
+										width: coords.width,
+										zIndex: 9999,
+										pointerEvents: dropdownOpen ? 'auto' : 'none',
+									}}
+								>
+									{contentElement}
+								</div>
 							</div>,
 							document.body
 					  )}
