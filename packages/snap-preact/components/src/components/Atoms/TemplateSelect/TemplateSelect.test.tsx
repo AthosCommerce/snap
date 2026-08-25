@@ -52,7 +52,8 @@ describe('TemplateSelect', () => {
 		const templatesStore = makeTemplatesStore(() => undefined);
 		const controller = { type: ControllerTypes.recommendation, log: { error: jest.fn() } } as any;
 
-		render(<TemplateSelect snap={snap} templatesStore={templatesStore} target={target} controller={controller} name="trending" />);
+		const props = { snap, templatesStore, target, controller, name: 'trending' } as any;
+		render(<TemplateSelect {...props} />);
 
 		expect(receivedProps[0].name).toBe('trending');
 	});
