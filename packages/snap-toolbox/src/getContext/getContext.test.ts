@@ -475,3 +475,117 @@ describe('variable name parsing', () => {
 		expect(vars).not.toHaveProperty('nested');
 	});
 });
+
+describe('CSP safe static parsing', () => {
+	it('does not construct a Function for declarative context scripts', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			// context variables go here
+			siteId = 'abc123';
+			shopper = {
+				id: 'snapdev',
+				cart: [{ uid: 'product123_red', parentId: 'product123', sku: 'product123_red', price: 99.99, qty: 1 }],
+			};
+			currency = { code: 'EUR' };
+		`;
+
+		const functionSpy = jest.spyOn(global, 'Function');
+
+		const vars = getContext(['siteId', 'shopper', 'currency'], scriptTag);
+
+		expect(functionSpy).not.toHaveBeenCalled();
+		expect(vars).toStrictEqual({
+			siteId: 'abc123',
+			shopper: {
+				id: 'snapdev',
+				cart: [{ uid: 'product123_red', parentId: 'product123', sku: 'product123_red', price: 99.99, qty: 1 }],
+			},
+			currency: { code: 'EUR' },
+		});
+
+		functionSpy.mockRestore();
+	});
+
+	it('parses platform rendered scripts with entities, blank lines and irregular whitespace', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		// shape emitted by liquid/php/handlebars conditional template blocks
+		scriptTag.innerHTML = `
+
+				shopper = { id : "12345", group : "2" };
+
+
+				category = { id : "185", name : "Some &quot;Quoted&quot; Category", path : "Kitchen>Sinks" };
+
+			format = '\${{amount}}';
+		`;
+
+		const functionSpy = jest.spyOn(global, 'Function');
+
+		const vars = getContext(['shopper', 'category', 'format'], scriptTag);
+
+		expect(functionSpy).not.toHaveBeenCalled();
+		expect(vars).toStrictEqual({
+			shopper: { id: '12345', group: '2' },
+			category: { id: '185', name: 'Some &quot;Quoted&quot; Category', path: 'Kitchen>Sinks' },
+			format: '${{amount}}',
+		});
+
+		functionSpy.mockRestore();
+	});
+});
+
+describe('behavior under a CSP that blocks unsafe-eval', () => {
+	let functionSpy: jest.SpyInstance;
+
+	beforeEach(() => {
+		functionSpy = jest.spyOn(global, 'Function').mockImplementation(() => {
+			throw new EvalError(`Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script`);
+		});
+	});
+
+	afterEach(() => {
+		functionSpy.mockRestore();
+	});
+
+	it('still resolves fully declarative context scripts', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			siteId = 'abc123';
+			merchandising = { segments: ['country:canada'] };
+		`;
+
+		const vars = getContext(['siteId', 'merchandising'], scriptTag);
+		expect(vars).toStrictEqual({
+			siteId: 'abc123',
+			merchandising: { segments: ['country:canada'] },
+		});
+	});
+
+	it('salvages declarative variables when the script also contains unsupported code', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			siteId = 'abc123';
+			func = () => 'returned value';
+			shopper = { id: 'snapdev' };
+		`;
+
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['siteId', 'func', 'shopper'], scriptTag);
+		expect(vars).toStrictEqual({
+			siteId: 'abc123',
+			shopper: { id: 'snapdev' },
+		});
+		expect(vars.func).toBeUndefined();
+
+		// logs the CSP hint and the per-variable evaluation error for the unsalvageable variable
+		expect(consoleError.mock.calls.some((call) => String(call[0]).includes('Content Security Policy'))).toBe(true);
+		expect(consoleError).toHaveBeenCalledWith(`getContext: error evaluating 'func'`);
+
+		consoleError.mockRestore();
+	});
+});

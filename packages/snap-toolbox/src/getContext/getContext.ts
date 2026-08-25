@@ -1,52 +1,8 @@
+import { parseContext, parseContextStatements, JAVASCRIPT_KEYWORDS } from './parseContext';
+
 type ContextVariables = {
 	[variable: string]: any;
 };
-
-const JAVASCRIPT_KEYWORDS = new Set([
-	'break',
-	'case',
-	'catch',
-	'class',
-	'const',
-	'continue',
-	'debugger',
-	'default',
-	'delete',
-	'do',
-	'else',
-	'export',
-	'extends',
-	'finally',
-	'for',
-	'function',
-	'if',
-	'import',
-	'in',
-	'instanceof',
-	'new',
-	'return',
-	'super',
-	'switch',
-	'this',
-	'throw',
-	'try',
-	'typeof',
-	'var',
-	'void',
-	'while',
-	'with',
-	'yield',
-	'let',
-	'static',
-	'enum',
-	'await',
-	'implements',
-	'package',
-	'protected',
-	'interface',
-	'private',
-	'public',
-]);
 
 export function getContext(evaluate: string[] = [], scriptOrSelector?: HTMLScriptElement | string): ContextVariables {
 	let script: HTMLScriptElement | undefined;
@@ -127,25 +83,63 @@ export function getContext(evaluate: string[] = [], scriptOrSelector?: HTMLScrip
 		return combinedVars.indexOf(item) === index && !isKeyword;
 	});
 
-	// evaluate text and put into variables
-	evaluate?.forEach((name) => {
-		try {
-			const fn = new Function(`
-				var ${evaluateVars.join(', ')};
-				${scriptInnerHTML}
-				return ${name};
-			`);
-			scriptVariables[name] = fn();
-		} catch (err) {
-			// if evaluation fails, set to undefined
-			const isKeyword = JAVASCRIPT_KEYWORDS.has(name);
-			if (!isKeyword) {
-				console.error(`getContext: error evaluating '${name}'`);
-				console.error(err);
+	// attempt to statically parse the context script - CSP safe (no evaluation)
+	const parsed = parseContext(scriptInnerHTML);
+
+	if (parsed.success) {
+		// fully declarative script - no evaluation needed
+		evaluate?.forEach((name) => {
+			scriptVariables[name] = parsed.variables.has(name) ? parsed.variables.get(name) : undefined;
+		});
+	} else {
+		// script contains code the static parser does not support - evaluation required (needs CSP 'unsafe-eval')
+		let cspBlocked: boolean | undefined;
+		let salvagedVariables: Map<string, any> | undefined;
+
+		// evaluate text and put into variables
+		evaluate?.forEach((name) => {
+			try {
+				const fn = new Function(`
+					var ${evaluateVars.join(', ')};
+					${scriptInnerHTML}
+					return ${name};
+				`);
+				scriptVariables[name] = fn();
+			} catch (err) {
+				// determine (once) if evaluation itself is blocked by a Content Security Policy
+				if (typeof cspBlocked === 'undefined') {
+					try {
+						new Function('');
+						cspBlocked = false;
+					} catch (_cspErr) {
+						cspBlocked = true;
+						console.error(
+							`getContext: evaluation is blocked by this site's Content Security Policy ('unsafe-eval'). ` +
+								`To be readable without evaluation, context scripts must only contain variable assignments of literal values ` +
+								`(strings, numbers, booleans, objects, arrays).`
+						);
+					}
+				}
+
+				// under CSP, salvage any variables that can be statically parsed
+				if (cspBlocked) {
+					salvagedVariables = salvagedVariables || parseContextStatements(scriptInnerHTML);
+					if (salvagedVariables.has(name)) {
+						scriptVariables[name] = salvagedVariables.get(name);
+						return;
+					}
+				}
+
+				// if evaluation fails, set to undefined
+				const isKeyword = JAVASCRIPT_KEYWORDS.has(name);
+				if (!isKeyword) {
+					console.error(`getContext: error evaluating '${name}'`);
+					console.error(err);
+				}
+				scriptVariables[name] = undefined;
 			}
-			scriptVariables[name] = undefined;
-		}
-	});
+		});
+	}
 
 	const variables = {
 		...removeUndefined(attributeVariables),
