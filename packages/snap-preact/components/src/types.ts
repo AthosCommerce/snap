@@ -1,7 +1,7 @@
 import type { SerializedStyles } from '@emotion/react';
 import { h } from 'preact';
 import type { ThemeMinimal, Theme } from './providers/theme';
-import type { AbstractController, QuickviewManager } from '@athoscommerce/snap-controller';
+import type { AbstractController } from '@athoscommerce/snap-controller';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import { IconProps, IconType } from './components/Atoms/Icon';
 import { MutableRef } from 'preact/hooks';
@@ -23,10 +23,7 @@ export interface ComponentProps<Props = any> {
 	styleScript?: StyleScript<Props>;
 	themeStyleScript?: StyleScript<Props>;
 	theme?: Theme;
-	// The QuickviewManager is not a controller, but quickview renders shared components (badges,
-	// tracking) that read the `store` and `log` both expose. Components needing a specific
-	// controller redeclare this prop more narrowly.
-	controller?: AbstractController | QuickviewManager;
+	controller?: AbstractController;
 	snap?: Snap | SnapTemplates;
 	ref?: MutableRef<any> | React.RefObject<any> | ((e: any) => void);
 	name?: string;
