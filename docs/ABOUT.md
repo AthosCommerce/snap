@@ -53,7 +53,7 @@ An "API Integration" is a project that utilizes the Athos APIs directly to integ
 
 Continue by referencing the [API Integration](https://athoscommerce.github.io/snap/snap-client) section.
 
-
+---
 ## Packages
 
 Snap is modular — depending on your project's architecture, you can adopt it at the layer that best fits your needs, from a lightweight API client up to a full pre-built UI.

@@ -1,22 +1,3 @@
-function flattenDocumentLinks(docs) {
-	const flattened = [];
-	function traverse(links) {
-		if (!Array.isArray(links)) return;
-		links.forEach((link) => {
-			flattened.push(link);
-			if (link.links && Array.isArray(link.links)) {
-				traverse(link.links);
-			}
-		});
-	}
-	docs.forEach((doc) => {
-		if (doc.links && Array.isArray(doc.links)) {
-			traverse(doc.links);
-		}
-	});
-	return flattened;
-}
-
 marked.use(markedAlert());
 import('./docs/documents.js').then(function (_) {
 	const documents = _.default;
@@ -172,13 +153,16 @@ import('./docs/documents.js').then(function (_) {
 		template: `
             <div id="content" :class="{ 'markdown': routeData.type === 'markdown' }">
                 <iframe v-if="routeData.type == 'iframe'" :src="routeData.url" id="frame" @load="onLoad"></iframe>
-                <Markdown v-else-if="routeData.type == 'markdown'" :src="routeData.url" />
+                <Markdown v-else-if="routeData.type == 'markdown'" :src="routeData.url" :prev="pagination.prev" :next="pagination.next" />
                 <div id="searchWrapper"></div>
             </div>
         `,
 		computed: {
 			currentRoute() {
 				return this.$route.path;
+			},
+			pagination() {
+				return paginateDocs(documents, this.currentRoute);
 			},
 			routeData() {
 				const params = this.$route.query.params || '';
@@ -230,10 +214,38 @@ import('./docs/documents.js').then(function (_) {
 		},
 	});
 
-	app.component('Markdown', {
-		props: ['src'],
+	app.component('Pagination', {
+		props: ['prev', 'next'],
 		template: `
-            <div id="markdown" v-html="markedHTML"></div>
+            <div id="pagination" v-if="prev || next">
+                <router-link v-if="prev" :to="prev.route" class="pagination-link pagination-prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="pagination-text">
+                        <small>Previous</small>
+                        {{ prev.label }}
+                    </span>
+                </router-link>
+                <span v-else class="pagination-spacer"></span>
+
+                <router-link v-if="next" :to="next.route" class="pagination-link pagination-next">
+                    <span class="pagination-text">
+                        <small>Next</small>
+                        {{ next.label }}
+                    </span>
+                    <i class="fas fa-arrow-right"></i>
+                </router-link>
+                <span v-else class="pagination-spacer"></span>
+            </div>
+        `,
+	});
+
+	app.component('Markdown', {
+		props: ['src', 'prev', 'next'],
+		template: `
+            <div id="markdown">
+                <div v-html="markedHTML"></div>
+                <Pagination :prev="prev" :next="next" />
+            </div>
         `,
 		data() {
 			return {
