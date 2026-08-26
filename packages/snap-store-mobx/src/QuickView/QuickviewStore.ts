@@ -66,6 +66,19 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 	public update({ result, productsData, config, meta, storeConfig }: QuickviewUpdateArgs): void {
 		if (!result) return;
 
+		// Capture the source tile's current variant choices before anything mutates them, and
+		// re-apply them after the variants are (re)built below. With cloning (default) this is a
+		// point-in-time snapshot onto an independent product — no live link after open. With
+		// clone: false the productsData update rebuilds this same product's selections, so the
+		// capture preserves the tile's selection across that reset. Keys lowercased to match
+		// makeSelections' lookup.
+		const sourceSelections: Record<string, string[]> = {};
+		result.variants?.selections.forEach((selection) => {
+			if (selection.selected?.value !== undefined) {
+				sourceSelections[selection.field.toLowerCase()] = [selection.selected.value];
+			}
+		});
+
 		let product: Product;
 
 		if (config?.clone === false) {
@@ -126,6 +139,14 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 				...((storeConfig as SearchStoreConfig)?.settings?.variants || {}),
 				autoSelect: true,
 			});
+		}
+
+		// Initialize the modal's selections from the tile's captured choices. Runs after the
+		// productsData update above (whose autoSelect picks defaults) so the shopper's selection
+		// wins; makeSelections keeps the default for any option the modal's variant data no
+		// longer offers.
+		if (Object.keys(sourceSelections).length) {
+			product.variants?.makeSelections(sourceSelections);
 		}
 
 		this.product = product;

@@ -208,6 +208,42 @@ describe('QuickviewStore', () => {
 			expect(result.mask.data).toEqual({});
 		});
 
+		it('initializes the modal selections from the tile selection, overriding autoSelect defaults', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts('z7h1jh', 'variants');
+			const result = results[0];
+			const productsData = variantsProductsData();
+
+			// shopper picks a non-default value on the tile before opening quickview
+			const tileSelection = result.variants!.selections.find((selection) => selection.values.filter((value) => value.available).length > 1)!;
+			const availableValues = tileSelection.values.filter((value) => value.available);
+			const chosen = availableValues[availableValues.length - 1];
+			// guard: the choice must differ from the first-available default autoSelect would pick
+			expect(chosen.value).not.toBe(availableValues[0].value);
+			tileSelection.select(chosen.value);
+
+			store.update({ result, productsData });
+
+			const modalSelection = store.product!.variants!.selections.find((selection) => selection.field === tileSelection.field)!;
+			expect(modalSelection.selected?.value).toBe(chosen.value);
+		});
+
+		it('initializes the modal selections from the tile selection when productsData is skipped', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts('z7h1jh', 'variants');
+			const result = results[0];
+
+			const tileSelection = result.variants!.selections.find((selection) => selection.values.filter((value) => value.available).length > 1)!;
+			const availableValues = tileSelection.values.filter((value) => value.available);
+			const chosen = availableValues[availableValues.length - 1];
+			tileSelection.select(chosen.value);
+
+			store.update({ result });
+
+			const modalSelection = store.product!.variants!.selections.find((selection) => selection.field === tileSelection.field)!;
+			expect(modalSelection.selected?.value).toBe(chosen.value);
+		});
+
 		it('uses the source result directly when clone is false', () => {
 			const store = new QuickviewStore(quickviewConfig);
 			const { results } = sourceProducts('z7h1jh', 'variants');
@@ -218,6 +254,26 @@ describe('QuickviewStore', () => {
 
 			expect(store.product).toBe(result);
 			expect(result.variants!.active).toBeDefined();
+		});
+
+		it('preserves the tile selection across the productsData rebuild when clone is false', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts('z7h1jh', 'variants');
+			const result = results[0];
+			const productsData = variantsProductsData();
+
+			const tileSelection = result.variants!.selections.find((selection) => selection.values.filter((value) => value.available).length > 1)!;
+			const availableValues = tileSelection.values.filter((value) => value.available);
+			const chosen = availableValues[availableValues.length - 1];
+			tileSelection.select(chosen.value);
+
+			// the update rebuilds this same product's selections (autoSelect defaults) — the
+			// captured tile selection must survive the reset
+			store.update({ result, productsData, config: { clone: false } });
+
+			expect(store.product).toBe(result);
+			const rebuiltSelection = result.variants!.selections.find((selection) => selection.field === tileSelection.field)!;
+			expect(rebuiltSelection.selected?.value).toBe(chosen.value);
 		});
 
 		it('skips productsData when clone is false and the source has no Variants instance', () => {
