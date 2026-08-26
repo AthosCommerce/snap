@@ -1481,6 +1481,11 @@ describe('Snap Preact', () => {
 				},
 			});
 
+			// the component import/render is deferred until the first open
+			await wait(50);
+			expect(QuickviewComponent).not.toHaveBeenCalled();
+
+			snap['quickviewManager']!.open();
 			await wait(50);
 
 			expect(QuickviewComponent).toHaveBeenCalled();

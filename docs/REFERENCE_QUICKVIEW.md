@@ -4,7 +4,7 @@ Quickview lets shoppers preview a product - images, price, variant selection, ad
 
 How the pieces fit together:
 
-- The [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) owns the quickview state. It is **not a controller** - one manager is created per Snap instance, passed to every controller as the `quickview` service, and exposed on each controller as `controller.quickviewManager`.
+- The [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview) owns the quickview state. It is **not a controller** - one manager is created per Snap instance, passed to every controller as the `quickviewManager` service, and exposed on each controller as `controller.quickviewManager`.
 - Every `SearchController`, `AutocompleteController` and `RecommendationController` inherits a `quickview(result)` method that opens the shared quickview for one of its results.
 - A single quickview component - `QuickviewModal` (centered modal) or `QuickviewSlideout` (side panel) - is injected into `<body>` and renders whatever the manager's store holds. Only one container is mounted; there is no per-result modal.
 - When a quickview opens, the manager fetches full product data (all variants) from the API `products` endpoint (`/v1/products`) using the source result's `mappings.core.parentId`. Tracking and add-to-cart are delegated back to the controller that opened it, flagged `quickView: true`, rather than reimplemented in the quickview.
@@ -53,11 +53,11 @@ new SnapTemplates({
 `hideQuickviewButton` (default `true`) controls the quickview button rendered over the result image, which calls `controller.quickview(result)` on click - set it to `false` to show the button. It only renders when the result has a `controller` and the image is not hidden. The button's accessible label is customizable via the `quickviewButtonText` prop (default `'Quick View'`), and `onQuickviewClick` adds a callback alongside the built-in behaviour. Because the `result` component is shared, enabling it on `result` enables it everywhere results render - search, autocomplete, and recommendations. Use a named selector (e.g. `'search results result'`) to scope where the button appears.
 
 > [!IMPORTANT]
-> The `quickview` section is what creates the `QuickviewManager`. With `hideQuickviewButton: false` but no `quickview` section, clicking the button logs a warning and nothing opens - the controllers were created without a `quickview` service.
+> The `quickview` section is what creates the `QuickviewManager`. With `hideQuickviewButton: false` but no `quickview` section, clicking the button logs a warning and nothing opens - the controllers were created without a `quickviewManager` service.
 
 ### Setup with Snap (standard integrations)
 
-In a standard Snap integration, quickview is configured at the **top level** of the Snap config - not under `controllers` - since the `QuickviewManager` is not a controller. It is created ahead of every controller so it can be handed to each one as the `quickview` service.
+In a standard Snap integration, quickview is configured at the **top level** of the Snap config - not under `controllers` - since the `QuickviewManager` is not a controller. It is created ahead of every controller so it can be handed to each one as the `quickviewManager` service.
 
 ```js
 const config = {
@@ -100,7 +100,7 @@ The trigger is up to your components. The library `Result` component renders one
 
 ### Opening a Quickview Programmatically
 
-Every `SearchController`, `AutocompleteController` and `RecommendationController` exposes `quickview(result, productsData?, config?)`. and accepts optional config overrides.
+Every `SearchController`, `AutocompleteController` and `RecommendationController` exposes `quickview(result, config?, productsData?)` and accepts optional config overrides.
 
 ```js
 // from a controller

@@ -1,7 +1,7 @@
 import { h, render } from 'preact';
 import deepmerge from 'deepmerge';
 import { isPlainObject } from 'is-plain-object';
-import { configure as configureMobx } from 'mobx';
+import { configure as configureMobx, when } from 'mobx';
 
 import { Client } from '@athoscommerce/snap-client';
 import { Logger } from '@athoscommerce/snap-logger';
@@ -669,6 +669,9 @@ export class Snap {
 						onTarget && (await onTarget(target, elem, originalElem!));
 
 						try {
+							// defer the component chunk until the first open
+							await when(() => Boolean(this.quickviewManager?.store.isOpen));
+
 							const Component = await (target as ExtendedTarget).component!();
 
 							setTimeout(() => {

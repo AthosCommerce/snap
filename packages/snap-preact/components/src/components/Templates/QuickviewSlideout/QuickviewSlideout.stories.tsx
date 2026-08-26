@@ -15,7 +15,7 @@ function buildMockController(overrides: any = {}): any {
 			isOpen: true,
 			loading: false,
 			product: undefined,
-			quickviewConfig: undefined,
+			resolvedConfig: undefined,
 			error: undefined,
 			close: () => {
 				base.store.isOpen = false;
@@ -90,7 +90,7 @@ export default {
 	},
 	argTypes: {
 		quickviewManager: {
-			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, quickviewConfig, error, close }); dismiss via `store.close()`',
+			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, resolvedConfig, error, close }); dismiss via `store.close()`',
 			type: { required: true },
 			table: {
 				type: {

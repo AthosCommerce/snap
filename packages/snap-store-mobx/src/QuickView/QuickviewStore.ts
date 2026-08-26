@@ -44,7 +44,7 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 	public isOpen = false;
 	// Per-quickview config for the currently-open modal, set on each `update()` and read by the
 	// modal (displayFields, imagesField). Distinct from the store-level `config` (QuickviewStoreConfig).
-	public quickviewConfig: QuickviewConfig | undefined = undefined;
+	public resolvedConfig: QuickviewConfig | undefined = undefined;
 	public error: QuickviewError | undefined = undefined;
 
 	constructor(config: QuickviewStoreConfig) {
@@ -53,7 +53,7 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 		makeObservable(this, {
 			product: observable.ref,
 			isOpen: observable,
-			quickviewConfig: observable,
+			resolvedConfig: observable,
 			error: observable,
 			update: action,
 			reset: action,
@@ -81,7 +81,7 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 			// Seed variants from the source result's serialized variant data — a round-tripped
 			// Variant matches the raw VariantData shape — so the clone keeps the variants the
 			// source result already carried when the /v1/products fetch is skipped
-			// (fetchProductData: false) or fails. The seed (even when empty) also guarantees a
+			// (fetchProductData: false). The seed (even when empty) also guarantees a
 			// Variants instance exists for the productsData update below to populate.
 			product = new Product({
 				data: {
@@ -129,13 +129,13 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 		}
 
 		this.product = product;
-		this.quickviewConfig = config;
+		this.resolvedConfig = config;
 		this.error = undefined;
 	}
 
 	public reset(): void {
 		this.product = undefined;
-		this.quickviewConfig = undefined;
+		this.resolvedConfig = undefined;
 		this.isOpen = false;
 		this.loading = false;
 		this.error = undefined;

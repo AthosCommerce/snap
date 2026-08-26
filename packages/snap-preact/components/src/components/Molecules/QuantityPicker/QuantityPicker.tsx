@@ -87,15 +87,12 @@ export const QuantityPicker = observer((properties: QuantityPickerProps) => {
 		return clamped;
 	};
 
-	let quantity: number;
-	let setQuantityState: ((value: number) => void) | undefined;
-
+	// useState is called unconditionally (rules of hooks): a `value` prop that transitions between
+	// undefined and defined across renders must not shift hook order. In controlled mode the
+	// internal state is simply ignored and the quantity derives from the prop.
+	const [internalQuantity, setQuantityState] = useState<number>(clamp(startValue ?? minimum));
 	const stateful = value === undefined;
-	if (stateful) {
-		[quantity, setQuantityState] = useState<number>(clamp(startValue ?? minimum));
-	} else {
-		quantity = clamp(value);
-	}
+	const quantity: number = stateful ? internalQuantity : clamp(value);
 
 	// raw input text while typing - committed (clamped) on blur
 	const [editingValue, setEditingValue] = useState<string | undefined>(undefined);
@@ -112,7 +109,7 @@ export const QuantityPicker = observer((properties: QuantityPickerProps) => {
 		}
 		const clamped = clamp(newValue);
 		if (stateful) {
-			setQuantityState && setQuantityState(clamped);
+			setQuantityState(clamped);
 		}
 		if (clamped !== quantity) {
 			onChange && onChange(e, clamped);

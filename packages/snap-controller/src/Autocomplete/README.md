@@ -75,15 +75,15 @@ autocompleteController.addToCart([autocompleteController.store.results[0]]);
 
 The Autocomplete controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `AutocompleteController` — it is owned by the `QuickviewManager` (see `snap-controller`), exposed on the controller as `controller.quickviewManager`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: the Snap framework injects it into `<body>` — there is no per-result modal.
 
-### `quickview(result, productsData?, config?)`
+### `quickview(result, config?, productsData?)`
 
-Requests the product quickview modal for the given result. This method is a thin forwarder: it calls `show(result, { productsData, config, controller: this })` on the manager it was given as the `quickview` service, and warns if it has none. The manager derives everything else from the controller passed to it — the product's parent (`result.mappings.core.parentId`), the effective config, and the meta store — then opens the modal, fetches `/v1/products`, fires the `quickview` middleware on **this controller's** event manager, and updates its own store.
+Requests the product quickview modal for the given result. This method is a thin forwarder: it calls `show(result, { config, productsData, controller: this })` on the manager it was given as the `quickviewManager` service, and warns if it has none. The manager derives everything else from the controller passed to it — the product's parent (`result.mappings.core.parentId`), the effective config, and the meta store — then opens the modal, fetches `/v1/products`, fires the `quickview` middleware on **this controller's** event manager, and updates its own store.
 
 | param | type | description |
 |---|---|---|
 | `result` | `Product` (required) | The source result to preview. It must carry `mappings.core.parentId` (the id used for the `/v1/products` request) — results without one are ignored with a warning. |
-| `productsData` | `ProductsResponseModel` (optional) | If passed, the `QuickviewManager` skips its `/v1/products` call and uses this data as-is. |
 | `config` | `QuickviewConfig` (optional) | Per-call override. Precedence: manager `settings.quickview` < this controller's `settings.quickview` < this argument. |
+| `productsData` | `ProductsResponseModel` (optional) | If passed, the `QuickviewManager` skips its `/v1/products` call and uses this data as-is. |
 
 ```tsx
 <button onClick={() => controller.quickview(result)}>Quick View</button>
@@ -159,17 +159,15 @@ Impressions are deduped per product per response: `track.product.impression` sen
 
 ### quickview
 - This middleware fires on `AutocompleteController`'s own event manager — the controller that opened the quickview — so attaching it here scopes interception to autocomplete-originated quickviews
-- Called with `eventData` = `ProductQuickviewObj` = { controller, result, productsData?, config }
-- Fires after the optional `/v1/products` fetch resolves and before the manager's `store.update` runs
-- Middleware can mutate `result`, `productsData`, or `config` on the payload — the `QuickviewManager` reads them back after the await and passes them to `store.update`
+- Called with `eventData` = { controller, product }
+- Fires after the manager's `store.update` has built the modal's product (post `/v1/products` fetch) and before the loading state clears
+- Middleware can inspect or mutate `product` — the store's built quickview product — before it is displayed
 - Throw `new Error('cancelled')` to short-circuit: `store.reset()` is called and no modal renders
 - Any other thrown error surfaces as `store.error` and the modal renders the error branch
 
 ```ts
-controller.on('quickview', async (eventObj, next) => {
-    if (someCondition(eventObj.result)) {
-        eventObj.config.displayFields = ['custom', 'fields', 'here'];
-    }
+controller.on('quickview', async ({ product }, next) => {
+    // inspect or mutate the quickview product before it is displayed
     await next();
 });
 ```

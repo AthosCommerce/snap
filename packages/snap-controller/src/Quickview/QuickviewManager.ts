@@ -123,8 +123,9 @@ export class QuickviewManager {
 			...(config || {}),
 		};
 
-		// Open the modal immediately in loading state, scoped to the triggering result.
 		this.store.error = undefined;
+		this.store.product = undefined;
+		this.store.resolvedConfig = undefined;
 		this.store.loading = true;
 		this.open();
 		const parentId = result.mappings?.core?.parentId as string;
@@ -141,9 +142,10 @@ export class QuickviewManager {
 				}
 				resolvedProductsData = await source.client.products(params);
 			} catch (err) {
+				// Deliberately silent for the shopper: the update() below still renders the modal from
+				// the data already on the source result (minus whatever /v1/products would have added,
+				// e.g. full variant data) rather than replacing it with an error. Only the log records it.
 				source.log.error('Failed to load /v1/products for quickview', err);
-				// generic error message as this is displayed to the user in QuickviewLayout
-				this.store.error = { message: `Failed to load quickview data`, cause: err };
 			}
 			if (superseded()) return;
 		}

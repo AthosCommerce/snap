@@ -83,7 +83,7 @@ Clicking the image (or any slide) opens a fullscreen `Gallery` overlay, portaled
 
 By default the product branch renders a single image from `mappings.core.imageUrl || thumbnailImageUrl`.
 
-`config.imagesField` (read from `store.quickviewConfig`) controls which field(s) hold the **list** of image URLs. It accepts a single field name or an array of candidate names tried in order; each is looked up on `mappings.core` first, then `attributes`, and the first that resolves to **more than one** image renders in a 1-per-view `Slideshow`. When omitted it defaults to trying `'images'` then `'ss_images'`. If none qualifies, it falls back to the single core image (rendered through the same `Slideshow` with navigation and pagination hidden).
+`config.imagesField` (read from `store.resolvedConfig`) controls which field(s) hold the **list** of image URLs. It accepts a single field name or an array of candidate names tried in order; each is looked up on `mappings.core` first, then `attributes`, and the first that resolves to **more than one** image renders in a 1-per-view `Slideshow`. When omitted it defaults to trying `'images'` then `'ss_images'`. If none qualifies, it falls back to the single core image (rendered through the same `Slideshow` with navigation and pagination hidden).
 
 Image resolution is variant-aware: when a variant is active its own image list is used; if the variant has no multi-image field only its single `imageUrl` is shown (no slideshow nav) rather than the parent's array. When the active variant's image appears in the slideshow, the `Slideshow`'s `startIndex` navigates to that slide in place (no remount).
 
@@ -93,7 +93,7 @@ When `product.variants.selections` is non-empty the `variantSelections` module r
 
 ## `displayFields` and labels
 
-`store.quickviewConfig.displayFields` is an optional `string[]` — or a `(result) => string[]` function receiving the modal's product — selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
+`store.resolvedConfig.displayFields` is an optional `string[]` — or a `(result) => string[]` function receiving the modal's product — selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
 
 ## Recommendations
 

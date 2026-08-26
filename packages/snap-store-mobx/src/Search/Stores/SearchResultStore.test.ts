@@ -2915,26 +2915,20 @@ describe('SearchResultStore', () => {
 				expect(resultForTest).toBeDefined();
 				expect(resultForTest.variants).toBeDefined();
 
-				const productBadges = resultForTest.badges;
-
 				// Get initial badges from display
 				const initialDisplayBadges = resultForTest.display.badges;
 
 				// Get badges from the initially selected variant
 				const initialVariant = resultForTest.variants?.active;
 
-				if (initialVariant?.badges?.length) {
-					const initialVariantBadges = new Badges({
-						data: {
-							meta: searchData.meta,
-							result: initialVariant as SearchResponseModelResult,
-						},
-					});
-					expect(initialDisplayBadges).toStrictEqual(initialVariantBadges);
-				} else {
-					// Falls back to product badges when variant has no badge data
-					expect(initialDisplayBadges).toStrictEqual(productBadges);
-				}
+				// display always reflects the active variant's badge set - even when empty
+				const initialVariantBadges = new Badges({
+					data: {
+						meta: searchData.meta,
+						result: initialVariant as SearchResponseModelResult,
+					},
+				});
+				expect(initialDisplayBadges).toStrictEqual(initialVariantBadges);
 
 				// Select a different variant
 				const colorSelection = resultForTest.variants?.selections.find((selection) => selection.field === 'swatch');
@@ -2950,70 +2944,14 @@ describe('SearchResultStore', () => {
 				// Get the new active variant and its badges
 				const newActiveVariant = resultForTest.variants?.active;
 
-				if (newActiveVariant?.badges?.length) {
-					const newVariantBadges = new Badges({
-						data: {
-							meta: searchData.meta,
-							result: newActiveVariant as SearchResponseModelResult,
-						},
-					});
-					expect(resultForTest.display.badges).toStrictEqual(newVariantBadges);
-				} else {
-					// Falls back to product badges when variant has no badge data
-					expect(resultForTest.display.badges).toStrictEqual(productBadges);
-				}
-			});
-
-			it('falls back to product badges when selected variant has no badges', () => {
-				const searchData = mockData.updateConfig({ siteId: 'atkzs2' }).searchMeta('athos_variants');
-
-				const variantSearchConfig = {
-					...searchConfig,
-				};
-
-				const results = new SearchResultStore({
-					config: variantSearchConfig,
-					state: {
-						loaded: false,
-					},
+				// display always reflects the active variant's badge set - even when empty
+				const newVariantBadges = new Badges({
 					data: {
-						search: searchData.search,
 						meta: searchData.meta,
+						result: newActiveVariant as SearchResponseModelResult,
 					},
 				});
-
-				const resultForTest = results[0] as Product;
-				expect(resultForTest).toBeDefined();
-
-				const variants = resultForTest.variants;
-				expect(variants).toBeDefined();
-
-				const productBadges = resultForTest.badges;
-
-				const colorSelection = variants?.selections.find((selection) => selection.field === 'swatch');
-				expect(colorSelection).toBeDefined();
-
-				colorSelection?.values.forEach((colorValue) => {
-					if (colorValue.available) {
-						colorSelection.select(colorValue.value);
-
-						const activeVariant = variants?.active;
-
-						if (!activeVariant?.badges || activeVariant.badges.length === 0) {
-							// If variant has no badges, display should fall back to product badges
-							expect(resultForTest.display.badges).toStrictEqual(productBadges);
-						} else {
-							const activeVariantBadges = new Badges({
-								data: {
-									meta: searchData.meta,
-									result: activeVariant as SearchResponseModelResult,
-								},
-							});
-							// If variant has badges, display should show variant badges
-							expect(resultForTest.display.badges).toStrictEqual(activeVariantBadges);
-						}
-					}
-				});
+				expect(resultForTest.display.badges).toStrictEqual(newVariantBadges);
 			});
 
 			it('updates display badges when variant is changed programmatically with setActive', () => {
@@ -3038,8 +2976,6 @@ describe('SearchResultStore', () => {
 				const variants = resultForTest.variants;
 				expect(variants).toBeDefined();
 
-				const productBadges = resultForTest.badges;
-
 				// Set a different variant as active
 				const initialActiveVariant = variants?.active;
 				const differentVariant = variants?.data.find((variant) => variant !== initialActiveVariant);
@@ -3049,18 +2985,14 @@ describe('SearchResultStore', () => {
 
 				const newDisplayBadges = resultForTest.display.badges;
 
-				if (differentVariant!.badges?.length) {
-					const differentVariantBadges = new Badges({
-						data: {
-							meta: searchData.meta,
-							result: differentVariant as SearchResponseModelResult,
-						},
-					});
-					expect(newDisplayBadges).toStrictEqual(differentVariantBadges);
-				} else {
-					// Falls back to product badges when variant has no badge data
-					expect(newDisplayBadges).toStrictEqual(productBadges);
-				}
+				// display always reflects the active variant's badge set - even when empty
+				const differentVariantBadges = new Badges({
+					data: {
+						meta: searchData.meta,
+						result: differentVariant as SearchResponseModelResult,
+					},
+				});
+				expect(newDisplayBadges).toStrictEqual(differentVariantBadges);
 			});
 
 			it('maintains badge reactivity during variant selection changes', () => {
@@ -3085,8 +3017,6 @@ describe('SearchResultStore', () => {
 				const variants = resultForTest.variants;
 				expect(variants).toBeDefined();
 
-				const productBadges = resultForTest.badges;
-
 				const colorSelection = variants?.selections.find((selection) => selection.field === 'swatch');
 				expect(colorSelection).toBeDefined();
 
@@ -3099,18 +3029,14 @@ describe('SearchResultStore', () => {
 						const currentActiveVariant = variants?.active;
 						const currentDisplayBadges = resultForTest.display.badges;
 
-						if (currentActiveVariant?.badges?.length) {
-							const currentActiveVariantBadges = new Badges({
-								data: {
-									meta: searchData.meta,
-									result: currentActiveVariant as SearchResponseModelResult,
-								},
-							});
-							expect(currentDisplayBadges).toStrictEqual(currentActiveVariantBadges);
-						} else {
-							// Falls back to product badges when variant has no badge data
-							expect(currentDisplayBadges).toStrictEqual(productBadges);
-						}
+						// display always reflects the active variant's badge set - even when empty
+						const currentActiveVariantBadges = new Badges({
+							data: {
+								meta: searchData.meta,
+								result: currentActiveVariant as SearchResponseModelResult,
+							},
+						});
+						expect(currentDisplayBadges).toStrictEqual(currentActiveVariantBadges);
 
 						badgeHistory.push({
 							color: colorValue.value,

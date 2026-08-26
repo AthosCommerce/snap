@@ -136,6 +136,35 @@ describe('QuickviewManager', () => {
 		expect(controller.log.error).toHaveBeenCalledWith('Failed to load /v1/products for quickview', expect.any(Error));
 		expect(manager.store.isOpen).toBe(true);
 		expect(manager.store.loading).toBe(false);
+		expect(manager.store.error).toBeUndefined();
+		expect(manager.store.product).toBeDefined();
+	});
+
+	it('wipes the previous product and config at the start of each show()', async () => {
+		const manager = new QuickviewManager(services());
+
+		// first quickview populates the store
+		await manager.show(product('p1'), { controller: sourceController() });
+		expect(manager.store.product).toBeDefined();
+		expect(manager.store.resolvedConfig).toBeDefined();
+
+		// second show(): while its fetch is pending the store must not expose the previous product
+		let resolveFetch: (data: any) => void;
+		const controller = sourceController({
+			client: { products: jest.fn().mockReturnValue(new Promise((resolve) => (resolveFetch = resolve))) },
+		});
+		const pending = manager.show(product('p2'), { controller });
+
+		expect(manager.store.loading).toBe(true);
+		expect(manager.store.product).toBeUndefined();
+		expect(manager.store.resolvedConfig).toBeUndefined();
+
+		resolveFetch!({ variants: { data: [] } });
+		await pending;
+
+		expect(manager.store.product).toBeDefined();
+		expect(manager.store.product!.id).toBe('p2');
+		expect(manager.store.loading).toBe(false);
 	});
 
 	it('underlays its own settings beneath the source controller config and the per-call config', async () => {
@@ -148,7 +177,7 @@ describe('QuickviewManager', () => {
 		await manager.show(product(), { controller, config: { imagesField: 'call_images' } });
 
 		// per-call wins over source, source wins over manager, manager-only keys survive
-		expect(manager.store.quickviewConfig).toEqual(expect.objectContaining({ displayFields: ['manager'], clone: true, imagesField: 'call_images' }));
+		expect(manager.store.resolvedConfig).toEqual(expect.objectContaining({ displayFields: ['manager'], clone: true, imagesField: 'call_images' }));
 	});
 
 	it('forwards the source controller meta data into the store update', async () => {

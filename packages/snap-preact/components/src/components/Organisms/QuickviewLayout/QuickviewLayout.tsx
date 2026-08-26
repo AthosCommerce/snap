@@ -325,7 +325,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// Each candidate is looked up on mappings.core first, then attributes; the first that
 	// resolves to MORE THAN ONE image wins and is rendered as a 1-per-view slideshow. If none
 	// qualify, the modal falls back to the single core image below.
-	const configuredImagesField = quickviewManager?.store?.quickviewConfig?.imagesField;
+	const configuredImagesField = quickviewManager?.store?.resolvedConfig?.imagesField;
 	const imageFieldCandidates: string[] = configuredImagesField
 		? Array.isArray(configuredImagesField)
 			? configuredImagesField
@@ -462,7 +462,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	const store = quickviewManager.store;
 	const loading = Boolean(store.loading);
-	const configuredDisplayFields = store.quickviewConfig?.displayFields;
+	const configuredDisplayFields = store.resolvedConfig?.displayFields;
 	const displayFields: string[] | undefined =
 		typeof configuredDisplayFields === 'function' ? (product ? configuredDisplayFields(product) : undefined) : configuredDisplayFields;
 	const error: { message: string; cause?: unknown } | undefined = store.error;

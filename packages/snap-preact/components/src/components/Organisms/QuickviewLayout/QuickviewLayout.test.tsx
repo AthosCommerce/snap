@@ -94,7 +94,7 @@ function makeQuickviewManager(overrides: any = {}) {
 		isOpen: false,
 		product: undefined,
 		loading: false,
-		quickviewConfig: undefined,
+		resolvedConfig: undefined,
 		error: undefined,
 	};
 
@@ -149,7 +149,7 @@ describe('QuickviewLayout', () => {
 			attributes: { color: 'red', size: 'M' },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product, quickviewConfig: { displayFields: ['color', 'size'] } },
+			store: { isOpen: true, product, resolvedConfig: { displayFields: ['color', 'size'] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -218,7 +218,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				quickviewConfig: { displayFields: ['size'] },
+				resolvedConfig: { displayFields: ['size'] },
 			},
 		});
 
@@ -242,7 +242,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				quickviewConfig: { displayFields },
+				resolvedConfig: { displayFields },
 			},
 		});
 
@@ -279,7 +279,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				quickviewConfig: { displayFields: ['size', 'color'] },
+				resolvedConfig: { displayFields: ['size', 'color'] },
 			},
 		});
 
@@ -300,7 +300,7 @@ describe('QuickviewLayout', () => {
 			attributes: { sku: 'ABC-123' },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, loading: false, product: storeProduct, quickviewConfig: { displayFields: ['sku'] } },
+			store: { isOpen: true, loading: false, product: storeProduct, resolvedConfig: { displayFields: ['sku'] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -320,7 +320,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				quickviewConfig: { displayFields: ['tags'] },
+				resolvedConfig: { displayFields: ['tags'] },
 			},
 		});
 
@@ -344,7 +344,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				quickviewConfig: { displayFields: ['tags'] },
+				resolvedConfig: { displayFields: ['tags'] },
 			},
 		});
 
@@ -402,7 +402,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -420,7 +420,7 @@ describe('QuickviewLayout', () => {
 			attributes: { gallery: ['http://example.com/a.jpg', 'http://example.com/b.jpg'] },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'gallery' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'gallery' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -437,7 +437,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -454,7 +454,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -516,7 +516,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: ['primaryImages', 'gallery'] } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: ['primaryImages', 'gallery'] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -554,7 +554,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -573,7 +573,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -617,7 +617,7 @@ describe('QuickviewLayout', () => {
 			},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -658,7 +658,7 @@ describe('QuickviewLayout', () => {
 			},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -678,7 +678,7 @@ describe('QuickviewLayout', () => {
 			attributes: { color: 'red' },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { displayFields: ['color'] } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { displayFields: ['color'] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -1279,7 +1279,7 @@ describe('QuickviewLayout', () => {
 			attributes: {},
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, quickviewConfig: { imagesField: 'images' } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { imagesField: 'images' } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);

@@ -2,7 +2,7 @@
 
 The `QuickviewManager` owns the product quickview modal state. It is **not a controller** — quickview has no search lifecycle, no url state and no tracking identity of its own. The product it displays is a clone of a result that belongs to another controller's response, so tracking and add-to-cart are delegated back to that controller (flagged `quickView: true`) rather than reimplemented here. It fetches product data from the API `products` endpoint (`/v1/products`) on demand and populates a `QuickviewStore` that a single quickview component (`QuickviewModal` / `QuickviewSlideout`) renders.
 
-One manager is created per Snap instance, passed to every controller as the `quickview` service, and exposed on each controller as `controller.quickviewManager`.
+One manager is created per Snap instance, passed to every controller as the `quickviewManager` service, and exposed on each controller as `controller.quickviewManager`.
 
 It lives in `snap-controller` rather than `snap-preact` because it has no rendering dependency — the quickview components consume the manager, not the reverse — which is what lets it be injected into controllers as an ordinary service instead of being looked up off the window.
 
@@ -28,22 +28,22 @@ The config is optional and defaults to `{ id: 'quickview' }`.
 
 ## How quickviews are triggered
 
-The manager is normally not invoked directly. Every controller inherits a `quickview` method that forwards to the manager it was given as the `quickview` service:
+The manager is normally not invoked directly. Every controller inherits a `quickview` method that forwards to the manager it was given as the `quickviewManager` service:
 
 ```jsx
 // any Search / Autocomplete / Recommendation controller
 <button onClick={() => controller.quickview(result)}>Quick View</button>
 ```
 
-`AbstractController.quickview()` is a thin forwarder — it derives nothing and simply calls `show()` with itself as the source controller. All derivation (config precedence, meta) happens in `show()`. It warns and no-ops in two cases: the controller was created without a `quickview` service, or the controller is a `FinderController`, which has no `addToCart` or `track.product.*` for the manager to delegate back to.
+`AbstractController.quickview()` is a thin forwarder — it derives nothing and simply calls `show()` with itself as the source controller. All derivation (config precedence, meta) happens in `show()`. It warns and no-ops in two cases: the controller was created without a `quickviewManager` service, or the controller is a `FinderController`, which has no `addToCart` or `track.product.*` for the manager to delegate back to.
 
 Snap wires this up automatically — it creates the manager from `config.quickview` before any controller and passes it into each one. Constructing controllers by hand means passing it yourself:
 
 ```js
 import { QuickviewManager, SearchController } from '@athoscommerce/snap-controller';
 
-const quickview = new QuickviewManager({}, { id: 'quickview' });
-const controller = new SearchController(config, { client, store, urlManager, eventManager, profiler, logger, tracker, quickview });
+const quickviewManager = new QuickviewManager({}, { id: 'quickview' });
+const controller = new SearchController(config, { client, store, urlManager, eventManager, profiler, logger, tracker, quickviewManager });
 
 await controller.quickview(result); // or: quickview.show(result, { controller })
 ```

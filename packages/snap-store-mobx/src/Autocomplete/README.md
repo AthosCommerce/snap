@@ -115,8 +115,8 @@ Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap
 
 The quickview modal state does not live on `AutocompleteStore` — it is held by the `QuickviewStore`, the store of the shared `QuickviewManager`, reached via any controller at `controller.quickviewManager.store`:
 
-- Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `quickviewConfig?: QuickviewConfig`, `error?: QuickviewError`.
-- Actions: `update({ result, productsData?, config?, storeConfig?, meta? })`, `close()`, `reset()`, `setLoading(loading, product?)`, `setError(error | undefined)`.
+- Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `resolvedConfig?: QuickviewConfig`, `error?: QuickviewError`.
+- Actions: `update({ result, productsData?, config?, storeConfig?, meta? })` and `reset()`. Closing lives on the manager (`quickviewManager.close()`); `isOpen`, `loading`, and `error` are driven by the `QuickviewManager`.
 
 `AutocompleteController` exposes a `quickview(result)` method that forwards to the `QuickviewManager`. See the [AutocompleteController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete) for the full usage, and the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the complete observable surface.
 

@@ -50,7 +50,7 @@ describe('QuickviewStore', () => {
 		expect(store.config).toStrictEqual(quickviewConfig);
 		expect(store.product).toBeUndefined();
 		expect(store.isOpen).toBe(false);
-		expect(store.quickviewConfig).toBeUndefined();
+		expect(store.resolvedConfig).toBeUndefined();
 		expect(store.error).toBeUndefined();
 		expect(store.loading).toBe(false);
 	});
@@ -60,7 +60,7 @@ describe('QuickviewStore', () => {
 
 		expect(isObservableProp(store, 'product')).toBe(true);
 		expect(isObservableProp(store, 'isOpen')).toBe(true);
-		expect(isObservableProp(store, 'quickviewConfig')).toBe(true);
+		expect(isObservableProp(store, 'resolvedConfig')).toBe(true);
 		expect(isObservableProp(store, 'error')).toBe(true);
 		expect(isObservableProp(store, 'loading')).toBe(true);
 	});
@@ -72,7 +72,7 @@ describe('QuickviewStore', () => {
 			store.update({} as any);
 
 			expect(store.product).toBeUndefined();
-			expect(store.quickviewConfig).toBeUndefined();
+			expect(store.resolvedConfig).toBeUndefined();
 		});
 
 		it('clones the source result into a fresh Product by default', () => {
@@ -240,7 +240,7 @@ describe('QuickviewStore', () => {
 
 			store.update({ result: results[0], config });
 
-			expect(store.quickviewConfig).toStrictEqual(config);
+			expect(store.resolvedConfig).toStrictEqual(config);
 			expect(store.error).toBeUndefined();
 		});
 	});
@@ -258,7 +258,7 @@ describe('QuickviewStore', () => {
 			store.reset();
 
 			expect(store.product).toBeUndefined();
-			expect(store.quickviewConfig).toBeUndefined();
+			expect(store.resolvedConfig).toBeUndefined();
 			expect(store.isOpen).toBe(false);
 			expect(store.loading).toBe(false);
 			expect(store.error).toBeUndefined();

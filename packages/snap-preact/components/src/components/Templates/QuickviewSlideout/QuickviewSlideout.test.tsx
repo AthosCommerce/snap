@@ -37,7 +37,7 @@ function makeQuickviewManager(overrides: any = {}) {
 		isOpen: false,
 		product: undefined,
 		loading: false,
-		quickviewConfig: undefined,
+		resolvedConfig: undefined,
 		error: undefined,
 		close: jest.fn(),
 	};

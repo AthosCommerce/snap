@@ -434,22 +434,14 @@ export class Variants {
 				},
 			});
 
-			const maskData: Partial<Product> = {
+			mask.set({
 				mappings: this.active.mappings,
 				attributes: this.active.attributes,
 				state: this.active.state,
 				custom: this.active.custom,
-			};
-
-			// deliberately omit `badges` when the active variant has none so display falls back to
-			// product-level badges instead of masking them with an empty set. This keeps badges carried
-			// onto quickview clones (built with empty meta, sharing the source Badges instance) from
-			// being wiped on every variant selection — and applies to all variant tiles, not just quickview.
-			if (activeBadges.all.length) {
-				maskData.badges = activeBadges;
-			}
-
-			mask.set(maskData);
+				// always the active variant's badge set - even when empty
+				badges: activeBadges,
+			});
 		};
 
 		if (config) {

@@ -533,7 +533,10 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	const handleSlideKeyDown = (event: KeyboardEvent, slide: SlideshowSlide, index: number) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			handleSlideClick(slide, index);
+
+			if (slide.onClick && !isDragging) {
+				slide.onClick(slide, index);
+			}
 		}
 	};
 

@@ -9,19 +9,19 @@ The store is constructed with a `QuickviewStoreConfig` (the standard `StoreConfi
 ## `product` property
 The `Product` being previewed in the modal. Observable by reference (`observable.ref`).
 
-During the loading phase this is set to the source result that triggered the quickview (so consumers can scope the modal by `product.id` while only a spinner renders). Once `update` runs, it is replaced:
+While the manager is loading, `product` is `undefined` — each `show()` wipes the previous quickview's product before fetching, so nothing can act on stale data — and the modal renders a loading branch in that state. Once `update` runs, it is set:
 
 - By default (`config.clone` not set or `true`), `product` is a deep-cloned independent `Product` instance, so variant selection in the modal cannot leak back to the source result tile. The source product's `Badges` instance is carried onto the clone (badges are display-only and not mutated by variant selection).
 - With `config.clone = false`, `product` is the source result by reference — variant interactions in the modal will mutate the source result tile.
 
 ## `isOpen` property
-Boolean stating whether the modal should be rendered. Set to `true` by `update`, `setLoading(true, ...)`, and `setError(error)`; set to `false` by `close` and `reset`.
+Boolean stating whether the modal should be rendered. Driven by the `QuickviewManager`: set to `true` when `show()` starts (via the manager's `open()`) and to `false` by the manager's `close()`. Also set to `false` by `reset`.
 
 ## `loading` property
-Inherited from the AbstractStore. `true` while the `QuickviewManager` is awaiting `/v1/products`; the modal renders a loading branch in this state. Cleared by `update`, `setError`, and `reset`.
+Inherited from the AbstractStore. Driven by the `QuickviewManager`: `true` while `show()` is fetching `/v1/products` and firing the `quickview` middleware; `false` once the flow completes or fails. Also cleared by `reset`.
 
-## `quickviewConfig` property
-The per-quickview `QuickviewConfig` for the currently-open modal, set on each `update()` and read by the modal (e.g. `displayFields`, `imagesField`). This is the effective config (controller-level `settings.quickview` defaults merged with the per-call override). It is distinct from the store-level `config` property (the `QuickviewStoreConfig`).
+## `resolvedConfig` property
+The per-quickview `QuickviewConfig` for the currently-open modal, set on each `update()` (and cleared at the start of each `show()`, like `product`) and read by the modal (e.g. `displayFields`, `imagesField`). This is the effective config (controller-level `settings.quickview` defaults merged with the per-call override). It is distinct from the store-level `config` property (the `QuickviewStoreConfig`).
 
 `QuickviewConfig` options:
 
@@ -33,35 +33,25 @@ The per-quickview `QuickviewConfig` for the currently-open modal, set on each `u
 | `imagesField` | `string \| string[]` | `['images', 'ss_images']` | Field name(s) (looked up on the product's `mappings.core`, then `attributes`) holding a list of image URLs. Candidates are tried in order; the first that resolves to more than one image is rendered in a carousel instead of the single core image. |
 
 ## `error` property
-A `QuickviewError` (`{ message: string, cause?: unknown }`) or `undefined`. When set, the modal renders an error branch (with `role="alert"`) instead of the product. Cleared by `update`, `setLoading(true, ...)`, `setError(undefined)`, and `reset`.
+A `QuickviewError` (`{ message: string, cause?: unknown }`) or `undefined`. Set by the `QuickviewManager` when the `quickview` middleware or the store update fails. When set, the modal renders an error branch (with `role="alert"`) instead of the product. A failed `/v1/products` fetch does not set it — the modal silently renders from the data already on the source result. Cleared by `update`, by the start of each `show()`, and by `reset`.
 
 ## `update` method
 `update({ result, productsData?, config?, storeConfig?, meta? })`
 
-Builds (or reuses) the `Product` instance, applies variants from `productsData`, and opens the modal. Returns early if no `result` is provided.
+Builds (or reuses) the `Product` instance and applies variants from `productsData`. Returns early if no `result` is provided.
 
 | argument | description |
 |---|---|
 | `result` | The source `Product` to preview. Required. |
 | `productsData` | Data from `/v1/products`: `{ mappings?: { core? }, variants?: { data?, optionConfig? } }`. When it contains `variants.data` (and the product has a `Variants` instance), the variants are updated with `autoSelect: true` so a default variant is picked as soon as the data arrives; `variants.optionConfig` is applied first so each selection gets its configured `type` (`dropdown`/`swatches`) and `count`. |
-| `config` | Per-quickview `QuickviewConfig` (see above). Stored on `quickviewConfig`. Honors `config.clone` (default `true`). |
+| `config` | Per-quickview `QuickviewConfig` (see above). Stored on `resolvedConfig`. Honors `config.clone` (default `true`). |
 | `storeConfig` | Optional store-config passthrough, used when cloning so the clone's variants pick up the existing `settings.variants` configuration. |
 | `meta` | Optional raw meta data passthrough for badges processing on the cloned product. The store does not retain it — badge and facet-label consumers read meta off the originating controller's store (`quickviewManager.sourceController.store.meta`). |
 
-After running, `product` and `quickviewConfig` are set, `isOpen` is `true`, and `loading` and `error` are cleared.
+After running, `product` and `resolvedConfig` are set and `error` is cleared. `update` does not touch `isOpen` or `loading` — those are driven by the `QuickviewManager` (see above).
 
-## `setLoading` method
-`setLoading(loading, product?)`
-
-Sets the `loading` state. When `loading` is `true`, also opens the modal (`isOpen = true`), stores the given source `product`, and clears any prior `error` so a retry starts fresh. `setLoading(false)` only flips `loading` off — it does not close the modal.
-
-## `setError` method
-`setError(error | undefined)`
-
-Surfaces a fatal error from the controller (e.g. an exception inside `update()`). Flips `loading` off so the spinner doesn't remain stuck, and opens the modal (when `error` is defined) so the error branch renders. Passing `undefined` clears the error.
-
-## `close` method
-Hides the modal (`isOpen = false`) but retains `product` in the store.
+## Closing the modal
+The store has no `close` method — closing lives on the manager: `controller.quickviewManager.close()` hides the modal (`isOpen = false`) but retains `product` in the store.
 
 ## `reset` method
-Returns the store to its initial state: clears `product`, `quickviewConfig`, and `error`, and sets `isOpen` and `loading` to `false`.
+Returns the store to its initial state: clears `product`, `resolvedConfig`, and `error`, and sets `isOpen` and `loading` to `false`.
