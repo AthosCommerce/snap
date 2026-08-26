@@ -364,9 +364,20 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Navigate to startIndex when it changes (e.g. a consumer syncing the active slide to external
 	// state), clamped to the valid range. Updates the index in place rather than remounting.
+	// maxIndex must be a dependency: in slideWidth mode it is derived from the slidesToShow
+	// fallback until the container is measured (after the first render), so the mount-time clamp
+	// can land short and needs to re-run when the real value arrives. But once the requested
+	// startIndex has been satisfied the effect must go inert, or every resize that shifts
+	// maxIndex would yank the shopper back to startIndex mid-navigation.
+	const appliedStartIndexRef = useRef<number | undefined>(undefined);
 	useEffect(() => {
-		setCurrentIndex(Math.min(Math.max(0, startIndex ?? 0), maxIndex));
-	}, [startIndex]);
+		const target = Math.max(0, startIndex ?? 0);
+		if (appliedStartIndexRef.current === target) return;
+		setCurrentIndex(Math.min(target, maxIndex));
+		if (target <= maxIndex) {
+			appliedStartIndexRef.current = target;
+		}
+	}, [startIndex, maxIndex]);
 
 	// Calculate slide groups for pagination
 	const slideGroups: number[] = [];
