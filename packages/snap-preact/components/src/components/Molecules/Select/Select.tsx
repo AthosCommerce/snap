@@ -6,7 +6,7 @@ import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
-import { defined, mergeProps, mergeStyles } from '../../../utilities';
+import { defined, mergeProps, mergeStyles, selectionKey } from '../../../utilities';
 import { ComponentProps, ListOption, StyleScript } from '../../../types';
 import { Dropdown, DropdownProps } from '../../Atoms/Dropdown';
 import { Button, ButtonProps } from '../../Atoms/Button';
@@ -175,20 +175,17 @@ export const Select = observer((properties: SelectProps) => {
 	// selection state
 	const [selection, setSelection] = useState<ListOption | undefined>(selected);
 
-	// original selection state
-	const [originalSelected] = useState(selected as ListOption);
+	// last 'selected' prop seen - comparing against the previous prop rather than the mount time
+	// prop keeps a selection made here from being reverted while the store catches up, without
+	// missing a 'selected' change back to a value it has held before
+	const [prevSelected, setPrevSelected] = useState(() => selectionKey(selected));
 	// reset selection if 'selected' prop changes
-	try {
-		if (selected) {
-			const originalSelectedstr = JSON.stringify(originalSelected);
-			const selectedstr = JSON.stringify(selected);
-			const selectionstr = JSON.stringify(selection);
-			if (originalSelectedstr !== selectedstr && selectedstr !== selectionstr) {
-				setSelection(selected);
-			}
+	if (selected) {
+		const selectedKey = selectionKey(selected);
+		if (selectedKey !== prevSelected) {
+			setPrevSelected(selectedKey);
+			setSelection(selected);
 		}
-	} catch (e) {
-		// noop
 	}
 
 	if (selection && clearSelection) {
@@ -229,12 +226,16 @@ export const Select = observer((properties: SelectProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		options,
-		selectedOptions,
-		label,
-		open,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			options,
+			selectedOptions,
+			label,
+			open,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	// options can be an Array or ObservableArray - but should have length
 	return typeof options == 'object' && options?.length ? (

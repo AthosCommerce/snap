@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { Controllers } from '@athoscommerce/snap-controller';
+import { Controllers, ControllerTypes } from '@athoscommerce/snap-controller';
 import { ThemeProvider, ControllerProvider, SnapProvider, Theme } from '../../../providers';
 import type { SnapTemplates } from '../../../../../src';
 import type { TemplatesStore, TemplateThemeTypes } from '../../../../../src/Templates/Stores/TemplateStore';
@@ -25,13 +25,19 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 		controller.log.error(error);
 	}
 
+	const tabManager =
+		controller.type === ControllerTypes.search || controller.type === ControllerTypes.autocomplete
+			? templatesStore.getTabManager(controller.type, snap.controllers)
+			: undefined;
+	const tabName = tabManager?.active?.id ? tabManager.active.id.toLowerCase() : undefined;
+
 	// ensuring that theme and component are ready to render
 	return !loading && theme && Component ? (
 		<SnapProvider snap={snap}>
 			<ThemeProvider theme={theme}>
 				<ControllerProvider controller={controller}>
 					<div className="ss__template-select">
-						<Component controller={controller} {...otherProps} />
+						<Component controller={controller} tabManager={tabManager} {...(tabName !== undefined ? { name: tabName } : {})} {...otherProps} />
 					</div>
 				</ControllerProvider>
 			</ThemeProvider>

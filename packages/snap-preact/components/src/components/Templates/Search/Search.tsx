@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import type { SearchController } from '@athoscommerce/snap-controller';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import { Results, ResultsProps } from '../../Organisms/Results';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript, JSXComponent, LayoutSelectorOptions } from '../../../types';
@@ -79,10 +80,10 @@ export const Search = observer((properties: SearchProps) => {
 		disableStyles,
 		className,
 		internalClassName,
-		controller,
 		hideSidebar,
 		toggleSidebarButtonText,
 		hideTopToolbar,
+		tabManager,
 		hideMiddleToolbar,
 		hideBottomToolbar,
 		resultComponent,
@@ -93,6 +94,7 @@ export const Search = observer((properties: SearchProps) => {
 		alias,
 	} = props;
 
+	let controller = props.controller;
 	let classNamePrefix = 'ss__search';
 	if (props.alias) {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
@@ -100,6 +102,10 @@ export const Search = observer((properties: SearchProps) => {
 
 	// handle selected layoutOptions - must always call to preserve hook order
 	useLayoutOptions(props, globalTheme);
+
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as SearchController;
+	}
 
 	const store = controller.store;
 
@@ -139,7 +145,11 @@ export const Search = observer((properties: SearchProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, { filters: store.filters, sidebarOpenState: sidebarOpenState });
+	const mergedLang = useLang(
+		lang as any,
+		{ filters: store.filters, sidebarOpenState: sidebarOpenState },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const ToggleSidebar = () => {
 		return (
@@ -177,6 +187,7 @@ export const Search = observer((properties: SearchProps) => {
 			internalClassName: `${classNamePrefix}__header-section__toolbar--top-toolbar`,
 			layout: [['banner.header'], ['searchHeader', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			...defined({
 				disableStyles,
 			}),
@@ -188,9 +199,10 @@ export const Search = observer((properties: SearchProps) => {
 			name: 'middle',
 			internalClassName: `${classNamePrefix}__content__toolbar--middle-toolbar`,
 			layout: isMobile
-				? [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
-				: [['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
+				? [['tabSelection'], ['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
+				: [['tabSelection'], ['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -204,6 +216,7 @@ export const Search = observer((properties: SearchProps) => {
 			internalClassName: `${classNamePrefix}__content__toolbar--bottom-toolbar`,
 			layout: [['banner.footer'], ['_', 'pagination', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -220,6 +233,20 @@ export const Search = observer((properties: SearchProps) => {
 			}),
 			theme: props.theme,
 			treePath,
+		},
+		MobileSidebar: {
+			// default props
+			layout: [['filterSummary'], ['facets'], ['banner.left']],
+			hideApplyButton: false,
+			hideClearButton: false,
+			hideCloseButton: false,
+			onToggleSidebar: () => setSidebarOpenState((prev) => !prev),
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			theme: props.theme,
+			treePath: `${treePath} slideout`,
 		},
 		Results: {
 			// default props
@@ -270,7 +297,7 @@ export const Search = observer((properties: SearchProps) => {
 						(isMobile ? (
 							<Slideout {...subProps.Slideout} active={justTransitionedToMobile ? false : sidebarOpenState}>
 								<div className={`${classNamePrefix}__sidebar`}>
-									<Sidebar {...subProps.Sidebar} controller={controller} />
+									<Sidebar {...subProps.MobileSidebar} controller={controller} />
 								</div>
 							</Slideout>
 						) : sidebarOpenState ? (
@@ -300,6 +327,7 @@ export type SearchProps = {
 	lang?: Partial<SearchLang>;
 	alias?: 'searchCollapsible' | 'searchHorizontal';
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<SearchTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 
@@ -325,6 +353,7 @@ interface SearchSubProps {
 	Results: Partial<ResultsProps>;
 	NoResults: Partial<NoResultsProps>;
 	Sidebar: Partial<SidebarProps>;
+	MobileSidebar: Partial<SidebarProps>;
 	TopToolbar: Partial<ToolbarProps>;
 	MiddleToolbar: Partial<ToolbarProps>;
 	BottomToolbar: Partial<ToolbarProps>;

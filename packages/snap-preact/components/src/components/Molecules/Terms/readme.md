@@ -67,3 +67,31 @@ The `onTermClick` prop allows for a custom callback function for when a term val
 ```tsx
 <Terms controller={controller} terms={terms} onTermClick={(e, term)=>{console.log(e, term)}}/>
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Terms component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `title` | Title text above the terms list | `controller` (AutocompleteController) |
+| `term` | Individual term text/attributes | `index` (number), `numberOfTerms` (number), `term` (Term) |
+
+### Example
+
+```tsx
+<Terms
+	controller={controller}
+	terms={terms}
+	lang={{
+		title: {
+			value: 'Suggestions',
+		},
+		term: {
+			attributes: {
+				'aria-label': (data) => `suggestion ${data.index + 1} of ${data.numberOfTerms}, ${data.term.value}`,
+			},
+		},
+	}}
+/>
+```

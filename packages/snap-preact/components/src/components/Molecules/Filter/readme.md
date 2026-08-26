@@ -64,3 +64,25 @@ The `onClick` prop allows for a custom callback function for when a filter is cl
 ```tsx
 <Filter onClick={(e)=>{console.log(e)}}/>
 ```
+
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Filter component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `filter` | Filter element text/attributes | `label` (string), `value` (string) |
+
+### Example
+
+```tsx
+<Filter
+	lang={{
+		filter: {
+			attributes: {
+				'aria-label': (data) => `remove selected ${data.label} filter ${data.value}`,
+			},
+		},
+	}}
+/>
+```

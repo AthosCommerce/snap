@@ -158,3 +158,41 @@ The `centerInsufficientSlides` prop centers slides when there are fewer slides t
 ```tsx
 <Slideshow slides={slidesArray} centerInsufficientSlides={true} />
 ```
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the Slideshow component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `pauseButton` | Play/pause button text | `isPlaying` (boolean), `isNextDisabled` (boolean), `isPrevDisabled` (boolean) |
+| `paginationButton` | Pagination dot attributes | `index` (number), `totalDots` (number) |
+| `nextButton` | Next slide button text/attributes | `isPlaying` (boolean), `isNextDisabled` (boolean), `isPrevDisabled` (boolean) |
+| `prevButton` | Previous slide button text/attributes | `isPlaying` (boolean), `isNextDisabled` (boolean), `isPrevDisabled` (boolean) |
+| `slide` | Slide element attributes | `hasClickHandler` (boolean), `imageAlt` (string), `index` (number), `slidesLength` (number) |
+| `srInstructions` | Screen reader instruction text | `touchDragging` (boolean) |
+
+### Example
+
+```tsx
+<Slideshow
+	slides={slidesArray}
+	lang={{
+		pauseButton: {
+			value: (data) => data.isPlaying ? 'Pause' : 'Play',
+			attributes: {
+				'aria-label': (data) => data.isPlaying ? 'Pause slideshow' : 'Resume slideshow',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': (data) => `Next slide${data.isNextDisabled ? ' (disabled)' : ''}`,
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': (data) => `Previous slide${data.isPrevDisabled ? ' (disabled)' : ''}`,
+			},
+		},
+	}}
+/>
+```

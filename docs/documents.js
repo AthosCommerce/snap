@@ -307,7 +307,7 @@ var documents = [
 						label: 'StorageStore',
 						route: '/reference-store-storage',
 						type: 'markdown',
-						url: './packages/snap-store-mobx/src/Storage/README.md',
+						url: './packages/snap-toolbox/src/StorageStore/README.md',
 						searchable: true,
 					},
 					{
@@ -504,6 +504,13 @@ var documents = [
 				route: '/reference-variants',
 				type: 'markdown',
 				url: './docs/REFERENCE_VARIANTS.md',
+				searchable: true,
+			},
+			{
+				label: 'Tabbed Search',
+				route: '/reference-tabbed-search',
+				type: 'markdown',
+				url: './docs/REFERENCE_TABBED_SEARCH.md',
 				searchable: true,
 			},
 			{

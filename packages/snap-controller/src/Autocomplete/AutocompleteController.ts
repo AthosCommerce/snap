@@ -555,7 +555,7 @@ export class AutocompleteController extends AbstractController {
 					this.setFocused(e.target as HTMLInputElement);
 				});
 			},
-			formSubmit: async (e: React.FormEvent<HTMLInputElement>): Promise<void> => {
+			formSubmit: async (e: SubmitEvent): Promise<void> => {
 				const form = e.target as HTMLFormElement;
 				const input: HTMLInputElement | null = form.querySelector(`input[${INPUT_ATTRIBUTE}]`);
 
@@ -591,7 +591,7 @@ export class AutocompleteController extends AbstractController {
 
 				form.submit();
 			},
-			formElementChange: (e: React.ChangeEvent<HTMLInputElement>): void => {
+			formElementChange: (e: Event): void => {
 				const input = e.target as HTMLInputElement;
 				const form = input?.form;
 				const searchInput = form?.querySelector(`input[${INPUT_ATTRIBUTE}]`);

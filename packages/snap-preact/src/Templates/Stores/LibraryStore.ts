@@ -22,6 +22,7 @@ import { pluginBase as magento2PluginBase } from './library/plugins/magento2/plu
 import { pluginBackgroundFilters } from './library/plugins/common/pluginBackgroundFilters';
 import { pluginScrollToTop } from './library/plugins/common/pluginScrollToTop';
 import { pluginLogger } from './library/plugins/common/pluginLogger';
+import { pluginKlaviyoEvents } from './library/plugins/common/pluginKlaviyoEvents';
 import { CustomComponent } from './library/components/CustomComponent';
 
 type LibraryComponentImport = {
@@ -63,6 +64,7 @@ export type LibraryImports = {
 			scrollToTop: typeof pluginScrollToTop;
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
+			klaviyoEvents: typeof pluginKlaviyoEvents;
 		};
 		custom?: {
 			[name: string]: PluginFunction;
@@ -142,6 +144,7 @@ export type LibraryImports = {
 		slideout: LibraryComponentImport;
 		sortBy: LibraryComponentImport;
 		swatches: LibraryComponentImport;
+		tabSelection: LibraryComponentImport;
 		variantSelection: LibraryComponentImport;
 		terms: LibraryComponentImport;
 		branchOverride: LibraryComponentImport;
@@ -232,6 +235,7 @@ export class LibraryStore {
 		slideout: LibraryComponentMap;
 		sortBy: LibraryComponentMap;
 		swatches: LibraryComponentMap;
+		tabSelection: LibraryComponentMap;
 		variantSelection: LibraryComponentMap;
 		terms: LibraryComponentMap;
 		branchOverride: LibraryComponentMap;
@@ -301,6 +305,7 @@ export class LibraryStore {
 		slideout: {},
 		sortBy: {},
 		swatches: {},
+		tabSelection: {},
 		variantSelection: {},
 		terms: {},
 		branchOverride: {},
@@ -373,6 +378,7 @@ export class LibraryStore {
 				scrollToTop: pluginScrollToTop,
 				logger: pluginLogger,
 				addToCart: commonPluginAddToCart,
+				klaviyoEvents: pluginKlaviyoEvents,
 			},
 		},
 		component: {
@@ -533,6 +539,7 @@ export class LibraryStore {
 			slideout: {},
 			sortBy: {},
 			swatches: {},
+			tabSelection: {},
 			variantSelection: {},
 			terms: {},
 			branchOverride: {},

@@ -1,6 +1,6 @@
 import { Carousel } from '../../../../src/components/Molecules/Carousel';
 import { Scrollbar } from 'swiper/modules';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { Theme, ThemeProvider } from '../../../../src/providers';
 
 const theme = {
@@ -14,7 +14,7 @@ const theme = {
 
 const children = ['red', 'blue', 'yellow', 'green', 'white', 'orange', 'black'];
 
-describe('Carousel Component', async () => {
+describe('Carousel Component', () => {
 	it('renders with results', () => {
 		mount(
 			<Carousel>
@@ -342,7 +342,7 @@ describe('Carousel Component', async () => {
 		next.should('not.have.text', theme.components.carousel.nextButton);
 	});
 
-	it('breakpoints override theme prop', async () => {
+	it('breakpoints override theme prop', () => {
 		// Change the viewport to 1200px.
 		cy.viewport(1200, 750);
 

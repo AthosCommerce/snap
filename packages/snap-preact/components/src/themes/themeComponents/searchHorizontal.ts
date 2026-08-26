@@ -24,6 +24,9 @@ export const searchHorizontalThemeComponentProps: ThemeComponent<'searchHorizont
 	},
 
 	mobile: {
+		searchHorizontal: {
+			hideSidebar: false,
+		},
 		'searchHorizontal toolbar.top': {
 			layout: [['banner.header'], ['searchHeader', '_']],
 		},

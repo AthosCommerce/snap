@@ -57,6 +57,8 @@ export const fr: LangComponents = {
 	},
 	button: {},
 	search: {},
+	searchHorizontal: {},
+	searchCollapsible: {},
 	list: {},
 	radioList: {},
 	layoutSelector: {
@@ -66,6 +68,13 @@ export const fr: LangComponents = {
 		titleText: {
 			value: 'Filtres',
 		},
+		applyButtonText: {
+			value: 'Appliquer',
+		},
+		clearButtonText: {
+			value: 'Tout effacer',
+		},
+		closeButtonText: {},
 	},
 	searchInput: {
 		placeholderText: {
@@ -141,6 +150,18 @@ export const fr: LangComponents = {
 	sortBy: {
 		label: {
 			value: 'Trier Par',
+		},
+	},
+	tabSelection: {
+		tabList: {
+			attributes: {
+				'aria-label': 'Onglets de résultats',
+			},
+		},
+		tabButton: {
+			attributes: {
+				'aria-label': (data) => `${data.tab.label || data.tab.id}${typeof data.resultCount == 'number' ? `, ${data.resultCount} résultats` : ''}`,
+			},
 		},
 	},
 	perPage: {

@@ -1,6 +1,6 @@
 {
 	"name": "@athoscommerce/snap-platforms",
-	"version": "1.8.0",
+	"version": "1.11.0",
 	"description": "Snap Platforms Library",
 	"author": "Athos Commerce",
 	"license": "MIT",
@@ -12,7 +12,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "rm -rf ./dist && rm -fr ./components/dist && tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2",
+		"build": "rm -rf ./dist && tsc",
+		"build:prod": "rm -rf ./dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "echo 'no docs for snap-platforms'",
 		"dev": "tsc --watch",
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
@@ -21,11 +22,11 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@athoscommerce/snap-toolbox": "1.8.0"
+		"@athoscommerce/snap-toolbox": "1.11.0"
 	},
 	"devDependencies": {
-		"@athoscommerce/snap-controller": "1.8.0",
-		"@athoscommerce/snap-store-mobx": "1.8.0"
+		"@athoscommerce/snap-controller": "1.11.0",
+		"@athoscommerce/snap-store-mobx": "1.11.0"
 	},
 	"sideEffects": false,
 	"files": [

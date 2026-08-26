@@ -149,9 +149,9 @@ When used through `SnapTemplates` on Shopify, enabling `markets` also automatica
 1. Register the plugin in your SnapTemplates config:
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const config = {
+const config = validateTemplatesConfig({
 	config: {
 		siteId: 'your-site-id',
 		platform: 'shopify',
@@ -169,7 +169,7 @@ const config = {
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -186,13 +186,15 @@ When formatting prices, `shopifyMarketsPriceFormat` reads script context variabl
 
 - `format`: Shopify money format template (for example, `${{amount}}`)
 
-Example script context:
+To set this up, add the following Liquid code to your Shopify theme file (e.g., `theme.liquid`) inside the integration script context:
 
 ```html
 <script id="athos-context" src="bundle.js">
-	format = '${{amount}}';
+	format = {{ shop.money_format | json }};
 </script>
 ```
+
+This outputs your store's configured money format (e.g., `${{amount}}`) into the script context so that `shopifyMarketsPriceFormat` can format prices correctly for the active market currency. The `| json` Liquid filter safely encodes the value as a quoted JSON string, handling any HTML or special characters that `shop.money_format` may contain.
 
 #### Using in Your Result Component
 

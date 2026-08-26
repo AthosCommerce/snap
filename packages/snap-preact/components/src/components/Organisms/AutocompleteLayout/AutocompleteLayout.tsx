@@ -21,7 +21,9 @@ import { TermsList, TermsListProps } from '../TermsList';
 import { Terms, TermsProps } from '../../Molecules/Terms';
 import { FacetsHorizontal } from '../FacetsHorizontal';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { TabSelection, TabSelectionProps } from '../../Molecules/TabSelection';
 import { createRecommendationTemplate } from '../../../hooks/createRecommendationTemplate';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 	controller,
@@ -165,6 +167,12 @@ const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 				minHeight: '0%',
 			},
 		},
+		'.ss__banner': {
+			'iframe, img': {
+				maxWidth: '100%',
+				height: 'auto',
+			},
+		},
 		'.ss__banner.ss__banner--header, .ss__banner.ss__banner--banner': {
 			marginBottom: '10px',
 		},
@@ -204,7 +212,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			width: '150px',
 		},
 		column3: {
-			layout: [['content'], ['_', 'button.see-more']],
+			layout: [['tabSelection'], ['content'], ['_', 'button.see-more']],
 			width: 'auto',
 			alignContent: 'space-between',
 		},
@@ -322,6 +330,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		className,
 		internalClassName,
 		controller,
+		tabManager,
 	} = props;
 	let layout = props.layout;
 
@@ -425,6 +434,17 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			theme: props.theme,
 			treePath: properties.treePath,
 		},
+		tabSelection: {
+			// default props
+			tabManager,
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props.theme,
+			treePath: properties.treePath,
+		},
 	};
 
 	const { search, terms, trending, results, merchandising, pagination, filters, facets, state, loading, loaded } = controller.store;
@@ -497,9 +517,13 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	let recsController: RecommendationController | undefined;
 	let RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
@@ -694,6 +718,10 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			);
 		}
 
+		if (module == 'tabSelection') {
+			return tabManager ? <TabSelection {...subProps.tabSelection} tabManager={tabManager} /> : null;
+		}
+
 		if (module == '_') {
 			return <div className="ss__autocomplete__separator"></div>;
 		}
@@ -785,6 +813,7 @@ interface AutocompleteSubProps {
 	results: Partial<ResultsProps>;
 	icon: Partial<IconProps>;
 	button: Partial<ButtonProps>;
+	tabSelection: Partial<TabSelectionProps>;
 }
 
 //can add categories here in the future
@@ -798,6 +827,7 @@ export type ModuleNames =
 	| 'button.see-more'
 	| 'content'
 	| 'no-results'
+	| 'tabSelection'
 	| '_'
 	| 'banner.left'
 	| 'banner.banner'
@@ -818,6 +848,7 @@ export type AutocompleteLayoutProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteLayoutTemplatesLegalProps, 'resultComponent'> &
 	ComponentProps<AutocompleteLayoutProps>;
 

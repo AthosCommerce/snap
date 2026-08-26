@@ -13,7 +13,7 @@ The `layoutOptions` prop on the Search component lets users switch between pre-d
 Each option defines a `value`, `label`, display `icon`, an optional `default` flag, and an `overrides` block that is applied when that option is active. The `layoutSelector` module **must** be present somewhere in one of the toolbar layouts for the overrides to take effect.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -79,7 +79,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 #### Responsive Layout Options
@@ -87,7 +87,7 @@ new SnapTemplates({
 You can provide a different set of `layoutOptions` at each breakpoint. This is useful for limiting the available choices on smaller screens (e.g. only 1- or 2-column grids on mobile).
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -144,7 +144,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 > [!NOTE]
@@ -189,7 +189,7 @@ export const globalStyles: StyleScript = (theme: { name?: string; variables: The
 	};
 };
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -203,7 +203,7 @@ new SnapTemplates({
 		style: globalStyles,
 	},
 	...
-});
+}));
 ```
 
 ---
@@ -240,7 +240,7 @@ You can also hide a toolbar entirely using the `hideTopToolbar`, `hideMiddleTool
 #### Example: Moving Sort & Per-Page to the Top Toolbar
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -269,7 +269,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 #### Example: Responsive Toolbar Adjustments
@@ -277,7 +277,7 @@ new SnapTemplates({
 On mobile, surface the sidebar toggle button and drop the desktop sort/paging row into its own row:
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -314,7 +314,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 
@@ -323,7 +323,7 @@ new SnapTemplates({
 The `searchHorizontal` template renders facets inline above the results rather than in a sidebar. The `toolbar.middle` is the natural place for the facetsHorizontal component.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -361,7 +361,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 ---
@@ -442,7 +442,7 @@ columns: 4, rows: 1  →  [ result ][ result ][ result ][ result ]   (4 products
 The most common desktop layout places terms in the left column, facets in the middle, and results with a see-more link on the right.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -478,7 +478,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 #### Example: Customizing Column Widths & Inner Layouts
@@ -486,7 +486,7 @@ new SnapTemplates({
 Each `c1`–`c4` column accepts a `width` (fixed px string or `'auto'`) and a `layout` array of inner modules. Override them via the cascading prop path on the autocomplete component.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'pike',
@@ -523,7 +523,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 ---
@@ -536,7 +536,7 @@ The `customComponent` prop lets you completely replace a component in the tree w
 
 You need three things:
 
-1. Use `SnapTemplatesConfigUnlocked` as your config type and set `unlocked: true`
+1. Wrap your config in `validateTemplatesConfigUnlocked` and set `unlocked: true`
 2. Register your custom component in `components` under the correct component type key
 3. Set `customComponent: 'YourRegisteredName'` in the appropriate theme override path
 
@@ -575,10 +575,9 @@ Then register it and wire it in via `customComponent`. Because `customComponent`
 > Async imports (`async () => (await import(...)).MyComponent`) are recommended for custom components so they are code-split and only loaded when the template first renders.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfigUnlocked = {
+const config = validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -609,7 +608,7 @@ const config: SnapTemplatesConfigUnlocked = {
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -625,7 +624,7 @@ The formatter reads script context with `getContext(['format'])`.
 Register the plugin in your SnapTemplates configuration:
 
 ```tsx
-const config = {
+const config = validateTemplatesConfig({
 	config: {
 		siteId: 'your-site-id',
 		platform: 'shopify',
@@ -640,7 +639,7 @@ const config = {
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -676,4 +675,223 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 
 If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
 												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](/reference-platforms-shopify#pluginshopifymarkets).
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+
+---
+
+### Language Translations
+
+Snap Templates includes built-in language support for English (`en`), French (`fr`), and Spanish (`es`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
+
+#### How It Works
+
+Each component in the theme tree can have a `lang` object containing translatable strings. The `translations` config is keyed by language code, then by component name. Each component entry contains named lang properties, where each property has a `value` (static string or function) and optional `attributes` (e.g. `aria-label`, `placeholder`).
+
+When a `value` is a function, it receives a `data` object containing relevant component state — this allows dynamic text based on runtime conditions. In Snap Templates, the `data` object includes `activeBreakpoint`, the currently active responsive breakpoint (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size.
+
+#### Basic Setup
+
+Set `config.language` to one of the supported language codes (`'en'`, `'fr'`, `'es'`), then provide overrides in the `translations` block:
+
+```tsx
+new SnapTemplates(validateTemplatesConfig({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		currency: 'usd',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filter Results',
+				},
+			},
+			sidebar: {
+				titleText: {
+					value: 'Refine By',
+				},
+			},
+		},
+		fr: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filtrer les résultats',
+				},
+			},
+			sidebar: {
+				titleText: {
+					value: 'Affiner par',
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+}));
+```
+
+#### Dynamic Translation Values
+
+Translation values can be functions that receive component data, enabling conditional or interpolated text:
+
+```tsx
+new SnapTemplates(validateTemplatesConfig({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: (data: { sidebarOpenState: boolean }) => {
+						if (data.sidebarOpenState) {
+							return 'Close Sidebar';
+						}
+						return 'Open Sidebar';
+					},
+				},
+			},
+			autocompleteLayout: {
+				seeMoreButton: {
+					value: (data) =>
+						`See ${data?.controller?.store?.pagination?.totalResults} result${
+							data?.controller?.store?.pagination?.totalResults === 1 ? '' : 's'
+						} for "${data?.controller?.store?.search?.query?.string}"`,
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+}));
+```
+
+#### Responsive Translations
+
+Since a `value` function's `data` argument always includes `activeBreakpoint`, you can swap out text at different screen sizes without adding your own resize logic — just check `data.activeBreakpoint` inline:
+
+```tsx
+new SnapTemplates(validateTemplatesConfig({
+	config: {
+		siteId: 'abc123',
+		language: 'en',
+		platform: 'other',
+	},
+	translations: {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: (data) => (data.activeBreakpoint === 'mobile' ? 'Filters' : 'Filter Results'),
+				},
+			},
+			autocompleteLayout: {
+				seeMoreButton: {
+					value: (data) =>
+						data.activeBreakpoint === 'mobile'
+							? 'See more'
+							: `See ${data?.controller?.store?.pagination?.totalResults} results`,
+				},
+			},
+		},
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+}));
+```
+
+> [!NOTE]
+> `activeBreakpoint` reflects the breakpoint thresholds configured in `theme.variables.breakpoints` (see [Global Styles with Breakpoints](#global-styles-with-breakpoints)). It is `'default'` when no responsive breakpoints are configured or the current width doesn't match a defined breakpoint.
+
+#### Translation with HTML Attributes
+
+Some lang entries support an `attributes` map for setting HTML attributes like `aria-label` or `placeholder`:
+
+```tsx
+translations: {
+	en: {
+		searchInput: {
+			placeholderText: {
+				attributes: {
+					placeholder: 'Search our store...',
+				},
+			},
+			closeSearchButton: {
+				attributes: {
+					'aria-label': 'Close search',
+				},
+			},
+		},
+	},
+}
+```
+
+> [!NOTE]
+> The active language is determined at initialization from `config.language`. If you need to support runtime language switching, use the `TemplatesStore.setLanguage()` method.
+
+---
+
+### Tabbed Search
+
+Tabs let a single search or autocomplete experience span multiple catalogs. Each tab is backed by its own controller scoped to its own `siteId`, and shoppers switch between them with the `tabSelection` component.
+
+Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id`, the `siteId` it queries, and the `param` that identifies its catalog in the URL.
+
+```tsx
+new SnapTemplates(validateTemplatesConfig({
+	config: {
+		siteId: '8uyt2m',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		tabs: [
+			{
+				id: 'Products',
+				siteId: '8uyt2m',
+				param: 'prod',
+				label: 'Products',
+				default: true,
+			},
+			{
+				id: 'Blog',
+				siteId: 'atkzs2',
+				param: 'blog',
+				label: 'Blog',
+			},
+		],
+		targets: [
+			{
+				selector: '#athos-templates',
+				component: 'Search',
+			},
+		],
+	},
+}));
+```
+
+The `tabSelection` module is already present in the default layouts, so no theme changes are needed to make the tabs appear.
+
+> [!IMPORTANT]
+> Tab `id` values **must be unique across the entire configuration**, including between search tabs and autocomplete tabs. A duplicate id is silently skipped, so the affected tab simply never renders.
+
+> [!IMPORTANT]
+> When tabs are used in both `search` and `autocomplete`, a tab for a given catalog must be configured with the same `siteId` and the same `param` in both. Unlike `id`, `param` is meant to be shared - it is what carries a shopper from the tab they submitted in to the matching tab of the results page.
+
+For full Tabbed Search documentation, see [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md).

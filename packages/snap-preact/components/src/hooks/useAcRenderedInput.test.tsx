@@ -22,7 +22,7 @@ function TestComponent({
 	setActive?: (active: boolean) => void;
 }) {
 	const renderedInputRef = useRef<HTMLInputElement | null>(null);
-	useAcRenderedInput({ input, controller, renderInput, buttonSelector, renderedInputRef, setActive });
+	useAcRenderedInput({ input, controllers: [controller], renderInput, buttonSelector, renderedInputRef, setActive });
 	return (
 		<div className="autocomplete__search-input">
 			<input ref={renderedInputRef} type="text" />

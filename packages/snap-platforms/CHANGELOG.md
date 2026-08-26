@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-platforms
+
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Bug Fixes
+
+- copy-paste error on displayName ([b575504](https://github.com/AthosCommerce/snap/commit/b57550426d878d6dd7c8d0a93295f263baaaa353))
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+
+## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-platforms
+
+# [1.9.0](https://github.com/AthosCommerce/snap/compare/v1.8.0...v1.9.0) (2026-07-20)
+
+### Features
+
+- add Klaviyo platform integration ([fc700c4](https://github.com/AthosCommerce/snap/commit/fc700c4ec142075740fc849befda11a6da5b27db))
+- adding subject to the types, tests and README for the Klaviyo plugin ([0db6e26](https://github.com/AthosCommerce/snap/commit/0db6e264b5f716591de9d879309ad85a8424720d))
+- enhance Klaviyo plugin integration with detailed usage instructions and configuration options ([eff80bc](https://github.com/AthosCommerce/snap/commit/eff80bc1b721e5cc9b7f36078e097dea0c0c8cf2))
+
 # [1.8.0](https://github.com/AthosCommerce/snap/compare/v1.7.0...v1.8.0) (2026-07-13)
 
 ### Bug Fixes
