@@ -9,7 +9,8 @@ import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers'
 import { ComponentProps, StyleScript } from '../../../types';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { useCustomComponentOverride } from '../../../hooks';
-import { ProductDetail, getProductFieldValue, renderDetailValue } from '../../Atoms/ProductDetail';
+import { ProductDetail } from '../../Atoms/ProductDetail';
+import { getProductFieldValue, renderDetailValue } from '../../Atoms/ProductDetail/ProductDetail';
 import { Price } from '../../Atoms/Price';
 import { Image } from '../../Atoms/Image';
 import { Rating } from '../Rating';
