@@ -124,6 +124,9 @@ const selections = result.variants.selections;
 
 Automatically sync variant selections between your product page and recommendation results by:
 
+> [!NOTE]
+> Snap Templates integrations enable this by default for the recommendation instantiator - no config needed unless you want to customize filters or opt out (`variants.realtime.enabled: false`).
+
 1. Enable the feature in your instantiator config:
 
 ```js

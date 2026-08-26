@@ -679,6 +679,11 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		{
 			settings: {
 				branch: 'production',
+				variants: {
+					realtime: {
+						enabled: true,
+					},
+				},
 			},
 			bundle: {
 				SnapTemplatesBundleDefault: {
