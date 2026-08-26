@@ -27,7 +27,7 @@
 	"dependencies": {
 		"@athoscommerce/snap-toolbox": "1.11.0",
 		"deepmerge": "4.3.1",
-		"is-plain-object": "5.0.0"
+		"is-plain-object": "5.1.0"
 	},
 	"peerDependencies": {
 		"mobx": "^6.15.1"

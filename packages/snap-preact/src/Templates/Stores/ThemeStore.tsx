@@ -68,26 +68,26 @@ export class ThemeStore {
 		// normalizeCommaSeparatedKeys already return new objects; here we just avoid reassigning
 		// onto the shared inputs.
 		const prefixedBase = { ...base };
-		prefixedBase.components = prefixComponentKeys('*', base.components);
+		prefixedBase.components = prefixComponentKeys('*', flattenCascadingOverrides(base.components));
 		if (base.responsive) {
 			prefixedBase.responsive = {
-				mobile: prefixComponentKeys('*(M)', base.responsive.mobile),
-				tablet: prefixComponentKeys('*(T)', base.responsive.tablet),
-				desktop: prefixComponentKeys('*(D)', base.responsive.desktop),
+				mobile: prefixComponentKeys('*(M)', flattenCascadingOverrides(base.responsive.mobile)),
+				tablet: prefixComponentKeys('*(T)', flattenCascadingOverrides(base.responsive.tablet)),
+				desktop: prefixComponentKeys('*(D)', flattenCascadingOverrides(base.responsive.desktop)),
 			};
 		}
 
 		const prefixedOverrides = { ...(overrides || {}) };
 		if (overrides?.responsive) {
 			prefixedOverrides.responsive = {
-				mobile: prefixComponentKeys('(M)', overrides.responsive.mobile),
-				tablet: prefixComponentKeys('(T)', overrides.responsive.tablet),
-				desktop: prefixComponentKeys('(D)', overrides.responsive.desktop),
+				mobile: prefixComponentKeys('(M)', flattenCascadingOverrides(overrides.responsive.mobile)),
+				tablet: prefixComponentKeys('(T)', flattenCascadingOverrides(overrides.responsive.tablet)),
+				desktop: prefixComponentKeys('(D)', flattenCascadingOverrides(overrides.responsive.desktop)),
 			};
 		}
 		// Normalize comma-separated selectors in override default components (no prefix needed, but commas need normalizing)
 		if (overrides?.components) {
-			prefixedOverrides.components = normalizeCommaSeparatedKeys(overrides.components);
+			prefixedOverrides.components = normalizeCommaSeparatedKeys(flattenCascadingOverrides(overrides.components));
 		}
 
 		this.name = name;
@@ -282,6 +282,40 @@ const arrayMerge = (target: any, source: any, options: any) => {
 
 	return destination;
 };
+
+function flattenCascadingOverrides(components?: ThemeComponentsRestricted): ThemeComponentsRestricted {
+	if (!components) return {};
+
+	const flattened: any = {};
+
+	Object.keys(components).forEach((key) => {
+		//grab the $children property and remove it from the component props so it doesn't get merged into the flattened component
+		const { $children, ...ownProps } = (components[key as keyof typeof components] as any) || {};
+		flattened[key] = { ...flattened[key], ...ownProps };
+
+		// if there are $children, flatten them and prefix the parent key to each child key
+		if ($children) {
+			const flatChildren = flattenCascadingOverrides($children);
+			const parentParts = key.split(/\s*,\s*/);
+
+			Object.keys(flatChildren).forEach((childKey) => {
+				const childParts = childKey.split(/\s*,\s*/);
+				const prefixedParts: string[] = [];
+				parentParts.forEach((parentPart) => {
+					childParts.forEach((childPart) => {
+						// rebuild the treepath with the parent key and the child key.
+						// so that merge props takes these flattened overrides and applied them like normal
+						prefixedParts.push(`${parentPart} ${childPart}`);
+					});
+				});
+				const prefixedKey = prefixedParts.join(', ');
+				flattened[prefixedKey] = { ...flattened[prefixedKey], ...(flatChildren[childKey as keyof typeof flatChildren] as any) };
+			});
+		}
+	});
+
+	return flattened;
+}
 
 function prefixComponentKeys(prefix: string, components?: ThemeComponentsRestricted): ThemePartial {
 	// TODO: remove any?

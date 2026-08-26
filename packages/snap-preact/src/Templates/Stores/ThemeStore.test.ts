@@ -7,6 +7,7 @@ import { ThemeStore, ThemeStoreThemeConfig, mergeThemeLayers } from './ThemeStor
 import type { TemplatesStoreDependencies, TemplateThemeTypes, TemplatesStoreSettings } from './TemplateStore';
 import type { ThemeComplete, ThemeVariables, ThemePartial, ThemeOverrides } from '../../../components/src/providers/theme';
 import { GLOBAL_THEME_NAME } from './TargetStore';
+import { mergeProps } from '../../../components/src/utilities/mergeProps';
 
 // configure MobX - useProxies: 'never' matches what we are doing for browser support (IE 11)
 configureMobx({ enforceActions: 'never', useProxies: 'never' });
@@ -795,6 +796,288 @@ describe('ThemeStore', () => {
 		// Override components (no responsive) should NOT be prefixed (user overrides at default breakpoint have no prefix)
 		expect(theme.components).toHaveProperty('search results, recommendation results');
 		expect((theme.components as any)['search results, recommendation results']).toEqual({ columns: 4 });
+	});
+
+	describe('$children cascading overrides', () => {
+		it('flattens a single-level $children entry, scoped to the parent selector', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						search: {
+							hideMiddleToolbar: true,
+							$children: {
+								'facet.price icon, facet.color icon': {
+									icon: 'cog',
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			// the parent's own props survive, with $children stripped off
+			expect((theme.components as any)['search']).toMatchObject({ hideMiddleToolbar: true });
+			expect((theme.components as any)['search']).not.toHaveProperty('$children');
+
+			// the nested selector is hoisted to a sibling key, scoped per comma part
+			// (array form: the key itself contains literal '.' characters, which toHaveProperty's
+			// string form would otherwise parse as a nested path)
+			expect(theme.components).toHaveProperty(['search facet.price icon, search facet.color icon']);
+			expect((theme.components as any)['search facet.price icon, search facet.color icon']).toEqual({ icon: 'cog' });
+		});
+
+		it('cross-products a comma-separated parent key with $children selectors', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						'search, recommendation.crosssell': {
+							$children: {
+								'icon.next, icon.prev': {
+									size: 10,
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			expect(theme.components).toHaveProperty([
+				'search icon.next, search icon.prev, recommendation.crosssell icon.next, recommendation.crosssell icon.prev',
+			]);
+			expect(
+				(theme.components as any)['search icon.next, search icon.prev, recommendation.crosssell icon.next, recommendation.crosssell icon.prev']
+			).toEqual({ size: 10 });
+		});
+
+		it('cascades cumulatively through multiple levels of nesting', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						search: {
+							$children: {
+								results: {
+									$children: {
+										'result.default': {
+											$children: {
+												price: {
+													color: 'red',
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			expect(theme.components).toHaveProperty(['search results result.default price']);
+			expect((theme.components as any)['search results result.default price']).toEqual({ color: 'red' });
+		});
+
+		it('resolves $children in base theme components (prefixed with *) and override components (unprefixed) independently', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: {
+					name: 'test',
+					type: 'templates',
+					variables: testThemeVariables,
+					components: {
+						search: {
+							$children: {
+								icon: { size: 20 },
+							},
+						},
+					} as any,
+					responsive: {},
+				},
+				overrides: {
+					components: {
+						search: {
+							$children: {
+								icon: { size: 30 },
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			expect(theme.components).toHaveProperty('*search icon');
+			expect((theme.components as any)['*search icon']).toEqual({ size: 20 });
+			expect(theme.components).toHaveProperty('search icon');
+			expect((theme.components as any)['search icon']).toEqual({ size: 30 });
+		});
+
+		it('last-wins (shallow merge) when a $children-derived key collides with a literal sibling key', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						'search icon': {
+							size: 5,
+						},
+						search: {
+							$children: {
+								icon: {
+									size: 99,
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			// 'search' is processed after 'search icon' (object key order), so its $children-derived
+			// entry is the one that wins — documents existing last-wins object-literal semantics.
+			expect((theme.components as any)['search icon']).toEqual({ size: 99 });
+		});
+
+		it('resolves $children under responsive breakpoint overrides, in base and overrides independently', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: {
+					name: 'test',
+					type: 'templates',
+					variables: testThemeVariables,
+					components: {},
+					responsive: {
+						mobile: {
+							search: {
+								$children: {
+									icon: { size: 8 },
+								},
+							},
+						} as any,
+					},
+				},
+				overrides: {
+					responsive: {
+						mobile: {
+							search: {
+								$children: {
+									icon: { size: 9 },
+								},
+							},
+						} as any,
+					},
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 375, // within the mobile breakpoint band
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			// base responsive: prefixed '*(M)' on the flattened key, same as a hand-authored '*(M)search icon'
+			expect(theme.components).toHaveProperty('*(M)search icon');
+			expect((theme.components as any)['*(M)search icon']).toEqual({ size: 8 });
+
+			// override responsive: prefixed '(M)' on the flattened key
+			expect(theme.components).toHaveProperty('(M)search icon');
+			expect((theme.components as any)['(M)search icon']).toEqual({ size: 9 });
+		});
+
+		it('the flattened $children selector actually matches its intended treePath through mergeProps, and not an unrelated one', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						search: {
+							$children: {
+								'facet.price icon, facet.color icon': {
+									icon: 'cog',
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const globalTheme = store.theme;
+
+			// matches: an icon rendered as a descendant of 'facet.price' under 'search'
+			const priceIconProps = mergeProps('icon', globalTheme, {}, { treePath: 'search facet.price' } as any);
+			expect((priceIconProps as any).icon).toBe('cog');
+
+			// matches: the other comma part, 'facet.color'
+			const colorIconProps = mergeProps('icon', globalTheme, {}, { treePath: 'search facet.color' } as any);
+			expect((colorIconProps as any).icon).toBe('cog');
+
+			// does NOT match: a differently-named facet icon (proves the override is scoped to
+			// 'facet.price'/'facet.color' specifically, not every icon under every facet)
+			const sizeIconProps = mergeProps('icon', globalTheme, {}, { treePath: 'search facet.size' } as any);
+			expect((sizeIconProps as any).icon).toBeUndefined();
+
+			// does NOT match: same facet name, but outside 'search' (proves the ancestor-scoping
+			// from nesting under `search.$children` actually applied, not a global 'facet.price icon')
+			const unscoped = mergeProps('icon', globalTheme, {}, { treePath: 'recommendation facet.price' } as any);
+			expect((unscoped as any).icon).toBeUndefined();
+		});
 	});
 });
 
