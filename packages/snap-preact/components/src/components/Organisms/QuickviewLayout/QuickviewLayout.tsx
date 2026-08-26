@@ -401,8 +401,10 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const snapTemplates = snap as SnapTemplates;
 	const hasTemplates = useRef(Boolean(snapTemplates?.templates)).current;
 
-	const componentName = hasTemplates ? recommendation?.component || 'Recommendation' : undefined;
-	const resultComponentName = hasTemplates ? ((recommendation?.resultComponent || 'Result') as string) : undefined;
+	// only resolve component names when the layout actually references a `recommendation.<profile>`
+	const hasRecommendationModules = recommendationProfiles.length > 0;
+	const componentName = hasTemplates && hasRecommendationModules ? recommendation?.component || 'Recommendation' : undefined;
+	const resultComponentName = hasTemplates && hasRecommendationModules ? ((recommendation?.resultComponent || 'Result') as string) : undefined;
 
 	const ResultComponent = useComponent(snapTemplates?.templates?.library.import.component.result || {}, resultComponentName).ComponentOverride;
 	const Component = useComponent(snapTemplates?.templates?.library.import.component.recommendation.default || {}, componentName).ComponentOverride;

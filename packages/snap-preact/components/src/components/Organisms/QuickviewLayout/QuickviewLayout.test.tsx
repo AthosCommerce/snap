@@ -1467,6 +1467,23 @@ describe('QuickviewLayout', () => {
 			expect(tags).toEqual(['quickview']);
 		});
 
+		it('does not request the Recommendation/Result components when the layout has no recommendation module', () => {
+			(useSnap as jest.Mock).mockReturnValue(snapWithTemplates);
+			(useComponent as jest.Mock).mockReturnValue({ ComponentOverride: undefined, shouldWaitForNamedOverride: false });
+
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: { id: 'p1', mappings: { core: { name: 'X' } } } } });
+
+			// Templates exist but no `recommendation.<profile>` module anywhere in the layout. Passing a
+			// name to useComponent triggers the dynamic import (Recommendation drags in Carousel/Swiper),
+			// so both name arguments must stay undefined and no controller may be created.
+			render(<QuickviewLayout quickviewManager={quickviewManager as any} {...defaultLayoutProps} />);
+
+			const requestedNames = (useComponent as jest.Mock).mock.calls.map((c) => c[1]);
+			expect(requestedNames.length).toBeGreaterThan(0);
+			expect(requestedNames).toEqual(requestedNames.map(() => undefined));
+			expect(useCreateController).not.toHaveBeenCalled();
+		});
+
 		it('renders nothing while the recommendation controller is not loaded', () => {
 			(useSnap as jest.Mock).mockReturnValue(snapWithTemplates);
 			(useCreateController as jest.Mock).mockReturnValue({ config: { globals: {} }, store: { loaded: false }, search: jest.fn() });
