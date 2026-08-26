@@ -1,4 +1,4 @@
-import { SnapTemplates, SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { globalStyles } from './styles';
@@ -6,7 +6,7 @@ import { getDemoConfig } from '../../shared/demoConfig';
 
 const { siteId, clientConfig } = getDemoConfig();
 
-let templatesConfig: SnapTemplatesConfig = {
+let templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: siteId,
 		language: 'en',
@@ -76,7 +76,7 @@ let templatesConfig: SnapTemplatesConfig = {
 			},
 		},
 	},
-};
+});
 
 if (window.mergeSnapConfig) {
 	templatesConfig = deepmerge(templatesConfig, window.mergeSnapConfig, { arrayMerge: combineMerge });

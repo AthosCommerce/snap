@@ -25,12 +25,11 @@ Snap Templates:
 ### Basic Usage
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import { Content, Sidebar } from './components';
 import { globalStyles } from './styles';
 
-const templatesConfig: SnapTemplatesConfig = {
+const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: 'atkzs2',
 		language: 'en',
@@ -74,7 +73,7 @@ const templatesConfig: SnapTemplatesConfig = {
 			},
 		]
 	},
-};
+});
 
 new SnapTemplates(templatesConfig);
 ```
@@ -105,13 +104,12 @@ Consider transitioning to SnapHybrid when you need to:
 ### Basic Usage
 
 ```tsx
-import { SnapHybrid } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapHybrid, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import { Content, Sidebar } from './components';
 import { globalStyles } from './styles';
 
 // Your existing templates configuration
-const templatesConfig: SnapTemplatesConfig = {
+const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: 'atkzs2',
 		language: 'en',
@@ -153,7 +151,7 @@ const templatesConfig: SnapTemplatesConfig = {
 			CustomResult: async () => (await import('./components/Result')).CustomResult,
 		},
 	},
-};
+});
 
 // Standard Snap configuration for full control
 const snapConfig = {

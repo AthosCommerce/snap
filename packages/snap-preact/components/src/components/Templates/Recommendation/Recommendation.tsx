@@ -12,7 +12,7 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 
 import { Carousel, CarouselProps, defaultCarouselBreakpoints, defaultVerticalCarouselBreakpoints } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
+import { cloneWithProps, defined, lazyRenderMinSize, mergeProps, mergeStyles } from '../../../utilities';
 import { useIntersection, useComponent } from '../../../hooks';
 import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
@@ -24,6 +24,7 @@ import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationProps> = ({ vertical }) => {
 	return css({
+		...lazyRenderMinSize,
 		height: vertical ? '100%' : undefined,
 		'.ss__result__image-wrapper': {
 			height: vertical ? '85%' : undefined,
@@ -172,7 +173,12 @@ export const Recommendation = observer((properties: RecommendationProps) => {
 
 	return (Array.isArray(children) && children.length) || resultsToRender?.length ? (
 		<CacheProvider>
-			<div {...styling} className={classnames('ss__recommendation', className, internalClassName)} ref={recsRef}>
+			<div
+				{...styling}
+				style={disableStyles ? lazyRenderMinSize : undefined}
+				className={classnames('ss__recommendation', className, internalClassName)}
+				ref={recsRef}
+			>
 				{isVisible ? (
 					<RecommendationProfileTracker controller={controller}>
 						{title && !hideTitle && (

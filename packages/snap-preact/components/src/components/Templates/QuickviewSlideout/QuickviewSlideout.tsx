@@ -144,7 +144,8 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		},
 	};
 
-	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} layout={layout} />;
+	// non-null: defaultProps always supplies a layout
+	const layoutContent = <QuickviewLayout quickviewManager={quickviewManager} {...subProps.quickviewLayout} layout={layout!} />;
 
 	return (
 		<CacheProvider>
@@ -182,5 +183,7 @@ export type QuickviewSlideoutProps = {
 	width?: string;
 	overlayColor?: string;
 	lang?: Partial<QuickviewLayoutLang>;
-} & QuickviewLayoutTemplatesLegalProps &
+	// `layout` is optional here (unlike on QuickviewLayout) because the container supplies a default
+	layout?: QuickviewLayoutTemplatesLegalProps['layout'];
+} & Omit<QuickviewLayoutTemplatesLegalProps, 'layout'> &
 	Omit<ComponentProps, 'customComponent'>;

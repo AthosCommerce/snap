@@ -31,6 +31,7 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 		controller?.type === ControllerTypes.search || controller?.type === ControllerTypes.autocomplete
 			? templatesStore.getTabManager(controller.type, snap.controllers)
 			: undefined;
+	const tabName = tabManager?.active?.id ? tabManager.active.id.toLowerCase() : undefined;
 
 	// ensuring that theme and component are ready to render
 	if (loading || !theme || !Component) {
@@ -41,12 +42,7 @@ export const TemplateSelect = observer((properties: TemplateSelectProps) => {
 	// `otherProps` instead — so the ControllerProvider is only wrapped when there is one to provide.
 	const content = (
 		<div className="ss__template-select">
-			<Component
-				controller={controller}
-				tabManager={tabManager}
-				name={tabManager?.active?.id ? tabManager?.active?.id.toLowerCase() : undefined}
-				{...otherProps}
-			/>
+			<Component controller={controller} tabManager={tabManager} {...(tabName !== undefined ? { name: tabName } : {})} {...otherProps} />
 		</div>
 	);
 

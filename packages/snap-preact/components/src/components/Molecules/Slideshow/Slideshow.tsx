@@ -709,7 +709,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						aria-label={`Slide group ${currentIndex} of ${totalDots}`}
 						// Touch events
 						// @ts-ignore - touch events
-						onTouchStart={touchDragging ? (event) => handleDragStart(event.touches[0]) : undefined}
+						onTouchStart={touchDragging ? (event: TouchEvent) => handleDragStart(event.touches[0].clientX) : undefined}
 						// @ts-ignore - touch events
 						onTouchMove={
 							touchDragging
