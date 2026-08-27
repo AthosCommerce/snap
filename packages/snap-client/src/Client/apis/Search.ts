@@ -1,8 +1,7 @@
 import { AutocompleteRequestModel, AutocompleteResponseModel, SearchRequestModel, SearchResponseModel } from '@athoscommerce/snapi-types';
 
 import { API } from '.';
-import { NetworkCache } from '../NetworkCache/NetworkCache';
-import { ProductsRequestModel, ProductsResponseModel, SearchRequesterPaths } from '../../types';
+import { SearchRequesterPaths } from '../../types';
 import { AppMode } from '@athoscommerce/snap-toolbox';
 import { SearchResponseType, transformSearchResponse } from '../transforms/searchResponse';
 import { transformSearchRequest } from '../transforms';
@@ -10,9 +9,6 @@ import { transformSearchRequest } from '../transforms';
 export const DEVELOPMENT_MODE_PARAM = 'test';
 
 export class SearchAPI extends API<SearchRequesterPaths> {
-	// Memory-only cache for /v1/products — quickview lookups don't need to survive a page reload.
-	public memoryCache: NetworkCache = new NetworkCache({ ...this.configuration.cache, type: 'memory' });
-
 	private async getEndpoint(requestParameters: SearchRequestModel | AutocompleteRequestModel, path: string) {
 		const searchRequestParameters = transformSearchRequest(requestParameters);
 		searchRequestParameters.ajaxCatalog = this.configuration.initiator;
@@ -57,26 +53,5 @@ export class SearchAPI extends API<SearchRequesterPaths> {
 
 	public async getFinder(queryParameters: SearchRequestModel): Promise<SearchResponseModel> {
 		return this.getEndpoint(queryParameters, this.configuration.paths.finder || '/v1/finder');
-	}
-
-	public async getProducts(queryParameters: ProductsRequestModel & { siteId: string }): Promise<ProductsResponseModel> {
-		const basePath = this.configuration.paths.products || '/v1/products';
-		const path = `${basePath}/${encodeURIComponent(queryParameters.parentId)}`;
-
-		const cacheKey = JSON.stringify({ parentId: queryParameters.parentId, siteId: queryParameters.siteId });
-
-		// /v1/products responses should not persist to sessionStorage — use the in-memory cache instead.
-		const response = await this.request<ProductsResponseModel>(
-			{
-				path,
-				method: 'GET',
-				headers: {},
-				siteId: queryParameters.siteId,
-			},
-			cacheKey,
-			this.memoryCache
-		);
-
-		return response;
 	}
 }

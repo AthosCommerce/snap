@@ -585,6 +585,9 @@ export const fr: LangComponents = {
 				title: 'Discuter de ce produit',
 			},
 		},
+		quickviewButtonText: {
+			value: 'Aperçu rapide',
+		},
 	},
 	recommendationBundle: {
 		seedText: {
@@ -638,6 +641,18 @@ export const fr: LangComponents = {
 	sortBy: {
 		label: {
 			value: 'Trier Par',
+		},
+	},
+	tabSelection: {
+		tabList: {
+			attributes: {
+				'aria-label': 'Onglets de résultats',
+			},
+		},
+		tabButton: {
+			attributes: {
+				'aria-label': (data) => `${data.tab.label || data.tab.id}${typeof data.resultCount == 'number' ? `, ${data.resultCount} résultats` : ''}`,
+			},
 		},
 	},
 	perPage: {
@@ -857,6 +872,23 @@ export const fr: LangComponents = {
 			},
 		},
 	},
+	quantityPicker: {
+		quantityInput: {
+			attributes: {
+				'aria-label': 'quantité',
+			},
+		},
+		decrementButton: {
+			attributes: {
+				'aria-label': 'diminuer la quantité',
+			},
+		},
+		incrementButton: {
+			attributes: {
+				'aria-label': 'augmenter la quantité',
+			},
+		},
+	},
 	// toggle: {
 	// 	toggleSwitch: {
 	// 		attributes: {
@@ -946,5 +978,58 @@ export const fr: LangComponents = {
 		//                 <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
 		//             </div>`,
 		// },
+	},
+	gallery: {
+		gallery: {
+			attributes: {
+				'aria-label': "Galerie d'images",
+			},
+		},
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Zoom arrière',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Zoom avant',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Fermer la galerie',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Image précédente',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Image suivante',
+			},
+		},
+	},
+	quickviewLayout: {
+		quickview: {
+			attributes: {
+				'aria-label': 'Aperçu rapide',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': "Fermer l'aperçu rapide",
+			},
+		},
+		addToCartButton: {
+			value: 'Ajouter au panier',
+		},
+		moreInfoButton: {
+			value: "Plus d'informations",
+		},
+		loadingText: {
+			value: 'Chargement…',
+		},
 	},
 };

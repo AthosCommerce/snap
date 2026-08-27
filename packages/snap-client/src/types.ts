@@ -51,7 +51,6 @@ export type SearchRequesterPaths = {
 	search?: string;
 	category?: string;
 	finder?: string;
-	products?: string;
 };
 
 export type ProductsRequestModel = {
@@ -64,6 +63,10 @@ export type ProductsResponseModel = {
 		core: SearchResponseModelResultCoreMappings;
 	};
 	variants: SearchResponseModelResultVariants;
+};
+
+export type ProductsRequesterPaths = {
+	products?: string;
 };
 
 export type MetaRequesterPaths = {
@@ -102,6 +105,7 @@ export type ClientConfig = {
 	chat?: RequesterConfig<ChatRequestModel, ChatRequesterPaths>;
 	meta?: RequesterConfig<MetaRequestModel, MetaRequesterPaths>;
 	search?: RequesterConfig<SearchRequestModel, SearchRequesterPaths>;
+	products?: RequesterConfig<ProductsRequestModel, ProductsRequesterPaths>;
 	recommend?: RequesterConfig<RecommendRequestModel, RecommendRequesterPaths>;
 	suggest?: RequesterConfig<SuggestRequestModel, SuggestRequesterPaths>;
 };

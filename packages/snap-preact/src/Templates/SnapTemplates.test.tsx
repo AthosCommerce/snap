@@ -12,8 +12,10 @@ import {
 } from './SnapTemplates';
 import type { SnapTemplatesConfig, SnapTemplatesConfigUnlocked } from './SnapTemplates';
 import { TemplatesStore } from './Stores/TemplateStore';
+import { TargetStore } from './Stores/TargetStore';
+import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSelect';
+import { TAB_ID_DEFAULT_PARAM } from './Stores/TabManagerStore';
 import type { PluginFunction } from '@athoscommerce/snap-controller';
-import { shopifyMarketsPriceFormat } from '@athoscommerce/snap-platforms/shopify';
 
 describe('createPlugins with custom plugins', () => {
 	const baseConfigValues = {
@@ -468,6 +470,391 @@ describe('createSnapConfig with custom plugins', () => {
 		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
 		expect(customPluginEntry).toBeDefined();
 	});
+
+	it('should pass custom plugins and base settings to search tab controller configs', () => {
+		const customPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			plugins: {
+				custom: {
+					myCustomPlugin: {
+						function: customPluginFn,
+					},
+				},
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				settings: {
+					infinite: { backfill: 5 },
+				},
+				tabs: [{ id: 'tabbed', siteId: 'abc123', param: 'tabbed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// no additional non-tab controller is created - the tab controller owns the targeters
+		expect(snapConfig.controllers?.search?.length).toBe(1);
+
+		const tabControllerConfig = snapConfig.controllers?.search?.[0];
+		expect(tabControllerConfig?.config?.id).toBe('tabbed');
+		expect(tabControllerConfig?.targeters?.length).toBe(1);
+
+		const plugins = tabControllerConfig?.config?.plugins || [];
+		expect(plugins.find((plugin) => plugin[0] === customPluginFn)).toBeDefined();
+
+		// inherits base settings while retaining tab specific overrides
+		expect(tabControllerConfig?.config?.settings?.infinite?.backfill).toBe(5);
+
+		// redirect settings are left to the controller defaults - the TabManagerStore gates them per tab
+		expect(tabControllerConfig?.config?.settings?.redirects).toBeUndefined();
+	});
+
+	it('should attach the targeters to the default tab controller', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'first', siteId: 'abc123', param: 'first' },
+					{ id: 'second', siteId: 'abc123', param: 'second', default: true },
+				],
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [
+					{ id: 'acFirst', siteId: 'abc123', param: 'first' },
+					{ id: 'acSecond', siteId: 'abc123', param: 'second', default: true },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// only the tab controllers are created
+		expect(snapConfig.controllers?.search?.map((controller) => controller.config?.id)).toEqual(['first', 'second']);
+		expect(snapConfig.controllers?.autocomplete?.map((controller) => controller.config?.id)).toEqual(['acFirst', 'acSecond']);
+
+		expect(snapConfig.controllers?.search?.[0]?.targeters).toBeUndefined();
+		expect(snapConfig.controllers?.search?.[1]?.targeters?.length).toBe(1);
+
+		expect(snapConfig.controllers?.autocomplete?.[0]?.targeters).toBeUndefined();
+		expect(snapConfig.controllers?.autocomplete?.[1]?.targeters?.length).toBe(1);
+	});
+
+	it('should attach the search targeters to the tab the url marks as active', () => {
+		const originalLocation = window.location.href;
+		window.history.replaceState(null, '', `/?${TAB_ID_DEFAULT_PARAM}=blog`);
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'products', siteId: 'abc123', param: 'prod', default: true },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// the targeted controller searches before the TabManagerStore can gate redirects, so it
+		// must be the tab the shopper is viewing rather than the default tab
+		expect(snapConfig.controllers?.search?.[0]?.targeters).toBeUndefined();
+		expect(snapConfig.controllers?.search?.[1]?.targeters?.length).toBe(1);
+
+		window.history.replaceState(null, '', originalLocation);
+	});
+
+	it('should apply the corePrefix from each tab param', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'products', siteId: 'abc123', param: 'prod' },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [
+					{ id: 'acProducts', siteId: 'abc123', param: 'prod' },
+					{ id: 'acBlog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		expect(snapConfig.controllers?.search?.[0]?.url?.settings?.corePrefix).toBe('prod');
+		expect(snapConfig.controllers?.search?.[1]?.url?.settings?.corePrefix).toBe('blog');
+
+		// an autocomplete tab configured with the same param as a search tab shares its namespace
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.settings?.corePrefix).toBe('prod');
+		expect(snapConfig.controllers?.autocomplete?.[1]?.url?.settings?.corePrefix).toBe('blog');
+	});
+
+	it('should only prefix per-catalog params so the query stays shared across tabs', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'products', siteId: 'abc123', param: 'prod' },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [{ id: 'acProducts', siteId: 'abc123', param: 'prod' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		expect(snapConfig.controllers?.search?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize', 'rq', 'page']);
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.settings?.corePrefixParams).toEqual(['filter', 'sort', 'pageSize', 'rq', 'page']);
+	});
+
+	it('should register the tab param as a custom query parameter', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [{ id: 'products', siteId: 'abc123', param: 'prod' }],
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [{ id: 'acProducts', siteId: 'abc123', param: 'prod' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		expect(snapConfig.controllers?.search?.[0]?.url?.parameters?.custom).toEqual({ [TAB_ID_DEFAULT_PARAM]: { type: 'query' } });
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.parameters?.custom).toEqual({ [TAB_ID_DEFAULT_PARAM]: { type: 'query' } });
+	});
+
+	it('should carry each autocomplete tab param in its url globals', () => {
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [
+					{ id: 'acProducts', siteId: 'abc123', param: 'prod' },
+					{ id: 'acBlog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// every url an autocomplete tab builds carries its own param, so submitting from a tab lands
+		// on the search tab configured with the matching param
+		expect(snapConfig.controllers?.autocomplete?.[0]?.url?.globals).toEqual([{ param: TAB_ID_DEFAULT_PARAM, value: 'prod' }]);
+		expect(snapConfig.controllers?.autocomplete?.[1]?.url?.globals).toEqual([{ param: TAB_ID_DEFAULT_PARAM, value: 'blog' }]);
+	});
+
+	it('should pass custom plugins, action and base settings to autocomplete tab controller configs', () => {
+		const customPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				action: '/search',
+				settings: {
+					trending: { limit: 7 },
+				},
+				plugins: {
+					custom: {
+						autocompletePlugin: {
+							function: customPluginFn,
+						},
+					},
+				},
+				tabs: [{ id: 'tabbed', siteId: 'abc123', param: 'tabbed' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// no additional non-tab controller is created - the tab controller owns the targeters
+		expect(snapConfig.controllers?.autocomplete?.length).toBe(1);
+
+		const tabControllerConfig = snapConfig.controllers?.autocomplete?.[0];
+		expect(tabControllerConfig?.config?.id).toBe('tabbed');
+		expect(tabControllerConfig?.targeters?.length).toBe(1);
+
+		const plugins = tabControllerConfig?.config?.plugins || [];
+		expect(plugins.find((plugin) => plugin[0] === customPluginFn)).toBeDefined();
+
+		expect(tabControllerConfig?.config?.action).toBe('/search');
+		expect(tabControllerConfig?.config?.selector).toBe('#autocomplete');
+		expect(tabControllerConfig?.config?.settings?.trending?.limit).toBe(7);
+	});
+
+	it('should only use tab plugins when a search tab specifies its own plugins', () => {
+		const globalPluginFn: PluginFunction = jest.fn();
+		const tabPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			plugins: {
+				custom: {
+					globalPlugin: {
+						function: globalPluginFn,
+					},
+				},
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'inherits', siteId: 'abc123', param: 'inherits' },
+					{ id: 'overrides', siteId: 'abc123', param: 'overrides', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
+					{ id: 'none', siteId: 'abc123', param: 'none', plugins: {} },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const inheritingTabPlugins = snapConfig.controllers?.search?.[0]?.config?.plugins || [];
+		const overridingTabPlugins = snapConfig.controllers?.search?.[1]?.config?.plugins || [];
+		const emptyTabPlugins = snapConfig.controllers?.search?.[2]?.config?.plugins || [];
+
+		// no tab plugins - inherits global plugins
+		expect(inheritingTabPlugins.find((plugin) => plugin[0] === globalPluginFn)).toBeDefined();
+
+		// tab plugins - only the tab plugins are used
+		expect(overridingTabPlugins.find((plugin) => plugin[0] === globalPluginFn)).toBeUndefined();
+		expect(overridingTabPlugins.find((plugin) => plugin[0] === tabPluginFn)).toBeDefined();
+		expect(overridingTabPlugins.length).toBe(1);
+
+		// empty tab plugins - no plugins are used
+		expect(emptyTabPlugins.length).toBe(0);
+	});
+
+	it('should only use tab plugins when an autocomplete tab specifies its own plugins', () => {
+		const globalPluginFn: PluginFunction = jest.fn();
+		const tabPluginFn: PluginFunction = jest.fn();
+
+		const config: SnapTemplatesConfigUnlocked = {
+			unlocked: true,
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			plugins: {
+				custom: {
+					globalPlugin: {
+						function: globalPluginFn,
+					},
+				},
+			},
+			autocomplete: {
+				targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+				tabs: [
+					{ id: 'inherits', siteId: 'abc123', param: 'inherits' },
+					{ id: 'overrides', siteId: 'abc123', param: 'overrides', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
+					{ id: 'none', siteId: 'abc123', param: 'none', plugins: {} },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const inheritingTabPlugins = snapConfig.controllers?.autocomplete?.[0]?.config?.plugins || [];
+		const overridingTabPlugins = snapConfig.controllers?.autocomplete?.[1]?.config?.plugins || [];
+		const emptyTabPlugins = snapConfig.controllers?.autocomplete?.[2]?.config?.plugins || [];
+
+		expect(inheritingTabPlugins.find((plugin) => plugin[0] === globalPluginFn)).toBeDefined();
+
+		expect(overridingTabPlugins.find((plugin) => plugin[0] === globalPluginFn)).toBeUndefined();
+		expect(overridingTabPlugins.find((plugin) => plugin[0] === tabPluginFn)).toBeDefined();
+		expect(overridingTabPlugins.length).toBe(1);
+
+		expect(emptyTabPlugins.length).toBe(0);
+	});
 });
 
 describe('applyAutomaticThemeOverrides', () => {
@@ -863,6 +1250,71 @@ describe('createSnapConfig additional coverage', () => {
 		const snapConfig = createSnapConfig(baseConfig, templatesStore);
 
 		expect(snapConfig.controllers?.autocomplete).toBeUndefined();
+	});
+
+	it('createSnapConfig passes quickview settings through to the manager config', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				targets: [{ component: 'QuickviewSlideout' }],
+				settings: { displayFields: [{ field: 'color' }] },
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const def = snapConfig.quickview!;
+		expect(def.config!.id).toBe('quickview');
+		expect(def.config!.settings?.displayFields).toEqual([{ field: 'color' }]);
+		expect(def.targeters).toHaveLength(1);
+		expect(def.targeters?.[0].selector).toBe('body');
+	});
+
+	it('createSnapConfig creates a targeter per configured quickview target', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				targets: [{ component: 'QuickviewModal' }, { selector: '#custom-qv', component: 'QuickviewSlideout' }],
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const def = snapConfig.quickview!;
+		expect(def.targeters).toHaveLength(2);
+		expect(def.targeters?.[0].selector).toBe('body');
+		expect(def.targeters?.[1].selector).toBe('#custom-qv');
+	});
+
+	it('renders quickview targets through TemplateSelect so the templates ThemeProvider wraps the component', async () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				targets: [{ component: 'QuickviewSlideout' }],
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+
+		// Stub the dynamic component import so resolving the targeter doesn't pull in the real
+		// quickview component tree (Carousel → swiper ESM, which jest can't transform here).
+		templatesStore.library.import.component.quickview.QuickviewSlideout = jest.fn().mockResolvedValue(undefined) as any;
+
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const targeter = snapConfig.quickview!.targeters![0];
+
+		// TemplateSelect is the wrapper that provides the global templates ThemeProvider — without it
+		// theme overrides (e.g. `quickviewLayout`) are dropped because the component falls back to
+		// production-mode prop merging.
+		const Component = await targeter.component!();
+		expect(Component).toBe(TemplateSelect);
+
+		// TemplateSelect resolves the theme/component from these props.
+		const props = targeter.props as { target: TargetStore; templatesStore: TemplatesStore };
+		expect(props.templatesStore).toBe(templatesStore);
+		expect(props.target).toBeInstanceOf(TargetStore);
+		expect(props.target.component).toBe('QuickviewSlideout');
+		expect(props.target.theme).toEqual({ location: 'local', name: 'global' });
 	});
 
 	it('should create search controller with correct id', () => {
@@ -1410,6 +1862,53 @@ describe('globalResultComponent configuration', () => {
 		new SnapTemplates(config);
 		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
 		expect((config as SnapTemplatesConfigUnlocked).theme.overrides).toBeUndefined();
+	});
+});
+
+describe('SnapTemplates tab managers', () => {
+	const tabbedConfig: SnapTemplatesConfigUnlocked = {
+		unlocked: true,
+		config: {
+			platform: 'other',
+			siteId: 'test123',
+		},
+		theme: {
+			extends: 'base',
+		},
+		search: {
+			targets: [{ selector: '#search', component: 'Search' }],
+			tabs: [
+				{ id: 'products', siteId: 'abc123', param: 'prod' },
+				{ id: 'blog', siteId: 'xyz789', param: 'blog' },
+			],
+		},
+		autocomplete: {
+			targets: [{ inputSelector: '#autocomplete', component: 'AutocompleteFixed' }],
+			tabs: [
+				{ id: 'acProducts', siteId: 'abc123', param: 'prod' },
+				{ id: 'acBlog', siteId: 'xyz789', param: 'blog' },
+			],
+		},
+	};
+
+	it('returns the same store for every target of a controller type', () => {
+		const snap = new SnapTemplates(tabbedConfig);
+		const { templates, controllers } = snap;
+
+		expect(templates.getTabManager('search', controllers)).toBe(templates.getTabManager('search', controllers));
+		expect(templates.getTabManager('autocomplete', controllers)).toBe(templates.getTabManager('autocomplete', controllers));
+		expect(templates.getTabManager('search', controllers)).not.toBe(templates.getTabManager('autocomplete', controllers));
+	});
+
+	it('returns nothing when there are fewer than two tabs', () => {
+		const snap = new SnapTemplates({
+			...tabbedConfig,
+			search: { ...tabbedConfig.search!, tabs: [{ id: 'products', siteId: 'abc123', param: 'prod' }] },
+			autocomplete: { ...tabbedConfig.autocomplete!, tabs: undefined },
+		});
+
+		expect(snap.templates.getTabManager('search', snap.controllers)).toBeUndefined();
+		expect(snap.templates.getTabManager('autocomplete', snap.controllers)).toBeUndefined();
 	});
 });
 

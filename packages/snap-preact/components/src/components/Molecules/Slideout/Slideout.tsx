@@ -1,5 +1,5 @@
 import { h, ComponentChildren } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 
 import { jsx, css } from '@emotion/react';
@@ -115,8 +115,11 @@ export const Slideout = observer((properties: SlideoutProps) => {
 		onChange && onChange(next);
 	};
 
-	//this is used to update active state if active prop is changed from parent component.
-	useEffect(() => {
+	// Sync internal state when the active prop changes from the parent component. This is a
+	// layout effect so the content commit is scheduled before consumers' passive effects run —
+	// a plain effect would mount the content one tick later, after a parent that opened the
+	// slideout has already tried (and failed) to move focus into it.
+	useLayoutEffect(() => {
 		setRenderContent(Boolean(active));
 		setActive(Boolean(active));
 	}, [active]);

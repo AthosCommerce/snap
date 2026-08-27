@@ -161,6 +161,37 @@ export default {
 			},
 			control: { type: 'number' },
 		},
+		hideQuickviewButton: {
+			description: 'Hide quickview button overlaid on the result image',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: true },
+			},
+			control: { type: 'boolean' },
+		},
+		quickviewButtonText: {
+			description: 'quickview button label (used as aria-label and icon title)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+				defaultValue: { summary: 'Quick View' },
+			},
+			control: { type: 'text' },
+		},
+		onQuickviewClick: {
+			description: 'function to run on quickview button click',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'function',
+				},
+			},
+		},
 		onAddToCartClick: {
 			description: 'function to run on add to cart button click',
 			table: {

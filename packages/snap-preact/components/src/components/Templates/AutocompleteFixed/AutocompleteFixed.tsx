@@ -14,6 +14,7 @@ import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
 import { debounce } from '@athoscommerce/snap-toolbox';
 import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<AutocompleteFixedProps & { inputBounds: inputBounds }> = ({ inputBounds, offset, renderInput, width }) => {
 	return css({
@@ -86,7 +87,14 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		buttonSelector = input;
 	}
 
-	const { layout, disableStyles, controller, renderInput, overlayColor, className, internalClassName, offset, treePath } = props;
+	const { layout, disableStyles, renderInput, overlayColor, className, internalClassName, offset, treePath, tabManager } = props;
+
+	let controller = props.controller;
+	let controllers: AutocompleteController[] = [controller];
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as AutocompleteController;
+		controllers = tabManager.tabs.map((tab) => tab.controller as AutocompleteController);
+	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
 
@@ -104,7 +112,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		return () => {
 			controller.eventManager.events['focusChange']?.remove(onFocusChange);
 		};
-	}, []);
+	}, [controller]);
 
 	const reset = () => {
 		controller.setFocused();
@@ -116,6 +124,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 			// default props
 			layout: layout,
 			onReset: () => reset(),
+			tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -228,7 +237,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 	if (input) {
 		_input = useAcRenderedInput({
 			input: input as Element,
-			controller,
+			controllers,
 			renderedInputRef,
 			renderInput: Boolean(renderInput),
 			buttonSelector,
@@ -288,6 +297,7 @@ interface AutocompleteFixedSubProps {
 export type AutocompleteFixedProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteFixedTemplatesLegalProps, 'resultComponent'> &
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;

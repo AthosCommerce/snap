@@ -1,5 +1,7 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { ChatRequestModel, RecommendRequestModel } from '@athoscommerce/snap-client';
+
+import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
 	SearchResponseModelFacetValueAllOfValues,
 	AutocompleteRequestModel,
@@ -58,7 +60,9 @@ export type SearchStoreConfigSettings = {
 			value: number;
 		}[];
 	};
+	quickview?: QuickviewConfig;
 };
+
 export type VariantConfigFilterTypes = 'first' | 'unaltered';
 
 export type VariantConfig = {
@@ -88,8 +92,9 @@ export type VariantOptionConfigMappings = {
 	};
 };
 
-// Shared by Search/Autocomplete/Recommendation settings and Chat config
-export type QuickviewConfig = {
+// Chat-only quickview settings — an enable toggle with plain string display fields,
+// distinct from the QuickviewStore's QuickviewConfig used by the quickview manager.
+export type ChatQuickviewConfig = {
 	enabled: boolean;
 	displayFields?: string[];
 };
@@ -113,7 +118,7 @@ export type ChatStoreConfigSettings = {
 	/** Max viewport width treated as mobile — should match the theme breakpoint. Defaults to 767. */
 	mobileBreakpoint?: number;
 	variants?: VariantConfig;
-	quickview?: QuickviewConfig;
+	quickview?: ChatQuickviewConfig;
 	comparison?: {
 		max?: number;
 	};
@@ -196,6 +201,7 @@ export type AutocompleteStoreConfigSettings = {
 		input?: boolean;
 		submit?: boolean;
 	};
+	quickview?: QuickviewConfig;
 };
 
 // Autocomplete config
@@ -218,10 +224,28 @@ export type RecommendationStoreConfig = StoreConfig & {
 	settings?: {
 		variants?: VariantConfig;
 		searchOnPageShow?: boolean;
+		quickview?: QuickviewConfig;
 	};
 };
 
 export type StoreConfigs = SearchStoreConfig | AutocompleteStoreConfig | FinderStoreConfig | RecommendationStoreConfig | ChatStoreConfig;
+
+export type QuickviewStoreConfig = StoreConfig & {
+	settings?: QuickviewConfig;
+};
+
+// One product field to display as a label / value row — the shape consumed by the
+// ProductDetailTable component's and the quickview config's `displayFields`.
+export type DisplayFieldConfig = {
+	// Explicit dot-path (e.g. `attributes.brand`) or bare field key resolved via `mappings.core` then `attributes`.
+	field: string;
+	// Display label (falls back to the raw field key; the quickview modal falls back to
+	// `meta.facets[field].label` first).
+	label?: string;
+	// How to render the resolved value: `price` → Price, `rating` → Rating, `image` → Image,
+	// `html` → rich HTML, `text` (default) → plain text.
+	type?: 'price' | 'image' | 'html' | 'rating' | 'text';
+};
 
 export type StoreServices = {
 	urlManager: UrlManager;

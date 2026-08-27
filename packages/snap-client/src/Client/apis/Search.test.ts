@@ -28,7 +28,6 @@ describe('Search Api', () => {
 		expect(api?.getCategory).toBeDefined();
 		expect(api?.getAutocomplete).toBeDefined();
 		expect(api?.getFinder).toBeDefined();
-		expect(api?.getProducts).toBeDefined();
 	});
 
 	it('can call getSearch', async () => {
@@ -246,114 +245,6 @@ describe('Search Api', () => {
 				...params,
 			}
 		);
-
-		requestMock.mockReset();
-	});
-
-	it('can call getProducts', async () => {
-		const api = new SearchAPI(new ApiConfiguration({}));
-		const mockResponse = {
-			mappings: { core: { name: 'Test Product', description: 'A test product' } },
-			variants: {
-				optionConfig: { color: { count: 2, type: 'color' } },
-				data: [
-					{
-						attributes: {},
-						badges: [],
-						mappings: { core: { uid: 'v1', name: 'Variant 1', price: 19.99, imageUrl: 'https://example.com/v1.jpg' } },
-						options: { color: { value: 'red' } },
-					},
-				],
-			},
-		};
-
-		const requestMock = jest
-			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockResponse), headers: new Headers() } as Response));
-
-		const result = await api.getProducts({
-			parentId: 'abc123',
-			siteId: '8uyt2m',
-		});
-
-		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/v1/products/abc123';
-		const expectedParams = {
-			body: undefined,
-			headers: {},
-			method: 'GET',
-		};
-
-		expect(requestMock).toHaveBeenCalledWith(expectedUrl, expectedParams);
-		expect(result).toEqual(mockResponse);
-
-		requestMock.mockReset();
-	});
-
-	it('uses a configured origin for getProducts', async () => {
-		const api = new SearchAPI(new ApiConfiguration({ origin: 'https://custom-search.example.com' }));
-
-		const requestMock = jest
-			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
-
-		await api.getProducts({
-			parentId: 'abc123',
-			siteId: '8uyt2m',
-		});
-
-		const expectedUrl = 'https://custom-search.example.com/v1/products/abc123';
-		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
-
-		requestMock.mockReset();
-	});
-
-	it('caches getProducts in memoryCache only (not sessionStorage)', async () => {
-		const api = new SearchAPI(new ApiConfiguration({}));
-		const mockResponse = { mappings: { core: { name: 'Cached Product' } } };
-
-		const requestMock = jest
-			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockResponse), headers: new Headers() } as Response));
-
-		// First call hits the network and primes the cache.
-		await api.getProducts({ parentId: 'memcache-1', siteId: '8uyt2m' });
-		expect(requestMock).toHaveBeenCalledTimes(1);
-
-		// Entry should live in memoryCache, not the sessionStorage-backed cache.
-		const cacheKey = `/v1/products/memcache-1/${JSON.stringify({ parentId: 'memcache-1', siteId: '8uyt2m' })}`;
-		expect(api.memoryCache.get(cacheKey)).toEqual(mockResponse);
-		expect(api.cache.get(cacheKey)).toBeUndefined();
-		const persistedCache = JSON.parse(window.sessionStorage.getItem('athos-networkcache') || '{}');
-		expect(persistedCache[cacheKey]).toBeUndefined();
-
-		// Second call is served from memoryCache without a new fetch.
-		const result = await api.getProducts({ parentId: 'memcache-1', siteId: '8uyt2m' });
-		expect(result).toEqual(mockResponse);
-		expect(requestMock).toHaveBeenCalledTimes(1);
-
-		requestMock.mockReset();
-	});
-
-	it('uses configured paths for getProducts', async () => {
-		const api = new SearchAPI(
-			new ApiConfiguration({
-				paths: {
-					products: '/custom/products',
-				},
-			})
-		);
-
-		const requestMock = jest
-			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
-
-		await api.getProducts({
-			parentId: 'xyz789',
-			siteId: '8uyt2m',
-		});
-
-		const expectedUrl = 'https://8uyt2m.a.athoscommerce.net/custom/products/xyz789';
-		expect(requestMock).toHaveBeenCalledWith(expectedUrl, { body: undefined, headers: {}, method: 'GET' });
 
 		requestMock.mockReset();
 	});

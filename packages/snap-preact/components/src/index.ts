@@ -16,6 +16,7 @@ export * from './components/Atoms/LoadingBar';
 export * from './components/Atoms/Overlay';
 export * from './components/Atoms/PaginationInfo';
 export * from './components/Atoms/Price';
+export * from './components/Atoms/ProductDetail';
 export * from './components/Atoms/SearchHeader';
 export * from './components/Atoms/Skeleton';
 
@@ -49,6 +50,9 @@ export * from './components/Molecules/Modal';
 export * from './components/Molecules/OverlayBadge';
 export * from './components/Molecules/Pagination';
 export * from './components/Molecules/PerPage';
+export * from './components/Molecules/ProductDetailTable';
+export * from './components/Molecules/Gallery';
+export * from './components/Molecules/QuantityPicker';
 export * from './components/Molecules/Radio';
 export * from './components/Molecules/RadioList';
 export * from './components/Molecules/Rating';
@@ -57,6 +61,7 @@ export * from './components/Molecules/SearchInput';
 export * from './components/Molecules/Select';
 export * from './components/Molecules/Slideout';
 export * from './components/Molecules/SortBy';
+export * from './components/Molecules/TabSelection';
 export * from './components/Molecules/TemplatesEditor';
 export * from './components/Molecules/Swatches';
 export * from './components/Molecules/Slideshow';
@@ -81,6 +86,8 @@ export { ChatButtonOrganism, type ChatButtonOrganismProps } from './components/O
 // TEMPLATES
 export * from './components/Templates/Chat';
 export * from './components/Templates/ChatButton';
+export * from './components/Templates/QuickviewModal';
+export * from './components/Templates/QuickviewSlideout';
 export * from './components/Templates/Recommendation';
 export * from './components/Templates/RecommendationBundle';
 export * from './components/Templates/RecommendationBundleEasyAdd';

@@ -173,7 +173,13 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 								'ss__variant-selection__option--disabled': val.disabled,
 								'ss__variant-selection__option--unavailable': val.available === false,
 							})}
-							onClick={(e) => !val.disabled && onSelectHandler(e, val)}
+							onClick={(e) => {
+								if (!val.disabled) {
+									onSelectHandler(e, val);
+									// close the dropdown on selection
+									toggleOpen?.(e, false);
+								}
+							}}
 							ref={(e) => useA11y(e)}
 							aria-selected={selected}
 							aria-disabled={val.disabled || val.available === false}

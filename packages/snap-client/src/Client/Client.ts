@@ -1,5 +1,5 @@
 import { AppMode } from '@athoscommerce/snap-toolbox';
-import { SuggestAPI, RecommendAPI, ApiConfiguration, SearchAPI, MetaAPI } from './apis';
+import { SuggestAPI, RecommendAPI, ApiConfiguration, SearchAPI, MetaAPI, ProductsAPI } from './apis';
 
 import type {
 	ClientGlobals,
@@ -59,6 +59,7 @@ export class Client {
 	private requesters: {
 		meta: MetaAPI;
 		search: SearchAPI;
+		products: ProductsAPI;
 		recommend: RecommendAPI;
 		suggest: SuggestAPI;
 		chat: ChatAPI;
@@ -111,6 +112,18 @@ export class Client {
 					cache: this.config.search?.cache,
 					globals: this.config.search?.globals,
 					paths: this.config.search?.paths,
+				})
+			),
+			products: new ProductsAPI(
+				new ApiConfiguration({
+					fetchApi: this.config.fetchApi,
+					initiator: this.config.initiator,
+					mode: this.mode,
+					origin: this.config.products?.origin,
+					headers: this.config.products?.headers,
+					cache: this.config.products?.cache,
+					globals: this.config.products?.globals,
+					paths: this.config.products?.paths,
 				})
 			),
 			suggest: new SuggestAPI(
@@ -247,7 +260,7 @@ export class Client {
 		const mergedParams = deepmerge(this.globals, params);
 		const siteId = mergedParams.siteId || '';
 
-		return this.requesters.search.getProducts({ parentId: params.parentId, siteId });
+		return this.requesters.products.getProducts({ parentId: params.parentId, siteId });
 	}
 
 	async trending(params: Partial<TrendingRequestModel>): Promise<TrendingResponseModel> {
