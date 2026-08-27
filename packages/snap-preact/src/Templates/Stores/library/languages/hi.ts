@@ -463,7 +463,7 @@ export const hi: LangComponents = {
 		},
 		expandedSearchText: {
 			value: (data) => {
-				return `हमें "<span className="ss__search-header__results-query">${data?.search?.query?.string}</span>" के लिए बिल्कुल सटीक मेल नहीं मिला, लेकिन यहां कुछ मिलता-जुलता है:`;
+				return `हमें "<span class="ss__search-header__results-query">${data?.search?.query?.string}</span>" के लिए बिल्कुल सटीक मेल नहीं मिला, लेकिन यहां कुछ मिलता-जुलता है:`;
 			},
 		},
 	},
@@ -473,27 +473,27 @@ export const hi: LangComponents = {
 		},
 		suggestionsList: {
 			value:
-				'<ul className="ss__no-results__suggestions__list"><li className="ss__no-results__suggestions__list__option">वर्तनी की त्रुटियों की जांच करें।</li><li className="ss__no-results__suggestions__list__option">किसी भी अनावश्यक कीवर्ड को हटाएं (जैसे: "उत्पाद")।</li><li className="ss__no-results__suggestions__list__option">आप जो खोज रहे हैं उसे बताने के लिए अन्य शब्दों का उपयोग करें।</li></ul>',
+				'<ul class="ss__no-results__suggestions__list"><li class="ss__no-results__suggestions__list__option">वर्तनी की त्रुटियों की जांच करें।</li><li class="ss__no-results__suggestions__list__option">किसी भी अनावश्यक कीवर्ड को हटाएं (जैसे: "उत्पाद")।</li><li class="ss__no-results__suggestions__list__option">आप जो खोज रहे हैं उसे बताने के लिए अन्य शब्दों का उपयोग करें।</li></ul>',
 		},
 		// contactsTitleText: {
 		// 	value: `Vous ne trouvez toujours pas ce que vous cherchez? <a href="/contact-us">Contactez-nous</a>.`,
 		// },
 		// contactsList: {
-		// 	value: `<div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Adresse</h4>
-		//                 <p className="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
+		// 	value: `<div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Adresse</h4>
+		//                 <p class="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
 		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Heures</h4>
-		//                 <p className="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
+		//             <div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Heures</h4>
+		//                 <p class="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
 		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Téléphone</h4>
-		//                 <p className="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
+		//             <div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Téléphone</h4>
+		//                 <p class="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
 		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Email</h4>
-		//                 <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
+		//             <div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Email</h4>
+		//                 <p class="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
 		//             </div>`,
 		// },
 	},

@@ -465,7 +465,7 @@ export const it: LangComponents = {
 		},
 		expandedSearchText: {
 			value: (data) => {
-				return `Non siamo riusciti a trovare una corrispondenza esatta per "<span className="ss__search-header__results-query">${data?.search?.query?.string}</span>", ma ecco qualcosa di simile:`;
+				return `Non siamo riusciti a trovare una corrispondenza esatta per "<span class="ss__search-header__results-query">${data?.search?.query?.string}</span>", ma ecco qualcosa di simile:`;
 			},
 		},
 	},
@@ -475,27 +475,27 @@ export const it: LangComponents = {
 		},
 		suggestionsList: {
 			value:
-				'<ul className="ss__no-results__suggestions__list"><li className="ss__no-results__suggestions__list__option">Controlla eventuali errori di ortografia.</li><li className="ss__no-results__suggestions__list__option">Rimuovi eventuali parole chiave ridondanti (es: "prodotti").</li><li className="ss__no-results__suggestions__list__option">Usa altre parole per descrivere ciò che stai cercando.</li></ul>',
+				'<ul class="ss__no-results__suggestions__list"><li class="ss__no-results__suggestions__list__option">Controlla eventuali errori di ortografia.</li><li class="ss__no-results__suggestions__list__option">Rimuovi eventuali parole chiave ridondanti (es: "prodotti").</li><li class="ss__no-results__suggestions__list__option">Usa altre parole per descrivere ciò che stai cercando.</li></ul>',
 		},
 		// contactsTitleText: {
 		// 	value: `Vous ne trouvez toujours pas ce que vous cherchez? <a href="/contact-us">Contactez-nous</a>.`,
 		// },
 		// contactsList: {
-		// 	value: `<div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Adresse</h4>
-		//                 <p className="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
+		// 	value: `<div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Adresse</h4>
+		//                 <p class="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
 		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Heures</h4>
-		//                 <p className="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
+		//             <div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Heures</h4>
+		//                 <p class="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
 		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Téléphone</h4>
-		//                 <p className="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
+		//             <div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Téléphone</h4>
+		//                 <p class="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
 		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Email</h4>
-		//                 <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
+		//             <div class='ss__no-results__contact__detail'>
+		//                 <h4 class="ss__no-results__contact__detail__title">Email</h4>
+		//                 <p class="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
 		//             </div>`,
 		// },
 	},
