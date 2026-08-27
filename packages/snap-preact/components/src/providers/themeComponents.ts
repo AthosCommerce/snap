@@ -607,6 +607,10 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 	ThemeComponentsRestrictedWithCustomComponentNamed &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<ThemeComponentOpenNamedComponentTypes>]?: unknown };
 
+// types for use within component overrides
+export type ThemeComponentOverrides = Partial<ThemeComponentsRestricted>;
+export type ThemeComponentOverridesUnlocked = Partial<ThemeComponentsRestrictedWithCustomComponent>;
+
 export type ThemeComponentSelectorPropsUnlocked<Selector extends string> = ThemeComponentSegmentPropsIn<
 	ThemeComponentsRestrictedWithCustomComponentNamed,
 	WithRequiredCustomComponent,
