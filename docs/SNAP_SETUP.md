@@ -11,8 +11,11 @@ Snapfu is a CLI interface for creating a Snap project from a template. You do **
 ```sh
 npm install -g snapfu
 ```
+<img src='/images/setup-install.gif'/>
+
 > [!TIP]
 > We recommend using Node v24 or higher and npm v10 or higher.
+
 
 ---
 
@@ -26,6 +29,8 @@ This will create a new project with a git repo from a list of available scaffold
 
 During this you will also be prompted for your **Site ID and secret key**, which you find in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
 
+<img src='/images/setup-initialize.gif'/>
+
 ---
 ## Development
 
@@ -34,6 +39,7 @@ npm run dev
 ```
 
 This will start the local development server and serve the project build files and the contents of the `public` directory.
+
 
 | File/Resource                | URL                                                      |
 |------------------------------|----------------------------------------------------------|
@@ -48,6 +54,7 @@ This will start the local development server and serve the project build files a
 
 > [!NOTE]
 >There are two common ways to develop a project, using a [local mockup file](#local-mockup-file) or leveraging the [Snapfu Chrome extension](#snapfu-chrome-extension).
+
 
 ---
 ## Local mockup file
@@ -72,6 +79,8 @@ The minimal mockup below includes just the script tag and target elements needed
 	<script src="bundle.js" id="athos-context"></script>
 </html>
 ```
+
+
 ---
 ## Snapfu Chrome Extension
  The Snapfu Chrome Extension is a Chrome extension that you can install manually via chrome developer mode. The extension allows you to inject the development `bundle.js` into a live storefront page. This is useful for previewing changes on a live domain.
@@ -80,13 +89,16 @@ The minimal mockup below includes just the script tag and target elements needed
  
  The page will reload with the local development bundle [https://localhost:3333/bundle.js](https://localhost:3333/bundle.js) injected into the current website. While `npm run dev` is running, the page will automatically reload upon saving any code modifications.
  
- >[!NOTE]
+ >[!TIP]
  >For more information, see the [Snapfu Chrome Extension](https://github.com/searchspring/snapfu-extension) repository.
+
+ >[!NOTE]
+>Some of the other possible methods of serving the local development server while previewing changes on a live domain include: Browser local override modifying script src, or an alternative development domain (e.g. `https://dev.mysite.com`) or unpublished storefront theme with script src pointing to `https://localhost:3333/bundle.js` or a ngrok tunnel. However we encourage you to use our two native options included above.
 
 ---
 ## Minimum Viable Controller
 
-With your mockup file in place, here's the bare minimum configuration to create a search controller and render a root level `Content` component into it.
+Snap organizes storefront functionality into distinct features, each backed by its own controller. With your mockup file in place, here's the bare minimum configuration to create a search controller and render a root level `Content` component into it.
 
 ```js
 // src/index.js
@@ -117,6 +129,7 @@ const snap = new Snap({
     },
 });
 ```
+
 
 The `Content` component is considered a root level component since it is being rendered onto the page using a targeter — the `#athos-content` selector matches the target element from the mockup file above.
 
@@ -171,12 +184,5 @@ export const Results = withController(observer((props) => {
 
 With that in place, `npm run dev` will render live search results into your mockup file. From here, see [Overview](https://athoscommerce.github.io/snap/snap-overview) for how the controller/store/component lifecycle works, or the [Preact Component Library](https://athoscommerce.github.io/snap/preact-components) for pre-built components you can use instead of writing your own.
 
----
-
-## Other Development Methods
-
-Other possible but less desirable methods of serving the local development server while previewing changes on a live domain include:
-
-- Browser local override modifying script src, typically requires an override per page
-- Alternative development domain (e.g. `https://dev.mysite.com`) or unpublished storefront theme with script src pointing to `https://localhost:3333/bundle.js` or a ngrok tunnel
-
+>[!TIP]
+>Continue to our **Features** section for more in depth details on setting up your Feature Controllers. 

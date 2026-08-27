@@ -448,6 +448,31 @@ import('./docs/documents.js').then(function (_) {
 			hljs.highlightElement(block);
 		});
 
+		// add copy-to-clipboard buttons to code blocks
+		document.querySelectorAll('#markdown pre').forEach((pre) => {
+			if (pre.querySelector('.copy-code-button')) return;
+
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'copy-code-button';
+			button.title = 'Copy to clipboard';
+			button.innerHTML = '<i class="fas fa-copy"></i>';
+
+			button.addEventListener('click', () => {
+				const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+				navigator.clipboard.writeText(code).then(() => {
+					button.innerHTML = '<i class="fas fa-check"></i>';
+					button.classList.add('copied');
+					window.setTimeout(() => {
+						button.innerHTML = '<i class="fas fa-copy"></i>';
+						button.classList.remove('copied');
+					}, 1500);
+				});
+			});
+
+			pre.appendChild(button);
+		});
+
 		const handleScroll = debounce(() => {
 			if (window.scrollY > lastScrollY) {
 				lastScrolledUp = false;

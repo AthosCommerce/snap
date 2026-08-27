@@ -1,6 +1,12 @@
 # Search
+>[!IMPORTANT]
+> If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers. 
 
-To set up Search using Snap, we'll need to define a search controller in our Snap configuration. See [SearchController reference](https://athoscommerce.github.io/snap/reference-controller-search) for all available configuration options.
+## Search Controller
+Search pages render product results for a shopper's query. In the Snap ecosystem this is powered by Snap's `SearchController`. To get started with search results you **must define a search controller** in your Snap configuration; see [SearchController reference](https://athoscommerce.github.io/snap/reference-controller-search) for all available configuration options.
+
+### Minimum Viable Controller
+As already covered in our initial setup - the below example displays the bare minimum configuration to create a **search controller** and render a root level `Content` component into it.
 
 
 ```js
@@ -9,283 +15,42 @@ To set up Search using Snap, we'll need to define a search controller in our Sna
 import { Snap } from '@athoscommerce/snap-preact';
 
 const snap = new Snap({
-    client: {
+	client: {
 		globals: {
 			siteId: 'REPLACE_WITH_YOUR_SITE_ID',
 		},
 	},
-    controllers: {
-        search: [
-            {
-                config: {
-                    id: 'search',
-                },
-                targeters: [
-                    {
-                        selector: '#athos-content',
-                        component: async () => {
-                            return (await import('./components/Content/Content')).Content;
-                        },
-                    },
-                ],
-            },
-        ],
-    },
-});
-```
-
-## Category Pages / Background Filters
-Optionally, apply filters from the page's content to the SearchControllerConfig `globals.filters` property. The controller globals are similar to the client globals in that all search requests will include the parameters specified. This can be used to configure category/brand pages, or other special filtering to apply to the current page's search requests.
-
-For example, if a global variable `snapConfig` exists on the page (must be defined prior to our Snap script):
-
-```html
-<script>
-	const snapConfig = {
-		shopper: {
-			id: 'shopper@emailprovider.com'
-		},
-		category: {
-			name: 'Shirts',
-			value: 'Clothing/Shirts'
-		}
-	}
-</script>
-```
-
-```js
-// src/index.js
-
-import { Snap } from '@athoscommerce/snap-preact';
-
-const backgroundFilters = [];
-if (snapConfig?.category) {
-	backgroundFilters.push({
-		type: 'value',
-		background: true,
-		field: 'categories_hierarchy',
-		value: snapConfig.category.value,
-	});
-}
-const snap = new Snap({
-    client: {
-		globals: {
-			siteId: 'REPLACE_WITH_YOUR_SITE_ID',
-		},
-	},
-    controllers: {
-        search: [
-            {
-                config: {
-                    id: 'search',
-					globals: {
-						filters: backgroundFilters,
+	controllers: {
+		search: [
+			{
+				config: {
+					id: 'search',
+				},
+				targeters: [
+					{
+						selector: '#athos-content',
+						component: async () => {
+							return (await import('./components/Content/Content')).Content;
+						},
 					},
-                },
-                targeters: [
-                    {
-                        selector: '#athos-content',
-                        component: async () => {
-                            return (await import('./components/Content/Content')).Content;
-                        },
-                    },
-                ],
-            },
-        ],
-    },
+				],
+			},
+		],
+	},
 });
 ```
 
+>[!NOTE]
+>**Search** is also the controller behind **category pages** — scoping results to a category without displaying an active filter to the shopper is done by applying a **Background Filter** to the search controller's `globals.filters` property. See [Category Pages](https://athoscommerce.github.io/snap/snap-category-pages) for the full walkthrough.
+
+---
 ## Search Store
 
-This section covers the properties available on the Search Store via a Search Controller with examples of how to implement common custom components. Alternatively, equivalent and additional components are available in the `@athoscommerce/snap-preact/components` package. See [Preact Component Library](https://athoscommerce.github.io/snap/preact-components) for all available components and their usage.
+This section covers the properties available on the Search Store via a Search Controller, with examples of how to implement common custom components.
 
+> [!IMPORTANT]
+> For teams building without time or resourcing to hand-write every component, Snap also ships equivalent (and additional) pre-built components in the `@athoscommerce/snap-preact/components` package. See [Preact Component Library](https://athoscommerce.github.io/snap/preact-components) for everything available and how to use it.
 
-### SearchController.store.merchandising
-
-The `merchandising` property contains merchandising redirects and banner content. It is recommended to utilize the `<Banner/>` component from `@athoscommerce/snap-preact/components` to display the various merchandising banners.
-
-The available banner types include: `header`, `banner`, `footer`, `left`, `inline`
-
-For inline banners, the `<InlineBanner/>` component should be used instead. An example of this usage can be found in the [store.results](https://athoscommerce.github.io/snap/snap-search#searchcontrollerstoreresults) section below.
-
-```tsx
-// src/components/Content/Content.jsx
-
-import { h } from 'preact';
-import { observer } from 'mobx-react-lite';
-import { ControllerProvider, Banner, Pagination } from '@athoscommerce/snap-preact/components';
-import { Results } from '../Results/Results';
-import { NoResults } from '../NoResults/NoResults';
-import { SearchHeader } from '../SearchHeader/SearchHeader';
-
-export const Content = observer((props) => {
-    const { controller } = props;
-
-    return controller.store.loaded ? (
-        <ControllerProvider controller={controller}>
-            <div class="ss__content">
-				<Banner content={merchandising.content} type="header" />
-				<Banner content={merchandising.content} type="banner" />
-				<SearchHeader />
-				{
-					pagination.totalResults > 0 
-					? (<Results />) : 
-					(<NoResults />)
-				}
-				<Pagination />
-				<Banner content={merchandising.content} type="footer" />
-			</div>
-        </ControllerProvider>
-    ) : null;
-});
-```
-
-### SearchController.store.search
-
-The `search` property contains information about the current query, typically displayed above results and used in combination with the `store.pagination` data.
-
-```tsx
-// src/components/SearchHeader/SearchHeader.jsx
-
-import { h } from 'preact';
-import { observer } from 'mobx-react-lite';
-import { withController } from '@athoscommerce/snap-preact/components';
-
-export const SearchHeader = withController(observer((props) => {
-    const { controller } = props;
-	const { store } = controller;
-	const { pagination, search } = store;
-	const originalQuery = search.originalQuery;
-
-	return (
-		store.loaded && (
-			<div class="ss__search-header">
-				{pagination.totalResults ? (
-					<h1 class="ss__search-header--results">
-						{`Showing `}
-						{pagination.multiplePages && <span class="ss__search-header__count-range">{` ${pagination.begin} - ${pagination.end} of `}</span>}
-						<span class="ss__search-header__count-total">{pagination.totalResults}</span>
-						{` result${pagination.totalResults == 1 ? '' : 's'}`}
-						{search?.query && (
-							<span>
-								{` for `}
-								<span class="ss__search-header__query">"{search.query.string}"</span>
-							</span>
-						)}
-					</h1>
-				) : (
-					pagination.totalResults === 0 && (
-						<h1 class="ss__search-header--noresults">
-							{search?.query ? (
-								<span>
-									No results for <span class="ss__search-header__query">"{search.query.string}"</span> found.
-								</span>
-							) : (
-								<span>No results found.</span>
-							)}
-						</h1>
-					)
-				)}
-
-				{originalQuery && (
-					<div class="ss__oq">
-						Search instead for "<a href={originalQuery.url.href}>{originalQuery.string}</a>"
-					</div>
-				)}
-			</div>
-		)
-	);
-}));
-```
-
-### SearchController.store.pagination
-
-The `pagination` property is not only used for information about the current query, but also contains everything needed for handling pagination of a query that yields multiple pages. Invoking the `getPages` method will retrieve the specified number of page objects. For more about the pagination store, checkout the [Search Controller reference](https://athoscommerce.github.io/snap/reference-controller-search).
-
-```tsx
-// src/components/Pagination/Pagination.jsx
-
-import { h } from 'preact';
-import { observer } from 'mobx-react-lite';
-import { withController } from '@athoscommerce/snap-preact/components';
-
-export const Pagination = withController(observer((props) => {
-	const { controller } = props;
-	const { store } = props.controller;
-	const { pagination } = store;
-	
-	const MINIMUM_PAGES = 5;
-	const pages = pagination.getPages(MINIMUM_PAGES);
-	
-	return (
-		<div class="ss__pagination">
-			{pagination.previous && (
-				<span class="ss__pagination__prev">
-					<a {...pagination.previous.url.link} title="Previous">
-						Prev
-					</a>
-				</span>
-			)}
-
-			{pages.map((page) => (
-				<span key={page.key} class={`ss__pagination__page ${page.active ? 'ss__pagination__page--current' : ''}`}>
-					<a {...page.url.link}>{page.number}</a>
-				</span>
-			))}
-
-			{pagination.next && (
-				<span class="ss__pagination__next">
-					<a {...pagination.next.url.link} title="Next">
-						Next
-					</a>
-				</span>
-			)}
-		</div>
-	)
-}));
-```
-
-### SearchController.store.sorting
-
-The `sorting` property contains sorting options applicable to the current query. Typically used to render a `<select>` dropdown of sorting options. 
-
-Sorting settings can be configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
-
-```tsx
-// src/components/SortBy/SortBy.jsx
-
-import { h } from 'preact';
-import { observer } from 'mobx-react-lite';
-import { withController } from '@athoscommerce/snap-preact/components';
-
-export const SortBy = withController(observer((props) => {
-	const { controller } = props;
-	const { store } = controller;
-	const { sorting } = store;
-	
-	return sorting.length !== 0 ? (
-		<div class="ss__sorting">
-			<label for="ss__sort--select">Sort</label>
-
-			<select
-				name="ss__sort--select"
-				id="ss__sort--select"
-				onChange={(e) => {
-					const selectedOption = sorting.options.filter((option) => option.value == e.target.value).pop();
-					selectedOption && selectedOption.url.go();
-				}}
-			>
-				{sorting.options.map((option) => (
-					<option value={option.value} selected={option.value === sorting.current.value}>
-						{option.label}
-					</option>
-				))}
-			</select>
-		</div>
-	) : null;
-}));
-```
 
 ### SearchController.store.results
 
@@ -293,27 +58,19 @@ The `results` property contains an array of result objects for the current page.
 
 Each result object contains the following notable properties:
 
-`result.type` will be 'product' or 'banner' (inline banner)
+- **`result.type`** — `'product'` or `'banner'` (inline banner)
+- **`result.mappings.core`** — core attributes configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
+- **`result.attributes`** — remaining attributes
+- **`result.mask`** — temporarily modify result data without changing the underlying store data. Combine with `result.display` for UI effects like alternate product images on hover, or updating displayed prices when a variant is selected.
+  - **`result.mask.merge(data)`** — merge new mask data into the current display state
+  - **`result.mask.set(data)`** — overwrite the current mask data entirely
+  - **`result.mask.clear()`** — clear the mask data, reverting to the original display state
+- **`result.display`** — the current display state: `result.mask` merged with the underlying core data
+- **`result.variants`** — product variant info (size, color, etc.) and selection state. Requires variants to be enabled and configured — see [Variants Reference](https://github.com/athoscommerce/snap/tree/main/docs/REFERENCE_VARIANTS.md)
+- **`result.custom`** — an empty object untouched by core Snap packages, for your own custom data — see [`custom` property](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Abstract)
 
-`result.mappings.core` core attributes configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
-
-`result.attributes` remaining attributes
-
-`result.mask` provides a way to temporarily modify result data without changing the underlying store data. This can be used in combination with the `result.display` for simple UI effects like showing alternate product images on hover, or more complex interactions like updating displayed prices when selecting different product variants.
-
-`result.mask.merge` a function to merge new mask data with the current display state. This function accepts a single object as its only parameter.
-
-`result.mask.set` a function to set the mask data. Overwrites the current mask data. This function accepts a single object as its only parameter.
-
-`result.mask.clear` a function to clear the mask data, reverting to the original display state.
-
-`result.display` an object used for display in result components. Containing the currently set display state from the `result.mask` combined with the underlying core data for the result. 
-
-`result.variants` contains information about product variants like size and color options, as well as the variant selections data. (requires variants to be enabled and configured) For more variant integration information, see [Variants Reference](https://github.com/athoscommerce/snap/tree/main/docs/REFERENCE_VARIANTS.md)
-
-`result.custom` an empty object that is not modified by core Snap packages. This is available for you to modify and store custom data to be rendered. See [`custom` property](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Abstract)
-
-Note: if you will be creating a custom Result component, the `withTracking` hook is required to capture product impression and click analytics. See [Tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#impressions) for more information.
+>[!NOTE]
+>If you are creating a custom Result component, the `withTracking` hook is required to capture product impression and click analytics. See [Tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#impressions) for more information.
 
 ```tsx
 // src/components/Results/Results.jsx
@@ -362,43 +119,31 @@ const Result = withController(withTracking(observer((props) => {
 })));
 ```
 
+> [!NOTE]
+> When `pagination.totalResults` is `0`, render a `<NoResults/>` component instead of `<Results/>` — this is a component you build yourself (there's nothing store-specific to it). See [Putting It Together](https://athoscommerce.github.io/snap/snap-search#putting-it-together) below for where it fits alongside everything else.
+
 ### SearchController.store.facets
 
 The `facets` property contains an array of facet objects for the current query.
 
 Each result object contains the following notable properties:
 
-`facet.collapsed` facet collapse state. Facets can be configured to start collapsed by default in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
+- **`facet.collapsed`** — facet collapse state. Facets can be configured to start collapsed by default in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
+- **`facet.toggleCollapse()`** — toggles the collapse state for this facet
+- **`facet.clear()`** — removes the facet if it is currently active
+- **`facet.label`** — the facet label to display (e.g. Price, Size, Brand)
+- **`facet.field`** — the raw facet field name
+- **`facet.display`** — the facet display type, used to conditionally render different facet components. Available types: `list` (default), `grid`, `palette`, `hierarchy`, `slider` — configurable in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
+- **`facet.type`** — the facet type: `range`, `value`, or `range-buckets`
+  - **`range`** facets won't contain `values` (typically rendered as a slider) — instead they include `range.low`, `range.high`, `active.low`, and `active.high`
+  - **`value`** and **`range-buckets`** facets include:
+    - **`facet.search.input`** — filter the facet's `values` array to entries matching this substring
+    - **`facet.overflow.setLimit(n)`** — set how many values to display before overflow occurs
+    - **`facet.overflow.toggle()`** — toggle overflow, typically bound to a facet's "show more" button
+    - **`facet.refinedValues`** — facet values after any overflow/search-within limiting — use this to render values in components
+    - **`facet.values`** — the original, unfiltered facet values. Prefer `facet.refinedValues` for rendering; only use this directly in an `afterStore` event handler
 
-`facet.toggleCollapse` a method that toggles the collapse state for this facet
-
-`facet.clear` a method to remove the facet if it is currently active
-
-`facet.label` the facet label to display (ie. Price, Size, Brand)
-
-`facet.field` the raw facet field name
-
-`facet.display` the facet display type - used to conditionally render different facet components. Available display types: `list` (default), `grid`, `palette`, `hierarchy`, `slider`. Facet display types can be configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
-
-The example below displays a custom `FacetOptionsList` component for facets with a display type of `list`.
-
-The `@athoscommerce/snap-preact/components` component library includes the following components that can be imported or used as a reference: `FacetListOptions`, `FacetGridOptions`, `FacetPaletteOptions`, `FacetHierarchyOptions`, `FacetSlider`
-
-`facet.type` the facet type - Available facet types: `range`, `value`, `range-buckets`. 
-
-Facets that contain a `type` value of `range` will not contain any `values` as this is typically used as a Slider. Instead, the facet will include `range.low`, `range.high`, `active.low`, and `active.high` properties.
-
-Facets with a `type` value of `value` or `range-buckets` will contain the following properties:
-
-`facet.search.input` facet search within - setting this will dynamically filter the facet `values` array to only include values that match the `facet.search.input` substring
-
-`facet.overflow.setLimit` method to set the number of values to display before overflow occurs
-
-`facet.overflow.toggle` method to toggle overflow of a facet, typically invoked `onClick` event of a facet 'show more' button
-
-`facet.refinedValues` facet values that have been limitied if any overflow or search within is active; this should be used to render facet values from components
-
-`facet.values` original facet values - it is not recommended to directly render facet values using this in your components - `facet.refinedValues` should be used instead - however, if you are using an `afterStore` event to reference facet values, `facet.values` should be used
+The example below displays a custom `FacetOptionsList` component for facets with a display type of `list`. The `@athoscommerce/snap-preact/components` component library includes [`FacetListOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetlistoptions--default), [`FacetGridOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetgridoptions--default), [`FacetPaletteOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetpaletteoptions--default), [`FacetHierarchyOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facethierarchyoptions--default), and [`FacetSlider`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetslider--price) — importable directly or usable as a reference for your own.
 
 ```tsx
 // src/components/Facets/Facets.jsx
@@ -511,3 +256,191 @@ export const FilterSummary = withController(observer((props) => {
 }));
 ```
 
+### SearchController.store.pagination
+
+The `pagination` property is not only used for information about the current query, but also contains everything needed for handling pagination of a query that yields multiple pages. Invoking the `getPages` method will retrieve the specified number of page objects. For more about the pagination store, checkout the [Search Controller reference](https://athoscommerce.github.io/snap/reference-controller-search).
+
+```tsx
+// src/components/Pagination/Pagination.jsx
+
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { withController } from '@athoscommerce/snap-preact/components';
+
+export const Pagination = withController(observer((props) => {
+	const { controller } = props;
+	const { store } = props.controller;
+	const { pagination } = store;
+	
+	const MINIMUM_PAGES = 5;
+	const pages = pagination.getPages(MINIMUM_PAGES);
+	
+	return (
+		<div class="ss__pagination">
+			{pagination.previous && (
+				<span class="ss__pagination__prev">
+					<a {...pagination.previous.url.link} title="Previous">
+						Prev
+					</a>
+				</span>
+			)}
+
+			{pages.map((page) => (
+				<span key={page.key} class={`ss__pagination__page ${page.active ? 'ss__pagination__page--current' : ''}`}>
+					<a {...page.url.link}>{page.number}</a>
+				</span>
+			))}
+
+			{pagination.next && (
+				<span class="ss__pagination__next">
+					<a {...pagination.next.url.link} title="Next">
+						Next
+					</a>
+				</span>
+			)}
+		</div>
+	)
+}));
+```
+
+### SearchController.store.search
+
+The `search` property contains information about the current query, typically displayed above results and used in combination with the `store.pagination` data.
+
+```tsx
+// src/components/SearchHeader/SearchHeader.jsx
+
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { withController } from '@athoscommerce/snap-preact/components';
+
+export const SearchHeader = withController(observer((props) => {
+	const { controller } = props;
+	const { store } = controller;
+	const { pagination, search } = store;
+	const originalQuery = search.originalQuery;
+
+	return (
+		store.loaded && (
+			<div class="ss__search-header">
+				{pagination.totalResults ? (
+					<h1 class="ss__search-header--results">
+						{`Showing `}
+						{pagination.multiplePages && <span class="ss__search-header__count-range">{` ${pagination.begin} - ${pagination.end} of `}</span>}
+						<span class="ss__search-header__count-total">{pagination.totalResults}</span>
+						{` result${pagination.totalResults == 1 ? '' : 's'}`}
+						{search?.query && (
+							<span>
+								{` for `}
+								<span class="ss__search-header__query">"{search.query.string}"</span>
+							</span>
+						)}
+					</h1>
+				) : (
+					pagination.totalResults === 0 && (
+						<h1 class="ss__search-header--noresults">
+							{search?.query ? (
+								<span>
+									No results for <span class="ss__search-header__query">"{search.query.string}"</span> found.
+								</span>
+							) : (
+								<span>No results found.</span>
+							)}
+						</h1>
+					)
+				)}
+
+				{originalQuery && (
+					<div class="ss__oq">
+						Search instead for "<a href={originalQuery.url.href}>{originalQuery.string}</a>"
+					</div>
+				)}
+			</div>
+		)
+	);
+}));
+```
+
+### SearchController.store.sorting
+
+The `sorting` property contains sorting options applicable to the current query. Typically used to render a `<select>` dropdown of sorting options. 
+
+Sorting settings can be configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
+
+```tsx
+// src/components/SortBy/SortBy.jsx
+
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { withController } from '@athoscommerce/snap-preact/components';
+
+export const SortBy = withController(observer((props) => {
+	const { controller } = props;
+	const { store } = controller;
+	const { sorting } = store;
+	
+	return sorting.length !== 0 ? (
+		<div class="ss__sorting">
+			<label for="ss__sort--select">Sort</label>
+
+			<select
+				name="ss__sort--select"
+				id="ss__sort--select"
+				onChange={(e) => {
+					const selectedOption = sorting.options.filter((option) => option.value == e.target.value).pop();
+					selectedOption && selectedOption.url.go();
+				}}
+			>
+				{sorting.options.map((option) => (
+					<option value={option.value} selected={option.value === sorting.current.value}>
+						{option.label}
+					</option>
+				))}
+			</select>
+		</div>
+	) : null;
+}));
+```
+
+### SearchController.store.merchandising
+
+The `merchandising` property contains **merchandising redirects** and **banner content**, both configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net).
+
+> [!TIP]
+> Use the [`<Banner/>`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/atoms-banner--header) component from `@athoscommerce/snap-preact/components` to display banners — available types are `header`, `banner`, `footer`, `left`, and `inline`. Inline banners are the exception: use [`<InlineBanner/>`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/atoms-inlinebanner--default) instead — see `store.results` above.
+
+## Putting It Together
+
+With `results`, `facets`, `filters`, `pagination`, `search`, `sorting`, and `merchandising` each wired into their own component, the root `Content` component composes them into the full search page:
+
+```tsx
+// src/components/Content/Content.jsx
+
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { ControllerProvider, Banner, Pagination } from '@athoscommerce/snap-preact/components';
+import { Results } from '../Results/Results';
+import { NoResults } from '../NoResults/NoResults';
+import { SearchHeader } from '../SearchHeader/SearchHeader';
+
+export const Content = observer((props) => {
+	const { controller } = props;
+
+	return controller.store.loaded ? (
+		<ControllerProvider controller={controller}>
+			<div class="ss__content">
+				<Banner content={merchandising.content} type="header" />
+				<Banner content={merchandising.content} type="banner" />
+				<SearchHeader />
+				{
+					pagination.totalResults > 0
+						? (<Results />)
+						: (<NoResults />)
+				}
+				<Pagination />
+				<Banner content={merchandising.content} type="footer" />
+			</div>
+		</ControllerProvider>
+	) : null;
+});
+```

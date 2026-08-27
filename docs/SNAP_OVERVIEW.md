@@ -25,8 +25,5 @@ Clicking a facet, page number, or sort option updates the urlManager state, whic
  
 ---
 
-For the concrete configuration and component code behind this lifecycle, see [Minimum Viable Controller](https://athoscommerce.github.io/snap/snap-setup#minimum-viable-controller) in Setup — it walks through the controller config, `ControllerProvider`, and the `withController`/`observer` pattern used to build `Content` and `Results` components step by step.
-
-## Preact Component Library
-
-Snap provides an extensive [library of Preact components](https://athoscommerce.github.io/snap/preact-components) that can be used exclusively or in combination with custom components throughout your project. 
+>[!TIP]
+>For the concrete configuration and component code behind this lifecycle, see [Minimum Viable Controller](https://athoscommerce.github.io/snap/snap-setup#minimum-viable-controller) in Setup — it walks through the controller config, `ControllerProvider`, and the `withController`/`observer` pattern used to build `Content` and `Results` components step by step.

@@ -234,6 +234,13 @@ table td {
 	width: 100%;
 }
 
+#markdown img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin: 1em 0;
+}
+
 #markdown h2 {
 	color: var(--athos-primary);
 	font-size: 1.5em;
@@ -416,10 +423,40 @@ table td {
 }
 
 pre {
+	position: relative;
 	overflow: auto;
 	background-color: var(--pre-bg);
 	border-radius: 0px;
 	border: 1px solid var(--border-color);
+}
+
+.copy-code-button {
+	position: absolute;
+	top: 0.5em;
+	right: 0.5em;
+	padding: 0.35em 0.5em;
+	border: 1px solid var(--border-color);
+	border-radius: 3px;
+	background-color: var(--bg-primary);
+	color: var(--text-secondary);
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+pre:hover .copy-code-button {
+	opacity: 1;
+}
+
+.copy-code-button:hover {
+	color: var(--athos-secondary-AA);
+	border-color: var(--athos-secondary-AA);
+}
+
+.copy-code-button.copied {
+	opacity: 1;
+	color: #2da44e;
+	border-color: #2da44e;
 }
 
 code:not([class]) {
