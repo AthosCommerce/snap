@@ -460,9 +460,12 @@ type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & Them
 
 	Their pattern index signature values stay `unknown`: a pattern such as `facet.${string}`
 	unavoidably matches both `facet.price` and `facet.price facetSlider`, so it cannot be typed
-	to one component. Precise per-selector checking lives in `validateTemplatesConfig` /
-	`validateTemplatesConfigUnlocked` (see `ThemeComponentSegmentPropsIn` below), which reads the
-	literal selector keys instead.
+	to one component, and resolving it precisely per literal selector key is generic-inference
+	work expensive enough to cost ~1.5s of editor completion latency per keystroke (measured -
+	see SnapTemplates.tsx). Prop-level checking for these selectors is instead done by the
+	`validate-config` ESLint rule's typed linting, which reads the literal selector strings
+	directly from the AST (no inference needed) and resolves each component's real props type
+	live via the TS checker - see eslint/src/validate-config.cjs.
 */
 type ThemeComponentOpenNamedComponentTypes =
 	| 'facet'
@@ -480,50 +483,7 @@ export type ThemeComponentsRestricted =
 	ThemeComponentsRestrictedNamed &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<ThemeComponentOpenNamedComponentTypes>]?: unknown };
 
-type ThemeComponentSelectorSegment<Selector extends string> = Selector extends `${string} ${infer Rest}`
-	? ThemeComponentSelectorSegment<Rest>
-	: Selector;
-
-type ThemeComponentSelectorUnknown = { 'unknown theme override selector': never };
-
-/*
-	Resolves a tree path selector to the props of the component its final segment targets —
-	`facet.price facetSlider` resolves to FacetSlider. Because this reads a single literal key it
-	stays precise where the pattern index signatures of `ThemeComponentsRestricted` cannot, but it
-	only applies to selectors that are known at the point of the check, which is why it is
-	reachable through `validateTemplatesConfig` only.
-
-	The resolution is shared between the locked and unlocked families via `NamedMap` (which
-	named-selector map to resolve against) and `OpenNamedExtra` (a type unioned onto open-named
-	resolutions — `never` adds nothing; the unlocked family passes the custom component prop bag).
-*/
-type ThemeComponentSegmentPropsIn<NamedMap, OpenNamedExtra, Segment extends string> = Segment extends keyof NamedMap
-	? NonNullable<NamedMap[Segment]>
-	: Segment extends `${infer ComponentType}.${string}`
-	? ComponentType extends ThemeComponentOpenNamedComponentTypes & keyof NamedMap
-		? NonNullable<NamedMap[ComponentType]> | OpenNamedExtra
-		: ThemeComponentSelectorUnknown
-	: ThemeComponentSelectorUnknown;
-
-export type ThemeComponentSelectorProps<Selector extends string> = ThemeComponentSegmentPropsIn<
-	ThemeComponentsRestrictedNamed,
-	never,
-	ThemeComponentSelectorSegment<Selector> & string
->;
-
-export type ThemeComponentsRestrictedSelectors<Selectors extends string> = {
-	[Selector in Selectors]: ThemeComponentSelectorProps<Selector>;
-};
-
 type WithCustomComponent = { customComponent?: string };
-
-/*
-	An override that mounts a custom component receives that component's own props, which are
-	arbitrary by design ("any additional props passed through overrides"). A required
-	`customComponent` therefore unlocks an open prop bag, while overrides without one keep
-	the strict per-component checking.
-*/
-type WithRequiredCustomComponent = { customComponent: string; [customProp: string]: unknown };
 
 // prettier-ignore
 type ThemeComponentsRestrictedWithCustomComponentNamed =
@@ -628,16 +588,6 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 // types for use within component overrides
 export type ThemeComponentOverrides = Partial<ThemeComponentsRestricted>;
 export type ThemeComponentOverridesUnlocked = Partial<ThemeComponentsRestrictedWithCustomComponent>;
-
-export type ThemeComponentSelectorPropsUnlocked<Selector extends string> = ThemeComponentSegmentPropsIn<
-	ThemeComponentsRestrictedWithCustomComponentNamed,
-	WithRequiredCustomComponent,
-	ThemeComponentSelectorSegment<Selector> & string
->;
-
-export type ThemeComponentsRestrictedSelectorsUnlocked<Selectors extends string> = {
-	[Selector in Selectors]: ThemeComponentSelectorPropsUnlocked<Selector>;
-};
 
 // prettier-ignore
 export type ThemeComponentTemplateOverrides<Template extends string, Props, LegalProps> =

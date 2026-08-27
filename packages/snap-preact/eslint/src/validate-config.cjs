@@ -12,6 +12,21 @@ const PROVIDED_COMPONENT_KEYS = {
 
 const VALIDATE_CONFIG_FUNCTION_NAMES = ['validateTemplatesConfig', 'validateTemplatesConfigUnlocked'];
 const TEMPLATES_CONSTRUCTOR_NAMES = ['SnapTemplates', 'SnapHybrid'];
+const OPEN_NAMED_COMPONENT_PROPS_TYPE = {
+	facet: 'FacetTemplatesLegalProps',
+	variantSelection: 'VariantSelectionTemplatesLegalProps',
+	recommendation: 'RecommendationTemplatesLegalProps',
+	recommendationBundle: 'RecommendationBundleTemplatesLegalProps',
+	recommendationBundleEasyAdd: 'RecommendationBundleEasyAddTemplatesLegalProps',
+	recommendationBundleList: 'RecommendationBundleListTemplatesLegalProps',
+	recommendationBundleVertical: 'RecommendationBundleVerticalTemplatesLegalProps',
+	recommendationGrid: 'RecommendationGridTemplatesLegalProps',
+};
+
+// allowed on every override regardless of component - see ThemeComponentCascade/ThemeComponentAllowedProps
+const ALWAYS_ALLOWED_OVERRIDE_PROPS = new Set(['$children', 'themeStyleScript']);
+
+const openNamedPropsCacheByProgram = new WeakMap();
 
 module.exports = {
 	meta: {
@@ -35,6 +50,10 @@ module.exports = {
 				'Tab "{{ id }}" uses siteId "{{ siteId }}", which is already used by another tab in {{ feature }}.tabs. Tabs within the same feature must target unique siteIds.',
 			mismatchedTabSiteId:
 				'Tab "{{ id }}" (param "{{ param }}") uses siteId "{{ siteId }}", but other tabs sharing param "{{ param }}" use siteId "{{ expectedSiteId }}". Tab controllers that share a param must use the same siteId.',
+			invalidOpenNamedSelectorProp:
+				'"{{ value }}" is not a valid prop for the "{{ selector }}" override ({{ componentType }} resolves to {{ typeName }}). Must be one of: {{ validKeys }}.',
+			invalidOpenNamedSelectorPropType:
+				'"{{ value }}" on the "{{ selector }}" override ({{ typeName }}) expects type {{ expectedType }}, but got {{ actualType }}.',
 		},
 		schema: [],
 	},
@@ -167,6 +186,291 @@ module.exports = {
 
 			// Validate search/autocomplete tab controller configs
 			validateTabs(init, context);
+
+			// Validate props on open-named dotted selectors (facet.price, recommendation.foo, ...) -
+			// best-effort, only runs under typed linting (see getProgramAndChecker)
+			validateOpenNamedSelectorProps(init, context);
+		}
+
+		/**
+		 * `theme.overrides.default/mobile/tablet/desktop` selectors that dot into one of
+		 * OPEN_NAMED_COMPONENT_PROPS_TYPE's component types (e.g. `facet.price`) resolve to
+		 * an unchecked `unknown` in the TS types (see SnapTemplates.tsx for why) - and because
+		 * the WHOLE value is `unknown`, so is everything nested under its `$children` cascade,
+		 * even selectors (like a bare `icon`) that would otherwise be fully precise. This walks
+		 * those override objects, checks each one's authored props against the REAL props type
+		 * for its component (resolved live via the type checker - nothing here duplicates
+		 * FacetTemplatesLegalProps etc.), and recurses into `$children` with the same treatment
+		 * for as long as we stay inside a region TypeScript has already given up on.
+		 *
+		 * Deliberately does NOT walk selectors TypeScript still checks correctly (i.e. does not
+		 * recurse into `$children` unless we're already inside an open-named-dotted selector) -
+		 * that would duplicate `tsc`'s own errors for no benefit.
+		 *
+		 * Silently does nothing when typed linting isn't configured (no parserServices.program) -
+		 * this check is an optional, additive safety net, not a requirement to use the config
+		 * validation this rule already does without any type information.
+		 */
+		function validateOpenNamedSelectorProps(configObjectExpression, context) {
+			const programAndChecker = getProgramAndChecker(context);
+			if (!programAndChecker) return;
+
+			const overridesObjects = collectOverridesObjects(configObjectExpression);
+			if (overridesObjects.length === 0) return;
+
+			const filename = context.filename ?? context.getFilename();
+
+			for (const overridesObject of overridesObjects) {
+				for (const prop of overridesObject.properties) {
+					if (prop.type !== 'Property' || prop.value.type !== 'ObjectExpression') continue;
+
+					const selector = getPropertyName(prop);
+					if (!selector) continue;
+
+					// only the selector's final (space-separated) segment determines its component -
+					// e.g. 'search facet.price' targets the same 'facet.price' as a bare selector
+					const finalSegment = selector.includes(' ') ? selector.split(' ').pop() : selector;
+					const dotIndex = finalSegment.indexOf('.');
+					if (dotIndex === -1) continue;
+
+					const componentType = finalSegment.slice(0, dotIndex);
+					if (!OPEN_NAMED_COMPONENT_PROPS_TYPE[componentType]) continue; // TS already checks this one
+
+					walkUnknownRegionEntry(prop.value, selector, programAndChecker, filename, context);
+				}
+			}
+		}
+
+		/**
+		 * Validate one selector's authored value against its resolved type (props existing +
+		 * value types), then - unless a customComponent escape hatch is present - recurse into
+		 * its `$children`, if any, with the same treatment. Used both for the top-level
+		 * open-named-dotted selector that got us into "unknown" territory, and for every
+		 * selector found while walking inside it.
+		 */
+		function walkUnknownRegionEntry(valueObjectExpression, selector, programAndChecker, filename, context) {
+			// a customComponent swaps in a component whose props aren't known - already
+			// unchecked at the type level too (its whole subtree resolves to `unknown`
+			// regardless), left unchecked here for the same reason
+			const hasCustomComponent = valueObjectExpression.properties.some(
+				(valueProp) => valueProp.type === 'Property' && getPropertyName(valueProp) === 'customComponent'
+			);
+			if (hasCustomComponent) return;
+
+			const finalSegment = selector.includes(' ') ? selector.split(' ').pop() : selector;
+			const resolved = resolveSelectorPropsType(programAndChecker, filename, finalSegment);
+			if (resolved) {
+				const { propNames: validPropNames, type: resolvedType, sourceFile } = resolved;
+
+				for (const valueProp of valueObjectExpression.properties) {
+					if (valueProp.type !== 'Property') continue;
+					const propName = getPropertyName(valueProp);
+					if (!propName || ALWAYS_ALLOWED_OVERRIDE_PROPS.has(propName)) continue;
+
+					if (!validPropNames.has(propName)) {
+						context.report({
+							node: valueProp.key,
+							messageId: 'invalidOpenNamedSelectorProp',
+							data: {
+								value: propName,
+								selector,
+								componentType: finalSegment.split('.')[0],
+								typeName: safeTypeToString(programAndChecker, resolvedType),
+								validKeys: Array.from(validPropNames).join(', '),
+							},
+						});
+						continue;
+					}
+
+					// the key is valid - also check the authored value's type against the
+					// real prop type (key existence alone doesn't catch e.g. `color: 5`
+					// where `color` is real but expects a string)
+					const typeMismatch = checkPropValueType(programAndChecker, resolvedType, sourceFile, propName, valueProp.value);
+					if (typeMismatch) {
+						context.report({
+							node: valueProp.value,
+							messageId: 'invalidOpenNamedSelectorPropType',
+							data: {
+								value: propName,
+								selector,
+								componentType: finalSegment.split('.')[0],
+								typeName: safeTypeToString(programAndChecker, resolvedType),
+								expectedType: typeMismatch.expectedType,
+								actualType: typeMismatch.actualType,
+							},
+						});
+					}
+				}
+			}
+			// couldn't resolve (e.g. renamed/unrecognized selector) - fail open, never
+			// false-positive, but still recurse into $children below since that part is
+			// independent of whether we could name this particular selector's own type
+
+			const childrenProp = valueObjectExpression.properties.find(
+				(p) => p.type === 'Property' && getPropertyName(p) === '$children' && p.value.type === 'ObjectExpression'
+			);
+			if (!childrenProp) return;
+
+			for (const childProp of childrenProp.value.properties) {
+				if (childProp.type !== 'Property' || childProp.value.type !== 'ObjectExpression') continue;
+				const childSelector = getPropertyName(childProp);
+				if (!childSelector) continue;
+				walkUnknownRegionEntry(childProp.value, childSelector, programAndChecker, filename, context);
+			}
+		}
+
+		/**
+		 * Resolve a selector's final segment to its real props type, live via the type checker:
+		 * first as a literal property of `ThemeComponentsRestricted` (covers every bare selector
+		 * and every named-dotted selector with a finite suffix union, e.g. `icon.next` - i.e.
+		 * everything TypeScript itself would resolve precisely at the top level), falling back
+		 * to OPEN_NAMED_COMPONENT_PROPS_TYPE only for the open-named-dotted form that isn't a
+		 * literal property on that type (e.g. `facet.custom`).
+		 */
+		function resolveSelectorPropsType(programAndChecker, filename, finalSegment) {
+			const { checker } = programAndChecker;
+			const anchor = resolveNamedTypeFromComponentsModule(programAndChecker, 'ThemeComponentsRestricted', filename);
+
+			if (anchor) {
+				try {
+					const propSymbol = checker.getPropertyOfType(anchor.type, finalSegment);
+					if (propSymbol) {
+						// the property is optional (`prop?: X`), so its declared type is `X | undefined` -
+						// getPropertiesOfType on that union intersects across members and returns nothing,
+						// since `undefined` has no properties, so unwrap it first
+						const propType = checker.getNonNullableType(checker.getTypeOfSymbolAtLocation(propSymbol, anchor.sourceFile));
+						return {
+							propNames: new Set(checker.getPropertiesOfType(propType).map((p) => p.name)),
+							type: propType,
+							sourceFile: anchor.sourceFile,
+						};
+					}
+				} catch {
+					// fall through to the open-named fallback below
+				}
+			}
+
+			const componentType = finalSegment.split('.')[0];
+			const typeName = OPEN_NAMED_COMPONENT_PROPS_TYPE[componentType];
+			if (!typeName) return null;
+			return resolveNamedTypeFromComponentsModule(programAndChecker, typeName, filename);
+		}
+
+		/** `checker.typeToString`, defensively - only used to format a message, never gates behavior. */
+		function safeTypeToString(programAndChecker, type) {
+			try {
+				return programAndChecker.checker.typeToString(type);
+			} catch {
+				return '(unresolved)';
+			}
+		}
+
+		/**
+		 * Collect the ObjectExpression for each of theme.overrides.default/mobile/tablet/desktop
+		 * that's present as a plain object literal (a spread can't be statically resolved here).
+		 */
+		function collectOverridesObjects(configObjectExpression) {
+			const themeProp = findProperty(configObjectExpression, 'theme');
+			if (!themeProp || themeProp.value.type !== 'ObjectExpression') return [];
+
+			const overridesProp = findProperty(themeProp.value, 'overrides');
+			if (!overridesProp || overridesProp.value.type !== 'ObjectExpression') return [];
+
+			const results = [];
+			for (const breakpoint of ['default', 'mobile', 'tablet', 'desktop']) {
+				const breakpointProp = findProperty(overridesProp.value, breakpoint);
+				if (breakpointProp && breakpointProp.value.type === 'ObjectExpression') {
+					results.push(breakpointProp.value);
+				}
+			}
+			return results;
+		}
+
+		/**
+		 * Get { program, checker, esTreeNodeToTSNodeMap } from typed-linting parser services,
+		 * or null if this rule is running without type information (e.g. no
+		 * `parserOptions.project` configured).
+		 */
+		function getProgramAndChecker(context) {
+			const services = context.sourceCode?.parserServices ?? context.parserServices;
+			if (!services || !services.program) return null;
+			return {
+				program: services.program,
+				checker: services.program.getTypeChecker(),
+				esTreeNodeToTSNodeMap: services.esTreeNodeToTSNodeMap,
+			};
+		}
+
+		/**
+		 * Check an authored prop value's type against the real prop's declared type. Returns
+		 * { expectedType, actualType } (as display strings) if they're incompatible, or null if
+		 * they're compatible or couldn't be checked (fail open - never false-positive).
+		 */
+		function checkPropValueType(programAndChecker, resolvedType, sourceFile, propName, valueNode) {
+			const { checker, esTreeNodeToTSNodeMap } = programAndChecker;
+			if (!esTreeNodeToTSNodeMap) return null;
+
+			try {
+				const propSymbol = checker.getPropertyOfType(resolvedType, propName);
+				const tsValueNode = esTreeNodeToTSNodeMap.get(valueNode);
+				if (!propSymbol || !tsValueNode) return null;
+
+				const expectedType = checker.getTypeOfSymbolAtLocation(propSymbol, sourceFile);
+				const actualType = checker.getTypeAtLocation(tsValueNode);
+				if (checker.isTypeAssignableTo(actualType, expectedType)) return null;
+
+				return {
+					expectedType: checker.typeToString(expectedType),
+					actualType: checker.typeToString(actualType),
+				};
+			} catch {
+				return null;
+			}
+		}
+
+		/**
+		 * Resolve the real property names of an exported type from
+		 * '@athoscommerce/snap-preact/components', by name, live from the type checker.
+		 * Cached per Program so each type is only resolved once per lint run.
+		 */
+		function resolveNamedTypeFromComponentsModule(programAndChecker, typeName, containingFileName) {
+			const { program, checker } = programAndChecker;
+
+			let cache = openNamedPropsCacheByProgram.get(program);
+			if (!cache) {
+				cache = new Map();
+				openNamedPropsCacheByProgram.set(program, cache);
+			}
+			if (cache.has(typeName)) return cache.get(typeName);
+
+			let result = null;
+			try {
+				const ts = require('typescript');
+				const resolved = ts.resolveModuleName(
+					'@athoscommerce/snap-preact/components',
+					containingFileName,
+					program.getCompilerOptions(),
+					ts.sys
+				);
+				const resolvedFileName = resolved.resolvedModule && resolved.resolvedModule.resolvedFileName;
+				const sourceFile = resolvedFileName && program.getSourceFile(resolvedFileName);
+				const moduleSymbol = sourceFile && checker.getSymbolAtLocation(sourceFile);
+				const exportSymbol = moduleSymbol && checker.getExportsOfModule(moduleSymbol).find((s) => s.name === typeName);
+
+				if (exportSymbol) {
+					const type = checker.getDeclaredTypeOfSymbol(exportSymbol);
+					result = {
+						propNames: new Set(checker.getPropertiesOfType(type).map((p) => p.name)),
+						type,
+						sourceFile,
+					};
+				}
+			} catch {
+				result = null;
+			}
+
+			cache.set(typeName, result);
+			return result;
 		}
 
 		/**

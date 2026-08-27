@@ -2,22 +2,24 @@ import { validateTemplatesConfig, validateTemplatesConfigUnlocked } from './Snap
 
 /*
  * `theme.overrides.default/mobile/tablet/desktop` on `validateTemplatesConfig` /
- * `validateTemplatesConfigUnlocked` is typed as an intersection:
+ * `validateTemplatesConfigUnlocked` is typed against the plain, non-generic
+ * `ThemeComponentOverrides`/`ThemeComponentOverridesUnlocked` alias - fast for the editor
+ * (real-time key/prop completions, no generic inference - see `themeOverridesCompletions.test.ts`),
+ * and precise for every selector EXCEPT the dotted/open-named form of a handful of
+ * component types (`facet.<custom>`, `variantSelection.<custom>`, `recommendation.<custom>`,
+ * and the `recommendationBundle*`/`recommendationGrid` variants) - those resolve to an
+ * unchecked `unknown` here, because their suffix is a genuinely arbitrary user-supplied
+ * string rather than a known finite union. Bad props on THOSE specific selectors are
+ * instead caught by the `validate-config` ESLint rule's typed-linting check, not the TS
+ * compiler - see eslint/src/validate-config.cjs.
  *
- *   ThemeComponentsRestrictedSelectors<Selectors> & ThemeComponentOverrides
- *
- * Both halves are load-bearing and this file exists to keep them from silently
- * regressing back to only one of them:
- *
- *  - the generic `Selectors`-inferred half resolves a selector to the props of the
- *    exact single component it targets, even for a dotted/nested selector like
- *    `facet.price` - drop it and prop typos on those selectors stop being caught
- *    (they fall back to an unchecked `unknown`).
- *  - the concrete `ThemeComponentOverrides` half is a plain, non-generic type the
- *    language service can offer completions against immediately - the generic half
- *    alone can't, since `Selectors` is unresolved until a key is fully typed. That
- *    half of the regression can't be observed by a type check, so it has its own
- *    companion test: `themeOverridesCompletions.test.ts`.
+ * An earlier version of this typing intersected in a second, generic
+ * `ThemeComponentsRestrictedSelectors<Selectors>` type to also catch bad props on those
+ * dotted selectors at the TS level. It worked, but cost ~1.5s of editor completion latency
+ * per keystroke (profiled: dominated by generic inference over the large,
+ * template-literal-heavy selector pattern types in themeComponents.ts). This file exists
+ * to keep the CURRENT, intentionally narrower guarantee from silently regressing further -
+ * every case below should keep behaving exactly as asserted.
  *
  * These callbacks are never invoked - only ever type-checked. `npm run typecheck:tests`
  * (`tsc --noEmit -p tsconfig.test.json`) is the gate that runs this, since ts-jest runs
@@ -39,7 +41,8 @@ typeOnly(() => {
 		},
 	});
 
-	// bare-key selector: bad prop value is still rejected
+	// bare-key selector: bad prop value is still rejected - unaffected by the open-named
+	// trade-off above, bare keys were always resolved precisely without any generic inference
 	validateTemplatesConfig({
 		config: { platform: 'other' },
 		theme: {
@@ -66,15 +69,16 @@ typeOnly(() => {
 		},
 	});
 
-	// dotted/open-named selector: bad prop is still rejected - this is exactly the
-	// precision the generic half of the intersection exists to preserve
+	// dotted/open-named selector: a bad prop is INTENTIONALLY not caught by TS here - this
+	// is the narrow, deliberate gap the `validate-config` ESLint rule fills instead. If this
+	// starts erroring, the type has regained precision here (fine) but this assertion needs
+	// updating to match; if a *different* selector below stops erroring, something regressed.
 	validateTemplatesConfig({
 		config: { platform: 'other' },
 		theme: {
 			extends: 'base',
 			overrides: {
 				default: {
-					// @ts-expect-error - 'facet.price' resolves to Facet's props, this isn't one of them
 					'facet.price': { thisIsNotARealProp: 'nonsense' },
 				},
 			},
@@ -96,7 +100,7 @@ typeOnly(() => {
 		},
 	});
 
-	// unlocked: same dotted-selector precision
+	// unlocked: same dotted-selector gap as locked, intentionally unchecked by TS
 	validateTemplatesConfigUnlocked({
 		unlocked: true,
 		config: { platform: 'other' },
@@ -104,7 +108,6 @@ typeOnly(() => {
 			extends: 'base',
 			overrides: {
 				default: {
-					// @ts-expect-error - 'facet.price' resolves to Facet's props, this isn't one of them
 					'facet.price': { thisIsNotARealProp: 'nonsense' },
 				},
 			},

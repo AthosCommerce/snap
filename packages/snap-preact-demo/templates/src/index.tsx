@@ -35,6 +35,31 @@ let templatesConfig = validateTemplatesConfig({
 				result: {
 					hideQuickviewButton: false,
 				},
+				badgeImage: {
+					$children: {
+						badgeRectangle: {
+							$children: {
+								icon: {
+									color: 'red',
+								},
+								'toolbar.middle': {
+									toggleSideBarButton: {},
+								},
+							},
+						},
+					},
+				},
+				'facet.color': {
+					$children: {
+						facet: {
+							// color: 5
+						},
+					},
+					// color: 5,
+					// hi: 'mom'
+					color: 'red',
+					// hi: 'mom',
+				},
 			},
 		},
 	},
