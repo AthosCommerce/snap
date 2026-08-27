@@ -54,20 +54,10 @@ This section covers the properties available on the Search Store via a Search Co
 
 ### SearchController.store.results
 
-The `results` property contains an array of result objects for the current page.
+The `results` property contains an array of result objects for the current page — including `type`, `attributes`, `mappings.core`, `mask`/`display` (for temporary UI-only overrides), `variants`, and `custom`.
 
-Each result object contains the following notable properties:
-
-- **`result.type`** — `'product'` or `'banner'` (inline banner)
-- **`result.mappings.core`** — core attributes configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
-- **`result.attributes`** — remaining attributes
-- **`result.mask`** — temporarily modify result data without changing the underlying store data. Combine with `result.display` for UI effects like alternate product images on hover, or updating displayed prices when a variant is selected.
-  - **`result.mask.merge(data)`** — merge new mask data into the current display state
-  - **`result.mask.set(data)`** — overwrite the current mask data entirely
-  - **`result.mask.clear()`** — clear the mask data, reverting to the original display state
-- **`result.display`** — the current display state: `result.mask` merged with the underlying core data
-- **`result.variants`** — product variant info (size, color, etc.) and selection state. Requires variants to be enabled and configured — see [Variants Reference](https://github.com/athoscommerce/snap/tree/main/docs/REFERENCE_VARIANTS.md)
-- **`result.custom`** — an empty object untouched by core Snap packages, for your own custom data — see [`custom` property](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Abstract)
+> [!TIP]
+> For the full breakdown of result object properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#results-property).
 
 >[!NOTE]
 >If you are creating a custom Result component, the `withTracking` hook is required to capture product impression and click analytics. See [Tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#impressions) for more information.
@@ -124,24 +114,10 @@ const Result = withController(withTracking(observer((props) => {
 
 ### SearchController.store.facets
 
-The `facets` property contains an array of facet objects for the current query.
+The `facets` property contains an array of facet objects for the current query — each with a `type` (`range`, `value`, or `range-buckets`) that determines which additional properties are available, plus common ones like `label`, `display`, `collapsed`, and `toggleCollapse()`.
 
-Each result object contains the following notable properties:
-
-- **`facet.collapsed`** — facet collapse state. Facets can be configured to start collapsed by default in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
-- **`facet.toggleCollapse()`** — toggles the collapse state for this facet
-- **`facet.clear()`** — removes the facet if it is currently active
-- **`facet.label`** — the facet label to display (e.g. Price, Size, Brand)
-- **`facet.field`** — the raw facet field name
-- **`facet.display`** — the facet display type, used to conditionally render different facet components. Available types: `list` (default), `grid`, `palette`, `hierarchy`, `slider` — configurable in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
-- **`facet.type`** — the facet type: `range`, `value`, or `range-buckets`
-  - **`range`** facets won't contain `values` (typically rendered as a slider) — instead they include `range.low`, `range.high`, `active.low`, and `active.high`
-  - **`value`** and **`range-buckets`** facets include:
-    - **`facet.search.input`** — filter the facet's `values` array to entries matching this substring
-    - **`facet.overflow.setLimit(n)`** — set how many values to display before overflow occurs
-    - **`facet.overflow.toggle()`** — toggle overflow, typically bound to a facet's "show more" button
-    - **`facet.refinedValues`** — facet values after any overflow/search-within limiting — use this to render values in components
-    - **`facet.values`** — the original, unfiltered facet values. Prefer `facet.refinedValues` for rendering; only use this directly in an `afterStore` event handler
+> [!TIP]
+> For the full breakdown of facet object properties per type, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#facets-property).
 
 The example below displays a custom `FacetOptionsList` component for facets with a display type of `list`. The `@athoscommerce/snap-preact/components` component library includes [`FacetListOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetlistoptions--default), [`FacetGridOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetgridoptions--default), [`FacetPaletteOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetpaletteoptions--default), [`FacetHierarchyOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facethierarchyoptions--default), and [`FacetSlider`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetslider--price) — importable directly or usable as a reference for your own.
 
@@ -221,6 +197,9 @@ The `filters` property contains an array of filters that are currently applied t
 
 Typically used to display a filter summary with options to remove filters.
 
+> [!TIP]
+> For the full breakdown of filter object properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#filters-property).
+
 ```tsx
 // src/components/FilterSummary/FilterSummary.jsx
 
@@ -258,7 +237,10 @@ export const FilterSummary = withController(observer((props) => {
 
 ### SearchController.store.pagination
 
-The `pagination` property is not only used for information about the current query, but also contains everything needed for handling pagination of a query that yields multiple pages. Invoking the `getPages` method will retrieve the specified number of page objects. For more about the pagination store, checkout the [Search Controller reference](https://athoscommerce.github.io/snap/reference-controller-search).
+The `pagination` property is not only used for information about the current query, but also contains everything needed for handling pagination of a query that yields multiple pages. Invoking the `getPages` method will retrieve the specified number of page objects.
+
+> [!TIP]
+> For the full breakdown of pagination properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#pagination-property).
 
 ```tsx
 // src/components/Pagination/Pagination.jsx
@@ -306,6 +288,9 @@ export const Pagination = withController(observer((props) => {
 ### SearchController.store.search
 
 The `search` property contains information about the current query, typically displayed above results and used in combination with the `store.pagination` data.
+
+> [!TIP]
+> For the full breakdown of search properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#search-property).
 
 ```tsx
 // src/components/SearchHeader/SearchHeader.jsx
@@ -367,6 +352,9 @@ The `sorting` property contains sorting options applicable to the current query.
 
 Sorting settings can be configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
 
+> [!TIP]
+> For the full breakdown of sorting properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#sorting-property).
+
 ```tsx
 // src/components/SortBy/SortBy.jsx
 
@@ -405,6 +393,9 @@ export const SortBy = withController(observer((props) => {
 ### SearchController.store.merchandising
 
 The `merchandising` property contains **merchandising redirects** and **banner content**, both configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net).
+
+> [!TIP]
+> For the full breakdown of merchandising properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#merchandising-property).
 
 > [!TIP]
 > Use the [`<Banner/>`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/atoms-banner--header) component from `@athoscommerce/snap-preact/components` to display banners — available types are `header`, `banner`, `footer`, `left`, and `inline`. Inline banners are the exception: use [`<InlineBanner/>`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/atoms-inlinebanner--default) instead — see `store.results` above.
