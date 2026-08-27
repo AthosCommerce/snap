@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
@@ -80,6 +80,12 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		lang,
 	} = props;
 
+	// painted state used to ensure transition works with dynamic loading
+	const [painted, setPainted] = useState(false);
+	useEffect(() => {
+		setPainted(true);
+	}, []);
+
 	// Dialog focus management — see QuickviewModal for the rationale (effect lives in the
 	// always-mounted container so the restore-focus branch survives the open→close transition).
 	const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +93,7 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 	const wasOpenRef = useRef(false);
 
 	useEffect(() => {
-		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
+		const isOpenNow = Boolean(quickviewManager?.store?.isOpen) && painted;
 		if (isOpenNow && !wasOpenRef.current) {
 			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
 			const closeEl = wrapperRef.current?.querySelector<HTMLElement>('.ss__quickview__close');
@@ -108,7 +114,7 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 
 	const store = quickviewManager.store;
 	const product = store.product as Product | undefined;
-	const isOpen = Boolean(store.isOpen);
+	const isOpen = Boolean(store.isOpen) && painted;
 	const onClose = () => quickviewManager.close();
 
 	const subProps: QuickviewSlideoutSubProps = {
