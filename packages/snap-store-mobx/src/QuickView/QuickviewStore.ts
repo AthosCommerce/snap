@@ -1,7 +1,7 @@
 import { action, makeObservable, observable } from 'mobx';
 import { AbstractStore } from '../Abstract/AbstractStore';
 import { Product } from '../Search/Stores';
-import type { QuickviewStoreConfig, StoreConfigs, SearchStoreConfig } from '../types';
+import type { DisplayFieldConfig, QuickviewStoreConfig, StoreConfigs, SearchStoreConfig } from '../types';
 
 // Structural type — avoids a dependency on snap-client.
 export type QuickviewProductsData = {
@@ -10,7 +10,12 @@ export type QuickviewProductsData = {
 };
 
 export type QuickviewConfig = {
-	displayFields?: string[] | ((result: Product) => string[]);
+	// The fields to display in the modal's attribute table (order preserved), or a function
+	// receiving the modal's product and returning them. Each entry configures the field, an
+	// optional display label (falling back to `meta.facets[field].label`, then the raw field key)
+	// and an optional display type (see DisplayFieldConfig). Opt-in: when omitted, no attribute
+	// table renders.
+	displayFields?: DisplayFieldConfig[] | ((result: Product) => DisplayFieldConfig[]);
 	// When false, the source `result` is used directly as the modal's product (no cloning).
 	// Variant selection in the modal will then mutate the source result tile. Default: true.
 	clone?: boolean;

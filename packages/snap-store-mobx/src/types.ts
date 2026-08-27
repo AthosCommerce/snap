@@ -196,6 +196,19 @@ export type QuickviewStoreConfig = StoreConfig & {
 	settings?: QuickviewConfig;
 };
 
+// One product field to display as a label / value row — the shape consumed by the
+// ProductDetailTable component's and the quickview config's `displayFields`.
+export type DisplayFieldConfig = {
+	// Explicit dot-path (e.g. `attributes.brand`) or bare field key resolved via `mappings.core` then `attributes`.
+	field: string;
+	// Display label (falls back to the raw field key; the quickview modal falls back to
+	// `meta.facets[field].label` first).
+	label?: string;
+	// How to render the resolved value: `price` → Price, `rating` → Rating, `image` → Image,
+	// `html` → rich HTML, `text` (default) → plain text.
+	type?: 'price' | 'image' | 'html' | 'rating' | 'text';
+};
+
 export type StoreServices = {
 	urlManager: UrlManager;
 };

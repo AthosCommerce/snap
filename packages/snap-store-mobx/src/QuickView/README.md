@@ -27,7 +27,7 @@ The per-quickview `QuickviewConfig` for the currently-open modal, set on each `u
 
 | option | type | default | description |
 |---|---|---|---|
-| `displayFields` | `string[] \| (result: Product) => string[]` | — | Fields to display in the modal. Can be a function that receives the modal's product and returns the field names. |
+| `displayFields` | `DisplayFieldConfig[] \| (result: Product) => DisplayFieldConfig[]` | — | Fields to display in the modal's attribute table (order preserved). Each entry is `{ field, label?, type? }` — see `DisplayFieldConfig`. Can be a function that receives the modal's product and returns the fields. |
 | `clone` | `boolean` | `true` | When enabled, the source result is deep-cloned into an independent product for the modal. When disabled, the source result is used directly as the modal's product (no cloning); variant selection in the modal will then mutate the source result tile. |
 | `fetchProductData` | `boolean` | `true` | When enabled, the controller fetches product data via `/v1/products`. When disabled, the fetch is skipped and the modal renders whatever data is already on the source result. |
 | `imagesField` | `string \| string[]` | `['images', 'ss_images']` | Field name(s) (looked up on the product's `mappings.core`, then `attributes`) holding a list of image URLs. Candidates are tried in order; the first that resolves to more than one image is rendered in a carousel instead of the single core image. |

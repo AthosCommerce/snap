@@ -170,14 +170,16 @@ describe('QuickviewManager', () => {
 	it('underlays its own settings beneath the source controller config and the per-call config', async () => {
 		const manager = new QuickviewManager(services(), {
 			id: 'quickview',
-			settings: { displayFields: ['manager'], clone: false, imagesField: 'manager_images' },
+			settings: { displayFields: [{ field: 'manager' }], clone: false, imagesField: 'manager_images' },
 		});
 		const controller = sourceController({ config: { id: 'search', settings: { quickview: { clone: true, imagesField: 'source_images' } } } });
 
 		await manager.show(product(), { controller, config: { imagesField: 'call_images' } });
 
 		// per-call wins over source, source wins over manager, manager-only keys survive
-		expect(manager.store.resolvedConfig).toEqual(expect.objectContaining({ displayFields: ['manager'], clone: true, imagesField: 'call_images' }));
+		expect(manager.store.resolvedConfig).toEqual(
+			expect.objectContaining({ displayFields: [{ field: 'manager' }], clone: true, imagesField: 'call_images' })
+		);
 	});
 
 	it('forwards the source controller meta data into the store update', async () => {

@@ -15,7 +15,11 @@ import { Price } from '../../Atoms/Price';
 import { Image } from '../../Atoms/Image';
 import { Rating } from '../Rating';
 
-import type { Product } from '@athoscommerce/snap-store-mobx';
+import type { Product, DisplayFieldConfig } from '@athoscommerce/snap-store-mobx';
+
+// The display-field shape lives in snap-store-mobx (next to QuickviewConfig, whose `displayFields`
+// config shares it); re-exported here so component consumers can import it alongside the props.
+export type { DisplayFieldConfig };
 
 const defaultStyles: StyleScript<ProductDetailTableProps> = () => {
 	return css({
@@ -58,7 +62,7 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 
 	const props = mergeProps('productDetailTable', globalTheme, defaultProps, properties);
 
-	const { result, details, disableStyles, className, internalClassName, treePath } = props;
+	const { result, displayFields, disableStyles, className, internalClassName, treePath } = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('productDetailTable', props);
 
@@ -68,13 +72,13 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 
 	const styling = mergeStyles<ProductDetailTableProps>(props, defaultStyles);
 
-	// Render only the configured details that resolve to a non-empty value (preserves the opt-in
-	// behaviour: with no details, nothing renders).
-	const displayedDetails = (details || []).filter((detail) => renderDetailValue(getProductFieldValue(result, detail.field)) !== '');
+	// Render only the configured fields that resolve to a non-empty value (preserves the opt-in
+	// behaviour: with no displayFields, nothing renders).
+	const displayedFields = (displayFields || []).filter((detail) => renderDetailValue(getProductFieldValue(result, detail.field)) !== '');
 
-	if (displayedDetails.length === 0) return null;
+	if (displayedFields.length === 0) return null;
 
-	const renderValue = (detail: ProductDetailTableDetail): h.JSX.Element => {
+	const renderValue = (detail: DisplayFieldConfig): h.JSX.Element => {
 		const rawValue = getProductFieldValue(result, detail.field);
 		const componentProps = { theme: props.theme, treePath, ...defined({ disableStyles }) };
 
@@ -113,7 +117,7 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 		<CacheProvider>
 			<table {...styling} className={classnames('ss__product-detail-table', className, internalClassName)}>
 				<tbody>
-					{displayedDetails.map((detail, index) => (
+					{displayedFields.map((detail, index) => (
 						<tr key={`${detail.field}-${index}`}>
 							<th scope="row">{detail.label ?? detail.field}</th>
 							<td>{renderValue(detail)}</td>
@@ -125,22 +129,12 @@ export const ProductDetailTable = observer((properties: ProductDetailTableProps)
 	);
 });
 
-export type ProductDetailTableDetail = {
-	// Explicit dot-path (e.g. `attributes.brand`) or bare field key resolved via `mappings.core` then `attributes`.
-	field: string;
-	// Display label (falls back to the raw field key).
-	label?: string;
-	// How to render the resolved value: `price` → Price, `rating` → Rating, `image` → Image,
-	// `html` → rich HTML, `text` (default) → plain text via ProductDetail.
-	type?: 'price' | 'image' | 'html' | 'rating' | 'text';
-};
-
 export type ProductDetailTableProps = {
 	result?: Product;
 } & ProductDetailTableTemplatesLegalProps &
 	ComponentProps<ProductDetailTableProps>;
 
 export type ProductDetailTableTemplatesLegalProps = {
-	// The detail rows to display, in order.
-	details?: ProductDetailTableDetail[];
+	// The fields to display as label / value rows, in order.
+	displayFields?: DisplayFieldConfig[];
 };

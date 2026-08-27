@@ -51,10 +51,10 @@ export default {
 			},
 			control: false,
 		},
-		details: {
-			description: 'Ordered detail rows to display: field, optional label, and optional render type',
+		displayFields: {
+			description: 'Ordered fields to display as label / value rows: field, optional label, and optional render type',
 			table: {
-				type: { summary: 'ProductDetailTableDetail[]' },
+				type: { summary: 'DisplayFieldConfig[]' },
 				category: 'Templates Legal',
 			},
 			control: { type: 'object' },
@@ -66,7 +66,7 @@ export default {
 export const Default = (args: ProductDetailTableProps) => <ProductDetailTable {...args} />;
 Default.args = {
 	result: mockResult,
-	details: [
+	displayFields: [
 		{ field: 'brand', label: 'Brand' },
 		{ field: 'material', label: 'Material' },
 		{ field: 'colors', label: 'Colors' },

@@ -291,7 +291,7 @@ describe('QuickviewStore', () => {
 		it('stores the per-quickview config and clears a previous error', () => {
 			const store = new QuickviewStore(quickviewConfig);
 			const { results } = sourceProducts();
-			const config = { displayFields: ['name', 'price'], imagesField: 'ss_images' };
+			const config = { displayFields: [{ field: 'name' }, { field: 'price', type: 'price' as const }], imagesField: 'ss_images' };
 			store.error = { message: 'previous failure' };
 
 			store.update({ result: results[0], config });
@@ -306,7 +306,7 @@ describe('QuickviewStore', () => {
 			const store = new QuickviewStore(quickviewConfig);
 			const { results } = sourceProducts();
 
-			store.update({ result: results[0], config: { displayFields: ['name'] } });
+			store.update({ result: results[0], config: { displayFields: [{ field: 'name' }] } });
 			store.isOpen = true;
 			store.loading = true;
 			store.error = { message: 'failure' };

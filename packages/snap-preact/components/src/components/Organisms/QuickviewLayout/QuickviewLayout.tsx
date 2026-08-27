@@ -21,7 +21,7 @@ import { CalloutBadge } from '../../Molecules/CalloutBadge';
 import { Gallery } from '../../Molecules/Gallery';
 import { QuantityPicker } from '../../Molecules/QuantityPicker';
 
-import type { Product } from '@athoscommerce/snap-store-mobx';
+import type { Product, DisplayFieldConfig } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
 import type { RecommendationController, RecommendationControllerConfig, QuickviewManager } from '@athoscommerce/snap-controller';
 import type { RecommendationProps, RecommendationGridProps } from '../../../';
@@ -465,7 +465,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const store = quickviewManager.store;
 	const loading = Boolean(store.loading);
 	const configuredDisplayFields = store.resolvedConfig?.displayFields;
-	const displayFields: string[] | undefined =
+	const displayFields: DisplayFieldConfig[] | undefined =
 		typeof configuredDisplayFields === 'function' ? (product ? configuredDisplayFields(product) : undefined) : configuredDisplayFields;
 	const error: { message: string; cause?: unknown } | undefined = store.error;
 
@@ -728,11 +728,12 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 		if (module == 'productDetailTable') {
 			if (!product) return null;
-			const details = (displayFields || []).map((field) => ({ field, label: labelFor(field) }));
+			// Label precedence: explicit config label, then the meta facet label, then the raw field key.
+			const labeledFields = (displayFields || []).map((detail) => ({ ...detail, label: detail.label ?? labelFor(detail.field) }));
 			return (
 				<ProductDetailTable
 					result={product}
-					details={details}
+					displayFields={labeledFields}
 					className="ss__quickview__attributes"
 					theme={props.theme}
 					treePath={treePath}

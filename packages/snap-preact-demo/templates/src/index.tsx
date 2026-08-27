@@ -44,6 +44,9 @@ let templatesConfig = validateTemplatesConfig({
 				component: 'QuickviewModal',
 			},
 		],
+		settings: {
+			displayFields: [{ field: 'price', type: 'price' }, { field: 'color' }, { field: 'size' }],
+		},
 	},
 	search: {
 		targets: [
@@ -52,11 +55,6 @@ let templatesConfig = validateTemplatesConfig({
 				component: 'Search',
 			},
 		],
-		settings: {
-			quickview: {
-				displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
-			},
-		},
 	},
 	autocomplete: {
 		targets: [

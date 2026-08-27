@@ -114,9 +114,6 @@ let config: SnapConfig = {
 								},
 							],
 						},
-						quickview: {
-							displayFields: ['color', 'price', 'ss_gender', 'status', 'tags_category', 'vendor'],
-						},
 					},
 					globals: {
 						filters: backgroundFilters,
@@ -219,7 +216,12 @@ let config: SnapConfig = {
 		],
 	},
 	quickview: {
-		config: { id: 'quickview' },
+		config: {
+			id: 'quickview',
+			settings: {
+				displayFields: [{ field: 'price', type: 'price' }, { field: 'color' }, { field: 'size' }],
+			},
+		},
 		targeters: [
 			{
 				selector: 'body',

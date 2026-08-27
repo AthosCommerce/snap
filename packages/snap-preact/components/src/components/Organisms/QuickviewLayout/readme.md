@@ -39,7 +39,7 @@ Each module name maps to a library component (so theme selectors and `customComp
 - `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid. The path's final segment names the component, so `productDetail.<name>` theme selectors can target it (e.g. `productDetail.description`).
 - `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`). Clicking More info tracks a clickThrough for the product (`controller.track.product.clickThrough`, delegated with `quickView: true`) before navigating to the product page.
 - `quantityPicker` — the `QuantityPicker` molecule bound to the observable `product.quantity`, so `button.add-to-cart` adds the selected quantity to the cart. Part of both default layouts, between `variantSelections` and the action buttons.
-- `productDetailTable` — the `ProductDetailTable` molecule (opt-in via `displayFields`).
+- `productDetailTable` — the `ProductDetailTable` molecule (opt-in via the `displayFields` config).
 - `recommendation.<profile>` — a recommendation carousel for the named profile. `<profile>` becomes the `RecommendationController` **tag**; the controller is seeded with the currently-viewed product (`mappings.core.parentId || product.id`) and rendered through the theme's `Recommendation` component (configurable via the `recommendation` prop). The profile also names the component, so `recommendation.<profile>` theme selectors can target it. Renders `null` until the controller's store is loaded.
 - `_` — a flexible separator.
 
@@ -93,7 +93,7 @@ When `product.variants.selections` is non-empty the `variantSelections` module r
 
 ## `displayFields` and labels
 
-`store.resolvedConfig.displayFields` is an optional `string[]` — or a `(result) => string[]` function receiving the modal's product — selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. `QuickviewLayout` resolves labels from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name) and passes the field/label pairs to `ProductDetailTable` as `details`. Array values render comma-separated; objects fall back to `JSON.stringify`.
+`store.resolvedConfig.displayFields` is an optional `DisplayFieldConfig[]` — or a `(result) => DisplayFieldConfig[]` function receiving the modal's product — selecting which attributes appear in the `productDetailTable` module (order preserved). Attributes are **opt-in**: with no `displayFields`, no table renders. Each entry is `{ field, label?, type? }`, the same shape `ProductDetailTable`'s `displayFields` prop consumes: `label` sets the row label and `type` picks the value rendering (`text` default, `price`, `rating`, `image`, `html`). When an entry has no `label`, `QuickviewLayout` resolves one from the originating controller's meta store, `quickviewManager.sourceController?.store.meta?.data?.facets[field]?.label` (falling back to the raw field name), before passing the fields to `ProductDetailTable`. Array values render comma-separated; objects fall back to `JSON.stringify`.
 
 ## Recommendations
 

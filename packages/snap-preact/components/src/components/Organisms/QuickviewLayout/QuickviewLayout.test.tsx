@@ -149,7 +149,7 @@ describe('QuickviewLayout', () => {
 			attributes: { color: 'red', size: 'M' },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product, resolvedConfig: { displayFields: ['color', 'size'] } },
+			store: { isOpen: true, product, resolvedConfig: { displayFields: [{ field: 'color' }, { field: 'size' }] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
@@ -207,7 +207,7 @@ describe('QuickviewLayout', () => {
 		expect(rendered.container.querySelector('.ss__quickview__title')).toBeNull();
 	});
 
-	it('filters attributes by displayFields', () => {
+	it('filters attributes by the configured displayFields', () => {
 		const storeProduct = {
 			id: 'mine',
 			mappings: { core: { name: 'Mine' } },
@@ -218,7 +218,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				resolvedConfig: { displayFields: ['size'] },
+				resolvedConfig: { displayFields: [{ field: 'size' }] },
 			},
 		});
 
@@ -236,7 +236,11 @@ describe('QuickviewLayout', () => {
 			mappings: { core: { name: 'Mine' } },
 			attributes: { color: 'red', size: 'M' },
 		};
-		const displayFields = jest.fn((result: any) => Object.keys(result.attributes).filter((field) => field !== 'color'));
+		const displayFields = jest.fn((result: any) =>
+			Object.keys(result.attributes)
+				.filter((field) => field !== 'color')
+				.map((field) => ({ field }))
+		);
 		const { quickviewManager } = makeQuickviewManager({
 			store: {
 				isOpen: true,
@@ -279,7 +283,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				resolvedConfig: { displayFields: ['size', 'color'] },
+				resolvedConfig: { displayFields: [{ field: 'size' }, { field: 'color' }] },
 			},
 		});
 
@@ -300,13 +304,56 @@ describe('QuickviewLayout', () => {
 			attributes: { sku: 'ABC-123' },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, loading: false, product: storeProduct, resolvedConfig: { displayFields: ['sku'] } },
+			store: { isOpen: true, loading: false, product: storeProduct, resolvedConfig: { displayFields: [{ field: 'sku' }] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
 
 		expect(rendered.getByText('sku')).toBeInTheDocument();
 		expect(rendered.getByText('ABC-123')).toBeInTheDocument();
+	});
+
+	it('prefers an explicit detail label over the meta facet label and passes the detail type through', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', price: 42 } },
+			attributes: { size: 'M' },
+		};
+		const { quickviewManager } = makeQuickviewManager({
+			sourceController: {
+				store: {
+					meta: {
+						data: {
+							facets: {
+								size: { label: 'Size' },
+							},
+						},
+					},
+				},
+				log: { warn: jest.fn(), error: jest.fn() },
+			},
+			store: {
+				isOpen: true,
+				loading: false,
+				product: storeProduct,
+				resolvedConfig: {
+					displayFields: [
+						{ field: 'size', label: 'Fit' },
+						{ field: 'price', type: 'price' as const },
+					],
+				},
+			},
+		});
+
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
+
+		// The explicit label wins over the meta facet label…
+		expect(rendered.getByText('Fit')).toBeInTheDocument();
+		expect(rendered.queryByText('Size')).toBeNull();
+		// …and the `price` type renders through the Price component (formatted currency).
+		const price = rendered.container.querySelector('.ss__quickview__attributes .ss__price');
+		expect(price).toBeInTheDocument();
+		expect(price).toHaveTextContent('42');
 	});
 
 	it('joins array attribute values with commas', () => {
@@ -320,7 +367,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				resolvedConfig: { displayFields: ['tags'] },
+				resolvedConfig: { displayFields: [{ field: 'tags' }] },
 			},
 		});
 
@@ -344,7 +391,7 @@ describe('QuickviewLayout', () => {
 				isOpen: true,
 				loading: false,
 				product: storeProduct,
-				resolvedConfig: { displayFields: ['tags'] },
+				resolvedConfig: { displayFields: [{ field: 'tags' }] },
 			},
 		});
 
@@ -678,7 +725,7 @@ describe('QuickviewLayout', () => {
 			attributes: { color: 'red' },
 		};
 		const { quickviewManager } = makeQuickviewManager({
-			store: { isOpen: true, product: storeProduct, resolvedConfig: { displayFields: ['color'] } },
+			store: { isOpen: true, product: storeProduct, resolvedConfig: { displayFields: [{ field: 'color' }] } },
 		});
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);

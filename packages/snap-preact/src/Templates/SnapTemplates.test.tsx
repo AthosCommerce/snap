@@ -1219,7 +1219,7 @@ describe('createSnapConfig additional coverage', () => {
 			...baseConfig,
 			quickview: {
 				targets: [{ component: 'QuickviewSlideout' }],
-				settings: { displayFields: ['color'] },
+				settings: { displayFields: [{ field: 'color' }] },
 			},
 		};
 		const templatesStore = new TemplatesStore({ config });
@@ -1227,7 +1227,7 @@ describe('createSnapConfig additional coverage', () => {
 
 		const def = snapConfig.quickview!;
 		expect(def.config!.id).toBe('quickview');
-		expect(def.config!.settings?.displayFields).toEqual(['color']);
+		expect(def.config!.settings?.displayFields).toEqual([{ field: 'color' }]);
 		expect(def.targeters).toHaveLength(1);
 		expect(def.targeters?.[0].selector).toBe('body');
 	});
