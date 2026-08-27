@@ -32,7 +32,6 @@ export default {
 		value: {
 			description: 'Quantity value (externally managed state)',
 			table: {
-				category: 'Templates Legal',
 				type: {
 					summary: 'number',
 				},
@@ -42,7 +41,6 @@ export default {
 		startValue: {
 			description: 'Initial quantity value (internally managed state)',
 			table: {
-				category: 'Templates Legal',
 				type: {
 					summary: 'number',
 				},

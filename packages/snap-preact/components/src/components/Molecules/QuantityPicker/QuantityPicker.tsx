@@ -232,12 +232,12 @@ type QuantityPickerChangeEvent = React.MouseEvent<HTMLElement, MouseEvent> | Rea
 
 export type QuantityPickerProps = {
 	lang?: Partial<QuantityPickerLang>;
+	value?: number;
+	startValue?: number;
 } & QuantityPickerTemplatesLegalProps &
 	ComponentProps<QuantityPickerProps>;
 
 export type QuantityPickerTemplatesLegalProps = {
-	value?: number;
-	startValue?: number;
 	min?: number;
 	max?: number;
 	step?: number;
