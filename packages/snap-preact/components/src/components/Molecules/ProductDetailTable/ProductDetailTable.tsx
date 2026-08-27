@@ -48,6 +48,20 @@ const defaultStyles: StyleScript<ProductDetailTableProps> = () => {
 		},
 		'& td': {
 			color: '#1a1a1a',
+			// Typed values render components whose defaults center them (Rating flex-centers its
+			// stars, Image stretches and letterboxes via objectFit) — left-align both so every
+			// display type lines up with the plain text values.
+			'& .ss__rating': {
+				justifyContent: 'flex-start',
+			},
+			'& .ss__image': {
+				alignItems: 'flex-start',
+				// Cap images at a row-scale thumbnail (width stays auto, preserving aspect ratio)
+				// so a full-size product image can't dwarf the table.
+				'& img': {
+					maxHeight: '100px',
+				},
+			},
 		},
 	});
 };

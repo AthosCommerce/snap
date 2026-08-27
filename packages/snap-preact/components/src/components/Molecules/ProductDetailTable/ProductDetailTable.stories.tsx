@@ -11,6 +11,8 @@ const mockResult = {
 		core: {
 			name: 'Sample Product',
 			price: 19.99,
+			thumbnailImageUrl:
+				'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Women_s_Apparel_Align_Hoodie_-_Sandstone_4354a6ad-5db0-4d69-91b1-65e7d7ebe647.png?v=1747685130&width=1920',
 		},
 	},
 	attributes: {
@@ -72,5 +74,6 @@ Default.args = {
 		{ field: 'colors', label: 'Colors' },
 		{ field: 'price', label: 'Price', type: 'price' },
 		{ field: 'rating', label: 'Rating', type: 'rating' },
+		{ field: 'thumbnailImageUrl', label: 'Image', type: 'image' },
 	],
 };
