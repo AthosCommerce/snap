@@ -30,6 +30,7 @@ import type { FacetListOptionsProps, FacetListOptionsTemplatesLegalProps } from 
 import type { FacetPaletteOptionsProps, FacetPaletteOptionsTemplatesLegalProps } from '../components/Molecules/FacetPaletteOptions';
 import type { FacetSliderProps, FacetSliderTemplatesLegalProps } from '../components/Molecules/FacetSlider';
 // import type { FacetToggleProps } from '../components/Molecules/FacetToggle';
+import type { GalleryProps, GalleryTemplatesLegalProps } from '../components/Molecules/Gallery';
 import type { FilterNames, FilterProps, FilterTemplatesLegalProps } from '../components/Molecules/Filter';
 import type { GridProps, GridTemplatesLegalProps } from '../components/Molecules/Grid';
 import type { LayoutSelectorProps, LayoutSelectorTemplatesLegalProps } from '../components/Molecules/LayoutSelector';
@@ -176,6 +177,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'facetPaletteOptions',
 	'facetSlider',
 	'filter',
+	'gallery',
 	'loadMore',
 	'overlayBadge',
 	'pagination',
@@ -261,6 +263,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderProps> } &
 	// { [K in UnNamedThemeComponentSelectors<'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'gallery'>]?: Partial<GalleryProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationProps> } &
@@ -353,6 +356,7 @@ type ThemeComponentsRestrictedNamedProps =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> } &
 	// { [K in UnNamedThemeComponentSelectors<'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'gallery'>]?: Partial<GalleryTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
@@ -533,6 +537,7 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetPaletteOptions'>]?: Partial<FacetPaletteOptionsTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'gallery'>]?: Partial<GalleryTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationTemplatesLegalProps> & WithCustomComponent } &
@@ -654,6 +659,7 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> } &
 	// { [K in StartsWithTemplateHavingUnNamedThemeComponentSelectors<Template,'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'gallery'>]?: Partial<GalleryTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
@@ -746,6 +752,7 @@ export type ComponentTypePropsMap = {
 	facetPaletteOptions: FacetPaletteOptionsProps;
 	facetSlider: FacetSliderProps;
 	filter: FilterProps;
+	gallery: GalleryProps;
 	loadMore: LoadMoreProps;
 	overlayBadge: OverlayBadgeProps;
 	pagination: PaginationProps;

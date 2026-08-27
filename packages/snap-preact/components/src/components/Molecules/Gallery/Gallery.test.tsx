@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { render, fireEvent } from '@testing-library/preact';
 
+import { ThemeProvider } from '../../../providers';
 import { Gallery } from './Gallery';
 
 const IMAGES = ['http://example.com/a.jpg', 'http://example.com/b.jpg', 'http://example.com/c.jpg'];
@@ -329,6 +330,50 @@ describe('Gallery', () => {
 			rendered.rerender(<Gallery images={IMAGES} open={false} />);
 			expect(document.activeElement).toBe(outerButton);
 			document.body.removeChild(outerButton);
+		});
+	});
+
+	// The gallery's own stylesheet must not out-specify sub-component prop styling — button and
+	// icon chrome is passed as props so that templates theme overrides keep the final say.
+	describe('templates theme overrides on sub-components', () => {
+		const templatesTheme = (components: Record<string, unknown>) =>
+			({
+				type: 'templates',
+				components,
+			} as any);
+
+		it('applies button color and borderColor overrides (e.g. `gallery button.zoom-in`)', () => {
+			render(
+				<ThemeProvider theme={templatesTheme({ 'gallery button.zoom-in': { color: 'blue', borderColor: 'red' } })}>
+					<Gallery images={IMAGES} open={true} />
+				</ThemeProvider>
+			);
+
+			const zoomIn = document.querySelector('.ss__gallery__zoom-in')!;
+			expect(getComputedStyle(zoomIn).color).toBe('blue');
+			expect(getComputedStyle(zoomIn).borderColor).toBe('red');
+
+			// unnamed buttons keep the defaults
+			const zoomOut = document.querySelector('.ss__gallery__zoom-out')!;
+			expect(getComputedStyle(zoomOut).color).toBe('rgb(255, 255, 255)');
+			expect(getComputedStyle(zoomOut).borderColor).toBe('transparent');
+		});
+
+		it('icons follow the button color via currentColor, and `gallery icon` overrides beat it', () => {
+			const rendered = render(
+				<ThemeProvider theme={templatesTheme({ 'gallery button.zoom-in': { color: 'blue' } })}>
+					<Gallery images={IMAGES} open={true} />
+				</ThemeProvider>
+			);
+			expect(getComputedStyle(document.querySelector('.ss__gallery__zoom-in .ss__icon')!).fill).toBe('currentColor');
+
+			rendered.unmount();
+			render(
+				<ThemeProvider theme={templatesTheme({ 'gallery icon': { color: 'red' } })}>
+					<Gallery images={IMAGES} open={true} />
+				</ThemeProvider>
+			);
+			expect(getComputedStyle(document.querySelector('.ss__gallery__zoom-in .ss__icon')!).fill).toBe('red');
 		});
 	});
 });

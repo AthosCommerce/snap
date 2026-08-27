@@ -33,7 +33,6 @@ export default {
 		images: {
 			description: 'Array of image URLs to display in the gallery',
 			table: {
-				category: 'Templates Legal',
 				type: {
 					summary: 'string[]',
 				},
@@ -43,7 +42,6 @@ export default {
 		open: {
 			description: 'Controls visibility of the gallery overlay',
 			table: {
-				category: 'Templates Legal',
 				type: {
 					summary: 'boolean',
 				},
@@ -54,7 +52,6 @@ export default {
 		startIndex: {
 			description: 'Index of the image to display when the gallery opens',
 			table: {
-				category: 'Templates Legal',
 				type: {
 					summary: 'number',
 				},
@@ -76,7 +73,6 @@ export default {
 		alt: {
 			description: 'Alt text applied to the displayed image',
 			table: {
-				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},

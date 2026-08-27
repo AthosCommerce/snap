@@ -29,14 +29,15 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			gap: '8px',
 			padding: '12px 16px',
 		},
+		// button and icon chrome (color, background, border) comes from Button/Icon props (not CSS)
+		// so that theme overrides targeting those components (e.g. `gallery button.zoom-in`) are not
+		// out-specified here — these rules stick to layout the sub-components have no props for
 		'& .ss__gallery__button': {
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center',
 			padding: 0,
-			background: 'rgba(255, 255, 255, 0.12)',
-			color: '#fff',
-			border: 'none',
+			boxSizing: 'border-box',
 			borderRadius: '4px',
 			width: '40px',
 			height: '40px',
@@ -81,16 +82,16 @@ const defaultStyles: StyleScript<GalleryProps> = () => {
 			alignItems: 'center',
 			justifyContent: 'center',
 			padding: 0,
-			background: 'rgba(255, 255, 255, 0.06)',
-			color: '#fff',
-			border: 'none',
+			boxSizing: 'border-box',
 			borderRadius: 0,
 			fontSize: '2em',
 			lineHeight: 1,
 			cursor: 'pointer',
 			zIndex: 1,
 			'&:hover': {
-				background: 'rgba(255, 255, 255, 0.14)',
+				// a wash layered via backgroundImage so it composes with (rather than defeats)
+				// a backgroundColor set through Button props or theme overrides
+				backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.085))',
 			},
 		},
 		'& .ss__gallery__nav--prev': {
@@ -315,8 +316,12 @@ export const Gallery = observer((properties: GalleryProps) => {
 						</span>
 					)}
 					<Button
+						name="zoom-out"
 						internalClassName="ss__gallery__button ss__gallery__zoom-out"
-						icon={{ icon: 'minus', color: '#fff' }}
+						color="#fff"
+						backgroundColor="rgba(255, 255, 255, 0.12)"
+						borderColor="transparent"
+						icon={{ icon: 'minus', color: 'currentColor' }}
 						lang={{ button: lang.zoomOutButton }}
 						disabled={zoom <= zoomMin}
 						onClick={zoomOut}
@@ -325,8 +330,12 @@ export const Gallery = observer((properties: GalleryProps) => {
 						{...defined({ disableStyles: props.disableStyles })}
 					/>
 					<Button
+						name="zoom-in"
 						internalClassName="ss__gallery__button ss__gallery__zoom-in"
-						icon={{ icon: 'plus', color: '#fff' }}
+						color="#fff"
+						backgroundColor="rgba(255, 255, 255, 0.12)"
+						borderColor="transparent"
+						icon={{ icon: 'plus', color: 'currentColor' }}
 						lang={{ button: lang.zoomInButton }}
 						disabled={zoom >= zoomMax}
 						onClick={zoomIn}
@@ -337,7 +346,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 					<Button
 						name="close"
 						internalClassName="ss__gallery__button ss__gallery__close"
-						icon={{ icon: 'close', color: '#fff' }}
+						color="#fff"
+						backgroundColor="rgba(255, 255, 255, 0.12)"
+						borderColor="transparent"
+						icon={{ icon: 'close', color: 'currentColor' }}
 						lang={{ button: lang.closeButton }}
 						onClick={() => onClose && onClose()}
 						theme={props.theme}
@@ -351,7 +363,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 						<Button
 							name="prev"
 							internalClassName="ss__gallery__nav ss__gallery__nav--prev"
-							icon={{ icon: 'angle-left', color: '#fff' }}
+							color="#fff"
+							backgroundColor="rgba(255, 255, 255, 0.06)"
+							borderColor="transparent"
+							icon={{ icon: 'angle-left', color: 'currentColor' }}
 							lang={{ button: lang.prevButton }}
 							onClick={showPrev}
 							theme={props.theme}
@@ -382,7 +397,10 @@ export const Gallery = observer((properties: GalleryProps) => {
 						<Button
 							name="next"
 							internalClassName="ss__gallery__nav ss__gallery__nav--next"
-							icon={{ icon: 'angle-right', color: '#fff' }}
+							color="#fff"
+							backgroundColor="rgba(255, 255, 255, 0.06)"
+							borderColor="transparent"
+							icon={{ icon: 'angle-right', color: 'currentColor' }}
 							lang={{ button: lang.nextButton }}
 							onClick={showNext}
 							theme={props.theme}
@@ -401,14 +419,18 @@ export type GalleryProps = {
 	images: string[];
 	open: boolean;
 	startIndex?: number;
-	onClose?: () => void;
 	alt?: string;
+	lang?: Partial<GalleryLang>;
+} & GalleryTemplatesLegalProps &
+	ComponentProps<GalleryProps>;
+
+export type GalleryTemplatesLegalProps = {
+	onClose?: () => void;
 	zoomMin?: number;
 	zoomMax?: number;
 	zoomStep?: number;
 	swipeThreshold?: number;
-	lang?: Partial<GalleryLang>;
-} & ComponentProps<GalleryProps>;
+};
 
 export interface GalleryLang {
 	gallery: Lang<never>;

@@ -192,4 +192,6 @@ export type ButtonNames =
 	| 'quickview'
 	| 'more-info'
 	| 'increment'
-	| 'decrement';
+	| 'decrement'
+	| 'zoom-in'
+	| 'zoom-out';

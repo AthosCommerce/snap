@@ -138,6 +138,7 @@ export type LibraryImports = {
 		facetPaletteOptions: LibraryComponentImport;
 		facetSlider: LibraryComponentImport;
 		filter: LibraryComponentImport;
+		gallery: LibraryComponentImport;
 		loadMore: LibraryComponentImport;
 		overlayBadge: LibraryComponentImport;
 		pagination: LibraryComponentImport;
@@ -233,6 +234,7 @@ export class LibraryStore {
 		facetPaletteOptions: LibraryComponentMap;
 		facetSlider: LibraryComponentMap;
 		filter: LibraryComponentMap;
+		gallery: LibraryComponentMap;
 		loadMore: LibraryComponentMap;
 		overlayBadge: LibraryComponentMap;
 		pagination: LibraryComponentMap;
@@ -307,6 +309,7 @@ export class LibraryStore {
 		facetPaletteOptions: {},
 		facetSlider: {},
 		filter: {},
+		gallery: {},
 		loadMore: {},
 		overlayBadge: {},
 		pagination: {},
@@ -558,6 +561,7 @@ export class LibraryStore {
 			facetPaletteOptions: {},
 			facetSlider: {},
 			filter: {},
+			gallery: {},
 			loadMore: {},
 			overlayBadge: {},
 			pagination: {},
