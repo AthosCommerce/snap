@@ -268,6 +268,9 @@ export const fr: LangComponents = {
 		addToCartButtonSuccessText: {
 			value: 'Ajouté !',
 		},
+		quickviewButtonText: {
+			value: 'Aperçu rapide',
+		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
@@ -389,6 +392,23 @@ export const fr: LangComponents = {
 			},
 		},
 	},
+	quantityPicker: {
+		quantityInput: {
+			attributes: {
+				'aria-label': 'quantité',
+			},
+		},
+		decrementButton: {
+			attributes: {
+				'aria-label': 'diminuer la quantité',
+			},
+		},
+		incrementButton: {
+			attributes: {
+				'aria-label': 'augmenter la quantité',
+			},
+		},
+	},
 	// toggle: {
 	// 	toggleSwitch: {
 	// 		attributes: {
@@ -478,5 +498,58 @@ export const fr: LangComponents = {
 		//                 <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
 		//             </div>`,
 		// },
+	},
+	gallery: {
+		gallery: {
+			attributes: {
+				'aria-label': "Galerie d'images",
+			},
+		},
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Zoom arrière',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Zoom avant',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Fermer la galerie',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Image précédente',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Image suivante',
+			},
+		},
+	},
+	quickviewLayout: {
+		quickview: {
+			attributes: {
+				'aria-label': 'Aperçu rapide',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': "Fermer l'aperçu rapide",
+			},
+		},
+		addToCartButton: {
+			value: 'Ajouter au panier',
+		},
+		moreInfoButton: {
+			value: "Plus d'informations",
+		},
+		loadingText: {
+			value: 'Chargement…',
+		},
 	},
 };

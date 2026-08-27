@@ -6,11 +6,17 @@ import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSe
 
 import { DomTargeter, url, cookies, version, getContext } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
+import { TargetStore } from './Stores/TargetStore';
 import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerStore';
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
-import type { ThemeComponentsRestrictedSelectors, ThemeComponentsRestrictedSelectorsUnlocked } from '../../components/src/providers/themeComponents';
+import type {
+	ThemeComponentsRestrictedSelectors,
+	ThemeComponentsRestrictedSelectorsUnlocked,
+	ThemeComponentOverrides,
+	ThemeComponentOverridesUnlocked,
+} from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { ClientGlobals } from '@athoscommerce/snap-client';
 import type { TrackerGlobals } from '@athoscommerce/snap-tracker';
@@ -92,10 +98,10 @@ type SnapTemplatesConfigThemeOverridesTyped<
 	TabletSelectors extends string,
 	DesktopSelectors extends string
 > = {
-	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors>;
+	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors> & ThemeComponentOverrides;
+	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors> & ThemeComponentOverrides;
+	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors> & ThemeComponentOverrides;
+	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors> & ThemeComponentOverrides;
 };
 
 export function validateTemplatesConfig<
@@ -119,10 +125,10 @@ type SnapTemplatesConfigThemeOverridesTypedUnlocked<
 	TabletSelectors extends string,
 	DesktopSelectors extends string
 > = {
-	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors>;
+	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors> & ThemeComponentOverridesUnlocked;
+	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors> & ThemeComponentOverridesUnlocked;
+	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors> & ThemeComponentOverridesUnlocked;
+	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors> & ThemeComponentOverridesUnlocked;
 };
 
 export function validateTemplatesConfigUnlocked<
@@ -441,6 +447,41 @@ export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig,
 	});
 }
 
+export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
+	return (
+		templateConfig.quickview?.targets?.map((targetConfig, index) => {
+			// Quickview isn't part of the editable targets registry (it's appended to <body> and driven by the
+			// QuickviewManager), so build a TargetStore directly rather than via addTarget. This lets the
+			// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
+			// provides the global templates ThemeProvider. Without it the quickview renders outside the
+			// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
+			// `quickviewLayout`) are silently dropped.
+			const target = new TargetStore({
+				target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
+			});
+
+			const targeter: ExtendedTarget = {
+				selector: targetConfig.selector || 'body',
+				inject: {
+					action: 'append' as const,
+					element: () => {
+						const el = document.createElement('div');
+						el.id = index === 0 ? 'athos-quickview' : `athos-quickview-${index}`;
+						return el;
+					},
+				},
+				component: async () => {
+					await templatesStore.library.import.component.quickview[targetConfig.component]();
+					return TemplateSelect;
+				},
+				props: { target, templatesStore },
+			};
+
+			return targeter;
+		}) || []
+	);
+}
+
 export function createRecommendationComponentMapping(
 	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked,
 	templatesStore: TemplatesStore
@@ -730,6 +771,18 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		// }
 
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
+	}
+
+	/* QUICKVIEW MANAGER — injects quickview component(s) into <body> when enabled */
+	if (templateConfig.quickview) {
+		const quickviewSettings = templateConfig.quickview?.settings;
+		snapConfig.quickview = {
+			config: {
+				id: 'quickview',
+				...(quickviewSettings ? { settings: quickviewSettings } : {}),
+			},
+			targeters: createQuickviewTargeters(templateConfig, templatesStore),
+		};
 	}
 
 	return snapConfig;

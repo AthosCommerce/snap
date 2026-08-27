@@ -15,6 +15,7 @@ import type { InlineBannerProps, InlineBannerTemplatesLegalProps } from '../comp
 import type { OverlayProps, OverlayTemplatesLegalProps } from '../components/Atoms/Overlay';
 import type { PaginationInfoProps, PaginationInfoTemplatesLegalProps } from '../components/Atoms/PaginationInfo';
 import type { PriceNames, PriceProps, PriceTemplatesLegalProps } from '../components/Atoms/Price';
+import type { ProductDetailProps, ProductDetailTemplatesLegalProps } from '../components/Atoms/ProductDetail';
 import type { SkeletonProps, SkeletonTemplatesLegalProps } from '../components/Atoms/Skeleton';
 // import type { ToggleProps } from '../components/Atoms/Toggle';
 
@@ -29,6 +30,7 @@ import type { FacetListOptionsProps, FacetListOptionsTemplatesLegalProps } from 
 import type { FacetPaletteOptionsProps, FacetPaletteOptionsTemplatesLegalProps } from '../components/Molecules/FacetPaletteOptions';
 import type { FacetSliderProps, FacetSliderTemplatesLegalProps } from '../components/Molecules/FacetSlider';
 // import type { FacetToggleProps } from '../components/Molecules/FacetToggle';
+import type { GalleryProps, GalleryTemplatesLegalProps } from '../components/Molecules/Gallery';
 import type { FilterNames, FilterProps, FilterTemplatesLegalProps } from '../components/Molecules/Filter';
 import type { GridProps, GridTemplatesLegalProps } from '../components/Molecules/Grid';
 import type { LayoutSelectorProps, LayoutSelectorTemplatesLegalProps } from '../components/Molecules/LayoutSelector';
@@ -37,6 +39,7 @@ import type { LoadMoreProps, LoadMoreTemplatesLegalProps } from '../components/M
 import type { OverlayBadgeProps, OverlayBadgeTemplatesLegalProps } from '../components/Molecules/OverlayBadge';
 import type { PaginationProps, PaginationTemplatesLegalProps } from '../components/Molecules/Pagination';
 import type { PerPageProps, PerPageTemplatesLegalProps } from '../components/Molecules/PerPage';
+import type { QuantityPickerProps, QuantityPickerTemplatesLegalProps } from '../components/Molecules/QuantityPicker';
 import type { RadioProps, RadioTemplatesLegalProps } from '../components/Molecules/Radio';
 import type { RadioListProps, RadioListTemplatesLegalProps } from '../components/Molecules/RadioList';
 import type { RatingProps, RatingTemplatesLegalProps } from '../components/Molecules/Rating';
@@ -49,6 +52,7 @@ import type { SortByProps, SortByTemplatesLegalProps } from '../components/Molec
 import type { SwatchesProps, SwatchesTemplatesLegalProps } from '../components/Molecules/Swatches';
 import type { TabSelectionProps, TabSelectionTemplatesLegalProps } from '../components/Molecules/TabSelection';
 import type { VariantSelectionProps, VariantSelectionTemplatesLegalProps } from '../components/Molecules/VariantSelection';
+import type { ProductDetailTableProps, ProductDetailTableTemplatesLegalProps } from '../components/Molecules/ProductDetailTable';
 import type { TermsNames, TermsProps, TermsTemplatesLegalProps } from '../components/Molecules/Terms';
 import type { ModalProps, ModalTemplatesLegalProps } from '../components/Molecules/Modal';
 
@@ -86,6 +90,9 @@ import type { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps
 import type { SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps } from '../components/Templates/SearchCollapsible';
 import type { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../components/Templates/AutocompleteModal';
 import type { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../components/Templates/AutocompleteFixed';
+import type { QuickviewLayoutTemplatesLegalProps } from '../components/Organisms/QuickviewLayout';
+import type { QuickviewModalProps } from '../components/Templates/QuickviewModal';
+import type { QuickviewSlideoutProps } from '../components/Templates/QuickviewSlideout';
 import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../components/Molecules/Slideshow';
 import type { StyleScript } from '../types';
 
@@ -186,6 +193,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'paginationInfo',
 	'slideshow',
 	'price',
+	'productDetail',
 	'skeleton',
 	/* molecules */
 	'modal',
@@ -203,10 +211,12 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'facetPaletteOptions',
 	'facetSlider',
 	'filter',
+	'gallery',
 	'loadMore',
 	'overlayBadge',
 	'pagination',
 	'perPage',
+	'quantityPicker',
 	'overlayResult',
 	'radioList',
 	'rating',
@@ -217,6 +227,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'swatches',
 	'tabSelection',
 	'variantSelection',
+	'productDetailTable',
 	'terms',
 	/* organisms */
 	'branchOverride',
@@ -271,7 +282,7 @@ export type ThemeComponents =
 	
 	/* MOLECULES */
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'modal'>]?: Partial<ModalProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'calloutBadge'>]?: Partial<CalloutBadgeProps> } &
+	{ [K in ThemeComponentOverridesNamedSelectors<'calloutBadge', string>]?: Partial<CalloutBadgeProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'carousel'>]?: Partial<CarouselProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'checkbox'>]?: Partial<CheckboxProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'grid'>]?: Partial<GridProps> } &
@@ -286,10 +297,12 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: Partial<FacetSliderProps> } &
 	// { [K in UnNamedThemeComponentSelectors<'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: Partial<FilterProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'gallery'>]?: Partial<GalleryProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: Partial<LoadMoreProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: Partial<OverlayBadgeProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: Partial<PaginationProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: Partial<PerPageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quantityPicker'>]?: Partial<QuantityPickerProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: Partial<RadioListProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: Partial<RatingProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: Partial<ResultProps> } &
@@ -301,6 +314,8 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: Partial<SwatchesProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'tabSelection'>]?: Partial<TabSelectionProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'variantSelection', string>]?: Partial<VariantSelectionProps> } &
+	{ [K in ThemeComponentOverridesNamedSelectors<'productDetail', string>]?: Partial<ProductDetailProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetailTable'>]?: Partial<ProductDetailTableProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: Partial<TermsProps> } &
 
 	/* ORGANISMS */
@@ -321,6 +336,8 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteSlideout', string>]?: Partial<AutocompleteSlideoutProps>} & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteModal', string>]?: Partial<AutocompleteModalProps> } & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'autocompleteFixed', string>]?: Partial<AutocompleteFixedProps>} & 
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewModal'>]?: Partial<QuickviewModalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'recommendation', string>]?: Partial<RecommendationProps>} & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundle', string>]?: Partial<RecommendationBundleProps> } & 
 	{ [K in ThemeComponentOverridesNamedSelectors<'recommendationBundleEasyAdd', string>]?: Partial<RecommendationBundleEasyAddProps>} & 
@@ -449,6 +466,7 @@ type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & Them
 */
 type ThemeComponentOpenNamedComponentTypes =
 	| 'facet'
+	| 'productDetail'
 	| 'variantSelection'
 	| 'recommendation'
 	| 'recommendationBundle'
@@ -649,7 +667,8 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	
 	/* MOLECULES */
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'modal'>]?: Partial<ModalTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } & 
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'calloutBadge'>]?: Partial<CalloutBadgeTemplatesLegalProps> } &
+	{ [K in ThemeComponentOpenNamedOnlySelectorsStartingWithTemplate<Template,'calloutBadge'>]?: unknown } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'carousel'>]?: Partial<CarouselTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'checkbox'>]?: Partial<CheckboxTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'grid'>]?: Partial<GridTemplatesLegalProps> } &
@@ -664,10 +683,12 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'facetSlider'>]?: Partial<FacetSliderTemplatesLegalProps> } &
 	// { [K in StartsWithTemplateHavingUnNamedThemeComponentSelectors<Template,'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'filter', FilterNames>]?: Partial<FilterTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'gallery'>]?: Partial<GalleryTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'loadMore'>]?: Partial<LoadMoreTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'overlayBadge'>]?: Partial<OverlayBadgeTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'pagination'>]?: Partial<PaginationTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'perPage'>]?: Partial<PerPageTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quantityPicker'>]?: Partial<QuantityPickerTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'radioList'>]?: Partial<RadioListTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'rating'>]?: Partial<RatingTemplatesLegalProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'result', ResultNames>]?: Partial<ResultTemplatesLegalProps> } &
@@ -679,6 +700,8 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'swatches'>]?: Partial<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'tabSelection'>]?: Partial<TabSelectionTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'variantSelection'>]?: Partial<VariantSelectionTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'productDetail'>]?: Partial<ProductDetailTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'productDetailTable'>]?: Partial<ProductDetailTableTemplatesLegalProps> } &
 	{ [K in ThemeComponentNamedSelectorsStartingWithTemplate<Template,'terms', TermsNames>]?: Partial<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
@@ -701,6 +724,9 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteFixed'>]?: Partial<AutocompleteFixedTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewLayout'>]?: Partial<QuickviewLayoutTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewModal'>]?: Partial<QuickviewModalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &
@@ -750,10 +776,12 @@ export type ComponentTypePropsMap = {
 	facetPaletteOptions: FacetPaletteOptionsProps;
 	facetSlider: FacetSliderProps;
 	filter: FilterProps;
+	gallery: GalleryProps;
 	loadMore: LoadMoreProps;
 	overlayBadge: OverlayBadgeProps;
 	pagination: PaginationProps;
 	perPage: PerPageProps;
+	quantityPicker: QuantityPickerProps;
 	radioList: RadioListProps;
 	rating: RatingProps;
 	searchInput: SearchInputProps;
@@ -763,6 +791,8 @@ export type ComponentTypePropsMap = {
 	swatches: SwatchesProps;
 	tabSelection: TabSelectionProps;
 	variantSelection: VariantSelectionProps;
+	productDetail: ProductDetailProps;
+	productDetailTable: ProductDetailTableProps;
 	terms: TermsProps;
 	branchOverride: BranchOverrideProps;
 	facet: FacetProps;

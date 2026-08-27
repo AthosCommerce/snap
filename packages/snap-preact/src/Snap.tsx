@@ -1,13 +1,13 @@
 import { h, render } from 'preact';
 import deepmerge from 'deepmerge';
 import { isPlainObject } from 'is-plain-object';
-import { configure as configureMobx } from 'mobx';
+import { configure as configureMobx, when } from 'mobx';
 
 import { Client } from '@athoscommerce/snap-client';
 import { Logger } from '@athoscommerce/snap-logger';
 import { Tracker } from '@athoscommerce/snap-tracker';
 import { AppMode, version, getContext, DomTargeter, url, cookies, featureFlags } from '@athoscommerce/snap-toolbox';
-import { ControllerTypes } from '@athoscommerce/snap-controller';
+import { ControllerTypes, QuickviewManager } from '@athoscommerce/snap-controller';
 import { EventManager } from '@athoscommerce/snap-event-manager';
 
 import { getInitialUrlState } from './getInitialUrlState/getInitialUrlState';
@@ -29,6 +29,7 @@ import type { Target, OnTarget } from '@athoscommerce/snap-toolbox';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
 
 import { default as createSearchController } from './create/createSearchController';
+import type { QuickviewManagerConfig, QuickviewManagerServices } from '@athoscommerce/snap-controller';
 import type { RecommendationInstantiator, RecommendationInstantiatorConfig } from './Instantiators/RecommendationInstantiator';
 import type { SnapControllerServices, SnapControllerConfig, InitialUrlConfig, SnapFeatures } from './types';
 import { configureSnapFeatures } from './utils';
@@ -87,6 +88,13 @@ export type SnapConfig = {
 		autocomplete?: SnapConfigControllerDefinition<AutocompleteControllerConfig>[];
 		finder?: SnapConfigControllerDefinition<FinderControllerConfig>[];
 		recommendation?: SnapConfigControllerDefinition<RecommendationControllerConfig>[];
+	};
+	// The quickview manager is not a controller — it coordinates the shared quickview modal on
+	// behalf of whichever controller opened it. See snap-controller's Quickview/QuickviewManager.
+	quickview?: {
+		config?: QuickviewManagerConfig;
+		targeters?: ExtendedTarget[];
+		services?: Partial<QuickviewManagerServices>;
 	};
 };
 
@@ -152,6 +160,7 @@ export class Snap {
 
 	public eventManager: EventManager;
 	public templates?: TemplatesStore;
+	private quickviewManager?: QuickviewManager;
 
 	public getInstantiator = (id: string): Promise<RecommendationInstantiator> => {
 		return this._instantiatorPromises[id] || Promise.reject(`getInstantiator could not find instantiator with id: ${id}`);
@@ -236,6 +245,7 @@ export class Snap {
 					profiler: services?.profiler,
 					logger: services?.logger,
 					tracker: services?.tracker || this.tracker,
+					quickviewManager: services?.quickviewManager || this.quickviewManager,
 				}
 			);
 		}
@@ -632,6 +642,52 @@ export class Snap {
 			});
 		}
 
+		// Create the quickview manager. Synchronous and ahead of controller creation below, so it can
+		// be passed to every controller as the 'quickview' service. The quickview *components* are
+		// still loaded on demand by the targeters.
+		if (this.config.quickview) {
+			try {
+				const { config: quickviewConfig, services: quickviewServices, targeters } = this.config.quickview;
+
+				this.quickviewManager = new QuickviewManager(
+					{
+						store: quickviewServices?.store,
+					},
+					quickviewConfig
+				);
+
+				targeters?.forEach((target, index) => {
+					if (!target.selector) {
+						throw new Error(`Quickview target at index ${index} missing selector value (string).`);
+					}
+					if (!target.component) {
+						throw new Error(`Quickview target at index ${index} missing component value (Component).`);
+					}
+
+					new DomTargeter([{ ...target }], async (target: Target, elem: Element, originalElem?: Element) => {
+						const onTarget = (target as ExtendedTarget).onTarget as OnTarget;
+						onTarget && (await onTarget(target, elem, originalElem!));
+
+						try {
+							// defer the component chunk until the first open
+							await when(() => Boolean(this.quickviewManager?.store.isOpen));
+
+							const Component = await (target as ExtendedTarget).component!();
+
+							setTimeout(() => {
+								render(<Component quickviewManager={this.quickviewManager} snap={this} {...(target as ExtendedTarget).props} />, elem);
+							});
+						} catch (err) {
+							this.logger.error(err);
+							this.logger.error(COMPONENT_ERROR, target);
+						}
+					});
+				});
+			} catch (err) {
+				this.logger.error(`Failed to create the Quickview Manager.`, err);
+			}
+		}
+
 		// create controllers
 		Object.keys(this.config?.controllers || {}).forEach((type) => {
 			switch (type) {
@@ -658,6 +714,7 @@ export class Snap {
 									profiler: controller.services?.profiler,
 									logger: controller.services?.logger,
 									tracker: controller.services?.tracker || this.tracker,
+									quickviewManager: controller.services?.quickviewManager || this.quickviewManager,
 								}
 							);
 
@@ -1014,6 +1071,7 @@ export class Snap {
 							tracker: this.tracker,
 							logger: this.logger,
 							snap: this,
+							quickviewManager: this.quickviewManager,
 						},
 						this.context
 					);
