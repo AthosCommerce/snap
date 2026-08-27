@@ -40,6 +40,7 @@ describe('LibraryStore', () => {
 			filter: {},
 			filterSummary: {},
 			formattedNumber: {},
+			gallery: {},
 			grid: {},
 			icon: {},
 			image: {},
