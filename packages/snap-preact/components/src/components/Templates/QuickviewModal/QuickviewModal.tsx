@@ -166,12 +166,6 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 			treePath,
 		},
 		modal: {
-			// default props
-			// lockScroll is disabled: Modal's scroll-lock toggles `body { overflow: hidden }`,
-			// which removes the page scrollbar and reflows the results wider by the scrollbar
-			// width when the modal opens. The fixed full-viewport overlay already masks the
-			// background and the fixed-centered content stays put, so locking isn't needed.
-			lockScroll: false,
 			onOverlayClick: onClose,
 			// inherited props
 			...defined({
