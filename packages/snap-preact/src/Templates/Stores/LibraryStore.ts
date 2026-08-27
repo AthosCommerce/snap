@@ -180,7 +180,7 @@ type LibraryStoreConfig = {
 };
 
 export type CurrencyCodes = 'usd' | 'eur' | 'aud';
-export type LanguageCodes = 'en' | 'fr' | 'es';
+export type LanguageCodes = 'en' | 'fr' | 'es' | 'ar' | 'zh' | 'de' | 'ru' | 'ja' | 'pt' | 'ko' | 'it' | 'hi' | 'tr' | 'vi' | 'nl';
 
 export class LibraryStore {
 	themes: {
@@ -591,14 +591,65 @@ export class LibraryStore {
 			termsList: {},
 		},
 		language: {
+			// English
 			en: async () => {
 				return this.locales.languages.en || (this.locales.languages.en = transformTranslationsToTheme((await import('./library/languages/en')).en));
 			},
+			// French
 			fr: async () => {
 				return this.locales.languages.fr || (this.locales.languages.fr = transformTranslationsToTheme((await import('./library/languages/fr')).fr));
 			},
+			// Spanish
 			es: async () => {
 				return this.locales.languages.es || (this.locales.languages.es = transformTranslationsToTheme((await import('./library/languages/es')).es));
+			},
+			// Arabic
+			ar: async () => {
+				return this.locales.languages.ar || (this.locales.languages.ar = transformTranslationsToTheme((await import('./library/languages/ar')).ar));
+			},
+			// Chinese
+			zh: async () => {
+				return this.locales.languages.zh || (this.locales.languages.zh = transformTranslationsToTheme((await import('./library/languages/zh')).zh));
+			},
+			// German
+			de: async () => {
+				return this.locales.languages.de || (this.locales.languages.de = transformTranslationsToTheme((await import('./library/languages/de')).de));
+			},
+			// Russian
+			ru: async () => {
+				return this.locales.languages.ru || (this.locales.languages.ru = transformTranslationsToTheme((await import('./library/languages/ru')).ru));
+			},
+			// Japanese
+			ja: async () => {
+				return this.locales.languages.ja || (this.locales.languages.ja = transformTranslationsToTheme((await import('./library/languages/ja')).ja));
+			},
+			// Portuguese
+			pt: async () => {
+				return this.locales.languages.pt || (this.locales.languages.pt = transformTranslationsToTheme((await import('./library/languages/pt')).pt));
+			},
+			// Korean
+			ko: async () => {
+				return this.locales.languages.ko || (this.locales.languages.ko = transformTranslationsToTheme((await import('./library/languages/ko')).ko));
+			},
+			// Italian
+			it: async () => {
+				return this.locales.languages.it || (this.locales.languages.it = transformTranslationsToTheme((await import('./library/languages/it')).it));
+			},
+			// Hindi
+			hi: async () => {
+				return this.locales.languages.hi || (this.locales.languages.hi = transformTranslationsToTheme((await import('./library/languages/hi')).hi));
+			},
+			// Turkish
+			tr: async () => {
+				return this.locales.languages.tr || (this.locales.languages.tr = transformTranslationsToTheme((await import('./library/languages/tr')).tr));
+			},
+			// Vietnamese
+			vi: async () => {
+				return this.locales.languages.vi || (this.locales.languages.vi = transformTranslationsToTheme((await import('./library/languages/vi')).vi));
+			},
+			// Dutch
+			nl: async () => {
+				return this.locales.languages.nl || (this.locales.languages.nl = transformTranslationsToTheme((await import('./library/languages/nl')).nl));
 			},
 		},
 		currency: {
