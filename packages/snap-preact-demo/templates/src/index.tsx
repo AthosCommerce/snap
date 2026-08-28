@@ -9,7 +9,7 @@ const { siteId, clientConfig } = getDemoConfig();
 let templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: siteId,
-		language: 'fr',
+		language: 'en',
 		currency: 'usd',
 		platform: 'other',
 		client: clientConfig,
