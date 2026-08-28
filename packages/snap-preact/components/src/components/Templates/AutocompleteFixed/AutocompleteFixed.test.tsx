@@ -24,7 +24,7 @@ describe('AutocompleteFixed Component', () => {
 	const mockClient = new MockClient(globals, {});
 	mockClient.mockData.updateConfig({ meta: 'ac.meta' });
 
-	const renderedInputSelector = '.autocomplete-fixed__search-input .ss__search-input__input';
+	const renderedInputSelector = '.ss__autocomplete-fixed__search-input .ss__search-input__input';
 
 	beforeEach(() => {
 		document.body.innerHTML = '<div>' + '  <input type="text" class="athos-ac">' + '<div id="target"></div></div>';
