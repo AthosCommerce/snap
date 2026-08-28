@@ -24,6 +24,7 @@ import { pluginScrollToTop } from './library/plugins/common/pluginScrollToTop';
 import { pluginLogger } from './library/plugins/common/pluginLogger';
 import { pluginKlaviyoEvents } from './library/plugins/common/pluginKlaviyoEvents';
 import { CustomComponent } from './library/components/CustomComponent';
+import { currencies } from './library/currencies/currencies';
 
 type LibraryComponentImport = {
 	[componentName: string]: (args?: any) => Promise<JSXComponent>;
@@ -179,8 +180,17 @@ type LibraryStoreConfig = {
 	unlocked?: boolean;
 };
 
-export type CurrencyCodes = 'usd' | 'eur' | 'aud';
+// currencies supported by Snap Templates — matches the list of currencies supported by Shopify (ISO 4217);
+// the currencies module is the single source of truth for the supported codes
+export type CurrencyCodes = keyof typeof currencies;
+export const currencyCodes = Object.keys(currencies) as CurrencyCodes[];
 export type LanguageCodes = 'en' | 'fr' | 'es' | 'ar' | 'zh' | 'de' | 'ru' | 'ja' | 'pt' | 'ko' | 'it' | 'hi' | 'tr' | 'vi' | 'nl';
+// keeps a union member assignable but out of editor autocomplete (the optional-never brand prevents the intersection from being reduced away)
+type HiddenFromSuggestions<T> = T & { __hiddenFromSuggestions?: never };
+// input positions (config, setCurrency/setLanguage) accept either case and are normalized to lowercase internally;
+// editors suggest only the uppercase codes
+export type CurrencyCodeInput = Uppercase<CurrencyCodes> | HiddenFromSuggestions<CurrencyCodes>;
+export type LanguageCodeInput = Uppercase<LanguageCodes> | HiddenFromSuggestions<LanguageCodes>;
 
 export class LibraryStore {
 	themes: {
@@ -652,17 +662,13 @@ export class LibraryStore {
 				return this.locales.languages.nl || (this.locales.languages.nl = transformTranslationsToTheme((await import('./library/languages/nl')).nl));
 			},
 		},
-		currency: {
-			usd: async () => {
-				return this.locales.currencies.usd || (this.locales.currencies.usd = (await import('./library/currencies/usd')).usd);
-			},
-			eur: async () => {
-				return this.locales.currencies.eur || (this.locales.currencies.eur = (await import('./library/currencies/eur')).eur);
-			},
-			aud: async () => {
-				return this.locales.currencies.aud || (this.locales.currencies.aud = (await import('./library/currencies/aud')).aud);
-			},
-		},
+		// the per-code importers keep the same async shape as language/theme importers, resolving from the statically imported currencies module
+		currency: currencyCodes.reduce((currencyImports, code) => {
+			currencyImports[code] = async () => {
+				return this.locales.currencies[code] || (this.locales.currencies[code] = currencies[code]);
+			};
+			return currencyImports;
+		}, {} as { [currencyName in CurrencyCodes]: () => Promise<ThemeMinimal> }),
 	};
 
 	allowedComponentTypes: TemplateCustomComponentTypes[];

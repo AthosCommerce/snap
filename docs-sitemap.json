@@ -69,6 +69,10 @@
 			"url": "/templates-config",
 			"title": "Config"
 		},
+		"docs/TEMPLATES_LOCALIZATION.md": {
+			"url": "/templates-localization",
+			"title": "Localization"
+		},
 		"docs/TEMPLATES_THEMING.md": {
 			"url": "/templates-theming",
 			"title": "Theming"
