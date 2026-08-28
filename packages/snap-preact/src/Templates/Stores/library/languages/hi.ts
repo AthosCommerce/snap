@@ -263,17 +263,26 @@ export const hi: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'सभी को कार्ट में जोड़ें',
+			attributes: {
+				'aria-label': 'सभी को कार्ट में जोड़ें',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'जोड़ा गया!',
 		},
 		quickviewButtonText: {
 			value: 'त्वरित दृश्य',
+			attributes: {
+				'aria-label': 'त्वरित दृश्य',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'सभी को कार्ट में जोड़ें',
+			attributes: {
+				'aria-label': 'सभी को कार्ट में जोड़ें',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'जोड़ा गया!',

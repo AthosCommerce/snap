@@ -263,17 +263,26 @@ export const vi: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Thêm tất cả vào giỏ hàng',
+			attributes: {
+				'aria-label': 'Thêm tất cả vào giỏ hàng',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Đã thêm!',
 		},
 		quickviewButtonText: {
 			value: 'Xem nhanh',
+			attributes: {
+				'aria-label': 'Xem nhanh',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Thêm tất cả vào giỏ hàng',
+			attributes: {
+				'aria-label': 'Thêm tất cả vào giỏ hàng',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Đã thêm!',

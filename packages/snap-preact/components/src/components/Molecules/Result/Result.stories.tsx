@@ -172,17 +172,6 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
-		quickviewButtonText: {
-			description: 'quickview button label (used as aria-label and icon title)',
-			table: {
-				category: 'Templates Legal',
-				type: {
-					summary: 'string',
-				},
-				defaultValue: { summary: 'Quick View' },
-			},
-			control: { type: 'text' },
-		},
 		onQuickviewClick: {
 			description: 'function to run on quickview button click',
 			table: {

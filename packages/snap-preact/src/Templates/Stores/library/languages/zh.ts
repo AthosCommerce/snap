@@ -263,17 +263,26 @@ export const zh: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: '全部加入购物车',
+			attributes: {
+				'aria-label': '全部加入购物车',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '已添加！',
 		},
 		quickviewButtonText: {
 			value: '快速预览',
+			attributes: {
+				'aria-label': '快速预览',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: '全部加入购物车',
+			attributes: {
+				'aria-label': '全部加入购物车',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '已添加！',

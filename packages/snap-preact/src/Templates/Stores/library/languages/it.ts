@@ -264,17 +264,26 @@ export const it: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Aggiungi tutto al carrello',
+			attributes: {
+				'aria-label': 'Aggiungi tutto al carrello',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Aggiunto!',
 		},
 		quickviewButtonText: {
 			value: 'Anteprima rapida',
+			attributes: {
+				'aria-label': 'Anteprima rapida',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Aggiungi tutto al carrello',
+			attributes: {
+				'aria-label': 'Aggiungi tutto al carrello',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Aggiunto!',

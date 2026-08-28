@@ -263,17 +263,26 @@ export const ko: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: '모두 장바구니에 담기',
+			attributes: {
+				'aria-label': '모두 장바구니에 담기',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '추가되었습니다!',
 		},
 		quickviewButtonText: {
 			value: '빠른 보기',
+			attributes: {
+				'aria-label': '빠른 보기',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: '모두 장바구니에 담기',
+			attributes: {
+				'aria-label': '모두 장바구니에 담기',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '추가되었습니다!',

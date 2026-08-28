@@ -262,17 +262,26 @@ export const ar: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'إضافة الكل إلى السلة',
+			attributes: {
+				'aria-label': 'إضافة الكل إلى السلة',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'تمت الإضافة!',
 		},
 		quickviewButtonText: {
 			value: 'عرض سريع',
+			attributes: {
+				'aria-label': 'عرض سريع',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'إضافة الكل إلى السلة',
+			attributes: {
+				'aria-label': 'إضافة الكل إلى السلة',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'تمت الإضافة!',

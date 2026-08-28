@@ -263,17 +263,26 @@ export const ja: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'すべてカートに追加',
+			attributes: {
+				'aria-label': 'すべてカートに追加',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '追加しました！',
 		},
 		quickviewButtonText: {
 			value: 'クイックビュー',
+			attributes: {
+				'aria-label': 'クイックビュー',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'すべてカートに追加',
+			attributes: {
+				'aria-label': 'すべてカートに追加',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '追加しました！',

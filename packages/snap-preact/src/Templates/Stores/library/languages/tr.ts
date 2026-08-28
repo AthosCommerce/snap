@@ -263,17 +263,26 @@ export const tr: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Tümünü sepete ekle',
+			attributes: {
+				'aria-label': 'Tümünü sepete ekle',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Eklendi!',
 		},
 		quickviewButtonText: {
 			value: 'Hızlı bakış',
+			attributes: {
+				'aria-label': 'Hızlı bakış',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Tümünü sepete ekle',
+			attributes: {
+				'aria-label': 'Tümünü sepete ekle',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Eklendi!',

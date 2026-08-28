@@ -263,17 +263,26 @@ export const de: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Alle in den Warenkorb legen',
+			attributes: {
+				'aria-label': 'Alle in den Warenkorb legen',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Hinzugefügt!',
 		},
 		quickviewButtonText: {
 			value: 'Schnellansicht',
+			attributes: {
+				'aria-label': 'Schnellansicht',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Alle in den Warenkorb legen',
+			attributes: {
+				'aria-label': 'Alle in den Warenkorb legen',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Hinzugefügt!',
