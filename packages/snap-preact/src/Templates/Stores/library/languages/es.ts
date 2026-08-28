@@ -422,24 +422,6 @@ export const es: LangComponents = {
 			},
 		},
 	},
-	// toggle: {
-	// 	toggleSwitch: {
-	// 		attributes: {
-	// 			'aria-label': (data) =>
-	// 				`actualmente ${data?.toggledState ? 'seleccionado' : 'no seleccionado'} interruptor ${
-	// 					data?.label ? `para ${data?.label}` : ''
-	// 				}`,
-	// 		},
-	// 	},
-	// },
-	// terms: {
-	// 	term: {
-	// 		value: (data) => `${data?.term.value}`,
-	// 		attributes: {
-	// 			'aria-label': (data) => `elemento ${(data?.index || 0) + 1} de ${data?.numberOfTerms}, ${data?.term.value}`,
-	// 		},
-	// 	},
-	// },
 	searchHeader: {
 		titleText: {
 			value: (data) => {

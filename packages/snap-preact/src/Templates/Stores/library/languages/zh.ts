@@ -408,22 +408,6 @@ export const zh: LangComponents = {
 			},
 		},
 	},
-	// toggle: {
-	// 	toggleSwitch: {
-	// 		attributes: {
-	// 			'aria-label': (data) =>
-	// 				`currently ${data?.toggledState ? 'selected' : 'not selected'} toggle switch ${data?.label ? `for ${data?.label}` : ''} `,
-	// 		},
-	// 	},
-	// },
-	// terms: {
-	// 	term: {
-	// 		value: (data) => `${data?.term?.value}`,
-	// 		attributes: {
-	// 			'aria-label': (data) => `item ${(data?.index || 0) + 1} of ${data?.numberOfTerms}, ${data?.term?.value}`,
-	// 		},
-	// 	},
-	// },
 	searchHeader: {
 		titleText: {
 			value: (data) => {
@@ -475,27 +459,6 @@ export const zh: LangComponents = {
 			value:
 				'<ul class="ss__no-results__suggestions__list"><li class="ss__no-results__suggestions__list__option">检查拼写错误。</li><li class="ss__no-results__suggestions__list__option">删除任何多余的关键词（例如："产品"）。</li><li class="ss__no-results__suggestions__list__option">使用其他词语描述您要查找的内容。</li></ul>',
 		},
-		// contactsTitleText: {
-		// 	value: `Vous ne trouvez toujours pas ce que vous cherchez? <a href="/contact-us">Contactez-nous</a>.`,
-		// },
-		// contactsList: {
-		// 	value: `<div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Adresse</h4>
-		//                 <p class="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
-		//             </div>
-		//             <div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Heures</h4>
-		//                 <p class="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
-		//             </div>
-		//             <div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Téléphone</h4>
-		//                 <p class="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
-		//             </div>
-		//             <div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Email</h4>
-		//                 <p class="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
-		//             </div>`,
-		// },
 	},
 	gallery: {
 		gallery: {

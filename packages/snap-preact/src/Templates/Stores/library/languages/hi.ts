@@ -408,22 +408,6 @@ export const hi: LangComponents = {
 			},
 		},
 	},
-	// toggle: {
-	// 	toggleSwitch: {
-	// 		attributes: {
-	// 			'aria-label': (data) =>
-	// 				`currently ${data?.toggledState ? 'selected' : 'not selected'} toggle switch ${data?.label ? `for ${data?.label}` : ''} `,
-	// 		},
-	// 	},
-	// },
-	// terms: {
-	// 	term: {
-	// 		value: (data) => `${data?.term?.value}`,
-	// 		attributes: {
-	// 			'aria-label': (data) => `item ${(data?.index || 0) + 1} of ${data?.numberOfTerms}, ${data?.term?.value}`,
-	// 		},
-	// 	},
-	// },
 	searchHeader: {
 		titleText: {
 			value: (data) => {
@@ -476,27 +460,6 @@ export const hi: LangComponents = {
 			value:
 				'<ul class="ss__no-results__suggestions__list"><li class="ss__no-results__suggestions__list__option">वर्तनी की त्रुटियों की जांच करें।</li><li class="ss__no-results__suggestions__list__option">किसी भी अनावश्यक कीवर्ड को हटाएं (जैसे: "उत्पाद")।</li><li class="ss__no-results__suggestions__list__option">आप जो खोज रहे हैं उसे बताने के लिए अन्य शब्दों का उपयोग करें।</li></ul>',
 		},
-		// contactsTitleText: {
-		// 	value: `Vous ne trouvez toujours pas ce que vous cherchez? <a href="/contact-us">Contactez-nous</a>.`,
-		// },
-		// contactsList: {
-		// 	value: `<div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Adresse</h4>
-		//                 <p class="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
-		//             </div>
-		//             <div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Heures</h4>
-		//                 <p class="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
-		//             </div>
-		//             <div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Téléphone</h4>
-		//                 <p class="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
-		//             </div>
-		//             <div class='ss__no-results__contact__detail'>
-		//                 <h4 class="ss__no-results__contact__detail__title">Email</h4>
-		//                 <p class="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
-		//             </div>`,
-		// },
 	},
 	gallery: {
 		gallery: {
