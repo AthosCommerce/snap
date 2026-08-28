@@ -26,6 +26,26 @@ describe('LibraryStore', () => {
 			button: {},
 			calloutBadge: {},
 			carousel: {},
+			chat: {},
+			chatAttachmentContext: {},
+			chatButton: {},
+			chatComparisonsTray: {},
+			chatComposer: {},
+			chatFacetsBar: {},
+			chatHistory: {},
+			chatInspirationResultMessage: {},
+			chatLoadingIndicator: {},
+			chatMessageText: {},
+			chatMessageUser: {},
+			chatMessages: {},
+			chatProductComparisonMessage: {},
+			chatProductQueryMessage: {},
+			chatResult: {},
+			chatResultsDisplay: {},
+			chatSessionFeedback: {},
+			chatSideChat: {},
+			chatSuggestedQuestions: {},
+			chatTopicDrift: {},
 			checkbox: {},
 			dropdown: {},
 			errorHandler: {},
@@ -85,6 +105,17 @@ describe('LibraryStore', () => {
 			currencies: {},
 			languages: {},
 		});
+	});
+
+	it('registers chat library components and resolves them via getComponent', async () => {
+		const store = new LibraryStore();
+
+		expect(store.import.component.chat.Chat).toBeDefined();
+		expect(store.import.component.chat.ChatButton).toBeDefined();
+
+		const chatButton = await store.import.component.chat.ChatButton();
+		expect(chatButton).toBeDefined();
+		expect(store.getComponent('chat', 'ChatButton')).toBe(chatButton);
 	});
 
 	it('can define custom components and register them when imported', async () => {

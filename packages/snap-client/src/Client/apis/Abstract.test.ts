@@ -115,7 +115,7 @@ describe('Abstract Api', () => {
 	// set up
 	const fetchfn = jest
 		.spyOn(global.window, 'fetch')
-		.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve() } as Response));
+		.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(), headers: new Headers() } as Response));
 
 	it('can pass in all the props', async () => {
 		const config: ApiConfigurationParameters = {
@@ -204,11 +204,6 @@ describe('Abstract Api', () => {
 		expect(fetchParams.init.headers).toStrictEqual(customHeaders);
 		expect(fetchParams.init.method).toBe('POST');
 
-		//create fetch params requires a site id
-		const badContext = { ...context, body: {} };
-		//@ts-ignore
-		expect(() => api.createFetchParams(badContext)).toThrowError(`Request failed. Missing "siteId" parameter.`);
-
 		const config2: ApiConfigurationParameters = {
 			origin: 'https://athoscommerce.com',
 			fetchApi: global.window.fetch,
@@ -222,6 +217,38 @@ describe('Abstract Api', () => {
 		// @ts-ignore
 		const params = api2.createFetchParams(contextWithQuery);
 		expect(params.url).toBe('https://athoscommerce.com/v1/autocomplete?key=value');
+	});
+
+	it('requires a siteId when no origin is available', async () => {
+		const config: ApiConfigurationParameters = {
+			fetchApi: global.window.fetch,
+			headers: customHeaders,
+		};
+
+		const api = new API(new ApiConfiguration(config));
+
+		const context = {
+			path: '/v1/autocomplete',
+			method: 'POST',
+			headers: config.headers,
+			body: {},
+		};
+
+		// no siteId, no origin — the default host cannot be built
+		expect(() => {
+			//@ts-ignore
+			api.createFetchParams(context);
+		}).toThrow(`Request failed. Missing "siteId" parameter.`);
+
+		// a context origin satisfies the requirement
+		//@ts-ignore
+		const paramsWithContextOrigin = api.createFetchParams({ ...context, origin: 'https://custom-origin.com' });
+		expect(paramsWithContextOrigin.url).toBe('https://custom-origin.com/v1/autocomplete');
+
+		// a siteId in the query satisfies the requirement
+		//@ts-ignore
+		const paramsWithQuerySiteId = api.createFetchParams({ ...context, query: { siteId: '8uyt2m' } });
+		expect(paramsWithQuerySiteId.url).toBe('https://8uyt2m.a.athoscommerce.net/v1/autocomplete?siteId=8uyt2m');
 	});
 
 	it('does not require siteId when a per-request origin is provided', () => {
@@ -252,6 +279,44 @@ describe('Abstract Api', () => {
 		// configuration.origin is set but must NOT satisfy the guard — only a per-request context.origin does
 		// @ts-ignore - createFetchParams is private
 		expect(() => api.createFetchParams(context)).toThrowError(`Request failed. Missing "siteId" parameter.`);
+	});
+
+	it('does not apply response headers to the parsed response body by default', async () => {
+		const config: ApiConfigurationParameters = {
+			origin: 'https://athoscommerce.com',
+			fetchApi: global.window.fetch,
+		};
+
+		const fetchWithSessionHeader = jest.spyOn(global.window, 'fetch').mockImplementation(() =>
+			Promise.resolve({
+				status: 200,
+				json: () => Promise.resolve({ found: true }),
+				headers: new Headers({ 'x-session-id': 'header-session-id' }),
+			} as Response)
+		);
+
+		const api = new API(new ApiConfiguration(config));
+
+		const context = {
+			path: '/v1/search',
+			method: 'GET',
+			headers: {},
+			query: { siteId: '8uyt2m' },
+		};
+
+		try {
+			//@ts-ignore
+			const response = await api.request(context);
+
+			// the base API ignores the x-session-id header (only ChatAPI applies it)
+			expect(response).toEqual({ found: true });
+		} finally {
+			// restore the shared fetch mock implementation even if the assertion fails,
+			// so a failure here does not cascade into every later test in the file
+			fetchWithSessionHeader.mockImplementation(() =>
+				Promise.resolve({ status: 200, json: () => Promise.resolve(), headers: new Headers() } as Response)
+			);
+		}
 	});
 
 	it('can handle subDomain parameter in createFetchParams', async () => {
@@ -333,7 +398,7 @@ describe('Abstract Api', () => {
 		//handles 200s
 		const fetchfn200 = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({ found: true }) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({ found: true }), headers: new Headers() } as Response));
 
 		const setCacheSpy = jest.spyOn(api.cache, 'set');
 		const getCacheSpy = jest.spyOn(api.cache, 'get').mockImplementation(() => Promise.resolve({ foundInCache: true }) as unknown as Response);
@@ -382,7 +447,7 @@ describe('Abstract Api', () => {
 		//can handle 429s and retry correct amount of times.
 		const fetchfn429 = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve({ broken: true }) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve({ broken: true }), headers: new Headers() } as Response));
 
 		await expect(async () => {
 			//@ts-ignore
@@ -397,6 +462,7 @@ describe('Abstract Api', () => {
 				status: 429,
 				url: 'https://athoscommerce.com/v1/autocomplete',
 			},
+			responseBody: { broken: true },
 		});
 
 		expect(fetchfn429).toHaveBeenCalledTimes((config.maxRetry || 0) + 1);

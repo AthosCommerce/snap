@@ -16,6 +16,7 @@ export const Autocomplete = observer(({ controller, snap }: AutocompleteProps) =
 				limit: 5,
 			},
 			result: {
+				discussProductIcon: { icon: 'chat' as const },
 				hideQuickviewButton: false,
 			},
 		},

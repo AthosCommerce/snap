@@ -12,10 +12,11 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { ComponentProps, ResultsLayout, StyleScript } from '../../../types';
 import { CalloutBadge, CalloutBadgeProps } from '../../Molecules/CalloutBadge';
 import { OverlayBadge, OverlayBadgeProps } from '../../Molecules/OverlayBadge';
-import type { SearchController, AutocompleteController, RecommendationController } from '@athoscommerce/snap-controller';
+import type { SearchController, AutocompleteController, RecommendationController, ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { IconProps, IconType } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -49,6 +50,15 @@ const defaultStyles: StyleScript<ResultProps> = () => {
 			'& .ss__result__badge': {
 				background: 'rgba(255, 255, 255, 0.5)',
 				padding: '10px',
+			},
+			'& .ss__result__discuss-product-button': {
+				position: 'absolute',
+				bottom: '8px',
+				left: '8px',
+				padding: '4px',
+				border: 'none',
+				background: 'rgba(255, 255, 255, 0.5)',
+				cursor: 'pointer',
 			},
 			'& .ss__result__quickview': {
 				position: 'absolute',
@@ -125,6 +135,8 @@ export const Result = observer((properties: ResultProps) => {
 		onQuickviewClick,
 		trackingRef,
 		treePath,
+		discussProductIcon,
+		onDiscussClick,
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('result', {
@@ -190,7 +202,7 @@ export const Result = observer((properties: ResultProps) => {
 			// default props
 			internalClassName: 'ss__result__image',
 			alt: core?.name || '',
-			src: core?.imageUrl || '',
+			src: core?.imageUrl || core?.thumbnailImageUrl || '',
 			// inherited props
 			...defined({
 				disableStyles,
@@ -205,6 +217,17 @@ export const Result = observer((properties: ResultProps) => {
 			internalClassName: 'ss__result__rating',
 			value: core?.rating || 0,
 			count: Number(core?.ratingCount || 0),
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props.theme,
+			treePath,
+		},
+		discussProductButton: {
+			// default props
+			internalClassName: 'ss__result__discuss-product-button',
 			// inherited props
 			...defined({
 				disableStyles,
@@ -273,6 +296,12 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
 		},
+		discussProductButton: {
+			attributes: {
+				'aria-label': 'Discuss this product',
+				title: 'Discuss this product',
+			},
+		},
 		quickviewButtonText: {
 			value: quickviewButtonText,
 			attributes: {
@@ -311,16 +340,39 @@ export const Result = observer((properties: ResultProps) => {
 							}}
 						>
 							{!hideBadge ? (
-								<OverlayBadge
-									{...subProps.overlayBadge}
-									controller={controller as SearchController | AutocompleteController | RecommendationController}
-								>
+								<OverlayBadge {...subProps.overlayBadge} controller={controller}>
 									<Image {...subProps.image} />
 								</OverlayBadge>
 							) : (
 								<Image {...subProps.image} />
 							)}
 						</a>
+						{discussProductIcon && (
+							<Button
+								{...subProps.discussProductButton}
+								icon={discussProductIcon}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									if (onDiscussClick) {
+										onDiscussClick(e, result);
+									} else if (controller?.type === 'chat') {
+										// rendered inside a Chat — go straight to the controller
+										(controller as ChatController).productQuery(result);
+									} else {
+										// otherwise hand off to an integrated Chat via the global bus,
+										// which the integration layer wires up (see setupEvents)
+										const fire = (window as any)?.athos?.fire;
+										if (typeof fire === 'function') {
+											fire('controller/chat/productQuery', { result });
+										} else {
+											controller?.log?.warn('discussProductIcon requires an onDiscussClick handler or an integrated Chat');
+										}
+									}
+								}}
+								{...mergedLang.discussProductButton.all}
+							/>
+						)}
 						{!hideQuickviewButton && controller?.quickviewManager && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
 					</div>
 				)}
@@ -363,7 +415,7 @@ export const Result = observer((properties: ResultProps) => {
 
 					{cloneWithProps(detailSlot, { result, treePath })}
 
-					{!hideVariantSelections && result.variants?.selections.length ? (
+					{!hideVariantSelections && result.variants?.selections?.length ? (
 						<div className="ss__result__details__variant-selection">
 							{result.variants?.selections.map((selection) => {
 								return (
@@ -392,6 +444,7 @@ interface ResultSubProps {
 	rating: RatingProps;
 	quickviewButton: ButtonProps;
 	button: ButtonProps;
+	discussProductButton: Partial<ButtonProps>;
 	variantSelection: Partial<VariantSelectionProps>;
 }
 export interface TruncateTitleProps {
@@ -401,7 +454,7 @@ export interface TruncateTitleProps {
 
 export type ResultProps = {
 	result: Product;
-	controller?: SearchController | AutocompleteController | RecommendationController;
+	controller?: SearchController | AutocompleteController | RecommendationController | ChatController;
 	lang?: Partial<ResultLang>;
 	trackingRef?: MutableRef<HTMLElement | null>;
 } & ResultTemplatesLegalProps &
@@ -427,17 +480,20 @@ export type ResultTemplatesLegalProps = {
 	layout?: keyof typeof ResultsLayout | ResultsLayout;
 	truncateTitle?: TruncateTitleProps;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, Event>) => void;
+	discussProductIcon?: IconType | Partial<IconProps>;
+	onDiscussClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 };
 
 export interface ResultLang {
 	addToCartButtonText: Lang<ResultPropData>;
 	addToCartButtonSuccessText: Lang<ResultPropData>;
+	discussProductButton: Lang<ResultPropData>;
 	quickviewButtonText: Lang<ResultPropData>;
 }
 
 interface ResultPropData {
 	result: Product;
-	controller?: SearchController | AutocompleteController | RecommendationController;
+	controller?: SearchController | AutocompleteController | RecommendationController | ChatController;
 }
 
 export type ResultNames = 'seed';

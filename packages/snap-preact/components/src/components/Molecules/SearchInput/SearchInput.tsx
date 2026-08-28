@@ -86,6 +86,14 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		//passed in properties
 		...properties?.closeSearchButton,
 	};
+	props.chatButton = {
+		//defaults
+		...defaultProps.chatButton,
+		//theme
+		...props.chatButton,
+		//passed in properties
+		...properties?.chatButton,
+	};
 
 	const {
 		placeholderText,
@@ -93,9 +101,11 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		submitSearchButton,
 		closeSearchButton,
 		clearSearchButton,
+		chatButton,
 		hideSubmitSearchButton,
 		hideClearSearchButton,
 		hideCloseSearchButton,
+		hideChatButton,
 		inputRef,
 		inputName,
 		onChange,
@@ -180,6 +190,19 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 			theme: props?.theme,
 			treePath,
 		},
+		chatButton: {
+			// default props
+			...chatButton,
+			internalClassName: 'ss__search-input__button--chat-button',
+			name: 'chat',
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath,
+		},
 	};
 
 	const styling = mergeStyles<SearchInputProps>(props, defaultStyles);
@@ -204,6 +227,11 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		submitSearchButton: {
 			attributes: {
 				'aria-label': 'Submit Search',
+			},
+		},
+		chatButton: {
+			attributes: {
+				'aria-label': 'Open Chat',
 			},
 		},
 	};
@@ -242,6 +270,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 					{!hideClearSearchButton && clearSearchButton && inputValue?.length ? (
 						<Button {...subProps.clearSearchButton} {...mergedLang.clearSearchButton.all} />
 					) : null}
+					{!hideChatButton && chatButton?.icon ? <Button {...subProps.chatButton} {...mergedLang.chatButton.all} /> : null}
 
 					{!hideSubmitSearchButton && submitSearchButton && <Button {...subProps.submitSearchButton} {...mergedLang.submitSearchButton.all} />}
 				</div>
@@ -262,9 +291,11 @@ export type SearchInputTemplatesLegalProps = {
 	submitSearchButton?: Buttons;
 	clearSearchButton?: Buttons;
 	closeSearchButton?: Buttons;
+	chatButton?: Buttons;
 	hideSubmitSearchButton?: boolean;
 	hideClearSearchButton?: boolean;
 	hideCloseSearchButton?: boolean;
+	hideChatButton?: boolean;
 	inputName?: string;
 	disabled?: boolean;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -280,6 +311,7 @@ interface SearchInputSubProps {
 	submitSearchButton: Partial<ButtonProps>;
 	clearSearchButton: Partial<ButtonProps>;
 	closeSearchButton: Partial<ButtonProps>;
+	chatButton: Partial<ButtonProps>;
 }
 
 export interface SearchInputLang {
@@ -287,4 +319,5 @@ export interface SearchInputLang {
 	closeSearchButton?: Lang<never>;
 	clearSearchButton?: Lang<never>;
 	submitSearchButton?: Lang<never>;
+	chatButton?: Lang<never>;
 }

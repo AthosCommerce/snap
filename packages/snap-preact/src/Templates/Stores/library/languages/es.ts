@@ -107,6 +107,496 @@ export const es: LangComponents = {
 				'aria-label': 'Enviar búsqueda',
 			},
 		},
+		chatButton: {
+			attributes: {
+				'aria-label': 'Abrir chat',
+			},
+		},
+	},
+	chatButton: {
+		openChatButton: {
+			attributes: {
+				'aria-label': 'Abrir chat',
+				title: 'Abrir chat',
+			},
+		},
+		closeChatButton: {
+			attributes: {
+				'aria-label': 'Cerrar chat',
+				title: 'Cerrar chat',
+			},
+		},
+	},
+	chat: {
+		openChatButton: {
+			attributes: {
+				'aria-label': 'Abrir chat',
+				title: 'Abrir chat',
+			},
+		},
+		closeChatButton: {
+			attributes: {
+				'aria-label': 'Cerrar chat',
+				title: 'Cerrar chat',
+			},
+		},
+		newChatButton: {
+			attributes: {
+				'aria-label': 'Nuevo chat',
+				title: 'Nuevo chat',
+			},
+		},
+		chatHistoryButton: {
+			attributes: {
+				'aria-label': 'Historial del chat',
+				title: 'Historial del chat',
+			},
+		},
+		historyTitle: {
+			value: 'Historial',
+		},
+		historyClearButton: {
+			value: 'borrar',
+		},
+		historyNewChatLabel: {
+			value: 'Nuevo chat',
+		},
+		sideChatRegionLabel: {
+			attributes: {
+				'aria-label': 'Detalles de la conversación',
+			},
+		},
+		inspirationResultTitle: {
+			value: 'Escenarios de inspiración',
+		},
+		inspirationResultSubtitle: {
+			value: 'Elige una dirección de estilo para explorar',
+		},
+		productComparisonTitle: {
+			value: 'Comparación de productos',
+		},
+		productComparisonSubtitle: {
+			value: (data) => `Comparando ${data?.count ?? ''} productos`,
+		},
+		chatMessagesLabel: {
+			attributes: {
+				'aria-label': 'Mensajes del chat',
+			},
+		},
+		newMessagesButton: {
+			value: 'Mensajes nuevos',
+		},
+		loadingVerbsProductQuery: {
+			value: 'Pensando, Buscando, Analizando, Reuniendo detalles',
+		},
+		loadingVerbsProductSearch: {
+			value: 'Buscando, Explorando el catálogo, Encontrando productos, Seleccionando resultados',
+		},
+		loadingVerbsProductComparison: {
+			value: 'Comparando, Analizando, Evaluando, Sopesando opciones',
+		},
+		loadingVerbsImageSearch: {
+			value: 'Analizando la imagen, Identificando, Buscando, Emparejando',
+		},
+		loadingVerbsProductSimilar: {
+			value: 'Encontrando artículos similares, Buscando, Emparejando, Seleccionando',
+		},
+		loadingVerbsInspirationRequest: {
+			value: 'Generando ideas, Imaginando, Seleccionando, Inspirando',
+		},
+		feedbackPrompt: {
+			value: '¿Cómo va tu experiencia hasta ahora?',
+		},
+		feedbackThanks: {
+			value: 'Gracias por tus comentarios',
+		},
+		feedbackThumbsUpButton: {
+			attributes: {
+				'aria-label': 'Me gusta',
+				title: 'Me gusta',
+			},
+		},
+		feedbackThumbsDownButton: {
+			attributes: {
+				'aria-label': 'No me gusta',
+				title: 'No me gusta',
+			},
+		},
+		feedbackDismissButton: {
+			attributes: {
+				'aria-label': 'Descartar comentarios',
+			},
+		},
+		comparisonsTitle: {
+			value: (data) => `Comparar productos (${data?.count ?? 0}/${data?.max ?? 0})`,
+		},
+		comparisonsClearButton: {
+			value: 'borrar',
+		},
+		comparisonsAddText: {
+			value: 'Agregar',
+		},
+		comparisonsCompareButton: {
+			value: 'Comparar',
+			attributes: {
+				title: 'Comparar',
+			},
+		},
+		comparisonsRemoveButton: {
+			attributes: {
+				'aria-label': (data) => `Eliminar ${data?.name || 'producto'} de la comparación`,
+			},
+		},
+		chatUnavailableMessage: {
+			value: 'El servicio no está disponible temporalmente. Mientras tanto, ¡usa la barra de búsqueda de arriba para encontrar lo que necesitas!',
+		},
+		highVolumeMessage: {
+			value: 'El chat no está disponible en este momento debido al alto volumen de consultas.',
+		},
+		highVolumeSubMessage: {
+			value: 'Mientras tanto, ¡usa la barra de búsqueda de arriba para encontrar lo que necesitas!',
+		},
+		newSessionButton: {
+			value: 'Nueva sesión',
+		},
+		facetsTitle: {
+			value: 'Filtrar por:',
+		},
+		facetsApplyButton: {
+			value: (data) => `Aplicar (${data?.count ?? 0})`,
+		},
+		facetsClearButton: {
+			value: 'Borrar filtros',
+		},
+		attachmentCompareTitle: {
+			value: 'Comparar estos productos',
+		},
+		attachmentAskProductTitle: {
+			value: 'Preguntar sobre este producto',
+		},
+		attachmentImageSimilarTitle: {
+			value: 'Buscar productos similares a esta imagen:',
+		},
+		topicDriftScopeMessage: {
+			value: 'Estoy aquí para ayudarte con tus compras',
+		},
+		topicDriftScopeSubMessage: {
+			value: 'Prueba a preguntar sobre productos, comparaciones o recomendaciones',
+		},
+		topicDriftMessage: {
+			value: '¿Buscas algo nuevo?',
+		},
+		topicDriftSubMessage: {
+			value: '¿Inicias una nueva sesión para una mejor asistencia o continúas en esta?',
+		},
+		topicDriftDismissButton: {
+			attributes: {
+				'aria-label': 'Descartar',
+			},
+		},
+		inputPlaceholder: {
+			value: 'Escribe tu mensaje...',
+		},
+		inputPlaceholderAskProduct: {
+			value: 'Pregunta sobre este producto...',
+		},
+		inputPlaceholderCompare: {
+			value: '¿Qué te gustaría comparar?',
+		},
+		inputPlaceholderComparedProducts: {
+			value: 'Pregunta sobre los productos comparados...',
+		},
+		inputPlaceholderAskImage: {
+			value: 'Pregunta sobre esta imagen...',
+		},
+		inputPlaceholderAddCompare: {
+			value: 'Agrega otro producto para comparar...',
+		},
+		uploadImageButton: {
+			attributes: {
+				'aria-label': 'Subir imagen',
+				title: 'Subir imagen',
+			},
+		},
+		sendMessageButton: {
+			attributes: {
+				'aria-label': 'Enviar mensaje',
+				title: 'Enviar mensaje',
+			},
+		},
+		dropOverlayText: {
+			value: 'Suelta la imagen para subirla',
+		},
+		disclaimerText: {
+			value: 'Asistente impulsado por IA. A veces comete errores. Evita compartir datos personales.',
+		},
+		privacyPolicyLinkText: {
+			value: 'Política de privacidad',
+		},
+		expiredMessage: {
+			value: 'Este chat ha expirado. Por favor inicia un nuevo chat.',
+		},
+	},
+	chatLoadingIndicator: {
+		thinkingVerb: {
+			value: 'Pensando',
+		},
+		searchingVerb: {
+			value: 'Buscando',
+		},
+		analyzingVerb: {
+			value: 'Analizando',
+		},
+		generatingVerb: {
+			value: 'Generando',
+		},
+		processingVerb: {
+			value: 'Procesando',
+		},
+	},
+	chatAttachmentContext: {
+		closeButton: {
+			attributes: {
+				'aria-label': 'Cerrar',
+			},
+		},
+		openItemButton: {
+			attributes: {
+				'aria-label': 'Abrir elemento',
+			},
+		},
+		loadingIndicator: {
+			attributes: {
+				'aria-label': 'Cargando elemento',
+			},
+		},
+		removeButton: {
+			attributes: {
+				'aria-label': 'Eliminar elemento',
+			},
+		},
+		uploadFailedText: {
+			value: 'Error al subir el archivo',
+		},
+	},
+	chatInspirationResultMessage: {
+		searchQueryButton: {
+			attributes: {
+				'aria-label': 'Buscar este término',
+			},
+		},
+		openProductButton: {
+			attributes: {
+				'aria-label': 'Abrir producto',
+			},
+		},
+	},
+	chatMessageText: {
+		viewInspirationButton: {
+			attributes: {
+				'aria-label': 'Ver inspiración',
+				title: 'Ver inspiración',
+			},
+		},
+		closeInspirationButton: {
+			value: 'Cerrar inspiración',
+			attributes: {
+				'aria-label': 'Cerrar inspiración',
+				title: 'Cerrar inspiración',
+			},
+		},
+		exploreInspirationButton: {
+			value: 'Explorar escenarios de inspiración',
+			attributes: {
+				'aria-label': 'Explorar escenarios de inspiración',
+			},
+		},
+		viewComparisonButton: {
+			attributes: {
+				'aria-label': 'Ver comparación',
+				title: 'Ver comparación',
+			},
+		},
+		closeComparisonButton: {
+			value: 'Cerrar comparación',
+			attributes: {
+				'aria-label': 'Cerrar comparación',
+				title: 'Cerrar comparación',
+			},
+		},
+		exploreComparisonButton: {
+			value: 'Explorar datos de comparación',
+			attributes: {
+				'aria-label': 'Explorar datos de comparación',
+			},
+		},
+		showDetailsButton: {
+			value: 'Mostrar detalles',
+			attributes: {
+				'aria-label': 'Mostrar detalles de la comparación',
+			},
+		},
+	},
+	chatMessageUser: {
+		requestTypeProductQuery: {
+			value: 'Preguntando sobre el producto',
+		},
+		requestTypeProductComparison: {
+			value: 'Comparando productos',
+		},
+		requestTypeProductFilter: {
+			value: 'Filtrando productos',
+		},
+		requestTypeProductSearch: {
+			value: 'Buscando productos',
+		},
+		requestTypeImageSearch: {
+			value: 'Buscando por imagen',
+		},
+		requestTypeProductSimilar: {
+			value: 'Buscando productos similares',
+		},
+		productAttachmentButton: {
+			attributes: {
+				'aria-label': 'Ver detalles del producto',
+				title: 'Ver detalles del producto',
+			},
+		},
+		facetAttachment: {
+			attributes: {
+				'aria-label': 'Filtro aplicado',
+				title: 'Filtro aplicado',
+			},
+		},
+		facetOverflow: {
+			attributes: {
+				'aria-label': 'Filtros adicionales',
+				title: 'Filtros adicionales',
+			},
+		},
+	},
+	chatProductComparisonMessage: {
+		comparisonTable: {
+			value: 'Comparación de productos',
+			attributes: {
+				'aria-label': 'Comparación de productos',
+			},
+		},
+		featureColumnHeader: {
+			attributes: {
+				'aria-label': 'Característica',
+			},
+		},
+		viewProductButton: {
+			attributes: {
+				'aria-label': 'Ver detalles del producto',
+			},
+		},
+	},
+	chatProductQueryMessage: {
+		loadingText: {
+			value: 'Cargando detalles del producto...',
+		},
+		backToComparisonButton: {
+			value: 'Volver a la comparación',
+			attributes: {
+				'aria-label': 'Volver a la comparación',
+			},
+		},
+		backToInspirationButton: {
+			value: 'Volver a la inspiración',
+			attributes: {
+				'aria-label': 'Volver a la inspiración',
+			},
+		},
+		addToCartButton: {
+			value: 'Agregar al carrito',
+		},
+		similarButton: {
+			value: 'Similares',
+		},
+		discussButton: {
+			value: 'Consultar',
+		},
+		inStockText: {
+			value: 'En stock',
+		},
+		outOfStockText: {
+			value: 'Agotado',
+		},
+		unavailableText: {
+			value: 'no disponible',
+		},
+		variantsGroup: {
+			attributes: {
+				'aria-label': 'Selección de variantes',
+			},
+		},
+		productInformationTable: {
+			attributes: {
+				'aria-label': 'Información del producto',
+			},
+		},
+	},
+	chatResult: {
+		similarButton: {
+			value: 'Similares',
+			attributes: {
+				'aria-label': (data) => `Mostrar similares a ${data?.result?.display?.mappings?.core?.name || 'producto'}`,
+			},
+		},
+		compareButton: {
+			value: 'Comparar',
+			attributes: {
+				'aria-label': (data) => `Comparar ${data?.result?.display?.mappings?.core?.name || 'producto'}`,
+			},
+		},
+		addedToComparisonButton: {
+			attributes: {
+				'aria-label': (data) => `${data?.result?.display?.mappings?.core?.name || 'Producto'} agregado a la comparación`,
+				title: 'Agregado a la comparación',
+			},
+		},
+		discussButton: {
+			attributes: {
+				'aria-label': (data) => `Consultar sobre ${data?.result?.display?.mappings?.core?.name || 'producto'}`,
+				title: 'Consultar producto',
+			},
+		},
+		addToCartButton: {
+			attributes: {
+				'aria-label': (data) => `Agregar ${data?.result?.display?.mappings?.core?.name || 'producto'} al carrito`,
+				title: 'Agregar al carrito',
+			},
+		},
+		configureButton: {
+			attributes: {
+				'aria-label': (data) => `Configurar ${data?.result?.display?.mappings?.core?.name || 'producto'}`,
+				title: 'Configurar',
+			},
+		},
+		productLink: {
+			attributes: {
+				'aria-label': (data) => `Abrir ${data?.result?.display?.mappings?.core?.name || 'producto'}`,
+			},
+		},
+	},
+	result: {
+		addToCartButtonText: {
+			value: 'Añadir todo al carrito',
+		},
+		addToCartButtonSuccessText: {
+			value: '¡Agregado!',
+		},
+		discussProductButton: {
+			attributes: {
+				'aria-label': 'Consultar sobre este producto',
+				title: 'Consultar sobre este producto',
+			},
+		},
+		quickviewButtonText: {
+			value: 'Vista rápida',
+		},
 	},
 	recommendationBundle: {
 		seedText: {
@@ -120,17 +610,6 @@ export const es: LangComponents = {
 		},
 		ctaSubtotalTitle: {
 			value: (data) => `Subtotal para ${data.cartStore.count} artículos`,
-		},
-	},
-	result: {
-		addToCartButtonText: {
-			value: 'Añadir todo al carrito',
-		},
-		addToCartButtonSuccessText: {
-			value: '¡Agregado!',
-		},
-		quickviewButtonText: {
-			value: 'Vista rápida',
 		},
 	},
 	overlayResult: {

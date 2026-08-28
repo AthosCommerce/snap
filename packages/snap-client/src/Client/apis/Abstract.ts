@@ -52,7 +52,9 @@ export class API<PathConfigurationType> {
 
 		try {
 			response = await this.fetchApi(url, init);
+
 			responseJSON = await response?.json();
+			responseJSON = this.handleResponseHeaders(responseJSON, response?.headers);
 
 			if (response.status >= 200 && response.status < 300) {
 				this.retryCount = 0; // reset count and delay incase rate limit occurs again before a page refresh
@@ -83,20 +85,27 @@ export class API<PathConfigurationType> {
 			}
 
 			// throw an object with fetch details
-			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init } };
+			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init }, responseBody: responseJSON };
 		}
 	}
 
+	// hook allowing API subclasses to apply response header data to the parsed response body
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	protected handleResponseHeaders(responseJSON: Json, headers?: Headers): Json {
+		return responseJSON;
+	}
+
 	private createFetchParams(context: RequestOpts) {
-		// grab siteID out of context to generate apiHost fo URL
+		// grab siteID out of context to generate apiHost for URL
 		const siteId = context?.body?.siteId || context?.query?.siteId;
 		// siteId is only needed to derive the host; an explicit per-request origin supplies it directly.
 		if (!siteId && !context.origin) {
 			throw new Error(`Request failed. Missing "siteId" parameter.`);
 		}
 
+		const configuredOrigin = context.origin || this.configuration.origin;
 		const siteIdHost = `https://${siteId}.a${context.subDomain ? `.${context.subDomain}` : ''}.athoscommerce.net`;
-		const origin = (context.origin || this.configuration.origin || siteIdHost).replace(/\/$/, '');
+		const origin = (configuredOrigin || siteIdHost).replace(/\/$/, '');
 
 		let url = `${origin}/${context.path.replace(/^\//, '')}`;
 

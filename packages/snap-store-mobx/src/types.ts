@@ -1,5 +1,5 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
-import type { RecommendRequestModel } from '@athoscommerce/snap-client';
+import type { ChatRequestModel, RecommendRequestModel } from '@athoscommerce/snap-client';
 
 import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
@@ -90,6 +90,44 @@ export type VariantOptionConfigMappings = {
 		background?: string;
 		backgroundImageUrl?: string;
 	};
+};
+
+// Chat-only quickview settings — an enable toggle with plain string display fields,
+// distinct from the QuickviewStore's QuickviewConfig used by the quickview manager.
+export type ChatQuickviewConfig = {
+	enabled: boolean;
+	displayFields?: string[];
+};
+
+// Chat Config
+export type ChatStoreConfig = StoreConfig & {
+	globals?: Partial<ChatRequestModel>;
+	settings?: ChatStoreConfigSettings;
+	/** Kept top-level (not in `globals`) because ChatRequestModel has no siteId —
+	 * it is only used to namespace the chat localStorage keys per site. */
+	siteId?: string;
+};
+
+/** A chat facet selection: a plain option value, or the bounds of a range bucket.
+ * Callers pass the shape directly — the store never infers one from the other. */
+export type ChatFacetValue = string | { low?: number; high?: number };
+
+export type ChatStoreConfigSettings = {
+	/** CSS selector used by focusInput to locate the chat text input. */
+	inputSelector?: string;
+	/** Max viewport width treated as mobile — should match the theme breakpoint. Defaults to 767. */
+	mobileBreakpoint?: number;
+	variants?: VariantConfig;
+	quickview?: ChatQuickviewConfig;
+	comparison?: {
+		max?: number;
+	};
+	feedbackAfterMessages?: number;
+	/** Background filters forwarded to the chat init API as `searchConfig.bgFilters`. */
+	bgFilters?: Record<string, string>;
+	/** Language code forwarded to chat init as `languageCode`. Sourced from the Snap
+	 * Templates configured locale; falls back to `navigator.language` when absent. */
+	languageCode?: string;
 };
 
 // Search Config
@@ -190,7 +228,7 @@ export type RecommendationStoreConfig = StoreConfig & {
 	};
 };
 
-export type StoreConfigs = SearchStoreConfig | AutocompleteStoreConfig | FinderStoreConfig | RecommendationStoreConfig;
+export type StoreConfigs = SearchStoreConfig | AutocompleteStoreConfig | FinderStoreConfig | RecommendationStoreConfig | ChatStoreConfig;
 
 export type QuickviewStoreConfig = StoreConfig & {
 	settings?: QuickviewConfig;

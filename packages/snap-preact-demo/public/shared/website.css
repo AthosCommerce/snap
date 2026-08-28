@@ -764,14 +764,31 @@ fieldset {
 	-ms-flex: 1 1 100%;
 	-moz-flex: 1 1 100%;
 	flex: 1 1 100%;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* the inline chat launcher sits beside the form rather than inside it — the autocomplete
+   target is injected into the form and anchors its overlay to the form's box, so the form
+   has to stay the same box as the search input */
+.ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__chat--inline-target {
+	-webkit-flex: 0 0 auto;
+	-ms-flex: 0 0 auto;
+	-moz-flex: 0 0 auto;
+	flex: 0 0 auto;
+	-webkit-order: -1;
+	-ms-flex-order: -1;
+	order: -1;
 }
 
 .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form {
 	position: relative;
-	-webkit-flex: 1 0 auto;
-	-ms-flex: 1 0 auto;
-	-moz-flex: 1 0 auto;
-	flex: 1 0 auto;
+	-webkit-flex: 1 1 auto;
+	-ms-flex: 1 1 auto;
+	-moz-flex: 1 1 auto;
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__input {
@@ -849,7 +866,9 @@ fieldset {
 		-ms-flex: 1 1 0%;
 		-moz-flex: 1 1 0%;
 		flex: 1 1 0%;
-		max-width: 500px;
+		/* 500px search form + 10px gap + the inline chat launcher, so the form (and the
+		   autocomplete dropdown sized from it) keeps its full width */
+		max-width: 610px;
 	}
 
 	.ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons {

@@ -174,6 +174,21 @@ The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to
 ```tsx
 <Result result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
 ```
+### discussProductIcon
+The `discussProductIcon` prop renders a "discuss this product" button over the result image using the provided icon props. Clicking the button fires the `controller/chat/productQuery` event on the global `athos` event bus by default (opening the product discussion in an integrated Chat), or invokes `onDiscussClick` when provided.
+
+```tsx
+<Result result={controller.store.results[0]} discussProductIcon={{ icon: 'chat' }} />
+```
+
+### onDiscussClick
+The `onDiscussClick` prop is a function called when the discuss product button is clicked (rendered via `discussProductIcon`). When provided it replaces the default behavior of firing the `controller/chat/productQuery` event on the global `athos` event bus. It receives the click event and the result.
+
+```tsx
+<Result result={controller.store.results[0]} discussProductIcon={{ icon: 'chat' }} onDiscussClick={(e, result) => console.log(result)} />
+```
+
+
 ## Lang
 
 The `lang` prop allows you to override translatable text strings used by the Result component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).

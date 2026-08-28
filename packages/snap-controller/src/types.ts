@@ -1,4 +1,11 @@
-import type { AbstractController, AutocompleteController, SearchController, FinderController, RecommendationController } from './index';
+import type {
+	AbstractController,
+	AutocompleteController,
+	SearchController,
+	FinderController,
+	RecommendationController,
+	ChatController,
+} from './index';
 import type { QuickviewManager } from './Quickview/QuickviewManager';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 
@@ -13,6 +20,8 @@ import type {
 	FinderStoreConfig,
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
+	ChatStoreConfig,
+	ChatStore,
 	Product,
 	SearchStoreConfigSettings,
 	AutocompleteStoreConfigSettings,
@@ -91,16 +100,17 @@ export type ElementPositionObj = {
 
 export enum ControllerTypes {
 	search = 'search',
+	chat = 'chat',
 	autocomplete = 'autocomplete',
 	finder = 'finder',
 	recommendation = 'recommendation',
 }
 
-export type Controllers = SearchController | AutocompleteController | FinderController | RecommendationController;
+export type Controllers = SearchController | ChatController | AutocompleteController | FinderController | RecommendationController;
 
 export type ControllerServices = {
 	client: Client;
-	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore;
+	store: SearchStore | AutocompleteStore | FinderStore | RecommendationStore | ChatStore;
 	urlManager: UrlManager;
 	eventManager: EventManager;
 	profiler: Profiler;
@@ -137,6 +147,8 @@ export type ControllerConfig = StoreConfig & Attachments;
 
 // Search Config
 export type SearchControllerConfig = ControllerConfig & SearchStoreConfig;
+// Chat Config
+export type ChatControllerConfig = ControllerConfig & ChatStoreConfig;
 // Finder Config
 export type FinderControllerConfig = ControllerConfig & FinderStoreConfig;
 // Autocomplete config
@@ -144,7 +156,12 @@ export type AutocompleteControllerConfig = ControllerConfig & AutocompleteStoreC
 // Recommendation config
 export type RecommendationControllerConfig = ControllerConfig & RecommendationStoreConfig;
 
-export type ControllerConfigs = SearchControllerConfig | AutocompleteControllerConfig | FinderControllerConfig | RecommendationControllerConfig;
+export type ControllerConfigs =
+	| SearchControllerConfig
+	| AutocompleteControllerConfig
+	| FinderControllerConfig
+	| RecommendationControllerConfig
+	| ChatControllerConfig;
 
 // General tab config values
 export type TabConfig = {

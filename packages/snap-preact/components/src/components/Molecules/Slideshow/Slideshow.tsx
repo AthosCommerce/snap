@@ -742,6 +742,9 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						onMouseDown={
 							touchDragging
 								? (event: MouseEvent) => {
+										// Only initiate dragging with the primary (left) mouse button.
+										// Right/middle clicks should not start a drag (e.g. opening the context menu).
+										if (event.button !== 0) return;
 										event.preventDefault();
 										handleDragStart(event.clientX);
 								  }

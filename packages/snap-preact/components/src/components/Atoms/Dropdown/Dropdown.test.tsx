@@ -397,6 +397,56 @@ describe('Dropdown Component', () => {
 		expect(portalContent).toHaveTextContent(contentText);
 	});
 
+	it('positions portal content above the button when dropUp is set', async () => {
+		const rendered = render(<Dropdown button={'open me'} content={'portal content'} usePortal dropUp />);
+
+		await userEvent.click(rendered.getByText('open me'));
+
+		const portalContent = document.body.querySelector('.ss__dropdown__portal') as HTMLElement;
+		expect(portalContent).toBeInTheDocument();
+		// dropUp shifts the portal wrapper up by its own height instead of hanging below the anchor
+		expect(portalContent.style.transform).toBe('translateY(-100%)');
+	});
+
+	it('does not apply the dropUp transform by default', async () => {
+		const rendered = render(<Dropdown button={'open me'} content={'portal content'} usePortal />);
+
+		await userEvent.click(rendered.getByText('open me'));
+
+		const portalContent = document.body.querySelector('.ss__dropdown__portal') as HTMLElement;
+		expect(portalContent).toBeInTheDocument();
+		expect(portalContent.style.transform).toBe('');
+	});
+
+	// NOTE: the boundaryRef clamp and the flip-x behaviour depend on real layout geometry.
+	// jsdom reports every rect as 0x0, so only the non-geometric contract is asserted here —
+	// the positioning itself belongs in the Cypress component suite.
+	it('renders portal content with a boundaryRef without disturbing the portal contract', async () => {
+		const boundary = document.createElement('div');
+		document.body.appendChild(boundary);
+		const boundaryRef = { current: boundary };
+
+		const rendered = render(<Dropdown button={'open me'} content={'portal content'} usePortal boundaryRef={boundaryRef} />);
+
+		await userEvent.click(rendered.getByText('open me'));
+
+		const portalContent = document.body.querySelector('.ss__dropdown__portal') as HTMLElement;
+		expect(portalContent).toBeInTheDocument();
+		expect(portalContent).toHaveTextContent('portal content');
+		expect(portalContent.style.position).toBe('fixed');
+
+		boundary.remove();
+	});
+
+	it('does not inject a disabled prop into the button component when unset', async () => {
+		const ButtonSpy = (props: any) => <button data-has-disabled={String('disabled' in props)}>open me</button>;
+		const rendered = render(<Dropdown button={<ButtonSpy />} content={'content'} />);
+
+		// injected props win in cloneWithProps, so an undefined `disabled` must not be passed
+		// down and clobber an author-supplied value
+		expect(rendered.container.querySelector('button')).toHaveAttribute('data-has-disabled', 'false');
+	});
+
 	it('disables styles', () => {
 		const buttonText = 'click me';
 		const contentText = 'this is the content';

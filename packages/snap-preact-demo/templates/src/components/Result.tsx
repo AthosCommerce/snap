@@ -1,19 +1,51 @@
 import { h } from 'preact';
-import { Price, Image, OverlayBadge, CalloutBadge, Rating } from '@athoscommerce/snap-preact/components';
-import type { SearchController } from '@athoscommerce/snap-controller';
+import { Button, Icon, Price, Image, OverlayBadge, CalloutBadge, Rating } from '@athoscommerce/snap-preact/components';
+import type { SearchController, AutocompleteController, RecommendationController, ChatController } from '@athoscommerce/snap-controller';
+
+const openChatProductQuery = (result: any, controller?: SearchController | AutocompleteController | RecommendationController | ChatController) => {
+	window.athos.fire('controller/chat/productQuery', { result });
+	if (controller?.type === 'autocomplete') {
+		(controller as AutocompleteController).setFocused();
+	}
+};
+const openChatProductSimilar = (result: any, controller?: SearchController | AutocompleteController | RecommendationController | ChatController) => {
+	window.athos.fire('controller/chat/productSimilar', { result });
+	if (controller?.type === 'autocomplete') {
+		(controller as AutocompleteController).setFocused();
+	}
+};
 
 export const CustomResult = (props: ResultProps) => {
 	const { result, controller, treePath } = props;
 	const core = result.mappings.core;
+	const isChatEnabled = !!window?.athos?.controller?.chat;
 
 	return (
 		<article className="ss__custom-result">
-			<div className="ss__custom-result__image-wrapper">
+			<div className="ss__custom-result__image-wrapper" style={{ position: 'relative' }}>
 				<a href={core?.url}>
 					<OverlayBadge controller={controller as SearchController} result={result} treePath={treePath}>
 						<Image treePath={treePath} src={core?.thumbnailImageUrl || ''} alt={core?.name || ''} />
 					</OverlayBadge>
 				</a>
+				{isChatEnabled && (
+					<>
+						<Button
+							onClick={() => openChatProductQuery(result, controller)}
+							aria-label={'Ask about this product'}
+							style={{ position: 'absolute', bottom: '0px', left: '0px' }}
+						>
+							<Icon icon={'chat'} title={'Ask about this product'} />
+						</Button>
+						<Button
+							onClick={() => openChatProductSimilar(result, controller)}
+							aria-label={'Find similar products'}
+							style={{ position: 'absolute', bottom: '0px', left: '20px' }}
+						>
+							<Icon icon={'similar'} title={'Find similar products'} />
+						</Button>
+					</>
+				)}
 			</div>
 			<div className="ss__custom-result__details">
 				<div className="ss__custom-result__details__title">

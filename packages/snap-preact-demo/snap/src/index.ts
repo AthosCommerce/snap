@@ -214,6 +214,59 @@ let config: SnapConfig = {
 				],
 			},
 		],
+		chat: [
+			{
+				config: {
+					id: 'chat',
+					settings: {
+						quickview: {
+							enabled: true,
+							displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+						},
+					},
+					middleware: {
+						addToCart: (data: { products: any }, next: () => void) => {
+							console.log('chat add to cart!', data.products);
+							next();
+						},
+					},
+				},
+				targeters: [
+					// inline launcher left of the search form — injected as a sibling of the form so
+					// the form's box stays equal to the input's box for the autocomplete overlay
+					{
+						selector: '.ss__demo__search__form',
+						inject: {
+							action: 'before',
+							element: () => {
+								const container = document.createElement('div');
+								container.className = 'ss__chat--inline-target';
+								return container;
+							},
+						},
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).ChatButton;
+						},
+						props: {
+							content: 'Ask AI',
+						},
+					},
+					{
+						selector: 'body',
+						component: async () => {
+							return (await import('@athoscommerce/snap-preact/components')).Chat;
+						},
+						props: {
+							avatar: 'https://cdn.shopify.com/s/files/1/0916/6477/7582/files/Gemini_Generated_Image_vz2c2tvz2c2tvz2c.png?v=1771603960',
+							buttonBelowMessage: true,
+							hideMessageTypeIndicatorText: true,
+							// keep the floating bubble launcher alongside the inline ChatButton
+							hideBubble: false,
+						},
+					},
+				],
+			},
+		],
 	},
 	quickview: {
 		config: {

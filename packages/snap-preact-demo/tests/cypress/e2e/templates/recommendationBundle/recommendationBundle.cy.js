@@ -9,6 +9,11 @@
  *
  */
 
+import { filters } from '@athoscommerce/snap-toolbox';
+
+// same formatting the Price component applies to cart totals
+const formatPrice = (value) => filters.currency(value);
+
 const config = {
 	url: 'https://localhost:2222/templates/bundle.html',
 	disableGA: '', // disable google analytic events (example: 'UA-123456-1')
@@ -111,12 +116,12 @@ describe('BundledRecommendations', () => {
 					.should('have.text', `Subtotal for ${initialCartCount} items`);
 				//strike
 				if (store.results.filter((result) => result.mappings.core.msrp).length) {
-					cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(`$${store.cart.msrp}`);
+					cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(formatPrice(store.cart.msrp));
 				}
 				//price
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__price .ss__price`)
 					.should('exist')
-					.contains(`$${store.cart.price}`);
+					.contains(formatPrice(store.cart.price));
 				//button
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__button`)
 					.should('exist')
@@ -138,12 +143,12 @@ describe('BundledRecommendations', () => {
 							.should('have.text', `Subtotal for ${store.cart.count} items`);
 						//strike
 						if (store.results.filter((result) => result.mappings.core.msrp).length) {
-							cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(`$${store.cart.msrp}`);
+							cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(formatPrice(store.cart.msrp));
 						}
 						//price
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__price .ss__price`)
 							.should('exist')
-							.contains(`$${store.cart.price}`);
+							.contains(formatPrice(store.cart.price));
 						//button
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__button`)
 							.should('exist')

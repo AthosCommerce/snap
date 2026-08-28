@@ -4,3 +4,4 @@ export * from './Products';
 export * from './Recommend';
 export * from './Suggest';
 export * from './Meta';
+export * from './Chat';

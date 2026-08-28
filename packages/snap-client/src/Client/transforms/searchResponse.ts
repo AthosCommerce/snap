@@ -1,5 +1,7 @@
 import { unescapeHTML } from '@athoscommerce/snap-toolbox';
 
+import type { RawResult } from '../../types';
+
 import {
 	SearchRequestModel,
 	SearchRequestModelFilterValue,
@@ -51,40 +53,6 @@ type SortingOption = {
 	direction: string;
 	label: string;
 	active?: number;
-};
-
-type RawResult = {
-	available: string;
-	badges?: SearchResponseModelResultBadges[];
-	variants?: SearchResponseModelResultVariants;
-	brand?: string;
-	collection_handle?: string[];
-	collection_id?: string[];
-	handle?: string;
-	id: string;
-	imageUrl: string;
-	intellisuggestData?: string;
-	intellisuggestSignature?: string;
-	msrp?: string;
-	name: string;
-	parentId: string;
-	parentImageUrl: string;
-	price: string;
-	product_type?: string[];
-	product_type_unigram?: string;
-	sku: string;
-	ss_available?: string;
-	ss_best_selling?: string;
-	ss_days_since_published?: string;
-	ss_id?: string;
-	ss_image_hover?: string;
-	ss_images?: string[];
-	ss_inventory_count?: string;
-	ss_tags?: string[];
-	thumbnailImageUrl?: string;
-	uid?: string;
-	url?: string;
-	children?: [];
 };
 
 type FacetValue = {

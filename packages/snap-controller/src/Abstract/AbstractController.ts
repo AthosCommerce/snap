@@ -33,6 +33,9 @@ export abstract class AbstractController {
 	} = {};
 
 	protected _initialized = false;
+	/** Whether `init` wires urlManager changes to `search`. Controllers whose requests are
+	 * never URL-driven (chat) opt out so back/forward navigation cannot submit a request. */
+	protected subscribeToUrlManager = true;
 
 	get initialized(): boolean {
 		return this._initialized;
@@ -222,18 +225,20 @@ export abstract class AbstractController {
 
 		if (!this._initialized) {
 			// subscribe to urlManager changes
-			this.urlManager.subscribe((prev, next) => {
-				try {
-					const prevString = JSON.stringify(prev);
-					const nextString = JSON.stringify(next);
+			if (this.subscribeToUrlManager) {
+				this.urlManager.subscribe((prev, next) => {
+					try {
+						const prevString = JSON.stringify(prev);
+						const nextString = JSON.stringify(next);
 
-					if (prevString !== nextString) {
-						this.search();
+						if (prevString !== nextString) {
+							this.search();
+						}
+					} catch (err) {
+						this.log.error('URL state is invalid', err);
 					}
-				} catch (err) {
-					this.log.error('URL state is invalid', err);
-				}
-			});
+				});
+			}
 
 			this._initialized = true;
 		}

@@ -24,7 +24,7 @@ const defaultStyles: StyleScript<ResultsProps> = ({ gapSize, columns }) => {
 		flexFlow: 'row wrap',
 		gap: gapSize,
 		gridTemplateRows: 'auto',
-		gridTemplateColumns: `repeat(${columns}, 1fr)`,
+		gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
 
 		'& .ss__result, & .ss__result-layout': {
 			boxSizing: 'border-box',

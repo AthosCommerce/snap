@@ -153,6 +153,9 @@ export type ButtonProps = {
 	lang?: Partial<ButtonLang>;
 	name?: ButtonNames;
 	content?: string | JSX.Element;
+	title?: string;
+	// applies to native buttons only
+	type?: 'button' | 'submit' | 'reset';
 } & ButtonTemplatesLegalProps &
 	ComponentProps<ButtonProps>;
 
@@ -175,6 +178,7 @@ export interface ButtonLang {
 export type ButtonNames =
 	| 'close'
 	| 'apply'
+	| 'chat'
 	| 'clear'
 	| 'slideout'
 	| 'sidebar-toggle'

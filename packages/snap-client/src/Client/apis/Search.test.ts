@@ -34,7 +34,7 @@ describe('Search Api', () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 		const requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		const params = {
 			headers: {},
@@ -56,7 +56,7 @@ describe('Search Api', () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 		const requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		const params = {
 			headers: {},
@@ -85,7 +85,7 @@ describe('Search Api', () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 		const requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		const params = {
 			headers: {},
@@ -107,7 +107,7 @@ describe('Search Api', () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 		const requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		const params = {
 			headers: {},
@@ -138,7 +138,7 @@ describe('Search Api', () => {
 		);
 		const requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		const params = {
 			headers: {},
@@ -204,7 +204,7 @@ describe('Search Api', () => {
 
 		let requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		const params = {
 			body: undefined,
@@ -227,7 +227,7 @@ describe('Search Api', () => {
 
 		requestMock = jest
 			.spyOn(global.window, 'fetch')
-			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}), headers: new Headers() } as Response));
 
 		//can get endpoint with custom path
 		//@ts-ignore

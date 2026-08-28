@@ -1,5 +1,7 @@
 export * from './Client/Client';
 
+export { CHAT_MAX_MESSAGE_LENGTH } from './Client/apis/Chat';
+
 export {
 	ClientGlobals,
 	ClientConfig,
@@ -11,4 +13,35 @@ export {
 	RecommendationRequestFilterModel,
 	ProductsRequestModel,
 	ProductsResponseModel,
+	ChatTrackingContext,
+	ChatRequestModel,
+	ChatStatusRequestModel,
+	ChatStatusResponseModel,
+	ChatInitRequestModel,
+	ChatInitResponseModel,
+	ChatBadRequestResponseModel,
+	ChatFilterSummaryEntry,
+	UploadImageRequestModel,
+	UploadImageResponseModel,
+	MoiRequestModel,
+	ProductIdentity,
+	MoiRequestModelGeneral,
+	MoiRequestModelProductQuery,
+	MoiRequestModelProductSearch,
+	MoiRequestModelProductComparison,
+	MoiRequestModelImageSearch,
+	MoiRequestModelProductSimilar,
+	MoiRequestModelInspiration,
+	MoiRequestModelContent,
+	ChatResponseModel,
+	ChatResponseTextData,
+	ChatResponseContentData,
+	ChatResponseTopicDriftData,
+	ChatResponseActionsData,
+	ChatResponseProductSearchResultData,
+	ChatResponseInspirationResultData,
+	ChatResponseProductAnswerData,
+	ChatResponseProductComparisonData,
+	ChatResponseProductRecommendationData,
+	ChatResponseErrorData,
 } from './types';

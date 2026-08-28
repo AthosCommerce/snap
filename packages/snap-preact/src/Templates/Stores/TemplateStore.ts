@@ -5,6 +5,7 @@ import {
 	type SearchStoreConfig,
 	type AutocompleteStoreConfigSettings,
 	type AutocompleteStoreConfig,
+	type ChatStoreConfigSettings,
 	type QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
@@ -12,7 +13,7 @@ import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { TabManagerStore } from './TabManagerStore';
 import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
-import { debounce } from '@athoscommerce/snap-toolbox';
+import { AppMode, debounce } from '@athoscommerce/snap-toolbox';
 import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, AbstractController, TabConfig } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
@@ -52,7 +53,7 @@ import type { ClientConfig } from '@athoscommerce/snap-client';
 import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/RecommendationInstantiator';
 import type { PluginMarketsConfig } from '@athoscommerce/snap-platforms/shopify';
 export type TemplateThemeTypes = 'library' | 'local';
-export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
+export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}` | 'chat';
 
 // TODO: tabbing, finder
 export type SearchTargetConfig = {
@@ -64,6 +65,11 @@ export type AutocompleteTargetConfig = {
 	selector?: string;
 	inputSelector: string;
 	component: keyof LibraryImports['component']['autocomplete'];
+};
+
+export type ChatTargetConfig = {
+	selector: string;
+	component: keyof LibraryImports['component']['chat'];
 };
 
 export type QuickviewTargetConfig = {
@@ -88,6 +94,7 @@ export type RecsTemplateTypes = 'bundle' | 'default' | 'email';
 type ComponentLibraryType =
 	| keyof LibraryImports['component']['autocomplete']
 	| keyof LibraryImports['component']['search']
+	| keyof LibraryImports['component']['chat']
 	| keyof LibraryImports['component']['recommendation']['default']
 	| keyof LibraryImports['component']['recommendation']['bundle']
 	| keyof LibraryImports['component']['recommendation']['email'];
@@ -193,6 +200,7 @@ export type TemplatesStoreConfigLocked = {
 	components?: TemplateStoreComponentConfigLocked;
 	config?: {
 		siteId?: string;
+		mode?: keyof typeof AppMode | AppMode;
 		currency?: CurrencyCodes;
 		language?: LanguageCodes;
 		platform?: IntegrationPlatforms;
@@ -218,6 +226,11 @@ export type TemplatesStoreConfigLocked = {
 		settings?: AutocompleteStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
 	};
+	chat?: {
+		targets: ChatTargetConfig[];
+		settings?: ChatStoreConfigSettings;
+		plugins?: PluginsConfigsLocked;
+	};
 	quickview?: {
 		targets: QuickviewTargetConfig[];
 		settings?: QuickviewConfig;
@@ -240,7 +253,7 @@ export type TemplatesStoreConfigLocked = {
 // Full version that allows all component props in theme overrides (for Snap integration migration path)
 export type TemplatesStoreConfigUnlocked = Omit<
 	TemplatesStoreConfigLocked,
-	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'
+	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'chat' | 'recommendation'
 > & {
 	unlocked: true;
 	theme: TemplatesStoreThemeConfigUnlocked;
@@ -253,6 +266,9 @@ export type TemplatesStoreConfigUnlocked = Omit<
 	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
 		tabs?: TemplatesAutocompleteTabConfigUnlocked[];
+	};
+	chat?: Omit<NonNullable<TemplatesStoreConfigLocked['chat']>, 'plugins'> & {
+		plugins?: PluginsConfigsUnlocked;
 	};
 	recommendation?: Omit<NonNullable<TemplatesStoreConfigLocked['recommendation']>, 'plugins'> & {
 		plugins?: PluginsConfigsUnlocked;
@@ -280,6 +296,7 @@ export class TemplatesStore {
 	targets: {
 		search: TargetStore[];
 		autocomplete: TargetStore[];
+		chat: TargetStore[];
 		recommendation: {
 			[key in RecsTemplateTypes]: TargetStore[];
 		};
@@ -316,6 +333,7 @@ export class TemplatesStore {
 		this.targets = {
 			search: [],
 			autocomplete: [],
+			chat: [],
 			recommendation: {
 				bundle: [],
 				default: [],
@@ -565,7 +583,7 @@ function getTargetArray(targets: TemplatesStore['targets'], type: TemplateTypes)
 	if (category === 'recommendation' && subcategory) {
 		return targets.recommendation[subcategory as RecsTemplateTypes];
 	}
-	if (category === 'search' || category === 'autocomplete') {
+	if (category === 'search' || category === 'autocomplete' || category === 'chat') {
 		return targets[category];
 	}
 	return undefined;
