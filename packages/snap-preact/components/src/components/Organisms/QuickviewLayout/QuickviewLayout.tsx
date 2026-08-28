@@ -39,7 +39,7 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		},
 		// The module grid: a flex row of columns. Columns are full width below the desktop
 		// breakpoint (single column) and use their configured widths side-by-side above it.
-		'& .ss__quickview-layout__row': {
+		'& .ss__quickview__row': {
 			display: 'flex',
 			flexDirection: 'row',
 			flexWrap: 'wrap',
@@ -59,7 +59,7 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		// Mobile-first: every column spans the full row width so a multi-column layout
 		// stacks into a single column. Configured column widths apply at the desktop
 		// breakpoint below.
-		'& .ss__quickview-layout__column': {
+		'& .ss__quickview__column': {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '12px',
@@ -67,25 +67,25 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			flex: '1 1 100%',
 			maxWidth: '100%',
 		},
-		'& .ss__quickview-layout__column.ss__quickview-layout__column--c1': {
+		'& .ss__quickview__column.ss__quickview__column--c1': {
 			alignContent: column1?.alignContent,
 		},
-		'& .ss__quickview-layout__column.ss__quickview-layout__column--c2': {
+		'& .ss__quickview__column.ss__quickview__column--c2': {
 			alignContent: column2?.alignContent,
 		},
-		'& .ss__quickview-layout__column.ss__quickview-layout__column--c3': {
+		'& .ss__quickview__column.ss__quickview__column--c3': {
 			alignContent: column3?.alignContent,
 		},
-		'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
+		'& .ss__quickview__column.ss__quickview__column--c4': {
 			alignContent: column4?.alignContent,
 		},
 		// Modules whose element renders nothing (e.g. a ProductDetail resolving an absent field)
 		// can leave an empty row/column in the DOM — hide it so the flex gap doesn't show.
-		'& .ss__quickview-layout__column:empty, & .ss__quickview-layout__row:empty': {
+		'& .ss__quickview__column:empty, & .ss__quickview__row:empty': {
 			display: 'none',
 		},
 		// The `_` module: a flexible spacer that pushes its siblings apart.
-		'& .ss__quickview-layout__separator': {
+		'& .ss__quickview__separator': {
 			flexGrow: 1,
 			flexShrink: 1,
 		},
@@ -175,19 +175,19 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			'& .ss__quickview__content': {
 				maxWidth: '880px',
 			},
-			'& .ss__quickview-layout__column.ss__quickview-layout__column--c1': {
+			'& .ss__quickview__column.ss__quickview__column--c1': {
 				flex: column1?.width == 'auto' ? '1 1 0' : `1 1 ${column1?.width}`,
 				maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
 			},
-			'& .ss__quickview-layout__column.ss__quickview-layout__column--c2': {
+			'& .ss__quickview__column.ss__quickview__column--c2': {
 				flex: column2?.width == 'auto' ? '1 1 0' : `1 1 ${column2?.width}`,
 				maxWidth: column2?.width == 'auto' ? 'none' : column2?.width,
 			},
-			'& .ss__quickview-layout__column.ss__quickview-layout__column--c3': {
+			'& .ss__quickview__column.ss__quickview__column--c3': {
 				flex: column3?.width == 'auto' ? '1 1 0' : `1 1 ${column3?.width}`,
 				maxWidth: column3?.width == 'auto' ? 'none' : column3?.width,
 			},
-			'& .ss__quickview-layout__column.ss__quickview-layout__column--c4': {
+			'& .ss__quickview__column.ss__quickview__column--c4': {
 				flex: column4?.width == 'auto' ? '1 1 0' : `1 1 ${column4?.width}`,
 				maxWidth: column4?.width == 'auto' ? 'none' : column4?.width,
 			},
@@ -550,32 +550,32 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			const children = module.map((subModule) => findModule(subModule));
 			const hasContent = (module as string[]).some((subModule, i) => subModule !== '_' && children[i]);
 			if (!hasContent) return null;
-			return <div className="ss__quickview-layout__row">{children}</div>;
+			return <div className="ss__quickview__row">{children}</div>;
 		}
 
 		if (module == 'c1' && column1?.layout?.length) {
 			const children = (column1.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
 			const hasContent = (column1.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
-			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c1">{children}</div>;
+			return <div className="ss__quickview__column ss__quickview__column--c1">{children}</div>;
 		}
 		if (module == 'c2' && column2?.layout?.length) {
 			const children = (column2.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
 			const hasContent = (column2.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
-			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c2">{children}</div>;
+			return <div className="ss__quickview__column ss__quickview__column--c2">{children}</div>;
 		}
 		if (module == 'c3' && column3?.layout?.length) {
 			const children = (column3.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
 			const hasContent = (column3.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
-			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c3">{children}</div>;
+			return <div className="ss__quickview__column ss__quickview__column--c3">{children}</div>;
 		}
 		if (module == 'c4' && column4?.layout?.length) {
 			const children = (column4.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
 			const hasContent = (column4.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
-			return <div className="ss__quickview-layout__column ss__quickview-layout__column--c4">{children}</div>;
+			return <div className="ss__quickview__column ss__quickview__column--c4">{children}</div>;
 		}
 
 		if (module == 'slideshow') {
@@ -761,7 +761,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		}
 
 		if (module == '_') {
-			return <div className="ss__quickview-layout__separator"></div>;
+			return <div className="ss__quickview__separator"></div>;
 		}
 
 		return null;
@@ -788,7 +788,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	return (
 		<CacheProvider>
-			<div {...styling} className={classnames('ss__quickview-layout', className, internalClassName)}>
+			<div {...styling} className={classnames('ss__quickview', className, internalClassName)}>
 				{/* The dialog div only exists while there is something to show — the Slideout keeps
 				    children mounted while closed, and an empty `aria-modal` dialog would tell
 				    assistive tech the rest of the page is inert. */}
