@@ -11,7 +11,12 @@ import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerSto
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
-import type { ThemeComponentsRestrictedSelectors, ThemeComponentsRestrictedSelectorsUnlocked } from '../../components/src/providers/themeComponents';
+import type {
+	ThemeComponentsRestrictedSelectors,
+	ThemeComponentsRestrictedSelectorsUnlocked,
+	ThemeComponentOverrides,
+	ThemeComponentOverridesUnlocked,
+} from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { ClientGlobals } from '@athoscommerce/snap-client';
 import type { TrackerGlobals } from '@athoscommerce/snap-tracker';
@@ -93,10 +98,10 @@ type SnapTemplatesConfigThemeOverridesTyped<
 	TabletSelectors extends string,
 	DesktopSelectors extends string
 > = {
-	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors>;
+	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors> & ThemeComponentOverrides;
+	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors> & ThemeComponentOverrides;
+	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors> & ThemeComponentOverrides;
+	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors> & ThemeComponentOverrides;
 };
 
 export function validateTemplatesConfig<
@@ -120,10 +125,10 @@ type SnapTemplatesConfigThemeOverridesTypedUnlocked<
 	TabletSelectors extends string,
 	DesktopSelectors extends string
 > = {
-	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors>;
+	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors> & ThemeComponentOverridesUnlocked;
+	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors> & ThemeComponentOverridesUnlocked;
+	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors> & ThemeComponentOverridesUnlocked;
+	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors> & ThemeComponentOverridesUnlocked;
 };
 
 export function validateTemplatesConfigUnlocked<
