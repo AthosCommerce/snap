@@ -297,6 +297,30 @@ describe('QuickviewLayout', () => {
 		expect(rendered.queryByText('color')).toBeNull();
 	});
 
+	it('accepts plain string displayFields entries as { field } shorthand', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: { color: 'red', size: 'M' },
+		};
+		const { quickviewManager } = makeQuickviewManager({
+			store: {
+				isOpen: true,
+				loading: false,
+				product: storeProduct,
+				// the string form is what chat quickview settings use (displayFields: string[])
+				resolvedConfig: { displayFields: ['size', { field: 'color' }] },
+			},
+		});
+
+		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
+
+		expect(rendered.getByText('size')).toBeInTheDocument();
+		expect(rendered.getByText('M')).toBeInTheDocument();
+		expect(rendered.getByText('color')).toBeInTheDocument();
+		expect(rendered.getByText('red')).toBeInTheDocument();
+	});
+
 	it('falls back to the field name when meta has no label for a field', () => {
 		const storeProduct = {
 			id: 'mine',
@@ -1666,6 +1690,178 @@ describe('QuickviewLayout', () => {
 				<QuickviewLayout quickviewManager={quickviewManager2} lang={{ loadingText: { value: 'Lädt…' } }} {...defaultLayoutProps} />
 			);
 			expect(rendered2.container.querySelector('.ss__quickview__loading')?.innerHTML).toBe('Lädt…');
+		});
+	});
+
+	describe('chat modules', () => {
+		const makeChatSourceController = (overrides: any = {}) => ({
+			type: 'chat',
+			store: { meta: { data: { facets: {} } }, features: { similarProducts: { enabled: true } } },
+			log: { warn: jest.fn(), error: jest.fn() },
+			productSimilar: jest.fn(),
+			productQuery: jest.fn(),
+			...overrides,
+		});
+
+		const chatLayoutProps: Pick<QuickviewLayoutProps, 'layout'> = {
+			layout: [['productDetail.mappings.core.name'], ['button.add-to-cart', 'button.similar', 'button.discuss']],
+		};
+
+		const storeProduct = { id: 'mine', mappings: { core: { name: 'Mine' } }, attributes: {} };
+
+		it('renders similar and discuss buttons for a chat source controller and forwards clicks', () => {
+			const sourceController = makeChatSourceController();
+			const { quickviewManager } = makeQuickviewManager({ sourceController, store: { isOpen: true, product: storeProduct } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...chatLayoutProps} />);
+
+			const similar = rendered.container.querySelector('.ss__quickview__similar');
+			const discuss = rendered.container.querySelector('.ss__quickview__discuss');
+			expect(similar).not.toBeNull();
+			expect(discuss).not.toBeNull();
+
+			fireEvent.click(similar!);
+			expect(sourceController.productSimilar).toHaveBeenCalledWith(storeProduct);
+
+			fireEvent.click(discuss!);
+			expect(sourceController.productQuery).toHaveBeenCalledWith(storeProduct);
+		});
+
+		it('hides the similar button when the chat similarProducts feature is disabled', () => {
+			const sourceController = makeChatSourceController({
+				store: { meta: { data: { facets: {} } }, features: { similarProducts: { enabled: false } } },
+			});
+			const { quickviewManager } = makeQuickviewManager({ sourceController, store: { isOpen: true, product: storeProduct } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...chatLayoutProps} />);
+
+			expect(rendered.container.querySelector('.ss__quickview__similar')).toBeNull();
+			expect(rendered.container.querySelector('.ss__quickview__discuss')).not.toBeNull();
+		});
+
+		it('renders no chat buttons for non-chat source controllers', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...chatLayoutProps} />);
+
+			expect(rendered.container.querySelector('.ss__quickview__similar')).toBeNull();
+			expect(rendered.container.querySelector('.ss__quickview__discuss')).toBeNull();
+			// the shared modules still render
+			expect(rendered.container.querySelector('.ss__quickview__add-to-cart')).not.toBeNull();
+		});
+	});
+
+	describe('inline mode', () => {
+		const storeProduct = { id: 'mine', mappings: { core: { name: 'Mine' } }, attributes: {} };
+
+		it('renders without dialog semantics or a close button', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+
+			const rendered = render(<QuickviewLayout inline quickviewManager={quickviewManager} {...defaultLayoutProps} />);
+
+			expect(rendered.container.querySelector('.ss__quickview__content')).not.toBeNull();
+			expect(rendered.container.querySelector('[role="dialog"]')).toBeNull();
+			expect(rendered.container.querySelector('[aria-modal]')).toBeNull();
+			expect(rendered.container.querySelector('.ss__quickview__close')).toBeNull();
+		});
+
+		it('does not close the quickview on Escape', () => {
+			const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+
+			render(<QuickviewLayout inline quickviewManager={quickviewManager} {...defaultLayoutProps} />);
+
+			fireEvent.keyDown(window, { key: 'Escape' });
+			expect(close).not.toHaveBeenCalled();
+		});
+
+		it('keeps dialog semantics, close button and Escape handling when not inline', () => {
+			const { quickviewManager, close } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
+
+			expect(rendered.container.querySelector('[role="dialog"]')).not.toBeNull();
+			expect(rendered.container.querySelector('.ss__quickview__close')).not.toBeNull();
+
+			fireEvent.keyDown(window, { key: 'Escape' });
+			expect(close).toHaveBeenCalled();
+		});
+
+		it('shows the value count in variant titles and renders non-swatch selections as lists', () => {
+			const product = {
+				id: 'mine',
+				mappings: { core: { name: 'Mine' } },
+				attributes: {},
+				variants: {
+					selections: [
+						{
+							field: 'color',
+							label: 'Color',
+							type: 'swatches',
+							values: [{ value: 'Black' }, { value: 'Brown' }],
+							select: () => undefined,
+						},
+						{
+							field: 'size',
+							label: 'Size',
+							type: 'dropdown',
+							values: [{ value: 'S' }, { value: 'M' }, { value: 'L' }],
+							select: () => undefined,
+						},
+					],
+				},
+			};
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
+
+			const rendered = render(<QuickviewLayout inline quickviewManager={quickviewManager} layout={[['variantSelections']]} />);
+
+			const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
+			expect(titles[0].textContent).toBe('Color (2)');
+			expect(titles[1].textContent).toBe('Size (3)');
+
+			const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
+			expect(selections[0].getAttribute('data-type')).toBe('swatches');
+			// the explicit dropdown type is replaced by the tile list in the chat panel
+			expect(selections[1].getAttribute('data-type')).toBe('list');
+		});
+
+		it('keeps plain variant titles and configured selection types when not inline', () => {
+			const product = {
+				id: 'mine',
+				mappings: { core: { name: 'Mine' } },
+				attributes: {},
+				variants: {
+					selections: [{ field: 'size', label: 'Size', type: 'dropdown', values: [{ value: 'S' }, { value: 'M' }], select: () => undefined }],
+				},
+			};
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelections']]} />);
+
+			expect(rendered.container.querySelector('.ss__quickview__variant-title')!.textContent).toBe('Size');
+			expect(rendered.container.querySelector('.ss__variant-selection-mock')!.getAttribute('data-type')).toBe('dropdown');
+		});
+
+		it('renders button icons only when inline', () => {
+			const sourceController = {
+				type: 'chat',
+				store: { meta: { data: { facets: {} } }, features: { similarProducts: { enabled: true } } },
+				log: { warn: jest.fn(), error: jest.fn() },
+				productSimilar: jest.fn(),
+				productQuery: jest.fn(),
+			};
+			const layout: QuickviewLayoutProps['layout'] = [['button.add-to-cart', 'button.similar', 'button.discuss']];
+
+			const { quickviewManager } = makeQuickviewManager({ sourceController, store: { isOpen: true, product: storeProduct } });
+			const rendered = render(<QuickviewLayout inline quickviewManager={quickviewManager} layout={layout} />);
+			expect(rendered.container.querySelector('.ss__quickview__add-to-cart .ss__icon')).not.toBeNull();
+			expect(rendered.container.querySelector('.ss__quickview__similar .ss__icon')).not.toBeNull();
+			expect(rendered.container.querySelector('.ss__quickview__discuss .ss__icon')).not.toBeNull();
+
+			const { quickviewManager: quickviewManager2 } = makeQuickviewManager({ sourceController, store: { isOpen: true, product: storeProduct } });
+			const rendered2 = render(<QuickviewLayout quickviewManager={quickviewManager2} layout={layout} />);
+			expect(rendered2.container.querySelector('.ss__quickview__add-to-cart .ss__icon')).toBeNull();
+			expect(rendered2.container.querySelector('.ss__quickview__similar .ss__icon')).toBeNull();
+			expect(rendered2.container.querySelector('.ss__quickview__discuss .ss__icon')).toBeNull();
 		});
 	});
 });

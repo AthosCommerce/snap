@@ -1270,6 +1270,21 @@ describe('createSnapConfig additional coverage', () => {
 		expect(def.targeters?.[0].selector).toBe('body');
 	});
 
+	it('createSnapConfig accepts a quickview config without targets (chat renders the quickview inline)', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			quickview: {
+				settings: { displayFields: [{ field: 'color' }] },
+			},
+		};
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const def = snapConfig.quickview!;
+		expect(def.config!.settings?.displayFields).toEqual([{ field: 'color' }]);
+		expect(def.targeters).toHaveLength(0);
+	});
+
 	it('createSnapConfig creates a targeter per configured quickview target', () => {
 		const config: SnapTemplatesConfig = {
 			...baseConfig,

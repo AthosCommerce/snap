@@ -8,6 +8,7 @@ How the pieces fit together:
 - Every `SearchController`, `AutocompleteController` and `RecommendationController` inherits a `quickview(result)` method that opens the shared quickview for one of its results.
 - A single quickview component - `QuickviewModal` (centered modal) or `QuickviewSlideout` (side panel) - is injected into `<body>` and renders whatever the manager's store holds. Only one container is mounted; there is no per-result modal.
 - When a quickview opens, the manager fetches full product data (all variants) from the API `products` endpoint (`/v1/products`) using the source result's `mappings.core.parentId`. Tracking and add-to-cart are delegated back to the controller that opened it, flagged `quickView: true`, rather than reimplemented in the quickview.
+- `ChatController` is quickview-native: it receives its **own** manager instance (separate store), and its "discuss product" panel renders a `QuickviewLayout` inline in the chat secondary window - no component target needed. See [Quickview in Chat](#quickview-in-chat).
 
 Quickview is available to both Snap Templates and standard Snap integrations.
 
@@ -48,7 +49,7 @@ new SnapTemplates({
 });
 ```
 
-`targets[].component` is either `'QuickviewModal'` or `'QuickviewSlideout'`. `targets[].selector` is optional and defaults to `'body'` - the component renders inside an injected `#athos-quickview` element appended to the selected element.
+`targets[].component` is either `'QuickviewModal'` or `'QuickviewSlideout'`. `targets[].selector` is optional and defaults to `'body'` - the component renders inside an injected `#athos-quickview` element appended to the selected element. `targets` itself is also optional: a settings-only `quickview` section is valid (chat renders its quickview inline and needs no component target - see [Quickview in Chat](#quickview-in-chat)).
 
 `hideQuickviewButton` (default `true`) controls the quickview button rendered over the result image, which calls `controller.quickview(result)` on click - set it to `false` to show the button. It only renders when the result has a `controller` and the image is not hidden. The button's accessible label is customizable via the `quickviewButtonText` prop (default `'Quick View'`), and `onQuickviewClick` adds a callback alongside the built-in behaviour. Because the `result` component is shared, enabling it on `result` enables it everywhere results render - search, autocomplete, and recommendations. Use a named selector (e.g. `'search results result'`) to scope where the button appears.
 
@@ -115,13 +116,25 @@ The `result` must be a product carrying `mappings.core.parentId` - otherwise a w
 > [!IMPORTANT]
 > `FinderController` cannot open quickviews - it has no `addToCart` or product tracking for the manager to delegate back to. Calling `quickview()` on a finder logs a warning and no-ops.
 
+### Quickview in Chat
+
+Chat is quickview-native: the "discuss product" panel in the chat secondary window **is** a quickview. `ChatController.productQuickView(result)` / `productQuery(result)` open it through the standard `QuickviewManager.show()` pipeline (products fetch, clone, variants), and the `ChatProductQueryMessage` component renders a `QuickviewLayout` inline from the manager's store. The store's `isOpen` flag is what shows and hides the window for product queries - `show()` opens it, `controller.dismissSideChat()` / `closeProductQuickview()` close it.
+
+No configuration is required: whenever chat controllers are configured, Snap creates a **chat-scoped** `QuickviewManager` (id `chat-quickview`) and passes it to chat controllers - even when there is no `quickview` config at all. Chat renders the layout inline, so it never needs a component target. The chat manager owns a separate store from the body modal's, so opening the chat panel can never open the modal (and vice versa); when a `quickview` config exists, the chat manager inherits its `config.settings`.
+
+Config precedence for the chat panel follows the standard manager merge: manager settings (inherited from `quickview.config.settings`) &lt; the chat controller's `settings.quickview` &lt; per-call config. Chat's `settings.quickview.displayFields` may be a plain `string[]` - string entries are shorthand for `{ field }`.
+
+The panel's layout is themeable via the `chatProductQueryMessage` selector (same `layout`/`column` props as the containers). The default mirrors the legacy chat product panel: a header banner row on the theme's primary color (`c1` — the `slideshow` at 25% width — beside `c2` — name, price, and a `button.add-to-cart` / `button.similar` / `button.discuss` row), followed by `variantSelections`, `productDetailTable`, description, and `button.more-info`. The `button.similar` and `button.discuss` modules are chat-only - they forward to `controller.productSimilar()` / `controller.productQuery()` and render nothing when the quickview was opened by a non-chat controller (and `button.similar` also requires the chat `similarProducts` feature).
+
+Because the chat panel renders the layout with `inline`, the `QuickviewLayout` also applies the chat presentation: variant titles include the value count (e.g. "Color (5)"), non-swatch variant selections render as a list of selectable tiles instead of a dropdown, and the add-to-cart/similar/discuss buttons carry their cart/search/chat icons.
+
 ### Quickview Settings
 
 The quickview behaviour is controlled by a `quickview` settings object:
 
 | option | description | default value |
 |---|---|:---:|
-| `displayFields` | array of product attribute field names rendered in the modal's attribute table (order preserved). Attributes are opt-in - when omitted, no table renders. Field labels are looked up from the source controller's meta (`meta.facets[field].label`) with a fallback to the raw field name. | ➖ |
+| `displayFields` | array of product attribute fields rendered in the modal's attribute table (order preserved). Each entry is a `{ field, label?, type? }` object or a plain string (shorthand for `{ field }`). Attributes are opt-in - when omitted, no table renders. Field labels are looked up from the source controller's meta (`meta.facets[field].label`) with a fallback to the raw field name. | ➖ |
 | `clone` | when enabled (default), the source is deep-cloned into an independent product. When disabled, the source result is used by reference inside the modal - variant selection in the modal then mutates the source result tile. | `true` |
 | `fetchProductData` | when enabled (default), the controller fetches full product data from the `/v1/products` endpoint. When disabled, the endpoint is not called and the modal renders whatever variants/attributes the source result already carries. | `true` |
 | `imagesField` | field name or array of candidate field names (looked up on `mappings.core`, then `attributes`) holding a list of image URLs. The first candidate resolving to more than one image renders as a slideshow instead of the single core image. | `['images', 'ss_images']` |
@@ -178,7 +191,7 @@ theme: {
 
 Both containers render the [QuickviewLayout](https://athoscommerce.github.io/snap/reference-quickview-layout) organism, which arranges named **modules** via a `layout` prop - the same pattern as `AutocompleteLayout`. The theme selectors are `quickviewModal`, `quickviewSlideout` and `quickviewLayout`.
 
-Available modules include `slideshow`, `calloutBadge` (or `calloutBadge.<tag>` for a custom badge tag), `variantSelections` (or a single `variantSelection.<field>`), `productDetail.<path>` (any product field by dot-path, e.g. `productDetail.mappings.core.name`), `button.add-to-cart`, `button.more-info`, `quantityPicker`, `productDetailTable` (driven by `displayFields`), `recommendation.<profile>` (a recommendation carousel seeded with the viewed product), the `_` separator, and columns `c1`-`c4` which recurse into `column1`-`column4` configs.
+Available modules include `slideshow`, `calloutBadge` (or `calloutBadge.<tag>` for a custom badge tag), `variantSelections` (or a single `variantSelection.<field>`), `productDetail.<path>` (any product field by dot-path, e.g. `productDetail.mappings.core.name`), `button.add-to-cart`, `button.more-info`, `quantityPicker`, `productDetailTable` (driven by `displayFields`), `recommendation.<profile>` (a recommendation carousel seeded with the viewed product), the chat-only `button.similar` and `button.discuss` (rendered only when a chat controller opened the quickview - see [Quickview in Chat](#quickview-in-chat)), the `_` separator, and columns `c1`-`c4` which recurse into `column1`-`column4` configs.
 
 ```tsx
 theme: {

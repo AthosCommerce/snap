@@ -213,7 +213,6 @@ export const ChatSideChat = observer((properties: ChatSideChatProps): JSX.Elemen
 						{...subProps.productQueryMessage}
 						chatItem={activeMessage as unknown as ChatProductQueryMessageItem}
 						controller={controller}
-						displayFields={controller.config.settings?.quickview?.displayFields}
 						primaryColor={primaryColorBg}
 						primaryColorText={primaryColorFg}
 					/>

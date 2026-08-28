@@ -512,30 +512,14 @@ export const es: LangComponents = {
 		addToCartButton: {
 			value: 'Agregar al carrito',
 		},
+		moreInfoButton: {
+			value: 'Más información',
+		},
 		similarButton: {
 			value: 'Similares',
 		},
 		discussButton: {
 			value: 'Consultar',
-		},
-		inStockText: {
-			value: 'En stock',
-		},
-		outOfStockText: {
-			value: 'Agotado',
-		},
-		unavailableText: {
-			value: 'no disponible',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Selección de variantes',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Información del producto',
-			},
 		},
 	},
 	chatResult: {
@@ -1040,6 +1024,12 @@ export const es: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'Más información',
+		},
+		similarButton: {
+			value: 'Similares',
+		},
+		discussButton: {
+			value: 'Consultar',
 		},
 		loadingText: {
 			value: 'Cargando…',

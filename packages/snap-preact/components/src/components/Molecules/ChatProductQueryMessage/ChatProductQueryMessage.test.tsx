@@ -1,77 +1,182 @@
 import { h } from 'preact';
-import { css } from '@emotion/react';
 import { render, fireEvent } from '@testing-library/preact';
 
-import { ThemeProvider } from '../../../providers';
+// Mock the heavy molecules the embedded QuickviewLayout renders — these tests assert the
+// chat wrapper's composition (layout embedding, back banner, variant preselection), not the
+// internals of the slideshow/variant atoms.
+jest.mock('../../Molecules/Slideshow', () => {
+	const { h: hh } = require('preact');
+	return {
+		Slideshow: ({ slides, className }: any) =>
+			hh(
+				'div',
+				{ className: `ss__slideshow-mock ${className || ''}` },
+				(slides || []).map((slide: any, i: number) => hh('img', { key: i, src: slide?.src, alt: slide?.alt }))
+			),
+	};
+});
+
+jest.mock('../../Molecules/VariantSelection', () => {
+	const { h: hh } = require('preact');
+	return {
+		VariantSelection: ({ selection }: any) => hh('div', { className: 'ss__variant-selection-mock', 'data-field': selection?.field }),
+	};
+});
+
+jest.mock('../../Molecules/OverlayBadge', () => {
+	const { h: hh } = require('preact');
+	return {
+		OverlayBadge: ({ children }: any) => hh('div', { className: 'ss__overlay-badge-mock' }, children),
+	};
+});
+
+jest.mock('../../Molecules/CalloutBadge', () => {
+	const { h: hh } = require('preact');
+	return {
+		CalloutBadge: () => hh('div', { className: 'ss__callout-badge-mock' }),
+	};
+});
+
 import { ChatProductQueryMessage } from './ChatProductQueryMessage';
 
 describe('ChatProductQueryMessage Component', () => {
-	const makeController = (productQuickview: any = null) =>
-		({
+	const makeController = (storeOverrides: any = {}, chatOverrides: any = {}) => {
+		const quickviewStore = {
+			isOpen: true,
+			loading: false,
+			product: undefined,
+			resolvedConfig: undefined,
+			error: undefined,
+			...storeOverrides,
+		};
+		const quickviewManager: any = {
+			type: 'quickview',
+			store: quickviewStore,
+			open: jest.fn(),
+			close: jest.fn(),
+			addToCart: jest.fn(),
+			track: { product: { clickThrough: jest.fn(), click: jest.fn(), impression: jest.fn(), addToCart: jest.fn() } },
+		};
+		const controller: any = {
+			type: 'chat',
 			store: {
-				productQuickview,
-				productQuickviewError: null,
-				currentChat: { chat: [], popProductQueryMessage: () => {} },
-				clearProductQuickview: () => {},
+				currentChat: { chat: [], popProductQueryMessage: jest.fn(), ...chatOverrides },
 				features: { similarProducts: { enabled: true } },
 			},
-			track: { product: { click: () => {}, addToCart: () => {} } },
-			addToCart: () => {},
-			productSimilar: () => {},
-			productQuery: () => {},
-		} as any);
+			log: { warn: jest.fn(), error: jest.fn() },
+			track: { product: { click: jest.fn(), addToCart: jest.fn(), impression: jest.fn(), clickThrough: jest.fn() } },
+			addToCart: jest.fn(),
+			productSimilar: jest.fn(),
+			productQuery: jest.fn(),
+			closeProductQuickview: jest.fn(),
+			quickviewManager,
+		};
+		quickviewManager.sourceController = controller;
+		return controller;
+	};
+
+	const makeProduct = (overrides: any = {}) => ({
+		id: 'prod1',
+		display: { mappings: { core: { name: 'Wool Hat', price: 25 } }, attributes: {} },
+		mappings: { core: { name: 'Wool Hat', price: 25 } },
+		attributes: {},
+		variants: { selections: [] },
+		...overrides,
+	});
 
 	it('renders nothing for non-productQuery messages', () => {
+		const controller = makeController();
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'general', sourceProduct: {} } as any} controller={makeController()} />
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'general', sourceProduct: {} } as any} controller={controller} />
 		);
 		expect(rendered.container.querySelector('.ss__chat-product-query-message')).toBeNull();
 	});
 
-	it('renders a placeholder when no productQuickview is loaded', () => {
+	it('renders nothing when the controller has no quickview manager', () => {
+		const controller = makeController();
+		controller.quickviewManager = undefined;
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(null)} />
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={controller} />
 		);
-		expect(rendered.getByText('Loading product details...')).toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__chat-product-query-message')).toBeNull();
+		expect(controller.log.warn).toHaveBeenCalled();
 	});
 
-	it('renders the product name when productQuickview is loaded', () => {
-		const product = {
-			display: {
-				mappings: { core: { name: 'Wool Hat', price: 25 } },
-				attributes: {},
-			},
-			variants: { selections: [] },
-		};
+	it('renders an inline QuickviewLayout from the quickview manager store', () => {
+		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
+
+		expect(rendered.container.querySelector('.ss__chat-product-query-message')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview-layout')).not.toBeNull();
 		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
+
+		// inline mode: no dialog semantics, no close button (the chat window owns dismissal)
+		expect(rendered.container.querySelector('[role="dialog"]')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__close')).toBeNull();
 	});
 
-	it('renders the action buttons with their labels', () => {
-		const product = {
-			display: {
-				mappings: { core: { name: 'Wool Hat', price: 25 } },
-				attributes: {},
-			},
-			variants: { selections: [] },
-		};
+	it('renders the chat action modules in the default layout', () => {
+		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
-		const addToCart = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__add-to-cart .ss__button');
-		const similar = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__show-similar .ss__button');
-		const discuss = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__discuss-product .ss__button');
-		expect(addToCart).toHaveTextContent('Add to Cart');
-		expect(similar).toHaveTextContent('Similar');
-		expect(discuss).toHaveTextContent('Discuss');
+
+		expect(rendered.container.querySelector('.ss__quickview__add-to-cart')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__similar')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__discuss')).not.toBeNull();
+
+		fireEvent.click(rendered.container.querySelector('.ss__quickview__similar')!);
+		expect(controller.productSimilar).toHaveBeenCalled();
+
+		fireEvent.click(rendered.container.querySelector('.ss__quickview__discuss')!);
+		expect(controller.productQuery).toHaveBeenCalled();
+	});
+
+	it('renders the quickview loading state while the product loads', () => {
+		const controller = makeController({ loading: true, product: undefined });
+		const rendered = render(
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+		);
+		expect(rendered.container.querySelector('.ss__quickview__loading')).not.toBeNull();
+	});
+
+	it('renders a back banner when the message came from a comparison and backs out on click', () => {
+		const sourceMessage = { id: 'source-1', messageType: 'productComparison' };
+		const controller = makeController({ product: makeProduct() }, { chat: [sourceMessage] });
+		const rendered = render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' }, sourceMessageId: 'source-1' } as any}
+				controller={controller}
+			/>
+		);
+
+		const back = rendered.container.querySelector('.ss__chat-product-query-message__header__back');
+		expect(back).not.toBeNull();
+		expect(back).toHaveTextContent('Back to comparison');
+
+		fireEvent.click(back!);
+		expect(controller.store.currentChat.popProductQueryMessage).toHaveBeenCalledWith('source-1');
+		expect(controller.closeProductQuickview).toHaveBeenCalled();
+	});
+
+	it('renders a back banner when the message came from inspiration', () => {
+		const sourceMessage = { id: 'source-1', messageType: 'inspirationResult' };
+		const controller = makeController({ product: makeProduct() }, { chat: [sourceMessage] });
+		const rendered = render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' }, sourceMessageId: 'source-1' } as any}
+				controller={controller}
+			/>
+		);
+
+		expect(rendered.container.querySelector('.ss__chat-product-query-message__header__back')).toHaveTextContent('Back to inspiration');
 	});
 
 	it('auto-selects the variant whose uid matches the clicked result id', () => {
 		const select = jest.fn();
-		const product = {
-			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
+		const product = makeProduct({
 			variants: {
 				data: [
 					{ available: true, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } },
@@ -89,11 +194,12 @@ describe('ChatProductQueryMessage Component', () => {
 					},
 				],
 			},
-		};
+		});
+		const controller = makeController({ product });
 		render(
 			<ChatProductQueryMessage
 				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-brown' } } as any}
-				controller={makeController(product)}
+				controller={controller}
 			/>
 		);
 		expect(select).toHaveBeenCalledWith('brown');
@@ -101,8 +207,7 @@ describe('ChatProductQueryMessage Component', () => {
 
 	it('falls back to the first available value when no variant uid matches', () => {
 		const select = jest.fn();
-		const product = {
-			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
+		const product = makeProduct({
 			variants: {
 				data: [
 					{ available: false, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } },
@@ -120,196 +225,54 @@ describe('ChatProductQueryMessage Component', () => {
 					},
 				],
 			},
-		};
+		});
+		const controller = makeController({ product });
 		render(
 			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-unknown' } } as any}
-				controller={makeController(product)}
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'no-such-variant' } } as any}
+				controller={controller}
 			/>
 		);
 		expect(select).toHaveBeenCalledWith('brown');
 	});
 
-	it('renders variant swatches with radio semantics', () => {
-		const product = {
-			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
-			variants: {
-				selections: [
-					{
-						field: 'color',
-						values: [
-							{ value: 'black', available: true },
-							{ value: 'brown', available: false },
-						],
-						selected: { value: 'black' },
-						select: () => {},
-					},
-				],
-			},
-		};
-		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
-		);
-		const swatches = rendered.container.querySelectorAll('.ss__chat-product-query-message__variants__swatch');
-		expect(swatches.length).toBe(2);
-		expect(swatches[0]).toHaveAttribute('role', 'radio');
-		expect(swatches[0]).toHaveAttribute('aria-checked', 'true');
-		expect(swatches[1]).toHaveAttribute('aria-disabled', 'true');
-	});
-
-	it('does not select unavailable swatches on click', () => {
+	it('does not reselect when a selection already has a value', () => {
 		const select = jest.fn();
-		const product = {
-			display: { mappings: { core: { name: 'Boots' } }, attributes: {} },
+		const product = makeProduct({
 			variants: {
+				data: [{ available: true, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } }],
 				selections: [
 					{
 						field: 'color',
-						values: [
-							{ value: 'black', available: true },
-							{ value: 'brown', available: false },
-						],
+						values: [{ value: 'black', available: true }],
 						selected: { value: 'black' },
 						select,
 					},
 				],
 			},
-		};
-		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(product)} />
+		});
+		const controller = makeController({ product });
+		render(
+			<ChatProductQueryMessage
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-black' } } as any}
+				controller={controller}
+			/>
 		);
-		const swatches = rendered.container.querySelectorAll('.ss__chat-product-query-message__variants__swatch');
-		fireEvent.click(swatches[1]);
 		expect(select).not.toHaveBeenCalled();
-
-		fireEvent.click(swatches[0]);
-		expect(select).toHaveBeenCalledWith('black');
 	});
 
-	it('discusses the quickview product so the attachment reflects the selected variant', () => {
-		const productQuery = jest.fn();
-		const product = {
-			id: 'variant-black',
-			display: { mappings: { core: { name: 'Boots', thumbnailImageUrl: 'variant-brown.jpg' } }, attributes: {} },
-			variants: { selections: [] },
-		};
-		const controller = makeController(product);
-		controller.productQuery = productQuery;
-		const sourceProduct = { id: 'variant-black', display: { mappings: { core: { name: 'Boots', thumbnailImageUrl: 'variant-black.jpg' } } } };
-		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct } as any} controller={controller} />
-		);
-		const discuss = rendered.container.querySelector('.ss__chat-product-query-message__header__product__actions__discuss-product .ss__button')!;
-		fireEvent.click(discuss);
-		expect(productQuery).toHaveBeenCalledWith(product);
-	});
-
-	it('renders with classname', () => {
-		const className = 'classy';
+	it('passes a custom layout through to the QuickviewLayout', () => {
+		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
 			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
-				controller={makeController(null)}
-				className={className}
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any}
+				controller={controller}
+				layout={[['productDetail.mappings.core.name']]}
 			/>
 		);
-		const root = rendered.container.querySelector('.ss__chat-product-query-message');
-		expect(root).toBeInTheDocument();
-		expect(root).toHaveClass(className);
-	});
 
-	it('can disable styles', () => {
-		const rendered = render(
-			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
-				controller={makeController(null)}
-				disableStyles={true}
-			/>
-		);
-		const root = rendered.container.querySelector('.ss__chat-product-query-message');
-		expect(root?.classList).toHaveLength(1);
-	});
-
-	it('renders with a custom styleScript', () => {
-		const styleScript = () => css({ padding: '11px' });
-		const rendered = render(
-			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
-				controller={makeController(null)}
-				styleScript={styleScript}
-			/>
-		);
-		const root = rendered.container.querySelector('.ss__chat-product-query-message')!;
-		expect(getComputedStyle(root).padding).toBe('11px');
-	});
-
-	describe('theming works', () => {
-		it('is themeable with ThemeProvider', () => {
-			const globalTheme = {
-				components: {
-					chatProductQueryMessage: {
-						className: 'classy',
-					},
-				},
-			};
-			const rendered = render(
-				<ThemeProvider theme={globalTheme}>
-					<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={makeController(null)} />
-				</ThemeProvider>
-			);
-			const element = rendered.container.querySelector('.ss__chat-product-query-message');
-			expect(element).toBeInTheDocument();
-			expect(element).toHaveClass(globalTheme.components.chatProductQueryMessage.className);
-		});
-
-		it('is themeable with theme prop', () => {
-			const propTheme = {
-				components: {
-					chatProductQueryMessage: {
-						className: 'classy',
-					},
-				},
-			};
-			const rendered = render(
-				<ChatProductQueryMessage
-					chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
-					controller={makeController(null)}
-					theme={propTheme}
-				/>
-			);
-			const element = rendered.container.querySelector('.ss__chat-product-query-message');
-			expect(element).toBeInTheDocument();
-			expect(element).toHaveClass(propTheme.components.chatProductQueryMessage.className);
-		});
-
-		it('is theme prop overrides ThemeProvider', () => {
-			const globalTheme = {
-				components: {
-					chatProductQueryMessage: {
-						className: 'classy',
-					},
-				},
-			};
-			const propTheme = {
-				components: {
-					chatProductQueryMessage: {
-						className: 'classier',
-					},
-				},
-			};
-			const rendered = render(
-				<ThemeProvider theme={globalTheme}>
-					<ChatProductQueryMessage
-						chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any}
-						controller={makeController(null)}
-						theme={propTheme}
-					/>
-				</ThemeProvider>
-			);
-			const element = rendered.container.querySelector('.ss__chat-product-query-message');
-			expect(element).toBeInTheDocument();
-			expect(element).toHaveClass(propTheme.components.chatProductQueryMessage.className);
-			expect(element).not.toHaveClass(globalTheme.components.chatProductQueryMessage.className);
-		});
+		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
+		// custom layout omits the button modules
+		expect(rendered.container.querySelector('.ss__quickview__add-to-cart')).toBeNull();
 	});
 });

@@ -10,7 +10,7 @@ The `ChatController` is used for the AI-powered conversational shopping assistan
 | globals | keys defined here will be passed to the chat API request | ➖ |   |
 | settings.feedbackAfterMessages | number of assistant messages before showing a session feedback prompt | `3` |   |
 | settings.quickview.enabled | enable the product quickview panel for chat product clicks | `false` |   |
-| settings.quickview.displayFields | array of field names to display in the product quickview panel | ➖ |   |
+| settings.quickview.displayFields | array of field names shown in the panel's attribute table (string entries are shorthand for `{ field }`; merged over the quickview manager's `settings.displayFields`) | ➖ |   |
 | settings.bgFilters | `Record<string, string>` of background filters forwarded to the chat init API as `searchConfig.bgFilters` | ➖ |   |
 | settings.inputSelector | CSS selector used by `focusInput` to locate the chat text input | `'.ss__chat__input input[type="text"]'` |   |
 | beacon.enabled | enable or disable analytics tracking for chat events | `true` |   |
@@ -51,12 +51,20 @@ input.addEventListener('change', (e) => {
 ```
 
 ## ProductQuickView
-Pushes a `productQuery` message into the side-chat panel and opens a product quickview within the chat. Fetches full product data from the products API. Drops any prior `productQuery` attachment for a different product so the previous discussion target doesn't remain alongside the newly focused product.
+Pushes a `productQuery` message into the side-chat panel and opens the product quickview within the chat through the controller's [QuickviewManager](../Quickview/README.md) (`quickviewManager.show()` — products fetch, clone, variant build). The manager's store drives the panel: `store.isOpen` is the secondary window's visibility flag for product queries, and `ChatProductQueryMessage` renders a `QuickviewLayout` inline from `store.product`. Drops any prior `productQuery` attachment for a different product so the previous discussion target doesn't remain alongside the newly focused product.
 
-`productQuickView` is a no-op unless `settings.quickview.enabled` is `true`.
+`productQuickView` is a no-op unless `settings.quickview.enabled` is `true`, and warns and no-ops when the controller was created without a `quickviewManager` service (Snap provides a chat-scoped manager automatically whenever chat controllers are configured).
 
 ```js
 chatController.productQuickView(result);
+```
+
+## CloseProductQuickview / DismissSideChat
+`closeProductQuickview()` closes the quickview store (hiding the productQuery panel and aborting an in-flight product load). `dismissSideChat()` dismisses the secondary window's active message **and** closes the quickview — components dismiss through the controller so a productQuery panel can't be re-shown by a stale `isOpen`.
+
+```js
+chatController.closeProductQuickview();
+chatController.dismissSideChat();
 ```
 
 ## ProductQuery

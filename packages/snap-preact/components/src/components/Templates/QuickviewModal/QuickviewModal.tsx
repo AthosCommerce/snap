@@ -57,10 +57,25 @@ const defaultStyles: StyleScript<QuickviewModalProps> = () => {
 		'&.ss__quickview .ss__modal__overlay': {
 			zIndex: '10005 !important' as any,
 		},
+		// Content sizing/padding for the modal surface — owned here (not by QuickviewLayout) so
+		// other surfaces (slideout, inline chat panel) don't inherit modal dimensions.
+		'.ss__quickview__content': {
+			// extra top padding keeps the close button clear of top content (e.g. overlay badges)
+			padding: '48px 20px 20px 20px',
+			minWidth: '320px',
+			maxWidth: '600px',
+			position: 'relative',
+			boxSizing: 'border-box',
+		},
+		'@media (min-width: 768px)': {
+			'.ss__quickview__content': {
+				maxWidth: '880px',
+			},
+		},
 		// Below the desktop breakpoint (where QuickviewLayout stacks to a single column) the
 		// modal spans the full viewport width instead of shrink-wrapping its content. The
-		// wrapper class is compounded into the content selector so this beats QuickviewLayout's
-		// same-specificity min/max width rule on the content div.
+		// wrapper class is compounded into the content selector so this beats the base
+		// min/max width rule on the content div above.
 		'@media (max-width: 767px)': {
 			'&.ss__quickview .ss__modal__content': {
 				width: '100vw',

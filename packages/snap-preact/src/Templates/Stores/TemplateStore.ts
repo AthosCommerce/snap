@@ -232,7 +232,9 @@ export type TemplatesStoreConfigLocked = {
 		plugins?: PluginsConfigsLocked;
 	};
 	quickview?: {
-		targets: QuickviewTargetConfig[];
+		// Optional: chat renders the quickview inline in its secondary window and needs no
+		// component target — a settings-only quickview config is valid.
+		targets?: QuickviewTargetConfig[];
 		settings?: QuickviewConfig;
 	};
 	recommendation?: {
