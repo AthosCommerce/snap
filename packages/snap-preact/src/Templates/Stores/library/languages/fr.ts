@@ -1,3 +1,4 @@
+// French (Français)
 import type { ValueFacet } from '@athoscommerce/snap-store-mobx';
 import { LangComponents } from '../../../../../components/src';
 
@@ -409,22 +410,6 @@ export const fr: LangComponents = {
 			},
 		},
 	},
-	// toggle: {
-	// 	toggleSwitch: {
-	// 		attributes: {
-	// 			'aria-label': (data) =>
-	// 				`currently ${data?.toggledState ? 'selected' : 'not selected'} toggle switch ${data?.label ? `for ${data?.label}` : ''} `,
-	// 		},
-	// 	},
-	// },
-	// terms: {
-	// 	term: {
-	// 		value: (data) => `${data?.term?.value}`,
-	// 		attributes: {
-	// 			'aria-label': (data) => `item ${(data?.index || 0) + 1} of ${data?.numberOfTerms}, ${data?.term?.value}`,
-	// 		},
-	// 	},
-	// },
 	searchHeader: {
 		titleText: {
 			value: (data) => {
@@ -465,7 +450,7 @@ export const fr: LangComponents = {
 		},
 		expandedSearchText: {
 			value: (data) => {
-				return `Nous n'avons pas pu trouver de correspondance exacte pour "<span className="ss__search-header__results-query">${data?.search?.query?.string}</span>", mais voici quelque chose de similaire:`;
+				return `Nous n'avons pas pu trouver de correspondance exacte pour "<span class="ss__search-header__results-query">${data?.search?.query?.string}</span>", mais voici quelque chose de similaire:`;
 			},
 		},
 	},
@@ -475,29 +460,8 @@ export const fr: LangComponents = {
 		},
 		suggestionsList: {
 			value:
-				'<ul className="ss__no-results__suggestions__list"><li className="ss__no-results__suggestions__list__option">Vérifiez les fautes d’orthographe.</li><li className="ss__no-results__suggestions__list__option">Supprimez les éventuels mots-clés redondants (ie: "produits").</li><li className="ss__no-results__suggestions__list__option">Utilisez d\'autres mots pour décrire ce que vous recherchez.</li></ul>',
+				'<ul class="ss__no-results__suggestions__list"><li class="ss__no-results__suggestions__list__option">Vérifiez les fautes d’orthographe.</li><li class="ss__no-results__suggestions__list__option">Supprimez les éventuels mots-clés redondants (ie: "produits").</li><li class="ss__no-results__suggestions__list__option">Utilisez d\'autres mots pour décrire ce que vous recherchez.</li></ul>',
 		},
-		// contactsTitleText: {
-		// 	value: `Vous ne trouvez toujours pas ce que vous cherchez? <a href="/contact-us">Contactez-nous</a>.`,
-		// },
-		// contactsList: {
-		// 	value: `<div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Adresse</h4>
-		//                 <p className="ss__no-results__contact__detail__content">123 Adresse Ville, État, Code postal</p>
-		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Heures</h4>
-		//                 <p className="ss__no-results__contact__detail__content">Lundi - Samedi, 00:00am - 00:00pm Samedi, 00:00am - 00:00pm</p>
-		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Téléphone</h4>
-		//                 <p className="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
-		//             </div>
-		//             <div className='ss__no-results__contact__detail'>
-		//                 <h4 className="ss__no-results__contact__detail__title">Email</h4>
-		//                 <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
-		//             </div>`,
-		// },
 	},
 	gallery: {
 		gallery: {
