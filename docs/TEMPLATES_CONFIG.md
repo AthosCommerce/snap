@@ -140,6 +140,26 @@ new SnapTemplates(config);
 
 When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using `config.translations`
 
+#### Supported Languages
+
+| Code | Language |
+|:----:|----------|
+| `en` | English |
+| `es` | Spanish (Español) |
+| `fr` | French (Français) |
+| `ar` | Arabic (العربية) |
+| `zh` | Chinese (中文) |
+| `de` | German (Deutsch) |
+| `ru` | Russian (Русский) |
+| `ja` | Japanese (日本語) |
+| `pt` | Portuguese (Português) |
+| `ko` | Korean (한국어) |
+| `it` | Italian (Italiano) |
+| `hi` | Hindi (हिन्दी) |
+| `tr` | Turkish (Türkçe) |
+| `vi` | Vietnamese (Tiếng Việt) |
+| `nl` | Dutch (Nederlands) |
+
 Translations overrides can be provided in two ways:
 
 1. Simple translations: Use a string value for straightforward text replacements.

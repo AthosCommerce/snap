@@ -1,3 +1,4 @@
+// Vietnamese (Tiếng Việt)
 import type { ValueFacet } from '@athoscommerce/snap-store-mobx';
 import { LangComponents } from '../../../../../components/src';
 

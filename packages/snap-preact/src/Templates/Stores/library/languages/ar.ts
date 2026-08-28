@@ -1,3 +1,4 @@
+// Arabic (العربية)
 import type { ValueFacet } from '@athoscommerce/snap-store-mobx';
 import { LangComponents } from '../../../../../components/src';
 

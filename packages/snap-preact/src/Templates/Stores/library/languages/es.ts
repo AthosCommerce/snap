@@ -1,3 +1,4 @@
+// Spanish (Español)
 import { LangComponents } from '../../../../../components/src';
 import type { ValueFacet } from '@athoscommerce/snap-store-mobx';
 
