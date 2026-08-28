@@ -265,17 +265,26 @@ export const ru: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Добавить всё в корзину',
+			attributes: {
+				'aria-label': 'Добавить всё в корзину',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Добавлено!',
 		},
 		quickviewButtonText: {
 			value: 'Быстрый просмотр',
+			attributes: {
+				'aria-label': 'Быстрый просмотр',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Добавить всё в корзину',
+			attributes: {
+				'aria-label': 'Добавить всё в корзину',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Добавлено!',

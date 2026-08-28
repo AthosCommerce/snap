@@ -265,17 +265,26 @@ export const fr: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Tout ajouter au panier',
+			attributes: {
+				'aria-label': 'Tout ajouter au panier',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Ajouté !',
 		},
 		quickviewButtonText: {
 			value: 'Aperçu rapide',
+			attributes: {
+				'aria-label': 'Aperçu rapide',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Tout ajouter au panier',
+			attributes: {
+				'aria-label': 'Tout ajouter au panier',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Ajouté !',

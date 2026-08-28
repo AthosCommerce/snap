@@ -264,17 +264,26 @@ export const nl: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Alles aan winkelwagen toevoegen',
+			attributes: {
+				'aria-label': 'Alles aan winkelwagen toevoegen',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Toegevoegd!',
 		},
 		quickviewButtonText: {
 			value: 'Snelle weergave',
+			attributes: {
+				'aria-label': 'Snelle weergave',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Alles aan winkelwagen toevoegen',
+			attributes: {
+				'aria-label': 'Alles aan winkelwagen toevoegen',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: 'Toegevoegd!',
