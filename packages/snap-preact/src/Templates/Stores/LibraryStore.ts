@@ -24,6 +24,7 @@ import { pluginScrollToTop } from './library/plugins/common/pluginScrollToTop';
 import { pluginLogger } from './library/plugins/common/pluginLogger';
 import { pluginKlaviyoEvents } from './library/plugins/common/pluginKlaviyoEvents';
 import { CustomComponent } from './library/components/CustomComponent';
+import { currencies } from './library/currencies/currencies';
 
 type LibraryComponentImport = {
 	[componentName: string]: (args?: any) => Promise<JSXComponent>;
@@ -81,6 +82,10 @@ export type LibraryImports = {
 			AutocompleteModal: (args?: any) => Promise<JSXComponent>;
 			AutocompleteSlideout: (args?: any) => Promise<JSXComponent>;
 		};
+		quickview: {
+			QuickviewModal: (args?: any) => Promise<JSXComponent>;
+			QuickviewSlideout: (args?: any) => Promise<JSXComponent>;
+		};
 		recommendation: {
 			bundle: {
 				RecommendationBundle: (args?: any) => Promise<JSXComponent>;
@@ -117,6 +122,7 @@ export type LibraryImports = {
 		paginationInfo: LibraryComponentImport;
 		slideshow: LibraryComponentImport;
 		price: LibraryComponentImport;
+		productDetail: LibraryComponentImport;
 		skeleton: LibraryComponentImport;
 		modal: LibraryComponentImport;
 		calloutBadge: LibraryComponentImport;
@@ -133,10 +139,12 @@ export type LibraryImports = {
 		facetPaletteOptions: LibraryComponentImport;
 		facetSlider: LibraryComponentImport;
 		filter: LibraryComponentImport;
+		gallery: LibraryComponentImport;
 		loadMore: LibraryComponentImport;
 		overlayBadge: LibraryComponentImport;
 		pagination: LibraryComponentImport;
 		perPage: LibraryComponentImport;
+		quantityPicker: LibraryComponentImport;
 		radioList: LibraryComponentImport;
 		rating: LibraryComponentImport;
 		searchInput: LibraryComponentImport;
@@ -146,6 +154,7 @@ export type LibraryImports = {
 		swatches: LibraryComponentImport;
 		tabSelection: LibraryComponentImport;
 		variantSelection: LibraryComponentImport;
+		productDetailTable: LibraryComponentImport;
 		terms: LibraryComponentImport;
 		branchOverride: LibraryComponentImport;
 		facet: LibraryComponentImport;
@@ -171,8 +180,17 @@ type LibraryStoreConfig = {
 	unlocked?: boolean;
 };
 
-export type CurrencyCodes = 'usd' | 'eur' | 'aud';
-export type LanguageCodes = 'en' | 'fr' | 'es';
+// currencies supported by Snap Templates — matches the list of currencies supported by Shopify (ISO 4217);
+// the currencies module is the single source of truth for the supported codes
+export type CurrencyCodes = keyof typeof currencies;
+export const currencyCodes = Object.keys(currencies) as CurrencyCodes[];
+export type LanguageCodes = 'en' | 'fr' | 'es' | 'ar' | 'zh' | 'de' | 'ru' | 'ja' | 'pt' | 'ko' | 'it' | 'hi' | 'tr' | 'vi' | 'nl';
+// keeps a union member assignable but out of editor autocomplete (the optional-never brand prevents the intersection from being reduced away)
+type HiddenFromSuggestions<T> = T & { __hiddenFromSuggestions?: never };
+// input positions (config, setCurrency/setLanguage) accept either case and are normalized to lowercase internally;
+// editors suggest only the uppercase codes
+export type CurrencyCodeInput = Uppercase<CurrencyCodes> | HiddenFromSuggestions<CurrencyCodes>;
+export type LanguageCodeInput = Uppercase<LanguageCodes> | HiddenFromSuggestions<LanguageCodes>;
 
 export class LibraryStore {
 	themes: {
@@ -182,6 +200,7 @@ export class LibraryStore {
 	components: {
 		search: LibraryComponentMap;
 		autocomplete: LibraryComponentMap;
+		quickview: LibraryComponentMap;
 		recommendation: {
 			bundle: LibraryComponentMap;
 			default: LibraryComponentMap;
@@ -208,6 +227,7 @@ export class LibraryStore {
 		paginationInfo: LibraryComponentMap;
 		slideshow: LibraryComponentMap;
 		price: LibraryComponentMap;
+		productDetail: LibraryComponentMap;
 		skeleton: LibraryComponentMap;
 		modal: LibraryComponentMap;
 		calloutBadge: LibraryComponentMap;
@@ -224,10 +244,12 @@ export class LibraryStore {
 		facetPaletteOptions: LibraryComponentMap;
 		facetSlider: LibraryComponentMap;
 		filter: LibraryComponentMap;
+		gallery: LibraryComponentMap;
 		loadMore: LibraryComponentMap;
 		overlayBadge: LibraryComponentMap;
 		pagination: LibraryComponentMap;
 		perPage: LibraryComponentMap;
+		quantityPicker: LibraryComponentMap;
 		radioList: LibraryComponentMap;
 		rating: LibraryComponentMap;
 		searchInput: LibraryComponentMap;
@@ -237,6 +259,7 @@ export class LibraryStore {
 		swatches: LibraryComponentMap;
 		tabSelection: LibraryComponentMap;
 		variantSelection: LibraryComponentMap;
+		productDetailTable: LibraryComponentMap;
 		terms: LibraryComponentMap;
 		branchOverride: LibraryComponentMap;
 		facet: LibraryComponentMap;
@@ -252,6 +275,7 @@ export class LibraryStore {
 	} = {
 		search: {},
 		autocomplete: {},
+		quickview: {},
 		recommendation: {
 			bundle: {},
 			default: {},
@@ -278,6 +302,7 @@ export class LibraryStore {
 		paginationInfo: {},
 		slideshow: {},
 		price: {},
+		productDetail: {},
 		skeleton: {},
 		modal: {},
 		calloutBadge: {},
@@ -294,10 +319,12 @@ export class LibraryStore {
 		facetPaletteOptions: {},
 		facetSlider: {},
 		filter: {},
+		gallery: {},
 		loadMore: {},
 		overlayBadge: {},
 		pagination: {},
 		perPage: {},
+		quantityPicker: {},
 		radioList: {},
 		rating: {},
 		searchInput: {},
@@ -307,6 +334,7 @@ export class LibraryStore {
 		swatches: {},
 		tabSelection: {},
 		variantSelection: {},
+		productDetailTable: {},
 		terms: {},
 		branchOverride: {},
 		facet: {},
@@ -399,6 +427,20 @@ export class LibraryStore {
 					return (
 						this.components.autocomplete.AutocompleteModal ||
 						(this.components.autocomplete.AutocompleteModal = (await import('./library/components/AutocompleteModal')).AutocompleteModal)
+					);
+				},
+			},
+			quickview: {
+				QuickviewModal: async () => {
+					return (
+						this.components.quickview.QuickviewModal ||
+						(this.components.quickview.QuickviewModal = (await import('./library/components/QuickviewModal')).QuickviewModal)
+					);
+				},
+				QuickviewSlideout: async () => {
+					return (
+						this.components.quickview.QuickviewSlideout ||
+						(this.components.quickview.QuickviewSlideout = (await import('./library/components/QuickviewSlideout')).QuickviewSlideout)
 					);
 				},
 			},
@@ -512,6 +554,7 @@ export class LibraryStore {
 			paginationInfo: {},
 			slideshow: {},
 			price: {},
+			productDetail: {},
 			skeleton: {},
 			modal: {},
 			calloutBadge: {},
@@ -528,10 +571,12 @@ export class LibraryStore {
 			facetPaletteOptions: {},
 			facetSlider: {},
 			filter: {},
+			gallery: {},
 			loadMore: {},
 			overlayBadge: {},
 			pagination: {},
 			perPage: {},
+			quantityPicker: {},
 			radioList: {},
 			rating: {},
 			searchInput: {},
@@ -541,6 +586,7 @@ export class LibraryStore {
 			swatches: {},
 			tabSelection: {},
 			variantSelection: {},
+			productDetailTable: {},
 			terms: {},
 			branchOverride: {},
 			facet: {},
@@ -555,27 +601,74 @@ export class LibraryStore {
 			termsList: {},
 		},
 		language: {
+			// English
 			en: async () => {
 				return this.locales.languages.en || (this.locales.languages.en = transformTranslationsToTheme((await import('./library/languages/en')).en));
 			},
+			// French
 			fr: async () => {
 				return this.locales.languages.fr || (this.locales.languages.fr = transformTranslationsToTheme((await import('./library/languages/fr')).fr));
 			},
+			// Spanish
 			es: async () => {
 				return this.locales.languages.es || (this.locales.languages.es = transformTranslationsToTheme((await import('./library/languages/es')).es));
 			},
+			// Arabic
+			ar: async () => {
+				return this.locales.languages.ar || (this.locales.languages.ar = transformTranslationsToTheme((await import('./library/languages/ar')).ar));
+			},
+			// Chinese
+			zh: async () => {
+				return this.locales.languages.zh || (this.locales.languages.zh = transformTranslationsToTheme((await import('./library/languages/zh')).zh));
+			},
+			// German
+			de: async () => {
+				return this.locales.languages.de || (this.locales.languages.de = transformTranslationsToTheme((await import('./library/languages/de')).de));
+			},
+			// Russian
+			ru: async () => {
+				return this.locales.languages.ru || (this.locales.languages.ru = transformTranslationsToTheme((await import('./library/languages/ru')).ru));
+			},
+			// Japanese
+			ja: async () => {
+				return this.locales.languages.ja || (this.locales.languages.ja = transformTranslationsToTheme((await import('./library/languages/ja')).ja));
+			},
+			// Portuguese
+			pt: async () => {
+				return this.locales.languages.pt || (this.locales.languages.pt = transformTranslationsToTheme((await import('./library/languages/pt')).pt));
+			},
+			// Korean
+			ko: async () => {
+				return this.locales.languages.ko || (this.locales.languages.ko = transformTranslationsToTheme((await import('./library/languages/ko')).ko));
+			},
+			// Italian
+			it: async () => {
+				return this.locales.languages.it || (this.locales.languages.it = transformTranslationsToTheme((await import('./library/languages/it')).it));
+			},
+			// Hindi
+			hi: async () => {
+				return this.locales.languages.hi || (this.locales.languages.hi = transformTranslationsToTheme((await import('./library/languages/hi')).hi));
+			},
+			// Turkish
+			tr: async () => {
+				return this.locales.languages.tr || (this.locales.languages.tr = transformTranslationsToTheme((await import('./library/languages/tr')).tr));
+			},
+			// Vietnamese
+			vi: async () => {
+				return this.locales.languages.vi || (this.locales.languages.vi = transformTranslationsToTheme((await import('./library/languages/vi')).vi));
+			},
+			// Dutch
+			nl: async () => {
+				return this.locales.languages.nl || (this.locales.languages.nl = transformTranslationsToTheme((await import('./library/languages/nl')).nl));
+			},
 		},
-		currency: {
-			usd: async () => {
-				return this.locales.currencies.usd || (this.locales.currencies.usd = (await import('./library/currencies/usd')).usd);
-			},
-			eur: async () => {
-				return this.locales.currencies.eur || (this.locales.currencies.eur = (await import('./library/currencies/eur')).eur);
-			},
-			aud: async () => {
-				return this.locales.currencies.aud || (this.locales.currencies.aud = (await import('./library/currencies/aud')).aud);
-			},
-		},
+		// the per-code importers keep the same async shape as language/theme importers, resolving from the statically imported currencies module
+		currency: currencyCodes.reduce((currencyImports, code) => {
+			currencyImports[code] = async () => {
+				return this.locales.currencies[code] || (this.locales.currencies[code] = currencies[code]);
+			};
+			return currencyImports;
+		}, {} as { [currencyName in CurrencyCodes]: () => Promise<ThemeMinimal> }),
 	};
 
 	allowedComponentTypes: TemplateCustomComponentTypes[];

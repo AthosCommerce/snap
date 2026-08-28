@@ -108,8 +108,8 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 		},
 		searchInput: {
 			// default props
-			// autocomplete__search-input is required for useAcRenderedInput hook.
-			internalClassName: 'autocomplete-slideout__search-input  autocomplete__search-input',
+			// ss__autocomplete__search-input is required for useAcRenderedInput hook.
+			internalClassName: 'ss__autocomplete-slideout__search-input ss__autocomplete__search-input',
 			inputName: inputName,
 			submitSearchButton: {
 				onClick: () => {

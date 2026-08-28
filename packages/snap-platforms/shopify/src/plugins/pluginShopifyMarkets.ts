@@ -1,5 +1,7 @@
 import { AbstractController, AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
 import { Product, SearchResultStore } from '@athoscommerce/snap-store-mobx';
+
+import type { QuickviewObj } from '@athoscommerce/snap-controller';
 import { AbstractPluginConfig } from '../../../common/src/types';
 
 export type PluginShopifyMarketsConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsConfig;
@@ -283,119 +285,140 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 	// In-memory cache for GraphQL pricing data, scoped to this plugin instance
 	let priceCache: GraphQLPriceCache = {};
 
+	// Prices only need fetching when the shopper's active currency differs from the base currency
+	const shouldFetchPrices = (): boolean => {
+		const activeCurrency = shopify?.currency?.active?.toUpperCase();
+		return !!activeCurrency && activeCurrency !== baseCurrency.toUpperCase();
+	};
+
+	const getParentId = (result: Product): string | undefined => {
+		const parentId = result?.mappings?.core?.parentId;
+
+		if (parentId !== null && typeof parentId !== 'undefined' && parentId !== '') {
+			return parentId;
+		}
+
+		return undefined;
+	};
+
+	// Fetch pricing data for any parentIds missing from the cache and merge it in
+	const ensurePricesCached = async (parentIds: string[]): Promise<void> => {
+		const uncachedIds = parentIds.filter((parentId) => !priceCache[parentId]);
+
+		if (uncachedIds.length > 0) {
+			const productData = await fetchMarketsData(uncachedIds);
+
+			if (productData?.data?.search?.nodes?.length) {
+				const formattedProductData = await formatMarketsData(productData.data.search.nodes);
+				priceCache = {
+					...priceCache,
+					...formattedProductData,
+				};
+			}
+		}
+	};
+
+	// Apply cached product and variant level pricing, then flag the product as ready for display
+	const applyCachedPrices = (result: Product): void => {
+		const parentId = getParentId(result);
+		if (!parentId) return;
+
+		const cachedData = priceCache[parentId];
+
+		if (cachedData) {
+			const { price, msrp } = cachedData;
+
+			if (typeof price === 'number' && result.mappings.core) {
+				result.mappings.core.price = price;
+			}
+
+			if (typeof msrp === 'number' && result.mappings.core) {
+				result.mappings.core.msrp = msrp;
+			}
+
+			// Update variant prices
+			if (cachedData.variants && result.variants?.data?.length) {
+				for (const variant of result.variants.data) {
+					let variantUid: string | undefined;
+					let level: any = variant;
+					for (const field of idFieldName.split('.')) {
+						level = level?.[field];
+					}
+					if (level != null) {
+						variantUid = String(level);
+					}
+					if (!variantUid) continue;
+
+					const variantCachedData = cachedData.variants[variantUid];
+					if (variantCachedData) {
+						if (typeof variantCachedData.price === 'number' && variant.mappings.core) {
+							variant.mappings.core.price = variantCachedData.price;
+						}
+						if ((variantCachedData.msrp || variantCachedData.msrp === 0) && variant.mappings.core) {
+							variant.mappings.core.msrp = variantCachedData.msrp;
+						}
+					}
+				}
+			}
+		}
+
+		// Update flag to signal prices have been retrieved and are ready for display
+		result.state.priceFetched = true;
+	};
+
+	// Fetch (as needed) and apply localized pricing for the given products
+	const updateProductPricing = async (
+		products: Product[],
+		controller: SearchController | AutocompleteController | RecommendationController
+	): Promise<void> => {
+		if (products.length === 0) return;
+
+		if (!shouldFetchPrices()) {
+			// Update flag to signal that prices can be displayed immediately when no fetching required
+			markResultsAsPriceFetched(products);
+			return;
+		}
+
+		// Grab productIds of products we need pricing data for
+		const productIds = Array.from(new Set(products.map(getParentId).filter((id): id is string => !!id)));
+
+		if (productIds.length === 0) {
+			controller.log.warn('[shopifyMarkets] No product IDs found in results.');
+			markResultsAsPriceFetched(products);
+			return;
+		}
+
+		await ensurePricesCached(productIds);
+
+		products.forEach(applyCachedPrices);
+	};
+
 	cntrlr.on('afterStore', async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController }, next) => {
 		try {
 			const { results } = controller.store;
-			const activeCurrency = shopify?.currency?.active?.toUpperCase();
-			const normalizedBaseCurrency = baseCurrency.toUpperCase();
-			const shouldFetchPrices = !!activeCurrency && activeCurrency !== normalizedBaseCurrency;
 			const products: Product[] = results.filter((result) => result.type !== 'banner') as Product[];
 
-			if (products.length > 0) {
-				if (shouldFetchPrices) {
-					// Grab productIds of products we need pricing data for
-					const productIds = Array.from(
-						new Set(
-							products
-								.map((result) => {
-									const parentId = result?.mappings?.core?.parentId;
-
-									if (parentId !== null && typeof parentId !== 'undefined' && parentId !== '') {
-										return parentId;
-									}
-
-									return null;
-								})
-								.filter((id): id is string => id !== null && id !== '')
-						)
-					);
-
-					if (productIds.length > 0) {
-						// Determine products without cached pricing data
-						const uncachedIds = productIds.filter((productId) => !priceCache[productId]);
-						let mergedPriceCache: GraphQLPriceCache = { ...priceCache };
-
-						// Fetch prices and update cache to reflect latest data
-						if (uncachedIds.length > 0) {
-							const productData = await fetchMarketsData(uncachedIds);
-
-							if (productData?.data?.search?.nodes?.length) {
-								const formattedProductData = await formatMarketsData(productData.data.search.nodes);
-								mergedPriceCache = {
-									...mergedPriceCache,
-									...formattedProductData,
-								};
-							}
-						}
-
-						// Update local cache
-						priceCache = mergedPriceCache;
-
-						// Update prices displayed for products
-						products.forEach((result) => {
-							const parentId = result.mappings.core?.parentId;
-							if (!parentId) return;
-
-							const cachedData = priceCache[parentId];
-
-							if (cachedData) {
-								const { price, msrp } = cachedData;
-
-								if (typeof price === 'number') {
-									if (result.mappings.core) {
-										result.mappings.core.price = price;
-									}
-								}
-
-								if (typeof msrp === 'number') {
-									if (result.mappings.core) {
-										result.mappings.core.msrp = msrp;
-									}
-								}
-
-								// Update variant prices
-								if (cachedData.variants && result.variants?.data?.length) {
-									for (const variant of result.variants.data) {
-										let variantUid: string | undefined;
-										let level: any = variant;
-										for (const field of idFieldName.split('.')) {
-											level = level?.[field];
-										}
-										if (level != null) {
-											variantUid = String(level);
-										}
-										if (!variantUid) continue;
-
-										const variantCachedData = cachedData.variants[variantUid];
-										if (variantCachedData) {
-											if (typeof variantCachedData.price === 'number' && variant.mappings.core) {
-												variant.mappings.core.price = variantCachedData.price;
-											}
-											if ((variantCachedData.msrp || variantCachedData.msrp === 0) && variant.mappings.core) {
-												variant.mappings.core.msrp = variantCachedData.msrp;
-											}
-										}
-									}
-								}
-							}
-
-							// Update flag to signal prices have been retrieved and are ready for display
-							result.state.priceFetched = true;
-						});
-					} else {
-						controller.log.warn('[shopifyMarkets] No product IDs found in results.');
-						markResultsAsPriceFetched(results);
-					}
-				} else {
-					// Update flag to signal that prices can be displayed immediately when no fetching required
-					markResultsAsPriceFetched(results);
-				}
-			}
+			await updateProductPricing(products, controller);
 		} catch (error) {
 			controller.log.warn('[shopifyMarkets] Request failed:', error);
 			markResultsAsPriceFetched(controller.store.results);
 		}
 
+		await next();
+	});
+
+	cntrlr.on('quickview', async ({ controller }: QuickviewObj, next) => {
+		// The quickview modal displays the manager's (cloned) product, whose variants were just
+		// repopulated from /v1/products in base currency — so pricing must be re-applied to it
+		const product = controller.quickviewManager?.store?.product;
+		if (product) {
+			try {
+				await updateProductPricing([product], controller);
+			} catch (error) {
+				controller.log.warn('[shopifyMarkets] Quickview request failed:', error);
+				markResultsAsPriceFetched([product]);
+			}
+		}
 		await next();
 	});
 };
