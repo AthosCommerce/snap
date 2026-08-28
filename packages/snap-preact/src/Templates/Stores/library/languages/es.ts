@@ -1,3 +1,4 @@
+// Spanish (Español)
 import { LangComponents } from '../../../../../components/src';
 import type { ValueFacet } from '@athoscommerce/snap-store-mobx';
 
@@ -125,14 +126,26 @@ export const es: LangComponents = {
 	result: {
 		addToCartButtonText: {
 			value: 'Añadir todo al carrito',
+			attributes: {
+				'aria-label': 'Añadir todo al carrito',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '¡Agregado!',
+		},
+		quickviewButtonText: {
+			value: 'Vista rápida',
+			attributes: {
+				'aria-label': 'Vista rápida',
+			},
 		},
 	},
 	overlayResult: {
 		addToCartButtonText: {
 			value: 'Añadir todo al carrito',
+			attributes: {
+				'aria-label': 'Añadir todo al carrito',
+			},
 		},
 		addToCartButtonSuccessText: {
 			value: '¡Agregado!',
@@ -401,24 +414,23 @@ export const es: LangComponents = {
 			},
 		},
 	},
-	// toggle: {
-	// 	toggleSwitch: {
-	// 		attributes: {
-	// 			'aria-label': (data) =>
-	// 				`actualmente ${data?.toggledState ? 'seleccionado' : 'no seleccionado'} interruptor ${
-	// 					data?.label ? `para ${data?.label}` : ''
-	// 				}`,
-	// 		},
-	// 	},
-	// },
-	// terms: {
-	// 	term: {
-	// 		value: (data) => `${data?.term.value}`,
-	// 		attributes: {
-	// 			'aria-label': (data) => `elemento ${(data?.index || 0) + 1} de ${data?.numberOfTerms}, ${data?.term.value}`,
-	// 		},
-	// 	},
-	// },
+	quantityPicker: {
+		quantityInput: {
+			attributes: {
+				'aria-label': 'cantidad',
+			},
+		},
+		decrementButton: {
+			attributes: {
+				'aria-label': 'disminuir la cantidad',
+			},
+		},
+		incrementButton: {
+			attributes: {
+				'aria-label': 'aumentar la cantidad',
+			},
+		},
+	},
 	searchHeader: {
 		titleText: {
 			value: (data) => {
@@ -459,7 +471,7 @@ export const es: LangComponents = {
 		},
 		expandedSearchText: {
 			value: (data) => {
-				return `No pudimos encontrar una coincidencia exacta para "<span className="ss__search-header__results-query">${data?.search?.query?.string}</span>", pero aquí hay algo similar:`;
+				return `No pudimos encontrar una coincidencia exacta para "<span class="ss__search-header__results-query">${data?.search?.query?.string}</span>", pero aquí hay algo similar:`;
 			},
 		},
 	},
@@ -469,28 +481,60 @@ export const es: LangComponents = {
 		},
 		suggestionsList: {
 			value:
-				'<ul className="ss__no-results__suggestions__list"><li className="ss__no-results__suggestions__list__option">Verifica si hay errores de ortografía.</li><li className="ss__no-results__suggestions__list__option">Elimina palabras clave redundantes (ej. "productos").</li><li className="ss__no-results__suggestions__list__option">Usa otros términos para describir lo que estás buscando.</li></ul>',
+				'<ul class="ss__no-results__suggestions__list"><li class="ss__no-results__suggestions__list__option">Verifica si hay errores de ortografía.</li><li class="ss__no-results__suggestions__list__option">Elimina palabras clave redundantes (ej. "productos").</li><li class="ss__no-results__suggestions__list__option">Usa otros términos para describir lo que estás buscando.</li></ul>',
 		},
-		contactsTitleText: {
-			value: `¿Aún no encuentras lo que buscas? <a href="/contact-us">Contáctanos</a>.`,
+	},
+	gallery: {
+		gallery: {
+			attributes: {
+				'aria-label': 'Galería de imágenes',
+			},
 		},
-		contactsList: {
-			value: `<div className='ss__no-results__contact__detail'>
-                        <h4 className="ss__no-results__contact__detail__title">Dirección</h4>
-                        <p className="ss__no-results__contact__detail__content">123 Calle Dirección, Ciudad, Estado, Código Postal</p>
-                    </div>
-                    <div className='ss__no-results__contact__detail'>
-                        <h4 className="ss__no-results__contact__detail__title">Horario</h4>
-                        <p className="ss__no-results__contact__detail__content">Lunes a Sábado, 00:00am - 00:00pm Domingo, 00:00am - 00:00pm</p>
-                    </div>
-                    <div className='ss__no-results__contact__detail'>
-                        <h4 className="ss__no-results__contact__detail__title">Teléfono</h4>
-                        <p className="ss__no-results__contact__detail__content"><a href="tel:1234567890">123-456-7890</a></p>
-                    </div>
-                    <div className='ss__no-results__contact__detail'>
-                        <h4 className="ss__no-results__contact__detail__title">Correo Electrónico</h4>
-                        <p className="ss__no-results__contact__detail__content"><a href="mailto:email@site.com">email@site.com</a></p>
-                    </div>`,
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Alejar',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Acercar',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Cerrar galería',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Imagen anterior',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Imagen siguiente',
+			},
+		},
+	},
+	quickviewLayout: {
+		quickview: {
+			attributes: {
+				'aria-label': 'Vista rápida',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Cerrar vista rápida',
+			},
+		},
+		addToCartButton: {
+			value: 'Añadir al carrito',
+		},
+		moreInfoButton: {
+			value: 'Más información',
+		},
+		loadingText: {
+			value: 'Cargando…',
 		},
 	},
 };

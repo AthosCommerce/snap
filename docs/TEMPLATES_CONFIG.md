@@ -18,10 +18,9 @@ Snap templates is configuration based. The configuration defines which features 
 Here is a minimal example starting configuration to enable search and autocomplete using the `pike` theme.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const templatesConfig: SnapTemplatesConfig = {
+const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
 		language: 'en',
@@ -46,7 +45,7 @@ const templatesConfig: SnapTemplatesConfig = {
 			},
 		],
 	},
-}
+});
 
 new SnapTemplates(templatesConfig);
 ```
@@ -59,8 +58,8 @@ new SnapTemplates(templatesConfig);
 | `config` | Global configuration options | Object | ➖ | ➖ |
 | `config.platform` | Shopping platform for the integration | String | 'other' | ➖ |
 | `config.siteId` | Athos Site ID | String | ➖ | ➖ |
-| `config.language` | Language code for localization | String | 'en' | ➖ |
-| `config.currency` | Currency code for pricing | String | 'usd' | ➖ |
+| `config.language` | Language code for localization - supports ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
+| `config.currency` | Currency code for pricing - supports ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
 
 The `config` object defines the integration platform, Athos siteId and current localization to be used.
 
@@ -71,23 +70,22 @@ If a `siteId` is not provided, the siteId found on the `bundle.js` url path will
 ```
 
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
-- `window.athos.templates.setCurrency('eud')`
+- `window.athos.templates.setCurrency('eur')`
 - `window.athos.templates.setLanguage('fr')`
 
 
 ### Unlocked Configuration
 
-By default, Snap Templates operates in "locked" mode, which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode by importing and using the `SnapTemplatesConfigUnlocked` type, and setting the `unlocked` setting to `true`.
+By default, Snap Templates operates in "locked" mode, which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode by wrapping your config in `validateTemplatesConfigUnlocked` and setting the `unlocked` setting to `true`.
 
 #### Locked Mode (Default)
 
-In locked mode, no special type import or `unlocked` flag is required. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates.
+In locked mode, no `unlocked` flag is required — just wrap your config in `validateTemplatesConfig`. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfig = {
+const config = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
 		platform: 'shopify',
@@ -96,7 +94,7 @@ const config: SnapTemplatesConfig = {
 		extends: 'pike',
 	},
 	// ... standard configuration options
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -105,7 +103,7 @@ new SnapTemplates(config);
 
 To enable unlocked mode you must:
 
-1. Import and use the `SnapTemplatesConfigUnlocked` type for your config variable
+1. Wrap your config in `validateTemplatesConfigUnlocked` instead of `validateTemplatesConfig`
 2. Set `unlocked: true` in the config object
 
 This makes additional configuration capabilities available:
@@ -115,10 +113,9 @@ This makes additional configuration capabilities available:
 2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfigUnlocked = {
+const config = validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -128,7 +125,7 @@ const config: SnapTemplatesConfigUnlocked = {
 		extends: 'pike',
 	},
 	// ... configuration with advanced options
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -142,6 +139,8 @@ new SnapTemplates(config);
 | `translations[languageCode][componentName]` | Translations for a specific component | Component Lang Object | ➖ |
 
 When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using `config.translations`
+
+See [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) for the full list of available language codes.
 
 Translations overrides can be provided in two ways:
 
@@ -157,7 +156,7 @@ The example below demonstrates both approaches for French language translations:
 
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	translations: {
 		fr: {
@@ -179,6 +178,7 @@ new SnapTemplates({
 		}
 	},
 	...
+}));
 ```
 
 
@@ -201,9 +201,10 @@ Snap Templates was built to intentionally not support custom Preact components c
 | `components.result[name]` | Custom result component definition | Function (component) | ➖ |
 
 ```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import { SychronousCustomResult } from './components/Result';
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	components: {
 		result: {
@@ -215,6 +216,7 @@ new SnapTemplates({
 		},
 	},
 	...
+}));
 ```
 
 ### URL Translator Configuration

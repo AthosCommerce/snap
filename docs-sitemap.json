@@ -69,6 +69,10 @@
 			"url": "/templates-config",
 			"title": "Config"
 		},
+		"docs/TEMPLATES_LOCALIZATION.md": {
+			"url": "/templates-localization",
+			"title": "Localization"
+		},
 		"docs/TEMPLATES_THEMING.md": {
 			"url": "/templates-theming",
 			"title": "Theming"
@@ -264,6 +268,18 @@
 		"docs/REFERENCE_TABBED_SEARCH.md": {
 			"url": "/reference-tabbed-search",
 			"title": "Tabbed Search"
+		},
+		"docs/REFERENCE_QUICKVIEW.md": {
+			"url": "/reference-quickview",
+			"title": "Quickview"
+		},
+		"packages/snap-controller/src/Quickview/README.md": {
+			"url": "/reference-quickview-manager",
+			"title": "QuickviewManager"
+		},
+		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
+			"url": "/reference-quickview-layout",
+			"title": "Layout"
 		},
 		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
 			"url": "/reference-custom-recommendation-templates",

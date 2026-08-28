@@ -29,7 +29,6 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 	public sorting!: SearchSortingStore;
 	public storage: StorageStore;
 	public history: SearchHistoryStore;
-
 	constructor(config: SearchStoreConfig, services: StoreServices) {
 		super(config);
 
