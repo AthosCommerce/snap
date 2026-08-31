@@ -1,4 +1,4 @@
-# Search
+# Search 🔍
 >[!IMPORTANT]
 > If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers. 
 
@@ -145,7 +145,7 @@ export const Facets = withController(observer((props) => {
 const Facet = withController(observer((props) => {
 	const { facet } = props;
 	
-	return facets.length !== 0 ? (
+	return (
 		<div class="ss__facet">
 			<h5 
 				onClick={() => { 
@@ -161,12 +161,12 @@ const Facet = withController(observer((props) => {
 				{{
 					grid: <FacetGridOptions facet={facet} />,
 					palette: <FacetPaletteOptions facet={facet} />,
-					hierarchy: <FacetOptionsHierarchy facet={facet} />,
+					hierarchy: <FacetHierarchyOptions facet={facet} />,
 					slider: <FacetSlider facet={facet} />,
 				}[facet.display] || <FacetOptionsList facet={facet} />}
 			</div>
 		</div>
-	) : null;
+	);
 }));
 
 // custom FacetOptionsList component instead of importing from @athoscommerce/snap-preact/components
@@ -416,6 +416,7 @@ import { SearchHeader } from '../SearchHeader/SearchHeader';
 
 export const Content = observer((props) => {
 	const { controller } = props;
+	const { merchandising, pagination } = controller.store;
 
 	return controller.store.loaded ? (
 		<ControllerProvider controller={controller}>
@@ -435,3 +436,26 @@ export const Content = observer((props) => {
 	) : null;
 });
 ```
+
+---
+## Troubleshooting FAQ ❓
+
+**Q: My facets array is always empty, even though I know the site has filterable attributes. Why?**
+<br>
+**A:** Facet configuration (which attributes are facetable, and their display type) is set in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net), not in your Snap config. Confirm the attribute is enabled as a facet there, and check `store.loaded` is `true` before reading `store.facets` — the array is empty until the first response lands.
+
+**Q: Clicking a facet value or filter link doesn't update the results. What am I missing?**
+<br>
+**A:** Make sure you're spreading `{...value.url.link}` (or `{...filter.url.link}`) onto the element, not just reading `.url.href`. `url.link` provides the `href` and the `onClick` handler together — using only one or the other breaks the URL update, the search request, or both.
+
+**Q: Product clicks and impressions aren't showing up in tracking/analytics. Why?**
+<br>
+**A:** A custom `Result` component needs the `withTracking` HOC and its `trackingRef` attached to the result's root element — see the `Results.jsx` example above. Without it, Snap has no way to observe impressions or attribute clicks. See [Tracking](https://athoscommerce.github.io/snap/snap-tracking) for the full setup.
+
+**Q: My category page filter shows up as a normal, removable filter instead of being invisible to the shopper. Why?**
+<br>
+**A:** The filter object is missing `background: true`. Without that flag, Snap treats it as a regular filter rather than a Background Filter. See [Category Pages](https://athoscommerce.github.io/snap/snap-category-pages) for the full pattern.
+
+**Q: The sort dropdown doesn't seem to reflect the option I selected. Why?**
+<br>
+**A:** Confirm the `<option>`'s `selected` attribute is bound to `option.value === sorting.current.value` (as in the `SortBy.jsx` example above), and that `onChange` calls `selectedOption.url.go()` — that's what actually triggers the new sorted request and updates `sorting.current`.

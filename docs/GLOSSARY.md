@@ -1,4 +1,4 @@
-# Glossary
+# Glossary 📖
 
 Before diving into your implementation, let's get familiar with some of the common Snap terminology used throughout these docs.
 

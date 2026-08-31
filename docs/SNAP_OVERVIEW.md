@@ -1,4 +1,4 @@
-# Overview
+# Overview 🧭
 
 Snap is built using the Model View Controller (MVC) pattern. When constructing an instance of the Snap class, the configuration object that is provided contains all the controllers that the project will use and where they will be rendered on the page. Each controller can be configured with various settings and custom functionality can be implemented via middleware to tie into the search lifecycle.
 

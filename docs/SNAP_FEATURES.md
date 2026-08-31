@@ -1,4 +1,4 @@
-# Features
+# Features ✨
 
 Snap organizes storefront functionality into distinct features, each backed by its own controller. Pick the features your integration needs — most projects use a combination of several.
 

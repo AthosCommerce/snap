@@ -1,11 +1,11 @@
-# Snap Documentation
+# Snap Documentation 👋
 
 Snap is not an acronym! Snap is an open source SDK for building e-commerce experiences powered by Athos.
 
 The SDK includes multiple core packages published to npm that in combination with each other, provide the complete front-end tooling for building e-commerce experiences with Athos. However to simplify usage, the `@athoscommerce/snap-preact` package is an abstraction that combines all core packages into a single dependency in combination with Preact to render the UI. This documentation is primarily focused on the usage of this package.
 
 ---
-## Who Can Use Snap
+## Who Can Use Snap 🎯
 
 Snap works with any storefront platform that supports custom JavaScript, including officially supported platforms **Shopify**, **BigCommerce**, and **Magento2**.
 
@@ -18,7 +18,7 @@ The right integration path depends on your team's frontend engineering capacity:
 See [Getting Started](#getting-started-with-snap) below for a full breakdown of each path.
 
 ---
-## Getting Started with Snap
+## Getting Started with Snap 🚀
 
 This documentation is organized into three sections: Snap Integration, Snap Templates Integration, and API Integration. Depending on how you're going to integrate Snap, you'll want to reference the correct section to get started.
 
@@ -54,7 +54,7 @@ An "API Integration" is a project that utilizes the Athos APIs directly to integ
 Continue by referencing the [API Integration](https://athoscommerce.github.io/snap/snap-client) section.
 
 ---
-## Packages
+## Packages 📦
 
 Snap is modular — depending on your project's architecture, you can adopt it at the layer that best fits your needs, from a lightweight API client up to a full pre-built UI.
 
@@ -80,7 +80,7 @@ Snap is modular — depending on your project's architecture, you can adopt it a
 **Best for:** fast, high-performance storefront integrations where Snap handles the UI.
 
 ---
-## Contributing
+## Contributing 🤝
 
 Snap is open source, and we'd love your help making it better.
 

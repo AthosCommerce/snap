@@ -1,4 +1,4 @@
-# Setup
+# Setup 🛠️
 
 This page walks through everything needed to go from an empty project to a MVP working Snap Integration: installing the Snapfu CLI, scaffolding a new project, running the local development server, connecting a mockup file (or the Snapfu Chrome extension) to preview it, and wiring up the minimum viable controller and components to get results on the page.
 
@@ -185,4 +185,31 @@ export const Results = withController(observer((props) => {
 With that in place, `npm run dev` will render live search results into your mockup file. From here, see [Overview](https://athoscommerce.github.io/snap/snap-overview) for how the controller/store/component lifecycle works, or the [Preact Component Library](https://athoscommerce.github.io/snap/preact-components) for pre-built components you can use instead of writing your own.
 
 >[!TIP]
->Continue to our **Features** section for more in depth details on setting up your Feature Controllers. 
+>Continue to our **Features** section for more in depth details on setting up your Feature Controllers.
+
+---
+## Troubleshooting FAQ ❓
+
+**Q: I'm using the Snapfu Chrome extension and the bundle silently fails to load or the page never updates. What's wrong?**
+<br>
+**A:** The extension injects `bundle.js` from the local dev server's self-signed certificate at `https://localhost:3333`. Browsers won't trust that certificate on a different domain until you've accepted it directly — open `https://localhost:3333` in a separate tab, accept the certificate warning, then reload the storefront page the extension is injecting into.
+
+**Q: Port 3333 is already in use. What do I do?**
+<br>
+**A:** Another `npm run dev` (or another project) is likely still running. Stop the other process, or check your project's dev server config for a way to run on a different port.
+
+**Q: My mockup page loads but no components render. Why?**
+<br>
+**A:** Confirm the mockup's `<script src="bundle.js">` tag is present and points to the dev server's bundle — see [Local mockup file](#local-mockup-file). Also confirm `siteId` in your controller config matches a valid site in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net).
+
+**Q: Setup ran fine and components render, but I don't see any results. What should I check?**
+<br>
+**A:** Check the browser's network tab for the actual search API response first — an empty `results` array with no error usually points to the site itself, not your code. Confirm `siteId` matches a site in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net) that has completed its initial product feed/crawl, and that you're testing against the intended environment.
+
+**Q: I'm getting a `bundle.js` 404 in the browser console. Why?**
+<br>
+**A:** `npm run dev` needs to be running — it's what serves `bundle.js` from the project root. If it's already running, check that the mockup's script `src` path matches where the dev server is actually serving from.
+
+**Q: The Chrome extension injects the bundle, but the page never reloads on save. Why?**
+<br>
+**A:** Confirm `npm run dev` is still running in the terminal — the extension only injects the bundle, it doesn't watch files itself. If the terminal process was stopped, restart it.
