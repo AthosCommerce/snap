@@ -45,6 +45,18 @@
 			"url": "/snap-autocomplete",
 			"title": "Autocomplete"
 		},
+		"docs/REFERENCE_QUICKVIEW.md": {
+			"url": "/reference-quickview",
+			"title": "Quickview"
+		},
+		"packages/snap-controller/src/Quickview/README.md": {
+			"url": "/reference-quickview-manager",
+			"title": "QuickviewManager"
+		},
+		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
+			"url": "/reference-quickview-layout",
+			"title": "Layout"
+		},
 		"docs/SNAP_RECOMMENDATIONS.md": {
 			"url": "/snap-recommendations",
 			"title": "Recommendations"
@@ -60,18 +72,6 @@
 		"docs/SNAP_FINDER.md": {
 			"url": "/snap-finder",
 			"title": "Finder"
-		},
-		"docs/REFERENCE_QUICKVIEW.md": {
-			"url": "/reference-quickview",
-			"title": "Quickview"
-		},
-		"packages/snap-controller/src/Quickview/README.md": {
-			"url": "/reference-quickview-manager",
-			"title": "QuickviewManager"
-		},
-		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
-			"url": "/reference-quickview-layout",
-			"title": "Layout"
 		},
 		"docs/SNAP_TRACKING.md": {
 			"url": "/snap-tracking",
