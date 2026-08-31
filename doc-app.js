@@ -85,12 +85,25 @@ import('./docs/documents.js').then(function (_) {
 			return {
 				documents,
 				darkMode: localStorage.getItem('darkMode') === 'true',
+				latestVersion: null,
+				versionBannerDismissed: false,
 			};
 		},
 		mounted() {
 			if (this.darkMode) {
 				document.body.classList.add('dark-mode');
 			}
+
+			fetch('https://registry.npmjs.org/@athoscommerce/snap-preact/latest')
+				.then((response) => response.json())
+				.then((data) => {
+					if (!data?.version) return;
+					this.latestVersion = data.version;
+					this.versionBannerDismissed = localStorage.getItem('versionBannerDismissed') === data.version;
+				})
+				.catch(() => {
+					// silently ignore - banner just won't show if the registry is unreachable
+				});
 		},
 		methods: {
 			toggleDarkMode() {
@@ -101,6 +114,10 @@ import('./docs/documents.js').then(function (_) {
 				} else {
 					document.body.classList.remove('dark-mode');
 				}
+			},
+			dismissVersionBanner() {
+				this.versionBannerDismissed = true;
+				localStorage.setItem('versionBannerDismissed', this.latestVersion);
 			},
 		},
 		computed: {
@@ -132,17 +149,28 @@ import('./docs/documents.js').then(function (_) {
 			},
 		},
 		template: `
-            <Navigation :documents="documents"></Navigation>
+            <div id="version-banner" v-if="latestVersion && !versionBannerDismissed">
+                <span>
+                    <i class="fas fa-bolt"></i>
+                    Snap is on version {{ latestVersion }} — run <code>npm install @athoscommerce/snap-preact@latest</code> to get the latest updates.
+                </span>
+                <button @click="dismissVersionBanner" title="Dismiss">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="app-body" :class="{ 'has-version-banner': latestVersion && !versionBannerDismissed }">
+                <Navigation :documents="documents"></Navigation>
 
-			<div id="content-wrapper">
-				<router-view :routes="routes"></router-view>
-			</div>
-			<div class="theme-toggle">
-				<button @click="toggleDarkMode" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
-					<i :class="darkMode ? 'fas fa-sun fa-2x' : 'fas fa-moon fa-2x'"></i>
-				</button>
-			</div>
-            <div id="ac-overlay"></div>
+                <div id="content-wrapper">
+                    <router-view :routes="routes"></router-view>
+                </div>
+                <div class="theme-toggle">
+                    <button @click="toggleDarkMode" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <i :class="darkMode ? 'fas fa-sun fa-2x' : 'fas fa-moon fa-2x'"></i>
+                    </button>
+                </div>
+                <div id="ac-overlay"></div>
+            </div>
         `,
 	};
 

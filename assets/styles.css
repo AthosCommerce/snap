@@ -5,6 +5,7 @@
 	--athos-secondary-AAA: #005F82;
 	--navigation-width: 250px;
 	--legend-width: 250px;
+	--banner-height: 35px;
 	
 	/* Light mode colors */
 	--bg-primary: #ffffff;
@@ -86,7 +87,58 @@ table td {
 
 #app {
 	display: flex;
+	flex-direction: column;
 }
+#app-body {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+}
+
+#version-banner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1em;
+	padding: 0.6em 1em;
+	background-color: var(--athos-primary);
+	color: #ffffff;
+	font-size: 0.9em;
+	text-align: center;
+}
+
+#version-banner code {
+	background-color: rgb(255 255 255 / 15%);
+	color: inherit;
+	padding: 0.15em 0.4em;
+	border-radius: 3px;
+}
+
+#version-banner button {
+	flex-shrink: 0;
+	border: none;
+	background: transparent;
+	color: inherit;
+	opacity: 0.75;
+	cursor: pointer;
+}
+
+#version-banner button:hover {
+	opacity: 1;
+}
+
+@media only screen and (min-width: 768px) {
+	#app-body.has-version-banner #navigation-wrapper {
+		height: calc(100vh - var(--banner-height));
+		top: var(--banner-height);
+	}
+
+	#app-body.has-version-banner #content-wrapper {
+		top: var(--banner-height);
+		height: calc(100% - var(--banner-height));
+	}
+}
+
 #header {
 	display: flex;
 	margin: 10px 0 20px 0;
@@ -566,7 +618,7 @@ code:not([class]) {
 		max-height: 80px;
 	}
 
-	#app {
+	#app-body {
 		flex-direction: column;
 	}
 
