@@ -10,3 +10,4 @@ export * from './selectionKey';
 export * from './storybook';
 export * from './defaultBadgeComponentMap';
 export * from './createImpressionObserver';
+export * from './lazyRenderMinSize';

@@ -109,6 +109,31 @@ var documents = [
 						searchable: true,
 					},
 					{
+						label: 'Quickview',
+						route: '/reference-quickview',
+						type: 'markdown',
+						url: './docs/REFERENCE_QUICKVIEW.md',
+						searchable: true,
+						links: [
+							{
+								label: 'QuickviewManager',
+								route: '/reference-quickview-manager',
+								type: 'markdown',
+								url: './packages/snap-controller/src/Quickview/README.md',
+								searchable: true,
+								hidden: true,
+							},
+							{
+								label: 'Layout',
+								route: '/reference-quickview-layout',
+								type: 'markdown',
+								url: './packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md',
+								searchable: true,
+								hidden: true,
+							},
+						],
+					},
+					{
 						label: 'Tracking',
 						route: '/snap-tracking',
 						type: 'markdown',
@@ -156,6 +181,15 @@ var documents = [
 				type: 'markdown',
 				url: './docs/TEMPLATES_CONFIG.md',
 				searchable: true,
+				links: [
+					{
+						label: 'Localization',
+						route: '/templates-localization',
+						type: 'markdown',
+						url: './docs/TEMPLATES_LOCALIZATION.md',
+						searchable: true,
+					},
+				],
 			},
 			{
 				label: 'Theming',

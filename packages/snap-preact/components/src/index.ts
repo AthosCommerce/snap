@@ -15,6 +15,7 @@ export * from './components/Atoms/LoadingBar';
 export * from './components/Atoms/Overlay';
 export * from './components/Atoms/PaginationInfo';
 export * from './components/Atoms/Price';
+export * from './components/Atoms/ProductDetail';
 export * from './components/Atoms/SearchHeader';
 export * from './components/Atoms/Skeleton';
 
@@ -39,6 +40,9 @@ export * from './components/Molecules/Modal';
 export * from './components/Molecules/OverlayBadge';
 export * from './components/Molecules/Pagination';
 export * from './components/Molecules/PerPage';
+export * from './components/Molecules/ProductDetailTable';
+export * from './components/Molecules/Gallery';
+export * from './components/Molecules/QuantityPicker';
 export * from './components/Molecules/Radio';
 export * from './components/Molecules/RadioList';
 export * from './components/Molecules/Rating';
@@ -68,6 +72,8 @@ export * from './components/Organisms/Autocomplete';
 export * from './components/Organisms/TermsList';
 
 // TEMPLATES
+export * from './components/Templates/QuickviewModal';
+export * from './components/Templates/QuickviewSlideout';
 export * from './components/Templates/Recommendation';
 export * from './components/Templates/RecommendationBundle';
 export * from './components/Templates/RecommendationBundleEasyAdd';

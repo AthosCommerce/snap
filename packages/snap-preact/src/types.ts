@@ -6,6 +6,7 @@ import type {
 	FinderControllerConfig,
 	RecommendationControllerConfig,
 	ContextVariables,
+	QuickviewManager,
 } from '@athoscommerce/snap-controller';
 import type { SearchStore, AutocompleteStore, FinderStore, RecommendationStore } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager, UrlTranslatorConfig, UrlState } from '@athoscommerce/snap-url-manager';
@@ -27,6 +28,7 @@ export type SnapControllerServices = {
 	profiler?: Profiler;
 	logger?: Logger;
 	tracker?: Tracker;
+	quickviewManager?: QuickviewManager;
 };
 
 type UrlParameterConfig<Type> = {

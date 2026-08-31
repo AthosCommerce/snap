@@ -149,9 +149,9 @@ When used through `SnapTemplates` on Shopify, enabling `markets` also automatica
 1. Register the plugin in your SnapTemplates config:
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 
-const config = {
+const config = validateTemplatesConfig({
 	config: {
 		siteId: 'your-site-id',
 		platform: 'shopify',
@@ -169,7 +169,7 @@ const config = {
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -181,6 +181,7 @@ new SnapTemplates(config);
 3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
 4. Sets `result.state.priceFetched = true` when pricing is ready to display
 5. Caches results in an in-memory price cache local to the plugin instance to avoid redundant API calls
+6. When a quickview is opened, the same localized pricing (product and variant level) is applied to the quickview product — its variants are repopulated from `/v1/products` in the base currency, so the plugin re-applies cached prices (fetching them first if not already cached)
 
 When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format'])`:
 

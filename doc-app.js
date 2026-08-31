@@ -72,6 +72,10 @@ import('./docs/documents.js').then(function (_) {
 
 			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)', b: '(./reference-variants)' },
 			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md)', b: '(./templates-about)' },
+
+			{ a: '(TEMPLATES_CONFIG.md)', b: '(./templates-config)' },
+			{ a: '(TEMPLATES_LOCALIZATION.md#', b: '(./templates-localization#' },
+			{ a: '(TEMPLATES_HOW_TO.md#', b: '(./templates-how-tos#' },
 		]);
 
 	const modifyLinks = (markdown) => {

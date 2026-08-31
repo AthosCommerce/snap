@@ -1,0 +1,442 @@
+import { h } from 'preact';
+import { createPortal } from 'preact/compat';
+import { useState, useEffect, useRef } from 'preact/hooks';
+import { observer } from 'mobx-react-lite';
+import { css } from '@emotion/react';
+import classnames from 'classnames';
+import deepmerge from 'deepmerge';
+
+import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
+import { ComponentProps, StyleScript } from '../../../types';
+import { mergeProps, mergeStyles, defined } from '../../../utilities';
+import { Lang, useA11y, useLang } from '../../../hooks';
+import { Button } from '../../Atoms/Button';
+import { Image } from '../../Atoms/Image';
+
+const defaultStyles: StyleScript<GalleryProps> = () => {
+	return css({
+		position: 'fixed',
+		inset: 0,
+		zIndex: 10010, // above the quickview modal content (10006) and the dropdown portal (10007); full ladder in QuickviewModal defaultStyles
+		display: 'flex',
+		flexDirection: 'column',
+		background: 'rgba(0, 0, 0, 0.9)',
+
+		'& .ss__gallery__toolbar': {
+			display: 'flex',
+			justifyContent: 'flex-end',
+			alignItems: 'center',
+			gap: '8px',
+			padding: '12px 16px',
+		},
+		// button and icon chrome (color, background, border) comes from Button/Icon props (not CSS)
+		// so that theme overrides targeting those components (e.g. `gallery button.zoom-in`) are not
+		// out-specified here — these rules stick to layout the sub-components have no props for
+		'& .ss__gallery__button': {
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			padding: 0,
+			boxSizing: 'border-box',
+			borderRadius: '4px',
+			width: '40px',
+			height: '40px',
+			fontSize: '1.3em',
+			lineHeight: 1,
+			cursor: 'pointer',
+			'&.ss__button--disabled': {
+				opacity: 0.4,
+				cursor: 'default',
+			},
+		},
+		'& .ss__gallery__counter': {
+			color: '#fff',
+			marginRight: 'auto',
+			padding: '0 8px',
+			fontSize: '0.9em',
+		},
+		'& .ss__gallery__stage': {
+			position: 'relative',
+			flex: '1 1 auto',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			overflow: 'hidden',
+		},
+		'& .ss__gallery__image': {
+			maxWidth: '90vw',
+			maxHeight: '80vh',
+			objectFit: 'contain',
+			userSelect: 'none',
+			touchAction: 'none',
+			transformOrigin: 'center center',
+			transition: 'transform 0.05s linear',
+		},
+		'& .ss__gallery__nav': {
+			position: 'absolute',
+			top: 0,
+			bottom: 0,
+			height: '100%',
+			width: '64px',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			padding: 0,
+			boxSizing: 'border-box',
+			borderRadius: 0,
+			fontSize: '2em',
+			lineHeight: 1,
+			cursor: 'pointer',
+			zIndex: 1,
+			'&:hover': {
+				// a wash layered via backgroundImage so it composes with (rather than defeats)
+				// a backgroundColor set through Button props or theme overrides
+				backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.085))',
+			},
+		},
+		'& .ss__gallery__nav--prev': {
+			left: 0,
+		},
+		'& .ss__gallery__nav--next': {
+			right: 0,
+		},
+	});
+};
+
+export const Gallery = observer((properties: GalleryProps) => {
+	const globalTheme: Theme = useTheme();
+	const globalTreePath = useTreePath();
+
+	const defaultProps: Partial<GalleryProps> = {
+		treePath: globalTreePath,
+		startIndex: 0,
+		zoomMin: 1,
+		zoomMax: 4,
+		zoomStep: 0.5,
+		swipeThreshold: 40,
+	};
+
+	const props = mergeProps('gallery', globalTheme, defaultProps, properties);
+	const { images, open, startIndex, onClose, alt, className, internalClassName } = props;
+	const zoomMin = props.zoomMin!;
+	const zoomMax = props.zoomMax!;
+	const zoomStep = props.zoomStep!;
+	const swipeThreshold = props.swipeThreshold!;
+
+	const clampZoom = (value: number): number => Math.min(zoomMax, Math.max(zoomMin, value));
+
+	const [index, setIndex] = useState<number>(startIndex || 0);
+	const [zoom, setZoom] = useState<number>(zoomMin);
+	const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+	const dragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+	const touchRef = useRef<{ x: number; y: number } | null>(null);
+
+	const count = images?.length || 0;
+
+	//initialize lang
+	const defaultLang = {
+		gallery: {
+			attributes: {
+				'aria-label': 'Image gallery',
+			},
+		},
+		zoomOutButton: {
+			attributes: {
+				'aria-label': 'Zoom out',
+			},
+		},
+		zoomInButton: {
+			attributes: {
+				'aria-label': 'Zoom in',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Close gallery',
+			},
+		},
+		prevButton: {
+			attributes: {
+				'aria-label': 'Previous image',
+			},
+		},
+		nextButton: {
+			attributes: {
+				'aria-label': 'Next image',
+			},
+		},
+	};
+
+	//deep merge with props.lang
+	const lang = deepmerge(defaultLang, props.lang || {});
+	const mergedLang = useLang(lang as any, {});
+
+	// Reset to the clicked image (and clear zoom/pan) whenever the gallery opens or the start changes.
+	useEffect(() => {
+		if (open) {
+			setIndex(Math.min(Math.max(startIndex || 0, 0), Math.max(count - 1, 0)));
+			setZoom(zoomMin);
+			setPan({ x: 0, y: 0 });
+		}
+	}, [open, startIndex, count]);
+
+	const goTo = (next: number) => {
+		if (count === 0) return;
+		const wrapped = (next + count) % count;
+		setIndex(wrapped);
+		setZoom(zoomMin);
+		setPan({ x: 0, y: 0 });
+	};
+	const showPrev = () => goTo(index - 1);
+	const showNext = () => goTo(index + 1);
+	const zoomIn = () => setZoom((z) => clampZoom(z + zoomStep));
+	const zoomOut = () =>
+		setZoom((z) => {
+			const next = clampZoom(z - zoomStep);
+			if (next === zoomMin) setPan({ x: 0, y: 0 });
+			return next;
+		});
+
+	// Keyboard controls while open.
+	useEffect(() => {
+		if (!open) return;
+		const onKey = (e: KeyboardEvent) => {
+			switch (e.key) {
+				case 'Escape':
+					onClose && onClose();
+					break;
+				case 'ArrowRight':
+					showNext();
+					break;
+				case 'ArrowLeft':
+					showPrev();
+					break;
+				case '+':
+				case '=':
+					zoomIn();
+					break;
+				case '-':
+				case '_':
+					zoomOut();
+					break;
+			}
+		};
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	}, [open, index, count]);
+
+	// Dialog focus management — same pattern as QuickviewModal/QuickviewSlideout:
+	// remember what had focus before the gallery opened (the gallery portals to document.body,
+	// outside any surrounding focus trap), move focus into the gallery on open, restore on close.
+	const rootRef = useRef<HTMLElement | null>(null);
+	const previousFocusRef = useRef<HTMLElement | null>(null);
+	const wasOpenRef = useRef(false);
+
+	useEffect(() => {
+		const isOpenNow = Boolean(open && count > 0);
+		if (isOpenNow && !wasOpenRef.current) {
+			previousFocusRef.current = (document.activeElement as HTMLElement) || null;
+			const closeEl = rootRef.current?.querySelector<HTMLElement>('.ss__gallery__close');
+			(closeEl || rootRef.current)?.focus();
+		} else if (!isOpenNow && wasOpenRef.current) {
+			previousFocusRef.current?.focus?.();
+			previousFocusRef.current = null;
+		}
+		wasOpenRef.current = isOpenNow;
+	});
+
+	const styling = mergeStyles<GalleryProps>(props, defaultStyles);
+
+	if (!open || count === 0) return null;
+
+	// Drag-to-pan when zoomed in.
+	const onPointerDown = (e: any) => {
+		if (zoom <= zoomMin) return;
+		// Block the browser defaults (native image drag, text selection) that would cancel the
+		// pointermove stream, and capture the pointer so the drag survives leaving the image bounds.
+		e.preventDefault();
+		e.currentTarget?.setPointerCapture?.(e.pointerId);
+		dragRef.current = { startX: e.clientX, startY: e.clientY, baseX: pan.x, baseY: pan.y };
+	};
+	const onPointerMove = (e: any) => {
+		if (!dragRef.current) return;
+		setPan({ x: dragRef.current.baseX + (e.clientX - dragRef.current.startX), y: dragRef.current.baseY + (e.clientY - dragRef.current.startY) });
+	};
+	const endDrag = () => {
+		dragRef.current = null;
+	};
+
+	// Dismiss when the dark backdrop itself is clicked (not the image or a control). Works on
+	// the overlay root and the stage, both of which are `e.currentTarget` only for backdrop hits.
+	const onBackdropClick = (e: any) => {
+		if (e.target === e.currentTarget) onClose && onClose();
+	};
+
+	// Mobile: horizontal touch-swipe paginates (only when not zoomed — zoom uses drag-to-pan).
+	const onTouchStart = (e: any) => {
+		if (e.touches && e.touches.length === 1) {
+			touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		}
+	};
+	const onTouchEnd = (e: any) => {
+		const start = touchRef.current;
+		touchRef.current = null;
+		if (!start || zoom > zoomMin || count <= 1) return;
+		const touch = e.changedTouches && e.changedTouches[0];
+		if (!touch) return;
+		const dx = touch.clientX - start.x;
+		const dy = touch.clientY - start.y;
+		// Require a dominantly-horizontal swipe past the threshold.
+		if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
+			if (dx < 0) showNext();
+			else showPrev();
+		}
+	};
+
+	const currentSrc = images[index];
+
+	return createPortal(
+		<CacheProvider>
+			<div
+				{...styling}
+				className={classnames('ss__gallery', className, internalClassName)}
+				role="dialog"
+				aria-modal="true"
+				{...mergedLang.gallery?.attributes}
+				ref={(e) => {
+					rootRef.current = e;
+					useA11y(e, 0, true, () => onClose && onClose());
+				}}
+				onClick={onBackdropClick}
+			>
+				<div className="ss__gallery__toolbar">
+					{count > 1 && (
+						<span className="ss__gallery__counter">
+							{index + 1} / {count}
+						</span>
+					)}
+					<Button
+						name="zoom-out"
+						internalClassName="ss__gallery__button ss__gallery__zoom-out"
+						color="#fff"
+						backgroundColor="rgba(255, 255, 255, 0.12)"
+						borderColor="transparent"
+						icon={{ icon: 'minus', color: 'currentColor' }}
+						lang={{ button: lang.zoomOutButton }}
+						disabled={zoom <= zoomMin}
+						onClick={zoomOut}
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
+					<Button
+						name="zoom-in"
+						internalClassName="ss__gallery__button ss__gallery__zoom-in"
+						color="#fff"
+						backgroundColor="rgba(255, 255, 255, 0.12)"
+						borderColor="transparent"
+						icon={{ icon: 'plus', color: 'currentColor' }}
+						lang={{ button: lang.zoomInButton }}
+						disabled={zoom >= zoomMax}
+						onClick={zoomIn}
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
+					<Button
+						name="close"
+						internalClassName="ss__gallery__button ss__gallery__close"
+						color="#fff"
+						backgroundColor="rgba(255, 255, 255, 0.12)"
+						borderColor="transparent"
+						icon={{ icon: 'close', color: 'currentColor' }}
+						lang={{ button: lang.closeButton }}
+						onClick={() => onClose && onClose()}
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
+				</div>
+
+				<div className="ss__gallery__stage" onClick={onBackdropClick} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+					{count > 1 && (
+						<Button
+							name="prev"
+							internalClassName="ss__gallery__nav ss__gallery__nav--prev"
+							color="#fff"
+							backgroundColor="rgba(255, 255, 255, 0.06)"
+							borderColor="transparent"
+							icon={{ icon: 'angle-left', color: 'currentColor' }}
+							lang={{ button: lang.prevButton }}
+							onClick={showPrev}
+							theme={props.theme}
+							treePath={props.treePath}
+							{...defined({ disableStyles: props.disableStyles })}
+						/>
+					)}
+
+					<Image
+						internalClassName="ss__gallery__image"
+						src={currentSrc}
+						alt={alt || ''}
+						draggable={false}
+						style={{
+							transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+							cursor: zoom > zoomMin ? (dragRef.current ? 'grabbing' : 'grab') : 'default',
+						}}
+						onPointerDown={onPointerDown}
+						onPointerMove={onPointerMove}
+						onPointerUp={endDrag}
+						onPointerLeave={endDrag}
+						theme={props.theme}
+						treePath={props.treePath}
+						{...defined({ disableStyles: props.disableStyles })}
+					/>
+
+					{count > 1 && (
+						<Button
+							name="next"
+							internalClassName="ss__gallery__nav ss__gallery__nav--next"
+							color="#fff"
+							backgroundColor="rgba(255, 255, 255, 0.06)"
+							borderColor="transparent"
+							icon={{ icon: 'angle-right', color: 'currentColor' }}
+							lang={{ button: lang.nextButton }}
+							onClick={showNext}
+							theme={props.theme}
+							treePath={props.treePath}
+							{...defined({ disableStyles: props.disableStyles })}
+						/>
+					)}
+				</div>
+			</div>
+		</CacheProvider>,
+		document.body
+	);
+});
+
+export type GalleryProps = {
+	images: string[];
+	open: boolean;
+	startIndex?: number;
+	alt?: string;
+	lang?: Partial<GalleryLang>;
+} & GalleryTemplatesLegalProps &
+	ComponentProps<GalleryProps>;
+
+export type GalleryTemplatesLegalProps = {
+	onClose?: () => void;
+	zoomMin?: number;
+	zoomMax?: number;
+	zoomStep?: number;
+	swipeThreshold?: number;
+};
+
+export interface GalleryLang {
+	gallery: Lang<never>;
+	zoomOutButton: Lang<never>;
+	zoomInButton: Lang<never>;
+	closeButton: Lang<never>;
+	prevButton: Lang<never>;
+	nextButton: Lang<never>;
+}

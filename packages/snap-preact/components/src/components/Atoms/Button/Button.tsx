@@ -187,4 +187,11 @@ export type ButtonNames =
 	| 'close-search'
 	| 'clear-search'
 	| 'submit-search'
-	| 'reset-facet';
+	| 'reset-facet'
+	| 'add-to-cart'
+	| 'quickview'
+	| 'more-info'
+	| 'increment'
+	| 'decrement'
+	| 'zoom-in'
+	| 'zoom-out';
