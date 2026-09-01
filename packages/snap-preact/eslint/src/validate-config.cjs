@@ -431,7 +431,13 @@ module.exports = {
 		/**
 		 * Resolve the real property names of an exported type from
 		 * '@athoscommerce/snap-preact/components', by name, live from the type checker.
-		 * Cached per Program so each type is only resolved once per lint run.
+		 * Cached per Program so each type is only resolved once per lint run - but only
+		 * successful resolutions are cached. A failure (thrown error, or a symbol/type
+		 * genuinely not found) is never memoized: the Program this is keyed on outlives a
+		 * single lint run (typescript-eslint reuses it across calls with an unchanged
+		 * tsconfig+file), so caching a one-off failure would silently and permanently
+		 * disable this check for that type for the rest of the Program's lifetime instead
+		 * of just this one call.
 		 */
 		function resolveNamedTypeFromComponentsModule(programAndChecker, typeName, containingFileName) {
 			const { program, checker } = programAndChecker;
@@ -469,7 +475,7 @@ module.exports = {
 				result = null;
 			}
 
-			cache.set(typeName, result);
+			if (result) cache.set(typeName, result);
 			return result;
 		}
 
