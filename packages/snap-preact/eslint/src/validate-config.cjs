@@ -487,12 +487,8 @@ module.exports = {
 			let result = null;
 			try {
 				const ts = require('typescript');
-				const resolved = ts.resolveModuleName(
-					'@athoscommerce/snap-preact/components',
-					containingFileName,
-					program.getCompilerOptions(),
-					ts.sys
-				);
+				const compilerOptions = program.getCompilerOptions();
+				const resolved = ts.resolveModuleName('@athoscommerce/snap-preact/components', containingFileName, compilerOptions, ts.sys);
 				const resolvedFileName = resolved.resolvedModule && resolved.resolvedModule.resolvedFileName;
 				const sourceFile = resolvedFileName && program.getSourceFile(resolvedFileName);
 				const moduleSymbol = sourceFile && checker.getSymbolAtLocation(sourceFile);
@@ -506,6 +502,16 @@ module.exports = {
 						hasModuleSymbol: !!moduleSymbol,
 						hasExportSymbol: !!exportSymbol,
 					});
+					if (!resolvedFileName) {
+						console.error('[validate-config debug] resolution miss detail', {
+							typeName,
+							containingFileName,
+							hasPaths: !!compilerOptions.paths,
+							pathsKeys: compilerOptions.paths && Object.keys(compilerOptions.paths),
+							baseUrl: compilerOptions.baseUrl,
+							failedLookupLocations: resolved.failedLookupLocations,
+						});
+					}
 				}
 
 				if (exportSymbol) {
