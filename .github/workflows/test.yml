@@ -67,20 +67,35 @@ jobs:
       - name: Typecheck tests
         run: npm run typecheck:tests
 
-      # jest defaults to cores-1, reserving a core for its mostly-idle coordinator. This
-      # ran at 100% for a while (an idle core felt wasteful on small runners), but that
-      # let typed-linting tests (packages/snap-preact/eslint) exhaust some OS resource
-      # (likely file descriptors/inotify watches) under the resulting worker count -
-      # @typescript-eslint/parser's cached ts.Program silently lost its tsconfig `paths`
-      # partway through a run and never recovered, permanently no-oping those checks for
-      # the rest of the process. 50% keeps most of the parallelism win without hitting
-      # that ceiling. nproc is logged so the runner size is visible if this needs retuning.
+      # Ubuntu's default fs.inotify.max_user_instances (128) is easy to exhaust once
+      # enough fs-watching tooling (TypeScript's watch program, chokidar, etc.) has run
+      # across ~200+ test suites - see the Core tests step below for the failure this
+      # causes and how it was diagnosed.
+      - name: Raise inotify limits
+        run: |
+          sudo sysctl -w fs.inotify.max_user_watches=524288
+          sudo sysctl -w fs.inotify.max_user_instances=1024
+
+      # A test file under packages/snap-preact/eslint creates a typed-linting ts.Program
+      # per test; partway through the run it starts silently losing its tsconfig `paths`
+      # and every check after that no-ops permanently. Confirmed independent of jest
+      # worker concurrency (still happens at --maxWorkers=1, fully serial) - it's a
+      # system-wide, per-user resource, not a per-process one. Ubuntu's default
+      # fs.inotify.max_user_instances (128) is the leading suspect: TypeScript's watch
+      # machinery and other fs-watching tooling (chokidar, etc.) can each hold an inotify
+      # instance, and the failure consistently starts once ~130-165 of 211 suites have
+      # run - suspiciously close to that default. Raising it before the run is the fix;
+      # see the "Raise inotify limits" step above.
+      #
+      # jest defaults to cores-1, reserving a core for its mostly-idle coordinator; on
+      # small CI runners that idle core is better spent on a worker, so use 100%.
+      # nproc is logged so the runner size is visible if this needs retuning
       - name: Core tests
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
         run: |
           echo "runner cores: $(nproc)"
-          npm run test:core -- --maxWorkers=1
+          npm run test:core -- --maxWorkers=100%
 
       - name: Verify docs sitemap
         run: npm run build:sitemap -- --check
