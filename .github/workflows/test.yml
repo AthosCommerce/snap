@@ -67,15 +67,20 @@ jobs:
       - name: Typecheck tests
         run: npm run typecheck:tests
 
-      # jest defaults to cores-1, reserving a core for its mostly-idle coordinator;
-      # on small CI runners that idle core is better spent on a worker, so use 100%.
-      # nproc is logged so the runner size is visible if this needs retuning
+      # jest defaults to cores-1, reserving a core for its mostly-idle coordinator. This
+      # ran at 100% for a while (an idle core felt wasteful on small runners), but that
+      # let typed-linting tests (packages/snap-preact/eslint) exhaust some OS resource
+      # (likely file descriptors/inotify watches) under the resulting worker count -
+      # @typescript-eslint/parser's cached ts.Program silently lost its tsconfig `paths`
+      # partway through a run and never recovered, permanently no-oping those checks for
+      # the rest of the process. 50% keeps most of the parallelism win without hitting
+      # that ceiling. nproc is logged so the runner size is visible if this needs retuning.
       - name: Core tests
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
         run: |
           echo "runner cores: $(nproc)"
-          npm run test:core -- --maxWorkers=100%
+          npm run test:core -- --maxWorkers=50%
 
       - name: Verify docs sitemap
         run: npm run build:sitemap -- --check
