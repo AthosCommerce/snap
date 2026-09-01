@@ -352,9 +352,6 @@ module.exports = {
 
 			const componentType = finalSegment.split('.')[0];
 			const typeName = OPEN_NAMED_COMPONENT_PROPS_TYPE[componentType];
-			if (process.env.DEBUG_VALIDATE_CONFIG) {
-				console.error('[validate-config debug] resolveSelectorPropsType fallback', { finalSegment, componentType, typeName });
-			}
 			if (!typeName) return null;
 			return resolveNamedTypeFromComponentsModule(programAndChecker, typeName, filename);
 		}
@@ -416,15 +413,6 @@ module.exports = {
 			try {
 				const propSymbol = checker.getPropertyOfType(resolvedType, propName);
 				const tsValueNode = esTreeNodeToTSNodeMap.get(valueNode);
-
-				if (process.env.DEBUG_VALIDATE_CONFIG) {
-					console.error('[validate-config debug] checkPropValueType', {
-						propName,
-						hasPropSymbol: !!propSymbol,
-						hasTsValueNode: !!tsValueNode,
-					});
-				}
-
 				if (!propSymbol || !tsValueNode) return null;
 
 				const expectedType = checker.getTypeOfSymbolAtLocation(propSymbol, sourceFile);
@@ -435,10 +423,7 @@ module.exports = {
 					expectedType: checker.typeToString(expectedType),
 					actualType: checker.typeToString(actualType),
 				};
-			} catch (err) {
-				if (process.env.DEBUG_VALIDATE_CONFIG) {
-					console.error('[validate-config debug] checkPropValueType threw for', propName, err && err.stack);
-				}
+			} catch {
 				return null;
 			}
 		}
@@ -446,13 +431,7 @@ module.exports = {
 		/**
 		 * Resolve the real property names of an exported type from
 		 * '@athoscommerce/snap-preact/components', by name, live from the type checker.
-		 * Cached per Program so each type is only resolved once per lint run - but only
-		 * successful resolutions are cached. A failure (thrown error, or a symbol/type
-		 * genuinely not found yet) is never memoized: the Program this is keyed on
-		 * outlives a single lint run (typescript-eslint reuses it across calls with an
-		 * unchanged tsconfig+file, e.g. across a test file's cases), so caching a
-		 * transient failure would silently and permanently disable this check for that
-		 * type for the rest of the Program's lifetime instead of just this one call.
+		 * Cached per Program so each type is only resolved once per lint run.
 		 */
 		function resolveNamedTypeFromComponentsModule(programAndChecker, typeName, containingFileName) {
 			const { program, checker } = programAndChecker;
@@ -478,16 +457,6 @@ module.exports = {
 				const moduleSymbol = sourceFile && checker.getSymbolAtLocation(sourceFile);
 				const exportSymbol = moduleSymbol && checker.getExportsOfModule(moduleSymbol).find((s) => s.name === typeName);
 
-				if (process.env.DEBUG_VALIDATE_CONFIG) {
-					console.error('[validate-config debug]', {
-						typeName,
-						resolvedFileName,
-						hasSourceFile: !!sourceFile,
-						hasModuleSymbol: !!moduleSymbol,
-						hasExportSymbol: !!exportSymbol,
-					});
-				}
-
 				if (exportSymbol) {
 					const type = checker.getDeclaredTypeOfSymbol(exportSymbol);
 					result = {
@@ -496,14 +465,11 @@ module.exports = {
 						sourceFile,
 					};
 				}
-			} catch (err) {
-				if (process.env.DEBUG_VALIDATE_CONFIG) {
-					console.error('[validate-config debug] threw for', typeName, err && err.stack);
-				}
+			} catch {
 				result = null;
 			}
 
-			if (result) cache.set(typeName, result);
+			cache.set(typeName, result);
 			return result;
 		}
 

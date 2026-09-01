@@ -1,7 +1,3 @@
-// TEMPORARY: diagnosing a CI-only failure (passes locally, always fails on the GH Actions
-// runner) - remove this line once root-caused, see validate-config.cjs's DEBUG_VALIDATE_CONFIG logs.
-process.env.DEBUG_VALIDATE_CONFIG = '1';
-
 const fs = require('fs');
 const path = require('path');
 const { Linter } = require('eslint');
