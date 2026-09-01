@@ -267,15 +267,6 @@ module.exports = {
 					const propName = getPropertyName(valueProp);
 					if (!propName || ALWAYS_ALLOWED_OVERRIDE_PROPS.has(propName)) continue;
 
-					if (process.env.DEBUG_VALIDATE_CONFIG) {
-						console.error('[validate-config debug] walkUnknownRegionEntry prop check', {
-							selector,
-							propName,
-							validPropNamesHasIt: validPropNames.has(propName),
-							validPropNamesSize: validPropNames.size,
-						});
-					}
-
 					if (!validPropNames.has(propName)) {
 						context.report({
 							node: valueProp.key,
@@ -438,18 +429,7 @@ module.exports = {
 
 				const expectedType = checker.getTypeOfSymbolAtLocation(propSymbol, sourceFile);
 				const actualType = checker.getTypeAtLocation(tsValueNode);
-				const assignable = checker.isTypeAssignableTo(actualType, expectedType);
-
-				if (process.env.DEBUG_VALIDATE_CONFIG) {
-					console.error('[validate-config debug] checkPropValueType assignability', {
-						propName,
-						expectedType: checker.typeToString(expectedType),
-						actualType: checker.typeToString(actualType),
-						assignable,
-					});
-				}
-
-				if (assignable) return null;
+				if (checker.isTypeAssignableTo(actualType, expectedType)) return null;
 
 				return {
 					expectedType: checker.typeToString(expectedType),
