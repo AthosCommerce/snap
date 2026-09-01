@@ -80,7 +80,7 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=4096"
         run: |
           echo "runner cores: $(nproc)"
-          npm run test:core -- --maxWorkers=50%
+          npm run test:core -- --maxWorkers=1
 
       - name: Verify docs sitemap
         run: npm run build:sitemap -- --check
