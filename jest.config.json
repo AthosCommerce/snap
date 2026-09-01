@@ -3,5 +3,5 @@
 	"projects": ["<rootDir>/packages/snap-*/**/jest.config.js"],
 	"coverageReporters": ["json", "html", "text", "text-summary", "json-summary"],
 	"coverageDirectory": "<rootDir>/coverage/",
-	"silent": true
+	"silent": false
 }
