@@ -1,9 +1,13 @@
 // Part of the mergeProps characterization suite. This file covers the final respread exceptions
-// (applyFinalRespreadExceptions) for customComponent and storybook treePaths: authored JSX props /
-// story controls have the final say at EVERY depth of those subtrees, and both respreads exclude
-// `theme` so the enriched theme (name/variables/activeBreakpoint/theme props map) is kept for
-// children instead of being clobbered by the raw props.theme. customComponent detection is a
-// segment test ('customComponent' or 'customComponent-*'), not a substring match.
+// (applyFinalRespreadExceptions) for customComponent and storybook treePaths. customComponent
+// paths respread raw JSX props at EVERY depth of the subtree, no provenance check. Storybook
+// paths only do that blanket respread at the subtree ROOT (2 treePath segments) — deeper in the
+// subtree, only prop values that are provably forwarded from that root's args/JSX (tracked via
+// STORYBOOK_ARGS_PROPS_MAP_SYMBOL, same-key or cross-key match) win over a theme selector; an
+// intermediate component's own internal default (never itself a story arg) does not. Both
+// respreads exclude `theme` so the enriched theme (name/variables/activeBreakpoint/theme props
+// map) is kept for children instead of being clobbered by the raw props.theme. customComponent
+// detection is a segment test ('customComponent' or 'customComponent-*'), not a substring match.
 
 import { Theme } from '..';
 import { GLOBAL_THEME_NAME } from '../../../src/Templates/Stores/TargetStore';
@@ -102,7 +106,7 @@ describe('mergeProps final respread exception for storybook treePaths (mergeProp
 		},
 	};
 
-	it('fires at 2 treePath segments: passed props beat the theme selector', () => {
+	it('fires at 2 treePath segments (the subtree root): passed props beat the theme selector', () => {
 		const properties: Partial<SelectProps> = {
 			separator: 'props',
 			treePath: 'storybook',
@@ -114,19 +118,64 @@ describe('mergeProps final respread exception for storybook treePaths (mergeProp
 		expect(props.separator).toBe('props');
 	});
 
-	it('fires at 3+ treePath segments: passed props beat the theme selector at every nesting depth', () => {
+	it('at 3+ segments, respreads a value forwarded unchanged from the subtree root (same-key provenance)', () => {
+		// step 1: the story's directly-rendered root component (e.g. a Layout wrapper) receives
+		// the real story arg — this is where STORYBOOK_ARGS_PROPS_MAP_SYMBOL gets built.
+		// @ts-ignore - plain object globalTheme
+		const rootResult = mergeProps('layout', globalTheme as Theme, {}, { separator: 'props', treePath: 'storybook' } as any);
+
+		// step 2: a descendant (e.g. the Select nested inside it) is forwarded that same value
+		// under the same key, unchanged — same pattern as Facet.tsx forwarding `iconColor` down.
 		const properties: Partial<SelectProps> = {
 			separator: 'props',
-			treePath: 'storybook layout',
+			treePath: rootResult.treePath,
+			theme: rootResult.theme as any,
 		};
 		// @ts-ignore - plain object globalTheme
 		const props = mergeProps(componentType, globalTheme as Theme, {}, properties);
 
-		// Storybook-priority fix: the respread fires for ANY storybook-rooted treePath, so props
-		// forwarded into nested components (story controls/args flowing through subProps) keep the
-		// final say instead of losing to theme selectors once nested.
 		expect(props.treePath).toBe('storybook layout select');
 		expect(props.separator).toBe('props');
+	});
+
+	it('at 3+ segments, respreads a renamed forward of a subtree-root value (cross-key provenance)', () => {
+		// mirrors Facet.tsx forwarding its own `iconCollapse` arg into the Icon's `icon` prop —
+		// a different key at the child than at the root, but the identical value.
+		// @ts-ignore - plain object globalTheme
+		const rootResult = mergeProps('layout', globalTheme as Theme, {}, { color: 'purple', treePath: 'storybook' } as any);
+
+		const properties: Partial<SelectProps> = {
+			// @ts-ignore - simulating a renamed forward (parent's `color` arg -> child's `separator`)
+			separator: 'purple',
+			treePath: rootResult.treePath,
+			theme: rootResult.theme as any,
+		};
+		// @ts-ignore - plain object globalTheme
+		const props = mergeProps(componentType, globalTheme as Theme, {}, properties);
+
+		expect(props.separator).toBe('purple');
+	});
+
+	it('at 3+ segments, does NOT respread a value with no provenance in the subtree root — the theme selector wins', () => {
+		// Regression test for the bug this fix addresses: an intermediate component's own internal
+		// default (e.g. Facet always passing `size: '12px'` / `fill: iconColor || color` to every
+		// icon it renders, regardless of any story control) must not beat a specific theme selector
+		// just because the whole subtree happens to be storybook-rooted. The root story here never
+		// touched `separator` at all, so it can't be in the args map.
+		// @ts-ignore - plain object globalTheme
+		const rootResult = mergeProps('layout', globalTheme as Theme, {}, { treePath: 'storybook' } as any);
+
+		const properties: Partial<SelectProps> = {
+			separator: 'internal-default',
+			treePath: rootResult.treePath,
+			theme: rootResult.theme as any,
+		};
+		// @ts-ignore - plain object globalTheme
+		const props = mergeProps(componentType, globalTheme as Theme, {}, properties);
+
+		expect(props.treePath).toBe('storybook layout select');
+		// the theme selector wins — 'internal-default' never traced back to a real story arg
+		expect(props.separator).toBe('theme');
 	});
 
 	it('keeps the enriched theme through the storybook respread even when props.theme is passed', () => {
@@ -139,10 +188,13 @@ describe('mergeProps final respread exception for storybook treePaths (mergeProp
 		// @ts-ignore - plain object globalTheme
 		const props = mergeProps(componentType, globalTheme as Theme, {}, properties);
 
-		// Unlike the customComponent respread (which restores the raw props.theme reference), the
-		// storybook respread excludes `theme`, so the enriched theme built by the templates branch
-		// (name/variables/activeBreakpoint/theme props map) survives for children.
-		expect(props.separator).toBe('props');
+		// parentThemeObj is a plain object, not a real subtree-root result, so it carries no args
+		// map and `separator` has no provenance to respread — the theme selector wins. But unlike
+		// the customComponent respread (which restores the raw props.theme reference), the
+		// storybook path excludes `theme` from what it respreads, so the enriched theme built by
+		// the templates branch (name/variables/activeBreakpoint/theme props map) still survives
+		// for children instead of being replaced by the raw parentThemeObj.
+		expect(props.separator).toBe('theme');
 		expect(props.theme).not.toBe(parentThemeObj);
 		expect((props.theme as any).name).toBe(GLOBAL_THEME_NAME);
 		expect((props.theme as any).some).toBe('parentTheme');

@@ -25,8 +25,11 @@ import type { Theme, ThemeComplete, ThemeComponents } from '../providers';
 		4. parent-theme-derived respread (passed props whose values came from an ancestor's theme)
 		5. global user override selectors (no '*' — project config overrides)
 		6. props.theme.components selectors (parent-injected, e.g. layout option overrides)
-		7. exceptions: customComponent and storybook-rooted paths respread raw props
-		   (excl. theme — the enriched theme is kept for the subtree)
+		7. exceptions: customComponent paths respread raw props at every depth; storybook-rooted
+		   paths respread the FULL raw props only at the subtree root (2 treePath segments) —
+		   deeper in the subtree, only keys provably forwarded from that root's args/JSX win
+		   (STORYBOOK_ARGS_PROPS_MAP_SYMBOL; same-key/cross-key provenance, mirrors step 4).
+		   Both respreads exclude theme, keeping the enriched theme for the subtree.
 
 	NOTE: application order is NOT priority order — the respreads (4 and 7) re-apply earlier
 	values over later layers. Follow the numbered step functions (T1–T8) below in order.
@@ -48,6 +51,13 @@ import type { Theme, ThemeComplete, ThemeComponents } from '../providers';
 
 // Symbol to track prop-value pairs that originated from theme configuration
 const THEME_PROPS_MAP_SYMBOL = Symbol.for('__themePropsMap__');
+
+// Symbol to track prop-value pairs that originated from a Storybook story's ROOT args/JSX
+// props (as opposed to an intermediate component's own internal default props, which merely
+// get forwarded through the same prop key to a descendant several levels down). Built once at
+// the root of a storybook-rooted tree (T8) and passed down by reference — it never needs
+// per-component merging the way THEME_PROPS_MAP_SYMBOL does.
+const STORYBOOK_ARGS_PROPS_MAP_SYMBOL = Symbol.for('__storybookArgsPropsMap__');
 
 export function mergeProps<GenericComponentProps extends ComponentProps>(
 	componentType: string,
@@ -399,7 +409,17 @@ function finalizeThemeForChildren(merged: Partial<ComponentProps>, ctx: Template
  * 'customComponent-', as injected by CustomComponentWrapper): the custom component
  * author's props win at every depth of the subtree.
  *
- * storybook-rooted paths: story controls/args must have the final say at every depth.
+ * storybook-rooted paths: story controls/args must have the final say — but ONLY for
+ * values that actually trace back to the story's root args/JSX, not for an intermediate
+ * component's own internal default props that merely get forwarded through the same key
+ * (e.g. Facet always passing `size: '12px'` to every icon it renders, regardless of any
+ * story control). At the root of the subtree (treePath === 'storybook <type>', 2 segments)
+ * every raw prop genuinely IS the story's args, so the respread stays a full blanket
+ * respread — and that props object is captured as a Map (STORYBOOK_ARGS_PROPS_MAP_SYMBOL)
+ * that travels down via merged.theme, unchanged, the same way THEME_PROPS_MAP_SYMBOL does.
+ * At any deeper level, only keys whose value provably came from that root map (same-key,
+ * or cross-key for a renamed forward — mirrors T2's respreadParentThemeDerivedProps) are
+ * respread; everything else is left for the normal theme-selector layers to decide.
  *
  * QUIRK[final-respread-keeps-enriched-theme]: both respreads exclude `theme` from the raw
  * props, keeping the enriched theme built by T5–T7 (name, variables, activeBreakpoint,
@@ -412,7 +432,7 @@ function applyFinalRespreadExceptions(merged: Partial<ComponentProps>, ctx: Temp
 	const isCustomComponentPath = treePath.split(' ').some((segment) => segment === 'customComponent' || segment.startsWith('customComponent-'));
 	const isStorybookPath = treePath.startsWith('storybook ');
 
-	if (isCustomComponentPath || isStorybookPath) {
+	if (isCustomComponentPath) {
 		const propsWithoutTheme: Partial<ComponentProps> = { ...ctx.props };
 		delete propsWithoutTheme.theme;
 		merged = {
@@ -420,9 +440,97 @@ function applyFinalRespreadExceptions(merged: Partial<ComponentProps>, ctx: Temp
 			...propsWithoutTheme,
 			treePath,
 		};
+		return merged;
+	}
+
+	if (isStorybookPath) {
+		const isStorybookRoot = treePath.split(' ').length === 2;
+		const propsWithoutTheme: Partial<ComponentProps> = { ...ctx.props };
+		delete propsWithoutTheme.theme;
+
+		if (isStorybookRoot) {
+			merged = {
+				...merged,
+				...propsWithoutTheme,
+				treePath,
+			};
+			if (merged.theme) {
+				const argsMapSource = { ...propsWithoutTheme };
+				delete (argsMapSource as any).treePath;
+				(merged.theme as any)[STORYBOOK_ARGS_PROPS_MAP_SYMBOL] = buildStorybookArgsMap(argsMapSource);
+			}
+			return merged;
+		}
+
+		const argsMap = (ctx.parentTheme as any)?.[STORYBOOK_ARGS_PROPS_MAP_SYMBOL] as Map<string, any> | undefined;
+
+		if (argsMap && argsMap.size > 0) {
+			const argsValues = getStorybookArgsValuesSet(argsMap);
+			const propsToRespread: Partial<ComponentProps> = {};
+
+			for (const key of Object.keys(propsWithoutTheme)) {
+				if (key === 'treePath') continue;
+				const value = (propsWithoutTheme as any)[key];
+				if (value === undefined) continue;
+
+				const sameKeyMatch = argsMap.get(key) === value;
+				const crossKeyMatch = (typeof value === 'string' || (typeof value === 'object' && value !== null)) && argsValues.has(value);
+
+				if (sameKeyMatch || crossKeyMatch) {
+					(propsToRespread as any)[key] = value;
+				}
+			}
+
+			merged = {
+				...merged,
+				...propsToRespread,
+				treePath,
+			};
+		} else {
+			merged = {
+				...merged,
+				treePath,
+			};
+		}
+
+		if (merged.theme && argsMap) {
+			(merged.theme as any)[STORYBOOK_ARGS_PROPS_MAP_SYMBOL] = argsMap;
+		}
 	}
 
 	return merged;
+}
+
+/** Build the root args map for a storybook-rooted tree, filtering out non-trackable values
+ * (mirrors the tracking filter mergeThemeProps uses for THEME_PROPS_MAP_SYMBOL). */
+function buildStorybookArgsMap(props: Partial<ComponentProps>): Map<string, any> {
+	const map = new Map<string, any>();
+	for (const [key, value] of Object.entries(props)) {
+		if (value !== undefined && value !== null && typeof value !== 'function') {
+			map.set(key, value);
+		}
+	}
+	return map;
+}
+
+// PERF: mirrors parentThemeValuesSetCache — a value Set built once per storybook args map
+// instead of once per respread check.
+const storybookArgsValuesSetCache = new WeakMap<Map<string, any>, Set<any>>();
+
+function getStorybookArgsValuesSet(argsMap: Map<string, any>): Set<any> {
+	let values = storybookArgsValuesSetCache.get(argsMap);
+	if (!values) {
+		const built = new Set<any>();
+		argsMap.forEach((value) => {
+			if (value === value) {
+				built.add(value);
+			}
+		});
+		storybookArgsValuesSetCache.set(argsMap, built);
+		values = built;
+	}
+
+	return values;
 }
 
 /**
