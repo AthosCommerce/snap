@@ -68,6 +68,22 @@ module.exports = [
 		},
 	},
 	{
+		// Only these files actually author `theme.overrides` config today. Typed linting
+		// (parserOptions.project) is scoped narrowly here, not onto the broad **/index.ts
+		// glob above, since it requires building a real ts.Program for every matching file -
+		// fine for a couple of app entry points, wasteful across the whole monorepo's ~150
+		// index.ts/tsx barrel files. Without it, validate-config's open-named dotted-selector
+		// prop check (facet.price, recommendation.foo, ...) silently no-ops - see its
+		// comments in eslint/src/validate-config.cjs.
+		files: ['packages/snap-preact-demo/*/src/index.{ts,tsx}'],
+		languageOptions: {
+			parserOptions: {
+				project: './packages/snap-preact-demo/tsconfig.json',
+				tsconfigRootDir: __dirname,
+			},
+		},
+	},
+	{
 		// build-time webpack helpers consumed via require() by project webpack configs — must remain CommonJS
 		files: ['packages/snap-preact/webpack/**/*.js'],
 		languageOptions: {

@@ -11,7 +11,7 @@ import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerSto
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
-import type { ThemeComponentsRestrictedSelectors, ThemeComponentsRestrictedSelectorsUnlocked } from '../../components/src/providers/themeComponents';
+import type { ThemeComponentOverrides, ThemeComponentOverridesUnlocked } from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { ClientGlobals } from '@athoscommerce/snap-client';
 import type { TrackerGlobals } from '@athoscommerce/snap-tracker';
@@ -87,54 +87,44 @@ export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 	features?: SnapFeatures;
 };
 
-type SnapTemplatesConfigThemeOverridesTyped<
-	DefaultSelectors extends string,
-	MobileSelectors extends string,
-	TabletSelectors extends string,
-	DesktopSelectors extends string
-> = {
-	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors>;
+// `theme.overrides.default/mobile/tablet/desktop` is typed against the plain, non-generic
+// `ThemeComponentOverrides` alias - fast for the editor (real-time key/prop completions,
+// no generic inference), and precise for every selector EXCEPT the dotted/open-named form
+// of a handful of component types (`facet.<custom>`, `recommendation.<custom>`, etc.),
+// which resolve to `unknown` here since their suffix isn't a known finite union. Bad props
+// on THOSE specific selectors are instead caught by the `validate-config` ESLint rule
+// (typed linting, not the TS compiler). The generic `ThemeComponentsRestrictedSelectors<Selectors>`
+// approach this replaced gave full precision but cost ~1.5s of editor completion latency
+// per keystroke, dominated by generic inference over the large, template-literal-heavy
+// selector pattern types in themeComponents.ts.
+type SnapTemplatesConfigThemeOverridesTyped = {
+	default?: ThemeComponentOverrides;
+	mobile?: ThemeComponentOverrides;
+	tablet?: ThemeComponentOverrides;
+	desktop?: ThemeComponentOverrides;
 };
 
-export function validateTemplatesConfig<
-	DefaultSelectors extends string = never,
-	MobileSelectors extends string = never,
-	TabletSelectors extends string = never,
-	DesktopSelectors extends string = never
->(
+export function validateTemplatesConfig(
 	config: Omit<SnapTemplatesConfig, 'theme'> & {
 		theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
-			overrides?: SnapTemplatesConfigThemeOverridesTyped<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
+			overrides?: SnapTemplatesConfigThemeOverridesTyped;
 		};
 	}
 ): SnapTemplatesConfig {
 	return config;
 }
 
-type SnapTemplatesConfigThemeOverridesTypedUnlocked<
-	DefaultSelectors extends string,
-	MobileSelectors extends string,
-	TabletSelectors extends string,
-	DesktopSelectors extends string
-> = {
-	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors>;
+type SnapTemplatesConfigThemeOverridesTypedUnlocked = {
+	default?: ThemeComponentOverridesUnlocked;
+	mobile?: ThemeComponentOverridesUnlocked;
+	tablet?: ThemeComponentOverridesUnlocked;
+	desktop?: ThemeComponentOverridesUnlocked;
 };
 
-export function validateTemplatesConfigUnlocked<
-	DefaultSelectors extends string = never,
-	MobileSelectors extends string = never,
-	TabletSelectors extends string = never,
-	DesktopSelectors extends string = never
->(
+export function validateTemplatesConfigUnlocked(
 	config: Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
 		theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
-			overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
+			overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked;
 		};
 	}
 ): SnapTemplatesConfigUnlocked {

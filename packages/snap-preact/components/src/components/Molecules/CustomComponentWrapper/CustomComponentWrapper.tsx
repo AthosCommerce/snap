@@ -30,7 +30,10 @@ export const CustomComponentWrapper = observer((properties: CustomComponentWrapp
 
 	return (
 		<CacheProvider>
-			<div {...styling}>{cloneWithProps(children, { treePath: path, theme: globalTheme })}</div>
+			{/* pass the wrapper's own merged/enriched theme (name, variables, activeBreakpoint,
+			    theme props map) — NOT the raw globalTheme, whose full selector map would be
+			    re-applied by children as parent-injected `props.theme.components` overrides */}
+			<div {...styling}>{cloneWithProps(children, { treePath: path, theme: props.theme })}</div>
 		</CacheProvider>
 	);
 });
