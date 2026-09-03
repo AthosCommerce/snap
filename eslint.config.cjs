@@ -95,4 +95,14 @@ module.exports = [
 			'@typescript-eslint/no-require-imports': 'off',
 		},
 	},
+	{
+		// .cjs files are CommonJS by definition — require() is their import mechanism
+		files: ['**/*.cjs'],
+		languageOptions: {
+			sourceType: 'commonjs',
+		},
+		rules: {
+			'@typescript-eslint/no-require-imports': 'off',
+		},
+	},
 ];
