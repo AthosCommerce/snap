@@ -238,3 +238,21 @@ validateTemplatesConfig({
 		targets: [{ selector: '#x', component: 'Search', zzBogusTargetKey: 1 }],
 	},
 });
+
+// ---- comma-separated selector groups: every part must target one component type ----
+export const mixedSelectorGroup: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'search, searchHorizontal': { hideBottomToolbar: true },
+				'search facets, searchHorizontal facets': { limit: 4 },
+				badgeImage: {
+					$children: {
+						'icon.next, button': {},
+					},
+				},
+			},
+		},
+	},
+};

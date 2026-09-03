@@ -196,6 +196,30 @@ describeSkippedInCI('validate-config: theme override selector/prop typed checks'
 		expect(messages.some((m) => m.message.includes('"theme" is not a valid config key'))).toBe(false);
 	});
 
+	it('flags comma-separated selector groups that mix component types, at top level and inside $children', () => {
+		const messages = lint({ typed: true });
+
+		const topErr = messages.filter((m) => m.message.includes('"search, searchHorizontal" mixes component types'));
+		expect(topErr).toHaveLength(1);
+		expect(topErr[0].message).toContain('search vs searchHorizontal');
+
+		const childErr = messages.filter((m) => m.message.includes('"icon.next, button" mixes component types'));
+		expect(childErr).toHaveLength(1);
+		expect(childErr[0].message).toContain('icon vs button');
+	});
+
+	it('does not flag comma-separated groups that target one component type via different tree paths', () => {
+		const messages = lint({ typed: true });
+
+		expect(messages.some((m) => m.message.includes('"search facets, searchHorizontal facets" mixes'))).toBe(false);
+	});
+
+	it('flags mixed selector groups even WITHOUT typed linting (pure syntax check)', () => {
+		const messages = lint({ typed: false });
+
+		expect(messages.some((m) => m.message.includes('"search, searchHorizontal" mixes component types'))).toBe(true);
+	});
+
 	it('reports nothing from this check when parserOptions.project is not configured (no typed linting available)', () => {
 		const messages = lint({ typed: false });
 

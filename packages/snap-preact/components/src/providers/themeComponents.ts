@@ -108,10 +108,10 @@ type ThemeComponentTemplateUnNamedSelectors<TemplateComponentType extends string
 // Comma-separated selectors: allows combining multiple selectors targeting the same component type (like CSS grouped selectors)
 // e.g. 'recommendation.crosssell icon.prev, recommendation.similar icon.prev'
 // The patterns use `${string}, ` as a prefix to accept any preceding comma-separated selectors.
-// NOTE: nothing statically validates that all comma-separated parts target the same component
-// type - only the final (space/comma-separated) segment drives prop checking, here and in the
-// deferred `ThemeComponentOverridesChecked` pass below. (An earlier comment attributed this
-// validation to the validate-config ESLint rule, but it was never implemented there either.)
+// The deferred `ThemeComponentOverridesChecked` pass below enforces that all comma-separated
+// parts target the same component type (see ThemeSelectorGroupKinds), and the validate-config
+// ESLint rule squiggles violations at the selector; prop checking then resolves against the
+// final (space/comma-separated) segment.
 
 type ThemeComponentOverridesUnNamedSelectors<ComponentType extends string> =
 	| `${ComponentType}`
@@ -619,6 +619,34 @@ type ThemeComponentSelectorSegment<Selector extends string> = Selector extends `
 	: Selector;
 
 type ThemeOverrideUnknownSelector = { 'unknown theme override selector': never };
+type ThemeOverrideMixedSelectorGroup<Kinds> = {
+	'comma-separated selectors must all target the same component type, but this group mixes': Kinds;
+};
+
+/*
+	Comma-separated selector groups (`'search facets, searchHorizontal facets'`) apply one
+	override object to several tree paths, so every part must target the same component
+	type - otherwise there is no single props type the override could be checked (or even
+	authored) against. The "kind" of each part is its final segment's component name
+	(`facet.color` -> `facet`, `toolbar.middle` -> `toolbar`, bare `facets` -> `facets`).
+*/
+type ThemeSelectorTrim<S extends string> = S extends ` ${infer Rest}`
+	? ThemeSelectorTrim<Rest>
+	: S extends `${infer Rest} `
+	? ThemeSelectorTrim<Rest>
+	: S;
+
+type ThemeSelectorSegmentKind<Segment extends string> = Segment extends `${infer ComponentType}.${string}` ? ComponentType : Segment;
+
+// prettier-ignore
+type ThemeSelectorGroupKinds<S extends string> = S extends `${infer Part},${infer Rest}`
+	? ThemeSelectorSegmentKind<ThemeComponentSelectorSegment<ThemeSelectorTrim<Part>>> | ThemeSelectorGroupKinds<ThemeSelectorTrim<Rest>>
+	: ThemeSelectorSegmentKind<ThemeComponentSelectorSegment<ThemeSelectorTrim<S>>>;
+
+type ThemeSelectorUnionToIntersection<U> = (U extends unknown ? (member: U) => void : never) extends (intersection: infer I) => void ? I : never;
+
+// a union of two or more different kind literals intersects to `never`; a single kind is itself
+type ThemeSelectorSingleKind<Kinds> = [Kinds] extends [ThemeSelectorUnionToIntersection<Kinds>] ? true : false;
 type ThemeOverrideInvalidProp<Prop> = { 'invalid prop for this theme override selector': Prop };
 
 // props ThemeStore honors on every override regardless of the targeted component
@@ -721,7 +749,9 @@ type ThemeOverrideChildrenChecked<NamedMap, AllowCustomComponentBag extends bool
 */
 // prettier-ignore
 type ThemeOverrideSelectorChecked<NamedMap, AllowCustomComponentBag extends boolean, Selector extends string, Authored, Mode extends ThemeOverrideCheckMode> =
-	ThemeOverrideSegmentChecked<NamedMap, AllowCustomComponentBag, ThemeComponentSelectorSegment<Selector>, Authored, Mode>;
+	ThemeSelectorSingleKind<ThemeSelectorGroupKinds<Selector>> extends true
+		? ThemeOverrideSegmentChecked<NamedMap, AllowCustomComponentBag, ThemeComponentSelectorSegment<Selector>, Authored, Mode>
+		: ThemeOverrideMixedSelectorGroup<ThemeSelectorGroupKinds<Selector>>;
 
 // prettier-ignore
 type ThemeOverrideSegmentChecked<NamedMap, AllowCustomComponentBag extends boolean, Segment extends string, Authored, Mode extends ThemeOverrideCheckMode> =
