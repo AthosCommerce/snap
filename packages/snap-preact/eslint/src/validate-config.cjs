@@ -28,29 +28,6 @@ const ALWAYS_ALLOWED_OVERRIDE_PROPS = new Set(['$children', 'themeStyleScript'])
 
 const openNamedPropsCacheByProgram = new WeakMap();
 
-/*
-	Test/debug instrumentation: records failures of the typed-check INFRASTRUCTURE
-	(module resolution, constraint acquisition) - the situations where the rule fails
-	open by design. The test suite reads this to distinguish "the environment lost type
-	information" (a known CI-only ts.Program issue - see the typed test file's header)
-	from a real regression (type info available but no report). Deliberately NOT
-	recorded: a type name missing from the components module's exports, so map/type
-	drift still fails tests instead of skipping them. Not part of the rule's public API.
-*/
-const typedCheckInfraFailures = [];
-function recordInfraFailure(kind, detail) {
-	if (typedCheckInfraFailures.length < 100) typedCheckInfraFailures.push({ kind, detail: String(detail) });
-}
-
-// stable per-Program identity, to tell "same program with mutated options" apart from
-// "typescript-eslint rebuilt the program" in the forensics above
-const programIds = new WeakMap();
-let nextProgramId = 1;
-function programIdOf(program) {
-	if (!programIds.has(program)) programIds.set(program, nextProgramId++);
-	return programIds.get(program);
-}
-
 module.exports = {
 	meta: {
 		type: 'problem',
@@ -305,10 +282,7 @@ module.exports = {
 				const sig = calleeType.getCallSignatures && calleeType.getCallSignatures()[0];
 				const typeParams = sig && sig.getTypeParameters && sig.getTypeParameters();
 				const constraint = typeParams && typeParams[0] && typeParams[0].getConstraint();
-				if (!constraint) {
-					recordInfraFailure('constraint-unavailable', callNode.callee && callNode.callee.name);
-					return;
-				}
+				if (!constraint) return;
 
 				const isCheckableShape = (t) => {
 					if (!t || t.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) return false;
@@ -363,9 +337,8 @@ module.exports = {
 				};
 
 				walkObject(configObjectExpression, constraint, 'config root');
-			} catch (err) {
+			} catch {
 				// advisory layer: never let a resolution hiccup break linting
-				recordInfraFailure('exception', err);
 			}
 		}
 
@@ -795,24 +768,8 @@ module.exports = {
 				const ts = require('typescript');
 				const resolved = ts.resolveModuleName('@athoscommerce/snap-preact/components', containingFileName, program.getCompilerOptions(), ts.sys);
 				const resolvedFileName = resolved.resolvedModule && resolved.resolvedModule.resolvedFileName;
-				if (!resolvedFileName) {
-					// forensics for the CI-only paths-loss issue: program identity distinguishes
-					// in-place option mutation from a rebuilt program; the options snapshot shows
-					// whether `paths` is empty or gone; failedLookupLocations show where resolution
-					// actually looked
-					const options = program.getCompilerOptions();
-					recordInfraFailure(
-						'module-resolution',
-						`@athoscommerce/snap-preact/components | program#${programIdOf(program)} | ` +
-							`paths=${options.paths ? Object.keys(options.paths).length + ' entries' : String(options.paths)} | ` +
-							`configFilePath=${options.configFilePath} | ` +
-							`lookedIn=${(resolved.failedLookupLocations || []).slice(0, 3).join(', ') || '(none reported)'}`
-					);
-				}
 				const sourceFile = resolvedFileName && program.getSourceFile(resolvedFileName);
-				if (resolvedFileName && !sourceFile) recordInfraFailure('source-file-missing', resolvedFileName);
 				const moduleSymbol = sourceFile && checker.getSymbolAtLocation(sourceFile);
-				if (sourceFile && !moduleSymbol) recordInfraFailure('module-symbol-missing', resolvedFileName);
 				const exportSymbol = moduleSymbol && checker.getExportsOfModule(moduleSymbol).find((s) => s.name === typeName);
 
 				if (exportSymbol) {
@@ -823,8 +780,7 @@ module.exports = {
 						sourceFile,
 					};
 				}
-			} catch (err) {
-				recordInfraFailure('exception', err);
+			} catch {
 				result = null;
 			}
 
@@ -1134,5 +1090,3 @@ module.exports = {
 		}
 	},
 };
-
-module.exports.__typedCheckInfraFailures = typedCheckInfraFailures;
