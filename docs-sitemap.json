@@ -73,6 +73,10 @@
 			"url": "/snap-foreground-filters",
 			"title": "Foreground Filters"
 		},
+		"docs/SNAP_INTEGRATION_CHECKLIST.md": {
+			"url": "/snap-integration-checklist",
+			"title": "Integration Checklist"
+		},
 		"docs/TEMPLATES_ABOUT.md": {
 			"url": "/templates-about",
 			"title": "About"

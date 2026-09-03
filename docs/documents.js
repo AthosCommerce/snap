@@ -131,6 +131,13 @@ var documents = [
 				url: './docs/SNAP_FOREGROUND_FILTERS.md',
 				searchable: true,
 			},
+			{
+				label: 'Integration Checklist',
+				route: '/snap-integration-checklist',
+				type: 'markdown',
+				url: './docs/SNAP_INTEGRATION_CHECKLIST.md',
+				searchable: true,
+			},
 		],
 	},
 	{
