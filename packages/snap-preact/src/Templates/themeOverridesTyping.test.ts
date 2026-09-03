@@ -296,6 +296,38 @@ typeOnly(() => {
 	});
 	const _anyValueUse: SnapTemplatesConfig = anyValueConfig;
 
+	// comma-separated selector group targeting ONE component type (facets via two tree
+	// paths, icon via bare + named-dotted): valid
+	const sameKindGroupConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'base',
+			overrides: {
+				default: {
+					'search facets, searchHorizontal facets': { limit: 4 },
+					'icon, icon.next': { color: 'red' },
+				},
+			},
+		},
+	});
+	const _sameKindGroupUse: SnapTemplatesConfig = sameKindGroupConfig;
+
+	// comma-separated selector group MIXING component types: there is no single props type
+	// such an override could check against - rejected
+	const mixedKindGroupConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'base',
+			overrides: {
+				default: {
+					'search, searchHorizontal': { hideBottomToolbar: true },
+				},
+			},
+		},
+	});
+	// @ts-expect-error - the group mixes 'search' and 'searchHorizontal'
+	const _mixedKindGroupUse: SnapTemplatesConfig = mixedKindGroupConfig;
+
 	// ---- unlocked family: same contract ----
 
 	// unlocked: same bare-key precision at the literal

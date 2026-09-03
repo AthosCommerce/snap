@@ -57,6 +57,8 @@ module.exports = {
 			unknownOverrideSelector: '"{{ selector }}" is not a valid theme override selector ("{{ segment }}" does not resolve to any component).',
 			unknownOverrideBreakpoint: '"{{ value }}" is not a theme override breakpoint. Must be one of: default, mobile, tablet, desktop.',
 			unknownConfigKey: '"{{ value }}" is not a valid config key at "{{ path }}". Valid keys: {{ validKeys }}.',
+			mixedSelectorGroup:
+				'"{{ selector }}" mixes component types ({{ kinds }}). Comma-separated selectors must all target the same component type, since the override props resolve against that component.',
 		},
 		schema: [],
 	},
@@ -195,6 +197,10 @@ module.exports = {
 			// Validate search/autocomplete tab controller configs
 			validateTabs(init, context);
 
+			// Comma-separated selector groups must target one component type - pure syntax,
+			// so this runs even without typed linting
+			validateSelectorGroupKinds(init, context);
+
 			// ADVISORY typed checks: inline squiggles for bad theme-override selectors and for
 			// bad props under open-named dotted selectors (facet.price, ...). Best-effort - only
 			// runs under typed linting (see getProgramAndChecker) and fails open. Correctness
@@ -203,6 +209,56 @@ module.exports = {
 			// errors at the config's use site; these squiggles exist to pinpoint the exact
 			// offending key at its source location.
 			validateOverrideSelectors(init, context);
+		}
+
+		/**
+		 * A comma-separated selector applies ONE override object to several tree paths, so
+		 * every part must target the same component type (its final segment's component
+		 * name) - otherwise no single props type could validate the override. Mirrors the
+		 * compiler-side ThemeSelectorGroupKinds check (themeComponents.ts); this squiggle is
+		 * the pinpoint version, and needs no type information.
+		 */
+		function validateSelectorGroupKinds(configObjectExpression, context) {
+			const overridesContainer = findOverridesObject(configObjectExpression);
+			if (!overridesContainer) return;
+
+			const walkGroups = (selectorMapObjectExpression) => {
+				for (const prop of selectorMapObjectExpression.properties) {
+					if (prop.type !== 'Property') continue;
+					const selector = getPropertyName(prop);
+
+					if (selector && selector.includes(',')) {
+						const kinds = Array.from(
+							new Set(
+								selector.split(',').map((part) => {
+									const segment = part.trim().split(' ').pop();
+									return segment.split('.')[0];
+								})
+							)
+						);
+						if (kinds.length > 1) {
+							context.report({
+								node: prop.key,
+								messageId: 'mixedSelectorGroup',
+								data: { selector, kinds: kinds.join(' vs ') },
+							});
+						}
+					}
+
+					if (prop.value.type === 'ObjectExpression') {
+						const childrenProp = prop.value.properties.find(
+							(p) => p.type === 'Property' && getPropertyName(p) === '$children' && p.value.type === 'ObjectExpression'
+						);
+						if (childrenProp) walkGroups(childrenProp.value);
+					}
+				}
+			};
+
+			for (const breakpointProp of overridesContainer.properties) {
+				if (breakpointProp.type === 'Property' && breakpointProp.value.type === 'ObjectExpression') {
+					walkGroups(breakpointProp.value);
+				}
+			}
 		}
 
 		/**
