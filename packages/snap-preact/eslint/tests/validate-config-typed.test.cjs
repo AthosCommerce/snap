@@ -31,21 +31,22 @@ function lint({ typed }) {
 	);
 }
 
-// Skipped in CI: passes reliably everywhere else (locally on Node 20/24, clean
-// installs, matched worker counts, a real Linux VM attempt) but deterministically
-// fails 4 of these 10 cases on GH Actions' ubuntu-latest runner, always the same
-// ones, only after ~130-165 of the repo's 211 jest suites have already run.
-// Diagnostic logging traced it to program.getCompilerOptions() on the underlying
-// ts.Program silently losing its tsconfig `paths` partway through the run - but
-// ruled out both leading causes (jest worker concurrency: still fails at
-// --maxWorkers=1, fully serial; and Ubuntu's default inotify instance limit:
-// still fails after raising fs.inotify.max_user_instances well past default).
-// The rule's behavior itself fails open (never false-positives) when type info
-// is unavailable, so this is a test/CI-environment reliability issue, not a bug
-// in validate-config.cjs's logic. Re-enable in CI once the real trigger is found;
-// locally these always run.
-const describeSkippedInCI = process.env.CI ? describe.skip : describe;
-describeSkippedInCI('validate-config: theme override selector/prop typed checks', () => {
+// HISTORY: this suite was previously skipped in CI. It passed reliably everywhere
+// else (locally on Node 20/24, clean installs, matched worker counts, a real Linux
+// VM attempt) but deterministically failed 4 of its then-10 cases on GH Actions'
+// ubuntu-latest runner, always the same ones, only after ~130-165 of the repo's
+// jest suites had already run. Diagnostic logging traced it to
+// program.getCompilerOptions() on the underlying ts.Program silently losing its
+// tsconfig `paths` partway through the run; jest worker concurrency (down to
+// --maxWorkers=1) and Ubuntu's inotify instance limit were both ruled out. The
+// rule itself fails open (never false-positives) without type info, so real lint
+// runs were never affected - see commit 882e3838de for the full trail.
+//
+// RE-ENABLED after the validate-config rewrite to test whether the environment
+// issue persists. If ubuntu-latest starts deterministically failing these again,
+// restore the conditional skip:
+//   const describeSkippedInCI = process.env.CI ? describe.skip : describe;
+describe('validate-config: theme override selector/prop typed checks', () => {
 	it('flags a bad prop on an open-named dotted selector (facet.price), leaves the valid prop alone', () => {
 		const messages = lint({ typed: true });
 
