@@ -261,6 +261,10 @@
 			"url": "/reference-variants",
 			"title": "Variants"
 		},
+		"docs/REFERENCE_CONFIG_VALIDATION.md": {
+			"url": "/reference-config-validation",
+			"title": "Config Validation & Linting"
+		},
 		"docs/REFERENCE_TABBED_SEARCH.md": {
 			"url": "/reference-tabbed-search",
 			"title": "Tabbed Search"

@@ -507,6 +507,13 @@ var documents = [
 				searchable: true,
 			},
 			{
+				label: 'Config Validation & Linting',
+				route: '/reference-config-validation',
+				type: 'markdown',
+				url: './docs/REFERENCE_CONFIG_VALIDATION.md',
+				searchable: true,
+			},
+			{
 				label: 'Tabbed Search',
 				route: '/reference-tabbed-search',
 				type: 'markdown',
