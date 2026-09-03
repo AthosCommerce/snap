@@ -90,7 +90,8 @@ import('./docs/documents.js').then(function (_) {
 				documents,
 				darkMode: localStorage.getItem('darkMode') === 'true',
 				latestVersion: null,
-				versionBannerDismissed: false,
+				showVersionModal: false,
+				versionCommandCopied: false,
 			};
 		},
 		mounted() {
@@ -103,7 +104,11 @@ import('./docs/documents.js').then(function (_) {
 				.then((data) => {
 					if (!data?.version) return;
 					this.latestVersion = data.version;
-					this.versionBannerDismissed = localStorage.getItem('versionBannerDismissed') === data.version;
+					if (localStorage.getItem('versionModalDismissed') !== data.version) {
+						setTimeout(() => {
+							this.showVersionModal = true;
+						}, 2000);
+					}
 				})
 				.catch(() => {
 					// silently ignore - banner just won't show if the registry is unreachable
@@ -119,9 +124,17 @@ import('./docs/documents.js').then(function (_) {
 					document.body.classList.remove('dark-mode');
 				}
 			},
-			dismissVersionBanner() {
-				this.versionBannerDismissed = true;
-				localStorage.setItem('versionBannerDismissed', this.latestVersion);
+			dismissVersionModal() {
+				this.showVersionModal = false;
+				localStorage.setItem('versionModalDismissed', this.latestVersion);
+			},
+			copyVersionCommand() {
+				navigator.clipboard.writeText('npm install @athoscommerce/snap-preact@latest').then(() => {
+					this.versionCommandCopied = true;
+					setTimeout(() => {
+						this.versionCommandCopied = false;
+					}, 1500);
+				});
 			},
 		},
 		computed: {
@@ -153,16 +166,13 @@ import('./docs/documents.js').then(function (_) {
 			},
 		},
 		template: `
-            <div id="version-banner" v-if="latestVersion && !versionBannerDismissed">
+            <div id="version-banner" v-if="latestVersion">
                 <span>
                     <i class="fas fa-bolt"></i>
                     Snap is on version {{ latestVersion }} — run <code>npm install @athoscommerce/snap-preact@latest</code> to get the latest updates.
                 </span>
-                <button @click="dismissVersionBanner" title="Dismiss">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
-            <div id="app-body" :class="{ 'has-version-banner': latestVersion && !versionBannerDismissed }">
+            <div id="app-body" :class="{ 'has-version-banner': latestVersion }">
                 <Navigation :documents="documents"></Navigation>
 
                 <div id="content-wrapper">
@@ -174,6 +184,22 @@ import('./docs/documents.js').then(function (_) {
                     </button>
                 </div>
                 <div id="ac-overlay"></div>
+            </div>
+            <div id="version-modal-overlay" v-if="showVersionModal" @click.self="dismissVersionModal">
+                <div id="version-modal">
+                    <button id="version-modal-close" @click="dismissVersionModal" title="Dismiss">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <i class="fas fa-bolt"></i>
+                    <h3>Snap {{ latestVersion }} is available</h3>
+                    <p>Run the following to update to the latest version:</p>
+                    <div class="version-modal-code-wrapper">
+                        <code>npm install @athoscommerce/snap-preact@latest</code>
+                        <button type="button" class="copy-code-button" :class="{ copied: versionCommandCopied }" title="Copy to clipboard" @click="copyVersionCommand">
+                            <i :class="versionCommandCopied ? 'fas fa-check' : 'fas fa-copy'"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         `,
 	};

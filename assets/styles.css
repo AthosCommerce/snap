@@ -114,19 +114,6 @@ table td {
 	border-radius: 3px;
 }
 
-#version-banner button {
-	flex-shrink: 0;
-	border: none;
-	background: transparent;
-	color: inherit;
-	opacity: 0.75;
-	cursor: pointer;
-}
-
-#version-banner button:hover {
-	opacity: 1;
-}
-
 @media only screen and (min-width: 768px) {
 	#app-body.has-version-banner #navigation-wrapper {
 		height: calc(100vh - var(--banner-height));
@@ -137,6 +124,75 @@ table td {
 		top: var(--banner-height);
 		height: calc(100% - var(--banner-height));
 	}
+}
+
+#version-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgb(0 0 0 / 50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+
+#version-modal {
+	position: relative;
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+	border-radius: 8px;
+	box-shadow: 0 4px 24px var(--shadow-color);
+	padding: 2em;
+	max-width: 340px;
+	text-align: center;
+}
+
+#version-modal .fa-bolt {
+	color: var(--athos-primary);
+	font-size: 1.8em;
+}
+
+#version-modal h3 {
+	margin: 0.4em 0;
+}
+
+#version-modal p {
+	color: var(--text-secondary);
+	margin: 0 0 1em;
+}
+
+.version-modal-code-wrapper {
+	position: relative;
+}
+
+.version-modal-code-wrapper .copy-code-button {
+	opacity: 1;
+}
+
+#version-modal code {
+	display: block;
+	background-color: var(--code-bg);
+	color: var(--text-primary);
+	padding: 0.6em 2.2em 0.6em 0.8em;
+	border-radius: 4px;
+	font-size: 0.9em;
+	text-align: left;
+	overflow-x: auto;
+}
+
+#version-modal-close {
+	position: absolute;
+	top: 0.6em;
+	right: 0.6em;
+	border: none;
+	background: transparent;
+	color: var(--text-secondary);
+	opacity: 0.75;
+	cursor: pointer;
+}
+
+#version-modal-close:hover {
+	opacity: 1;
 }
 
 #header {
