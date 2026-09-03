@@ -42,8 +42,10 @@ function lint({ typed }) {
 // still fails after raising fs.inotify.max_user_instances well past default).
 // The rule's behavior itself fails open (never false-positives) when type info
 // is unavailable, so this is a test/CI-environment reliability issue, not a bug
-// in validate-config.cjs's logic. Re-enable once the real trigger is found.
-describe.skip('validate-config: open-named dotted selector props (typed linting)', () => {
+// in validate-config.cjs's logic. Re-enable in CI once the real trigger is found;
+// locally these always run.
+const describeSkippedInCI = process.env.CI ? describe.skip : describe;
+describeSkippedInCI('validate-config: theme override selector/prop typed checks', () => {
 	it('flags a bad prop on an open-named dotted selector (facet.price), leaves the valid prop alone', () => {
 		const messages = lint({ typed: true });
 
@@ -108,13 +110,102 @@ describe.skip('validate-config: open-named dotted selector props (typed linting)
 		expect(messages.some((m) => m.message.includes('$children'))).toBe(false);
 	});
 
+	it('flags an unknown selector at the top level of a breakpoint', () => {
+		const messages = lint({ typed: true });
+
+		const errors = messages.filter((m) => m.message.includes('"nopeTopLevel"'));
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('is not a valid theme override selector');
+	});
+
+	it("flags an unknown selector inside a NAMED selector's $children", () => {
+		const messages = lint({ typed: true });
+
+		const errors = messages.filter((m) => m.message.includes('"nopeChild"'));
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('is not a valid theme override selector');
+	});
+
+	it('does not flag valid named selectors nested under named $children (and leaves their props to TS)', () => {
+		const messages = lint({ typed: true });
+
+		expect(messages.some((m) => m.message.includes('badgeRectangle') || m.message.includes('badgeImage'))).toBe(false);
+	});
+
+	it('does not flag template open-named pattern selectors (search.tabbed)', () => {
+		const messages = lint({ typed: true });
+
+		expect(messages.some((m) => m.message.includes('search.tabbed'))).toBe(false);
+	});
+
+	it("flags an unknown selector inside an open-named selector's $children (blind region)", () => {
+		const messages = lint({ typed: true });
+
+		const errors = messages.filter((m) => m.message.includes('"nopeBlind"'));
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('is not a valid theme override selector');
+	});
+
+	it('flags an unknown prop KEY on a named selector, even next to a valid sibling prop', () => {
+		const messages = lint({ typed: true });
+
+		const errors = messages.filter((m) => m.message.includes('definitelyNotARealResultProp'));
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('is not a valid prop');
+		expect(errors[0].message).toContain('hideQuickviewButton'); // listed as a valid option
+	});
+
+	it('does not flag the valid sibling prop itself', () => {
+		const messages = lint({ typed: true });
+
+		// (a pre-existing fixture legitimately reports `"hideQuickviewButton" ... expects type` for a
+		// bad VALUE in a blind region - only a bad-KEY report on it would be a false positive here)
+		expect(messages.some((m) => m.message.includes('"hideQuickviewButton" is not a valid prop'))).toBe(false);
+	});
+
+	it('flags an unknown breakpoint key, and only that key', () => {
+		const messages = lint({ typed: true });
+
+		const errors = messages.filter((m) => m.message.includes('nopeBreakpoint'));
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('is not a theme override breakpoint');
+		expect(messages.some((m) => m.message.includes('"default"'))).toBe(false);
+	});
+
+	it('flags unknown config keys at the root, section, and array-element levels with their paths', () => {
+		const messages = lint({ typed: true });
+
+		const rootErr = messages.filter((m) => m.message.includes('zzBogusRootKey'));
+		expect(rootErr).toHaveLength(1);
+		expect(rootErr[0].message).toContain('"config root"');
+		expect(rootErr[0].message).toContain('theme'); // valid keys listed
+
+		const sectionErr = messages.filter((m) => m.message.includes('zzBogusSearchKey'));
+		expect(sectionErr).toHaveLength(1);
+		expect(sectionErr[0].message).toContain('"search"');
+
+		const elementErr = messages.filter((m) => m.message.includes('zzBogusTargetKey'));
+		expect(elementErr).toHaveLength(1);
+		expect(elementErr[0].message).toContain('"search.targets[0]"');
+	});
+
+	it('does not flag valid config keys in the call-style fixture', () => {
+		const messages = lint({ typed: true });
+
+		expect(messages.some((m) => m.message.includes('"targets" is not a valid config key'))).toBe(false);
+		expect(messages.some((m) => m.message.includes('"theme" is not a valid config key'))).toBe(false);
+	});
+
 	it('reports nothing from this check when parserOptions.project is not configured (no typed linting available)', () => {
 		const messages = lint({ typed: false });
 
-		// the file is still linted (untyped parts of the rule still run) but the open-named
-		// prop check must silently no-op rather than false-positive or crash without type info
+		// the file is still linted (untyped parts of the rule still run) but the typed checks
+		// must silently no-op rather than false-positive or crash without type info
 		expect(messages.some((m) => m.message.includes('is not a valid prop for the'))).toBe(false);
 		expect(messages.some((m) => m.message.includes('expects type'))).toBe(false);
+		expect(messages.some((m) => m.message.includes('is not a valid theme override selector'))).toBe(false);
+		expect(messages.some((m) => m.message.includes('is not a theme override breakpoint'))).toBe(false);
+		expect(messages.some((m) => m.message.includes('is not a valid config key'))).toBe(false);
 	});
 
 	it('completes in well under a second, even on first (cold) Program creation', () => {
