@@ -15,6 +15,7 @@ import { SelectProps } from '../components/Molecules/Select';
 import { mergeProps } from './mergeProps';
 
 const THEME_PROPS_MAP_SYMBOL = Symbol.for('__themePropsMap__');
+const STORYBOOK_ARGS_PROPS_MAP_SYMBOL = Symbol.for('__storybookArgsPropsMap__');
 
 describe('mergeProps final respread exception for customComponent treePaths (mergeProps.ts applyFinalRespreadExceptions())', () => {
 	const componentType = 'button';
@@ -212,6 +213,156 @@ describe('mergeProps final respread exception for storybook treePaths (mergeProp
 		// (startsWith('storybook ')), so lookalike first segments no longer match
 		expect(props.treePath).toBe('storybooks select');
 		expect(props.separator).toBe('theme');
+	});
+
+	it('records the root args into the args map on the enriched theme; the theme props map stays theme-owned', () => {
+		const properties: Partial<SelectProps> = {
+			separator: 'props',
+			treePath: 'storybook',
+		};
+		// @ts-ignore - plain object globalTheme
+		const props = mergeProps(componentType, globalTheme as Theme, {}, properties);
+
+		// the args map carries the story-authored values to children (treePath is positional
+		// and never recorded)…
+		const argsMap = (props.theme as any)[STORYBOOK_ARGS_PROPS_MAP_SYMBOL];
+		expect(argsMap).toBeInstanceOf(Map);
+		expect(argsMap.get('separator')).toBe('props');
+		expect(argsMap.has('treePath')).toBe(false);
+
+		// …while the theme props map keeps only theme-derived provenance
+		const themeMap = (props.theme as any)[THEME_PROPS_MAP_SYMBOL];
+		expect(themeMap.get('separator')).toBe('theme');
+	});
+
+	it('theme-derived forwards defer to a specific selector at depth, as in production', () => {
+		// mirrors the pike facet scenario: '*facet' sets iconCollapse, Facet forwards that
+		// theme-derived value to its Icon as `icon` (renamed forwarding), and a specific
+		// selector targets the icon directly — the forwarded value has no arg provenance
+		// (the story set no args), so T2's specific-selector guard resolves it exactly as it
+		// does in an integration.
+		const facetTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*facet': { iconCollapse: 'chevron-down' },
+				'*facet dropdown icon.collapse': { icon: 'ban', fill: 'blue' },
+			},
+		};
+		// @ts-ignore - plain object globalTheme and untyped facet props
+		const facetResult: any = mergeProps('facet', facetTheme as Theme, {}, { treePath: 'storybook' });
+		expect(facetResult.iconCollapse).toBe('chevron-down');
+
+		// child (icon) receives the forwarded theme-derived value plus an explicit undefined
+		// fill, the way Facet builds subProps.icon (`fill: iconColor || color`)
+		// @ts-ignore - untyped icon props
+		const iconResult = mergeProps(
+			'icon',
+			facetTheme as Theme,
+			{},
+			{
+				treePath: `${facetResult.treePath} dropdown`,
+				theme: facetResult.theme,
+				icon: facetResult.iconCollapse,
+				fill: undefined,
+				name: 'collapse',
+			}
+		);
+
+		expect(iconResult.treePath).toBe('storybook facet dropdown icon.collapse');
+		expect((iconResult as any).icon).toBe('ban');
+		expect((iconResult as any).fill).toBe('blue');
+	});
+
+	it('forwarded root args keep the final say at depth — beating base AND specific selectors', () => {
+		const facetTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*facet': { iconCollapse: 'chevron-down' },
+				'*icon': { icon: 'base-icon' },
+				'*facet dropdown icon.collapse': { icon: 'ban', fill: 'blue' },
+			},
+		};
+		// the story root authors iconCollapse and iconColor (controls/args): they win at the
+		// root AND are recorded in the args map on the enriched theme
+		// @ts-ignore - plain object globalTheme and untyped facet props
+		const facetResult: any = mergeProps(
+			'facet',
+			facetTheme as Theme,
+			{},
+			{
+				treePath: 'storybook',
+				iconCollapse: 'eye',
+				iconColor: '#23751e',
+			}
+		);
+		expect(facetResult.iconCollapse).toBe('eye');
+
+		// an icon with only a base selector match: the forwarded arg wins (cross-key match
+		// against the args map)
+		// @ts-ignore - untyped icon props
+		const overflowIcon = mergeProps(
+			'icon',
+			facetTheme as Theme,
+			{},
+			{
+				treePath: facetResult.treePath,
+				theme: facetResult.theme,
+				icon: facetResult.iconCollapse,
+				name: 'overflow',
+			}
+		);
+		expect((overflowIcon as any).icon).toBe('eye');
+
+		// an icon with a specific selector match: SET controls still win — the user explicitly
+		// asked for these values, so they beat the theme's sub-component pin (both the renamed
+		// icon forward and the renamed iconColor → fill forward)
+		// @ts-ignore - untyped icon props
+		const collapseIcon = mergeProps(
+			'icon',
+			facetTheme as Theme,
+			{},
+			{
+				treePath: `${facetResult.treePath} dropdown`,
+				theme: facetResult.theme,
+				icon: facetResult.iconCollapse,
+				fill: facetResult.iconColor,
+				name: 'collapse',
+			}
+		);
+		expect((collapseIcon as any).icon).toBe('eye');
+		expect((collapseIcon as any).fill).toBe('#23751e');
+	});
+
+	it('same-key forwarded root args of any type (numbers/booleans) win back over base selectors', () => {
+		const panelTheme = {
+			type: 'templates',
+			name: GLOBAL_THEME_NAME,
+			components: {
+				'*row': { gap: 2, wrap: true },
+			},
+		};
+		// numbers/booleans never match cross-key, but same-key forwarding still proves
+		// provenance against the root's args map
+		// @ts-ignore - plain object globalTheme and untyped props
+		const panelResult: any = mergeProps('panel', panelTheme as Theme, {}, { treePath: 'storybook', gap: 5, wrap: false });
+
+		// @ts-ignore - untyped props
+		const rowResult = mergeProps(
+			'row',
+			panelTheme as Theme,
+			{},
+			{
+				treePath: panelResult.treePath,
+				theme: panelResult.theme,
+				gap: 5,
+				wrap: false,
+			}
+		);
+
+		expect((rowResult as any).gap).toBe(5);
+		expect((rowResult as any).wrap).toBe(false);
 	});
 });
 
