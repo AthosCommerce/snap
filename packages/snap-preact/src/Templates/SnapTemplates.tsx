@@ -11,7 +11,15 @@ import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerSto
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
-import type { ThemeComponentOverrides, ThemeComponentOverridesUnlocked } from '../../components/src/providers/themeComponents';
+import type {
+	ThemeComponentOverrides,
+	ThemeComponentOverridesUnlocked,
+	ThemeComponentOverridesChecked,
+	ThemeComponentOverridesCheckedUnlocked,
+	ThemeComponentOverridesValid,
+	ThemeComponentOverridesValidUnlocked,
+	ThemeComponentOverridesErrors,
+} from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { ClientGlobals } from '@athoscommerce/snap-client';
 import type { TrackerGlobals } from '@athoscommerce/snap-tracker';
@@ -91,12 +99,15 @@ export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 // `ThemeComponentOverrides` alias - fast for the editor (real-time key/prop completions,
 // no generic inference), and precise for every selector EXCEPT the dotted/open-named form
 // of a handful of component types (`facet.<custom>`, `recommendation.<custom>`, etc.),
-// which resolve to `unknown` here since their suffix isn't a known finite union. Bad props
-// on THOSE specific selectors are instead caught by the `validate-config` ESLint rule
-// (typed linting, not the TS compiler). The generic `ThemeComponentsRestrictedSelectors<Selectors>`
-// approach this replaced gave full precision but cost ~1.5s of editor completion latency
-// per keystroke, dominated by generic inference over the large, template-literal-heavy
-// selector pattern types in themeComponents.ts.
+// which resolve to `unknown` here since their suffix isn't a known finite union. An earlier
+// version resolved those precisely IN this authoring signature (a generic
+// `ThemeComponentsRestrictedSelectors<Selectors>` intersection), which worked but cost
+// ~1.5s of editor completion latency per keystroke: the expensive generic was the
+// contextual type of the literal being edited, so the language service re-instantiated it
+// synchronously on every completion request. The precision now lives in
+// `validateTemplatesConfig`'s conditional RETURN type, which applies
+// `ThemeComponentOverridesChecked` to the inferred `T` - evaluated during diagnostics,
+// off the completion path.
 type SnapTemplatesConfigThemeOverridesTyped = {
 	default?: ThemeComponentOverrides;
 	mobile?: ThemeComponentOverrides;
@@ -104,13 +115,160 @@ type SnapTemplatesConfigThemeOverridesTyped = {
 	desktop?: ThemeComponentOverrides;
 };
 
-export function validateTemplatesConfig(
-	config: Omit<SnapTemplatesConfig, 'theme'> & {
-		theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
-			overrides?: SnapTemplatesConfigThemeOverridesTyped;
-		};
-	}
-): SnapTemplatesConfig {
+type SnapTemplatesConfigInput = Omit<SnapTemplatesConfig, 'theme'> & {
+	theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
+		overrides?: SnapTemplatesConfigThemeOverridesTyped;
+	};
+};
+
+// NOTE: when the authored theme has no `overrides` key at all, `T['theme']['overrides']`
+// resolves to `unknown` through the constraint (not `undefined`) - guard on key presence,
+// or every overrides-less config would fail the validity test (found by audit probing).
+type ThemeOverridesOf<T extends { theme: { overrides?: unknown } }> = 'overrides' extends keyof T['theme']
+	? Exclude<T['theme']['overrides'], undefined>
+	: never;
+
+/*
+	Error carriers for an invalid config: deliberately NOT assignable to
+	`SnapTemplatesConfig`/`SnapTemplatesConfigUnlocked`, so a config with bad override props
+	or unknown keys errors at its use site (`new SnapTemplates(config)`), and the failing
+	entries are embedded right in the reported type.
+*/
+type InvalidThemeOverrides<Errors> = {
+	'theme.overrides contains invalid props for these selectors (hover for the expected shapes)': Errors;
+};
+type InvalidConfigKeys<Errors> = {
+	'the config contains unknown keys (hover to see them, nested under their paths)': Errors;
+};
+
+/*
+	TS displays alias instantiations UNEVALUATED in error messages
+	(`ThemeComponentOverridesErrors<{...giant...}, ...>` with the verdict elided), which
+	makes the error carrier useless to read. Mapping the computed errors through this
+	depth-bounded expansion forces the actual failing keys into the printed type, while
+	leaving leaf values (expected component shapes) as compact alias references.
+*/
+// prettier-ignore
+type ExpandErrors<T, Depth extends unknown[] = [0, 0, 0]> = Depth extends [unknown, ...infer Rest]
+	? T extends object
+		? { [K in keyof T]: ExpandErrors<T[K], Rest> }
+		: T
+	: T;
+
+/*
+	Unknown-KEY checking for the rest of the config (everything except `theme.overrides`,
+	which the selector-aware `ThemeComponentOverridesChecked` owns). Needed because excess
+	property checking does not survive the generic call: inference hands the constraint
+	check a non-fresh type, so `config: { platform: 'other', bogusKey: 1 }` passes plain
+	assignability silently (TS's weak-type rule only catches a literal sharing NO props
+	with its target). Value types are NOT re-checked here - constraint assignability
+	already covers those.
+
+	The walk is deliberately conservative (fail-open): it only descends where the EXPECTED
+	type is a single, finite-keyed object shape (or an array of one). Unions (keyof would
+	collapse to the common-key subset - too strict), index-signed types (any key is legal,
+	e.g. `components.*`), functions, and `any`/`unknown` are all skipped rather than guessed
+	at - a missed key can never become a false error on valid config.
+*/
+type UnionToIntersection<U> = (U extends any ? (u: U) => void : never) extends (i: infer I) => void ? I : never;
+
+// "no unknown keys found" sentinel: `keyof` of it is `never`, which is all the emptiness
+// tests below look at (`{}` would mean the same here but trips no-empty-object-type)
+type ConfigKeysClean = object;
+
+// prettier-ignore
+type ConfigKeyCheckableShape<E> = [E] extends [object]
+	? E extends (...args: any) => any
+		? false
+		: E extends readonly any[]
+			? false
+			: string extends keyof E
+				? false
+				: [E] extends [UnionToIntersection<E>]
+					? true
+					: false
+	: false;
+
+// prettier-ignore
+type ConfigUnknownKeyErrorsIn<Expected, Authored> = {
+	[K in keyof Authored as ConfigKeyErrorFor<Expected, Authored, K> extends never ? never : K]: ConfigKeyErrorFor<Expected, Authored, K>;
+};
+
+// prettier-ignore
+type ConfigKeyErrorFor<Expected, Authored, K extends keyof Authored> =
+	K extends keyof Expected
+		? ConfigNestedErrors<NonNullable<Expected[K]>, NonNullable<Authored[K]>> extends infer Nested
+			? [keyof Nested] extends [never]
+				? never
+				: Nested
+			: never
+		: { 'unknown config key': K };
+
+// prettier-ignore
+type ConfigNestedErrors<E, A> =
+	unknown extends A
+		? ConfigKeysClean // an `any`/`unknown`-typed authored value: nothing checkable (mapping over `any` would flag every key)
+		: ConfigKeyCheckableShape<E> extends true
+		? [A] extends [readonly any[]]
+			? ConfigKeysClean // authored array where an object is expected - a value mismatch, TS's job
+			: A extends object
+				? ConfigUnknownKeyErrorsIn<E, A>
+				: ConfigKeysClean
+		: E extends readonly (infer Element)[]
+			? ConfigKeyCheckableShape<Element> extends true
+				? A extends readonly any[]
+					? ConfigArrayErrors<Element, A>
+					: ConfigKeysClean
+				: ConfigKeysClean
+			: ConfigKeysClean;
+
+// per-element errors, merged so the emptiness test sees every element's keys
+// prettier-ignore
+type ConfigArrayErrors<Element, A extends readonly any[]> =
+	UnionToIntersection<{ [I in keyof A]: ConfigNestedErrors<Element, NonNullable<A[I]>> }[number]>;
+
+// prettier-ignore
+type ConfigUnknownKeyErrors<Input extends { theme: unknown }, T extends { theme: unknown }> = ConfigUnknownKeyErrorsIn<
+	Omit<Input, 'theme'> & { theme: Omit<Input['theme'] & object, 'overrides'> },
+	Omit<T, 'theme'> & { theme: Omit<T['theme'] & object, 'overrides'> }
+>;
+
+/*
+	The parameter stays a bare `T` so authoring stays fast: completions inside the literal
+	come from the non-generic CONSTRAINT (`SnapTemplatesConfigInput`), and constraint
+	assignability checks the VALUE type of every known prop at any depth. What it canNOT
+	catch is unknown KEYS: excess property checking does not survive the generic call at all
+	(inference hands the constraint check a non-fresh type; TS's weak-type rule only rejects
+	a literal sharing NO props with its target, so a typo'd key next to one valid sibling
+	passes silently - verified empirically). All key checking is therefore enforced by the
+	conditional RETURN type: valid configs keep their own type `T`; invalid ones collapse to
+	an error carrier and fail where the config is used. Three layers: (1) full prop checking
+	under open-named dotted selectors like `facet.price` (typed `unknown` in the constraint),
+	(2) selector-key and prop-KEY existence across all of theme.overrides, and (3) unknown
+	keys across the rest of the config (conservative walk - see ConfigUnknownKeyErrors). See
+	ThemeOverrideCheckMode in themeComponents.ts for the overrides division of labor.
+
+	The return type is the ONE place this check can live without an API or latency cost.
+	Putting it in the parameter (`T & Checked<T>`) makes it the literal's contextual type,
+	which the language service re-instantiates on every completion request - measured at
+	~1240ms/keystroke vs ~445ms on a realistic ~40-selector config, recreating the original
+	~1.5s problem. Return types are only computed when the CALL is checked (diagnostics,
+	off the completion path), and diagnostics run debounced and async in editors.
+*/
+// prettier-ignore
+export function validateTemplatesConfig<T extends SnapTemplatesConfigInput>(
+	config: T
+): ThemeComponentOverridesValid<ThemeOverridesOf<T>> extends true
+	? [keyof ConfigUnknownKeyErrors<SnapTemplatesConfigInput, T>] extends [never]
+		? T
+		: ConfigUnknownKeyErrors<SnapTemplatesConfigInput, T> extends infer Errors // `infer` + ExpandErrors force readable error display
+			? InvalidConfigKeys<ExpandErrors<Errors, [0, 0, 0, 0, 0, 0]>>
+			: never
+	: ThemeComponentOverridesErrors<ThemeOverridesOf<T>, ThemeComponentOverridesChecked<ThemeOverridesOf<T>>> extends infer Errors
+		? InvalidThemeOverrides<ExpandErrors<Errors>>
+		: never;
+// implementation signature (invisible to callers): `any` keeps it compatible with the conditional overload
+export function validateTemplatesConfig(config: SnapTemplatesConfigInput): any {
 	return config;
 }
 
@@ -121,13 +279,26 @@ type SnapTemplatesConfigThemeOverridesTypedUnlocked = {
 	desktop?: ThemeComponentOverridesUnlocked;
 };
 
-export function validateTemplatesConfigUnlocked(
-	config: Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
-		theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
-			overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked;
-		};
-	}
-): SnapTemplatesConfigUnlocked {
+type SnapTemplatesConfigInputUnlocked = Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
+	theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
+		overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked;
+	};
+};
+
+// prettier-ignore
+export function validateTemplatesConfigUnlocked<T extends SnapTemplatesConfigInputUnlocked>(
+	config: T
+): ThemeComponentOverridesValidUnlocked<ThemeOverridesOf<T>> extends true
+	? [keyof ConfigUnknownKeyErrors<SnapTemplatesConfigInputUnlocked, T>] extends [never]
+		? T
+		: ConfigUnknownKeyErrors<SnapTemplatesConfigInputUnlocked, T> extends infer Errors
+			? InvalidConfigKeys<ExpandErrors<Errors, [0, 0, 0, 0, 0, 0]>>
+			: never
+	: ThemeComponentOverridesErrors<ThemeOverridesOf<T>, ThemeComponentOverridesCheckedUnlocked<ThemeOverridesOf<T>>> extends infer Errors
+		? InvalidThemeOverrides<ExpandErrors<Errors>>
+		: never;
+// implementation signature (invisible to callers): `any` keeps it compatible with the conditional overload
+export function validateTemplatesConfigUnlocked(config: SnapTemplatesConfigInputUnlocked): any {
 	return config;
 }
 

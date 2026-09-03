@@ -87,7 +87,12 @@ import('./docs/documents.js').then(function (_) {
 			{ a: '(https://github.com/athoscommerce/snap/tree/main/packages/snap-platforms/magento2)', b: '(./reference-platforms-magento2)' },
 			{ a: '(https://github.com/athoscommerce/snap/tree/main/packages/snap-platforms/bigcommerce)', b: '(./reference-platforms-bigcommerce)' },
 
-			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md)', b: '(./templates-theming)' },
+			// prefix entries (no closing paren) so both plain and #anchored links map
+			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md', b: '(./templates-theming' },
+			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md', b: '(./templates-config' },
+			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO.md', b: '(./templates-how-tos' },
+			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md', b: '(./reference-config-validation' },
+			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md', b: '(./reference-tabbed-search' },
 
 			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)', b: '(./reference-variants)' },
 			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md)', b: '(./templates-about)' },

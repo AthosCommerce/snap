@@ -54,6 +54,11 @@ module.exports = {
 				'"{{ value }}" is not a valid prop for the "{{ selector }}" override ({{ componentType }} resolves to {{ typeName }}). Must be one of: {{ validKeys }}.',
 			invalidOpenNamedSelectorPropType:
 				'"{{ value }}" on the "{{ selector }}" override ({{ typeName }}) expects type {{ expectedType }}, but got {{ actualType }}.',
+			unknownOverrideSelector: '"{{ selector }}" is not a valid theme override selector ("{{ segment }}" does not resolve to any component).',
+			unknownOverrideBreakpoint: '"{{ value }}" is not a theme override breakpoint. Must be one of: default, mobile, tablet, desktop.',
+			unknownConfigKey: '"{{ value }}" is not a valid config key at "{{ path }}". Valid keys: {{ validKeys }}.',
+			mixedSelectorGroup:
+				'"{{ selector }}" mixes component types ({{ kinds }}). Comma-separated selectors must all target the same component type, since the override props resolve against that component.',
 		},
 		schema: [],
 	},
@@ -83,6 +88,11 @@ module.exports = {
 				if (!configArg || configArg.type !== 'ObjectExpression') return;
 
 				validateConfigObject(configArg, context);
+
+				// unknown-key squiggles for the rest of the config (excess property checking
+				// does not survive the generic call, so the compiler only reports these at the
+				// config's use site - this pinpoints the offending key). Typed linting only.
+				validateConfigKeys(node, configArg, context);
 			},
 
 			// Find inline configs passed directly to new SnapTemplates({...}) / new SnapHybrid({...})
@@ -187,33 +197,192 @@ module.exports = {
 			// Validate search/autocomplete tab controller configs
 			validateTabs(init, context);
 
-			// Validate props on open-named dotted selectors (facet.price, recommendation.foo, ...) -
-			// best-effort, only runs under typed linting (see getProgramAndChecker)
-			validateOpenNamedSelectorProps(init, context);
+			// Comma-separated selector groups must target one component type - pure syntax,
+			// so this runs even without typed linting
+			validateSelectorGroupKinds(init, context);
+
+			// ADVISORY typed checks: inline squiggles for bad theme-override selectors and for
+			// bad props under open-named dotted selectors (facet.price, ...). Best-effort - only
+			// runs under typed linting (see getProgramAndChecker) and fails open. Correctness
+			// does not depend on this: the compiler enforces the same rules through
+			// validateTemplatesConfig's conditional return type (see SnapTemplates.tsx), which
+			// errors at the config's use site; these squiggles exist to pinpoint the exact
+			// offending key at its source location.
+			validateOverrideSelectors(init, context);
 		}
 
 		/**
-		 * `theme.overrides.default/mobile/tablet/desktop` selectors that dot into one of
-		 * OPEN_NAMED_COMPONENT_PROPS_TYPE's component types (e.g. `facet.price`) resolve to
-		 * an unchecked `unknown` in the TS types (see SnapTemplates.tsx for why) - and because
-		 * the WHOLE value is `unknown`, so is everything nested under its `$children` cascade,
-		 * even selectors (like a bare `icon`) that would otherwise be fully precise. This walks
-		 * those override objects, checks each one's authored props against the REAL props type
-		 * for its component (resolved live via the type checker - nothing here duplicates
-		 * FacetTemplatesLegalProps etc.), and recurses into `$children` with the same treatment
-		 * for as long as we stay inside a region TypeScript has already given up on.
-		 *
-		 * Deliberately does NOT walk selectors TypeScript still checks correctly (i.e. does not
-		 * recurse into `$children` unless we're already inside an open-named-dotted selector) -
-		 * that would duplicate `tsc`'s own errors for no benefit.
-		 *
-		 * Silently does nothing when typed linting isn't configured (no parserServices.program) -
-		 * this check is an optional, additive safety net, not a requirement to use the config
-		 * validation this rule already does without any type information.
+		 * A comma-separated selector applies ONE override object to several tree paths, so
+		 * every part must target the same component type (its final segment's component
+		 * name) - otherwise no single props type could validate the override. Mirrors the
+		 * compiler-side ThemeSelectorGroupKinds check (themeComponents.ts); this squiggle is
+		 * the pinpoint version, and needs no type information.
 		 */
-		function validateOpenNamedSelectorProps(configObjectExpression, context) {
+		function validateSelectorGroupKinds(configObjectExpression, context) {
+			const overridesContainer = findOverridesObject(configObjectExpression);
+			if (!overridesContainer) return;
+
+			const walkGroups = (selectorMapObjectExpression) => {
+				for (const prop of selectorMapObjectExpression.properties) {
+					if (prop.type !== 'Property') continue;
+					const selector = getPropertyName(prop);
+
+					if (selector && selector.includes(',')) {
+						const kinds = Array.from(
+							new Set(
+								selector.split(',').map((part) => {
+									const segment = part.trim().split(' ').pop();
+									return segment.split('.')[0];
+								})
+							)
+						);
+						if (kinds.length > 1) {
+							context.report({
+								node: prop.key,
+								messageId: 'mixedSelectorGroup',
+								data: { selector, kinds: kinds.join(' vs ') },
+							});
+						}
+					}
+
+					if (prop.value.type === 'ObjectExpression') {
+						const childrenProp = prop.value.properties.find(
+							(p) => p.type === 'Property' && getPropertyName(p) === '$children' && p.value.type === 'ObjectExpression'
+						);
+						if (childrenProp) walkGroups(childrenProp.value);
+					}
+				}
+			};
+
+			for (const breakpointProp of overridesContainer.properties) {
+				if (breakpointProp.type === 'Property' && breakpointProp.value.type === 'ObjectExpression') {
+					walkGroups(breakpointProp.value);
+				}
+			}
+		}
+
+		/**
+		 * Unknown-key squiggles across the config, mirroring the compiler-side
+		 * `ConfigUnknownKeyErrors` walk (see SnapTemplates.tsx) with the same conservative,
+		 * fail-open guards: only descend where the EXPECTED type is a single, finite-keyed,
+		 * non-callable object shape (or an array of one); skip unions, index-signed types,
+		 * functions and any/unknown. `theme.overrides` is skipped - the selector-aware walk
+		 * below owns it.
+		 */
+		function validateConfigKeys(callNode, configObjectExpression, context) {
+			const programAndChecker = getProgramAndChecker(context);
+			if (!programAndChecker || !programAndChecker.esTreeNodeToTSNodeMap) return;
+			const { checker, esTreeNodeToTSNodeMap } = programAndChecker;
+
+			try {
+				const ts = require('typescript');
+				const tsCall = esTreeNodeToTSNodeMap.get(callNode);
+				if (!tsCall) return;
+				const calleeType = checker.getTypeAtLocation(tsCall.expression);
+				const sig = calleeType.getCallSignatures && calleeType.getCallSignatures()[0];
+				const typeParams = sig && sig.getTypeParameters && sig.getTypeParameters();
+				const constraint = typeParams && typeParams[0] && typeParams[0].getConstraint();
+				if (!constraint) return;
+
+				const isCheckableShape = (t) => {
+					if (!t || t.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) return false;
+					if (t.flags & ts.TypeFlags.Union) return false;
+					if (!(t.flags & (ts.TypeFlags.Object | ts.TypeFlags.Intersection))) return false;
+					if (t.getCallSignatures && t.getCallSignatures().length > 0) return false;
+					if (checker.getIndexTypeOfType(t, ts.IndexKind.String)) return false;
+					if (checker.getIndexTypeOfType(t, ts.IndexKind.Number)) return false; // arrays/tuples handled separately
+					return true;
+				};
+				const arrayElement = (t) => {
+					if (!t || !(t.flags & ts.TypeFlags.Object)) return null;
+					if (!(t.symbol && t.symbol.name === 'Array')) return null;
+					return checker.getIndexTypeOfType(t, ts.IndexKind.Number) || null;
+				};
+
+				const walkObject = (objectExpression, expectedType, pathLabel, skipKeys) => {
+					if (!isCheckableShape(expectedType)) return;
+					const validNames = (checker.getPropertiesOfType(expectedType) || []).map((p) => p.name);
+					for (const prop of objectExpression.properties) {
+						if (prop.type !== 'Property') continue; // spreads: fail open
+						const name = getPropertyName(prop);
+						if (!name || (skipKeys && skipKeys.includes(name))) continue;
+
+						const memberSymbol = checker.getPropertyOfType(expectedType, name);
+						if (!memberSymbol) {
+							context.report({
+								node: prop.key,
+								messageId: 'unknownConfigKey',
+								data: { value: name, path: pathLabel, validKeys: validNames.slice(0, 30).join(', ') },
+							});
+							continue;
+						}
+
+						const memberType = checker.getNonNullableType(checker.getTypeOfSymbolAtLocation(memberSymbol, tsCall));
+						const childPath = pathLabel === 'config root' ? name : `${pathLabel}.${name}`;
+						if (prop.value.type === 'ObjectExpression') {
+							// theme.overrides belongs to the selector-aware walk
+							const childSkip = name === 'theme' && pathLabel === 'config root' ? ['overrides'] : undefined;
+							walkObject(prop.value, memberType, childPath, childSkip);
+						} else if (prop.value.type === 'ArrayExpression') {
+							const el = arrayElement(memberType);
+							if (el) {
+								prop.value.elements.forEach((element, index) => {
+									if (element && element.type === 'ObjectExpression') {
+										walkObject(element, checker.getNonNullableType(el), `${childPath}[${index}]`);
+									}
+								});
+							}
+						}
+					}
+				};
+
+				walkObject(configObjectExpression, constraint, 'config root');
+			} catch {
+				// advisory layer: never let a resolution hiccup break linting
+			}
+		}
+
+		/**
+		 * Walk every selector map in `theme.overrides.default/mobile/tablet/desktop`, mirroring
+		 * the compiler-side `ThemeOverrideCheckMode` split (see themeComponents.ts):
+		 *
+		 *  - Selector KEYS are validated everywhere (top level and every `$children` map):
+		 *    excess property checking does not fire against these pattern-keyed types through
+		 *    the generic `validateTemplatesConfig` call, so a typo'd selector only errors via
+		 *    the conditional return type - at the use site. The squiggle reported here is the
+		 *    pinpoint version of that same error.
+		 *
+		 *  - Under a NAMED selector ('ts-visible'), prop KEY existence is checked and
+		 *    `$children` is descended into. Prop VALUE types are left to TS (constraint
+		 *    assignability reports those at the literal already - re-reporting would
+		 *    duplicate) - but unknown prop keys are NOT caught by TS through the generic
+		 *    `validateTemplatesConfig` call (excess property checking does not survive it),
+		 *    so the key squiggle here is the only inline signal.
+		 *
+		 *  - Under an open-named dotted selector like `facet.price` ('ts-blind'), the whole
+		 *    value is `unknown` to TS, so props are fully checked too: existence and value
+		 *    types against the REAL props type for the targeted component, resolved live via
+		 *    the type checker, recursing through `$children`.
+		 *
+		 * Silently does nothing when typed linting isn't configured (no parserServices.program),
+		 * and fails open on any resolution hiccup - this is an advisory squiggle layer; the
+		 * compiler's return-type check is the authority.
+		 */
+		function validateOverrideSelectors(configObjectExpression, context) {
 			const programAndChecker = getProgramAndChecker(context);
 			if (!programAndChecker) return;
+
+			const overridesContainer = findOverridesObject(configObjectExpression);
+			if (!overridesContainer) return;
+
+			// breakpoint-level keys: only these four are meaningful to ThemeStore
+			for (const prop of overridesContainer.properties) {
+				if (prop.type !== 'Property') continue;
+				const breakpoint = getPropertyName(prop);
+				if (breakpoint && !['default', 'mobile', 'tablet', 'desktop'].includes(breakpoint)) {
+					context.report({ node: prop.key, messageId: 'unknownOverrideBreakpoint', data: { value: breakpoint } });
+				}
+			}
 
 			const overridesObjects = collectOverridesObjects(configObjectExpression);
 			if (overridesObjects.length === 0) return;
@@ -221,24 +390,139 @@ module.exports = {
 			const filename = context.filename ?? context.getFilename();
 
 			for (const overridesObject of overridesObjects) {
-				for (const prop of overridesObject.properties) {
-					if (prop.type !== 'Property' || prop.value.type !== 'ObjectExpression') continue;
+				walkSelectorMap(overridesObject, programAndChecker, filename, context);
+			}
+		}
 
-					const selector = getPropertyName(prop);
-					if (!selector) continue;
+		/**
+		 * The 'ts-visible' walk: validate each selector key, hand open-named dotted selectors
+		 * to the full ('ts-blind') prop checking, and recurse through named selectors' $children.
+		 */
+		function walkSelectorMap(selectorMapObjectExpression, programAndChecker, filename, context) {
+			for (const prop of selectorMapObjectExpression.properties) {
+				if (prop.type !== 'Property' || prop.value.type !== 'ObjectExpression') continue;
 
-					// only the selector's final (space-separated) segment determines its component -
-					// e.g. 'search facet.price' targets the same 'facet.price' as a bare selector
-					const finalSegment = selector.includes(' ') ? selector.split(' ').pop() : selector;
-					const dotIndex = finalSegment.indexOf('.');
-					if (dotIndex === -1) continue;
+				const selector = getPropertyName(prop);
+				if (!selector) continue;
 
-					const componentType = finalSegment.slice(0, dotIndex);
-					if (!OPEN_NAMED_COMPONENT_PROPS_TYPE[componentType]) continue; // TS already checks this one
+				// only the selector's final (space-separated) segment determines its component -
+				// e.g. 'search facet.price' targets the same 'facet.price' as a bare selector
+				const finalSegment = selector.includes(' ') ? selector.split(' ').pop() : selector;
+				const dotIndex = finalSegment.indexOf('.');
+				const componentType = dotIndex === -1 ? null : finalSegment.slice(0, dotIndex);
 
+				if (componentType && OPEN_NAMED_COMPONENT_PROPS_TYPE[componentType]) {
+					// TS is blind to this whole subtree - full prop checking
 					walkUnknownRegionEntry(prop.value, selector, programAndChecker, filename, context);
+					continue;
+				}
+
+				if (isKnownSelectorSegment(programAndChecker, filename, finalSegment) === false) {
+					context.report({
+						node: prop.key,
+						messageId: 'unknownOverrideSelector',
+						data: { selector, segment: finalSegment },
+					});
+					continue;
+				}
+
+				// known (or unresolvable - fail open): check this named selector's prop KEYS
+				// (TS covers their value types, but not unknown keys - see the doc above) and
+				// walk its $children selector map. A customComponent swaps in a component
+				// whose subtree isn't known - skip it, same as the ts-blind walk does.
+				const hasCustomComponent = prop.value.properties.some(
+					(valueProp) => valueProp.type === 'Property' && getPropertyName(valueProp) === 'customComponent'
+				);
+				if (hasCustomComponent) continue;
+
+				const resolved = resolveSelectorPropsType(programAndChecker, filename, finalSegment);
+				if (resolved) {
+					for (const valueProp of prop.value.properties) {
+						if (valueProp.type !== 'Property') continue;
+						const propName = getPropertyName(valueProp);
+						if (!propName || ALWAYS_ALLOWED_OVERRIDE_PROPS.has(propName)) continue;
+						if (!resolved.propNames.has(propName)) {
+							context.report({
+								node: valueProp.key,
+								messageId: 'invalidOpenNamedSelectorProp',
+								data: {
+									value: propName,
+									selector,
+									componentType: finalSegment,
+									typeName: safeTypeToString(programAndChecker, resolved.type),
+									// structural keys ($children etc.) aren't component props - keep them out of the suggestion list
+									validKeys: Array.from(resolved.propNames)
+										.filter((name) => !ALWAYS_ALLOWED_OVERRIDE_PROPS.has(name))
+										.join(', '),
+								},
+							});
+						}
+					}
+				}
+
+				const childrenProp = prop.value.properties.find(
+					(p) => p.type === 'Property' && getPropertyName(p) === '$children' && p.value.type === 'ObjectExpression'
+				);
+				if (childrenProp) {
+					walkSelectorMap(childrenProp.value, programAndChecker, filename, context);
 				}
 			}
+		}
+
+		/**
+		 * Whether a selector's final segment resolves to anything in `ThemeComponentsRestricted`:
+		 * a literal property (named selectors and finite named-dotted forms), or a pattern index
+		 * signature (template open-named forms like `search.${string}` and the tree-path
+		 * patterns). Returns true/false, or null when it cannot tell (fail open - never report
+		 * off a guess).
+		 */
+		function isKnownSelectorSegment(programAndChecker, filename, segment) {
+			try {
+				const anchor = resolveNamedTypeFromComponentsModule(programAndChecker, 'ThemeComponentsRestricted', filename);
+				if (!anchor) return null;
+
+				const { checker } = programAndChecker;
+				if (checker.getPropertyOfType(anchor.type, segment)) return true;
+
+				const ts = require('typescript');
+				const indexInfos = checker.getIndexInfosOfType(anchor.type) || [];
+				for (const info of indexInfos) {
+					if (keyTypeMatchesName(ts, info.keyType, segment)) return true;
+				}
+				return false;
+			} catch {
+				return null;
+			}
+		}
+
+		/**
+		 * Whether a concrete property name matches an index signature's key type. The selector
+		 * pattern families only ever use `${string}` placeholders, so template literal keys are
+		 * matched by locating their static text chunks in order (permissive on ambiguity - a
+		 * false "match" just means no squiggle, never a wrong one).
+		 */
+		function keyTypeMatchesName(ts, keyType, name) {
+			if (keyType.flags & ts.TypeFlags.String) return true;
+			if (keyType.flags & ts.TypeFlags.StringLiteral) return keyType.value === name;
+			if (keyType.flags & ts.TypeFlags.Union) return keyType.types.some((member) => keyTypeMatchesName(ts, member, name));
+			if (!(keyType.flags & ts.TypeFlags.TemplateLiteral)) return false;
+
+			const texts = keyType.texts;
+			if (!name.startsWith(texts[0])) return false;
+			let pos = texts[0].length;
+			for (let i = 1; i < texts.length; i++) {
+				const chunk = texts[i];
+				if (i === texts.length - 1) {
+					if (chunk === '') return name.length >= pos;
+					const at = name.lastIndexOf(chunk);
+					return at >= pos && at + chunk.length === name.length;
+				}
+				if (chunk === '') continue;
+				const at = name.indexOf(chunk, pos);
+				if (at === -1) return false;
+				pos = at + chunk.length;
+			}
+			return true;
 		}
 
 		/**
@@ -315,6 +599,23 @@ module.exports = {
 				if (childProp.type !== 'Property' || childProp.value.type !== 'ObjectExpression') continue;
 				const childSelector = getPropertyName(childProp);
 				if (!childSelector) continue;
+
+				// selector keys inside this blind region get no checking from TS at all -
+				// squiggle unresolvable ones (the compiler-side check errors on them too)
+				const childSegment = childSelector.includes(' ') ? childSelector.split(' ').pop() : childSelector;
+				const childDotIndex = childSegment.indexOf('.');
+				const childComponentType = childDotIndex === -1 ? null : childSegment.slice(0, childDotIndex);
+				if (!(childComponentType && OPEN_NAMED_COMPONENT_PROPS_TYPE[childComponentType])) {
+					if (isKnownSelectorSegment(programAndChecker, filename, childSegment) === false) {
+						context.report({
+							node: childProp.key,
+							messageId: 'unknownOverrideSelector',
+							data: { selector: childSelector, segment: childSegment },
+						});
+						continue;
+					}
+				}
+
 				walkUnknownRegionEntry(childProp.value, childSelector, programAndChecker, filename, context);
 			}
 		}
@@ -369,6 +670,19 @@ module.exports = {
 		 * Collect the ObjectExpression for each of theme.overrides.default/mobile/tablet/desktop
 		 * that's present as a plain object literal (a spread can't be statically resolved here).
 		 */
+		/**
+		 * The theme.overrides ObjectExpression itself, or null when absent/not a literal.
+		 */
+		function findOverridesObject(configObjectExpression) {
+			const themeProp = findProperty(configObjectExpression, 'theme');
+			if (!themeProp || themeProp.value.type !== 'ObjectExpression') return null;
+
+			const overridesProp = findProperty(themeProp.value, 'overrides');
+			if (!overridesProp || overridesProp.value.type !== 'ObjectExpression') return null;
+
+			return overridesProp.value;
+		}
+
 		function collectOverridesObjects(configObjectExpression) {
 			const themeProp = findProperty(configObjectExpression, 'theme');
 			if (!themeProp || themeProp.value.type !== 'ObjectExpression') return [];
@@ -452,12 +766,7 @@ module.exports = {
 			let result = null;
 			try {
 				const ts = require('typescript');
-				const resolved = ts.resolveModuleName(
-					'@athoscommerce/snap-preact/components',
-					containingFileName,
-					program.getCompilerOptions(),
-					ts.sys
-				);
+				const resolved = ts.resolveModuleName('@athoscommerce/snap-preact/components', containingFileName, program.getCompilerOptions(), ts.sys);
 				const resolvedFileName = resolved.resolvedModule && resolved.resolvedModule.resolvedFileName;
 				const sourceFile = resolvedFileName && program.getSourceFile(resolvedFileName);
 				const moduleSymbol = sourceFile && checker.getSymbolAtLocation(sourceFile);

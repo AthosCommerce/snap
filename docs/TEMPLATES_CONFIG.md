@@ -130,6 +130,13 @@ const config = validateTemplatesConfigUnlocked({
 new SnapTemplates(config);
 ```
 
+### Configuration Validation
+
+Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript verify the entire configuration — unknown keys, invalid override selectors and props, and wrong value types. The config can be written inline or assigned to a variable first; both are fully checked. Mistakes the IDE cannot flag while you type are reported where the config is passed to `new SnapTemplates(...)`.
+
+> [!IMPORTANT]
+> Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.
+
 ### Language Translations
 
 | Configuration Option | Description | Type | Default |
@@ -145,7 +152,7 @@ Translations overrides can be provided in two ways:
 1. Simple translations: Use a string value for straightforward text replacements.
 2. Complex translations: Utilize functions to access component props and apply logic for dynamic text generation.
 
-When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](TEMPLATES_HOW_TO.md#responsive-translations) for an example.
+When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO.md#responsive-translations) for an example.
 
 The example below demonstrates both approaches for French language translations:
 - The `FilterSummary` component uses a simple string translation.

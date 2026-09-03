@@ -121,3 +121,138 @@ export const deeplyNestedBadProp: SnapTemplatesConfig = {
 		},
 	},
 };
+
+// ---- selector-KEY checking (ts-visible walk): unknown selector keys are the one thing
+// TS cannot catch at the literal (no EPC against pattern-keyed types through a generic
+// call), so the rule squiggles them - mirroring the compiler's use-site error ----
+
+export const unknownTopLevelSelector: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				nopeTopLevel: { hi: 'mom' },
+			},
+		},
+	},
+};
+
+export const unknownSelectorInNamedChildren: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				badgeImage: {
+					$children: {
+						nopeChild: { hi: 'mom' },
+					},
+				},
+			},
+		},
+	},
+};
+
+// valid named-under-named children must NOT be flagged (and their props are TS's job, not the rule's)
+export const validNamedChildrenNotFlagged: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				badgeImage: {
+					$children: {
+						badgeRectangle: {
+							$children: {
+								icon: { color: 'red' },
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+};
+
+// template open-named selectors resolve via pattern index signatures (`search.${string}`) - not flagged
+export const templateOpenNamedSelectorNotFlagged: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'search.tabbed': { anything: 'goes' },
+			},
+		},
+	},
+};
+
+// blind region: unknown selector key inside an open-named selector's $children
+export const unknownSelectorInBlindChildren: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'facet.custom3': {
+					$children: {
+						nopeBlind: {},
+					},
+				},
+			},
+		},
+	},
+};
+
+// unknown prop KEY on a named selector next to a valid sibling: invisible to TS through the
+// generic call (EPC doesn't survive it; the weak-type rule needs zero shared props), so the
+// rule's key-existence squiggle is the only inline signal
+export const unknownPropOnNamedSelector: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				result: { hideQuickviewButton: false, definitelyNotARealResultProp: 'nonsense' },
+			},
+		},
+	},
+};
+
+// unknown BREAKPOINT key next to a valid one - the four breakpoint names are the only ones ThemeStore reads
+export const unknownBreakpointKey: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: { result: { hideQuickviewButton: false } },
+			nopeBreakpoint: { result: {} },
+		},
+	},
+};
+
+// ---- config-level unknown keys (call-style: the compiler reports these only at the use
+// site; the rule's squiggle pinpoints the exact key) ----
+import { validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+validateTemplatesConfig({
+	config: { platform: 'other' },
+	theme: { extends: 'base' },
+	zzBogusRootKey: 1,
+	search: {
+		zzBogusSearchKey: 1,
+		targets: [{ selector: '#x', component: 'Search', zzBogusTargetKey: 1 }],
+	},
+});
+
+// ---- comma-separated selector groups: every part must target one component type ----
+export const mixedSelectorGroup: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'search, searchHorizontal': { hideBottomToolbar: true },
+				'search facets, searchHorizontal facets': { limit: 4 },
+				badgeImage: {
+					$children: {
+						'icon.next, button': {},
+					},
+				},
+			},
+		},
+	},
+};
