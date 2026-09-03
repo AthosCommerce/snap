@@ -45,25 +45,13 @@
 			"url": "/snap-autocomplete",
 			"title": "Autocomplete"
 		},
-		"docs/REFERENCE_QUICKVIEW.md": {
-			"url": "/reference-quickview",
-			"title": "Quickview"
-		},
-		"packages/snap-controller/src/Quickview/README.md": {
-			"url": "/reference-quickview-manager",
-			"title": "QuickviewManager"
-		},
-		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
-			"url": "/reference-quickview-layout",
-			"title": "Layout"
-		},
 		"docs/SNAP_RECOMMENDATIONS.md": {
 			"url": "/snap-recommendations",
 			"title": "Recommendations"
 		},
 		"docs/SNAP_RECOMMENDATIONS_INTEGRATION.md": {
 			"url": "/snap-recommendations-integration",
-			"title": "Integration"
+			"title": "Profile Setup"
 		},
 		"docs/SNAP_RECOMMENDATIONS_LEGACY.md": {
 			"url": "/snap-recommendations-legacy",
@@ -84,10 +72,6 @@
 		"docs/SNAP_FOREGROUND_FILTERS.md": {
 			"url": "/snap-foreground-filters",
 			"title": "Foreground Filters"
-		},
-		"docs/SNAP_BADGES.md": {
-			"url": "/snap-badges",
-			"title": "Badges"
 		},
 		"docs/TEMPLATES_ABOUT.md": {
 			"url": "/templates-about",
@@ -165,9 +149,25 @@
 			"url": "/reference-tabbed-search",
 			"title": "Tabbed Search"
 		},
+		"docs/REFERENCE_QUICKVIEW.md": {
+			"url": "/reference-quickview",
+			"title": "Quickview"
+		},
+		"packages/snap-controller/src/Quickview/README.md": {
+			"url": "/reference-quickview-manager",
+			"title": "QuickviewManager"
+		},
+		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
+			"url": "/reference-quickview-layout",
+			"title": "Layout"
+		},
 		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
 			"url": "/reference-custom-recommendation-templates",
 			"title": "Custom Recommendation Templates"
+		},
+		"docs/SNAP_BADGES.md": {
+			"url": "/snap-badges",
+			"title": "Badges"
 		},
 		"docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md": {
 			"url": "/reference-custom-badge-templates",

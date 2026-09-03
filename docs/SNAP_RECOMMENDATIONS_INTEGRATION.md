@@ -1,14 +1,30 @@
-# Recommendations Integration
+# Profile Setup 🧩
 
-Changes to the recommendation integration scripts were made in Snap `v0.60.0`. Legacy Recommendation Integrations docs can still be found [`here`](https://athoscommerce.github.io/snap/snap-recommendations-legacy)
+>[!WARNING]
+> Changes to the recommendation integration scripts were made in Snap `v0.60.0`. Legacy Recommendation Integrations docs can still be found [`here`](https://athoscommerce.github.io/snap/snap-recommendations-legacy)
 
-## Prerequisites
+## Profile Prerequisites
 
-Profiles must be setup in the Athos Search & Product Discovery Console (ASD) and have associated Snap templates selected. The template selected contains a `component` that will be used to render the recommendations profile. This component must be configured in the Snap [RecommendationInstantiator config](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators#recommendationinstantiatorconfig)
+Profiles must be setup in the Athos Search & Product Discovery Console (ASD) and have associated Snap templates selected. The template selected contains a `component` that will be used to render the recommendations profile. This component must be configured in your `RecommendationInstantiator`.
 
+>[!TIP]
+> See [Recommendations](https://athoscommerce.github.io/snap/snap-recommendations) for setting up the Default/Bundle templates before continuing here.
+---
 ## Installation
 
-Recommendations script blocks can be placed anywhere on the page and will automatically target and batch requests for all profiles specified in the block.
+Recommendations are added to the page by placing a **recommendations script block** — a `<script type="athos/recommendations">` tag containing a `profiles` array, one entry per recommendation profile you want rendered on the page.
+
+Each profile entry needs:
+- **`tag`** — the profile name configured in ASD
+- **`selector`** — the CSS selector of the element to render into
+- **`options`** *(optional)* — additional per-profile settings
+
+>[!NOTE]
+> A matching target element — typically a `<div>` — must also exist on the page for each profile's `selector` to find.
+
+## Script Blocks
+
+Recommendations script blocks can be placed **anywhere** on the page and will automatically target and batch requests for all profiles specified in the block.
 
 - If this is the **first profile** you are adding to the storefront, you will need to place the script block in a common location that is likely to be present on all pages that contain recommendations. For example, within the `<head>` tag.
 
@@ -16,15 +32,15 @@ Recommendations script blocks can be placed anywhere on the page and will automa
 
 ```html
 <script type="athos/recommendations">
-    profiles = [
-        {
-            tag: 'recently-viewed',
-            selector: '.ss__recs__recently-viewed',
-            options: {
-                limit: 5
-            }
-        }
-    ];
+	profiles = [
+		{
+			tag: 'recently-viewed',
+			selector: '.ss__recs__recently-viewed',
+			options: {
+				limit: 5
+			}
+		}
+	];
 </script>
 ```
 
@@ -36,19 +52,37 @@ In this example the `recently-viewed` profile `tag` is set to render inside the 
 
 > [!IMPORTANT]
 > Each profile entry creates a single controller and API request, regardless of how many DOM elements match its `selector`. If multiple elements match, they all render using the same shared controller and recommendation data. To render different recommendation data in different locations, use separate profile entries.
-
+---
 ## Recommendation Context Variables
 Context variables are set within the script blocks and can be used to set either global or per profile (profile specific) functionality. Variables are used to alter the results displayed by our recommendations and may be required depending on the profile placements in use.
 
-### Globals Variables
+Global context variables are set via a `globals` object in the recommendations script block, alongside `profiles`:
+
+```html
+<script type="athos/recommendations">
+	globals = {
+		products: ['product_sku_123'],
+		shopper: {
+			id: 'buyer@shopper.com'
+		}
+	};
+	profiles = [
+		{
+			tag: 'recently-viewed',
+			selector: '.ss__recs__recently-viewed'
+		}
+	];
+</script>
+```
+
+### Global Variables
 | Option | Value | Placement | Description | Required
 |---|---|:---:|---|:---:|
-| products | array of SKU strings | product detail page | SKU value(s) to identify the current product(s) being viewed | ✔️ |
+| products | array of SKU strings | product detail page | SKU value(s) to identify the current product(s) being viewed — can be omitted on placements other than a product detail page | ✔️ |
 | blockedItems | array of strings | all | SKU values to identify which products to exclude from the response |   |
 | filters | array of filters | all | optional recommendation filters to apply to ALL profiles in the batch |   |
 | cart | array (or function that returns an array) of current cart skus | all | optional method of setting cart contents |   |
-| shopper.id | logged in user unique identifier | all | required for personalization functionality if not provided to the bundle (global) context |   |
-
+| shopper.id | unique shopper identifier | all | required for personalization functionality — any unique identifier for the shopper, not necessarily an email |   |
 
 ### Profile Specific Variables
 | Option | Value | Placement | Description | Required
@@ -62,15 +96,49 @@ Context variables are set within the script blocks and can be used to set either
 | options.branch | template branch overwrite | all | optional branch overwrite for recommendations template (advanced usage) |   |
 | options.dedupe | boolean (default: `true`) | all | dedupe products across all profiles in the batch |   |
 | options.query | string | dynamic custom | query to search |   |
-| options.filters | array of filters | all | optional recommendation filters |   |
+| options.filters | array of filters | all | optional recommendation filters, scoped to this profile only |   |
 | options.realtime | boolean | all | optional update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#cart-attribute-tracking)) |   |
 | options.limit | number (default: 20, max: 20) | all | optional maximum number of results to display, can also be set globally via RecommendationController config globals |   |
 
+>[!TIP]
+>Global `filters` (above) and profile-level `options.filters` (above) are two different things despite the shared name — global `filters` apply to every profile in the batch, while `options.filters` scope to just that one profile.
+---
 
 ## Batching and Ordering
 Each "athos/recommendations" script block groups multiple recommendation profiles into a single API request, known as a batch. By default, the script tag fetches recommendations for all profiles with a matching selector in one batched request. The order of profiles in the array determines their priority within the batch.
 
-While batching all profiles together is generally the most efficient approach, there may be cases where separate batching is preferred. For instance, recommendations for a mini cart (side cart) might not require de-duplication with other recommendations. You can disable de-duplication for a specific profile by setting `dedupe: false` in its options, or create a separate batch by using an additional script tag.
+The main page batch — order here determines priority for deduping:
+
+```html
+<script type="athos/recommendations">
+	profiles = [
+		{
+			tag: 'customers-also-bought',
+			selector: '.ss__recs__crosssell'
+		},
+		{
+			tag: 'customers-also-viewed',
+			selector: '.ss__recs__similar'
+		}
+	];
+</script>
+```
+
+While batching all profiles together is generally the most efficient approach, there may be cases where separate batching is preferred. For instance, recommendations for a mini cart (side cart) might not require de-duplication with other recommendations. 
+
+```html
+<script type="athos/recommendations">
+	profiles = [
+		{
+			tag: 'mini-cart-recs',
+			selector: '.ss__recs__minicart'
+		}
+	];
+</script>
+```
+>[!TIP]
+>You can disable de-duplication for a specific profile by setting `dedupe: false` in its options, or create a separate batch by using an additional script tag.
+---
 
 ## Deduping
 
@@ -84,9 +152,10 @@ Here's how deduping works:
 
 For example, if you have three profiles in this order: "Customers Also Bought", "Similar Products", and "You May Also Like", and a product is returned for "Customers Also Bought", it won't appear in "Similar Products" or "You May Also Like".
 
-You can disable deduping for specific profiles by setting `options.dedupe: false`. This is useful for profiles where you want to ensure certain products always appear, regardless of their presence in other recommendations.
+>[!NOTE]
+> You can disable deduping for specific profiles by setting `options.dedupe: false`. This is useful for profiles where you want to ensure certain products always appear, regardless of their presence in other recommendations.
 
-Here's an example that demonstrates deduping:
+Below is an example that demonstrates deduping:
 
 ```html
 <script type="athos/recommendations">
@@ -119,9 +188,11 @@ Here's an example that demonstrates deduping:
 
 ## Additional Examples
 
-The examples below assume the `similar` profile has been setup in the Athos Search & Product Discovery Console (ASD), and that a Snap `bundle.js` script exists on the page and has been configured with a [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators)
+Each example below assumes a Snap `bundle.js` script exists on the page, already configured with a [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators).
 
-A typical "similar" profile displays products similar to the product passed in via the `products` global context variable.
+### Product Detail Page
+
+A typical "similar" profile displays products similar to the product passed in via the `products` global context variable. This assumes a `similar` profile has been setup in the Athos Search & Product Discovery Console (ASD).
 
 ```html
 <script type="athos/recommendations">
@@ -136,6 +207,8 @@ A typical "similar" profile displays products similar to the product passed in v
 	];
 </script>
 ```
+
+### Cross-Sell Without Tracking
 
 If tracking scripts are not in place, `cross-sell` profiles may require the cart contents to be provided.
 
@@ -152,6 +225,8 @@ If tracking scripts are not in place, `cross-sell` profiles may require the cart
 	];
 </script>
 ```
+
+### Personalization Without Bundle Context
 
 If the shopper identifier is not being captured by the `bundle.js` context, it must be provided for proper personalization.
 
@@ -203,3 +278,22 @@ The example below filters the recommendations for products matching field `color
 	];
 </script>
 ```
+
+---
+## Troubleshooting FAQ ❓
+
+**Q: I added a new profile to an existing batch, but it's not being deduped against the others. Why?**
+<br>
+**A:** Confirm the new profile is appended to the same `profiles` array, not placed in a separate `<script type="athos/recommendations">` tag — separate script tags create separate batches, which never dedupe against each other.
+
+**Q: I set `options.limit: 50` but I'm still only getting 20 results. Why?**
+<br>
+**A:** `options.limit` caps at 20 within the script block. To display more, set the limit globally via the RecommendationController config's `globals` instead.
+
+**Q: A filter is excluding products from a profile I never applied a filter to. Why?**
+<br>
+**A:** You likely set a top-level `filters` global instead of a profile-level `options.filters` — global `filters` apply to every profile in the batch, not just one.
+
+**Q: I set `shopper.id` but personalization still isn't working. Why?**
+<br>
+**A:** Confirm `shopper.id` is set inside the script block's top-level `globals`, not inside a profile's `options` — it's a global-only context variable and has no effect if scoped to a single profile.
