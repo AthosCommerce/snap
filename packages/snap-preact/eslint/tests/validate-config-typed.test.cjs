@@ -1,3 +1,10 @@
+// typescript-estree's "single-run inference" activates when process.env.CI === 'true'
+// and switches to a one-shot program lifecycle, which breaks under jest's
+// many-lints-per-process usage (fresh default programs with no tsconfig after the first
+// verify). Pin it off before the parser loads. This was the root cause of the
+// long-unexplained CI-only typed-lint failures.
+process.env.TSESTREE_SINGLE_RUN = 'false';
+
 const fs = require('fs');
 const path = require('path');
 const { Linter } = require('eslint');
