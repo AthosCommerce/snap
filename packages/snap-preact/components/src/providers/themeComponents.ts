@@ -107,8 +107,11 @@ type ThemeComponentTemplateUnNamedSelectors<TemplateComponentType extends string
 
 // Comma-separated selectors: allows combining multiple selectors targeting the same component type (like CSS grouped selectors)
 // e.g. 'recommendation.crosssell icon.prev, recommendation.similar icon.prev'
-// The patterns use `${string}, ` as a prefix to accept any preceding comma-separated selectors,
-// while the ESLint rule validates that all parts target the same component type.
+// The patterns use `${string}, ` as a prefix to accept any preceding comma-separated selectors.
+// NOTE: nothing statically validates that all comma-separated parts target the same component
+// type - only the final (space/comma-separated) segment drives prop checking, here and in the
+// deferred `ThemeComponentOverridesChecked` pass below. (An earlier comment attributed this
+// validation to the validate-config ESLint rule, but it was never implemented there either.)
 
 type ThemeComponentOverridesUnNamedSelectors<ComponentType extends string> =
 	| `${ComponentType}`
@@ -460,12 +463,12 @@ type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & Them
 
 	Their pattern index signature values stay `unknown`: a pattern such as `facet.${string}`
 	unavoidably matches both `facet.price` and `facet.price facetSlider`, so it cannot be typed
-	to one component, and resolving it precisely per literal selector key is generic-inference
-	work expensive enough to cost ~1.5s of editor completion latency per keystroke (measured -
-	see SnapTemplates.tsx). Prop-level checking for these selectors is instead done by the
-	`validate-config` ESLint rule's typed linting, which reads the literal selector strings
-	directly from the AST (no inference needed) and resolves each component's real props type
-	live via the TS checker - see eslint/src/validate-config.cjs.
+	to one component, and resolving it precisely per literal selector key in the AUTHORING
+	signature is generic-inference work expensive enough to cost ~1.5s of editor completion
+	latency per keystroke (measured - see SnapTemplates.tsx). Prop-level checking for these
+	selectors instead happens in a deferred pass: `ThemeComponentOverridesChecked` (below),
+	applied to the inferred config type by `validateTemplatesConfig`'s conditional RETURN
+	type, off the editor's synchronous completion path.
 */
 type ThemeComponentOpenNamedComponentTypes =
 	| 'facet'
@@ -576,7 +579,7 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'searchHorizontal'>]?: unknown };
 
 /*
-	Unlocked counterpart to `ThemeComponentsRestricted` / `ThemeComponentSelectorProps` — same
+	Unlocked counterpart to `ThemeComponentsRestricted` — same
 	precision, but resolved against the WithCustomComponent (Snap integration migration path)
 	prop family instead of the locked one.
 */
@@ -588,6 +591,214 @@ export type ThemeComponentsRestrictedWithCustomComponent =
 // types for use within component overrides
 export type ThemeComponentOverrides = Partial<ThemeComponentsRestricted>;
 export type ThemeComponentOverridesUnlocked = Partial<ThemeComponentsRestrictedWithCustomComponent>;
+
+/*
+	Deferred, exact-shape checking for the open-named dotted selectors (`facet.price`,
+	`recommendation.foo`, ...) that the authoring types above intentionally leave as
+	`unknown` (see ThemeComponentOpenNamedComponentTypes).
+
+	`ThemeComponentOverridesChecked<Authored>` (and its unlocked counterpart) is applied to
+	the inferred config type by `validateTemplatesConfig`'s / `validateTemplatesConfigUnlocked`'s
+	conditional RETURN type in SnapTemplates.tsx - NOT used as the contextual type of the
+	object literal being authored. That placement is the whole point: the parameter's
+	constraint stays non-generic (instant completions), while these types only instantiate
+	when the call itself is checked, during diagnostics, off the editor's synchronous
+	completion path. Their cost scales with the size of the authored config, not with the
+	selector pattern families above.
+
+	Because this checks the inferred type rather than a fresh object literal, excess property
+	checking does not apply - so instead of relying on EPC, every authored prop is mapped to
+	the type it must have (real props keep their declared type; unknown props map to an
+	unassignable error object so the assignability failure names the offending prop), and the
+	walk recurses through `$children` for as long as it stays inside a region the authoring
+	types gave up on. Selectors the authoring types already check precisely resolve to
+	`unknown` here (a no-op) rather than duplicating tsc's own errors.
+*/
+type ThemeComponentSelectorSegment<Selector extends string> = Selector extends `${string} ${infer Rest}`
+	? ThemeComponentSelectorSegment<Rest>
+	: Selector;
+
+type ThemeOverrideUnknownSelector = { 'unknown theme override selector': never };
+type ThemeOverrideInvalidProp<Prop> = { 'invalid prop for this theme override selector': Prop };
+
+// props ThemeStore honors on every override regardless of the targeted component
+type ThemeOverrideAlwaysAllowedProps = 'themeStyleScript';
+
+/*
+	The check runs in one of two modes, tracking how much TypeScript itself already checks
+	in that region of the config (through the authoring constraint's contextual typing):
+
+	- 'ts-visible': regions rooted at NAMED selectors. TS's constraint assignability checks
+		these values' prop VALUE types at every depth - but NOT unknown keys: excess property
+		checking does not survive the generic call (inference hands the constraint check a
+		non-fresh type), and the weak-type rule only rejects a literal sharing NO props with
+		its target, so `result: { hideQuickviewButton: false, DNE: 1 }` passes TS silently
+		(verified empirically; a LONE unknown prop happens to be caught by the weak-type rule,
+		which is what made earlier single-bad-prop probes look like working EPC). So this mode
+		validates selector keys AND prop-key existence, descending through `$children`, while
+		leaving prop VALUE types to TS - no duplicate errors.
+
+	- 'ts-blind': regions rooted at open-named dotted selectors (`facet.price`). Their whole
+		value is `unknown` to the authoring types, so EVERYTHING here is checked: prop
+		existence, prop value types, and selector keys, recursing through `$children`.
+*/
+type ThemeOverrideCheckMode = 'ts-visible' | 'ts-blind';
+
+// prettier-ignore
+type ThemeOverrideValueChecked<NamedMap, AllowCustomComponentBag extends boolean, Resolved, Authored> =
+	unknown extends Authored
+		? unknown // a broad/unknown-typed value (not an authored literal) - nothing to check
+		: AllowCustomComponentBag extends true
+			? Authored extends { customComponent: string }
+				? unknown // a custom component's props are arbitrary by design - the whole bag is unchecked
+				: ThemeOverrideObjectChecked<NamedMap, AllowCustomComponentBag, Resolved, Authored>
+			: ThemeOverrideObjectChecked<NamedMap, AllowCustomComponentBag, Resolved, Authored>;
+
+// prettier-ignore
+type ThemeOverrideObjectChecked<NamedMap, AllowCustomComponentBag extends boolean, Resolved, Authored> =
+	Authored extends object
+		? {
+				[P in keyof Authored]: P extends '$children'
+					? ThemeOverrideChildrenChecked<NamedMap, AllowCustomComponentBag, Authored[P], 'ts-blind'>
+					: P extends keyof Resolved
+						? Resolved[P]
+						: P extends ThemeOverrideAlwaysAllowedProps
+							? unknown
+							: ThemeOverrideInvalidProp<P>;
+			}
+		: Resolved; // a non-object override value can never be right - surface the real expected type
+
+/*
+	ts-visible counterpart of ThemeOverrideValueChecked: TS's constraint assignability checks
+	this named selector's prop VALUE types, so only prop KEY existence and the `$children`
+	selector map are validated here. Key existence cannot be left to TS: excess property
+	checking does not survive the generic call at all (inference hands the constraint check a
+	non-fresh type), and the weak-type rule only catches an unknown prop when it is the
+	literal's ONLY prop - `result: { hideQuickviewButton: false, DNE: '...' }` passes TS
+	silently (verified). Value types are deliberately NOT re-checked, so a wrong value on a
+	known prop reports once (from TS), not twice.
+*/
+// prettier-ignore
+type ThemeOverrideNamedVisibleChecked<NamedMap, AllowCustomComponentBag extends boolean, Resolved, Authored> =
+	unknown extends Authored
+		? unknown
+		: AllowCustomComponentBag extends true
+			? Authored extends { customComponent: string }
+				? unknown // a custom component's subtree is arbitrary - unchecked, same as ts-blind mode
+				: ThemeOverrideNamedVisibleProps<NamedMap, AllowCustomComponentBag, Resolved, Authored>
+			: ThemeOverrideNamedVisibleProps<NamedMap, AllowCustomComponentBag, Resolved, Authored>;
+
+// prettier-ignore
+type ThemeOverrideNamedVisibleProps<NamedMap, AllowCustomComponentBag extends boolean, Resolved, Authored> =
+	Authored extends object
+		? {
+				[P in keyof Authored]: P extends '$children'
+					? ThemeOverrideChildrenChecked<NamedMap, AllowCustomComponentBag, Authored[P], 'ts-visible'>
+					: P extends keyof Resolved
+						? unknown // key exists - its value type is TS's job (constraint assignability)
+						: P extends ThemeOverrideAlwaysAllowedProps
+							? unknown
+							: ThemeOverrideInvalidProp<P>;
+			}
+		: unknown; // a non-object value here is TS's to reject (assignability), not ours
+
+// prettier-ignore
+type ThemeOverrideChildrenChecked<NamedMap, AllowCustomComponentBag extends boolean, AuthoredChildren, Mode extends ThemeOverrideCheckMode> =
+	AuthoredChildren extends object
+		? {
+				[Selector in keyof AuthoredChildren]: Selector extends string
+					? ThemeOverrideSelectorChecked<NamedMap, AllowCustomComponentBag, Selector, AuthoredChildren[Selector], Mode>
+					: unknown;
+			}
+		: unknown;
+
+/*
+	Resolve one authored selector to the component its final (space/comma-separated) segment
+	targets, and check the authored value per the current mode. An unresolvable segment is an
+	error in BOTH modes: the pattern-keyed selector maps get no excess property checking
+	through the generic call (see ThemeOverrideCheckMode), so this is the only place a typo'd
+	selector key is caught.
+*/
+// prettier-ignore
+type ThemeOverrideSelectorChecked<NamedMap, AllowCustomComponentBag extends boolean, Selector extends string, Authored, Mode extends ThemeOverrideCheckMode> =
+	ThemeOverrideSegmentChecked<NamedMap, AllowCustomComponentBag, ThemeComponentSelectorSegment<Selector>, Authored, Mode>;
+
+// prettier-ignore
+type ThemeOverrideSegmentChecked<NamedMap, AllowCustomComponentBag extends boolean, Segment extends string, Authored, Mode extends ThemeOverrideCheckMode> =
+	Segment extends keyof NamedMap
+		? unknown extends NamedMap[Segment]
+			? unknown // a selector family the authoring types intentionally leave unchecked (template open-named)
+			: Mode extends 'ts-visible'
+				? ThemeOverrideNamedVisibleChecked<NamedMap, AllowCustomComponentBag, NonNullable<NamedMap[Segment]>, Authored>
+				: ThemeOverrideValueChecked<NamedMap, AllowCustomComponentBag, NonNullable<NamedMap[Segment]>, Authored>
+		: Segment extends `${infer ComponentType}.${string}`
+			? ComponentType extends ThemeComponentOpenNamedComponentTypes & keyof NamedMap
+				? ThemeOverrideValueChecked<NamedMap, AllowCustomComponentBag, NonNullable<NamedMap[ComponentType]>, Authored> // ts-blind from here down
+				: ThemeOverrideUnknownSelector
+			: ThemeOverrideUnknownSelector;
+
+type ThemeOverrideBreakpoints = 'default' | 'mobile' | 'tablet' | 'desktop';
+type ThemeOverrideUnknownBreakpoint<B> = { 'unknown breakpoint - expected default, mobile, tablet or desktop': B };
+
+// prettier-ignore
+export type ThemeComponentOverridesChecked<AuthoredOverrides> = {
+	[Breakpoint in keyof AuthoredOverrides]: Breakpoint extends ThemeOverrideBreakpoints
+		? {
+				[Selector in keyof AuthoredOverrides[Breakpoint]]: Selector extends string
+					? ThemeOverrideSelectorChecked<ThemeComponentsRestrictedNamed, false, Selector, AuthoredOverrides[Breakpoint][Selector], 'ts-visible'>
+					: unknown;
+			}
+		: ThemeOverrideUnknownBreakpoint<Breakpoint>;
+};
+
+// prettier-ignore
+export type ThemeComponentOverridesCheckedUnlocked<AuthoredOverrides> = {
+	[Breakpoint in keyof AuthoredOverrides]: Breakpoint extends ThemeOverrideBreakpoints
+		? {
+				[Selector in keyof AuthoredOverrides[Breakpoint]]: Selector extends string
+					? ThemeOverrideSelectorChecked<ThemeComponentsRestrictedWithCustomComponentNamed, true, Selector, AuthoredOverrides[Breakpoint][Selector], 'ts-visible'>
+					: unknown;
+			}
+		: ThemeOverrideUnknownBreakpoint<Breakpoint>;
+};
+
+/*
+	`true` when every authored override prop passes its `ThemeComponentOverridesChecked`
+	resolution. Consumed by `validateTemplatesConfig`'s conditional RETURN type (see
+	SnapTemplates.tsx): return types are never computed on the editor's completion path, so
+	this is how the deep check runs without slowing authoring down.
+*/
+// prettier-ignore
+export type ThemeComponentOverridesValid<AuthoredOverrides> =
+	[AuthoredOverrides] extends [ThemeComponentOverridesChecked<AuthoredOverrides>] ? true : false;
+
+// prettier-ignore
+export type ThemeComponentOverridesValidUnlocked<AuthoredOverrides> =
+	[AuthoredOverrides] extends [ThemeComponentOverridesCheckedUnlocked<AuthoredOverrides>] ? true : false;
+
+/*
+	The failing subset of a checked overrides map, for error display: keeps only the
+	breakpoints and selectors whose authored value fails its check, each shown as the
+	EXPECTED type (with `ThemeOverrideInvalidProp<...>` markers sitting exactly on the bad
+	props). Embedded in the error type `validateTemplatesConfig` returns for an invalid
+	config, so hovering the failing value in the editor reads as a diagnosis.
+*/
+// prettier-ignore
+export type ThemeComponentOverridesErrors<AuthoredOverrides, CheckedOverrides> = {
+	[Breakpoint in keyof AuthoredOverrides as [AuthoredOverrides[Breakpoint]] extends [CheckedOverrides[Breakpoint & keyof CheckedOverrides]]
+		? never
+		: Breakpoint]: Breakpoint extends ThemeOverrideBreakpoints
+		? ThemeOverrideBreakpointErrors<AuthoredOverrides[Breakpoint], CheckedOverrides[Breakpoint & keyof CheckedOverrides]>
+		: // a bogus breakpoint name: surface the readable marker itself, not a per-selector diff
+			ThemeOverrideUnknownBreakpoint<Breakpoint>;
+};
+
+// prettier-ignore
+type ThemeOverrideBreakpointErrors<AuthoredBreakpoint, CheckedBreakpoint> = {
+	[Selector in keyof AuthoredBreakpoint as [AuthoredBreakpoint[Selector]] extends [CheckedBreakpoint[Selector & keyof CheckedBreakpoint]]
+		? never
+		: Selector]: CheckedBreakpoint[Selector & keyof CheckedBreakpoint];
+};
 
 // prettier-ignore
 export type ThemeComponentTemplateOverrides<Template extends string, Props, LegalProps> =

@@ -3,14 +3,13 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 /*
- * `validateTemplatesConfig`'s `theme.overrides.default` type is an intersection of a
- * generic per-selector-precise type and the concrete `ThemeComponentOverrides` alias.
- * The concrete half exists ONLY to give editor completions - see the sibling
- * `themeOverridesTyping.test.ts` for why the generic half can't be dropped either. A
- * type check can't observe completions regressing (the generic half alone still
- * type-checks everything correctly, it just can't suggest keys), so this test drives
- * the real TypeScript language service and asserts on `getCompletionsAtPosition`
- * directly, the same way an editor would.
+ * `validateTemplatesConfig` derives editor completions from its bare generic parameter's
+ * concrete, non-generic `ThemeComponentOverrides` constraint; the deep open-named-selector
+ * check lives in its conditional RETURN type, off the completion path - see the sibling
+ * `themeOverridesTyping.test.ts` for the two halves of that contract. A type check can't
+ * observe completions regressing (the checking types alone still reject bad configs, they
+ * just can't suggest keys), so this test drives the real TypeScript language service and
+ * asserts on `getCompletionsAtPosition` directly, the same way an editor would.
  */
 
 jest.setTimeout(30000);
