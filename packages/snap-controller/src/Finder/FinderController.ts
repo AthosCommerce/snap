@@ -1,4 +1,5 @@
 import deepmerge from 'deepmerge';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
@@ -35,7 +36,7 @@ export class FinderController extends AbstractController {
 		super(config, services, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 		this.store.setConfig(this.config);
 
 		// set the root URL on urlManager

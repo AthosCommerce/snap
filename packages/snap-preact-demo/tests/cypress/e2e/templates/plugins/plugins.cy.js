@@ -297,6 +297,57 @@ describe('plugins work based on plaform setting', () => {
 				'pluginShopifyMutateResults',
 				'pluginShopifyAddToCart',
 				'pluginShopifyMarkets',
+				'pluginShopifyCurrency', // enabled automatically alongside markets
+			];
+			expect(controller.config.plugins.length).to.equal(expectedPluginList.length);
+
+			controller.config.plugins.forEach((plugin, idx) => {
+				expect(plugin[0].name).to.equal(expectedPluginList[idx]);
+			});
+		});
+	});
+
+	it('omits the shopify currency plugin when it is explicitly disabled', () => {
+		cy.on('window:before:load', (win) => {
+			win.mergeSnapConfig = {
+				config: {
+					siteId: 'atkzs2',
+					language: 'en',
+					currency: 'usd',
+					platform: 'shopify',
+				},
+				plugins: {
+					shopify: {
+						markets: {
+							token: 'test-token',
+						},
+						currency: {
+							enabled: false,
+						},
+					},
+				},
+				search: {
+					targets: [
+						{
+							selector: '#athos-layout',
+							component: 'Search',
+						},
+					],
+				},
+			};
+		});
+
+		cy.visit('https://localhost:2222/templates/');
+
+		cy.snapController().then((controller) => {
+			const expectedPluginList = [
+				'pluginBackgroundFilters', // common
+				'pluginScrollToTop', // common
+				'pluginLogger', // common
+				'pluginShopifyBackgroundFilters',
+				'pluginShopifyMutateResults',
+				'pluginShopifyAddToCart',
+				'pluginShopifyMarkets',
 			];
 			expect(controller.config.plugins.length).to.equal(expectedPluginList.length);
 

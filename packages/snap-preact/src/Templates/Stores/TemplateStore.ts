@@ -1,4 +1,5 @@
 import type { h } from 'preact';
+import deepmerge from 'deepmerge';
 import { observable, makeObservable } from 'mobx';
 import {
 	type SearchStoreConfigSettings,
@@ -40,6 +41,7 @@ import type {
 	ThemeResponsiveCompleteUnlocked,
 	LangComponentOverrides,
 	ThemeComponentsRestricted,
+	ThemeComponentsRestrictedWithCustomComponent,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
@@ -50,7 +52,7 @@ import type {
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/RecommendationInstantiator';
-import type { PluginMarketsConfig } from '@athoscommerce/snap-platforms/shopify';
+import type { PluginMarketsConfig, PluginCurrencyConfig } from '@athoscommerce/snap-platforms/shopify';
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
 
@@ -149,6 +151,7 @@ export type ShopifyPlugins = {
 	mutateResults?: PluginShopifyMutateResultsConfig;
 	addToCart?: PluginShopifyAddToCartConfig;
 	markets?: PluginMarketsConfig;
+	currency?: PluginCurrencyConfig;
 };
 
 export type BigCommercePlugins = {
@@ -200,7 +203,10 @@ export type TemplatesStoreConfigLocked = {
 	};
 	plugins?: PluginsConfigsLocked;
 	translations?: {
-		[currencyName in LanguageCodes]?: LangComponentOverrides;
+		[languageName in LanguageCodes]?: LangComponentOverrides;
+	};
+	currencies?: {
+		[currencyName in CurrencyCodes]?: ThemeComponentsRestricted;
 	};
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
@@ -240,9 +246,12 @@ export type TemplatesStoreConfigLocked = {
 // Full version that allows all component props in theme overrides (for Snap integration migration path)
 export type TemplatesStoreConfigUnlocked = Omit<
 	TemplatesStoreConfigLocked,
-	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'
+	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'recommendation' | 'currencies'
 > & {
 	unlocked: true;
+	currencies?: {
+		[currencyName in CurrencyCodes]?: ThemeComponentsRestrictedWithCustomComponent;
+	};
 	theme: TemplatesStoreThemeConfigUnlocked;
 	components?: TemplateStoreComponentConfigUnlocked;
 	plugins?: PluginsConfigsUnlocked;
@@ -379,7 +388,8 @@ export class TemplatesStore {
 			const base = this.library.themes[themeConfiguration.extends];
 			const overrides = themeConfiguration.overrides || {};
 			const variables = themeConfiguration.variables || {};
-			const currency = this.library.locales.currencies[this.currency] || {};
+			const currency = withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {});
+			const currencyOverrides = transformCurrencyOverridesToTheme(this.config.currencies, this.currency);
 			const language = this.library.locales.languages[this.language] || {};
 			const languageOverrides = transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {});
 
@@ -400,6 +410,7 @@ export class TemplatesStore {
 				overrides: translatedOverrides,
 				variables,
 				currency,
+				currencyOverrides,
 				language,
 				languageOverrides,
 				innerWidth: this.window.innerWidth,
@@ -511,13 +522,15 @@ export class TemplatesStore {
 			if (currency) {
 				this.currency = code;
 				this.storage.set('overrides.config.currency', this.currency);
+				const currencyLayer = withCurrencyCode(code, currency);
+				const currencyOverrides = transformCurrencyOverridesToTheme(this.config.currencies, code);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
-					theme.setCurrency(currency);
+					theme.setCurrency(currencyLayer, currencyOverrides);
 				}
 				for (const themeName in this.themes.library) {
 					const theme = this.themes.library[themeName];
-					theme.setCurrency(currency);
+					theme.setCurrency(currencyLayer, currencyOverrides);
 				}
 			}
 		} else {
@@ -534,13 +547,14 @@ export class TemplatesStore {
 			if (language) {
 				this.language = code;
 				this.storage.set('overrides.config.language', this.language);
+				const languageOverrides = transformTranslationsToTheme((this.config.translations && this.config.translations[code]) || {});
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
-					theme.setLanguage(language);
+					theme.setLanguage(language, languageOverrides);
 				}
 				for (const themeName in this.themes.library) {
 					const theme = this.themes.library[themeName];
-					theme.setLanguage(language);
+					theme.setLanguage(language, languageOverrides);
 				}
 			}
 		} else {
@@ -563,7 +577,8 @@ export class TemplatesStore {
 				base: theme,
 				language: this.library.locales.languages[this.language] || {},
 				languageOverrides: transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {}),
-				currency: this.library.locales.currencies[this.currency] || {},
+				currency: withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {}),
+				currencyOverrides: transformCurrencyOverridesToTheme(this.config.currencies, this.currency),
 				innerWidth: this.window.innerWidth,
 			};
 			if (this.settings.editMode) {
@@ -585,6 +600,23 @@ function getTargetArray(targets: TemplatesStore['targets'], type: TemplateTypes)
 		return targets[category];
 	}
 	return undefined;
+}
+
+/*
+	Resolves the configured component overrides for a currency into a theme layer. Mirrors how `translations`
+	are resolved for the active language - keys are lowercase, but either case is accepted the way
+	`config.currency` does, so a config written as `AED` still matches.
+*/
+export function transformCurrencyOverridesToTheme(currencies: TemplatesStoreConfig['currencies'], code: CurrencyCodes): ThemeMinimal {
+	const overrides = currencies?.[code] || currencies?.[code.toUpperCase() as CurrencyCodes];
+
+	return overrides ? { components: overrides as ThemeComponentsRestricted } : {};
+}
+
+// the ISO code is not stored in the locale data - it is derived from the active currency so the `Price`
+// component can render it after the amount when `showCode` is enabled
+export function withCurrencyCode(code: CurrencyCodes, currency: ThemeMinimal): ThemeMinimal {
+	return deepmerge(currency, { components: { price: { code: code.toUpperCase() } } }) as ThemeMinimal;
 }
 
 export function transformTranslationsToTheme(translations: LangComponentOverrides): ThemeMinimal {

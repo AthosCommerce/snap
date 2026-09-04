@@ -13,4 +13,8 @@ export {
 	PluginShopifyMarketsConfig as PluginMarketsConfig,
 	SHOPIFY_GRAPHQL_API_PATH,
 } from './plugins/pluginShopifyMarkets';
-export { shopifyMarketsPriceFormat } from './shopifyMarketsPriceFormat';
+export {
+	pluginShopifyCurrency as pluginCurrency,
+	PluginShopifyCurrencyConfig as PluginCurrencyConfig,
+	PluginShopifyCurrencyStore as PluginCurrencyStore,
+} from './plugins/pluginShopifyCurrency';
