@@ -13,6 +13,7 @@ import { pluginBackgroundFilters as shopifyPluginBackgroundFilters } from './lib
 import { pluginMutateResults as shopifyPluginMutateResults } from './library/plugins/shopify/pluginMutateResults';
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
 import { pluginMarkets as shopifyPluginMarkets } from './library/plugins/shopify/pluginMarkets';
+import { pluginCurrency as shopifyPluginCurrency } from './library/plugins/shopify/pluginCurrency';
 import { pluginAddToCart as bigCommercePluginAddToCart } from './library/plugins/bigCommerce/pluginAddToCart';
 import { pluginAddToCart as magento2PluginAddToCart } from './library/plugins/magento2/pluginAddToCart';
 import { pluginAddToCart as commonPluginAddToCart } from './library/plugins/common/pluginAddToCart';
@@ -50,6 +51,7 @@ export type LibraryImports = {
 			mutateResults: typeof shopifyPluginMutateResults;
 			addToCart: typeof shopifyPluginAddToCart;
 			markets: typeof shopifyPluginMarkets;
+			currency: typeof shopifyPluginCurrency;
 		};
 		bigcommerce: {
 			backgroundFilters: PluginFunction;
@@ -391,6 +393,7 @@ export class LibraryStore {
 				mutateResults: shopifyPluginMutateResults,
 				addToCart: shopifyPluginAddToCart,
 				markets: shopifyPluginMarkets,
+				currency: shopifyPluginCurrency,
 			},
 			bigcommerce: {
 				backgroundFilters: bigCommercePluginBackgroundFilters,

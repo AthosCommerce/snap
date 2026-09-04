@@ -9,6 +9,7 @@ Snap templates is configuration based. The configuration defines which features 
 | `plugins` | Plugins configuration options |
 | `components` | Custom component registration |
 | `translations` | Custom language translations |
+| `currencies` | Per currency component overrides |
 | `url` | URL translator configuration |
 | `theme` | Theme configuration |
 | `search` | Search feature target declarations |
@@ -129,6 +130,29 @@ const config = validateTemplatesConfigUnlocked({
 
 new SnapTemplates(config);
 ```
+
+### Per Currency Overrides
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `currencies` | Per currency component overrides | Object | ➖ |
+| `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ |
+| `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ |
+
+Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), `config.currencies` overrides component props for that one currency, layered on top of its built-in locale. The value has the same shape as `theme.overrides.default`, so any component props are accepted.
+
+```tsx
+currencies: {
+	aed: {
+		price: {
+			symbol: 'د.إ',
+			symbolAfter: true,
+		},
+	},
+},
+```
+
+The overrides follow the active currency, including when it changes at run-time via `setCurrency()`. See [Per Currency Overrides](TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the full layer order.
 
 ### Language Translations
 

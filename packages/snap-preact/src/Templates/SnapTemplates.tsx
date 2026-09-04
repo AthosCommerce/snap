@@ -53,7 +53,8 @@ import {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginMarketsConfig as PluginShopifyMarketsConfig,
 	pluginMarkets as pluginShopifyMarkets,
-	shopifyMarketsPriceFormat,
+	PluginCurrencyConfig as PluginShopifyCurrencyConfig,
+	pluginCurrency as pluginShopifyCurrency,
 } from '@athoscommerce/snap-platforms/shopify';
 
 import {
@@ -153,6 +154,7 @@ type TemplatePlugins =
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
 	| [typeof pluginShopifyMarkets, PluginShopifyMarketsConfig]
+	| [typeof pluginShopifyCurrency, PluginShopifyCurrencyConfig, TemplatesStore]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
@@ -176,62 +178,9 @@ export const DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS: AutocompleteStoreConfigSe
 // tabs namespace their catalog specific url state - the query is shared so a single search spans every tab
 export const TAB_PREFIXED_PARAMS: (keyof CoreMap)[] = ['filter', 'sort', 'pageSize', 'rq', 'page'];
 
-const hasShopifyMarketsPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
-	const pluginConfigs = [
-		templateConfig.plugins?.shopify?.markets,
-		templateConfig.search?.plugins?.shopify?.markets,
-		templateConfig.autocomplete?.plugins?.shopify?.markets,
-		templateConfig.recommendation?.plugins?.shopify?.markets,
-	];
-
-	return pluginConfigs.some((pluginConfig) => {
-		return typeof pluginConfig?.token === 'string' && pluginConfig.token.length > 0;
-	});
-};
-
-export const applyAutomaticThemeOverrides = (
-	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked
-): SnapTemplatesConfig | SnapTemplatesConfigUnlocked => {
-	if (templateConfig.config?.platform !== 'shopify') {
-		return templateConfig;
-	}
-
-	if (!hasShopifyMarketsPluginConfig(templateConfig)) {
-		return templateConfig;
-	}
-
-	const defaultOverrides = templateConfig.theme?.overrides?.default as Record<string, unknown> | undefined;
-	const priceOverride = defaultOverrides?.price as { format?: unknown } | undefined;
-
-	if (typeof priceOverride?.format !== 'undefined') {
-		return templateConfig;
-	}
-
-	let context: { format?: string } | undefined;
-	try {
-		context = getContext(['format']) as { format?: string };
-	} catch {
-		context = undefined;
-	}
-	const currencyFormat: string = context?.format || '${{amount}}';
-	// todo: consider moving this inside of the plugin if possible. seems odd to have this happen outside of it.
-	return deepmerge(templateConfig, {
-		theme: {
-			overrides: {
-				default: {
-					price: {
-						format: (number: number | string) => shopifyMarketsPriceFormat(number, currencyFormat),
-					},
-				},
-			},
-		},
-	});
-};
-
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
-		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
 		try {
 			context = getContext(['editor']);
@@ -248,16 +197,16 @@ export class SnapTemplates extends Snap {
 		const editMode = Boolean(editorCookieValue) || editUIMode || Boolean(editor?.mode === 'headless');
 
 		// handle "global" result component configuration
-		if (modifiedConfig.theme.globalResultComponent) {
-			(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
-				{ default: { result: { customComponent: modifiedConfig.theme.globalResultComponent } } },
-				(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides || {}
+		if (config.theme.globalResultComponent) {
+			(config as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
+				{ default: { result: { customComponent: config.theme.globalResultComponent } } },
+				(config as SnapTemplatesConfigUnlocked).theme.overrides || {}
 			);
 		}
 
-		const templatesStore = new TemplatesStore({ config: modifiedConfig, settings: { editMode } });
+		const templatesStore = new TemplatesStore({ config: config, settings: { editMode } });
 
-		const snapConfig = createSnapConfig(modifiedConfig, templatesStore);
+		const snapConfig = createSnapConfig(config, templatesStore);
 
 		super(snapConfig, { templatesStore });
 
@@ -827,8 +776,15 @@ export function createPlugins(
 			]);
 			const marketsConfig = deepmerge(templateConfig.plugins?.shopify?.markets || {}, controllerConfig?.plugins?.shopify?.markets || {});
 			//only push if token is defined and non-empty
-			if (typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0) {
+			const marketsEnabled = typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0;
+			if (marketsEnabled) {
 				plugins.push([templatesStore.library.import.plugins.shopify.markets, marketsConfig]);
+			}
+			// markets plugin enables the currency plugin unless it has been explicitly disabled
+			const currencyConfig = deepmerge(templateConfig.plugins?.shopify?.currency || {}, controllerConfig?.plugins?.shopify?.currency || {});
+			if (currencyConfig?.enabled === true || (marketsEnabled && currencyConfig?.enabled !== false)) {
+				// `enabled` is resolved onto the config so the plugin survives the tab plugin filter below
+				plugins.push([templatesStore.library.import.plugins.shopify.currency, { ...currencyConfig, enabled: true }, templatesStore]);
 			}
 			break;
 		case 'bigCommerce':

@@ -618,8 +618,7 @@ new SnapTemplates(config);
 ### Using the Shopify Markets Plugin
 
 The **Shopify Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
-When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
-The formatter reads script context with `getContext(['format'])`.
+It localizes the price *values*; displaying them correctly also needs the matching currency locale, so configuring `markets` automatically enables the [Shopify Currency plugin](#using-the-shopify-currency-plugin).
 
 Register the plugin in your SnapTemplates configuration:
 
@@ -644,16 +643,7 @@ const config = validateTemplatesConfig({
 new SnapTemplates(config);
 ```
 
-Optional script context variables used by `shopifyMarketsPriceFormat`:
-
-```html
-<script id="athos-context" src="bundle.js">
-	format = '${{amount}}';
-</script>
-```
-
 In your result component, check the `priceFetched` flag before rendering prices.
-You do not need to manually import or pass `shopifyMarketsPriceFormat` when using the snap `Price` component.
 
 ```tsx
 import { observer } from 'mobx-react-lite';
@@ -673,9 +663,85 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 });
 ```
 
-If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
+If you need a custom formatter, you can still set `theme.overrides.default.price.format` in your template config; it takes precedence over the currency locale.
 												
 For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+
+---
+
+### Using the Shopify Currency Plugin
+
+The **Shopify Currency plugin** takes the storefront's active currency (`Shopify.currency.active`) and applies the matching built-in currency locale, so the `Price` component's symbol, decimal places and separators follow the market the shopper is browsing in. It is the display-side companion to the Markets plugin, which localizes the price values themselves.
+
+Configuring the Markets plugin enables this one automatically, since the two are halves of the same feature — Markets converts the price values, this plugin makes the display match them. Enabling it on its own is only correct when something else is converting prices; on a multi-currency storefront with no conversion it would label base-currency amounts with the shopper's market symbol. To use it standalone, or to opt back out alongside Markets, set `enabled` explicitly:
+
+```tsx
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+		currency: 'USD', // applied until the plugin resolves the storefront currency, and kept if it can't
+	},
+	plugins: {
+		shopify: {
+			currency: {
+				enabled: true,
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+
+new SnapTemplates(config);
+```
+
+No currency table is needed per site: the currency locales for every currency Shopify supports (ISO 4217) ship with Snap Templates. Site specific adjustments still go through `theme.overrides.default.price`, which is applied on top of the currency locale.
+
+Each locale carries the `symbol`, `decimalPlaces`, `thousandsSeparator`, `decimalSeparator` and `symbolAfter` for that currency, and supplies the ISO code to the `Price` component. To display that code next to the amount, set `theme.overrides.default.price.showCode: true` — the equivalent of Shopify's `money_with_currency_format`.
+
+The currency is read at load time. Shopify's currency and market selectors reload the page, so a currency change is picked up on the next load. The currency can also be changed at any time with `window.athos.templates.setCurrency('EUR')`.
+
+For detailed configuration options, see the [Shopify Currency plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifycurrency).
+
+---
+
+### Per Currency Overrides
+
+Several currencies have more than one accepted presentation — `$1,099.99` or `1,099.99 USD`, `AED 1,099.99` or `1,099.99 د.إ`. The built-in currency locales pick one convention per currency; the top level `currencies` config overrides component props for a single currency, layered on top of that locale. It follows the same shape as `translations`, keyed by currency code instead of language code:
+
+```tsx
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		currency: 'AED',
+	},
+	currencies: {
+		aed: {
+			price: {
+				symbol: 'د.إ',   // the locale ships the 'AED ' abbreviation instead
+				symbolAfter: true,
+			},
+		},
+		usd: {
+			price: {
+				showCode: true, // $1,099.99 USD
+			},
+		},
+	},
+	theme: { extends: 'bocachica' },
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+Any component props are accepted, not just `price` — the value has the same shape as `theme.overrides.default`.
+
+Only the block for the active currency is applied, and it follows the currency: when the currency changes at runtime — via `setCurrency()`, or by the [Shopify Currency plugin](#using-the-shopify-currency-plugin) — the previous currency's overrides are dropped and the new currency's are applied.
+
+The layer order is: built-in currency locale → `currencies` overrides → language → `translations` → `theme.overrides`. So `theme.overrides` remains the final say and applies to every currency, while `currencies` is scoped to one.
 
 ---
 

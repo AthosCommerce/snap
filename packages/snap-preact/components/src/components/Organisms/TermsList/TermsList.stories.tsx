@@ -9,6 +9,7 @@ import { AutocompleteController } from '@athoscommerce/snap-controller';
 import { Snapify } from '../../../utilities/snapify';
 import type { AutocompleteTermStore } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
+import { AutocompleteRequestModelSearchSourceEnum } from '@athoscommerce/snapi-types';
 import { useState } from 'preact/hooks';
 
 export default {
@@ -164,13 +165,14 @@ const snapInstance = Snapify.autocomplete({
 });
 
 export const Default = (args: TermsListProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
-	const [termState, setTermState] = useState(false);
+	const [termState, setTermState] = useState('');
 
 	const mockTerms: AutocompleteTermStore = [
 		{
 			active: termState === 'dress',
 			preview: () => setTermState('dress'),
 			value: 'dress',
+			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -179,6 +181,7 @@ export const Default = (args: TermsListProps, { loaded: { controller } }: { load
 			active: termState === 'shirt',
 			preview: () => setTermState('shirt'),
 			value: 'shirt',
+			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -187,6 +190,7 @@ export const Default = (args: TermsListProps, { loaded: { controller } }: { load
 			active: termState === 'shoes',
 			preview: () => setTermState('shoes'),
 			value: 'shoes',
+			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -195,6 +199,7 @@ export const Default = (args: TermsListProps, { loaded: { controller } }: { load
 			active: termState === 'hat',
 			preview: () => setTermState('hat'),
 			value: 'hat',
+			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -203,6 +208,7 @@ export const Default = (args: TermsListProps, { loaded: { controller } }: { load
 			active: termState === 'pants',
 			preview: () => setTermState('pants'),
 			value: 'pants',
+			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -211,6 +217,7 @@ export const Default = (args: TermsListProps, { loaded: { controller } }: { load
 			active: termState === 'socks',
 			preview: () => setTermState('socks'),
 			value: 'socks',
+			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
 			url: {
 				href: '#',
 			} as UrlManager,
