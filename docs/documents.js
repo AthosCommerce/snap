@@ -118,20 +118,6 @@ var documents = [
 				],
 			},
 			{
-				label: 'Background Filters',
-				route: '/snap-background-filters',
-				type: 'markdown',
-				url: './docs/SNAP_BACKGROUND_FILTERS.md',
-				searchable: true,
-			},
-			{
-				label: 'Foreground Filters',
-				route: '/snap-foreground-filters',
-				type: 'markdown',
-				url: './docs/SNAP_FOREGROUND_FILTERS.md',
-				searchable: true,
-			},
-			{
 				label: 'Integration Checklist',
 				route: '/snap-integration-checklist',
 				type: 'markdown',
@@ -334,6 +320,29 @@ var documents = [
 				type: 'markdown',
 				url: './docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md',
 				searchable: true,
+			},
+			{
+				label: 'Advanced Filtering',
+				route: '/reference-advanced-filtering',
+				type: 'markdown',
+				url: './docs/REFERENCE_ADVANCED_FILTERING.md',
+				searchable: true,
+				links: [
+					{
+						label: 'Background Filters',
+						route: '/snap-background-filters',
+						type: 'markdown',
+						url: './docs/SNAP_BACKGROUND_FILTERS.md',
+						searchable: true,
+					},
+					{
+						label: 'Foreground Filters',
+						route: '/snap-foreground-filters',
+						type: 'markdown',
+						url: './docs/SNAP_FOREGROUND_FILTERS.md',
+						searchable: true,
+					},
+				],
 			},
 			{
 				label: 'Badges',

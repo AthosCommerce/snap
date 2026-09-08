@@ -1,6 +1,29 @@
-# Tracking
+# Tracking 📊
 
-To ensure accurate tracking of events used for reporting, the following tracking events should be implemented across Search, Category, Autocomplete and Recommendations result components.
+>[!IMPORTANT]
+>If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
+
+Snap automatically tracks result **impressions and clicks** out of the box when using the default `Result` and Autocomplete components (or the `withTracking` hook / `ResultTracker` component for custom result cards). Everything else on this page - product add-to-cart, shopper login, currency, product views, order transactions, and cart activity - needs to be wired up manually, since these are events Snap has no way to detect without explicit instrumentation.
+
+## Quick Reference
+
+### ✅ Tracked Automatically
+- **[Impressions](#impressions)** — via the default `Result`/Autocomplete components, or the `withTracking` hook / `ResultTracker` component for custom result cards
+- **[Product Click](#product-click)** — same as above
+
+### 🛠️ Requires Manual Setup
+- **[Product Add To Cart](#product-add-to-cart)** — tracking is bundled into `controller.addToCart()`, but you still need to enable the default component's button or wire up your own handler
+- **[Shopper Login](#shopper-login)**
+- **[Currency](#currency)**
+- **[Product View](#product-view)**
+- **[Order Transaction](#order-transaction)**
+- **[Cart Contents](#cart-contents)**
+- **[Cart Attribute Tracking](#cart-attribute-tracking)**
+
+>[!NOTE]
+>On Shopify with the Pixel Tracking extension installed, everything above under "Requires Manual Setup" **except Product Add To Cart** is handled automatically instead — see the note under [Events invoked outside of the integration code](#events-invoked-outside-of-the-integration-code).
+
+---
 
 ## Events invoked within the integration code
 
@@ -9,9 +32,11 @@ Tracks product click events. Not required when using `withTracking` or `ResultTr
 
 ```tsx
 controller.store.results.map(result => {
+	const { core } = result.mappings;
+
 	return (
 		<a href={core.url} onMouseDown={(e)=> controller.track.product.click(e, result) }>
-			{result.name}
+			{core.name}
 		</a>
 	)
 })
@@ -24,16 +49,19 @@ Tracks product add to cart events. It is recommended to invoke on each product `
 
 ```tsx
 controller.store.results.map(result => {
+	const { core } = result.mappings;
 	const handleAddToCart = async () => {
 		await controller.addToCart(result);
 		// optional: open cart drawer or redirect after cart middleware finishes
 	};
 
 	return (
-		<a href={core.url} onMouseDown={(e)=> controller.track.product.click(e, result) }>
-			{result.name}
+		<div>
+			<a href={core.url} onMouseDown={(e)=> controller.track.product.click(e, result) }>
+				{core.name}
+			</a>
 			<button onClick={handleAddToCart}>Add to cart</button>
-		</a>
+		</div>
 	)
 })
 ```
@@ -172,7 +200,7 @@ athos.tracker.setCurrency({
 
 
 ### Product View
-Tracks product page views. Should only be installed on product detail pages. A `parentId` and `uid` are required while  `sku` is optional.
+Tracks product page views. Should only be installed on product detail pages. A `parentId` and `uid` are required while `sku` is optional.
 
 ```js
 athos.tracker.events.product.pageView({
@@ -301,7 +329,7 @@ This method will compare the provided cart contents with the current cart conten
 ```html
 <script src="https://snapui.athoscommerce.io/[your_site_id]/bundle.js" id="athos-context">
 	shopper = {
-		id: '[REPLACE WITH LOGGED IN SHOPPER ID]'
+		id: '[REPLACE WITH LOGGED IN SHOPPER ID]',
 		cart: [
 			{
 				parentId: 'product123',
@@ -319,15 +347,16 @@ This method will compare the provided cart contents with the current cart conten
 ```
 
 
-## Cart Attribute Tracking
+### Cart Attribute Tracking
 
-This is not required if the above `Cart View` and `Order Transaction` tracking has not been implemented OR you are not using the `realtime` recommendations configuration. 
+This is not required if the above `Cart Contents` and `Order Transaction` tracking has not been implemented OR you are not using the `realtime` recommendations configuration.
 
 Adding the following attributes to clickable cart elements allows for real-time updates to any recommendations (disabled by default) when the cart changes. If the click event occurs on a nested element, the attribute data will attempt to be retrieved from up to 3 parent nodes.
 
-If you are using multiple custom Tracker instances with a different tracker `config.id`, attributes are namespaced by the trackers `id` (Default: `'track'`, Example: `ss-track-cart-add`)
+>[!NOTE]
+>If you are using multiple custom Tracker instances with a different tracker `config.id`, attributes are namespaced by the tracker's `id` (Default: `'track'`, Example: `ss-track-cart-add`)
 
-### Add to cart
+#### Add to cart
 Adds product identifier to `ssCartProducts` cookie. Supports multiple products using a comma delimiter. It is preferable to use the more specific variant `uid` or `sku` instead of `parentId` when available.
 
 ```html
@@ -345,7 +374,7 @@ athos.tracker.cookies.cart.add(['product123'])
 ```
 
 
-### Remove from cart
+#### Remove from cart
 Removes product identifier from `ssCartProducts` cookie. Supports multiple products using a comma delimiter. It is preferable to use the more specific variant `uid` or `sku` instead of `parentId` when available.
 
 ```html
@@ -363,22 +392,41 @@ athos.tracker.cookies.cart.remove(['product123'])
 ```
 
 
-### Clear cart
+#### Clear cart
 Clears all products currently stored in the `ssCartProducts` cookie.
 
 ```html
 <button ss-track-cart-clear>Clear Cart</button>
 ```
 
-Alternatively, this can also be integrated using the `athos.tracker.cookies.cart.remove` method
+Alternatively, this can also be integrated using the `athos.tracker.cookies.cart.clear` method
 
 ```js
 athos.tracker.cookies.cart.clear()
 ```
 
-### View cart
+#### View cart
 Allows for real-time updates to any recommendations when an element with this attribute is clicked.
 
 ```html
 <button ss-track-cart-view>View Cart</button>
 ```
+
+---
+## Troubleshooting FAQ ❓
+
+**Q: I'm using the default `Result`/Autocomplete components and don't see any tracking calls. Do I need to add anything?**
+<br>
+**A:** No — the default components already wire up click and impression tracking internally. You only need to build `Product Click`/`Impressions` yourself when using custom result cards.
+
+**Q: My `Order Transaction` or `Product View` event isn't showing up in reporting. Why?**
+<br>
+**A:** Confirm the `bundle.js` script is actually present on that page — these events are invoked outside the main integration code and require it to reach `window.athos.tracker`. Also confirm the event is only fired once per page load (e.g. not re-fired on every re-render of an order confirmation page).
+
+**Q: I set the `shopper.cart` context variable, but no cart events are firing. Why?**
+<br>
+**A:** This method only sends events when it detects a difference between the provided cart contents and what's already stored in local storage — if the values match, nothing fires. Confirm the object is valid (a common mistake is a missing comma between `id` and `cart` in the context script block).
+
+**Q: My `Cart Attribute Tracking` buttons aren't triggering real-time recommendation updates. Why?**
+<br>
+**A:** Confirm you're using the `realtime` recommendations configuration — Cart Attribute Tracking only matters if that's enabled. Also confirm the attribute is on the clickable element itself (or within 3 parent nodes of it), and that it's namespaced correctly if you're running multiple custom Tracker instances with a non-default `config.id`.

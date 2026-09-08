@@ -531,6 +531,65 @@ import('./docs/documents.js').then(function (_) {
 			pre.appendChild(button);
 		});
 
+		// make GFM task-list checkboxes interactive and persist checked state per page
+		const checklistBoxes = document.querySelectorAll('#markdown li input[type="checkbox"]');
+		if (checklistBoxes.length) {
+			const checklistStorageKey = (checkbox) => `checklist:${window.location.pathname}:${checkbox.closest('li').textContent.trim()}`;
+
+			checklistBoxes.forEach((checkbox) => {
+				if (checkbox.dataset.checklistInit) return;
+				checkbox.dataset.checklistInit = 'true';
+				checkbox.disabled = false;
+
+				const item = checkbox.closest('li');
+				checkbox.checked = localStorage.getItem(checklistStorageKey(checkbox)) === 'true';
+				item.classList.toggle('checked', checkbox.checked);
+
+				checkbox.addEventListener('change', () => {
+					localStorage.setItem(checklistStorageKey(checkbox), checkbox.checked);
+					item.classList.toggle('checked', checkbox.checked);
+					updateChecklistProgress();
+				});
+			});
+
+			updateChecklistProgress();
+		}
+
+		function updateChecklistProgress() {
+			const boxes = document.querySelectorAll('#markdown li input[type="checkbox"]');
+			const total = boxes.length;
+			if (!total) return;
+			const checked = document.querySelectorAll('#markdown li input[type="checkbox"]:checked').length;
+
+			let bar = document.getElementById('checklist-progress');
+			if (!bar) {
+				bar = document.createElement('div');
+				bar.id = 'checklist-progress';
+				bar.innerHTML = `
+                    <div class="checklist-progress-track"><div class="checklist-progress-fill"></div></div>
+                    <span class="checklist-progress-text"></span>
+                    <button type="button" class="checklist-reset-button" title="Uncheck all items">
+                        <i class="fas fa-rotate-left"></i> Reset
+                    </button>
+                `;
+				document.querySelector('#markdown h1')?.after(bar);
+
+				bar.querySelector('.checklist-reset-button').addEventListener('click', () => {
+					document.querySelectorAll('#markdown li input[type="checkbox"]').forEach((box) => {
+						localStorage.removeItem(
+							`checklist:${window.location.pathname}:${box.closest('li').textContent.trim()}`
+						);
+						box.checked = false;
+						box.closest('li').classList.remove('checked');
+					});
+					updateChecklistProgress();
+				});
+			}
+
+			bar.querySelector('.checklist-progress-fill').style.width = `${(checked / total) * 100}%`;
+			bar.querySelector('.checklist-progress-text').textContent = `${checked} / ${total} complete`;
+		}
+
 		const handleScroll = debounce(() => {
 			if (window.scrollY > lastScrollY) {
 				lastScrolledUp = false;

@@ -65,14 +65,6 @@
 			"url": "/snap-tracking",
 			"title": "Tracking"
 		},
-		"docs/SNAP_BACKGROUND_FILTERS.md": {
-			"url": "/snap-background-filters",
-			"title": "Background Filters"
-		},
-		"docs/SNAP_FOREGROUND_FILTERS.md": {
-			"url": "/snap-foreground-filters",
-			"title": "Foreground Filters"
-		},
 		"docs/SNAP_INTEGRATION_CHECKLIST.md": {
 			"url": "/snap-integration-checklist",
 			"title": "Integration Checklist"
@@ -168,6 +160,18 @@
 		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
 			"url": "/reference-custom-recommendation-templates",
 			"title": "Custom Recommendation Templates"
+		},
+		"docs/REFERENCE_ADVANCED_FILTERING.md": {
+			"url": "/reference-advanced-filtering",
+			"title": "Advanced Filtering"
+		},
+		"docs/SNAP_BACKGROUND_FILTERS.md": {
+			"url": "/snap-background-filters",
+			"title": "Background Filters"
+		},
+		"docs/SNAP_FOREGROUND_FILTERS.md": {
+			"url": "/snap-foreground-filters",
+			"title": "Foreground Filters"
 		},
 		"docs/SNAP_BADGES.md": {
 			"url": "/snap-badges",
