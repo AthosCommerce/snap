@@ -115,17 +115,19 @@ describe('shopify/pluginShopifyMarkets', () => {
 	beforeEach(() => {
 		jest.resetAllMocks();
 
+		// Default to a non-base country (base defaults to 'US') so most tests exercise the fetch path;
+		// tests that want to verify the skip-fetch path explicitly set country back to 'US'
 		// @ts-ignore
 		window.Shopify = {
 			shop: 'unit-test-shop.myshopify.com',
-			country: 'US',
+			country: 'CA',
 			currency: {
 				active: 'CAD',
 			},
 		};
 	});
 
-	it('fetches localized prices, updates mappings.core values, and sets priceFetched', async () => {
+	it('fetches localized prices, updates mappings.core values, and sets priceFetched when country differs from base', async () => {
 		const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '123', price: 12, msrp: 20 }]));
 		(global as any).fetch = fetchMock;
 
@@ -145,7 +147,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -156,9 +157,9 @@ describe('shopify/pluginShopifyMarkets', () => {
 		expect(productResult.state.priceFetched).toBe(true);
 	});
 
-	it('does not fetch when active currency matches base currency and still sets priceFetched', async () => {
+	it('does not fetch when country matches base country and still sets priceFetched', async () => {
 		// @ts-ignore
-		window.Shopify.currency.active = 'USD';
+		window.Shopify.country = 'US';
 
 		const fetchMock = jest.fn();
 		(global as any).fetch = fetchMock;
@@ -184,7 +185,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -192,6 +192,156 @@ describe('shopify/pluginShopifyMarkets', () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 		expect(productResult.state.priceFetched).toBe(true);
 		expect(bannerResult.state.priceFetched).toBeUndefined();
+	});
+
+	it('ignores currency entirely — only country is used to decide whether to fetch', async () => {
+		// @ts-ignore — country matches base, but currency is wildly different
+		window.Shopify.country = 'US';
+		// @ts-ignore
+		window.Shopify.currency.active = 'JPY';
+
+		const fetchMock = jest.fn();
+		(global as any).fetch = fetchMock;
+
+		const productResult: MockResult = {
+			type: 'product',
+			mappings: {
+				core: {
+					parentId: '999',
+					price: 30,
+				},
+			},
+			state: {},
+		};
+
+		const controller = createController([productResult]);
+
+		pluginShopifyMarkets(controller as any, {
+			token: 'token',
+		});
+
+		await (controller as any).runAfterStore();
+
+		expect(fetchMock).not.toHaveBeenCalled();
+		expect(productResult.mappings.core.price).toBe(30);
+	});
+
+	it('still fetches when country differs from base even though currency happens to match', async () => {
+		// @ts-ignore — Argentina: same currency as Australia, different market/country
+		window.Shopify.country = 'AR';
+		// @ts-ignore
+		window.Shopify.currency.active = 'AUD';
+
+		const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '123', price: 12, msrp: 20 }]));
+		(global as any).fetch = fetchMock;
+
+		const productResult: MockResult = {
+			type: 'product',
+			mappings: {
+				core: {
+					parentId: '123',
+					price: 5,
+					msrp: 10,
+				},
+			},
+			state: {},
+		};
+
+		const controller = createController([productResult]);
+
+		pluginShopifyMarkets(controller as any, {
+			token: 'token',
+			baseCountry: 'US',
+		});
+
+		await (controller as any).runAfterStore();
+
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(productResult.mappings.core.price).toBe(12);
+		expect(productResult.mappings.core.msrp).toBe(20);
+	});
+
+	it('keeps separate caches for two different countries even when they share a currency', async () => {
+		const fetchMock = jest.fn();
+		fetchMock.mockResolvedValueOnce(makeFetchResponse([{ id: '123', price: 100, msrp: 150 }]));
+		fetchMock.mockResolvedValueOnce(makeFetchResponse([{ id: '123', price: 80, msrp: 120 }]));
+		(global as any).fetch = fetchMock;
+
+		const controller = createController([]);
+
+		pluginShopifyMarkets(controller as any, {
+			token: 'token',
+			baseCountry: 'US',
+		});
+
+		// First non-base market: Australia, currency AUD
+		// @ts-ignore
+		window.Shopify.country = 'AU';
+		// @ts-ignore
+		window.Shopify.currency.active = 'AUD';
+
+		const auProduct: MockResult = {
+			type: 'product',
+			mappings: { core: { parentId: '123', price: 5, msrp: 10 } },
+			state: {},
+		};
+		controller.store.results = [auProduct];
+		await (controller as any).runAfterStore();
+
+		expect(auProduct.mappings.core.price).toBe(100);
+		expect(auProduct.mappings.core.msrp).toBe(150);
+
+		// Second non-base market: Argentina, same currency AUD but different prices
+		// @ts-ignore
+		window.Shopify.country = 'AR';
+		// @ts-ignore
+		window.Shopify.currency.active = 'AUD';
+
+		const arProduct: MockResult = {
+			type: 'product',
+			mappings: { core: { parentId: '123', price: 5, msrp: 10 } },
+			state: {},
+		};
+		controller.store.results = [arProduct];
+		await (controller as any).runAfterStore();
+
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+		expect(arProduct.mappings.core.price).toBe(80);
+		expect(arProduct.mappings.core.msrp).toBe(120);
+	});
+
+	it('does not refetch when only currency changes and country stays the same', async () => {
+		const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '456', price: 22, msrp: 40 }]));
+		(global as any).fetch = fetchMock;
+
+		const controller = createController([]);
+
+		pluginShopifyMarkets(controller as any, {
+			token: 'token',
+		});
+
+		const firstProduct: MockResult = {
+			type: 'product',
+			mappings: { core: { parentId: '456', price: 9 } },
+			state: {},
+		};
+		controller.store.results = [firstProduct];
+		await (controller as any).runAfterStore();
+
+		// @ts-ignore — currency changes, country ('CA') does not
+		window.Shopify.currency.active = 'EUR';
+
+		const secondProduct: MockResult = {
+			type: 'product',
+			mappings: { core: { parentId: '456', price: 9 } },
+			state: {},
+		};
+		controller.store.results = [secondProduct];
+		await (controller as any).runAfterStore();
+
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(secondProduct.mappings.core.price).toBe(22);
+		expect(secondProduct.mappings.core.msrp).toBe(40);
 	});
 
 	it('reuses cached prices on subsequent afterStore runs', async () => {
@@ -213,7 +363,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -244,7 +393,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 			baseUrl: 'https://custom-shop.myshopify.com',
 			path: '/api/2025-04/graphql.json',
 		});
@@ -289,7 +437,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -334,7 +481,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -374,7 +520,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -422,7 +567,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 			idFieldName: 'attributes.shopifyVariantId',
 		});
 
@@ -467,7 +611,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 			// no idFieldName — should default to mappings.core.uid
 		});
 
@@ -569,7 +712,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
-			baseCurrency: 'USD',
 		});
 
 		await (controller as any).runAfterStore();
@@ -643,7 +785,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			pluginShopifyMarkets(controller as any, {
 				token: 'token',
-				baseCurrency: 'USD',
 			});
 
 			await (controller as any).runAfterStore();
@@ -685,7 +826,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			pluginShopifyMarkets(controller as any, {
 				token: 'token',
-				baseCurrency: 'USD',
 			});
 
 			await (controller as any).runQuickview();
@@ -698,9 +838,9 @@ describe('shopify/pluginShopifyMarkets', () => {
 			expect(quickviewProduct.state.priceFetched).toBe(true);
 		});
 
-		it('does not fetch when active currency matches base currency and still sets priceFetched', async () => {
+		it('does not fetch when country matches base country and still sets priceFetched', async () => {
 			// @ts-ignore
-			window.Shopify.currency.active = 'USD';
+			window.Shopify.country = 'US';
 
 			const fetchMock = jest.fn();
 			(global as any).fetch = fetchMock;
@@ -711,7 +851,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			pluginShopifyMarkets(controller as any, {
 				token: 'token',
-				baseCurrency: 'USD',
 			});
 
 			await (controller as any).runQuickview();
@@ -730,7 +869,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			pluginShopifyMarkets(controller as any, {
 				token: 'token',
-				baseCurrency: 'USD',
 			});
 
 			await expect((controller as any).runQuickview()).resolves.toBeUndefined();
@@ -747,7 +885,6 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			pluginShopifyMarkets(controller as any, {
 				token: 'token',
-				baseCurrency: 'USD',
 			});
 
 			await (controller as any).runQuickview();

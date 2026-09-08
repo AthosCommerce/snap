@@ -12,7 +12,7 @@ export type ShopifyMarketsConfig = {
 	token: string;
 	baseUrl?: string;
 	path?: string;
-	baseCurrency?: string;
+	baseCountry?: string;
 	idFieldName?: string;
 };
 
@@ -101,7 +101,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 	}
 
 	const shopify = window?.Shopify as ShopifyObj;
-	const { token, baseCurrency = 'USD', idFieldName = 'mappings.core.uid' } = config;
+	const { token, baseCountry = 'US', idFieldName = 'mappings.core.uid' } = config;
 
 	const baseUrl = config.baseUrl || shopify?.shop || window?.location?.host;
 	const path = config.path || SHOPIFY_GRAPHQL_API_PATH;
@@ -282,13 +282,24 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		return formattedData;
 	};
 
-	// In-memory cache for GraphQL pricing data, scoped to this plugin instance
-	let priceCache: GraphQLPriceCache = {};
+	// In-memory cache for GraphQL pricing data, scoped to this plugin instance and segmented per country,
+	// since that's the only thing @inContext varies the fetched prices on — two countries can share a
+	// currency while still pricing products differently
+	const priceCachesByCountry: Record<string, GraphQLPriceCache> = {};
 
-	// Prices only need fetching when the shopper's active currency differs from the base currency
+	const getActiveCache = (): GraphQLPriceCache => {
+		const country = (shopify?.country || baseCountry).toUpperCase();
+		if (!priceCachesByCountry[country]) {
+			priceCachesByCountry[country] = {};
+		}
+		return priceCachesByCountry[country];
+	};
+
+	// Prices only need fetching when the shopper's country differs from the base country — country is what
+	// @inContext actually varies the GraphQL response on, so it's the only reliable signal here
 	const shouldFetchPrices = (): boolean => {
-		const activeCurrency = shopify?.currency?.active?.toUpperCase();
-		return !!activeCurrency && activeCurrency !== baseCurrency.toUpperCase();
+		const activeCountry = shopify?.country?.toUpperCase();
+		return !!activeCountry && activeCountry !== baseCountry.toUpperCase();
 	};
 
 	const getParentId = (result: Product): string | undefined => {
@@ -301,19 +312,17 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		return undefined;
 	};
 
-	// Fetch pricing data for any parentIds missing from the cache and merge it in
+	// Fetch pricing data for any parentIds missing from the active market's cache and merge it in
 	const ensurePricesCached = async (parentIds: string[]): Promise<void> => {
-		const uncachedIds = parentIds.filter((parentId) => !priceCache[parentId]);
+		const cache = getActiveCache();
+		const uncachedIds = parentIds.filter((parentId) => !cache[parentId]);
 
 		if (uncachedIds.length > 0) {
 			const productData = await fetchMarketsData(uncachedIds);
 
 			if (productData?.data?.search?.nodes?.length) {
 				const formattedProductData = await formatMarketsData(productData.data.search.nodes);
-				priceCache = {
-					...priceCache,
-					...formattedProductData,
-				};
+				Object.assign(cache, formattedProductData);
 			}
 		}
 	};
@@ -323,7 +332,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		const parentId = getParentId(result);
 		if (!parentId) return;
 
-		const cachedData = priceCache[parentId];
+		const cachedData = getActiveCache()[parentId];
 
 		if (cachedData) {
 			const { price, msrp } = cachedData;
