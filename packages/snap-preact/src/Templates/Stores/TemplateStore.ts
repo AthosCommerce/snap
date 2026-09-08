@@ -6,13 +6,15 @@ import {
 	type AutocompleteStoreConfigSettings,
 	type AutocompleteStoreConfig,
 	type ChatStoreConfigSettings,
+	type QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
-import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
+import { AppMode, StorageStore, StorageType, debounce } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
-import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
-import { AppMode, debounce } from '@athoscommerce/snap-toolbox';
-import type { PluginFunction } from '@athoscommerce/snap-controller';
+
+import { TabManagerStore } from './TabManagerStore';
+import { CurrencyCodes, CurrencyCodeInput, LanguageCodes, LanguageCodeInput, LibraryImports, LibraryStore } from './LibraryStore';
+import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, AbstractController, TabConfig } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -68,6 +70,10 @@ export type AutocompleteTargetConfig = {
 export type ChatTargetConfig = {
 	selector: string;
 	component: keyof LibraryImports['component']['chat'];
+};
+export type QuickviewTargetConfig = {
+	selector?: string;
+	component: keyof LibraryImports['component']['quickview'];
 };
 
 export type RecommendationDefaultTargetConfig = {
@@ -182,6 +188,11 @@ export type PluginsConfigsUnlocked = PluginsConfigsLocked & {
 	custom?: CustomPlugins;
 };
 
+export type TemplatesSearchTabConfigLocked = SearchTabConfig & { plugins?: PluginsConfigsLocked };
+export type TemplatesSearchTabConfigUnlocked = SearchTabConfig & { plugins?: PluginsConfigsUnlocked };
+export type TemplatesAutocompleteTabConfigLocked = AutocompleteTabConfig & { plugins?: PluginsConfigsLocked };
+export type TemplatesAutocompleteTabConfigUnlocked = AutocompleteTabConfig & { plugins?: PluginsConfigsUnlocked };
+
 export type TemplatesStoreConfig = TemplatesStoreConfigLocked | TemplatesStoreConfigUnlocked;
 
 export type TemplatesStoreConfigLocked = {
@@ -189,8 +200,8 @@ export type TemplatesStoreConfigLocked = {
 	config?: {
 		siteId?: string;
 		mode?: keyof typeof AppMode | AppMode;
-		currency?: CurrencyCodes;
-		language?: LanguageCodes;
+		currency?: CurrencyCodeInput;
+		language?: LanguageCodeInput;
 		platform?: IntegrationPlatforms;
 		client?: ClientConfig;
 	};
@@ -200,12 +211,14 @@ export type TemplatesStoreConfigLocked = {
 	};
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
+		tabs?: TemplatesSearchTabConfigLocked[];
 		targets: SearchTargetConfig[];
 		globals?: SearchStoreConfig['globals'];
 		settings?: SearchStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
 	};
 	autocomplete?: {
+		tabs?: TemplatesAutocompleteTabConfigLocked[];
 		targets: AutocompleteTargetConfig[];
 		action?: string;
 		globals?: AutocompleteStoreConfig['globals'];
@@ -216,6 +229,10 @@ export type TemplatesStoreConfigLocked = {
 		targets: ChatTargetConfig[];
 		settings?: ChatStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
+	};
+	quickview?: {
+		targets: QuickviewTargetConfig[];
+		settings?: QuickviewConfig;
 	};
 	recommendation?: {
 		email?: {
@@ -241,11 +258,13 @@ export type TemplatesStoreConfigUnlocked = Omit<
 	theme: TemplatesStoreThemeConfigUnlocked;
 	components?: TemplateStoreComponentConfigUnlocked;
 	plugins?: PluginsConfigsUnlocked;
-	search?: Omit<NonNullable<TemplatesStoreConfigLocked['search']>, 'plugins'> & {
+	search?: Omit<NonNullable<TemplatesStoreConfigLocked['search']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
+		tabs?: TemplatesSearchTabConfigUnlocked[];
 	};
-	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins'> & {
+	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
+		tabs?: TemplatesAutocompleteTabConfigUnlocked[];
 	};
 	chat?: Omit<NonNullable<TemplatesStoreConfigLocked['chat']>, 'plugins'> & {
 		plugins?: PluginsConfigsUnlocked;
@@ -295,6 +314,8 @@ export class TemplatesStore {
 
 	window: WindowProperties = { innerWidth: 0 };
 
+	private tabManagers: { search?: TabManagerStore; autocomplete?: TabManagerStore } = {};
+
 	constructor(params: TemplatesStoreParams) {
 		const { config, settings } = params || {};
 		this.config = config;
@@ -325,13 +346,23 @@ export class TemplatesStore {
 		};
 		this.library = new LibraryStore({ components: config.components, unlocked: (config as TemplatesStoreConfigUnlocked).unlocked || false });
 
+		const configLanguage = this.config.config?.language?.toLowerCase() as LanguageCodes | undefined;
+		const configCurrency = this.config.config?.currency?.toLowerCase() as CurrencyCodes | undefined;
+
+		if (configLanguage && !(configLanguage in this.library.import.language)) {
+			console.warn(`Snap Templates: unknown language code "${this.config.config?.language}" - using "en"`);
+		}
+		if (configCurrency && !(configCurrency in this.library.import.currency)) {
+			console.warn(`Snap Templates: unknown currency code "${this.config.config?.currency}" - using "usd"`);
+		}
+
 		this.language =
 			(this.settings.editMode && this.storage.get('overrides.config.language')) ||
-			(this.config.config?.language && this.config.config.language in this.library.import.language && this.config.config.language) ||
+			(configLanguage && configLanguage in this.library.import.language && configLanguage) ||
 			'en';
 		this.currency =
 			(this.settings.editMode && this.storage.get('overrides.config.currency')) ||
-			(this.config.config?.currency && this.config.config.currency in this.library.import.currency && this.config.config.currency) ||
+			(configCurrency && configCurrency in this.library.import.currency && configCurrency) ||
 			'usd';
 
 		// import locale selections
@@ -433,6 +464,31 @@ export class TemplatesStore {
 		return getTargetArray(this.targets, type)?.[targetIndex];
 	}
 
+	// one store per controller type
+	public getTabManager(type: 'search' | 'autocomplete', controllers: { [id: string]: AbstractController }): TabManagerStore | undefined {
+		const tabs = this.config[type]?.tabs;
+
+		if (!tabs || tabs.length < 2) {
+			return undefined;
+		}
+		const mappedTabs: TabConfig[] = tabs.map((tab) => ({
+			id: tab.id,
+			param: tab.param,
+			siteId: tab.siteId,
+			label: tab.label,
+			default: tab.default,
+			prefetch: (tab as TemplatesSearchTabConfigUnlocked).prefetch,
+		}));
+
+		if (!this.tabManagers[type]) {
+			const tabControllers = tabs.map((tab) => controllers[tab.id]).filter((controller) => Boolean(controller));
+
+			this.tabManagers[type] = new TabManagerStore(mappedTabs, tabControllers);
+		}
+
+		return this.tabManagers[type];
+	}
+
 	public addTheme(config: ThemeStoreThemeConfig) {
 		const theme = new ThemeStore({
 			config,
@@ -463,13 +519,14 @@ export class TemplatesStore {
 		}
 	}
 
-	public async setCurrency(currencyCode: CurrencyCodes) {
-		if (currencyCode in this.library.import.currency) {
-			await this.library.import.currency[currencyCode]();
-			const currency = this.library.locales.currencies[currencyCode];
+	public async setCurrency(currencyCode: CurrencyCodeInput) {
+		const code = currencyCode?.toLowerCase() as CurrencyCodes;
+		if (code in this.library.import.currency) {
+			await this.library.import.currency[code]();
+			const currency = this.library.locales.currencies[code];
 
 			if (currency) {
-				this.currency = currencyCode;
+				this.currency = code;
 				this.storage.set('overrides.config.currency', this.currency);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
@@ -480,16 +537,19 @@ export class TemplatesStore {
 					theme.setCurrency(currency);
 				}
 			}
+		} else {
+			console.warn(`Snap Templates: unknown currency code "${currencyCode}" - currency not changed`);
 		}
 	}
 
-	public async setLanguage(languageCode: LanguageCodes) {
-		if (languageCode in this.library.import.language) {
-			await this.library.import.language[languageCode]();
-			const language = this.library.locales.languages[languageCode];
+	public async setLanguage(languageCode: LanguageCodeInput) {
+		const code = languageCode?.toLowerCase() as LanguageCodes;
+		if (code in this.library.import.language) {
+			await this.library.import.language[code]();
+			const language = this.library.locales.languages[code];
 
 			if (language) {
-				this.language = languageCode;
+				this.language = code;
 				this.storage.set('overrides.config.language', this.language);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
@@ -500,6 +560,8 @@ export class TemplatesStore {
 					theme.setLanguage(language);
 				}
 			}
+		} else {
+			console.warn(`Snap Templates: unknown language code "${languageCode}" - language not changed`);
 		}
 	}
 

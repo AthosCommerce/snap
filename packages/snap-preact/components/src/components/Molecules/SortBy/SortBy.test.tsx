@@ -97,6 +97,36 @@ describe('SortBy Component', () => {
 		expect(onClick).toHaveBeenCalled();
 	});
 
+	it('shows the active sort of whichever sorting store it is given', () => {
+		// mirrors a tab switch - the same component instance is handed another tab's sorting store
+		const sortedData = new MockData().searchMeta();
+		sortedData.search.sorting = [{ field: 'price', direction: 'desc' }] as typeof sortedData.search.sorting;
+
+		const sortedStore = new SearchSortingStore({
+			services,
+			data: {
+				search: sortedData.search,
+				meta: sortedData.meta,
+			},
+		});
+
+		const { container, rerender } = render(<SortBy sorting={sortingStore} />);
+
+		const selection = () => container.querySelector('.ss__select__selection')?.textContent;
+
+		expect(sortedStore.current!.label).not.toBe(sortingStore.current!.label);
+		expect(selection()).toBe(sortingStore.current!.label);
+
+		rerender(<SortBy sorting={sortedStore} />);
+
+		expect(selection()).toBe(sortedStore.current!.label);
+
+		// back to the store the component mounted with
+		rerender(<SortBy sorting={sortingStore} />);
+
+		expect(selection()).toBe(sortingStore.current!.label);
+	});
+
 	it('renders with classname', () => {
 		const className = 'classy';
 		const rendered = render(<SortBy sorting={sortingStore} className={className} />);

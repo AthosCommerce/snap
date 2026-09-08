@@ -1,5 +1,5 @@
 import { ComponentChildren, h } from 'preact';
-import { useState, StateUpdater, MutableRef, useEffect, Dispatch } from 'preact/hooks';
+import { useState, StateUpdater, MutableRef, useEffect, useRef, Dispatch } from 'preact/hooks';
 
 import { css } from '@emotion/react';
 import classnames from 'classnames';
@@ -147,12 +147,29 @@ export const Modal = observer((properties: ModalProps) => {
 		};
 	}, [showContent, lockScroll]);
 
+	// The resize listener below is registered once (on mount), so it must read the open/lock state
+	// through refs — capturing `showContent` directly would freeze its mount-time value in the
+	// listener closure. The quickview modal mounts open, so that stale `true` would re-lock the
+	// page on any resize after the modal was closed.
+	const showContentRef = useRef(showContent);
+	const lockScrollRef = useRef(lockScroll);
+	showContentRef.current = showContent;
+	lockScrollRef.current = lockScroll;
+
 	useEffect(() => {
 		const existingButton = buttonSelector ? (typeof buttonSelector === 'string' ? document.querySelector(buttonSelector) : buttonSelector) : null;
 
+		// Re-asserts the scroll lock after a resize: other components (e.g. Slideout) write
+		// `document.body.style.overflow` on render and can clobber the lock while the modal is open.
+		// The delay lets those renders settle first; `unmounted` keeps a pending re-lock from firing
+		// after cleanup has already released the body.
+		let unmounted = false;
+		let overflowTimeout: ReturnType<typeof setTimeout>;
 		const debouncedHandleResize = debounce(() => {
-			setTimeout(() => {
-				if (showContent && lockScroll) {
+			clearTimeout(overflowTimeout);
+			overflowTimeout = setTimeout(() => {
+				if (unmounted) return;
+				if (showContentRef.current && lockScrollRef.current) {
 					document.body.style.overflow = 'hidden';
 				} else {
 					document.body.style.overflow = '';
@@ -173,6 +190,8 @@ export const Modal = observer((properties: ModalProps) => {
 		window.addEventListener('resize', debouncedHandleResize);
 
 		return () => {
+			unmounted = true;
+			clearTimeout(overflowTimeout);
 			window.removeEventListener('resize', debouncedHandleResize);
 			if (existingButton) {
 				existingButton.removeEventListener('click', clickListener);

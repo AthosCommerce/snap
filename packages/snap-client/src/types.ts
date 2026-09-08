@@ -54,6 +54,10 @@ export type SearchRequesterPaths = {
 	products?: string;
 };
 
+export type ProductsRequesterPaths = {
+	products?: string;
+};
+
 export type ProductsRequestModel = {
 	parentId: string;
 	siteId?: string;
@@ -102,6 +106,7 @@ export type ClientConfig = {
 	chat?: RequesterConfig<ChatRequestModel, ChatRequesterPaths>;
 	meta?: RequesterConfig<MetaRequestModel, MetaRequesterPaths>;
 	search?: RequesterConfig<SearchRequestModel, SearchRequesterPaths>;
+	products?: RequesterConfig<ProductsRequestModel, ProductsRequesterPaths>;
 	recommend?: RequesterConfig<RecommendRequestModel, RecommendRequesterPaths>;
 	suggest?: RequesterConfig<SuggestRequestModel, SuggestRequesterPaths>;
 };

@@ -15,7 +15,7 @@ const config = {
 	selectors: {
 		website: {
 			openInputButton: 'input.athos-ac', // selector for a button to click in order to make the input visible
-			input: '.autocomplete-fixed__search-input input', // selector of <input> elements (config.controllers[].autocomplete[].config.selector)
+			input: '.ss__autocomplete-fixed__search-input input', // selector of <input> elements (config.controllers[].autocomplete[].config.selector)
 		},
 		autocomplete: {
 			main: '.ss__autocomplete',

@@ -22,6 +22,8 @@ import { ContentType } from '@athoscommerce/snap-store-mobx';
 import { Facets, FacetsProps } from '../Facets';
 import { FacetsHorizontal, FacetsHorizontalProps } from '../FacetsHorizontal';
 import { Breadcrumbs, BreadcrumbsProps } from '../../Atoms/Breadcrumbs';
+import { TabSelection, TabSelectionProps } from '../../Molecules/TabSelection';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<LayoutProps> = ({}) => {
 	return css({
@@ -58,7 +60,7 @@ export const Layout = observer((properties: LayoutProps) => {
 	};
 
 	const props = mergeProps('layout', globalTheme, defaultProps, properties);
-	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, layout } = props;
+	const { controller, toggleSideBarButton, disableStyles, className, internalClassName, layout, tabManager } = props;
 
 	delete props.treePath;
 
@@ -211,6 +213,17 @@ export const Layout = observer((properties: LayoutProps) => {
 			theme: props?.theme,
 			treePath: properties.treePath,
 		},
+		TabSelection: {
+			// default props
+			tabManager,
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath: properties.treePath,
+		},
 	};
 
 	const ToggleSideBarButton = toggleSideBarButton;
@@ -220,7 +233,8 @@ export const Layout = observer((properties: LayoutProps) => {
 		switch (module) {
 			case 'searchHeader':
 				return <SearchHeader {...subProps.SearchHeader} />;
-
+			case 'tabSelection':
+				return tabManager ? <TabSelection {...subProps.TabSelection} tabManager={tabManager} /> : null;
 			case 'filterSummary':
 				if (hasResults) {
 					return <FilterSummary {...subProps.FilterSummary} />;
@@ -328,6 +342,7 @@ export interface LayoutProps extends ComponentProps {
 	controller: SearchController;
 	layout: (ModuleNames | ModuleNames[])[];
 	toggleSideBarButton?: Partial<ButtonProps>;
+	tabManager?: TabManagerStore;
 }
 
 export type ModuleNames =
@@ -340,6 +355,7 @@ export type ModuleNames =
 	| 'pagination'
 	| 'paginationInfo'
 	| 'breadcrumbs'
+	| 'tabSelection'
 	| '_'
 	| 'button.sidebar-toggle'
 	| 'banner.header'
@@ -364,4 +380,5 @@ interface LayoutSubProps {
 	FacetsHorizontal: Partial<FacetsHorizontalProps>;
 	ToggleSideBarButton: Partial<ButtonProps>;
 	Breadcrumbs: Partial<BreadcrumbsProps>;
+	TabSelection: Partial<TabSelectionProps>;
 }

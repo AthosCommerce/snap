@@ -22,7 +22,9 @@ export function useA11y(elem: any, tabIndex?: number, trapFocus?: boolean, escCa
 		elem.setAttribute('tabIndex', `${tabIndex || 0}`);
 
 		elem.addEventListener('keydown', (event: any) => {
-			if (event.code === 'Space' || event.code === 'Enter') {
+			// only synthesize a click when the element itself is focused — a bubbled Enter/Space from
+			// an inner control must not click the container (e.g. Gallery's backdrop-close onClick)
+			if ((event.code === 'Space' || event.code === 'Enter') && event.target === elem) {
 				elem.click();
 			}
 		});

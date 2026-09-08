@@ -171,7 +171,12 @@ export class TemplateEditorStore {
 		this.storage = new StorageStore({ type: StorageType.local, key: TEMPLATE_STORE_KEY });
 		this.storedState = this.storage.get('editor') || this.storedState;
 
-		this.initial.config = deepmerge(this.initial.config, templatesStore.config?.config || {});
+		const { language: configLanguage, currency: configCurrency, ...restConfig } = templatesStore.config?.config || {};
+		this.initial.config = deepmerge(this.initial.config, {
+			...restConfig,
+			...(configLanguage ? { language: configLanguage.toLowerCase() as LanguageCodes } : {}),
+			...(configCurrency ? { currency: configCurrency.toLowerCase() as CurrencyCodes } : {}),
+		});
 		this.initial.controller = {}; // set when registering controllers
 
 		// set initial targets

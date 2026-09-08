@@ -319,6 +319,35 @@ describe('Select Component', () => {
 			});
 		});
 
+		it('resyncs the selection when the selected prop returns to an earlier value', () => {
+			const { container, rerender } = render(<Select options={options} selected={options[0]} />);
+
+			const selectedOption = () => container.querySelector('.ss__select__select__option--selected');
+
+			expect(selectedOption()).toHaveTextContent(options[0].label as string);
+
+			rerender(<Select options={options} selected={options[1]} />);
+
+			expect(selectedOption()).toHaveTextContent(options[1].label as string);
+
+			// back to the value the prop held on mount - eg. switching back to the previously viewed tab
+			rerender(<Select options={options} selected={options[0]} />);
+
+			expect(selectedOption()).toHaveTextContent(options[0].label as string);
+		});
+
+		it('does not revert a selection made before the selected prop catches up', async () => {
+			const { container, rerender } = render(<Select options={options} selected={options[0]} />);
+
+			await userEvent.click(container.querySelector('.ss__dropdown__button')!);
+			await userEvent.click(container.querySelectorAll('.ss__select__select__option')[1]);
+
+			// the store has not updated yet, so 'selected' still holds the previous option
+			rerender(<Select options={options} selected={options[0]} />);
+
+			expect(container.querySelector('.ss__select__select__option--selected')).toHaveTextContent(options[1].label as string);
+		});
+
 		it('does not render the "label" prop in button with hideLabelOnSelection', () => {
 			const label = 'selectme';
 			const selectedIndex = 1;

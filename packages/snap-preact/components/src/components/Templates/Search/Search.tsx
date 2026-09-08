@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import type { SearchController } from '@athoscommerce/snap-controller';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import { Results, ResultsProps } from '../../Organisms/Results';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript, JSXComponent, LayoutSelectorOptions } from '../../../types';
@@ -79,10 +80,10 @@ export const Search = observer((properties: SearchProps) => {
 		disableStyles,
 		className,
 		internalClassName,
-		controller,
 		hideSidebar,
 		toggleSidebarButtonText,
 		hideTopToolbar,
+		tabManager,
 		hideMiddleToolbar,
 		hideBottomToolbar,
 		resultComponent,
@@ -93,6 +94,7 @@ export const Search = observer((properties: SearchProps) => {
 		alias,
 	} = props;
 
+	let controller = props.controller;
 	let classNamePrefix = 'ss__search';
 	if (props.alias) {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
@@ -100,6 +102,10 @@ export const Search = observer((properties: SearchProps) => {
 
 	// handle selected layoutOptions - must always call to preserve hook order
 	useLayoutOptions(props, globalTheme);
+
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as SearchController;
+	}
 
 	const store = controller.store;
 
@@ -181,6 +187,7 @@ export const Search = observer((properties: SearchProps) => {
 			internalClassName: `${classNamePrefix}__header-section__toolbar--top-toolbar`,
 			layout: [['banner.header'], ['searchHeader', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			...defined({
 				disableStyles,
 			}),
@@ -192,9 +199,10 @@ export const Search = observer((properties: SearchProps) => {
 			name: 'middle',
 			internalClassName: `${classNamePrefix}__content__toolbar--middle-toolbar`,
 			layout: isMobile
-				? [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
-				: [['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
+				? [['tabSelection'], ['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
+				: [['tabSelection'], ['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -208,6 +216,7 @@ export const Search = observer((properties: SearchProps) => {
 			internalClassName: `${classNamePrefix}__content__toolbar--bottom-toolbar`,
 			layout: [['banner.footer'], ['_', 'pagination', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -318,6 +327,7 @@ export type SearchProps = {
 	lang?: Partial<SearchLang>;
 	alias?: 'searchCollapsible' | 'searchHorizontal';
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<SearchTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 

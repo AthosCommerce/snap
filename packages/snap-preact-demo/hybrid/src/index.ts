@@ -1,5 +1,5 @@
-import { SnapHybrid } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfig, SnapConfig } from '@athoscommerce/snap-preact';
+import { SnapHybrid, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+import type { SnapConfig } from '@athoscommerce/snap-preact';
 import deepmerge from 'deepmerge';
 import { combineMerge } from '../../snap/src/middleware/functions';
 import { afterStore, mutateResultsURL } from '../../snap/src/middleware/plugins/afterStore';
@@ -12,7 +12,7 @@ import { getDemoConfig } from '../../shared/demoConfig';
 
 const { siteId, clientConfig } = getDemoConfig();
 
-let templatesConfig: SnapTemplatesConfig = {
+let templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: siteId,
 		language: 'en',
@@ -103,7 +103,7 @@ let templatesConfig: SnapTemplatesConfig = {
 			},
 		},
 	},
-};
+});
 
 const context = getContext(['collection']);
 const backgroundFilters = [];

@@ -120,6 +120,16 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		draggable: {
+			description: 'Image draggable attribute',
+			table: {
+				type: {
+					summary: 'boolean',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'boolean' },
+		},
 		onError: {
 			description: 'Image error event handler',
 			table: {
@@ -174,6 +184,50 @@ export default {
 			},
 			control: { type: 'none' },
 			action: 'onMouseOut',
+		},
+		onPointerDown: {
+			description: 'Image pointer down event handler',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onPointerDown',
+		},
+		onPointerMove: {
+			description: 'Image pointer move event handler',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onPointerMove',
+		},
+		onPointerUp: {
+			description: 'Image pointer up event handler',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onPointerUp',
+		},
+		onPointerLeave: {
+			description: 'Image pointer leave event handler',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onPointerLeave',
 		},
 		...componentArgs,
 	},
