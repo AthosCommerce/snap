@@ -4,6 +4,12 @@ The search store is meant to hold the search API response and associated state. 
 ## `meta` property
 The meta property is an object containing the meta data retrieved from the Athos Meta API. The majority of this data is used elsewhere in constructing other SearchStore data like 'sorting' and 'facets'.
 
+## Quickview
+
+The quickview modal state does not live on `SearchStore` — it is held by the `QuickviewStore`, the store of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview), reached via any controller at `controller.quickviewManager.store`. `SearchController` exposes a `quickview(result)` method that forwards to the manager.
+
+See the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the full observable surface, and the controller READMEs for usage of the `quickview(result)` method.
+
 ## `merchandising` property
 
 Contains redirect, banner, and campaigns merchandising data returned by the Search API.

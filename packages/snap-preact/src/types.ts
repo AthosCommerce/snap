@@ -7,6 +7,7 @@ import type {
 	RecommendationControllerConfig,
 	ContextVariables,
 	ChatControllerConfig,
+	QuickviewManager,
 } from '@athoscommerce/snap-controller';
 import type { SearchStore, AutocompleteStore, FinderStore, RecommendationStore, ChatStore } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager, UrlTranslatorConfig, UrlState } from '@athoscommerce/snap-url-manager';
@@ -28,6 +29,7 @@ export type SnapControllerServices = {
 	profiler?: Profiler;
 	logger?: Logger;
 	tracker?: Tracker;
+	quickviewManager?: QuickviewManager;
 };
 
 type UrlParameterConfig<Type> = {
@@ -84,7 +86,12 @@ export type SnapChatControllerConfig = {
 
 export type SnapAutocompleteControllerConfig = {
 	mode?: keyof typeof AppMode | AppMode;
-	url?: UrlTranslatorConfig;
+	url?: UrlTranslatorConfig & {
+		globals?: {
+			param: string;
+			value: string;
+		}[];
+	};
 	client?: {
 		globals: ClientGlobals;
 		config?: ClientConfig;

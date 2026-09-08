@@ -115,3 +115,6 @@ The standard controller used for recommendation profiles.
 
 ### Search
 The standard controller used on search pages and PLPs.
+
+## Quickview
+Quickview is not a controller — it has no search lifecycle, url state or tracking identity of its own. Every controller inherits a `quickview(result)` method that forwards to the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview), which is passed to controllers as the optional `quickviewManager` service. The manager delegates `addToCart` and `track.product.*` back to the controller that opened the quickview, flagging each event with `quickView: true`, and fires its `quickview` middleware on that controller's own event manager.

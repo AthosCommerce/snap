@@ -67,6 +67,8 @@ The callout badge slot will by default only render a single badge, but the limit
 ### tag
 The `tag` prop specifies the location name of this callout location, the default value is `callout`. 
 
+When a custom `tag` is provided it also becomes the component `name`, so named theme selectors (e.g. `'calloutBadge.callout-secondary'`) can target that instance. Default usage (no `tag` prop) remains unnamed.
+
 ```tsx
 <CalloutBadge tag={'callout'} result={result} />
 ```

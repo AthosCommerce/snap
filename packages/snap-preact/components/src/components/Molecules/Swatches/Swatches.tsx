@@ -135,7 +135,7 @@ export const Swatches = observer((properties: SwatchesProps) => {
 			// default props
 			internalClassName: 'ss__swatches__slideshow',
 			loop: false,
-			slidesToShow: 6, // Add explicit slidesToShow
+			slideWidth: 20, // Fixed swatch size so previews stay a consistent, legible size regardless of container width
 			slidesToMove: 1, // Add explicit slidesToMove
 			gap: 8, // Add smaller gap
 			showNavigation: true, // Enable navigation

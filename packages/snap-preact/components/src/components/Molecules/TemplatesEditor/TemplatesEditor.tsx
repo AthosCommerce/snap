@@ -409,13 +409,17 @@ export const TemplatesEditor = observer((properties: TemplatesEditorProps) => {
 								<>
 									<h1>Search</h1>
 									<AbstractedControls editorStore={editorStore} data={0} feature="targets/search" />
-									<AbstractedControls editorStore={editorStore} data={snap.controllers.search as SearchController} feature="controllers/search" />
+									<AbstractedControls
+										editorStore={editorStore}
+										data={snap.getTemplateController('search') as SearchController}
+										feature="controllers/search"
+									/>
 
 									<h1>Autocomplete</h1>
 									<AbstractedControls editorStore={editorStore} data={0} feature="targets/autocomplete" />
 									<AbstractedControls
 										editorStore={editorStore}
-										data={snap.controllers.autocomplete as AutocompleteController}
+										data={snap.getTemplateController('autocomplete') as AutocompleteController}
 										feature="controllers/autocomplete"
 									/>
 

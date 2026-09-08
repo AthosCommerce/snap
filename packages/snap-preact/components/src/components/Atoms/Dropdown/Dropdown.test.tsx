@@ -200,6 +200,24 @@ describe('Dropdown Component', () => {
 		expect(toggleFn).toHaveBeenCalled();
 	});
 
+	it('closes when clicked outside within an ancestor that stops click propagation (quickview slideout)', async () => {
+		const buttonText = 'click me';
+		const contentText = 'this is the content';
+		const toggleFn = jest.fn();
+
+		const rendered = render(
+			<div onClick={(e) => e.stopPropagation()}>
+				<span className="outside">outside</span>
+				<Dropdown startOpen content={contentText} button={buttonText} onToggle={toggleFn} />
+			</div>
+		);
+
+		const outside = rendered.container.querySelector('.outside')!;
+
+		await userEvent.click(outside);
+		expect(toggleFn).toHaveBeenCalledWith(expect.anything(), false);
+	});
+
 	it('does not fire onToggle prop when clicked outside (while opened) when disableClickOutside prop is true', async () => {
 		const buttonText = 'click me';
 		const contentText = 'this is the content';

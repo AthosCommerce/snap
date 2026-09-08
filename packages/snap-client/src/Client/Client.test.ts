@@ -341,42 +341,6 @@ describe('Snap Client', () => {
 			fetchApiMock.mockReset();
 		});
 
-		it('Products method', async () => {
-			const mockResponse = {
-				mappings: { core: { name: 'Test Product' } },
-				variants: { optionConfig: {}, data: [] },
-			};
-
-			const fetchApiMock = jest
-				.spyOn(global.window, 'fetch')
-				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve(mockResponse) } as Response));
-
-			const client = new Client({ siteId: '8uyt2m' });
-
-			//@ts-ignore
-			const searchRequester = client.requesters.search;
-
-			const searchRequesterSpy = jest.spyOn(searchRequester, 'request' as never);
-
-			await client.products({ parentId: 'abc123' });
-
-			const productsRequest = {
-				headers: {},
-				method: 'GET',
-				path: '/v1/products/abc123',
-				siteId: '8uyt2m',
-			};
-
-			const productsCacheKey = '{"parentId":"abc123","siteId":"8uyt2m"}';
-
-			expect(searchRequesterSpy).toHaveBeenCalledTimes(1);
-			// getProducts routes through the memory-only cache so /v1/products responses don't persist to sessionStorage.
-			expect(searchRequesterSpy).toHaveBeenCalledWith(productsRequest, productsCacheKey, searchRequester.memoryCache);
-
-			expect(fetchApiMock).toHaveBeenCalledTimes(1);
-			fetchApiMock.mockReset();
-		});
-
 		it('Recommend method', async () => {
 			const client = new Client({ siteId: '8uyt2m' }, { mode: 'development' });
 
@@ -605,6 +569,23 @@ describe('Snap Client', () => {
 
 			expect(fetchApiMock).toHaveBeenCalledTimes(1);
 			fetchApiMock.mockReset();
+		});
+
+		it('products() routes through the products requester', async () => {
+			const client = new Client({ siteId: '8uyt2m' });
+
+			// @ts-ignore - requesters is private
+			const productsSpy = jest.spyOn(client.requesters.products, 'getProducts').mockResolvedValue({} as any);
+
+			await client.products({ parentId: '12345' });
+
+			expect(productsSpy).toHaveBeenCalledWith({ parentId: '12345', siteId: '8uyt2m' });
+
+			// the search requester no longer exposes getProducts
+			// @ts-ignore - requesters is private
+			expect((client.requesters.search as any).getProducts).toBeUndefined();
+
+			productsSpy.mockRestore();
 		});
 
 		describe('with custom fetchApi', () => {

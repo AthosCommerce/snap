@@ -21,7 +21,9 @@ import { TermsList, TermsListProps } from '../TermsList';
 import { Terms, TermsProps } from '../../Molecules/Terms';
 import { FacetsHorizontal } from '../FacetsHorizontal';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { TabSelection, TabSelectionProps } from '../../Molecules/TabSelection';
 import { createRecommendationTemplate } from '../../../hooks/createRecommendationTemplate';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 	controller,
@@ -48,23 +50,23 @@ const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 	const noResults = Boolean(controller.store.search?.query?.string && controller.store.results.length === 0);
 	return css({
 		'.ss__autocomplete__column.ss__autocomplete__column--c1': {
-			flex: column1?.width == 'auto' ? '1 1 auto' : `1 0 ${column1?.width}`,
-			maxWidth: column1?.width == 'auto' ? 'auto' : column1?.width,
+			flex: column1?.width == 'auto' ? '1 1 0' : `1 0 ${column1?.width}`,
+			maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
 			alignContent: column1?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c2': {
-			flex: column2?.width == 'auto' ? '1 1 auto' : `1 0 ${column2?.width}`,
-			maxWidth: column2?.width == 'auto' ? 'auto' : column2?.width,
+			flex: column2?.width == 'auto' ? '1 1 0' : `1 0 ${column2?.width}`,
+			maxWidth: column2?.width == 'auto' ? 'none' : column2?.width,
 			alignContent: column2?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c3': {
-			flex: column3?.width == 'auto' ? '1 1 auto' : `1 0 ${column3?.width}`,
-			maxWidth: column3?.width == 'auto' ? 'auto' : column3?.width,
+			flex: column3?.width == 'auto' ? '1 1 0' : `1 0 ${column3?.width}`,
+			maxWidth: column3?.width == 'auto' ? 'none' : column3?.width,
 			alignContent: column3?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c4': {
-			flex: column4?.width == 'auto' ? '1 1 auto' : `1 0 ${column4?.width}`,
-			maxWidth: column4?.width == 'auto' ? 'auto' : column4?.width,
+			flex: column4?.width == 'auto' ? '1 1 0' : `1 0 ${column4?.width}`,
+			maxWidth: column4?.width == 'auto' ? 'none' : column4?.width,
 			alignContent: column4?.alignContent,
 		},
 
@@ -210,7 +212,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			width: '150px',
 		},
 		column3: {
-			layout: [['content'], ['_', 'button.see-more']],
+			layout: [['tabSelection'], ['content'], ['_', 'button.see-more']],
 			width: 'auto',
 			alignContent: 'space-between',
 		},
@@ -328,6 +330,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		className,
 		internalClassName,
 		controller,
+		tabManager,
 	} = props;
 	let layout = props.layout;
 
@@ -423,6 +426,17 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			internalClassName: 'ss__autocomplete__icon',
 			icon: 'angle-right',
 			size: '10px',
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props.theme,
+			treePath: properties.treePath,
+		},
+		tabSelection: {
+			// default props
+			tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -704,6 +718,10 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			);
 		}
 
+		if (module == 'tabSelection') {
+			return tabManager ? <TabSelection {...subProps.tabSelection} tabManager={tabManager} /> : null;
+		}
+
 		if (module == '_') {
 			return <div className="ss__autocomplete__separator"></div>;
 		}
@@ -795,6 +813,7 @@ interface AutocompleteSubProps {
 	results: Partial<ResultsProps>;
 	icon: Partial<IconProps>;
 	button: Partial<ButtonProps>;
+	tabSelection: Partial<TabSelectionProps>;
 }
 
 //can add categories here in the future
@@ -808,6 +827,7 @@ export type ModuleNames =
 	| 'button.see-more'
 	| 'content'
 	| 'no-results'
+	| 'tabSelection'
 	| '_'
 	| 'banner.left'
 	| 'banner.banner'
@@ -828,6 +848,7 @@ export type AutocompleteLayoutProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteLayoutTemplatesLegalProps, 'resultComponent'> &
 	ComponentProps<AutocompleteLayoutProps>;
 
