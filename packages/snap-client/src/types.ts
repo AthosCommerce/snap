@@ -53,6 +53,10 @@ export type SearchRequesterPaths = {
 	finder?: string;
 };
 
+export type ProductsRequesterPaths = {
+	products?: string;
+};
+
 export type ProductsRequestModel = {
 	parentId: string;
 	siteId?: string;
@@ -63,10 +67,6 @@ export type ProductsResponseModel = {
 		core: SearchResponseModelResultCoreMappings;
 	};
 	variants: SearchResponseModelResultVariants;
-};
-
-export type ProductsRequesterPaths = {
-	products?: string;
 };
 
 export type MetaRequesterPaths = {

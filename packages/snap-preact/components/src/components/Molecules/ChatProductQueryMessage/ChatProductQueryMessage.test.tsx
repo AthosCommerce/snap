@@ -109,7 +109,7 @@ describe('ChatProductQueryMessage Component', () => {
 		);
 
 		expect(rendered.container.querySelector('.ss__chat-product-query-message')).not.toBeNull();
-		expect(rendered.container.querySelector('.ss__quickview-layout')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview')).not.toBeNull();
 		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
 
 		// inline mode: no dialog semantics, no close button (the chat window owns dismissal)

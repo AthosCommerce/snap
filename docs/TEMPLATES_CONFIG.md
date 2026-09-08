@@ -59,8 +59,8 @@ new SnapTemplates(templatesConfig);
 | `config.platform` | Shopping platform for the integration | String | 'other' | ➖ |
 | `config.siteId` | Athos Site ID | String | ➖ | ➖ |
 | `config.mode` | Application mode ('production' or 'development') - 'development' enables additional logging and disables API caching | String | 'production' | ➖ |
-| `config.language` | Language code for localization | String | 'en' | ➖ |
-| `config.currency` | Currency code for pricing | String | 'usd' | ➖ |
+| `config.language` | Language code for localization - supports ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
+| `config.currency` | Currency code for pricing - supports ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
 
 The `config` object defines the integration platform, Athos siteId, application mode and current localization to be used.
 
@@ -71,7 +71,7 @@ If a `siteId` is not provided, the siteId found on the `bundle.js` url path will
 ```
 
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
-- `window.athos.templates.setCurrency('eud')`
+- `window.athos.templates.setCurrency('eur')`
 - `window.athos.templates.setLanguage('fr')`
 
 
@@ -140,6 +140,8 @@ new SnapTemplates(config);
 | `translations[languageCode][componentName]` | Translations for a specific component | Component Lang Object | ➖ |
 
 When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using `config.translations`
+
+See [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) for the full list of available language codes.
 
 Translations overrides can be provided in two ways:
 

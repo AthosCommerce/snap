@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- finalize quickview, add impression and clickThrough tracking, docs ([d20ac64](https://github.com/AthosCommerce/snap/commit/d20ac64e58f179f434e5e85d39a31247e3e6a04e))
+
 # [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
 
 **Note:** Version bump only for package @athoscommerce/snap-tracker

@@ -1,5 +1,5 @@
 import { h, ComponentChildren } from 'preact';
-import { useState, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useRef, useLayoutEffect } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 
 import { jsx, css } from '@emotion/react';

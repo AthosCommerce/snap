@@ -1,6 +1,5 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { ChatRequestModel, RecommendRequestModel } from '@athoscommerce/snap-client';
-
 import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
 	SearchResponseModelFacetValueAllOfValues,

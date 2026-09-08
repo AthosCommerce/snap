@@ -78,31 +78,31 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 			flexDirection: 'column',
 			gap: '1em',
 		},
-		'.ss__quickview__content > .ss__quickview-layout__row': {
+		'.ss__quickview__content > .ss__quickview__row': {
 			padding: '0 1em',
 		},
 
 		// Header banner: product image beside the name/price/actions on the primary color.
 		// The column flex rules out-rank QuickviewLayout's own (viewport-based) column sizing so
 		// the header keeps its side-by-side arrangement at every panel width.
-		'.ss__quickview__content > .ss__quickview-layout__row:first-of-type': {
+		'.ss__quickview__content > .ss__quickview__row:first-of-type': {
 			background: colorPrimary,
 			color: colorPrimaryText,
 			padding: '1em',
 			gap: '1em',
 			flexWrap: 'nowrap',
 
-			'.ss__quickview-layout__column.ss__quickview-layout__column--c1': {
+			'.ss__quickview__column.ss__quickview__column--c1': {
 				flex: '0 0 25%',
 				maxWidth: '25%',
 			},
-			'.ss__quickview-layout__column.ss__quickview-layout__column--c2': {
+			'.ss__quickview__column.ss__quickview__column--c2': {
 				flex: '1 1 auto',
 				maxWidth: '100%',
 				gap: '0.5em',
 				justifyContent: 'space-evenly',
 
-				'.ss__quickview-layout__row': {
+				'.ss__quickview__row': {
 					padding: 0,
 					gap: '0.5em',
 				},

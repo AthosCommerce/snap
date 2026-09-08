@@ -46,26 +46,6 @@ let templatesConfig = validateTemplatesConfig({
 			},
 		},
 	},
-	recommendation: {
-		settings: {
-			branch: 'production',
-		},
-		email: {
-			Email: {
-				component: 'RecommendationEmail',
-			},
-		},
-		default: {
-			Default: {
-				component: 'Recommendation',
-			},
-		},
-		bundle: {
-			Bundle: {
-				component: 'RecommendationBundle',
-			},
-		},
-	},
 	quickview: {
 		targets: [
 			{
@@ -100,7 +80,7 @@ let templatesConfig = validateTemplatesConfig({
 		settings: {
 			quickview: {
 				enabled: true,
-				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available'],
 			},
 		},
 	},

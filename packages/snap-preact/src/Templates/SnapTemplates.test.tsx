@@ -456,6 +456,20 @@ describe('createSnapConfig with custom plugins', () => {
 					},
 				},
 			},
+			plugins: {
+				custom: {
+					myCustomPlugin: {
+						function: customPluginFn,
+					},
+				},
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				settings: {
+					infinite: { backfill: 5 },
+				},
+				tabs: [{ id: 'tabbed', siteId: 'abc123', param: 'tabbed' }],
+			},
 		};
 
 		const templatesStore = new TemplatesStore({ config });
@@ -482,6 +496,16 @@ describe('createSnapConfig with custom plugins', () => {
 			},
 			theme: {
 				extends: 'base',
+			},
+			chat: {
+				targets: [{ selector: '#chat', component: 'Chat' }],
+				plugins: {
+					custom: {
+						chatPlugin: {
+							function: customPluginFn,
+						},
+					},
+				},
 			},
 			plugins: {
 				custom: {

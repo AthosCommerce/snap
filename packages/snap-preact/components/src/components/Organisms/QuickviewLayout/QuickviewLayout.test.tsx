@@ -754,8 +754,8 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
 
-		const slideshowColumn = rendered.container.querySelector('.ss__quickview-layout__column--c1');
-		const detailsColumn = rendered.container.querySelector('.ss__quickview-layout__column--c2');
+		const slideshowColumn = rendered.container.querySelector('.ss__quickview__column--c1');
+		const detailsColumn = rendered.container.querySelector('.ss__quickview__column--c2');
 		expect(slideshowColumn).not.toBeNull();
 		expect(detailsColumn).not.toBeNull();
 		// Image lives in the slideshow column…
@@ -789,10 +789,10 @@ describe('QuickviewLayout', () => {
 			/>
 		);
 
-		const c1 = rendered.container.querySelector('.ss__quickview-layout__column--c1');
-		const c2 = rendered.container.querySelector('.ss__quickview-layout__column--c2');
-		const c3 = rendered.container.querySelector('.ss__quickview-layout__column--c3');
-		const c4 = rendered.container.querySelector('.ss__quickview-layout__column--c4');
+		const c1 = rendered.container.querySelector('.ss__quickview__column--c1');
+		const c2 = rendered.container.querySelector('.ss__quickview__column--c2');
+		const c3 = rendered.container.querySelector('.ss__quickview__column--c3');
+		const c4 = rendered.container.querySelector('.ss__quickview__column--c4');
 		expect(c1).not.toBeNull();
 		expect(c2).not.toBeNull();
 		expect(c3).not.toBeNull();
@@ -826,8 +826,8 @@ describe('QuickviewLayout', () => {
 			/>
 		);
 
-		expect(rendered.container.querySelector('.ss__quickview-layout__column--c3')).toBeNull();
-		const c4 = rendered.container.querySelector('.ss__quickview-layout__column--c4');
+		expect(rendered.container.querySelector('.ss__quickview__column--c3')).toBeNull();
+		const c4 = rendered.container.querySelector('.ss__quickview__column--c4');
 		expect(c4).not.toBeNull();
 		expect(c4!.querySelector('.ss__quickview__title')).not.toBeNull();
 	});
@@ -844,7 +844,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['button.add-to-cart', '_', 'button.more-info']]} />);
 
-		const separator = rendered.container.querySelector('.ss__quickview-layout__separator');
+		const separator = rendered.container.querySelector('.ss__quickview__separator');
 		expect(separator).not.toBeNull();
 		const styles = getComputedStyle(separator!);
 		expect(styles.flexGrow).toBe('1');
@@ -870,7 +870,7 @@ describe('QuickviewLayout', () => {
 			/>
 		);
 
-		const rows = Array.from(rendered.container.querySelectorAll('.ss__quickview-layout__row'));
+		const rows = Array.from(rendered.container.querySelectorAll('.ss__quickview__row'));
 		const emptyRow = rows.find((row) => row.childNodes.length === 0);
 		expect(emptyRow).toBeDefined();
 		expect(getComputedStyle(emptyRow!).display).toBe('none');
@@ -897,7 +897,7 @@ describe('QuickviewLayout', () => {
 			/>
 		);
 
-		const c3 = rendered.container.querySelector('.ss__quickview-layout__column--c3');
+		const c3 = rendered.container.querySelector('.ss__quickview__column--c3');
 		expect(c3).not.toBeNull();
 		expect(c3!.childNodes.length).toBe(0);
 		expect(getComputedStyle(c3!).display).toBe('none');

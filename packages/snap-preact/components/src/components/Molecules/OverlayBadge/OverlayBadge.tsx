@@ -8,7 +8,7 @@ import { Theme, useTheme, CacheProvider, useSnap, useTreePath } from '../../../p
 import { ComponentProps, ComponentMap, StyleScript } from '../../../types';
 import { defaultBadgeComponentMap, mergeProps, mergeStyles } from '../../../utilities';
 import { useComponent, useCustomComponentOverride } from '../../../hooks';
-import type { AutocompleteController, ChatController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
+import type { AutocompleteController, RecommendationController, SearchController, ChatController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src/Templates';
 

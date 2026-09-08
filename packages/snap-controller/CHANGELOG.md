@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- finalize quickview, add impression and clickThrough tracking, docs ([d20ac64](https://github.com/AthosCommerce/snap/commit/d20ac64e58f179f434e5e85d39a31247e3e6a04e))
+- initial quickview ([1fd8a0c](https://github.com/AthosCommerce/snap/commit/1fd8a0cf787ab24d6e5980e7c22b173df678aaca))
+- pr review ([4fb4efe](https://github.com/AthosCommerce/snap/commit/4fb4efe01bbf738f9af7ea69b18a0d8cecc3759f))
+- quickview initial pr feedback ([cf98107](https://github.com/AthosCommerce/snap/commit/cf98107bafe31872de2957b275a01235c46f97cd))
+- quickview layout improvements, named calloutBadge, variantSelection, lang props, a11y ([9c7d19c](https://github.com/AthosCommerce/snap/commit/9c7d19c0a54126fa2de316077ce993cfc70ded9e))
+
+### Features
+
+- initial quickview ([b89cc1a](https://github.com/AthosCommerce/snap/commit/b89cc1a9f1998b1f08bd2dca0460a4ecf113d9e4))
+
 # [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
 
 ### Features

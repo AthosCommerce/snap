@@ -1,7 +1,7 @@
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { useState, MutableRef, useEffect, useRef } from 'preact/hooks';
 
-const RENDERED_INPUT_SELECTOR = '.autocomplete__search-input input';
+const RENDERED_INPUT_SELECTOR = '.ss__autocomplete__search-input input';
 
 export function useAcRenderedInput({
 	input,

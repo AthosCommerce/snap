@@ -129,7 +129,6 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText,
 		addToCartButtonSuccessText,
 		addToCartButtonSuccessTimeout,
-		quickviewButtonText,
 		hideRating,
 		hideQuickviewButton,
 		onQuickviewClick,
@@ -244,7 +243,6 @@ export const Result = observer((properties: ResultProps) => {
 				internalClassName: 'ss__result__quickview__icon',
 				icon: 'eye',
 				size: '20px',
-				title: quickviewButtonText,
 			},
 			onClick: (e) => {
 				if (onQuickviewClick) {
@@ -303,9 +301,8 @@ export const Result = observer((properties: ResultProps) => {
 			},
 		},
 		quickviewButtonText: {
-			value: quickviewButtonText,
 			attributes: {
-				'aria-label': quickviewButtonText || 'Quick View',
+				'aria-label': 'Quick View',
 			},
 		},
 	};
@@ -373,7 +370,9 @@ export const Result = observer((properties: ResultProps) => {
 								{...mergedLang.discussProductButton.all}
 							/>
 						)}
-						{!hideQuickviewButton && controller?.quickviewManager && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
+						{!hideQuickviewButton && controller?.quickviewManager && (
+							<Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.attributes} />
+						)}
 					</div>
 				)}
 
@@ -470,7 +469,6 @@ export type ResultTemplatesLegalProps = {
 	hideAddToCartButton?: boolean;
 	hideQuickviewButton?: boolean;
 	addToCartButtonText?: string;
-	quickviewButtonText?: string;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	onQuickviewClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;
