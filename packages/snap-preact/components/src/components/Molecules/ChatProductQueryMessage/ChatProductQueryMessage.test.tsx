@@ -275,4 +275,33 @@ describe('ChatProductQueryMessage Component', () => {
 		// custom layout omits the button modules
 		expect(rendered.container.querySelector('.ss__quickview__add-to-cart')).toBeNull();
 	});
+
+	it('groups the detail rows into a scrolling column only for the default layout', () => {
+		const controller = makeController({
+			product: makeProduct({
+				display: { mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } }, attributes: {} },
+				mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } },
+			}),
+		});
+		const chatItem = { id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any;
+
+		const withDefault = render(<ChatProductQueryMessage chatItem={chatItem} controller={controller} />);
+		const defaultRoot = withDefault.container.querySelector('.ss__chat-product-query-message')!;
+		expect(defaultRoot).toHaveClass('ss__chat-product-query-message--default-layout');
+		expect(getComputedStyle(defaultRoot).height).toBe('100%');
+		const detailsRow = withDefault.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
+		expect(getComputedStyle(detailsRow).overflowY).toBe('auto');
+		const detailsColumn = detailsRow.querySelector('.ss__quickview__column--c3')!;
+		expect(detailsColumn).not.toBeNull();
+		expect(detailsColumn.querySelector('.ss__quickview__go-to-product')).not.toBeNull();
+
+		const withCustom = render(
+			<ChatProductQueryMessage chatItem={chatItem} controller={controller} layout={[['productDetail.mappings.core.name'], ['productDetailTable']]} />
+		);
+		const customRoot = withCustom.container.querySelector('.ss__chat-product-query-message')!;
+		expect(customRoot).not.toHaveClass('ss__chat-product-query-message--default-layout');
+		expect(getComputedStyle(customRoot).height).not.toBe('100%');
+		const customSecondRow = withCustom.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
+		expect(getComputedStyle(customSecondRow).overflowY).not.toBe('auto');
+	});
 });

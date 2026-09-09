@@ -82,6 +82,35 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 			padding: '0 1em',
 		},
 
+		// Default layout only: the component fills the chat's secondary window, the header banner row
+		// stays put, and the remaining rows (grouped in column 3) scroll on their own. A custom
+		// `layout` opts out since its rows are not grouped this way.
+		'&.ss__chat-product-query-message--default-layout': {
+			height: '100%',
+			minHeight: 0,
+			boxSizing: 'border-box',
+
+			'.ss__quickview, .ss__quickview__content': {
+				flex: '1 1 auto',
+				minHeight: 0,
+				display: 'flex',
+				flexDirection: 'column',
+			},
+			'.ss__quickview__content > .ss__quickview__row:first-of-type': {
+				flex: '0 0 auto',
+			},
+			'.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row': {
+				flex: '1 1 auto',
+				minHeight: 0,
+				overflowY: 'auto',
+				padding: 0,
+			},
+			'.ss__quickview__column.ss__quickview__column--c3': {
+				padding: '0 1em',
+				gap: '1em',
+			},
+		},
+
 		// Header banner: product image beside the name/price/actions on the primary color.
 		// The column flex rules out-rank QuickviewLayout's own (viewport-based) column sizing so
 		// the header keeps its side-by-side arrangement at every panel width.
@@ -268,8 +297,9 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		hideBadge: true,
 		// mirrors the legacy chat product panel: a header banner (image beside name/price and the
 		// add-to-cart/similar/discuss actions) followed by variants, the attribute table, and the
-		// description — the banner styling lives in defaultStyles above
-		layout: [['c1', 'c2'], ['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+		// description — the banner styling lives in defaultStyles above. The detail rows are grouped
+		// in column 3 so they can scroll independently of the banner (see defaultStyles).
+		layout: [['c1', 'c2'], ['c3']],
 		column1: {
 			layout: ['slideshow'],
 			width: '25%',
@@ -281,6 +311,10 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 				['button.add-to-cart', 'button.similar', 'button.discuss'],
 			],
 			width: 'auto',
+		},
+		column3: {
+			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+			width: '100%',
 		},
 	};
 
@@ -303,6 +337,9 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatProductQueryMessage', props);
+
+	// the fixed-header/scrolling-details styling only applies to this component's own default layout
+	const isDefaultLayout = layout === defaultProps.layout;
 
 	const styling = mergeStyles<ChatProductQueryMessageProps>(props, defaultStyles);
 
@@ -408,7 +445,15 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 	return (
 		<CacheProvider>
-			<div className={classnames('ss__chat-product-query-message', className, internalClassName)} {...styling}>
+			<div
+				className={classnames(
+					'ss__chat-product-query-message',
+					{ 'ss__chat-product-query-message--default-layout': isDefaultLayout },
+					className,
+					internalClassName
+				)}
+				{...styling}
+			>
 				{(cameFromInspiration || cameFromComparison) && (
 					<Button
 						{...subProps.button}

@@ -27,7 +27,7 @@ The chat message to render. Must have `messageType === 'productQuery'`. Messages
 Pass-throughs to the embedded `QuickviewLayout` (same shapes as on `QuickviewModal`/`QuickviewSlideout`). The default mirrors the chat product panel: a header banner on the theme's primary color (product image beside name, price, and the action buttons), followed by the variants, the attribute table, the description, and a "more info" link (badges are hidden by default — `hideBadge: true`):
 
 ```tsx
-layout: [['c1', 'c2'], ['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+layout: [['c1', 'c2'], ['c3']],
 column1: {
   layout: ['slideshow'],
   width: '25%',
@@ -40,9 +40,15 @@ column2: {
   ],
   width: 'auto',
 },
+column3: {
+  layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+  width: '100%',
+},
 ```
 
 The banner styling (primary background, button treatments, hidden slideshow chrome) is part of this component's default styles and keys off the first layout row — a custom `layout` whose first row is not the `c1`/`c2` banner should also restyle via `styleScript`/`disableStyles`.
+
+With the default `layout`, the component fills the chat's secondary window and the detail rows (grouped in `c3`) scroll on their own while the banner row stays fixed above them. This is gated on the `ss__chat-product-query-message--default-layout` modifier class, which is only added when no custom `layout` is supplied (via props or theme), so a custom layout keeps the plain flowing behaviour.
 
 `button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. Because the layout renders `inline`, variant titles include the value count, non-swatch selections render as selectable tile lists, and the action buttons carry their icons (see the QuickviewLayout reference).
 

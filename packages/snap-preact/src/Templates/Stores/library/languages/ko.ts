@@ -126,6 +126,11 @@ export const ko: LangComponents = {
 				title: '채팅 닫기',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: '채팅 로고',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': '새 채팅',
@@ -263,6 +268,9 @@ export const ko: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: '이 이미지와 유사한 제품 찾기:',
 		},
+		attachmentImageName: {
+			value: '이미지',
+		},
 		topicDriftScopeMessage: {
 			value: '쇼핑을 도와드리겠습니다',
 		},
@@ -313,6 +321,9 @@ export const ko: LangComponents = {
 		dropOverlayText: {
 			value: '이미지를 여기에 놓아 업로드',
 		},
+		poweredByText: {
+			value: 'Athos Commerce 제공.',
+		},
 		disclaimerText: {
 			value: 'AI 기반 어시스턴트입니다. 때로는 실수를 할 수 있습니다. 개인 정보는 공유하지 마세요.',
 		},
@@ -343,37 +354,37 @@ export const ko: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': '닫기',
+				'aria-label': (data) => `${data?.title ?? ''} 닫기`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': '항목 열기',
+				'aria-label': (data) => `${data?.item?.name ?? ''} 열기`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': '항목 로딩 중',
+				'aria-label': (data) => `${data?.item?.name ?? ''} 로딩 중`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': '항목 제거',
+				'aria-label': (data) => `${data?.item?.name ?? ''} 제거`,
 			},
 		},
 		uploadFailedText: {
-			value: '파일 업로드에 실패했습니다',
+			value: (data) => `파일 업로드에 실패했습니다 - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': '이 검색어로 검색',
+				'aria-label': (data) => `"${data?.searchTerm ?? ''}" 검색`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': '제품 열기',
+				'aria-label': (data) => `${data?.productName || '제품'} 열기`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const ko: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': '제품 세부 정보 보기',
-				title: '제품 세부 정보 보기',
+				'aria-label': (data) => `${data?.attachment?.name ?? ''} 세부 정보 보기`,
+				title: (data) => `${data?.attachment?.name ?? ''} 세부 정보 보기`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': '적용된 필터',
-				title: '적용된 필터',
+				'aria-label': (data) => (data?.filterOptions?.length ? `필터: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `필터: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': '추가 필터',
-				title: '추가 필터',
+				'aria-label': (data) => `추가 필터 ${data?.hiddenFacetCount ?? 0}개`,
+				title: (data) => `필터 ${data?.hiddenFacetCount ?? 0}개 더`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const ko: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': '제품 세부 정보 보기',
+				'aria-label': (data) => `${data?.productName ?? ''} 세부 정보 보기`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: '제품 세부 정보 로딩 중...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': '빠른 보기',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': '빠른 보기 닫기',
+			},
 		},
 		backToComparisonButton: {
 			value: '비교로 돌아가기',

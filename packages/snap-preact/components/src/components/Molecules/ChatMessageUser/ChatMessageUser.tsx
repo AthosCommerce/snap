@@ -11,6 +11,7 @@ import { Lang, useLang, useA11y, useCustomComponentOverride } from '../../../hoo
 import { Image, ImageProps } from '../../Atoms/Image';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import type { ChatController } from '@athoscommerce/snap-controller';
+import type { ChatAttachmentProduct } from '@athoscommerce/snap-store-mobx';
 
 const defaultStyles: StyleScript<ChatMessageUserProps> = ({ primaryColor, primaryColorText, theme }) => {
 	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
@@ -200,7 +201,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 	const resolved = (chatItem.attachments || []).map((id: string) => store.currentChat?.attachments.get(id)).filter(Boolean);
 	// Facets are no longer chat attachments — they live on the request that was
 	// stored on the message, derived from urlManager filter state at send-time.
-	const filterOptions: { facetKey: string; label: string }[] = [];
+	const filterOptions: ChatMessageUserFilterOption[] = [];
 	const searchFilters = chatItem.request?.searchFilters as
 		| { key: string; options?: ({ key: string } | { low: string; high: string })[] }[]
 		| undefined;
@@ -260,6 +261,8 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 		{
 			controller,
 			chatItem,
+			filterOptions,
+			hiddenFacetCount,
 		},
 		{ activeBreakpoint: globalTheme?.activeBreakpoint }
 	);
@@ -294,6 +297,8 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 											{
 												controller,
 												chatItem,
+												filterOptions,
+												hiddenFacetCount,
 												attachment,
 											},
 											{ activeBreakpoint: globalTheme?.activeBreakpoint }
@@ -377,6 +382,22 @@ export type ChatMessageUserTemplatesLegalProps = {
 
 type RequestTypeLangKey = keyof ChatMessageUserLang;
 
+export type ChatMessageUserFilterOption = {
+	facetKey: string;
+	label: string;
+};
+
+export type ChatMessageUserLangData = {
+	controller: ChatController;
+	chatItem: ChatMessageUserProps['chatItem'];
+	filterOptions: ChatMessageUserFilterOption[];
+	hiddenFacetCount: number;
+};
+
+export type ChatMessageUserAttachmentLangData = ChatMessageUserLangData & {
+	attachment: ChatAttachmentProduct;
+};
+
 export interface ChatMessageUserLang {
 	requestTypeProductQuery?: Lang<never>;
 	requestTypeProductComparison?: Lang<never>;
@@ -384,7 +405,7 @@ export interface ChatMessageUserLang {
 	requestTypeProductSearch?: Lang<never>;
 	requestTypeImageSearch?: Lang<never>;
 	requestTypeProductSimilar?: Lang<never>;
-	productAttachmentButton?: Lang<never>;
-	facetAttachment?: Lang<never>;
-	facetOverflow?: Lang<never>;
+	productAttachmentButton?: Lang<ChatMessageUserAttachmentLangData>;
+	facetAttachment?: Lang<ChatMessageUserLangData>;
+	facetOverflow?: Lang<ChatMessageUserLangData>;
 }

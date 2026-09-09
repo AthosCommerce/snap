@@ -102,7 +102,7 @@ export const ChatAttachments = observer((props: ChatAttachmentsProps): JSX.Eleme
 
 	const imageItems: ChatAttachmentContextItem[] = imageAttachments.map((item) => ({
 		id: item.id,
-		name: item.fileName || 'Image',
+		name: item.fileName || langTextOf(lang.attachmentImageName) || '',
 		imageUrl: item.base64 || item.thumbnailUrl || '',
 		isLoading: item.state === 'loading',
 		hasError: !!item.error,

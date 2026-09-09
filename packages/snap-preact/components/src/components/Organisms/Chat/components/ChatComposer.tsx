@@ -115,7 +115,6 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 	const globalTreePath = useTreePath();
 
 	const defaultProps: Partial<ChatComposerProps> = {
-		poweredByText: 'Powered by Athos Commerce.',
 		treePath: globalTreePath,
 	};
 
@@ -223,7 +222,7 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 				</div>
 				<div className={'ss__chat__disclaimer'}>
 					<i>
-						{poweredByText} {langTextOf(lang.disclaimerText)}
+						{poweredByText ?? langTextOf(lang.poweredByText)} {langTextOf(lang.disclaimerText)}
 						{privacyPolicyUrl && (
 							<>
 								{' '}

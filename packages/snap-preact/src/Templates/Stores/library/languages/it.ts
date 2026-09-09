@@ -126,6 +126,11 @@ export const it: LangComponents = {
 				title: 'Chiudi chat',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Logo della chat',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Nuova chat',
@@ -263,6 +268,9 @@ export const it: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Trova prodotti simili a questa immagine:',
 		},
+		attachmentImageName: {
+			value: 'Immagine',
+		},
 		topicDriftScopeMessage: {
 			value: 'Sono qui per aiutarti con i tuoi acquisti',
 		},
@@ -313,6 +321,9 @@ export const it: LangComponents = {
 		dropOverlayText: {
 			value: "Rilascia l'immagine per caricarla",
 		},
+		poweredByText: {
+			value: 'Offerto da Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'Assistente basato su IA. A volte commette errori. Evita di condividere dati personali.',
 		},
@@ -343,37 +354,37 @@ export const it: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Chiudi',
+				'aria-label': (data) => `Chiudi ${data?.title ?? ''}`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Apri elemento',
+				'aria-label': (data) => `Apri ${data?.item?.name ?? ''}`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Caricamento elemento',
+				'aria-label': (data) => `Caricamento di ${data?.item?.name ?? ''}`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Rimuovi elemento',
+				'aria-label': (data) => `Rimuovi ${data?.item?.name ?? ''}`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Caricamento non riuscito',
+			value: (data) => `Caricamento non riuscito - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Cerca questo termine',
+				'aria-label': (data) => `Cerca "${data?.searchTerm ?? ''}"`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Apri prodotto',
+				'aria-label': (data) => `Apri ${data?.productName || 'prodotto'}`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const it: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Visualizza i dettagli del prodotto',
-				title: 'Visualizza i dettagli del prodotto',
+				'aria-label': (data) => `Visualizza i dettagli di ${data?.attachment?.name ?? ''}`,
+				title: (data) => `Visualizza i dettagli di ${data?.attachment?.name ?? ''}`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Filtro applicato',
-				title: 'Filtro applicato',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Filtro: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Filtro: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Filtri aggiuntivi',
-				title: 'Filtri aggiuntivi',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} filtri aggiuntivi`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} altri filtri`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const it: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Visualizza i dettagli del prodotto',
+				'aria-label': (data) => `Visualizza i dettagli di ${data?.productName ?? ''}`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Caricamento dei dettagli del prodotto...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Anteprima rapida',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': "Chiudi l'anteprima rapida",
+			},
 		},
 		backToComparisonButton: {
 			value: 'Torna al confronto',

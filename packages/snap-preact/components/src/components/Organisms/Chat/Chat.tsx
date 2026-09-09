@@ -421,7 +421,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		position: 'right',
 		hideMessageTypeIndicatorText: false,
 		buttonBelowMessage: false,
-		poweredByText: 'Powered by Athos Commerce.',
 	};
 
 	let props = mergeProps('chat', globalTheme, defaultProps, properties);
@@ -758,7 +757,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 						>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
-									{logo ? <Image className="ss__chat__header__title__logo" src={logo} alt={title || 'Chat logo'} /> : null}
+									{logo ? (
+										<Image className="ss__chat__header__title__logo" src={logo} alt={title || langAttrOf(lang.headerLogo, 'alt') || ''} />
+									) : null}
 									<div className="ss__chat__header__title__text">
 										{title ? <div className="ss__chat__header__title__text__primary">{title}</div> : null}
 										{subtitle ? <div className="ss__chat__header__title__text__secondary">{subtitle}</div> : null}

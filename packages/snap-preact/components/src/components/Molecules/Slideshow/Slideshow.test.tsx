@@ -349,6 +349,69 @@ describe('Slideshow Component', () => {
 
 			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
 		});
+
+		it('commits a mouse drag released outside the track', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+
+			// Drag left on the track, but move and release the mouse outside of it
+			fireEvent.mouseDown(track, { button: 0, clientX: 300 });
+			fireEvent.mouseMove(document, { clientX: 100 });
+			fireEvent.mouseUp(document, { clientX: 100 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+		});
+
+		it('advances a single slide group when a mouse drag is released over the track', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			fireEvent.mouseDown(track, { button: 0, clientX: 300 });
+			fireEvent.mouseMove(track, { clientX: 100 });
+			fireEvent.mouseUp(track, { clientX: 100 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+		});
+
+		it('starts a drag from the gap between slides, where the pointer hits the container rather than the track', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const container = rendered.container.querySelector('.ss__slideshow__container')!;
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			fireEvent.mouseDown(container, { button: 0, clientX: 300 });
+			expect(track).toHaveClass('ss__slideshow__track--dragging');
+
+			fireEvent.mouseMove(document, { clientX: 100 });
+			fireEvent.mouseUp(document, { clientX: 100 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+		});
+
+		it('commits a long mouse drag across multiple slides', () => {
+			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
+
+			const rendered = render(<Slideshow {...args} />);
+			const container = rendered.container.querySelector('.ss__slideshow__container')!;
+			const track = rendered.container.querySelector('.ss__slideshow__track')!;
+
+			// jsdom has no layout; give the container a width so a slide is 200px wide
+			Object.defineProperty(container, 'offsetWidth', { value: 400, configurable: true });
+
+			// Drag left by two slide widths
+			fireEvent.mouseDown(track, { button: 0, clientX: 500 });
+			fireEvent.mouseMove(document, { clientX: 100 });
+			fireEvent.mouseUp(document, { clientX: 100 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 2 of 5');
+		});
 	});
 
 	describe('Touch/Drag Functionality', () => {
@@ -646,6 +709,35 @@ describe('Slideshow Component', () => {
 			fireEvent.mouseUp(document);
 			fireEvent.click(clickableSlide);
 			expect(mockOnClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('stops the trailing click from reaching content slides with their own onClick', () => {
+			const contentOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [
+					{ content: <div className="custom-card" onClick={contentOnClick} /> },
+					{ content: <div className="custom-card" /> },
+					{ content: <div className="custom-card" /> },
+				],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const card = rendered.container.querySelector('.custom-card') as HTMLElement;
+
+			fireEvent.mouseDown(track, { button: 0, clientX: 100 });
+			fireEvent.mouseMove(document, { clientX: 200 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(card);
+			expect(contentOnClick).not.toHaveBeenCalled();
+
+			// a genuine click afterwards still reaches the content handler
+			fireEvent.mouseDown(track, { button: 0, clientX: 100 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(card);
+			expect(contentOnClick).toHaveBeenCalledTimes(1);
 		});
 
 		it('mixes clickable and non-clickable images', () => {

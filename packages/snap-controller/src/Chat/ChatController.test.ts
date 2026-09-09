@@ -2238,6 +2238,24 @@ describe('Chat Controller', () => {
 			handleError.mockClear();
 		});
 
+		it('sets an unsupported file type message on the attachment for 415 responses and reports the error', async () => {
+			const controller = createController();
+			const handleError = jest.spyOn(controller, 'handleError');
+			const error = new Error('unsupported media type');
+			controller.client.uploadImage = jest.fn().mockRejectedValue({
+				err: error,
+				fetchDetails: { status: 415, url: 'test.com' },
+			});
+
+			await controller.upload(asFileList([new File(['a'], 'photo.tiff', { type: 'image/tiff' })]));
+
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.state).toBe('error');
+			expect(attachment.error?.message).toBe('This file type is not supported');
+			expect(handleError).toHaveBeenCalledWith(error, { status: 415, url: 'test.com' });
+			handleError.mockClear();
+		});
+
 		it('continues uploading remaining files when one file fails', async () => {
 			const controller = createController();
 			controller.client.uploadImage = jest

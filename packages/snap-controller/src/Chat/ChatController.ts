@@ -458,11 +458,16 @@ export class ChatController extends AbstractController {
 					thumbnailUrl: response.thumbnailUrl,
 				});
 			} catch (err: any) {
+				const status = err?.fetchDetails?.status;
 				const serverMessage = err?.responseBody?.errorMessage;
-				const errorMessage =
-					err?.fetchDetails?.status === 400 && serverMessage
-						? `${serverMessage}. Please try again.`
-						: 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+				let errorMessage: string;
+				if (status === 415) {
+					errorMessage = 'This file type is not supported';
+				} else if (status === 400 && serverMessage) {
+					errorMessage = `${serverMessage}. Please try again.`;
+				} else {
+					errorMessage = 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+				}
 
 				// a file-read failure happens before the attachment exists — create one
 				// so the failure still surfaces through the attachment error state

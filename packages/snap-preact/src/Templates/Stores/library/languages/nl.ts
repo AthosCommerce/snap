@@ -126,6 +126,11 @@ export const nl: LangComponents = {
 				title: 'Chat sluiten',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Chatlogo',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Nieuwe chat',
@@ -263,6 +268,9 @@ export const nl: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Producten zoeken die op deze afbeelding lijken:',
 		},
+		attachmentImageName: {
+			value: 'Afbeelding',
+		},
 		topicDriftScopeMessage: {
 			value: 'Ik ben er om u te helpen met winkelen',
 		},
@@ -313,6 +321,9 @@ export const nl: LangComponents = {
 		dropOverlayText: {
 			value: 'Sleep de afbeelding hierheen om te uploaden',
 		},
+		poweredByText: {
+			value: 'Mogelijk gemaakt door Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'AI-assistent. Maakt soms fouten. Deel geen persoonlijke gegevens.',
 		},
@@ -343,37 +354,37 @@ export const nl: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Sluiten',
+				'aria-label': (data) => `${data?.title ?? ''} sluiten`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Item openen',
+				'aria-label': (data) => `${data?.item?.name ?? ''} openen`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Item wordt geladen',
+				'aria-label': (data) => `${data?.item?.name ?? ''} wordt geladen`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Item verwijderen',
+				'aria-label': (data) => `${data?.item?.name ?? ''} verwijderen`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Uploaden mislukt',
+			value: (data) => `Uploaden mislukt - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Zoeken op deze term',
+				'aria-label': (data) => `Zoeken op "${data?.searchTerm ?? ''}"`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Product openen',
+				'aria-label': (data) => `${data?.productName || 'product'} openen`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const nl: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Productdetails bekijken',
-				title: 'Productdetails bekijken',
+				'aria-label': (data) => `Details van ${data?.attachment?.name ?? ''} bekijken`,
+				title: (data) => `Details van ${data?.attachment?.name ?? ''} bekijken`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Toegepast filter',
-				title: 'Toegepast filter',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Filter: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Filter: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Extra filters',
-				title: 'Extra filters',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} extra filters`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} filters meer`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const nl: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Productdetails bekijken',
+				'aria-label': (data) => `Details van ${data?.productName ?? ''} bekijken`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Productdetails worden geladen...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Snelle weergave',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Snelle weergave sluiten',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Terug naar de vergelijking',
