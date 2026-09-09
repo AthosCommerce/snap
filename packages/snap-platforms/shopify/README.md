@@ -141,7 +141,7 @@ When used through `SnapTemplates` on Shopify, enabling `markets` also automatica
 | token | Shopify Storefront Access Token | string | — | ✅ |
 | baseCountry | Your store's base/catalog market (country code) | string | `'US'` | ➖ |
 | baseUrl | Optional override for store URL | string | — | ➖ |
-| path | Optional override for GraphQL API path | string | `'/api/2025-04/graphql.json'` | ➖ |
+| path | Optional override for GraphQL API path | string | `'/api/2026-07/graphql.json'` | ➖ |
 | idFieldName | Dot-notation path on the variant object used to match against Shopify variant IDs | string | `'mappings.core.uid'` | ➖ |
 
 #### Setup

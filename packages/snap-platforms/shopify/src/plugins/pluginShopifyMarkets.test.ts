@@ -226,8 +226,8 @@ describe('shopify/pluginShopifyMarkets', () => {
 		expect(productResult.mappings.core.price).toBe(30);
 	});
 
-	it('still fetches when country differs from base even though currency happens to match', async () => {
-		// @ts-ignore — Different market/country; currency can match while prices still differ
+	it('still fetches when country differs from base, regardless of currency', async () => {
+		// @ts-ignore — country differs from base ('US'); the currency value here is arbitrary and irrelevant to the fetch decision
 		window.Shopify.country = 'AR';
 		// @ts-ignore
 		window.Shopify.currency.active = 'AUD';
@@ -394,12 +394,12 @@ describe('shopify/pluginShopifyMarkets', () => {
 		pluginShopifyMarkets(controller as any, {
 			token: 'token',
 			baseUrl: 'https://custom-shop.myshopify.com',
-			path: '/api/2025-04/graphql.json',
+			path: '/api/2026-07/graphql.json',
 		});
 
 		await (controller as any).runAfterStore();
 
-		expect(fetchMock).toHaveBeenCalledWith('https://custom-shop.myshopify.com/api/2025-04/graphql.json', expect.any(Object));
+		expect(fetchMock).toHaveBeenCalledWith('https://custom-shop.myshopify.com/api/2026-07/graphql.json', expect.any(Object));
 	});
 
 	it('fetches and applies variant-level pricing', async () => {
