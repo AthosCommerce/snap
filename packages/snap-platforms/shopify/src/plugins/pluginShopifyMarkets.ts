@@ -239,7 +239,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 
 	// Re-format data from Storefront API response into a more manageable format, paginating variants as needed
 	const formatMarketsData = async (productData: ShopifyMarketsProductNode[]): Promise<GraphQLPriceCache> => {
-		const formattedData: GraphQLPriceCache = {};
+		const formattedData: GraphQLPriceCache = Object.create(null);
 
 		for (const currentProduct of productData) {
 			const id = currentProduct.id.replace('gid://shopify/Product/', '');
@@ -283,20 +283,18 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 	};
 
 	// In-memory cache for GraphQL pricing data, scoped to this plugin instance and segmented per country,
-	// since that's the only thing @inContext varies the fetched prices on — two countries can share a
-	// currency while still pricing products differently
-	const priceCachesByCountry: Record<string, GraphQLPriceCache> = {};
+	// — two countries can share a currency while still pricing products differently
+	const priceCachesByCountry: Record<string, GraphQLPriceCache> = Object.create(null);
 
 	const getActiveCache = (): GraphQLPriceCache => {
 		const country = (shopify?.country || baseCountry).toUpperCase();
 		if (!priceCachesByCountry[country]) {
-			priceCachesByCountry[country] = {};
+			priceCachesByCountry[country] = Object.create(null);
 		}
 		return priceCachesByCountry[country];
 	};
 
-	// Prices only need fetching when the shopper's country differs from the base country — country is what
-	// @inContext actually varies the GraphQL response on, so it's the only reliable signal here
+	// Prices only need fetching when the shopper's country differs from the base country
 	const shouldFetchPrices = (): boolean => {
 		const activeCountry = shopify?.country?.toUpperCase();
 		return !!activeCountry && activeCountry !== baseCountry.toUpperCase();
