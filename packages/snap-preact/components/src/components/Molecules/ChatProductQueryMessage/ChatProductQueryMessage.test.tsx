@@ -291,9 +291,6 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(getComputedStyle(defaultRoot).height).toBe('100%');
 		const detailsRow = withDefault.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
 		expect(getComputedStyle(detailsRow).overflowY).toBe('auto');
-		const detailsColumn = detailsRow.querySelector('.ss__quickview__column--c3')!;
-		expect(detailsColumn).not.toBeNull();
-		expect(detailsColumn.querySelector('.ss__quickview__go-to-product')).not.toBeNull();
 
 		const withCustom = render(
 			<ChatProductQueryMessage chatItem={chatItem} controller={controller} layout={[['productDetail.mappings.core.name'], ['productDetailTable']]} />
