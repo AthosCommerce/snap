@@ -532,6 +532,9 @@ new SnapTemplates(validateTemplatesConfig({
 
 The `customComponent` prop lets you completely replace a component in the tree with your own implementation. It works by referencing the name of a component you've registered in the `components` section of your configuration. This is only available in an **unlocked** configuration.
 
+> [!IMPORTANT]
+> `result` does not support `customComponent`, in locked or unlocked configurations. To customize result rendering, use `resultComponent` or `globalResultComponent` instead — see [The `customComponent` Override Prop](TEMPLATES_THEMING.md#the-customcomponent-override-prop).
+
 #### Setup
 
 You need three things:

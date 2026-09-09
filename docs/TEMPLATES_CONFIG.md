@@ -108,7 +108,7 @@ To enable unlocked mode you must:
 
 This makes additional configuration capabilities available:
 
-1. **Custom Component Prop in Theme Overrides for all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component.
+1. **Custom Component Prop in Theme Overrides for almost all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. The one exception is `result`, which never supports `customComponent` (locked or unlocked) since it would bypass built-in impression tracking — use `resultComponent` or `globalResultComponent` to customize result rendering instead.
 
 2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
 
@@ -191,6 +191,9 @@ Snap Templates was built to intentionally not support custom Preact components c
 - `customComponent` requires explicit component registration in `components` for the component section being overridden. Built-in fallback names are not used for `customComponent`.
 
 `globalResultComponent` utilizes `resultComponent` name resolution for result rendering and applies that selection globally across templates.
+
+> [!IMPORTANT]
+> `result` does not support the `customComponent` override prop, even in an unlocked configuration. Use `resultComponent` (on `search`, `autocompleteFixed`, a recommendation template, etc.) or `globalResultComponent` to customize result rendering instead.
 
 
 

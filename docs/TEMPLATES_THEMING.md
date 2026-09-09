@@ -301,10 +301,13 @@ All Atom, Molecule, and Organism components support a `customComponent` prop tha
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 
-Unlike `resultComponent`, `customComponent` does not use built-in fallback names. The value must be explicitly registered in `components` for the component section you are overriding (for example, `components.result` for `result` overrides).
+Unlike `resultComponent`, `customComponent` does not use built-in fallback names. The value must be explicitly registered in `components` for the component section you are overriding (for example, `components.sortBy` for `sortBy` overrides).
 
 > [!NOTE]
 > When using a locked configuration (the default), only the `resultComponent` prop is available. To use `customComponent`, you must use an unlocked configuration. See [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
+
+> [!IMPORTANT]
+> `result` is the one component that does **not** support `customComponent`, in locked or unlocked configurations — To swap out result rendering, use [`resultComponent`](#the-resultcomponent-override-prop) on a parent (`search`, `autocompleteFixed`, a recommendation template, etc.) or the `globalResultComponent` theme setting instead.
 
 **Usage Example:**
 
@@ -312,23 +315,22 @@ First, register your custom component in the configuration:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
-import { MyCustomResult } from './components/MyCustomResult';
 
 new SnapTemplates(validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: { ... },
 	components: {
-		result: {
-			CustomResult: async () => (await import('./components/Result')).CustomResult,
+		sortBy: {
+			CustomSortBy: async () => (await import('./components/SortBy')).CustomSortBy,
 		},
 	},
 	theme: {
 		extends: 'base',
 		overrides: {
 			default: {
-				// Replace all Result components with MyCustomResult
-				result: {
-					customComponent: 'MyCustomResult',
+				// Replace all SortBy components with CustomSortBy
+				sortBy: {
+					customComponent: 'CustomSortBy',
 				},
 			},
 		},
@@ -378,26 +380,27 @@ new SnapTemplates(validateTemplatesConfigUnlocked({
 
 **Custom Component Props:**
 
-Your custom component will receive all the same props that the original component would receive. For example, a custom Result component receives:
+Your custom component will receive all the same props that the original component would receive. For example, a custom SortBy component receives:
 
-- `result` - The product/result data object
 - `controller` - The controller instance
 - `theme` - The current theme configuration
 - `treePath` - The component tree path for cascading props
 - Plus any additional props passed through overrides
 
 ```tsx
-// MyCustomResult.tsx
-import type { ResultProps } from '@athoscommerce/snap-preact/components';
-export const MyCustomResult = (props: ResultProps) => {
-	const { result, controller, onClick } = props;
-	const core = result?.display?.mappings.core || result?.mappings?.core;
-	
+// CustomSortBy.tsx
+import type { SortByProps } from '@athoscommerce/snap-preact/components';
+export const CustomSortBy = (props: SortByProps) => {
+	const { controller } = props;
+	const sorting = controller?.store?.sorting;
+
 	return (
-		<div className="my-custom-result" onClick={onClick}>
-			<img src={core?.thumbnailImageUrl} alt={core?.name} />
-			<h3>{core?.name}</h3>
-			<span>${core?.price}</span>
+		<div className="my-custom-sort-by">
+			{sorting?.options?.map((option) => (
+				<button key={option.value} onClick={() => option.url?.go()}>
+					{option.label}
+				</button>
+			))}
 		</div>
 	);
 };
