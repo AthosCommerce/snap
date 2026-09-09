@@ -171,6 +171,68 @@ describe('VariantSelection Component', () => {
 		expect(sel.select).toHaveBeenCalledWith('large');
 	});
 
+	describe('thumbnailSwatches', () => {
+		const colorSelection = (values: any[]) => selection({ field: 'color', label: 'Color', type: 'swatch', values });
+		const swatchImages = (container: HTMLElement) =>
+			Array.from(container.querySelectorAll('.ss__swatches__image img')).map((img) => img.getAttribute('src'));
+
+		it('uses each variant thumbnail as the swatch image when thumbnails differ', () => {
+			const rendered = render(
+				<VariantSelection
+					thumbnailSwatches
+					selection={colorSelection([
+						{ value: 'black', label: 'Black', available: true, thumbnailImageUrl: 'black.jpg' },
+						{ value: 'olive', label: 'Olive', available: true, thumbnailImageUrl: 'olive.jpg' },
+					])}
+				/>
+			);
+
+			expect(swatchImages(rendered.container)).toEqual(['black.jpg', 'olive.jpg']);
+		});
+
+		it("keeps a value's own background image over its thumbnail", () => {
+			const rendered = render(
+				<VariantSelection
+					thumbnailSwatches
+					selection={colorSelection([
+						{ value: 'black', label: 'Black', available: true, thumbnailImageUrl: 'black.jpg', backgroundImageUrl: 'black-swatch.png' },
+						{ value: 'olive', label: 'Olive', available: true, thumbnailImageUrl: 'olive.jpg' },
+					])}
+				/>
+			);
+
+			expect(swatchImages(rendered.container)).toEqual(['black-swatch.png', 'olive.jpg']);
+		});
+
+		it('keeps text swatches when every value shares the same thumbnail', () => {
+			const rendered = render(
+				<VariantSelection
+					thumbnailSwatches
+					selection={colorSelection([
+						{ value: 'black', label: 'Black', available: true, thumbnailImageUrl: 'shared.jpg' },
+						{ value: 'olive', label: 'Olive', available: true, thumbnailImageUrl: 'shared.jpg' },
+					])}
+				/>
+			);
+
+			expect(rendered.container.querySelectorAll('.ss__swatches__slideshow__swatch')).toHaveLength(2);
+			expect(swatchImages(rendered.container)).toEqual([]);
+		});
+
+		it('ignores thumbnails unless the prop is set', () => {
+			const rendered = render(
+				<VariantSelection
+					selection={colorSelection([
+						{ value: 'black', label: 'Black', available: true, thumbnailImageUrl: 'black.jpg' },
+						{ value: 'olive', label: 'Olive', available: true, thumbnailImageUrl: 'olive.jpg' },
+					])}
+				/>
+			);
+
+			expect(swatchImages(rendered.container)).toEqual([]);
+		});
+	});
+
 	it('renders with additional style using prop', () => {
 		const style = {
 			padding: '20px',

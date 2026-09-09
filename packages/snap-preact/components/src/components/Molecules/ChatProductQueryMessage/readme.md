@@ -50,7 +50,7 @@ The banner styling (primary background, button treatments, hidden slideshow chro
 
 With the default `layout`, the component fills the chat's secondary window and the detail rows (grouped in `c3`) scroll on their own while the banner row stays fixed above them. This is gated on the `ss__chat-product-query-message--default-layout` modifier class, which is only added when no custom `layout` is supplied (via props or theme), so a custom layout keeps the plain flowing behaviour.
 
-`button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. Because the layout renders `inline`, variant titles include the value count, non-swatch selections render as selectable tile lists, and the action buttons carry their icons (see the QuickviewLayout reference).
+`button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. Because the layout renders `inline`, variant titles include the value count, non-swatch selections render as selectable tile lists, and the action buttons carry their icons (see the QuickviewLayout reference). The component also passes `thumbnailSwatches: true` to `variantSelection` and `hideLabels: false` to `swatches` through the theme, so swatch selections render each variant's thumbnail with the value label beneath it (values without a thumbnail of their own fall back to a text tile).
 
 The attribute table's fields come from the quickview config merge (`quickview.settings.displayFields` < the chat controller's `settings.quickview.displayFields` < per-call config); chat's `displayFields` may be a plain `string[]`.
 

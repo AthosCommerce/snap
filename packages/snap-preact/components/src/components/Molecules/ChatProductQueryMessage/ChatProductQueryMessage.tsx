@@ -229,19 +229,168 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 				padding: 0,
 			},
 			'.ss__list__option': {
-				border: `1px solid ${colorBorder}`,
+				flex: '1 1 auto',
+				justifyContent: 'center',
+				textAlign: 'center',
+				border: '2px solid transparent',
 				borderRadius: '0.5em',
 				padding: '0.4em 0.75em',
+				color: colorText,
 				cursor: 'pointer',
+				transition: 'border-color 0.15s ease',
 
+				'.ss__list__option__label': {
+					cursor: 'pointer',
+				},
+				'&:hover': {
+					borderColor: colorPrimary,
+				},
 				'&.ss__list__option--selected': {
 					borderColor: colorPrimary,
-					borderWidth: '2px',
-					padding: 'calc(0.4em - 1px) calc(0.75em - 1px)',
-					fontWeight: 'bold',
+					borderWidth: '3px',
+					padding: '0.3em 0.65em',
+					fontWeight: 'normal',
 				},
 				'&.ss__list__option--unavailable': {
 					opacity: 0.4,
+				},
+			},
+		},
+
+		// a selection with a single value offers no choice — the legacy panel left these out
+		'.ss__quickview__variant:has(.ss__list__option:only-child), .ss__quickview__variant:has(.ss__slideshow__slide:only-child)': {
+			display: 'none',
+		},
+
+		// swatch selections (e.g. colour) mirror the legacy chat panel: the Swatches slideshow is
+		// flattened into a wrapping row of tiles, each a thumbnail with its value label
+		// beneath. Values without a thumbnail fall back to the legacy text-only pill.
+		'.ss__variant-selection--swatches .ss__swatches': {
+			'.ss__slideshow': {
+				overflow: 'visible',
+
+				'.ss__slideshow__navigation, .ss__slideshow__pagination': {
+					display: 'none',
+				},
+				'.ss__slideshow__container': {
+					width: '100%',
+					margin: 0,
+				},
+				'.ss__slideshow__track': {
+					flexWrap: 'wrap',
+					justifyContent: 'flex-start',
+					gap: '0.5em',
+					width: '100%',
+					transform: 'none !important',
+					transition: 'none',
+				},
+				'.ss__slideshow__slide': {
+					display: 'flex',
+					flex: '1 1 auto',
+					width: 'auto',
+					minWidth: 0,
+					maxWidth: 'none',
+					margin: 0,
+				},
+			},
+
+			'.ss__swatches__slideshow__swatch': {
+				boxSizing: 'border-box',
+				width: '100%',
+				aspectRatio: 'auto',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'flex-start',
+				padding: '0.25em',
+				paddingBottom: 'calc(0.25em + 1em)', // reserve room for the label positioned below the thumbnail
+				border: '2px solid transparent',
+				borderRadius: '0.5em',
+				background: 'transparent',
+				color: colorText,
+				transition: 'border-color 0.15s ease',
+
+				'&:hover': {
+					borderColor: colorPrimary,
+				},
+				'&:focus-visible': {
+					outline: `2px solid ${colorPrimary}`,
+					outlineOffset: '2px',
+				},
+				'&.ss__swatches__slideshow__swatch--selected': {
+					borderColor: colorPrimary,
+					borderWidth: '3px',
+					padding: '0.15em',
+					paddingBottom: 'calc(0.15em + 1em)',
+				},
+				'&.ss__swatches__slideshow__swatch--disabled, &.ss__swatches__slideshow__swatch--unavailable': {
+					opacity: 0.4,
+
+					'&:before': {
+						display: 'none', // the faded tile replaces the strike-through
+					},
+				},
+				'&.ss__swatches__slideshow__swatch--unavailable': {
+					cursor: 'not-allowed',
+				},
+				'&.ss__swatches__slideshow__swatch--dark': {
+					color: colorText,
+				},
+
+				'.ss__swatches__slideshow__swatch__inner': {
+					position: 'relative',
+					flex: '0 0 auto',
+					width: '48px',
+					height: '48px',
+
+					'.ss__image': {
+						width: '100%',
+						height: '100%',
+
+						img: {
+							width: '100%',
+							height: '100%',
+							objectFit: 'contain',
+						},
+					},
+				},
+				'.ss__swatches__slideshow__swatch__value': {
+					position: 'absolute',
+					top: '100%',
+					left: '50%',
+					transform: 'translateX(-50%)',
+					marginTop: '0.25em',
+					fontSize: '0.75em',
+					lineHeight: 1,
+					color: colorText,
+					textAlign: 'center',
+					maxWidth: '60px',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
+					whiteSpace: 'nowrap',
+				},
+
+				// text-only tile: no thumbnail to show, so the colour chip is dropped and the label
+				// itself becomes the pill
+				'&:not(:has(.ss__image))': {
+					padding: '0.4em 0.75em',
+					alignSelf: 'center',
+
+					'&.ss__swatches__slideshow__swatch--selected': {
+						padding: '0.3em 0.65em',
+					},
+					'.ss__swatches__slideshow__swatch__inner': {
+						width: 'auto',
+						height: 'auto',
+						background: 'none !important',
+					},
+					'.ss__swatches__slideshow__swatch__value': {
+						position: 'static',
+						transform: 'none',
+						margin: 0,
+						fontSize: '1em',
+						lineHeight: 'inherit',
+						maxWidth: 'none',
+					},
 				},
 			},
 		},
@@ -313,7 +462,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 			width: 'auto',
 		},
 		column3: {
-			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description']],
 			width: '100%',
 		},
 	};
@@ -419,6 +568,21 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		return null;
 	}
 
+	// legacy chat presentation for the variant swatches: each tile shows the variant thumbnail with
+	// its value label beneath (the Swatches default hides labels). Injected through the theme so the
+	// children apply it via their own prop pipeline; the incoming theme wins on conflict.
+	const themePresentationProps: Theme = {
+		components: {
+			variantSelection: {
+				thumbnailSwatches: true,
+			},
+			swatches: {
+				hideLabels: false,
+			},
+		},
+	};
+	props.theme = deepmerge.all([themePresentationProps, props?.theme || {}], { arrayMerge: (destinationArray, sourceArray) => sourceArray });
+
 	const subProps: ChatProductQueryMessageSubProps = {
 		button: {
 			disableStyles,
@@ -433,7 +597,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 				disableStyles,
 			}),
 			// component theme overrides
-			theme: props?.theme,
+			theme: props.theme,
 			treePath,
 		},
 	};
