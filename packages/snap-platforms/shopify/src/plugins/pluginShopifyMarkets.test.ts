@@ -227,7 +227,7 @@ describe('shopify/pluginShopifyMarkets', () => {
 	});
 
 	it('still fetches when country differs from base even though currency happens to match', async () => {
-		// @ts-ignore — Argentina: same currency as Australia, different market/country
+		// @ts-ignore — Different market/country; currency can match while prices still differ
 		window.Shopify.country = 'AR';
 		// @ts-ignore
 		window.Shopify.currency.active = 'AUD';
