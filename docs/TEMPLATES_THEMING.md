@@ -297,7 +297,7 @@ new SnapTemplates(validateTemplatesConfig({
 
 ##### The `customComponent` Override Prop
 
-All Atom, Molecule, and Organism components support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
+All Atom, Molecule, and Organism components (with the exception of `Result`) support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 
@@ -382,6 +382,7 @@ new SnapTemplates(validateTemplatesConfigUnlocked({
 
 Your custom component will receive all the same props that the original component would receive. For example, a custom SortBy component receives:
 
+- `sorting` - The sorting store (also accessible via `controller.store.sorting`)
 - `controller` - The controller instance
 - `theme` - The current theme configuration
 - `treePath` - The component tree path for cascading props
