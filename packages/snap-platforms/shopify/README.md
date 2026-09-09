@@ -232,7 +232,24 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 });
 ```
 
-If you want custom formatting behavior, pass your own `format` function to `Price`, or set `theme.overrides.default.price.format` in your template config.
+If you want custom formatting behavior, pass your own `format` function to `Price`, or set `theme.overrides.default.price.format` in your template config. If that behavior should follow your Shopify theme's money format (e.g. `${{amount_with_comma_separator}}`), import `shopifyPriceFormat` and use it as that function:
+
+```tsx
+import { shopifyPriceFormat } from '@athoscommerce/snap-platforms/shopify';
+
+theme: {
+	overrides: {
+		default: {
+			price: {
+				format: (number) => shopifyPriceFormat(number, shop.money_format),
+			},
+		},
+	},
+}
+```
+
+`shopifyPriceFormat` takes the raw number and a Shopify money format string, and returns the formatted string — it does not read `shop.money_format` itself, so pass it in from wherever your theme exposes it (e.g. script context, a data attribute, or a hardcoded value).
+
 ### pluginShopifyCurrency
 
 The **Currency plugin** reads the storefront's active currency from `Shopify.currency.active` and applies it to the Snap Templates currency locale, so the `Price` component's symbol, decimal places and separators follow the market the shopper is browsing in. It pairs with [`pluginShopifyMarkets`](#pluginshopifymarkets), which localizes the price *values* — this plugin localizes how those values are *displayed*.

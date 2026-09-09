@@ -36,7 +36,7 @@ export const pluginShopifyCurrency = (cntrlr: AbstractController, config?: Plugi
 		return;
 	}
 
-	const shopify = window?.Shopify as ShopifyCurrencyObj | undefined;
+	const shopify = typeof window !== undefined ? (window?.Shopify as ShopifyCurrencyObj | undefined) : undefined;
 
 	// when the templates store exposes its currency library, unsupported codes are left alone
 	const supportedCurrencies = store.library?.import?.currency;
