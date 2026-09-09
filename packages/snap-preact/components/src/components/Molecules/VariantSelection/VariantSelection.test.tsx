@@ -173,7 +173,7 @@ describe('VariantSelection Component', () => {
 
 	describe('thumbnailSwatches', () => {
 		const colorSelection = (values: any[]) => selection({ field: 'color', label: 'Color', type: 'swatch', values });
-		const swatchImages = (container: HTMLElement) =>
+		const swatchImages = (container: Element) =>
 			Array.from(container.querySelectorAll('.ss__swatches__image img')).map((img) => img.getAttribute('src'));
 
 		it('uses each variant thumbnail as the swatch image when thumbnails differ', () => {
