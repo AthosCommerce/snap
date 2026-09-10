@@ -533,9 +533,15 @@ table td {
 pre {
 	position: relative;
 	overflow: auto;
+	tab-size: 2;
 	background-color: var(--pre-bg);
 	border-radius: 0px;
 	border: 1px solid var(--border-color);
+}
+
+pre code {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 }
 
 .copy-code-button {

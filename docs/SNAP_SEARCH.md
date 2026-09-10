@@ -60,7 +60,7 @@ The `results` property contains an array of result objects for the current page 
 > For the full breakdown of result object properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#results-property).
 
 >[!NOTE]
->If you are creating a custom Result component, the `withTracking` hook is required to capture product impression and click analytics. See [Tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#impressions) for more information.
+>If you are creating a custom Result component, the `withTracking` hook is required to capture product impression and click analytics. See [Tracking](https://athoscommerce.github.io/snap/snap-tracking-automatic#impressions) for more information.
 
 ```tsx
 // src/components/Results/Results.jsx
@@ -450,7 +450,7 @@ export const Content = observer((props) => {
 
 **Q: Product clicks and impressions aren't showing up in tracking/analytics. Why?**
 <br>
-**A:** A custom `Result` component needs the `withTracking` HOC and its `trackingRef` attached to the result's root element — see the `Results.jsx` example above. Without it, Snap has no way to observe impressions or attribute clicks. See [Tracking](https://athoscommerce.github.io/snap/snap-tracking) for the full setup.
+**A:** A custom `Result` component needs the `withTracking` HOC and its `trackingRef` attached to the result's root element — see the `Results.jsx` example above. Without it, Snap has no way to observe impressions or attribute clicks. See [Automatic Tracking](https://athoscommerce.github.io/snap/snap-tracking-automatic) for the full setup.
 
 **Q: My category page filter shows up as a normal, removable filter instead of being invisible to the shopper. Why?**
 <br>

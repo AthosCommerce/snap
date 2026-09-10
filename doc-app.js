@@ -468,6 +468,15 @@ import('./docs/documents.js').then(function (_) {
 		let lastScrolledUp = true;
 		let lastScrollY = window.scrollY;
 		let hashId = window.location.hash.split('#')[1];
+		if (hashId) {
+			// browsers percent-encode non-ASCII characters (eg. emoji) in the URL fragment;
+			// heading ids are plain unicode text, so decode before matching against them
+			try {
+				hashId = decodeURIComponent(hashId);
+			} catch {
+				// malformed percent-encoding - fall back to the raw value
+			}
+		}
 		let preventLegendUpdate = Boolean(hashId); // if there is a hash id, prevent the legend from updating while scrolling
 		if (hashId) {
 			// scroll to heading if it exists in the url

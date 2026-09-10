@@ -65,6 +65,18 @@
 			"url": "/snap-tracking",
 			"title": "Tracking"
 		},
+		"docs/SNAP_TRACKING_AUTOMATIC.md": {
+			"url": "/snap-tracking-automatic",
+			"title": "Automatic Tracking"
+		},
+		"docs/SNAP_TRACKING_MANUAL.md": {
+			"url": "/snap-tracking-manual",
+			"title": "Manual Tracking"
+		},
+		"docs/SNAP_TRACKING_EVENTS.md": {
+			"url": "/snap-tracking-events",
+			"title": "Event Reference"
+		},
 		"docs/SNAP_INTEGRATION_CHECKLIST.md": {
 			"url": "/snap-integration-checklist",
 			"title": "Integration Checklist"
