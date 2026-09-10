@@ -4,11 +4,12 @@ import { QuickviewStore } from '@athoscommerce/snap-store-mobx';
 
 import type { ProductsRequestModel, ProductsResponseModel } from '@athoscommerce/snap-client';
 import type { Product, QuickviewConfig, QuickviewStoreConfig } from '@athoscommerce/snap-store-mobx';
-import type { AutocompleteController, RecommendationController, SearchController } from '../index';
+import type { AutocompleteController, ChatController, RecommendationController, SearchController } from '../index';
 
 // The controller that triggered the quickview. FinderController is excluded: the manager delegates
-// add-to-cart and product tracking back to the opener, and finder has neither.
-export type SourceController = SearchController | AutocompleteController | RecommendationController;
+// add-to-cart and product tracking back to the opener, and finder has neither. ChatController
+// qualifies — its productQuery panel renders the quickview inline in the chat secondary window.
+export type SourceController = SearchController | AutocompleteController | RecommendationController | ChatController;
 
 export type QuickviewManagerConfig = QuickviewStoreConfig;
 
@@ -137,8 +138,10 @@ export class QuickviewManager {
 		if (!resolvedProductsData && effectiveConfig.fetchProductData !== false) {
 			try {
 				const params: ProductsRequestModel = { parentId };
-				if (source.config.globals?.siteId) {
-					params.siteId = source.config.globals?.siteId;
+				// not every source's globals type carries a siteId (chat's doesn't) — read it structurally
+				const globalsSiteId = (source.config.globals as { siteId?: string } | undefined)?.siteId;
+				if (globalsSiteId) {
+					params.siteId = globalsSiteId;
 				}
 				resolvedProductsData = await source.client.products(params);
 			} catch (err) {

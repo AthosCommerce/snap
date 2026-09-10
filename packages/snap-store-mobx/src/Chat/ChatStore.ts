@@ -3,18 +3,12 @@ import { ChatFacetValue, ChatStoreConfig, SearchStoreConfig, StoreServices } fro
 import { MetaStore } from '../Meta/MetaStore';
 import type { MetaResponseModel, SearchResponseModel, SearchResponseModelFacet } from '@athoscommerce/snapi-types';
 import { AbstractStore } from '../Abstract/AbstractStore';
-import type {
-	ChatResponseModel,
-	ChatRequestModel,
-	ChatResponseProductSearchResultData,
-	ChatStatusResponseModel,
-	ProductsResponseModel,
-} from '@athoscommerce/snap-client';
+import type { ChatResponseModel, ChatRequestModel, ChatResponseProductSearchResultData, ChatStatusResponseModel } from '@athoscommerce/snap-client';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { ChatSessionStore, getProductThumbnailUrl } from './Stores/ChatSessionStore';
 import { ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
-import { Product, Variants, SearchFacetStore } from '../Search/Stores';
+import { Product, SearchFacetStore } from '../Search/Stores';
 
 const CHAT_STATUS_EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
 
@@ -42,8 +36,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 	public suggestedQuestions: string[] = [];
 	public welcomeMessage: string = '';
 	public features: ChatStatusResponseModel['features'] = { imageSearch: { enabled: false }, similarProducts: { enabled: false } };
-	public productQuickview: Product | null = null;
-	public productQuickviewError: string | null = null;
 	/** Count of externally-mounted launchers (e.g. inline ChatButton). >0 hides the built-in bubble. */
 	public launcherCount: number = 0;
 	/** Raw meta kept for lazy hydration of inactive chat sessions. */
@@ -181,8 +173,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 			features: observable,
 			suggestedQuestions: observable,
 			welcomeMessage: observable,
-			productQuickview: observable,
-			productQuickviewError: observable,
 			launcherCount: observable,
 			hasExternalLauncher: computed,
 			facets: observable,
@@ -474,7 +464,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 
 	public reset(): void {
 		this.chats = [];
-		this.clearProductQuickview();
 		this.storage.clear();
 		this.impressionStorage.clear();
 		// clear meta so the next update() re-persists it — otherwise restored
@@ -482,53 +471,6 @@ export class ChatStore extends AbstractStore<ChatStoreConfig> {
 		this.meta = undefined;
 		this.storedMetaData = null;
 		this.createChat();
-	}
-
-	public setProductQuickview(product: Product): void {
-		// Clone the product so variant selections (and the parent-mappings merge done
-		// in updateProductQuickview) only affect the quickview — the carousel and any
-		// other surfaces still hold the original instance.
-		this.productQuickview = cloneProductForQuickview(product, this.meta?.data);
-		this.productQuickviewError = null;
-	}
-
-	public updateProductQuickview(response: ProductsResponseModel): void {
-		if (!this.productQuickview) {
-			return;
-		}
-
-		// merge parent-level mappings from the API response into the Product
-		this.productQuickview.mappings = {
-			...this.productQuickview.mappings,
-			core: { ...this.productQuickview.mappings.core, ...response.mappings.core },
-		};
-
-		const meta = this.meta?.data || {};
-
-		if (this.productQuickview.variants) {
-			// update existing Variants with new data from the Products API
-			this.productQuickview.variants.optionConfig = response.variants.optionConfig;
-			this.productQuickview.variants.update(response.variants.data as any);
-		} else {
-			// create Variants for the first time using the Products API data
-			this.productQuickview.variants = new Variants({
-				data: {
-					mask: this.productQuickview.mask,
-					variants: response.variants.data as any,
-					optionConfig: response.variants.optionConfig as any,
-					meta,
-				},
-			});
-		}
-	}
-
-	public setProductQuickviewError(message: string): void {
-		this.productQuickviewError = message;
-	}
-
-	public clearProductQuickview(): void {
-		this.productQuickview = null;
-		this.productQuickviewError = null;
 	}
 
 	public clearHistory(): void {
@@ -722,23 +664,4 @@ function facetValueEquals(a: any, b: any): boolean {
 		return a.low === b.low && a.high === b.high;
 	}
 	return a === b;
-}
-
-/** Build a fresh observable Product from an existing one. Variants are intentionally
- * omitted — `updateProductQuickview` populates them from the products API response. */
-function cloneProductForQuickview(product: Product, meta: MetaResponseModel | undefined): Product {
-	const result: any = {
-		id: product.id,
-		responseId: product.responseId,
-		mappings: JSON.parse(JSON.stringify(product.mappings || {})),
-		attributes: JSON.parse(JSON.stringify(product.attributes || {})),
-		badges: product.badges?.all?.map((b: any) => ({ tag: b.tag, value: b.value })) || [],
-	};
-	const config: ChatStoreConfig = { id: 'chat' };
-	return new Product({
-		config,
-		data: { result, meta: meta || ({} as MetaResponseModel) },
-		position: product.position ?? 0,
-		responseId: product.responseId,
-	});
 }

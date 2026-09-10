@@ -59,7 +59,7 @@ When true, the suggested-question chips don't render above the chat bubble while
 Templates-legal color tokens. Drive the bubble background, header strip, user-message bubble, Add-to-Cart button, and Compare / Similar buttons respectively. All defaults match the Athos brand.
 
 ### poweredByText, privacyPolicyUrl
-Disclaimer line under the composer. `poweredByText` replaces the leading "Powered by Athos Commerce." text, and `privacyPolicyUrl` changes the privacy policy link target. The rest of the disclaimer copy is translatable via the `disclaimerText` and `privacyPolicyLinkText` lang keys.
+Disclaimer line under the composer. `poweredByText` replaces the leading "Powered by Athos Commerce." text (which otherwise comes from the `poweredByText` lang key), and `privacyPolicyUrl` changes the privacy policy link target. The rest of the disclaimer copy is translatable via the `disclaimerText` and `privacyPolicyLinkText` lang keys.
 
 ### lang
 All user-facing strings (header buttons, history popup, loading verbs, feedback strip, comparisons tray, facet bar, topic-drift banners, composer placeholders, disclaimer, expired message, and aria-labels) are overridable via the `lang` prop — see `ChatLang` in `Chat.lang.ts` for the full key list and English defaults.

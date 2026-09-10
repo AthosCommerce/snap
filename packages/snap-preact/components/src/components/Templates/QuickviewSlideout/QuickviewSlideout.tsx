@@ -29,10 +29,16 @@ const defaultStyles: StyleScript<QuickviewSlideoutProps> = () => {
 		'& .ss__slideout__overlay': {
 			zIndex: '10005 !important' as any,
 		},
-		// Inside a single-column panel the content shouldn't be width-capped to the desktop modal size.
+		// Content sizing/padding for the slideout surface — owned here (not by QuickviewLayout) so
+		// other surfaces don't inherit it. Inside a single-column panel the content is not
+		// width-capped to the desktop modal size.
 		'& .ss__quickview__content': {
+			// extra top padding keeps the close button clear of top content (e.g. overlay badges)
+			padding: '48px 20px 20px 20px',
 			minWidth: 'auto',
 			maxWidth: '100%',
+			position: 'relative',
+			boxSizing: 'border-box',
 		},
 	});
 };

@@ -1,6 +1,16 @@
 import { h } from 'preact';
 import { render, fireEvent } from '@testing-library/preact';
 import { ThemeProvider } from '../../../providers';
+
+// Mock the secondary window so visibility tests assert the organism's gating logic
+// without standing up the full side-chat message rendering.
+jest.mock('./components/ChatSideChat', () => {
+	const { h: hh } = require('preact');
+	return {
+		ChatSideChat: () => hh('div', { className: 'ss__chat__secondary-mock' }),
+	};
+});
+
 import { ChatOrganism } from './Chat';
 
 // jsdom lacks scrollTo, used by the chat organism when open (ResizeObserver comes from setupTests.ts)
@@ -310,6 +320,58 @@ describe('ChatOrganism Component', () => {
 			);
 			const input = rendered.container.querySelector('input[name="ss-chat-input"]') as HTMLInputElement;
 			expect(input).toHaveAttribute('placeholder', 'Escribe tu mensaje...');
+		});
+	});
+
+	describe('productQuery secondary window visibility', () => {
+		const makeProductQueryController = (quickviewOpen: boolean) => {
+			const activeMessage = { id: 'msg-1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } };
+			const controller = makeController({
+				open: true,
+				currentChat: makeCurrentChat({ chat: [activeMessage], activeMessage, activeMessageId: 'msg-1' }),
+			});
+			controller.quickviewManager = {
+				store: { isOpen: quickviewOpen, loading: false, product: undefined, resolvedConfig: undefined, error: undefined },
+				close: jest.fn(),
+			};
+			controller.dismissSideChat = jest.fn();
+			controller.closeProductQuickview = jest.fn();
+			return controller;
+		};
+
+		it('shows the secondary window for a productQuery while the quickview store is open', () => {
+			const rendered = render(<ChatOrganism controller={makeProductQueryController(true)} />);
+			expect(rendered.container.querySelector('.ss__chat__secondary-mock')).not.toBeNull();
+		});
+
+		it('hides the secondary window for a productQuery when the quickview store is closed', () => {
+			const rendered = render(<ChatOrganism controller={makeProductQueryController(false)} />);
+			expect(rendered.container.querySelector('.ss__chat__secondary-mock')).toBeNull();
+		});
+
+		it('still shows the secondary window for non-productQuery messages without an open quickview store', () => {
+			const activeMessage = { id: 'msg-1', messageType: 'productComparison' };
+			const controller = makeController({
+				open: true,
+				currentChat: makeCurrentChat({ chat: [activeMessage], activeMessage, activeMessageId: 'msg-1' }),
+			});
+			controller.quickviewManager = {
+				store: { isOpen: false, loading: false, product: undefined, resolvedConfig: undefined, error: undefined },
+				close: jest.fn(),
+			};
+
+			const rendered = render(<ChatOrganism controller={controller} />);
+			expect(rendered.container.querySelector('.ss__chat__secondary-mock')).not.toBeNull();
+		});
+
+		it('dismisses through the controller so the quickview closes too', () => {
+			const controller = makeProductQueryController(true);
+			const rendered = render(<ChatOrganism controller={controller} />);
+			expect(rendered.container.querySelector('.ss__chat__secondary-mock')).not.toBeNull();
+
+			fireEvent.keyDown(document, { key: 'Escape' });
+
+			expect(controller.dismissSideChat).toHaveBeenCalled();
 		});
 	});
 });

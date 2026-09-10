@@ -85,13 +85,6 @@ describe('ChatSessionStore productQuery messages', () => {
 
 		expect(store.activeMessageId).toBe('restored-msg-id');
 	});
-
-	it('does not contain productQuickview or productQuickviewError properties', () => {
-		const store = createStore();
-		// productQuickview was moved to ChatStore — verify it no longer exists here
-		expect((store as any).productQuickview).toBeUndefined();
-		expect((store as any).productQuickviewError).toBeUndefined();
-	});
 });
 
 describe('ChatSessionStore productSearch request messages', () => {

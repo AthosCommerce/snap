@@ -164,6 +164,10 @@ export class Snap {
 	public eventManager: EventManager;
 	public templates?: TemplatesStore;
 	private quickviewManager?: QuickviewManager;
+	// Chat renders the quickview inline in its secondary window, driven by its own store's
+	// `isOpen` flag — a separate manager instance from the body modal's so opening the chat
+	// panel can never open the modal (and vice versa).
+	private chatQuickviewManager?: QuickviewManager;
 
 	public getInstantiator = (id: string): Promise<RecommendationInstantiator> => {
 		return this._instantiatorPromises[id] || Promise.reject(`getInstantiator could not find instantiator with id: ${id}`);
@@ -251,7 +255,7 @@ export class Snap {
 					profiler: services?.profiler,
 					logger: services?.logger,
 					tracker: services?.tracker || this.tracker,
-					quickviewManager: services?.quickviewManager || this.quickviewManager,
+					quickviewManager: services?.quickviewManager || (type === ControllerTypes.chat ? this.chatQuickviewManager : this.quickviewManager),
 				}
 			);
 		}
@@ -691,6 +695,18 @@ export class Snap {
 				});
 			} catch (err) {
 				this.logger.error(`Failed to create the Quickview Manager.`, err);
+			}
+		}
+
+		// Create the chat quickview manager whenever chat controllers are configured — even
+		// without a `quickview` config, since chat needs no component target (the productQuery
+		// panel renders a QuickviewLayout inline). Settings inherit from the quickview config
+		// when one exists so displayFields/imagesField behave consistently across both surfaces.
+		if (this.config.controllers?.chat?.length) {
+			try {
+				this.chatQuickviewManager = new QuickviewManager({}, { ...(this.config.quickview?.config || {}), id: 'chat-quickview' });
+			} catch (err) {
+				this.logger.error(`Failed to create the chat Quickview Manager.`, err);
 			}
 		}
 

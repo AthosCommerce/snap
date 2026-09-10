@@ -13,9 +13,10 @@ export type QuickviewConfig = {
 	// The fields to display in the modal's attribute table (order preserved), or a function
 	// receiving the modal's product and returning them. Each entry configures the field, an
 	// optional display label (falling back to `meta.facets[field].label`, then the raw field key)
-	// and an optional display type (see DisplayFieldConfig). Opt-in: when omitted, no attribute
-	// table renders.
-	displayFields?: DisplayFieldConfig[] | ((result: Product) => DisplayFieldConfig[]);
+	// and an optional display type (see DisplayFieldConfig). A plain string entry is shorthand
+	// for `{ field }` (the shape chat quickview settings use). Opt-in: when omitted, no
+	// attribute table renders.
+	displayFields?: (DisplayFieldConfig | string)[] | ((result: Product) => (DisplayFieldConfig | string)[]);
 	// When false, the source `result` is used directly as the modal's product (no cloning).
 	// Variant selection in the modal will then mutate the source result tile. Default: true.
 	clone?: boolean;

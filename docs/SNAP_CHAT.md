@@ -48,7 +48,7 @@ The following settings can be configured in the `ChatControllerConfig`:
 | `id` | `string` | `'chat'` | Controller identifier |
 | `settings.feedbackAfterMessages` | `number` | `3` | Number of assistant messages before showing a session feedback prompt |
 | `settings.quickview.enabled` | `boolean` | `false` | Enable the product quickview panel for chat product clicks |
-| `settings.quickview.displayFields` | `string[]` | — | Fields to display in the product quickview panel |
+| `settings.quickview.displayFields` | `string[]` | — | Fields shown in the panel's attribute table (merged over the quickview manager's `settings.displayFields`). The panel renders an inline [QuickviewLayout](https://athoscommerce.github.io/snap/reference-quickview) from the chat controller's own quickview manager — no quickview component target is required |
 | `settings.bgFilters` | `Record<string, string>` | — | Background filters forwarded to the chat init API as `searchConfig.bgFilters` |
 | `settings.inputSelector` | `string` | `'.ss__chat__input input[type="text"]'` | CSS selector `focusInput` uses to locate the chat text input |
 | `settings.languageCode` | `string` | `navigator.language` | Language code forwarded to chat init. Snap Templates supplies the configured locale |

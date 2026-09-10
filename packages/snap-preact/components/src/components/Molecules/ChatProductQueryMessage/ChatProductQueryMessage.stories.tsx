@@ -39,9 +39,9 @@ export default {
 			table: { category: 'Templates Legal', type: { summary: 'ChatProductQueryMessageItem' } },
 			control: { type: 'none' },
 		},
-		displayFields: {
-			description: 'attribute keys to whitelist in the product info table',
-			table: { category: 'Templates Legal', type: { summary: 'string[]' } },
+		layout: {
+			description: 'QuickviewLayout module grid rendered for the product (defaults to the chat header-banner layout)',
+			table: { category: 'Templates Legal', type: { summary: 'QuickviewLayout layout' } },
 			control: { type: 'object' },
 		},
 		primaryColor: {
@@ -59,23 +59,43 @@ export default {
 };
 
 const mockController: any = {
+	type: 'chat',
 	store: {
-		productQuickview: {
+		currentChat: { chat: [], popProductQueryMessage: () => undefined },
+		features: { similarProducts: { enabled: true } },
+	},
+	log: { warn: () => undefined, error: () => undefined },
+	track: { product: { click: () => undefined, addToCart: () => undefined, clickThrough: () => undefined, impression: () => undefined } },
+	addToCart: () => undefined,
+	productSimilar: () => undefined,
+	productQuery: () => undefined,
+	closeProductQuickview: () => undefined,
+};
+
+// the panel renders from the chat controller's quickview manager store
+mockController.quickviewManager = {
+	type: 'quickview',
+	store: {
+		isOpen: true,
+		loading: false,
+		product: {
+			id: 'sample-hat',
 			display: {
 				mappings: { core: { name: 'Sample Wool Hat', brand: 'Acme', price: 29.99 } },
 				attributes: { material: 'wool', color: 'black' },
 			},
+			mappings: { core: { name: 'Sample Wool Hat', brand: 'Acme', price: 29.99 } },
+			attributes: { material: 'wool', color: 'black' },
 			variants: { selections: [] },
 		},
-		productQuickviewError: null,
-		currentChat: { chat: [], popProductQueryMessage: () => undefined },
-		clearProductQuickview: () => undefined,
-		features: { similarProducts: { enabled: true } },
+		resolvedConfig: { displayFields: ['material', 'color'] },
+		error: undefined,
 	},
-	track: { product: { click: () => undefined, addToCart: () => undefined } },
+	open: () => undefined,
+	close: () => undefined,
 	addToCart: () => undefined,
-	productSimilar: () => undefined,
-	productQuery: () => undefined,
+	track: { product: { click: () => undefined, addToCart: () => undefined, clickThrough: () => undefined, impression: () => undefined } },
+	sourceController: mockController,
 };
 
 export const Default = (args: ChatProductQueryMessageProps) => <ChatProductQueryMessage {...args} controller={mockController} />;

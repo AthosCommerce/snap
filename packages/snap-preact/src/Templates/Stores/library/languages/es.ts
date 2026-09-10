@@ -141,6 +141,11 @@ export const es: LangComponents = {
 				title: 'Cerrar chat',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Logotipo del chat',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Nuevo chat',
@@ -278,6 +283,9 @@ export const es: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Buscar productos similares a esta imagen:',
 		},
+		attachmentImageName: {
+			value: 'Imagen',
+		},
 		topicDriftScopeMessage: {
 			value: 'Estoy aquí para ayudarte con tus compras',
 		},
@@ -328,6 +336,9 @@ export const es: LangComponents = {
 		dropOverlayText: {
 			value: 'Suelta la imagen para subirla',
 		},
+		poweredByText: {
+			value: 'Con tecnología de Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'Asistente impulsado por IA. A veces comete errores. Evita compartir datos personales.',
 		},
@@ -358,37 +369,37 @@ export const es: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Cerrar',
+				'aria-label': (data) => `Cerrar ${data?.title ?? ''}`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Abrir elemento',
+				'aria-label': (data) => `Abrir ${data?.item?.name ?? ''}`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Cargando elemento',
+				'aria-label': (data) => `Cargando ${data?.item?.name ?? ''}`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Eliminar elemento',
+				'aria-label': (data) => `Eliminar ${data?.item?.name ?? ''}`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Error al subir el archivo',
+			value: (data) => `Error al subir el archivo - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Buscar este término',
+				'aria-label': (data) => `Buscar "${data?.searchTerm ?? ''}"`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Abrir producto',
+				'aria-label': (data) => `Abrir ${data?.productName || 'producto'}`,
 			},
 		},
 	},
@@ -459,20 +470,20 @@ export const es: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Ver detalles del producto',
-				title: 'Ver detalles del producto',
+				'aria-label': (data) => `Ver detalles de ${data?.attachment?.name ?? ''}`,
+				title: (data) => `Ver detalles de ${data?.attachment?.name ?? ''}`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Filtro aplicado',
-				title: 'Filtro aplicado',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Filtro: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Filtro: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Filtros adicionales',
-				title: 'Filtros adicionales',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} filtros adicionales`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} filtros más`,
 			},
 		},
 	},
@@ -490,13 +501,23 @@ export const es: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Ver detalles del producto',
+				'aria-label': (data) => `Ver detalles de ${data?.productName ?? ''}`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Cargando detalles del producto...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Vista rápida',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Cerrar vista rápida',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Volver a la comparación',
@@ -513,30 +534,14 @@ export const es: LangComponents = {
 		addToCartButton: {
 			value: 'Agregar al carrito',
 		},
+		moreInfoButton: {
+			value: 'Más información',
+		},
 		similarButton: {
 			value: 'Similares',
 		},
 		discussButton: {
 			value: 'Consultar',
-		},
-		inStockText: {
-			value: 'En stock',
-		},
-		outOfStockText: {
-			value: 'Agotado',
-		},
-		unavailableText: {
-			value: 'no disponible',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Selección de variantes',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Información del producto',
-			},
 		},
 	},
 	chatResult: {
@@ -1011,6 +1016,12 @@ export const es: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'Más información',
+		},
+		similarButton: {
+			value: 'Similares',
+		},
+		discussButton: {
+			value: 'Consultar',
 		},
 		loadingText: {
 			value: 'Cargando…',

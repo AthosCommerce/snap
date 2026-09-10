@@ -66,10 +66,10 @@ export const ChatResultsDisplay = observer((properties: ChatResultsDisplayProps)
 
 	const isNarrow = useMediaQuery('(max-width: 549px)');
 	// only the tablet range needs the narrower slideshow when the side chat is open;
-	// at >= 1200px there's room to keep 2.9 slides alongside the secondary chat
+	// at >= 1200px there's room to keep 3 slides alongside the secondary chat
 	const isTabletRange = useMediaQuery('(min-width: 768px) and (max-width: 1200px)');
 	const isConstrained = !isNarrow && isSideChatOpen && isTabletRange;
-	const slidesToShow = isNarrow || isConstrained ? 1.9 : 2.9;
+	const slidesToShow = isNarrow || isConstrained ? 2 : 3;
 
 	// after all hooks — an override that resolves or fails mid-lifecycle must not
 	// change the hook count between renders

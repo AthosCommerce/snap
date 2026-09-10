@@ -46,16 +46,16 @@ let templatesConfig = validateTemplatesConfig({
 			},
 		},
 	},
-	quickview: {
-		targets: [
-			{
-				component: 'QuickviewModal',
-			},
-		],
-		settings: {
-			displayFields: [{ field: 'price', type: 'price' }, { field: 'color' }, { field: 'size' }],
-		},
-	},
+	// quickview: {
+	// 	targets: [
+	// 		{
+	// 			component: 'QuickviewModal',
+	// 		},
+	// 	],
+	// 	settings: {
+	// 		displayFields: [{ field: 'price', type: 'price' }, { field: 'color' }, { field: 'size' }],
+	// 	},
+	// },
 	search: {
 		targets: [
 			{
@@ -80,7 +80,7 @@ let templatesConfig = validateTemplatesConfig({
 		settings: {
 			quickview: {
 				enabled: true,
-				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available'],
 			},
 		},
 	},
