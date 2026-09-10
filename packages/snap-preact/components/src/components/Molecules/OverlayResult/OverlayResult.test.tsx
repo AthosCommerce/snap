@@ -600,11 +600,13 @@ describe('OverlayResult lang works', () => {
 
 				expect(langElem).toBeInTheDocument();
 
+				// lang value is rendered within the button content span (alongside any icon)
+				const langContentElem = langElem?.querySelector('.ss__button__content');
 				if (typeof langObj.value == 'function') {
-					expect(langElem?.innerHTML).toBe(value);
+					expect(langContentElem?.innerHTML).toBe(value);
 					expect(valueMock).toHaveBeenCalledWith({ result: mockResults[1], controller: undefined });
 				} else {
-					expect(langElem?.innerHTML).toBe(langObj.value);
+					expect(langContentElem?.innerHTML).toBe(langObj.value);
 				}
 
 				expect(langElem).toHaveAttribute('alt', altText);

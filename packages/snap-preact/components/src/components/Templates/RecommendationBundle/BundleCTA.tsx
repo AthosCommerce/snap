@@ -27,7 +27,19 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 		setTimeout(() => setAddedToCart(false), properties.ctaButtonSuccessTimeout);
 	};
 
-	const { ctaSlot, cartStore, onAddToCart, ctaIcon, ctaButtonText, ctaButtonSuccessText, treePath, classNamePrefix } = props;
+	const {
+		ctaSlot,
+		cartStore,
+		onAddToCart,
+		ctaIcon,
+		ctaButtonText,
+		ctaButtonSuccessText,
+		ctaButtonIcon,
+		hideCtaButtonIcon,
+		hideCtaButtonText,
+		treePath,
+		classNamePrefix,
+	} = props;
 
 	const [addedToCart, setAddedToCart] = useState(false);
 
@@ -59,6 +71,13 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 		},
 		button: {
 			// default props
+			icon:
+				!hideCtaButtonIcon && ctaButtonIcon
+					? {
+							internalClassName: `${classNamePrefix}__wrapper__cta__button__icon`,
+							...(typeof ctaButtonIcon == 'string' ? { icon: ctaButtonIcon } : (ctaButtonIcon as Partial<IconProps>)),
+					  }
+					: undefined,
 			// component theme overrides
 			theme: props?.theme,
 			treePath,
@@ -74,6 +93,8 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 		},
 		{ activeBreakpoint: props?.theme?.activeBreakpoint }
 	);
+
+	const ctaButtonLang = addedToCart ? mergedLang.ctaButtonSuccessText : mergedLang.ctaButtonText;
 	return (
 		<div className={`${classNamePrefix}__wrapper__cta`}>
 			{ctaSlot ? (
@@ -106,9 +127,9 @@ export const BundledCTA = observer((properties: BundledCTAProps) => {
 						})}
 						aria-live={addedToCart}
 						onClick={(e) => onAddToCart(e)}
-						{...(addedToCart ? mergedLang.ctaButtonSuccessText?.all : mergedLang.ctaButtonText?.all)}
+						{...(hideCtaButtonText ? ctaButtonLang?.attributes : ctaButtonLang?.all)}
 					>
-						{addedToCart ? ctaButtonSuccessText : ctaButtonText}
+						{hideCtaButtonText ? undefined : addedToCart ? ctaButtonSuccessText : ctaButtonText}
 					</Button>
 				</>
 			)}
@@ -129,6 +150,9 @@ export interface BundledCTAProps extends ComponentProps {
 	onAddToCart: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void | Promise<void>;
 	ctaIcon?: IconType | Partial<IconProps> | false;
 	ctaButtonText?: string;
+	ctaButtonIcon?: IconType | Partial<IconProps>;
+	hideCtaButtonIcon?: boolean;
+	hideCtaButtonText?: boolean;
 	ctaButtonSuccessText?: string;
 	ctaButtonSuccessTimeout?: number;
 	addedToCart?: boolean;

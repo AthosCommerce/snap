@@ -16,6 +16,7 @@ import type { SearchController, AutocompleteController, RecommendationController
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { IconProps, IconType } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -163,6 +164,9 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 		addToCartButtonText,
 		addToCartButtonSuccessText,
 		addToCartButtonSuccessTimeout,
+		addToCartButtonIcon,
+		hideAddToCartButtonIcon,
+		hideAddToCartButtonText,
 		hideRating,
 		trackingRef,
 		treePath,
@@ -260,6 +264,13 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 		button: {
 			// default props
 			internalClassName: 'ss__overlay-result__button--addToCart',
+			icon:
+				!hideAddToCartButtonIcon && addToCartButtonIcon
+					? {
+							internalClassName: 'ss__overlay-result__button--addToCart__icon',
+							...(typeof addToCartButtonIcon == 'string' ? { icon: addToCartButtonIcon } : (addToCartButtonIcon as Partial<IconProps>)),
+					  }
+					: undefined,
 			onClick: (e) => {
 				setAddedToCart(true);
 
@@ -390,7 +401,11 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 
 							{!hideAddToCartButton && (
 								<div className="ss__overlay-result__add-to-cart-wrapper">
-									<Button {...subProps.button} content={addToCartButtonText} {...mergedLang.addToCartButtonText.all} />
+									<Button
+										{...subProps.button}
+										content={hideAddToCartButtonText ? undefined : addToCartButtonText}
+										{...(hideAddToCartButtonText ? mergedLang.addToCartButtonText.attributes : mergedLang.addToCartButtonText.all)}
+									/>
 								</div>
 							)}
 						</div>
@@ -434,6 +449,9 @@ export type OverlayResultTemplatesLegalProps = {
 	hideVariantSelections?: boolean;
 	hideAddToCartButton?: boolean;
 	addToCartButtonText?: string;
+	addToCartButtonIcon?: IconType | Partial<IconProps>;
+	hideAddToCartButtonIcon?: boolean;
+	hideAddToCartButtonText?: boolean;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;
 	addToCartButtonSuccessTimeout?: number;

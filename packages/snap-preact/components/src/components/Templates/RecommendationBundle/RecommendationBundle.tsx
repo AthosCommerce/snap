@@ -230,6 +230,9 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		ctaSlot,
 		hideSeed,
 		ctaButtonText,
+		ctaButtonIcon,
+		hideCtaButtonIcon,
+		hideCtaButtonText,
 		ctaButtonSuccessText,
 		ctaButtonSuccessTimeout,
 		disableStyles,
@@ -669,6 +672,9 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 									cartStore={cartStore}
 									onAddToCart={(e) => addToCart(e as unknown as MouseEvent)}
 									ctaButtonText={ctaButtonText}
+									ctaButtonIcon={ctaButtonIcon}
+									hideCtaButtonIcon={hideCtaButtonIcon}
+									hideCtaButtonText={hideCtaButtonText}
 									ctaButtonSuccessText={ctaButtonSuccessText}
 									ctaButtonSuccessTimeout={ctaButtonSuccessTimeout}
 									ctaIcon={ctaIcon}
@@ -688,6 +694,9 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 								cartStore={cartStore}
 								onAddToCart={(e) => addToCart(e as unknown as MouseEvent)}
 								ctaButtonText={ctaButtonText}
+								ctaButtonIcon={ctaButtonIcon}
+								hideCtaButtonIcon={hideCtaButtonIcon}
+								hideCtaButtonText={hideCtaButtonText}
 								ctaButtonSuccessText={ctaButtonSuccessText}
 								ctaButtonSuccessTimeout={ctaButtonSuccessTimeout}
 								ctaIcon={ctaIcon}
@@ -748,6 +757,9 @@ export type RecommendationBundleTemplatesLegalProps = {
 	description?: JSX.Element | string;
 	ctaIcon?: IconType | Partial<IconProps> | false;
 	ctaButtonText?: string;
+	ctaButtonIcon?: IconType | Partial<IconProps>;
+	hideCtaButtonIcon?: boolean;
+	hideCtaButtonText?: boolean;
 	ctaButtonSuccessText?: string;
 	ctaButtonSuccessTimeout?: number;
 	ctaSlot?: JSX.Element | React.FunctionComponent<BundledCTAProps>;

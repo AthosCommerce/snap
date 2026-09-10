@@ -104,6 +104,24 @@ describe('Button Component', () => {
 			expect(iconElem).toHaveClass('ss__icon--close-thin');
 		});
 
+		it('renders both icon and text when dangerouslySetInnerHTML is spread (e.g. from lang `.all` attributes)', () => {
+			const icon = 'eye';
+			const text = 'Quick View';
+
+			// @ts-ignore - dangerouslySetInnerHTML doesn't fit the ButtonProps type definition
+			const rendered = render(<Button icon={icon} dangerouslySetInnerHTML={{ __html: text }} />);
+
+			const button = rendered.container.querySelector('.ss__button');
+			const iconElem = rendered.container.querySelector(`.ss__button .ss__icon`);
+			const contentElem = rendered.container.querySelector(`.ss__button .ss__button__content`);
+
+			expect(button).toBeInTheDocument();
+			expect(iconElem).toBeInTheDocument();
+			expect(iconElem).toHaveClass('ss__icon--eye');
+			expect(contentElem).toBeInTheDocument();
+			expect(contentElem?.innerHTML).toBe(text);
+		});
+
 		it('fires onClick prop when clicked', async () => {
 			const clickFn = jest.fn();
 			const content = 'clickable button';

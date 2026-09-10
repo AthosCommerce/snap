@@ -607,11 +607,13 @@ describe('Result lang works', () => {
 
 				expect(langElem).toBeInTheDocument();
 
+				// lang value is rendered within the button content span (alongside any icon)
+				const langContentElem = langElem?.querySelector('.ss__button__content');
 				if (typeof langObj.value == 'function') {
-					expect(langElem?.innerHTML).toBe(value);
+					expect(langContentElem?.innerHTML).toBe(value);
 					expect(valueMock).toHaveBeenCalledWith({ result: mockResults[1], controller: undefined });
 				} else {
-					expect(langElem?.innerHTML).toBe(langObj.value);
+					expect(langContentElem?.innerHTML).toBe(langObj.value);
 				}
 
 				expect(langElem).toHaveAttribute('alt', altText);
@@ -720,6 +722,92 @@ describe('Result quickview integration', () => {
 		const quickview = rendered.container.querySelector('.ss__result__image-wrapper .ss__result__quickview');
 		expect(quickview).not.toBeNull();
 		expect(quickview!.querySelector('.ss__icon--eye')).not.toBeNull();
+	});
+
+	it('renders both the quickview icon and text when lang provides a quickviewButtonText value', () => {
+		const { controller } = makeController();
+		const text = 'Vista rápida';
+		const rendered = render(
+			<Result result={baseResult} controller={controller} hideQuickviewButton={false} lang={{ quickviewButtonText: { value: text } }} />
+		);
+		const quickview = rendered.container.querySelector('.ss__result__quickview');
+		expect(quickview).not.toBeNull();
+		expect(quickview!.querySelector('.ss__icon--eye')).not.toBeNull();
+		expect(quickview!.querySelector('.ss__button__content')?.innerHTML).toBe(text);
+	});
+
+	it('renders a custom quickview icon with quickviewButtonIcon prop', () => {
+		const { controller } = makeController();
+		const rendered = render(<Result result={baseResult} controller={controller} hideQuickviewButton={false} quickviewButtonIcon={'search'} />);
+		const quickview = rendered.container.querySelector('.ss__result__quickview');
+		expect(quickview!.querySelector('.ss__icon--eye')).toBeNull();
+		expect(quickview!.querySelector('.ss__icon--search')).not.toBeNull();
+	});
+
+	it('supports quickviewButtonIcon as icon props object', () => {
+		const { controller } = makeController();
+		const rendered = render(
+			<Result result={baseResult} controller={controller} hideQuickviewButton={false} quickviewButtonIcon={{ icon: 'search', size: '30px' }} />
+		);
+		const icon = rendered.container.querySelector('.ss__result__quickview .ss__icon--search');
+		expect(icon).not.toBeNull();
+	});
+
+	it('hides the quickview icon with hideQuickviewButtonIcon when text is available', () => {
+		const { controller } = makeController();
+		const text = 'Vista rápida';
+		const rendered = render(
+			<Result
+				result={baseResult}
+				controller={controller}
+				hideQuickviewButton={false}
+				hideQuickviewButtonIcon={true}
+				lang={{ quickviewButtonText: { value: text } }}
+			/>
+		);
+		const quickview = rendered.container.querySelector('.ss__result__quickview');
+		expect(quickview).not.toBeNull();
+		expect(quickview!.querySelector('.ss__icon')).toBeNull();
+		expect(quickview!.querySelector('.ss__button__content')?.innerHTML).toBe(text);
+	});
+
+	it('hides the quickview text with hideQuickviewButtonText while keeping the icon and aria-label', () => {
+		const { controller } = makeController();
+		const text = 'Vista rápida';
+		const rendered = render(
+			<Result
+				result={baseResult}
+				controller={controller}
+				hideQuickviewButton={false}
+				hideQuickviewButtonText={true}
+				lang={{ quickviewButtonText: { value: text, attributes: { 'aria-label': text } } }}
+			/>
+		);
+		const quickview = rendered.container.querySelector('.ss__result__quickview');
+		expect(quickview).not.toBeNull();
+		expect(quickview!.querySelector('.ss__icon--eye')).not.toBeNull();
+		expect(quickview!.querySelector('.ss__button__content')).toBeNull();
+		expect(quickview).toHaveAttribute('aria-label', text);
+	});
+
+	it('hides the add to cart text with hideAddToCartButtonText while keeping the icon', () => {
+		const { controller } = makeController();
+		const rendered = render(
+			<Result result={baseResult} controller={controller} hideAddToCartButton={false} addToCartButtonIcon={'bag'} hideAddToCartButtonText={true} />
+		);
+		const addToCartButton = rendered.container.querySelector('.ss__result__button--addToCart');
+		expect(addToCartButton).not.toBeNull();
+		expect(addToCartButton!.querySelector('.ss__icon--bag')).not.toBeNull();
+		expect(addToCartButton!.querySelector('.ss__button__content')).toBeNull();
+	});
+
+	it('renders an icon in the add to cart button with addToCartButtonIcon prop', () => {
+		const { controller } = makeController();
+		const rendered = render(<Result result={baseResult} controller={controller} hideAddToCartButton={false} addToCartButtonIcon={'bag'} />);
+		const addToCartButton = rendered.container.querySelector('.ss__result__button--addToCart');
+		expect(addToCartButton).not.toBeNull();
+		expect(addToCartButton!.querySelector('.ss__icon--bag')).not.toBeNull();
+		expect(addToCartButton!.querySelector('.ss__button__content')?.innerHTML).toBe('Add To Cart');
 	});
 
 	it('calls controller.quickview when the icon is clicked', async () => {

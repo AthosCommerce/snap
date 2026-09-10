@@ -16,6 +16,7 @@ import type { SearchController, AutocompleteController, RecommendationController
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Rating, RatingProps } from '../Rating';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { IconProps, IconType } from '../../Atoms/Icon';
 import deepmerge from 'deepmerge';
 import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import { VariantSelection, VariantSelectionProps } from '../VariantSelection';
@@ -92,9 +93,11 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText: 'Add To Cart',
 		addToCartButtonSuccessText: 'Added!',
 		addToCartButtonSuccessTimeout: 2000,
+		quickviewButtonIcon: 'eye',
 		hideAddToCartButton: true,
 		hideRating: true,
 		hideQuickviewButton: true,
+		hideQuickviewButtonText: true,
 	};
 
 	const props = mergeProps('result', globalTheme, defaultProps, properties);
@@ -119,7 +122,13 @@ export const Result = observer((properties: ResultProps) => {
 		addToCartButtonText,
 		addToCartButtonSuccessText,
 		addToCartButtonSuccessTimeout,
+		addToCartButtonIcon,
+		hideAddToCartButtonIcon,
+		hideAddToCartButtonText,
 		quickviewButtonText,
+		quickviewButtonIcon,
+		hideQuickviewButtonIcon,
+		hideQuickviewButtonText,
 		hideRating,
 		hideQuickviewButton,
 		onQuickviewClick,
@@ -217,12 +226,15 @@ export const Result = observer((properties: ResultProps) => {
 			// default props
 			name: 'quickview',
 			internalClassName: 'ss__result__quickview',
-			icon: {
-				internalClassName: 'ss__result__quickview__icon',
-				icon: 'eye',
-				size: '20px',
-				title: quickviewButtonText,
-			},
+			icon:
+				!hideQuickviewButtonIcon && quickviewButtonIcon
+					? {
+							internalClassName: 'ss__result__quickview__icon',
+							size: '20px',
+							title: quickviewButtonText,
+							...(typeof quickviewButtonIcon == 'string' ? { icon: quickviewButtonIcon } : (quickviewButtonIcon as Partial<IconProps>)),
+					  }
+					: undefined,
 			onClick: (e) => {
 				if (onQuickviewClick) {
 					onQuickviewClick(e, result);
@@ -240,6 +252,13 @@ export const Result = observer((properties: ResultProps) => {
 		button: {
 			// default props
 			internalClassName: 'ss__result__button--addToCart',
+			icon:
+				!hideAddToCartButtonIcon && addToCartButtonIcon
+					? {
+							internalClassName: 'ss__result__button--addToCart__icon',
+							...(typeof addToCartButtonIcon == 'string' ? { icon: addToCartButtonIcon } : (addToCartButtonIcon as Partial<IconProps>)),
+					  }
+					: undefined,
 			onClick: (e) => {
 				setAddedToCart(true);
 
@@ -274,7 +293,7 @@ export const Result = observer((properties: ResultProps) => {
 			value: addedToCart ? addToCartButtonSuccessText : addToCartButtonText,
 		},
 		quickviewButtonText: {
-			value: quickviewButtonText,
+			value: quickviewButtonText || 'Quick View',
 			attributes: {
 				'aria-label': quickviewButtonText || 'Quick View',
 			},
@@ -321,7 +340,12 @@ export const Result = observer((properties: ResultProps) => {
 								<Image {...subProps.image} />
 							)}
 						</a>
-						{!hideQuickviewButton && controller?.quickviewManager && <Button {...subProps.quickviewButton} {...mergedLang.quickviewButtonText.all} />}
+						{!hideQuickviewButton && controller?.quickviewManager && (
+							<Button
+								{...subProps.quickviewButton}
+								{...(hideQuickviewButtonText ? mergedLang.quickviewButtonText.attributes : mergedLang.quickviewButtonText.all)}
+							/>
+						)}
 					</div>
 				)}
 
@@ -375,7 +399,10 @@ export const Result = observer((properties: ResultProps) => {
 
 					{!hideAddToCartButton && (
 						<div className="ss__result__add-to-cart-wrapper">
-							<Button {...subProps.button} {...mergedLang.addToCartButtonText.all} />
+							<Button
+								{...subProps.button}
+								{...(hideAddToCartButtonText ? mergedLang.addToCartButtonText.attributes : mergedLang.addToCartButtonText.all)}
+							/>
 						</div>
 					)}
 				</div>
@@ -417,7 +444,13 @@ export type ResultTemplatesLegalProps = {
 	hideAddToCartButton?: boolean;
 	hideQuickviewButton?: boolean;
 	addToCartButtonText?: string;
+	addToCartButtonIcon?: IconType | Partial<IconProps>;
+	hideAddToCartButtonIcon?: boolean;
+	hideAddToCartButtonText?: boolean;
 	quickviewButtonText?: string;
+	quickviewButtonIcon?: IconType | Partial<IconProps>;
+	hideQuickviewButtonIcon?: boolean;
+	hideQuickviewButtonText?: boolean;
 	onAddToCartClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	onQuickviewClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>, result: Product) => void;
 	addToCartButtonSuccessText?: string;

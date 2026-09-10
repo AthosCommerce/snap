@@ -68,6 +68,27 @@ The `hideAddToCartButton` prop will prevent to product add to cart button from r
 <OverlayResult result={controller.store.results[0]} hideAddToCartButton={true} />
 ```
 
+### addToCartButtonIcon
+The `addToCartButtonIcon` prop specifies an icon to render in the add to cart button (alongside the text). Takes an object with `Icon` component props or a string.
+
+```tsx
+<OverlayResult result={controller.store.results[0]} addToCartButtonIcon={'bag'} />
+```
+
+### hideAddToCartButtonIcon
+The `hideAddToCartButtonIcon` prop prevents the add to cart button icon from rendering.
+
+```tsx
+<OverlayResult result={controller.store.results[0]} hideAddToCartButtonIcon={true} />
+```
+
+### hideAddToCartButtonText
+The `hideAddToCartButtonText` prop prevents the add to cart button text from rendering (typically to display an icon only via `addToCartButtonIcon`).
+
+```tsx
+<OverlayResult result={controller.store.results[0]} addToCartButtonIcon={'bag'} hideAddToCartButtonText={true} />
+```
+
 ### addToCartButtonText
 The `addToCartButtonText` prop will will change the text rendered in the add to cart button.
 

@@ -59,6 +59,27 @@ The `addToCartButtonText` prop will will change the text rendered in the add to 
 <Result result={controller.store.results[0]} addToCartButtonText={'Add To Cart'} />
 ```
 
+### addToCartButtonIcon
+The `addToCartButtonIcon` prop specifies an icon to render in the add to cart button (alongside the text). Takes an object with `Icon` component props or a string.
+
+```tsx
+<Result result={controller.store.results[0]} addToCartButtonIcon={'bag'} />
+```
+
+### hideAddToCartButtonIcon
+The `hideAddToCartButtonIcon` prop prevents the add to cart button icon from rendering.
+
+```tsx
+<Result result={controller.store.results[0]} hideAddToCartButtonIcon={true} />
+```
+
+### hideAddToCartButtonText
+The `hideAddToCartButtonText` prop prevents the add to cart button text from rendering (typically to display an icon only via `addToCartButtonIcon`).
+
+```tsx
+<Result result={controller.store.results[0]} addToCartButtonIcon={'bag'} hideAddToCartButtonText={true} />
+```
+
 ### hidePricing
 The `hidePricing` prop will prevent the pricing from rendering.
 
@@ -111,6 +132,27 @@ The `quickviewButtonText` prop changes the accessible label (`aria-label` and ic
 
 ```tsx
 <Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} quickviewButtonText={'Peek'} />
+```
+
+### quickviewButtonIcon
+The `quickviewButtonIcon` prop specifies the icon to render in the quickview button. Takes an object with `Icon` component props or a string. Defaults to `'eye'`. The icon renders alongside any text provided (via `lang.quickviewButtonText.value`).
+
+```tsx
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} quickviewButtonIcon={'search'} />
+```
+
+### hideQuickviewButtonIcon
+The `hideQuickviewButtonIcon` prop prevents the quickview button icon from rendering (typically to display translated text only).
+
+```tsx
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} hideQuickviewButtonIcon={true} />
+```
+
+### hideQuickviewButtonText
+The `hideQuickviewButtonText` prop prevents the quickview button text from rendering, displaying the icon only. Any translated `aria-label` is retained for accessibility.
+
+```tsx
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} hideQuickviewButtonText={true} />
 ```
 
 ### onQuickviewClick

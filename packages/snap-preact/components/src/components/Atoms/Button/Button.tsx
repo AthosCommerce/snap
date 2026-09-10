@@ -98,12 +98,17 @@ export const Button = observer((properties: ButtonProps) => {
 
 	const styling = mergeStyles<ButtonProps>(props, defaultStyles);
 
+	// additionalProps may contain dangerouslySetInnerHTML (e.g. from spreading lang `.all` attributes);
+	// it is pulled out so it can be rendered within the content span instead of the root element - allowing an icon to render alongside the text
+	// @ts-ignore - dangerouslySetInnerHTML doesn't fit the ButtonProps type definition so we need to ignore it here.
+	const { dangerouslySetInnerHTML, ...remainingProps } = additionalProps;
+
 	const elementProps = {
 		...styling,
 		className: classnames('ss__button', { 'ss__button--native': native, 'ss__button--disabled': disabled }, className, internalClassName),
 		disabled,
 		onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => !disabled && onClick && onClick(e),
-		...additionalProps,
+		...remainingProps,
 	};
 
 	const a11yProps = {
@@ -117,22 +122,25 @@ export const Button = observer((properties: ButtonProps) => {
 	const langs = deepmerge(defaultLang, lang || {});
 	const mergedLang = useLang(langs as any, {}, { activeBreakpoint: globalTheme?.activeBreakpoint });
 
-	// @ts-ignore - additionalProps may contain dangerouslySetInnerHTML which is fine to spread on the element, but doesn't fit the ButtonProps type definition so we need to ignore it here.
-	const hasDangerouslySetInnerHTML = Boolean(additionalProps.dangerouslySetInnerHTML);
-
-	return content || children || icon || lang?.button?.value || hasDangerouslySetInnerHTML ? (
+	return content || children || icon || lang?.button?.value || dangerouslySetInnerHTML ? (
 		<CacheProvider>
 			{native ? (
 				<button {...elementProps}>
-					<span className="ss__button__content" {...mergedLang.button?.all}>
-						{cloneWithProps(content, { treePath })}
-						{cloneWithProps(children, { treePath })}
-					</span>
+					{dangerouslySetInnerHTML ? (
+						<span className="ss__button__content" dangerouslySetInnerHTML={dangerouslySetInnerHTML}></span>
+					) : (
+						<span className="ss__button__content" {...mergedLang.button?.all}>
+							{cloneWithProps(content, { treePath })}
+							{cloneWithProps(children, { treePath })}
+						</span>
+					)}
 					{icon && <Icon {...subProps.icon} {...(typeof icon == 'string' ? { icon: icon } : (icon as Partial<IconProps>))} />}
 				</button>
 			) : (
 				<div {...(!disableA11y ? a11yProps : {})} role={'button'} aria-disabled={disabled} {...elementProps} {...mergedLang.button?.attributes}>
-					{content || children || mergedLang.button?.value ? (
+					{dangerouslySetInnerHTML ? (
+						<span className="ss__button__content" dangerouslySetInnerHTML={dangerouslySetInnerHTML}></span>
+					) : content || children || mergedLang.button?.value ? (
 						<span className="ss__button__content" {...mergedLang.button?.value}>
 							{cloneWithProps(content, { treePath })}
 							{cloneWithProps(children, { treePath })}

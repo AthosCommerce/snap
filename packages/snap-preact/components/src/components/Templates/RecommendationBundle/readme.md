@@ -139,6 +139,27 @@ The `ctaButtonText` prop specifies the inner text to render in the add to cart b
 <RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} ctaButtonText={'Add Bundle'} />
 ```
 
+### ctaButtonIcon
+The `ctaButtonIcon` prop specifies an icon to render in the add to cart button (alongside the text). Takes an object with `Icon` component props or a string.
+
+```tsx
+<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} ctaButtonIcon={'bag'} />
+```
+
+### hideCtaButtonIcon
+The `hideCtaButtonIcon` prop prevents the add to cart button icon from rendering.
+
+```tsx
+<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} hideCtaButtonIcon={true} />
+```
+
+### hideCtaButtonText
+The `hideCtaButtonText` prop prevents the add to cart button text from rendering (typically to display an icon only via `ctaButtonIcon`).
+
+```tsx
+<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} ctaButtonIcon={'bag'} hideCtaButtonText={true} />
+```
+
 ### ctaButtonSuccessText
 The `ctaButtonSuccessText` prop specifies text to temporarily render in the add to cart button after it is clicked.
 

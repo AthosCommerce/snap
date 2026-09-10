@@ -196,10 +196,12 @@ describe('SearchInput Component', () => {
 
 					const langElem = rendered.container.querySelector(`[ss-lang=${option}]`);
 					expect(langElem).toBeInTheDocument();
+					// lang value is rendered within the button content span (alongside any icon)
+					const langContentElem = langElem?.querySelector('.ss__button__content');
 					if (typeof langObj.value == 'function') {
-						expect(langElem?.innerHTML).toBe(value);
+						expect(langContentElem?.innerHTML).toBe(value);
 					} else {
-						expect(langElem?.innerHTML).toBe(langObj.value);
+						expect(langContentElem?.innerHTML).toBe(langObj.value);
 					}
 
 					expect(langElem).toHaveAttribute('alt', altText);

@@ -202,6 +202,13 @@ export const CTASlot = observer((props: BundledCTAProps) => {
 		button: {
 			// default props
 			className: `${classNamePrefix}__wrapper__cta__button`,
+			icon:
+				!props.hideCtaButtonIcon && props.ctaButtonIcon
+					? {
+							internalClassName: `${classNamePrefix}__wrapper__cta__button__icon`,
+							...(typeof props.ctaButtonIcon == 'string' ? { icon: props.ctaButtonIcon } : (props.ctaButtonIcon as Partial<IconProps>)),
+					  }
+					: undefined,
 			// component theme overrides
 			theme: props?.theme,
 			treePath: props.treePath,
@@ -211,6 +218,8 @@ export const CTASlot = observer((props: BundledCTAProps) => {
 	//deep merge with props.lang
 	const lang = deepmerge({}, props.lang || {});
 	const mergedLang = useLang(lang as any, {}, { activeBreakpoint: props?.theme?.activeBreakpoint });
+
+	const ctaButtonLang = addedToCart ? mergedLang.ctaButtonSuccessText : mergedLang.ctaButtonText;
 
 	return (
 		<>
@@ -263,9 +272,9 @@ export const CTASlot = observer((props: BundledCTAProps) => {
 					})}
 					aria-live={addedToCart}
 					onClick={(e) => props.onAddToCart(e)}
-					{...(addedToCart ? mergedLang.ctaButtonSuccessText?.all : mergedLang.ctaButtonText?.all)}
+					{...(props.hideCtaButtonText ? ctaButtonLang?.attributes : ctaButtonLang?.all)}
 				>
-					{props.addedToCart ? props.ctaButtonSuccessText : props.ctaButtonText}
+					{props.hideCtaButtonText ? undefined : props.addedToCart ? props.ctaButtonSuccessText : props.ctaButtonText}
 				</Button>
 			</div>
 		</>
