@@ -132,16 +132,16 @@ plugins: {
 
 ### pluginShopifyMarkets
 
-The **Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for multi-currency storefronts that use Shopify Markets. When a customer's active currency differs from the store's base currency, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically.
+The **Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for storefronts that use Shopify Markets. When a customer's active market (country) differs from the store's base market, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically. Country — not currency — is what decides whether a fetch is needed, since Shopify Markets can price two countries differently even when they share a currency (for example, two countries settling in the same currency but with different price lists).
 
 When used through `SnapTemplates` on Shopify, enabling `markets` also automatically applies `theme.overrides.default.price.format = shopifyMarketsPriceFormat` unless you already provide a custom `price.format` override.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
 | token | Shopify Storefront Access Token | string | — | ✅ |
-| baseCurrency | Your store's base/catalog currency | string | `'USD'` | ➖ |
+| baseCountry | Your store's base/catalog market (country code) | string | `'US'` | ➖ |
 | baseUrl | Optional override for store URL | string | — | ➖ |
-| path | Optional override for GraphQL API path | string | `'/api/2025-04/graphql.json'` | ➖ |
+| path | Optional override for GraphQL API path | string | `'/api/2026-07/graphql.json'` | ➖ |
 | idFieldName | Dot-notation path on the variant object used to match against Shopify variant IDs | string | `'mappings.core.uid'` | ➖ |
 
 #### Setup
@@ -160,7 +160,7 @@ const config = validateTemplatesConfig({
 		shopify: {
 			markets: {
 				token: 'your-storefront-access-token',
-				baseCurrency: 'USD',  // e.g., 'USD', 'EUR', 'GBP'
+				baseCountry: 'US',  // country code your catalog/index prices are based on
 				idFieldName: 'mappings.core.uid', // optional; use a custom field if variant UIDs don't match Shopify variant IDs
 				// baseUrl and path are optional; defaults work for standard Shopify stores
 			},
@@ -176,11 +176,11 @@ new SnapTemplates(config);
 
 #### How It Works
 
-1. After search results load, the plugin detects if the active currency (`Shopify.currency.active`) differs from `baseCurrency`
+1. After search results load, the plugin detects if the active market (`Shopify.country`) differs from `baseCountry` — currency is not used for this decision, since two countries can share a currency while pricing products differently
 2. For uncached products, it fetches localized `priceRange` and `compareAtPriceRange` from Shopify GraphQL
 3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
 4. Sets `result.state.priceFetched = true` when pricing is ready to display
-5. Caches results in an in-memory price cache local to the plugin instance to avoid redundant API calls
+5. Caches results in an in-memory price cache local to the plugin instance, segmented per country, so switching between two non-base markets never reuses another market's cached prices
 6. When a quickview is opened, the same localized pricing (product and variant level) is applied to the quickview product — its variants are repopulated from `/v1/products` in the base currency, so the plugin re-applies cached prices (fetching them first if not already cached)
 
 When formatting prices, `shopifyMarketsPriceFormat` reads script context variables via `getContext(['format'])`:
