@@ -43,7 +43,8 @@ const defaultStyles: StyleScript<ChatComposerProps> = ({ primaryColorBg, primary
 				'input[type="text"]': {
 					padding: '0.5em 0',
 					margin: '0 0 0 1em',
-					flex: '1 0 auto',
+					flex: '1 1 0%',
+					minWidth: 0,
 					border: 'none',
 					backgroundColor: 'transparent',
 					'&::placeholder': {

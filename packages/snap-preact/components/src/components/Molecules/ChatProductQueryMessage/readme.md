@@ -24,7 +24,7 @@ The chat message to render. Must have `messageType === 'productQuery'`. Messages
 `ChatController` reference. Supplies the quickview manager the layout renders from; when the controller has no quickview manager the component warns and renders nothing (Snap provides one to chat controllers automatically whenever they are configured).
 
 ### layout, column1–column4, hideBadge, recommendation
-Pass-throughs to the embedded `QuickviewLayout` (same shapes as on `QuickviewModal`/`QuickviewSlideout`). The default mirrors the chat product panel: a header banner on the theme's primary color (product image beside name, price, and the action buttons), followed by the variants, the attribute table, the description, and a "more info" link (badges are hidden by default — `hideBadge: true`):
+Pass-throughs to the embedded `QuickviewLayout` (same shapes as on `QuickviewModal`/`QuickviewSlideout`). The default mirrors the chat product panel: a header banner on the theme's primary color (product image beside name, price, and the action buttons), followed by the variants, the attribute table, and the description (badges are hidden by default — `hideBadge: true`):
 
 ```tsx
 layout: [['c1', 'c2'], ['c3']],
@@ -41,7 +41,7 @@ column2: {
   width: 'auto',
 },
 column3: {
-  layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+  layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description']],
   width: '100%',
 },
 ```
