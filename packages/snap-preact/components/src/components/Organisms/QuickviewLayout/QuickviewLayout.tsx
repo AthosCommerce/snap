@@ -544,35 +544,39 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	// Module renderers. Each returns the corresponding region, or null when it has nothing to
 	// show (so empty columns/rows collapse). Columns (c1/c2) recurse into their own layouts.
-	const findModule = (module: ModuleNamesWithColumns): h.JSX.Element | null => {
+	const findModule = (module: ModuleNamesWithColumns, rowCounter: { value: number }): h.JSX.Element | null => {
 		// new row
 		if (typeof module !== 'string') {
-			const children = module.map((subModule) => findModule(subModule));
+			const children = module.map((subModule) => findModule(subModule, rowCounter));
 			const hasContent = (module as string[]).some((subModule, i) => subModule !== '_' && children[i]);
 			if (!hasContent) return null;
-			return <div className="ss__quickview__row">{children}</div>;
+			return <div className={`ss__quickview__row ss__quickview__row--${rowCounter.value++}`}>{children}</div>;
 		}
 
 		if (module == 'c1' && column1?.layout?.length) {
-			const children = (column1.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
+			const c1RowCounter = { value: 0 };
+			const children = (column1.layout as ModuleNamesWithColumns[]).map((m) => findModule(m, c1RowCounter));
 			const hasContent = (column1.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__quickview__column ss__quickview__column--c1">{children}</div>;
 		}
 		if (module == 'c2' && column2?.layout?.length) {
-			const children = (column2.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
+			const c2RowCounter = { value: 0 };
+			const children = (column2.layout as ModuleNamesWithColumns[]).map((m) => findModule(m, c2RowCounter));
 			const hasContent = (column2.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__quickview__column ss__quickview__column--c2">{children}</div>;
 		}
 		if (module == 'c3' && column3?.layout?.length) {
-			const children = (column3.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
+			const c3RowCounter = { value: 0 };
+			const children = (column3.layout as ModuleNamesWithColumns[]).map((m) => findModule(m, c3RowCounter));
 			const hasContent = (column3.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__quickview__column ss__quickview__column--c3">{children}</div>;
 		}
 		if (module == 'c4' && column4?.layout?.length) {
-			const children = (column4.layout as ModuleNamesWithColumns[]).map((m) => findModule(m));
+			const c4RowCounter = { value: 0 };
+			const children = (column4.layout as ModuleNamesWithColumns[]).map((m) => findModule(m, c4RowCounter));
 			const hasContent = (column4.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__quickview__column ss__quickview__column--c4">{children}</div>;
@@ -773,6 +777,8 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		layout = [];
 	}
 
+	const topRowCounter = { value: 0 };
+
 	const closeButton = (
 		<Button
 			name="close"
@@ -803,7 +809,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 							<div className="ss__quickview__loading" {...mergedLang.loadingText?.all}></div>
 						) : (
 							<>
-								{(layout as ModuleNamesWithColumns[])?.map((module) => findModule(module))}
+								{(layout as ModuleNamesWithColumns[])?.map((module) => findModule(module, topRowCounter))}
 								<Gallery
 									images={galleryImages}
 									open={galleryOpen}
