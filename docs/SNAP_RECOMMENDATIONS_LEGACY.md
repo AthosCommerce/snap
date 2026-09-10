@@ -32,7 +32,7 @@ Profile configurations are applied to recommendation via script context variable
 | options.branch | template branch overwrite | all | optional branch overwrite for recommendations template (advanced usage) |
 | options.filters | array of filters | all | optional recommendation filters |
 | options.query | string | all | query to search |
-| options.realtime | boolean | all | optional update recommendations if cart contents change (requires [cart attribute tracking](https://athoscommerce.github.io/snap/snap-tracking#cart-attribute-tracking)) |
+| options.realtime | boolean | all | optional update recommendations if cart contents change (requires [cart attribute tracking](https://athoscommerce.github.io/snap/snap-tracking-manual#cart-attribute-tracking)) |
 | options.blockedItems | array of strings | all | SKU values to identify which products to exclude from the response |
 | options.batched | boolean (default: `true`)| all | only applies to recommendation context, optional disable profile from being batched in a single request, can also be set globally [via config](https://athoscommerce.github.io/snap/reference-controller-recommendation#recommendationcontrollerconfig) | 
 | options.dedupe | boolean (default: `true`) | all | specify wether or not the profile should deduplicate products when in a batch |

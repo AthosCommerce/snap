@@ -1,4 +1,4 @@
-## Quickview
+# Quickview 👁️
 
 Quickview lets shoppers preview a product - images, price, variant selection, add-to-cart - in a modal or slide-out panel without leaving the search results, autocomplete, or a recommendation carousel.
 

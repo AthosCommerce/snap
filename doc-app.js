@@ -1,22 +1,3 @@
-function flattenDocumentLinks(docs) {
-	const flattened = [];
-	function traverse(links) {
-		if (!Array.isArray(links)) return;
-		links.forEach((link) => {
-			flattened.push(link);
-			if (link.links && Array.isArray(link.links)) {
-				traverse(link.links);
-			}
-		});
-	}
-	docs.forEach((doc) => {
-		if (doc.links && Array.isArray(doc.links)) {
-			traverse(doc.links);
-		}
-	});
-	return flattened;
-}
-
 marked.use(markedAlert());
 import('./docs/documents.js').then(function (_) {
 	const documents = _.default;
@@ -108,12 +89,30 @@ import('./docs/documents.js').then(function (_) {
 			return {
 				documents,
 				darkMode: localStorage.getItem('darkMode') === 'true',
+				latestVersion: null,
+				showVersionModal: false,
+				versionCommandCopied: false,
 			};
 		},
 		mounted() {
 			if (this.darkMode) {
 				document.body.classList.add('dark-mode');
 			}
+
+			fetch('https://registry.npmjs.org/@athoscommerce/snap-preact/latest')
+				.then((response) => response.json())
+				.then((data) => {
+					if (!data?.version) return;
+					this.latestVersion = data.version;
+					if (localStorage.getItem('versionModalDismissed') !== data.version) {
+						setTimeout(() => {
+							this.showVersionModal = true;
+						}, 2000);
+					}
+				})
+				.catch(() => {
+					// silently ignore - banner just won't show if the registry is unreachable
+				});
 		},
 		methods: {
 			toggleDarkMode() {
@@ -124,6 +123,18 @@ import('./docs/documents.js').then(function (_) {
 				} else {
 					document.body.classList.remove('dark-mode');
 				}
+			},
+			dismissVersionModal() {
+				this.showVersionModal = false;
+				localStorage.setItem('versionModalDismissed', this.latestVersion);
+			},
+			copyVersionCommand() {
+				navigator.clipboard.writeText('npm install @athoscommerce/snap-preact@latest').then(() => {
+					this.versionCommandCopied = true;
+					setTimeout(() => {
+						this.versionCommandCopied = false;
+					}, 1500);
+				});
 			},
 		},
 		computed: {
@@ -155,17 +166,41 @@ import('./docs/documents.js').then(function (_) {
 			},
 		},
 		template: `
-            <Navigation :documents="documents"></Navigation>
+            <div id="version-banner" v-if="latestVersion">
+                <span>
+                    <i class="fas fa-bolt"></i>
+                    Snap is on version {{ latestVersion }} — run <code>npm install @athoscommerce/snap-preact@latest</code> to get the latest updates.
+                </span>
+            </div>
+            <div id="app-body" :class="{ 'has-version-banner': latestVersion }">
+                <Navigation :documents="documents"></Navigation>
 
-			<div id="content-wrapper">
-				<router-view :routes="routes"></router-view>
-			</div>
-			<div class="theme-toggle">
-				<button @click="toggleDarkMode" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
-					<i :class="darkMode ? 'fas fa-sun fa-2x' : 'fas fa-moon fa-2x'"></i>
-				</button>
-			</div>
-            <div id="ac-overlay"></div>
+                <div id="content-wrapper">
+                    <router-view :routes="routes"></router-view>
+                </div>
+                <div class="theme-toggle">
+                    <button @click="toggleDarkMode" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <i :class="darkMode ? 'fas fa-sun fa-2x' : 'fas fa-moon fa-2x'"></i>
+                    </button>
+                </div>
+                <div id="ac-overlay"></div>
+            </div>
+            <div id="version-modal-overlay" v-if="showVersionModal" @click.self="dismissVersionModal">
+                <div id="version-modal">
+                    <button id="version-modal-close" @click="dismissVersionModal" title="Dismiss">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <i class="fas fa-bolt"></i>
+                    <h3>Snap {{ latestVersion }} is available</h3>
+                    <p>Run the following to update to the latest version:</p>
+                    <div class="version-modal-code-wrapper">
+                        <code>npm install @athoscommerce/snap-preact@latest</code>
+                        <button type="button" class="copy-code-button" :class="{ copied: versionCommandCopied }" title="Copy to clipboard" @click="copyVersionCommand">
+                            <i :class="versionCommandCopied ? 'fas fa-check' : 'fas fa-copy'"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         `,
 	};
 
@@ -176,13 +211,16 @@ import('./docs/documents.js').then(function (_) {
 		template: `
             <div id="content" :class="{ 'markdown': routeData.type === 'markdown' }">
                 <iframe v-if="routeData.type == 'iframe'" :src="routeData.url" id="frame" @load="onLoad"></iframe>
-                <Markdown v-else-if="routeData.type == 'markdown'" :src="routeData.url" />
+                <Markdown v-else-if="routeData.type == 'markdown'" :src="routeData.url" :prev="pagination.prev" :next="pagination.next" />
                 <div id="searchWrapper"></div>
             </div>
         `,
 		computed: {
 			currentRoute() {
 				return this.$route.path;
+			},
+			pagination() {
+				return paginateDocs(documents, this.currentRoute);
 			},
 			routeData() {
 				const params = this.$route.query.params || '';
@@ -234,10 +272,38 @@ import('./docs/documents.js').then(function (_) {
 		},
 	});
 
-	app.component('Markdown', {
-		props: ['src'],
+	app.component('Pagination', {
+		props: ['prev', 'next'],
 		template: `
-            <div id="markdown" v-html="markedHTML"></div>
+            <div id="pagination" v-if="prev || next">
+                <router-link v-if="prev" :to="prev.route" class="pagination-link pagination-prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="pagination-text">
+                        <small>Previous</small>
+                        {{ prev.label }}
+                    </span>
+                </router-link>
+                <span v-else class="pagination-spacer"></span>
+
+                <router-link v-if="next" :to="next.route" class="pagination-link pagination-next">
+                    <span class="pagination-text">
+                        <small>Next</small>
+                        {{ next.label }}
+                    </span>
+                    <i class="fas fa-arrow-right"></i>
+                </router-link>
+                <span v-else class="pagination-spacer"></span>
+            </div>
+        `,
+	});
+
+	app.component('Markdown', {
+		props: ['src', 'prev', 'next'],
+		template: `
+            <div id="markdown">
+                <div v-html="markedHTML"></div>
+                <Pagination :prev="prev" :next="next" />
+            </div>
         `,
 		data() {
 			return {
@@ -402,6 +468,15 @@ import('./docs/documents.js').then(function (_) {
 		let lastScrolledUp = true;
 		let lastScrollY = window.scrollY;
 		let hashId = window.location.hash.split('#')[1];
+		if (hashId) {
+			// browsers percent-encode non-ASCII characters (eg. emoji) in the URL fragment;
+			// heading ids are plain unicode text, so decode before matching against them
+			try {
+				hashId = decodeURIComponent(hashId);
+			} catch {
+				// malformed percent-encoding - fall back to the raw value
+			}
+		}
 		let preventLegendUpdate = Boolean(hashId); // if there is a hash id, prevent the legend from updating while scrolling
 		if (hashId) {
 			// scroll to heading if it exists in the url
@@ -439,6 +514,90 @@ import('./docs/documents.js').then(function (_) {
 		document.querySelectorAll('pre code').forEach((block) => {
 			hljs.highlightElement(block);
 		});
+
+		// add copy-to-clipboard buttons to code blocks
+		document.querySelectorAll('#markdown pre').forEach((pre) => {
+			if (pre.querySelector('.copy-code-button')) return;
+
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'copy-code-button';
+			button.title = 'Copy to clipboard';
+			button.innerHTML = '<i class="fas fa-copy"></i>';
+
+			button.addEventListener('click', () => {
+				const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+				navigator.clipboard.writeText(code).then(() => {
+					button.innerHTML = '<i class="fas fa-check"></i>';
+					button.classList.add('copied');
+					window.setTimeout(() => {
+						button.innerHTML = '<i class="fas fa-copy"></i>';
+						button.classList.remove('copied');
+					}, 1500);
+				});
+			});
+
+			pre.appendChild(button);
+		});
+
+		// make GFM task-list checkboxes interactive and persist checked state per page
+		const checklistBoxes = document.querySelectorAll('#markdown li input[type="checkbox"]');
+		if (checklistBoxes.length) {
+			const checklistStorageKey = (checkbox) => `checklist:${window.location.pathname}:${checkbox.closest('li').textContent.trim()}`;
+
+			checklistBoxes.forEach((checkbox) => {
+				if (checkbox.dataset.checklistInit) return;
+				checkbox.dataset.checklistInit = 'true';
+				checkbox.disabled = false;
+
+				const item = checkbox.closest('li');
+				checkbox.checked = localStorage.getItem(checklistStorageKey(checkbox)) === 'true';
+				item.classList.toggle('checked', checkbox.checked);
+
+				checkbox.addEventListener('change', () => {
+					localStorage.setItem(checklistStorageKey(checkbox), checkbox.checked);
+					item.classList.toggle('checked', checkbox.checked);
+					updateChecklistProgress();
+				});
+			});
+
+			updateChecklistProgress();
+		}
+
+		function updateChecklistProgress() {
+			const boxes = document.querySelectorAll('#markdown li input[type="checkbox"]');
+			const total = boxes.length;
+			if (!total) return;
+			const checked = document.querySelectorAll('#markdown li input[type="checkbox"]:checked').length;
+
+			let bar = document.getElementById('checklist-progress');
+			if (!bar) {
+				bar = document.createElement('div');
+				bar.id = 'checklist-progress';
+				bar.innerHTML = `
+                    <div class="checklist-progress-track"><div class="checklist-progress-fill"></div></div>
+                    <span class="checklist-progress-text"></span>
+                    <button type="button" class="checklist-reset-button" title="Uncheck all items">
+                        <i class="fas fa-rotate-left"></i> Reset
+                    </button>
+                `;
+				document.querySelector('#markdown h1')?.after(bar);
+
+				bar.querySelector('.checklist-reset-button').addEventListener('click', () => {
+					document.querySelectorAll('#markdown li input[type="checkbox"]').forEach((box) => {
+						localStorage.removeItem(
+							`checklist:${window.location.pathname}:${box.closest('li').textContent.trim()}`
+						);
+						box.checked = false;
+						box.closest('li').classList.remove('checked');
+					});
+					updateChecklistProgress();
+				});
+			}
+
+			bar.querySelector('.checklist-progress-fill').style.width = `${(checked / total) * 100}%`;
+			bar.querySelector('.checklist-progress-text').textContent = `${checked} / ${total} complete`;
+		}
 
 		const handleScroll = debounce(() => {
 			if (window.scrollY > lastScrollY) {
