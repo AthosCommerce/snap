@@ -145,6 +145,8 @@ export type LangComponents = {
 	filterSummary: FilterSummaryLang;
 	noResults: NoResultsLang;
 	quickviewLayout: QuickviewLayoutLang;
+	quickviewModal?: QuickviewLayoutLang;
+	quickviewSlideout?: QuickviewLayoutLang;
 	recommendationBundle: RecommendationBundleLang;
 	// bundleCTA: BundledCTALang;
 	// bundleSelector: BundleSelectorLang;
