@@ -1,4 +1,5 @@
 import deepmerge from 'deepmerge';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 import cssEscape from 'css.escape';
 
 import { AbstractController } from '../Abstract/AbstractController';
@@ -122,7 +123,7 @@ export class SearchController extends AbstractController {
 		super(config, services, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 
 		if (
 			this.config.settings?.infinite &&

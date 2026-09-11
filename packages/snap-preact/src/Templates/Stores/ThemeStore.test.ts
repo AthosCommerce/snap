@@ -118,12 +118,16 @@ describe('ThemeStore', () => {
 		expect(store.innerWidth).toBe(100);
 
 		const currency = { components: { price: { symbol: '€' } } };
-		store.setCurrency(currency);
+		const currencyOverrides = { components: { price: { symbolAfter: true } } };
+		store.setCurrency(currency, currencyOverrides);
 		expect(store.currency).toStrictEqual(currency);
+		expect(store.currencyOverrides).toStrictEqual(currencyOverrides);
 
 		const language = { components: { filterSummary: { title: 'Filter Summary Title' } } };
-		store.setLanguage(language);
+		const languageOverrides = { components: { filterSummary: { title: 'Translation Override Title' } } };
+		store.setLanguage(language, languageOverrides);
 		expect(store.language).toStrictEqual(language);
+		expect(store.languageOverrides).toStrictEqual(languageOverrides);
 
 		const editorOverride1: ThemePartial = { components: { results: { columns: 3 } } };
 		store.setEditorOverrides(editorOverride1);
@@ -134,7 +138,7 @@ describe('ThemeStore', () => {
 		expect(store.editorOverrides).toStrictEqual(editorOverride2);
 
 		// order here matches order merged via theme() getter (editorOverrides not applied when editMode=false)
-		const merged = mergeThemeLayers(config.base, currency, language);
+		const merged = mergeThemeLayers(config.base, currency, currencyOverrides, language, languageOverrides);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -354,6 +358,118 @@ describe('ThemeStore', () => {
 			name: config.name,
 			activeBreakpoint: 'mobile',
 		});
+	});
+
+	it('layers currencyOverrides between the currency locale and the language', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {},
+			variables: {},
+			currency: {
+				components: {
+					price: {
+						symbol: 'AED ',
+						decimalPlaces: 2,
+					},
+				},
+			},
+			currencyOverrides: {
+				components: {
+					price: {
+						symbol: 'د.إ',
+						symbolAfter: true,
+					},
+				},
+			},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+		const price = store.theme.components?.price;
+
+		// the override wins over the locale
+		expect(price?.symbol).toBe('د.إ');
+		expect(price?.symbolAfter).toBe(true);
+		// props the override does not set fall through to the locale
+		expect(price?.decimalPlaces).toBe(2);
+	});
+
+	it('loses to theme overrides, which apply to every currency', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {
+				components: {
+					price: {
+						symbol: 'THEME',
+					},
+				},
+			},
+			variables: {},
+			currency: { components: { price: { symbol: 'LOCALE' } } },
+			currencyOverrides: { components: { price: { symbol: 'CURRENCY', symbolAfter: true } } },
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+
+		expect(store.theme.components?.price?.symbol).toBe('THEME');
+		expect(store.theme.components?.price?.symbolAfter).toBe(true);
+	});
+
+	it('defaults currencyOverrides to an empty layer when not provided', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {},
+			variables: {},
+			currency: { components: { price: { symbol: 'LOCALE' } } },
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+
+		expect(store.currencyOverrides).toStrictEqual({});
+		expect(store.theme.components?.price?.symbol).toBe('LOCALE');
+	});
+
+	it('keeps the single argument form of setCurrency and setLanguage working', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {},
+			variables: {},
+			currency: { components: { price: { symbol: 'OLD' } } },
+			currencyOverrides: { components: { price: { symbolAfter: true } } },
+			language: {},
+			languageOverrides: { components: { filterSummary: { title: 'OLD TITLE' } } },
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+
+		// reachable via TemplatesStore.getThemeStore() - an undefined layer would throw on the next merge
+		store.setCurrency({ components: { price: { symbol: 'NEW' } } });
+		store.setLanguage({ components: { filterSummary: { title: 'NEW TITLE' } } });
+
+		expect(store.currencyOverrides).toStrictEqual({});
+		expect(store.languageOverrides).toStrictEqual({});
+		expect(() => store.theme).not.toThrow();
+		expect(store.theme.components?.price?.symbol).toBe('NEW');
+		// the stale overrides from the previous currency/language are cleared, not carried over
+		expect(store.theme.components?.price?.symbolAfter).toBeFalsy();
+		expect(store.theme.components?.filterSummary?.title).toBe('NEW TITLE');
 	});
 
 	it('can get theme at a breakpoint', () => {

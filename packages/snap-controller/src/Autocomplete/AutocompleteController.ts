@@ -1,4 +1,5 @@
 import deepmerge from 'deepmerge';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 
 import { ErrorType, Product, Banner, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
@@ -111,7 +112,7 @@ export class AutocompleteController extends AbstractController {
 		super(config, services, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 
 		// normalize trending config (old method requires only a limit to be set)
 		if (this.config.settings?.trending?.limit && typeof this.config.settings?.trending?.enabled === 'undefined') {
