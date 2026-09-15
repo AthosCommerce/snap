@@ -230,10 +230,11 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 									{...subProps.slideshow}
 									slides={section.products.map((product: any): SlideshowSlide => {
 										const display = product?.display || product;
+										const productName: string | undefined = display?.mappings?.core?.name;
 										const productDefaultLang = {
 											openProductButton: {
 												attributes: {
-													'aria-label': `Open ${display?.mappings?.core?.name || 'product'}`,
+													'aria-label': `Open ${productName || 'product'}`,
 												},
 											},
 										};
@@ -244,6 +245,7 @@ export const ChatInspirationResultMessage = observer((properties: ChatInspiratio
 												controller,
 												chatItem,
 												product,
+												productName,
 											},
 											{ activeBreakpoint: globalTheme?.activeBreakpoint }
 										);
@@ -289,7 +291,21 @@ export type ChatInspirationResultMessageProps = {
 	lang?: Partial<ChatInspirationResultMessageLang>;
 } & ComponentProps<ChatInspirationResultMessageProps>;
 
+export type ChatInspirationResultMessageLangData = {
+	controller?: ChatController;
+	chatItem: ChatResponseInspirationResultData;
+};
+
+export type ChatInspirationResultMessageQueryLangData = ChatInspirationResultMessageLangData & {
+	searchTerm: string;
+};
+
+export type ChatInspirationResultMessageProductLangData = ChatInspirationResultMessageLangData & {
+	product: any;
+	productName?: string;
+};
+
 export interface ChatInspirationResultMessageLang {
-	searchQueryButton?: Lang<never>;
-	openProductButton?: Lang<never>;
+	searchQueryButton?: Lang<ChatInspirationResultMessageQueryLangData>;
+	openProductButton?: Lang<ChatInspirationResultMessageProductLangData>;
 }

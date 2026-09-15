@@ -126,6 +126,11 @@ export const vi: LangComponents = {
 				title: 'Đóng trò chuyện',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Logo trò chuyện',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Cuộc trò chuyện mới',
@@ -263,6 +268,9 @@ export const vi: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Tìm sản phẩm tương tự với hình ảnh này:',
 		},
+		attachmentImageName: {
+			value: 'Hình ảnh',
+		},
 		topicDriftScopeMessage: {
 			value: 'Tôi ở đây để hỗ trợ bạn mua sắm',
 		},
@@ -313,6 +321,9 @@ export const vi: LangComponents = {
 		dropOverlayText: {
 			value: 'Thả ảnh vào đây để tải lên',
 		},
+		poweredByText: {
+			value: 'Được cung cấp bởi Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'Trợ lý được hỗ trợ bởi AI. Đôi khi có thể mắc lỗi. Tránh chia sẻ thông tin cá nhân.',
 		},
@@ -343,37 +354,37 @@ export const vi: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Đóng',
+				'aria-label': (data) => `Đóng ${data?.title ?? ''}`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Mở mục',
+				'aria-label': (data) => `Mở ${data?.item?.name ?? ''}`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Đang tải mục',
+				'aria-label': (data) => `Đang tải ${data?.item?.name ?? ''}`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Xóa mục',
+				'aria-label': (data) => `Xóa ${data?.item?.name ?? ''}`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Tải tệp lên không thành công',
+			value: (data) => `Tải tệp lên không thành công - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Tìm kiếm cụm từ này',
+				'aria-label': (data) => `Tìm kiếm "${data?.searchTerm ?? ''}"`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Mở sản phẩm',
+				'aria-label': (data) => `Mở ${data?.productName || 'sản phẩm'}`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const vi: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Xem chi tiết sản phẩm',
-				title: 'Xem chi tiết sản phẩm',
+				'aria-label': (data) => `Xem chi tiết ${data?.attachment?.name ?? ''}`,
+				title: (data) => `Xem chi tiết ${data?.attachment?.name ?? ''}`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Bộ lọc đã áp dụng',
-				title: 'Bộ lọc đã áp dụng',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Bộ lọc: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Bộ lọc: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Bộ lọc bổ sung',
-				title: 'Bộ lọc bổ sung',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} bộ lọc bổ sung`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} bộ lọc khác`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const vi: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Xem chi tiết sản phẩm',
+				'aria-label': (data) => `Xem chi tiết ${data?.productName ?? ''}`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Đang tải chi tiết sản phẩm...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Xem nhanh',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Đóng xem nhanh',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Quay lại so sánh',
@@ -498,30 +519,14 @@ export const vi: LangComponents = {
 		addToCartButton: {
 			value: 'Thêm vào giỏ hàng',
 		},
+		moreInfoButton: {
+			value: 'Thêm thông tin',
+		},
 		similarButton: {
 			value: 'Tương tự',
 		},
 		discussButton: {
 			value: 'Thảo luận',
-		},
-		inStockText: {
-			value: 'Còn hàng',
-		},
-		outOfStockText: {
-			value: 'Hết hàng',
-		},
-		unavailableText: {
-			value: 'không khả dụng',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Chọn phiên bản',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Thông tin sản phẩm',
-			},
 		},
 	},
 	chatResult: {
@@ -992,6 +997,12 @@ export const vi: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'Thêm thông tin',
+		},
+		similarButton: {
+			value: 'Tương tự',
+		},
+		discussButton: {
+			value: 'Thảo luận',
 		},
 		loadingText: {
 			value: 'Đang tải…',

@@ -126,6 +126,11 @@ export const hi: LangComponents = {
 				title: 'चैट बंद करें',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'चैट लोगो',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'नई चैट',
@@ -263,6 +268,9 @@ export const hi: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'इस छवि से मिलते-जुलते उत्पाद खोजें:',
 		},
+		attachmentImageName: {
+			value: 'छवि',
+		},
 		topicDriftScopeMessage: {
 			value: 'मैं आपकी खरीदारी में मदद के लिए यहां हूं',
 		},
@@ -313,6 +321,9 @@ export const hi: LangComponents = {
 		dropOverlayText: {
 			value: 'अपलोड करने के लिए छवि यहां छोड़ें',
 		},
+		poweredByText: {
+			value: 'Athos Commerce द्वारा संचालित।',
+		},
 		disclaimerText: {
 			value: 'AI-संचालित सहायक। कभी-कभी गलतियां कर सकता है। व्यक्तिगत जानकारी साझा करने से बचें।',
 		},
@@ -343,37 +354,37 @@ export const hi: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'बंद करें',
+				'aria-label': (data) => `${data?.title ?? ''} बंद करें`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'आइटम खोलें',
+				'aria-label': (data) => `${data?.item?.name ?? ''} खोलें`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'आइटम लोड हो रहा है',
+				'aria-label': (data) => `${data?.item?.name ?? ''} लोड हो रहा है`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'आइटम हटाएं',
+				'aria-label': (data) => `${data?.item?.name ?? ''} हटाएं`,
 			},
 		},
 		uploadFailedText: {
-			value: 'फ़ाइल अपलोड नहीं हो सकी',
+			value: (data) => `फ़ाइल अपलोड नहीं हो सकी - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'इस शब्द को खोजें',
+				'aria-label': (data) => `"${data?.searchTerm ?? ''}" खोजें`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'उत्पाद खोलें',
+				'aria-label': (data) => `${data?.productName || 'उत्पाद'} खोलें`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const hi: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'उत्पाद विवरण देखें',
-				title: 'उत्पाद विवरण देखें',
+				'aria-label': (data) => `${data?.attachment?.name ?? ''} का विवरण देखें`,
+				title: (data) => `${data?.attachment?.name ?? ''} का विवरण देखें`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'लागू फ़िल्टर',
-				title: 'लागू फ़िल्टर',
+				'aria-label': (data) => (data?.filterOptions?.length ? `फ़िल्टर: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `फ़िल्टर: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'अतिरिक्त फ़िल्टर',
-				title: 'अतिरिक्त फ़िल्टर',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} अतिरिक्त फ़िल्टर`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} और फ़िल्टर`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const hi: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'उत्पाद विवरण देखें',
+				'aria-label': (data) => `${data?.productName ?? ''} का विवरण देखें`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'उत्पाद विवरण लोड हो रहा है...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'त्वरित दृश्य',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'त्वरित दृश्य बंद करें',
+			},
 		},
 		backToComparisonButton: {
 			value: 'तुलना पर वापस जाएं',
@@ -498,30 +519,14 @@ export const hi: LangComponents = {
 		addToCartButton: {
 			value: 'कार्ट में जोड़ें',
 		},
+		moreInfoButton: {
+			value: 'अधिक जानकारी',
+		},
 		similarButton: {
 			value: 'समान',
 		},
 		discussButton: {
 			value: 'चर्चा करें',
-		},
-		inStockText: {
-			value: 'स्टॉक में है',
-		},
-		outOfStockText: {
-			value: 'स्टॉक में नहीं',
-		},
-		unavailableText: {
-			value: 'अनुपलब्ध',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'वेरिएंट चयन',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'उत्पाद जानकारी',
-			},
 		},
 	},
 	chatResult: {
@@ -992,6 +997,12 @@ export const hi: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'अधिक जानकारी',
+		},
+		similarButton: {
+			value: 'समान',
+		},
+		discussButton: {
+			value: 'चर्चा करें',
 		},
 		loadingText: {
 			value: 'लोड हो रहा है…',

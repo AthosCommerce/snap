@@ -126,6 +126,11 @@ export const zh: LangComponents = {
 				title: '关闭聊天',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: '聊天标志',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': '新聊天',
@@ -263,6 +268,9 @@ export const zh: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: '查找与此图片相似的产品：',
 		},
+		attachmentImageName: {
+			value: '图片',
+		},
 		topicDriftScopeMessage: {
 			value: '我在这里为您的购物提供帮助',
 		},
@@ -313,6 +321,9 @@ export const zh: LangComponents = {
 		dropOverlayText: {
 			value: '拖放图片以上传',
 		},
+		poweredByText: {
+			value: '由 Athos Commerce 提供支持。',
+		},
 		disclaimerText: {
 			value: 'AI 驱动的助手，有时可能会出错。请避免分享个人信息。',
 		},
@@ -343,37 +354,37 @@ export const zh: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': '关闭',
+				'aria-label': (data) => `关闭${data?.title ?? ''}`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': '打开项目',
+				'aria-label': (data) => `打开${data?.item?.name ?? ''}`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': '正在加载项目',
+				'aria-label': (data) => `正在加载${data?.item?.name ?? ''}`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': '移除项目',
+				'aria-label': (data) => `移除${data?.item?.name ?? ''}`,
 			},
 		},
 		uploadFailedText: {
-			value: '文件上传失败',
+			value: (data) => `文件上传失败 - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': '搜索此关键词',
+				'aria-label': (data) => `搜索“${data?.searchTerm ?? ''}”`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': '打开产品',
+				'aria-label': (data) => `打开${data?.productName || '产品'}`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const zh: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': '查看产品详情',
-				title: '查看产品详情',
+				'aria-label': (data) => `查看${data?.attachment?.name ?? ''}的详情`,
+				title: (data) => `查看${data?.attachment?.name ?? ''}的详情`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': '已应用的筛选条件',
-				title: '已应用的筛选条件',
+				'aria-label': (data) => (data?.filterOptions?.length ? `筛选条件：${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `筛选条件：${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': '更多筛选条件',
-				title: '更多筛选条件',
+				'aria-label': (data) => `另有 ${data?.hiddenFacetCount ?? 0} 个筛选条件`,
+				title: (data) => `还有 ${data?.hiddenFacetCount ?? 0} 个筛选条件`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const zh: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': '查看产品详情',
+				'aria-label': (data) => `查看${data?.productName ?? ''}的详情`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: '正在加载产品详情...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': '快速预览',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': '关闭快速预览',
+			},
 		},
 		backToComparisonButton: {
 			value: '返回比较',
@@ -498,30 +519,14 @@ export const zh: LangComponents = {
 		addToCartButton: {
 			value: '加入购物车',
 		},
+		moreInfoButton: {
+			value: '更多信息',
+		},
 		similarButton: {
 			value: '相似产品',
 		},
 		discussButton: {
 			value: '咨询',
-		},
-		inStockText: {
-			value: '有货',
-		},
-		outOfStockText: {
-			value: '缺货',
-		},
-		unavailableText: {
-			value: '不可用',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': '款式选择',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': '产品信息',
-			},
 		},
 	},
 	chatResult: {
@@ -991,6 +996,12 @@ export const zh: LangComponents = {
 		},
 		moreInfoButton: {
 			value: '更多信息',
+		},
+		similarButton: {
+			value: '相似产品',
+		},
+		discussButton: {
+			value: '咨询',
 		},
 		loadingText: {
 			value: '加载中…',

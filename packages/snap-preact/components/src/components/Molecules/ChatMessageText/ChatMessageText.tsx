@@ -275,7 +275,8 @@ export const ChatMessageText = observer((properties: ChatMessageTextProps) => {
 
 	const toggleSideChat = () => {
 		if (isSideChatActive) {
-			currentChat?.dismissSideChat();
+			// dismiss through the controller so a product quickview closes with the window
+			controller.dismissSideChat();
 		} else {
 			currentChat?.setActiveMessage(chatItem.id!);
 		}

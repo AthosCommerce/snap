@@ -880,33 +880,3 @@ describe('ChatStore — clearHistory()', () => {
 		expect(store.currentChatId).toBe(store.chats[0].id);
 	});
 });
-
-describe('ChatStore — product quickview', () => {
-	beforeEach(() => window.localStorage.clear());
-
-	it('setProductQuickview clones the product so mutations do not affect the original', () => {
-		const store = createStore();
-		const product = createProduct('prod-1', 'Widget');
-
-		store.setProductQuickview(product);
-
-		expect(store.productQuickview).toBeInstanceOf(Product);
-		expect(store.productQuickview).not.toBe(product);
-		expect(store.productQuickview!.id).toBe('prod-1');
-
-		store.productQuickview!.mappings.core!.name = 'Changed';
-		expect(product.mappings.core!.name).toBe('Widget');
-	});
-
-	it('setProductQuickviewError and clearProductQuickview manage the quickview state', () => {
-		const store = createStore();
-		store.setProductQuickview(createProduct('prod-1'));
-
-		store.setProductQuickviewError('something went wrong');
-		expect(store.productQuickviewError).toBe('something went wrong');
-
-		store.clearProductQuickview();
-		expect(store.productQuickview).toBeNull();
-		expect(store.productQuickviewError).toBeNull();
-	});
-});

@@ -204,6 +204,7 @@ export const ChatProductComparisonMessage = observer((properties: ChatProductCom
 											controller,
 											chatItem,
 											product,
+											productName,
 										},
 										{ activeBreakpoint: globalTheme?.activeBreakpoint }
 									);
@@ -262,8 +263,15 @@ export type ChatProductComparisonMessageProps = {
 	lang?: Partial<ChatProductComparisonMessageLang>;
 } & ComponentProps<ChatProductComparisonMessageProps>;
 
+export type ChatProductComparisonMessageProductLangData = {
+	controller?: ChatController;
+	chatItem: ChatResponseProductComparisonData;
+	product?: any;
+	productName: string;
+};
+
 export interface ChatProductComparisonMessageLang {
 	comparisonTable?: Lang<never>;
 	featureColumnHeader?: Lang<never>;
-	viewProductButton?: Lang<never>;
+	viewProductButton?: Lang<ChatProductComparisonMessageProductLangData>;
 }

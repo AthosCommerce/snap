@@ -51,7 +51,6 @@ export type SearchRequesterPaths = {
 	search?: string;
 	category?: string;
 	finder?: string;
-	products?: string;
 };
 
 export type ProductsRequesterPaths = {

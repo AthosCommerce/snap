@@ -195,6 +195,8 @@ export type ButtonNames =
 	| 'add-to-cart'
 	| 'quickview'
 	| 'more-info'
+	| 'similar'
+	| 'discuss'
 	| 'increment'
 	| 'decrement'
 	| 'zoom-in'

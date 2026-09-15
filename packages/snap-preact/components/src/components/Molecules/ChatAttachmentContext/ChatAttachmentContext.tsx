@@ -350,10 +350,19 @@ export type ChatAttachmentContextProps = {
 	lang?: Partial<ChatAttachmentContextLang>;
 } & ComponentProps<ChatAttachmentContextProps>;
 
+export type ChatAttachmentContextLangData = {
+	title: string;
+	items: ChatAttachmentContextItem[];
+};
+
+export type ChatAttachmentContextItemLangData = ChatAttachmentContextLangData & {
+	item: ChatAttachmentContextItem;
+};
+
 export interface ChatAttachmentContextLang {
-	closeButton?: Lang<never>;
-	openItemButton?: Lang<never>;
-	loadingIndicator?: Lang<never>;
-	removeButton?: Lang<never>;
-	uploadFailedText?: Lang<never>;
+	closeButton?: Lang<ChatAttachmentContextLangData>;
+	openItemButton?: Lang<ChatAttachmentContextItemLangData>;
+	loadingIndicator?: Lang<ChatAttachmentContextItemLangData>;
+	removeButton?: Lang<ChatAttachmentContextItemLangData>;
+	uploadFailedText?: Lang<ChatAttachmentContextItemLangData>;
 }
