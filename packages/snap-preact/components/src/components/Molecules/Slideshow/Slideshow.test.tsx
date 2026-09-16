@@ -581,6 +581,27 @@ describe('Slideshow Component', () => {
 			expect(mockOnClick).toHaveBeenCalledTimes(1);
 		});
 
+		it('respects a custom dragClickThreshold', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+				dragClickThreshold: 20,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// 10px of movement is below the custom 20px threshold, so this still counts as a click.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseMove(document, { clientX: 110 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
+		});
+
 		it('mixes clickable and non-clickable images', () => {
 			const mixedImages = ['regular-image.jpg', { src: 'clickable.jpg', onClick: jest.fn() }, 'another-regular.jpg'];
 

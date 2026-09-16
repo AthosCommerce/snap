@@ -13,7 +13,6 @@ import deepmerge from 'deepmerge';
 import { LangAttributes } from '../../../hooks/useLang';
 
 // Pointer travel (px) past which a press is treated as a drag rather than a click.
-const DRAG_CLICK_THRESHOLD = 5;
 
 const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, slideWidth, gap = 16, overlayNavigation = false, showNavigation }) => {
 	return css({
@@ -82,11 +81,6 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 
 		'.ss__slideshow__slide--clickable': {
 			cursor: 'pointer',
-
-			'&:hover img': {
-				opacity: 0.9,
-				transition: 'opacity 0.2s ease',
-			},
 
 			'&:focus-visible': {
 				outline: '2px solid #005fcc',
@@ -188,6 +182,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		ariaLabel: 'slideshow',
 		touchDragging: true,
 		dragThreshold: 50,
+		dragClickThreshold: 10,
 	};
 
 	const props = mergeProps('slideshow', globalTheme, defaultProps, properties);
@@ -214,6 +209,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		treePath,
 		overlayNavigation,
 		dragThreshold,
+		dragClickThreshold,
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('slideshow', props);
@@ -445,7 +441,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		const diff = clientX - startX;
 		// Past a few pixels of travel this is a drag, not a click — flag it so the trailing
 		// click (fired after mouseup/touchend) doesn't trigger slide onClick handlers.
-		if (Math.abs(diff) > DRAG_CLICK_THRESHOLD) {
+		if (Math.abs(diff) > dragClickThreshold!) {
 			hasDraggedRef.current = true;
 		}
 		setDragOffset(diff);
@@ -940,6 +936,7 @@ export type SlideshowTemplatesLegalProps = {
 	ariaLabelledBy?: string;
 	touchDragging?: boolean;
 	dragThreshold?: number;
+	dragClickThreshold?: number;
 };
 
 interface SlideshowSubProps {
