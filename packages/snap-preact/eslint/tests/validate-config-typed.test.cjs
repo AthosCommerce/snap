@@ -155,39 +155,6 @@ describe('validate-config: theme override selector/prop typed checks', () => {
 		expect(messages.some((m) => m.message.includes('"hideQuickviewButton" is not a valid prop'))).toBe(false);
 	});
 
-	it('flags an unknown breakpoint key, and only that key', () => {
-		const messages = lint({ typed: true });
-
-		const errors = messages.filter((m) => m.message.includes('nopeBreakpoint'));
-		expect(errors).toHaveLength(1);
-		expect(errors[0].message).toContain('is not a theme override breakpoint');
-		expect(messages.some((m) => m.message.includes('"default"'))).toBe(false);
-	});
-
-	it('flags unknown config keys at the root, section, and array-element levels with their paths', () => {
-		const messages = lint({ typed: true });
-
-		const rootErr = messages.filter((m) => m.message.includes('zzBogusRootKey'));
-		expect(rootErr).toHaveLength(1);
-		expect(rootErr[0].message).toContain('"config root"');
-		expect(rootErr[0].message).toContain('theme'); // valid keys listed
-
-		const sectionErr = messages.filter((m) => m.message.includes('zzBogusSearchKey'));
-		expect(sectionErr).toHaveLength(1);
-		expect(sectionErr[0].message).toContain('"search"');
-
-		const elementErr = messages.filter((m) => m.message.includes('zzBogusTargetKey'));
-		expect(elementErr).toHaveLength(1);
-		expect(elementErr[0].message).toContain('"search.targets[0]"');
-	});
-
-	it('does not flag valid config keys in the call-style fixture', () => {
-		const messages = lint({ typed: true });
-
-		expect(messages.some((m) => m.message.includes('"targets" is not a valid config key'))).toBe(false);
-		expect(messages.some((m) => m.message.includes('"theme" is not a valid config key'))).toBe(false);
-	});
-
 	it('flags comma-separated selector groups that mix component types, at top level and inside $children', () => {
 		const messages = lint({ typed: true });
 
@@ -220,8 +187,6 @@ describe('validate-config: theme override selector/prop typed checks', () => {
 		expect(messages.some((m) => m.message.includes('is not a valid prop for the'))).toBe(false);
 		expect(messages.some((m) => m.message.includes('expects type'))).toBe(false);
 		expect(messages.some((m) => m.message.includes('is not a valid theme override selector'))).toBe(false);
-		expect(messages.some((m) => m.message.includes('is not a theme override breakpoint'))).toBe(false);
-		expect(messages.some((m) => m.message.includes('is not a valid config key'))).toBe(false);
 	});
 
 	it('completes in well under a second, even on first (cold) Program creation', () => {

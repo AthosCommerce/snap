@@ -3,10 +3,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 /*
- * `validateTemplatesConfig` derives editor completions from its bare generic parameter's
- * concrete, non-generic `ThemeComponentOverrides` constraint; the deep open-named-selector
- * check lives in its conditional RETURN type, off the completion path - see the sibling
- * `themeOverridesTyping.test.ts` for the two halves of that contract. A type check can't
+ * `validateTemplatesConfig` derives editor completions inside a breakpoint map from that
+ * map's type parameter constraint - the concrete, non-generic `ThemeComponentOverrides`
+ * alias; the deep selector/prop check lives in its conditional RETURN type, off the
+ * completion path - see the sibling `themeOverridesTyping.test.ts` for the full contract. A type check can't
  * observe completions regressing (the checking types alone still reject bad configs, they
  * just can't suggest keys), so this test drives the real TypeScript language service and
  * asserts on `getCompletionsAtPosition` directly, the same way an editor would.
@@ -85,8 +85,8 @@ describe('theme.overrides.default editor completions', () => {
 
 		// a handful of selectors spanning atoms/organisms - not exhaustive, just enough
 		// to prove key completions come back at all (this is exactly what regresses to
-		// zero if the concrete `ThemeComponentOverrides` half of the intersection is
-		// dropped - see themeOverridesTyping.test.ts for the type-precision half)
+		// zero if the breakpoint parameters lose their concrete `ThemeComponentOverrides`
+		// constraint - see themeOverridesTyping.test.ts for the type-precision half)
 		expect(names).toEqual(expect.arrayContaining(['icon', 'facets', 'button', 'sortBy']));
 		expect(names.length).toBeGreaterThan(50);
 	});

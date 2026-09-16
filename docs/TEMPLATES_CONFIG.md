@@ -132,7 +132,7 @@ new SnapTemplates(config);
 
 ### Configuration Validation
 
-Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript verify the entire configuration — unknown keys, invalid override selectors and props, and wrong value types. The config can be written inline or assigned to a variable first; both are fully checked. Mistakes the IDE cannot flag while you type are reported where the config is passed to `new SnapTemplates(...)`.
+Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript verify the entire configuration — unknown keys, invalid override selectors and props, and wrong value types. Unknown keys and wrong value types are flagged on the exact line as you type. Mistakes inside `theme.overrides` that the IDE cannot see while typing (a misspelled selector, or any prop under an open-named selector such as `facet.<field>`) are reported where the config is passed to `new SnapTemplates(...)`.
 
 > [!IMPORTANT]
 > Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.

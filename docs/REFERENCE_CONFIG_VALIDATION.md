@@ -9,23 +9,16 @@ This page is the reference for how each layer works, how to read the errors, and
 
 ### How the compiler checks the config
 
-Wrapping the config in `validateTemplatesConfig` makes TypeScript verify the entire configuration. It does not matter whether the config object is written inline in the call or assigned to a variable first — both are fully checked.
+Wrapping the config in `validateTemplatesConfig` makes TypeScript verify the entire configuration. The checking happens at two moments:
 
-The checking happens at two moments:
+1. **While you type** — your IDE suggests the available keys, selectors, and props. Unknown keys anywhere in the config (including unknown breakpoint names under `theme.overrides`) and wrong value types on props the IDE can type are flagged on the exact line, with TypeScript's standard `Object literal may only specify known properties` message.
+2. **When the config is used** — the parts of `theme.overrides` the IDE cannot see while typing are verified where the config is passed to `new SnapTemplates(...)`: misspelled override selectors, misspelled props next to valid ones, and all props under open-named selectors like `facet.<field>` (whose site-specific names cannot be suggested ahead of time). If anything is wrong, that line errors.
 
-1. **While you type** — your IDE suggests the available keys, selectors, and props. On keys and selectors the IDE can type (most of them), a wrong value type is flagged immediately.
-2. **When the config is used** — everything else is verified where the config is passed to `new SnapTemplates(...)`: unknown keys anywhere in the config, misspelled override selectors, unknown breakpoint keys, and all props under open-named selectors like `facet.<field>` (whose site-specific names cannot be suggested ahead of time). If anything is wrong, that line errors.
+Why two moments: each breakpoint map under `theme.overrides` is inferred by the function, which is what keeps its checking off the editor's completion path and typing fast. Inferred values do not receive TypeScript's excess-property checking, so their keys are verified through the function's return type instead. Everything else in the config is an ordinary concrete type and is checked the ordinary way. The `theme.overrides` object can be written inline or assigned to a variable first — both are checked.
 
 ### Reading the type errors
 
-An invalid config's type collapses into an error carrier, and the `new SnapTemplates(config)` line reports it. The carrier names exactly what failed. Read the errors inside-out: the object inside the carrier mirrors your config's structure, but only contains the entries that failed. Hovering over the config variable in your IDE shows the same details.
-
-A typo'd key (anywhere in the config) reports through `InvalidConfigKeys<...>`, nested under its path:
-
-```
-Argument of type 'InvalidConfigKeys<{ config: { bogusKey: { 'unknown config key': "bogusKey" } } }>'
-is not assignable to parameter of type 'SnapTemplatesConfig'
-```
+An invalid `theme.overrides` collapses the config's type into an error carrier, and the `new SnapTemplates(config)` line reports it. The carrier names exactly what failed. Read the errors inside-out: the object inside the carrier mirrors your overrides' structure, but only contains the entries that failed. Hovering over the config variable in your IDE shows the same details.
 
 Theme override problems report through `InvalidThemeOverrides<...>`. Each bad prop carries a `ThemeOverrideInvalidProp<...>` marker, while valid props show the type they expect (handy when a prop name is right but its value is the wrong type):
 
@@ -33,14 +26,6 @@ Theme override problems report through `InvalidThemeOverrides<...>`. Each bad pr
 Argument of type 'InvalidThemeOverrides<{ default: { 'facet.price': {
 	clearAllIcon: "angle-down" | "angle-left" | ...; showTicks: ThemeOverrideInvalidProp<"showTicks">;
 } } }>' is not assignable to parameter of type 'SnapTemplatesConfig'
-```
-
-Unknown breakpoint keys (anything other than `default`, `mobile`, `tablet`, `desktop`) report the valid options directly:
-
-```
-Argument of type 'InvalidThemeOverrides<{ bob: {
-	'unknown breakpoint - expected default, mobile, tablet or desktop': "bob" } }>'
-is not assignable to parameter of type 'SnapTemplatesConfig'
 ```
 
 Comma-separated selector groups that mix component types report the mixed kinds (see [Grouping Selectors with Commas](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md#grouping-selectors-with-commas)):
@@ -97,10 +82,9 @@ Adding **typed linting** unlocks the rest — the checks that need to know the r
 	},
 ```
 
-This adds pinpoint squiggles for:
+This adds pinpoint squiggles for the checks the compiler reports at the use site:
 
-- Unknown keys anywhere in the config, with the list of valid keys for that spot
-- Unknown theme override selectors and breakpoint names
+- Unknown theme override selectors
 - Invalid or mistyped props on any override selector — including open-named selectors such as `facet.<field>`, where the IDE cannot offer autocompletion
 
 Example messages:
@@ -109,9 +93,6 @@ Example messages:
 "DNE" is not a valid prop for the "result" override (result resolves to
 ThemeComponentCascade<ResultTemplatesLegalProps, ...>). Must be one of: hideBadge,
 hideTitle, hideImage, hidePricing, ...
-
-"zzBogusSearch" is not a valid config key at "search". Valid keys: tabs, targets,
-globals, settings, plugins.
 
 "search, searchHorizontal" mixes component types (search vs searchHorizontal).
 Comma-separated selectors must all target the same component type, since the
@@ -127,3 +108,13 @@ override props resolve against that component.
 - Open-named selectors like `facet.price` do not get IDE autocompletion for their props, because their names are site-specific. If you get a prop wrong, the error and the ESLint rule list the valid props; they are also documented in the Storybook component library.
 - Selectors that name a template target instance — such as `search.<targetName>` — are not prop-checked at all; their contents are intentionally left open.
 - Values typed as `any` (for example, config merged in from an untyped source) are not checked.
+- Unknown keys outside `theme.overrides` are flagged when the config is written inline in the call (standard TypeScript excess-property checking). A config object assigned to a variable first is still checked for value types and for its `theme.overrides`, but not for unknown keys elsewhere — add `satisfies SnapTemplatesConfig` to the variable to get those flagged at the declaration:
+
+  ```ts
+  const templatesConfig = {
+  	config: { platform: 'other' },
+  	theme: { extends: 'base' },
+  } satisfies SnapTemplatesConfig;
+
+  new SnapTemplates(validateTemplatesConfig(templatesConfig));
+  ```

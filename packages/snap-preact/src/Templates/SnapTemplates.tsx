@@ -14,11 +14,8 @@ import { Tracker } from '@athoscommerce/snap-tracker';
 import type {
 	ThemeComponentOverrides,
 	ThemeComponentOverridesUnlocked,
-	ThemeComponentOverridesChecked,
-	ThemeComponentOverridesCheckedUnlocked,
-	ThemeComponentOverridesValid,
-	ThemeComponentOverridesValidUnlocked,
-	ThemeComponentOverridesErrors,
+	ThemeOverridesErrors,
+	ThemeOverridesErrorsUnlocked,
 } from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { ClientGlobals } from '@athoscommerce/snap-client';
@@ -95,59 +92,48 @@ export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 	features?: SnapFeatures;
 };
 
-// `theme.overrides.default/mobile/tablet/desktop` is typed against the plain, non-generic
-// `ThemeComponentOverrides` alias - fast for the editor (real-time key/prop completions,
-// no generic inference), and precise for every selector EXCEPT the dotted/open-named form
-// of a handful of component types (`facet.<custom>`, `recommendation.<custom>`, etc.),
-// which resolve to `unknown` here since their suffix isn't a known finite union. An earlier
-// version resolved those precisely IN this authoring signature (a generic
-// `ThemeComponentsRestrictedSelectors<Selectors>` intersection), which worked but cost
-// ~1.5s of editor completion latency per keystroke: the expensive generic was the
-// contextual type of the literal being edited, so the language service re-instantiated it
-// synchronously on every completion request. The precision now lives in
-// `validateTemplatesConfig`'s conditional RETURN type, which applies
-// `ThemeComponentOverridesChecked` to the inferred `T` - evaluated during diagnostics,
-// off the completion path.
-type SnapTemplatesConfigThemeOverridesTyped = {
-	default?: ThemeComponentOverrides;
-	mobile?: ThemeComponentOverrides;
-	tablet?: ThemeComponentOverrides;
-	desktop?: ThemeComponentOverrides;
-};
+/*
+	`validateTemplatesConfig` is where a config gets its type checking. The design has one rule:
+	nothing expensive may become the contextual type of the literal being authored, because the
+	language service re-instantiates that type on every keystroke. (The original design put a
+	precise generic there and cost ~1.5s per completion - re-measured at ~10s on TS 6 with a
+	realistic 40-selector config.)
 
-type SnapTemplatesConfigInput = Omit<SnapTemplatesConfig, 'theme'> & {
+	So the parameter is a concrete type everywhere except the four breakpoint maps under
+	`theme.overrides`, which are inferred (`Default`, `Mobile`, `Tablet`, `Desktop`), each
+	constrained by the plain `ThemeComponentOverrides` alias:
+
+	  - The concrete part gets TypeScript's own excess property checking: an unknown config key,
+	    theme key or breakpoint name errors on its exact line, with the standard message.
+	  - Inside a breakpoint map, completions and prop VALUE checks come from the constraint while
+	    typing. What the constraint cannot see - misspelled selectors, a misspelled prop next to
+	    a valid one, and everything under open-named selectors like `facet.price` - is checked by
+	    `ThemeOverridesErrors` (themeComponents.ts) in the RETURN type, which is only evaluated
+	    when the call is checked, off the completion path.
+
+	Valid overrides return `SnapTemplatesConfig`. Invalid ones return an error carrier that is NOT
+	assignable to it, so `new SnapTemplates(config)` errors and the carrier lists exactly the
+	failing breakpoints, selectors and props.
+*/
+type SnapTemplatesConfigInput<Default, Mobile, Tablet, Desktop> = Omit<SnapTemplatesConfig, 'theme'> & {
 	theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
-		overrides?: SnapTemplatesConfigThemeOverridesTyped;
+		overrides?: { default?: Default; mobile?: Mobile; tablet?: Tablet; desktop?: Desktop };
 	};
 };
 
-// NOTE: when the authored theme has no `overrides` key at all, `T['theme']['overrides']`
-// resolves to `unknown` through the constraint (not `undefined`) - guard on key presence,
-// or every overrides-less config would fail the validity test (found by audit probing).
-type ThemeOverridesOf<T extends { theme: { overrides?: unknown } }> = 'overrides' extends keyof T['theme']
-	? Exclude<T['theme']['overrides'], undefined>
-	: never;
+type SnapTemplatesConfigInputUnlocked<Default, Mobile, Tablet, Desktop> = Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
+	theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
+		overrides?: { default?: Default; mobile?: Mobile; tablet?: Tablet; desktop?: Desktop };
+	};
+};
 
-/*
-	Error carriers for an invalid config: deliberately NOT assignable to
-	`SnapTemplatesConfig`/`SnapTemplatesConfigUnlocked`, so a config with bad override props
-	or unknown keys errors at its use site (`new SnapTemplates(config)`), and the failing
-	entries are embedded right in the reported type.
-*/
 type InvalidThemeOverrides<Errors> = {
-	'theme.overrides contains invalid props for these selectors (hover for the expected shapes)': Errors;
-};
-type InvalidConfigKeys<Errors> = {
-	'the config contains unknown keys (hover to see them, nested under their paths)': Errors;
+	'theme.overrides contains invalid selectors or props (hover for the expected shapes)': Errors;
 };
 
-/*
-	TS displays alias instantiations UNEVALUATED in error messages
-	(`ThemeComponentOverridesErrors<{...giant...}, ...>` with the verdict elided), which
-	makes the error carrier useless to read. Mapping the computed errors through this
-	depth-bounded expansion forces the actual failing keys into the printed type, while
-	leaving leaf values (expected component shapes) as compact alias references.
-*/
+// TypeScript prints alias instantiations UNEVALUATED in error messages, which would hide the
+// failing keys behind `ThemeOverridesErrors<{...}>`. Mapping the errors through this
+// depth-bounded expansion forces them into the printed type.
 // prettier-ignore
 type ExpandErrors<T, Depth extends unknown[] = [0, 0, 0]> = Depth extends [unknown, ...infer Rest]
 	? T extends object
@@ -155,151 +141,48 @@ type ExpandErrors<T, Depth extends unknown[] = [0, 0, 0]> = Depth extends [unkno
 		: T
 	: T;
 
-/*
-	Unknown-KEY checking for the rest of the config (everything except `theme.overrides`,
-	which the selector-aware `ThemeComponentOverridesChecked` owns). Needed because excess
-	property checking does not survive the generic call: inference hands the constraint
-	check a non-fresh type, so `config: { platform: 'other', bogusKey: 1 }` passes plain
-	assignability silently (TS's weak-type rule only catches a literal sharing NO props
-	with its target). Value types are NOT re-checked here - constraint assignability
-	already covers those.
-
-	The walk is deliberately conservative (fail-open): it only descends where the EXPECTED
-	type is a single, finite-keyed object shape (or an array of one). Unions (keyof would
-	collapse to the common-key subset - too strict), index-signed types (any key is legal,
-	e.g. `components.*`), functions, and `any`/`unknown` are all skipped rather than guessed
-	at - a missed key can never become a false error on valid config.
-*/
-type UnionToIntersection<U> = (U extends any ? (u: U) => void : never) extends (i: infer I) => void ? I : never;
-
-// "no unknown keys found" sentinel: `keyof` of it is `never`, which is all the emptiness
-// tests below look at (`{}` would mean the same here but trips no-empty-object-type)
-type ConfigKeysClean = object;
-
 // prettier-ignore
-type ConfigKeyCheckableShape<E> = [E] extends [object]
-	? E extends (...args: any) => any
-		? false
-		: E extends readonly any[]
-			? false
-			: string extends keyof E
-				? false
-				: [E] extends [UnionToIntersection<E>]
-					? true
-					: false
-	: false;
+type ValidatedTemplatesConfig<Config, Errors> = [keyof Errors] extends [never]
+	? Config
+	: Errors extends infer Expanded ? InvalidThemeOverrides<ExpandErrors<Expanded>> : never;
 
-// prettier-ignore
-type ConfigUnknownKeyErrorsIn<Expected, Authored> = {
-	[K in keyof Authored as ConfigKeyErrorFor<Expected, Authored, K> extends never ? never : K]: ConfigKeyErrorFor<Expected, Authored, K>;
+// The breakpoint type parameters deliberately have NO default: a defaulted type parameter is
+// instantiated by the language service when it computes the literal's contextual type, which
+// replaces the constraint with the default and kills key completions (verified with `never`
+// and `{}`). Without a default, an unauthored breakpoint infers as its constraint - which is
+// nothing to check - so it is mapped to `never` here before the checker sees it.
+type AuthoredBreakpoint<Inferred, Constraint> = Constraint extends Inferred ? never : Inferred;
+type AuthoredOverrides<Default, Mobile, Tablet, Desktop, Constraint> = {
+	default: AuthoredBreakpoint<Default, Constraint>;
+	mobile: AuthoredBreakpoint<Mobile, Constraint>;
+	tablet: AuthoredBreakpoint<Tablet, Constraint>;
+	desktop: AuthoredBreakpoint<Desktop, Constraint>;
 };
 
 // prettier-ignore
-type ConfigKeyErrorFor<Expected, Authored, K extends keyof Authored> =
-	K extends keyof Expected
-		? ConfigNestedErrors<NonNullable<Expected[K]>, NonNullable<Authored[K]>> extends infer Nested
-			? [keyof Nested] extends [never]
-				? never
-				: Nested
-			: never
-		: { 'unknown config key': K };
-
-// prettier-ignore
-type ConfigNestedErrors<E, A> =
-	unknown extends A
-		? ConfigKeysClean // an `any`/`unknown`-typed authored value: nothing checkable (mapping over `any` would flag every key)
-		: ConfigKeyCheckableShape<E> extends true
-		? [A] extends [readonly any[]]
-			? ConfigKeysClean // authored array where an object is expected - a value mismatch, TS's job
-			: A extends object
-				? ConfigUnknownKeyErrorsIn<E, A>
-				: ConfigKeysClean
-		: E extends readonly (infer Element)[]
-			? ConfigKeyCheckableShape<Element> extends true
-				? A extends readonly any[]
-					? ConfigArrayErrors<Element, A>
-					: ConfigKeysClean
-				: ConfigKeysClean
-			: ConfigKeysClean;
-
-// per-element errors, merged so the emptiness test sees every element's keys
-// prettier-ignore
-type ConfigArrayErrors<Element, A extends readonly any[]> =
-	UnionToIntersection<{ [I in keyof A]: ConfigNestedErrors<Element, NonNullable<A[I]>> }[number]>;
-
-// prettier-ignore
-type ConfigUnknownKeyErrors<Input extends { theme: unknown }, T extends { theme: unknown }> = ConfigUnknownKeyErrorsIn<
-	Omit<Input, 'theme'> & { theme: Omit<Input['theme'] & object, 'overrides'> },
-	Omit<T, 'theme'> & { theme: Omit<T['theme'] & object, 'overrides'> }
->;
-
-/*
-	The parameter stays a bare `T` so authoring stays fast: completions inside the literal
-	come from the non-generic CONSTRAINT (`SnapTemplatesConfigInput`), and constraint
-	assignability checks the VALUE type of every known prop at any depth. What it canNOT
-	catch is unknown KEYS: excess property checking does not survive the generic call at all
-	(inference hands the constraint check a non-fresh type; TS's weak-type rule only rejects
-	a literal sharing NO props with its target, so a typo'd key next to one valid sibling
-	passes silently - verified empirically). All key checking is therefore enforced by the
-	conditional RETURN type: valid configs keep their own type `T`; invalid ones collapse to
-	an error carrier and fail where the config is used. Three layers: (1) full prop checking
-	under open-named dotted selectors like `facet.price` (typed `unknown` in the constraint),
-	(2) selector-key and prop-KEY existence across all of theme.overrides, and (3) unknown
-	keys across the rest of the config (conservative walk - see ConfigUnknownKeyErrors). See
-	ThemeOverrideCheckMode in themeComponents.ts for the overrides division of labor.
-
-	The return type is the ONE place this check can live without an API or latency cost.
-	Putting it in the parameter (`T & Checked<T>`) makes it the literal's contextual type,
-	which the language service re-instantiates on every completion request - measured at
-	~1240ms/keystroke vs ~445ms on a realistic ~40-selector config, recreating the original
-	~1.5s problem. Return types are only computed when the CALL is checked (diagnostics,
-	off the completion path), and diagnostics run debounced and async in editors.
-*/
-// prettier-ignore
-export function validateTemplatesConfig<T extends SnapTemplatesConfigInput>(
-	config: T
-): ThemeComponentOverridesValid<ThemeOverridesOf<T>> extends true
-	? [keyof ConfigUnknownKeyErrors<SnapTemplatesConfigInput, T>] extends [never]
-		? T
-		: ConfigUnknownKeyErrors<SnapTemplatesConfigInput, T> extends infer Errors // `infer` + ExpandErrors force readable error display
-			? InvalidConfigKeys<ExpandErrors<Errors, [0, 0, 0, 0, 0, 0]>>
-			: never
-	: ThemeComponentOverridesErrors<ThemeOverridesOf<T>, ThemeComponentOverridesChecked<ThemeOverridesOf<T>>> extends infer Errors
-		? InvalidThemeOverrides<ExpandErrors<Errors>>
-		: never;
-// implementation signature (invisible to callers): `any` keeps it compatible with the conditional overload
-export function validateTemplatesConfig(config: SnapTemplatesConfigInput): any {
-	return config;
+export function validateTemplatesConfig<
+	Default extends ThemeComponentOverrides,
+	Mobile extends ThemeComponentOverrides,
+	Tablet extends ThemeComponentOverrides,
+	Desktop extends ThemeComponentOverrides
+>(
+	config: SnapTemplatesConfigInput<Default, Mobile, Tablet, Desktop>
+): ValidatedTemplatesConfig<SnapTemplatesConfig, ThemeOverridesErrors<AuthoredOverrides<Default, Mobile, Tablet, Desktop, ThemeComponentOverrides>>> {
+	// the return type is a compile-time verdict; at runtime the config passes straight through
+	return config as any;
 }
 
-type SnapTemplatesConfigThemeOverridesTypedUnlocked = {
-	default?: ThemeComponentOverridesUnlocked;
-	mobile?: ThemeComponentOverridesUnlocked;
-	tablet?: ThemeComponentOverridesUnlocked;
-	desktop?: ThemeComponentOverridesUnlocked;
-};
-
-type SnapTemplatesConfigInputUnlocked = Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
-	theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
-		overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked;
-	};
-};
-
 // prettier-ignore
-export function validateTemplatesConfigUnlocked<T extends SnapTemplatesConfigInputUnlocked>(
-	config: T
-): ThemeComponentOverridesValidUnlocked<ThemeOverridesOf<T>> extends true
-	? [keyof ConfigUnknownKeyErrors<SnapTemplatesConfigInputUnlocked, T>] extends [never]
-		? T
-		: ConfigUnknownKeyErrors<SnapTemplatesConfigInputUnlocked, T> extends infer Errors
-			? InvalidConfigKeys<ExpandErrors<Errors, [0, 0, 0, 0, 0, 0]>>
-			: never
-	: ThemeComponentOverridesErrors<ThemeOverridesOf<T>, ThemeComponentOverridesCheckedUnlocked<ThemeOverridesOf<T>>> extends infer Errors
-		? InvalidThemeOverrides<ExpandErrors<Errors>>
-		: never;
-// implementation signature (invisible to callers): `any` keeps it compatible with the conditional overload
-export function validateTemplatesConfigUnlocked(config: SnapTemplatesConfigInputUnlocked): any {
-	return config;
+export function validateTemplatesConfigUnlocked<
+	Default extends ThemeComponentOverridesUnlocked,
+	Mobile extends ThemeComponentOverridesUnlocked,
+	Tablet extends ThemeComponentOverridesUnlocked,
+	Desktop extends ThemeComponentOverridesUnlocked
+>(
+	config: SnapTemplatesConfigInputUnlocked<Default, Mobile, Tablet, Desktop>
+): ValidatedTemplatesConfig<SnapTemplatesConfigUnlocked, ThemeOverridesErrorsUnlocked<AuthoredOverrides<Default, Mobile, Tablet, Desktop, ThemeComponentOverridesUnlocked>>> {
+	// the return type is a compile-time verdict; at runtime the config passes straight through
+	return config as any;
 }
 
 type TemplatePlugins =

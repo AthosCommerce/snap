@@ -122,7 +122,7 @@ export const deeplyNestedBadProp: SnapTemplatesConfig = {
 	},
 };
 
-// ---- selector-KEY checking (ts-visible walk): unknown selector keys are the one thing
+// ---- selector-KEY checking: unknown selector keys are the one thing
 // TS cannot catch at the literal (no EPC against pattern-keyed types through a generic
 // call), so the rule squiggles them - mirroring the compiler's use-site error ----
 
@@ -213,31 +213,6 @@ export const unknownPropOnNamedSelector: SnapTemplatesConfig = {
 		},
 	},
 };
-
-// unknown BREAKPOINT key next to a valid one - the four breakpoint names are the only ones ThemeStore reads
-export const unknownBreakpointKey: SnapTemplatesConfig = {
-	theme: {
-		extends: 'base',
-		overrides: {
-			default: { result: { hideQuickviewButton: false } },
-			nopeBreakpoint: { result: {} },
-		},
-	},
-};
-
-// ---- config-level unknown keys (call-style: the compiler reports these only at the use
-// site; the rule's squiggle pinpoints the exact key) ----
-import { validateTemplatesConfig } from '@athoscommerce/snap-preact';
-
-validateTemplatesConfig({
-	config: { platform: 'other' },
-	theme: { extends: 'base' },
-	zzBogusRootKey: 1,
-	search: {
-		zzBogusSearchKey: 1,
-		targets: [{ selector: '#x', component: 'Search', zzBogusTargetKey: 1 }],
-	},
-});
 
 // ---- comma-separated selector groups: every part must target one component type ----
 export const mixedSelectorGroup: SnapTemplatesConfig = {
