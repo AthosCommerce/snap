@@ -34,11 +34,11 @@ const defaultStyles: StyleScript<QuickviewModalProps> = () => {
 		// is centered in the viewport rather than positioned relative to the source Result tile.
 		// Modal's default is `position: absolute` inside its (relative) wrapper, which lives
 		// inside the Results grid cell — that's why the modal was being clipped to a tile.
-		// We compound the wrapper class (`&.ss__quickview`) into the selector to beat
+		// We compound the wrapper class (`&.ss__quickview-modal`) into the selector to beat
 		// Modal's same-specificity rule (which would otherwise win on source-order since
 		// Modal's styles are emitted after ours), and use !important on the positioning
 		// properties so theme overrides can't accidentally re-anchor the modal to its tile.
-		'&.ss__quickview .ss__modal__content': {
+		'&.ss__quickview-modal .ss__modal__content': {
 			position: 'fixed !important' as any,
 			top: '50% !important' as any,
 			left: '50% !important' as any,
@@ -54,7 +54,7 @@ const defaultStyles: StyleScript<QuickviewModalProps> = () => {
 		},
 		// Lower the Modal's Overlay backdrop too so it stays below both the modal content
 		// (10006) and the dropdown portal (10007) but above page content and autocomplete.
-		'&.ss__quickview .ss__modal__overlay': {
+		'&.ss__quickview-modal .ss__modal__overlay': {
 			zIndex: '10005 !important' as any,
 		},
 		// Below the desktop breakpoint (where QuickviewLayout stacks to a single column) the
@@ -62,12 +62,12 @@ const defaultStyles: StyleScript<QuickviewModalProps> = () => {
 		// wrapper class is compounded into the content selector so this beats QuickviewLayout's
 		// same-specificity min/max width rule on the content div.
 		'@media (max-width: 767px)': {
-			'&.ss__quickview .ss__modal__content': {
+			'&.ss__quickview-modal .ss__modal__content': {
 				width: '100vw',
 				maxWidth: '100vw',
 				borderRadius: 0,
 			},
-			'&.ss__quickview .ss__quickview__content': {
+			'&.ss__quickview-modal .ss__quickview__content': {
 				minWidth: 'auto',
 				maxWidth: '100%',
 			},
@@ -188,7 +188,7 @@ export const QuickviewModal = observer((properties: QuickviewModalProps) => {
 			<div
 				{...styling}
 				ref={wrapperRef}
-				className={classnames('ss__quickview', 'ss__quickview-modal', className, internalClassName)}
+				className={classnames('ss__quickview-modal', className, internalClassName)}
 				onClick={(e) => e.stopPropagation()}
 			>
 				<Modal {...subProps.modal} open={isOpen}>

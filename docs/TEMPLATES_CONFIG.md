@@ -58,8 +58,8 @@ new SnapTemplates(templatesConfig);
 | `config` | Global configuration options | Object | ➖ | ➖ |
 | `config.platform` | Shopping platform for the integration | String | 'other' | ➖ |
 | `config.siteId` | Athos Site ID | String | ➖ | ➖ |
-| `config.language` | Language code for localization | String | 'en' | ➖ |
-| `config.currency` | Currency code for pricing | String | 'usd' | ➖ |
+| `config.language` | Language code for localization - supports ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
+| `config.currency` | Currency code for pricing - supports ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
 
 The `config` object defines the integration platform, Athos siteId and current localization to be used.
 
@@ -70,7 +70,7 @@ If a `siteId` is not provided, the siteId found on the `bundle.js` url path will
 ```
 
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
-- `window.athos.templates.setCurrency('eud')`
+- `window.athos.templates.setCurrency('eur')`
 - `window.athos.templates.setLanguage('fr')`
 
 
@@ -108,7 +108,7 @@ To enable unlocked mode you must:
 
 This makes additional configuration capabilities available:
 
-1. **Custom Component Prop in Theme Overrides for all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component.
+1. **Custom Component Prop in Theme Overrides for almost all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. The one exception is `result`, which never supports `customComponent` (locked or unlocked) since it would bypass built-in impression tracking — use `resultComponent` or `globalResultComponent` to customize result rendering instead.
 
 2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
 
@@ -139,6 +139,8 @@ new SnapTemplates(config);
 | `translations[languageCode][componentName]` | Translations for a specific component | Component Lang Object | ➖ |
 
 When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using `config.translations`
+
+See [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) for the full list of available language codes.
 
 Translations overrides can be provided in two ways:
 
@@ -189,6 +191,9 @@ Snap Templates was built to intentionally not support custom Preact components c
 - `customComponent` requires explicit component registration in `components` for the component section being overridden. Built-in fallback names are not used for `customComponent`.
 
 `globalResultComponent` utilizes `resultComponent` name resolution for result rendering and applies that selection globally across templates.
+
+> [!IMPORTANT]
+> `result` does not support the `customComponent` override prop, even in an unlocked configuration. Use `resultComponent` (on `search`, `autocompleteFixed`, a recommendation template, etc.) or `globalResultComponent` to customize result rendering instead.
 
 
 

@@ -106,13 +106,6 @@ The `hideQuickviewButton` prop prevents the quickview `<Button />` (with an eye 
 <Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} />
 ```
 
-### quickviewButtonText
-The `quickviewButtonText` prop changes the accessible label (`aria-label` and icon title) of the quickview button. Defaults to `'Quick View'`. The `aria-label` can also be set via `lang.quickviewButtonText.attributes['aria-label']`.
-
-```tsx
-<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} quickviewButtonText={'Peek'} />
-```
-
 ### onQuickviewClick
 The `onQuickviewClick` prop is a function to be called on quickview button click. In addition to the built in quickview function on the controller.
 

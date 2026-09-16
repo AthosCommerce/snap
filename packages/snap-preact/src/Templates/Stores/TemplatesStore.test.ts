@@ -42,6 +42,7 @@ describe('TemplateStore', () => {
 	});
 
 	it("fallsback if language and currency doesn't exist", () => {
+		const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 		const config: SnapTemplatesConfig = {
 			theme: {
 				extends: 'base',
@@ -58,6 +59,55 @@ describe('TemplateStore', () => {
 		expect(store.config).toBe(config);
 		expect(store.language).toBe('en');
 		expect(store.currency).toBe('usd');
+		expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('unknown language code "dne"'));
+		expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('unknown currency code "dne"'));
+		consoleWarn.mockRestore();
+	});
+
+	it('supports uppercase language and currency codes by normalizing to lowercase', async () => {
+		const config: SnapTemplatesConfig = {
+			theme: {
+				extends: 'base',
+			},
+			config: {
+				siteId: '8uyt2m',
+				currency: 'EUR',
+				language: 'FR',
+			},
+		};
+		const store = new TemplatesStore({ config });
+		expect(store.language).toBe('fr');
+		expect(store.currency).toBe('eur');
+
+		await store.setCurrency('AUD');
+		await store.setLanguage('ES');
+
+		expect(store.currency).toBe('aud');
+		expect(store.language).toBe('es');
+	});
+
+	it('warns and keeps the current currency when setCurrency is given an unknown code', async () => {
+		const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+		const config: SnapTemplatesConfig = {
+			theme: {
+				extends: 'base',
+			},
+			config: {
+				siteId: '8uyt2m',
+			},
+		};
+		const store = new TemplatesStore({ config });
+
+		// @ts-ignore - testing invalid values
+		await store.setCurrency('dne');
+		// @ts-ignore - testing invalid values
+		await store.setLanguage('dne');
+
+		expect(store.currency).toBe('usd');
+		expect(store.language).toBe('en');
+		expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('unknown currency code "dne"'));
+		expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('unknown language code "dne"'));
+		consoleWarn.mockRestore();
 	});
 
 	it('can change language and currency', async () => {

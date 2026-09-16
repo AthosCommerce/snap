@@ -5,7 +5,7 @@ import { useAcRenderedInput } from './useAcRenderedInput';
 
 /**
  * Minimal wrapper component that exercises the hook the same way AutocompleteFixed /
- * AutocompleteSlideout / AutocompleteModal do.  The `.autocomplete__search-input`
+ * AutocompleteSlideout / AutocompleteModal do.  The `.ss__autocomplete__search-input`
  * class name is required by the hook's selector literal.
  */
 function TestComponent({
@@ -24,7 +24,7 @@ function TestComponent({
 	const renderedInputRef = useRef<HTMLInputElement | null>(null);
 	useAcRenderedInput({ input, controllers: [controller], renderInput, buttonSelector, renderedInputRef, setActive });
 	return (
-		<div className="autocomplete__search-input">
+		<div className="ss__autocomplete__search-input">
 			<input ref={renderedInputRef} type="text" />
 		</div>
 	);
@@ -68,9 +68,9 @@ describe('useAcRenderedInput', () => {
 			// The original selector must be preserved — not overwritten
 			expect(mockController.config.selector).toContain(originalSelector);
 			// The rendered input selector should be added alongside it
-			expect(mockController.config.selector).toContain('.autocomplete__search-input input');
+			expect(mockController.config.selector).toContain('.ss__autocomplete__search-input input');
 			// Regression check: selector must NOT have become only the rendered-input selector
-			expect(mockController.config.selector).not.toBe('.autocomplete__search-input input');
+			expect(mockController.config.selector).not.toBe('.ss__autocomplete__search-input input');
 		});
 
 		it('does not call bind or modify the selector before the button is clicked', () => {
@@ -130,7 +130,7 @@ describe('useAcRenderedInput', () => {
 			// syncInputs loop (querySelectorAll(config.selector)) operates on.
 			const matched = Array.from(document.querySelectorAll(mockController.config.selector));
 
-			const renderedInput = document.querySelector('.autocomplete__search-input input');
+			const renderedInput = document.querySelector('.ss__autocomplete__search-input input');
 			expect(renderedInput).not.toBeNull();
 
 			// Both the original native input and the rendered input must be in the result set

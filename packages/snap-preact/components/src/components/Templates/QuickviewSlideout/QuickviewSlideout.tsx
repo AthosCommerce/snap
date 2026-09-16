@@ -158,7 +158,7 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 			<div
 				{...styling}
 				ref={wrapperRef}
-				className={classnames('ss__quickview', 'ss__quickview-slideout', className, internalClassName)}
+				className={classnames('ss__quickview-slideout', className, internalClassName)}
 				onClick={(e) => e.stopPropagation()}
 			>
 				<Slideout {...subProps.slideout} active={isOpen}>

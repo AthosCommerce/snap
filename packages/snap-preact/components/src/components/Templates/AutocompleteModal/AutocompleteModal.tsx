@@ -147,7 +147,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		},
 		modal: {
 			// default props
-			internalClassName: 'autocomplete-modal__modal',
+			internalClassName: 'ss__autocomplete-modal__modal',
 			buttonSelector: buttonSelector,
 			onOverlayClick: reset,
 			overlayColor: overlayColor,
@@ -162,8 +162,8 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		},
 		searchInput: {
 			// default props
-			// autocomplete__search-input is required for useAcRenderedInput hook.
-			internalClassName: 'autocomplete-modal__search-input autocomplete__search-input',
+			// ss__autocomplete__search-input is required for useAcRenderedInput hook.
+			internalClassName: 'ss__autocomplete-modal__search-input ss__autocomplete__search-input',
 			submitSearchButton: {
 				onClick: () => {
 					() => reset();

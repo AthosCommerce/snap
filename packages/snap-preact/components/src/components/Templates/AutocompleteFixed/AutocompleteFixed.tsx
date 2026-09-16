@@ -135,7 +135,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		},
 		modal: {
 			// default props
-			internalClassName: 'autocomplete-fixed__modal',
+			internalClassName: 'ss__autocomplete-fixed__modal',
 			buttonSelector: buttonSelector,
 			lockScroll: false,
 			onOverlayClick: reset,
@@ -151,8 +151,8 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		},
 		searchInput: {
 			// default props
-			// autocomplete__search-input is required for useAcRenderedInput hook.
-			internalClassName: 'autocomplete-fixed__search-input autocomplete__search-input',
+			// ss__autocomplete__search-input is required for useAcRenderedInput hook.
+			internalClassName: 'ss__autocomplete-fixed__search-input ss__autocomplete__search-input',
 			placeholderText: inputPlaceholderText || undefined,
 			submitSearchButton: {
 				onClick: () => {

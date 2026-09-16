@@ -11,7 +11,7 @@ import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { TabManagerStore } from './TabManagerStore';
-import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
+import { CurrencyCodes, CurrencyCodeInput, LanguageCodes, LanguageCodeInput, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
 import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, AbstractController, TabConfig } from '@athoscommerce/snap-controller';
 import type {
@@ -193,8 +193,8 @@ export type TemplatesStoreConfigLocked = {
 	components?: TemplateStoreComponentConfigLocked;
 	config?: {
 		siteId?: string;
-		currency?: CurrencyCodes;
-		language?: LanguageCodes;
+		currency?: CurrencyCodeInput;
+		language?: LanguageCodeInput;
 		platform?: IntegrationPlatforms;
 		client?: ClientConfig;
 	};
@@ -329,13 +329,23 @@ export class TemplatesStore {
 		};
 		this.library = new LibraryStore({ components: config.components, unlocked: (config as TemplatesStoreConfigUnlocked).unlocked || false });
 
+		const configLanguage = this.config.config?.language?.toLowerCase() as LanguageCodes | undefined;
+		const configCurrency = this.config.config?.currency?.toLowerCase() as CurrencyCodes | undefined;
+
+		if (configLanguage && !(configLanguage in this.library.import.language)) {
+			console.warn(`Snap Templates: unknown language code "${this.config.config?.language}" - using "en"`);
+		}
+		if (configCurrency && !(configCurrency in this.library.import.currency)) {
+			console.warn(`Snap Templates: unknown currency code "${this.config.config?.currency}" - using "usd"`);
+		}
+
 		this.language =
 			(this.settings.editMode && this.storage.get('overrides.config.language')) ||
-			(this.config.config?.language && this.config.config.language in this.library.import.language && this.config.config.language) ||
+			(configLanguage && configLanguage in this.library.import.language && configLanguage) ||
 			'en';
 		this.currency =
 			(this.settings.editMode && this.storage.get('overrides.config.currency')) ||
-			(this.config.config?.currency && this.config.config.currency in this.library.import.currency && this.config.config.currency) ||
+			(configCurrency && configCurrency in this.library.import.currency && configCurrency) ||
 			'usd';
 
 		// import locale selections
@@ -492,13 +502,14 @@ export class TemplatesStore {
 		}
 	}
 
-	public async setCurrency(currencyCode: CurrencyCodes) {
-		if (currencyCode in this.library.import.currency) {
-			await this.library.import.currency[currencyCode]();
-			const currency = this.library.locales.currencies[currencyCode];
+	public async setCurrency(currencyCode: CurrencyCodeInput) {
+		const code = currencyCode?.toLowerCase() as CurrencyCodes;
+		if (code in this.library.import.currency) {
+			await this.library.import.currency[code]();
+			const currency = this.library.locales.currencies[code];
 
 			if (currency) {
-				this.currency = currencyCode;
+				this.currency = code;
 				this.storage.set('overrides.config.currency', this.currency);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
@@ -509,16 +520,19 @@ export class TemplatesStore {
 					theme.setCurrency(currency);
 				}
 			}
+		} else {
+			console.warn(`Snap Templates: unknown currency code "${currencyCode}" - currency not changed`);
 		}
 	}
 
-	public async setLanguage(languageCode: LanguageCodes) {
-		if (languageCode in this.library.import.language) {
-			await this.library.import.language[languageCode]();
-			const language = this.library.locales.languages[languageCode];
+	public async setLanguage(languageCode: LanguageCodeInput) {
+		const code = languageCode?.toLowerCase() as LanguageCodes;
+		if (code in this.library.import.language) {
+			await this.library.import.language[code]();
+			const language = this.library.locales.languages[code];
 
 			if (language) {
-				this.language = languageCode;
+				this.language = code;
 				this.storage.set('overrides.config.language', this.language);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
@@ -529,6 +543,8 @@ export class TemplatesStore {
 					theme.setLanguage(language);
 				}
 			}
+		} else {
+			console.warn(`Snap Templates: unknown language code "${languageCode}" - language not changed`);
 		}
 	}
 

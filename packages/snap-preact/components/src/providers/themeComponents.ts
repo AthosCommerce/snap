@@ -389,10 +389,12 @@ type ThemeComponentsRestrictedNamedProps =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: ThemeComponentCascade<FacetSliderTemplatesLegalProps> } &
 	// { [K in UnNamedThemeComponentSelectors<'facetToggle'>]?: RestrictedThemeComponentProps<FacetToggleProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: ThemeComponentCascade<FilterTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'gallery'>]?: ThemeComponentCascade<GalleryTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: ThemeComponentCascade<LoadMoreTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: ThemeComponentCascade<OverlayBadgeTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: ThemeComponentCascade<PaginationTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: ThemeComponentCascade<PerPageTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quantityPicker'>]?: ThemeComponentCascade<QuantityPickerTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: ThemeComponentCascade<RadioListTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: ThemeComponentCascade<RatingTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: ThemeComponentCascade<ResultTemplatesLegalProps> } &
@@ -404,6 +406,8 @@ type ThemeComponentsRestrictedNamedProps =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: ThemeComponentCascade<SwatchesTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'tabSelection'>]?: ThemeComponentCascade<TabSelectionTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: ThemeComponentCascade<VariantSelectionTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetail'>]?: ThemeComponentCascade<ProductDetailTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetailTable'>]?: ThemeComponentCascade<ProductDetailTableTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: ThemeComponentCascade<TermsTemplatesLegalProps> } &
 
 	/* ORGANISMS */
@@ -468,6 +472,7 @@ type ThemeComponentsRestrictedNamed = ThemeComponentsRestrictedNamedProps & Them
 	live via the TS checker - see eslint/src/validate-config.cjs.
 */
 type ThemeComponentOpenNamedComponentTypes =
+	| 'calloutBadge'
 	| 'facet'
 	| 'productDetail'
 	| 'variantSelection'
@@ -523,13 +528,15 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetPaletteOptions'>]?: ThemeComponentCascade<FacetPaletteOptionsTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'facetSlider'>]?: ThemeComponentCascade<FacetSliderTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'filter', FilterNames>]?: ThemeComponentCascade<FilterTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'gallery'>]?: ThemeComponentCascade<GalleryTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'loadMore'>]?: ThemeComponentCascade<LoadMoreTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayBadge'>]?: ThemeComponentCascade<OverlayBadgeTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'pagination'>]?: ThemeComponentCascade<PaginationTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'perPage'>]?: ThemeComponentCascade<PerPageTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quantityPicker'>]?: ThemeComponentCascade<QuantityPickerTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'radioList'>]?: ThemeComponentCascade<RadioListTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'rating'>]?: ThemeComponentCascade<RatingTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: ThemeComponentCascade<ResultTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesNamedSelectors<'result', ResultNames>]?: ThemeComponentCascade<ResultTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'overlayResult'>]?: ThemeComponentCascade<OverlayResultTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'searchInput'>]?: ThemeComponentCascade<SearchInputTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'select'>]?: ThemeComponentCascade<SelectTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
@@ -538,6 +545,8 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'swatches'>]?: ThemeComponentCascade<SwatchesTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'tabSelection'>]?: ThemeComponentCascade<TabSelectionTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'variantSelection'>]?: ThemeComponentCascade<VariantSelectionTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetail'>]?: ThemeComponentCascade<ProductDetailTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'productDetailTable'>]?: ThemeComponentCascade<ProductDetailTableTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesNamedSelectors<'terms', TermsNames>]?: ThemeComponentCascade<TermsTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 
 	/* ORGANISMS */

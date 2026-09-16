@@ -126,6 +126,15 @@ var documents = [
 				type: 'markdown',
 				url: './docs/TEMPLATES_CONFIG.md',
 				searchable: true,
+				links: [
+					{
+						label: 'Localization',
+						route: '/templates-localization',
+						type: 'markdown',
+						url: './docs/TEMPLATES_LOCALIZATION.md',
+						searchable: true,
+					},
+				],
 			},
 			{
 				label: 'Theming',

@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- add SnapHybrid to config validation and update documentation ([9bc2ad2](https://github.com/AthosCommerce/snap/commit/9bc2ad29edbd82adb535341bc3ad1770029f7305))
+- adding missing `ss__` classname prefix ([dd3e424](https://github.com/AthosCommerce/snap/commit/dd3e4249c4313607f0aec80ffda82f48e3f3f8dd))
+- adding quickview attributes to language files ([39839ae](https://github.com/AthosCommerce/snap/commit/39839aede9fd5864b08d8a2515d8d1df2d56a2bd))
+- adjusting classnames to match the established autocomplete style ([5d7daa2](https://github.com/AthosCommerce/snap/commit/5d7daa21ff45d224ef167c21cde4c4e67bc3ba84))
+- **dropdown:** adding wrapping div and class so that portals can be styled via stylescripts ([b2e7d71](https://github.com/AthosCommerce/snap/commit/b2e7d712d0ab381f0057bf1d059173352b8370cb))
+- finalize quickview, add impression and clickThrough tracking, docs ([d20ac64](https://github.com/AthosCommerce/snap/commit/d20ac64e58f179f434e5e85d39a31247e3e6a04e))
+- fix LibraryStore test ([f4220a1](https://github.com/AthosCommerce/snap/commit/f4220a137963be6bc28da8380ed0ad826c5c7c50))
+- initial quickview ([1fd8a0c](https://github.com/AthosCommerce/snap/commit/1fd8a0cf787ab24d6e5980e7c22b173df678aaca))
+- narrow open named props ([68eaf03](https://github.com/AthosCommerce/snap/commit/68eaf03b39a2d4beb454e512ccb9e33f4a8c4dde))
+- pr review ([4fb4efe](https://github.com/AthosCommerce/snap/commit/4fb4efe01bbf738f9af7ea69b18a0d8cecc3759f))
+- preventing window scroll lock on resize ([7a54607](https://github.com/AthosCommerce/snap/commit/7a5460754501a8d40db0ed0dcd618ca777bda38d))
+- quickview initial pr feedback ([cf98107](https://github.com/AthosCommerce/snap/commit/cf98107bafe31872de2957b275a01235c46f97cd))
+- quickview layout improvements, named calloutBadge, variantSelection, lang props, a11y ([9c7d19c](https://github.com/AthosCommerce/snap/commit/9c7d19c0a54126fa2de316077ce993cfc70ded9e))
+- **recommendations:** adding minsizes to rec components for lazy render intersectionObserver bugfix ([5fa2bcd](https://github.com/AthosCommerce/snap/commit/5fa2bcdddc28ec56c6abc1fa76aee05601a87f3b))
+- Slideshow start index fix for resizes ([782add5](https://github.com/AthosCommerce/snap/commit/782add500bd233efe2618c1bf873d3bc9759212f))
+- **slideshow:** drag handling bugfix on ios ([60372ad](https://github.com/AthosCommerce/snap/commit/60372adfdf9c6d5935a95c4685ab6b33acfa9e22))
+- **templateselect:** bugfix for passing undefined names to recs clobbering the profile name ([c3fb539](https://github.com/AthosCommerce/snap/commit/c3fb539b14baa30cb906f574c72e6b17e5656712))
+- update Slideout storybook, fix quickview target div id ([464b366](https://github.com/AthosCommerce/snap/commit/464b366af653fbbd0dc21961efb17100933e1b74))
+
+### Features
+
+- adding many currencies ([3e52891](https://github.com/AthosCommerce/snap/commit/3e5289197823521bd60589ebc18e9dc360f3214f))
+- initial quickview ([b89cc1a](https://github.com/AthosCommerce/snap/commit/b89cc1a9f1998b1f08bd2dca0460a4ecf113d9e4))
+- **translations:** adding 12 more languages ([10e4501](https://github.com/AthosCommerce/snap/commit/10e45019eb8e21426f1a44ed522efda22171e848))
+
 # [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
 
 ### Bug Fixes
