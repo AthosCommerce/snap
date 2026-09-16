@@ -205,13 +205,13 @@ new SnapTemplates(validateTemplatesConfig({
 		currency: 'AED',
 	},
 	currencies: {
-		aed: {
+		AED: {
 			price: {
 				symbol: 'د.إ',      // the locale ships the 'AED ' abbreviation instead
 				symbolAfter: true,
 			},
 		},
-		usd: {
+		USD: {
 			price: {
 				showCode: true,     // $1,099.99 USD
 			},
@@ -231,19 +231,3 @@ new SnapTemplates(validateTemplatesConfig({
 Any component props are accepted, not just `price` - the value has the same shape as `theme.overrides.default`.
 
 Only the block for the active currency is applied, and it follows the currency: when the currency changes at run-time - via `setCurrency()`, or by the [Shopify Currency plugin](reference-platforms-shopify#pluginshopifycurrency) - the previous currency's overrides are dropped and the new currency's are applied.
-
-#### Layer order
-
-Component props are resolved in this order, with later layers winning:
-
-1. base theme
-2. currency locale
-3. `config.currencies` overrides
-4. language locale
-5. `config.translations` overrides
-6. `theme.overrides`
-
-So `theme.overrides` remains the final say and applies to every currency, while `config.currencies` is scoped to one. Props a `currencies` block does not set still fall through to the currency locale - overriding `symbol` for `AED` leaves its decimal places and separators intact.
-
-> [!NOTE]
-> A `price.format` function - passed to the component or set via `theme.overrides.default.price.format` - produces the entire price string itself, so it takes precedence over the symbol and separator props from every layer above.

@@ -241,7 +241,7 @@ theme: {
 	overrides: {
 		default: {
 			price: {
-				format: (number) => shopifyPriceFormat(number, shop.money_format),
+				format: (number) => shopifyPriceFormat(number, `{{amount_no_decimals}}`),
 			},
 		},
 	},

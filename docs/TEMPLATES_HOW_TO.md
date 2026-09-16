@@ -709,22 +709,16 @@ For detailed configuration options, see the [Shopify Currency plugin documentati
 
 ### Per Currency Overrides
 
-Several currencies have more than one accepted presentation — `$1,099.99` or `1,099.99 USD`, `AED 1,099.99` or `1,099.99 د.إ`. The built-in currency locales pick one convention per currency; the top level `currencies` config overrides component props for a single currency, layered on top of that locale. It follows the same shape as `translations`, keyed by currency code instead of language code:
+Several currencies have more than one accepted presentation — `$1,099.99` or `1,099.99 USD`. The top level `currencies` config overrides component props for a single currency, layered on top of the built-in currency locale:
 
 ```tsx
 const config = validateTemplatesConfig({
 	config: {
 		siteId: 'your-site-id',
-		currency: 'AED',
+		currency: 'USD',
 	},
 	currencies: {
-		aed: {
-			price: {
-				symbol: 'د.إ',   // the locale ships the 'AED ' abbreviation instead
-				symbolAfter: true,
-			},
-		},
-		usd: {
+		USD: {
 			price: {
 				showCode: true, // $1,099.99 USD
 			},
@@ -737,17 +731,13 @@ const config = validateTemplatesConfig({
 });
 ```
 
-Any component props are accepted, not just `price` — the value has the same shape as `theme.overrides.default`.
-
-Only the block for the active currency is applied, and it follows the currency: when the currency changes at runtime — via `setCurrency()`, or by the [Shopify Currency plugin](#using-the-shopify-currency-plugin) — the previous currency's overrides are dropped and the new currency's are applied.
-
-The layer order is: built-in currency locale → `currencies` overrides → language → `translations` → `theme.overrides`. So `theme.overrides` remains the final say and applies to every currency, while `currencies` is scoped to one.
+For the full config shape and layer order, see [Per Currency Overrides](TEMPLATES_LOCALIZATION.md#per-currency-overrides) in the localization guide.
 
 ---
 
 ### Language Translations
 
-Snap Templates includes built-in language support for English (`en`), French (`fr`), and Spanish (`es`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
+Snap Templates includes built-in language support for English (`EN`), French (`FR`), and Spanish (`ES`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
 
 #### How It Works
 
@@ -757,18 +747,18 @@ When a `value` is a function, it receives a `data` object containing relevant co
 
 #### Basic Setup
 
-Set `config.language` to one of the supported language codes (`'en'`, `'fr'`, `'es'`), then provide overrides in the `translations` block:
+Set `config.language` to one of the supported language codes (`'EN'`, `'FR'`, `'ES'`), then provide overrides in the `translations` block:
 
 ```tsx
 new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: 'abc123',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 		platform: 'other',
 	},
 	translations: {
-		en: {
+		EN: {
 			search: {
 				toggleSidebarButtonText: {
 					value: 'Filter Results',
@@ -780,7 +770,7 @@ new SnapTemplates(validateTemplatesConfig({
 				},
 			},
 		},
-		fr: {
+		FR: {
 			search: {
 				toggleSidebarButtonText: {
 					value: 'Filtrer les résultats',
@@ -810,11 +800,11 @@ Translation values can be functions that receive component data, enabling condit
 new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: 'abc123',
-		language: 'en',
+		language: 'EN',
 		platform: 'other',
 	},
 	translations: {
-		en: {
+		EN: {
 			search: {
 				toggleSidebarButtonText: {
 					value: (data: { sidebarOpenState: boolean }) => {
@@ -852,11 +842,11 @@ Since a `value` function's `data` argument always includes `activeBreakpoint`, y
 new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: 'abc123',
-		language: 'en',
+		language: 'EN',
 		platform: 'other',
 	},
 	translations: {
-		en: {
+		EN: {
 			search: {
 				toggleSidebarButtonText: {
 					value: (data) => (data.activeBreakpoint === 'mobile' ? 'Filters' : 'Filter Results'),
@@ -890,7 +880,7 @@ Some lang entries support an `attributes` map for setting HTML attributes like `
 
 ```tsx
 translations: {
-	en: {
+	EN: {
 		searchInput: {
 			placeholderText: {
 				attributes: {

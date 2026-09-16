@@ -24,8 +24,8 @@ import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-prea
 const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 	},
 	theme: {
 		extends: 'pike',
@@ -143,7 +143,7 @@ Where a currency has more than one accepted presentation (`$` or `USD`, symbol l
 
 ```tsx
 currencies: {
-	aed: {
+	AED: {
 		price: {
 			symbol: 'د.إ',
 			symbolAfter: true,
@@ -183,7 +183,7 @@ The example below demonstrates both approaches for French language translations:
 new SnapTemplates(validateTemplatesConfig({
 	...
 	translations: {
-		fr: {
+		FR: {
 			filterSummary: {
 				title: {
 					value: 'Filtres actuels'

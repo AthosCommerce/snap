@@ -203,10 +203,10 @@ export type TemplatesStoreConfigLocked = {
 	};
 	plugins?: PluginsConfigsLocked;
 	translations?: {
-		[languageName in LanguageCodes]?: LangComponentOverrides;
+		[languageName in Uppercase<LanguageCodes> | LanguageCodes]?: LangComponentOverrides;
 	};
 	currencies?: {
-		[currencyName in CurrencyCodes]?: ThemeComponentsRestricted;
+		[currencyName in Uppercase<CurrencyCodes> | CurrencyCodes]?: ThemeComponentsRestricted;
 	};
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
@@ -250,7 +250,7 @@ export type TemplatesStoreConfigUnlocked = Omit<
 > & {
 	unlocked: true;
 	currencies?: {
-		[currencyName in CurrencyCodes]?: ThemeComponentsRestrictedWithCustomComponent;
+		[currencyName in Uppercase<CurrencyCodes> | CurrencyCodes]?: ThemeComponentsRestrictedWithCustomComponent;
 	};
 	theme: TemplatesStoreThemeConfigUnlocked;
 	components?: TemplateStoreComponentConfigUnlocked;
@@ -389,7 +389,7 @@ export class TemplatesStore {
 			const overrides = themeConfiguration.overrides || {};
 			const variables = themeConfiguration.variables || {};
 			const currency = withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {});
-			const currencyOverrides = transformCurrencyOverridesToTheme(this.config.currencies, this.currency);
+			const currencyOverrides = resolveCurrencyOverridesTheme(this.config.currencies, this.currency);
 			const language = this.library.locales.languages[this.language] || {};
 			const languageOverrides = transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {});
 
@@ -523,7 +523,7 @@ export class TemplatesStore {
 				this.currency = code;
 				this.storage.set('overrides.config.currency', this.currency);
 				const currencyLayer = withCurrencyCode(code, currency);
-				const currencyOverrides = transformCurrencyOverridesToTheme(this.config.currencies, code);
+				const currencyOverrides = resolveCurrencyOverridesTheme(this.config.currencies, code);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
 					theme.setCurrency(currencyLayer, currencyOverrides);
@@ -578,7 +578,7 @@ export class TemplatesStore {
 				language: this.library.locales.languages[this.language] || {},
 				languageOverrides: transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {}),
 				currency: withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {}),
-				currencyOverrides: transformCurrencyOverridesToTheme(this.config.currencies, this.currency),
+				currencyOverrides: resolveCurrencyOverridesTheme(this.config.currencies, this.currency),
 				innerWidth: this.window.innerWidth,
 			};
 			if (this.settings.editMode) {
@@ -603,11 +603,9 @@ function getTargetArray(targets: TemplatesStore['targets'], type: TemplateTypes)
 }
 
 /*
-	Resolves the configured component overrides for a currency into a theme layer. Mirrors how `translations`
-	are resolved for the active language - keys are lowercase, but either case is accepted the way
-	`config.currency` does, so a config written as `AED` still matches.
+	Resolves the configured component overrides for a currency into a theme layer.
 */
-export function transformCurrencyOverridesToTheme(currencies: TemplatesStoreConfig['currencies'], code: CurrencyCodes): ThemeMinimal {
+export function resolveCurrencyOverridesTheme(currencies: TemplatesStoreConfig['currencies'], code: CurrencyCodes): ThemeMinimal {
 	const overrides = currencies?.[code] || currencies?.[code.toUpperCase() as CurrencyCodes];
 
 	return overrides ? { components: overrides as ThemeComponentsRestricted } : {};
