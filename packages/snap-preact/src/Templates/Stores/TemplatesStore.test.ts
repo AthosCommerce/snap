@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/preact';
 
-import { TemplatesStore, TemplateTarget, resolveCurrencyOverridesTheme, withCurrencyCode } from './TemplateStore';
+import { TemplatesStore, TemplateTarget, resolveCurrencyOverridesTheme, resolveTranslationsOverridesTheme, withCurrencyCode } from './TemplateStore';
 import type { SnapTemplatesConfig } from '../SnapTemplates';
 import { GLOBAL_THEME_NAME, TargetStore } from './TargetStore';
 //todo - these tests sometimes take over 10 seconds to run, currently unclear why.
@@ -286,6 +286,78 @@ describe('resolveCurrencyOverridesTheme', () => {
 		// codes are three letters, so this only guards against an accidental lookup by component
 		expect(resolveCurrencyOverridesTheme({ aed: { price: {} } }, 'aed')).toStrictEqual({
 			components: { price: {} },
+		});
+	});
+});
+
+describe('resolveTranslationsOverridesTheme', () => {
+	const translations = {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filter Results',
+				},
+			},
+		},
+		fr: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filtrer les résultats',
+				},
+			},
+		},
+	};
+
+	it('wraps the overrides for the given language in a theme layer', () => {
+		expect(resolveTranslationsOverridesTheme(translations, 'en')).toStrictEqual({
+			components: {
+				search: {
+					lang: {
+						toggleSidebarButtonText: {
+							value: 'Filter Results',
+						},
+					},
+				},
+			},
+		});
+	});
+
+	it('returns only the requested language', () => {
+		expect(resolveTranslationsOverridesTheme(translations, 'fr')).toStrictEqual({
+			components: {
+				search: {
+					lang: {
+						toggleSidebarButtonText: {
+							value: 'Filtrer les résultats',
+						},
+					},
+				},
+			},
+		});
+	});
+
+	it('returns an empty layer for a language with no overrides', () => {
+		expect(resolveTranslationsOverridesTheme(translations, 'es')).toStrictEqual({ components: {} });
+	});
+
+	it('returns an empty layer when nothing is configured', () => {
+		expect(resolveTranslationsOverridesTheme(undefined, 'en')).toStrictEqual({ components: {} });
+		expect(resolveTranslationsOverridesTheme({}, 'en')).toStrictEqual({ components: {} });
+	});
+
+	it('accepts uppercase keys the way config.language does', () => {
+		const uppercase = { EN: { search: { toggleSidebarButtonText: { value: 'X' } } } };
+
+		expect(resolveTranslationsOverridesTheme(uppercase, 'en')).toStrictEqual({
+			components: {
+				search: {
+					lang: {
+						toggleSidebarButtonText: {
+							value: 'X',
+						},
+					},
+				},
+			},
 		});
 	});
 });

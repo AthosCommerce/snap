@@ -391,7 +391,7 @@ export class TemplatesStore {
 			const currency = withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {});
 			const currencyOverrides = resolveCurrencyOverridesTheme(this.config.currencies, this.currency);
 			const language = this.library.locales.languages[this.language] || {};
-			const languageOverrides = transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {});
+			const languageOverrides = resolveTranslationsOverridesTheme(this.config.translations, this.language);
 
 			const translatedOverrides: ThemeOverrides = {
 				components: overrides.default,
@@ -547,7 +547,7 @@ export class TemplatesStore {
 			if (language) {
 				this.language = code;
 				this.storage.set('overrides.config.language', this.language);
-				const languageOverrides = transformTranslationsToTheme((this.config.translations && this.config.translations[code]) || {});
+				const languageOverrides = resolveTranslationsOverridesTheme(this.config.translations, code);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
 					theme.setLanguage(language, languageOverrides);
@@ -576,7 +576,7 @@ export class TemplatesStore {
 				type: 'library',
 				base: theme,
 				language: this.library.locales.languages[this.language] || {},
-				languageOverrides: transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {}),
+				languageOverrides: resolveTranslationsOverridesTheme(this.config.translations, this.language),
 				currency: withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {}),
 				currencyOverrides: resolveCurrencyOverridesTheme(this.config.currencies, this.currency),
 				innerWidth: this.window.innerWidth,
@@ -630,6 +630,11 @@ export function transformTranslationsToTheme(translations: LangComponentOverride
 	return {
 		components,
 	};
+}
+export function resolveTranslationsOverridesTheme(translations: TemplatesStoreConfig['translations'], code: LanguageCodes): ThemeMinimal {
+	const overrides = translations?.[code] || translations?.[code.toUpperCase() as LanguageCodes];
+
+	return transformTranslationsToTheme(overrides || {});
 }
 
 class Deferred {
