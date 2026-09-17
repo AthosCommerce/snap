@@ -1,4 +1,4 @@
-export const shopifyMarketsPriceFormat = (number: number | string, format: string = '${{amount}}') => {
+export const shopifyPriceFormat = (number: number | string, format: string = '${{amount}}') => {
 	// ensure number is a number
 	number = typeof number === 'string' ? parseFloat(number) : number;
 

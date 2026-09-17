@@ -40,6 +40,11 @@
 		"packages/snap-preact/components/src/**/*.test.tsx",
 		"packages/snap-preact/components/src/setupTests.ts",
 		"packages/snap-platforms/*/src/**/*.test.ts",
+		// stories are excluded from the package builds too, so they are only checked here -
+		// a story referencing a prop that does not exist otherwise fails silently until
+		// someone opens storybook
+		"packages/*/src/**/*.stories.tsx",
+		"packages/snap-preact/components/src/**/*.stories.tsx",
 		// ambient `declare module` shims (is-plain-object, css.escape, asset imports).
 		// The package builds get these free via `include: ["src"]`; globbing only test
 		// files would miss them and produce spurious TS7016 errors.

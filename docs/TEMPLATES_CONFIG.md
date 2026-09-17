@@ -9,6 +9,7 @@ Snap templates is configuration based. The configuration defines which features 
 | `plugins` | Plugins configuration options |
 | `components` | Custom component registration |
 | `translations` | Custom language translations |
+| `currencies` | Per currency component overrides |
 | `url` | URL translator configuration |
 | `theme` | Theme configuration |
 | `search` | Search feature target declarations |
@@ -23,8 +24,8 @@ import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-prea
 const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 	},
 	theme: {
 		extends: 'pike',
@@ -137,6 +138,30 @@ Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnl
 > [!IMPORTANT]
 > Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.
 
+
+### Per Currency Overrides
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `currencies` | Per currency component overrides | Object | ➖ |
+| `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ |
+| `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ |
+
+Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), `config.currencies` overrides component props for that one currency, layered on top of its built-in locale. The value has the same shape as `theme.overrides.default`, so any component props are accepted.
+
+```tsx
+currencies: {
+	AED: {
+		price: {
+			symbol: 'د.إ',
+			symbolAfter: true,
+		},
+	},
+},
+```
+
+The overrides follow the active currency, including when it changes at run-time via `setCurrency()`. See [Per Currency Overrides](TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the full layer order.
+
 ### Language Translations
 
 | Configuration Option | Description | Type | Default |
@@ -166,7 +191,7 @@ The example below demonstrates both approaches for French language translations:
 new SnapTemplates(validateTemplatesConfig({
 	...
 	translations: {
-		fr: {
+		FR: {
 			filterSummary: {
 				title: {
 					value: 'Filtres actuels'

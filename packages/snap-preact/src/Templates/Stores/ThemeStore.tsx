@@ -27,6 +27,7 @@ export type ThemeStoreThemeConfig = {
 	editorOverrides?: ThemePartial;
 	variables?: ThemeVariablesPartial;
 	currency: ThemeMinimal;
+	currencyOverrides?: ThemeMinimal;
 	language: ThemeMinimal;
 	languageOverrides: ThemeMinimal;
 	innerWidth?: number;
@@ -50,6 +51,7 @@ export class ThemeStore {
 	editorOverrides: ThemePartial;
 	variables: ThemeVariablesPartial;
 	currency: ThemeMinimal;
+	currencyOverrides: ThemeMinimal;
 	language: ThemeMinimal;
 	languageOverrides: ThemeMinimal;
 	innerWidth?: number;
@@ -60,7 +62,8 @@ export class ThemeStore {
 		this.dependencies = dependencies;
 		this.editMode = settings.editMode;
 
-		const { name, style, type, base, overrides, editorOverrides, variables, currency, language, languageOverrides, innerWidth } = config;
+		const { name, style, type, base, overrides, editorOverrides, variables, currency, currencyOverrides, language, languageOverrides, innerWidth } =
+			config;
 
 		// Prefix base + normalize override selector keys into ThemeStore-OWNED copies. `base` is a
 		// shared library theme object (the same instance is reused to build multiple ThemeStores),
@@ -97,6 +100,7 @@ export class ThemeStore {
 		this.editorOverrides = editorOverrides || {};
 		this.variables = variables || {};
 		this.currency = currency;
+		this.currencyOverrides = currencyOverrides || {};
 		this.language = language;
 		this.languageOverrides = languageOverrides;
 		this.innerWidth = innerWidth;
@@ -106,7 +110,9 @@ export class ThemeStore {
 			name: observable,
 			variables: observable,
 			currency: observable,
+			currencyOverrides: observable,
 			language: observable,
+			languageOverrides: observable,
 			editorOverrides: observable,
 			innerWidth: observable,
 			// memoized breakpoint band. `theme` depends on THIS computed, not on `innerWidth`
@@ -137,13 +143,14 @@ export class ThemeStore {
 				1. base theme
 				2. base theme responsive breakpoints
 				3. currency
-				4. language
-				5. language translation overrides
-				6. theme overrides
-				7. theme overrides at responsive breakpoints
-				8. altered theme variables
-				9. stored theme editor overrides
-				10. stored theme editor overrides at responsive breakpoints
+				4. per currency component overrides
+				5. language
+				6. language translation overrides
+				7. theme overrides
+				8. theme overrides at responsive breakpoints
+				9. altered theme variables
+				10. stored theme editor overrides
+				11. stored theme editor overrides at responsive breakpoints
 		*/
 
 		const activeBreakpoint = this.activeBreakpoint;
@@ -166,7 +173,7 @@ export class ThemeStore {
 		// (non-base) layers together first, then do a SINGLE merge with base — base is deep-cloned
 		// once. Output is identical: last-wins deep object/array merge is associative for these
 		// layers (verified by the theme-getter tests below, which pin full theme output).
-		const overlay = mergeThemeLayers(baseBreakpoint, this.currency, this.language, this.languageOverrides, themeOverrides, {
+		const overlay = mergeThemeLayers(baseBreakpoint, this.currency, this.currencyOverrides, this.language, this.languageOverrides, themeOverrides, {
 			activeBreakpoint: activeBreakpoint,
 		});
 
@@ -225,12 +232,14 @@ export class ThemeStore {
 		this.innerWidth = innerWidth;
 	}
 
-	public setCurrency(currency: ThemeMinimal) {
+	public setCurrency(currency: ThemeMinimal, currencyOverrides: ThemeMinimal = {}) {
 		this.currency = currency;
+		this.currencyOverrides = currencyOverrides;
 	}
 
-	public setLanguage(language: ThemeMinimal) {
+	public setLanguage(language: ThemeMinimal, languageOverrides: ThemeMinimal = {}) {
 		this.language = language;
+		this.languageOverrides = languageOverrides;
 	}
 
 	public setEditorOverrides(overrides: ThemePartial) {

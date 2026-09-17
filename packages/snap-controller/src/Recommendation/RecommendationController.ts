@@ -1,4 +1,4 @@
-import deepmerge from 'deepmerge';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 
 import { ErrorType, Product } from '@athoscommerce/snap-store-mobx';
 import { AbstractController } from '../Abstract/AbstractController';
@@ -76,7 +76,7 @@ export class RecommendationController extends AbstractController {
 		}
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 		this.store.setConfig(this.config);
 
 		// add 'afterStore' middleware
