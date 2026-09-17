@@ -61,22 +61,27 @@ export const useLayoutOptions = (props: any, globalTheme: Theme) => {
 
 		// we only want to use overrides if one of the toolbars is actually rendering the layoutSelector
 		Object.keys(globalTheme.components).forEach((key) => {
-			const paths = key.split(' ');
-			const componentTypeAndName = paths.splice(-1).pop() ?? '';
-			const [componentType] = componentTypeAndName.split('.');
-			if (
-				globalTheme.components &&
-				componentType == 'toolbar' &&
-				(paths[0] == templateComponent ||
-					paths[0] == `*${templateComponent}` ||
-					paths[0] == `*(M)${templateComponent}` ||
-					paths[0] == `*(T)${templateComponent}` ||
-					paths[0] == `*(D)${templateComponent}` ||
-					paths[0] == `(M)${templateComponent}` ||
-					paths[0] == `(T)${templateComponent}` ||
-					paths[0] == `(D)${templateComponent}` ||
-					!paths.length)
-			) {
+			// a key may target multiple treepaths as a comma-separated list (see ThemeStore's
+			// prefixComponentKeys/normalizeCommaSeparatedKeys) - it applies if ANY part matches
+			const parts = key.includes(',') ? key.split(/\s*,\s*/) : [key];
+			const matchesToolbar = parts.some((part) => {
+				const paths = part.split(' ');
+				const componentTypeAndName = paths.splice(-1).pop() ?? '';
+				const [componentType] = componentTypeAndName.split('.');
+				return (
+					componentType == 'toolbar' &&
+					(paths[0] == templateComponent ||
+						paths[0] == `*${templateComponent}` ||
+						paths[0] == `*(M)${templateComponent}` ||
+						paths[0] == `*(T)${templateComponent}` ||
+						paths[0] == `*(D)${templateComponent}` ||
+						paths[0] == `(M)${templateComponent}` ||
+						paths[0] == `(T)${templateComponent}` ||
+						paths[0] == `(D)${templateComponent}` ||
+						!paths.length)
+				);
+			});
+			if (globalTheme.components && matchesToolbar) {
 				const toolbarConfig = globalTheme.components[key as keyof typeof globalTheme.components] as Partial<ToolbarProps>;
 				if (toolbarConfig?.layout && toolbarConfig.layout.toString().indexOf('layoutSelector') > -1) {
 					shouldUseOverrides = true;

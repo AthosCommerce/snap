@@ -11,7 +11,12 @@ import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerSto
 import { Client } from '@athoscommerce/snap-client';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
-import type { ThemeComponentsRestrictedSelectors, ThemeComponentsRestrictedSelectorsUnlocked } from '../../components/src/providers/themeComponents';
+import type {
+	ThemeComponentOverrides,
+	ThemeComponentOverridesUnlocked,
+	ThemeOverridesErrors,
+	ThemeOverridesErrorsUnlocked,
+} from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import type { ClientGlobals } from '@athoscommerce/snap-client';
 import type { TrackerGlobals } from '@athoscommerce/snap-tracker';
@@ -87,58 +92,97 @@ export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 	features?: SnapFeatures;
 };
 
-type SnapTemplatesConfigThemeOverridesTyped<
-	DefaultSelectors extends string,
-	MobileSelectors extends string,
-	TabletSelectors extends string,
-	DesktopSelectors extends string
-> = {
-	default?: ThemeComponentsRestrictedSelectors<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectors<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectors<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectors<DesktopSelectors>;
+/*
+	`validateTemplatesConfig` is where a config gets its type checking. The design has one rule:
+	nothing expensive may become the contextual type of the literal being authored, because the
+	language service re-instantiates that type on every keystroke. (The original design put a
+	precise generic there and cost ~1.5s per completion - re-measured at ~10s on TS 6 with a
+	realistic 40-selector config.)
+
+	So the parameter is a concrete type everywhere except the four breakpoint maps under
+	`theme.overrides`, which are inferred (`Default`, `Mobile`, `Tablet`, `Desktop`), each
+	constrained by the plain `ThemeComponentOverrides` alias:
+
+	  - The concrete part gets TypeScript's own excess property checking: an unknown config key,
+	    theme key or breakpoint name errors on its exact line, with the standard message.
+	  - Inside a breakpoint map, completions and prop VALUE checks come from the constraint while
+	    typing. What the constraint cannot see - misspelled selectors, a misspelled prop next to
+	    a valid one, and everything under open-named selectors like `facet.price` - is checked by
+	    `ThemeOverridesErrors` (themeComponents.ts) in the RETURN type, which is only evaluated
+	    when the call is checked, off the completion path.
+
+	Valid overrides return `SnapTemplatesConfig`. Invalid ones return an error carrier that is NOT
+	assignable to it, so `new SnapTemplates(config)` errors and the carrier lists exactly the
+	failing breakpoints, selectors and props.
+*/
+type SnapTemplatesConfigInput<Default, Mobile, Tablet, Desktop> = Omit<SnapTemplatesConfig, 'theme'> & {
+	theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
+		overrides?: { default?: Default; mobile?: Mobile; tablet?: Tablet; desktop?: Desktop };
+	};
 };
 
+type SnapTemplatesConfigInputUnlocked<Default, Mobile, Tablet, Desktop> = Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
+	theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
+		overrides?: { default?: Default; mobile?: Mobile; tablet?: Tablet; desktop?: Desktop };
+	};
+};
+
+type InvalidThemeOverrides<Errors> = {
+	'theme.overrides contains invalid selectors or props (hover for the expected shapes)': Errors;
+};
+
+// TypeScript prints alias instantiations UNEVALUATED in error messages, which would hide the
+// failing keys behind `ThemeOverridesErrors<{...}>`. Mapping the errors through this
+// depth-bounded expansion forces them into the printed type.
+// prettier-ignore
+type ExpandErrors<T, Depth extends unknown[] = [0, 0, 0]> = Depth extends [unknown, ...infer Rest]
+	? T extends object
+		? { [K in keyof T]: ExpandErrors<T[K], Rest> }
+		: T
+	: T;
+
+// prettier-ignore
+type ValidatedTemplatesConfig<Config, Errors> = [keyof Errors] extends [never]
+	? Config
+	: Errors extends infer Expanded ? InvalidThemeOverrides<ExpandErrors<Expanded>> : never;
+
+// The breakpoint type parameters deliberately have NO default: a defaulted type parameter is
+// instantiated by the language service when it computes the literal's contextual type, which
+// replaces the constraint with the default and kills key completions (verified with `never`
+// and `{}`). Without a default, an unauthored breakpoint infers as its constraint - which is
+// nothing to check - so it is mapped to `never` here before the checker sees it.
+type AuthoredBreakpoint<Inferred, Constraint> = Constraint extends Inferred ? never : Inferred;
+type AuthoredOverrides<Default, Mobile, Tablet, Desktop, Constraint> = {
+	default: AuthoredBreakpoint<Default, Constraint>;
+	mobile: AuthoredBreakpoint<Mobile, Constraint>;
+	tablet: AuthoredBreakpoint<Tablet, Constraint>;
+	desktop: AuthoredBreakpoint<Desktop, Constraint>;
+};
+
+// prettier-ignore
 export function validateTemplatesConfig<
-	DefaultSelectors extends string = never,
-	MobileSelectors extends string = never,
-	TabletSelectors extends string = never,
-	DesktopSelectors extends string = never
+	Default extends ThemeComponentOverrides,
+	Mobile extends ThemeComponentOverrides,
+	Tablet extends ThemeComponentOverrides,
+	Desktop extends ThemeComponentOverrides
 >(
-	config: Omit<SnapTemplatesConfig, 'theme'> & {
-		theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
-			overrides?: SnapTemplatesConfigThemeOverridesTyped<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
-		};
-	}
-): SnapTemplatesConfig {
-	return config;
+	config: SnapTemplatesConfigInput<Default, Mobile, Tablet, Desktop>
+): ValidatedTemplatesConfig<SnapTemplatesConfig, ThemeOverridesErrors<AuthoredOverrides<Default, Mobile, Tablet, Desktop, ThemeComponentOverrides>>> {
+	// the return type is a compile-time verdict; at runtime the config passes straight through
+	return config as any;
 }
 
-type SnapTemplatesConfigThemeOverridesTypedUnlocked<
-	DefaultSelectors extends string,
-	MobileSelectors extends string,
-	TabletSelectors extends string,
-	DesktopSelectors extends string
-> = {
-	default?: ThemeComponentsRestrictedSelectorsUnlocked<DefaultSelectors>;
-	mobile?: ThemeComponentsRestrictedSelectorsUnlocked<MobileSelectors>;
-	tablet?: ThemeComponentsRestrictedSelectorsUnlocked<TabletSelectors>;
-	desktop?: ThemeComponentsRestrictedSelectorsUnlocked<DesktopSelectors>;
-};
-
+// prettier-ignore
 export function validateTemplatesConfigUnlocked<
-	DefaultSelectors extends string = never,
-	MobileSelectors extends string = never,
-	TabletSelectors extends string = never,
-	DesktopSelectors extends string = never
+	Default extends ThemeComponentOverridesUnlocked,
+	Mobile extends ThemeComponentOverridesUnlocked,
+	Tablet extends ThemeComponentOverridesUnlocked,
+	Desktop extends ThemeComponentOverridesUnlocked
 >(
-	config: Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
-		theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
-			overrides?: SnapTemplatesConfigThemeOverridesTypedUnlocked<DefaultSelectors, MobileSelectors, TabletSelectors, DesktopSelectors>;
-		};
-	}
-): SnapTemplatesConfigUnlocked {
-	return config;
+	config: SnapTemplatesConfigInputUnlocked<Default, Mobile, Tablet, Desktop>
+): ValidatedTemplatesConfig<SnapTemplatesConfigUnlocked, ThemeOverridesErrorsUnlocked<AuthoredOverrides<Default, Mobile, Tablet, Desktop, ThemeComponentOverridesUnlocked>>> {
+	// the return type is a compile-time verdict; at runtime the config passes straight through
+	return config as any;
 }
 
 type TemplatePlugins =

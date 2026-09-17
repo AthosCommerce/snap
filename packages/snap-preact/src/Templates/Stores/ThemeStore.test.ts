@@ -1,12 +1,13 @@
-import { configure as configureMobx } from 'mobx';
+import { configure as configureMobx, autorun } from 'mobx';
 import '@testing-library/jest-dom';
 import { waitFor } from '@testing-library/preact';
 
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig, mergeThemeLayers } from './ThemeStore';
 import type { TemplatesStoreDependencies, TemplateThemeTypes, TemplatesStoreSettings } from './TemplateStore';
-import type { ThemeComplete, ThemeVariables, ThemePartial } from '../../../components/src/providers/theme';
+import type { ThemeComplete, ThemeVariables, ThemePartial, ThemeOverrides } from '../../../components/src/providers/theme';
 import { GLOBAL_THEME_NAME } from './TargetStore';
+import { mergeProps } from '../../../components/src/utilities/mergeProps';
 
 // configure MobX - useProxies: 'never' matches what we are doing for browser support (IE 11)
 configureMobx({ enforceActions: 'never', useProxies: 'never' });
@@ -27,6 +28,39 @@ let testTheme: ThemeComplete = {
 	components: {},
 	responsive: {},
 };
+
+// Mirror the ThemeStore constructor's prefixing. The store now prefixes into owned copies and no
+// longer mutates the input base/overrides in place, so expectations must prefix them themselves
+// (previously they relied on the inputs being mutated to prefixed keys during construction).
+const prefixKeys = (prefix: string, obj?: Record<string, any>): Record<string, any> => {
+	const out: Record<string, any> = {};
+	if (obj) Object.keys(obj).forEach((key) => (out[key.indexOf(prefix) === 0 ? key : `${prefix}${key}`] = obj[key]));
+	return out;
+};
+
+function withPrefixedBase(base: ThemeComplete): ThemeComplete {
+	const prefixed = { ...base, components: prefixKeys('*', base.components as Record<string, any>) } as ThemeComplete;
+	if (base.responsive) {
+		prefixed.responsive = {
+			mobile: prefixKeys('*(M)', base.responsive.mobile as Record<string, any>),
+			tablet: prefixKeys('*(T)', base.responsive.tablet as Record<string, any>),
+			desktop: prefixKeys('*(D)', base.responsive.desktop as Record<string, any>),
+		};
+	}
+	return prefixed;
+}
+
+function withPrefixedOverrides(overrides: ThemeOverrides): ThemeOverrides {
+	const prefixed = { ...overrides };
+	if (overrides.responsive) {
+		prefixed.responsive = {
+			mobile: prefixKeys('(M)', overrides.responsive.mobile as Record<string, any>),
+			tablet: prefixKeys('(T)', overrides.responsive.tablet as Record<string, any>),
+			desktop: prefixKeys('(D)', overrides.responsive.desktop as Record<string, any>),
+		};
+	}
+	return prefixed;
+}
 
 describe('ThemeStore', () => {
 	let dependencies: TemplatesStoreDependencies;
@@ -98,8 +132,11 @@ describe('ThemeStore', () => {
 
 		// @ts-ignore - private property
 		expect(store.dependencies).toBe(dependencies);
+		// base is prefixed into a ThemeStore-owned copy; the shared input base is NOT mutated
 		// @ts-ignore - private property
-		expect(store.base).toStrictEqual(config.base);
+		expect(store.base).not.toBe(config.base);
+		expect(config.base.components).toStrictEqual({});
+		expect(config.base.responsive).toStrictEqual({});
 		// @ts-ignore - private property
 		expect(store.overrides).toStrictEqual(config.overrides);
 		expect(store.variables).toStrictEqual(config.variables);
@@ -109,7 +146,7 @@ describe('ThemeStore', () => {
 		expect(store.innerWidth).toBe(config.innerWidth);
 
 		expect(store.theme).toStrictEqual({
-			...config.base,
+			...withPrefixedBase(config.base),
 			name: config.name,
 			activeBreakpoint: 'mobile',
 		});
@@ -134,13 +171,53 @@ describe('ThemeStore', () => {
 		expect(store.editorOverrides).toStrictEqual(editorOverride2);
 
 		// order here matches order merged via theme() getter (editorOverrides not applied when editMode=false)
-		const merged = mergeThemeLayers(config.base, currency, language);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), currency, language);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
 			name: config.name,
 			activeBreakpoint: 'mobile',
 		});
+	});
+
+	it('does not mutate the shared input base theme (prefixes into a ThemeStore-owned copy)', () => {
+		const sharedBase: ThemeComplete = {
+			name: 'shared',
+			type: 'templates',
+			variables: testThemeVariables,
+			components: {
+				results: { columns: 5 },
+			},
+			responsive: {
+				mobile: { results: { columns: 1 } },
+			},
+		};
+
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: sharedBase,
+			overrides: {},
+			variables: {},
+			currency: {},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		// build TWO stores from the same shared base (mirrors a local theme and a library theme
+		// both extending the same library base object)
+		const storeA = new ThemeStore({ config, dependencies, settings });
+		const storeB = new ThemeStore({ config, dependencies, settings });
+
+		// the shared input base is left pristine — its selector keys are NOT prefixed
+		expect(sharedBase.components).toStrictEqual({ results: { columns: 5 } });
+		expect(sharedBase.responsive).toStrictEqual({ mobile: { results: { columns: 1 } } });
+
+		// both stores independently produce the prefixed runtime theme
+		expect(storeA.theme.components).toHaveProperty('*results');
+		expect(storeB.theme.components).toHaveProperty('*results');
+		expect((storeA.theme.components as any)['*results']).toEqual({ columns: 5 });
 	});
 
 	it('updates activeBreakpoint correctly', () => {
@@ -185,6 +262,43 @@ describe('ThemeStore', () => {
 		expect(store.theme.activeBreakpoint).toStrictEqual('default');
 	});
 
+	it('does not rebuild the theme on a within-band resize (reference-stable), but does across a band change', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {},
+			variables: {},
+			currency: {},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 800, // desktop band (breakpoints mobile:420, tablet:720, desktop:1440)
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+
+		// keep the `theme` computed observed so mobx memoizes it (mirrors the TemplateSelect observer)
+		const dispose = autorun(() => void store.theme);
+
+		const t1 = store.theme;
+		expect(t1.activeBreakpoint).toBe('desktop');
+
+		// resize within the same band -> same theme object reference (no rebuild)
+		store.setInnerWidth(900);
+		const t2 = store.theme;
+		expect(store.innerWidth).toBe(900);
+		expect(t2).toBe(t1);
+		expect(t2.activeBreakpoint).toBe('desktop');
+
+		// resize across a band boundary -> a new theme object (genuine rebuild)
+		store.setInnerWidth(500); // tablet
+		const t3 = store.theme;
+		expect(t3).not.toBe(t1);
+		expect(t3.activeBreakpoint).toBe('tablet');
+
+		dispose();
+	});
+
 	it('can get theme', () => {
 		const config: ThemeStoreThemeConfig = {
 			name: GLOBAL_THEME_NAME,
@@ -201,7 +315,7 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -241,7 +355,7 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -285,7 +399,9 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!, { variables: config.variables });
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!, {
+			variables: config.variables,
+		});
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -341,7 +457,9 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!, { variables: config.variables });
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!, {
+			variables: config.variables,
+		});
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -372,18 +490,13 @@ describe('ThemeStore', () => {
 
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const baseResponsiveOverrides = config.base.responsive?.mobile!;
+		const pb = withPrefixedBase(config.base);
+		const baseResponsiveOverrides = pb.responsive?.mobile!;
 
 		expect(baseResponsiveOverrides).toBeDefined();
 
 		// order here matches order merged via theme() getter
-		const merged = mergeThemeLayers(
-			config.base,
-			{ components: baseResponsiveOverrides as ThemePartial },
-			config.currency,
-			config.language,
-			config.overrides!
-		);
+		const merged = mergeThemeLayers(pb, { components: baseResponsiveOverrides as ThemePartial }, config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -414,7 +527,7 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const merged = mergeThemeLayers(config.base, config.currency, config.language, config.overrides!);
+		const merged = mergeThemeLayers(withPrefixedBase(config.base), config.currency, config.language, config.overrides!);
 
 		expect(store.theme).toStrictEqual({
 			...merged,
@@ -453,19 +566,20 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings });
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const baseResponsiveOverrides = config.base.responsive?.mobile!;
+		const pb = withPrefixedBase(config.base);
+		const baseResponsiveOverrides = pb.responsive?.mobile!;
 		expect(baseResponsiveOverrides).toBeDefined();
 
-		const additionalResponsiveOverrides = config.overrides?.responsive?.mobile!;
+		const additionalResponsiveOverrides = withPrefixedOverrides(config.overrides!).responsive?.mobile!;
 		expect(additionalResponsiveOverrides).toBeDefined();
 
 		// order here matches order merged via theme() getter
 		const merged = mergeThemeLayers(
-			config.base,
+			pb,
 			{ components: baseResponsiveOverrides },
 			config.currency,
 			config.language,
-			config.overrides!,
+			withPrefixedOverrides(config.overrides!),
 			{ components: additionalResponsiveOverrides },
 			{ variables: config.variables }
 		);
@@ -519,10 +633,11 @@ describe('ThemeStore', () => {
 		const store = new ThemeStore({ config, dependencies, settings: { editMode: true } });
 		expect(store.innerWidth).toBe(config.innerWidth);
 
-		const baseResponsiveOverrides = config.base.responsive?.mobile!;
+		const pb = withPrefixedBase(config.base);
+		const baseResponsiveOverrides = pb.responsive?.mobile!;
 		expect(baseResponsiveOverrides).toBeDefined();
 
-		const additionalResponsiveOverrides = config.overrides?.responsive?.mobile!;
+		const additionalResponsiveOverrides = withPrefixedOverrides(config.overrides!).responsive?.mobile!;
 		expect(additionalResponsiveOverrides).toBeDefined();
 
 		store.setEditorOverrides({ components: { results: { columns: 12 } } });
@@ -531,11 +646,11 @@ describe('ThemeStore', () => {
 		// mergeThemeLayers(base, baseResponsive, currency, language, overrides, overridesResponsive, variables, editor)
 
 		const merged = mergeThemeLayers(
-			config.base,
+			pb,
 			{ components: baseResponsiveOverrides },
 			config.currency,
 			config.language,
-			config.overrides!,
+			withPrefixedOverrides(config.overrides!),
 			{ components: additionalResponsiveOverrides },
 			{ variables: config.variables },
 			store.editorOverrides
@@ -619,6 +734,350 @@ describe('ThemeStore', () => {
 		const themeStore = new ThemeStore({ config, dependencies, settings });
 
 		expect(themeStore.theme.variables?.breakpoints).toStrictEqual(config.variables?.breakpoints);
+	});
+
+	it('prefixes comma-separated selectors correctly in base and overrides', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: {
+				name: 'test',
+				type: 'templates',
+				variables: testThemeVariables,
+				components: {
+					'search icon, recommendation icon': {
+						size: 12,
+					},
+				},
+				responsive: {
+					mobile: {
+						'results icon, pagination icon': {
+							size: 13,
+						},
+					},
+				},
+			},
+			overrides: {
+				components: {
+					'search results,recommendation results': {
+						columns: 4,
+					},
+				} as any,
+				responsive: {
+					mobile: {
+						'search icon,recommendation icon': {
+							size: 8,
+						},
+					} as any,
+				},
+			},
+			variables: {},
+			currency: {},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+		const theme = store.theme;
+
+		// Base components should be prefixed with '*' on each selector part, normalized to ', '
+		expect(theme.components).toHaveProperty('*search icon, *recommendation icon');
+		expect((theme.components as any)['*search icon, *recommendation icon']).toEqual({ size: 12 });
+
+		// Base responsive mobile should be prefixed with '*(M)' on each selector part
+		expect(theme.components).toHaveProperty('*(M)results icon, *(M)pagination icon');
+		expect((theme.components as any)['*(M)results icon, *(M)pagination icon']).toEqual({ size: 13 });
+
+		// Override responsive mobile should be prefixed with '(M)' on each selector part, normalized from 'a,b' to 'a, b'
+		expect(theme.components).toHaveProperty('(M)search icon, (M)recommendation icon');
+		expect((theme.components as any)['(M)search icon, (M)recommendation icon']).toEqual({ size: 8 });
+
+		// Override components (no responsive) should NOT be prefixed (user overrides at default breakpoint have no prefix)
+		expect(theme.components).toHaveProperty('search results, recommendation results');
+		expect((theme.components as any)['search results, recommendation results']).toEqual({ columns: 4 });
+	});
+
+	describe('$children cascading overrides', () => {
+		it('flattens a single-level $children entry, scoped to the parent selector', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						search: {
+							hideMiddleToolbar: true,
+							$children: {
+								'facet.price icon, facet.color icon': {
+									icon: 'cog',
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			// the parent's own props survive, with $children stripped off
+			expect((theme.components as any)['search']).toMatchObject({ hideMiddleToolbar: true });
+			expect((theme.components as any)['search']).not.toHaveProperty('$children');
+
+			// the nested selector is hoisted to a sibling key, scoped per comma part
+			// (array form: the key itself contains literal '.' characters, which toHaveProperty's
+			// string form would otherwise parse as a nested path)
+			expect(theme.components).toHaveProperty(['search facet.price icon, search facet.color icon']);
+			expect((theme.components as any)['search facet.price icon, search facet.color icon']).toEqual({ icon: 'cog' });
+		});
+
+		it('cross-products a comma-separated parent key with $children selectors', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						'search, recommendation.crosssell': {
+							$children: {
+								'icon.next, icon.prev': {
+									size: 10,
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			expect(theme.components).toHaveProperty([
+				'search icon.next, search icon.prev, recommendation.crosssell icon.next, recommendation.crosssell icon.prev',
+			]);
+			expect(
+				(theme.components as any)['search icon.next, search icon.prev, recommendation.crosssell icon.next, recommendation.crosssell icon.prev']
+			).toEqual({ size: 10 });
+		});
+
+		it('cascades cumulatively through multiple levels of nesting', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						search: {
+							$children: {
+								results: {
+									$children: {
+										'result.default': {
+											$children: {
+												price: {
+													color: 'red',
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			expect(theme.components).toHaveProperty(['search results result.default price']);
+			expect((theme.components as any)['search results result.default price']).toEqual({ color: 'red' });
+		});
+
+		it('resolves $children in base theme components (prefixed with *) and override components (unprefixed) independently', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: {
+					name: 'test',
+					type: 'templates',
+					variables: testThemeVariables,
+					components: {
+						search: {
+							$children: {
+								icon: { size: 20 },
+							},
+						},
+					} as any,
+					responsive: {},
+				},
+				overrides: {
+					components: {
+						search: {
+							$children: {
+								icon: { size: 30 },
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			expect(theme.components).toHaveProperty('*search icon');
+			expect((theme.components as any)['*search icon']).toEqual({ size: 20 });
+			expect(theme.components).toHaveProperty('search icon');
+			expect((theme.components as any)['search icon']).toEqual({ size: 30 });
+		});
+
+		it('last-wins (shallow merge) when a $children-derived key collides with a literal sibling key', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						'search icon': {
+							size: 5,
+						},
+						search: {
+							$children: {
+								icon: {
+									size: 99,
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			// 'search' is processed after 'search icon' (object key order), so its $children-derived
+			// entry is the one that wins — documents existing last-wins object-literal semantics.
+			expect((theme.components as any)['search icon']).toEqual({ size: 99 });
+		});
+
+		it('resolves $children under responsive breakpoint overrides, in base and overrides independently', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: {
+					name: 'test',
+					type: 'templates',
+					variables: testThemeVariables,
+					components: {},
+					responsive: {
+						mobile: {
+							search: {
+								$children: {
+									icon: { size: 8 },
+								},
+							},
+						} as any,
+					},
+				},
+				overrides: {
+					responsive: {
+						mobile: {
+							search: {
+								$children: {
+									icon: { size: 9 },
+								},
+							},
+						} as any,
+					},
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 375, // within the mobile breakpoint band
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const theme = store.theme;
+
+			// base responsive: prefixed '*(M)' on the flattened key, same as a hand-authored '*(M)search icon'
+			expect(theme.components).toHaveProperty('*(M)search icon');
+			expect((theme.components as any)['*(M)search icon']).toEqual({ size: 8 });
+
+			// override responsive: prefixed '(M)' on the flattened key
+			expect(theme.components).toHaveProperty('(M)search icon');
+			expect((theme.components as any)['(M)search icon']).toEqual({ size: 9 });
+		});
+
+		it('the flattened $children selector actually matches its intended treePath through mergeProps, and not an unrelated one', () => {
+			const config: ThemeStoreThemeConfig = {
+				name: GLOBAL_THEME_NAME,
+				type: 'local',
+				base: testTheme,
+				overrides: {
+					components: {
+						search: {
+							$children: {
+								'facet.price icon, facet.color icon': {
+									icon: 'cog',
+								},
+							},
+						},
+					} as any,
+				},
+				variables: {},
+				currency: {},
+				language: {},
+				languageOverrides: {},
+				innerWidth: 0,
+			};
+
+			const store = new ThemeStore({ config, dependencies, settings });
+			const globalTheme = store.theme;
+
+			// matches: an icon rendered as a descendant of 'facet.price' under 'search'
+			const priceIconProps = mergeProps('icon', globalTheme, {}, { treePath: 'search facet.price' } as any);
+			expect((priceIconProps as any).icon).toBe('cog');
+
+			// matches: the other comma part, 'facet.color'
+			const colorIconProps = mergeProps('icon', globalTheme, {}, { treePath: 'search facet.color' } as any);
+			expect((colorIconProps as any).icon).toBe('cog');
+
+			// does NOT match: a differently-named facet icon (proves the override is scoped to
+			// 'facet.price'/'facet.color' specifically, not every icon under every facet)
+			const sizeIconProps = mergeProps('icon', globalTheme, {}, { treePath: 'search facet.size' } as any);
+			expect((sizeIconProps as any).icon).toBeUndefined();
+
+			// does NOT match: same facet name, but outside 'search' (proves the ancestor-scoping
+			// from nesting under `search.$children` actually applied, not a global 'facet.price icon')
+			const unscoped = mergeProps('icon', globalTheme, {}, { treePath: 'recommendation facet.price' } as any);
+			expect((unscoped as any).icon).toBeUndefined();
+		});
 	});
 });
 
