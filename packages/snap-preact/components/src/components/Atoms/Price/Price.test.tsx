@@ -22,6 +22,58 @@ describe('Price Component', () => {
 		expect(styles.textDecoration).toBe('line-through');
 	});
 
+	it('does not render the currency code by default', () => {
+		const rendered = render(<Price value={1099.99} code={'USD'} />);
+		expect(rendered.container.querySelector('.ss__price__code')).not.toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__price')?.textContent).toBe('$1,099.99');
+	});
+
+	it('renders the currency code after the amount when showCode is enabled', () => {
+		const rendered = render(<Price value={1099.99} code={'USD'} showCode={true} />);
+		const codeElement = rendered.container.querySelector('.ss__price__code');
+		expect(codeElement).toBeInTheDocument();
+		expect(codeElement?.textContent).toBe('USD');
+		// separated by a non-breaking space so the amount and code stay on one line
+		expect(rendered.container.querySelector('.ss__price')?.textContent).toBe('$1,099.99\u00A0USD');
+	});
+
+	it('renders a trailing symbol and a trailing code together', () => {
+		const args = {
+			value: 1099.99,
+			symbol: 'kr',
+			symbolAfter: true,
+			thousandsSeparator: ' ',
+			decimalSeparator: ',',
+			code: 'SEK',
+			showCode: true,
+		};
+		const rendered = render(<Price {...args} />);
+		expect(rendered.container.querySelector('.ss__price')?.textContent).toBe('1 099,99kr\u00A0SEK');
+	});
+
+	it('does not render the currency code when a format function is supplied', () => {
+		const rendered = render(<Price value={1099.99} code={'USD'} showCode={true} format={() => 'CUSTOM'} />);
+		expect(rendered.container.querySelector('.ss__price__code')).not.toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__price')?.textContent).toBe('CUSTOM');
+	});
+
+	it('takes the currency code from the theme', () => {
+		const theme = {
+			components: {
+				price: {
+					code: 'EUR',
+					showCode: true,
+				},
+			},
+		};
+		const rendered = render(
+			<ThemeProvider theme={theme}>
+				<Price value={1099.99} />
+			</ThemeProvider>
+		);
+		expect(rendered.container.querySelector('.ss__price__code')?.textContent).toBe('EUR');
+	});
+
 	it('has default custom options', () => {
 		const args = {
 			value: 1099.99,
