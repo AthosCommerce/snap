@@ -193,6 +193,9 @@ type HiddenFromSuggestions<T> = T & { __hiddenFromSuggestions?: never };
 // editors suggest only the uppercase codes
 export type CurrencyCodeInput = Uppercase<CurrencyCodes> | HiddenFromSuggestions<CurrencyCodes>;
 export type LanguageCodeInput = Uppercase<LanguageCodes> | HiddenFromSuggestions<LanguageCodes>;
+export type CodeKeyed<Codes extends string, Value> = { [code in Uppercase<Codes>]?: Value } & {
+	[code in `${Codes}${Uppercase<string>}`]?: Value;
+};
 
 export class LibraryStore {
 	themes: {

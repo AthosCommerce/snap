@@ -12,7 +12,7 @@ import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
 import { TabManagerStore } from './TabManagerStore';
-import { CurrencyCodes, CurrencyCodeInput, LanguageCodes, LanguageCodeInput, LibraryImports, LibraryStore } from './LibraryStore';
+import { CodeKeyed, CurrencyCodes, CurrencyCodeInput, LanguageCodes, LanguageCodeInput, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
 import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, AbstractController, TabConfig } from '@athoscommerce/snap-controller';
 import type {
@@ -202,12 +202,8 @@ export type TemplatesStoreConfigLocked = {
 		client?: ClientConfig;
 	};
 	plugins?: PluginsConfigsLocked;
-	translations?: {
-		[languageName in Uppercase<LanguageCodes> | LanguageCodes]?: LangComponentOverrides;
-	};
-	currencies?: {
-		[currencyName in Uppercase<CurrencyCodes> | CurrencyCodes]?: ThemeComponentsRestricted;
-	};
+	translations?: CodeKeyed<LanguageCodes, LangComponentOverrides>;
+	currencies?: CodeKeyed<CurrencyCodes, ThemeComponentsRestricted>;
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
 		tabs?: TemplatesSearchTabConfigLocked[];
@@ -249,9 +245,7 @@ export type TemplatesStoreConfigUnlocked = Omit<
 	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'recommendation' | 'currencies'
 > & {
 	unlocked: true;
-	currencies?: {
-		[currencyName in Uppercase<CurrencyCodes> | CurrencyCodes]?: ThemeComponentsRestrictedWithCustomComponent;
-	};
+	currencies?: CodeKeyed<CurrencyCodes, ThemeComponentsRestrictedWithCustomComponent>;
 	theme: TemplatesStoreThemeConfigUnlocked;
 	components?: TemplateStoreComponentConfigUnlocked;
 	plugins?: PluginsConfigsUnlocked;
