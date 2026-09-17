@@ -12,8 +12,6 @@ import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { LangAttributes } from '../../../hooks/useLang';
 
-// Pointer travel (px) past which a press is treated as a drag rather than a click.
-
 const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, slideWidth, gap = 16, overlayNavigation = false, showNavigation }) => {
 	return css({
 		position: 'relative',
