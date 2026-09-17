@@ -458,6 +458,32 @@ describe('Slideshow Component', () => {
 			// starting a drag cancels autoplay outright rather than pausing it
 			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
 		});
+
+		it('continues from the current on-screen position when a drag interrupts an in-flight transition', () => {
+			// jsdom's getBoundingClientRect always returns zeros, so fake it to simulate a real
+			// browser mid-transition: the track sits at -240px relative to its parent, while its
+			// currentIndex-based resting position would be 0px.
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} dragThreshold={50} />);
+			const track = getTrack(rendered) as HTMLElement;
+			const container = track.parentElement as HTMLElement;
+
+			const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+			HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+				if (this === track) return { left: -240 } as DOMRect;
+				if (this === container) return { left: 0 } as DOMRect;
+				return originalGetBoundingClientRect.call(this);
+			};
+
+			try {
+				touchStart(track, 300);
+
+				// Must pick up from the mocked mid-transition position, not jump to the
+				// currentIndex-based resting position that killing the transition would snap to.
+				expect(track.style.transform).toBe('translateX(-240px)');
+			} finally {
+				HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+			}
+		});
 	});
 
 	describe('Auto-play Functionality', () => {
@@ -516,6 +542,27 @@ describe('Slideshow Component', () => {
 	});
 
 	describe('Clickable Images', () => {
+		// jsdom reports offsetWidth as 0, which collapses the navigation threshold to 0 and
+		// makes every drag gesture count as a navigating drag - stub a real width so the
+		// click-suppression threshold reflects realistic slide geometry.
+		let offsetWidthDescriptor: PropertyDescriptor | undefined;
+
+		beforeEach(() => {
+			offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+			Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+				configurable: true,
+				get() {
+					return 1000;
+				},
+			});
+		});
+
+		afterEach(() => {
+			if (offsetWidthDescriptor) {
+				Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
+			}
+		});
+
 		it('calls onClick handler when image is clicked', async () => {
 			const mockOnClick = jest.fn();
 			const clickableImage: SlideshowSlide = {
@@ -579,6 +626,93 @@ describe('Slideshow Component', () => {
 			fireEvent.mouseUp(document);
 			fireEvent.click(clickableSlide);
 			expect(mockOnClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('respects a custom dragClickThreshold', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+				dragClickThreshold: 20,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// 10px of movement is below the custom 20px threshold, so this still counts as a click.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseMove(document, { clientX: 110 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('suppresses the trailing click when a drag is small enough to navigate but below dragClickThreshold', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+				// dragThreshold (5) is much smaller than the default dragClickThreshold (10), so a
+				// 6px drag clears the navigation threshold while staying under the click threshold.
+				dragThreshold: 5,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			fireEvent.mouseDown(track, { clientX: 200 });
+			fireEvent.mouseMove(document, { clientX: 194 });
+			fireEvent.mouseUp(document);
+
+			// The drag was large enough to navigate, so the trailing click must not also fire onClick.
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).not.toHaveBeenCalled();
+		});
+
+		it('does not double-navigate when the mouse is released over the track', () => {
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg' }, { src: 'b.jpg' }, { src: 'c.jpg' }, { src: 'd.jpg' }],
+				slidesToShow: 1,
+				dragThreshold: 5,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+
+			fireEvent.mouseDown(track, { clientX: 200 });
+			fireEvent.mouseMove(document, { clientX: 150 });
+			// Releasing over the track lets the mouseup bubble through both the track's own
+			// handler and the document-level handler added while dragging - it must still
+			// only advance the slide index once, not twice.
+			fireEvent.mouseUp(track, { clientX: 150 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 4');
+		});
+
+		it('navigates when the mouse is released outside the track (e.g. a fast swipe past the edge)', () => {
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg' }, { src: 'b.jpg' }, { src: 'c.jpg' }, { src: 'd.jpg' }],
+				slidesToShow: 1,
+				dragThreshold: 5,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+
+			fireEvent.mouseDown(track, { clientX: 200 });
+			// A drag that ends with the cursor off the track only reaches the document-level
+			// mouseup listener (never the track's own handler), so this exercises that path in
+			// isolation - it must still see the final position, not the one from mousedown.
+			fireEvent.mouseMove(document, { clientX: 150 });
+			fireEvent.mouseUp(document, { clientX: 150 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 4');
 		});
 
 		it('mixes clickable and non-clickable images', () => {
