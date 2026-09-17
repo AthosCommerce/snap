@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+### Bug Fixes
+
+- adjusted mergeprops to address storybook prop issue ([9d02488](https://github.com/AthosCommerce/snap/commit/9d02488e5bcc10610f5c0ef4a1ee038428a01de4))
+- adjusting themestore for optimization around activeBreakpoint ([e489043](https://github.com/AthosCommerce/snap/commit/e48904347dbbce727f3825ecf2a998e6460dbcb9))
+- **eslint:** don't cache failed type resolutions in validate-config rule ([aecc710](https://github.com/AthosCommerce/snap/commit/aecc7103ec23d0b3f97b0f556786d997da9b313f))
+- **eslint:** pin TSESTREE_SINGLE_RUN=false in typed-lint tests - CI=true triggered single-run program lifecycle ([5677de3](https://github.com/AthosCommerce/snap/commit/5677de360998f54953e2f82ffdef789468407fa5))
+- marking a couple of illegal props for Select ([0af4c35](https://github.com/AthosCommerce/snap/commit/0af4c350682b46394e9f2b077a5a0bc078ba7916))
+- **mergeprops:** bugfix for storybook prop merging order ([24c5147](https://github.com/AthosCommerce/snap/commit/24c5147a9d077a8733a5bf9a5258cbad0c5fe490))
+- **themecomponents:** remove customComponent support for result component ([2483964](https://github.com/AthosCommerce/snap/commit/24839642eac3bdf25a9a83267087942c95896c8c))
+
+### Features
+
+- **currency plugin:** adding shopify currency plugin, and adding currency overrides ([c29892b](https://github.com/AthosCommerce/snap/commit/c29892bec4190133521d7ff6c16b4132c4bc5719))
+- enforce a single component type for comma-separated override selectors ([583be1c](https://github.com/AthosCommerce/snap/commit/583be1ca413a8461d8f2a6d8bdd6fede909c6c54))
+- **eslint:** advisory typed-lint squiggles pinpointing invalid selectors, props, and config keys ([2e9cbf1](https://github.com/AthosCommerce/snap/commit/2e9cbf135a5b5d2218b29855846eff7b6b97043b))
+- **slideshow:** removing unwanted styling and adding new prop for dragclickthreshhold ([7fe1874](https://github.com/AthosCommerce/snap/commit/7fe1874a924b08267cc4dc17b523201202fdc6f8))
+- **snap:** adding ability to target children in templates overrides, as well as comma separated overrides ([049ddca](https://github.com/AthosCommerce/snap/commit/049ddca3a00a82da8b7fda627b6d09aa7a8a9763))
+- **templates:** adding support for comma seperated ccp overrides ([8fc5644](https://github.com/AthosCommerce/snap/commit/8fc56449bd7259716fcfc285e2f08241d8cf1a79))
+
+### Reverts
+
+- Revert "debug(eslint): temporarily unsilence jest + log CI-only open-named-selector failure" ([d72dd5d](https://github.com/AthosCommerce/snap/commit/d72dd5d865249aae8e9cd2f0e176432202db5204))
+- Revert "debug(eslint): log key-existence check and isTypeAssignableTo outcome" ([8a5cc13](https://github.com/AthosCommerce/snap/commit/8a5cc13d882d98e508c2168ece0864f6614a737b))
+- Revert "debug(eslint): log failedLookupLocations and paths/baseUrl on module-resolution miss" ([4a55768](https://github.com/AthosCommerce/snap/commit/4a5576890374d1350462aa6a3fc8eb2fbd096da3))
+
 # [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
 
 ### Bug Fixes
