@@ -68,10 +68,38 @@ module.exports = [
 		},
 	},
 	{
+		// Only these files actually author `theme.overrides` config today. Typed linting
+		// (parserOptions.project) is scoped narrowly here, not onto the broad **/index.ts
+		// glob above, since it requires building a real ts.Program for every matching file -
+		// fine for a couple of app entry points, wasteful across the whole monorepo's ~150
+		// index.ts/tsx barrel files. It powers validate-config's ADVISORY typed checks
+		// (inline squiggles on bad theme-override selectors/props at the exact location);
+		// correctness does not depend on it - the compiler enforces the same rules through
+		// validateTemplatesConfig's conditional return type. Without typed linting those
+		// squiggles silently no-op - see eslint/src/validate-config.cjs.
+		files: ['packages/snap-preact-demo/*/src/index.{ts,tsx}'],
+		languageOptions: {
+			parserOptions: {
+				project: './packages/snap-preact-demo/tsconfig.json',
+				tsconfigRootDir: __dirname,
+			},
+		},
+	},
+	{
 		// build-time webpack helpers consumed via require() by project webpack configs — must remain CommonJS
 		files: ['packages/snap-preact/webpack/**/*.js'],
 		languageOptions: {
 			sourceType: 'script',
+		},
+		rules: {
+			'@typescript-eslint/no-require-imports': 'off',
+		},
+	},
+	{
+		// .cjs files are CommonJS by definition — require() is their import mechanism
+		files: ['**/*.cjs'],
+		languageOptions: {
+			sourceType: 'commonjs',
 		},
 		rules: {
 			'@typescript-eslint/no-require-imports': 'off',

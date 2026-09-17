@@ -1853,7 +1853,9 @@ describe('globalResultComponent configuration', () => {
 		new SnapTemplates(config);
 
 		// Internally this is represented as a global result customComponent override.
-		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		// `result` deliberately has no public `customComponent` override type (it would bypass built-in
+		// impression tracking), so this internal representation can only be read back via `any`.
+		expect((config.theme.overrides?.default?.result as any)?.customComponent).toBe('CustomResult');
 	});
 
 	it('should merge global result renderer with existing overrides', () => {
@@ -1875,7 +1877,7 @@ describe('globalResultComponent configuration', () => {
 
 		new SnapTemplates(config);
 
-		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect((config.theme.overrides?.default?.result as any)?.customComponent).toBe('CustomResult');
 		expect((config.theme.overrides?.default?.['recommendation.similar'] as any)?.slidesPerView).toBe(3);
 	});
 
@@ -1888,9 +1890,11 @@ describe('globalResultComponent configuration', () => {
 				globalResultComponent: 'GlobalResult',
 				overrides: {
 					default: {
+						// `result.customComponent` is not part of the public override type (see themeComponents.ts) -
+						// this simulates the internal representation `globalResultComponent` produces, to test merge precedence.
 						result: {
 							customComponent: 'SpecificResult',
-						},
+						} as any,
 					},
 				},
 			},
@@ -1899,7 +1903,7 @@ describe('globalResultComponent configuration', () => {
 		new SnapTemplates(config);
 
 		// The specific override should take precedence over the global one (because it's merged second)
-		expect(config.theme.overrides?.default?.result?.customComponent).toBe('SpecificResult');
+		expect((config.theme.overrides?.default?.result as any)?.customComponent).toBe('SpecificResult');
 	});
 
 	it('should apply globalResultComponent without overrides object', () => {
@@ -1914,7 +1918,7 @@ describe('globalResultComponent configuration', () => {
 
 		new SnapTemplates(config);
 
-		expect(config.theme.overrides?.default?.result?.customComponent).toBe('CustomResult');
+		expect((config.theme.overrides?.default?.result as any)?.customComponent).toBe('CustomResult');
 		expect(config.theme.overrides?.default).toBeDefined();
 	});
 
