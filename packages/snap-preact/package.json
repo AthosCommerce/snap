@@ -1,6 +1,6 @@
 {
 	"name": "@athoscommerce/snap-preact",
-	"version": "1.9.1",
+	"version": "1.12.0",
 	"description": "Snap Preact",
 	"main": "dist/cjs/src/index.js",
 	"module": "dist/esm/src/index.js",
@@ -16,7 +16,7 @@
 	},
 	"scripts": {
 		"build": "rm -rf ./dist && tsc",
-		"build:prod": "rm -rf ./dist ./components/dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
+		"build:prod": "rm -rf ./dist && rm -rf ./components/dist && (tsc & p1=$!; tsc -p tsconfig.cjs.json & p2=$!; wait $p1 && wait $p2)",
 		"build:docs": "typedoc --out docs src/index.ts && storybook build -c ./components/.storybook -o ./components/docs",
 		"cypress": "cypress open --project components/tests",
 		"cypress:headless": "cypress run --component --project components/tests",
@@ -28,24 +28,24 @@
 		"storybook": "storybook dev -c ./components/.storybook -p 6006"
 	},
 	"dependencies": {
-		"acorn": "8.16.0",
-		"@athoscommerce/snap-client": "1.9.1",
-		"@athoscommerce/snap-controller": "1.9.1",
-		"@athoscommerce/snap-event-manager": "1.9.1",
-		"@athoscommerce/snap-logger": "1.9.1",
-		"@athoscommerce/snap-platforms": "1.9.1",
-		"@athoscommerce/snap-profiler": "1.9.1",
-		"@athoscommerce/snap-store-mobx": "1.9.1",
-		"@athoscommerce/snap-toolbox": "1.9.1",
-		"@athoscommerce/snap-tracker": "1.9.1",
-		"@athoscommerce/snap-url-manager": "1.9.1",
+		"@athoscommerce/snap-client": "1.12.0",
+		"@athoscommerce/snap-controller": "1.12.0",
+		"@athoscommerce/snap-event-manager": "1.12.0",
+		"@athoscommerce/snap-logger": "1.12.0",
+		"@athoscommerce/snap-platforms": "1.12.0",
+		"@athoscommerce/snap-profiler": "1.12.0",
+		"@athoscommerce/snap-store-mobx": "1.12.0",
+		"@athoscommerce/snap-toolbox": "1.12.0",
+		"@athoscommerce/snap-tracker": "1.12.0",
+		"@athoscommerce/snap-url-manager": "1.12.0",
 		"@emotion/react": "11.13.0",
+		"acorn": "8.16.0",
 		"classnames": "^2.3.2",
 		"colord": "^2.9.3",
 		"deepmerge": "4.3.1",
 		"dequal": "2.0.3",
 		"intersection-observer": "0.12.2",
-		"is-plain-object": "5.0.0",
+		"is-plain-object": "5.1.0",
 		"react-ranger": "2.1.0",
 		"swiper": "11.0.7"
 	},
@@ -63,8 +63,7 @@
 		"@types/react-ranger": "2.0.4",
 		"@types/scheduler": "0.16.8",
 		"babel-loader": "9.1.3",
-		"cypress": "^13.7.1",
-		"cypress-wait-until": "^1.7.2",
+		"cypress": "^14.2.1",
 		"mobx": "6.15.1",
 		"mobx-react-lite": "4.1.1",
 		"preact": "10.28.4",
@@ -78,7 +77,8 @@
 	"sideEffects": false,
 	"files": [
 		"dist/**/*",
-		"webpack"
+		"webpack",
+		"eslint/src"
 	],
 	"exports": {
 		".": {
@@ -96,7 +96,8 @@
 			"import": "./dist/esm/toolbox/src/index.js",
 			"require": "./dist/cjs/toolbox/src/index.js"
 		},
-		"./webpack": "./webpack/index.js"
+		"./webpack": "./webpack/index.js",
+		"./eslintplugin": "./eslint/src/index.cjs"
 	},
 	"gitHead": "c31d6fae1461ef16d593321c312c94b85dad7d96"
 }

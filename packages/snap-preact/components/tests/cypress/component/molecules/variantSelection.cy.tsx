@@ -1,5 +1,5 @@
 import { VariantSelection } from '../../../../src/components/Molecules/VariantSelection';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { RecommendationStore, RecommendationStoreConfig, VariantSelection as VariantSelectionType } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Tracker } from '@athoscommerce/snap-tracker';
@@ -41,7 +41,7 @@ const controller = new RecommendationController(recommendConfig, {
 
 let selection: VariantSelectionType;
 
-describe('VariantSelection Component', async () => {
+describe('VariantSelection Component', () => {
 	before(() => {
 		cy.intercept('*recommend*', json);
 		cy.intercept('*profile*', profile);
@@ -69,8 +69,6 @@ describe('VariantSelection Component', async () => {
 			cy.get('.ss__variant-selection__option').should('not.have.length');
 
 			cy.get('.ss__dropdown__button-wrapper').click();
-
-			cy.wait(100);
 
 			cy.get('.ss__variant-selection__option').should('have.length', selection.values.length);
 		});

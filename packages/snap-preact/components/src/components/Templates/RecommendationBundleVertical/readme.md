@@ -96,7 +96,7 @@ The `ctaSlot` prop allows for a custom add to cart cta component to be rendered.
 ```tsx	
 	{ 
 		cartStore: CartStore;
-		onclick: (e:any) => void
+		onAddToCart: (e:any) => void
 	}
 ```
 

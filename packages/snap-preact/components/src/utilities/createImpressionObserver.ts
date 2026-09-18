@@ -10,10 +10,10 @@ export function createImpressionObserver(options?: UseIntersectionOptions): {
 } {
 	const ref = useRef<HTMLElement | null>(null);
 	const { inViewport, updateRef } = useIntersectionAdvanced(ref, {
-		...options,
 		fireOnce: true,
 		threshold: IMPRESSION_VISIBILITY_THRESHOLD,
 		minVisibleTime: IMPRESSION_MIN_VISIBLE_TIME,
+		...options,
 	});
 	return {
 		ref,

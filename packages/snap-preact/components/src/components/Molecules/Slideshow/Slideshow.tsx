@@ -62,8 +62,10 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 				height: '100%',
 				objectFit: 'cover',
 				display: 'block',
-				// Prevent image dragging
+				// pointer-events:none isn't fully reliable for blocking native image drag
+				// this plus draggable={false} below covers all browsers
 				pointerEvents: 'none',
+				WebkitUserDrag: 'none',
 			},
 		},
 
@@ -79,11 +81,6 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 
 		'.ss__slideshow__slide--clickable': {
 			cursor: 'pointer',
-
-			'&:hover img': {
-				opacity: 0.9,
-				transition: 'opacity 0.2s ease',
-			},
 
 			'&:focus-visible': {
 				outline: '2px solid #005fcc',
@@ -180,10 +177,12 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		centerInsufficientSlides: true,
 		slidesToShow: properties.slideWidth ? undefined : 4,
 		slidesToMove: 1,
+		startIndex: 0,
 		gap: 10,
 		ariaLabel: 'slideshow',
 		touchDragging: true,
 		dragThreshold: 50,
+		dragClickThreshold: 10,
 	};
 
 	const props = mergeProps('slideshow', globalTheme, defaultProps, properties);
@@ -205,10 +204,12 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		ariaLabelledBy,
 		disableStyles,
 		slideWidth,
+		startIndex,
 		gap,
 		treePath,
 		overlayNavigation,
 		dragThreshold,
+		dragClickThreshold,
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('slideshow', props);
@@ -223,6 +224,9 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		Image: {
 			// default props
 			fallback: fallbackImage,
+			// images are draggable by default in every browser
+			// a native image drag can hijack our custom drag and eat the mouseup
+			draggable: false,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -290,12 +294,17 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		slidesToMove = 1;
 	}
 
-	const [currentIndex, setCurrentIndex] = useState(0);
+	const [currentIndex, setCurrentIndex] = useState(startIndex ?? 0);
 	const [isPlaying, setIsPlaying] = useState(autoPlay);
 	const [containerWidth, setContainerWidth] = useState(0);
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const slideshowRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
+	// Tracks whether the pointer moved during the current press. The browser fires a `click`
+	// after a drag's `mouseup`, by which point `isDragging` state has already been reset — so a
+	// swipe would otherwise be treated as a click (e.g. opening a lightbox). This synchronous ref
+	// lets `handleSlideClick` suppress that trailing click.
+	const hasDraggedRef = useRef(false);
 
 	// Track container width for slideWidth-based visible slide calculation
 	useEffect(() => {
@@ -315,9 +324,17 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Touch/Drag state
 	const [isDragging, setIsDragging] = useState(false);
-	const [startX, setStartX] = useState(0);
-	const [currentX, setCurrentX] = useState(0);
+	// refs, not state - only read inside the drag handlers, never in render
+	// the document mouseup listener below is bound once per drag, so its closure goes stale
+	// refs stay current even from that stale closure, state would not
+	const startXRef = useRef(0);
+	const currentXRef = useRef(0);
 	const [dragOffset, setDragOffset] = useState(0);
+	// the track's on-screen translateX (px) captured when the current drag began
+	// starting a drag turns off the CSS transition immediately
+	// without this, interrupting an in-flight transition would snap the track to its target
+	// null means there's no drag in progress
+	const dragBaseTranslatePxRef = useRef<number | null>(null);
 
 	// Normalize slides to SlideshowSlide format
 	const normalizedSlides: SlideshowSlide[] = slides.map((slide, index) => {
@@ -351,6 +368,23 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		slideWidth && containerWidth > 0 ? Math.max(1, Math.floor(containerWidth / (slideWidth + (gap ?? 0)))) : slidesToShow ?? 4;
 	const visibleSlides = Math.min(computedSlidesToShow, totalSlides);
 	const maxIndex = Math.max(0, totalSlides - visibleSlides);
+
+	// Navigate to startIndex when it changes (e.g. a consumer syncing the active slide to external
+	// state), clamped to the valid range. Updates the index in place rather than remounting.
+	// maxIndex must be a dependency: in slideWidth mode it is derived from the slidesToShow
+	// fallback until the container is measured (after the first render), so the mount-time clamp
+	// can land short and needs to re-run when the real value arrives. But once the requested
+	// startIndex has been satisfied the effect must go inert, or every resize that shifts
+	// maxIndex would yank the shopper back to startIndex mid-navigation.
+	const appliedStartIndexRef = useRef<number | undefined>(undefined);
+	useEffect(() => {
+		const target = Math.max(0, startIndex ?? 0);
+		if (appliedStartIndexRef.current === target) return;
+		setCurrentIndex(Math.min(target, maxIndex));
+		if (target <= maxIndex) {
+			appliedStartIndexRef.current = target;
+		}
+	}, [startIndex, maxIndex]);
 
 	// Calculate slide groups for pagination
 	const slideGroups: number[] = [];
@@ -395,14 +429,35 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		touchDragging = false;
 	}
 
+	// how far you need to drag before it counts as a navigation
+	// smaller of dragThreshold and 30% of a slide's width
+	const getNavigationThreshold = () => {
+		const trackContainerWidth = trackRef.current?.parentElement?.offsetWidth || 0;
+		const slideWidthPx = trackContainerWidth / visibleSlides;
+		return Math.min(dragThreshold!, slideWidthPx * 0.3);
+	};
+
 	// Touch/Mouse event handlers for dragging
 	const handleDragStart = (clientX: number) => {
 		if (!touchDragging) return;
 
+		// capture the track's actual current position, mid-transition or not
+		// the track has no margin and fills its parent's width
+		// so the gap between their left edges is exactly the current translateX in px
+		dragBaseTranslatePxRef.current = null;
+		if (trackRef.current?.parentElement) {
+			dragBaseTranslatePxRef.current = trackRef.current.getBoundingClientRect().left - trackRef.current.parentElement.getBoundingClientRect().left;
+		}
+
+		hasDraggedRef.current = false;
 		setIsPlaying(false);
 		setIsDragging(true);
-		setStartX(clientX);
-		setCurrentX(clientX);
+		// a previous drag's mouseup may never have arrived (e.g. a native image drag hijacked it)
+		// that would leave dragOffset stuck from that aborted drag
+		// reset it so this drag always starts clean, not stacked on stale movement
+		setDragOffset(0);
+		startXRef.current = clientX;
+		currentXRef.current = clientX;
 
 		// Pause autoplay during drag
 		if (intervalRef.current) {
@@ -413,17 +468,21 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	const handleDragMove = (clientX: number) => {
 		if (!isDragging || !touchDragging) return;
 
-		setCurrentX(clientX);
-		const diff = clientX - startX;
+		currentXRef.current = clientX;
+		const diff = clientX - startXRef.current;
+		// past a few pixels this counts as a drag, not a click
+		// flags it so the trailing click after mouseup doesn't fire onClick
+		// clamped to the nav threshold so a drag big enough to navigate is always flagged
+		if (Math.abs(diff) > Math.min(dragClickThreshold!, getNavigationThreshold())) {
+			hasDraggedRef.current = true;
+		}
 		setDragOffset(diff);
 	};
 
 	const handleDragEnd = () => {
 		if (!isDragging || !touchDragging) return;
-		const diff = currentX - startX;
-		const trackContainerWidth = trackRef.current?.parentElement?.offsetWidth || 0;
-		const slideWidthPx = trackContainerWidth / visibleSlides;
-		const threshold = Math.min(dragThreshold!, slideWidthPx * 0.3); // 30% of slide width or dragThreshold, whichever is smaller
+		const diff = currentXRef.current - startXRef.current;
+		const threshold = getNavigationThreshold();
 
 		if (Math.abs(diff) > threshold) {
 			if (diff > 0 && (loop || currentIndex > 0)) {
@@ -437,6 +496,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 		setIsDragging(false);
 		setDragOffset(0);
+		dragBaseTranslatePxRef.current = null;
 
 		// Resume autoplay if it was playing
 		if (isPlaying && normalizedSlides.length > computedSlidesToShow) {
@@ -502,7 +562,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Handle image click
 	const handleSlideClick = (slide: SlideshowSlide, index: number) => {
-		if (slide.onClick && !isDragging) {
+		if (slide.onClick && !isDragging && !hasDraggedRef.current) {
 			slide.onClick(slide, index);
 		}
 	};
@@ -511,7 +571,10 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	const handleSlideKeyDown = (event: KeyboardEvent, slide: SlideshowSlide, index: number) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			handleSlideClick(slide, index);
+
+			if (slide.onClick && !isDragging) {
+				slide.onClick(slide, index);
+			}
 		}
 	};
 
@@ -590,7 +653,12 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	let translateX: number;
 	let translateUnit: 'px' | '%';
 
-	if (slideWidth) {
+	if (isDragging && dragBaseTranslatePxRef.current !== null) {
+		// while dragging, move from the position captured in handleDragStart
+		// not from currentIndex, so an interrupted transition continues smoothly
+		translateX = dragBaseTranslatePxRef.current + dragOffset;
+		translateUnit = 'px';
+	} else if (slideWidth) {
 		// Fixed-width mode: translate by pixel amounts (slideWidth + gap per slide)
 		const slideStepPx = slideWidth + (gap ?? 0);
 		translateX = -(currentIndex * slideStepPx);
@@ -645,11 +713,15 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		isPlaying,
-		isNextDisabled,
-		isPrevDisabled,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			isPlaying,
+			isNextDisabled,
+			isPrevDisabled,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return (
 		<CacheProvider>
@@ -683,7 +755,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						aria-label={`Slide group ${currentIndex} of ${totalDots}`}
 						// Touch events
 						// @ts-ignore - touch events
-						onTouchStart={touchDragging ? (event) => handleDragStart(event.touches[0]) : undefined}
+						onTouchStart={touchDragging ? (event: TouchEvent) => handleDragStart(event.touches[0].clientX) : undefined}
 						// @ts-ignore - touch events
 						onTouchMove={
 							touchDragging
@@ -697,7 +769,10 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 								: undefined
 						}
 						onTouchEnd={touchDragging ? handleDragEnd : undefined}
-						// Mouse events (for desktop dragging)
+						// mouse events for desktop dragging
+						// move/up are handled by the document listeners below, not here
+						// that keeps the drag tracking even if the cursor leaves the track
+						// and avoids firing handleDragEnd twice on a release over the track
 						// @ts-ignore - mouse events
 						onMouseDown={
 							touchDragging
@@ -707,12 +782,6 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 								  }
 								: undefined
 						}
-						// Mouse events (for desktop dragging)
-						// @ts-ignore - mouse events
-						onMouseUp={touchDragging ? handleDragEnd : undefined}
-						// Mouse events (for desktop dragging)
-						// @ts-ignore - mouse events
-						onMouseMove={touchDragging ? handleMouseMove : undefined}
 					>
 						{normalizedSlides.map((slide, index) => {
 							const isVisible = index >= currentIndex && index < currentIndex + computedSlidesToShow;
@@ -730,12 +799,16 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 							//deep merge with props.lang
 							const slideLang = deepmerge(defaultLang, props.lang || {});
-							const slideLangObj = useLang(slideLang as any, {
-								hasClickHandler,
-								imageAlt,
-								index,
-								slidesLength: normalizedSlides.length,
-							});
+							const slideLangObj = useLang(
+								slideLang as any,
+								{
+									hasClickHandler,
+									imageAlt,
+									index,
+									slidesLength: normalizedSlides.length,
+								},
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
+							);
 
 							return (
 								<div
@@ -796,10 +869,14 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 							//deep merge with props.lang
 							const paginationLang = deepmerge(defaultLang, props.lang || {});
-							const paginationLangObj = useLang(paginationLang as any, {
-								index,
-								totalDots,
-							});
+							const paginationLangObj = useLang(
+								paginationLang as any,
+								{
+									index,
+									totalDots,
+								},
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
+							);
 							const selected = currentDotIndex === index;
 							const subpropsToUse = selected ? subProps.PaginationCurrentButton : subProps.PaginationButton;
 							return (
@@ -885,12 +962,14 @@ export type SlideshowTemplatesLegalProps = {
 	slidesToShow?: number;
 	slideWidth?: number;
 	slidesToMove?: number;
+	startIndex?: number;
 	gap?: number;
 	slideImageAlt?: string;
 	ariaLabel?: string;
 	ariaLabelledBy?: string;
 	touchDragging?: boolean;
 	dragThreshold?: number;
+	dragClickThreshold?: number;
 };
 
 interface SlideshowSubProps {

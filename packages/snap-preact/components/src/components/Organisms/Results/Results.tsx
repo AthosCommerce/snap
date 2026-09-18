@@ -165,7 +165,14 @@ export const Results = observer((properties: ResultsProps) => {
 					(() => {
 						switch (result.type) {
 							case ContentType.BANNER:
-								return <InlineBanner {...subProps.inlineBanner} key={result.id} banner={result as Banner} layout={props.layout} />;
+								return (
+									<InlineBanner
+										{...subProps.inlineBanner}
+										key={`${controller?.id ? `${controller?.id}-` : ''}${(result as Banner).id}`}
+										banner={result as Banner}
+										layout={props.layout}
+									/>
+								);
 							default:
 								if (shouldWaitForNamedResultComponent) {
 									return null;
@@ -174,7 +181,7 @@ export const Results = observer((properties: ResultsProps) => {
 									return (
 										<ResultTracker result={result as Product} controller={controller as SearchController}>
 											{cloneWithProps(resolvedResultComponent, {
-												key: (result as Product).id,
+												key: `${controller?.id ? `${controller?.id}-` : ''}${(result as Product).id}`,
 												controller,
 												result: result as Product,
 												theme: mergedResultComponentTheme,
@@ -185,7 +192,7 @@ export const Results = observer((properties: ResultsProps) => {
 								} else {
 									return (
 										<TrackedResultComponent
-											key={(result as Product).id}
+											key={`${controller?.id ? `${controller?.id}-` : ''}${(result as Product).id}`}
 											{...subProps.result}
 											result={result as Product}
 											layout={props.layout}

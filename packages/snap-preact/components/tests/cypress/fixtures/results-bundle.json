@@ -55,8 +55,12 @@
                     "data": [
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "28"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -70,8 +74,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "29"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -85,8 +93,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "30"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -100,8 +112,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "31"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -115,8 +131,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "32"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -130,8 +150,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "33"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -145,8 +169,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "34"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -160,8 +188,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "36"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -175,8 +207,12 @@
                         },
                         {
                             "options": {
-                                "color": "Phantom Block",
-                                "size": "38"
+                                "color": {
+                                    "value": "Phantom Block"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -250,9 +286,15 @@
                     "data": [
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "30",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "30"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -268,9 +310,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "30",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "30"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -286,9 +334,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "32",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "32"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -304,9 +358,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "32",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "32"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -322,9 +382,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "34",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "34"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -340,9 +406,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "34",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "34"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -358,9 +430,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "36",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "36"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -374,9 +452,15 @@
                         },
                         {
                             "options": {
-                                "color": "Scout",
-                                "size": "36",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Scout"
+                                },
+                                "size": {
+                                    "value": "36"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -390,9 +474,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "30",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "30"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -406,9 +496,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "30",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "30"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -424,9 +520,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "32",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "32"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -440,9 +542,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "32",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "32"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -458,9 +566,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "34",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "34"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -474,9 +588,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "34",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "34"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -492,9 +612,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "36",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "36"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -508,9 +634,15 @@
                         },
                         {
                             "options": {
-                                "color": "Desert",
-                                "size": "36",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Desert"
+                                },
+                                "size": {
+                                    "value": "36"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -526,9 +658,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "30",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "30"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -542,9 +680,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "30",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "30"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -558,9 +702,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "32",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "32"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -574,9 +724,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "32",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "32"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -590,9 +746,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "34",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "34"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -606,9 +768,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "34",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "34"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -622,9 +790,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "36",
-                                "inseam": "32"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "36"
+                                },
+                                "inseam": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -640,9 +814,15 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "36",
-                                "inseam": "34"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "36"
+                                },
+                                "inseam": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -708,8 +888,12 @@
                     "data": [
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "28"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -725,8 +909,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "29"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -742,8 +930,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "30"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -759,8 +951,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "31"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -776,8 +972,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "32"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -793,8 +993,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "33"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -810,8 +1014,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "34"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -827,8 +1035,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "36"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -844,8 +1056,12 @@
                         },
                         {
                             "options": {
-                                "color": "Faded Khaki",
-                                "size": "38"
+                                "color": {
+                                    "value": "Faded Khaki"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -861,8 +1077,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "28"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -876,8 +1096,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "29"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -891,8 +1115,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "30"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -908,8 +1136,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "31"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -925,8 +1157,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "32"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -942,8 +1178,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "33"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -959,8 +1199,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "34"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -976,8 +1220,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "36"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -993,8 +1241,12 @@
                         },
                         {
                             "options": {
-                                "color": "Shadow",
-                                "size": "38"
+                                "color": {
+                                    "value": "Shadow"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1010,8 +1262,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "28"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1027,8 +1283,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "29"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1044,8 +1304,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "30"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1061,8 +1325,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "31"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1078,8 +1346,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "32"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1095,8 +1367,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "33"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1112,8 +1388,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "34"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1129,8 +1409,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "36"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1146,8 +1430,12 @@
                         },
                         {
                             "options": {
-                                "color": "Indigo",
-                                "size": "38"
+                                "color": {
+                                    "value": "Indigo"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1163,8 +1451,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "28"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1180,8 +1472,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "29"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1197,8 +1493,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "30"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1214,8 +1514,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "31"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1231,8 +1535,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "32"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1248,8 +1556,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "33"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1265,8 +1577,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "34"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1282,8 +1598,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "36"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1299,8 +1619,12 @@
                         },
                         {
                             "options": {
-                                "color": "Mirage",
-                                "size": "38"
+                                "color": {
+                                    "value": "Mirage"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1316,8 +1640,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "28"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1331,8 +1659,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "29"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1346,8 +1678,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "30"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1361,8 +1697,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "31"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1376,8 +1716,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "32"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1391,8 +1735,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "33"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1408,8 +1756,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "34"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1423,8 +1775,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "36"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1438,8 +1794,12 @@
                         },
                         {
                             "options": {
-                                "color": "Olive",
-                                "size": "38"
+                                "color": {
+                                    "value": "Olive"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1453,8 +1813,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "28"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1470,8 +1834,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "29"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1487,8 +1855,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "30"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1504,8 +1876,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "31"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1521,8 +1897,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "32"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1538,8 +1918,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "33"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1555,8 +1939,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "34"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1572,8 +1960,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "36"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1589,8 +1981,12 @@
                         },
                         {
                             "options": {
-                                "color": "Toasted",
-                                "size": "38"
+                                "color": {
+                                    "value": "Toasted"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1658,8 +2054,12 @@
                     "data": [
                         {
                             "options": {
-                                "color": "Black",
-                                "size": "S"
+                                "color": {
+                                    "value": "Black"
+                                },
+                                "size": {
+                                    "value": "S"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1675,8 +2075,12 @@
                         },
                         {
                             "options": {
-                                "color": "Black",
-                                "size": "M"
+                                "color": {
+                                    "value": "Black"
+                                },
+                                "size": {
+                                    "value": "M"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1692,8 +2096,12 @@
                         },
                         {
                             "options": {
-                                "color": "Black",
-                                "size": "L"
+                                "color": {
+                                    "value": "Black"
+                                },
+                                "size": {
+                                    "value": "L"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1709,8 +2117,12 @@
                         },
                         {
                             "options": {
-                                "color": "Black",
-                                "size": "XL"
+                                "color": {
+                                    "value": "Black"
+                                },
+                                "size": {
+                                    "value": "XL"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1726,8 +2138,12 @@
                         },
                         {
                             "options": {
-                                "color": "Black",
-                                "size": "XXL"
+                                "color": {
+                                    "value": "Black"
+                                },
+                                "size": {
+                                    "value": "XXL"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1743,8 +2159,12 @@
                         },
                         {
                             "options": {
-                                "color": "Blue",
-                                "size": "S"
+                                "color": {
+                                    "value": "Blue"
+                                },
+                                "size": {
+                                    "value": "S"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1760,8 +2180,12 @@
                         },
                         {
                             "options": {
-                                "color": "Blue",
-                                "size": "M"
+                                "color": {
+                                    "value": "Blue"
+                                },
+                                "size": {
+                                    "value": "M"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1777,8 +2201,12 @@
                         },
                         {
                             "options": {
-                                "color": "Blue",
-                                "size": "L"
+                                "color": {
+                                    "value": "Blue"
+                                },
+                                "size": {
+                                    "value": "L"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1794,8 +2222,12 @@
                         },
                         {
                             "options": {
-                                "color": "Blue",
-                                "size": "XL"
+                                "color": {
+                                    "value": "Blue"
+                                },
+                                "size": {
+                                    "value": "XL"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1811,8 +2243,12 @@
                         },
                         {
                             "options": {
-                                "color": "Blue",
-                                "size": "XXL"
+                                "color": {
+                                    "value": "Blue"
+                                },
+                                "size": {
+                                    "value": "XXL"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1826,8 +2262,12 @@
                         },
                         {
                             "options": {
-                                "color": "Grey",
-                                "size": "S"
+                                "color": {
+                                    "value": "Grey"
+                                },
+                                "size": {
+                                    "value": "S"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1843,8 +2283,12 @@
                         },
                         {
                             "options": {
-                                "color": "Grey",
-                                "size": "M"
+                                "color": {
+                                    "value": "Grey"
+                                },
+                                "size": {
+                                    "value": "M"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1860,8 +2304,12 @@
                         },
                         {
                             "options": {
-                                "color": "Grey",
-                                "size": "L"
+                                "color": {
+                                    "value": "Grey"
+                                },
+                                "size": {
+                                    "value": "L"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1877,8 +2325,12 @@
                         },
                         {
                             "options": {
-                                "color": "Grey",
-                                "size": "XL"
+                                "color": {
+                                    "value": "Grey"
+                                },
+                                "size": {
+                                    "value": "XL"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1894,8 +2346,12 @@
                         },
                         {
                             "options": {
-                                "color": "Grey",
-                                "size": "XXL"
+                                "color": {
+                                    "value": "Grey"
+                                },
+                                "size": {
+                                    "value": "XXL"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1961,8 +2417,12 @@
                     "data": [
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "28"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "28"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1976,8 +2436,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "29"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "29"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -1991,8 +2455,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "30"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "30"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -2006,8 +2474,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "31"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "31"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -2021,8 +2493,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "32"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "32"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -2036,8 +2512,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "33"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "33"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -2051,8 +2531,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "34"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "34"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -2066,8 +2550,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "36"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "36"
+                                }
                             },
                             "mappings": {
                                 "core": {
@@ -2081,8 +2569,12 @@
                         },
                         {
                             "options": {
-                                "color": "Pitch Black",
-                                "size": "38"
+                                "color": {
+                                    "value": "Pitch Black"
+                                },
+                                "size": {
+                                    "value": "38"
+                                }
                             },
                             "mappings": {
                                 "core": {

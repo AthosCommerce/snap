@@ -1,11 +1,7 @@
 {
 	"bail": true,
-	"projects": [
-		"<rootDir>/packages/snap-*/jest.config.js"
-	],
+	"projects": ["<rootDir>/packages/snap-*/**/jest.config.js"],
 	"coverageReporters": ["json", "html", "text", "text-summary", "json-summary"],
 	"coverageDirectory": "<rootDir>/coverage/",
-	"collectCoverage": true,
-	"verbose": true,
 	"silent": true
 }

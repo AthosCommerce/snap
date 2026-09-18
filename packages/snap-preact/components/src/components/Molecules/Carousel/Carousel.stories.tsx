@@ -39,6 +39,30 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		navigation: {
+			defaultValue: true,
+			description: 'Configuration for prev/next navigation; false removes the buttons from the DOM',
+			table: {
+				type: {
+					summary: 'boolean | SwiperOptions.navigation',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: true },
+			},
+			control: { type: 'boolean' },
+		},
+		scrollbar: {
+			defaultValue: false,
+			description: 'Configuration for the scrollbar track',
+			table: {
+				type: {
+					summary: 'boolean | SwiperOptions.scrollbar',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		vertical: {
 			defaultValue: false,
 			description: 'Carousel vertical slide direction',
@@ -58,7 +82,7 @@ export default {
 					summary: 'SwiperModule[]',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: '[Navigation, Pagination]' },
+				defaultValue: { summary: '[Navigation, Pagination, Scrollbar, A11y]' },
 			},
 			control: false,
 		},
@@ -105,10 +129,20 @@ export default {
 			},
 			control: { type: 'object' },
 		},
+		slidesPerView: {
+			description: 'Number of slides visible at once; overridden by breakpoints values when breakpoints are in use',
+			table: {
+				type: {
+					summary: "number | 'auto'",
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'number' },
+		},
 		autoAdjustSlides: {
 			defaultValue: false,
 			description:
-				'If true and children length is less than the current breakpoint slidesPerView value, slidesPerView and slidesPerGroup will be set to the children length and loop to false',
+				'If true and children length is less than the current breakpoint slidesPerView value, slidesPerView and slidesPerGroup will be set to the children length',
 			table: {
 				type: {
 					summary: 'boolean',
@@ -151,6 +185,17 @@ export default {
 			control: false,
 			action: 'onClick',
 		},
+		onBeforeInit: {
+			description: 'Carousel onBeforeInit event handler (Swiper)',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onBeforeInit',
+		},
 		onInit: {
 			description: 'Carousel onInit event handler (Swiper)',
 			table: {
@@ -161,6 +206,39 @@ export default {
 			},
 			control: false,
 			action: 'onInit',
+		},
+		onAfterInit: {
+			description: 'Carousel onAfterInit event handler (Swiper)',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onAfterInit',
+		},
+		onResize: {
+			description: 'Carousel onResize event handler (Swiper); receives no arguments',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onResize',
+		},
+		onTransitionEnd: {
+			description: 'Carousel onTransitionEnd event handler (Swiper); receives no arguments',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'none' },
+			action: 'onTransitionEnd',
 		},
 		...componentArgs,
 	},

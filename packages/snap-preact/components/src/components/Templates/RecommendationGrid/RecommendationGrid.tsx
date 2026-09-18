@@ -7,7 +7,7 @@ import type { RecommendationController } from '@athoscommerce/snap-controller';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import { Result, ResultProps } from '../../Molecules/Result';
 import { ComponentProps, BreakpointsProps, StyleScript, JSXComponent } from '../../../types';
-import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
+import { cloneWithProps, defined, lazyRenderMinSize, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
 import { RecommendationProfileTracker } from '../../Trackers/Recommendation/ProfileTracker';
@@ -19,6 +19,7 @@ import { SnapTemplates } from '../../../../../src';
 
 const defaultStyles: StyleScript<RecommendationGridProps> = ({ gapSize, columns }) => {
 	return css({
+		...lazyRenderMinSize,
 		maxWidth: '100%',
 		maxHeight: '100%',
 		'.ss__recommendation-grid__results': {
@@ -130,7 +131,12 @@ export const RecommendationGrid = observer((properties: RecommendationGridProps)
 
 	return results?.length ? (
 		<CacheProvider>
-			<div {...styling} ref={recsRef} className={classnames('ss__recommendation-grid', className, internalClassName)}>
+			<div
+				{...styling}
+				style={disableStyles ? lazyRenderMinSize : undefined}
+				ref={recsRef}
+				className={classnames('ss__recommendation-grid', className, internalClassName)}
+			>
 				{isVisible ? (
 					<RecommendationProfileTracker controller={controller}>
 						{title && <h3 className="ss__recommendation-grid__title">{title}</h3>}

@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { render, fireEvent } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { Slideshow, SlideshowProps, SlideshowSlide } from './Slideshow';
 import { ThemeProvider } from '@emotion/react';
@@ -284,6 +284,208 @@ describe('Slideshow Component', () => {
 		});
 	});
 
+	describe('Touch/Drag Functionality', () => {
+		// jsdom reports offsetWidth as 0, which collapses the drag threshold to 0
+		// and makes the drag-offset percentage math divide by zero - stub a real width.
+		let offsetWidthDescriptor: PropertyDescriptor | undefined;
+
+		beforeEach(() => {
+			offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+			Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+				configurable: true,
+				get() {
+					return 1000;
+				},
+			});
+		});
+
+		afterEach(() => {
+			if (offsetWidthDescriptor) {
+				Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
+			}
+		});
+
+		// jsdom elements don't expose `ontouchstart`, so @testing-library/preact's
+		// fireEvent.touchStart/Move/End fall back to a broken path (wrong event-type
+		// casing, and it drops the `touches` init property). Dispatch raw touch
+		// events directly instead so `touches` survives and the event name matches
+		// what preact's listener is registered under.
+		const touchEvent = (type: string, clientX: number) => {
+			const event = new Event(type, { bubbles: true, cancelable: true });
+			Object.defineProperty(event, 'touches', { value: [{ clientX }] });
+			return event;
+		};
+		const touchStart = (el: Element, clientX: number) => fireEvent(el, touchEvent('touchstart', clientX));
+		const touchMove = (el: Element, clientX: number) => fireEvent(el, touchEvent('touchmove', clientX));
+		const touchEnd = (el: Element) => fireEvent(el, new Event('touchend', { bubbles: true, cancelable: true }));
+
+		const getTrack = (rendered: ReturnType<typeof render>) => rendered.container.querySelector('.ss__slideshow__track')!;
+
+		it('adds a dragging class on touch start', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+
+			expect(track).toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		it('removes the dragging class on touch end', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+			touchEnd(track);
+
+			expect(track).not.toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		it('advances to the next slide group when dragged left past the threshold', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} slidesToMove={1} dragThreshold={50} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+			touchMove(track, 400);
+			touchEnd(track);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+		});
+
+		it('goes back to the previous slide group when dragged right past the threshold', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} slidesToMove={1} dragThreshold={50} />);
+			const track = getTrack(rendered);
+
+			// first advance one group so there's somewhere to go back to
+			touchStart(track, 500);
+			touchMove(track, 400);
+			touchEnd(track);
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+
+			touchStart(track, 400);
+			touchMove(track, 500);
+			touchEnd(track);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+		});
+
+		it('does not change slides when the drag distance is below the threshold', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} slidesToMove={1} dragThreshold={50} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+			touchMove(track, 490); // 10px, below the 50px threshold
+			touchEnd(track);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+		});
+
+		it('does not advance past the last slide group when loop is disabled', () => {
+			const rendered = render(
+				<Slideshow {...defaultProps} slides={mockImages.slice(0, 4)} slidesToShow={2} slidesToMove={1} dragThreshold={50} loop={false} />
+			);
+			const track = getTrack(rendered);
+
+			// drag left past the end more times than there are groups
+			for (let i = 0; i < 3; i++) {
+				touchStart(track, 500);
+				touchMove(track, 400);
+				touchEnd(track);
+			}
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 2 of 3');
+		});
+
+		it('wraps to the last slide group when dragged right past the first slide with loop enabled', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} slidesToMove={1} dragThreshold={50} loop={true} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 400);
+			touchMove(track, 500);
+			touchEnd(track);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 4 of 5');
+		});
+
+		it('ignores touch events when touchDragging is disabled', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} touchDragging={false} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+			expect(track).not.toHaveClass('ss__slideshow__track--dragging');
+
+			touchMove(track, 400);
+			touchEnd(track);
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+		});
+
+		it('disables touch dragging when all slides are already visible', () => {
+			const rendered = render(<Slideshow {...defaultProps} slides={mockImages.slice(0, 2)} slidesToShow={4} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+
+			expect(track).not.toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		it('prevents default on touch move while dragging, but not otherwise', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const track = getTrack(rendered);
+
+			const notDraggingResult = touchMove(track, 400);
+			expect(notDraggingResult).toBe(true); // not prevented - allows page scroll
+
+			touchStart(track, 500);
+			const draggingResult = touchMove(track, 400);
+			expect(draggingResult).toBe(false); // prevented - blocks page scroll while dragging
+		});
+
+		it('stops autoplay once a drag starts, even after the drag ends', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} autoPlay={true} autoPlayInterval={1000} dragThreshold={50} />);
+			const track = getTrack(rendered);
+
+			touchStart(track, 500);
+			jest.advanceTimersByTime(2000);
+
+			// autoplay must not advance the slide while a drag is in progress
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+
+			touchMove(track, 495); // stay below the drag threshold
+			touchEnd(track);
+
+			jest.advanceTimersByTime(2000);
+
+			// starting a drag cancels autoplay outright rather than pausing it
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+		});
+
+		it('continues from the current on-screen position when a drag interrupts an in-flight transition', () => {
+			// jsdom's getBoundingClientRect always returns zeros, so fake it to simulate a real
+			// browser mid-transition: the track sits at -240px relative to its parent, while its
+			// currentIndex-based resting position would be 0px.
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} dragThreshold={50} />);
+			const track = getTrack(rendered) as HTMLElement;
+			const container = track.parentElement as HTMLElement;
+
+			const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+			HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+				if (this === track) return { left: -240 } as DOMRect;
+				if (this === container) return { left: 0 } as DOMRect;
+				return originalGetBoundingClientRect.call(this);
+			};
+
+			try {
+				touchStart(track, 300);
+
+				// Must pick up from the mocked mid-transition position, not jump to the
+				// currentIndex-based resting position that killing the transition would snap to.
+				expect(track.style.transform).toBe('translateX(-240px)');
+			} finally {
+				HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+			}
+		});
+	});
+
 	describe('Auto-play Functionality', () => {
 		it('does not auto-play by default', () => {
 			const args: SlideshowProps = { ...defaultProps, slidesToShow: 2 };
@@ -340,6 +542,27 @@ describe('Slideshow Component', () => {
 	});
 
 	describe('Clickable Images', () => {
+		// jsdom reports offsetWidth as 0, which collapses the navigation threshold to 0 and
+		// makes every drag gesture count as a navigating drag - stub a real width so the
+		// click-suppression threshold reflects realistic slide geometry.
+		let offsetWidthDescriptor: PropertyDescriptor | undefined;
+
+		beforeEach(() => {
+			offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+			Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+				configurable: true,
+				get() {
+					return 1000;
+				},
+			});
+		});
+
+		afterEach(() => {
+			if (offsetWidthDescriptor) {
+				Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
+			}
+		});
+
 		it('calls onClick handler when image is clicked', async () => {
 			const mockOnClick = jest.fn();
 			const clickableImage: SlideshowSlide = {
@@ -361,6 +584,135 @@ describe('Slideshow Component', () => {
 				await user.click(clickableSlide);
 				expect(mockOnClick).toHaveBeenCalled();
 			}
+		});
+
+		it('does not trigger slide onClick after a drag (suppresses the trailing click)', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				// Multiple slides so dragging is enabled (touchDragging stays on).
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// Simulate a mouse drag: press, move past the threshold, release.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseMove(document, { clientX: 200 });
+			fireEvent.mouseUp(document);
+
+			// The browser fires a click after the drag's mouseup — it must NOT invoke the slide handler.
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).not.toHaveBeenCalled();
+		});
+
+		it('still triggers slide onClick for a press with no movement', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// A press with no movement is a genuine click.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('respects a custom dragClickThreshold', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+				dragClickThreshold: 20,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			// 10px of movement is below the custom 20px threshold, so this still counts as a click.
+			fireEvent.mouseDown(track, { clientX: 100 });
+			fireEvent.mouseMove(document, { clientX: 110 });
+			fireEvent.mouseUp(document);
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('suppresses the trailing click when a drag is small enough to navigate but below dragClickThreshold', () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+				// dragThreshold (5) is much smaller than the default dragClickThreshold (10), so a
+				// 6px drag clears the navigation threshold while staying under the click threshold.
+				dragThreshold: 5,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+
+			fireEvent.mouseDown(track, { clientX: 200 });
+			fireEvent.mouseMove(document, { clientX: 194 });
+			fireEvent.mouseUp(document);
+
+			// The drag was large enough to navigate, so the trailing click must not also fire onClick.
+			fireEvent.click(clickableSlide);
+			expect(mockOnClick).not.toHaveBeenCalled();
+		});
+
+		it('does not double-navigate when the mouse is released over the track', () => {
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg' }, { src: 'b.jpg' }, { src: 'c.jpg' }, { src: 'd.jpg' }],
+				slidesToShow: 1,
+				dragThreshold: 5,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+
+			fireEvent.mouseDown(track, { clientX: 200 });
+			fireEvent.mouseMove(document, { clientX: 150 });
+			// Releasing over the track lets the mouseup bubble through both the track's own
+			// handler and the document-level handler added while dragging - it must still
+			// only advance the slide index once, not twice.
+			fireEvent.mouseUp(track, { clientX: 150 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 4');
+		});
+
+		it('navigates when the mouse is released outside the track (e.g. a fast swipe past the edge)', () => {
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg' }, { src: 'b.jpg' }, { src: 'c.jpg' }, { src: 'd.jpg' }],
+				slidesToShow: 1,
+				dragThreshold: 5,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+
+			fireEvent.mouseDown(track, { clientX: 200 });
+			// A drag that ends with the cursor off the track only reaches the document-level
+			// mouseup listener (never the track's own handler), so this exercises that path in
+			// isolation - it must still see the final position, not the one from mousedown.
+			fireEvent.mouseMove(document, { clientX: 150 });
+			fireEvent.mouseUp(document, { clientX: 150 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 4');
 		});
 
 		it('mixes clickable and non-clickable images', () => {

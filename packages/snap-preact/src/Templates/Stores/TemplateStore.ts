@@ -1,17 +1,20 @@
 import type { h } from 'preact';
+import deepmerge from 'deepmerge';
 import { observable, makeObservable } from 'mobx';
 import {
 	type SearchStoreConfigSettings,
 	type SearchStoreConfig,
 	type AutocompleteStoreConfigSettings,
 	type AutocompleteStoreConfig,
+	type QuickviewConfig,
 } from '@athoscommerce/snap-store-mobx';
 import { StorageStore, StorageType } from '@athoscommerce/snap-toolbox';
 import { ThemeStore, ThemeStoreThemeConfig } from './ThemeStore';
 import { TargetStore } from './TargetStore';
-import { CurrencyCodes, LanguageCodes, LibraryImports, LibraryStore } from './LibraryStore';
+import { TabManagerStore } from './TabManagerStore';
+import { CodeKeyed, CurrencyCodes, CurrencyCodeInput, LanguageCodes, LanguageCodeInput, LibraryImports, LibraryStore } from './LibraryStore';
 import { debounce } from '@athoscommerce/snap-toolbox';
-import type { PluginFunction } from '@athoscommerce/snap-controller';
+import type { PluginFunction, SearchTabConfig, AutocompleteTabConfig, AbstractController, TabConfig } from '@athoscommerce/snap-controller';
 import type {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginShopifyBackgroundFiltersConfig,
@@ -38,6 +41,7 @@ import type {
 	ThemeResponsiveCompleteUnlocked,
 	LangComponentOverrides,
 	ThemeComponentsRestricted,
+	ThemeComponentsRestrictedWithCustomComponent,
 	ThemeMinimal,
 	ThemeOverrides,
 	ThemeVariablesPartial,
@@ -48,7 +52,7 @@ import type {
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/RecommendationInstantiator';
-import type { PluginMarketsConfig } from '@athoscommerce/snap-platforms/shopify';
+import type { PluginMarketsConfig, PluginCurrencyConfig } from '@athoscommerce/snap-platforms/shopify';
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
 
@@ -62,6 +66,11 @@ export type AutocompleteTargetConfig = {
 	selector?: string;
 	inputSelector: string;
 	component: keyof LibraryImports['component']['autocomplete'];
+};
+
+export type QuickviewTargetConfig = {
+	selector?: string;
+	component: keyof LibraryImports['component']['quickview'];
 };
 
 export type RecommendationDefaultTargetConfig = {
@@ -142,6 +151,7 @@ export type ShopifyPlugins = {
 	mutateResults?: PluginShopifyMutateResultsConfig;
 	addToCart?: PluginShopifyAddToCartConfig;
 	markets?: PluginMarketsConfig;
+	currency?: PluginCurrencyConfig;
 };
 
 export type BigCommercePlugins = {
@@ -175,34 +185,44 @@ export type PluginsConfigsUnlocked = PluginsConfigsLocked & {
 	custom?: CustomPlugins;
 };
 
+export type TemplatesSearchTabConfigLocked = SearchTabConfig & { plugins?: PluginsConfigsLocked };
+export type TemplatesSearchTabConfigUnlocked = SearchTabConfig & { plugins?: PluginsConfigsUnlocked };
+export type TemplatesAutocompleteTabConfigLocked = AutocompleteTabConfig & { plugins?: PluginsConfigsLocked };
+export type TemplatesAutocompleteTabConfigUnlocked = AutocompleteTabConfig & { plugins?: PluginsConfigsUnlocked };
+
 export type TemplatesStoreConfig = TemplatesStoreConfigLocked | TemplatesStoreConfigUnlocked;
 
 export type TemplatesStoreConfigLocked = {
 	components?: TemplateStoreComponentConfigLocked;
 	config?: {
 		siteId?: string;
-		currency?: CurrencyCodes;
-		language?: LanguageCodes;
+		currency?: CurrencyCodeInput;
+		language?: LanguageCodeInput;
 		platform?: IntegrationPlatforms;
 		client?: ClientConfig;
 	};
 	plugins?: PluginsConfigsLocked;
-	translations?: {
-		[currencyName in LanguageCodes]?: LangComponentOverrides;
-	};
+	translations?: CodeKeyed<LanguageCodes, LangComponentOverrides>;
+	currencies?: CodeKeyed<CurrencyCodes, ThemeComponentsRestricted>;
 	theme: TemplatesStoreThemeConfigLocked;
 	search?: {
+		tabs?: TemplatesSearchTabConfigLocked[];
 		targets: SearchTargetConfig[];
 		globals?: SearchStoreConfig['globals'];
 		settings?: SearchStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
 	};
 	autocomplete?: {
+		tabs?: TemplatesAutocompleteTabConfigLocked[];
 		targets: AutocompleteTargetConfig[];
 		action?: string;
 		globals?: AutocompleteStoreConfig['globals'];
 		settings?: AutocompleteStoreConfigSettings;
 		plugins?: PluginsConfigsLocked;
+	};
+	quickview?: {
+		targets: QuickviewTargetConfig[];
+		settings?: QuickviewConfig;
 	};
 	recommendation?: {
 		email?: {
@@ -222,17 +242,20 @@ export type TemplatesStoreConfigLocked = {
 // Full version that allows all component props in theme overrides (for Snap integration migration path)
 export type TemplatesStoreConfigUnlocked = Omit<
 	TemplatesStoreConfigLocked,
-	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'recommendation'
+	'unlocked' | 'theme' | 'components' | 'plugins' | 'search' | 'autocomplete' | 'recommendation' | 'currencies'
 > & {
 	unlocked: true;
+	currencies?: CodeKeyed<CurrencyCodes, ThemeComponentsRestrictedWithCustomComponent>;
 	theme: TemplatesStoreThemeConfigUnlocked;
 	components?: TemplateStoreComponentConfigUnlocked;
 	plugins?: PluginsConfigsUnlocked;
-	search?: Omit<NonNullable<TemplatesStoreConfigLocked['search']>, 'plugins'> & {
+	search?: Omit<NonNullable<TemplatesStoreConfigLocked['search']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
+		tabs?: TemplatesSearchTabConfigUnlocked[];
 	};
-	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins'> & {
+	autocomplete?: Omit<NonNullable<TemplatesStoreConfigLocked['autocomplete']>, 'plugins' | 'tabs'> & {
 		plugins?: PluginsConfigsUnlocked;
+		tabs?: TemplatesAutocompleteTabConfigUnlocked[];
 	};
 	recommendation?: Omit<NonNullable<TemplatesStoreConfigLocked['recommendation']>, 'plugins'> & {
 		plugins?: PluginsConfigsUnlocked;
@@ -278,6 +301,8 @@ export class TemplatesStore {
 
 	window: WindowProperties = { innerWidth: 0 };
 
+	private tabManagers: { search?: TabManagerStore; autocomplete?: TabManagerStore } = {};
+
 	constructor(params: TemplatesStoreParams) {
 		const { config, settings } = params || {};
 		this.config = config;
@@ -307,13 +332,23 @@ export class TemplatesStore {
 		};
 		this.library = new LibraryStore({ components: config.components, unlocked: (config as TemplatesStoreConfigUnlocked).unlocked || false });
 
+		const configLanguage = this.config.config?.language?.toLowerCase() as LanguageCodes | undefined;
+		const configCurrency = this.config.config?.currency?.toLowerCase() as CurrencyCodes | undefined;
+
+		if (configLanguage && !(configLanguage in this.library.import.language)) {
+			console.warn(`Snap Templates: unknown language code "${this.config.config?.language}" - using "en"`);
+		}
+		if (configCurrency && !(configCurrency in this.library.import.currency)) {
+			console.warn(`Snap Templates: unknown currency code "${this.config.config?.currency}" - using "usd"`);
+		}
+
 		this.language =
 			(this.settings.editMode && this.storage.get('overrides.config.language')) ||
-			(this.config.config?.language && this.config.config.language in this.library.import.language && this.config.config.language) ||
+			(configLanguage && configLanguage in this.library.import.language && configLanguage) ||
 			'en';
 		this.currency =
 			(this.settings.editMode && this.storage.get('overrides.config.currency')) ||
-			(this.config.config?.currency && this.config.config.currency in this.library.import.currency && this.config.config.currency) ||
+			(configCurrency && configCurrency in this.library.import.currency && configCurrency) ||
 			'usd';
 
 		// import locale selections
@@ -347,9 +382,10 @@ export class TemplatesStore {
 			const base = this.library.themes[themeConfiguration.extends];
 			const overrides = themeConfiguration.overrides || {};
 			const variables = themeConfiguration.variables || {};
-			const currency = this.library.locales.currencies[this.currency] || {};
+			const currency = withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {});
+			const currencyOverrides = resolveCurrencyOverridesTheme(this.config.currencies, this.currency);
 			const language = this.library.locales.languages[this.language] || {};
-			const languageOverrides = transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {});
+			const languageOverrides = resolveTranslationsOverridesTheme(this.config.translations, this.language);
 
 			const translatedOverrides: ThemeOverrides = {
 				components: overrides.default,
@@ -368,6 +404,7 @@ export class TemplatesStore {
 				overrides: translatedOverrides,
 				variables,
 				currency,
+				currencyOverrides,
 				language,
 				languageOverrides,
 				innerWidth: this.window.innerWidth,
@@ -415,6 +452,31 @@ export class TemplatesStore {
 		return getTargetArray(this.targets, type)?.[targetIndex];
 	}
 
+	// one store per controller type
+	public getTabManager(type: 'search' | 'autocomplete', controllers: { [id: string]: AbstractController }): TabManagerStore | undefined {
+		const tabs = this.config[type]?.tabs;
+
+		if (!tabs || tabs.length < 2) {
+			return undefined;
+		}
+		const mappedTabs: TabConfig[] = tabs.map((tab) => ({
+			id: tab.id,
+			param: tab.param,
+			siteId: tab.siteId,
+			label: tab.label,
+			default: tab.default,
+			prefetch: (tab as TemplatesSearchTabConfigUnlocked).prefetch,
+		}));
+
+		if (!this.tabManagers[type]) {
+			const tabControllers = tabs.map((tab) => controllers[tab.id]).filter((controller) => Boolean(controller));
+
+			this.tabManagers[type] = new TabManagerStore(mappedTabs, tabControllers);
+		}
+
+		return this.tabManagers[type];
+	}
+
 	public addTheme(config: ThemeStoreThemeConfig) {
 		const theme = new ThemeStore({
 			config,
@@ -445,43 +507,52 @@ export class TemplatesStore {
 		}
 	}
 
-	public async setCurrency(currencyCode: CurrencyCodes) {
-		if (currencyCode in this.library.import.currency) {
-			await this.library.import.currency[currencyCode]();
-			const currency = this.library.locales.currencies[currencyCode];
+	public async setCurrency(currencyCode: CurrencyCodeInput) {
+		const code = currencyCode?.toLowerCase() as CurrencyCodes;
+		if (code in this.library.import.currency) {
+			await this.library.import.currency[code]();
+			const currency = this.library.locales.currencies[code];
 
 			if (currency) {
-				this.currency = currencyCode;
+				this.currency = code;
 				this.storage.set('overrides.config.currency', this.currency);
+				const currencyLayer = withCurrencyCode(code, currency);
+				const currencyOverrides = resolveCurrencyOverridesTheme(this.config.currencies, code);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
-					theme.setCurrency(currency);
+					theme.setCurrency(currencyLayer, currencyOverrides);
 				}
 				for (const themeName in this.themes.library) {
 					const theme = this.themes.library[themeName];
-					theme.setCurrency(currency);
+					theme.setCurrency(currencyLayer, currencyOverrides);
 				}
 			}
+		} else {
+			console.warn(`Snap Templates: unknown currency code "${currencyCode}" - currency not changed`);
 		}
 	}
 
-	public async setLanguage(languageCode: LanguageCodes) {
-		if (languageCode in this.library.import.language) {
-			await this.library.import.language[languageCode]();
-			const language = this.library.locales.languages[languageCode];
+	public async setLanguage(languageCode: LanguageCodeInput) {
+		const code = languageCode?.toLowerCase() as LanguageCodes;
+		if (code in this.library.import.language) {
+			await this.library.import.language[code]();
+			const language = this.library.locales.languages[code];
 
 			if (language) {
-				this.language = languageCode;
+				this.language = code;
 				this.storage.set('overrides.config.language', this.language);
+				const languageOverrides = resolveTranslationsOverridesTheme(this.config.translations, code);
 				for (const themeName in this.themes.local) {
 					const theme = this.themes.local[themeName];
-					theme.setLanguage(language);
+					theme.setLanguage(language, languageOverrides);
 				}
 				for (const themeName in this.themes.library) {
 					const theme = this.themes.library[themeName];
-					theme.setLanguage(language);
+					theme.setLanguage(language, languageOverrides);
 				}
 			}
+		} else {
+			console.warn(`Snap Templates: unknown language code "${languageCode}" - language not changed`);
 		}
 	}
 
@@ -499,8 +570,9 @@ export class TemplatesStore {
 				type: 'library',
 				base: theme,
 				language: this.library.locales.languages[this.language] || {},
-				languageOverrides: transformTranslationsToTheme((this.config.translations && this.config.translations[this.language]) || {}),
-				currency: this.library.locales.currencies[this.currency] || {},
+				languageOverrides: resolveTranslationsOverridesTheme(this.config.translations, this.language),
+				currency: withCurrencyCode(this.currency, this.library.locales.currencies[this.currency] || {}),
+				currencyOverrides: resolveCurrencyOverridesTheme(this.config.currencies, this.currency),
 				innerWidth: this.window.innerWidth,
 			};
 			if (this.settings.editMode) {
@@ -524,6 +596,21 @@ function getTargetArray(targets: TemplatesStore['targets'], type: TemplateTypes)
 	return undefined;
 }
 
+/*
+	Resolves the configured component overrides for a currency into a theme layer.
+*/
+export function resolveCurrencyOverridesTheme(currencies: TemplatesStoreConfig['currencies'], code: CurrencyCodes): ThemeMinimal {
+	const overrides = currencies?.[code] || currencies?.[code.toUpperCase() as CurrencyCodes];
+
+	return overrides ? { components: overrides as ThemeComponentsRestricted } : {};
+}
+
+// the ISO code is not stored in the locale data - it is derived from the active currency so the `Price`
+// component can render it after the amount when `showCode` is enabled
+export function withCurrencyCode(code: CurrencyCodes, currency: ThemeMinimal): ThemeMinimal {
+	return deepmerge(currency, { components: { price: { code: code.toUpperCase() } } }) as ThemeMinimal;
+}
+
 export function transformTranslationsToTheme(translations: LangComponentOverrides): ThemeMinimal {
 	const components: ThemeComponentsRestricted = {};
 
@@ -537,6 +624,11 @@ export function transformTranslationsToTheme(translations: LangComponentOverride
 	return {
 		components,
 	};
+}
+export function resolveTranslationsOverridesTheme(translations: TemplatesStoreConfig['translations'], code: LanguageCodes): ThemeMinimal {
+	const overrides = translations?.[code] || translations?.[code.toUpperCase() as LanguageCodes];
+
+	return transformTranslationsToTheme(overrides || {});
 }
 
 class Deferred {

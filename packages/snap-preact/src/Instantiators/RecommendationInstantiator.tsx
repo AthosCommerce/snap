@@ -8,14 +8,15 @@ import { Tracker } from '@athoscommerce/snap-tracker';
 
 import type { ClientConfig, ClientGlobals, RecommendRequestModel, RecommendationRequestFilterModel } from '@athoscommerce/snap-client';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type {
+import {
 	AbstractController,
 	RecommendationController,
 	Attachments,
 	ContextVariables,
 	RecommendationControllerConfig,
+	type QuickviewManager,
 } from '@athoscommerce/snap-controller';
-import type { BeaconSettings, VariantConfig } from '@athoscommerce/snap-store-mobx';
+import { type BeaconSettings, type VariantConfig } from '@athoscommerce/snap-store-mobx';
 import type { Middleware } from '@athoscommerce/snap-event-manager';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { createRecommendationController } from '../create';
@@ -60,6 +61,7 @@ export type RecommendationInstantiatorServices = {
 	logger?: Logger;
 	tracker?: Tracker;
 	snap?: Snap;
+	quickviewManager?: QuickviewManager;
 };
 
 type RecommendationProfileCounts = {
@@ -95,6 +97,7 @@ export class RecommendationInstantiator {
 	public client: Client;
 	public tracker: Tracker;
 	public logger: Logger;
+	public quickviewManager?: QuickviewManager;
 	public controller: {
 		[key: string]: RecommendationController;
 	} = {};
@@ -141,6 +144,7 @@ export class RecommendationInstantiator {
 		this.client = services?.client || new Client(this.config.client!.globals, this.config.client!.config);
 		this.tracker = services?.tracker || new Tracker(this.config.client!.globals);
 		this.logger = services?.logger || new Logger({ prefix: 'RecommendationInstantiator ', mode: this.mode });
+		this.quickviewManager = services?.quickviewManager;
 
 		const profileCount: RecommendationProfileCounts = {};
 
@@ -431,7 +435,7 @@ async function readyTheController(
 			context,
 			mode: instance.config.mode,
 		},
-		{ client: instance.client, tracker: instance.tracker }
+		{ client: instance.client, tracker: instance.tracker, quickviewManager: instance.quickviewManager }
 	);
 
 	// mark element with controller id so cleanupStaleControllers knows it's active

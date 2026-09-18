@@ -15,13 +15,19 @@
     "build:feed": "node ./docs/generateFeed.js",
     "build:metrics": "node ./metrics/generate",
     "build:sitemap": "node ./docs/generateDocsSitemap.js",
-    "test": "jest",
-    "posttest": "npm run test --workspace=@athoscommerce/snap-preact-demo && npm run cypress:headless --workspace=@athoscommerce/snap-preact",
+    "test": "npm run typecheck:tests && npm run test:core && npm run build && npm run test:e2e",
+    "test:core": "jest",
+    "test:coverage": "jest --coverage",
+    "typecheck:tests": "tsc --noEmit -p tsconfig.test.json",
+    "test:e2e": "npm run test:e2e:components && npm run test:e2e:demo",
+    "test:e2e:components": "npm run cypress:headless --workspace=@athoscommerce/snap-preact",
+    "test:e2e:demo": "npm run test --workspace=@athoscommerce/snap-preact-demo",
     "dev": "lerna exec --parallel --stream 'npm run dev'",
     "dev:universal": "SNAP_WEBPACK_UNIVERSAL=1 lerna exec --parallel --stream 'npm run dev'",
     "dev:docs": "http-server ./ -p 1111 -c-1",
     "lint": "lerna run lint",
-    "clean": "npm run clean:coverage && npm run clean:docs && npm run clean:packages && npm run clean:cache",
+    "clean": "npm run clean:coverage && npm run clean:docs && npm run clean:build && npm run clean:packages",
+    "clean:build": "lerna exec --parallel --stream 'rm -rf ./dist' && npm run clean:cache",
     "clean:cache": "rm -rf .nx",
     "clean:coverage": "lerna exec --parallel --stream 'rm -rf ./coverage'",
     "clean:docs": "lerna exec --parallel --stream 'rm -rf ./docs ./components/docs'",
@@ -49,7 +55,6 @@
     "cz-conventional-changelog": "3.3.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-snap-config": "file:./packages/snap-shared/eslint-rules",
     "http-server": "14.1.0",
     "husky": "7.0.4",
     "jest": "29.7.0",
@@ -71,9 +76,12 @@
     "preact": "10.28.4"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
+    "*.{js,cjs,ts,tsx}": [
       "prettier --write",
       "eslint"
+    ],
+    "package-lock.json": [
+      "prettier --write"
     ]
   },
   "config": {

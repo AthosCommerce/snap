@@ -49,6 +49,13 @@ The `lazy` prop is used to disable the lazy loading feature. Enabled by default.
 <Image src={searchResponse.results.mappings.core.imageUrl} lazy={false} alt='image' />
 ```
 
+### draggable
+The `draggable` prop sets the `draggable` attribute on the image element.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} draggable={false} alt='image' />
+```
+
 ### Events
 
 #### onMouseOver
@@ -63,6 +70,34 @@ The `onMouseOut` prop allows for a custom callback function when the mouse curso
 
 ```tsx
 <Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onMouseOut={(e)=>{console.log(e)}} />
+```
+
+#### onPointerDown
+The `onPointerDown` prop allows for a custom callback function when a pointer becomes active on the image.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerDown={(e)=>{console.log(e)}} />
+```
+
+#### onPointerMove
+The `onPointerMove` prop allows for a custom callback function when a pointer moves over the image.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerMove={(e)=>{console.log(e)}} />
+```
+
+#### onPointerUp
+The `onPointerUp` prop allows for a custom callback function when a pointer is released on the image.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerUp={(e)=>{console.log(e)}} />
+```
+
+#### onPointerLeave
+The `onPointerLeave` prop allows for a custom callback function when a pointer leaves the image.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerLeave={(e)=>{console.log(e)}} />
 ```
 
 #### onError

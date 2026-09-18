@@ -392,6 +392,23 @@ describe('Snap Client', () => {
 			fetchApiMock.mockReset();
 		});
 
+		it('products() routes through the products requester', async () => {
+			const client = new Client({ siteId: '8uyt2m' });
+
+			// @ts-ignore - requesters is private
+			const productsSpy = jest.spyOn(client.requesters.products, 'getProducts').mockResolvedValue({} as any);
+
+			await client.products({ parentId: '12345' });
+
+			expect(productsSpy).toHaveBeenCalledWith({ parentId: '12345', siteId: '8uyt2m' });
+
+			// the search requester no longer exposes getProducts
+			// @ts-ignore - requesters is private
+			expect((client.requesters.search as any).getProducts).toBeUndefined();
+
+			productsSpy.mockRestore();
+		});
+
 		describe('with custom fetchApi', () => {
 			it('Autocomplete method', async () => {
 				const fetchApiMock = jest.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));

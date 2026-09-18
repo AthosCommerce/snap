@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- quickview layout improvements, named calloutBadge, variantSelection, lang props, a11y ([9c7d19c](https://github.com/AthosCommerce/snap/commit/9c7d19c0a54126fa2de316077ce993cfc70ded9e))
+- Slideshow start index fix for resizes ([782add5](https://github.com/AthosCommerce/snap/commit/782add500bd233efe2618c1bf873d3bc9759212f))
+
+### Features
+
+- initial quickview ([b89cc1a](https://github.com/AthosCommerce/snap/commit/b89cc1a9f1998b1f08bd2dca0460a4ecf113d9e4))
+
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-preact-demo
+
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Bug Fixes
+
+- **cypress:** make post-render assertions retry instead of relying on a fixed settle ([f7995ca](https://github.com/AthosCommerce/snap/commit/f7995cac171b2646932198637612b60a21a23698))
+- **cypress:** retry opening the templates autocomplete input instead of clicking once ([6243374](https://github.com/AthosCommerce/snap/commit/624337492d6f550f84a2d6271d46a163102efee0))
+
+### Features
+
+- **preact:** adding webpack export for universal ES5 build and validation ([94e1dda](https://github.com/AthosCommerce/snap/commit/94e1dda3d47c6805c3d7fba8e326470a0d8e0877))
+
 ## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-preact-demo

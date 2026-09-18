@@ -47,6 +47,8 @@ export type UrlTranslatorConfig = DeepPartial<UrlTranslatorConfigFull>;
 
 export type UrlTranslatorSettingsConfig = {
 	corePrefix: string;
+	// limits `corePrefix` to these core params - all of them when undefined
+	corePrefixParams?: (keyof CoreMap)[];
 	coreType?: keyof typeof ParamLocationType;
 	customType: keyof typeof ParamLocationType;
 	serializeUrlRoot: boolean;
@@ -81,17 +83,21 @@ const CORE_FIELDS = ['query', 'fallbackQuery', 'rq', 'tag', 'page', 'pageSize', 
 export class UrlTranslator implements Translator {
 	protected config: UrlTranslatorConfigFull;
 	protected reverseMapping: Record<string, string> = {};
+	// prefixed url names for each core parameter - kept separate from `config` so that a config
+	// obtained via `getConfig` can be used to construct another translator without the
+	// `corePrefix` being applied a second time
+	protected coreNames: Record<string, string> = {};
 
 	constructor(config?: UrlTranslatorConfig) {
 		this.config = deepmerge(defaultConfig, (config as UrlTranslatorConfigFull) || {});
 
 		Object.keys(this.config.parameters.core).forEach((param: string) => {
 			const coreParam = this.config.parameters.core[param as keyof CoreMap];
+			const prefixParams = this.config.settings.corePrefixParams;
 
 			// param prefix
-			if (this.config.settings.corePrefix) {
-				coreParam.name = this.config.settings.corePrefix + coreParam.name;
-			}
+			const prefix = !prefixParams || prefixParams.includes(param as keyof CoreMap) ? this.config.settings.corePrefix || '' : '';
+			this.coreNames[param] = prefix + coreParam.name;
 
 			// global type override
 			const paramType = this.config.settings?.coreType;
@@ -104,7 +110,7 @@ export class UrlTranslator implements Translator {
 			}
 
 			// create reverse mapping for quick lookup later
-			this.reverseMapping[coreParam.name] = param;
+			this.reverseMapping[this.coreNames[param]] = param;
 		});
 
 		const implicit = this.config.settings?.customType;
@@ -420,6 +426,7 @@ export class UrlTranslator implements Translator {
 
 	protected encodeCoreFilters(state: UrlState): Array<UrlParameter> {
 		const filterConfig = this.config.parameters.core.filter;
+		const filterName = this.coreNames.filter;
 
 		if (!state.filter || !filterConfig) {
 			return [];
@@ -436,7 +443,7 @@ export class UrlTranslator implements Translator {
 				if (typeof value == 'string' || typeof value == 'number' || typeof value == 'boolean') {
 					return [
 						{
-							key: [filterConfig.name, key],
+							key: [filterName, key],
 							value: '' + value,
 							type: filterConfig.type,
 						},
@@ -449,12 +456,12 @@ export class UrlTranslator implements Translator {
 					if (filterConfig.type == ParamLocationType.query) {
 						return [
 							{
-								key: [filterConfig.name, key, RangeValueProperties.LOW],
+								key: [filterName, key, RangeValueProperties.LOW],
 								value: '' + (value[RangeValueProperties.LOW] ?? '*'),
 								type: filterConfig.type,
 							},
 							{
-								key: [filterConfig.name, key, RangeValueProperties.HIGH],
+								key: [filterName, key, RangeValueProperties.HIGH],
 								value: '' + (value[RangeValueProperties.HIGH] ?? '*'),
 								type: filterConfig.type,
 							},
@@ -462,7 +469,7 @@ export class UrlTranslator implements Translator {
 					} else if (filterConfig.type == ParamLocationType.hash) {
 						return [
 							{
-								key: [filterConfig.name, key, '' + (value[RangeValueProperties.LOW] ?? '*')],
+								key: [filterName, key, '' + (value[RangeValueProperties.LOW] ?? '*')],
 								value: '' + (value[RangeValueProperties.HIGH] ?? '*'),
 								type: filterConfig.type,
 							},
@@ -484,7 +491,7 @@ export class UrlTranslator implements Translator {
 
 		return (state.sort instanceof Array ? state.sort : [state.sort]).map((sort) => {
 			return {
-				key: [sortConfig.name, sort.field],
+				key: [this.coreNames.sort, sort.field],
 				value: sort.direction,
 				type: sortConfig.type,
 			};
@@ -505,7 +512,7 @@ export class UrlTranslator implements Translator {
 					if (param == 'page' && state[param] == 1) {
 						// do not include page 1
 					} else {
-						params.push({ key: [paramConfig.name], value: '' + state[param], type: paramConfig.type });
+						params.push({ key: [this.coreNames[param]], value: '' + state[param], type: paramConfig.type });
 					}
 				}
 			});

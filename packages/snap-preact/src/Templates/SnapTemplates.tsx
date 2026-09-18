@@ -6,11 +6,23 @@ import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSe
 
 import { DomTargeter, url, cookies, version, getContext } from '@athoscommerce/snap-toolbox';
 import { TemplateTarget, TemplatesStore } from './Stores/TemplateStore';
+import { TargetStore } from './Stores/TargetStore';
+import { TAB_ID_DEFAULT_PARAM, getActiveTabConfig } from './Stores/TabManagerStore';
+import { Client } from '@athoscommerce/snap-client';
+import { Tracker } from '@athoscommerce/snap-tracker';
 
+import type {
+	ThemeComponentOverrides,
+	ThemeComponentOverridesUnlocked,
+	ThemeOverridesErrors,
+	ThemeOverridesErrorsUnlocked,
+} from '../../components/src/providers/themeComponents';
 import type { Target } from '@athoscommerce/snap-toolbox';
+import type { ClientGlobals } from '@athoscommerce/snap-client';
+import type { TrackerGlobals } from '@athoscommerce/snap-tracker';
 import { type AutocompleteStoreConfigSettings } from '@athoscommerce/snap-store-mobx';
-import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type { AutocompleteController, PluginFunction, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
+import type { CoreMap, UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
+import type { AutocompleteController, Controllers, PluginFunction, PluginGrouping, SearchController } from '@athoscommerce/snap-controller';
 import type { RecommendationComponentObject, RecommendationInstantiatorConfig } from '../Instantiators/RecommendationInstantiator';
 import type { SnapFeatures } from '../types';
 import type { SnapConfig, ExtendedTarget } from '../Snap';
@@ -46,7 +58,8 @@ import {
 	PluginAddToCartConfig as PluginShopifyAddToCartConfig,
 	PluginMarketsConfig as PluginShopifyMarketsConfig,
 	pluginMarkets as pluginShopifyMarkets,
-	shopifyMarketsPriceFormat,
+	PluginCurrencyConfig as PluginShopifyCurrencyConfig,
+	pluginCurrency as pluginShopifyCurrency,
 } from '@athoscommerce/snap-platforms/shopify';
 
 import {
@@ -80,6 +93,99 @@ export type SnapTemplatesConfigLocked = TemplatesStoreConfigLocked & {
 	features?: SnapFeatures;
 };
 
+/*
+	`validateTemplatesConfig` is where a config gets its type checking. The design has one rule:
+	nothing expensive may become the contextual type of the literal being authored, because the
+	language service re-instantiates that type on every keystroke. (The original design put a
+	precise generic there and cost ~1.5s per completion - re-measured at ~10s on TS 6 with a
+	realistic 40-selector config.)
+
+	So the parameter is a concrete type everywhere except the four breakpoint maps under
+	`theme.overrides`, which are inferred (`Default`, `Mobile`, `Tablet`, `Desktop`), each
+	constrained by the plain `ThemeComponentOverrides` alias:
+
+	  - The concrete part gets TypeScript's own excess property checking: an unknown config key,
+	    theme key or breakpoint name errors on its exact line, with the standard message.
+	  - Inside a breakpoint map, completions and prop VALUE checks come from the constraint while
+	    typing. What the constraint cannot see - misspelled selectors, a misspelled prop next to
+	    a valid one, and everything under open-named selectors like `facet.price` - is checked by
+	    `ThemeOverridesErrors` (themeComponents.ts) in the RETURN type, which is only evaluated
+	    when the call is checked, off the completion path.
+
+	Valid overrides return `SnapTemplatesConfig`. Invalid ones return an error carrier that is NOT
+	assignable to it, so `new SnapTemplates(config)` errors and the carrier lists exactly the
+	failing breakpoints, selectors and props.
+*/
+type SnapTemplatesConfigInput<Default, Mobile, Tablet, Desktop> = Omit<SnapTemplatesConfig, 'theme'> & {
+	theme: Omit<SnapTemplatesConfig['theme'], 'overrides'> & {
+		overrides?: { default?: Default; mobile?: Mobile; tablet?: Tablet; desktop?: Desktop };
+	};
+};
+
+type SnapTemplatesConfigInputUnlocked<Default, Mobile, Tablet, Desktop> = Omit<SnapTemplatesConfigUnlocked, 'theme'> & {
+	theme: Omit<SnapTemplatesConfigUnlocked['theme'], 'overrides'> & {
+		overrides?: { default?: Default; mobile?: Mobile; tablet?: Tablet; desktop?: Desktop };
+	};
+};
+
+type InvalidThemeOverrides<Errors> = {
+	'theme.overrides contains invalid selectors or props (hover for the expected shapes)': Errors;
+};
+
+// TypeScript prints alias instantiations UNEVALUATED in error messages, which would hide the
+// failing keys behind `ThemeOverridesErrors<{...}>`. Mapping the errors through this
+// depth-bounded expansion forces them into the printed type.
+// prettier-ignore
+type ExpandErrors<T, Depth extends unknown[] = [0, 0, 0]> = Depth extends [unknown, ...infer Rest]
+	? T extends object
+		? { [K in keyof T]: ExpandErrors<T[K], Rest> }
+		: T
+	: T;
+
+// prettier-ignore
+type ValidatedTemplatesConfig<Config, Errors> = [keyof Errors] extends [never]
+	? Config
+	: Errors extends infer Expanded ? InvalidThemeOverrides<ExpandErrors<Expanded>> : never;
+
+// The breakpoint type parameters deliberately have NO default: a defaulted type parameter is
+// instantiated by the language service when it computes the literal's contextual type, which
+// replaces the constraint with the default and kills key completions (verified with `never`
+// and `{}`). Without a default, an unauthored breakpoint infers as its constraint - which is
+// nothing to check - so it is mapped to `never` here before the checker sees it.
+type AuthoredBreakpoint<Inferred, Constraint> = Constraint extends Inferred ? never : Inferred;
+type AuthoredOverrides<Default, Mobile, Tablet, Desktop, Constraint> = {
+	default: AuthoredBreakpoint<Default, Constraint>;
+	mobile: AuthoredBreakpoint<Mobile, Constraint>;
+	tablet: AuthoredBreakpoint<Tablet, Constraint>;
+	desktop: AuthoredBreakpoint<Desktop, Constraint>;
+};
+
+// prettier-ignore
+export function validateTemplatesConfig<
+	Default extends ThemeComponentOverrides,
+	Mobile extends ThemeComponentOverrides,
+	Tablet extends ThemeComponentOverrides,
+	Desktop extends ThemeComponentOverrides
+>(
+	config: SnapTemplatesConfigInput<Default, Mobile, Tablet, Desktop>
+): ValidatedTemplatesConfig<SnapTemplatesConfig, ThemeOverridesErrors<AuthoredOverrides<Default, Mobile, Tablet, Desktop, ThemeComponentOverrides>>> {
+	// the return type is a compile-time verdict; at runtime the config passes straight through
+	return config as any;
+}
+
+// prettier-ignore
+export function validateTemplatesConfigUnlocked<
+	Default extends ThemeComponentOverridesUnlocked,
+	Mobile extends ThemeComponentOverridesUnlocked,
+	Tablet extends ThemeComponentOverridesUnlocked,
+	Desktop extends ThemeComponentOverridesUnlocked
+>(
+	config: SnapTemplatesConfigInputUnlocked<Default, Mobile, Tablet, Desktop>
+): ValidatedTemplatesConfig<SnapTemplatesConfigUnlocked, ThemeOverridesErrorsUnlocked<AuthoredOverrides<Default, Mobile, Tablet, Desktop, ThemeComponentOverridesUnlocked>>> {
+	// the return type is a compile-time verdict; at runtime the config passes straight through
+	return config as any;
+}
+
 type TemplatePlugins =
 	// common
 	| [typeof pluginBackgroundFilters, PluginBackgroundFiltersConfig]
@@ -92,6 +198,7 @@ type TemplatePlugins =
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
 	| [typeof pluginShopifyMarkets, PluginShopifyMarketsConfig]
+	| [typeof pluginShopifyCurrency, PluginShopifyCurrencyConfig, TemplatesStore]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
@@ -112,62 +219,12 @@ export const DEFAULT_AUTOCOMPLETE_CONTROLLER_SETTINGS: AutocompleteStoreConfigSe
 	},
 };
 
-const hasShopifyMarketsPluginConfig = (templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked): boolean => {
-	const pluginConfigs = [
-		templateConfig.plugins?.shopify?.markets,
-		templateConfig.search?.plugins?.shopify?.markets,
-		templateConfig.autocomplete?.plugins?.shopify?.markets,
-		templateConfig.recommendation?.plugins?.shopify?.markets,
-	];
-
-	return pluginConfigs.some((pluginConfig) => {
-		return typeof pluginConfig?.token === 'string' && pluginConfig.token.length > 0;
-	});
-};
-
-export const applyAutomaticThemeOverrides = (
-	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked
-): SnapTemplatesConfig | SnapTemplatesConfigUnlocked => {
-	if (templateConfig.config?.platform !== 'shopify') {
-		return templateConfig;
-	}
-
-	if (!hasShopifyMarketsPluginConfig(templateConfig)) {
-		return templateConfig;
-	}
-
-	const defaultOverrides = templateConfig.theme?.overrides?.default as Record<string, unknown> | undefined;
-	const priceOverride = defaultOverrides?.price as { format?: unknown } | undefined;
-
-	if (typeof priceOverride?.format !== 'undefined') {
-		return templateConfig;
-	}
-
-	let context: { format?: string } | undefined;
-	try {
-		context = getContext(['format']) as { format?: string };
-	} catch {
-		context = undefined;
-	}
-	const currencyFormat: string = context?.format || '${{amount}}';
-	// todo: consider moving this inside of the plugin if possible. seems odd to have this happen outside of it.
-	return deepmerge(templateConfig, {
-		theme: {
-			overrides: {
-				default: {
-					price: {
-						format: (number: number | string) => shopifyMarketsPriceFormat(number, currencyFormat),
-					},
-				},
-			},
-		},
-	});
-};
+// tabs namespace their catalog specific url state - the query is shared so a single search spans every tab
+export const TAB_PREFIXED_PARAMS: (keyof CoreMap)[] = ['filter', 'sort', 'pageSize', 'rq', 'page'];
 
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
-		const modifiedConfig = applyAutomaticThemeOverrides(config);
 		let context: { editor?: { mode?: string } } = {};
 		try {
 			context = getContext(['editor']);
@@ -184,16 +241,16 @@ export class SnapTemplates extends Snap {
 		const editMode = Boolean(editorCookieValue) || editUIMode || Boolean(editor?.mode === 'headless');
 
 		// handle "global" result component configuration
-		if (modifiedConfig.theme.globalResultComponent) {
-			(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
-				{ default: { result: { customComponent: modifiedConfig.theme.globalResultComponent } } },
-				(modifiedConfig as SnapTemplatesConfigUnlocked).theme.overrides || {}
+		if (config.theme.globalResultComponent) {
+			(config as SnapTemplatesConfigUnlocked).theme.overrides = deepmerge(
+				{ default: { result: { customComponent: config.theme.globalResultComponent } } },
+				(config as SnapTemplatesConfigUnlocked).theme.overrides || {}
 			);
 		}
 
-		const templatesStore = new TemplatesStore({ config: modifiedConfig, settings: { editMode } });
+		const templatesStore = new TemplatesStore({ config: config, settings: { editMode } });
 
-		const snapConfig = createSnapConfig(modifiedConfig, templatesStore);
+		const snapConfig = createSnapConfig(config, templatesStore);
 
 		super(snapConfig, { templatesStore });
 
@@ -213,8 +270,8 @@ export class SnapTemplates extends Snap {
 				window.athos = window.athos || {};
 				window.athos.editor = templateEditorStore;
 
-				const searchController = this.controllers['search'] as SearchController | undefined;
-				const autocompleteController = this.controllers['autocomplete'] as AutocompleteController | undefined;
+				const searchController = this.getTemplateController('search') as SearchController | undefined;
+				const autocompleteController = this.getTemplateController('autocomplete') as AutocompleteController | undefined;
 
 				if (searchController) {
 					templateEditorStore.registerController(searchController);
@@ -274,6 +331,18 @@ export class SnapTemplates extends Snap {
 				}
 			}
 		});
+	}
+
+	// when tabs are configured there is no controller using the `search` / `autocomplete` id -
+	// the default tab controller is used instead
+	public getTemplateController(type: 'search' | 'autocomplete'): Controllers | undefined {
+		const tabs = this.templates.config[type]?.tabs;
+		if (tabs?.length) {
+			const defaultTab = tabs.filter((tab) => tab.default)[0] || tabs[0];
+			return this.controllers[defaultTab.id];
+		}
+
+		return this.controllers[type];
 	}
 }
 
@@ -366,6 +435,41 @@ export function createAutocompleteTargeters(templateConfig: SnapTemplatesConfig,
 	});
 }
 
+export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, templatesStore: TemplatesStore): ExtendedTarget[] {
+	return (
+		templateConfig.quickview?.targets?.map((targetConfig, index) => {
+			// Quickview isn't part of the editable targets registry (it's appended to <body> and driven by the
+			// QuickviewManager), so build a TargetStore directly rather than via addTarget. This lets the
+			// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
+			// provides the global templates ThemeProvider. Without it the quickview renders outside the
+			// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
+			// `quickviewLayout`) are silently dropped.
+			const target = new TargetStore({
+				target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
+			});
+
+			const targeter: ExtendedTarget = {
+				selector: targetConfig.selector || 'body',
+				inject: {
+					action: 'append' as const,
+					element: () => {
+						const el = document.createElement('div');
+						el.id = index === 0 ? 'athos-quickview' : `athos-quickview-${index}`;
+						return el;
+					},
+				},
+				component: async () => {
+					await templatesStore.library.import.component.quickview[targetConfig.component]();
+					return TemplateSelect;
+				},
+				props: { target, templatesStore },
+			};
+
+			return targeter;
+		}) || []
+	);
+}
+
 export function createRecommendationComponentMapping(
 	templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked,
 	templatesStore: TemplatesStore
@@ -420,6 +524,18 @@ export function createRecommendationComponentMapping(
 		}, {} as { [name: string]: RecommendationComponentObject });
 }
 
+function createTabServices(snapConfig: SnapConfig, siteId?: string) {
+	const tabGlobals = {
+		...snapConfig.client?.globals,
+		siteId,
+	} as ClientGlobals;
+
+	return {
+		client: new Client(tabGlobals, snapConfig.client?.config),
+		tracker: new Tracker(tabGlobals as TrackerGlobals, snapConfig.tracker?.config),
+	};
+}
+
 export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTemplatesConfigUnlocked, templatesStore: TemplatesStore): SnapConfig {
 	const initiatorPrefix = window?.athos?.managed ? `managed/` : '';
 	const snapConfig: SnapConfig = {
@@ -453,24 +569,58 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 
 	/* SEARCH CONTROLLER */
 	if (templateConfig.search && snapConfig.controllers) {
-		const searchControllerConfig = {
-			config: {
-				id: 'search',
-				plugins: createPlugins(templateConfig, templatesStore, 'search'),
-				globals: templateConfig.search.globals || {},
-				settings: templateConfig.search.settings || {},
-			},
-			targeters: createSearchTargeters(templateConfig, templatesStore),
-		};
+		const searchTabs = templateConfig.search.tabs || [];
+		const searchTargeters = createSearchTargeters(templateConfig, templatesStore);
+		const searchSettings = templateConfig.search.settings || {};
+		const searchGlobals = templateConfig.search.globals || {};
 
-		// merge the responsive settings if there are any
-		// if (templateConfig.config.theme.variables?.breakpoints && templateConfig.search.breakpointSettings) {
-		// 	const mappedBreakpoints = mapBreakpoints(templateConfig.config.theme.variables.breakpoints, templateConfig.search.breakpointSettings || []);
-		// 	const breakpointSettings = getDisplaySettings(mappedBreakpoints) as SearchStoreConfigSettings;
-		// 	searchControllerConfig.config.settings = deepmerge(searchControllerConfig.config.settings, breakpointSettings);
-		// }
+		snapConfig.controllers.search = [];
 
-		snapConfig.controllers.search = [searchControllerConfig];
+		if (!searchTabs.length) {
+			snapConfig.controllers.search.push({
+				config: {
+					id: 'search',
+					plugins: createPlugins(templateConfig, templatesStore, 'search'),
+					globals: searchGlobals,
+					settings: searchSettings,
+				},
+				targeters: searchTargeters,
+			});
+		} else {
+			// when tabs are configured, the tab controllers do all of the searching - an additional
+			// non-tab controller would only produce a redundant API request, so the targeters are
+			// attached to the active tab controller instead. targeting kicks off a search before the
+			// TabManagerStore exists to gate redirects, so this must be the tab the shopper is viewing
+			const targetedTab = getActiveTabConfig(searchTabs) || searchTabs[0];
+
+			searchTabs.forEach((tab) => {
+				const tabParam = tab.param;
+
+				snapConfig.controllers!.search!.push({
+					url: {
+						settings: {
+							// the query is shared across tabs - only per-catalog state is namespaced
+							...(tabParam ? { corePrefix: tabParam, corePrefixParams: TAB_PREFIXED_PARAMS } : {}),
+						},
+						parameters: {
+							custom: {
+								[TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
+							},
+						},
+					},
+					config: {
+						id: tab.id,
+						plugins: tab.plugins ? createTabPlugins(tab.plugins, templatesStore) : createPlugins(templateConfig, templatesStore, 'search'),
+						settings: {
+							...deepmerge(searchSettings, tab.settings || {}),
+						},
+						globals: deepmerge(searchGlobals, tab.globals || {}),
+					},
+					services: createTabServices(snapConfig, tab.siteId),
+					...(tab === targetedTab ? { targeters: searchTargeters } : {}),
+				});
+			});
+		}
 	}
 
 	/* AUTOCOMPLETE CONTROLLER */
@@ -480,17 +630,10 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 			templateConfig.autocomplete.settings || {}
 		);
 
-		const autocompleteControllerConfig = {
-			config: {
-				id: 'autocomplete',
-				plugins: createPlugins(templateConfig, templatesStore, 'autocomplete'),
-				selector: templateConfig.autocomplete.targets.map((target) => target.inputSelector).join(', '),
-				action: templateConfig.autocomplete.action || '',
-				globals: templateConfig.autocomplete.globals || {},
-				settings: autocompleteControllerSettings,
-			},
-			targeters: createAutocompleteTargeters(templateConfig, templatesStore),
-		};
+		const autocompleteSelector = templateConfig.autocomplete.targets.map((target) => target.inputSelector).join(', ');
+		const autocompleteTabs = templateConfig.autocomplete.tabs || [];
+		const autocompleteGlobals = templateConfig.autocomplete.globals || {};
+		const autocompleteTargeters = createAutocompleteTargeters(templateConfig, templatesStore);
 
 		// merge the responsive settings if there are any
 		// if (templateConfig.config.theme.variables?.breakpoints && templateConfig.autocomplete.breakpointSettings) {
@@ -499,10 +642,64 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		// 		templateConfig.autocomplete.breakpointSettings || []
 		// 	);
 		// 	const breakpointSettings = getDisplaySettings(mappedBreakpoints) as AutocompleteStoreConfigSettings;
-		// 	autocompleteControllerConfig.config.settings = deepmerge(autocompleteControllerConfig.config.settings, breakpointSettings);
+		// 	autocompleteControllerSettings = deepmerge(autocompleteControllerSettings, breakpointSettings);
 		// }
 
-		snapConfig.controllers.autocomplete = [autocompleteControllerConfig];
+		snapConfig.controllers.autocomplete = [];
+
+		if (!autocompleteTabs.length) {
+			snapConfig.controllers.autocomplete.push({
+				config: {
+					id: 'autocomplete',
+					plugins: createPlugins(templateConfig, templatesStore, 'autocomplete'),
+					selector: autocompleteSelector,
+					action: templateConfig.autocomplete.action || '',
+					globals: autocompleteGlobals,
+					settings: autocompleteControllerSettings,
+				},
+				targeters: autocompleteTargeters,
+			});
+		} else {
+			// when tabs are configured, every tab controller binds to the same input - an additional
+			// non-tab controller would only produce redundant API requests, so the targeters are
+			// attached to the default tab controller instead
+			const defaultTab = autocompleteTabs.filter((tab) => tab.default)[0] || autocompleteTabs[0];
+
+			autocompleteTabs.forEach((tab) => {
+				const tabParam = tab.param;
+
+				snapConfig.controllers!.autocomplete!.push({
+					url: {
+						settings: {
+							// the query is shared across tabs - only per-catalog state is namespaced
+							...(tabParam ? { corePrefix: tabParam, corePrefixParams: TAB_PREFIXED_PARAMS } : {}),
+						},
+						parameters: {
+							custom: {
+								[TAB_ID_DEFAULT_PARAM]: { type: 'query' as const },
+							},
+						},
+						// every url the autocomplete builds must carry the tab it belongs to
+						globals: [
+							{
+								param: TAB_ID_DEFAULT_PARAM,
+								value: tab.param,
+							},
+						],
+					},
+					config: {
+						id: tab.id,
+						plugins: tab.plugins ? createTabPlugins(tab.plugins, templatesStore) : createPlugins(templateConfig, templatesStore, 'autocomplete'),
+						selector: autocompleteSelector,
+						action: templateConfig.autocomplete!.action || '',
+						settings: deepmerge(autocompleteControllerSettings, tab.settings || {}),
+						globals: deepmerge(autocompleteGlobals, tab.globals || {}),
+					},
+					services: createTabServices(snapConfig, tab.siteId),
+					...(tab === defaultTab ? { targeters: autocompleteTargeters } : {}),
+				});
+			});
+		}
 	}
 
 	/* RECOMMENDATION INSTANTIATOR */
@@ -564,6 +761,18 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 		snapConfig.instantiators.recommendation = recommendationInstantiatorConfig;
 	}
 
+	/* QUICKVIEW MANAGER — injects quickview component(s) into <body> when enabled */
+	if (templateConfig.quickview) {
+		const quickviewSettings = templateConfig.quickview?.settings;
+		snapConfig.quickview = {
+			config: {
+				id: 'quickview',
+				...(quickviewSettings ? { settings: quickviewSettings } : {}),
+			},
+			targeters: createQuickviewTargeters(templateConfig, templatesStore),
+		};
+	}
+
 	return snapConfig;
 }
 
@@ -611,8 +820,15 @@ export function createPlugins(
 			]);
 			const marketsConfig = deepmerge(templateConfig.plugins?.shopify?.markets || {}, controllerConfig?.plugins?.shopify?.markets || {});
 			//only push if token is defined and non-empty
-			if (typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0) {
+			const marketsEnabled = typeof (marketsConfig as any)?.token === 'string' && (marketsConfig as any).token.length > 0;
+			if (marketsEnabled) {
 				plugins.push([templatesStore.library.import.plugins.shopify.markets, marketsConfig]);
+			}
+			// markets plugin enables the currency plugin unless it has been explicitly disabled
+			const currencyConfig = deepmerge(templateConfig.plugins?.shopify?.currency || {}, controllerConfig?.plugins?.shopify?.currency || {});
+			if (currencyConfig?.enabled === true || (marketsEnabled && currencyConfig?.enabled !== false)) {
+				// `enabled` is resolved onto the config so the plugin survives the tab plugin filter below
+				plugins.push([templatesStore.library.import.plugins.shopify.currency, { ...currencyConfig, enabled: true }, templatesStore]);
 			}
 			break;
 		case 'bigCommerce':
@@ -663,4 +879,15 @@ export function createPlugins(
 	});
 
 	return plugins as PluginGrouping[];
+}
+
+// tab level plugins do not inherit global or controller level plugins - only the plugins configured on the tab are used
+export function createTabPlugins(tabPlugins: PluginsConfigsUnlocked, templatesStore: TemplatesStore): PluginGrouping[] {
+	const plugins = createPlugins({ plugins: tabPlugins } as SnapTemplatesConfigUnlocked, templatesStore);
+	const customPluginFunctions = Object.values(tabPlugins.custom || {}).map((customPlugin) => customPlugin.function);
+
+	// built-in plugins are always created - keep only the ones that were given configuration on the tab
+	return plugins.filter(
+		(plugin) => customPluginFunctions.includes(plugin[0] as PluginFunction) || Object.keys(plugin[1] || {}).length > 0
+	) as PluginGrouping[];
 }

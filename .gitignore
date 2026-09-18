@@ -3,6 +3,7 @@ yarn-error.log
 lerna-debug.log
 .DS_Store
 .nx
+.jest-cache
 dist
 coverage
 metrics/data

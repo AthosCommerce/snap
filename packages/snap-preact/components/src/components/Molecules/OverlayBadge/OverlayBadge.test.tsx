@@ -68,6 +68,20 @@ describe('OverlayBadge Component', () => {
 		expect(ChildrenEl).toBeInTheDocument();
 	});
 
+	it('renders only children (and does not throw) when the result has no display data', () => {
+		const plainResult = { id: 'plain', mappings: { core: { name: 'Plain' } }, attributes: {} };
+		const rendered = render(
+			<OverlayBadge controller={controller} result={plainResult as any}>
+				{CHILDREN}
+			</OverlayBadge>
+		);
+		const OverlayBadgeEl = rendered.container.querySelector('.ss__overlay-badge');
+		expect(OverlayBadgeEl).not.toBeInTheDocument();
+
+		const ChildrenEl = rendered.container.querySelector(`.children`)!;
+		expect(ChildrenEl).toBeInTheDocument();
+	});
+
 	it('will NOT render the wrapper element if there are no badges', () => {
 		const rendered = render(
 			<OverlayBadge controller={controller} result={resultNoBadges}>

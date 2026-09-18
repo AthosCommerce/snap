@@ -176,7 +176,7 @@ describe('AutocompleteLayout Component', () => {
 
 			const c1 = rendered.container.querySelector('.ss__autocomplete__column--c1');
 			const styles = getComputedStyle(c1!);
-			expect(styles.flex).toBe(`1 1 auto`);
+			expect(styles.flex).toBe(`1 1 0px`);
 
 			expect(c1Terms).not.toBeInTheDocument();
 			expect(c1Facets).toBeInTheDocument();
@@ -216,7 +216,7 @@ describe('AutocompleteLayout Component', () => {
 
 			const c2 = rendered.container.querySelector('.ss__autocomplete__column--c2');
 			const styles = getComputedStyle(c2!);
-			expect(styles.flex).toBe(`1 1 auto`);
+			expect(styles.flex).toBe(`1 1 0px`);
 
 			expect(c2Terms).toBeInTheDocument();
 			expect(c2Facets).not.toBeInTheDocument();
@@ -255,7 +255,7 @@ describe('AutocompleteLayout Component', () => {
 
 			const c3 = rendered.container.querySelector('.ss__autocomplete__column--c3');
 			const styles = getComputedStyle(c3!);
-			expect(styles.flex).toBe(`1 1 auto`);
+			expect(styles.flex).toBe(`1 1 0px`);
 
 			expect(c3Terms).toBeInTheDocument();
 			expect(c3Facets).toBeInTheDocument();
@@ -303,6 +303,45 @@ describe('AutocompleteLayout Component', () => {
 			const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
 
 			expect(results.length).toBeGreaterThan(0);
+		});
+	});
+
+	it('numbers rows with a ss__autocomplete__row--N modifier class, restarting at 0 in each column', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			// flat (unwrapped) top-level layout so only the columns' own rows are under test.
+			layout: ['c1', 'c2'],
+			column1: {
+				width: 'auto',
+				// two rows in c1 — both render content, so c1 should count 0, 1.
+				layout: [['facets'], ['content']],
+			},
+			column2: {
+				width: 'auto',
+				// a single row in c2 — must restart at 0, not continue c1's counter to 2.
+				layout: [['facets']],
+			},
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const c1Rows = rendered.container.querySelectorAll('.ss__autocomplete__column--c1 > .ss__autocomplete__row');
+			const c2Rows = rendered.container.querySelectorAll('.ss__autocomplete__column--c2 > .ss__autocomplete__row');
+
+			expect(c1Rows.length).toBe(2);
+			expect(c1Rows[0]).toHaveClass('ss__autocomplete__row--0');
+			expect(c1Rows[1]).toHaveClass('ss__autocomplete__row--1');
+
+			expect(c2Rows.length).toBe(1);
+			expect(c2Rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
 
@@ -538,6 +577,9 @@ describe('AutocompleteLayout Component', () => {
 			expect(rows[0].childNodes.length).toBe(1); // termsList
 			expect(rows[1].childNodes.length).toBe(1); // no-results
 			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
+			expect(rows[1]).toHaveClass('ss__autocomplete__row--1');
+			expect(rows[2]).toHaveClass('ss__autocomplete__row--2');
 		});
 	});
 
@@ -578,6 +620,9 @@ describe('AutocompleteLayout Component', () => {
 			expect(rows[0].childNodes.length).toBe(1); // termsList
 			expect(rows[1].childNodes.length).toBe(1); // content
 			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
+			expect(rows[1]).toHaveClass('ss__autocomplete__row--1');
+			expect(rows[2]).toHaveClass('ss__autocomplete__row--2');
 		});
 	});
 
@@ -613,6 +658,7 @@ describe('AutocompleteLayout Component', () => {
 			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
 			expect(rows.length).toBe(1);
 			expect(rows[0].childNodes.length).toBe(2);
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
 
@@ -648,6 +694,7 @@ describe('AutocompleteLayout Component', () => {
 			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
 			expect(rows.length).toBe(1);
 			expect(rows[0].childNodes.length).toBe(3);
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
 });

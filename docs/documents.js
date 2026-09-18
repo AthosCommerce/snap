@@ -126,6 +126,15 @@ var documents = [
 				type: 'markdown',
 				url: './docs/TEMPLATES_CONFIG.md',
 				searchable: true,
+				links: [
+					{
+						label: 'Localization',
+						route: '/templates-localization',
+						type: 'markdown',
+						url: './docs/TEMPLATES_LOCALIZATION.md',
+						searchable: true,
+					},
+				],
 			},
 			{
 				label: 'Theming',
@@ -505,6 +514,45 @@ var documents = [
 				type: 'markdown',
 				url: './docs/REFERENCE_VARIANTS.md',
 				searchable: true,
+			},
+			{
+				label: 'Config Validation & Linting',
+				route: '/reference-config-validation',
+				type: 'markdown',
+				url: './docs/REFERENCE_CONFIG_VALIDATION.md',
+				searchable: true,
+			},
+			{
+				label: 'Tabbed Search',
+				route: '/reference-tabbed-search',
+				type: 'markdown',
+				url: './docs/REFERENCE_TABBED_SEARCH.md',
+				searchable: true,
+			},
+			{
+				label: 'Quickview',
+				route: '/reference-quickview',
+				type: 'markdown',
+				url: './docs/REFERENCE_QUICKVIEW.md',
+				searchable: true,
+				links: [
+					{
+						label: 'QuickviewManager',
+						route: '/reference-quickview-manager',
+						type: 'markdown',
+						url: './packages/snap-controller/src/Quickview/README.md',
+						searchable: true,
+						hidden: true,
+					},
+					{
+						label: 'Layout',
+						route: '/reference-quickview-layout',
+						type: 'markdown',
+						url: './packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md',
+						searchable: true,
+						hidden: true,
+					},
+				],
 			},
 			{
 				label: 'Custom Recommendation Templates',

@@ -21,7 +21,9 @@ import { TermsList, TermsListProps } from '../TermsList';
 import { Terms, TermsProps } from '../../Molecules/Terms';
 import { FacetsHorizontal } from '../FacetsHorizontal';
 import { Button, ButtonProps } from '../../Atoms/Button';
+import { TabSelection, TabSelectionProps } from '../../Molecules/TabSelection';
 import { createRecommendationTemplate } from '../../../hooks/createRecommendationTemplate';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 	controller,
@@ -48,23 +50,23 @@ const defaultStyles: StyleScript<AutocompleteLayoutProps> = ({
 	const noResults = Boolean(controller.store.search?.query?.string && controller.store.results.length === 0);
 	return css({
 		'.ss__autocomplete__column.ss__autocomplete__column--c1': {
-			flex: column1?.width == 'auto' ? '1 1 auto' : `1 0 ${column1?.width}`,
-			maxWidth: column1?.width == 'auto' ? 'auto' : column1?.width,
+			flex: column1?.width == 'auto' ? '1 1 0' : `1 0 ${column1?.width}`,
+			maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
 			alignContent: column1?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c2': {
-			flex: column2?.width == 'auto' ? '1 1 auto' : `1 0 ${column2?.width}`,
-			maxWidth: column2?.width == 'auto' ? 'auto' : column2?.width,
+			flex: column2?.width == 'auto' ? '1 1 0' : `1 0 ${column2?.width}`,
+			maxWidth: column2?.width == 'auto' ? 'none' : column2?.width,
 			alignContent: column2?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c3': {
-			flex: column3?.width == 'auto' ? '1 1 auto' : `1 0 ${column3?.width}`,
-			maxWidth: column3?.width == 'auto' ? 'auto' : column3?.width,
+			flex: column3?.width == 'auto' ? '1 1 0' : `1 0 ${column3?.width}`,
+			maxWidth: column3?.width == 'auto' ? 'none' : column3?.width,
 			alignContent: column3?.alignContent,
 		},
 		'.ss__autocomplete__column.ss__autocomplete__column--c4': {
-			flex: column4?.width == 'auto' ? '1 1 auto' : `1 0 ${column4?.width}`,
-			maxWidth: column4?.width == 'auto' ? 'auto' : column4?.width,
+			flex: column4?.width == 'auto' ? '1 1 0' : `1 0 ${column4?.width}`,
+			maxWidth: column4?.width == 'auto' ? 'none' : column4?.width,
 			alignContent: column4?.alignContent,
 		},
 
@@ -210,7 +212,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			width: '150px',
 		},
 		column3: {
-			layout: [['content'], ['_', 'button.see-more']],
+			layout: [['tabSelection'], ['content'], ['_', 'button.see-more']],
 			width: 'auto',
 			alignContent: 'space-between',
 		},
@@ -328,6 +330,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		className,
 		internalClassName,
 		controller,
+		tabManager,
 	} = props;
 	let layout = props.layout;
 
@@ -431,6 +434,17 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			theme: props.theme,
 			treePath: properties.treePath,
 		},
+		tabSelection: {
+			// default props
+			tabManager,
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props.theme,
+			treePath: properties.treePath,
+		},
 	};
 
 	const { search, terms, trending, results, merchandising, pagination, filters, facets, state, loading, loaded } = controller.store;
@@ -503,9 +517,13 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	let recsController: RecommendationController | undefined;
 	let RecommendationTemplateComponent: ((props: RecommendationComponentProps) => h.JSX.Element | null) | undefined;
@@ -521,35 +539,39 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		recsController = recs.recsController;
 	}
 
-	const findModule = (module: ModuleNamesWithColumns) => {
+	const findModule = (module: ModuleNamesWithColumns, rowCounter: { value: number }) => {
 		//new row
 		if (typeof module !== 'string') {
-			const children = module?.map((subModule) => findModule(subModule));
+			const children = module?.map((subModule) => findModule(subModule, rowCounter));
 			const hasContent = (module as string[]).some((subModule, i) => subModule !== '_' && children[i]);
 			if (!hasContent) return null;
-			return <div className="ss__autocomplete__row">{children}</div>;
+			return <div className={`ss__autocomplete__row ss__autocomplete__row--${rowCounter.value++}`}>{children}</div>;
 		}
 
 		if (module == 'c1' && column1?.layout?.length) {
-			const children = (column1.layout as any[]).map((m) => findModule(m));
+			const c1RowCounter = { value: 0 };
+			const children = (column1.layout as any[]).map((m) => findModule(m, c1RowCounter));
 			const hasContent = (column1.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c1">{children}</div>;
 		}
 		if (module == 'c2' && column2?.layout?.length) {
-			const children = (column2.layout as any[]).map((m) => findModule(m));
+			const c2RowCounter = { value: 0 };
+			const children = (column2.layout as any[]).map((m) => findModule(m, c2RowCounter));
 			const hasContent = (column2.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c2">{children}</div>;
 		}
 		if (module == 'c3' && column3?.layout?.length) {
-			const children = (column3.layout as any[]).map((m) => findModule(m));
+			const c3RowCounter = { value: 0 };
+			const children = (column3.layout as any[]).map((m) => findModule(m, c3RowCounter));
 			const hasContent = (column3.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c3">{children}</div>;
 		}
 		if (module == 'c4' && column4?.layout?.length) {
-			const children = (column4.layout as any[]).map((m) => findModule(m));
+			const c4RowCounter = { value: 0 };
+			const children = (column4.layout as any[]).map((m) => findModule(m, c4RowCounter));
 			const hasContent = (column4.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c4">{children}</div>;
@@ -700,6 +722,10 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 			);
 		}
 
+		if (module == 'tabSelection') {
+			return tabManager ? <TabSelection {...subProps.tabSelection} tabManager={tabManager} /> : null;
+		}
+
 		if (module == '_') {
 			return <div className="ss__autocomplete__separator"></div>;
 		}
@@ -747,6 +773,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		controller.log.warn(`unsupported layout found. ${props.layout}`);
 		layout = [];
 	}
+	const topRowCounter = { value: 0 };
 
 	/***************************************/
 	return visible && layout?.length ? (
@@ -775,7 +802,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 				></span>
 
 				{(layout as ModuleNamesWithColumns[])?.map((module) => {
-					return findModule(module as ModuleNames);
+					return findModule(module as ModuleNames, topRowCounter);
 				})}
 			</div>
 		</CacheProvider>
@@ -791,6 +818,7 @@ interface AutocompleteSubProps {
 	results: Partial<ResultsProps>;
 	icon: Partial<IconProps>;
 	button: Partial<ButtonProps>;
+	tabSelection: Partial<TabSelectionProps>;
 }
 
 //can add categories here in the future
@@ -804,6 +832,7 @@ export type ModuleNames =
 	| 'button.see-more'
 	| 'content'
 	| 'no-results'
+	| 'tabSelection'
 	| '_'
 	| 'banner.left'
 	| 'banner.banner'
@@ -824,6 +853,7 @@ export type AutocompleteLayoutProps = {
 	resultComponent?: JSXComponent | JSX.Element;
 	controller: AutocompleteController;
 	lang?: Partial<AutocompleteLayoutLang>;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteLayoutTemplatesLegalProps, 'resultComponent'> &
 	ComponentProps<AutocompleteLayoutProps>;
 

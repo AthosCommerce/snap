@@ -5,7 +5,6 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-import packageJSON from '../../../package.json';
 import 'cypress-wait-until';
 
 Cypress.Commands.add('addScript', (script) => {
@@ -37,47 +36,39 @@ Cypress.Commands.add('addLocalSnap', () => {
 
 Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
 	const defaultOptions = {
-		delay: 200,
+		// Minimum settle before the controller is handed back. Many specs rely on this command
+		// as a page settle and then assert synchronously on things that are only ready *after*
+		// the store loads - theme stylescripts, targeter bindings, autocomplete input sync - so
+		// resolving as soon as `loaded` flips is not safe. This matches the floor of the original
+		// implementation (a 300ms delay plus one 150ms poll); shortening it fails on slower CI.
+		settle: 450,
+		delay: 0,
+		timeout: Cypress.config('defaultCommandTimeout'),
+		interval: 20,
 	};
 
 	const mergedOptions = { ...defaultOptions, ...options };
-	cy.wait(mergedOptions.delay);
+	const startedAt = Date.now();
 
-	return cy.window().then((window) => {
-		return new Cypress.Promise((resolve) => {
-			const checkTimeout = 200;
-			const interval = setInterval(() => {
-				if (window.athos?.controller && window.athos.controller[controllerId]) {
-					if (!window.athos.controller[controllerId].store.loading) {
-						clearInterval(interval);
-						resolve(window.athos.controller[controllerId]);
-					}
-				}
-			}, checkTimeout);
-		});
-	});
-});
+	const getSettledController = (window) => {
+		const controller = window.athos?.controller?.[controllerId];
+		if (!controller) return;
+		if (controller.store.loading) return;
+		if (Date.now() - startedAt < mergedOptions.settle) return;
 
-Cypress.Commands.add('snapController', (controllerId = 'search', options) => {
-	const defaultOptions = {
-		delay: 300,
+		return controller;
 	};
 
-	const mergedOptions = { ...defaultOptions, ...options };
-	return cy.wait(mergedOptions.delay).then(() => {
-		return cy.window().then((window) => {
-			return new Cypress.Promise((resolve) => {
-				const checkTimeout = 150;
-				const interval = setInterval(() => {
-					if (window.athos?.controller && window.athos.controller[controllerId]) {
-						if (!window.athos.controller[controllerId].store.loading) {
-							clearInterval(interval);
-							resolve(window.athos.controller[controllerId]);
-						}
-					}
-				}, checkTimeout);
-			});
-		});
+	if (mergedOptions.delay) {
+		cy.wait(mergedOptions.delay);
+	}
+
+	// the predicate must yield an explicit falsy to retry - a cy.then returning undefined keeps
+	// the previous subject (the window, truthy), which would end the wait immediately
+	return cy.waitUntil(() => cy.window({ log: false }).then((window) => getSettledController(window) ?? false), {
+		timeout: mergedOptions.timeout,
+		interval: mergedOptions.interval,
+		errorMsg: `snapController('${controllerId}'): controller never became available or store never stopped loading`,
 	});
 });
 
@@ -112,11 +103,14 @@ Cypress.Commands.add('waitForIdle', (options) => {
 	});
 });
 
-Cypress.Commands.add('waitForRecsReady', () => {
-	return cy.document().then((doc) => {
-		return new Cypress.Promise((resolve) => {
-			setTimeout(resolve, 5000);
-			doc.addEventListener('RecsReady', resolve);
-		});
+Cypress.Commands.add('waitForRecsReady', (options) => {
+	const mergedOptions = { timeout: 10000, interval: 50, ...options };
+
+	// the email pages set window.RecsReady from their own RecsReady listener, so polling the flag
+	// also covers the case where the event fired before this command could attach a listener
+	return cy.waitUntil(() => cy.window({ log: false }).then((window) => window.RecsReady === true && window), {
+		timeout: mergedOptions.timeout,
+		interval: mergedOptions.interval,
+		errorMsg: 'waitForRecsReady: window.RecsReady was never set (RecsReady event did not fire)',
 	});
 });

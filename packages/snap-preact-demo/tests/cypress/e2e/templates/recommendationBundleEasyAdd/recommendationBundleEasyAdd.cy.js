@@ -99,7 +99,7 @@ describe('BundledRecommendations', () => {
 				//title
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-easy-add__wrapper__cta__subtotal__title`)
 					.should('exist')
-					.should('have.text', 'Subtotal for 2 items');
+					.should('have.text', `Subtotal for ${store.cart.count} items`);
 				//price
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-easy-add__wrapper__cta__subtotal__price .ss__price`)
 					.should('exist')
