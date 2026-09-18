@@ -532,6 +532,9 @@ new SnapTemplates(validateTemplatesConfig({
 
 The `customComponent` prop lets you completely replace a component in the tree with your own implementation. It works by referencing the name of a component you've registered in the `components` section of your configuration. This is only available in an **unlocked** configuration.
 
+> [!IMPORTANT]
+> `result` does not support `customComponent`, in locked or unlocked configurations. To customize result rendering, use `resultComponent` or `globalResultComponent` instead — see [The `customComponent` Override Prop](TEMPLATES_THEMING.md#the-customcomponent-override-prop).
+
 #### Setup
 
 You need three things:
@@ -618,8 +621,7 @@ new SnapTemplates(config);
 ### Using the Shopify Markets Plugin
 
 The **Shopify Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API for multi-currency storefronts using Shopify Markets.
-When this plugin is configured on Shopify, SnapTemplates also automatically applies the `price.format` override using `shopifyMarketsPriceFormat` (unless you already set a custom `price.format`).
-The formatter reads script context with `getContext(['format'])`.
+It localizes the price *values*; displaying them correctly also needs the matching currency locale, so configuring `markets` automatically enables the [Shopify Currency plugin](#using-the-shopify-currency-plugin).
 
 Register the plugin in your SnapTemplates configuration:
 
@@ -644,16 +646,7 @@ const config = validateTemplatesConfig({
 new SnapTemplates(config);
 ```
 
-Optional script context variables used by `shopifyMarketsPriceFormat`:
-
-```html
-<script id="athos-context" src="bundle.js">
-	format = '${{amount}}';
-</script>
-```
-
 In your result component, check the `priceFetched` flag before rendering prices.
-You do not need to manually import or pass `shopifyMarketsPriceFormat` when using the snap `Price` component.
 
 ```tsx
 import { observer } from 'mobx-react-lite';
@@ -673,15 +666,81 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 });
 ```
 
-If you need a custom formatter, you can still explicitly set `theme.overrides.default.price.format` in your template config.
+If you need a custom formatter, you can still set `theme.overrides.default.price.format` in your template config; it takes precedence over the currency locale.
 												
 For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
 
 ---
 
+### Using the Shopify Currency Plugin
+
+The **Shopify Currency plugin** takes the storefront's active currency (`Shopify.currency.active`) and applies the matching built-in currency locale, so the `Price` component's symbol, decimal places and separators follow the market the shopper is browsing in. It is the display-side companion to the Markets plugin, which localizes the price values themselves.
+
+Configuring the Markets plugin enables this one automatically, since the two are halves of the same feature — Markets converts the price values, this plugin makes the display match them. Enabling it on its own is only correct when something else is converting prices; on a multi-currency storefront with no conversion it would label base-currency amounts with the shopper's market symbol. To use it standalone, or to opt back out alongside Markets, set `enabled` explicitly:
+
+```tsx
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+		currency: 'USD', // applied until the plugin resolves the storefront currency, and kept if it can't
+	},
+	plugins: {
+		shopify: {
+			currency: {
+				enabled: true,
+			},
+		},
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+
+new SnapTemplates(config);
+```
+
+No currency table is needed per site: the currency locales for every currency Shopify supports (ISO 4217) ship with Snap Templates. Site specific adjustments still go through `theme.overrides.default.price`, which is applied on top of the currency locale.
+
+Each locale carries the `symbol`, `decimalPlaces`, `thousandsSeparator`, `decimalSeparator` and `symbolAfter` for that currency, and supplies the ISO code to the `Price` component. To display that code next to the amount, set `theme.overrides.default.price.showCode: true` — the equivalent of Shopify's `money_with_currency_format`.
+
+The currency is read at load time. Shopify's currency and market selectors reload the page, so a currency change is picked up on the next load. The currency can also be changed at any time with `window.athos.templates.setCurrency('EUR')`.
+
+For detailed configuration options, see the [Shopify Currency plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifycurrency).
+
+---
+
+### Per Currency Overrides
+
+Several currencies have more than one accepted presentation — `$1,099.99` or `1,099.99 USD`. The top level `currencies` config overrides component props for a single currency, layered on top of the built-in currency locale:
+
+```tsx
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		currency: 'USD',
+	},
+	currencies: {
+		USD: {
+			price: {
+				showCode: true, // $1,099.99 USD
+			},
+		},
+	},
+	theme: { extends: 'bocachica' },
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+```
+
+For the full config shape and layer order, see [Per Currency Overrides](TEMPLATES_LOCALIZATION.md#per-currency-overrides) in the localization guide.
+
+---
+
 ### Language Translations
 
-Snap Templates includes built-in language support for English (`en`), French (`fr`), and Spanish (`es`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
+Snap Templates includes built-in language support for English (`EN`), French (`FR`), and Spanish (`ES`). The active language is set via `config.language`. The `translations` property in your configuration lets you override or extend the text strings used by any component for a given language.
 
 #### How It Works
 
@@ -691,18 +750,18 @@ When a `value` is a function, it receives a `data` object containing relevant co
 
 #### Basic Setup
 
-Set `config.language` to one of the supported language codes (`'en'`, `'fr'`, `'es'`), then provide overrides in the `translations` block:
+Set `config.language` to one of the supported language codes (`'EN'`, `'FR'`, `'ES'`), then provide overrides in the `translations` block:
 
 ```tsx
 new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: 'abc123',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 		platform: 'other',
 	},
 	translations: {
-		en: {
+		EN: {
 			search: {
 				toggleSidebarButtonText: {
 					value: 'Filter Results',
@@ -714,7 +773,7 @@ new SnapTemplates(validateTemplatesConfig({
 				},
 			},
 		},
-		fr: {
+		FR: {
 			search: {
 				toggleSidebarButtonText: {
 					value: 'Filtrer les résultats',
@@ -744,11 +803,11 @@ Translation values can be functions that receive component data, enabling condit
 new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: 'abc123',
-		language: 'en',
+		language: 'EN',
 		platform: 'other',
 	},
 	translations: {
-		en: {
+		EN: {
 			search: {
 				toggleSidebarButtonText: {
 					value: (data: { sidebarOpenState: boolean }) => {
@@ -786,11 +845,11 @@ Since a `value` function's `data` argument always includes `activeBreakpoint`, y
 new SnapTemplates(validateTemplatesConfig({
 	config: {
 		siteId: 'abc123',
-		language: 'en',
+		language: 'EN',
 		platform: 'other',
 	},
 	translations: {
-		en: {
+		EN: {
 			search: {
 				toggleSidebarButtonText: {
 					value: (data) => (data.activeBreakpoint === 'mobile' ? 'Filters' : 'Filter Results'),
@@ -824,7 +883,7 @@ Some lang entries support an `attributes` map for setting HTML attributes like `
 
 ```tsx
 translations: {
-	en: {
+	EN: {
 		searchInput: {
 			placeholderText: {
 				attributes: {

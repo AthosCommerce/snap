@@ -433,7 +433,7 @@ export class Snap {
 			*/
 
 			// node env
-			if (process.env.NODE_ENV && Object.values(AppMode).includes(process.env.NODE_ENV as AppMode)) {
+			if (typeof process !== 'undefined' && process.env.NODE_ENV && Object.values(AppMode).includes(process.env.NODE_ENV as AppMode)) {
 				this.mode = process.env.NODE_ENV as AppMode;
 			}
 

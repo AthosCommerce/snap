@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+### Features
+
+- **snap:** adding ability to target children in templates overrides, as well as comma separated overrides ([049ddca](https://github.com/AthosCommerce/snap/commit/049ddca3a00a82da8b7fda627b6d09aa7a8a9763))
+
 # [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
 
 ### Bug Fixes

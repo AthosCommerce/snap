@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-controller
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+### Features
+
+- **currency plugin:** adding shopify currency plugin, and adding currency overrides ([c29892b](https://github.com/AthosCommerce/snap/commit/c29892bec4190133521d7ff6c16b4132c4bc5719))
+
 # [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
 
 ### Bug Fixes
