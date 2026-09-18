@@ -86,6 +86,7 @@ Repository: https://github.com/athoscommerce/snap
 - [Event Manager](https://athoscommerce.github.io/snap/packages/snap-event-manager/README.md)
 - [Tracker](https://athoscommerce.github.io/snap/packages/snap-tracker/README.md)
 - [Variants](https://athoscommerce.github.io/snap/docs/REFERENCE_VARIANTS.md)
+- [Config Validation & Linting](https://athoscommerce.github.io/snap/docs/REFERENCE_CONFIG_VALIDATION.md)
 - [Tabbed Search](https://athoscommerce.github.io/snap/docs/REFERENCE_TABBED_SEARCH.md)
 - [Quickview](https://athoscommerce.github.io/snap/docs/REFERENCE_QUICKVIEW.md)
 - [QuickviewManager](https://athoscommerce.github.io/snap/packages/snap-controller/src/Quickview/README.md)
