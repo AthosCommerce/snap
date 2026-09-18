@@ -10,7 +10,7 @@ import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { useEffect, useState } from 'preact/hooks';
 import { AutocompleteTermStore } from '@athoscommerce/snap-store-mobx';
 import { UrlManager } from '@athoscommerce/snap-url-manager';
-import { AutocompleteRequestModelSearchSourceEnum } from '@athoscommerce/snapi-types';
+import type { AutocompleteRequestModelSearchSourceEnum } from '@athoscommerce/snapi-types';
 
 export default {
 	title: 'Templates/AutocompleteSlideout',
@@ -285,7 +285,7 @@ export const Default = (args: AutocompleteSlideoutProps, { loaded: { controller 
 			active: termState === 'dress',
 			preview: () => setTermState('dress'),
 			value: 'dress',
-			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
+			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -294,7 +294,7 @@ export const Default = (args: AutocompleteSlideoutProps, { loaded: { controller 
 			active: termState === 'shirt',
 			preview: () => setTermState('shirt'),
 			value: 'shirt',
-			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
+			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -303,7 +303,7 @@ export const Default = (args: AutocompleteSlideoutProps, { loaded: { controller 
 			active: termState === 'shoes',
 			preview: () => setTermState('shoes'),
 			value: 'shoes',
-			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
+			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -312,7 +312,7 @@ export const Default = (args: AutocompleteSlideoutProps, { loaded: { controller 
 			active: termState === 'hat',
 			preview: () => setTermState('hat'),
 			value: 'hat',
-			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
+			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -321,7 +321,7 @@ export const Default = (args: AutocompleteSlideoutProps, { loaded: { controller 
 			active: termState === 'pants',
 			preview: () => setTermState('pants'),
 			value: 'pants',
-			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
+			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
 			url: {
 				href: '#',
 			} as UrlManager,
@@ -330,7 +330,7 @@ export const Default = (args: AutocompleteSlideoutProps, { loaded: { controller 
 			active: termState === 'socks',
 			preview: () => setTermState('socks'),
 			value: 'socks',
-			type: AutocompleteRequestModelSearchSourceEnum.Suggested,
+			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
 			url: {
 				href: '#',
 			} as UrlManager,
