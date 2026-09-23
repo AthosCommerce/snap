@@ -73,6 +73,17 @@ describe('VariantSelection Component', () => {
 		expect(rendered.container.querySelector('.ss__list')).toBeInTheDocument();
 	});
 
+	it('normalizes a type prop of "swatch" to the swatches renderer', () => {
+		// the API now sends the singular `type: 'swatch'`; the selection itself is a dropdown here so this
+		// exercises the type prop mapping rather than the selection.type fallback
+		const rendered = render(<VariantSelection selection={selection()} type="swatch" />);
+		const element = rendered.container.querySelector('.ss__variant-selection')!;
+
+		expect(element).toHaveClass('ss__variant-selection--swatches');
+		expect(element).not.toHaveClass('ss__variant-selection--swatch');
+		expect(rendered.container.querySelector('.ss__swatches')).toBeInTheDocument();
+	});
+
 	it('renders the selection label and current value in the dropdown button', () => {
 		const rendered = render(<VariantSelection selection={selection({ selected: { value: 'small', label: 'Small' } })} />);
 
