@@ -91,6 +91,8 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 		} else {
 			type = 'dropdown';
 		}
+	} else if (type === 'swatch') {
+		type = 'swatches';
 	}
 
 	const onSelectHandler = (e: React.MouseEvent<HTMLElement, MouseEvent>, option: ListOption) => {
@@ -266,6 +268,6 @@ export type VariantSelectionProps = {
 	ComponentProps<VariantSelectionProps>;
 
 export type VariantSelectionTemplatesLegalProps = {
-	type?: 'dropdown' | 'swatches' | 'list';
+	type?: 'dropdown' | 'swatches' | 'swatch' | 'list';
 	onSelect?: (e: React.MouseEvent<HTMLElement, MouseEvent>, option: ListOption) => void;
 };
