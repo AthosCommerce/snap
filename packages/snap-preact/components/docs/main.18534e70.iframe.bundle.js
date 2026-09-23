@@ -2,94 +2,94 @@
 	(self.webpackChunk_athoscommerce_snap_preact = self.webpackChunk_athoscommerce_snap_preact || []).push([
 		[8792],
 		{
-			'./components/src/components/Atoms/Icon/Icon.tsx'(q, H, t) {
+			'./components/src/components/Atoms/Icon/Icon.tsx'(J, O, t) {
 				'use strict';
 				var o = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					v = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					x = t('../../node_modules/classnames/index.js'),
-					E = t.n(x),
-					V = t('../../node_modules/mobx-react-lite/es/index.js'),
-					$ = t('./components/src/providers/cache.tsx'),
+					C = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					y = t('../../node_modules/classnames/index.js'),
+					z = t.n(y),
+					G = t('../../node_modules/mobx-react-lite/es/index.js'),
+					H = t('./components/src/providers/cache.tsx'),
 					e = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
-					L = t('./components/src/providers/treePath.tsx'),
-					D = t('./components/src/components/Atoms/Icon/paths.tsx'),
-					G = t('./components/src/utilities/mergeProps.ts'),
+					E = t('./components/src/providers/treePath.tsx'),
+					I = t('./components/src/components/Atoms/Icon/paths.tsx'),
+					D = t('./components/src/utilities/mergeProps.ts'),
 					se = t('./components/src/utilities/mergeStyles.ts'),
-					W = t('./components/src/hooks/useCustomComponentOverride.tsx');
-				const N = ({ color: F, fill: ne, stroke: de, theme: xe, width: Se, height: te, size: ze }) =>
-						(0, v.AH)({
-							color: F || ne || xe?.variables?.colors?.primary,
-							fill: ne || F || xe?.variables?.colors?.primary,
-							stroke: de,
+					F = t('./components/src/hooks/useCustomComponentOverride.tsx');
+				const U = ({ color: R, fill: oe, stroke: pe, theme: be, width: Se, height: te, size: ze }) =>
+						(0, C.AH)({
+							color: R || oe || be?.variables?.colors?.primary,
+							fill: oe || R || be?.variables?.colors?.primary,
+							stroke: pe,
 							width: isNaN(Number(Se || ze)) ? Se || ze : `${Se || ze}px`,
 							height: isNaN(Number(te || ze)) ? te || ze : `${te || ze}px`,
 							position: 'relative',
 						}),
-					X = (0, V.PA)((F) => {
-						const ne = (0, e.u)(),
-							xe = { size: '16px', viewBox: '0 0 56 56', treePath: (0, L.LU)() },
-							Se = (0, G.v6)('icon', ne, xe, F),
+					Y = (0, G.PA)((R) => {
+						const oe = (0, e.u)(),
+							be = { size: '16px', viewBox: '0 0 56 56', treePath: (0, E.LU)() },
+							Se = (0, D.v6)('icon', oe, be, R),
 							{
 								color: te,
 								icon: ze,
-								fill: _e,
+								fill: ue,
 								path: Ue,
-								children: Ee,
-								size: Be,
-								width: Re,
-								title: Me,
-								height: K,
-								viewBox: h,
-								svg: g,
-								disableStyles: O,
-								className: d,
-								internalClassName: r,
-								style: y,
-								styleScript: p,
+								children: Le,
+								size: ve,
+								width: Ee,
+								title: Ae,
+								height: X,
+								viewBox: _,
+								svg: f,
+								disableStyles: r,
+								className: m,
+								internalClassName: p,
+								style: g,
+								styleScript: h,
 								themeStyleScript: w,
-								name: f,
-								treePath: S,
-								...R
+								name: x,
+								treePath: T,
+								...N
 							} = Se,
-							{ overrideElement: pe, shouldRenderDefault: Ae } = (0, W._)('icon', Se);
-						if (!Ae) return pe;
-						const Fe = (0, se.Z)(Se, N),
-							ye = E()('ss__icon', ze && !g ? `ss__icon--${ze}` : null, d, r);
-						if (g) {
-							const oe = g?.props?.className || g?.props?.class,
-								je = { ...Fe, className: E()(ye, oe), ...R };
+							{ overrideElement: Te, shouldRenderDefault: fe } = (0, F._)('icon', Se);
+						if (!fe) return Te;
+						const Fe = (0, se.Z)(Se, U),
+							ae = z()('ss__icon', ze && !f ? `ss__icon--${ze}` : null, m, p);
+						if (f) {
+							const ge = f?.props?.className || f?.props?.class,
+								De = { ...Fe, className: z()(ae, ge), ...N };
 							return (
-								O && ((je.width = Re || Be), (je.height = K || Be)),
-								(0, o.Y)($._, { children: (0, v.Y)(g.type, { ...g.props, ...je, children: g.props.children }) })
+								r && ((De.width = Ee || ve), (De.height = X || ve)),
+								(0, o.Y)(H._, { children: (0, C.Y)(f.type, { ...f.props, ...De, children: f.props.children }) })
 							);
 						}
-						const ie = D.c[ze] || Ue,
-							be = typeof ie;
-						return Ee || (ie && (be === 'string' || (be === 'object' && Array.isArray(ie))))
-							? (0, o.Y)($._, {
+						const ie = I.c[ze] || Ue,
+							He = typeof ie;
+						return Le || (ie && (He === 'string' || (He === 'object' && Array.isArray(ie))))
+							? (0, o.Y)(H._, {
 									children: (0, o.FD)('svg', {
 										...Fe,
-										className: ye,
-										viewBox: h,
+										className: ae,
+										viewBox: _,
 										xmlns: 'http://www.w3.org/2000/svg',
-										width: O ? Re || Be : void 0,
-										height: O ? K || Be : void 0,
-										...R,
+										width: r ? Ee || ve : void 0,
+										height: r ? X || ve : void 0,
+										...N,
 										children: [
-											Me ? (0, o.Y)('title', { children: Me }) : null,
+											Ae ? (0, o.Y)('title', { children: Ae }) : null,
 											(() => {
-												if (Ee) return Ee;
-												if (be === 'string') return (0, o.Y)('path', { fill: (O && (_e || te)) || void 0, d: ie });
-												if (ie && be === 'object' && Array.isArray(ie)) return ie.map((oe, je) => (0, o.Y)(oe.type, { ...oe.attributes }, je));
+												if (Le) return Le;
+												if (He === 'string') return (0, o.Y)('path', { fill: (r && (ue || te)) || void 0, d: ie });
+												if (ie && He === 'object' && Array.isArray(ie)) return ie.map((ge, De) => (0, o.Y)(ge.type, { ...ge.attributes }, De));
 											})(),
 										],
 									}),
 							  })
 							: null;
 					});
-				t.d(H, ['I', 0, X]);
+				t.d(O, ['I', 0, Y]);
 			},
-			'./components/src/components/Atoms/Icon/paths.tsx'(q, H, t) {
+			'./components/src/components/Atoms/Icon/paths.tsx'(J, O, t) {
 				'use strict';
 				const o = {
 						layoutGrid2:
@@ -97,7 +97,7 @@
 						layoutGrid3:
 							'M16 41v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM16 25v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM36 41v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM16 9v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM36 25v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM56 41v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM36 9v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM56 25v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3zM56 9v6c0 1.656-1.344 3-3 3h-10c-1.656 0-3-1.344-3-3v-6c0-1.656 1.344-3 3-3h10c1.656 0 3 1.344 3 3z',
 					},
-					v = {
+					C = {
 						'angle-up':
 							'M56 39.671c0 0.449-0.224 0.954-0.561 1.291l-2.806 2.806c-0.337 0.337-0.786 0.561-1.291 0.561-0.449 0-0.954-0.224-1.291-0.561l-22.052-22.052-22.052 22.052c-0.337 0.337-0.842 0.561-1.291 0.561s-0.954-0.224-1.291-0.561l-2.806-2.806c-0.337-0.337-0.561-0.842-0.561-1.291s0.224-0.954 0.561-1.291l26.148-26.148c0.337-0.337 0.842-0.561 1.291-0.561s0.954 0.224 1.291 0.561l26.148 26.148c0.337 0.337 0.561 0.842 0.561 1.291z',
 						'angle-down':
@@ -214,171 +214,171 @@
 						wrench:
 							'M12.407 45.809c0-1.193-0.988-2.181-2.181-2.181s-2.181 0.988-2.181 2.181 0.988 2.181 2.181 2.181 2.181-0.988 2.181-2.181zM34.357 31.494l-23.245 23.245c-0.784 0.784-1.909 1.261-3.068 1.261s-2.284-0.477-3.102-1.261l-3.613-3.681c-0.818-0.784-1.295-1.909-1.295-3.068s0.477-2.284 1.295-3.102l23.211-23.211c1.772 4.465 5.351 8.044 9.816 9.816zM55.966 16.667c0 1.125-0.409 2.522-0.784 3.613-2.147 6.067-7.976 10.259-14.418 10.259-8.419 0-15.27-6.851-15.27-15.27s6.851-15.27 15.27-15.27c2.488 0 5.726 0.75 7.805 2.147 0.341 0.239 0.545 0.545 0.545 0.954 0 0.375-0.239 0.75-0.545 0.954l-9.987 5.76v7.635l6.578 3.647c1.125-0.648 9.032-5.624 9.714-5.624s1.091 0.511 1.091 1.193z',
 					};
-				t.d(H, ['c', 0, v]);
+				t.d(O, ['c', 0, C]);
 			},
-			'./components/src/hooks/useComponent.tsx'(q, H, t) {
+			'./components/src/hooks/useComponent.tsx'(J, O, t) {
 				'use strict';
 				var o = t('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const v = (x, E) => {
-					const [V, $] = (0, o.J0)(void 0),
-						[e, L] = (0, o.J0)(!1);
+				const C = (y, z) => {
+					const [G, H] = (0, o.J0)(void 0),
+						[e, E] = (0, o.J0)(!1);
 					(0, o.vJ)(() => {
-						let G = !0;
-						if (!E)
+						let D = !0;
+						if (!z)
 							return (
-								$(void 0),
+								H(void 0),
 								() => {
-									G = !1;
+									D = !1;
 								}
 							);
-						L(!1);
-						const se = x[E];
+						E(!1);
+						const se = y[z];
 						if (se && typeof se == 'function') {
-							const W = se();
-							W instanceof Promise
-								? W.then((N) => {
-										G && $(() => N);
-								  }).catch((N) => {
-										G && (L(!0), $(void 0), console.warn(`Failed to load component "${E}".`, N));
+							const F = se();
+							F instanceof Promise
+								? F.then((U) => {
+										D && H(() => U);
+								  }).catch((U) => {
+										D && (E(!0), H(void 0), console.warn(`Failed to load component "${z}".`, U));
 								  })
-								: G && $(() => W);
-						} else $(void 0), console.warn(`Component "${E}" not found in component map.`);
+								: D && H(() => F);
+						} else H(void 0), console.warn(`Component "${z}" not found in component map.`);
 						return () => {
-							G = !1;
+							D = !1;
 						};
-					}, [x, E]);
-					const D = !!(E && typeof x[E] == 'function');
-					return { ComponentOverride: V, shouldWaitForNamedOverride: D && !V && !e };
+					}, [y, z]);
+					const I = !!(z && typeof y[z] == 'function');
+					return { ComponentOverride: G, shouldWaitForNamedOverride: I && !G && !e };
 				};
-				t.d(H, ['x', 0, v]);
+				t.d(O, ['x', 0, C]);
 			},
-			'./components/src/hooks/useCustomComponentOverride.tsx'(q, H, t) {
+			'./components/src/hooks/useCustomComponentOverride.tsx'(J, O, t) {
 				'use strict';
-				t.d(H, { _: () => E });
+				t.d(O, { _: () => z });
 				var o = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					v = t('./components/src/providers/snap.tsx'),
-					x = t('./components/src/hooks/useComponent.tsx');
-				const E = (V, $) => {
-					const L = (0, v.uk)()?.templates?.library.import.component?.[V] || {},
-						{ customComponent: D } = $,
-						{ ComponentOverride: G, shouldWaitForNamedOverride: se } = (0, x.x)(L, D),
-						W = D && G ? (0, o.Y)(G, { ...$, customComponent: void 0 }) : null;
-					return { overrideElement: W, shouldRenderDefault: !se && !W, shouldWaitForNamedOverride: se };
+					C = t('./components/src/providers/snap.tsx'),
+					y = t('./components/src/hooks/useComponent.tsx');
+				const z = (G, H) => {
+					const E = (0, C.uk)()?.templates?.library.import.component?.[G] || {},
+						{ customComponent: I } = H,
+						{ ComponentOverride: D, shouldWaitForNamedOverride: se } = (0, y.x)(E, I),
+						F = I && D ? (0, o.Y)(D, { ...H, customComponent: void 0 }) : null;
+					return { overrideElement: F, shouldRenderDefault: !se && !F, shouldWaitForNamedOverride: se };
 				};
 			},
-			'./components/src/providers/cache.tsx'(q, H, t) {
+			'./components/src/providers/cache.tsx'(J, O, t) {
 				'use strict';
 				var o = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					v = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
-					x = t('../../node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js');
-				const E = (0, x.A)({ key: 'ss', prepend: !0 }),
-					V = ($) => (0, o.Y)(v.C, { value: $.cache || E, children: $.children });
-				t.d(H, ['_', 0, V]);
+					C = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					y = t('../../node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js');
+				const z = (0, y.A)({ key: 'ss', prepend: !0 }),
+					G = (H) => (0, o.Y)(C.C, { value: H.cache || z, children: H.children });
+				t.d(O, ['_', 0, G]);
 			},
-			'./components/src/providers/controller.tsx'(q, H, t) {
+			'./components/src/providers/controller.tsx'(J, O, t) {
 				'use strict';
-				t.d(H, { Bk: () => L });
+				t.d(O, { Bk: () => E });
 				var o = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					v = t('../../node_modules/preact/dist/preact.module.js'),
-					x = t('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const E = (0, v.q6)(null),
-					V = E.Provider,
-					$ = ({ children: D, controller: G }) => (0, o.Y)(V, { value: G, children: D }),
-					e = () => (0, x.NT)(E);
-				function L(D) {
-					return (G) => {
-						const se = D;
-						return (0, o.Y)(se, { controller: e(), ...G });
+					C = t('../../node_modules/preact/dist/preact.module.js'),
+					y = t('../../node_modules/preact/hooks/dist/hooks.module.js');
+				const z = (0, C.q6)(null),
+					G = z.Provider,
+					H = ({ children: I, controller: D }) => (0, o.Y)(G, { value: D, children: I }),
+					e = () => (0, y.NT)(z);
+				function E(I) {
+					return (D) => {
+						const se = I;
+						return (0, o.Y)(se, { controller: e(), ...D });
 					};
 				}
-				t.d(H, ['as', 0, e, 'e2', 0, $]);
+				t.d(O, ['as', 0, e, 'e2', 0, H]);
 			},
-			'./components/src/providers/snap.tsx'(q, H, t) {
+			'./components/src/providers/snap.tsx'(J, O, t) {
 				'use strict';
-				t.d(H, { b$: () => L });
+				t.d(O, { b$: () => E });
 				var o = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					v = t('../../node_modules/preact/dist/preact.module.js'),
-					x = t('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const E = (0, v.q6)(void 0),
-					V = E.Provider,
-					$ = ({ children: D, snap: G }) => (0, o.Y)(V, { value: G, children: D }),
-					e = () => (0, x.NT)(E);
-				function L(D) {
-					return (G) => {
-						const se = D;
-						return (0, o.Y)(se, { snap: e(), ...G });
+					C = t('../../node_modules/preact/dist/preact.module.js'),
+					y = t('../../node_modules/preact/hooks/dist/hooks.module.js');
+				const z = (0, C.q6)(void 0),
+					G = z.Provider,
+					H = ({ children: I, snap: D }) => (0, o.Y)(G, { value: D, children: I }),
+					e = () => (0, y.NT)(z);
+				function E(I) {
+					return (D) => {
+						const se = I;
+						return (0, o.Y)(se, { snap: e(), ...D });
 					};
 				}
-				t.d(H, ['Mz', 0, $, 'uk', 0, e]);
+				t.d(O, ['Mz', 0, H, 'uk', 0, e]);
 			},
-			'./components/src/providers/theme.ts'(q, H, t) {
+			'./components/src/providers/theme.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { AH: () => x.AH, DP: () => E.u, SL: () => E.b });
+				t.d(O, { AH: () => y.AH, DP: () => z.u, SL: () => z.b });
 				var o = t('../../node_modules/preact/dist/preact.module.js'),
-					v = t('../../node_modules/preact/hooks/dist/hooks.module.js'),
-					x = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					E = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js');
-				const V = {
+					C = t('../../node_modules/preact/hooks/dist/hooks.module.js'),
+					y = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					z = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js');
+				const G = {
 						variables: {
 							breakpoints: { mobile: 540, tablet: 767, desktop: 1200 },
 							colors: { primary: '#3A23AD', secondary: '#4c3ce2', accent: '#00cee1' },
 						},
 					},
-					$ = (0, o.q6)([]),
+					H = (0, o.q6)([]),
 					e = new Map(),
-					L = new Map(),
-					D = new Set(),
-					G = () => {
-						D.forEach((W) => W());
+					E = new Map(),
+					I = new Set(),
+					D = () => {
+						I.forEach((F) => F());
 					},
-					se = ({ theme: W, children: N }) => {
-						const X = W.globalStyle,
-							F = W.name,
-							ne = (0, v.NT)($),
-							de = (0, v.li)(Symbol(F || 'theme-provider')),
-							[, xe] = (0, v.J0)(0),
+					se = ({ theme: F, children: U }) => {
+						const Y = F.globalStyle,
+							R = F.name,
+							oe = (0, C.NT)(H),
+							pe = (0, C.li)(Symbol(R || 'theme-provider')),
+							[, be] = (0, C.J0)(0),
 							Se = {
-								breakpoints: { ...V.variables.breakpoints, ...W.variables?.breakpoints },
-								colors: { ...V.variables.colors, ...W.variables?.colors },
+								breakpoints: { ...G.variables.breakpoints, ...F.variables?.breakpoints },
+								colors: { ...G.variables.colors, ...F.variables?.colors },
 							},
-							te = !!(X && F && !ne.includes(F)),
-							ze = te && F ? [...ne, F] : ne;
-						if (te && F) {
-							const Be = e.get(F) || new Set();
-							Be.add(de.current), e.set(F, Be), L.has(F) || L.set(F, de.current);
+							te = !!(Y && R && !oe.includes(R)),
+							ze = te && R ? [...oe, R] : oe;
+						if (te && R) {
+							const ve = e.get(R) || new Set();
+							ve.add(pe.current), e.set(R, ve), E.has(R) || E.set(R, pe.current);
 						}
-						const _e = !!(te && F && L.get(F) === de.current);
-						(0, v.Nf)(() => {
-							if (!te || !F) return;
-							const Be = () => xe((Re) => Re + 1);
+						const ue = !!(te && R && E.get(R) === pe.current);
+						(0, C.Nf)(() => {
+							if (!te || !R) return;
+							const ve = () => be((Ee) => Ee + 1);
 							return (
-								D.add(Be),
+								I.add(ve),
 								() => {
-									D.delete(Be);
-									const Re = e.get(F);
-									if (Re) {
-										if ((Re.delete(de.current), !Re.size)) {
-											e.delete(F), L.delete(F), G();
+									I.delete(ve);
+									const Ee = e.get(R);
+									if (Ee) {
+										if ((Ee.delete(pe.current), !Ee.size)) {
+											e.delete(R), E.delete(R), D();
 											return;
 										}
-										if (L.get(F) === de.current) {
-											const Me = Re.values().next().value;
-											Me && L.set(F, Me), G();
+										if (E.get(R) === pe.current) {
+											const Ae = Ee.values().next().value;
+											Ae && E.set(R, Ae), D();
 										}
 									}
 								}
 							);
-						}, [te, F]);
-						const Ue = te && F ? (0, o.h)('div', { className: `ss__theme__${F}` }, N) : N,
-							Ee = _e && X && F ? [(0, o.h)(x.mL, { styles: (0, x.AH)({ [`.ss__theme__${F}`]: X({ name: F, variables: Se }) }) }), Ue] : Ue;
-						return (0, o.h)(E.a, { theme: W, children: (0, o.h)($.Provider, { value: ze }, Ee) });
+						}, [te, R]);
+						const Ue = te && R ? (0, o.h)('div', { className: `ss__theme__${R}` }, U) : U,
+							Le = ue && Y && R ? [(0, o.h)(y.mL, { styles: (0, y.AH)({ [`.ss__theme__${R}`]: Y({ name: R, variables: Se }) }) }), Ue] : Ue;
+						return (0, o.h)(z.a, { theme: F, children: (0, o.h)(H.Provider, { value: ze }, Le) });
 					};
-				t.d(H, ['NP', 0, se, 'zQ', 0, V]);
+				t.d(O, ['NP', 0, se, 'zQ', 0, G]);
 			},
-			'./components/src/providers/themeComponents.ts'(q, H, t) {
+			'./components/src/providers/themeComponents.ts'(J, O, t) {
 				'use strict';
 				const o = ['result', 'badge'],
-					v = [
+					C = [
 						...o,
 						'badgeImage',
 						'badgePill',
@@ -444,200 +444,200 @@
 						'toolbar',
 						'termsList',
 					];
-				t.d(H, ['C', 0, v, 'o', 0, o]);
+				t.d(O, ['C', 0, C, 'o', 0, o]);
 			},
-			'./components/src/providers/treePath.tsx'(q, H, t) {
+			'./components/src/providers/treePath.tsx'(J, O, t) {
 				'use strict';
-				t.d(H, { QE: () => L });
+				t.d(O, { QE: () => E });
 				var o = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					v = t('../../node_modules/preact/dist/preact.module.js'),
-					x = t('../../node_modules/preact/hooks/dist/hooks.module.js');
-				const E = (0, v.q6)(null),
-					V = E.Provider,
-					$ = ({ children: D, path: G }) => (0, o.Y)(V, { value: G, children: D }),
-					e = () => (0, x.NT)(E) || void 0;
-				function L(D) {
-					return (G) => {
-						const se = D,
-							W = e();
-						return (0, o.Y)(se, { treePath: W, ...G });
+					C = t('../../node_modules/preact/dist/preact.module.js'),
+					y = t('../../node_modules/preact/hooks/dist/hooks.module.js');
+				const z = (0, C.q6)(null),
+					G = z.Provider,
+					H = ({ children: I, path: D }) => (0, o.Y)(G, { value: D, children: I }),
+					e = () => (0, y.NT)(z) || void 0;
+				function E(I) {
+					return (D) => {
+						const se = I,
+							F = e();
+						return (0, o.Y)(se, { treePath: F, ...D });
 					};
 				}
-				t.d(H, ['LU', 0, e, 'p3', 0, $]);
+				t.d(O, ['LU', 0, e, 'p3', 0, H]);
 			},
-			'./components/src/themes/base/base.ts'(q, H, t) {
+			'./components/src/themes/base/base.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { E: () => oe });
+				t.d(O, { E: () => ge });
 				const o = { default: {}, mobile: {}, tablet: {}, desktop: {} },
-					v = { default: {}, mobile: {}, tablet: {}, desktop: {} };
-				var x = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					E = t('./components/src/themes/themeComponents/autocomplete.ts');
-				const V = ({}) => (0, x.AH)({}),
-					$ = {
-						default: { ...E.n.default, autocomplete: { ...(E.n.default?.autocomplete || {}), themeStyleScript: V } },
-						mobile: E.n.mobile,
-						desktop: E.n.desktop,
-						tablet: E.n.tablet,
+					C = { default: {}, mobile: {}, tablet: {}, desktop: {} };
+				var y = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
+					z = t('./components/src/themes/themeComponents/autocomplete.ts');
+				const G = ({}) => (0, y.AH)({}),
+					H = {
+						default: { ...z.n.default, autocomplete: { ...(z.n.default?.autocomplete || {}), themeStyleScript: G } },
+						mobile: z.n.mobile,
+						desktop: z.n.desktop,
+						tablet: z.n.tablet,
 					},
-					e = { default: { ...$.default }, mobile: { ...$.mobile }, tablet: { ...$.tablet }, desktop: { ...$.desktop } };
-				var L = t('./components/src/themes/themeComponents/recommendation.ts');
-				const D = ({ theme: je }) => {
-						const Le = je?.variables;
-						return (0, x.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: Le?.colors?.primary } });
+					e = { default: { ...H.default }, mobile: { ...H.mobile }, tablet: { ...H.tablet }, desktop: { ...H.desktop } };
+				var E = t('./components/src/themes/themeComponents/recommendation.ts');
+				const I = ({ theme: De }) => {
+						const Pe = De?.variables;
+						return (0, y.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: Pe?.colors?.primary } });
 					},
-					G = {
-						default: { ...L.C.default, recommendation: { ...(L.C.default?.recommendation || {}), themeStyleScript: D } },
-						mobile: L.C.mobile,
-						desktop: L.C.desktop,
-						tablet: L.C.tablet,
+					D = {
+						default: { ...E.C.default, recommendation: { ...(E.C.default?.recommendation || {}), themeStyleScript: I } },
+						mobile: E.C.mobile,
+						desktop: E.C.desktop,
+						tablet: E.C.tablet,
 					};
 				var se = t('./components/src/themes/themeComponents/recommendationBundle.ts');
-				const W = se._;
-				var N = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const X = N.j;
-				var F = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
-				const ne = F.e;
-				var de = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
-				const xe = de.W;
+				const F = se._;
+				var U = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
+				const Y = U.j;
+				var R = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
+				const oe = R.e;
+				var pe = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
+				const be = pe.W;
 				var Se = t('./components/src/themes/themeComponents/recommendationGrid.ts');
 				const te = Se.W;
 				var ze = t('./components/src/themes/themeComponents/recommendationEmail.ts');
-				const _e = ze.O;
+				const ue = ze.O;
 				var Ue = t('./components/src/themes/themeComponents/search.ts');
-				const Ee = Ue.D;
-				var Be = t('./components/src/themes/themeComponents/searchHorizontal.ts');
-				const Re = Be.X;
-				var Me = t('./components/src/themes/themeComponents/searchCollapsible.ts');
-				const K = ({ sidebarWidth: je }) => {
-						const Le = je ? `calc(${je} + 1.5em)` : void 0;
-						return (0, x.AH)({
-							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: Le ? 'inherit' : 'auto', width: Le || 'inherit' },
+				const Le = Ue.D;
+				var ve = t('./components/src/themes/themeComponents/searchHorizontal.ts');
+				const Ee = ve.X;
+				var Ae = t('./components/src/themes/themeComponents/searchCollapsible.ts');
+				const X = ({ sidebarWidth: De }) => {
+						const Pe = De ? `calc(${De} + 1.5em)` : void 0;
+						return (0, y.AH)({
+							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: Pe ? 'inherit' : 'auto', width: Pe || 'inherit' },
 						});
 					},
+					_ = {
+						default: { ...Ae.D.default, searchCollapsible: { ...(Ae.D.default?.searchCollapsible || {}), themeStyleScript: X } },
+						mobile: Ae.D.mobile,
+						desktop: Ae.D.desktop,
+						tablet: Ae.D.tablet,
+					};
+				var f = t('./components/src/themes/themeComponents/autocompleteSlideout.ts');
+				const r = ({}) => (0, y.AH)({}),
+					m = {
+						default: { ...f.c.default, autocompleteSlideout: { ...(f.c.default?.autocompleteSlideout || {}), themeStyleScript: r } },
+						mobile: f.c.mobile,
+						desktop: f.c.desktop,
+						tablet: f.c.tablet,
+					};
+				var p = t('./components/src/themes/themeComponents/autocompleteModal.ts');
+				const g = ({}) => (0, y.AH)({}),
 					h = {
-						default: { ...Me.D.default, searchCollapsible: { ...(Me.D.default?.searchCollapsible || {}), themeStyleScript: K } },
-						mobile: Me.D.mobile,
-						desktop: Me.D.desktop,
-						tablet: Me.D.tablet,
-					};
-				var g = t('./components/src/themes/themeComponents/autocompleteSlideout.ts');
-				const O = ({}) => (0, x.AH)({}),
-					d = {
-						default: { ...g.c.default, autocompleteSlideout: { ...(g.c.default?.autocompleteSlideout || {}), themeStyleScript: O } },
-						mobile: g.c.mobile,
-						desktop: g.c.desktop,
-						tablet: g.c.tablet,
-					};
-				var r = t('./components/src/themes/themeComponents/autocompleteModal.ts');
-				const y = ({}) => (0, x.AH)({}),
-					p = {
-						default: { ...r._.default, autocompleteModal: { ...(r._.default?.autocompleteModal || {}), themeStyleScript: y } },
-						mobile: r._.mobile,
-						desktop: r._.desktop,
-						tablet: r._.tablet,
+						default: { ...p._.default, autocompleteModal: { ...(p._.default?.autocompleteModal || {}), themeStyleScript: g } },
+						mobile: p._.mobile,
+						desktop: p._.desktop,
+						tablet: p._.tablet,
 					};
 				var w = t('./components/src/themes/themeComponents/autocompleteFixed.ts');
-				const f = ({}) => (0, x.AH)({}),
-					S = {
-						default: { ...w.f.default, autocompleteFixed: { ...(w.f.default?.autocompleteFixed || {}), themeStyleScript: f } },
+				const x = ({}) => (0, y.AH)({}),
+					T = {
+						default: { ...w.f.default, autocompleteFixed: { ...(w.f.default?.autocompleteFixed || {}), themeStyleScript: x } },
 						mobile: w.f.mobile,
 						desktop: w.f.desktop,
 						tablet: w.f.tablet,
 					},
-					R = {
+					N = {
 						default: {
-							...d.default,
-							...p.default,
-							...S.default,
-							...G.default,
-							...W.default,
-							...X.default,
-							...ne.default,
-							...xe.default,
-							...te.default,
-							..._e.default,
-							...Ee.default,
+							...m.default,
 							...h.default,
-							...Re.default,
+							...T.default,
+							...D.default,
+							...F.default,
+							...Y.default,
+							...oe.default,
+							...be.default,
+							...te.default,
+							...ue.default,
+							...Le.default,
+							..._.default,
+							...Ee.default,
 						},
 						mobile: {
-							...d.mobile,
-							...p.mobile,
-							...S.mobile,
-							...G.mobile,
-							...W.mobile,
-							...X.mobile,
-							...ne.mobile,
-							...xe.mobile,
-							...te.mobile,
-							..._e.mobile,
-							...Ee.mobile,
+							...m.mobile,
 							...h.mobile,
-							...Re.mobile,
+							...T.mobile,
+							...D.mobile,
+							...F.mobile,
+							...Y.mobile,
+							...oe.mobile,
+							...be.mobile,
+							...te.mobile,
+							...ue.mobile,
+							...Le.mobile,
+							..._.mobile,
+							...Ee.mobile,
 						},
 						tablet: {
-							...d.tablet,
-							...p.tablet,
-							...S.tablet,
-							...G.tablet,
-							...W.tablet,
-							...X.tablet,
-							...ne.tablet,
-							...xe.tablet,
-							...te.tablet,
-							..._e.tablet,
-							...Ee.tablet,
+							...m.tablet,
 							...h.tablet,
-							...Re.tablet,
+							...T.tablet,
+							...D.tablet,
+							...F.tablet,
+							...Y.tablet,
+							...oe.tablet,
+							...be.tablet,
+							...te.tablet,
+							...ue.tablet,
+							...Le.tablet,
+							..._.tablet,
+							...Ee.tablet,
 						},
 						desktop: {
-							...d.desktop,
-							...p.desktop,
-							...S.desktop,
-							...G.desktop,
-							...W.desktop,
-							...X.desktop,
-							...ne.desktop,
-							...xe.desktop,
-							...te.desktop,
-							..._e.desktop,
-							...Ee.desktop,
+							...m.desktop,
 							...h.desktop,
-							...Re.desktop,
+							...T.desktop,
+							...D.desktop,
+							...F.desktop,
+							...Y.desktop,
+							...oe.desktop,
+							...be.desktop,
+							...te.desktop,
+							...ue.desktop,
+							...Le.desktop,
+							..._.desktop,
+							...Ee.desktop,
 						},
 					},
-					pe = { ...o.default, ...v.default, ...e.default, ...R.default },
-					Ae = { ...o.mobile, ...v.mobile, ...e.mobile, ...R.mobile },
-					Fe = { ...o.tablet, ...v.tablet, ...e.tablet, ...R.tablet },
-					ye = { ...o.desktop, ...v.desktop, ...e.desktop, ...R.desktop },
-					oe = {
+					Te = { ...o.default, ...C.default, ...e.default, ...N.default },
+					fe = { ...o.mobile, ...C.mobile, ...e.mobile, ...N.mobile },
+					Fe = { ...o.tablet, ...C.tablet, ...e.tablet, ...N.tablet },
+					ae = { ...o.desktop, ...C.desktop, ...e.desktop, ...N.desktop },
+					ge = {
 						name: 'base',
 						variables: {
 							breakpoints: { mobile: 767, tablet: 1024, desktop: 1400 },
 							colors: { primary: 'currentColor', secondary: 'currentColor', accent: 'currentColor' },
 						},
-						components: pe,
-						responsive: { mobile: Ae, tablet: Fe, desktop: ye },
+						components: Te,
+						responsive: { mobile: fe, tablet: Fe, desktop: ae },
 						type: 'templates',
 					};
 			},
-			'./components/src/themes/bocachica/bocachica.ts'(q, H, t) {
+			'./components/src/themes/bocachica/bocachica.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { S: () => A });
+				t.d(O, { S: () => v });
 				var o = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
-					v = t('../../node_modules/colord/index.mjs');
-				const E = {
+					C = t('../../node_modules/colord/index.mjs');
+				const z = {
 						default: {
 							button: {
-								themeStyleScript: ({ backgroundColor: a, theme: c }) => {
-									const j = c?.variables,
-										ce = (0, v.Mj)(a || j?.colors?.primary || '#000'),
-										We = ce.isDark() ? (0, v.Mj)('#fff') : (0, v.Mj)('#000');
+								themeStyleScript: ({ backgroundColor: a, theme: d }) => {
+									const L = d?.variables,
+										de = (0, C.Mj)(a || L?.colors?.primary || '#000'),
+										We = de.isDark() ? (0, C.Mj)('#fff') : (0, C.Mj)('#000');
 									return (0, o.AH)({
 										backgroundColor: a || '#fff',
 										borderRadius: '3px',
 										'&:not(.ss__button--disabled):hover': {
-											backgroundColor: ce.toHex(),
+											backgroundColor: de.toHex(),
 											color: We.toHex(),
 											'.ss__icon': { fill: We.toHex(), stroke: We.toHex() },
 										},
@@ -646,11 +646,11 @@
 							},
 						},
 					},
-					$ = {
+					H = {
 						default: {
 							dropdown: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										position: 'relative',
 										'&.ss__dropdown--open': { '& .ss__dropdown__content': { transition: 'opacity .5s ease' } },
@@ -659,96 +659,96 @@
 							},
 						},
 					},
-					L = {
+					E = {
 						default: {
 							icon: {
-								themeStyleScript: ({ color: a, height: c, width: j, size: ce, theme: We }) => {
+								themeStyleScript: ({ color: a, height: d, width: L, size: de, theme: We }) => {
 									const tt = We?.variables;
-									return (0, o.AH)({ fill: a || tt?.colors?.accent, stroke: a || tt?.colors?.accent, width: j || ce, height: c || ce });
+									return (0, o.AH)({ fill: a || tt?.colors?.accent, stroke: a || tt?.colors?.accent, width: L || de, height: d || de });
 								},
 							},
 						},
 					},
-					G = {
+					D = {
 						default: {
 							image: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({});
 								},
 							},
 						},
 					},
-					W = {
+					F = {
 						default: {
 							loadingBar: {
-								themeStyleScript: ({ color: a, backgroundColor: c, theme: j }) => {
-									const ce = j?.variables;
-									return (0, o.AH)({ background: c || '#f8f8f8', '& .ss__loading-bar__bar': { background: `${a || ce?.colors?.accent || '#ccc'}` } });
+								themeStyleScript: ({ color: a, backgroundColor: d, theme: L }) => {
+									const de = L?.variables;
+									return (0, o.AH)({ background: d || '#f8f8f8', '& .ss__loading-bar__bar': { background: `${a || de?.colors?.accent || '#ccc'}` } });
 								},
 							},
 						},
 					},
-					X = {
+					Y = {
 						default: {
 							price: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
-									return (0, o.AH)({ margin: '0 0.5rem 0 0', '&.ss__price--strike': { color: c?.colors?.secondary || 'inherit', opacity: 0.5 } });
+									const d = a?.variables;
+									return (0, o.AH)({ margin: '0 0.5rem 0 0', '&.ss__price--strike': { color: d?.colors?.secondary || 'inherit', opacity: 0.5 } });
 								},
 							},
 						},
 					},
-					ne = {
+					oe = {
 						default: {
 							searchHeader: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										paddingBottom: '10px',
 										textAlign: 'center',
-										'.ss__search-header__title': { color: c?.colors?.primary, marginBottom: '5px' },
-										'.ss__search-header__title--corrected': { color: c?.colors?.secondary },
+										'.ss__search-header__title': { color: d?.colors?.primary, marginBottom: '5px' },
+										'.ss__search-header__title--corrected': { color: d?.colors?.secondary },
 									});
 								},
 								titleText: (a) => `Search Results${a.search?.query?.string ? ` for "${a.search.query.string}"` : ''}`,
 							},
 						},
 					},
-					de = { default: { skeleton: {} } },
-					xe = {
-						default: { ...E.default, ...$.default, ...L.default, ...G.default, ...W.default, ...X.default, ...ne.default, ...de.default },
-						mobile: { ...E.mobile, ...$.mobile, ...L.mobile, ...G.mobile, ...W.mobile, ...X.mobile, ...ne.mobile, ...de.mobile },
-						tablet: { ...$.tablet, ...L.tablet, ...G.tablet, ...W.tablet, ...X.tablet, ...ne.tablet, ...de.tablet },
-						desktop: { ...E.desktop, ...$.desktop, ...L.desktop, ...G.desktop, ...W.desktop, ...X.desktop, ...ne.desktop, ...de.desktop },
+					pe = { default: { skeleton: {} } },
+					be = {
+						default: { ...z.default, ...H.default, ...E.default, ...D.default, ...F.default, ...Y.default, ...oe.default, ...pe.default },
+						mobile: { ...z.mobile, ...H.mobile, ...E.mobile, ...D.mobile, ...F.mobile, ...Y.mobile, ...oe.mobile, ...pe.mobile },
+						tablet: { ...H.tablet, ...E.tablet, ...D.tablet, ...F.tablet, ...Y.tablet, ...oe.tablet, ...pe.tablet },
+						desktop: { ...z.desktop, ...H.desktop, ...E.desktop, ...D.desktop, ...F.desktop, ...Y.desktop, ...oe.desktop, ...pe.desktop },
 					},
 					te = {
 						default: {
 							carousel: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										'.swiper-pagination-bullet': {
 											background: '#ccc',
 											opacity: '.5',
-											'&.swiper-pagination-bullet-active': { opacity: '1', background: c?.colors?.accent || '#3A23AD' },
+											'&.swiper-pagination-bullet-active': { opacity: '1', background: d?.colors?.accent || '#3A23AD' },
 										},
 									});
 								},
 							},
 						},
 					},
-					_e = {
+					ue = {
 						default: {
 							checkbox: {
-								themeStyleScript: ({ color: a, theme: c }) => {
-									const j = c?.variables,
-										ce = (0, v.Mj)(a || j?.colors?.primary || '#000'),
-										We = ce.isDark() ? (0, v.Mj)('#fff') : (0, v.Mj)('#000');
+								themeStyleScript: ({ color: a, theme: d }) => {
+									const L = d?.variables,
+										de = (0, C.Mj)(a || L?.colors?.primary || '#000'),
+										We = de.isDark() ? (0, C.Mj)('#fff') : (0, C.Mj)('#000');
 									return (0, o.AH)({
-										border: `1px solid ${ce.toHex()}`,
+										border: `1px solid ${de.toHex()}`,
 										borderRadius: '3px',
-										'&.ss__checkbox--active': { backgroundColor: ce.toHex(), '.ss__icon': { fill: We.toHex(), stroke: We.toHex() } },
+										'&.ss__checkbox--active': { backgroundColor: de.toHex(), '.ss__icon': { fill: We.toHex(), stroke: We.toHex() } },
 										'&.ss__checkbox--disabled': { opacity: 0.3 },
 									});
 								},
@@ -757,18 +757,18 @@
 						},
 					},
 					Ue = { default: { errorHandler: {} } },
-					Be = {
+					ve = {
 						default: {
 							facetGridOptions: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables,
-										j = (0, v.Mj)(c?.colors?.primary || '#000'),
-										ce = j.isDark() ? (0, v.Mj)('#fff') : (0, v.Mj)('#000');
+									const d = a?.variables,
+										L = (0, C.Mj)(d?.colors?.primary || '#000'),
+										de = L.isDark() ? (0, C.Mj)('#fff') : (0, C.Mj)('#000');
 									return (0, o.AH)({
 										'& .ss__facet-grid-options__option': {
-											border: `1px solid ${j.toHex()}`,
+											border: `1px solid ${L.toHex()}`,
 											borderRadius: '3px',
-											'&.ss__facet-grid-options__option--filtered': { background: j.toHex(), color: ce.toHex() },
+											'&.ss__facet-grid-options__option--filtered': { background: L.toHex(), color: de.toHex() },
 											'&:hover:not(.ss__facet-grid-options__option--filtered)': { cursor: 'pointer' },
 										},
 									});
@@ -778,45 +778,45 @@
 							},
 						},
 					},
-					Me = {
+					Ae = {
 						default: {
 							facetHierarchyOptions: {
-								themeStyleScript: ({ horizontal: a, theme: c }) => {
-									const j = c?.variables;
+								themeStyleScript: ({ horizontal: a, theme: d }) => {
+									const L = d?.variables;
 									return a
 										? (0, o.AH)({
 												'.ss__facet-hierarchy-options__option': {
-													color: j?.colors?.secondary,
-													border: `1px solid ${j?.colors?.secondary || '#333'}`,
+													color: L?.colors?.secondary,
+													border: `1px solid ${L?.colors?.secondary || '#333'}`,
 													padding: '0.5em 0.5em',
 													'&.ss__facet-hierarchy-options__option--filtered': {
 														fontWeight: 'bold',
-														color: c?.variables?.colors?.primary,
+														color: d?.variables?.colors?.primary,
 														marginRight: '2em',
 													},
-													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: j?.colors?.accent } },
+													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: L?.colors?.accent } },
 												},
 										  })
 										: (0, o.AH)({
 												'.ss__facet-hierarchy-options__option': {
-													color: j?.colors?.secondary,
-													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: j?.colors?.accent } },
+													color: L?.colors?.secondary,
+													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: L?.colors?.accent } },
 												},
 										  });
 								},
 							},
 						},
 					},
-					h = {
+					_ = {
 						default: {
 							facetListOptions: {
-								themeStyleScript: ({ horizontal: a, theme: c }) => {
-									const j = c?.variables;
+								themeStyleScript: ({ horizontal: a, theme: d }) => {
+									const L = d?.variables;
 									return (0, o.AH)({
 										'& .ss__facet-list-options__option': {
 											margin: a ? '0 5px 5px 0' : '0 0 5px 0',
-											color: j?.colors?.secondary,
-											border: a ? `1px solid ${j?.colors?.secondary || '#333'}` : void 0,
+											color: L?.colors?.secondary,
+											border: a ? `1px solid ${L?.colors?.secondary || '#333'}` : void 0,
 											padding: a ? '0.5em 0.5em' : void 0,
 											textDecoration: 'none',
 											'&:hover': { cursor: 'pointer' },
@@ -826,7 +826,7 @@
 							},
 						},
 					},
-					O = {
+					r = {
 						default: {
 							facetPaletteOptions: {
 								themeStyleScript: ({}) =>
@@ -842,55 +842,55 @@
 							},
 						},
 					},
-					r = {
+					p = {
 						default: {
 							facetSlider: {
 								themeStyleScript: ({
 									railColor: a,
-									trackColor: c,
-									handleColor: j,
-									valueTextColor: ce,
+									trackColor: d,
+									handleColor: L,
+									valueTextColor: de,
 									handleDraggingColor: We,
 									showTicks: tt,
-									stickyHandleLabel: k,
-									theme: B,
+									stickyHandleLabel: A,
+									theme: k,
 								}) => {
-									const ee = B?.variables;
+									const q = k?.variables;
 									return (0, o.AH)({
-										marginBottom: tt && k ? '22px' : tt || k ? '10px' : '5px',
-										color: ee?.colors?.secondary,
-										'& .ss__facet-slider__rail': { background: a || ee?.colors?.secondary || '#333' },
-										'& .ss__facet-slider__segment': { background: c || '#f2f2f2', borderRadius: '3px' },
+										marginBottom: tt && A ? '22px' : tt || A ? '10px' : '5px',
+										color: q?.colors?.secondary,
+										'& .ss__facet-slider__rail': { background: a || q?.colors?.secondary || '#333' },
+										'& .ss__facet-slider__segment': { background: d || '#f2f2f2', borderRadius: '3px' },
 										'& .ss__facet-slider__handles': {
 											'& button': {
 												'& .ss__facet-slider__handle': {
-													background: j || ee?.colors?.secondary || '#333',
-													color: ce || ee?.colors?.secondary || 'initial',
-													'&.ss__facet-slider__handle--active': { background: We || j || ee?.colors?.secondary || '#000' },
+													background: L || q?.colors?.secondary || '#333',
+													color: de || q?.colors?.secondary || 'initial',
+													'&.ss__facet-slider__handle--active': { background: We || L || q?.colors?.secondary || '#000' },
 												},
 											},
 										},
-										'& .ss__facet-slider__labels': { color: ee?.colors?.secondary || ce },
+										'& .ss__facet-slider__labels': { color: q?.colors?.secondary || de },
 									});
 								},
 							},
 						},
 					},
-					p = {
+					h = {
 						default: {
 							filter: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables,
-										j = (0, v.Mj)(c?.colors?.primary || '#000'),
-										ce = j.isDark() ? '#fff' : '#000';
+									const d = a?.variables,
+										L = (0, C.Mj)(d?.colors?.primary || '#000'),
+										de = L.isDark() ? '#fff' : '#000';
 									return (0, o.AH)({
-										'& .ss__filter__button': { backgroundColor: j.toHex(), color: ce, '& .ss__filter__button__icon': { fill: ce, stroke: ce } },
+										'& .ss__filter__button': { backgroundColor: L.toHex(), color: de, '& .ss__filter__button__icon': { fill: de, stroke: de } },
 									});
 								},
 							},
 						},
 					},
-					f = {
+					x = {
 						default: {
 							grid: {
 								themeStyleScript: ({ theme: a }) =>
@@ -906,17 +906,17 @@
 							},
 						},
 					},
-					R = {
+					N = {
 						default: {
 							layoutSelector: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										'.ss__button__content': { gap: '7px' },
 										'.ss__list__option': {
 											color: 'rgba(109,113,117,.2)',
 											'.ss__icon': { fill: 'rgba(109,113,117,.2)', stroke: 'rgba(109,113,117,.2)' },
-											'&.ss__list__option--selected': { color: c?.colors.accent, '.ss__icon': { fill: c?.colors.accent, stroke: c?.colors.accent } },
+											'&.ss__list__option--selected': { color: d?.colors.accent, '.ss__icon': { fill: d?.colors.accent, stroke: d?.colors.accent } },
 										},
 									});
 								},
@@ -926,28 +926,28 @@
 							},
 						},
 					},
-					Ae = {
+					fe = {
 						default: {
 							list: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({ gap: '8px', '& .ss__list__options': { gap: '10px' } });
 								},
 							},
 							'list icon': { size: '24px' },
 						},
 					},
-					Fe = (a, c) => {
-						const j = (0, v.Mj)(a).toHsl();
-						return (0, v.Mj)({ ...j, l: c });
+					Fe = (a, d) => {
+						const L = (0, C.Mj)(a).toHsl();
+						return (0, C.Mj)({ ...L, l: d });
 					},
 					ie = {
 						default: {
 							loadMore: {
-								themeStyleScript: ({ color: a, backgroundColor: c, theme: j }) => {
-									const ce = j?.variables,
-										We = (0, v.Mj)(a || ce?.colors?.accent || '#000'),
-										tt = c ? (0, v.Mj)(c || '#fff') : Fe(We.toHex(), 90);
+								themeStyleScript: ({ color: a, backgroundColor: d, theme: L }) => {
+									const de = L?.variables,
+										We = (0, C.Mj)(a || de?.colors?.accent || '#000'),
+										tt = d ? (0, C.Mj)(d || '#fff') : Fe(We.toHex(), 90);
 									return (0, o.AH)({
 										'.ss__button': { '.ss__button__content': { display: 'inline-flex', alignItems: 'center', gap: '5px' } },
 										'.ss__load-more__progress': {
@@ -961,34 +961,34 @@
 							},
 						},
 					},
-					oe = {
+					ge = {
 						default: {
 							overlayBadge: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({ '.ss__overlay-badge__grid-wrapper': { padding: '0.5rem' } });
 								},
 							},
 						},
 					},
-					Le = {
+					Pe = {
 						default: {
 							pagination: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
-										'& .ss__pagination__page': { color: c?.colors?.secondary, '&.ss__pagination__page--active': { textDecoration: 'underline' } },
+										'& .ss__pagination__page': { color: d?.colors?.secondary, '&.ss__pagination__page--active': { textDecoration: 'underline' } },
 									});
 								},
 							},
 						},
 					},
-					Q = {
+					ee = {
 						default: {
 							radio: {
-								themeStyleScript: ({ size: a, native: c, color: j, theme: ce }) => {
-									const We = ce?.variables;
-									return c
+								themeStyleScript: ({ size: a, native: d, color: L, theme: de }) => {
+									const We = de?.variables;
+									return d
 										? (0, o.AH)({
 												width: a,
 												height: a,
@@ -996,7 +996,7 @@
 												justifyContent: 'center',
 												'.ss__radio__input': { height: `calc(${a} - 30%)`, width: `calc(${a} - 30%)`, margin: 'auto' },
 										  })
-										: (0, o.AH)({ '.ss__icon': { fill: j || We?.colors.primary, stroke: j || We?.colors.primary } });
+										: (0, o.AH)({ '.ss__icon': { fill: L || We?.colors.primary, stroke: L || We?.colors.primary } });
 								},
 							},
 						},
@@ -1006,9 +1006,9 @@
 						default: {
 							result: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
-										'& .ss__result__details': { '& .ss__result__details__pricing': { '& .ss__result__price': { color: c?.colors.secondary } } },
+										'& .ss__result__details': { '& .ss__result__details__pricing': { '& .ss__result__price': { color: d?.colors.secondary } } },
 									});
 								},
 							},
@@ -1018,23 +1018,23 @@
 						default: {
 							searchInput: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
-									return (0, o.AH)({ border: `1px solid ${c?.colors?.secondary || '#ccc'}` });
+									const d = a?.variables;
+									return (0, o.AH)({ border: `1px solid ${d?.colors?.secondary || '#ccc'}` });
 								},
 							},
 						},
 					},
-					Gt = (a, c) => {
-						const j = (0, v.Mj)(a).toHsl();
-						return (0, v.Mj)({ ...j, l: c });
+					Gt = (a, d) => {
+						const L = (0, C.Mj)(a).toHsl();
+						return (0, C.Mj)({ ...L, l: d });
 					},
 					Vt = {
 						default: {
 							select: {
-								themeStyleScript: ({ backgroundColor: a, theme: c }) => {
-									const j = c?.variables,
-										ce = (0, v.Mj)(c?.variables?.colors?.secondary || '#000'),
-										We = ce.alpha(Math.min(ce.alpha() + 0.2, 1)),
+								themeStyleScript: ({ backgroundColor: a, theme: d }) => {
+									const L = d?.variables,
+										de = (0, C.Mj)(d?.variables?.colors?.secondary || '#000'),
+										We = de.alpha(Math.min(de.alpha() + 0.2, 1)),
 										tt = Gt(We.toHex(), 95).toRgbString();
 									return (0, o.AH)({
 										'.ss__dropdown': {
@@ -1044,8 +1044,8 @@
 												fontWeight: 'bold',
 												'&:hover': {
 													backgroundColor: 'initial',
-													color: j?.colors?.primary,
-													'.ss__icon': { fill: j?.colors?.accent, stroke: j?.colors?.accent },
+													color: L?.colors?.primary,
+													'.ss__icon': { fill: L?.colors?.accent, stroke: L?.colors?.accent },
 												},
 												'.ss__select__dropdown__button__icon': { marginLeft: '5px', transition: 'transform 0.25s ease 0s' },
 											},
@@ -1073,7 +1073,7 @@
 												listStyle: 'none',
 												padding: '6px 30px',
 												gap: '6px',
-												color: j?.colors?.secondary,
+												color: L?.colors?.secondary,
 												'&.ss__select__select__option--selected': { backgroundColor: tt || 'rgba(109,113,117,.06)' },
 												'&:hover': { backgroundColor: tt || 'rgba(109,113,117,.06)' },
 											},
@@ -1088,19 +1088,19 @@
 					Qt = {
 						default: {
 							slideout: {
-								themeStyleScript: ({ width: a, slideDirection: c, theme: j }) => {
-									const ce = j?.variables;
+								themeStyleScript: ({ width: a, slideDirection: d, theme: L }) => {
+									const de = L?.variables;
 									return (0, o.AH)({
-										left: c == 'left' ? `-${a}` : c != 'right' ? '0' : 'initial',
-										right: c == 'right' ? `-${a}` : 'initial',
-										bottom: c == 'bottom' ? '-100vh' : 'initial',
-										top: c == 'top' ? '-100vh' : c == 'bottom' ? 'initial' : '0',
+										left: d == 'left' ? `-${a}` : d != 'right' ? '0' : 'initial',
+										right: d == 'right' ? `-${a}` : 'initial',
+										bottom: d == 'bottom' ? '-100vh' : 'initial',
+										top: d == 'top' ? '-100vh' : d == 'bottom' ? 'initial' : '0',
 										background: '#fff',
 										'&.ss__slideout--active': {
-											left: c == 'left' || c != 'right' ? '0' : 'initial',
-											right: c == 'right' ? '0' : 'initial',
-											bottom: c == 'bottom' ? '0' : 'initial',
-											top: c == 'top' ? '0' : c == 'bottom' ? 'initial' : '0',
+											left: d == 'left' || d != 'right' ? '0' : 'initial',
+											right: d == 'right' ? '0' : 'initial',
+											bottom: d == 'bottom' ? '0' : 'initial',
+											top: d == 'top' ? '0' : d == 'bottom' ? 'initial' : '0',
 										},
 									});
 								},
@@ -1111,7 +1111,7 @@
 						default: {
 							perPage: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({ '.ss__button__content': { gap: '7px' } });
 								},
 							},
@@ -1122,13 +1122,13 @@
 					st = {
 						default: { sortBy: { themeStyleScript: () => (0, o.AH)({ '.ss__button__content': { gap: '7px' } }) }, 'sortBy icon': { size: '12px' } },
 					},
-					ve = { default: { swatches: {} } },
+					ye = { default: { swatches: {} } },
 					Ye = { default: { variantSelection: {} } },
-					Qe = {
+					Xe = {
 						default: {
 							terms: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({});
 								},
 							},
@@ -1137,21 +1137,21 @@
 					kt = {
 						default: {
 							...te.default,
-							..._e.default,
+							...ue.default,
 							...Ue.default,
-							...Be.default,
-							...Me.default,
-							...h.default,
-							...O.default,
+							...ve.default,
+							...Ae.default,
+							..._.default,
 							...r.default,
 							...p.default,
-							...f.default,
-							...R.default,
-							...Ae.default,
+							...h.default,
+							...x.default,
+							...N.default,
+							...fe.default,
 							...ie.default,
-							...oe.default,
-							...Le.default,
-							...Q.default,
+							...ge.default,
+							...Pe.default,
+							...ee.default,
 							...jt.default,
 							...It.default,
 							...Wt.default,
@@ -1160,27 +1160,27 @@
 							...St.default,
 							...bt.default,
 							...st.default,
-							...ve.default,
+							...ye.default,
 							...Ye.default,
-							...Qe.default,
+							...Xe.default,
 						},
 						mobile: {
 							...te.mobile,
-							..._e.mobile,
+							...ue.mobile,
 							...Ue.mobile,
-							...Be.mobile,
-							...Me.mobile,
-							...h.mobile,
-							...O.mobile,
+							...ve.mobile,
+							...Ae.mobile,
+							..._.mobile,
 							...r.mobile,
 							...p.mobile,
-							...f.mobile,
-							...R.mobile,
-							...Ae.mobile,
+							...h.mobile,
+							...x.mobile,
+							...N.mobile,
+							...fe.mobile,
 							...ie.mobile,
-							...oe.mobile,
-							...Le.mobile,
-							...Q.mobile,
+							...ge.mobile,
+							...Pe.mobile,
+							...ee.mobile,
 							...jt.mobile,
 							...It.mobile,
 							...Wt.mobile,
@@ -1189,27 +1189,27 @@
 							...St.mobile,
 							...bt.mobile,
 							...st.mobile,
-							...ve.mobile,
+							...ye.mobile,
 							...Ye.mobile,
-							...Qe.mobile,
+							...Xe.mobile,
 						},
 						tablet: {
 							...te.tablet,
-							..._e.tablet,
+							...ue.tablet,
 							...Ue.tablet,
-							...Be.tablet,
-							...Me.tablet,
-							...h.tablet,
-							...O.tablet,
+							...ve.tablet,
+							...Ae.tablet,
+							..._.tablet,
 							...r.tablet,
 							...p.tablet,
-							...f.tablet,
-							...R.tablet,
-							...Ae.tablet,
+							...h.tablet,
+							...x.tablet,
+							...N.tablet,
+							...fe.tablet,
 							...ie.tablet,
-							...oe.tablet,
-							...Le.tablet,
-							...Q.tablet,
+							...ge.tablet,
+							...Pe.tablet,
+							...ee.tablet,
 							...jt.tablet,
 							...It.tablet,
 							...Wt.tablet,
@@ -1218,27 +1218,27 @@
 							...St.tablet,
 							...bt.tablet,
 							...st.tablet,
-							...ve.tablet,
+							...ye.tablet,
 							...Ye.tablet,
-							...Qe.tablet,
+							...Xe.tablet,
 						},
 						desktop: {
 							...te.desktop,
-							..._e.desktop,
+							...ue.desktop,
 							...Ue.desktop,
-							...Be.desktop,
-							...Me.desktop,
-							...h.desktop,
-							...O.desktop,
+							...ve.desktop,
+							...Ae.desktop,
+							..._.desktop,
 							...r.desktop,
 							...p.desktop,
-							...f.desktop,
-							...R.desktop,
-							...Ae.desktop,
+							...h.desktop,
+							...x.desktop,
+							...N.desktop,
+							...fe.desktop,
 							...ie.desktop,
-							...oe.desktop,
-							...Le.desktop,
-							...Q.desktop,
+							...ge.desktop,
+							...Pe.desktop,
+							...ee.desktop,
 							...jt.desktop,
 							...It.desktop,
 							...Wt.desktop,
@@ -1247,16 +1247,16 @@
 							...St.desktop,
 							...bt.desktop,
 							...st.desktop,
-							...ve.desktop,
+							...ye.desktop,
 							...Ye.desktop,
-							...Qe.desktop,
+							...Xe.desktop,
 						},
 					},
 					Ie = {
 						default: {
 							facet: {
-								themeStyleScript: ({ color: a, theme: c }) => {
-									const j = c?.variables;
+								themeStyleScript: ({ color: a, theme: d }) => {
+									const L = d?.variables;
 									return (0, o.AH)({
 										'& .ss__facet__dropdown': {
 											'& .ss__facet__dropdown__icon': { transition: 'transform ease .5s' },
@@ -1267,9 +1267,9 @@
 											maxHeight: '400px',
 											'&::-webkit-scrollbar': { width: '8px' },
 											'&::-webkit-scrollbar-track': { background: '#f2f2f2' },
-											'&::-webkit-scrollbar-thumb': { background: j?.colors?.secondary || '#ccc' },
+											'&::-webkit-scrollbar-thumb': { background: L?.colors?.secondary || '#ccc' },
 										},
-										'& .ss__facet__show-more-less': { margin: '8px 5px', color: a || j?.colors?.secondary },
+										'& .ss__facet__show-more-less': { margin: '8px 5px', color: a || L?.colors?.secondary },
 									});
 								},
 								iconCollapse: 'angle-down',
@@ -1279,18 +1279,18 @@
 							},
 						},
 					},
-					me = {
+					le = {
 						default: {
 							facetsHorizontal: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										paddingBottom: '10px',
 										'& .ss__facets-horizontal__header': {
 											'& .ss__facets-horizontal__header__dropdown': {
 												margin: '0',
 												'& .ss__icon': { transition: 'transform ease .5s' },
-												'& .ss__dropdown__button__heading': { color: c?.colors?.secondary, fontWeight: 'bold' },
+												'& .ss__dropdown__button__heading': { color: d?.colors?.secondary, fontWeight: 'bold' },
 												'&.ss__dropdown--open': { '& .ss__dropdown__button__heading': { '& .ss__icon': { transform: 'rotate(180deg)' } } },
 											},
 										},
@@ -1310,14 +1310,14 @@
 						tablet: { facetsHorizontal: { limit: 5 } },
 						desktop: { facetsHorizontal: { limit: 7 } },
 					},
-					Ce = {
+					xe = {
 						default: {
 							filterSummary: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										margin: '0 0 20px',
-										'.ss__filter-summary__title': { fontWeight: 'bold', color: c?.colors?.primary, fontSize: 'inherit' },
+										'.ss__filter-summary__title': { fontWeight: 'bold', color: d?.colors?.primary, fontSize: 'inherit' },
 									});
 								},
 								title: 'Applied Filters',
@@ -1328,74 +1328,74 @@
 						default: {
 							noResults: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
-									return (0, o.AH)({ color: c?.colors?.secondary, ' .ss__title': { color: c?.colors?.secondary } });
+									const d = a?.variables;
+									return (0, o.AH)({ color: d?.colors?.secondary, ' .ss__title': { color: d?.colors?.secondary } });
 								},
 							},
 						},
 					},
-					Te = {
+					Re = {
 						default: {
 							sidebar: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({
 										boxSizing: 'border-box',
 										width: '100%',
 										margin: '0 1em 0 0',
-										'& .ss__sidebar__title': { color: c?.colors?.primary },
+										'& .ss__sidebar__title': { color: d?.colors?.primary },
 									});
 								},
 							},
 						},
 					},
-					Xe = {
+					Ke = {
 						default: {
 							termsList: {
 								themeStyleScript: ({ theme: a }) => {
-									const c = a?.variables;
+									const d = a?.variables;
 									return (0, o.AH)({});
 								},
 							},
 						},
 					},
-					fe = { default: { toolbar: { themeStyleScript: () => (0, o.AH)({}) } } };
-				var Oe = t('./components/src/themes/themeComponents/autocomplete.ts');
-				const P = ({}) => (0, o.AH)({}),
-					l = {
-						default: { ...Oe.n.default, autocomplete: { ...(Oe.n.default?.autocomplete || {}), themeStyleScript: P } },
-						mobile: Oe.n.mobile,
-						desktop: Oe.n.desktop,
-						tablet: Oe.n.tablet,
+					ke = { default: { toolbar: { themeStyleScript: () => (0, o.AH)({}) } } };
+				var P = t('./components/src/themes/themeComponents/autocomplete.ts');
+				const c = ({}) => (0, o.AH)({}),
+					K = {
+						default: { ...P.n.default, autocomplete: { ...(P.n.default?.autocomplete || {}), themeStyleScript: c } },
+						mobile: P.n.mobile,
+						desktop: P.n.desktop,
+						tablet: P.n.tablet,
 					},
-					Z = {
-						default: { ...l.default, ...Ie.default, ...me.default, ...Ce.default, ...he.default, ...Te.default, ...fe.default, ...Xe.default },
-						mobile: { ...l.mobile, ...Ie.mobile, ...me.mobile, ...Ce.mobile, ...he.mobile, ...Te.mobile, ...fe.mobile, ...Xe.mobile },
-						tablet: { ...l.tablet, ...Ie.tablet, ...me.tablet, ...Ce.tablet, ...he.tablet, ...Te.tablet, ...fe.tablet, ...Xe.tablet },
-						desktop: { ...l.desktop, ...Ie.desktop, ...me.desktop, ...Ce.desktop, ...he.desktop, ...Te.desktop, ...fe.desktop, ...Xe.desktop },
+					j = {
+						default: { ...K.default, ...Ie.default, ...le.default, ...xe.default, ...he.default, ...Re.default, ...ke.default, ...Ke.default },
+						mobile: { ...K.mobile, ...Ie.mobile, ...le.mobile, ...xe.mobile, ...he.mobile, ...Re.mobile, ...ke.mobile, ...Ke.mobile },
+						tablet: { ...K.tablet, ...Ie.tablet, ...le.tablet, ...xe.tablet, ...he.tablet, ...Re.tablet, ...ke.tablet, ...Ke.tablet },
+						desktop: { ...K.desktop, ...Ie.desktop, ...le.desktop, ...xe.desktop, ...he.desktop, ...Re.desktop, ...ke.desktop, ...Ke.desktop },
 					};
-				var I = t('./components/src/themes/themeComponents/recommendation.ts');
-				const Y = ({ theme: a }) => {
-						const c = a?.variables;
-						return (0, o.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: c?.colors?.primary, textAlign: 'center' } });
+				var V = t('./components/src/themes/themeComponents/recommendation.ts');
+				const Q = ({ theme: a }) => {
+						const d = a?.variables;
+						return (0, o.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: d?.colors?.primary, textAlign: 'center' } });
 					},
-					m = {
-						default: { ...I.C.default, recommendation: { ...(I.C.default?.recommendation || {}), themeStyleScript: Y } },
-						mobile: I.C.mobile,
-						desktop: I.C.desktop,
-						tablet: I.C.tablet,
+					u = {
+						default: { ...V.C.default, recommendation: { ...(V.C.default?.recommendation || {}), themeStyleScript: Q } },
+						mobile: V.C.mobile,
+						desktop: V.C.desktop,
+						tablet: V.C.tablet,
 					};
-				var _ = t('./components/src/themes/themeComponents/recommendationBundle.ts');
-				const u = ({ theme: a }) => {
-						const c = a?.variables;
+				var i = t('./components/src/themes/themeComponents/recommendationBundle.ts');
+				const M = ({ theme: a }) => {
+						const d = a?.variables;
 						return (0, o.AH)({
 							margin: '20px 0',
 							'.ss__recommendation-bundle__title': { textAlign: 'center' },
 							'.ss__recommendation-bundle__wrapper__selector': {
-								'& .ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': { backgroundColor: c?.colors.accent, color: '#fff' },
+								'& .ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': { backgroundColor: d?.colors.accent, color: '#fff' },
 							},
 							'.ss__recommendation-bundle__wrapper__cta': {
-								border: `1px solid ${c?.colors.accent}`,
+								border: `1px solid ${d?.colors.accent}`,
 								borderRadius: '5px',
 								alignItems: 'center',
 								flexDirection: 'column',
@@ -1409,52 +1409,52 @@
 							'.ss__recommendation-bundle__wrapper__cta__subtotal': { margin: '15px 0px' },
 						});
 					},
-					b = {
-						default: { ..._._.default, recommendationBundle: { ...(_._.default?.recommendationBundle || {}), themeStyleScript: u } },
-						mobile: _._.mobile,
-						desktop: _._.desktop,
-						tablet: _._.tablet,
+					S = {
+						default: { ...i._.default, recommendationBundle: { ...(i._.default?.recommendationBundle || {}), themeStyleScript: M } },
+						mobile: i._.mobile,
+						desktop: i._.desktop,
+						tablet: i._.tablet,
 					};
-				var C = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const z = ({ theme: a }) => {
-						const c = a?.variables;
+				var b = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
+				const W = ({ theme: a }) => {
+						const d = a?.variables;
 						return (0, o.AH)({
-							border: `1px solid ${c?.colors.accent}`,
+							border: `1px solid ${d?.colors.accent}`,
 							padding: '20px',
 							'.ss__recommendation-bundle-easy-add__wrapper': { justifyContent: 'center' },
 							'.ss__recommendation-bundle-easy-add__title': { textAlign: 'center', marginBottom: '20px' },
 						});
 					},
-					U = {
+					ce = {
 						default: {
-							...C.j.default,
-							recommendationBundleEasyAdd: { ...(C.j.default?.recommendationBundleEasyAdd || {}), ctaIcon: !1, themeStyleScript: z },
+							...b.j.default,
+							recommendationBundleEasyAdd: { ...(b.j.default?.recommendationBundleEasyAdd || {}), ctaIcon: !1, themeStyleScript: W },
 						},
-						mobile: C.j.mobile,
-						desktop: C.j.desktop,
-						tablet: C.j.tablet,
+						mobile: b.j.mobile,
+						desktop: b.j.desktop,
+						tablet: b.j.tablet,
 					};
-				var J = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
+				var Z = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
 				const re = ({ theme: a }) => {
-						const c = a?.variables;
+						const d = a?.variables;
 						return (0, o.AH)({
-							border: `1px solid ${c?.colors.accent}`,
+							border: `1px solid ${d?.colors.accent}`,
 							padding: '20px',
 							'.ss__recommendation-bundle-list__title': { textAlign: 'center', marginBottom: '20px' },
 							'.cta__inner__price__wrapper': { justifyContent: 'space-evenly', display: 'flex', '.ss__price': { margin: '0px' } },
 						});
 					},
-					le = {
-						default: { ...J.e.default, recommendationBundleList: { ...(J.e.default?.recommendationBundleList || {}), themeStyleScript: re } },
-						mobile: J.e.mobile,
-						desktop: J.e.desktop,
-						tablet: J.e.tablet,
+					Be = {
+						default: { ...Z.e.default, recommendationBundleList: { ...(Z.e.default?.recommendationBundleList || {}), themeStyleScript: re } },
+						mobile: Z.e.mobile,
+						desktop: Z.e.desktop,
+						tablet: Z.e.tablet,
 					};
-				var we = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
+				var Me = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
 				const $e = ({ theme: a }) => {
-						const c = a?.variables;
+						const d = a?.variables;
 						return (0, o.AH)({
-							border: `1px solid ${c?.colors.accent}`,
+							border: `1px solid ${d?.colors.accent}`,
 							padding: '20px',
 							'.ss__recommendation-bundle-vertical__title': { textAlign: 'center', marginBottom: '20px' },
 							'.ss__recommendation-bundle-vertical__wrapper__selector--seed': { flexDirection: 'column', display: 'flex', marginBottom: '10px' },
@@ -1470,21 +1470,21 @@
 					},
 					Ne = {
 						default: {
-							...we.W.default,
+							...Me.W.default,
 							recommendationBundleVertical: {
-								...(we.W.default?.recommendationBundleVertical || {}),
+								...(Me.W.default?.recommendationBundleVertical || {}),
 								limit: 3,
 								separatorIcon: 'plus-thin',
 								themeStyleScript: $e,
 							},
 						},
-						mobile: we.W.mobile,
-						desktop: we.W.desktop,
-						tablet: we.W.tablet,
+						mobile: Me.W.mobile,
+						desktop: Me.W.desktop,
+						tablet: Me.W.tablet,
 					};
 				var et = t('./components/src/themes/themeComponents/recommendationGrid.ts');
 				const $t = ({ theme: a }) => {
-						const c = a?.variables;
+						const d = a?.variables;
 						return (0, o.AH)({});
 					},
 					lt = {
@@ -1497,7 +1497,7 @@
 				const gt = ct.O;
 				var Ze = t('./components/src/themes/themeComponents/search.ts');
 				const wt = ({ theme: a }) => {
-						const c = a?.variables;
+						const d = a?.variables;
 						return (0, o.AH)({});
 					},
 					ft = {
@@ -1508,7 +1508,7 @@
 					};
 				var Ht = t('./components/src/themes/themeComponents/searchHorizontal.ts');
 				const Ot = ({ theme: a }) => {
-						const c = a?.variables;
+						const d = a?.variables;
 						return (0, o.AH)({});
 					},
 					dt = {
@@ -1519,10 +1519,10 @@
 					};
 				var Bt = t('./components/src/themes/themeComponents/searchCollapsible.ts');
 				const Pt = ({ theme: a }) => {
-						const c = a?.variables,
-							j = 'calc(270px + 1.5em)';
+						const d = a?.variables,
+							L = 'calc(270px + 1.5em)';
 						return (0, o.AH)({
-							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: j ? 'inherit' : 'auto', width: j || 'inherit' },
+							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: L ? 'inherit' : 'auto', width: L || 'inherit' },
 						});
 					},
 					at = {
@@ -1572,10 +1572,10 @@
 							...pt.default,
 							...xt.default,
 							...rt.default,
-							...m.default,
-							...b.default,
-							...U.default,
-							...le.default,
+							...u.default,
+							...S.default,
+							...ce.default,
+							...Be.default,
 							...Ne.default,
 							...lt.default,
 							...gt.default,
@@ -1587,10 +1587,10 @@
 							...pt.mobile,
 							...xt.mobile,
 							...rt.mobile,
-							...m.mobile,
-							...b.mobile,
-							...U.mobile,
-							...le.mobile,
+							...u.mobile,
+							...S.mobile,
+							...ce.mobile,
+							...Be.mobile,
 							...Ne.mobile,
 							...lt.mobile,
 							...gt.mobile,
@@ -1602,10 +1602,10 @@
 							...pt.tablet,
 							...xt.tablet,
 							...rt.tablet,
-							...m.tablet,
-							...b.tablet,
-							...U.tablet,
-							...le.tablet,
+							...u.tablet,
+							...S.tablet,
+							...ce.tablet,
+							...Be.tablet,
 							...Ne.tablet,
 							...lt.tablet,
 							...gt.tablet,
@@ -1617,10 +1617,10 @@
 							...pt.desktop,
 							...xt.desktop,
 							...rt.desktop,
-							...m.desktop,
-							...b.desktop,
-							...U.desktop,
-							...le.desktop,
+							...u.desktop,
+							...S.desktop,
+							...ce.desktop,
+							...Be.desktop,
 							...Ne.desktop,
 							...lt.desktop,
 							...gt.desktop,
@@ -1629,11 +1629,11 @@
 							...dt.desktop,
 						},
 					},
-					mo = { ...xe.default, ...kt.default, ...Z.default, ...Mt.default },
-					Rt = { ...xe.mobile, ...kt.mobile, ...Z.mobile, ...Mt.mobile },
-					Lt = { ...xe.tablet, ...kt.tablet, ...Z.tablet, ...Mt.tablet },
-					Ut = { ...xe.desktop, ...kt.desktop, ...Z.desktop, ...Mt.desktop },
-					A = {
+					mo = { ...be.default, ...kt.default, ...j.default, ...Mt.default },
+					Rt = { ...be.mobile, ...kt.mobile, ...j.mobile, ...Mt.mobile },
+					Lt = { ...be.tablet, ...kt.tablet, ...j.tablet, ...Mt.tablet },
+					Ut = { ...be.desktop, ...kt.desktop, ...j.desktop, ...Mt.desktop },
+					v = {
 						name: 'bocachica',
 						variables: {
 							breakpoints: { mobile: 767, tablet: 991, desktop: 1299 },
@@ -1644,11 +1644,11 @@
 						type: 'templates',
 					};
 			},
-			'./components/src/themes/pike/pike.ts'(q, H, t) {
+			'./components/src/themes/pike/pike.ts'(J, O, t) {
 				'use strict';
-				t.r(H), t.d(H, { pike: () => Hs });
+				t.r(O), t.d(O, { pike: () => Hs });
 				var o = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js');
-				const x = {
+				const y = {
 					default: {
 						badgeImage: {
 							themeStyleScript: (s) => {
@@ -1658,9 +1658,9 @@
 						},
 					},
 				};
-				var E = t('../../node_modules/colord/index.mjs');
-				const V = 5,
-					$ = (s) => V * s,
+				var z = t('../../node_modules/colord/index.mjs');
+				const G = 5,
+					H = (s) => G * s,
 					e = {
 						breakpoints: { small: 540, mobile: 767, tablet: 991, desktop: 1199 },
 						colors: {
@@ -1689,30 +1689,30 @@
 							sort: 'sort',
 						},
 						sizes: { font: 16, height: 35, icon08: 8, icon10: 10, icon12: 12, icon14: 14, icon16: 16, radius: 0 },
-						spacing: { x1: V, x2: $(2), x3: $(3), x4: $(4), x5: $(5), x6: $(6), x7: $(7), x8: $(8) },
+						spacing: { x1: G, x2: H(2), x3: H(3), x4: H(4), x5: H(5), x6: H(6), x7: H(7), x8: H(8) },
 						styles: {
 							activeText: (s) => ({ '&, &:hover': { fontWeight: e?.fonts?.weight01, color: s || void 0 } }),
 							badgeText: (s) => ({ display: 'block', fontSize: s, lineHeight: 1.2 }),
 							baseText: (s) => ({ fontSize: '14px', lineHeight: 1.5, color: s || void 0 }),
 							borderRadius: (s, n) => {
-								const i = !!(s || s === 0);
-								return (s = i ? s : e.sizes.radius), (n = n || (s === 0 ? '' : 'px')), { borderRadius: i || e.sizes.radius ? `${s}${n}` : '' };
+								const l = !!(s || s === 0);
+								return (s = l ? s : e.sizes.radius), (n = n || (s === 0 ? '' : 'px')), { borderRadius: l || e.sizes.radius ? `${s}${n}` : '' };
 							},
-							box: (s, n, i) => {
+							box: (s, n, l) => {
 								n ? (n = n) : n === 0 ? (n = '') : (n = `${e.spacing.x2}px`);
-								const M = (typeof i == 'boolean' ? i : !0) && e.sizes.radius ? e.styles.borderRadius() : null;
-								return { border: `1px solid ${e.colors.gray02}`, ...M, backgroundColor: e.colors.gray01, color: s || void 0, padding: n };
+								const $ = (typeof l == 'boolean' ? l : !0) && e.sizes.radius ? e.styles.borderRadius() : null;
+								return { border: `1px solid ${e.colors.gray02}`, ...$, backgroundColor: e.colors.gray01, color: s || void 0, padding: n };
 							},
 							disabled: () => ({ '&': { cursor: 'not-allowed !important', opacity: 0.65 }, '*': { pointerEvents: 'none', opacity: 1 } }),
 							headerText: (s, n) => ({ fontSize: n || '', fontWeight: e?.fonts?.weight02, textTransform: e?.fonts?.transform, color: s || void 0 }),
-							resultCompact: (s, n, i) => {
-								(s = (s && s == 'grid') || s == 'list' ? s : 'list'), (i = i || 14);
-								const T = {
+							resultCompact: (s, n, l) => {
+								(s = (s && s == 'grid') || s == 'list' ? s : 'list'), (l = l || 14);
+								const B = {
 										'&': { gap: `${e.spacing.x1}px` },
 										'.ss__result__details__title a, .ss__result__details__pricing .ss__price, .ss__result__details__pricing .ss__price span': {
-											fontSize: `${i}px`,
+											fontSize: `${l}px`,
 										},
-										'.ss__result__details__pricing .ss__result__price': { fontSize: `${i + 2}px` },
+										'.ss__result__details__pricing .ss__result__price': { fontSize: `${l + 2}px` },
 										'.ss__result__details__title a': {
 											display: '-webkit-box',
 											WebkitBoxOrient: 'vertical',
@@ -1721,17 +1721,17 @@
 										},
 										'.ss__result__details__variant-selection, .ss__result__add-to-cart-wrapper': { marginTop: '2.5px' },
 									},
-									M = { '.ss__result__details': { ...T } },
-									ae = {
+									$ = { '.ss__result__details': { ...B } },
+									ne = {
 										'&': { gap: `${e.spacing.x2}px` },
 										'.ss__result__image-wrapper': { flex: n || '' },
 										'.ss__result__details': {
 											'.ss__result__details__title, .ss__result__details__pricing': { flex: '1 1 100%' },
-											...T,
+											...B,
 											'.ss__result__details__variant-selection .ss__variant-selection': { width: '100%' },
 										},
 									};
-								return s == 'grid' ? M : ae;
+								return s == 'grid' ? $ : ne;
 							},
 							scrollbar: () => ({
 								'&::-webkit-scrollbar': { width: '8px', height: '8px' },
@@ -1751,18 +1751,18 @@
 						},
 						utils: {
 							activeColors: (s) => {
-								const n = (0, E.Mj)(e.colors.white),
-									i = (0, E.Mj)(e.colors.black),
-									T = (0, E.Mj)(s),
-									M = T.isDark() || T.toHex().toLowerCase() == e.colors.primary ? n : i;
-								return [T.toHex().toLowerCase(), M.toHex().toLowerCase()];
+								const n = (0, z.Mj)(e.colors.white),
+									l = (0, z.Mj)(e.colors.black),
+									B = (0, z.Mj)(s),
+									$ = B.isDark() || B.toHex().toLowerCase() == e.colors.primary ? n : l;
+								return [B.toHex().toLowerCase(), $.toHex().toLowerCase()];
 							},
-							darkenColor: (s, n) => ((n = n || 0.075), (s = s || e.colors.gray02), (0, E.Mj)(s).darken(n).toHex().toLowerCase()),
+							darkenColor: (s, n) => ((n = n || 0.075), (s = s || e.colors.gray02), (0, z.Mj)(s).darken(n).toHex().toLowerCase()),
 							getBp: (s, n) => ((n = n && (n == 'min' || n == 'max') ? n : 'min'), `@media (${n}-width: ${n == 'min' ? s + 1 : s}px)`),
-							lightenColor: (s, n) => ((n = n || 0.42), (s = s || e.colors.text), (0, E.Mj)(s).lighten(n).toHex().toLowerCase()),
+							lightenColor: (s, n) => ((n = n || 0.42), (s = s || e.colors.text), (0, z.Mj)(s).lighten(n).toHex().toLowerCase()),
 						},
 					},
-					D = {
+					I = {
 						default: {
 							badgePill: {
 								themeStyleScript: (s) => {
@@ -1782,7 +1782,7 @@
 							},
 						},
 					},
-					N = {
+					U = {
 						default: {
 							badgeText: {
 								themeStyleScript: (s) => {
@@ -1792,7 +1792,7 @@
 							},
 						},
 					},
-					F = {
+					R = {
 						default: {
 							banner: {
 								themeStyleScript: (s) => {
@@ -1802,7 +1802,7 @@
 							},
 						},
 					},
-					de = {
+					pe = {
 						default: {
 							breadcrumbs: {
 								themeStyleScript: (s) => {
@@ -1829,17 +1829,17 @@
 							'breadcrumbs icon': { size: `${e.sizes.icon10}px` },
 						},
 					},
-					xe = '&.ss__button--disabled',
+					be = '&.ss__button--disabled',
 					te = {
 						default: {
 							button: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = e.utils.activeColors(s?.backgroundColor || n?.colors?.secondary || e.colors.secondary),
-										T = i[0],
-										M = s?.borderColor ? s.borderColor : i[0],
-										ae = s?.color ? s.color : i[1],
-										Pe = (0, o.AH)([
+										l = e.utils.activeColors(s?.backgroundColor || n?.colors?.secondary || e.colors.secondary),
+										B = l[0],
+										$ = s?.borderColor ? s.borderColor : l[0],
+										ne = s?.color ? s.color : l[1],
+										Oe = (0, o.AH)([
 											{
 												cursor: 'pointer',
 												padding: `0 ${e.spacing.x4}px`,
@@ -1848,7 +1848,7 @@
 												fontWeight: e.fonts.weight01,
 												textAlign: 'center',
 												textTransform: e.fonts.transform,
-												color: ae,
+												color: ne,
 												height: `${e.sizes.height}px`,
 												lineHeight: `${e.sizes.height}px`,
 												...e.styles.borderRadius(),
@@ -1858,7 +1858,7 @@
 														'&.ss__icon--filters': { circle: { '&:last-child': { transform: 'translateX(-35%)' }, transform: 'translateX(35%)' } },
 													},
 												},
-												[xe]: { ...e.styles.disabled() },
+												[be]: { ...e.styles.disabled() },
 												'.ss__button__content': {
 													'&:has(span)': {
 														display: 'inline-flex',
@@ -1870,14 +1870,14 @@
 													'&:not(:has(span))': { ...e.styles.textOverflow() },
 													'&, *': { minWidth: '1px' },
 												},
-												[`&, &:hover, &:not(.ss__button--disabled):hover, ${xe}`]: { border: `1px solid ${M}`, backgroundColor: T },
-												'.ss__icon.ss__icon--filters': { fill: T },
+												[`&, &:hover, &:not(.ss__button--disabled):hover, ${be}`]: { border: `1px solid ${$}`, backgroundColor: B },
+												'.ss__icon.ss__icon--filters': { fill: B },
 											},
 										]),
-										Je = Pe,
+										Je = Oe,
 										ot = (0, o.AH)([
 											{ display: 'inline-flex', alignItems: 'center', gap: `${e.spacing.x1}px`, position: 'relative', outline: 0 },
-											Pe,
+											Oe,
 										]);
 									return s?.native ? ot : Je;
 								},
@@ -1885,15 +1885,15 @@
 							'button icon': { size: `${e.sizes.icon12}px` },
 						},
 					},
-					_e = {
+					ue = {
 						default: {
 							dropdown: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = s?.disabled ? { ...e.styles.disabled() } : {};
+										l = s?.disabled ? { ...e.styles.disabled() } : {};
 									return (0, o.AH)({
 										width: 'auto',
-										...i,
+										...l,
 										'&.ss__dropdown--open, &.ss__dropdown__portal--open': {
 											'.ss__dropdown__content': { gridTemplateRows: '1fr', transition: 'grid-template-rows 200ms ease, visibility 200ms' },
 										},
@@ -1934,7 +1934,7 @@
 							},
 						},
 					},
-					Ee = {
+					Le = {
 						default: {
 							formattedNumber: {
 								themeStyleScript: (s) => {
@@ -1944,17 +1944,17 @@
 							},
 						},
 					},
-					Re = {
+					Ee = {
 						default: {
 							icon: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables;
-									let i = '';
+									let l = '';
 									return (
-										s?.width ? (i = `0 0 ${s.width}`) : s?.size && (i = `0 0 ${s.size}`),
+										s?.width ? (l = `0 0 ${s.width}`) : s?.size && (l = `0 0 ${s.size}`),
 										(0, o.AH)({
 											minWidth: '1px',
-											flex: i,
+											flex: l,
 											lineHeight: 1,
 											'&.ss__icon--filters': { fill: e.colors.white, stroke: 'currentColor', circle: { fill: 'inherit' } },
 										})
@@ -1965,7 +1965,7 @@
 							},
 						},
 					},
-					K = {
+					X = {
 						default: {
 							image: {
 								themeStyleScript: (s) => {
@@ -1975,22 +1975,22 @@
 							},
 						},
 					},
-					g = {
+					f = {
 						default: {
 							inlineBanner: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = !!s?.treePath?.includes('autocomplete');
+										l = !!s?.treePath?.includes('autocomplete');
 									return (0, o.AH)({
-										overflow: i ? 'hidden' : '',
-										'&.ss__inline-banner--grid': { maxHeight: i ? '212px' : '' },
-										'&.ss__inline-banner--list': { maxHeight: i ? '100px' : '' },
+										overflow: l ? 'hidden' : '',
+										'&.ss__inline-banner--grid': { maxHeight: l ? '212px' : '' },
+										'&.ss__inline-banner--list': { maxHeight: l ? '100px' : '' },
 									});
 								},
 							},
 						},
 					},
-					d = {
+					m = {
 						default: {
 							loadingBar: {
 								themeStyleScript: (s) => {
@@ -2000,7 +2000,7 @@
 							},
 						},
 					},
-					y = {
+					g = {
 						default: {
 							overlay: {
 								themeStyleScript: (s) => {
@@ -2021,7 +2021,7 @@
 							},
 						},
 					},
-					S = {
+					T = {
 						default: {
 							price: {
 								themeStyleScript: (s) => {
@@ -2031,7 +2031,7 @@
 							},
 						},
 					},
-					pe = {
+					Te = {
 						default: {
 							searchHeader: {
 								themeStyleScript: (s) => {
@@ -2062,89 +2062,89 @@
 							},
 						},
 					},
-					ye = {
+					ae = {
 						default: {
-							...x.default,
-							...D.default,
-							...se.default,
-							...N.default,
-							...F.default,
-							...de.default,
-							...te.default,
-							..._e.default,
-							...Ee.default,
-							...Re.default,
-							...K.default,
-							...g.default,
-							...d.default,
 							...y.default,
-							...w.default,
-							...S.default,
+							...I.default,
+							...se.default,
+							...U.default,
+							...R.default,
 							...pe.default,
+							...te.default,
+							...ue.default,
+							...Le.default,
+							...Ee.default,
+							...X.default,
+							...f.default,
+							...m.default,
+							...g.default,
+							...w.default,
+							...T.default,
+							...Te.default,
 							...Fe.default,
 						},
 						mobile: {
-							...x.mobile,
-							...D.mobile,
-							...se.mobile,
-							...N.mobile,
-							...F.mobile,
-							...de.mobile,
-							...te.mobile,
-							..._e.mobile,
-							...Ee.mobile,
-							...Re.mobile,
-							...K.mobile,
-							...g.mobile,
-							...d.mobile,
 							...y.mobile,
-							...w.mobile,
-							...S.mobile,
+							...I.mobile,
+							...se.mobile,
+							...U.mobile,
+							...R.mobile,
 							...pe.mobile,
+							...te.mobile,
+							...ue.mobile,
+							...Le.mobile,
+							...Ee.mobile,
+							...X.mobile,
+							...f.mobile,
+							...m.mobile,
+							...g.mobile,
+							...w.mobile,
+							...T.mobile,
+							...Te.mobile,
 							...Fe.mobile,
 						},
 						tablet: {
-							...x.tablet,
-							...D.tablet,
-							...se.tablet,
-							...N.tablet,
-							...F.tablet,
-							...de.tablet,
-							...te.tablet,
-							..._e.tablet,
-							...Ee.tablet,
-							...Re.tablet,
-							...K.tablet,
-							...g.tablet,
-							...d.tablet,
 							...y.tablet,
-							...w.tablet,
-							...S.tablet,
+							...I.tablet,
+							...se.tablet,
+							...U.tablet,
+							...R.tablet,
 							...pe.tablet,
+							...te.tablet,
+							...ue.tablet,
+							...Le.tablet,
+							...Ee.tablet,
+							...X.tablet,
+							...f.tablet,
+							...m.tablet,
+							...g.tablet,
+							...w.tablet,
+							...T.tablet,
+							...Te.tablet,
 							...Fe.tablet,
 						},
 						desktop: {
-							...x.desktop,
-							...D.desktop,
-							...se.desktop,
-							...N.desktop,
-							...F.desktop,
-							...de.desktop,
-							...te.desktop,
-							..._e.desktop,
-							...Ee.desktop,
-							...Re.desktop,
-							...K.desktop,
-							...g.desktop,
-							...d.desktop,
 							...y.desktop,
-							...w.desktop,
-							...S.desktop,
+							...I.desktop,
+							...se.desktop,
+							...U.desktop,
+							...R.desktop,
 							...pe.desktop,
+							...te.desktop,
+							...ue.desktop,
+							...Le.desktop,
+							...Ee.desktop,
+							...X.desktop,
+							...f.desktop,
+							...m.desktop,
+							...g.desktop,
+							...w.desktop,
+							...T.desktop,
+							...Te.desktop,
 							...Fe.desktop,
 						},
 					},
-					be = {
+					He = {
 						default: {
 							calloutBadge: {
 								themeStyleScript: (s) => {
@@ -2154,24 +2154,24 @@
 							},
 						},
 					},
-					oe = { spacing: e.spacing.x2, button: 32, pagination: 12, scrollbar: 6 },
-					Le = {
+					ge = { spacing: e.spacing.x2, button: 32, pagination: 12, scrollbar: 6 },
+					Pe = {
 						default: {
 							carousel: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = !!(typeof s?.scrollbar == 'object' && s?.scrollbar?.draggable),
-										T = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-										M = T[0],
-										ae = T[1];
+										l = !!(typeof s?.scrollbar == 'object' && s?.scrollbar?.draggable),
+										B = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+										$ = B[0],
+										ne = B[1];
 									return (0, o.AH)({
 										position: 'relative',
 										width: '100%',
 										minWidth: '1px',
 										'.ss__carousel__prev-wrapper--hidden > div, .ss__carousel__next-wrapper--hidden > div': { ...e.styles.disabled() },
 										'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
-											width: `${oe.button}px`,
-											height: `${oe.button}px`,
+											width: `${ge.button}px`,
+											height: `${ge.button}px`,
 											display: 'block',
 											position: 'absolute',
 											top: 0,
@@ -2187,8 +2187,8 @@
 												width: '100%',
 												height: '100%',
 												lineHeight: 1,
-												backgroundColor: M,
-												color: ae,
+												backgroundColor: $,
+												color: ne,
 											},
 											'.swiper-button-disabled': { ...e.styles.disabled() },
 										},
@@ -2206,9 +2206,9 @@
 												'.swiper-pagination-bullet': {
 													opacity: 1,
 													flex: '0 1 auto',
-													width: `${oe.pagination}px`,
-													height: `${oe.pagination}px`,
-													lineHeight: `${oe.pagination}px`,
+													width: `${ge.pagination}px`,
+													height: `${ge.pagination}px`,
+													lineHeight: `${ge.pagination}px`,
 													minWidth: '1px',
 													margin: 0,
 													...e.styles.box('', 0, !1),
@@ -2218,11 +2218,11 @@
 											'& > .swiper-scrollbar': {
 												position: 'relative',
 												margin: `${e.spacing.x2}px 0 0 0`,
-												height: `${oe.scrollbar}px`,
+												height: `${ge.scrollbar}px`,
 												overflow: 'hidden',
 												backgroundColor: e.colors.gray01,
-												cursor: i ? 'pointer' : '',
-												...e.styles.borderRadius(oe.scrollbar, 'px'),
+												cursor: l ? 'pointer' : '',
+												...e.styles.borderRadius(ge.scrollbar, 'px'),
 												'&:after': {
 													content: '""',
 													position: 'absolute',
@@ -2246,7 +2246,7 @@
 									});
 								},
 								speed: 600,
-								spaceBetween: oe.spacing,
+								spaceBetween: ge.spacing,
 								autoAdjustSlides: !1,
 								centerInsufficientSlides: !1,
 							},
@@ -2255,14 +2255,14 @@
 							'carousel icon.next': { icon: e.icons.arrowRight },
 						},
 					},
-					Q = {
+					ee = {
 						default: {
 							checkbox: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = (0, o.AH)({ position: 'relative', top: '-1px' }),
-										T = (0, o.AH)([
-											i,
+										l = (0, o.AH)({ position: 'relative', top: '-1px' }),
+										B = (0, o.AH)([
+											l,
 											{
 												...e.styles.box('', 0),
 												borderColor: s.color || e.colors.gray02,
@@ -2270,8 +2270,8 @@
 												'&.ss__checkbox--disabled': { ...e.styles.disabled() },
 											},
 										]),
-										M = (0, o.AH)([
-											i,
+										$ = (0, o.AH)([
+											l,
 											{
 												margin: 0,
 												padding: 0,
@@ -2282,7 +2282,7 @@
 												'&.ss__checkbox--disabled': { ...e.styles.disabled() },
 											},
 										]);
-									return s?.native ? M : T;
+									return s?.native ? $ : B;
 								},
 								icon: e.icons.check,
 								size: `${e.sizes.icon16}px`,
@@ -2326,9 +2326,9 @@
 							facetGridOptions: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-										T = i[0],
-										M = i[1];
+										l = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+										B = l[0],
+										$ = l[1];
 									return (0, o.AH)({
 										alignItems: 'center',
 										'.ss__facet-grid-options__option': {
@@ -2344,7 +2344,7 @@
 												'&, &.ss__facet-grid-options__option__value--smaller': { fontSize: '12px', lineHeight: 1 },
 											},
 											'&, &:hover:not(.ss__facet-grid-options__option--filtered)': { ...e.styles.box(void 0, 0) },
-											'&.ss__facet-grid-options__option--filtered': { backgroundColor: T, borderColor: T, ...e.styles.activeText(M) },
+											'&.ss__facet-grid-options__option--filtered': { backgroundColor: B, borderColor: B, ...e.styles.activeText($) },
 										},
 									});
 								},
@@ -2360,9 +2360,9 @@
 							facetHierarchyOptions: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile,
-										T = n?.breakpoints?.tablet,
-										M = (0, o.AH)({
+										l = n?.breakpoints?.mobile,
+										B = n?.breakpoints?.tablet,
+										$ = (0, o.AH)({
 											'.ss__facet-hierarchy-options__option': {
 												...e.styles.baseText(),
 												gap: `${e.spacing.x1}px`,
@@ -2384,8 +2384,8 @@
 												...e.styles.activeText(n?.colors?.primary),
 											},
 										}),
-										ae = (0, o.AH)([
-											M,
+										ne = (0, o.AH)([
+											$,
 											{
 												'.ss__facet-hierarchy-options__option': { margin: `0 0 ${e.spacing.x1}px 0`, '&:last-child': { marginBottom: 0 } },
 												'.ss__facet-hierarchy-options__option.ss__facet-hierarchy-options__option--filtered': {
@@ -2395,8 +2395,8 @@
 												},
 											},
 										]),
-										Pe = (0, o.AH)([
-											M,
+										Oe = (0, o.AH)([
+											$,
 											{
 												flexFlow: 'row wrap',
 												gap: `${e.spacing.x1}px ${e.spacing.x2}px`,
@@ -2410,10 +2410,10 @@
 													'.ss__facet-hierarchy-options__option__value': { display: 'block', ...e.styles.textOverflow() },
 												},
 											},
-											{ [`${e.utils.getBp(i)}`]: { '.ss__facet-hierarchy-options__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
-											{ [`${e.utils.getBp(T)}`]: { '.ss__facet-hierarchy-options__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
+											{ [`${e.utils.getBp(l)}`]: { '.ss__facet-hierarchy-options__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
+											{ [`${e.utils.getBp(B)}`]: { '.ss__facet-hierarchy-options__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
 										]);
-									return s?.horizontal ? Pe : ae;
+									return s?.horizontal ? Oe : ne;
 								},
 								returnIcon: e.icons.arrowLeft,
 							},
@@ -2427,9 +2427,9 @@
 							facetListOptions: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile,
-										T = n?.breakpoints?.tablet,
-										M = (0, o.AH)({
+										l = n?.breakpoints?.mobile,
+										B = n?.breakpoints?.tablet,
+										$ = (0, o.AH)({
 											'.ss__facet-list-options__option': {
 												...e.styles.baseText(),
 												position: 'relative',
@@ -2450,12 +2450,12 @@
 											},
 											'.ss__facet-list-options__option.ss__facet-list-options__option--filtered': { ...e.styles.activeText(n?.colors?.primary) },
 										}),
-										ae = (0, o.AH)([
-											M,
+										ne = (0, o.AH)([
+											$,
 											{ '.ss__facet-list-options__option': { margin: `0 0 ${e.spacing.x1}px 0`, '&:last-child': { marginBottom: 0 } } },
 										]),
-										Pe = (0, o.AH)([
-											M,
+										Oe = (0, o.AH)([
+											$,
 											{
 												flexFlow: 'row wrap',
 												gap: `${e.spacing.x1}px ${e.spacing.x2}px`,
@@ -2471,10 +2471,10 @@
 													},
 												},
 											},
-											{ [`${e.utils.getBp(i)}`]: { '.ss__facet-list-options__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
-											{ [`${e.utils.getBp(T)}`]: { '.ss__facet-list-options__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
+											{ [`${e.utils.getBp(l)}`]: { '.ss__facet-list-options__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
+											{ [`${e.utils.getBp(B)}`]: { '.ss__facet-list-options__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
 										]);
-									return s?.horizontal ? Pe : ae;
+									return s?.horizontal ? Oe : ne;
 								},
 							},
 						},
@@ -2491,11 +2491,11 @@
 							facetPaletteOptions: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile,
-										T = n?.breakpoints?.tablet,
-										M = !s?.hideCheckbox,
-										ae = s?.layout == 'list',
-										Pe = ae ? 3 : 5,
+										l = n?.breakpoints?.mobile,
+										B = n?.breakpoints?.tablet,
+										$ = !s?.hideCheckbox,
+										ne = s?.layout == 'list',
+										Oe = ne ? 3 : 5,
 										Je = (0, o.AH)({
 											'.ss__facet-palette-options__option': {
 												'&.ss__facet-palette-options__option--filtered': {
@@ -2514,7 +2514,7 @@
 														padding: 0,
 														'&, &:before, &:after': { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, ...e.styles.borderRadius(0) },
 														'&:before, &:after': { content: '""', display: 'block' },
-														'&:before': { border: `${Pe}px solid ${e.colors.white}`, margin: '1px', opacity: 0 },
+														'&:before': { border: `${Oe}px solid ${e.colors.white}`, margin: '1px', opacity: 0 },
 														'&:after': { border: `1px solid ${e.colors.black}`, opacity: 0.15 },
 														'&[style*="url"]': {
 															backgroundRepeat: 'no-repeat !important',
@@ -2547,22 +2547,22 @@
 												},
 											},
 										]),
-										Dt = M ? 16 : 22,
+										Dt = $ ? 16 : 22,
 										_o = 16,
-										Vo = M ? e.spacing.x4 + Dt + _o : e.spacing.x2 + Dt,
+										Vo = $ ? e.spacing.x4 + Dt + _o : e.spacing.x2 + Dt,
 										ho = (0, o.AH)({
 											'.ss__facet-palette-options__option': {
 												...e.styles.baseText(),
-												minHeight: M ? '' : `${Dt + 2}px`,
+												minHeight: $ ? '' : `${Dt + 2}px`,
 												position: 'relative',
 												gap: `${e.spacing.x1}px`,
-												padding: `${M ? 0 : '2px'} 0 0 ${Vo}px`,
+												padding: `${$ ? 0 : '2px'} 0 0 ${Vo}px`,
 												margin: `0 0 ${e.spacing.x1}px 0`,
 												'&:last-child': { marginBottom: 0 },
-												'.ss__checkbox, .ss__radio, .ss__facet-palette-options__option__wrapper': { position: 'absolute', top: `${M ? 2 : 0.5}px` },
+												'.ss__checkbox, .ss__radio, .ss__facet-palette-options__option__wrapper': { position: 'absolute', top: `${$ ? 2 : 0.5}px` },
 												'.ss__checkbox, .ss__radio': { left: 0 },
 												'.ss__facet-palette-options__option__wrapper': {
-													left: M ? `${_o + e.spacing.x2}px` : 0,
+													left: $ ? `${_o + e.spacing.x2}px` : 0,
 													width: `${Dt}px`,
 													height: `${Dt}px`,
 													lineHeight: `${Dt}px`,
@@ -2602,10 +2602,10 @@
 													'.ss__facet-palette-options__option__value': { ...e.styles.textOverflow() },
 												},
 											},
-											{ [`${e.utils.getBp(i)}`]: { '.ss__facet-palette-options__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
-											{ [`${e.utils.getBp(T)}`]: { '.ss__facet-palette-options__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
+											{ [`${e.utils.getBp(l)}`]: { '.ss__facet-palette-options__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
+											{ [`${e.utils.getBp(B)}`]: { '.ss__facet-palette-options__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
 										]);
-									return ae ? (s?.horizontal ? Xo : go) : ot;
+									return ne ? (s?.horizontal ? Xo : go) : ot;
 								},
 								hideIcon: !0,
 								columns: 0,
@@ -2621,25 +2621,25 @@
 							},
 						},
 					},
-					ve = { handles: 20, handleInner: 7, values: 14, bar: 6, ticks: 17, valuesPosition: 'top', valuesAlign: 'sides' },
-					Ye = ve.valuesPosition == 'top',
-					it = ve.valuesAlign == 'sides',
-					Qe = (ve.handles - ve.bar) / 2,
-					kt = ve.handles + e.spacing.x2,
-					nt = ve.ticks + e.spacing.x1,
-					Ie = ve.values + e.spacing.x2,
-					ke = Qe + Ie,
-					me = nt + Ie,
-					Ce = {
+					ye = { handles: 20, handleInner: 7, values: 14, bar: 6, ticks: 17, valuesPosition: 'top', valuesAlign: 'sides' },
+					Ye = ye.valuesPosition == 'top',
+					it = ye.valuesAlign == 'sides',
+					Xe = (ye.handles - ye.bar) / 2,
+					kt = ye.handles + e.spacing.x2,
+					nt = ye.ticks + e.spacing.x1,
+					Ie = ye.values + e.spacing.x2,
+					we = Xe + Ie,
+					le = nt + Ie,
+					xe = {
 						default: {
 							facetSlider: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = !!s?.showTicks,
-										T = !!s?.stickyHandleLabel,
-										M = s?.trackColor != e.colors.gray01 ? e.utils.darkenColor(s.trackColor, 0.25) : e.colors.gray02,
-										ae = e.utils.activeColors(s?.handleColor || n?.colors?.secondary || e.colors.secondary),
-										Pe = (0, o.AH)({ fontSize: `${ve.values}px`, lineHeight: `${ve.values}px` }),
+										l = !!s?.showTicks,
+										B = !!s?.stickyHandleLabel,
+										$ = s?.trackColor != e.colors.gray01 ? e.utils.darkenColor(s.trackColor, 0.25) : e.colors.gray02,
+										ne = e.utils.activeColors(s?.handleColor || n?.colors?.secondary || e.colors.secondary),
+										Oe = (0, o.AH)({ fontSize: `${ye.values}px`, lineHeight: `${ye.values}px` }),
 										Je = (0, o.AH)({
 											'&, .ss__facet-slider__slider': { margin: 'auto' },
 											'.ss__facet-slider__slider button, .ss__facet-slider__labels label': { margin: 0, padding: 0, '&:focus': { outline: 0 } },
@@ -2647,28 +2647,28 @@
 												display: 'block',
 												top: 0,
 												width: '100%',
-												height: `${ve.bar}px`,
+												height: `${ye.bar}px`,
 												'.ss__facet-slider__segment, .ss__facet-slider__rail, .ss__facet-slider__handles': { height: '100%' },
 												'.ss__facet-slider__tick': {
 													'&:before, .ss__facet-slider__tick__label': { transform: 'translate(-50%, 0)' },
-													'&:before': { top: `${ve.ticks / 2}px`, backgroundColor: e.colors.gray02 },
-													'.ss__facet-slider__tick__label': { top: `${ve.ticks}px`, lineHeight: 1 },
+													'&:before': { top: `${ye.ticks / 2}px`, backgroundColor: e.colors.gray02 },
+													'.ss__facet-slider__tick__label': { top: `${ye.ticks}px`, lineHeight: 1 },
 												},
-												'.ss__facet-slider__segment': { border: `1px solid ${M}`, ...e.styles.borderRadius(ve.bar) },
-												'.ss__facet-slider__rail': { ...e.styles.borderRadius(ve.bar) },
+												'.ss__facet-slider__segment': { border: `1px solid ${$}`, ...e.styles.borderRadius(ye.bar) },
+												'.ss__facet-slider__rail': { ...e.styles.borderRadius(ye.bar) },
 												'.ss__facet-slider__handles': {
 													position: 'relative',
-													margin: `0 ${ve.handles / 2}px`,
+													margin: `0 ${ye.handles / 2}px`,
 													button: {
 														'.ss__facet-slider__handle': {
 															transform: 'none',
-															width: `${ve.handles}px`,
-															height: `${ve.handles}px`,
-															lineHeight: `${ve.handles}px`,
-															'&:after': { width: `${ve.handleInner}px`, height: `${ve.handleInner}px`, backgroundColor: ae[1] },
+															width: `${ye.handles}px`,
+															height: `${ye.handles}px`,
+															lineHeight: `${ye.handles}px`,
+															'&:after': { width: `${ye.handleInner}px`, height: `${ye.handleInner}px`, backgroundColor: ne[1] },
 															'.ss__facet-slider__handle__label.ss__facet-slider__handle__label--sticky': {
 																backgroundColor: 'transparent',
-																'&': { ...Pe },
+																'&': { ...Oe },
 															},
 														},
 													},
@@ -2680,7 +2680,7 @@
 												alignItems: 'center',
 												justifyContent: it ? '' : 'center',
 												'.ss__facet-slider__label': {
-													'&': { ...Pe },
+													'&': { ...Oe },
 													'&:after': { display: it ? 'none' : '', padding: `0 ${e.spacing.x1}px` },
 													'& ~ .ss__facet-slider__label': { marginLeft: it ? 'auto' : '' },
 												},
@@ -2688,27 +2688,27 @@
 										});
 									let ot = (0, o.AH)({});
 									return (
-										i && T
+										l && B
 											? (ot = (0, o.AH)({
 													'.ss__facet-slider__slider': {
-														margin: `${Ye ? ke : Qe}px auto ${Ye ? nt : me}px auto`,
+														margin: `${Ye ? we : Xe}px auto ${Ye ? nt : le}px auto`,
 														'.ss__facet-slider__handles button .ss__facet-slider__handle': {
 															'.ss__facet-slider__handle__label.ss__facet-slider__handle__label--sticky': {
-																top: Ye ? 'auto' : `${Qe + me - ve.bar}px`,
+																top: Ye ? 'auto' : `${Xe + le - ye.bar}px`,
 																bottom: Ye ? `${kt}px` : '',
 															},
 														},
 													},
 											  }))
-											: i && !T
+											: l && !B
 											? (ot = (0, o.AH)({
-													'.ss__facet-slider__slider': { margin: `${Qe}px auto ${nt}px auto` },
+													'.ss__facet-slider__slider': { margin: `${Xe}px auto ${nt}px auto` },
 													'.ss__facet-slider__labels': { order: Ye ? -1 : '', margin: `${Ye ? 0 : e.spacing.x2}px 0 ${Ye ? e.spacing.x2 : 0}px 0` },
 											  }))
-											: !i && T
+											: !l && B
 											? (ot = (0, o.AH)({
 													'.ss__facet-slider__slider': {
-														margin: `${Ye ? ke : Qe}px auto ${Ye ? Qe : ke}px auto`,
+														margin: `${Ye ? we : Xe}px auto ${Ye ? Xe : we}px auto`,
 														'.ss__facet-slider__handles button .ss__facet-slider__handle': {
 															'.ss__facet-slider__handle__label.ss__facet-slider__handle__label--sticky': {
 																top: Ye ? 'auto' : `${kt}px`,
@@ -2718,7 +2718,7 @@
 													},
 											  }))
 											: (ot = (0, o.AH)({
-													'.ss__facet-slider__slider': { margin: `${Qe}px auto` },
+													'.ss__facet-slider__slider': { margin: `${Xe}px auto` },
 													'.ss__facet-slider__labels': { order: Ye ? -1 : '', margin: `${Ye ? 0 : e.spacing.x2}px 0 ${Ye ? e.spacing.x2 : 0}px 0` },
 											  })),
 										(0, o.AH)([Je, ot])
@@ -2761,20 +2761,20 @@
 							'filter icon': { size: `${e.sizes.icon10}px` },
 						},
 					},
-					ge = 'ss__grid__option',
-					Te = `&.${ge}--dark, &:has(.${ge}__inner--grey), &:has(.${ge}__inner--gray)`,
-					Ge = '&:has(.ss__image)',
-					Xe = '&[style*="url"]',
-					Ve = '&[style], &:has(.ss__image)',
-					Oe = {
+					me = 'ss__grid__option',
+					Re = `&.${me}--dark, &:has(.${me}__inner--grey), &:has(.${me}__inner--gray)`,
+					Ve = '&:has(.ss__image)',
+					Ke = '&[style*="url"]',
+					Ce = '&[style], &:has(.ss__image)',
+					P = {
 						default: {
 							grid: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = s?.columns ? s.columns : 4,
-										T = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-										M = T[0],
-										ae = T[1];
+										l = s?.columns ? s.columns : 4,
+										B = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+										$ = B[0],
+										ne = B[1];
 									return (0, o.AH)({
 										'.ss__grid__title': { margin: `0 0 ${e.spacing.x2}px 0`, ...e.styles.headerText(n?.colors?.secondary, '14px') },
 										'.ss__grid__options .ss__grid__option .ss__grid__option__inner .ss__grid__option__label, .ss__grid__show-more-wrapper': {
@@ -2790,14 +2790,14 @@
 											'.ss__grid__option:not(.ss__grid__show-more-wrapper)': {
 												position: 'relative',
 												maxWidth: '40px',
-												width: `calc((100% - (${s?.gapSize ? s.gapSize : e.spacing.x1} * ${i - 1})) / ${i})`,
+												width: `calc((100% - (${s?.gapSize ? s.gapSize : e.spacing.x1} * ${l - 1})) / ${l})`,
 												'.ss__grid__option__inner': {
 													position: 'relative',
 													width: '100%',
 													...e.styles.box(void 0, `${e.spacing.x1}px`),
 													'&, .ss__grid__option__label': { overflow: 'hidden' },
 													'.ss__grid__option__label': { maxWidth: '100%', maxHeight: '100%' },
-													[Ve]: {
+													[Ce]: {
 														border: 0,
 														backgroundColor: 'transparent',
 														'&:before, &:after': {
@@ -2814,13 +2814,13 @@
 														'&:after': { border: `1px solid ${e.colors.black}`, opacity: 0.15 },
 														'.ss__grid__option__label': { ...e.styles.srOnly() },
 													},
-													[`${Xe}, ${Ge}`]: { '&:before': { margin: 0, borderWidth: '4px' } },
-													[Xe]: {
+													[`${Ke}, ${Ve}`]: { '&:before': { margin: 0, borderWidth: '4px' } },
+													[Ke]: {
 														backgroundRepeat: 'no-repeat !important',
 														backgroundSize: 'cover !important',
 														backgroundPosition: 'center !important',
 													},
-													[Ge]: {
+													[Ve]: {
 														'&:before, &:after': { zIndex: 3 },
 														'.ss__image, .ss__grid__option__label': { position: 'absolute' },
 														'.ss__image': {
@@ -2834,7 +2834,7 @@
 														'.ss__grid__option__label': { zIndex: 2 },
 													},
 												},
-												[Te]: { '.ss__grid__option__inner': { color: ae } },
+												[Re]: { '.ss__grid__option__inner': { color: ne } },
 												'&.ss__grid__option--disabled, &.ss__grid__option--unavailable': {
 													opacity: 1,
 													'&, &:before, &:after, *': { pointerEvents: 'unset', cursor: 'not-allowed !important' },
@@ -2852,13 +2852,13 @@
 												},
 												'&.ss__grid__option--selected': {
 													'.ss__grid__option__inner': {
-														borderColor: M,
-														backgroundColor: M,
-														color: ae,
-														[Ve]: { border: 0, backgroundColor: 'transparent', '&:before': { opacity: 1 }, '&:after': { opacity: 0.3 } },
+														borderColor: $,
+														backgroundColor: $,
+														color: ne,
+														[Ce]: { border: 0, backgroundColor: 'transparent', '&:before': { opacity: 1 }, '&:after': { opacity: 0.3 } },
 														'.ss__grid__option__label': { fontWeight: e.fonts.weight01 },
 													},
-													[Te]: { '.ss__grid__option__inner': { color: ae } },
+													[Re]: { '.ss__grid__option__inner': { color: ne } },
 												},
 											},
 											'.ss__grid__show-more-wrapper': { '.ss__grid__show-more, .ss__grid__show-less': { paddingLeft: `${e.spacing.x1}px` } },
@@ -2879,18 +2879,18 @@
 							},
 						},
 					},
-					l = {
+					K = {
 						default: {
 							layoutSelector: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-										T = i[0],
-										M = i[1],
-										ae = (0, o.AH)({
+										l = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+										B = l[0],
+										$ = l[1],
+										ne = (0, o.AH)({
 											'.ss__dropdown': { '.ss__dropdown__button .ss__button__content .ss__select__label': { paddingRight: `${e.spacing.x1 / 2}px` } },
 										}),
-										Pe = (0, o.AH)(),
+										Oe = (0, o.AH)(),
 										Je = (0, o.AH)({
 											'.ss__list__options': {
 												display: 'flex',
@@ -2904,24 +2904,24 @@
 													margin: 0,
 													...e.styles.box(void 0, `0 ${e.spacing.x2}px`),
 												},
-												'.ss__list__option--selected': { '&, &:hover': { borderColor: T, backgroundColor: T, color: M }, '&, *': { cursor: 'text' } },
+												'.ss__list__option--selected': { '&, &:hover': { borderColor: B, backgroundColor: B, color: $ }, '&, *': { cursor: 'text' } },
 											},
 										});
-									return s?.type == 'list' ? Je : s?.type == 'radio' ? Pe : ae;
+									return s?.type == 'list' ? Je : s?.type == 'radio' ? Oe : ne;
 								},
 							},
 							'layoutSelector select': { hideSelection: !1 },
 						},
 					},
-					Z = e.sizes.icon16 + e.spacing.x2,
-					Y = {
+					j = e.sizes.icon16 + e.spacing.x2,
+					Q = {
 						default: {
 							list: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile,
-										T = n?.breakpoints?.tablet,
-										M = (0, o.AH)({
+										l = n?.breakpoints?.mobile,
+										B = n?.breakpoints?.tablet,
+										$ = (0, o.AH)({
 											'&.ss__list--disabled': { ...e.styles.disabled() },
 											'.ss__list__title, .ss__list__options': { width: '100%' },
 											'.ss__list__title, .ss__list__options .ss__list__option': { padding: 0 },
@@ -2931,7 +2931,7 @@
 													position: 'relative',
 													...e.styles.baseText(),
 													gap: `${e.spacing.x2}px`,
-													padding: s?.hideOptionCheckboxes ? '' : `0 0 0 ${Z}px`,
+													padding: s?.hideOptionCheckboxes ? '' : `0 0 0 ${j}px`,
 													'.ss__list__option__label, .ss__list__option__icon': { padding: 0 },
 													'.ss__checkbox': { position: 'absolute', top: '1.5px', left: 0 },
 													'.ss__list__option__icon': { position: 'relative', top: '-1px' },
@@ -2940,15 +2940,15 @@
 												'.ss__list__option--selected': { ...e.styles.activeText(n?.colors?.primary) },
 											},
 										}),
-										ae = (0, o.AH)([
-											M,
+										ne = (0, o.AH)([
+											$,
 											{
 												'&, .ss__list__options, .ss__list__title': { display: 'block' },
 												'.ss__list__options': { '.ss__list__option': { margin: `0 0 ${e.spacing.x1}px 0`, '&:last-child': { marginBottom: 0 } } },
 											},
 										]),
-										Pe = (0, o.AH)([
-											M,
+										Oe = (0, o.AH)([
+											$,
 											{
 												'&, .ss__list__title': { display: 'block' },
 												'.ss__list__options': {
@@ -2963,20 +2963,20 @@
 													},
 												},
 											},
-											{ [`${e.utils.getBp(i)}`]: { '.ss__list__options .ss__list__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
-											{ [`${e.utils.getBp(T)}`]: { '.ss__list__options .ss__list__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
+											{ [`${e.utils.getBp(l)}`]: { '.ss__list__options .ss__list__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` } } },
+											{ [`${e.utils.getBp(B)}`]: { '.ss__list__options .ss__list__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
 										]);
-									return s?.horizontal ? Pe : ae;
+									return s?.horizontal ? Oe : ne;
 								},
 							},
 						},
 					},
-					_ = {
+					i = {
 						default: {
 							loadMore: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = s?.backgroundColor != e.colors.gray01 ? e.utils.darkenColor(s.backgroundColor, 0.25) : e.colors.gray02;
+										l = s?.backgroundColor != e.colors.gray01 ? e.utils.darkenColor(s.backgroundColor, 0.25) : e.colors.gray02;
 									return (0, o.AH)({
 										'&.ss__load-more': {
 											'&, .ss__load-more__progress': { gap: `${e.spacing.x2}px` },
@@ -2984,7 +2984,7 @@
 											'.ss__load-more__progress': {
 												'.ss__load-more__progress__indicator': {
 													margin: '0 auto',
-													border: `1px solid ${i}`,
+													border: `1px solid ${l}`,
 													...e.styles.borderRadius(5),
 													'.ss__load-more__progress__indicator__bar': { margin: '-1px' },
 												},
@@ -2998,7 +2998,7 @@
 							'loadMore button icon': { color: 'currentColor' },
 						},
 					},
-					b = {
+					S = {
 						default: {
 							modal: {
 								themeStyleScript: (s) => {
@@ -3009,7 +3009,7 @@
 							},
 						},
 					},
-					z = {
+					W = {
 						default: {
 							overlayBadge: {
 								themeStyleScript: (s) => {
@@ -3026,12 +3026,12 @@
 							},
 						},
 					},
-					J = {
+					Z = {
 						default: {
 							pagination: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile;
+										l = n?.breakpoints?.mobile;
 									return (0, o.AH)({
 										nav: {
 											display: 'flex',
@@ -3047,7 +3047,7 @@
 											},
 											'.ss__pagination__page--previous, .ss__pagination__page--next': { lineHeight: '10px' },
 										},
-										[`${e.utils.getBp(i)}`]: { nav: { gap: `${e.spacing.x2}px`, '.ss__pagination__page, span': { fontSize: '14px' } } },
+										[`${e.utils.getBp(l)}`]: { nav: { gap: `${e.spacing.x2}px`, '.ss__pagination__page, span': { fontSize: '14px' } } },
 									});
 								},
 							},
@@ -3057,7 +3057,7 @@
 						},
 						mobile: { 'pagination icon': { size: `${e.sizes.icon14}px` } },
 					},
-					le = {
+					Be = {
 						default: {
 							perPage: {
 								themeStyleScript: (s) => {
@@ -3067,24 +3067,24 @@
 							},
 						},
 					},
-					we = e.utils.darkenColor(),
+					Me = e.utils.darkenColor(),
 					Ne = {
 						default: {
 							radio: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = (0, o.AH)([
+										l = (0, o.AH)([
 											{
 												position: 'relative',
 												top: '-1px',
 												...e.styles.box('', 0),
 												...e.styles.borderRadius(50, '%'),
 												'&.ss__radio--disabled': { ...e.styles.disabled() },
-												'&.ss__radio--active': { borderColor: we, backgroundColor: e.colors.white, '.ss__icon': { opacity: 1 } },
+												'&.ss__radio--active': { borderColor: Me, backgroundColor: e.colors.white, '.ss__icon': { opacity: 1 } },
 												'.ss__icon': { opacity: 0 },
 											},
 										]),
-										T = (0, o.AH)([
+										B = (0, o.AH)([
 											{
 												lineHeight: 0,
 												'&.ss__radio--disabled .ss__radio__input': { ...e.styles.disabled() },
@@ -3098,7 +3098,7 @@
 												},
 											},
 										]);
-									return s?.native ? T : i;
+									return s?.native ? B : l;
 								},
 								checkedIcon: 'circle',
 								unCheckedIcon: 'circle',
@@ -3113,9 +3113,9 @@
 							radioList: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile,
-										T = n?.breakpoints?.tablet,
-										M = (0, o.AH)({
+										l = n?.breakpoints?.mobile,
+										B = n?.breakpoints?.tablet,
+										$ = (0, o.AH)({
 											'&.ss__radio-list--disabled': { ...e.styles.disabled() },
 											'.ss__radio-list__title, .ss__radio-list__options-wrapper': { width: '100%' },
 											'.ss__radio-list__title, .ss__radio-list__options-wrapper .ss__radio-list__option': { padding: 0 },
@@ -3134,8 +3134,8 @@
 												'.ss__radio-list__option--selected': { ...e.styles.activeText(n?.colors?.primary) },
 											},
 										}),
-										ae = (0, o.AH)([
-											M,
+										ne = (0, o.AH)([
+											$,
 											{
 												'&, .ss__radio-list__options-wrapper, .ss__radio-list__title': { display: 'block' },
 												'.ss__radio-list__options-wrapper': {
@@ -3143,8 +3143,8 @@
 												},
 											},
 										]),
-										Pe = (0, o.AH)([
-											M,
+										Oe = (0, o.AH)([
+											$,
 											{
 												'&, .ss__radio-list__title': { display: 'block' },
 												'.ss__radio-list__options-wrapper': {
@@ -3160,17 +3160,17 @@
 												},
 											},
 											{
-												[`${e.utils.getBp(i)}`]: {
+												[`${e.utils.getBp(l)}`]: {
 													'.ss__radio-list__options-wrapper .ss__radio-list__option': { width: `calc((100% - ${e.spacing.x2 * 2}px) / 3)` },
 												},
 											},
 											{
-												[`${e.utils.getBp(T)}`]: {
+												[`${e.utils.getBp(B)}`]: {
 													'.ss__radio-list__options-wrapper .ss__radio-list__option': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` },
 												},
 											},
 										]);
-									return s?.horizontal ? Pe : ae;
+									return s?.horizontal ? Oe : ne;
 								},
 							},
 						},
@@ -3295,7 +3295,7 @@
 							searchInput: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = e.utils.darkenColor(n?.colors?.primary, 0.15);
+										l = e.utils.darkenColor(n?.colors?.primary, 0.15);
 									return (0, o.AH)({
 										'&.ss__search-input': {
 											margin: `0 0 ${e.spacing.x4}px`,
@@ -3328,7 +3328,7 @@
 												'&::-ms-input-placeholder': { color: ft },
 												'&::placeholder': { color: ft },
 											},
-											'.ss__search-input__icons': { gap: '1px', margin: '0 0 0 -1px', backgroundColor: i },
+											'.ss__search-input__icons': { gap: '1px', margin: '0 0 0 -1px', backgroundColor: l },
 											'.ss__button': { borderRadius: e.sizes.radius ? 0 : '' },
 											'.ss__search-input__button--close-search-button': { margin: '0 -1px 0 0' },
 										},
@@ -3347,9 +3347,9 @@
 							select: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = (0, o.AH)({ '&.ss__select--disabled': { ...e.styles.disabled() } }),
-										T = (0, o.AH)([
-											i,
+										l = (0, o.AH)({ '&.ss__select--disabled': { ...e.styles.disabled() } }),
+										B = (0, o.AH)([
+											l,
 											{
 												display: 'block',
 												'.ss__dropdown': {
@@ -3392,8 +3392,8 @@
 												'.ss__dropdown--open': { '.ss__dropdown__button': { '.ss__button': { [dt]: { transform: 'rotate(180deg)' } } } },
 											},
 										]),
-										M = (0, o.AH)([
-											i,
+										$ = (0, o.AH)([
+											l,
 											{
 												display: 'flex',
 												flexFlow: 'row nowrap',
@@ -3421,7 +3421,7 @@
 												},
 											},
 										]);
-									return s?.native ? M : T;
+									return s?.native ? $ : B;
 								},
 								iconOpen: e.icons.arrowDown,
 								iconClose: e.icons.arrowDown,
@@ -3442,9 +3442,9 @@
 							slideshow: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-										T = i[0],
-										M = i[1];
+										l = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+										B = l[0],
+										$ = l[1];
 									return (0, o.AH)({
 										position: 'relative',
 										width: '100%',
@@ -3467,8 +3467,8 @@
 												width: '100%',
 												height: '100%',
 												lineHeight: 1,
-												color: M,
-												'&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled': { border: `1px solid ${T}`, backgroundColor: T },
+												color: $,
+												'&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled': { border: `1px solid ${B}`, backgroundColor: B },
 											},
 										},
 										'.ss__slideshow__navigation--prev': { '.ss__button .ss__icon': { left: '-1.5px' } },
@@ -3552,20 +3552,20 @@
 					Ut = 28,
 					Nt = 'ss__swatches__slideshow__swatch',
 					Kt = `&.${Nt}--dark, &:has(.${Nt}__inner--grey), &:has(.${Nt}__inner--gray)`,
-					A = '&:has(.ss__image)',
+					v = '&:has(.ss__image)',
 					a = '&[style*="url"]',
-					c = '&[style], &:has(.ss__image)',
-					ce = {
+					d = '&[style], &:has(.ss__image)',
+					de = {
 						default: {
 							swatches: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-										T = i[0],
-										M = i[1],
-										ae = (0, o.AH)({}),
-										Pe = (0, o.AH)([
-											ae,
+										l = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+										B = l[0],
+										$ = l[1],
+										ne = (0, o.AH)({}),
+										Oe = (0, o.AH)([
+											ne,
 											{
 												'.ss__slideshow': {
 													display: 'flex',
@@ -3596,7 +3596,7 @@
 																			fontSize: '10px',
 																			lineHeight: 1,
 																		},
-																		[c]: {
+																		[d]: {
 																			border: 0,
 																			backgroundColor: 'transparent',
 																			'&:before, &:after': {
@@ -3613,13 +3613,13 @@
 																			'&:after': { border: `1px solid ${e.colors.black}`, opacity: 0.15 },
 																			'.ss__swatches__slideshow__swatch__value': { ...e.styles.srOnly() },
 																		},
-																		[`${a}, ${A}`]: { '&:before': { margin: 0, borderWidth: '4px' } },
+																		[`${a}, ${v}`]: { '&:before': { margin: 0, borderWidth: '4px' } },
 																		[a]: {
 																			backgroundRepeat: 'no-repeat !important',
 																			backgroundSize: 'cover !important',
 																			backgroundPosition: 'center !important',
 																		},
-																		[A]: {
+																		[v]: {
 																			'&:before, &:after': { zIndex: 3 },
 																			'.ss__image, .ss__swatches__slideshow__swatch__value': { position: 'absolute' },
 																			'.ss__image': {
@@ -3633,7 +3633,7 @@
 																			'.ss__swatches__slideshow__swatch__value': { zIndex: 2 },
 																		},
 																	},
-																	[Kt]: { '.ss__swatches__slideshow__swatch__inner': { color: M } },
+																	[Kt]: { '.ss__swatches__slideshow__swatch__inner': { color: $ } },
 																	'&.ss__swatches__slideshow__swatch--disabled, &.ss__swatches__slideshow__swatch--unavailable': {
 																		opacity: 1,
 																		'&, &:before, &:after, *': { pointerEvents: 'unset', cursor: 'not-allowed !important' },
@@ -3651,13 +3651,13 @@
 																	},
 																	'&.ss__swatches__slideshow__swatch--selected': {
 																		'.ss__swatches__slideshow__swatch__inner': {
-																			borderColor: T,
-																			backgroundColor: T,
-																			color: M,
-																			[c]: { border: 0, backgroundColor: 'transparent', '&:before': { opacity: 1 }, '&:after': { opacity: 0.3 } },
+																			borderColor: B,
+																			backgroundColor: B,
+																			color: $,
+																			[d]: { border: 0, backgroundColor: 'transparent', '&:before': { opacity: 1 }, '&:after': { opacity: 0.3 } },
 																			'.ss__swatches__slideshow__swatch__value': { fontWeight: e.fonts.weight01 },
 																		},
-																		[Kt]: { '.ss__swatches__slideshow__swatch__inner': { color: M } },
+																		[Kt]: { '.ss__swatches__slideshow__swatch__inner': { color: $ } },
 																	},
 																},
 															},
@@ -3675,10 +3675,10 @@
 											},
 										]),
 										Je = (0, o.AH)([
-											ae,
+											ne,
 											{ '.ss__grid .ss__grid__options .ss__grid__option:not(.ss__grid__show-more-wrapper)': { maxWidth: `${Ut}px` } },
 										]);
-									return s?.type == 'grid' ? Je : Pe;
+									return s?.type == 'grid' ? Je : Oe;
 								},
 								hideLabels: !1,
 							},
@@ -3691,9 +3691,9 @@
 							variantSelection: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = (0, o.AH)({ margin: `0 0 ${e.spacing.x2}px 0`, '&:last-child': { marginBottom: 0 } }),
-										T = (0, o.AH)([
-											i,
+										l = (0, o.AH)({ margin: `0 0 ${e.spacing.x2}px 0`, '&:last-child': { marginBottom: 0 } }),
+										B = (0, o.AH)([
+											l,
 											{
 												'.ss__dropdown': {
 													'.ss__dropdown__button, .ss__dropdown__content': { ...e.styles.box() },
@@ -3736,8 +3736,8 @@
 												'.ss__dropdown--open': { '.ss__dropdown__button': { '.ss__variant-selection__icon': { transform: 'rotate(180deg)' } } },
 											},
 										]),
-										M = (0, o.AH)([
-											i,
+										$ = (0, o.AH)([
+											l,
 											{
 												'.ss__list': {
 													'.ss__list__title': { fontSize: '14px', textAlign: 'left' },
@@ -3749,20 +3749,20 @@
 												},
 											},
 										]),
-										ae = (0, o.AH)([i]);
-									return s?.type == 'list' ? M : s?.type == 'swatches' ? ae : T;
+										ne = (0, o.AH)([l]);
+									return s?.type == 'list' ? $ : s?.type == 'swatches' ? ne : B;
 								},
 							},
 							'variantSelection dropdown icon': { icon: e.icons.arrowDown, size: `${e.sizes.icon12}px` },
 						},
 					},
-					B = {
+					k = {
 						default: {
 							terms: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.desktop,
-										T = (0, o.AH)({
+										l = n?.breakpoints?.desktop,
+										B = (0, o.AH)({
 											width: '100%',
 											'.ss__terms__title': { '&, h5': { padding: 0 }, h5: { ...e.styles.headerText(n?.colors?.secondary, '14px'), lineHeight: 1.2 } },
 											'.ss__terms__options': {
@@ -3773,10 +3773,10 @@
 												},
 												'.ss__terms__option--active': { 'a, a em': { ...e.styles.activeText(n?.colors?.primary) } },
 											},
-											[`${e.utils.getBp(i)}`]: { '.ss__terms__title h5, .ss__terms__options .ss__terms__option a': { fontSize: '16px' } },
+											[`${e.utils.getBp(l)}`]: { '.ss__terms__title h5, .ss__terms__options .ss__terms__option a': { fontSize: '16px' } },
 										}),
-										M = (0, o.AH)([
-											T,
+										$ = (0, o.AH)([
+											B,
 											{
 												'.ss__terms__title h5': { margin: `0 0 ${e.spacing.x4}px 0` },
 												'.ss__terms__options': {
@@ -3787,8 +3787,8 @@
 												},
 											},
 										]),
-										ae = (0, o.AH)([
-											T,
+										ne = (0, o.AH)([
+											B,
 											{
 												'.ss__terms__title h5': { margin: `0 0 ${e.spacing.x2}px 0` },
 												'.ss__terms__options': {
@@ -3798,32 +3798,32 @@
 												},
 											},
 										]);
-									return s?.vertical ? ae : M;
+									return s?.vertical ? ne : $;
 								},
 								emIfy: !0,
 							},
 						},
 					},
-					ee = {
+					q = {
 						default: {
-							...be.default,
-							...Le.default,
-							...Q.default,
+							...He.default,
+							...Pe.default,
+							...ee.default,
 							...At.default,
 							...qe.default,
 							...ut.default,
 							..._t.default,
 							...st.default,
-							...Ce.default,
+							...xe.default,
 							...he.default,
-							...Oe.default,
-							...l.default,
-							...Y.default,
-							..._.default,
-							...b.default,
-							...z.default,
-							...J.default,
-							...le.default,
+							...P.default,
+							...K.default,
+							...Q.default,
+							...i.default,
+							...S.default,
+							...W.default,
+							...Z.default,
+							...Be.default,
 							...Ne.default,
 							...lt.default,
 							...Rt.default,
@@ -3833,29 +3833,29 @@
 							...Et.default,
 							...mt.default,
 							...rt.default,
-							...ce.default,
-							...B.default,
+							...de.default,
+							...k.default,
 							...tt.default,
 						},
 						mobile: {
-							...be.mobile,
-							...Le.mobile,
-							...Q.mobile,
+							...He.mobile,
+							...Pe.mobile,
+							...ee.mobile,
 							...At.mobile,
 							...qe.mobile,
 							...ut.mobile,
 							..._t.mobile,
 							...st.mobile,
-							...Ce.mobile,
+							...xe.mobile,
 							...he.mobile,
-							...Oe.mobile,
-							...l.mobile,
-							...Y.mobile,
-							..._.mobile,
-							...b.mobile,
-							...z.mobile,
-							...J.mobile,
-							...le.mobile,
+							...P.mobile,
+							...K.mobile,
+							...Q.mobile,
+							...i.mobile,
+							...S.mobile,
+							...W.mobile,
+							...Z.mobile,
+							...Be.mobile,
 							...Ne.mobile,
 							...lt.mobile,
 							...Rt.mobile,
@@ -3865,29 +3865,29 @@
 							...Et.mobile,
 							...mt.mobile,
 							...rt.mobile,
-							...ce.mobile,
-							...B.mobile,
+							...de.mobile,
+							...k.mobile,
 							...tt.mobile,
 						},
 						tablet: {
-							...be.tablet,
-							...Le.tablet,
-							...Q.tablet,
+							...He.tablet,
+							...Pe.tablet,
+							...ee.tablet,
 							...At.tablet,
 							...qe.tablet,
 							...ut.tablet,
 							..._t.tablet,
 							...st.tablet,
-							...Ce.tablet,
+							...xe.tablet,
 							...he.tablet,
-							...Oe.tablet,
-							...l.tablet,
-							...Y.tablet,
-							..._.tablet,
-							...b.tablet,
-							...z.tablet,
-							...J.tablet,
-							...le.tablet,
+							...P.tablet,
+							...K.tablet,
+							...Q.tablet,
+							...i.tablet,
+							...S.tablet,
+							...W.tablet,
+							...Z.tablet,
+							...Be.tablet,
 							...Ne.tablet,
 							...lt.tablet,
 							...Rt.tablet,
@@ -3897,29 +3897,29 @@
 							...Et.tablet,
 							...mt.tablet,
 							...rt.tablet,
-							...ce.tablet,
-							...B.tablet,
+							...de.tablet,
+							...k.tablet,
 							...tt.tablet,
 						},
 						desktop: {
-							...be.desktop,
-							...Le.desktop,
-							...Q.desktop,
+							...He.desktop,
+							...Pe.desktop,
+							...ee.desktop,
 							...At.desktop,
 							...qe.desktop,
 							...ut.desktop,
 							..._t.desktop,
 							...st.desktop,
-							...Ce.desktop,
+							...xe.desktop,
 							...he.desktop,
-							...Oe.desktop,
-							...l.desktop,
-							...Y.desktop,
-							..._.desktop,
-							...b.desktop,
-							...z.desktop,
-							...J.desktop,
-							...le.desktop,
+							...P.desktop,
+							...K.desktop,
+							...Q.desktop,
+							...i.desktop,
+							...S.desktop,
+							...W.desktop,
+							...Z.desktop,
+							...Be.desktop,
 							...Ne.desktop,
 							...lt.desktop,
 							...Rt.desktop,
@@ -3929,22 +3929,22 @@
 							...Et.desktop,
 							...mt.desktop,
 							...rt.desktop,
-							...ce.desktop,
-							...B.desktop,
+							...de.desktop,
+							...k.desktop,
 							...tt.desktop,
 						},
 					};
-				var De = t('./components/src/themes/themeComponents/autocomplete.ts');
+				var Ge = t('./components/src/themes/themeComponents/autocomplete.ts');
 				const ht =
 						'.ss__autocomplete__terms .ss__autocomplete__title h5, .ss__autocomplete__facets .ss__facets .ss__facet .ss__facet__header, .ss__autocomplete__content__results .ss__autocomplete__title h5, .ss__autocomplete__content__info a, .ss__no-results__recommendations h3',
 					Ft =
 						'.ss__autocomplete__terms .ss__autocomplete__terms__options .ss__autocomplete__terms__option--active a, .ss__autocomplete__facets .ss__facets .ss__facet .ss__facet__options .ss__facet-list-options .ss__facet-list-options__option--filtered, .ss__autocomplete__content__results .ss__results .ss__result:hover .ss__result__details .ss__result__details__title a, .ss__autocomplete__content__info a:hover',
 					fo = (s) => {
 						const n = s?.theme?.variables,
-							i = n?.breakpoints?.desktop,
-							T = n?.breakpoints?.tablet,
-							M = n?.breakpoints?.mobile,
-							ae = (0, o.AH)({
+							l = n?.breakpoints?.desktop,
+							B = n?.breakpoints?.tablet,
+							$ = n?.breakpoints?.mobile,
+							ne = (0, o.AH)({
 								'&.ss__autocomplete': {
 									top: '48px',
 									left: 0,
@@ -4052,10 +4052,10 @@
 										},
 									},
 								},
-								[`${e.utils.getBp(M)}`]: {
+								[`${e.utils.getBp($)}`]: {
 									'&.ss__autocomplete': { '.ss__autocomplete__content .ss__autocomplete__content__info': { textAlign: 'right' } },
 								},
-								[`${e.utils.getBp(T)}`]: {
+								[`${e.utils.getBp(B)}`]: {
 									'&.ss__autocomplete': {
 										flexWrap: s?.vertical ? 'nowrap' : 'wrap',
 										right: 0,
@@ -4072,7 +4072,7 @@
 										'.ss__autocomplete__content': { '.ss__autocomplete__content__info': { borderTop: 0, padding: 0, margin: 0 } },
 									},
 								},
-								[`${e.utils.getBp(i)}`]: {
+								[`${e.utils.getBp(l)}`]: {
 									'&.ss__autocomplete': {
 										flexWrap: s?.vertical ? 'wrap' : 'nowrap',
 										[ht]: { fontSize: '16px' },
@@ -4088,8 +4088,8 @@
 									},
 								},
 							}),
-							Pe = (0, o.AH)([
-								ae,
+							Oe = (0, o.AH)([
+								ne,
 								{
 									'.ss__autocomplete__terms': {
 										'& > div': {
@@ -4106,7 +4106,7 @@
 								},
 							]),
 							Je = (0, o.AH)([
-								ae,
+								ne,
 								{
 									'.ss__autocomplete__terms': {
 										gap: `${e.spacing.x4}px`,
@@ -4121,13 +4121,13 @@
 									},
 								},
 							]);
-						return s?.horizontalTerms ? Pe : Je;
+						return s?.horizontalTerms ? Oe : Je;
 					},
 					uo = {
 						default: {
-							...De.n.default,
+							...Ge.n.default,
 							autocomplete: {
-								...(De.n.default?.autocomplete || {}),
+								...(Ge.n.default?.autocomplete || {}),
 								themeStyleScript: fo,
 								width: '940px',
 								contentTitle: 'Product Suggestions',
@@ -4148,13 +4148,13 @@
 							'autocomplete icon': { size: `${e.sizes.icon12}px` },
 						},
 						mobile: {
-							...De.n.mobile,
-							autocomplete: { ...(De.n.mobile?.autocomplete || {}), width: 'auto', vertical: !0, horizontalTerms: !0, hideFacets: !0 },
+							...Ge.n.mobile,
+							autocomplete: { ...(Ge.n.mobile?.autocomplete || {}), width: 'auto', vertical: !0, horizontalTerms: !0, hideFacets: !0 },
 							'autocomplete results': { rows: 1, columns: 3 },
 						},
 						tablet: {
-							...De.n.tablet,
-							autocomplete: { ...(De.n.tablet?.autocomplete || {}), width: '600px', vertical: !0, horizontalTerms: !0 },
+							...Ge.n.tablet,
+							autocomplete: { ...(Ge.n.tablet?.autocomplete || {}), width: '600px', vertical: !0, horizontalTerms: !0 },
 							'autocomplete facet': {
 								disableCollapse: !0,
 								disableOverflow: !0,
@@ -4163,8 +4163,8 @@
 							'autocomplete results': { rows: 1, columns: 4 },
 						},
 						desktop: {
-							...De.n.desktop,
-							autocomplete: { ...(De.n.desktop?.autocomplete || {}), width: '700px', vertical: !1, horizontalTerms: !0 },
+							...Ge.n.desktop,
+							autocomplete: { ...(Ge.n.desktop?.autocomplete || {}), width: '700px', vertical: !1, horizontalTerms: !0 },
 							'autocomplete facet': {
 								disableCollapse: !0,
 								disableOverflow: !0,
@@ -4277,8 +4277,8 @@
 							facetsHorizontal: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = n?.breakpoints?.mobile,
-										T = n?.breakpoints?.tablet;
+										l = n?.breakpoints?.mobile,
+										B = n?.breakpoints?.tablet;
 									return (0, o.AH)({
 										margin: 0,
 										'.ss__facets-horizontal__header': {
@@ -4353,8 +4353,8 @@
 											'.ss__facets-horizontal__header__dropdown .ss__dropdown__content .ss__facet__show-more-less, .ss__layout__sidebar-toggle-button-wrapper .ss__button':
 												{ display: 'flex' },
 										},
-										[`${e.utils.getBp(i)}`]: { '.ss__facets-horizontal__header': { '& > *': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
-										[`${e.utils.getBp(T)}`]: { '.ss__facets-horizontal__header': { '& > *': { width: `calc((100% - ${e.spacing.x2 * 5}px) / 6)` } } },
+										[`${e.utils.getBp(l)}`]: { '.ss__facets-horizontal__header': { '& > *': { width: `calc((100% - ${e.spacing.x2 * 3}px) / 4)` } } },
+										[`${e.utils.getBp(B)}`]: { '.ss__facets-horizontal__header': { '& > *': { width: `calc((100% - ${e.spacing.x2 * 5}px) / 6)` } } },
 									});
 								},
 								iconExpand: e.icons.arrowDown,
@@ -4385,12 +4385,12 @@
 							filterSummary: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = !!(
+										l = !!(
 											s?.treePath &&
 											(s.treePath.includes('sidebar') || s.treePath.includes('mobileSidebar') || s.treePath.includes('storybook'))
 										),
-										T = i ? { display: 'block' } : { display: 'flex', alignItems: 'center', gap: `${e.spacing.x2}px` },
-										M = i
+										B = l ? { display: 'block' } : { display: 'flex', alignItems: 'center', gap: `${e.spacing.x2}px` },
+										$ = l
 											? {
 													margin: `0 0 ${e.spacing.x4}px 0`,
 													padding: `0 0 ${e.spacing.x2}px 0`,
@@ -4398,9 +4398,9 @@
 													...e.styles.headerText(n?.colors?.secondary, '16px'),
 											  }
 											: { padding: 0, ...e.styles.headerText(n?.colors?.secondary, '14px') },
-										ae = (0, o.AH)({ width: 'auto', ...T, '.ss__filter-summary__title': { ...M }, '.ss__filter-summary__filters': { margin: 0 } }),
-										Pe = (0, o.AH)([
-											ae,
+										ne = (0, o.AH)({ width: 'auto', ...B, '.ss__filter-summary__title': { ...$ }, '.ss__filter-summary__filters': { margin: 0 } }),
+										Oe = (0, o.AH)([
+											ne,
 											{
 												'&.ss__filter-summary--inline': {
 													'.ss__filter-summary__filters': {
@@ -4416,14 +4416,14 @@
 											},
 										]),
 										Je = (0, o.AH)([
-											ae,
+											ne,
 											{
 												'&.ss__filter-summary--list': {
-													'&, .ss__filter-summary__filters': { display: i ? '' : 'flex' },
+													'&, .ss__filter-summary__filters': { display: l ? '' : 'flex' },
 													'.ss__filter-summary__filters': {
 														'.ss__filter': {
-															margin: i ? `0 0 ${e.spacing.x1}px 0` : 0,
-															'&:last-child': { marginBottom: i ? 0 : '' },
+															margin: l ? `0 0 ${e.spacing.x1}px 0` : 0,
+															'&:last-child': { marginBottom: l ? 0 : '' },
 															'.ss__filter__button': {
 																'.ss__button__content': {
 																	padding: `0 0 0 ${e.sizes.icon16 + e.spacing.x2}px`,
@@ -4442,7 +4442,7 @@
 												},
 											},
 										]);
-									return s?.type == 'list' ? Je : Pe;
+									return s?.type == 'list' ? Je : Oe;
 								},
 								clearAllIcon: e.icons.close,
 								filterIcon: e.icons.close,
@@ -4515,10 +4515,10 @@
 							termsList: {
 								themeStyleScript: (s) => {
 									const n = s?.theme?.variables,
-										i = (0, o.AH)({ backgroundColor: 'transparent', alignContent: 'flex-start', gap: `${e.spacing.x4}px` }),
-										T = (0, o.AH)([i, { flexFlow: 'row nowrap', '.ss__terms-list__row': { flex: '1 1 0%', minWidth: '1px' } }]),
-										M = (0, o.AH)([i, { flexFlow: 'column nowrap' }]);
-									return s?.verticalOptions ? M : T;
+										l = (0, o.AH)({ backgroundColor: 'transparent', alignContent: 'flex-start', gap: `${e.spacing.x4}px` }),
+										B = (0, o.AH)([l, { flexFlow: 'row nowrap', '.ss__terms-list__row': { flex: '1 1 0%', minWidth: '1px' } }]),
+										$ = (0, o.AH)([l, { flexFlow: 'column nowrap' }]);
+									return s?.verticalOptions ? $ : B;
 								},
 								suggestionTitle: 'Search Suggestions',
 							},
@@ -4528,13 +4528,13 @@
 						default: {
 							toolbar: {
 								themeStyleScript: (s) => {
-									const i = s?.theme?.variables?.breakpoints?.mobile;
+									const l = s?.theme?.variables?.breakpoints?.mobile;
 									return (0, o.AH)({
 										'.ss__layout__sidebar-toggle-button-wrapper .ss__button': { '.ss__button__content': { textAlign: 'left' } },
 										'.ss__layout': { '&, .ss__layout__row': { gap: `${e.spacing.x2}px` } },
 										'.ss__pagination-info': { fontSize: s?.name == 'bottom' ? '16px' : '18px' },
 										'.ss__banner': { margin: `${e.spacing.x2}px 0` },
-										[`${e.utils.getBp(i)}`]: { '.ss__pagination-info': { fontSize: s?.name == 'bottom' ? '14px' : '16px' } },
+										[`${e.utils.getBp(l)}`]: { '.ss__pagination-info': { fontSize: s?.name == 'bottom' ? '14px' : '16px' } },
 									});
 								},
 							},
@@ -4598,11 +4598,11 @@
 					ds =
 						'.ss__autocomplete__facets .ss__facets .ss__facet .ss__facet__options .ss__facet-list-options .ss__facet-list-options__option--filtered, .ss__autocomplete__content .ss__autocomplete__content__results .ss__results .ss__result:hover .ss__result__details .ss__result__details__title a, .ss__autocomplete__button--see-more:hover .ss__button__content',
 					Uo = (s, n) => {
-						const i = s?.theme?.variables,
-							T = i?.breakpoints?.desktop,
-							M = i?.breakpoints?.tablet,
-							ae = i?.breakpoints?.mobile,
-							Pe = n == 'autocompleteFixed',
+						const l = s?.theme?.variables,
+							B = l?.breakpoints?.desktop,
+							$ = l?.breakpoints?.tablet,
+							ne = l?.breakpoints?.mobile,
+							Oe = n == 'autocompleteFixed',
 							Je = n == 'autocompleteModal',
 							ot = n == 'autocompleteSlideout',
 							Dt = s?.layout ? s.layout : 'standard',
@@ -4616,8 +4616,8 @@
 								a: { display: 'block' },
 								'ul, ul li': { padding: 0, margin: 0, listStyle: 'none' },
 								'.ss__banner': { img: { maxWidth: '100%', maxHeight: '150px', height: 'auto' } },
-								[ts]: { margin: `0 0 ${e.spacing.x4}px 0`, padding: 0, ...e.styles.headerText(i?.colors?.secondary, '14px'), lineHeight: 1.2 },
-								[ds]: { ...e.styles.activeText(i?.colors?.primary) },
+								[ts]: { margin: `0 0 ${e.spacing.x4}px 0`, padding: 0, ...e.styles.headerText(l?.colors?.secondary, '14px'), lineHeight: 1.2 },
+								[ds]: { ...e.styles.activeText(l?.colors?.primary) },
 							}),
 							Vo = (0, o.AH)({
 								alignContent: 'flex-start',
@@ -4661,7 +4661,7 @@
 									'.ss__autocomplete__content-inner': { padding: 0, '& > *': { margin: `0 0 ${e.spacing.x4}px 0` } },
 								},
 							}),
-							is = (0, o.AH)({ overflowY: Pe ? 'auto' : 'hidden', overflowX: 'hidden', maxHeight: Pe ? '54vh' : '', ...e.styles.scrollbar() }),
+							is = (0, o.AH)({ overflowY: Oe ? 'auto' : 'hidden', overflowX: 'hidden', maxHeight: Oe ? '54vh' : '', ...e.styles.scrollbar() }),
 							ls = (0, o.AH)({
 								'.ss__autocomplete__content__results': {
 									'.ss__results': { ...is },
@@ -4737,9 +4737,9 @@
 									},
 								},
 								{ [`${e.utils.getBp(e.breakpoints.small, 'max')}`]: { ...cs } },
-								{ [`${e.utils.getBp(ae)}`]: { ...qo } },
+								{ [`${e.utils.getBp(ne)}`]: { ...qo } },
 								{
-									[`${e.utils.getBp(M)}`]: {
+									[`${e.utils.getBp($)}`]: {
 										'& > .ss__autocomplete__row': {
 											'.ss__autocomplete__column': {
 												flex: '1 1 0%',
@@ -4761,7 +4761,7 @@
 									},
 								},
 								{
-									[`${e.utils.getBp(T)}`]: {
+									[`${e.utils.getBp(B)}`]: {
 										'&': ho,
 										'& > .ss__autocomplete__row': {
 											'.ss__autocomplete__column': {
@@ -4769,7 +4769,7 @@
 												'&:has(.ss__autocomplete__terms-wrapper), &:has(.ss__autocomplete__facets-wrapper)': { flex: `0 0 ${Je ? 250 : 220}px` },
 											},
 										},
-										'.ss__autocomplete__content__results .ss__results': { maxHeight: Pe ? '60vh' : '' },
+										'.ss__autocomplete__content__results .ss__results': { maxHeight: Oe ? '60vh' : '' },
 									},
 								},
 							]),
@@ -4788,8 +4788,8 @@
 									},
 								},
 								{ [`${e.utils.getBp(e.breakpoints.small, 'max')}`]: { ...cs } },
-								{ [`${e.utils.getBp(ae)}`]: { ...qo } },
-								{ [`${e.utils.getBp(T)}`]: { '&': ho } },
+								{ [`${e.utils.getBp(ne)}`]: { ...qo } },
+								{ [`${e.utils.getBp(B)}`]: { '&': ho } },
 							]),
 							zs = (0, o.AH)([
 								_o,
@@ -4798,9 +4798,9 @@
 								Qo,
 								Zo,
 								Jo,
-								{ [`${e.utils.getBp(ae)}`]: { ...qo } },
+								{ [`${e.utils.getBp(ne)}`]: { ...qo } },
 								{
-									[`${e.utils.getBp(T)}`]: {
+									[`${e.utils.getBp(B)}`]: {
 										'&': ho,
 										'.ss__autocomplete__content__no-results .ss__autocomplete__content__no-results__text p': { fontSize: '16px' },
 									},
@@ -4810,8 +4810,8 @@
 					},
 					os = 40,
 					ps = (s) => {
-						const i = s?.theme?.variables?.breakpoints?.mobile,
-							T = (0, o.AH)({
+						const l = s?.theme?.variables?.breakpoints?.mobile,
+							B = (0, o.AH)({
 								'.ss__modal': {
 									'.ss__modal__content': {
 										'.ss__autocomplete-fixed__inner': {
@@ -4820,7 +4820,7 @@
 									},
 								},
 							}),
-							M = (0, o.AH)({
+							$ = (0, o.AH)({
 								'.ss__modal': {
 									'.ss__modal__content': {
 										'.ss__autocomplete-fixed__inner': {
@@ -4839,7 +4839,7 @@
 										},
 									},
 								},
-								[`${e.utils.getBp(i)}`]: {
+								[`${e.utils.getBp(l)}`]: {
 									'.ss__modal': {
 										'.ss__modal__content': {
 											'.ss__autocomplete-fixed__inner': {
@@ -4849,7 +4849,7 @@
 									},
 								},
 							});
-						return (0, o.AH)([T, M]);
+						return (0, o.AH)([B, $]);
 					},
 					Mo = {
 						default: {
@@ -4904,13 +4904,13 @@
 				var qt = t('./components/src/themes/themeComponents/autocompleteModal.ts');
 				const ss = 40,
 					ms = (s) => {
-						const i = s?.theme?.variables?.breakpoints?.desktop,
-							T = (0, o.AH)({
+						const l = s?.theme?.variables?.breakpoints?.desktop,
+							B = (0, o.AH)({
 								'.ss__modal': {
 									'.ss__modal__content': { '.ss__autocomplete-modal__inner': { '.ss__autocomplete': { ...Uo(s, 'autocompleteModal') } } },
 								},
 							}),
-							M = (0, o.AH)({
+							$ = (0, o.AH)({
 								'.ss__modal': {
 									'.ss__modal__content': {
 										'.ss__autocomplete-modal__inner': {
@@ -4937,9 +4937,9 @@
 										},
 									},
 								},
-								[`${e.utils.getBp(i)}`]: { '.ss__modal': { '.ss__modal__content': { '.ss__autocomplete-modal__inner': { top: '5vh' } } } },
+								[`${e.utils.getBp(l)}`]: { '.ss__modal': { '.ss__modal__content': { '.ss__autocomplete-modal__inner': { top: '5vh' } } } },
 							});
-						return (0, o.AH)([T, M]);
+						return (0, o.AH)([B, $]);
 					},
 					$o = {
 						default: {
@@ -4994,8 +4994,8 @@
 				const ns = 40,
 					us = (s) => {
 						const n = s?.theme?.variables,
-							i = (0, o.AH)({ '.ss__autocomplete-slideout__inner': { '.ss__autocomplete': { ...Uo(s, 'autocompleteSlideout') } } }),
-							T = (0, o.AH)({
+							l = (0, o.AH)({ '.ss__autocomplete-slideout__inner': { '.ss__autocomplete': { ...Uo(s, 'autocompleteSlideout') } } }),
+							B = (0, o.AH)({
 								border: 0,
 								padding: `${e.spacing.x4}px`,
 								'.ss__autocomplete-slideout__inner': {
@@ -5016,7 +5016,7 @@
 									},
 								},
 							});
-						return (0, o.AH)([i, T]);
+						return (0, o.AH)([l, B]);
 					},
 					Ho = {
 						default: {
@@ -5063,15 +5063,15 @@
 					po = { spacing: e.spacing.x2, button: 32, pagination: 12, scrollbar: 6 },
 					_s = (s) => {
 						const n = s?.theme?.variables,
-							i = n?.breakpoints?.tablet,
-							T = n?.breakpoints?.mobile;
-						let M = 0;
+							l = n?.breakpoints?.tablet,
+							B = n?.breakpoints?.mobile;
+						let $ = 0;
 						return (
 							s?.pagination && s?.scrollbar
-								? (M = po.spacing * 2 + po.pagination + po.scrollbar)
+								? ($ = po.spacing * 2 + po.pagination + po.scrollbar)
 								: s?.pagination && !s?.scrollbar
-								? (M = po.spacing + po.pagination)
-								: !s?.pagination && s?.scrollbar && (M = po.spacing + po.scrollbar),
+								? ($ = po.spacing + po.pagination)
+								: !s?.pagination && s?.scrollbar && ($ = po.spacing + po.scrollbar),
 							(0, o.AH)({
 								margin: `${e.spacing.x8}px 0`,
 								position: 'relative',
@@ -5100,13 +5100,13 @@
 									'.ss__recommendation__title': { fontSize: '22px' },
 									'.ss__carousel': { '.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': { top: '4.5px' } },
 								},
-								[`${e.utils.getBp(T)}`]: {
+								[`${e.utils.getBp(B)}`]: {
 									'.ss__carousel': {
 										'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': { top: '2.5px', width: `${Xt.mobile}px`, height: `${Xt.mobile}px` },
 										'.ss__carousel__prev-wrapper': { right: `${Xt.mobile + e.spacing.x1}px` },
 									},
 								},
-								[`${e.utils.getBp(i)}`]: {
+								[`${e.utils.getBp(l)}`]: {
 									'.ss__recommendation__title, .ss__recommendation__description': { textAlign: 'center' },
 									'.ss__recommendation__title': { padding: 0 },
 									'.ss__carousel': {
@@ -5114,7 +5114,7 @@
 										padding: `0 ${e.spacing.x4 + Xt.tablet}px`,
 										'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
 											top: 0,
-											bottom: `calc(10.40rem + ${M - e.spacing.x4}px)`,
+											bottom: `calc(10.40rem + ${$ - e.spacing.x4}px)`,
 											width: `${Xt.tablet}px`,
 											height: `${Xt.tablet}px`,
 										},
@@ -5154,9 +5154,9 @@
 					};
 				var oo = t('./components/src/themes/themeComponents/recommendationBundle.ts');
 				const hs = e.utils.lightenColor(),
-					Po = (s, n, i) => {
-						const T = s?.theme?.variables,
-							M = `.ss__recommendation-${n}__wrapper`;
+					Po = (s, n, l) => {
+						const B = s?.theme?.variables,
+							$ = `.ss__recommendation-${n}__wrapper`;
 						return (0, o.AH)({
 							display: 'flex',
 							flexFlow: 'row wrap',
@@ -5164,34 +5164,34 @@
 							alignItems: 'center',
 							alignContent: 'center',
 							gap: `${e.spacing.x2}px`,
-							...e.styles.box(void 0, i || `${e.spacing.x2}px`),
+							...e.styles.box(void 0, l || `${e.spacing.x2}px`),
 							'& > *': { flex: '1 1 100%', minWidth: '1px' },
-							[`${M}__cta__subtotal, ${M}__cta__button`]: { position: 'relative', zIndex: 2 },
-							[`${M}__cta__subtotal`]: {
+							[`${$}__cta__subtotal, ${$}__cta__button`]: { position: 'relative', zIndex: 2 },
+							[`${$}__cta__subtotal`]: {
 								'& > *': { margin: `0 0 ${e.spacing.x2}px 0`, '&:last-child': { marginBottom: 0 } },
-								[`${M}__cta__subtotal__icon__wrapper`]: { lineHeight: 1 },
-								[`${M}__cta__subtotal__title`]: { display: 'block', ...e.styles.headerText(T?.colors?.secondary, '16px') },
-								[`${M}__cta__subtotal__prices`]: {
+								[`${$}__cta__subtotal__icon__wrapper`]: { lineHeight: 1 },
+								[`${$}__cta__subtotal__title`]: { display: 'block', ...e.styles.headerText(B?.colors?.secondary, '16px') },
+								[`${$}__cta__subtotal__prices`]: {
 									label: { margin: 0, padding: 0, '& ~ label': { paddingLeft: `${e.spacing.x1}px` } },
-									[`${M}__cta__subtotal__strike`]: {
+									[`${$}__cta__subtotal__strike`]: {
 										'&, span': { color: hs },
-										'& ~ ${recommendationHandle}__cta__subtotal__price': { '&, span': { color: T?.colors?.primary } },
+										'& ~ ${recommendationHandle}__cta__subtotal__price': { '&, span': { color: B?.colors?.primary } },
 									},
-									[`${M}__cta__subtotal__price`]: { '&, span': { fontSize: '16px', fontWeight: e.fonts.weight01 } },
+									[`${$}__cta__subtotal__price`]: { '&, span': { fontSize: '16px', fontWeight: e.fonts.weight01 } },
 								},
 							},
-							[`${M}__cta__button`]: { flexWrap: 'nowrap', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+							[`${$}__cta__button`]: { flexWrap: 'nowrap', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
 						});
 					},
 					No = 22,
 					as = 16,
 					bs = (s) => {
 						const n = s?.theme?.variables,
-							i = n?.breakpoints?.tablet,
-							T = n?.breakpoints?.mobile,
-							M = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-							ae = M[0],
-							Pe = M[1],
+							l = n?.breakpoints?.tablet,
+							B = n?.breakpoints?.mobile,
+							$ = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+							ne = $[0],
+							Oe = $[1],
 							Je = (0, o.AH)({ '.ss__recommendation-bundle__wrapper__cta': { ...Po(s, 'bundle', `${e.spacing.x4}px`) } }),
 							ot = (0, o.AH)({
 								margin: `${e.spacing.x8}px 0`,
@@ -5234,10 +5234,10 @@
 											'.ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': {
 												top: '5px',
 												left: '5px',
-												backgroundColor: ae,
+												backgroundColor: ne,
 												fontSize: '12px',
 												fontWeight: e.fonts.weight01,
-												color: Pe,
+												color: Oe,
 												height: `${No}px`,
 												lineHeight: `${No}px`,
 												padding: `0 ${e.spacing.x2}px`,
@@ -5252,7 +5252,7 @@
 								},
 								'.ss__recommendation-bundle__wrapper__cta': { margin: `${e.spacing.x4}px 0 0 0` },
 								[`${e.utils.getBp(e.breakpoints.small)}`]: { '.ss__recommendation-bundle__title': { fontSize: '22px' } },
-								[`${e.utils.getBp(T)}`]: {
+								[`${e.utils.getBp(B)}`]: {
 									'.ss__recommendation-bundle__wrapper': {
 										flexFlow: 'row nowrap',
 										margin: s?.ctaInline ? 0 : `0 -${e.spacing.x2}px`,
@@ -5265,7 +5265,7 @@
 										},
 									},
 								},
-								[`${e.utils.getBp(i)}`]: {
+								[`${e.utils.getBp(l)}`]: {
 									'.ss__recommendation-bundle__title, .ss__recommendation-bundle__description': { textAlign: 'center' },
 									'.ss__recommendation-bundle__wrapper': {
 										'.ss__recommendation-bundle__wrapper__seed-container, .ss__recommendation-bundle__wrapper__cta': {
@@ -5311,8 +5311,8 @@
 				var so = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
 				const gs = (s) => {
 						const n = s?.theme?.variables,
-							i = (0, o.AH)({ '.ss__recommendation-bundle-easy-add__wrapper__cta': { ...Po(s, 'bundle-easy-add') } }),
-							T = (0, o.AH)({
+							l = (0, o.AH)({ '.ss__recommendation-bundle-easy-add__wrapper__cta': { ...Po(s, 'bundle-easy-add') } }),
+							B = (0, o.AH)({
 								margin: `${e.spacing.x4}px 0`,
 								'.ss__recommendation-profile-tracker': { '& > *': { margin: `0 0 ${e.spacing.x2}px 0`, '&:last-child': { marginBottom: 0 } } },
 								'.ss__recommendation-bundle-easy-add__title': { ...e.styles.headerText(n?.colors?.secondary, '16px') },
@@ -5334,7 +5334,7 @@
 									},
 								},
 							});
-						return (0, o.AH)([i, T]);
+						return (0, o.AH)([l, B]);
 					},
 					Eo = {
 						default: {
@@ -5356,8 +5356,8 @@
 				const Ko = e.sizes.icon12,
 					fs = (s) => {
 						const n = s?.theme?.variables,
-							i = (0, o.AH)({ '.ss__recommendation-bundle-list__wrapper__cta': { ...Po(s, 'bundle-list') } }),
-							T = (0, o.AH)({
+							l = (0, o.AH)({ '.ss__recommendation-bundle-list__wrapper__cta': { ...Po(s, 'bundle-list') } }),
+							B = (0, o.AH)({
 								margin: `${e.spacing.x4}px 0`,
 								'.ss__recommendation-profile-tracker': { '& > *': { margin: `${e.spacing.x2}px 0 0 0`, '&:first-child': { marginTop: 0 } } },
 								'.ss__recommendation-bundle-list__title': { ...e.styles.headerText(n?.colors?.secondary, '16px') },
@@ -5421,7 +5421,7 @@
 									'.ss__recommendation-bundle-list__wrapper > *': { width: `calc((100% - ${e.spacing.x4}px) / 2)`, flex: '0 1 auto' },
 								},
 							});
-						return (0, o.AH)([i, T]);
+						return (0, o.AH)([l, B]);
 					},
 					Ro = {
 						default: {
@@ -5447,11 +5447,11 @@
 					rs = 16,
 					ys = (s) => {
 						const n = s?.theme?.variables,
-							i = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
-							T = i[0],
-							M = i[1],
-							ae = (0, o.AH)({ '.ss__recommendation-bundle-vertical__wrapper__cta': { ...Po(s, 'bundle-vertical') } }),
-							Pe = (0, o.AH)({
+							l = e.utils.activeColors(n?.colors?.secondary || e.colors.secondary),
+							B = l[0],
+							$ = l[1],
+							ne = (0, o.AH)({ '.ss__recommendation-bundle-vertical__wrapper__cta': { ...Po(s, 'bundle-vertical') } }),
+							Oe = (0, o.AH)({
 								margin: `${e.spacing.x4}px 0`,
 								'.ss__recommendation-profile-tracker': { '& > *': { margin: `0 0 ${e.spacing.x2}px 0`, '&:last-child': { marginBottom: 0 } } },
 								'.ss__recommendation-bundle-vertical__title': { ...e.styles.headerText(n?.colors?.secondary, '16px') },
@@ -5477,10 +5477,10 @@
 											'.ss__recommendation-bundle-vertical__wrapper__selector__result-wrapper__seed-badge': {
 												top: '5px',
 												left: '5px',
-												backgroundColor: T,
+												backgroundColor: B,
 												fontSize: '12px',
 												fontWeight: e.fonts.weight01,
-												color: M,
+												color: $,
 												height: `${Yo}px`,
 												lineHeight: `${Yo}px`,
 												padding: `0 ${e.spacing.x2}px`,
@@ -5502,7 +5502,7 @@
 										{ right: 'auto', left: `calc(33.33% - ${e.spacing.x4}px)` },
 								},
 							});
-						return (0, o.AH)([ae, Pe]);
+						return (0, o.AH)([ne, Oe]);
 					},
 					Lo = {
 						default: {
@@ -5526,18 +5526,18 @@
 				var ro = t('./components/src/themes/themeComponents/recommendationGrid.ts');
 				const xs = (s) => {
 						const n = s?.theme?.variables,
-							i = n?.breakpoints?.tablet,
-							T = s?.rows == 1,
-							M = (0, o.AH)({
+							l = n?.breakpoints?.tablet,
+							B = s?.rows == 1,
+							$ = (0, o.AH)({
 								margin: `${e.spacing.x8}px 0`,
 								maxHeight: 'none',
 								'.ss__recommendation-grid__title': { margin: `0 0 ${e.spacing.x4}px 0`, ...e.styles.headerText(n?.colors?.secondary, '18px') },
 								[`${e.utils.getBp(e.breakpoints.small)}`]: { '.ss__recommendation-grid__title': { fontSize: '22px' } },
-								[`${e.utils.getBp(i)}`]: { '.ss__recommendation-grid__title': { textAlign: 'center' } },
+								[`${e.utils.getBp(l)}`]: { '.ss__recommendation-grid__title': { textAlign: 'center' } },
 							}),
-							ae = (0, o.AH)([M]),
-							Pe = (0, o.AH)([
-								M,
+							ne = (0, o.AH)([$]),
+							Oe = (0, o.AH)([
+								$,
 								{
 									'.ss__recommendation-grid__results': {
 										overflowX: 'auto',
@@ -5547,7 +5547,7 @@
 									},
 								},
 							]);
-						return T ? Pe : ae;
+						return B ? Oe : ne;
 					},
 					Fo = {
 						default: {
@@ -5598,8 +5598,8 @@
 				var io = t('./components/src/themes/themeComponents/search.ts');
 				const vs = (s) => {
 						const n = s?.theme?.variables,
-							i = n?.breakpoints?.mobile,
-							T = n?.breakpoints?.tablet;
+							l = n?.breakpoints?.mobile,
+							B = n?.breakpoints?.tablet;
 						return (0, o.AH)({
 							'.ss__search__header-section, .ss__search__main-section': { margin: `0 0 ${e.spacing.x6}px 0` },
 							'.ss__search__main-section': {
@@ -5618,7 +5618,7 @@
 							[`${e.utils.getBp(e.breakpoints.small)}`]: {
 								'.ss__search__main-section': { '.ss__toolbar': { '.ss__layout__sidebar-toggle-button-wrapper': { minWidth: '200px' } } },
 							},
-							[`${e.utils.getBp(i)}`]: {
+							[`${e.utils.getBp(l)}`]: {
 								'.ss__search__main-section': {
 									'.ss__toolbar': {
 										'.ss__layout__row': {
@@ -5629,7 +5629,7 @@
 									},
 								},
 							},
-							[`${e.utils.getBp(T)}`]: {
+							[`${e.utils.getBp(B)}`]: {
 								'.ss__search__main-section': {
 									'.ss__toolbar': {
 										'.ss__layout__row': {
@@ -5653,7 +5653,7 @@
 					};
 				var lo = t('./components/src/themes/themeComponents/searchHorizontal.ts');
 				const ws = (s) => {
-						const i = s?.theme?.variables?.breakpoints?.mobile ?? e.breakpoints.mobile;
+						const l = s?.theme?.variables?.breakpoints?.mobile ?? e.breakpoints.mobile;
 						return (0, o.AH)({
 							'.ss__search-horizontal__header-section, .ss__search-horizontal__main-section': { margin: `0 0 ${e.spacing.x6}px 0` },
 							'.ss__search-horizontal__main-section': {
@@ -5670,7 +5670,7 @@
 							[`${e.utils.getBp(e.breakpoints.small)}`]: {
 								'.ss__search-horizontal__main-section': { '.ss__toolbar': { '.ss__layout__sidebar-toggle-button-wrapper': { minWidth: '200px' } } },
 							},
-							[`${e.utils.getBp(i)}`]: {
+							[`${e.utils.getBp(l)}`]: {
 								'.ss__search-horizontal__main-section': { '.ss__toolbar': { '.ss__layout__row': { '.ss__select': { flex: '0 1 auto' } } } },
 							},
 						});
@@ -5687,7 +5687,7 @@
 					};
 				var co = t('./components/src/themes/themeComponents/searchCollapsible.ts');
 				const As = (s) => {
-						const i = s?.theme?.variables?.breakpoints?.tablet;
+						const l = s?.theme?.variables?.breakpoints?.tablet;
 						return (0, o.AH)({
 							'&:not(:has(.ss__no-results))': {
 								'.ss__search-collapsible__header-section': {
@@ -5704,7 +5704,7 @@
 								'.ss__search-collapsible__sidebar': { flex: '0 1 auto', '.ss__sidebar': { width: '250px' } },
 								'.ss__search-collapsible__content': { flex: '1 1 0%', gap: `${e.spacing.x4}px` },
 							},
-							[`${e.utils.getBp(i)}`]: {
+							[`${e.utils.getBp(l)}`]: {
 								'&:not(:has(.ss__no-results))': {
 									'.ss__search-collapsible__header-section': {
 										margin: 0,
@@ -5821,10 +5821,10 @@
 							...Wo.desktop,
 						},
 					},
-					Cs = { ...ye.default, ...ee.default, ...To.default, ...Go.default },
-					ks = { ...ye.mobile, ...ee.mobile, ...To.mobile, ...Go.mobile },
-					Bs = { ...ye.tablet, ...ee.tablet, ...To.tablet, ...Go.tablet },
-					Ts = { ...ye.desktop, ...ee.desktop, ...To.desktop, ...Go.desktop },
+					Cs = { ...ae.default, ...q.default, ...To.default, ...Go.default },
+					ks = { ...ae.mobile, ...q.mobile, ...To.mobile, ...Go.mobile },
+					Bs = { ...ae.tablet, ...q.tablet, ...To.tablet, ...Go.tablet },
+					Ts = { ...ae.desktop, ...q.desktop, ...To.desktop, ...Go.desktop },
 					Ms = { mobile: ks, tablet: Bs, desktop: Ts },
 					$s = ({}) => ({ '&, *, *:before, *:after': { boxSizing: 'border-box' } }),
 					Hs = {
@@ -5839,11 +5839,11 @@
 						globalStyle: $s,
 					};
 			},
-			'./components/src/themes/snapnco/snapnco.ts'(q, H, t) {
+			'./components/src/themes/snapnco/snapnco.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { N: () => Kt });
+				t.d(O, { N: () => Kt });
 				var o = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js');
-				const x = {
+				const y = {
 						default: {
 							button: {
 								themeStyleScript: ({}) =>
@@ -5863,11 +5863,11 @@
 							},
 						},
 					},
-					V = {
+					G = {
 						default: {
 							dropdown: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										position: 'relative',
 										'&.ss__dropdown--open': { '& .ss__dropdown__content': { transition: 'opacity .5s ease' } },
@@ -5879,18 +5879,18 @@
 					e = {
 						default: {
 							icon: {
-								themeStyleScript: ({ color: A, height: a, width: c, size: j, theme: ce }) => {
-									const We = ce?.variables;
-									return (0, o.AH)({ fill: A || We?.colors?.accent, stroke: A || We?.colors?.accent, width: c || j, height: a || j });
+								themeStyleScript: ({ color: v, height: a, width: d, size: L, theme: de }) => {
+									const We = de?.variables;
+									return (0, o.AH)({ fill: v || We?.colors?.accent, stroke: v || We?.colors?.accent, width: d || L, height: a || L });
 								},
 							},
 						},
 					},
-					D = {
+					I = {
 						default: {
 							image: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ borderRadius: '20px', overflow: 'hidden' });
 								},
 							},
@@ -5899,29 +5899,29 @@
 					se = {
 						default: {
 							loadingBar: {
-								themeStyleScript: ({ color: A, backgroundColor: a, theme: c }) => {
-									const j = c?.variables;
-									return (0, o.AH)({ background: a || '#f8f8f8', '& .ss__loading-bar__bar': { background: `${A || j?.colors?.accent || '#ccc'}` } });
+								themeStyleScript: ({ color: v, backgroundColor: a, theme: d }) => {
+									const L = d?.variables;
+									return (0, o.AH)({ background: a || '#f8f8f8', '& .ss__loading-bar__bar': { background: `${v || L?.colors?.accent || '#ccc'}` } });
 								},
 							},
 						},
 					},
-					N = {
+					U = {
 						default: {
 							price: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ margin: '0', '&.ss__price--strike': { color: a?.colors?.secondary || 'inherit', opacity: 0.5 } });
 								},
 								decimalPlaces: 0,
 							},
 						},
 					},
-					F = {
+					R = {
 						default: {
 							searchHeader: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										paddingBottom: '10px',
 										'.ss__search-header__title': {
@@ -5934,22 +5934,22 @@
 										'.ss__search-header__title--corrected': { color: a?.colors?.secondary },
 									});
 								},
-								titleText: (A) => 'Search Results' + (A.search?.query?.string ? ` for ${A.search?.query?.string}` : ''),
+								titleText: (v) => 'Search Results' + (v.search?.query?.string ? ` for ${v.search?.query?.string}` : ''),
 							},
 						},
 					},
-					ne = { default: { skeleton: {} } },
-					de = {
-						default: { ...x.default, ...V.default, ...e.default, ...D.default, ...se.default, ...N.default, ...F.default, ...ne.default },
-						mobile: { ...x.mobile, ...V.mobile, ...e.mobile, ...D.mobile, ...se.mobile, ...N.mobile, ...F.mobile, ...ne.mobile },
-						tablet: { ...V.tablet, ...e.tablet, ...D.tablet, ...se.tablet, ...N.tablet, ...F.tablet, ...ne.tablet },
-						desktop: { ...x.desktop, ...V.desktop, ...e.desktop, ...D.desktop, ...se.desktop, ...N.desktop, ...F.desktop, ...ne.desktop },
+					oe = { default: { skeleton: {} } },
+					pe = {
+						default: { ...y.default, ...G.default, ...e.default, ...I.default, ...se.default, ...U.default, ...R.default, ...oe.default },
+						mobile: { ...y.mobile, ...G.mobile, ...e.mobile, ...I.mobile, ...se.mobile, ...U.mobile, ...R.mobile, ...oe.mobile },
+						tablet: { ...G.tablet, ...e.tablet, ...I.tablet, ...se.tablet, ...U.tablet, ...R.tablet, ...oe.tablet },
+						desktop: { ...y.desktop, ...G.desktop, ...e.desktop, ...I.desktop, ...se.desktop, ...U.desktop, ...R.desktop, ...oe.desktop },
 					},
 					Se = {
 						default: {
 							carousel: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										'.swiper-pagination-bullet': {
 											background: '#ccc',
@@ -5962,17 +5962,17 @@
 						},
 					};
 				var te = t('../../node_modules/colord/index.mjs');
-				const _e = {
+				const ue = {
 						default: {
 							checkbox: {
-								themeStyleScript: ({ color: A, theme: a }) => {
-									const c = a?.variables,
-										j = (0, te.Mj)(A || c?.colors?.primary || '#000'),
-										ce = j.isDark() ? (0, te.Mj)('#fff') : (0, te.Mj)('#000');
+								themeStyleScript: ({ color: v, theme: a }) => {
+									const d = a?.variables,
+										L = (0, te.Mj)(v || d?.colors?.primary || '#000'),
+										de = L.isDark() ? (0, te.Mj)('#fff') : (0, te.Mj)('#000');
 									return (0, o.AH)({
-										border: `2px solid ${j.toHex()}`,
+										border: `2px solid ${L.toHex()}`,
 										borderRadius: '3px',
-										'&.ss__checkbox--active': { backgroundColor: j.toHex(), '.ss__icon': { fill: ce.toHex(), stroke: ce.toHex() } },
+										'&.ss__checkbox--active': { backgroundColor: L.toHex(), '.ss__icon': { fill: de.toHex(), stroke: de.toHex() } },
 										'&.ss__checkbox--disabled': { opacity: 0.3 },
 									});
 								},
@@ -5981,18 +5981,18 @@
 						},
 					},
 					Ue = { default: { errorHandler: {} } },
-					Be = {
+					ve = {
 						default: {
 							facetGridOptions: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables,
-										c = (0, te.Mj)(a?.colors?.primary || '#000'),
-										j = c.isDark() ? (0, te.Mj)('#fff') : (0, te.Mj)('#000');
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables,
+										d = (0, te.Mj)(a?.colors?.primary || '#000'),
+										L = d.isDark() ? (0, te.Mj)('#fff') : (0, te.Mj)('#000');
 									return (0, o.AH)({
 										'& .ss__facet-grid-options__option': {
-											border: `1px solid ${c.toHex()}`,
+											border: `1px solid ${d.toHex()}`,
 											borderRadius: '3px',
-											'&.ss__facet-grid-options__option--filtered': { background: c.toHex(), color: j.toHex() },
+											'&.ss__facet-grid-options__option--filtered': { background: d.toHex(), color: L.toHex() },
 											'&:hover:not(.ss__facet-grid-options__option--filtered)': { cursor: 'pointer' },
 										},
 									});
@@ -6002,49 +6002,49 @@
 							},
 						},
 					},
-					Me = {
+					Ae = {
 						default: {
 							facetHierarchyOptions: {
-								themeStyleScript: ({ horizontal: A, theme: a }) => {
-									const c = a?.variables;
-									return A
+								themeStyleScript: ({ horizontal: v, theme: a }) => {
+									const d = a?.variables;
+									return v
 										? (0, o.AH)({
 												'.ss__facet-hierarchy-options__option': {
-													color: c?.colors?.secondary,
-													border: `1px solid ${c?.colors?.secondary || '#333'}`,
+													color: d?.colors?.secondary,
+													border: `1px solid ${d?.colors?.secondary || '#333'}`,
 													padding: '0.5em 0.5em',
 													'&.ss__facet-hierarchy-options__option--filtered': {
 														fontWeight: 'bold',
 														color: a?.variables?.colors?.primary,
 														marginRight: '2em',
 													},
-													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: c?.colors?.accent } },
+													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: d?.colors?.accent } },
 												},
 										  })
 										: (0, o.AH)({
 												'.ss__facet-hierarchy-options__option': {
-													color: c?.colors?.secondary,
-													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: c?.colors?.accent } },
+													color: d?.colors?.secondary,
+													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: d?.colors?.accent } },
 												},
 										  });
 								},
 							},
 						},
 					},
-					h = {
+					_ = {
 						default: {
 							facetListOptions: {
-								themeStyleScript: ({ horizontal: A, theme: a }) => {
-									const c = a?.variables;
+								themeStyleScript: ({ horizontal: v, theme: a }) => {
+									const d = a?.variables;
 									return (0, o.AH)({
 										'& .ss__facet-list-options__option': {
-											margin: A ? '0 5px 5px 0' : '0 0 5px 0',
-											color: c?.colors?.secondary,
-											border: A ? `1px solid ${c?.colors?.secondary || '#333'}` : void 0,
-											padding: A ? '0.5em 0.5em' : void 0,
+											margin: v ? '0 5px 5px 0' : '0 0 5px 0',
+											color: d?.colors?.secondary,
+											border: v ? `1px solid ${d?.colors?.secondary || '#333'}` : void 0,
+											padding: v ? '0.5em 0.5em' : void 0,
 											textDecoration: 'none',
 											'&:hover': { cursor: 'pointer' },
-											'&.ss__facet-list-options__option--filtered': { fontWeight: 'initial', color: c?.colors?.secondary },
+											'&.ss__facet-list-options__option--filtered': { fontWeight: 'initial', color: d?.colors?.secondary },
 											'& .ss__facet-list-options__option__value': {
 												'& .ss__facet-list-options__option__value__count': { fontSize: 'inherit', marginLeft: '5px' },
 											},
@@ -6054,7 +6054,7 @@
 							},
 						},
 					},
-					O = {
+					r = {
 						default: {
 							facetPaletteOptions: {
 								themeStyleScript: ({}) =>
@@ -6083,32 +6083,32 @@
 							'facetPaletteOptions icon': { size: '50%', icon: 'check-thin' },
 						},
 					},
-					r = {
+					p = {
 						default: {
 							facetSlider: {
 								themeStyleScript: ({
-									railColor: A,
+									railColor: v,
 									trackColor: a,
-									handleColor: c,
-									valueTextColor: j,
-									handleDraggingColor: ce,
+									handleColor: d,
+									valueTextColor: L,
+									handleDraggingColor: de,
 									showTicks: We,
 									stickyHandleLabel: tt,
-									theme: k,
+									theme: A,
 								}) => {
-									const B = k?.variables;
+									const k = A?.variables;
 									return (0, o.AH)({
 										marginBottom: We && tt ? '22px' : We || tt ? '10px' : '5px',
-										color: B?.colors?.secondary,
+										color: k?.colors?.secondary,
 										'& .ss__facet-slider__slider': { height: '5px', top: '0px', bottom: '10px', marginBottom: '30px' },
-										'& .ss__facet-slider__rail': { background: A || B?.colors?.secondary || '#333' },
+										'& .ss__facet-slider__rail': { background: v || k?.colors?.secondary || '#333' },
 										'& .ss__facet-slider__segment': { background: a || '#f2f2f2', borderRadius: '3px' },
 										'& .ss__facet-slider__handles': {
 											'& button': {
 												'& .ss__facet-slider__handle': {
-													background: c || B?.colors?.secondary || '#333',
-													color: j || B?.colors?.secondary || 'initial',
-													'&.ss__facet-slider__handle--active': { background: ce || c || B?.colors?.secondary || '#000' },
+													background: d || k?.colors?.secondary || '#333',
+													color: L || k?.colors?.secondary || 'initial',
+													'&.ss__facet-slider__handle--active': { background: de || d || k?.colors?.secondary || '#000' },
 												},
 												'& .ss__facet-slider__handle:after': { background: 'none' },
 												'label.ss__facet-slider__handle__label.ss__facet-slider__handle__label--sticky': {
@@ -6117,7 +6117,7 @@
 												},
 											},
 										},
-										'& .ss__facet-slider__labels': { color: B?.colors?.secondary || j },
+										'& .ss__facet-slider__labels': { color: k?.colors?.secondary || L },
 									});
 								},
 								handleColor: 'black',
@@ -6127,11 +6127,11 @@
 							},
 						},
 					},
-					p = {
+					h = {
 						default: {
 							filter: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										'& .ss__filter__button': {
 											backgroundColor: 'white',
@@ -6152,14 +6152,14 @@
 							},
 						},
 					},
-					f = {
+					x = {
 						default: {
 							grid: {
-								themeStyleScript: ({ theme: A }) =>
+								themeStyleScript: ({ theme: v }) =>
 									(0, o.AH)({
 										'.ss__grid__options': {
 											'.ss__grid__option': {
-												'&.ss__grid__option--selected': { border: `3px solid ${A?.variables?.colors?.primary || '#333'}`, fontWeight: 'bold' },
+												'&.ss__grid__option--selected': { border: `3px solid ${v?.variables?.colors?.primary || '#333'}`, fontWeight: 'bold' },
 											},
 										},
 									}),
@@ -6168,11 +6168,11 @@
 							},
 						},
 					},
-					R = {
+					N = {
 						default: {
 							layoutSelector: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										'.ss__button__content': { gap: '7px' },
 										'.ss__list__option': {
@@ -6192,71 +6192,71 @@
 							'layoutSelector icon': { size: '5px' },
 						},
 					},
-					Ae = {
+					fe = {
 						default: {
 							list: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ gap: '8px', '& .ss__list__options': { gap: '10px' } });
 								},
 							},
 							'list icon': { size: '24px' },
 						},
 					},
-					Fe = ({ color: A, backgroundColor: a, theme: c }) => {
-						const j = c?.variables,
-							ce = (0, te.Mj)(A || j?.colors.accent || '#000000'),
-							We = a ? (0, te.Mj)(a) : ye(ce.toHex(), 90);
+					Fe = ({ color: v, backgroundColor: a, theme: d }) => {
+						const L = d?.variables,
+							de = (0, te.Mj)(v || L?.colors.accent || '#000000'),
+							We = a ? (0, te.Mj)(a) : ae(de.toHex(), 90);
 						return (0, o.AH)({
 							'.ss__button': { '.ss__button__content': { display: 'inline-flex', alignItems: 'center', gap: '5px' } },
 							'.ss__load-more__progress': {
 								'.ss__load-more__progress__indicator': {
 									background: We.toHex(),
-									'.ss__load-more__progress__indicator__bar': { background: ce.toHex() },
+									'.ss__load-more__progress__indicator__bar': { background: de.toHex() },
 								},
 							},
 						});
 					},
-					ye = (A, a) => {
-						const c = (0, te.Mj)(A).toHsl();
-						return (0, te.Mj)({ ...c, l: a });
+					ae = (v, a) => {
+						const d = (0, te.Mj)(v).toHsl();
+						return (0, te.Mj)({ ...d, l: a });
 					},
 					ie = { default: { loadMore: { themeStyleScript: Fe } } },
-					oe = {
+					ge = {
 						default: {
 							overlayBadge: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ '.ss__overlay-badge__grid-wrapper': { padding: '0.5rem' } });
 								},
 							},
 						},
 					},
-					je = { default: { pagination: {} } },
-					Ke = {
+					De = { default: { pagination: {} } },
+					Qe = {
 						default: {
 							radio: {
-								themeStyleScript: ({ size: A, native: a, color: c, theme: j }) => {
-									const ce = j?.variables;
+								themeStyleScript: ({ size: v, native: a, color: d, theme: L }) => {
+									const de = L?.variables;
 									return a
 										? (0, o.AH)({
-												width: A,
-												height: A,
+												width: v,
+												height: v,
 												display: 'flex',
 												justifyContent: 'center',
-												'.ss__radio__input': { height: `calc(${A} - 30%)`, width: `calc(${A} - 30%)`, margin: 'auto' },
+												'.ss__radio__input': { height: `calc(${v} - 30%)`, width: `calc(${v} - 30%)`, margin: 'auto' },
 										  })
-										: (0, o.AH)({ '.ss__icon': { fill: c || ce?.colors.primary, stroke: c || ce?.colors.primary } });
+										: (0, o.AH)({ '.ss__icon': { fill: d || de?.colors.primary, stroke: d || de?.colors.primary } });
 								},
 							},
 						},
 					},
-					Q = { default: { radioList: {} } },
+					ee = { default: { radioList: {} } },
 					At = {
 						default: {
 							result: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										'.ss__result__details': {
 											textAlign: 'left',
@@ -6275,25 +6275,25 @@
 					qe = {
 						default: {
 							searchInput: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ border: `1px solid ${a?.colors?.secondary || '#ccc'}` });
 								},
 							},
 						},
 					},
-					Wt = (A, a) => {
-						const c = (0, te.Mj)(A).toHsl();
-						return (0, te.Mj)({ ...c, l: a });
+					Wt = (v, a) => {
+						const d = (0, te.Mj)(v).toHsl();
+						return (0, te.Mj)({ ...d, l: a });
 					},
 					ut = {
 						default: {
 							select: {
-								themeStyleScript: ({ backgroundColor: A, theme: a }) => {
-									const c = a?.variables,
-										j = (0, te.Mj)(a?.variables?.colors?.secondary || '#000'),
-										ce = j.alpha(Math.min(j.alpha() + 0.2, 1)),
-										We = Wt(ce.toHex(), 95).toRgbString();
+								themeStyleScript: ({ backgroundColor: v, theme: a }) => {
+									const d = a?.variables,
+										L = (0, te.Mj)(a?.variables?.colors?.secondary || '#000'),
+										de = L.alpha(Math.min(L.alpha() + 0.2, 1)),
+										We = Wt(de.toHex(), 95).toRgbString();
 									return (0, o.AH)({
 										'.ss__dropdown': {
 											'.ss__select__dropdown__button': {
@@ -6302,8 +6302,8 @@
 												fontWeight: 'bold',
 												'&:hover': {
 													backgroundColor: 'initial',
-													color: c?.colors?.primary,
-													'.ss__icon': { fill: c?.colors?.accent, stroke: c?.colors?.accent },
+													color: d?.colors?.primary,
+													'.ss__icon': { fill: d?.colors?.accent, stroke: d?.colors?.accent },
 												},
 												'.ss__select__dropdown__button__icon': { marginLeft: '5px', transition: 'transform 0.25s ease 0s' },
 											},
@@ -6315,7 +6315,7 @@
 													'.ss__select__dropdown__button__icon': { transform: 'rotate(180deg)' },
 												},
 												'.ss__dropdown__content': {
-													backgroundColor: A || '#fff',
+													backgroundColor: v || '#fff',
 													boxShadow: '0 6px 12px 1px #0000001f',
 													borderBottomLeftRadius: '3px',
 													borderBottomRightRadius: '3px',
@@ -6331,7 +6331,7 @@
 												listStyle: 'none',
 												padding: '6px 30px',
 												gap: '6px',
-												color: c?.colors?.secondary,
+												color: d?.colors?.secondary,
 												'&.ss__select__select__option--selected': { backgroundColor: We || 'rgba(109,113,117,.06)' },
 												'&:hover': { backgroundColor: We || 'rgba(109,113,117,.06)' },
 											},
@@ -6346,11 +6346,11 @@
 					Ct = {
 						default: {
 							slideout: {
-								themeStyleScript: ({ width: A, slideDirection: a, theme: c }) => {
-									const j = c?.variables;
+								themeStyleScript: ({ width: v, slideDirection: a, theme: d }) => {
+									const L = d?.variables;
 									return (0, o.AH)({
-										left: a == 'left' ? `-${A}` : a != 'right' ? '0' : 'initial',
-										right: a == 'right' ? `-${A}` : 'initial',
+										left: a == 'left' ? `-${v}` : a != 'right' ? '0' : 'initial',
+										right: a == 'right' ? `-${v}` : 'initial',
 										bottom: a == 'bottom' ? '-100vh' : 'initial',
 										top: a == 'top' ? '-100vh' : a == 'bottom' ? 'initial' : '0',
 										background: '#fff',
@@ -6368,8 +6368,8 @@
 					_t = {
 						default: {
 							perPage: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										'& .ss__dropdown .ss__select__dropdown__button': {
 											fontWeight: 'normal',
@@ -6401,36 +6401,36 @@
 						mobile: { 'sortBy select': { hideSelection: !0 } },
 					},
 					st = { default: { swatches: {} } },
-					ve = { default: { variantSelection: {} } },
+					ye = { default: { variantSelection: {} } },
 					it = {
 						default: {
 							terms: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({});
 								},
 							},
 						},
 					},
-					Qe = {
+					Xe = {
 						default: {
 							...Se.default,
-							..._e.default,
+							...ue.default,
 							...Ue.default,
-							...Be.default,
-							...Me.default,
-							...h.default,
-							...O.default,
+							...ve.default,
+							...Ae.default,
+							..._.default,
 							...r.default,
 							...p.default,
-							...f.default,
-							...R.default,
-							...Ae.default,
+							...h.default,
+							...x.default,
+							...N.default,
+							...fe.default,
 							...ie.default,
-							...oe.default,
-							...je.default,
-							...Ke.default,
-							...Q.default,
+							...ge.default,
+							...De.default,
+							...Qe.default,
+							...ee.default,
 							...At.default,
 							...qe.default,
 							...ut.default,
@@ -6439,27 +6439,27 @@
 							...St.default,
 							...vt.default,
 							...st.default,
-							...ve.default,
+							...ye.default,
 							...it.default,
 						},
 						mobile: {
 							...Se.mobile,
-							..._e.mobile,
+							...ue.mobile,
 							...Ue.mobile,
-							...Be.mobile,
-							...Me.mobile,
-							...h.mobile,
-							...O.mobile,
+							...ve.mobile,
+							...Ae.mobile,
+							..._.mobile,
 							...r.mobile,
 							...p.mobile,
-							...f.mobile,
-							...R.mobile,
-							...Ae.mobile,
+							...h.mobile,
+							...x.mobile,
+							...N.mobile,
+							...fe.mobile,
 							...ie.mobile,
-							...oe.mobile,
-							...je.mobile,
-							...Ke.mobile,
-							...Q.mobile,
+							...ge.mobile,
+							...De.mobile,
+							...Qe.mobile,
+							...ee.mobile,
 							...At.mobile,
 							...qe.mobile,
 							...ut.mobile,
@@ -6468,27 +6468,27 @@
 							...St.mobile,
 							...vt.mobile,
 							...st.mobile,
-							...ve.mobile,
+							...ye.mobile,
 							...it.mobile,
 						},
 						tablet: {
 							...Se.tablet,
-							..._e.tablet,
+							...ue.tablet,
 							...Ue.tablet,
-							...Be.tablet,
-							...Me.tablet,
-							...h.tablet,
-							...O.tablet,
+							...ve.tablet,
+							...Ae.tablet,
+							..._.tablet,
 							...r.tablet,
 							...p.tablet,
-							...f.tablet,
-							...R.tablet,
-							...Ae.tablet,
+							...h.tablet,
+							...x.tablet,
+							...N.tablet,
+							...fe.tablet,
 							...ie.tablet,
-							...oe.tablet,
-							...je.tablet,
-							...Ke.tablet,
-							...Q.tablet,
+							...ge.tablet,
+							...De.tablet,
+							...Qe.tablet,
+							...ee.tablet,
 							...At.tablet,
 							...qe.tablet,
 							...ut.tablet,
@@ -6497,27 +6497,27 @@
 							...St.tablet,
 							...vt.tablet,
 							...st.tablet,
-							...ve.tablet,
+							...ye.tablet,
 							...it.tablet,
 						},
 						desktop: {
 							...Se.desktop,
-							..._e.desktop,
+							...ue.desktop,
 							...Ue.desktop,
-							...Be.desktop,
-							...Me.desktop,
-							...h.desktop,
-							...O.desktop,
+							...ve.desktop,
+							...Ae.desktop,
+							..._.desktop,
 							...r.desktop,
 							...p.desktop,
-							...f.desktop,
-							...R.desktop,
-							...Ae.desktop,
+							...h.desktop,
+							...x.desktop,
+							...N.desktop,
+							...fe.desktop,
 							...ie.desktop,
-							...oe.desktop,
-							...je.desktop,
-							...Ke.desktop,
-							...Q.desktop,
+							...ge.desktop,
+							...De.desktop,
+							...Qe.desktop,
+							...ee.desktop,
 							...At.desktop,
 							...qe.desktop,
 							...ut.desktop,
@@ -6526,15 +6526,15 @@
 							...St.desktop,
 							...vt.desktop,
 							...st.desktop,
-							...ve.desktop,
+							...ye.desktop,
 							...it.desktop,
 						},
 					},
 					nt = {
 						default: {
 							facet: {
-								themeStyleScript: ({ color: A, theme: a }) => {
-									const c = a?.variables;
+								themeStyleScript: ({ color: v, theme: a }) => {
+									const d = a?.variables;
 									return (0, o.AH)({
 										'& .ss__facet__dropdown': {
 											'& .ss__facet__dropdown__icon': { transition: 'transform ease .5s' },
@@ -6558,12 +6558,12 @@
 												maxHeight: '400px',
 												'&::-webkit-scrollbar': { width: '8px' },
 												'&::-webkit-scrollbar-track': { background: '#f2f2f2' },
-												'&::-webkit-scrollbar-thumb': { background: c?.colors?.secondary || '#ccc' },
+												'&::-webkit-scrollbar-thumb': { background: d?.colors?.secondary || '#ccc' },
 											},
 											'& .ss__facet__show-more-less': {
 												margin: '8px 5px',
 												textAlign: 'center',
-												color: A || c?.colors?.secondary,
+												color: v || d?.colors?.secondary,
 												span: { borderBottom: '1px solid #d6d6d6' },
 											},
 										},
@@ -6578,11 +6578,11 @@
 							},
 						},
 					},
-					ke = {
+					we = {
 						default: {
 							facetsHorizontal: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										paddingBottom: '10px',
 										'& .ss__facets-horizontal__header': {
@@ -6610,11 +6610,11 @@
 						tablet: { facetsHorizontal: { limit: 5 } },
 						desktop: { facetsHorizontal: { limit: 7 } },
 					},
-					He = {
+					je = {
 						default: {
 							filterSummary: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ flexWrap: 'wrap', '& .ss__filter-summary__title': { fontWeight: 'bold', color: a?.colors?.secondary } });
 								},
 								hideFacetLabel: !0,
@@ -6623,21 +6623,21 @@
 							},
 						},
 					},
-					ue = {
+					_e = {
 						default: {
 							noResults: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({ color: a?.colors?.secondary, ' .ss__title': { color: a?.colors?.secondary } });
 								},
 							},
 						},
 					},
-					ge = {
+					me = {
 						default: {
 							sidebar: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({
 										boxSizing: 'border-box',
 										width: '100%',
@@ -6659,45 +6659,45 @@
 							},
 						},
 					},
-					Ge = {
+					Ve = {
 						default: {
 							termsList: {
-								themeStyleScript: ({ theme: A }) => {
-									const a = A?.variables;
+								themeStyleScript: ({ theme: v }) => {
+									const a = v?.variables;
 									return (0, o.AH)({});
 								},
 							},
 						},
 					},
-					Ve = { default: { toolbar: { themeStyleScript: () => (0, o.AH)({ paddingBottom: '10px' }) } } };
-				var fe = t('./components/src/themes/themeComponents/autocomplete.ts');
-				const Oe = ({}) => (0, o.AH)({}),
-					P = {
-						default: { ...fe.n.default, autocomplete: { ...(fe.n.default?.autocomplete || {}), themeStyleScript: Oe } },
-						mobile: fe.n.mobile,
-						desktop: fe.n.desktop,
-						tablet: fe.n.tablet,
+					Ce = { default: { toolbar: { themeStyleScript: () => (0, o.AH)({ paddingBottom: '10px' }) } } };
+				var ke = t('./components/src/themes/themeComponents/autocomplete.ts');
+				const P = ({}) => (0, o.AH)({}),
+					c = {
+						default: { ...ke.n.default, autocomplete: { ...(ke.n.default?.autocomplete || {}), themeStyleScript: P } },
+						mobile: ke.n.mobile,
+						desktop: ke.n.desktop,
+						tablet: ke.n.tablet,
 					},
-					l = {
-						default: { ...P.default, ...nt.default, ...ke.default, ...He.default, ...ue.default, ...ge.default, ...Ve.default, ...Ge.default },
-						mobile: { ...P.mobile, ...nt.mobile, ...ke.mobile, ...He.mobile, ...ue.mobile, ...ge.mobile, ...Ve.mobile, ...Ge.mobile },
-						tablet: { ...P.tablet, ...nt.tablet, ...ke.tablet, ...He.tablet, ...ue.tablet, ...ge.tablet, ...Ve.tablet, ...Ge.tablet },
-						desktop: { ...P.desktop, ...nt.desktop, ...ke.desktop, ...He.desktop, ...ue.desktop, ...ge.desktop, ...Ve.desktop, ...Ge.desktop },
+					K = {
+						default: { ...c.default, ...nt.default, ...we.default, ...je.default, ..._e.default, ...me.default, ...Ce.default, ...Ve.default },
+						mobile: { ...c.mobile, ...nt.mobile, ...we.mobile, ...je.mobile, ..._e.mobile, ...me.mobile, ...Ce.mobile, ...Ve.mobile },
+						tablet: { ...c.tablet, ...nt.tablet, ...we.tablet, ...je.tablet, ..._e.tablet, ...me.tablet, ...Ce.tablet, ...Ve.tablet },
+						desktop: { ...c.desktop, ...nt.desktop, ...we.desktop, ...je.desktop, ..._e.desktop, ...me.desktop, ...Ce.desktop, ...Ve.desktop },
 					};
-				var Z = t('./components/src/themes/themeComponents/recommendation.ts');
-				const I = ({ theme: A }) => {
-						const a = A?.variables;
+				var j = t('./components/src/themes/themeComponents/recommendation.ts');
+				const V = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: a?.colors?.primary } });
 					},
-					Y = {
-						default: { ...Z.C.default, recommendation: { ...(Z.C.default?.recommendation || {}), themeStyleScript: I } },
-						mobile: Z.C.mobile,
-						desktop: Z.C.desktop,
-						tablet: Z.C.tablet,
+					Q = {
+						default: { ...j.C.default, recommendation: { ...(j.C.default?.recommendation || {}), themeStyleScript: V } },
+						mobile: j.C.mobile,
+						desktop: j.C.desktop,
+						tablet: j.C.tablet,
 					};
-				var m = t('./components/src/themes/themeComponents/recommendationBundle.ts');
-				const _ = ({ theme: A }) => {
-						const a = A?.variables;
+				var u = t('./components/src/themes/themeComponents/recommendationBundle.ts');
+				const i = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({
 							margin: '20px 0',
 							'.ss__recommendation-bundle__wrapper__selector': {
@@ -6705,51 +6705,51 @@
 							},
 						});
 					},
-					u = {
-						default: { ...m._.default, recommendationBundle: { ...(m._.default?.recommendationBundle || {}), themeStyleScript: _ } },
-						mobile: m._.mobile,
-						desktop: m._.desktop,
-						tablet: m._.tablet,
+					M = {
+						default: { ...u._.default, recommendationBundle: { ...(u._.default?.recommendationBundle || {}), themeStyleScript: i } },
+						mobile: u._.mobile,
+						desktop: u._.desktop,
+						tablet: u._.tablet,
 					};
-				var b = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const C = ({ theme: A }) => {
-						const a = A?.variables;
+				var S = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
+				const b = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({});
 					},
-					z = {
-						default: { ...b.j.default, recommendationBundleEasyAdd: { ...(b.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: C } },
-						mobile: b.j.mobile,
-						desktop: b.j.desktop,
-						tablet: b.j.tablet,
+					W = {
+						default: { ...S.j.default, recommendationBundleEasyAdd: { ...(S.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: b } },
+						mobile: S.j.mobile,
+						desktop: S.j.desktop,
+						tablet: S.j.tablet,
 					};
-				var U = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
-				const J = ({ theme: A }) => {
-						const a = A?.variables;
+				var ce = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
+				const Z = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({});
 					},
 					re = {
-						default: { ...U.e.default, recommendationBundleList: { ...(U.e.default?.recommendationBundleList || {}), themeStyleScript: J } },
-						mobile: U.e.mobile,
-						desktop: U.e.desktop,
-						tablet: U.e.tablet,
+						default: { ...ce.e.default, recommendationBundleList: { ...(ce.e.default?.recommendationBundleList || {}), themeStyleScript: Z } },
+						mobile: ce.e.mobile,
+						desktop: ce.e.desktop,
+						tablet: ce.e.tablet,
 					};
-				var le = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
-				const we = ({ theme: A }) => {
-						const a = A?.variables;
+				var Be = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
+				const Me = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({});
 					},
 					$e = {
 						default: {
-							...le.W.default,
-							recommendationBundleVertical: { ...(le.W.default?.recommendationBundleVertical || {}), themeStyleScript: we },
+							...Be.W.default,
+							recommendationBundleVertical: { ...(Be.W.default?.recommendationBundleVertical || {}), themeStyleScript: Me },
 						},
-						mobile: le.W.mobile,
-						desktop: le.W.desktop,
-						tablet: le.W.tablet,
+						mobile: Be.W.mobile,
+						desktop: Be.W.desktop,
+						tablet: Be.W.tablet,
 					};
 				var Ne = t('./components/src/themes/themeComponents/recommendationGrid.ts');
-				const et = ({ theme: A }) => {
-						const a = A?.variables;
+				const et = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({});
 					},
 					$t = {
@@ -6761,8 +6761,8 @@
 				var lt = t('./components/src/themes/themeComponents/recommendationEmail.ts');
 				const ct = lt.O;
 				var gt = t('./components/src/themes/themeComponents/search.ts');
-				const Ze = ({ theme: A }) => {
-						const a = A?.variables;
+				const Ze = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({});
 					},
 					wt = {
@@ -6772,8 +6772,8 @@
 						tablet: gt.D.tablet,
 					};
 				var ft = t('./components/src/themes/themeComponents/searchHorizontal.ts');
-				const Ht = ({ theme: A }) => {
-						const a = A?.variables;
+				const Ht = ({ theme: v }) => {
+						const a = v?.variables;
 						return (0, o.AH)({});
 					},
 					Ot = {
@@ -6783,11 +6783,11 @@
 						tablet: ft.X.tablet,
 					};
 				var dt = t('./components/src/themes/themeComponents/searchCollapsible.ts');
-				const Bt = ({ theme: A }) => {
-						const a = A?.variables,
-							c = 'calc(270px + 1.5em)';
+				const Bt = ({ theme: v }) => {
+						const a = v?.variables,
+							d = 'calc(270px + 1.5em)';
 						return (0, o.AH)({
-							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: c ? 'inherit' : 'auto', width: c || 'inherit' },
+							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: d ? 'inherit' : 'auto', width: d || 'inherit' },
 						});
 					},
 					Pt = {
@@ -6825,9 +6825,9 @@
 							...zt.default,
 							...Et.default,
 							...Zt.default,
-							...Y.default,
-							...u.default,
-							...z.default,
+							...Q.default,
+							...M.default,
+							...W.default,
 							...re.default,
 							...$e.default,
 							...$t.default,
@@ -6840,9 +6840,9 @@
 							...zt.mobile,
 							...Et.mobile,
 							...Zt.mobile,
-							...Y.mobile,
-							...u.mobile,
-							...z.mobile,
+							...Q.mobile,
+							...M.mobile,
+							...W.mobile,
 							...re.mobile,
 							...$e.mobile,
 							...$t.mobile,
@@ -6855,9 +6855,9 @@
 							...zt.tablet,
 							...Et.tablet,
 							...Zt.tablet,
-							...Y.tablet,
-							...u.tablet,
-							...z.tablet,
+							...Q.tablet,
+							...M.tablet,
+							...W.tablet,
 							...re.tablet,
 							...$e.tablet,
 							...$t.tablet,
@@ -6870,9 +6870,9 @@
 							...zt.desktop,
 							...Et.desktop,
 							...Zt.desktop,
-							...Y.desktop,
-							...u.desktop,
-							...z.desktop,
+							...Q.desktop,
+							...M.desktop,
+							...W.desktop,
 							...re.desktop,
 							...$e.desktop,
 							...$t.desktop,
@@ -6882,10 +6882,10 @@
 							...Ot.desktop,
 						},
 					},
-					Mt = { ...de.default, ...Qe.default, ...l.default, ...rt.default },
-					mo = { ...de.mobile, ...Qe.mobile, ...l.mobile, ...rt.mobile },
-					Rt = { ...de.tablet, ...Qe.tablet, ...l.tablet, ...rt.tablet },
-					Lt = { ...de.desktop, ...Qe.desktop, ...l.desktop, ...rt.desktop },
+					Mt = { ...pe.default, ...Xe.default, ...K.default, ...rt.default },
+					mo = { ...pe.mobile, ...Xe.mobile, ...K.mobile, ...rt.mobile },
+					Rt = { ...pe.tablet, ...Xe.tablet, ...K.tablet, ...rt.tablet },
+					Lt = { ...pe.desktop, ...Xe.desktop, ...K.desktop, ...rt.desktop },
 					Kt = {
 						name: 'snapnco',
 						variables: {
@@ -6897,11 +6897,11 @@
 						type: 'templates',
 					};
 			},
-			'./components/src/themes/snappy/snappy.ts'(q, H, t) {
+			'./components/src/themes/snappy/snappy.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { m: () => tt });
+				t.d(O, { m: () => tt });
 				var o = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js');
-				const x = {
+				const y = {
 						default: {
 							button: {
 								themeStyleScript: ({}) =>
@@ -6921,11 +6921,11 @@
 							},
 						},
 					},
-					V = {
+					G = {
 						default: {
 							dropdown: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										position: 'relative',
 										'&.ss__dropdown--open': { '& .ss__dropdown__content': { transition: 'opacity .5s ease' } },
@@ -6937,18 +6937,18 @@
 					e = {
 						default: {
 							icon: {
-								themeStyleScript: ({ color: k, height: B, width: ee, size: De, theme: ht }) => {
+								themeStyleScript: ({ color: A, height: k, width: q, size: Ge, theme: ht }) => {
 									const Ft = ht?.variables;
-									return (0, o.AH)({ fill: k || Ft?.colors?.accent, stroke: k || Ft?.colors?.accent, width: ee || De, height: B || De });
+									return (0, o.AH)({ fill: A || Ft?.colors?.accent, stroke: A || Ft?.colors?.accent, width: q || Ge, height: k || Ge });
 								},
 							},
 						},
 					},
-					D = {
+					I = {
 						default: {
 							image: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({ borderRadius: '20px', overflow: 'hidden' });
 								},
 							},
@@ -6957,93 +6957,93 @@
 					se = {
 						default: {
 							loadingBar: {
-								themeStyleScript: ({ color: k, backgroundColor: B, theme: ee }) => {
-									const De = ee?.variables;
-									return (0, o.AH)({ background: B || '#f8f8f8', '& .ss__loading-bar__bar': { background: `${k || De?.colors?.accent || '#ccc'}` } });
+								themeStyleScript: ({ color: A, backgroundColor: k, theme: q }) => {
+									const Ge = q?.variables;
+									return (0, o.AH)({ background: k || '#f8f8f8', '& .ss__loading-bar__bar': { background: `${A || Ge?.colors?.accent || '#ccc'}` } });
 								},
 							},
 						},
 					},
-					N = {
+					U = {
 						default: {
 							price: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
-									return (0, o.AH)({ margin: '0', '&.ss__price--strike': { color: B?.colors?.secondary || 'inherit', opacity: 0.5 } });
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
+									return (0, o.AH)({ margin: '0', '&.ss__price--strike': { color: k?.colors?.secondary || 'inherit', opacity: 0.5 } });
 								},
 							},
 						},
 					},
-					F = {
+					R = {
 						default: {
 							searchHeader: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
-										'.ss__search-header__title': { color: B?.colors?.primary, marginBottom: 0, fontWeight: 'initial', fontSize: '25px' },
-										'.ss__search-header__title--corrected': { color: B?.colors?.secondary },
+										'.ss__search-header__title': { color: k?.colors?.primary, marginBottom: 0, fontWeight: 'initial', fontSize: '25px' },
+										'.ss__search-header__title--corrected': { color: k?.colors?.secondary },
 									});
 								},
-								titleText: (k) => 'Search Results' + (k.search?.query?.string ? ` for ${k.search?.query?.string}` : ''),
+								titleText: (A) => 'Search Results' + (A.search?.query?.string ? ` for ${A.search?.query?.string}` : ''),
 							},
 						},
 					},
-					ne = { default: { skeleton: {} } },
-					xe = { default: { calloutBadge: { themeStyleScript: ({}) => (0, o.AH)({ '& .ss__badge-text': { paddingLeft: '0px' } }) } } },
+					oe = { default: { skeleton: {} } },
+					be = { default: { calloutBadge: { themeStyleScript: ({}) => (0, o.AH)({ '& .ss__badge-text': { paddingLeft: '0px' } }) } } },
 					Se = {
 						default: {
-							...x.default,
-							...V.default,
+							...y.default,
+							...G.default,
 							...e.default,
-							...D.default,
+							...I.default,
 							...se.default,
-							...N.default,
-							...F.default,
-							...ne.default,
-							...xe.default,
+							...U.default,
+							...R.default,
+							...oe.default,
+							...be.default,
 						},
-						mobile: { ...x.mobile, ...V.mobile, ...e.mobile, ...D.mobile, ...se.mobile, ...N.mobile, ...F.mobile, ...ne.mobile, ...xe.mobile },
-						tablet: { ...V.tablet, ...e.tablet, ...D.tablet, ...se.tablet, ...N.tablet, ...F.tablet, ...ne.tablet, ...xe.tablet },
+						mobile: { ...y.mobile, ...G.mobile, ...e.mobile, ...I.mobile, ...se.mobile, ...U.mobile, ...R.mobile, ...oe.mobile, ...be.mobile },
+						tablet: { ...G.tablet, ...e.tablet, ...I.tablet, ...se.tablet, ...U.tablet, ...R.tablet, ...oe.tablet, ...be.tablet },
 						desktop: {
-							...x.desktop,
-							...V.desktop,
+							...y.desktop,
+							...G.desktop,
 							...e.desktop,
-							...D.desktop,
+							...I.desktop,
 							...se.desktop,
-							...N.desktop,
-							...F.desktop,
-							...ne.desktop,
-							...xe.desktop,
+							...U.desktop,
+							...R.desktop,
+							...oe.desktop,
+							...be.desktop,
 						},
 					},
 					ze = {
 						default: {
 							carousel: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										'.swiper-pagination-bullet': {
 											background: '#ccc',
 											opacity: '.5',
-											'&.swiper-pagination-bullet-active': { opacity: '1', background: B?.colors?.accent || '#3A23AD' },
+											'&.swiper-pagination-bullet-active': { opacity: '1', background: k?.colors?.accent || '#3A23AD' },
 										},
 									});
 								},
 							},
 						},
 					};
-				var _e = t('../../node_modules/colord/index.mjs');
-				const Ee = {
+				var ue = t('../../node_modules/colord/index.mjs');
+				const Le = {
 						default: {
 							checkbox: {
-								themeStyleScript: ({ color: k, theme: B }) => {
-									const ee = B?.variables,
-										De = (0, _e.Mj)(k || ee?.colors?.primary || '#000'),
-										ht = De.isDark() ? (0, _e.Mj)('#fff') : (0, _e.Mj)('#000');
+								themeStyleScript: ({ color: A, theme: k }) => {
+									const q = k?.variables,
+										Ge = (0, ue.Mj)(A || q?.colors?.primary || '#000'),
+										ht = Ge.isDark() ? (0, ue.Mj)('#fff') : (0, ue.Mj)('#000');
 									return (0, o.AH)({
-										border: `2px solid ${De.toHex()}`,
+										border: `2px solid ${Ge.toHex()}`,
 										borderRadius: '3px',
-										'&.ss__checkbox--active': { backgroundColor: De.toHex(), '.ss__icon': { fill: ht.toHex(), stroke: ht.toHex() } },
+										'&.ss__checkbox--active': { backgroundColor: Ge.toHex(), '.ss__icon': { fill: ht.toHex(), stroke: ht.toHex() } },
 										'&.ss__checkbox--disabled': { opacity: 0.3 },
 									});
 								},
@@ -7051,19 +7051,19 @@
 							},
 						},
 					},
-					Be = { default: { errorHandler: {} } },
-					Me = {
+					ve = { default: { errorHandler: {} } },
+					Ae = {
 						default: {
 							facetGridOptions: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables,
-										ee = (0, _e.Mj)(B?.colors?.primary || '#000'),
-										De = ee.isDark() ? (0, _e.Mj)('#fff') : (0, _e.Mj)('#000');
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables,
+										q = (0, ue.Mj)(k?.colors?.primary || '#000'),
+										Ge = q.isDark() ? (0, ue.Mj)('#fff') : (0, ue.Mj)('#000');
 									return (0, o.AH)({
 										'& .ss__facet-grid-options__option': {
-											border: `1px solid ${ee.toHex()}`,
+											border: `1px solid ${q.toHex()}`,
 											borderRadius: '3px',
-											'&.ss__facet-grid-options__option--filtered': { background: ee.toHex(), color: De.toHex() },
+											'&.ss__facet-grid-options__option--filtered': { background: q.toHex(), color: Ge.toHex() },
 											'&:hover:not(.ss__facet-grid-options__option--filtered)': { cursor: 'pointer' },
 										},
 									});
@@ -7073,49 +7073,49 @@
 							},
 						},
 					},
-					h = {
+					_ = {
 						default: {
 							facetHierarchyOptions: {
-								themeStyleScript: ({ horizontal: k, theme: B }) => {
-									const ee = B?.variables;
-									return k
+								themeStyleScript: ({ horizontal: A, theme: k }) => {
+									const q = k?.variables;
+									return A
 										? (0, o.AH)({
 												'.ss__facet-hierarchy-options__option': {
-													color: ee?.colors?.secondary,
-													border: `1px solid ${ee?.colors?.secondary || '#333'}`,
+													color: q?.colors?.secondary,
+													border: `1px solid ${q?.colors?.secondary || '#333'}`,
 													padding: '0.5em 0.5em',
 													'&.ss__facet-hierarchy-options__option--filtered': {
 														fontWeight: 'bold',
-														color: B?.variables?.colors?.primary,
+														color: k?.variables?.colors?.primary,
 														marginRight: '2em',
 													},
-													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: ee?.colors?.accent } },
+													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: q?.colors?.accent } },
 												},
 										  })
 										: (0, o.AH)({
 												'.ss__facet-hierarchy-options__option': {
-													color: ee?.colors?.secondary,
-													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: ee?.colors?.accent } },
+													color: q?.colors?.secondary,
+													'&.ss__facet-hierarchy-options__option--return': { '&:before': { color: q?.colors?.accent } },
 												},
 										  });
 								},
 							},
 						},
 					},
-					O = {
+					r = {
 						default: {
 							facetListOptions: {
-								themeStyleScript: ({ horizontal: k, theme: B }) => {
-									const ee = B?.variables;
+								themeStyleScript: ({ horizontal: A, theme: k }) => {
+									const q = k?.variables;
 									return (0, o.AH)({
 										'& .ss__facet-list-options__option': {
-											margin: k ? '0 5px 5px 0' : '0 0 5px 0',
-											color: ee?.colors?.secondary,
-											border: k ? `1px solid ${ee?.colors?.secondary || '#333'}` : void 0,
-											padding: k ? '0.5em 0.5em' : void 0,
+											margin: A ? '0 5px 5px 0' : '0 0 5px 0',
+											color: q?.colors?.secondary,
+											border: A ? `1px solid ${q?.colors?.secondary || '#333'}` : void 0,
+											padding: A ? '0.5em 0.5em' : void 0,
 											textDecoration: 'none',
 											'&:hover': { cursor: 'pointer' },
-											'&.ss__facet-list-options__option--filtered': { fontWeight: 'initial', color: ee?.colors?.secondary },
+											'&.ss__facet-list-options__option--filtered': { fontWeight: 'initial', color: q?.colors?.secondary },
 											'& .ss__facet-list-options__option__value': {
 												'& .ss__facet-list-options__option__value__count': { fontSize: 'inherit', marginLeft: '5px' },
 											},
@@ -7125,7 +7125,7 @@
 							},
 						},
 					},
-					r = {
+					p = {
 						default: {
 							facetPaletteOptions: {
 								themeStyleScript: ({}) =>
@@ -7164,14 +7164,14 @@
 							'facetPaletteOptions icon': { size: '50%', icon: 'check-thin' },
 						},
 					},
-					p = {
+					h = {
 						default: {
 							facetSlider: {
 								themeStyleScript: ({
-									railColor: k,
-									trackColor: B,
-									handleColor: ee,
-									valueTextColor: De,
+									railColor: A,
+									trackColor: k,
+									handleColor: q,
+									valueTextColor: Ge,
 									handleDraggingColor: ht,
 									showTicks: Ft,
 									stickyHandleLabel: fo,
@@ -7182,19 +7182,19 @@
 										marginBottom: Ft && fo ? '22px' : Ft || fo ? '10px' : '5px',
 										color: Yt?.colors?.secondary,
 										'& .ss__facet-slider__slider': { height: '5px' },
-										'& .ss__facet-slider__rail': { background: k || Yt?.colors?.secondary || '#333' },
-										'& .ss__facet-slider__segment': { background: B || '#f2f2f2', borderRadius: '3px' },
+										'& .ss__facet-slider__rail': { background: A || Yt?.colors?.secondary || '#333' },
+										'& .ss__facet-slider__segment': { background: k || '#f2f2f2', borderRadius: '3px' },
 										'& .ss__facet-slider__handles': {
 											'& button': {
 												'& .ss__facet-slider__handle': {
-													background: ee || Yt?.colors?.secondary || '#333',
-													color: De || Yt?.colors?.secondary || 'initial',
-													'&.ss__facet-slider__handle--active': { background: ht || ee || Yt?.colors?.secondary || '#000' },
+													background: q || Yt?.colors?.secondary || '#333',
+													color: Ge || Yt?.colors?.secondary || 'initial',
+													'&.ss__facet-slider__handle--active': { background: ht || q || Yt?.colors?.secondary || '#000' },
 												},
 												'& .ss__facet-slider__handle:after': { background: 'none' },
 											},
 										},
-										'& .ss__facet-slider__labels': { color: Yt?.colors?.secondary || De },
+										'& .ss__facet-slider__labels': { color: Yt?.colors?.secondary || Ge },
 									});
 								},
 								handleColor: 'black',
@@ -7202,11 +7202,11 @@
 							},
 						},
 					},
-					f = {
+					x = {
 						default: {
 							filter: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										'& .ss__filter__button': {
 											backgroundColor: 'white',
@@ -7227,14 +7227,14 @@
 							},
 						},
 					},
-					R = {
+					N = {
 						default: {
 							grid: {
-								themeStyleScript: ({ theme: k }) =>
+								themeStyleScript: ({ theme: A }) =>
 									(0, o.AH)({
 										'.ss__grid__options': {
 											'.ss__grid__option': {
-												'&.ss__grid__option--selected': { border: `3px solid ${k?.variables?.colors?.primary || '#333'}`, fontWeight: 'bold' },
+												'&.ss__grid__option--selected': { border: `3px solid ${A?.variables?.colors?.primary || '#333'}`, fontWeight: 'bold' },
 											},
 										},
 									}),
@@ -7243,11 +7243,11 @@
 							},
 						},
 					},
-					Ae = {
+					fe = {
 						default: {
 							layoutSelector: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										'.ss__button__content': { gap: '7px' },
 										'.ss__list__option': {
@@ -7268,28 +7268,28 @@
 							'layoutSelector icon': { size: '5px' },
 						},
 					},
-					ye = {
+					ae = {
 						default: {
 							list: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({ gap: '8px', '& .ss__list__options': { gap: '10px' } });
 								},
 							},
 							'list icon': { size: '24px' },
 						},
 					},
-					ie = (k, B) => {
-						const ee = (0, _e.Mj)(k).toHsl();
-						return (0, _e.Mj)({ ...ee, l: B });
+					ie = (A, k) => {
+						const q = (0, ue.Mj)(A).toHsl();
+						return (0, ue.Mj)({ ...q, l: k });
 					},
-					oe = {
+					ge = {
 						default: {
 							loadMore: {
-								themeStyleScript: ({ color: k, backgroundColor: B, theme: ee }) => {
-									const De = ee?.variables,
-										ht = (0, _e.Mj)(k || De?.colors?.accent || '#000'),
-										Ft = B ? (0, _e.Mj)(B || '#fff') : ie(ht.toHex(), 90);
+								themeStyleScript: ({ color: A, backgroundColor: k, theme: q }) => {
+									const Ge = q?.variables,
+										ht = (0, ue.Mj)(A || Ge?.colors?.accent || '#000'),
+										Ft = k ? (0, ue.Mj)(k || '#fff') : ie(ht.toHex(), 90);
 									return (0, o.AH)({
 										'.ss__button': { '.ss__button__content': { display: 'inline-flex', alignItems: 'center', gap: '5px' } },
 										'.ss__load-more__progress': {
@@ -7303,24 +7303,24 @@
 							},
 						},
 					},
-					Le = {
+					Pe = {
 						default: {
 							overlayBadge: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({ '.ss__overlay-badge__grid-wrapper': { padding: '0.5rem' } });
 								},
 							},
 						},
 					};
-				var Ke = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					Q = t('./components/src/components/Atoms/Icon/Icon.tsx');
-				const jt = ({ theme: k }) => {
-						const B = k?.variables;
+				var Qe = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
+					ee = t('./components/src/components/Atoms/Icon/Icon.tsx');
+				const jt = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({
 							'& .ss__pagination__page': {
 								display: 'none',
-								color: B?.colors?.secondary,
+								color: k?.colors?.secondary,
 								border: '1px solid black',
 								borderRadius: '10px',
 								background: 'white',
@@ -7334,8 +7334,8 @@
 							'& .ss__pagination__next .ss__icon': { marginLeft: '10px' },
 						});
 					},
-					At = () => (0, Ke.FD)('div', { className: 'ss__pagination__prev', children: [(0, Ke.Y)(Q.I, { icon: 'angle-left' }), 'Previous'] }),
-					It = () => (0, Ke.FD)('div', { className: 'ss__pagination__next', children: ['Next', (0, Ke.Y)(Q.I, { icon: 'angle-right' })] }),
+					At = () => (0, Qe.FD)('div', { className: 'ss__pagination__prev', children: [(0, Qe.Y)(ee.I, { icon: 'angle-left' }), 'Previous'] }),
+					It = () => (0, Qe.FD)('div', { className: 'ss__pagination__next', children: ['Next', (0, Qe.Y)(ee.I, { icon: 'angle-right' })] }),
 					qe = {
 						default: {
 							pagination: {
@@ -7344,25 +7344,25 @@
 								hideLast: !0,
 								hideEllipsis: !0,
 								pages: 0,
-								prevButton: (0, Ke.Y)(At, {}),
-								nextButton: (0, Ke.Y)(It, {}),
+								prevButton: (0, Qe.Y)(At, {}),
+								nextButton: (0, Qe.Y)(It, {}),
 							},
 						},
 					},
 					Gt = {
 						default: {
 							radio: {
-								themeStyleScript: ({ size: k, native: B, color: ee, theme: De }) => {
-									const ht = De?.variables;
-									return B
+								themeStyleScript: ({ size: A, native: k, color: q, theme: Ge }) => {
+									const ht = Ge?.variables;
+									return k
 										? (0, o.AH)({
-												width: k,
-												height: k,
+												width: A,
+												height: A,
 												display: 'flex',
 												justifyContent: 'center',
-												'.ss__radio__input': { height: `calc(${k} - 30%)`, width: `calc(${k} - 30%)`, margin: 'auto' },
+												'.ss__radio__input': { height: `calc(${A} - 30%)`, width: `calc(${A} - 30%)`, margin: 'auto' },
 										  })
-										: (0, o.AH)({ '.ss__icon': { fill: ee || ht?.colors.primary, stroke: ee || ht?.colors.primary } });
+										: (0, o.AH)({ '.ss__icon': { fill: q || ht?.colors.primary, stroke: q || ht?.colors.primary } });
 								},
 							},
 						},
@@ -7371,8 +7371,8 @@
 					Ct = {
 						default: {
 							result: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										'&.ss__result--list': {
 											border: '1px solid #e6e6e6',
@@ -7421,7 +7421,7 @@
 												},
 											},
 										},
-										[`@media (max-width: ${B?.breakpoints.mobile}px)`]: {
+										[`@media (max-width: ${k?.breakpoints.mobile}px)`]: {
 											'&.ss__result--list': {
 												'.ss__result__image-wrapper': { flex: '0 0 20%' },
 												'& .ss__result__details': {
@@ -7441,24 +7441,24 @@
 					_t = {
 						default: {
 							searchInput: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
-									return (0, o.AH)({ border: `1px solid ${B?.colors?.secondary || '#ccc'}` });
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
+									return (0, o.AH)({ border: `1px solid ${k?.colors?.secondary || '#ccc'}` });
 								},
 							},
 						},
 					},
-					St = (k, B) => {
-						const ee = (0, _e.Mj)(k).toHsl();
-						return (0, _e.Mj)({ ...ee, l: B });
+					St = (A, k) => {
+						const q = (0, ue.Mj)(A).toHsl();
+						return (0, ue.Mj)({ ...q, l: k });
 					},
 					vt = {
 						default: {
 							select: {
-								themeStyleScript: ({ backgroundColor: k, theme: B }) => {
-									const ee = B?.variables,
-										De = (0, _e.Mj)(B?.variables?.colors?.secondary || '#000'),
-										ht = De.alpha(Math.min(De.alpha() + 0.2, 1)),
+								themeStyleScript: ({ backgroundColor: A, theme: k }) => {
+									const q = k?.variables,
+										Ge = (0, ue.Mj)(k?.variables?.colors?.secondary || '#000'),
+										ht = Ge.alpha(Math.min(Ge.alpha() + 0.2, 1)),
 										Ft = St(ht.toHex(), 95).toRgbString();
 									return (0, o.AH)({
 										'.ss__dropdown': {
@@ -7468,8 +7468,8 @@
 												fontWeight: 'bold',
 												'&:hover': {
 													backgroundColor: 'initial',
-													color: ee?.colors?.primary,
-													'.ss__icon': { fill: ee?.colors?.accent, stroke: ee?.colors?.accent },
+													color: q?.colors?.primary,
+													'.ss__icon': { fill: q?.colors?.accent, stroke: q?.colors?.accent },
 												},
 												'.ss__select__dropdown__button__icon': { marginLeft: '5px', transition: 'transform 0.25s ease 0s' },
 											},
@@ -7481,7 +7481,7 @@
 													'.ss__select__dropdown__button__icon': { transform: 'rotate(180deg)' },
 												},
 												'.ss__dropdown__content': {
-													backgroundColor: k || '#fff',
+													backgroundColor: A || '#fff',
 													boxShadow: '0 6px 12px 1px #0000001f',
 													borderBottomLeftRadius: '3px',
 													borderBottomRightRadius: '3px',
@@ -7497,7 +7497,7 @@
 												listStyle: 'none',
 												padding: '6px 30px',
 												gap: '6px',
-												color: ee?.colors?.secondary,
+												color: q?.colors?.secondary,
 												'&.ss__select__select__option--selected': { backgroundColor: Ft || 'rgba(109,113,117,.06)' },
 												'&:hover': { backgroundColor: Ft || 'rgba(109,113,117,.06)' },
 											},
@@ -7509,22 +7509,22 @@
 							},
 						},
 					},
-					ve = {
+					ye = {
 						default: {
 							slideout: {
-								themeStyleScript: ({ width: k, slideDirection: B, theme: ee }) => {
-									const De = ee?.variables;
+								themeStyleScript: ({ width: A, slideDirection: k, theme: q }) => {
+									const Ge = q?.variables;
 									return (0, o.AH)({
-										left: B == 'left' ? `-${k}` : B != 'right' ? '0' : 'initial',
-										right: B == 'right' ? `-${k}` : 'initial',
-										bottom: B == 'bottom' ? '-100vh' : 'initial',
-										top: B == 'top' ? '-100vh' : B == 'bottom' ? 'initial' : '0',
+										left: k == 'left' ? `-${A}` : k != 'right' ? '0' : 'initial',
+										right: k == 'right' ? `-${A}` : 'initial',
+										bottom: k == 'bottom' ? '-100vh' : 'initial',
+										top: k == 'top' ? '-100vh' : k == 'bottom' ? 'initial' : '0',
 										background: '#fff',
 										'&.ss__slideout--active': {
-											left: B == 'left' || B != 'right' ? '0' : 'initial',
-											right: B == 'right' ? '0' : 'initial',
-											bottom: B == 'bottom' ? '0' : 'initial',
-											top: B == 'top' ? '0' : B == 'bottom' ? 'initial' : '0',
+											left: k == 'left' || k != 'right' ? '0' : 'initial',
+											right: k == 'right' ? '0' : 'initial',
+											bottom: k == 'bottom' ? '0' : 'initial',
+											top: k == 'top' ? '0' : k == 'bottom' ? 'initial' : '0',
 										},
 									});
 								},
@@ -7567,7 +7567,7 @@
 						},
 						mobile: { 'perPage select': { separator: '' } },
 					},
-					Qe = { default: { rating: {} } },
+					Xe = { default: { rating: {} } },
 					nt = {
 						default: {
 							sortBy: {
@@ -7605,12 +7605,12 @@
 						mobile: { 'sortBy select': { hideSelection: !0, separator: '' } },
 					},
 					Ie = { default: { swatches: {} } },
-					ke = { default: { variantSelection: {} } },
-					He = {
+					we = { default: { variantSelection: {} } },
+					je = {
 						default: {
 							terms: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										'& .ss__terms__options .ss__terms__option': {
 											border: '1px solid black',
@@ -7624,131 +7624,131 @@
 							},
 						},
 					},
-					Ce = {
+					xe = {
 						default: {
 							...ze.default,
-							...Ee.default,
-							...Be.default,
-							...Me.default,
-							...h.default,
-							...O.default,
+							...Le.default,
+							...ve.default,
+							...Ae.default,
+							..._.default,
 							...r.default,
 							...p.default,
-							...f.default,
-							...R.default,
-							...Ae.default,
-							...ye.default,
-							...oe.default,
-							...Le.default,
+							...h.default,
+							...x.default,
+							...N.default,
+							...fe.default,
+							...ae.default,
+							...ge.default,
+							...Pe.default,
 							...qe.default,
 							...Gt.default,
 							...ut.default,
 							...Ct.default,
 							..._t.default,
 							...vt.default,
-							...ve.default,
+							...ye.default,
 							...it.default,
-							...Qe.default,
+							...Xe.default,
 							...nt.default,
 							...Ie.default,
-							...ke.default,
-							...He.default,
+							...we.default,
+							...je.default,
 						},
 						mobile: {
 							...ze.mobile,
-							...Ee.mobile,
-							...Be.mobile,
-							...Me.mobile,
-							...h.mobile,
-							...O.mobile,
+							...Le.mobile,
+							...ve.mobile,
+							...Ae.mobile,
+							..._.mobile,
 							...r.mobile,
 							...p.mobile,
-							...f.mobile,
-							...R.mobile,
-							...Ae.mobile,
-							...ye.mobile,
-							...oe.mobile,
-							...Le.mobile,
+							...h.mobile,
+							...x.mobile,
+							...N.mobile,
+							...fe.mobile,
+							...ae.mobile,
+							...ge.mobile,
+							...Pe.mobile,
 							...qe.mobile,
 							...Gt.mobile,
 							...ut.mobile,
 							...Ct.mobile,
 							..._t.mobile,
 							...vt.mobile,
-							...ve.mobile,
+							...ye.mobile,
 							...it.mobile,
-							...Qe.mobile,
+							...Xe.mobile,
 							...nt.mobile,
 							...Ie.mobile,
-							...ke.mobile,
-							...He.mobile,
+							...we.mobile,
+							...je.mobile,
 						},
 						tablet: {
 							...ze.tablet,
-							...Ee.tablet,
-							...Be.tablet,
-							...Me.tablet,
-							...h.tablet,
-							...O.tablet,
+							...Le.tablet,
+							...ve.tablet,
+							...Ae.tablet,
+							..._.tablet,
 							...r.tablet,
 							...p.tablet,
-							...f.tablet,
-							...R.tablet,
-							...Ae.tablet,
-							...ye.tablet,
-							...oe.tablet,
-							...Le.tablet,
+							...h.tablet,
+							...x.tablet,
+							...N.tablet,
+							...fe.tablet,
+							...ae.tablet,
+							...ge.tablet,
+							...Pe.tablet,
 							...qe.tablet,
 							...Gt.tablet,
 							...ut.tablet,
 							...Ct.tablet,
 							..._t.tablet,
 							...vt.tablet,
-							...ve.tablet,
+							...ye.tablet,
 							...it.tablet,
-							...Qe.tablet,
+							...Xe.tablet,
 							...nt.tablet,
 							...Ie.tablet,
-							...ke.tablet,
-							...He.tablet,
+							...we.tablet,
+							...je.tablet,
 						},
 						desktop: {
 							...ze.desktop,
-							...Ee.desktop,
-							...Be.desktop,
-							...Me.desktop,
-							...h.desktop,
-							...O.desktop,
+							...Le.desktop,
+							...ve.desktop,
+							...Ae.desktop,
+							..._.desktop,
 							...r.desktop,
 							...p.desktop,
-							...f.desktop,
-							...R.desktop,
-							...Ae.desktop,
-							...ye.desktop,
-							...oe.desktop,
-							...Le.desktop,
+							...h.desktop,
+							...x.desktop,
+							...N.desktop,
+							...fe.desktop,
+							...ae.desktop,
+							...ge.desktop,
+							...Pe.desktop,
 							...qe.desktop,
 							...Gt.desktop,
 							...ut.desktop,
 							...Ct.desktop,
 							..._t.desktop,
 							...vt.desktop,
-							...ve.desktop,
+							...ye.desktop,
 							...it.desktop,
-							...Qe.desktop,
+							...Xe.desktop,
 							...nt.desktop,
 							...Ie.desktop,
-							...ke.desktop,
-							...He.desktop,
+							...we.desktop,
+							...je.desktop,
 						},
 					},
 					he = {
 						default: {
 							facet: {
-								themeStyleScript: ({ color: k, theme: B }) => {
-									const ee = B?.variables;
+								themeStyleScript: ({ color: A, theme: k }) => {
+									const q = k?.variables;
 									return (0, o.AH)({
-										[`@media (min-width: ${ee?.breakpoints.tablet}px)`]: {
+										[`@media (min-width: ${q?.breakpoints.tablet}px)`]: {
 											'&.ss__facet--showing-all': { '& .ss__facet__options': { maxHeight: '600px' } },
 										},
 										'& .ss__facet__dropdown': {
@@ -7764,12 +7764,12 @@
 											maxHeight: '400px',
 											'&::-webkit-scrollbar': { width: '8px' },
 											'&::-webkit-scrollbar-track': { background: '#f2f2f2' },
-											'&::-webkit-scrollbar-thumb': { background: ee?.colors?.secondary || '#ccc' },
+											'&::-webkit-scrollbar-thumb': { background: q?.colors?.secondary || '#ccc' },
 										},
 										'& .ss__facet__show-more-less': {
 											margin: '8px 5px',
 											textAlign: 'center',
-											color: k || ee?.colors?.secondary,
+											color: A || q?.colors?.secondary,
 											span: { borderBottom: '1px solid #ccc' },
 										},
 									});
@@ -7783,11 +7783,11 @@
 							},
 						},
 					},
-					Te = {
+					Re = {
 						default: {
 							facetsHorizontal: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										paddingBottom: '10px',
 										'& .ss__facets-horizontal__header': {
@@ -7795,7 +7795,7 @@
 											'& .ss__facets-horizontal__header__dropdown': {
 												margin: '0',
 												'& .ss__icon': { transition: 'transform ease .5s' },
-												'& .ss__dropdown__button__heading': { color: B?.colors?.secondary, fontWeight: 'bold' },
+												'& .ss__dropdown__button__heading': { color: k?.colors?.secondary, fontWeight: 'bold' },
 												'&.ss__dropdown--open': { '& .ss__dropdown__button__heading': { '& .ss__icon': { transform: 'rotate(180deg)' } } },
 											},
 										},
@@ -7816,14 +7816,14 @@
 						tablet: { facetsHorizontal: { limit: 5 } },
 						desktop: { facetsHorizontal: { limit: 7 } },
 					},
-					Xe = {
+					Ke = {
 						default: {
 							filterSummary: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										flexWrap: 'wrap',
-										'& .ss__filter-summary__title': { fontWeight: 'bold', color: B?.colors?.secondary },
+										'& .ss__filter-summary__title': { fontWeight: 'bold', color: k?.colors?.secondary },
 										'& .ss__filter-summary__filters': { margin: '0px' },
 									});
 								},
@@ -7833,39 +7833,39 @@
 							},
 						},
 					},
-					fe = {
+					ke = {
 						default: {
 							noResults: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
-									return (0, o.AH)({ color: B?.colors?.secondary, ' .ss__title': { color: B?.colors?.secondary } });
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
+									return (0, o.AH)({ color: k?.colors?.secondary, ' .ss__title': { color: k?.colors?.secondary } });
 								},
 							},
 						},
 					},
-					P = {
+					c = {
 						default: {
 							sidebar: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
 										boxSizing: 'border-box',
 										width: '100%',
 										margin: '0 40px 0 0',
-										'& .ss__sidebar__title': { color: B?.colors?.primary },
+										'& .ss__sidebar__title': { color: k?.colors?.primary },
 									});
 								},
 								hideTitleText: !0,
 							},
 						},
 					},
-					Z = {
+					j = {
 						default: {
 							termsList: {
-								themeStyleScript: ({ theme: k }) => {
-									const B = k?.variables;
+								themeStyleScript: ({ theme: A }) => {
+									const k = A?.variables;
 									return (0, o.AH)({
-										[`@media (max-width: ${B?.breakpoints.mobile}px)`]: {
+										[`@media (max-width: ${k?.breakpoints.mobile}px)`]: {
 											'&.ss__terms-list .ss__terms__options': { margin: '10px', marginTop: '0px' },
 										},
 									});
@@ -7873,62 +7873,62 @@
 							},
 						},
 					},
-					Y = { default: { toolbar: { themeStyleScript: () => (0, o.AH)({}) } } };
-				var m = t('./components/src/themes/themeComponents/autocomplete.ts');
-				const _ = ({}) => (0, o.AH)({}),
-					u = {
-						default: { ...m.n.default, autocomplete: { ...(m.n.default?.autocomplete || {}), themeStyleScript: _ } },
-						mobile: m.n.mobile,
-						desktop: m.n.desktop,
-						tablet: m.n.tablet,
+					Q = { default: { toolbar: { themeStyleScript: () => (0, o.AH)({}) } } };
+				var u = t('./components/src/themes/themeComponents/autocomplete.ts');
+				const i = ({}) => (0, o.AH)({}),
+					M = {
+						default: { ...u.n.default, autocomplete: { ...(u.n.default?.autocomplete || {}), themeStyleScript: i } },
+						mobile: u.n.mobile,
+						desktop: u.n.desktop,
+						tablet: u.n.tablet,
 					},
-					b = {
-						default: { ...u.default, ...he.default, ...Te.default, ...Xe.default, ...fe.default, ...P.default, ...Y.default, ...Z.default },
-						mobile: { ...u.mobile, ...he.mobile, ...Te.mobile, ...Xe.mobile, ...fe.mobile, ...P.mobile, ...Y.mobile, ...Z.mobile },
-						tablet: { ...u.tablet, ...he.tablet, ...Te.tablet, ...Xe.tablet, ...fe.tablet, ...P.tablet, ...Y.tablet, ...Z.tablet },
-						desktop: { ...u.desktop, ...he.desktop, ...Te.desktop, ...Xe.desktop, ...fe.desktop, ...P.desktop, ...Y.desktop, ...Z.desktop },
+					S = {
+						default: { ...M.default, ...he.default, ...Re.default, ...Ke.default, ...ke.default, ...c.default, ...Q.default, ...j.default },
+						mobile: { ...M.mobile, ...he.mobile, ...Re.mobile, ...Ke.mobile, ...ke.mobile, ...c.mobile, ...Q.mobile, ...j.mobile },
+						tablet: { ...M.tablet, ...he.tablet, ...Re.tablet, ...Ke.tablet, ...ke.tablet, ...c.tablet, ...Q.tablet, ...j.tablet },
+						desktop: { ...M.desktop, ...he.desktop, ...Re.desktop, ...Ke.desktop, ...ke.desktop, ...c.desktop, ...Q.desktop, ...j.desktop },
 					};
-				var C = t('./components/src/themes/themeComponents/recommendation.ts');
-				const z = ({ theme: k }) => {
-						const B = k?.variables;
-						return (0, o.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: B?.colors?.primary } });
+				var b = t('./components/src/themes/themeComponents/recommendation.ts');
+				const W = ({ theme: A }) => {
+						const k = A?.variables;
+						return (0, o.AH)({ margin: '20px 0', '& .ss__recommendation__title': { color: k?.colors?.primary } });
 					},
-					U = {
-						default: { ...C.C.default, recommendation: { ...(C.C.default?.recommendation || {}), themeStyleScript: z } },
-						mobile: C.C.mobile,
-						desktop: C.C.desktop,
-						tablet: C.C.tablet,
+					ce = {
+						default: { ...b.C.default, recommendation: { ...(b.C.default?.recommendation || {}), themeStyleScript: W } },
+						mobile: b.C.mobile,
+						desktop: b.C.desktop,
+						tablet: b.C.tablet,
 					};
-				var J = t('./components/src/themes/themeComponents/recommendationBundle.ts');
-				const re = ({ theme: k }) => {
-						const B = k?.variables;
+				var Z = t('./components/src/themes/themeComponents/recommendationBundle.ts');
+				const re = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({
 							margin: '20px 0',
 							'.ss__recommendation-bundle__wrapper__selector': {
-								'& .ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': { backgroundColor: B?.colors.accent, color: '#fff' },
+								'& .ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': { backgroundColor: k?.colors.accent, color: '#fff' },
 							},
 						});
 					},
-					le = {
-						default: { ...J._.default, recommendationBundle: { ...(J._.default?.recommendationBundle || {}), themeStyleScript: re } },
-						mobile: J._.mobile,
-						desktop: J._.desktop,
-						tablet: J._.tablet,
+					Be = {
+						default: { ...Z._.default, recommendationBundle: { ...(Z._.default?.recommendationBundle || {}), themeStyleScript: re } },
+						mobile: Z._.mobile,
+						desktop: Z._.desktop,
+						tablet: Z._.tablet,
 					};
-				var we = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
-				const $e = ({ theme: k }) => {
-						const B = k?.variables;
+				var Me = t('./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts');
+				const $e = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({});
 					},
 					Ne = {
-						default: { ...we.j.default, recommendationBundleEasyAdd: { ...(we.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: $e } },
-						mobile: we.j.mobile,
-						desktop: we.j.desktop,
-						tablet: we.j.tablet,
+						default: { ...Me.j.default, recommendationBundleEasyAdd: { ...(Me.j.default?.recommendationBundleEasyAdd || {}), themeStyleScript: $e } },
+						mobile: Me.j.mobile,
+						desktop: Me.j.desktop,
+						tablet: Me.j.tablet,
 					};
 				var et = t('./components/src/themes/themeComponents/recommendationBundleList.ts');
-				const $t = ({ theme: k }) => {
-						const B = k?.variables;
+				const $t = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({});
 					},
 					lt = {
@@ -7938,8 +7938,8 @@
 						tablet: et.e.tablet,
 					};
 				var ct = t('./components/src/themes/themeComponents/recommendationBundleVertical.ts');
-				const gt = ({ theme: k }) => {
-						const B = k?.variables;
+				const gt = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({});
 					},
 					Ze = {
@@ -7952,8 +7952,8 @@
 						tablet: ct.W.tablet,
 					};
 				var wt = t('./components/src/themes/themeComponents/recommendationGrid.ts');
-				const ft = ({ theme: k }) => {
-						const B = k?.variables;
+				const ft = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({});
 					},
 					Ht = {
@@ -7965,8 +7965,8 @@
 				var Ot = t('./components/src/themes/themeComponents/recommendationEmail.ts');
 				const dt = Ot.O;
 				var Bt = t('./components/src/themes/themeComponents/search.ts');
-				const Pt = ({ theme: k }) => {
-						const B = k?.variables;
+				const Pt = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({});
 					},
 					at = {
@@ -7976,8 +7976,8 @@
 						tablet: Bt.D.tablet,
 					};
 				var yt = t('./components/src/themes/themeComponents/searchHorizontal.ts');
-				const zt = ({ theme: k }) => {
-						const B = k?.variables;
+				const zt = ({ theme: A }) => {
+						const k = A?.variables;
 						return (0, o.AH)({ '& .ss__search-horizontal__header-section': { marginBottom: '0px' } });
 					},
 					pt = {
@@ -7991,11 +7991,11 @@
 						desktop: { ...yt.X.desktop, 'searchHorizontal results': { columns: 4 } },
 					};
 				var Tt = t('./components/src/themes/themeComponents/searchCollapsible.ts');
-				const Et = ({ theme: k }) => {
-						const B = k?.variables,
-							ee = 'calc(270px + 1.5em)';
+				const Et = ({ theme: A }) => {
+						const k = A?.variables,
+							q = 'calc(270px + 1.5em)';
 						return (0, o.AH)({
-							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: ee ? 'inherit' : 'auto', width: ee || 'inherit' },
+							'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': { marginRight: q ? 'inherit' : 'auto', width: q || 'inherit' },
 						});
 					},
 					xt = {
@@ -8071,8 +8071,8 @@
 							...rt.default,
 							...Rt.default,
 							...Nt.default,
-							...U.default,
-							...le.default,
+							...ce.default,
+							...Be.default,
 							...Ne.default,
 							...lt.default,
 							...Ze.default,
@@ -8086,8 +8086,8 @@
 							...rt.mobile,
 							...Rt.mobile,
 							...Nt.mobile,
-							...U.mobile,
-							...le.mobile,
+							...ce.mobile,
+							...Be.mobile,
 							...Ne.mobile,
 							...lt.mobile,
 							...Ze.mobile,
@@ -8101,8 +8101,8 @@
 							...rt.tablet,
 							...Rt.tablet,
 							...Nt.tablet,
-							...U.tablet,
-							...le.tablet,
+							...ce.tablet,
+							...Be.tablet,
 							...Ne.tablet,
 							...lt.tablet,
 							...Ze.tablet,
@@ -8116,8 +8116,8 @@
 							...rt.desktop,
 							...Rt.desktop,
 							...Nt.desktop,
-							...U.desktop,
-							...le.desktop,
+							...ce.desktop,
+							...Be.desktop,
 							...Ne.desktop,
 							...lt.desktop,
 							...Ze.desktop,
@@ -8128,22 +8128,22 @@
 							...pt.desktop,
 						},
 					},
-					A = { ...Se.default, ...Ce.default, ...b.default, ...Kt.default },
-					a = { ...Se.mobile, ...Ce.mobile, ...b.mobile, ...Kt.mobile },
-					c = { ...Se.tablet, ...Ce.tablet, ...b.tablet, ...Kt.tablet },
-					j = { ...Se.desktop, ...Ce.desktop, ...b.desktop, ...Kt.desktop },
+					v = { ...Se.default, ...xe.default, ...S.default, ...Kt.default },
+					a = { ...Se.mobile, ...xe.mobile, ...S.mobile, ...Kt.mobile },
+					d = { ...Se.tablet, ...xe.tablet, ...S.tablet, ...Kt.tablet },
+					L = { ...Se.desktop, ...xe.desktop, ...S.desktop, ...Kt.desktop },
 					tt = {
 						name: 'snappy',
 						variables: {
 							breakpoints: { mobile: 767, tablet: 991, desktop: 1299 },
 							colors: { primary: '#202223', secondary: '#6d7175', accent: '#3a23ad' },
 						},
-						components: A,
-						responsive: { mobile: a, tablet: c, desktop: j },
+						components: v,
+						responsive: { mobile: a, tablet: d, desktop: L },
 						type: 'templates',
 					};
 			},
-			'./components/src/themes/themeComponents/autocomplete.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/autocomplete.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: {
@@ -8172,9 +8172,9 @@
 					tablet: { 'autocomplete results': { columns: 3, rows: 1 } },
 					desktop: { 'autocomplete results': { columns: 2, rows: 2 }, 'autocomplete recommendationGrid': { columns: 3, rows: 2 } },
 				};
-				t.d(H, ['n', 0, o]);
+				t.d(O, ['n', 0, o]);
 			},
-			'./components/src/themes/themeComponents/autocompleteFixed.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/autocompleteFixed.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: {
@@ -8204,9 +8204,9 @@
 					tablet: { autocompleteFixed: { layout: [['c1', 'c3']] }, 'autocompleteFixed results': { columns: 3, rows: 1 } },
 					desktop: { 'autocompleteFixed results': { columns: 2, rows: 2 }, 'autocompleteFixed recommendationGrid': { columns: 3, rows: 2 } },
 				};
-				t.d(H, ['f', 0, o]);
+				t.d(O, ['f', 0, o]);
 			},
-			'./components/src/themes/themeComponents/autocompleteModal.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/autocompleteModal.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: {
@@ -8235,9 +8235,9 @@
 					tablet: { autocompleteModal: { layout: [['c1', 'c3']] }, 'autocompleteModal results': { columns: 3, rows: 1 } },
 					desktop: { 'autocompleteModal results': { columns: 2, rows: 2 }, 'autocompleteModal recommendationGrid': { columns: 3, rows: 2 } },
 				};
-				t.d(H, ['_', 0, o]);
+				t.d(O, ['_', 0, o]);
 			},
-			'./components/src/themes/themeComponents/autocompleteSlideout.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/autocompleteSlideout.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: {
@@ -8263,9 +8263,9 @@
 					tablet: {},
 					desktop: { 'autocompleteSlideout recommendationGrid': { columns: 3, rows: 2 } },
 				};
-				t.d(H, ['c', 0, o]);
+				t.d(O, ['c', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendation.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendation.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: { recommendation: { slidesPerView: 5, slidesPerGroup: 5 } },
@@ -8273,9 +8273,9 @@
 					tablet: { recommendation: { slidesPerView: 3, slidesPerGroup: 3 } },
 					desktop: { recommendation: { slidesPerView: 4, slidesPerGroup: 4 } },
 				};
-				t.d(H, ['C', 0, o]);
+				t.d(O, ['C', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendationBundle.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendationBundle.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: { recommendationBundle: { carousel: { slidesPerView: 4, slidesPerGroup: 4, spaceBetween: 10 } } },
@@ -8283,34 +8283,34 @@
 					tablet: { recommendationBundle: { carousel: { slidesPerView: 3, slidesPerGroup: 3, spaceBetween: 10 } } },
 					desktop: { recommendationBundle: { carousel: { slidesPerView: 4, slidesPerGroup: 4, spaceBetween: 10 } } },
 				};
-				t.d(H, ['_', 0, o]);
+				t.d(O, ['_', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendationBundleEasyAdd.ts'(J, O, t) {
 				'use strict';
 				const o = { default: {}, mobile: {}, tablet: {}, desktop: {} };
-				t.d(H, ['j', 0, o]);
+				t.d(O, ['j', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendationBundleList.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendationBundleList.ts'(J, O, t) {
 				'use strict';
 				const o = { default: {}, mobile: {}, tablet: {}, desktop: {} };
-				t.d(H, ['e', 0, o]);
+				t.d(O, ['e', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendationBundleVertical.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendationBundleVertical.ts'(J, O, t) {
 				'use strict';
 				const o = { default: {}, mobile: {}, tablet: {}, desktop: {} };
-				t.d(H, ['W', 0, o]);
+				t.d(O, ['W', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendationEmail.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendationEmail.ts'(J, O, t) {
 				'use strict';
 				const o = { default: {}, mobile: {}, tablet: {}, desktop: {} };
-				t.d(H, ['O', 0, o]);
+				t.d(O, ['O', 0, o]);
 			},
-			'./components/src/themes/themeComponents/recommendationGrid.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/recommendationGrid.ts'(J, O, t) {
 				'use strict';
 				const o = { default: {}, mobile: {}, tablet: {}, desktop: {} };
-				t.d(H, ['W', 0, o]);
+				t.d(O, ['W', 0, o]);
 			},
-			'./components/src/themes/themeComponents/search.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/search.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: { 'search results': { columns: 4 } },
@@ -8318,9 +8318,9 @@
 					tablet: { 'search results': { columns: 3 } },
 					desktop: {},
 				};
-				t.d(H, ['D', 0, o]);
+				t.d(O, ['D', 0, o]);
 			},
-			'./components/src/themes/themeComponents/searchCollapsible.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/searchCollapsible.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: {
@@ -8345,9 +8345,9 @@
 					},
 					desktop: {},
 				};
-				t.d(H, ['D', 0, o]);
+				t.d(O, ['D', 0, o]);
 			},
-			'./components/src/themes/themeComponents/searchHorizontal.ts'(q, H, t) {
+			'./components/src/themes/themeComponents/searchHorizontal.ts'(J, O, t) {
 				'use strict';
 				const o = {
 					default: {
@@ -8369,403 +8369,394 @@
 					tablet: { 'searchHorizontal facetsHorizontal': { limit: 5 }, 'searchHorizontal results': { columns: 3 } },
 					desktop: { 'searchHorizontal facetsHorizontal': { limit: 7 } },
 				};
-				t.d(H, ['X', 0, o]);
+				t.d(O, ['X', 0, o]);
 			},
-			'./components/src/utilities/cloneWithProps.tsx'(q, H, t) {
+			'./components/src/utilities/cloneWithProps.tsx'(J, O, t) {
 				'use strict';
 				var o = t('../../node_modules/preact/dist/preact.module.js');
-				const v = (x, E) => {
-					if (x) {
-						if (typeof x == 'function') return (0, o.h)(x, E);
-						if (typeof x == 'string' || typeof x == 'number' || typeof x == 'boolean') return x;
-						if (Array.isArray(x)) return x.map((V) => v(V, E));
-						if (typeof x?.type == 'string') return x;
-						if (typeof x?.type == 'function') return (0, o.h)(x.type, { ...x.props, ...E });
+				const C = (y, z) => {
+					if (y) {
+						if (typeof y == 'function') return (0, o.h)(y, z);
+						if (typeof y == 'string' || typeof y == 'number' || typeof y == 'boolean') return y;
+						if (Array.isArray(y)) return y.map((G) => C(G, z));
+						if (typeof y?.type == 'string') return y;
+						if (typeof y?.type == 'function') return (0, o.h)(y.type, { ...y.props, ...z });
 					} else return;
-					return (0, o.Ob)(x, E, x.props?.children && v(x.props.children, E));
+					return (0, o.Ob)(y, z, y.props?.children && C(y.props.children, z));
 				};
-				t.d(H, ['Y', 0, v]);
+				t.d(O, ['Y', 0, C]);
 			},
-			'./components/src/utilities/mergeProps.ts'(q, H, t) {
+			'./components/src/utilities/mergeProps.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { D0: () => O, fX: () => ze, v6: () => E });
-				var o = t('../../node_modules/process/browser.js');
-				const v = Symbol.for('__themePropsMap__'),
-					x = Symbol.for('__storybookArgsPropsMap__');
-				function E(d, r, y, p) {
-					let w = p.treePath || y.treePath || '';
-					if (((w += `${w ? ' ' : ''}${d}`), !V(r))) return $(d, r, y, p, w);
-					const f = e(d, r, y, p, w);
-					let S = { ...y, ...p };
-					return (S = L(S, f)), (S = D(S, f)), (S = G(S, f)), (S = se(S, f)), (S = W(S, f)), (S = N(S, f)), (S = X(S, f)), (S = F(S, f)), S;
+				t.d(O, { D0: () => f, fX: () => te, v6: () => y });
+				const o = Symbol.for('__themePropsMap__'),
+					C = Symbol.for('__storybookArgsPropsMap__');
+				function y(r, m, p, g) {
+					let h = g.treePath || p.treePath || '';
+					if (((h += `${h ? ' ' : ''}${r}`), !z(m))) return G(r, m, p, g, h);
+					const w = H(r, m, p, g, h);
+					let x = { ...p, ...g };
+					return (x = e(x, w)), (x = E(x, w)), (x = I(x, w)), (x = D(x, w)), (x = se(x, w)), (x = F(x, w)), (x = U(x, w)), (x = Y(x, w)), x;
 				}
-				function V(d) {
-					return d?.type === 'templates';
+				function z(r) {
+					return r?.type === 'templates';
 				}
-				function $(d, r, y, p, w) {
-					const f = p.theme;
-					let S = { ...y };
-					const R = r?.components && r.components[d];
-					R && (S = Se(R, S)), (S = { ...S, ...p, treePath: w });
-					const pe = f?.components && f.components[d];
-					return pe && (S = Se(pe, S)), S;
+				function G(r, m, p, g, h) {
+					const w = g.theme;
+					let x = { ...p };
+					const T = m?.components && m.components[r];
+					T && (x = be(T, x)), (x = { ...x, ...g, treePath: h });
+					const N = w?.components && w.components[r];
+					return N && (x = be(N, x)), x;
 				}
-				function e(d, r, y, p, w) {
-					const f = p?.name || y.name;
-					w += f?.match(/^[A-Za-z0-9-]+$/) ? `.${f}` : '';
-					const { baseSelectors: S, overrideSelectors: R } = K(r?.components, w),
-						pe = p.theme?.[v];
+				function H(r, m, p, g, h) {
+					const w = g?.name || p.name;
+					h += w?.match(/^[A-Za-z0-9-]+$/) ? `.${w}` : '';
+					const { baseSelectors: x, overrideSelectors: T } = Ae(m?.components, h),
+						N = g.theme?.[o];
 					return {
-						componentType: d,
-						globalTheme: r,
-						props: p,
-						treePath: w,
-						parentTheme: p.theme,
-						parentThemePropsMap: pe instanceof Map ? pe : void 0,
-						globalBaseSelectors: S,
-						globalOverrideSelectors: R,
+						componentType: r,
+						globalTheme: m,
+						props: g,
+						treePath: h,
+						parentTheme: g.theme,
+						parentThemePropsMap: N instanceof Map ? N : void 0,
+						globalBaseSelectors: x,
+						globalOverrideSelectors: T,
 						propsSetBySpecificSelectors: new Set(),
 					};
 				}
-				function L(d, r) {
+				function e(r, m) {
 					return (
-						r.globalBaseSelectors.forEach(({ original: y, matchedPart: p }) => {
-							const w = r.globalTheme.components?.[y];
-							w &&
-								(p
+						m.globalBaseSelectors.forEach(({ original: p, matchedPart: g }) => {
+							const h = m.globalTheme.components?.[p];
+							h &&
+								(g
 									.replace(/^\*/, '')
 									.replace(/^\([MDT]\)/, '')
 									.trim()
-									.split(' ').length > 1 && Object.keys(w).forEach((R) => r.propsSetBySpecificSelectors.add(R)),
-								(d = Se(w, d)));
+									.split(' ').length > 1 && Object.keys(h).forEach((T) => m.propsSetBySpecificSelectors.add(T)),
+								(r = be(h, r)));
 						}),
-						d
+						r
 					);
 				}
-				function D(d, r) {
-					if (r.parentThemePropsMap && r.parentThemePropsMap.size > 0) {
-						const y = {},
-							p = g(r.parentThemePropsMap);
-						for (const w of Object.keys(r.props)) {
-							if (w === 'treePath' || w === 'theme' || w === 'name' || r.propsSetBySpecificSelectors.has(w)) continue;
-							const f = r.props[w];
-							if (f === void 0) continue;
-							const S = r.parentThemePropsMap.get(w) === f,
-								R = (typeof f == 'string' || (typeof f == 'object' && f !== null)) && p.has(f);
-							(S || R) && (y[w] = f);
+				function E(r, m) {
+					if (m.parentThemePropsMap && m.parentThemePropsMap.size > 0) {
+						const p = {},
+							g = _(m.parentThemePropsMap);
+						for (const h of Object.keys(m.props)) {
+							if (h === 'treePath' || h === 'theme' || h === 'name' || m.propsSetBySpecificSelectors.has(h)) continue;
+							const w = m.props[h];
+							if (w === void 0) continue;
+							const x = m.parentThemePropsMap.get(h) === w,
+								T = (typeof w == 'string' || (typeof w == 'object' && w !== null)) && g.has(w);
+							(x || T) && (p[h] = w);
 						}
-						Object.keys(y).length > 0 && (d = { ...d, ...y });
+						Object.keys(p).length > 0 && (r = { ...r, ...p });
 					}
-					return d;
+					return r;
 				}
-				function G(d, r) {
+				function I(r, m) {
 					return (
-						r.globalOverrideSelectors.forEach(({ original: y }) => {
-							const p = r.globalTheme.components?.[y];
-							p && (d = Se(p, d, !0));
+						m.globalOverrideSelectors.forEach(({ original: p }) => {
+							const g = m.globalTheme.components?.[p];
+							g && (r = be(g, r, !0));
 						}),
-						d
+						r
 					);
 				}
-				function se(d, r) {
-					const { matches: y } = K(r.parentTheme?.components, r.treePath);
+				function D(r, m) {
+					const { matches: p } = Ae(m.parentTheme?.components, m.treePath);
 					return (
-						y.forEach(({ original: p }) => {
-							const w = r.parentTheme?.components?.[p];
-							w && (d = Se(w, d));
+						p.forEach(({ original: g }) => {
+							const h = m.parentTheme?.components?.[g];
+							h && (r = be(h, r));
 						}),
-						d
+						r
 					);
 				}
-				function W(d, r) {
+				function se(r, m) {
 					return {
-						...d,
+						...r,
 						theme: {
-							...d.theme,
-							name: r.globalTheme.name,
-							...(r.globalTheme.activeBreakpoint ? { activeBreakpoint: r.globalTheme.activeBreakpoint } : {}),
+							...r.theme,
+							name: m.globalTheme.name,
+							...(m.globalTheme.activeBreakpoint ? { activeBreakpoint: m.globalTheme.activeBreakpoint } : {}),
 						},
-						treePath: r.treePath,
+						treePath: m.treePath,
 					};
 				}
-				function N(d, r) {
-					return r.props.lang && (d.lang = r.props.lang), d;
+				function F(r, m) {
+					return m.props.lang && (r.lang = m.props.lang), r;
 				}
-				function X(d, r) {
-					r.globalTheme.variables && d.theme && (d.theme.variables = r.globalTheme.variables);
-					const y = d[v] || new Map();
-					if (y.size > 0 && d.theme) {
-						const p = new Map(y);
-						r.parentThemePropsMap &&
-							r.parentThemePropsMap.forEach((w, f) => {
-								p.has(f) || p.set(f, w);
+				function U(r, m) {
+					m.globalTheme.variables && r.theme && (r.theme.variables = m.globalTheme.variables);
+					const p = r[o] || new Map();
+					if (p.size > 0 && r.theme) {
+						const g = new Map(p);
+						m.parentThemePropsMap &&
+							m.parentThemePropsMap.forEach((h, w) => {
+								g.has(w) || g.set(w, h);
 							}),
-							(d.theme[v] = p);
+							(r.theme[o] = g);
 					}
-					return d;
+					return r;
 				}
-				function F(d, r) {
-					const y = r.treePath;
-					if (!y) return d;
-					const p = y.split(' ').some((f) => f === 'customComponent' || f.startsWith('customComponent-')),
-						w = y.startsWith('storybook ');
-					if (p) {
-						const f = { ...r.props };
-						return delete f.theme, (d = { ...d, ...f, treePath: y }), d;
+				function Y(r, m) {
+					const p = m.treePath;
+					if (!p) return r;
+					const g = p.split(' ').some((w) => w === 'customComponent' || w.startsWith('customComponent-')),
+						h = p.startsWith('storybook ');
+					if (g) {
+						const w = { ...m.props };
+						return delete w.theme, (r = { ...r, ...w, treePath: p }), r;
 					}
-					if (w) {
-						const f = y.split(' ').length === 2,
-							S = { ...r.props };
-						if ((delete S.theme, f)) {
-							if (((d = { ...d, ...S, treePath: y }), d.theme)) {
-								const pe = { ...S };
-								delete pe.treePath, (d.theme[x] = ne(pe));
+					if (h) {
+						const w = p.split(' ').length === 2,
+							x = { ...m.props };
+						if ((delete x.theme, w)) {
+							if (((r = { ...r, ...x, treePath: p }), r.theme)) {
+								const N = { ...x };
+								delete N.treePath, (r.theme[C] = R(N));
 							}
-							return d;
+							return r;
 						}
-						const R = r.parentTheme?.[x];
-						if (R && R.size > 0) {
-							const pe = xe(R),
-								Ae = {};
-							for (const Fe of Object.keys(S)) {
-								if (Fe === 'treePath') continue;
-								const ye = S[Fe];
-								if (ye === void 0) continue;
-								const ie = R.get(Fe) === ye,
-									be = (typeof ye == 'string' || (typeof ye == 'object' && ye !== null)) && pe.has(ye);
-								(ie || be) && (Ae[Fe] = ye);
+						const T = m.parentTheme?.[C];
+						if (T && T.size > 0) {
+							const N = pe(T),
+								Te = {};
+							for (const fe of Object.keys(x)) {
+								if (fe === 'treePath') continue;
+								const Fe = x[fe];
+								if (Fe === void 0) continue;
+								const ae = T.get(fe) === Fe,
+									ie = (typeof Fe == 'string' || (typeof Fe == 'object' && Fe !== null)) && N.has(Fe);
+								(ae || ie) && (Te[fe] = Fe);
 							}
-							d = { ...d, ...Ae, treePath: y };
-						} else d = { ...d, treePath: y };
-						d.theme && R && (d.theme[x] = R);
+							r = { ...r, ...Te, treePath: p };
+						} else r = { ...r, treePath: p };
+						r.theme && T && (r.theme[C] = T);
 					}
-					return d;
-				}
-				function ne(d) {
-					const r = new Map();
-					for (const [y, p] of Object.entries(d)) p != null && typeof p != 'function' && r.set(y, p);
 					return r;
 				}
-				const de = new WeakMap();
-				function xe(d) {
-					let r = de.get(d);
-					if (!r) {
-						const y = new Set();
-						d.forEach((p) => {
-							p === p && y.add(p);
+				function R(r) {
+					const m = new Map();
+					for (const [p, g] of Object.entries(r)) g != null && typeof g != 'function' && m.set(p, g);
+					return m;
+				}
+				const oe = new WeakMap();
+				function pe(r) {
+					let m = oe.get(r);
+					if (!m) {
+						const p = new Set();
+						r.forEach((g) => {
+							g === g && p.add(g);
 						}),
-							de.set(d, y),
-							(r = y);
+							oe.set(r, p),
+							(m = p);
 					}
-					return r;
+					return m;
 				}
-				function Se(d, r, y = !1) {
-					if (d) {
-						const p = r[v] || new Map();
-						for (const [w, f] of Object.entries(d)) f != null && typeof f != 'function' && (!y || !p.has(w)) && p.set(w, f);
-						(r = { ...r, ...d }), (r[v] = p);
+				function be(r, m, p = !1) {
+					if (r) {
+						const g = m[o] || new Map();
+						for (const [h, w] of Object.entries(r)) w != null && typeof w != 'function' && (!p || !g.has(h)) && g.set(h, w);
+						(m = { ...m, ...r }), (m[o] = g);
 					}
-					return r;
+					return m;
 				}
-				function te(d) {
-					const r = d.includes(',') ? d.split(/\s*,\s*/)[0] : d,
-						y = (r.includes('*') ? 0 : 2e3) + (r.match(/\([MDT]\)/) ? 1e3 : 0);
-					return r
+				function Se(r) {
+					const m = r.includes(',') ? r.split(/\s*,\s*/)[0] : r,
+						p = (m.includes('*') ? 0 : 2e3) + (m.match(/\([MDT]\)/) ? 1e3 : 0);
+					return m
 						.split(' ')
-						.map((p, w) => ((w + 1) * 2) ** (p.includes('.') ? 2 : 1))
-						.reduce((p, w) => p + w, y);
+						.map((g, h) => ((h + 1) * 2) ** (g.includes('.') ? 2 : 1))
+						.reduce((g, h) => g + h, p);
 				}
-				function ze(d, r) {
-					return te(d) - te(r);
+				function te(r, m) {
+					return Se(r) - Se(m);
 				}
-				function _e(d) {
-					const r = [];
-					for (const y of d)
-						if (y.includes(',')) {
-							const p = y.split(/\s*,\s*/);
-							for (const w of p) r.push({ original: y, selector: w });
-						} else r.push({ original: y, selector: y });
-					return r;
+				function ze(r) {
+					const m = [];
+					for (const p of r)
+						if (p.includes(',')) {
+							const g = p.split(/\s*,\s*/);
+							for (const h of g) m.push({ original: p, selector: h });
+						} else m.push({ original: p, selector: p });
+					return m;
 				}
-				const Ue = typeof o < 'u' && o.env && !1,
-					Ee = new Set();
-				function Be(d, r) {
-					const y = _e(Object.keys(d)),
-						p = r.split(' '),
-						w = p.slice(-1).pop() ?? '',
-						[f, S] = w.split('.'),
-						R = p.map((ie) => {
-							const [be, oe] = ie.split('.');
-							return { type: be, name: oe, path: ie };
+				const ue = null,
+					Ue = null;
+				function Le(r, m) {
+					const p = ze(Object.keys(r)),
+						g = m.split(' '),
+						h = g.slice(-1).pop() ?? '',
+						[w, x] = h.split('.'),
+						T = g.map((ae) => {
+							const [ie, He] = ae.split('.');
+							return { type: ie, name: He, path: ae };
 						}),
-						pe = (ie) => {
-							let be = 0;
-							for (let oe = 0; oe < ie.length; oe++) {
-								const je = ie[oe];
-								let Le = !1;
-								for (let Ke = be; Ke < R.length - 1; Ke++) {
-									const Q = R[Ke];
-									if (je === Q.path || je === Q.type) {
-										(be = Ke + 1), (Le = !0);
+						N = (ae) => {
+							let ie = 0;
+							for (let He = 0; He < ae.length; He++) {
+								const ge = ae[He];
+								let De = !1;
+								for (let Pe = ie; Pe < T.length - 1; Pe++) {
+									const Qe = T[Pe];
+									if (ge === Qe.path || ge === Qe.type) {
+										(ie = Pe + 1), (De = !0);
 										break;
 									}
 								}
-								if (!Le) return !1;
+								if (!De) return !1;
 							}
 							return !0;
 						},
-						Ae = (ie) => {
-							for (let be = 0; be < ie.length; be++) {
-								const oe = ie[be];
-								let je = !1;
-								for (let Le = 0; Le < R.length; Le++) {
-									const Ke = R[Le];
-									if (oe === Ke.path || oe === Ke.type) {
-										je = !0;
+						Te = (ae) => {
+							for (let ie = 0; ie < ae.length; ie++) {
+								const He = ae[ie];
+								let ge = !1;
+								for (let De = 0; De < T.length; De++) {
+									const Pe = T[De];
+									if (He === Pe.path || He === Pe.type) {
+										ge = !0;
 										break;
 									}
 								}
-								if (!je) return !1;
+								if (!ge) return !1;
 							}
 							return !0;
 						};
-					let Fe;
+					let fe;
 					return (
-						S
-							? (Fe = y.filter(({ selector: ie }) => {
-									const be = ie.split(' '),
-										oe = be[be.length - 1].replace(/\*?(\([MDT]\))?/g, '');
-									if (oe == f || oe == `${f}.${S}`) return !0;
+						x
+							? (fe = p.filter(({ selector: ae }) => {
+									const ie = ae.split(' '),
+										He = ie[ie.length - 1].replace(/\*?(\([MDT]\))?/g, '');
+									if (He == w || He == `${w}.${x}`) return !0;
 							  }))
-							: (Fe = y.filter(({ selector: ie }) => {
-									const be = ie.split(' ');
-									return be[be.length - 1].replace(/\*?(\([MDT]\))?/g, '') === f;
+							: (fe = p.filter(({ selector: ae }) => {
+									const ie = ae.split(' ');
+									return ie[ie.length - 1].replace(/\*?(\([MDT]\))?/g, '') === w;
 							  })),
-						Fe.filter(({ selector: ie }) => {
-							const be = ie
-								.replace(/\*?(\([MDT]\))?/g, '')
-								.split(' ')
-								.slice(0, -1);
-							if (be.length == 0) return !0;
-							const oe = pe(be);
-							if (Ue && !oe && Ae(be)) {
-								const je = `${ie}|${r}`;
-								Ee.has(je) ||
-									(Ee.add(je),
-									console.warn(
-										`Snap Templates: theme selector '${ie}' does not match treePath '${r}' \u2014 ancestor segments must appear in the same order as the component tree. This selector would have matched under the previous (unordered) rules; reorder its segments to restore it.`
-									));
-							}
-							return oe;
-						}).map(({ original: ie, selector: be }) => ({ original: ie, matchedPart: be }))
+						fe
+							.filter(({ selector: ae }) => {
+								const ie = ae
+									.replace(/\*?(\([MDT]\))?/g, '')
+									.split(' ')
+									.slice(0, -1);
+								return ie.length == 0 ? !0 : N(ie);
+							})
+							.map(({ original: ae, selector: ie }) => ({ original: ae, matchedPart: ie }))
 					);
 				}
-				const Re = { rawMatches: [], matches: [], baseSelectors: [], overrideSelectors: [] },
-					Me = new WeakMap();
-				function K(d, r) {
-					if (!d) return Re;
-					let y = !0;
-					for (const f in d)
-						if (f) {
-							y = !1;
+				const ve = { rawMatches: [], matches: [], baseSelectors: [], overrideSelectors: [] },
+					Ee = new WeakMap();
+				function Ae(r, m) {
+					if (!r) return ve;
+					let p = !0;
+					for (const w in r)
+						if (w) {
+							p = !1;
 							break;
 						}
-					if (y) return Re;
-					let p = Me.get(d);
-					p || ((p = new Map()), Me.set(d, p));
-					let w = p.get(r);
-					if (!w) {
-						const f = Be(d, r),
-							S = f
-								.map((R) => ({ match: R, weight: te(R.matchedPart) }))
-								.sort((R, pe) => R.weight - pe.weight)
-								.map(({ match: R }) => R);
-						(w = {
-							rawMatches: f,
-							matches: S,
-							baseSelectors: S.filter(({ matchedPart: R }) => R.includes('*')),
-							overrideSelectors: S.filter(({ matchedPart: R }) => !R.includes('*')),
+					if (p) return ve;
+					let g = Ee.get(r);
+					g || ((g = new Map()), Ee.set(r, g));
+					let h = g.get(m);
+					if (!h) {
+						const w = Le(r, m),
+							x = w
+								.map((T) => ({ match: T, weight: Se(T.matchedPart) }))
+								.sort((T, N) => T.weight - N.weight)
+								.map(({ match: T }) => T);
+						(h = {
+							rawMatches: w,
+							matches: x,
+							baseSelectors: x.filter(({ matchedPart: T }) => T.includes('*')),
+							overrideSelectors: x.filter(({ matchedPart: T }) => !T.includes('*')),
 						}),
-							p.set(r, w);
+							g.set(m, h);
 					}
-					return w;
+					return h;
 				}
-				const h = new WeakMap();
-				function g(d) {
-					let r = h.get(d);
-					if (!r) {
-						const y = new Set();
-						d.forEach((p) => {
-							p === p && y.add(p);
+				const X = new WeakMap();
+				function _(r) {
+					let m = X.get(r);
+					if (!m) {
+						const p = new Set();
+						r.forEach((g) => {
+							g === g && p.add(g);
 						}),
-							h.set(d, y),
-							(r = y);
+							X.set(r, p),
+							(m = p);
 					}
-					return r;
+					return m;
 				}
-				function O(d, r) {
-					const y = new Set(),
-						p = [];
-					for (const { original: w } of K(d, r).rawMatches) y.has(w) || (y.add(w), p.push(w));
-					return p;
+				function f(r, m) {
+					const p = new Set(),
+						g = [];
+					for (const { original: h } of Ae(r, m).rawMatches) p.has(h) || (p.add(h), g.push(h));
+					return g;
 				}
 			},
-			'./components/src/utilities/mergeStyles.ts'(q, H, t) {
+			'./components/src/utilities/mergeStyles.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { Z: () => o });
-				function o(v, x) {
-					const { name: E, treePath: V, style: $, styleScript: e, themeStyleScript: L, disableStyles: D } = v,
-						G = { 'ss-name': E, 'ss-path': V, css: [] };
-					return D || G.css.push(x(v)), L && G.css.push(L(v)), e && G.css.push(e(v)), $ && G.css.push($), G.css?.length == 0 && delete G.css, G;
+				t.d(O, { Z: () => o });
+				function o(C, y) {
+					const { name: z, treePath: G, style: H, styleScript: e, themeStyleScript: E, disableStyles: I } = C,
+						D = { 'ss-name': z, 'ss-path': G, css: [] };
+					return I || D.css.push(y(C)), E && D.css.push(E(C)), e && D.css.push(e(C)), H && D.css.push(H), D.css?.length == 0 && delete D.css, D;
 				}
 			},
-			'./src/Templates/Stores/LibraryStore.ts'(q, H, t) {
+			'./src/Templates/Stores/LibraryStore.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { z: () => d, S: () => O });
+				t.d(O, { z: () => m, S: () => r });
 				var o = t('./src/Templates/Stores/TemplateStore.ts'),
-					v = t('./components/src/providers/themeComponents.ts'),
-					x = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyBackgroundFilters.js'),
-					E = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyMutateResults.js'),
-					V = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyAddToCart.js'),
-					$ = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyMarkets.js'),
+					C = t('./components/src/providers/themeComponents.ts'),
+					y = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyBackgroundFilters.js'),
+					z = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyMutateResults.js'),
+					G = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyAddToCart.js'),
+					H = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyMarkets.js'),
 					e = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/shopify/src/plugins/pluginShopifyCurrency.js'),
-					L = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/bigcommerce/src/plugins/pluginBigcommerceAddToCart.js'),
-					D = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/magento2/src/plugins/pluginMagento2AddToCart.js'),
-					G = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginAddToCart.js'),
+					E = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/bigcommerce/src/plugins/pluginBigcommerceAddToCart.js'),
+					I = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/magento2/src/plugins/pluginMagento2AddToCart.js'),
+					D = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginAddToCart.js'),
 					se = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/bigcommerce/src/plugins/pluginBigcommerceBackgroundFilters.js'),
-					W = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/magento2/src/plugins/pluginMagento2BackgroundFilters.js'),
-					N = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/magento2/src/plugins/pluginMagento2Base.js'),
-					X = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginBackgroundFilters.js'),
-					F = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginScrollToTop.js'),
-					ne = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginLogger.js'),
-					de = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginKlaviyoEvents.js'),
-					xe = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
+					F = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/magento2/src/plugins/pluginMagento2BackgroundFilters.js'),
+					U = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/magento2/src/plugins/pluginMagento2Base.js'),
+					Y = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginBackgroundFilters.js'),
+					R = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginScrollToTop.js'),
+					oe = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginLogger.js'),
+					pe = t('../../node_modules/@athoscommerce/snap-platforms/dist/esm/common/src/plugins/pluginKlaviyoEvents.js'),
+					be = t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
 					Se = t('../../node_modules/@emotion/react/dist/emotion-react.browser.esm.js'),
 					te = t('../../node_modules/mobx-react-lite/es/index.js'),
 					ze = t('./components/src/utilities/mergeProps.ts'),
-					_e = t('./components/src/utilities/mergeStyles.ts'),
+					ue = t('./components/src/utilities/mergeStyles.ts'),
 					Ue = t('./components/src/utilities/cloneWithProps.tsx'),
-					Ee = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
-					Be = t('./components/src/providers/cache.tsx'),
-					Re = t('./components/src/providers/treePath.tsx');
-				const Me = () => (0, Se.AH)({}),
-					K = (0, te.PA)((r) => {
-						const y = (0, Ee.u)(),
-							p = (0, Re.LU)(),
-							w = r.type.charAt(0).toUpperCase() + r.type.slice(1).toLowerCase(),
-							f = { treePath: r.children.props.treePath || p || void 0 },
-							S = (0, ze.v6)(`customComponent-${w}`, y, f, r),
-							{ children: R } = S,
-							pe = (0, _e.Z)(S, Me),
-							Ae = pe['ss-path'];
-						return (0, xe.Y)(Be._, { children: (0, xe.Y)('div', { ...pe, children: (0, Ue.Y)(R, { treePath: Ae, theme: S.theme }) }) });
+					Le = t('../../node_modules/@emotion/react/dist/emotion-element-5486c51c.browser.esm.js'),
+					ve = t('./components/src/providers/cache.tsx'),
+					Ee = t('./components/src/providers/treePath.tsx');
+				const Ae = () => (0, Se.AH)({}),
+					X = (0, te.PA)((p) => {
+						const g = (0, Le.u)(),
+							h = (0, Ee.LU)(),
+							w = p.type.charAt(0).toUpperCase() + p.type.slice(1).toLowerCase(),
+							x = { treePath: p.children.props.treePath || h || void 0 },
+							T = (0, ze.v6)(`customComponent-${w}`, g, x, p),
+							{ children: N } = T,
+							Te = (0, ue.Z)(T, Ae),
+							fe = Te['ss-path'];
+						return (0, be.Y)(ve._, { children: (0, be.Y)('div', { ...Te, children: (0, Ue.Y)(N, { treePath: fe, theme: T.theme }) }) });
 					}),
-					h = async (r) => {
-						const { type: y, name: p, componentFn: w } = r,
-							f = await w();
-						return (S) => (0, xe.Y)(K, { type: y, name: p, children: (0, xe.Y)(f, { ...S }) });
+					_ = async (p) => {
+						const { type: g, name: h, componentFn: w } = p,
+							x = await w();
+						return (T) => (0, be.Y)(X, { type: g, name: h, children: (0, be.Y)(x, { ...T }) });
 					},
-					g = {
+					f = {
 						aed: { components: { price: { symbol: 'AED ' } } },
 						afn: { components: { price: { symbol: '\u060B', decimalPlaces: 0 } } },
 						all: { components: { price: { symbol: 'ALL ', decimalPlaces: 0, thousandsSeparator: '\xA0', decimalSeparator: ',' } } },
@@ -8932,9 +8923,9 @@
 						zar: { components: { price: { symbol: 'R', thousandsSeparator: '\xA0', decimalSeparator: ',' } } },
 						zmw: { components: { price: { symbol: 'ZK' } } },
 					},
-					O = Object.keys(g);
-				class d {
-					constructor(y) {
+					r = Object.keys(f);
+				class m {
+					constructor(g) {
 						(this.themes = {}),
 							(this.components = {
 								search: {},
@@ -9016,10 +9007,10 @@
 										this.themes.pike || (this.themes.pike = (await Promise.resolve().then(() => t('./components/src/themes/pike/pike.ts'))).pike),
 								},
 								plugins: {
-									shopify: { backgroundFilters: x.h, mutateResults: E.U, addToCart: V.q, markets: $.v, currency: e.r },
-									bigcommerce: { backgroundFilters: se.M, addToCart: L.N },
-									magento2: { base: N.U, backgroundFilters: W.Q, addToCart: D.V },
-									common: { backgroundFilters: X.J, scrollToTop: F.p, logger: ne.o, addToCart: G.E, klaviyoEvents: de._ },
+									shopify: { backgroundFilters: y.h, mutateResults: z.U, addToCart: G.q, markets: H.v, currency: e.r },
+									bigcommerce: { backgroundFilters: se.M, addToCart: E.N },
+									magento2: { base: U.U, backgroundFilters: F.Q, addToCart: I.V },
+									common: { backgroundFilters: Y.J, scrollToTop: R.p, logger: oe.o, addToCart: D.E, klaviyoEvents: pe._ },
 								},
 								component: {
 									autocomplete: {
@@ -9096,7 +9087,7 @@
 											this.components.search.SearchCollapsible ||
 											(this.components.search.SearchCollapsible = (
 												await Promise.all([
-													t.e(671),
+													t.e(3052),
 													t.e(1224),
 													t.e(594),
 													t.e(6496),
@@ -9113,7 +9104,7 @@
 											this.components.search.Search ||
 											(this.components.search.Search = (
 												await Promise.all([
-													t.e(3052),
+													t.e(671),
 													t.e(1224),
 													t.e(594),
 													t.e(6496),
@@ -9329,659 +9320,660 @@
 										this.locales.languages.nl ||
 										(this.locales.languages.nl = (0, o.fu)((await t.e(6580).then(() => t('./src/Templates/Stores/library/languages/nl.ts'))).nl)),
 								},
-								currency: O.reduce((f, S) => ((f[S] = async () => this.locales.currencies[S] || (this.locales.currencies[S] = g[S])), f), {}),
+								currency: r.reduce((x, T) => ((x[T] = async () => this.locales.currencies[T] || (this.locales.currencies[T] = f[T])), x), {}),
 							});
-						const { components: p, unlocked: w } = y || {};
-						(this.allowedComponentTypes = w ? [...v.C] : [...v.o]),
-							p &&
-								Object.keys(p).forEach((f) => {
-									const S = p[f];
-									S &&
-										Object.keys(S).forEach((R) => {
-											this.addComponentImport(f, R, S[R]);
+						const { components: h, unlocked: w } = g || {};
+						(this.allowedComponentTypes = w ? [...C.C] : [...C.o]),
+							h &&
+								Object.keys(h).forEach((x) => {
+									const T = h[x];
+									T &&
+										Object.keys(T).forEach((N) => {
+											this.addComponentImport(x, N, T[N]);
 										});
 								});
 					}
-					getComponent(y, p) {
-						const w = y.split('/');
-						w.push(p);
-						let f = this.components;
-						for (let S = 0; S < w.length; S++) {
-							if (!f[w[S]]) return;
-							f = f[w[S]];
+					getComponent(g, h) {
+						const w = g.split('/');
+						w.push(h);
+						let x = this.components;
+						for (let T = 0; T < w.length; T++) {
+							if (!x[w[T]]) return;
+							x = x[w[T]];
 						}
-						return f;
+						return x;
 					}
-					async addComponentImport(y, p, w) {
-						this.allowedComponentTypes.includes(y) &&
-							this.components[y] &&
-							(this.import.component[y][p] = async () =>
-								this.components[y][p] || (this.components[y][p] = await h({ type: y, name: p, componentFn: w })));
+					async addComponentImport(g, h, w) {
+						this.allowedComponentTypes.includes(g) &&
+							this.components[g] &&
+							(this.import.component[g][h] = async () =>
+								this.components[g][h] || (this.components[g][h] = await _({ type: g, name: h, componentFn: w })));
 					}
 					async preLoad() {
-						const y = [];
+						const g = [];
 						return (
-							Object.keys(this.import).forEach((p) => {
-								const w = this.import[p];
-								Object.keys(w).forEach((f) => {
-									if (p === 'component')
-										if (f === 'recommendation') {
-											const S = w.recommendation;
-											Object.keys(S).forEach((R) => {
-												const pe = S[R];
-												Object.keys(pe).forEach((Ae) => {
-													y.push(pe[Ae]());
+							Object.keys(this.import).forEach((h) => {
+								const w = this.import[h];
+								Object.keys(w).forEach((x) => {
+									if (h === 'component')
+										if (x === 'recommendation') {
+											const T = w.recommendation;
+											Object.keys(T).forEach((N) => {
+												const Te = T[N];
+												Object.keys(Te).forEach((fe) => {
+													g.push(Te[fe]());
 												});
 											});
 										} else {
-											const S = w[f];
-											Object.keys(S).forEach((R) => {
-												y.push(S[R]());
+											const T = w[x];
+											Object.keys(T).forEach((N) => {
+												g.push(T[N]());
 											});
 										}
-									else if (p === 'language' || p === 'currency') {
-										const S = w[f];
-										y.push(S());
-									} else if (p === 'theme') {
-										const S = w[f];
-										y.push(S());
+									else if (h === 'language' || h === 'currency') {
+										const T = w[x];
+										g.push(T());
+									} else if (h === 'theme') {
+										const T = w[x];
+										g.push(T());
 									}
 								});
 							}),
-							Promise.all(y)
+							Promise.all(g)
 						);
 					}
 				}
 			},
-			'./src/Templates/Stores/TabManagerStore.ts'(q, H, t) {
+			'./src/Templates/Stores/TabManagerStore.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { E: () => $, y: () => V });
+				t.d(O, { E: () => H, y: () => G });
 				var o = t('../../node_modules/mobx/dist/mobx.esm.js'),
-					v = t('../../node_modules/@athoscommerce/snap-controller/dist/esm/types.js'),
-					x = t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/url/url.js');
-				const E = 'tab';
-				function V(D) {
-					const G = D.filter((N) => N.default)[0] || D[0],
-						se = (0, x.O)(window.location.href)?.params.query[E];
-					if (!se) return G;
-					const W = decodeURIComponent(se);
-					return D.filter((N) => N.param == W)[0] || G;
+					C = t('../../node_modules/@athoscommerce/snap-controller/dist/esm/types.js'),
+					y = t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/url/url.js');
+				const z = 'tab';
+				function G(I) {
+					const D = I.filter((U) => U.default)[0] || I[0],
+						se = (0, y.O)(window.location.href)?.params.query[z];
+					if (!se) return D;
+					const F = decodeURIComponent(se);
+					return I.filter((U) => U.param == F)[0] || D;
 				}
-				class $ {
-					constructor(G, se) {
+				class H {
+					constructor(D, se) {
 						(this.tabs = []),
-							(this.setActive = (X, F = !0) => {
-								const ne = this.getTab(X);
-								if (!ne || ne.id === this.active?.id) return;
-								const de = this.active;
-								this.setRedirects(de, !1),
-									(this.active = ne),
-									this.setRedirects(ne, !0),
-									ne.controller.type == v.k.search && (F && ne.controller.urlManager.set(this.param, ne.param).go(), this.searchTab(ne));
+							(this.setActive = (Y, R = !0) => {
+								const oe = this.getTab(Y);
+								if (!oe || oe.id === this.active?.id) return;
+								const pe = this.active;
+								this.setRedirects(pe, !1),
+									(this.active = oe),
+									this.setRedirects(oe, !0),
+									oe.controller.type == C.k.search && (R && oe.controller.urlManager.set(this.param, oe.param).go(), this.searchTab(oe));
 							}),
-							(this.setRedirects = (X, F) => {
-								if (!X) return;
-								const ne = X.controller.config;
-								(ne.settings = ne.settings || {}), (ne.settings.redirects = F ? { ...X.redirects } : { merchandising: !1, singleResult: !1 });
+							(this.setRedirects = (Y, R) => {
+								if (!Y) return;
+								const oe = Y.controller.config;
+								(oe.settings = oe.settings || {}), (oe.settings.redirects = R ? { ...Y.redirects } : { merchandising: !1, singleResult: !1 });
 							}),
-							(this.searchTab = (X) => {
-								if (X.controller.type != v.k.search) return;
-								const F = X.controller;
-								!F.store.loading && !F.store.loaded && F.search();
+							(this.searchTab = (Y) => {
+								if (Y.controller.type != C.k.search) return;
+								const R = Y.controller;
+								!R.store.loading && !R.store.loaded && R.search();
 							}),
-							(this.getTab = (X) => this.tabs?.filter((F) => F.id == X)[0]),
-							(this.getTabByParam = (X) => this.tabs?.filter((F) => F.param == X)[0]),
-							(this.param = E);
-						const W = G.filter((X) => X.default)[0] || G[0];
-						let N;
-						G.forEach((X) => {
-							const F = se.filter((de) => de.id == X.id)[0];
-							if (!F) return;
-							const ne = {
-								id: X.id,
-								label: X.label,
-								siteId: X.siteId,
-								param: X.param,
-								controller: F,
-								prefetch: 'prefetch' in X ? X.prefetch ?? !0 : !0,
-								redirects: { ...(F.config.settings?.redirects || {}) },
+							(this.getTab = (Y) => this.tabs?.filter((R) => R.id == Y)[0]),
+							(this.getTabByParam = (Y) => this.tabs?.filter((R) => R.param == Y)[0]),
+							(this.param = z);
+						const F = D.filter((Y) => Y.default)[0] || D[0];
+						let U;
+						D.forEach((Y) => {
+							const R = se.filter((pe) => pe.id == Y.id)[0];
+							if (!R) return;
+							const oe = {
+								id: Y.id,
+								label: Y.label,
+								siteId: Y.siteId,
+								param: Y.param,
+								controller: R,
+								prefetch: 'prefetch' in Y ? Y.prefetch ?? !0 : !0,
+								redirects: { ...(R.config.settings?.redirects || {}) },
 							};
-							if (F.type == v.k.autocomplete) {
-								const de = F;
-								de.config.action ||
-									de.eventManager.on('beforeSubmit', async (xe, Se) => {
-										xe.input?.form && e(xe.input.form, this.param, this.active?.param || ne.param), await Se();
+							if (R.type == C.k.autocomplete) {
+								const pe = R;
+								pe.config.action ||
+									pe.eventManager.on('beforeSubmit', async (be, Se) => {
+										be.input?.form && e(be.input.form, this.param, this.active?.param || oe.param), await Se();
 									});
 							}
-							if (F.type == v.k.search) {
-								const de = F;
-								N || (N = L(de.urlManager.state[this.param])),
-									de.urlManager.subscribe((xe, Se) => {
-										const te = L(Se?.[this.param]),
-											ze = (te && this.getTabByParam(te)) || this.getTab(W.id);
+							if (R.type == C.k.search) {
+								const pe = R;
+								U || (U = E(pe.urlManager.state[this.param])),
+									pe.urlManager.subscribe((be, Se) => {
+										const te = E(Se?.[this.param]),
+											ze = (te && this.getTabByParam(te)) || this.getTab(F.id);
 										ze && this.setActive(ze.id, !1);
 									});
 							}
-							this.tabs.push(ne);
+							this.tabs.push(oe);
 						}),
-							(this.active = (N && this.getTabByParam(N)) || this.getTab(W.id) || this.tabs[0]),
+							(this.active = (U && this.getTabByParam(U)) || this.getTab(F.id) || this.tabs[0]),
 							(0, o.Gn)(this, { tabs: o.sH, active: o.sH, setActive: o.XI }),
-							this.tabs.forEach((X) => {
-								X.id != this.active?.id && this.setRedirects(X, !1), (X.prefetch || X.id == this.active?.id) && this.searchTab(X);
+							this.tabs.forEach((Y) => {
+								Y.id != this.active?.id && this.setRedirects(Y, !1), (Y.prefetch || Y.id == this.active?.id) && this.searchTab(Y);
 							});
 					}
 				}
-				function e(D, G, se) {
-					const W = Array.from(D.querySelectorAll('input[type="hidden"]')).find((X) => X.name === G);
-					if (W) {
-						W.value = se;
+				function e(I, D, se) {
+					const F = Array.from(I.querySelectorAll('input[type="hidden"]')).find((Y) => Y.name === D);
+					if (F) {
+						F.value = se;
 						return;
 					}
-					const N = document.createElement('input');
-					(N.type = 'hidden'), (N.name = G), (N.value = se), D.append(N);
+					const U = document.createElement('input');
+					(U.type = 'hidden'), (U.name = D), (U.value = se), I.append(U);
 				}
-				function L(D) {
-					return Array.isArray(D) ? D[0] : typeof D == 'string' ? D : void 0;
+				function E(I) {
+					return Array.isArray(I) ? I[0] : typeof I == 'string' ? I : void 0;
 				}
 			},
-			'./src/Templates/Stores/TargetStore.ts'(q, H, t) {
+			'./src/Templates/Stores/TargetStore.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { t: () => x });
+				t.d(O, { t: () => y });
 				var o = t('../../node_modules/mobx/dist/mobx.esm.js');
-				const v = 'global';
-				class x {
-					constructor(V) {
-						const { target: $ } = V;
-						(this.index = $.index),
-							(this.type = $.type),
-							(this.selector = $.selector || ''),
-							(this.component = $.component || ''),
-							(this.theme = { location: 'local', name: v }),
+				const C = 'global';
+				class y {
+					constructor(G) {
+						const { target: H } = G;
+						(this.index = H.index),
+							(this.type = H.type),
+							(this.selector = H.selector || ''),
+							(this.component = H.component || ''),
+							(this.theme = { location: 'local', name: C }),
 							(0, o.Gn)(this, { component: o.sH, selector: o.sH, theme: o.sH });
 					}
-					setValue(V, $) {
-						switch (V) {
+					setValue(G, H) {
+						switch (G) {
 							case 'selector':
-								this.selector = $;
+								this.selector = H;
 								break;
 							case 'component':
-								this.component = $;
+								this.component = H;
 								break;
 						}
 					}
-					setTheme(V, $) {
-						this.theme = { location: $, name: V };
+					setTheme(G, H) {
+						this.theme = { location: H, name: G };
 					}
 				}
 			},
-			'./src/Templates/Stores/TemplateStore.ts'(q, H, t) {
+			'./src/Templates/Stores/TemplateStore.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { NG: () => te, nf: () => ze, fu: () => Be });
+				t.d(O, { NG: () => te, nf: () => ze, fu: () => ve });
 				var o = t('../../node_modules/deepmerge/dist/cjs.js'),
-					v = t.n(o),
-					x = t('../../node_modules/mobx/dist/mobx.esm.js'),
-					E = t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/StorageStore/StorageStore.js'),
-					V = t('../../node_modules/is-plain-object/dist/is-plain-object.mjs'),
-					$ = t('./components/src/utilities/mergeProps.ts');
+					C = t.n(o),
+					y = t('../../node_modules/mobx/dist/mobx.esm.js'),
+					z = t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/StorageStore/StorageStore.js'),
+					G = t('../../node_modules/is-plain-object/dist/is-plain-object.mjs'),
+					H = t('./components/src/utilities/mergeProps.ts');
 				class e {
-					constructor(h) {
-						const { config: g, dependencies: O, settings: d } = h;
-						(this.dependencies = O), (this.editMode = d.editMode);
+					constructor(_) {
+						const { config: f, dependencies: r, settings: m } = _;
+						(this.dependencies = r), (this.editMode = m.editMode);
 						const {
-								name: r,
-								style: y,
-								type: p,
+								name: p,
+								style: g,
+								type: h,
 								base: w,
-								overrides: f,
-								editorOverrides: S,
-								variables: R,
-								currency: pe,
-								currencyOverrides: Ae,
+								overrides: x,
+								editorOverrides: T,
+								variables: N,
+								currency: Te,
+								currencyOverrides: fe,
 								language: Fe,
-								languageOverrides: ye,
+								languageOverrides: ae,
 								innerWidth: ie,
-							} = g,
-							be = { ...w };
-						(be.components = N('*', W(w.components))),
+							} = f,
+							He = { ...w };
+						(He.components = U('*', F(w.components))),
 							w.responsive &&
-								(be.responsive = {
-									mobile: N('*(M)', W(w.responsive.mobile)),
-									tablet: N('*(T)', W(w.responsive.tablet)),
-									desktop: N('*(D)', W(w.responsive.desktop)),
+								(He.responsive = {
+									mobile: U('*(M)', F(w.responsive.mobile)),
+									tablet: U('*(T)', F(w.responsive.tablet)),
+									desktop: U('*(D)', F(w.responsive.desktop)),
 								});
-						const oe = { ...(f || {}) };
-						f?.responsive &&
-							(oe.responsive = {
-								mobile: N('(M)', W(f.responsive.mobile)),
-								tablet: N('(T)', W(f.responsive.tablet)),
-								desktop: N('(D)', W(f.responsive.desktop)),
+						const ge = { ...(x || {}) };
+						x?.responsive &&
+							(ge.responsive = {
+								mobile: U('(M)', F(x.responsive.mobile)),
+								tablet: U('(T)', F(x.responsive.tablet)),
+								desktop: U('(D)', F(x.responsive.desktop)),
 							}),
-							f?.components && (oe.components = X(W(f.components))),
-							(this.name = r),
-							(this.type = p),
-							(this.base = be),
-							(this.overrides = oe),
-							(this.editorOverrides = S || {}),
-							(this.variables = R || {}),
-							(this.currency = pe),
-							(this.currencyOverrides = Ae || {}),
+							x?.components && (ge.components = Y(F(x.components))),
+							(this.name = p),
+							(this.type = h),
+							(this.base = He),
+							(this.overrides = ge),
+							(this.editorOverrides = T || {}),
+							(this.variables = N || {}),
+							(this.currency = Te),
+							(this.currencyOverrides = fe || {}),
 							(this.language = Fe),
-							(this.languageOverrides = ye),
+							(this.languageOverrides = ae),
 							(this.innerWidth = ie),
-							(this.style = y),
-							(0, x.Gn)(this, {
-								name: x.sH,
-								variables: x.sH,
-								currency: x.sH,
-								currencyOverrides: x.sH,
-								language: x.sH,
-								languageOverrides: x.sH,
-								editorOverrides: x.sH,
-								innerWidth: x.sH,
-								activeBreakpoint: x.EW,
-								theme: x.EW,
+							(this.style = g),
+							(0, y.Gn)(this, {
+								name: y.sH,
+								variables: y.sH,
+								currency: y.sH,
+								currencyOverrides: y.sH,
+								language: y.sH,
+								languageOverrides: y.sH,
+								editorOverrides: y.sH,
+								innerWidth: y.sH,
+								activeBreakpoint: y.EW,
+								theme: y.EW,
 							});
 					}
 					get activeBreakpoint() {
-						const h = v().all([
+						const _ = C().all([
 							this.base.variables.breakpoints,
 							this.variables.breakpoints || {},
 							(this.editMode && this.editorOverrides?.variables?.breakpoints) || {},
 						]);
-						return D(this.innerWidth, h);
+						return I(this.innerWidth, _);
 					}
 					get theme() {
-						const h = this.activeBreakpoint,
-							g = G(h, this.overrides),
-							O = G(h, this.base),
-							d = { ...this.overrides },
-							r = L(d, g, { variables: (0, x.HO)(this.variables) }),
-							y = L(O, this.currency, this.currencyOverrides, this.language, this.languageOverrides, r, { activeBreakpoint: h });
-						let p = L(this.base, y);
-						for (const f in p.components) {
-							const R = p.components[f]?.theme?.components;
-							if (R)
-								for (const pe in R)
-									(0, $.D0)(r.components || {}, `${f} ${pe}`)
-										.sort($.fX)
+						const _ = this.activeBreakpoint,
+							f = D(_, this.overrides),
+							r = D(_, this.base),
+							m = { ...this.overrides },
+							p = E(m, f, { variables: (0, y.HO)(this.variables) }),
+							g = E(r, this.currency, this.currencyOverrides, this.language, this.languageOverrides, p, { activeBreakpoint: _ });
+						let h = E(this.base, g);
+						for (const x in h.components) {
+							const N = h.components[x]?.theme?.components;
+							if (N)
+								for (const Te in N)
+									(0, H.D0)(p.components || {}, `${x} ${Te}`)
+										.sort(H.fX)
 										.forEach((Fe) => {
-											const ye = r.components[Fe];
-											if (ye) {
-												const ie = R[pe];
-												R[pe] = { ...ie, ...ye };
+											const ae = p.components[Fe];
+											if (ae) {
+												const ie = N[Te];
+												N[Te] = { ...ie, ...ae };
 											}
 										});
 						}
 						if (this.editMode) {
-							const f = G(h, this.editorOverrides),
-								S = L(this.editorOverrides, f);
-							p = L(p, S);
+							const x = D(_, this.editorOverrides),
+								T = E(this.editorOverrides, x);
+							h = E(h, T);
 						}
 						const w = [this.base.globalStyle, this.style].filter(Boolean);
 						return (
-							w.length > 0 && (p.globalStyle = ({ name: f, variables: S }) => Object.assign({}, ...w.map((R) => R({ name: f, variables: S })))),
-							(p.name = this.name),
-							p
+							w.length > 0 && (h.globalStyle = ({ name: x, variables: T }) => Object.assign({}, ...w.map((N) => N({ name: x, variables: T })))),
+							(h.name = this.name),
+							h
 						);
 					}
-					setInnerWidth(h) {
-						this.innerWidth = h;
+					setInnerWidth(_) {
+						this.innerWidth = _;
 					}
-					setCurrency(h, g = {}) {
-						(this.currency = h), (this.currencyOverrides = g);
+					setCurrency(_, f = {}) {
+						(this.currency = _), (this.currencyOverrides = f);
 					}
-					setLanguage(h, g = {}) {
-						(this.language = h), (this.languageOverrides = g);
+					setLanguage(_, f = {}) {
+						(this.language = _), (this.languageOverrides = f);
 					}
-					setEditorOverrides(h) {
-						this.editorOverrides = h;
+					setEditorOverrides(_) {
+						this.editorOverrides = _;
 					}
 				}
-				function L(...K) {
-					return v().all(K, { arrayMerge: se });
+				function E(...X) {
+					return C().all(X, { arrayMerge: se });
 				}
-				function D(K, h) {
-					let g;
+				function I(X, _) {
+					let f;
 					return (
-						Number.isInteger(K) &&
-							h &&
-							Object.keys(h).forEach((O) => {
-								K <= h[O] && (!g || h[g] > h[O]) && (g = O);
+						Number.isInteger(X) &&
+							_ &&
+							Object.keys(_).forEach((r) => {
+								X <= _[r] && (!f || _[f] > _[r]) && (f = r);
 							}),
-						g || 'default'
+						f || 'default'
 					);
 				}
-				function G(K, h) {
-					let g = {};
-					return K && h.responsive && (g = (h.responsive && h.responsive[K]) || {}), { components: g };
+				function D(X, _) {
+					let f = {};
+					return X && _.responsive && (f = (_.responsive && _.responsive[X]) || {}), { components: f };
 				}
-				const se = (K, h, g) => {
-					const O = K.slice(0, h.length);
+				const se = (X, _, f) => {
+					const r = X.slice(0, _.length);
 					return (
-						h.forEach((d, r) => {
-							typeof O[r] > 'u' ? (O[r] = g.cloneUnlessOtherwiseSpecified(d, g)) : (0, V.Q)(d) ? (O[r] = v()(K[r], d, g)) : (O[r] = d);
+						_.forEach((m, p) => {
+							typeof r[p] > 'u' ? (r[p] = f.cloneUnlessOtherwiseSpecified(m, f)) : (0, G.Q)(m) ? (r[p] = C()(X[p], m, f)) : (r[p] = m);
 						}),
-						O
+						r
 					);
 				};
-				function W(K) {
-					if (!K) return {};
-					const h = {};
+				function F(X) {
+					if (!X) return {};
+					const _ = {};
 					return (
-						Object.keys(K).forEach((g) => {
-							const { $children: O, ...d } = K[g] || {};
-							if (((h[g] = { ...h[g], ...d }), O)) {
-								const r = W(O),
-									y = g.split(/\s*,\s*/);
-								Object.keys(r).forEach((p) => {
-									const w = p.split(/\s*,\s*/),
-										f = [];
-									y.forEach((R) => {
-										w.forEach((pe) => {
-											f.push(`${R} ${pe}`);
+						Object.keys(X).forEach((f) => {
+							const { $children: r, ...m } = X[f] || {};
+							if (((_[f] = { ..._[f], ...m }), r)) {
+								const p = F(r),
+									g = f.split(/\s*,\s*/);
+								Object.keys(p).forEach((h) => {
+									const w = h.split(/\s*,\s*/),
+										x = [];
+									g.forEach((N) => {
+										w.forEach((Te) => {
+											x.push(`${N} ${Te}`);
 										});
 									});
-									const S = f.join(', ');
-									h[S] = { ...h[S], ...r[p] };
+									const T = x.join(', ');
+									_[T] = { ..._[T], ...p[h] };
 								});
 							}
 						}),
-						h
+						_
 					);
 				}
-				function N(K, h) {
-					const g = {};
+				function U(X, _) {
+					const f = {};
 					return (
-						h &&
-							Object.keys(h).forEach((O) => {
-								if (O.includes(',')) {
-									const d = O.split(/\s*,\s*/)
-										.map((r) => (r.indexOf(K) === 0 ? r : `${K}${r}`))
+						_ &&
+							Object.keys(_).forEach((r) => {
+								if (r.includes(',')) {
+									const m = r
+										.split(/\s*,\s*/)
+										.map((p) => (p.indexOf(X) === 0 ? p : `${X}${p}`))
 										.join(', ');
-									g[d] = h[O];
+									f[m] = _[r];
 									return;
 								}
-								if (O.indexOf(K) === 0) {
-									g[O] = h[O];
+								if (r.indexOf(X) === 0) {
+									f[r] = _[r];
 									return;
 								}
-								g[`${K}${O}`] = h[O];
+								f[`${X}${r}`] = _[r];
 							}),
-						g
+						f
 					);
 				}
-				function X(K) {
-					const h = {};
+				function Y(X) {
+					const _ = {};
 					return (
-						Object.keys(K).forEach((g) => {
-							if (g.includes(',')) {
-								const O = g.split(/\s*,\s*/).join(', ');
-								h[O] = K[g];
-							} else h[g] = K[g];
+						Object.keys(X).forEach((f) => {
+							if (f.includes(',')) {
+								const r = f.split(/\s*,\s*/).join(', ');
+								_[r] = X[f];
+							} else _[f] = X[f];
 						}),
-						h
+						_
 					);
 				}
-				var F = t('./src/Templates/Stores/TargetStore.ts'),
-					ne = t('./src/Templates/Stores/TabManagerStore.ts'),
-					de = t('./src/Templates/Stores/LibraryStore.ts'),
-					xe = t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/debounce/debounce.js');
+				var R = t('./src/Templates/Stores/TargetStore.ts'),
+					oe = t('./src/Templates/Stores/TabManagerStore.ts'),
+					pe = t('./src/Templates/Stores/LibraryStore.ts'),
+					be = t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/debounce/debounce.js');
 				const Se = 100,
 					te = 'athos-templates';
 				class ze {
-					constructor(h) {
+					constructor(_) {
 						(this.loading = !1), (this.window = { innerWidth: 0 }), (this.tabManagers = {});
-						const { config: g, settings: O } = h || {};
-						(this.config = g),
-							(this.platform = g.config?.platform || 'other'),
-							(this.storage = new E.t({ type: E.e.local, key: te })),
+						const { config: f, settings: r } = _ || {};
+						(this.config = f),
+							(this.platform = f.config?.platform || 'other'),
+							(this.storage = new z.t({ type: z.e.local, key: te })),
 							(this.dependencies = { storage: this.storage }),
-							(this.settings = O || { editMode: !1 }),
+							(this.settings = r || { editMode: !1 }),
 							(this.targets = { search: [], autocomplete: [], recommendation: { bundle: [], default: [], email: [] } }),
 							(this.themes = { local: {}, library: {} }),
-							(this.library = new de.z({ components: g.components, unlocked: g.unlocked || !1 }));
-						const d = this.config.config?.language?.toLowerCase(),
-							r = this.config.config?.currency?.toLowerCase();
-						d &&
-							!(d in this.library.import.language) &&
+							(this.library = new pe.z({ components: f.components, unlocked: f.unlocked || !1 }));
+						const m = this.config.config?.language?.toLowerCase(),
+							p = this.config.config?.currency?.toLowerCase();
+						m &&
+							!(m in this.library.import.language) &&
 							console.warn(`Snap Templates: unknown language code "${this.config.config?.language}" - using "en"`),
-							r &&
-								!(r in this.library.import.currency) &&
+							p &&
+								!(p in this.library.import.currency) &&
 								console.warn(`Snap Templates: unknown currency code "${this.config.config?.currency}" - using "usd"`),
 							(this.language =
-								(this.settings.editMode && this.storage.get('overrides.config.language')) || (d && d in this.library.import.language && d) || 'en'),
+								(this.settings.editMode && this.storage.get('overrides.config.language')) || (m && m in this.library.import.language && m) || 'en'),
 							(this.currency =
-								(this.settings.editMode && this.storage.get('overrides.config.currency')) || (r && r in this.library.import.currency && r) || 'usd');
-						const y = this.library.import.currency[this.currency](),
-							p = this.library.import.language[this.language]();
+								(this.settings.editMode && this.storage.get('overrides.config.currency')) || (p && p in this.library.import.currency && p) || 'usd');
+						const g = this.library.import.currency[this.currency](),
+							h = this.library.import.language[this.language]();
 						if (window) {
 							this.setInnerWidth(window.innerWidth);
-							const pe = (0, xe.s)(() => {
+							const Te = (0, be.s)(() => {
 								this.setInnerWidth(window.innerWidth);
 							}, Se);
-							window.addEventListener('resize', pe);
+							window.addEventListener('resize', Te);
 						}
 						this.loading = !0;
 						const w = [],
-							f = g.theme,
-							S = new Me();
-						w.push(S.promise);
-						const R = [y, p, this.library.import.theme[f.extends]()];
-						Promise.all(R).then(() => {
-							const pe = this.library.themes[f.extends],
-								Ae = f.overrides || {},
-								Fe = f.variables || {},
-								ye = Ee(this.currency, this.library.locales.currencies[this.currency] || {}),
+							x = f.theme,
+							T = new Ae();
+						w.push(T.promise);
+						const N = [g, h, this.library.import.theme[x.extends]()];
+						Promise.all(N).then(() => {
+							const Te = this.library.themes[x.extends],
+								fe = x.overrides || {},
+								Fe = x.variables || {},
+								ae = Le(this.currency, this.library.locales.currencies[this.currency] || {}),
 								ie = Ue(this.config.currencies, this.currency),
-								be = this.library.locales.languages[this.language] || {},
-								oe = Re(this.config.translations, this.language),
-								je = { components: Ae.default, responsive: { mobile: Ae.mobile, tablet: Ae.tablet, desktop: Ae.desktop } },
-								Le = {
+								He = this.library.locales.languages[this.language] || {},
+								ge = Ee(this.config.translations, this.language),
+								De = { components: fe.default, responsive: { mobile: fe.mobile, tablet: fe.tablet, desktop: fe.desktop } },
+								Pe = {
 									name: 'global',
-									style: f.style,
+									style: x.style,
 									type: 'local',
-									base: pe,
-									overrides: je,
+									base: Te,
+									overrides: De,
 									variables: Fe,
-									currency: ye,
+									currency: ae,
 									currencyOverrides: ie,
-									language: be,
-									languageOverrides: oe,
+									language: He,
+									languageOverrides: ge,
 									innerWidth: this.window.innerWidth,
 								};
 							if (this.settings.editMode) {
-								const Ke = this.storage.get('overrides.theme.variables') || {};
-								Le.editorOverrides = { variables: Ke || {} };
+								const Qe = this.storage.get('overrides.theme.variables') || {};
+								Pe.editorOverrides = { variables: Qe || {} };
 							}
-							this.addTheme(Le), S.resolve();
+							this.addTheme(Pe), T.resolve();
 						}),
 							Promise.all(w).then(() => {
 								this.loading = !1;
 							}),
-							(0, x.Gn)(this, { loading: x.sH, targets: x.sH, themes: x.sH });
+							(0, y.Gn)(this, { loading: y.sH, targets: y.sH, themes: y.sH });
 					}
-					addTarget(h) {
-						if (h.selector) {
-							const g = _e(this.targets, h.type);
-							if (!g) return;
-							const O = new F.t({ target: { ...h, index: g.length } });
-							return g.push(O), O;
+					addTarget(_) {
+						if (_.selector) {
+							const f = ue(this.targets, _.type);
+							if (!f) return;
+							const r = new R.t({ target: { ..._, index: f.length } });
+							return f.push(r), r;
 						}
 					}
-					getTarget(h, g) {
-						return _e(this.targets, h)?.[g];
+					getTarget(_, f) {
+						return ue(this.targets, _)?.[f];
 					}
-					getTabManager(h, g) {
-						const O = this.config[h]?.tabs;
-						if (!O || O.length < 2) return;
-						const d = O.map((r) => ({ id: r.id, param: r.param, siteId: r.siteId, label: r.label, default: r.default, prefetch: r.prefetch }));
-						if (!this.tabManagers[h]) {
-							const r = O.map((y) => g[y.id]).filter((y) => !!y);
-							this.tabManagers[h] = new ne.E(d, r);
+					getTabManager(_, f) {
+						const r = this.config[_]?.tabs;
+						if (!r || r.length < 2) return;
+						const m = r.map((p) => ({ id: p.id, param: p.param, siteId: p.siteId, label: p.label, default: p.default, prefetch: p.prefetch }));
+						if (!this.tabManagers[_]) {
+							const p = r.map((g) => f[g.id]).filter((g) => !!g);
+							this.tabManagers[_] = new oe.E(m, p);
 						}
-						return this.tabManagers[h];
+						return this.tabManagers[_];
 					}
-					addTheme(h) {
-						const g = new e({ config: h, dependencies: this.dependencies, settings: this.settings }),
-							O = this.themes[h.type] || {};
-						O[h.name] = g;
+					addTheme(_) {
+						const f = new e({ config: _, dependencies: this.dependencies, settings: this.settings }),
+							r = this.themes[_.type] || {};
+						r[_.name] = f;
 					}
-					setInnerWidth(h) {
-						if (this.window.innerWidth !== h) {
-							this.window.innerWidth = h;
-							for (const g in this.themes.local) this.themes.local[g].setInnerWidth(this.window.innerWidth);
-							for (const g in this.themes.library) this.themes.library[g].setInnerWidth(this.window.innerWidth);
+					setInnerWidth(_) {
+						if (this.window.innerWidth !== _) {
+							this.window.innerWidth = _;
+							for (const f in this.themes.local) this.themes.local[f].setInnerWidth(this.window.innerWidth);
+							for (const f in this.themes.library) this.themes.library[f].setInnerWidth(this.window.innerWidth);
 						}
 					}
-					getThemeStore(h) {
-						if (h) return this.themes.local[h] || this.themes.library[h];
+					getThemeStore(_) {
+						if (_) return this.themes.local[_] || this.themes.library[_];
 					}
-					async setCurrency(h) {
-						const g = h?.toLowerCase();
-						if (g in this.library.import.currency) {
-							await this.library.import.currency[g]();
-							const O = this.library.locales.currencies[g];
-							if (O) {
-								(this.currency = g), this.storage.set('overrides.config.currency', this.currency);
-								const d = Ee(g, O),
-									r = Ue(this.config.currencies, g);
-								for (const y in this.themes.local) this.themes.local[y].setCurrency(d, r);
-								for (const y in this.themes.library) this.themes.library[y].setCurrency(d, r);
+					async setCurrency(_) {
+						const f = _?.toLowerCase();
+						if (f in this.library.import.currency) {
+							await this.library.import.currency[f]();
+							const r = this.library.locales.currencies[f];
+							if (r) {
+								(this.currency = f), this.storage.set('overrides.config.currency', this.currency);
+								const m = Le(f, r),
+									p = Ue(this.config.currencies, f);
+								for (const g in this.themes.local) this.themes.local[g].setCurrency(m, p);
+								for (const g in this.themes.library) this.themes.library[g].setCurrency(m, p);
 							}
-						} else console.warn(`Snap Templates: unknown currency code "${h}" - currency not changed`);
+						} else console.warn(`Snap Templates: unknown currency code "${_}" - currency not changed`);
 					}
-					async setLanguage(h) {
-						const g = h?.toLowerCase();
-						if (g in this.library.import.language) {
-							await this.library.import.language[g]();
-							const O = this.library.locales.languages[g];
-							if (O) {
-								(this.language = g), this.storage.set('overrides.config.language', this.language);
-								const d = Re(this.config.translations, g);
-								for (const r in this.themes.local) this.themes.local[r].setLanguage(O, d);
-								for (const r in this.themes.library) this.themes.library[r].setLanguage(O, d);
+					async setLanguage(_) {
+						const f = _?.toLowerCase();
+						if (f in this.library.import.language) {
+							await this.library.import.language[f]();
+							const r = this.library.locales.languages[f];
+							if (r) {
+								(this.language = f), this.storage.set('overrides.config.language', this.language);
+								const m = Ee(this.config.translations, f);
+								for (const p in this.themes.local) this.themes.local[p].setLanguage(r, m);
+								for (const p in this.themes.library) this.themes.library[p].setLanguage(r, m);
 							}
-						} else console.warn(`Snap Templates: unknown language code "${h}" - language not changed`);
+						} else console.warn(`Snap Templates: unknown language code "${_}" - language not changed`);
 					}
 					async preLoad() {
 						(this.loading = !0), await this.library.preLoad(), (this.themes.library = {});
-						for (const h in this.library.themes) {
-							const g = this.library.themes[h],
-								O = {
-									name: h,
+						for (const _ in this.library.themes) {
+							const f = this.library.themes[_],
+								r = {
+									name: _,
 									type: 'library',
-									base: g,
+									base: f,
 									language: this.library.locales.languages[this.language] || {},
-									languageOverrides: Re(this.config.translations, this.language),
-									currency: Ee(this.currency, this.library.locales.currencies[this.currency] || {}),
+									languageOverrides: Ee(this.config.translations, this.language),
+									currency: Le(this.currency, this.library.locales.currencies[this.currency] || {}),
 									currencyOverrides: Ue(this.config.currencies, this.currency),
 									innerWidth: this.window.innerWidth,
 								};
 							if (this.settings.editMode) {
-								const d = this.storage.get('overrides.theme.variables') || {};
-								O.editorOverrides = { variables: d || {} };
+								const m = this.storage.get('overrides.theme.variables') || {};
+								r.editorOverrides = { variables: m || {} };
 							}
-							this.addTheme(O);
+							this.addTheme(r);
 						}
 						this.loading = !1;
 					}
 				}
-				function _e(K, h) {
-					const [g, O] = h.split('/');
-					if (g === 'recommendation' && O) return K.recommendation[O];
-					if (g === 'search' || g === 'autocomplete') return K[g];
+				function ue(X, _) {
+					const [f, r] = _.split('/');
+					if (f === 'recommendation' && r) return X.recommendation[r];
+					if (f === 'search' || f === 'autocomplete') return X[f];
 				}
-				function Ue(K, h) {
-					const g = K?.[h] || K?.[h.toUpperCase()];
-					return g ? { components: g } : {};
+				function Ue(X, _) {
+					const f = X?.[_] || X?.[_.toUpperCase()];
+					return f ? { components: f } : {};
 				}
-				function Ee(K, h) {
-					return v()(h, { components: { price: { code: K.toUpperCase() } } });
+				function Le(X, _) {
+					return C()(_, { components: { price: { code: X.toUpperCase() } } });
 				}
-				function Be(K) {
-					const h = {};
+				function ve(X) {
+					const _ = {};
 					return (
-						Object.keys(K).forEach((g) => {
-							h[g] = { lang: K[g] };
+						Object.keys(X).forEach((f) => {
+							_[f] = { lang: X[f] };
 						}),
-						{ components: h }
+						{ components: _ }
 					);
 				}
-				function Re(K, h) {
-					const g = K?.[h] || K?.[h.toUpperCase()];
-					return Be(g || {});
+				function Ee(X, _) {
+					const f = X?.[_] || X?.[_.toUpperCase()];
+					return ve(f || {});
 				}
-				class Me {
+				class Ae {
 					constructor() {
-						this.promise = new Promise((h, g) => {
-							(this.reject = g), (this.resolve = h);
+						this.promise = new Promise((_, f) => {
+							(this.reject = f), (this.resolve = _);
 						});
 					}
 				}
 			},
-			'./src/create/createSearchController.ts'(q, H, t) {
+			'./src/create/createSearchController.ts'(J, O, t) {
 				'use strict';
-				t.r(H);
+				t.r(O);
 				var o = t('../../node_modules/@athoscommerce/snap-controller/dist/esm/Search/SearchController.js'),
-					v = t('../../node_modules/@athoscommerce/snap-client/dist/esm/Client/Client.js'),
-					x = t('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Search/SearchStore.js'),
-					E = t('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/UrlManager/UrlManager.js'),
-					V = t('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/linkers/react/react.js'),
-					$ = t('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/Translators/Url/UrlTranslator.js'),
+					C = t('../../node_modules/@athoscommerce/snap-client/dist/esm/Client/Client.js'),
+					y = t('../../node_modules/@athoscommerce/snap-store-mobx/dist/esm/Search/SearchStore.js'),
+					z = t('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/UrlManager/UrlManager.js'),
+					G = t('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/linkers/react/react.js'),
+					H = t('../../node_modules/@athoscommerce/snap-url-manager/dist/esm/Translators/Url/UrlTranslator.js'),
 					e = t('../../node_modules/@athoscommerce/snap-event-manager/dist/esm/EventManager.js'),
-					L = t('../../node_modules/@athoscommerce/snap-profiler/dist/esm/Profiler.js'),
-					D = t('../../node_modules/@athoscommerce/snap-logger/dist/esm/Logger.js'),
-					G = t('../../node_modules/@athoscommerce/snap-tracker/dist/esm/Tracker.js');
-				const se = (W, N) => {
-					const X = N?.urlManager || new E.V(new $.E(W.url), V.X);
+					E = t('../../node_modules/@athoscommerce/snap-profiler/dist/esm/Profiler.js'),
+					I = t('../../node_modules/@athoscommerce/snap-logger/dist/esm/Logger.js'),
+					D = t('../../node_modules/@athoscommerce/snap-tracker/dist/esm/Tracker.js');
+				const se = (F, U) => {
+					const Y = U?.urlManager || new z.V(new H.E(F.url), G.X);
 					return (
-						W.mode && W.client && ((W.client.config = W.client.config || {}), (W.client.config.mode = W.mode)),
+						F.mode && F.client && ((F.client.config = F.client.config || {}), (F.client.config.mode = F.mode)),
 						new o.Tp(
-							W.controller,
+							F.controller,
 							{
-								client: N?.client || new v.K(W.client.globals, W.client.config),
-								store: N?.store || new x.U(W.controller, { urlManager: X }),
-								urlManager: X,
-								eventManager: N?.eventManager || new e.E(),
-								profiler: N?.profiler || new L.U(),
-								logger: N?.logger || new D.V({ mode: W.mode }),
-								tracker: N?.tracker || new G.J(W.client.globals),
-								quickviewManager: N?.quickviewManager,
+								client: U?.client || new C.K(F.client.globals, F.client.config),
+								store: U?.store || new y.U(F.controller, { urlManager: Y }),
+								urlManager: Y,
+								eventManager: U?.eventManager || new e.E(),
+								profiler: U?.profiler || new E.U(),
+								logger: U?.logger || new I.V({ mode: F.mode }),
+								tracker: U?.tracker || new D.J(F.client.globals),
+								quickviewManager: U?.quickviewManager,
 							},
-							W.context
+							F.context
 						)
 					);
 				};
-				t.dn(se), t.d(H, ['default', 0, se]);
+				t.dn(se), t.d(O, ['default', 0, se]);
 			},
-			'./src/utils/combineMerge.ts'(q, H, t) {
+			'./src/utils/combineMerge.ts'(J, O, t) {
 				'use strict';
-				t.d(H, { a: () => x });
+				t.d(O, { a: () => y });
 				var o = t('../../node_modules/deepmerge/dist/cjs.js'),
-					v = t.n(o);
-				function x(E, V, $) {
-					const e = E.slice();
+					C = t.n(o);
+				function y(z, G, H) {
+					const e = z.slice();
 					return (
-						V.forEach((L, D) => {
-							typeof e[D] > 'u'
-								? (e[D] = $.cloneUnlessOtherwiseSpecified(L, $))
-								: $.isMergeableObject(L)
-								? (e[D] = v()(E[D], L, $))
-								: E.indexOf(L) === -1 && e.push(L);
+						G.forEach((E, I) => {
+							typeof e[I] > 'u'
+								? (e[I] = H.cloneUnlessOtherwiseSpecified(E, H))
+								: H.isMergeableObject(E)
+								? (e[I] = C()(z[I], E, H))
+								: z.indexOf(E) === -1 && e.push(E);
 						}),
 						e
 					);
 				}
 			},
-			'../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'(q, H, t) {
+			'../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'(J, O, t) {
 				'use strict';
 				var o = t('../../node_modules/css-loader/dist/runtime/sourceMaps.js'),
-					v = t.n(o),
-					x = t('../../node_modules/css-loader/dist/runtime/api.js'),
-					E = t.n(x),
-					V = E()(v());
-				V.push([
-					q.id,
+					C = t.n(o),
+					y = t('../../node_modules/css-loader/dist/runtime/api.js'),
+					z = t.n(y),
+					G = z()(C());
+				G.push([
+					J.id,
 					'.docblock-argstable-head tr th:nth-child(1),.docblock-argstable-body tr td:nth-child(1){width:20% !important}.docblock-argstable-head tr th:nth-child(2),.docblock-argstable-body tr td:nth-child(2){width:60% !important}.docblock-argstable-head tr th:nth-child(3),.docblock-argstable-body tr td:nth-child(3){width:20% !important}.docblock-argstable-head tr th:nth-child(4),.docblock-argstable-body tr td:nth-child(4){display:none !important;width:0 !important}a{color:inherit;text-decoration:none}body.sb-show-main{overflow:auto !important}#storybook-docs .code-toolbar{position:relative;border:1px solid rgba(0,0,0,.1);border-radius:4px;box-shadow:rgba(0,0,0,.1) 0px 1px 3px 0px;margin:0 0 20px 0;white-space:pre-wrap;color:inherit;font-size:13px;line-height:19px}#storybook-docs .code-toolbar pre{padding:20px}#storybook-docs .code-toolbar .toolbar{position:absolute;bottom:0px;right:0px;max-width:100%;display:flex;background:#fff;z-index:1}#storybook-docs .code-toolbar .toolbar .toolbar-item button{margin:0px 0px 0px -1px;border-width:1px 0px 0px 1px;border-style:solid none none solid;border-right-color:initial;border-bottom-color:initial;border-image:initial;padding:4px 10px;cursor:pointer;display:flex;-webkit-box-align:center;align-items:center;color:#333;background:#fff;font-size:10px;line-height:16px;font-family:"Nunito Sans",-apple-system,".SFNSText-Regular","San Francisco",BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;border-top-color:rgba(0,0,0,.1);border-left-color:rgba(0,0,0,.1);border-radius:4px 0px 0px}#storybook-docs .code-toolbar .toolbar .toolbar-item button span{font-size:10px}',
 					'',
 					{
@@ -10080,12 +10072,12 @@ body.sb-show-main {
 						sourceRoot: '',
 					},
 				]);
-				const $ = V;
-				t.d(H, ['A', 0, $]);
+				const H = G;
+				t.d(O, ['A', 0, H]);
 			},
 			'./components/src lazy recursive ^\\.\\/.*$ include: (%3F:\\/components\\/src(%3F:\\/(%3F%21\\.)(%3F:(%3F:(%3F%21(%3F:^%7C\\/)\\.).)*%3F)\\/%7C\\/%7C$)(%3F%21\\.)(%3F=.)[^/]*%3F\\.mdx)$'(
-				q,
-				H,
+				J,
+				O,
 				t
 			) {
 				const o = {
@@ -10093,28 +10085,28 @@ body.sb-show-main {
 					'./documentation/Theme/Theme.stories.mdx': ['./components/src/documentation/Theme/Theme.stories.mdx', [6384, 7241]],
 					'./documentation/Usage/Usage.stories.mdx': ['./components/src/documentation/Usage/Usage.stories.mdx', [6384, 2165]],
 				};
-				function v(x) {
+				function C(y) {
 					try {
-						if (!t.o(o, x))
+						if (!t.o(o, y))
 							return Promise.resolve().then(() => {
-								const $ = new Error("Cannot find module '" + x + "'");
-								throw (($.code = 'MODULE_NOT_FOUND'), $);
+								const H = new Error("Cannot find module '" + y + "'");
+								throw ((H.code = 'MODULE_NOT_FOUND'), H);
 							});
-					} catch ($) {
-						return Promise.reject($);
+					} catch (H) {
+						return Promise.reject(H);
 					}
-					const E = o[x],
-						V = E[0];
-					return Promise.all(E[1].map(t.e)).then(() => t(V));
+					const z = o[y],
+						G = z[0];
+					return Promise.all(z[1].map(t.e)).then(() => t(G));
 				}
-				(v.keys = () => Object.keys(o)),
-					(v.id =
+				(C.keys = () => Object.keys(o)),
+					(C.id =
 						'./components/src lazy recursive ^\\.\\/.*$ include: (%3F:\\/components\\/src(%3F:\\/(%3F%21\\.)(%3F:(%3F:(%3F%21(%3F:^%7C\\/)\\.).)*%3F)\\/%7C\\/%7C$)(%3F%21\\.)(%3F=.)[^/]*%3F\\.mdx)$'),
-					(q.exports = v);
+					(J.exports = C);
 			},
 			'./components/src lazy recursive ^\\.\\/.*$ include: (%3F:\\/components\\/src(%3F:\\/(%3F%21\\.)(%3F:(%3F:(%3F%21(%3F:^%7C\\/)\\.).)*%3F)\\/%7C\\/%7C$)(%3F%21\\.)(%3F=.)[^/]*%3F\\.stories\\.(js%7Cjsx%7Cts%7Ctsx))$'(
-				q,
-				H,
+				J,
+				O,
 				t
 			) {
 				const o = {
@@ -10656,49 +10648,49 @@ body.sb-show-main {
 						[6384, 9456, 2240, 1224, 594, 6496, 8554, 7643],
 					],
 				};
-				function v(x) {
+				function C(y) {
 					try {
-						if (!t.o(o, x))
+						if (!t.o(o, y))
 							return Promise.resolve().then(() => {
-								const $ = new Error("Cannot find module '" + x + "'");
-								throw (($.code = 'MODULE_NOT_FOUND'), $);
+								const H = new Error("Cannot find module '" + y + "'");
+								throw ((H.code = 'MODULE_NOT_FOUND'), H);
 							});
-					} catch ($) {
-						return Promise.reject($);
+					} catch (H) {
+						return Promise.reject(H);
 					}
-					const E = o[x],
-						V = E[0];
-					return Promise.all(E[1].map(t.e)).then(() => t(V));
+					const z = o[y],
+						G = z[0];
+					return Promise.all(z[1].map(t.e)).then(() => t(G));
 				}
-				(v.keys = () => Object.keys(o)),
-					(v.id =
+				(C.keys = () => Object.keys(o)),
+					(C.id =
 						'./components/src lazy recursive ^\\.\\/.*$ include: (%3F:\\/components\\/src(%3F:\\/(%3F%21\\.)(%3F:(%3F:(%3F%21(%3F:^%7C\\/)\\.).)*%3F)\\/%7C\\/%7C$)(%3F%21\\.)(%3F=.)[^/]*%3F\\.stories\\.(js%7Cjsx%7Cts%7Ctsx))$'),
-					(q.exports = v);
+					(J.exports = C);
 			},
-			'./storybook-config-entry.js'(q, H, t) {
+			'./storybook-config-entry.js'(J, O, t) {
 				'use strict';
 				var o = () => t('../../node_modules/@athoscommerce/snap-controller/dist/esm/types.js'),
-					v = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/DomTargeter/DomTargeter.js'),
-					x = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/cookies/cookies.js'),
-					E = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/featureFlags/featureFlags.js'),
-					V = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/getContext/getContext.js'),
-					$ = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/types.js'),
+					C = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/DomTargeter/DomTargeter.js'),
+					y = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/cookies/cookies.js'),
+					z = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/featureFlags/featureFlags.js'),
+					G = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/getContext/getContext.js'),
+					H = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/types.js'),
 					e = () => t('../../node_modules/@athoscommerce/snap-toolbox/dist/esm/url/url.js'),
-					L = () => t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
-					D = () => t('../../node_modules/@storybook/addon-actions/dist/preview.js'),
-					G = () => t('../../node_modules/@storybook/addon-docs/dist/preview.mjs'),
+					E = () => t('../../node_modules/@emotion/react/jsx-runtime/dist/emotion-react-jsx-runtime.browser.esm.js'),
+					I = () => t('../../node_modules/@storybook/addon-actions/dist/preview.js'),
+					D = () => t('../../node_modules/@storybook/addon-docs/dist/preview.mjs'),
 					se = () => t('../../node_modules/@storybook/addon-links/dist/preview.js'),
-					W = () => t('../../node_modules/@storybook/addon-themes/dist/index.mjs'),
-					N = () => t('../../node_modules/@storybook/addon-themes/dist/preview.js'),
-					X = () => t('../../node_modules/@storybook/preact/dist/entry-preview-docs.mjs'),
-					F = () => t('../../node_modules/@storybook/preact/dist/entry-preview.mjs'),
-					ne = t.cw(function (Ie, ke) {
-						t.r(ke), W(), ye(), w();
-						const me = new (Ue().c9)({ config: { siteId: 'atkzs2', platform: 'other' }, theme: { extends: 'base' } });
-						Ve(me, 'base', Vt.E), Ve(me, 'bocachica', Ct.S), Ve(me, 'pike', Qt.pike), Ve(me, 'snapnco', _t.N), Ve(me, 'snappy', St.m);
-						const He = ['primary', 'secondary', 'accent'],
-							Ce = 'themeColor_',
-							ue = 'themeDefaultColor_',
+					F = () => t('../../node_modules/@storybook/addon-themes/dist/index.mjs'),
+					U = () => t('../../node_modules/@storybook/addon-themes/dist/preview.js'),
+					Y = () => t('../../node_modules/@storybook/preact/dist/entry-preview-docs.mjs'),
+					R = () => t('../../node_modules/@storybook/preact/dist/entry-preview.mjs'),
+					oe = t.cw(function (Ie, we) {
+						t.r(we), F(), ae(), w();
+						const le = new (Ue().c9)({ config: { siteId: 'atkzs2', platform: 'other' }, theme: { extends: 'base' } });
+						Ce(le, 'base', Vt.E), Ce(le, 'bocachica', Ct.S), Ce(le, 'pike', Qt.pike), Ce(le, 'snapnco', _t.N), Ce(le, 'snappy', St.m);
+						const je = ['primary', 'secondary', 'accent'],
+							xe = 'themeColor_',
+							_e = 'themeDefaultColor_',
 							he = {
 								themeColor_primary: { defaultValue: '' },
 								themeColor_secondary: { defaultValue: '' },
@@ -10707,115 +10699,113 @@ body.sb-show-main {
 								themeDefaultColor_secondary: { defaultValue: '' },
 								themeDefaultColor_accent: { defaultValue: '' },
 							},
-							ge = (0, Ke.PA)(({ templateStore: fe, children: Oe, themeName: P, colorOverrides: l }) => {
-								const I = fe.themes.library[P]?.theme || {},
-									m = He.some((_) => l[_])
+							me = (0, Qe.PA)(({ templateStore: ke, children: P, themeName: c, colorOverrides: K }) => {
+								const V = ke.themes.library[c]?.theme || {},
+									u = je.some((i) => K[i])
 										? {
-												...I,
+												...V,
 												variables: {
-													...I.variables,
-													colors: { ...I.variables?.colors, ...Object.fromEntries(He.filter((_) => l[_]).map((_) => [_, l[_]])) },
+													...V.variables,
+													colors: { ...V.variables?.colors, ...Object.fromEntries(je.filter((i) => K[i]).map((i) => [i, K[i]])) },
 												},
 										  }
-										: I;
-								return (0, L().Y)(Se().Mz, {
-									snap: me,
-									children: (0, L().Y)(te().NP, { theme: m, children: (0, L().Y)(ze().p3, { path: 'storybook', children: Oe }) }),
+										: V;
+								return (0, E().Y)(Se().Mz, {
+									snap: le,
+									children: (0, E().Y)(te().NP, { theme: u, children: (0, E().Y)(ze().p3, { path: 'storybook', children: P }) }),
 								});
 							}),
-							Te = ({ theme: fe, children: Oe, colorOverrides: P }) =>
-								(0, L().Y)(ge, { templateStore: me.templates, themeName: fe.name, colorOverrides: P, children: Oe }),
-							Ge = [
-								(fe, Oe) => {
-									const [P, l] = (0, ye().useGlobals)(),
-										Z = Oe.globals.theme || 'base';
-									(0, ye().useEffect)(() => {
-										const u = me.templates.themes.library[Z]?.theme?.variables?.colors;
-										if (u) {
-											const b = {};
-											He.forEach((C) => {
-												b[`${ue}${C}`] = u[C] || '';
+							Re = ({ theme: ke, children: P, colorOverrides: c }) =>
+								(0, E().Y)(me, { templateStore: le.templates, themeName: ke.name, colorOverrides: c, children: P }),
+							Ve = [
+								(ke, P) => {
+									const [c, K] = (0, ae().useGlobals)(),
+										j = P.globals.theme || 'base';
+									(0, ae().useEffect)(() => {
+										const M = le.templates.themes.library[j]?.theme?.variables?.colors;
+										if (M) {
+											const S = {};
+											je.forEach((b) => {
+												S[`${_e}${b}`] = M[b] || '';
 											}),
-												l(b);
+												K(S);
 										}
-									}, [Z]);
-									const I = {};
-									He.forEach((_) => {
-										const u = P[`${Ce}${_}`];
-										u && (I[_] = u);
+									}, [j]);
+									const V = {};
+									je.forEach((i) => {
+										const M = c[`${xe}${i}`];
+										M && (V[i] = M);
 									});
-									const Y = ({ theme: _, children: u }) => (0, L().Y)(Te, { theme: _, colorOverrides: I, children: u });
-									return (0, W().gW)({
+									const Q = ({ theme: i, children: M }) => (0, E().Y)(Re, { theme: i, colorOverrides: V, children: M });
+									return (0, F().gW)({
 										themes: {
-											snapnco: me.templates.themes.library.snapnco.theme,
-											snappy: me.templates.themes.library.snappy.theme,
-											bocachica: me.templates.themes.library.bocachica.theme,
-											base: me.templates.themes.library.base.theme,
-											pike: me.templates.themes.library.pike.theme,
+											snapnco: le.templates.themes.library.snapnco.theme,
+											snappy: le.templates.themes.library.snappy.theme,
+											bocachica: le.templates.themes.library.bocachica.theme,
+											base: le.templates.themes.library.base.theme,
+											pike: le.templates.themes.library.pike.theme,
 										},
 										defaultTheme: 'base',
-										Provider: Y,
-									})(fe, Oe);
+										Provider: Q,
+									})(ke, P);
 								},
 							],
-							Xe = {
+							Ke = {
 								actions: { argTypesRegex: '^on[A-Z].*', disabled: !1 },
 								controls: { expanded: !0, disabled: !1 },
 								options: { showPanel: !0, storySort: { order: ['Documentation', 'Atoms', 'Molecules', 'Organisms', 'Templates', 'Trackers'] } },
 							};
-						function Ve(fe, Oe, P) {
-							fe.templates.addTheme({
-								name: Oe,
+						function Ce(ke, P, c) {
+							ke.templates.addTheme({
+								name: P,
 								type: 'library',
-								base: P,
+								base: c,
 								language: {},
 								languageOverrides: {},
 								currency: {},
 								innerWidth: window.innerWidth,
 							});
 						}
-						t.d(ke, ['decorators', 0, Ge, 'globalTypes', 0, he, 'parameters', 0, Xe]);
+						t.d(we, ['decorators', 0, Ve, 'globalTypes', 0, he, 'parameters', 0, Ke]);
 					}),
-					de = t.cw(function (Ie, ke) {
-						const me = (0, Ke.PA)((He) => {
-							const { snap: Ce, templatesStore: ue, target: he, controller: ge, ...Te } = He,
-								{ loading: Ge } = ue;
-							if (!he) return ge ? ge.log.error('Target was not provided!') : console.error('[TemplateSelect] Target was not provided!'), null;
-							const Xe = ue.library.getComponent(he.type, he.component),
-								Ve = ue?.themes?.[he.theme.location],
-								Oe = (Ve && Ve[he.theme.name])?.theme;
-							if (!Ge && !Oe && !ue.settings?.editMode) {
-								const I = `Theme "${he.theme.name}" not found in library for target "${he.selector}"`;
-								ge ? ge.log.error(I) : console.error(`[TemplateSelect] ${I}`);
+					pe = t.cw(function (Ie, we) {
+						const le = (0, Qe.PA)((je) => {
+							const { snap: xe, templatesStore: _e, target: he, controller: me, ...Re } = je,
+								{ loading: Ve } = _e;
+							if (!he) return me ? me.log.error('Target was not provided!') : console.error('[TemplateSelect] Target was not provided!'), null;
+							const Ke = _e.library.getComponent(he.type, he.component),
+								Ce = _e?.themes?.[he.theme.location],
+								P = (Ce && Ce[he.theme.name])?.theme;
+							if (!Ve && !P && !_e.settings?.editMode) {
+								const V = `Theme "${he.theme.name}" not found in library for target "${he.selector}"`;
+								me ? me.log.error(V) : console.error(`[TemplateSelect] ${V}`);
 							}
-							const P = ge?.type === o().k.search || ge?.type === o().k.autocomplete ? ue.getTabManager(ge.type, Ce.controllers) : void 0,
-								l = P?.active?.id ? P.active.id.toLowerCase() : void 0;
-							if (Ge || !Oe || !Xe) return null;
-							const Z = (0, L().Y)('div', {
+							const c = me?.type === o().k.search || me?.type === o().k.autocomplete ? _e.getTabManager(me.type, xe.controllers) : void 0,
+								K = c?.active?.id ? c.active.id.toLowerCase() : void 0;
+							if (Ve || !P || !Ke) return null;
+							const j = (0, E().Y)('div', {
 								className: 'ss__template-select',
-								children: (0, L().Y)(Xe, { controller: ge, tabManager: P, ...(l !== void 0 ? { name: l } : {}), ...Te }),
+								children: (0, E().Y)(Ke, { controller: me, tabManager: c, ...(K !== void 0 ? { name: K } : {}), ...Re }),
 							});
-							return (0, L().Y)(Se().Mz, {
-								snap: Ce,
-								children: (0, L().Y)(te().NP, { theme: Oe, children: ge ? (0, L().Y)(xe().e2, { controller: ge, children: Z }) : Z }),
+							return (0, E().Y)(Se().Mz, {
+								snap: xe,
+								children: (0, E().Y)(te().NP, { theme: P, children: me ? (0, E().Y)(be().e2, { controller: me, children: j }) : j }),
 							});
 						});
-						t.d(ke, ['F', 0, me]);
+						t.d(we, ['F', 0, le]);
 					}),
-					xe = () => t('./components/src/providers/controller.tsx'),
+					be = () => t('./components/src/providers/controller.tsx'),
 					Se = () => t('./components/src/providers/snap.tsx'),
 					te = () => t('./components/src/providers/theme.ts'),
 					ze = () => t('./components/src/providers/treePath.tsx'),
-					_e = t.cw(function (Ie, ke) {
-						t.d(ke, { PL: () => Ge }), p(), d();
-						var me = t('../../node_modules/process/browser.js');
-						(0, y().jK)({ useProxies: 'never', isolateGlobalState: !0, enforceActions: 'never' });
-						const He = 'athosBranch',
-							Ce = 'athos-preview',
-							ue = 'athos-Dev',
-							he = 'athos-snap-bundle-styles',
-							ge = 3,
-							Te = `Uncaught Error - Invalid value passed as the component.
+					ue = t.cw(function (Ie, we) {
+						t.d(we, { PL: () => Re }), h(), m(), (0, g().jK)({ useProxies: 'never', isolateGlobalState: !0, enforceActions: 'never' });
+						const le = 'athosBranch',
+							je = 'athos-preview',
+							xe = 'athos-Dev',
+							_e = 'athos-snap-bundle-styles',
+							he = 3,
+							me = `Uncaught Error - Invalid value passed as the component.
 This usually happens when you pass a JSX Element, and not a function that returns the component, in the snap config. 
 		
 		instead of - 
@@ -10849,9 +10839,9 @@ This usually happens when you pass a JSX Element, and not a function that return
 	]
 
 The error above happened in the following targeter in the Snap Config`;
-						class Ge {
-							constructor(Ve, fe) {
-								(this.mode = $().$.production),
+						class Re {
+							constructor(Ke, Ce) {
+								(this.mode = H().$.production),
 									(this._instantiatorPromises = {}),
 									(this._controllerPromises = {}),
 									(this.controllers = {}),
@@ -10860,117 +10850,117 @@ The error above happened in the following targeter in the Snap Config`;
 									(this.getController = (P) =>
 										this._controllerPromises[P] || Promise.reject(`getController could not find controller with id: ${P}`)),
 									(this.getControllers = (...P) => {
-										const l = [];
-										return P.forEach((Z) => l.push(this.getController(Z))), Promise.all(l);
+										const c = [];
+										return P.forEach((K) => c.push(this.getController(K))), Promise.all(c);
 									}),
-									(this.createController = async (P, l, Z, I, Y, m) => {
-										if (typeof this._controllerPromises[l.id] < 'u') throw new Error(`Controller with id '${l.id}' is already defined`);
+									(this.createController = async (P, c, K, j, V, Q) => {
+										if (typeof this._controllerPromises[c.id] < 'u') throw new Error(`Controller with id '${c.id}' is already defined`);
 										return (
-											(this._controllerPromises[l.id] = new Promise((_) =>
-												this._createController(P, l, Z, I, Y, async (u) => {
-													typeof m == 'function' && (await m(u)), _(u);
+											(this._controllerPromises[c.id] = new Promise((u) =>
+												this._createController(P, c, K, j, V, async (i) => {
+													typeof Q == 'function' && (await Q(i)), u(i);
 												})
 											)),
-											this._controllerPromises[l.id]
+											this._controllerPromises[c.id]
 										);
 									}),
-									(this._createController = async (P, l, Z, I, Y, m) => {
-										let _;
+									(this._createController = async (P, c, K, j, V, Q) => {
+										let u;
 										switch (P) {
 											case o().k.autocomplete:
-												_ = Promise.all([t.e(2240), t.e(6080)]).then(() => t('./src/create/createAutocompleteController.ts'));
+												u = Promise.all([t.e(2240), t.e(6080)]).then(() => t('./src/create/createAutocompleteController.ts'));
 												break;
 											case o().k.finder:
-												_ = t.e(5856).then(() => t('./src/create/createFinderController.ts'));
+												u = t.e(5856).then(() => t('./src/create/createFinderController.ts'));
 												break;
 											case o().k.recommendation:
-												_ = Promise.all([t.e(9456), t.e(935)]).then(() => t('./src/create/createRecommendationController.ts'));
+												u = Promise.all([t.e(9456), t.e(935)]).then(() => t('./src/create/createRecommendationController.ts'));
 												break;
 											case o().k.search:
 											default:
-												_ = Promise.resolve().then(() => t('./src/create/createSearchController.ts'));
+												u = Promise.resolve().then(() => t('./src/create/createSearchController.ts'));
 												break;
 										}
-										const u = (await _).default;
+										const i = (await u).default;
 										return (
-											this.controllers[l.id] ||
+											this.controllers[c.id] ||
 												((window.athos.controller = window.athos.controller || {}),
-												(window.athos.controller[l.id] = this.controllers[l.id] =
-													u(
+												(window.athos.controller[c.id] = this.controllers[c.id] =
+													i(
 														{
 															mode: this.mode,
-															url: Q()()(this.config.url || {}, I || {}),
-															controller: l,
-															context: Q()()(this.context || {}, Y || {}),
+															url: ee()()(this.config.url || {}, j || {}),
+															controller: c,
+															context: ee()()(this.context || {}, V || {}),
 														},
 														{
-															client: Z?.client || this.client,
-															store: Z?.store,
-															urlManager: Z?.urlManager,
-															eventManager: Z?.eventManager,
-															profiler: Z?.profiler,
-															logger: Z?.logger,
-															tracker: Z?.tracker || this.tracker,
-															quickviewManager: Z?.quickviewManager || this.quickviewManager,
+															client: K?.client || this.client,
+															store: K?.store,
+															urlManager: K?.urlManager,
+															eventManager: K?.eventManager,
+															profiler: K?.profiler,
+															logger: K?.logger,
+															tracker: K?.tracker || this.tracker,
+															quickviewManager: K?.quickviewManager || this.quickviewManager,
 														}
 													))),
-											m && (await m(this.controllers[l.id])),
-											this.controllers[l.id]
+											Q && (await Q(this.controllers[c.id])),
+											this.controllers[c.id]
 										);
 									}),
 									(this.handlers = {
 										attributes: (P) => {
-											const l = this.tracker.config.id,
-												Z = [
-													`ss-${l}-cart-add`,
-													`ss-${l}-cart-remove`,
-													`ss-${l}-cart-clear`,
-													`ss-${l}-cart-view`,
-													`ss-${l}-intellisuggest`,
-													`ss-${l}-intellisuggest-signature`,
+											const c = this.tracker.config.id,
+												K = [
+													`ss-${c}-cart-add`,
+													`ss-${c}-cart-remove`,
+													`ss-${c}-cart-clear`,
+													`ss-${c}-cart-view`,
+													`ss-${c}-intellisuggest`,
+													`ss-${c}-intellisuggest-signature`,
 													'href',
 												],
-												I = {};
-											let Y = 0,
-												m = null;
-											for (m = P && P.target; Object.keys(I).length == 0 && m !== null && Y <= ge; )
-												m.attributes &&
-													Object.values(m.attributes).forEach((_) => {
-														const u = _.nodeName;
-														Z.indexOf(u) != -1 && (I[u] = m && m.getAttribute(u));
+												j = {};
+											let V = 0,
+												Q = null;
+											for (Q = P && P.target; Object.keys(j).length == 0 && Q !== null && V <= he; )
+												Q.attributes &&
+													Object.values(Q.attributes).forEach((u) => {
+														const i = u.nodeName;
+														K.indexOf(i) != -1 && (j[i] = Q && Q.getAttribute(i));
 													}),
-													(m = m.parentElement),
-													Y++;
-											if (I[`ss-${l}-cart-add`]) {
-												const _ = I[`ss-${l}-cart-add`].split(',');
-												this.tracker.cookies.cart.add(_), this.eventManager.fire('controller/recommendation/update');
-											} else if (I[`ss-${l}-cart-remove`]) {
-												const _ = I[`ss-${l}-cart-remove`].split(',');
-												this.tracker.cookies.cart.remove(_), this.eventManager.fire('controller/recommendation/update');
+													(Q = Q.parentElement),
+													V++;
+											if (j[`ss-${c}-cart-add`]) {
+												const u = j[`ss-${c}-cart-add`].split(',');
+												this.tracker.cookies.cart.add(u), this.eventManager.fire('controller/recommendation/update');
+											} else if (j[`ss-${c}-cart-remove`]) {
+												const u = j[`ss-${c}-cart-remove`].split(',');
+												this.tracker.cookies.cart.remove(u), this.eventManager.fire('controller/recommendation/update');
 											} else
-												`ss-${l}-cart-clear` in I
+												`ss-${c}-cart-clear` in j
 													? (this.tracker.cookies.cart.clear(), this.eventManager.fire('controller/recommendation/update'))
-													: `ss-${l}-cart-view` in I
+													: `ss-${c}-cart-view` in j
 													? this.eventManager.fire('controller/recommendation/update')
-													: I[`ss-${l}-intellisuggest`] && I[`ss-${l}-intellisuggest-signature`] && this.tracker.track.product.click();
+													: j[`ss-${c}-intellisuggest`] && j[`ss-${c}-intellisuggest-signature`] && this.tracker.track.product.click();
 										},
 										error: (P) => {
 											try {
-												const { filename: l } = P;
+												const { filename: c } = P;
 												if (
-													(l.includes('snapui.searchspring.io') || l.includes('snapui.athoscommerce.io')) &&
-													l.endsWith('.js') &&
+													(c.includes('snapui.searchspring.io') || c.includes('snapui.athoscommerce.io')) &&
+													c.endsWith('.js') &&
 													this.tracker.track.error
 												) {
 													const {
-															colno: Z,
-															lineno: I,
-															error: { stack: Y },
-															message: m,
-															timeStamp: _,
+															colno: K,
+															lineno: j,
+															error: { stack: V },
+															message: Q,
+															timeStamp: u,
 														} = P,
-														b = { href: window.location.href, filename: l, stack: Y, message: m, colno: Z, lineno: I, errortimestamp: _ };
-													this.tracker.track.error(b);
+														M = { href: window.location.href, filename: c, stack: V, message: Q, colno: K, lineno: j, errortimestamp: u };
+													this.tracker.track.error(M);
 												}
 											} catch {}
 										},
@@ -10979,10 +10969,10 @@ The error above happened in the following targeter in the Snap Config`;
 									window.addEventListener('error', this.handlers.error),
 									document.removeEventListener('click', this.handlers.attributes),
 									document.addEventListener('click', this.handlers.attributes),
-									(this.config = Ve);
-								let Oe = {};
+									(this.config = Ke);
+								let ke = {};
 								try {
-									Oe = (0, V().S)([
+									ke = (0, G().S)([
 										'shopper',
 										'config',
 										'custom',
@@ -11000,45 +10990,45 @@ The error above happened in the following targeter in the Snap Config`;
 									console.error('Snap failed to find global context');
 								}
 								if (
-									((this.config = Q()()(this.config || {}, Oe.config || {}, { isMergeableObject: r().Q })),
-									(this.context = Q()()(this.config.context || {}, Oe || {}, { isMergeableObject: r().Q })),
+									((this.config = ee()()(this.config || {}, ke.config || {}, { isMergeableObject: p().Q })),
+									(this.context = ee()()(this.config.context || {}, ke || {}, { isMergeableObject: p().Q })),
 									!this.config?.client?.globals?.siteId && this.context.siteId)
 								) {
 									const P = { globals: { siteId: this.context.siteId } };
-									this.config.client = Q()()(P, this.config.client || {});
+									this.config.client = ee()()(P, this.config.client || {});
 								}
-								if ((!fe?.client || !fe?.tracker) && !this.config?.client?.globals?.siteId)
-									throw fe?.templatesStore
+								if ((!Ce?.client || !Ce?.tracker) && !this.config?.client?.globals?.siteId)
+									throw Ce?.templatesStore
 										? new Error('SnapTemplates: config provided must contain a valid config.siteId value')
 										: new Error('Snap: config provided must contain a valid config.client.globals.siteId value');
 								this.config.client?.globals &&
 									this.context.merchandising?.segments &&
 									(this.config.client.globals?.merchandising
-										? (this.config.client.globals.merchandising.segments = Q()()(
+										? (this.config.client.globals.merchandising.segments = ee()()(
 												this.config.client.globals.merchandising.segments,
 												this.context.merchandising.segments
 										  ))
 										: (this.config.client.globals.merchandising = { segments: this.context.merchandising.segments })),
-									fe?.templatesStore && (this.templates = fe.templatesStore);
+									Ce?.templatesStore && (this.templates = Ce.templatesStore);
 								try {
 									const P = (0, e().O)(window.location.href),
-										l = P?.params?.query[Ce] || x().U.get(He),
-										Z = (typeof window < 'u' && window.location.hostname && '.' + window.location.hostname.replace(/^www\./, '')) || void 0;
-									typeof me < 'u' && Object.values($().$).includes('production') && (this.mode = 'production'),
-										this.config.mode && Object.values($().$).includes(this.config.mode) && (this.mode = this.config.mode),
-										((P?.params?.query && 'dev' in P.params.query) || x().U.get(ue)) &&
+										c = P?.params?.query[je] || y().U.get(le),
+										K = (typeof window < 'u' && window.location.hostname && '.' + window.location.hostname.replace(/^www\./, '')) || void 0;
+									Object.values(H().$).includes('production') && (this.mode = 'production'),
+										this.config.mode && Object.values(H().$).includes(this.config.mode) && (this.mode = this.config.mode),
+										((P?.params?.query && 'dev' in P.params.query) || y().U.get(xe)) &&
 											(P?.params.query?.dev == 'false' || P?.params.query?.dev == '0'
-												? (x().U.unset(ue, Z), (this.mode = $().$.production))
-												: (x().U.set(ue, '1', 'Lax', 0, Z), (this.mode = $().$.development)));
-									const I = window?.athos?.managed ? 'managed/' : '';
+												? (y().U.unset(xe, K), (this.mode = H().$.production))
+												: (y().U.set(xe, '1', 'Lax', 0, K), (this.mode = H().$.development)));
+									const j = window?.athos?.managed ? 'managed/' : '';
 									this.config.client &&
 										((this.config.client.config = this.config.client.config || {}),
-										this.config.client.config.initiator || (this.config.client.config.initiator = `athos/${I}snap/preact/${qe.r}`),
+										this.config.client.config.initiator || (this.config.client.config.initiator = `athos/${j}snap/preact/${qe.r}`),
 										(this.config.client.config.mode = this.config.client.config.mode || this.mode)),
-										(0, g().s)(this.config),
-										(this.client = fe?.client || new jt.K(this.config.client.globals, this.config.client.config)),
+										(0, f().s)(this.config),
+										(this.client = Ce?.client || new jt.K(this.config.client.globals, this.config.client.config)),
 										(this.logger =
-											fe?.logger ||
+											Ce?.logger ||
 											new At.V({
 												prefix: `${
 													this.config.tracker?.config?.framework == 'snap/templates'
@@ -11049,84 +11039,84 @@ The error above happened in the following targeter in the Snap Config`;
 												}`,
 												mode: this.mode,
 											}));
-									let Y = this.config.tracker?.globals || this.config.client.globals;
-									this.context.currency?.code && (Y = Q()()(Y || {}, { currency: this.context.currency })),
-										this.context.shopper?.cart && (Y = Q()()(Y || {}, { cart: this.context.shopper.cart }));
-									const m = Q()()(this.config.tracker?.config || {}, {
-										framework: `${I}${this.config.tracker?.config?.framework || 'snap'}/preact`,
+									let V = this.config.tracker?.globals || this.config.client.globals;
+									this.context.currency?.code && (V = ee()()(V || {}, { currency: this.context.currency })),
+										this.context.shopper?.cart && (V = ee()()(V || {}, { cart: this.context.shopper.cart }));
+									const Q = ee()()(this.config.tracker?.config || {}, {
+										framework: `${j}${this.config.tracker?.config?.framework || 'snap'}/preact`,
 										mode: this.mode,
 									});
 									if (
-										((this.tracker = fe?.tracker || new It.J(Y, m)),
+										((this.tracker = Ce?.tracker || new It.J(V, Q)),
 										this.logger.imageText({
 											url: 'https://snapui.athoscommerce.io/favicon.svg',
 											text: `[${qe.r}]`,
 											style: `color: ${this.logger.colors.indigo}; font-weight: bold;`,
 										}),
-										l && !document.querySelector(`script[${He}]`))
+										c && !document.querySelector(`script[${le}]`))
 									) {
-										this.logger.warn(`:: loading branch override ~ '${l}' ...`),
-											E().o.cookies
-												? x().U.set(He, l, 'Lax', 36e5, Z)
+										this.logger.warn(`:: loading branch override ~ '${c}' ...`),
+											z().o.cookies
+												? y().U.set(le, c, 'Lax', 36e5, K)
 												: this.logger.warn('Cookies are not supported/enabled by this browser, branch overrides will not persist!');
-										let _ = `https://snapui.athoscommerce.io/${this.config.client?.globals?.siteId}/`;
-										const u = document.querySelector('script[src*="//snapui.searchspring.io"], script[src*="//snapui.athoscommerce.io"]');
-										if (u) {
-											let z = u.getAttribute('src').match(/\/\/snapui.searchspring.io\/[a-zA-Z0-9]{6}\//);
-											z
-												? (_ = z.toString())
-												: ((z = u.getAttribute('src').match(/\/\/snapui.athoscommerce.io\/[a-zA-Z0-9]{6}\//)), z && (_ = z.toString()));
+										let u = `https://snapui.athoscommerce.io/${this.config.client?.globals?.siteId}/`;
+										const i = document.querySelector('script[src*="//snapui.searchspring.io"], script[src*="//snapui.athoscommerce.io"]');
+										if (i) {
+											let b = i.getAttribute('src').match(/\/\/snapui.searchspring.io\/[a-zA-Z0-9]{6}\//);
+											b
+												? (u = b.toString())
+												: ((b = i.getAttribute('src').match(/\/\/snapui.athoscommerce.io\/[a-zA-Z0-9]{6}\//)), b && (u = b.toString()));
 										}
-										const b = document.createElement('script'),
-											C = `${_}${l}/bundle.js`;
+										const M = document.createElement('script'),
+											S = `${u}${c}/bundle.js`;
 										throw (
-											((b.src = C),
-											b.setAttribute(He, l),
-											new (v().b)(
+											((M.src = S),
+											M.setAttribute(le, c),
+											new (C().b)(
 												[
 													{
 														selector: 'body',
 														inject: {
 															action: 'append',
 															element: () => {
-																const z = document.createElement('div');
-																return (z.id = 'athos-branch-override'), z;
+																const b = document.createElement('div');
+																return (b.id = 'athos-branch-override'), b;
 															},
 														},
 													},
 												],
-												async (z, U) => {
-													const J = {};
+												async (b, W) => {
+													const ce = {};
 													try {
-														const le = (await t.e(4340).then(() => t('./src/getBundleDetails/getBundleDetails.ts'))).getBundleDetails;
-														J.details = await le(C);
-													} catch (le) {
-														J.error = le;
+														const re = (await t.e(4340).then(() => t('./src/getBundleDetails/getBundleDetails.ts'))).getBundleDetails;
+														ce.details = await re(S);
+													} catch (re) {
+														ce.error = re;
 													}
-													const re = (await t.e(1116).then(() => t('./components/src/components/Organisms/BranchOverride/index.ts'))).BranchOverride;
-													(0, p().XX)(
-														(0, L().Y)(re, {
-															...J,
-															branch: l,
+													const Z = (await t.e(1116).then(() => t('./components/src/components/Organisms/BranchOverride/index.ts'))).BranchOverride;
+													(0, h().XX)(
+														(0, E().Y)(Z, {
+															...ce,
+															branch: c,
 															onRemoveClick: () => {
-																x().U.unset(He, Z);
-																const le = (0, e().O)(window.location.href);
-																delete le?.params.query[Ce];
-																const we = le?.url();
-																we && we != window.location.href ? (window.location.href = we) : window.location.reload();
+																y().U.unset(le, K);
+																const re = (0, e().O)(window.location.href);
+																delete re?.params.query[je];
+																const Be = re?.url();
+																Be && Be != window.location.href ? (window.location.href = Be) : window.location.reload();
 															},
 														}),
-														U
+														W
 													);
 													try {
 														delete window.athos;
 													} catch {
 														window.athos = void 0;
 													}
-													document.head.appendChild(b);
+													document.head.appendChild(M);
 												}
 											),
-											document.querySelectorAll(`.${he}`).forEach((z) => z.remove()),
+											document.querySelectorAll(`.${_e}`).forEach((b) => b.remove()),
 											'branch override')
 										);
 									}
@@ -11139,35 +11129,35 @@ The error above happened in the following targeter in the Snap Config`;
 									(window.athos.build = window.athos.build || 'modern'),
 									(window.athos.context = this.context),
 									this.client && (window.athos.client = this.client),
-									fe?.templatesStore && (window.athos.templates = this.templates),
-									(this.eventManager = (0, K().N)()),
+									Ce?.templatesStore && (window.athos.templates = this.templates),
+									(this.eventManager = (0, X().N)()),
 									this.eventManager &&
-										((window.athos.on = (P, ...l) => {
-											this.eventManager.on(P, ...l);
+										((window.athos.on = (P, ...c) => {
+											this.eventManager.on(P, ...c);
 										}),
-										(window.athos.fire = (P, ...l) => {
-											this.eventManager.fire(P, ...l);
+										(window.athos.fire = (P, ...c) => {
+											this.eventManager.fire(P, ...c);
 										})),
 									this.context?.shopper?.id && this.tracker.track.shopper.login({ id: this.context.shopper.id }),
 									this.config.quickview)
 								)
 									try {
-										const { config: P, services: l, targeters: Z } = this.config.quickview;
-										(this.quickviewManager = new Wt.y({ store: l?.store }, P)),
-											Z?.forEach((I, Y) => {
-												if (!I.selector) throw new Error(`Quickview target at index ${Y} missing selector value (string).`);
-												if (!I.component) throw new Error(`Quickview target at index ${Y} missing component value (Component).`);
-												new (v().b)([{ ...I }], async (m, _, u) => {
-													const b = m.onTarget;
-													b && (await b(m, _, u));
+										const { config: P, services: c, targeters: K } = this.config.quickview;
+										(this.quickviewManager = new Wt.y({ store: c?.store }, P)),
+											K?.forEach((j, V) => {
+												if (!j.selector) throw new Error(`Quickview target at index ${V} missing selector value (string).`);
+												if (!j.component) throw new Error(`Quickview target at index ${V} missing component value (Component).`);
+												new (C().b)([{ ...j }], async (Q, u, i) => {
+													const M = Q.onTarget;
+													M && (await M(Q, u, i));
 													try {
-														await (0, y().z7)(() => !!this.quickviewManager?.store.isOpen);
-														const C = await m.component();
+														await (0, g().z7)(() => !!this.quickviewManager?.store.isOpen);
+														const S = await Q.component();
 														setTimeout(() => {
-															(0, p().XX)((0, L().Y)(C, { quickviewManager: this.quickviewManager, snap: this, ...m.props }), _);
+															(0, h().XX)((0, E().Y)(S, { quickviewManager: this.quickviewManager, snap: this, ...Q.props }), u);
 														});
-													} catch (C) {
-														this.logger.error(C), this.logger.error(Te, m);
+													} catch (S) {
+														this.logger.error(S), this.logger.error(me, Q);
 													}
 												});
 											});
@@ -11178,233 +11168,233 @@ The error above happened in the following targeter in the Snap Config`;
 									(Object.keys(this.config?.controllers || {}).forEach((P) => {
 										switch (P) {
 											case 'search': {
-												this.config.controllers[P].forEach((l, Z) => {
+												this.config.controllers[P].forEach((c, K) => {
 													try {
-														if (typeof this._controllerPromises[l.config.id] < 'u') {
-															this.logger.error(`Controller with id '${l.config.id}' is already defined`);
+														if (typeof this._controllerPromises[c.config.id] < 'u') {
+															this.logger.error(`Controller with id '${c.config.id}' is already defined`);
 															return;
 														}
-														const I = (0, Re().default)(
+														const j = (0, Ee().default)(
 															{
 																mode: this.mode,
-																url: Q()()(this.config.url || {}, l.url || {}),
-																controller: l.config,
-																context: Q()()(this.context || {}, l.context || {}),
+																url: ee()()(this.config.url || {}, c.url || {}),
+																controller: c.config,
+																context: ee()()(this.context || {}, c.context || {}),
 															},
 															{
-																client: l.services?.client || this.client,
-																store: l.services?.store,
-																urlManager: l.services?.urlManager,
-																eventManager: l.services?.eventManager,
-																profiler: l.services?.profiler,
-																logger: l.services?.logger,
-																tracker: l.services?.tracker || this.tracker,
-																quickviewManager: l.services?.quickviewManager || this.quickviewManager,
+																client: c.services?.client || this.client,
+																store: c.services?.store,
+																urlManager: c.services?.urlManager,
+																eventManager: c.services?.eventManager,
+																profiler: c.services?.profiler,
+																logger: c.services?.logger,
+																tracker: c.services?.tracker || this.tracker,
+																quickviewManager: c.services?.quickviewManager || this.quickviewManager,
 															}
 														);
 														(window.athos.controller = window.athos.controller || {}),
-															(window.athos.controller[I.config.id] = this.controllers[I.config.id] = I),
-															(this._controllerPromises[I.config.id] = new Promise((u) => u(I)));
-														let Y = null;
-														const m = async () => (
-																Y ||
-																	(l.url?.initial && (0, Me().T)(l.url.initial, I.urlManager).go({ history: 'replace' }),
-																	(Y = this.controllers[l.config.id].search())),
-																Y
+															(window.athos.controller[j.config.id] = this.controllers[j.config.id] = j),
+															(this._controllerPromises[j.config.id] = new Promise((i) => i(j)));
+														let V = null;
+														const Q = async () => (
+																V ||
+																	(c.url?.initial && (0, Ae().T)(c.url.initial, j.urlManager).go({ history: 'replace' }),
+																	(V = this.controllers[c.config.id].search())),
+																V
 															),
-															_ = async (u, b, C) => {
-																const z = [];
-																u.renderAfterSearch ? z.push(m()) : (z.push(Promise.resolve()), m());
-																const U = u.onTarget;
-																U && (await U(u, b, C));
+															u = async (i, M, S) => {
+																const b = [];
+																i.renderAfterSearch ? b.push(Q()) : (b.push(Promise.resolve()), Q());
+																const W = i.onTarget;
+																W && (await W(i, M, S));
 																try {
-																	z.push(u.component());
-																	const [J, re] = await Promise.all(z);
+																	b.push(i.component());
+																	const [ce, Z] = await Promise.all(b);
 																	setTimeout(() => {
-																		(0, p().XX)((0, L().Y)(re, { controller: this.controllers[l.config.id], snap: this, ...u.props }), b);
+																		(0, h().XX)((0, E().Y)(Z, { controller: this.controllers[c.config.id], snap: this, ...i.props }), M);
 																	});
-																} catch (J) {
-																	this.logger.error(J), this.logger.error(Te, u);
+																} catch (ce) {
+																	this.logger.error(ce), this.logger.error(me, i);
 																}
 															};
-														l?.targeters?.forEach((u, b) => {
-															if (!u.selector) throw new Error(`Targets at index ${b} missing selector value (string).`);
-															if (!u.component) throw new Error(`Targets at index ${b} missing component value (Component).`);
-															const C = this.context.pageType && `${this.context.pageType}`.toLowerCase().trim();
-															(u.prefetch || ['search', 'category'].includes(C)) && (m(), u.component()),
-																I.createTargeter({ controller: I, ...u }, async (z, U, J) => {
-																	if (z && z.skeleton && U) {
-																		const re = await z.skeleton();
+														c?.targeters?.forEach((i, M) => {
+															if (!i.selector) throw new Error(`Targets at index ${M} missing selector value (string).`);
+															if (!i.component) throw new Error(`Targets at index ${M} missing component value (Component).`);
+															const S = this.context.pageType && `${this.context.pageType}`.toLowerCase().trim();
+															(i.prefetch || ['search', 'category'].includes(S)) && (Q(), i.component()),
+																j.createTargeter({ controller: j, ...i }, async (b, W, ce) => {
+																	if (b && b.skeleton && W) {
+																		const Z = await b.skeleton();
 																		setTimeout(() => {
-																			(0, p().XX)((0, L().Y)(re, {}), U);
+																			(0, h().XX)((0, E().Y)(Z, {}), W);
 																		});
 																	}
-																	await _(z, U, J);
+																	await u(b, W, ce);
 																});
 														});
-													} catch (I) {
-														this.logger.error(`Failed to instantiate ${P} controller at index ${Z}.`, I);
+													} catch (j) {
+														this.logger.error(`Failed to instantiate ${P} controller at index ${K}.`, j);
 													}
 												});
 												break;
 											}
 											case 'autocomplete': {
-												this.config.controllers[P].forEach((l, Z) => {
-													if (typeof this._controllerPromises[l.config.id] < 'u') {
-														this.logger.error(`Controller with id '${l.config.id}' is already defined`);
+												this.config.controllers[P].forEach((c, K) => {
+													if (typeof this._controllerPromises[c.config.id] < 'u') {
+														this.logger.error(`Controller with id '${c.config.id}' is already defined`);
 														return;
 													}
-													this._controllerPromises[l.config.id] = new Promise(async (I) => {
+													this._controllerPromises[c.config.id] = new Promise(async (j) => {
 														try {
-															let Y = !1;
-															const m = () => {
-																	Y ||
-																		((Y = !0),
+															let V = !1;
+															const Q = () => {
+																	V ||
+																		((V = !0),
 																		setTimeout(() => {
-																			this.controllers[l.config.id].bind();
+																			this.controllers[c.config.id].bind();
 																		}));
 																},
-																_ = async (u, b, C) => {
-																	const z = u.onTarget;
-																	z && (await z(u, b, C));
+																u = async (i, M, S) => {
+																	const b = i.onTarget;
+																	b && (await b(i, M, S));
 																	try {
-																		const U = [];
-																		U.push(u.component());
-																		const re = (await Promise.all(U))[0];
+																		const W = [];
+																		W.push(i.component());
+																		const Z = (await Promise.all(W))[0];
 																		setTimeout(() => {
-																			(0, p().XX)((0, L().Y)(re, { controller: this.controllers[l.config.id], input: C, snap: this, ...u.props }), b);
+																			(0, h().XX)((0, E().Y)(Z, { controller: this.controllers[c.config.id], input: S, snap: this, ...i.props }), M);
 																		});
-																	} catch (U) {
-																		this.logger.error(U), this.logger.error(Te, u);
+																	} catch (W) {
+																		this.logger.error(W), this.logger.error(me, i);
 																	}
 																};
-															(!l?.targeters || l?.targeters.length === 0) &&
-																(await this._createController(o().k.autocomplete, l.config, l.services, l.url, l.context, (u) => {
-																	u && I(u);
+															(!c?.targeters || c?.targeters.length === 0) &&
+																(await this._createController(o().k.autocomplete, c.config, c.services, c.url, c.context, (i) => {
+																	i && j(i);
 																}),
-																m()),
-																l?.targeters?.forEach((u, b) => {
-																	if (!u.selector) throw new Error(`Targets at index ${b} missing selector value (string).`);
-																	if (!u.component) throw new Error(`Targets at index ${b} missing component value (Component).`);
-																	const C = new (v().b)(
+																Q()),
+																c?.targeters?.forEach((i, M) => {
+																	if (!i.selector) throw new Error(`Targets at index ${M} missing selector value (string).`);
+																	if (!i.component) throw new Error(`Targets at index ${M} missing component value (Component).`);
+																	const S = new (C().b)(
 																		[
 																			{
 																				inject: {
 																					action: 'after',
 																					element: () => {
-																						const z = document.createElement('div');
+																						const b = document.createElement('div');
 																						return (
-																							(z.className = 'ss__autocomplete--target'),
-																							z.addEventListener('click', (U) => {
-																								U.stopPropagation();
+																							(b.className = 'ss__autocomplete--target'),
+																							b.addEventListener('click', (W) => {
+																								W.stopPropagation();
 																							}),
-																							z
+																							b
 																						);
 																					},
 																				},
-																				...u,
+																				...i,
 																			},
 																		],
-																		async (z, U, J) => {
-																			const re = await this._createController(o().k.autocomplete, l.config, l.services, l.url, l.context, (le) => {
-																				le && I(le);
+																		async (b, W, ce) => {
+																			const Z = await this._createController(o().k.autocomplete, c.config, c.services, c.url, c.context, (re) => {
+																				re && j(re);
 																			});
-																			m(), _({ controller: re, ...z }, U, J), re.addTargeter(C);
+																			Q(), u({ controller: Z, ...b }, W, ce), Z.addTargeter(S);
 																		}
 																	);
 																});
-														} catch (Y) {
-															this.logger.error(`Failed to instantiate ${P} controller at index ${Z}.`, Y);
+														} catch (V) {
+															this.logger.error(`Failed to instantiate ${P} controller at index ${K}.`, V);
 														}
 													});
 												});
 												break;
 											}
 											case 'finder': {
-												this.config.controllers[P].forEach((l, Z) => {
-													if (typeof this._controllerPromises[l.config.id] < 'u') {
-														this.logger.error(`Controller with id '${l.config.id}' is already defined`);
+												this.config.controllers[P].forEach((c, K) => {
+													if (typeof this._controllerPromises[c.config.id] < 'u') {
+														this.logger.error(`Controller with id '${c.config.id}' is already defined`);
 														return;
 													}
-													this._controllerPromises[l.config.id] = new Promise((I) => {
+													this._controllerPromises[c.config.id] = new Promise((j) => {
 														try {
-															let Y = !1;
-															const m = () => {
-																	Y || (this.controllers[l.config.id].search(), (Y = !0));
+															let V = !1;
+															const Q = () => {
+																	V || (this.controllers[c.config.id].search(), (V = !0));
 																},
-																_ = async (u, b, C) => {
-																	const z = u.onTarget;
-																	z && (await z(u, b, C));
+																u = async (i, M, S) => {
+																	const b = i.onTarget;
+																	b && (await b(i, M, S));
 																	try {
-																		const U = await u.component();
+																		const W = await i.component();
 																		setTimeout(() => {
-																			(0, p().XX)((0, L().Y)(U, { controller: this.controllers[l.config.id], snap: this, ...u.props }), b);
+																			(0, h().XX)((0, E().Y)(W, { controller: this.controllers[c.config.id], snap: this, ...i.props }), M);
 																		});
-																	} catch (U) {
-																		this.logger.error(U), this.logger.error(Te, u);
+																	} catch (W) {
+																		this.logger.error(W), this.logger.error(me, i);
 																	}
 																};
-															(!l?.targeters || l?.targeters.length === 0) &&
-																this._createController(o().k.finder, l.config, l.services, l.url, l.context, (u) => {
-																	u && I(u);
+															(!c?.targeters || c?.targeters.length === 0) &&
+																this._createController(o().k.finder, c.config, c.services, c.url, c.context, (i) => {
+																	i && j(i);
 																}),
-																l?.targeters?.forEach((u, b) => {
-																	if (!u.selector) throw new Error(`Targets at index ${b} missing selector value (string).`);
-																	if (!u.component) throw new Error(`Targets at index ${b} missing component value (Component).`);
-																	const C = new (v().b)([{ ...u }], async (z, U, J) => {
-																		const re = await this._createController(o().k.finder, l.config, l.services, l.url, l.context, (le) => {
-																			le && I(le);
+																c?.targeters?.forEach((i, M) => {
+																	if (!i.selector) throw new Error(`Targets at index ${M} missing selector value (string).`);
+																	if (!i.component) throw new Error(`Targets at index ${M} missing component value (Component).`);
+																	const S = new (C().b)([{ ...i }], async (b, W, ce) => {
+																		const Z = await this._createController(o().k.finder, c.config, c.services, c.url, c.context, (re) => {
+																			re && j(re);
 																		});
-																		m(), _({ controller: re, ...z }, U, J), re.addTargeter(C);
+																		Q(), u({ controller: Z, ...b }, W, ce), Z.addTargeter(S);
 																	});
 																});
-														} catch (Y) {
-															this.logger.error(`Failed to instantiate ${P} controller at index ${Z}.`, Y);
+														} catch (V) {
+															this.logger.error(`Failed to instantiate ${P} controller at index ${K}.`, V);
 														}
 													});
 												});
 												break;
 											}
 											case 'recommendation': {
-												this.config.controllers[P].forEach((l, Z) => {
-													if (typeof this._controllerPromises[l.config.id] < 'u') {
-														this.logger.error(`Controller with id '${l.config.id}' is already defined`);
+												this.config.controllers[P].forEach((c, K) => {
+													if (typeof this._controllerPromises[c.config.id] < 'u') {
+														this.logger.error(`Controller with id '${c.config.id}' is already defined`);
 														return;
 													}
-													this._controllerPromises[l.config.id] = new Promise((I) => {
+													this._controllerPromises[c.config.id] = new Promise((j) => {
 														try {
-															let Y = !1;
-															const m = () => {
-																	Y || (this.controllers[l.config.id].search(), (Y = !0));
+															let V = !1;
+															const Q = () => {
+																	V || (this.controllers[c.config.id].search(), (V = !0));
 																},
-																_ = async (u, b, C) => {
-																	const z = u.onTarget;
-																	z && (await z(u, b, C));
+																u = async (i, M, S) => {
+																	const b = i.onTarget;
+																	b && (await b(i, M, S));
 																	try {
-																		const U = await u.component();
+																		const W = await i.component();
 																		setTimeout(() => {
-																			(0, p().XX)((0, L().Y)(U, { controller: this.controllers[l.config.id], snap: this, ...u.props }), b);
+																			(0, h().XX)((0, E().Y)(W, { controller: this.controllers[c.config.id], snap: this, ...i.props }), M);
 																		});
-																	} catch (U) {
-																		this.logger.error(U), this.logger.error(Te, u);
+																	} catch (W) {
+																		this.logger.error(W), this.logger.error(me, i);
 																	}
 																};
-															(!l?.targeters || l?.targeters.length === 0) &&
-																this._createController(o().k.recommendation, l.config, l.services, l.url, l.context, (u) => {
-																	u && I(u);
+															(!c?.targeters || c?.targeters.length === 0) &&
+																this._createController(o().k.recommendation, c.config, c.services, c.url, c.context, (i) => {
+																	i && j(i);
 																}),
-																l?.targeters?.forEach((u, b) => {
-																	if (!u.selector) throw new Error(`Targets at index ${b} missing selector value (string).`);
-																	if (!u.component) throw new Error(`Targets at index ${b} missing component value (Component).`);
-																	const C = new (v().b)([{ ...u }], async (z, U, J) => {
-																		const re = await this._createController(o().k.recommendation, l.config, l.services, l.url, l.context, (le) => {
-																			le && I(le);
+																c?.targeters?.forEach((i, M) => {
+																	if (!i.selector) throw new Error(`Targets at index ${M} missing selector value (string).`);
+																	if (!i.component) throw new Error(`Targets at index ${M} missing component value (Component).`);
+																	const S = new (C().b)([{ ...i }], async (b, W, ce) => {
+																		const Z = await this._createController(o().k.recommendation, c.config, c.services, c.url, c.context, (re) => {
+																			re && j(re);
 																		});
-																		m(), _({ controller: re, ...z }, U, J), re.addTargeter(C);
+																		Q(), u({ controller: Z, ...b }, W, ce), Z.addTargeter(S);
 																	});
 																});
-														} catch (Y) {
-															this.logger.error(`Failed to instantiate ${P} controller at index ${Z}.`, Y);
+														} catch (V) {
+															this.logger.error(`Failed to instantiate ${P} controller at index ${K}.`, V);
 														}
 													});
 												});
@@ -11433,51 +11423,51 @@ The error above happened in the following targeter in the Snap Config`;
 							}
 						}
 					}),
-					Ue = t.cw(function (Ie, ke) {
-						t.d(ke, { c9: () => Ge }), p(), d();
-						const me = 'athosEditor',
-							He = 'athos-editor';
-						function Ce(m) {
-							return m;
+					Ue = t.cw(function (Ie, we) {
+						t.d(we, { c9: () => Ve }), h(), m();
+						const le = 'athosEditor',
+							je = 'athos-editor';
+						function xe(u) {
+							return u;
 						}
-						function ue(m) {
-							return m;
+						function _e(u) {
+							return u;
 						}
 						const he = {},
-							ge = { trending: { limit: 5 } },
-							Te = ['filter', 'sort', 'pageSize', 'rq', 'page'];
-						class Ge extends _e().PL {
-							constructor(_) {
-								let u = {};
+							me = { trending: { limit: 5 } },
+							Re = ['filter', 'sort', 'pageSize', 'rq', 'page'];
+						class Ve extends ue().PL {
+							constructor(i) {
+								let M = {};
 								try {
-									u = (0, V().S)(['editor']);
+									M = (0, G().S)(['editor']);
 								} catch {
-									u = {};
+									M = {};
 								}
-								const { editor: b } = u,
-									C = (0, e().O)(window.location.href),
-									z = x().U.get(me),
-									U = !!((C?.params?.query && He in C.params.query) || z === 'ui' || b?.mode === 'ui'),
-									J = !!z || U || b?.mode === 'headless';
-								_.theme.globalResultComponent &&
-									(_.theme.overrides = Q()()({ default: { result: { customComponent: _.theme.globalResultComponent } } }, _.theme.overrides || {}));
-								const re = new ut.nf({ config: _, settings: { editMode: J } }),
-									le = Z(_, re);
-								super(le, { templatesStore: re }),
+								const { editor: S } = M,
+									b = (0, e().O)(window.location.href),
+									W = y().U.get(le),
+									ce = !!((b?.params?.query && je in b.params.query) || W === 'ui' || S?.mode === 'ui'),
+									Z = !!W || ce || S?.mode === 'headless';
+								i.theme.globalResultComponent &&
+									(i.theme.overrides = ee()()({ default: { result: { customComponent: i.theme.globalResultComponent } } }, i.theme.overrides || {}));
+								const re = new ut.nf({ config: i, settings: { editMode: Z } }),
+									Be = j(i, re);
+								super(Be, { templatesStore: re }),
 									(this.templates = re),
 									setTimeout(async () => {
-										if (J) {
+										if (Z) {
 											await re.preLoad();
-											const we = (await t.e(3833).then(() => t('./src/Templates/Stores/TemplateEditor/TemplateEditorStore.ts'))).TemplateEditorStore,
-												$e = new we({ templatesStore: re });
+											const Me = (await t.e(3833).then(() => t('./src/Templates/Stores/TemplateEditor/TemplateEditorStore.ts'))).TemplateEditorStore,
+												$e = new Me({ templatesStore: re });
 											(window.athos = window.athos || {}), (window.athos.editor = $e);
 											const Ne = this.getTemplateController('search'),
 												et = this.getTemplateController('autocomplete');
 											Ne && $e.registerController(Ne),
 												et && $e.registerController(et),
-												U &&
-													(x().U.set(me, 'ui'),
-													new (v().b)(
+												ce &&
+													(y().U.set(le, 'ui'),
+													new (C().b)(
 														[
 															{
 																selector: 'body',
@@ -11510,15 +11500,15 @@ The error above happened in the following targeter in the Snap Config`;
 																		t.e(5143),
 																	]).then(() => t('./components/src/index.ts'))
 																).TemplatesEditor;
-																(0, p().XX)(
-																	(0, L().Y)(ct, {
+																(0, h().XX)(
+																	(0, E().Y)(ct, {
 																		templatesStore: re,
 																		editorStore: $e,
 																		snap: this,
 																		onRemoveClick: () => {
-																			x().U.unset(me);
+																			y().U.unset(le);
 																			const gt = (0, e().O)(window.location.href);
-																			delete gt?.params.query[He];
+																			delete gt?.params.query[je];
 																			const Ze = gt?.url();
 																			Ze && Ze != window.location.href ? (window.location.href = Ze) : window.location.reload();
 																		},
@@ -11533,212 +11523,212 @@ The error above happened in the following targeter in the Snap Config`;
 										}
 									});
 							}
-							getTemplateController(_) {
-								const u = this.templates.config[_]?.tabs;
-								if (u?.length) {
-									const b = u.filter((C) => C.default)[0] || u[0];
-									return this.controllers[b.id];
+							getTemplateController(i) {
+								const M = this.templates.config[i]?.tabs;
+								if (M?.length) {
+									const S = M.filter((b) => b.default)[0] || M[0];
+									return this.controllers[S.id];
 								}
-								return this.controllers[_];
+								return this.controllers[i];
 							}
 						}
-						function Xe(m, _) {
-							return m.reduce((u, b, C) => ((u[b.toString()] = _[C] || {}), u), {});
+						function Ke(u, i) {
+							return u.reduce((M, S, b) => ((M[S.toString()] = i[b] || {}), M), {});
 						}
-						const Ve = (m, _) => {
-							const u = m.search?.targets || [];
-							let b;
-							if (_.settings.editMode) {
-								const C = _.storage.get('overrides.targets.search') || [];
-								b = Q()()(u, C, { arrayMerge: h().a });
-							} else b = u;
-							return b.map((C) => {
-								const z = _.addTarget({ ...C, type: 'search' });
+						const Ce = (u, i) => {
+							const M = u.search?.targets || [];
+							let S;
+							if (i.settings.editMode) {
+								const b = i.storage.get('overrides.targets.search') || [];
+								S = ee()()(M, b, { arrayMerge: _().a });
+							} else S = M;
+							return S.map((b) => {
+								const W = i.addTarget({ ...b, type: 'search' });
 								return {
-									selector: C.selector,
+									selector: b.selector,
 									autoRetarget: !0,
 									hideTarget: !0,
 									component: async () => {
-										const J = [];
-										return J.push(_.library.import.component.search[C.component]()), await Promise.all(J), de().F;
+										const Z = [];
+										return Z.push(i.library.import.component.search[b.component]()), await Promise.all(Z), pe().F;
 									},
-									props: { target: z, templatesStore: _ },
+									props: { target: W, templatesStore: i },
 								};
 							});
 						};
-						function fe(m, _) {
-							const u = m.autocomplete?.targets || [];
-							let b;
-							if (_.settings.editMode) {
-								const C = _.storage.get('overrides.targets.autocomplete') || [];
-								b = Q()()(u, C, { arrayMerge: h().a });
-							} else b = u;
-							return b.map((C) => {
-								const z = _.addTarget({ ...C, type: 'autocomplete', selector: C.selector || C.inputSelector });
+						function ke(u, i) {
+							const M = u.autocomplete?.targets || [];
+							let S;
+							if (i.settings.editMode) {
+								const b = i.storage.get('overrides.targets.autocomplete') || [];
+								S = ee()()(M, b, { arrayMerge: _().a });
+							} else S = M;
+							return S.map((b) => {
+								const W = i.addTarget({ ...b, type: 'autocomplete', selector: b.selector || b.inputSelector });
 								return {
-									selector: C.selector || C.inputSelector,
+									selector: b.selector || b.inputSelector,
 									component: async () => {
-										const J = [];
-										return J.push(_.library.import.component.autocomplete[C.component]()), await Promise.all(J), de().F;
+										const Z = [];
+										return Z.push(i.library.import.component.autocomplete[b.component]()), await Promise.all(Z), pe().F;
 									},
-									props: { target: z, templatesStore: _, ...(C.selector && C.selector !== C.inputSelector ? { input: C.inputSelector } : {}) },
+									props: { target: W, templatesStore: i, ...(b.selector && b.selector !== b.inputSelector ? { input: b.inputSelector } : {}) },
 									autoRetarget: !0,
 									hideTarget: !0,
-									createControllerBeforeTargeting: _.settings.editMode,
+									createControllerBeforeTargeting: i.settings.editMode,
 								};
 							});
 						}
-						function Oe(m, _) {
+						function P(u, i) {
 							return (
-								m.quickview?.targets?.map((u, b) => {
-									const C = new (Be().t)({ target: { type: 'quickview', selector: u.selector || 'body', component: u.component, index: b } });
+								u.quickview?.targets?.map((M, S) => {
+									const b = new (ve().t)({ target: { type: 'quickview', selector: M.selector || 'body', component: M.component, index: S } });
 									return {
-										selector: u.selector || 'body',
+										selector: M.selector || 'body',
 										inject: {
 											action: 'append',
 											element: () => {
-												const U = document.createElement('div');
-												return (U.id = b === 0 ? 'athos-quickview' : `athos-quickview-${b}`), U;
+												const ce = document.createElement('div');
+												return (ce.id = S === 0 ? 'athos-quickview' : `athos-quickview-${S}`), ce;
 											},
 										},
-										component: async () => (await _.library.import.component.quickview[u.component](), de().F),
-										props: { target: C, templatesStore: _ },
+										component: async () => (await i.library.import.component.quickview[M.component](), pe().F),
+										props: { target: b, templatesStore: i },
 									};
 								}) || []
 							);
 						}
-						function P(m, _) {
-							return Object.keys(m.recommendation || {})
-								.filter((u) => ['default', 'email', 'bundle'].includes(u))
-								.reduce((u, b) => {
-									const C = b;
+						function c(u, i) {
+							return Object.keys(u.recommendation || {})
+								.filter((M) => ['default', 'email', 'bundle'].includes(M))
+								.reduce((M, S) => {
+									const b = S;
 									return (
-										Object.keys(m.recommendation[C] || {}).forEach((z, U) => {
-											const J = `recommendation/${C}`,
-												re = { ...m.recommendation[C][z], index: U, type: J },
-												le = {
+										Object.keys(u.recommendation[b] || {}).forEach((W, ce) => {
+											const Z = `recommendation/${b}`,
+												re = { ...u.recommendation[b][W], index: ce, type: Z },
+												Be = {
 													component: async () => {
-														const we = [];
-														switch (C) {
+														const Me = [];
+														switch (b) {
 															case 'default': {
-																const $e = _.library.import.component.recommendation.default;
-																we.push($e[re.component]());
+																const $e = i.library.import.component.recommendation.default;
+																Me.push($e[re.component]());
 																break;
 															}
 															case 'bundle': {
-																const $e = _.library.import.component.recommendation.bundle;
-																we.push($e[re.component]());
+																const $e = i.library.import.component.recommendation.bundle;
+																Me.push($e[re.component]());
 																break;
 															}
 															case 'email': {
-																const $e = _.library.import.component.recommendation.email;
-																we.push($e[re.component]());
+																const $e = i.library.import.component.recommendation.email;
+																Me.push($e[re.component]());
 																break;
 															}
 														}
-														return await Promise.all(we), de().F;
+														return await Promise.all(Me), pe().F;
 													},
-													props: { templatesStore: _ },
-													onTarget: function (we, $e, Ne, et) {
-														(re.selector = `#${et.id}`), (this.props = this.props || {}), (this.props.target = _.addTarget(re));
+													props: { templatesStore: i },
+													onTarget: function (Me, $e, Ne, et) {
+														(re.selector = `#${et.id}`), (this.props = this.props || {}), (this.props.target = i.addTarget(re));
 													},
 												};
-											u[z] = le;
+											M[W] = Be;
 										}),
-										u
+										M
 									);
 								}, {});
 						}
-						function l(m, _) {
-							const u = { ...m.client?.globals, siteId: _ };
-							return { client: new jt.K(u, m.client?.config), tracker: new It.J(u, m.tracker?.config) };
+						function K(u, i) {
+							const M = { ...u.client?.globals, siteId: i };
+							return { client: new jt.K(M, u.client?.config), tracker: new It.J(M, u.tracker?.config) };
 						}
-						function Z(m, _) {
-							const u = window?.athos?.managed ? 'managed/' : '',
-								b = {
-									features: m.features || he,
-									client: { globals: {}, config: { ...(m.config?.client || {}), initiator: `athos/${u}snap/preact/templates/${qe.r}` } },
-									tracker: { config: { initiator: `athos/${u}snap/preact/templates/${qe.r}`, framework: 'snap/templates' } },
+						function j(u, i) {
+							const M = window?.athos?.managed ? 'managed/' : '',
+								S = {
+									features: u.features || he,
+									client: { globals: {}, config: { ...(u.config?.client || {}), initiator: `athos/${M}snap/preact/templates/${qe.r}` } },
+									tracker: { config: { initiator: `athos/${M}snap/preact/templates/${qe.r}`, framework: 'snap/templates' } },
 									instantiators: {},
 									controllers: {},
 								};
 							if (
-								(m.config?.siteId && b.client?.globals && (b.client.globals.siteId = m.config.siteId),
-								m.url && (b.url = m.url),
-								m.search && b.controllers)
+								(u.config?.siteId && S.client?.globals && (S.client.globals.siteId = u.config.siteId),
+								u.url && (S.url = u.url),
+								u.search && S.controllers)
 							) {
-								const z = m.search.tabs || [],
-									U = Ve(m, _),
-									J = m.search.settings || {},
-									re = m.search.globals || {};
-								if (((b.controllers.search = []), !z.length))
-									b.controllers.search.push({ config: { id: 'search', plugins: I(m, _, 'search'), globals: re, settings: J }, targeters: U });
+								const W = u.search.tabs || [],
+									ce = Ce(u, i),
+									Z = u.search.settings || {},
+									re = u.search.globals || {};
+								if (((S.controllers.search = []), !W.length))
+									S.controllers.search.push({ config: { id: 'search', plugins: V(u, i, 'search'), globals: re, settings: Z }, targeters: ce });
 								else {
-									const le = (0, Ee().y)(z) || z[0];
-									z.forEach((we) => {
-										const $e = we.param;
-										b.controllers.search.push({
+									const Be = (0, Le().y)(W) || W[0];
+									W.forEach((Me) => {
+										const $e = Me.param;
+										S.controllers.search.push({
 											url: {
-												settings: { ...($e ? { corePrefix: $e, corePrefixParams: Te } : {}) },
+												settings: { ...($e ? { corePrefix: $e, corePrefixParams: Re } : {}) },
 												parameters: { custom: { tab: { type: 'query' } } },
 											},
 											config: {
-												id: we.id,
-												plugins: we.plugins ? Y(we.plugins, _) : I(m, _, 'search'),
-												settings: { ...Q()()(J, we.settings || {}) },
-												globals: Q()()(re, we.globals || {}),
+												id: Me.id,
+												plugins: Me.plugins ? Q(Me.plugins, i) : V(u, i, 'search'),
+												settings: { ...ee()()(Z, Me.settings || {}) },
+												globals: ee()()(re, Me.globals || {}),
 											},
-											services: l(b, we.siteId),
-											...(we === le ? { targeters: U } : {}),
+											services: K(S, Me.siteId),
+											...(Me === Be ? { targeters: ce } : {}),
 										});
 									});
 								}
 							}
-							if (m.autocomplete && b.controllers) {
-								const z = Q()()(ge, m.autocomplete.settings || {}),
-									U = m.autocomplete.targets.map((we) => we.inputSelector).join(', '),
-									J = m.autocomplete.tabs || [],
-									re = m.autocomplete.globals || {},
-									le = fe(m, _);
-								if (((b.controllers.autocomplete = []), !J.length))
-									b.controllers.autocomplete.push({
+							if (u.autocomplete && S.controllers) {
+								const W = ee()()(me, u.autocomplete.settings || {}),
+									ce = u.autocomplete.targets.map((Me) => Me.inputSelector).join(', '),
+									Z = u.autocomplete.tabs || [],
+									re = u.autocomplete.globals || {},
+									Be = ke(u, i);
+								if (((S.controllers.autocomplete = []), !Z.length))
+									S.controllers.autocomplete.push({
 										config: {
 											id: 'autocomplete',
-											plugins: I(m, _, 'autocomplete'),
-											selector: U,
-											action: m.autocomplete.action || '',
+											plugins: V(u, i, 'autocomplete'),
+											selector: ce,
+											action: u.autocomplete.action || '',
 											globals: re,
-											settings: z,
+											settings: W,
 										},
-										targeters: le,
+										targeters: Be,
 									});
 								else {
-									const we = J.filter(($e) => $e.default)[0] || J[0];
-									J.forEach(($e) => {
+									const Me = Z.filter(($e) => $e.default)[0] || Z[0];
+									Z.forEach(($e) => {
 										const Ne = $e.param;
-										b.controllers.autocomplete.push({
+										S.controllers.autocomplete.push({
 											url: {
-												settings: { ...(Ne ? { corePrefix: Ne, corePrefixParams: Te } : {}) },
+												settings: { ...(Ne ? { corePrefix: Ne, corePrefixParams: Re } : {}) },
 												parameters: { custom: { tab: { type: 'query' } } },
 												globals: [{ param: 'tab', value: $e.param }],
 											},
 											config: {
 												id: $e.id,
-												plugins: $e.plugins ? Y($e.plugins, _) : I(m, _, 'autocomplete'),
-												selector: U,
-												action: m.autocomplete.action || '',
-												settings: Q()()(z, $e.settings || {}),
-												globals: Q()()(re, $e.globals || {}),
+												plugins: $e.plugins ? Q($e.plugins, i) : V(u, i, 'autocomplete'),
+												selector: ce,
+												action: u.autocomplete.action || '',
+												settings: ee()()(W, $e.settings || {}),
+												globals: ee()()(re, $e.globals || {}),
 											},
-											services: l(b, $e.siteId),
-											...($e === we ? { targeters: le } : {}),
+											services: K(S, $e.siteId),
+											...($e === Me ? { targeters: Be } : {}),
 										});
 									});
 								}
 							}
-							const C = m.recommendation || {};
+							const b = u.recommendation || {};
 							if (
-								((m.recommendation = Q()()(
+								((u.recommendation = ee()()(
 									{
 										settings: { branch: 'production' },
 										bundle: {
@@ -11753,242 +11743,245 @@ The error above happened in the following targeter in the Snap Config`;
 										},
 										email: { SnapTemplatesEmailDefault: { component: 'RecommendationEmail' } },
 									},
-									C
+									b
 								)),
-								m.recommendation && b.instantiators)
+								u.recommendation && S.instantiators)
 							) {
-								const z = { components: P(m, _), config: { plugins: I(m, _, 'recommendation'), ...m.recommendation?.settings } };
-								b.instantiators.recommendation = z;
+								const W = { components: c(u, i), config: { plugins: V(u, i, 'recommendation'), ...u.recommendation?.settings } };
+								S.instantiators.recommendation = W;
 							}
-							if (m.quickview) {
-								const z = m.quickview?.settings;
-								b.quickview = { config: { id: 'quickview', ...(z ? { settings: z } : {}) }, targeters: Oe(m, _) };
+							if (u.quickview) {
+								const W = u.quickview?.settings;
+								S.quickview = { config: { id: 'quickview', ...(W ? { settings: W } : {}) }, targeters: P(u, i) };
 							}
-							return b;
+							return S;
 						}
-						function I(m, _, u) {
-							const b = [];
-							let C;
-							u && (C = m[u] || {}),
-								b.push([
-									_.library.import.plugins.common.backgroundFilters,
-									Q()()(m.plugins?.common?.backgroundFilters || {}, C?.plugins?.common?.backgroundFilters || {}),
+						function V(u, i, M) {
+							const S = [];
+							let b;
+							M && (b = u[M] || {}),
+								S.push([
+									i.library.import.plugins.common.backgroundFilters,
+									ee()()(u.plugins?.common?.backgroundFilters || {}, b?.plugins?.common?.backgroundFilters || {}),
 								]),
-								b.push([
-									_.library.import.plugins.common.scrollToTop,
-									Q()()(m.plugins?.common?.scrollToTop || {}, C?.plugins?.common?.scrollToTop || {}),
+								S.push([
+									i.library.import.plugins.common.scrollToTop,
+									ee()()(u.plugins?.common?.scrollToTop || {}, b?.plugins?.common?.scrollToTop || {}),
 								]),
-								b.push([_.library.import.plugins.common.logger, Q()()(m.plugins?.common?.logger || {}, C?.plugins?.common?.logger || {})]);
-							const z = Q()()(m.plugins?.common?.klaviyoEvents || {}, C?.plugins?.common?.klaviyoEvents || {});
-							switch ((z?.enabled === !0 && b.push([_.library.import.plugins.common.klaviyoEvents, z]), _.platform)) {
+								S.push([i.library.import.plugins.common.logger, ee()()(u.plugins?.common?.logger || {}, b?.plugins?.common?.logger || {})]);
+							const W = ee()()(u.plugins?.common?.klaviyoEvents || {}, b?.plugins?.common?.klaviyoEvents || {});
+							switch ((W?.enabled === !0 && S.push([i.library.import.plugins.common.klaviyoEvents, W]), i.platform)) {
 								case 'shopify':
-									b.push([
-										_.library.import.plugins.shopify.backgroundFilters,
-										Q()()(m.plugins?.shopify?.backgroundFilters || {}, C?.plugins?.shopify?.backgroundFilters || {}),
+									S.push([
+										i.library.import.plugins.shopify.backgroundFilters,
+										ee()()(u.plugins?.shopify?.backgroundFilters || {}, b?.plugins?.shopify?.backgroundFilters || {}),
 									]),
-										b.push([
-											_.library.import.plugins.shopify.mutateResults,
-											Q()()(m.plugins?.shopify?.mutateResults || {}, C?.plugins?.shopify?.mutateResults || {}),
+										S.push([
+											i.library.import.plugins.shopify.mutateResults,
+											ee()()(u.plugins?.shopify?.mutateResults || {}, b?.plugins?.shopify?.mutateResults || {}),
 										]),
-										b.push([
-											_.library.import.plugins.shopify.addToCart,
-											Q()()(m.plugins?.shopify?.addToCart || {}, C?.plugins?.shopify?.addToCart || {}),
+										S.push([
+											i.library.import.plugins.shopify.addToCart,
+											ee()()(u.plugins?.shopify?.addToCart || {}, b?.plugins?.shopify?.addToCart || {}),
 										]);
-									const J = Q()()(m.plugins?.shopify?.markets || {}, C?.plugins?.shopify?.markets || {}),
-										re = typeof J?.token == 'string' && J.token.length > 0;
-									re && b.push([_.library.import.plugins.shopify.markets, J]);
-									const le = Q()()(m.plugins?.shopify?.currency || {}, C?.plugins?.shopify?.currency || {});
-									(le?.enabled === !0 || (re && le?.enabled !== !1)) &&
-										b.push([_.library.import.plugins.shopify.currency, { ...le, enabled: !0 }, _]);
+									const Z = ee()()(u.plugins?.shopify?.markets || {}, b?.plugins?.shopify?.markets || {}),
+										re = typeof Z?.token == 'string' && Z.token.length > 0;
+									re && S.push([i.library.import.plugins.shopify.markets, Z]);
+									const Be = ee()()(u.plugins?.shopify?.currency || {}, b?.plugins?.shopify?.currency || {});
+									(Be?.enabled === !0 || (re && Be?.enabled !== !1)) &&
+										S.push([i.library.import.plugins.shopify.currency, { ...Be, enabled: !0 }, i]);
 									break;
 								case 'bigCommerce':
-									b.push([
-										_.library.import.plugins.bigcommerce.backgroundFilters,
-										Q()()(m.plugins?.bigCommerce?.backgroundFilters || {}, C?.plugins?.bigCommerce?.backgroundFilters || {}),
+									S.push([
+										i.library.import.plugins.bigcommerce.backgroundFilters,
+										ee()()(u.plugins?.bigCommerce?.backgroundFilters || {}, b?.plugins?.bigCommerce?.backgroundFilters || {}),
 									]),
-										b.push([
-											_.library.import.plugins.bigcommerce.addToCart,
-											Q()()(m.plugins?.bigCommerce?.addToCart || {}, C?.plugins?.bigCommerce?.addToCart || {}),
+										S.push([
+											i.library.import.plugins.bigcommerce.addToCart,
+											ee()()(u.plugins?.bigCommerce?.addToCart || {}, b?.plugins?.bigCommerce?.addToCart || {}),
 										]);
 									break;
 								case 'magento2':
-									b.push([_.library.import.plugins.magento2.base, Q()()(m.plugins?.magento2?.base || {}, C?.plugins?.magento2?.base || {})]),
-										b.push([
-											_.library.import.plugins.magento2.backgroundFilters,
-											Q()()(m.plugins?.magento2?.backgroundFilters || {}, C?.plugins?.magento2?.backgroundFilters || {}),
+									S.push([i.library.import.plugins.magento2.base, ee()()(u.plugins?.magento2?.base || {}, b?.plugins?.magento2?.base || {})]),
+										S.push([
+											i.library.import.plugins.magento2.backgroundFilters,
+											ee()()(u.plugins?.magento2?.backgroundFilters || {}, b?.plugins?.magento2?.backgroundFilters || {}),
 										]),
-										b.push([
-											_.library.import.plugins.magento2.addToCart,
-											Q()()(m.plugins?.magento2?.addToCart || {}, C?.plugins?.magento2?.addToCart || {}),
+										S.push([
+											i.library.import.plugins.magento2.addToCart,
+											ee()()(u.plugins?.magento2?.addToCart || {}, b?.plugins?.magento2?.addToCart || {}),
 										]);
 									break;
 								case 'other':
-									b.push([_.library.import.plugins.common.addToCart, Q()()(m.plugins?.common?.addToCart || {}, C?.plugins?.common?.addToCart || {})]);
+									S.push([
+										i.library.import.plugins.common.addToCart,
+										ee()()(u.plugins?.common?.addToCart || {}, b?.plugins?.common?.addToCart || {}),
+									]);
 								default:
 									break;
 							}
-							const U = Q()()(m.plugins?.custom || {}, C?.plugins?.custom || {});
+							const ce = ee()()(u.plugins?.custom || {}, b?.plugins?.custom || {});
 							return (
-								Object.keys(U).forEach((J) => {
-									const re = U[J];
-									re?.function && b.push([re.function, ...(re.args || [])]);
+								Object.keys(ce).forEach((Z) => {
+									const re = ce[Z];
+									re?.function && S.push([re.function, ...(re.args || [])]);
 								}),
-								b
+								S
 							);
 						}
-						function Y(m, _) {
-							const u = I({ plugins: m }, _),
-								b = Object.values(m.custom || {}).map((C) => C.function);
-							return u.filter((C) => b.includes(C[0]) || Object.keys(C[1] || {}).length > 0);
+						function Q(u, i) {
+							const M = V({ plugins: u }, i),
+								S = Object.values(u.custom || {}).map((b) => b.function);
+							return M.filter((b) => S.includes(b[0]) || Object.keys(b[1] || {}).length > 0);
 						}
 					}),
-					Ee = () => t('./src/Templates/Stores/TabManagerStore.ts'),
-					Be = () => t('./src/Templates/Stores/TargetStore.ts'),
-					Re = () => t('./src/create/createSearchController.ts'),
-					Me = t.cw(function (Ie, ke) {
-						const me = ['merge', 'set'],
-							He = ['query', 'tag', 'fallbackQuery'],
-							Ce = (ue, he) => {
-								const { parameters: ge } = ue,
-									Te = ue.settings?.useDefaultIgnoreParameters ?? !0;
-								let Ge = ue?.settings?.ignoreParameters || [];
-								Ge = Te ? Ge.concat(He) : Ge;
-								const Xe = he;
-								let Ve = he.merge({});
+					Le = () => t('./src/Templates/Stores/TabManagerStore.ts'),
+					ve = () => t('./src/Templates/Stores/TargetStore.ts'),
+					Ee = () => t('./src/create/createSearchController.ts'),
+					Ae = t.cw(function (Ie, we) {
+						const le = ['merge', 'set'],
+							je = ['query', 'tag', 'fallbackQuery'],
+							xe = (_e, he) => {
+								const { parameters: me } = _e,
+									Re = _e.settings?.useDefaultIgnoreParameters ?? !0;
+								let Ve = _e?.settings?.ignoreParameters || [];
+								Ve = Re ? Ve.concat(je) : Ve;
+								const Ke = he;
+								let Ce = he.merge({});
 								return (
-									Object.keys(ge).forEach((fe) => {
-										const Oe = ge[fe].action || 'merge',
-											{ state: P } = ge[fe],
-											l = ge[fe].ignoreParameters || [],
-											I = ge[fe].useGlobalIgnoreParameters ?? !0 ? Ge.concat(l) : l,
-											Y = Object.keys(Xe.state).filter((m) => !I.includes(m)).length == 0;
-										P && Y && me.includes(Oe) && (Ve = Ve[Oe](fe, P));
+									Object.keys(me).forEach((ke) => {
+										const P = me[ke].action || 'merge',
+											{ state: c } = me[ke],
+											K = me[ke].ignoreParameters || [],
+											V = me[ke].useGlobalIgnoreParameters ?? !0 ? Ve.concat(K) : K,
+											Q = Object.keys(Ke.state).filter((u) => !V.includes(u)).length == 0;
+										c && Q && le.includes(P) && (Ce = Ce[P](ke, c));
 									}),
-									Ve
+									Ce
 								);
 							};
-						t.d(ke, ['T', 0, Ce]);
+						t.d(we, ['T', 0, xe]);
 					}),
-					K = t.cw(function (Ie, ke) {
-						const me = () => {
-								const Ce = new Gt.E();
+					X = t.cw(function (Ie, we) {
+						const le = () => {
+								const xe = new Gt.E();
 								return (
-									Ce.on('controller/selectVariantOptions', async (ue, he) => {
-										const { options: ge, controllerIds: Te } = ue;
-										He(Te).map((Xe) => {
-											Xe.store?.results &&
-												Xe.store?.results.forEach((Ve) => {
-													Ve.type == 'product' && Ve.variants?.makeSelections(ge);
+									xe.on('controller/selectVariantOptions', async (_e, he) => {
+										const { options: me, controllerIds: Re } = _e;
+										je(Re).map((Ke) => {
+											Ke.store?.results &&
+												Ke.store?.results.forEach((Ce) => {
+													Ce.type == 'product' && Ce.variants?.makeSelections(me);
 												});
 										}),
 											await he();
 									}),
-									Ce.on('controller/recommendation/update', async (ue, he) => {
-										const { controllerIds: ge } = ue || {};
-										He(ge)
-											.filter((Ge) => !!(Ge.type === 'recommendation' && Ge.config?.realtime))
-											.map((Ge) => {
-												Ge.search();
+									xe.on('controller/recommendation/update', async (_e, he) => {
+										const { controllerIds: me } = _e || {};
+										je(me)
+											.filter((Ve) => !!(Ve.type === 'recommendation' && Ve.config?.realtime))
+											.map((Ve) => {
+												Ve.search();
 											}),
 											await he();
 									}),
-									Ce
+									xe
 								);
 							},
-							He = (Ce) =>
-								Object.keys(window.athos.controller || {}).reduce((ue, he) => {
-									const ge = window.athos.controller[he];
+							je = (xe) =>
+								Object.keys(window.athos.controller || {}).reduce((_e, he) => {
+									const me = window.athos.controller[he];
 									return (
-										(!Ce ||
-											(Array.isArray(Ce) &&
-												Ce.forEach((Te) => {
-													if (Te instanceof RegExp) {
-														if (he.match(Te)?.length) return ue.push(ge), ue;
-													} else if (he == Te) return ue.push(ge), ue;
+										(!xe ||
+											(Array.isArray(xe) &&
+												xe.forEach((Re) => {
+													if (Re instanceof RegExp) {
+														if (he.match(Re)?.length) return _e.push(me), _e;
+													} else if (he == Re) return _e.push(me), _e;
 												}),
-											typeof Ce == 'string' && Ce === he)) &&
-											ue.push(ge),
-										ue
+											typeof xe == 'string' && xe === he)) &&
+											_e.push(me),
+										_e
 									);
 								}, []);
-						t.d(ke, ['N', 0, me]);
+						t.d(we, ['N', 0, le]);
 					}),
-					h = () => t('./src/utils/combineMerge.ts'),
-					g = t.cw(function (Ie, ke) {
-						t.d(ke, { s: () => He });
-						const me = 'ssWebPixel';
-						function He(ue) {
-							Ce(ue);
+					_ = () => t('./src/utils/combineMerge.ts'),
+					f = t.cw(function (Ie, we) {
+						t.d(we, { s: () => je });
+						const le = 'ssWebPixel';
+						function je(_e) {
+							xe(_e);
 						}
-						function Ce(ue) {
+						function xe(_e) {
 							let he;
 							try {
-								he = window.sessionStorage?.getItem(me);
+								he = window.sessionStorage?.getItem(le);
 							} catch {}
 							if (he)
 								try {
 									if (JSON.parse(he)?.enabled) {
-										const Te = ['product.view', 'cart.view', 'order.transaction'];
-										(ue.tracker = ue.tracker || {}),
-											(ue.tracker.config = ue.tracker.config || {}),
-											(ue.tracker.config.doNotTrack = (ue.tracker.config.doNotTrack || []).concat(Te));
+										const Re = ['product.view', 'cart.view', 'order.transaction'];
+										(_e.tracker = _e.tracker || {}),
+											(_e.tracker.config = _e.tracker.config || {}),
+											(_e.tracker.config.doNotTrack = (_e.tracker.config.doNotTrack || []).concat(Re));
 									}
 								} catch {}
 						}
 					}),
-					O = () => t('../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'),
-					d = () => t('../../node_modules/deepmerge/dist/cjs.js'),
-					r = () => t('../../node_modules/is-plain-object/dist/is-plain-object.mjs'),
-					y = () => t('../../node_modules/mobx/dist/mobx.esm.js'),
-					p = () => t('../../node_modules/preact/dist/preact.module.js'),
-					w = t.cw(function (Ie, ke) {
-						f(), Ae(), S(), pe(), R(), Fe(), O();
-						var me = {};
-						(me.styleTagTransform = it()()),
-							(me.setAttributes = ve()()),
-							(me.insert = st()().bind(null, 'head')),
-							(me.domAPI = vt()()),
-							(me.insertStyleElement = Ye()());
-						var He = bt()()(O().A, me),
-							Ce = O().A && O().A.locals ? O().A.locals : void 0;
+					r = () => t('../../node_modules/css-loader/dist/cjs.js!../../node_modules/sass-loader/dist/cjs.js!./components/.storybook/styles.scss'),
+					m = () => t('../../node_modules/deepmerge/dist/cjs.js'),
+					p = () => t('../../node_modules/is-plain-object/dist/is-plain-object.mjs'),
+					g = () => t('../../node_modules/mobx/dist/mobx.esm.js'),
+					h = () => t('../../node_modules/preact/dist/preact.module.js'),
+					w = t.cw(function (Ie, we) {
+						x(), fe(), T(), Te(), N(), Fe(), r();
+						var le = {};
+						(le.styleTagTransform = it()()),
+							(le.setAttributes = ye()()),
+							(le.insert = st()().bind(null, 'head')),
+							(le.domAPI = vt()()),
+							(le.insertStyleElement = Ye()());
+						var je = bt()()(r().A, le),
+							xe = r().A && r().A.locals ? r().A.locals : void 0;
 					}),
-					f = () => t('../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js'),
-					S = () => t('../../node_modules/style-loader/dist/runtime/insertBySelector.js'),
-					R = () => t('../../node_modules/style-loader/dist/runtime/insertStyleElement.js'),
-					pe = () => t('../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js'),
-					Ae = () => t('../../node_modules/style-loader/dist/runtime/styleDomAPI.js'),
+					x = () => t('../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js'),
+					T = () => t('../../node_modules/style-loader/dist/runtime/insertBySelector.js'),
+					N = () => t('../../node_modules/style-loader/dist/runtime/insertStyleElement.js'),
+					Te = () => t('../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js'),
+					fe = () => t('../../node_modules/style-loader/dist/runtime/styleDomAPI.js'),
 					Fe = () => t('../../node_modules/style-loader/dist/runtime/styleTagTransform.js'),
-					ye = () => t('@storybook/preview-api'),
+					ae = () => t('@storybook/preview-api'),
 					ie = t('@storybook/global');
-				ye();
-				var be = t('@storybook/channels');
-				const oe = (Ie) => Ie(),
-					je = [
+				ae();
+				var He = t('@storybook/channels');
+				const ge = (Ie) => Ie(),
+					De = [
 						async (Ie) => {
 							if (!/^\.[\\/](?:components\/src(?:\/(?!\.)(?:(?:(?!(?:^|\/)\.).)*?)\/|\/|$)(?!\.)(?=.)[^/]*?\.mdx)$/.exec(Ie)) return;
-							const ke = Ie.substring(17);
+							const we = Ie.substring(17);
 							return t(
 								'./components/src lazy recursive ^\\.\\/.*$ include: (%3F:\\/components\\/src(%3F:\\/(%3F%21\\.)(%3F:(%3F:(%3F%21(%3F:^%7C\\/)\\.).)*%3F)\\/%7C\\/%7C$)(%3F%21\\.)(%3F=.)[^/]*%3F\\.mdx)$'
-							)('./' + ke);
+							)('./' + we);
 						},
 						async (Ie) => {
 							if (!/^\.[\\/](?:components\/src(?:\/(?!\.)(?:(?:(?!(?:^|\/)\.).)*?)\/|\/|$)(?!\.)(?=.)[^/]*?\.stories\.(js|jsx|ts|tsx))$/.exec(Ie))
 								return;
-							const ke = Ie.substring(17);
+							const we = Ie.substring(17);
 							return t(
 								'./components/src lazy recursive ^\\.\\/.*$ include: (%3F:\\/components\\/src(%3F:\\/(%3F%21\\.)(%3F:(%3F:(%3F%21(%3F:^%7C\\/)\\.).)*%3F)\\/%7C\\/%7C$)(%3F%21\\.)(%3F=.)[^/]*%3F\\.stories\\.(js%7Cjsx%7Cts%7Ctsx))$'
-							)('./' + ke);
+							)('./' + we);
 						},
 					];
-				async function Le(Ie) {
-					for (let ke = 0; ke < je.length; ke++) {
-						const me = await oe(() => je[ke](Ie));
-						if (me) return me;
+				async function Pe(Ie) {
+					for (let we = 0; we < De.length; we++) {
+						const le = await ge(() => De[we](Ie));
+						if (le) return le;
 					}
 				}
-				var Ke = t('../../node_modules/mobx-react-lite/es/index.js');
-				function Q() {
-					return Q.c || (Q.c = t.n(d()));
+				var Qe = t('../../node_modules/mobx-react-lite/es/index.js');
+				function ee() {
+					return ee.c || (ee.c = t.n(m()));
 				}
 				var jt = t('../../node_modules/@athoscommerce/snap-client/dist/esm/Client/Client.js'),
 					At = t('../../node_modules/@athoscommerce/snap-logger/dist/esm/Logger.js'),
@@ -12003,60 +11996,60 @@ The error above happened in the following targeter in the Snap Config`;
 					_t = t('./components/src/themes/snapnco/snapnco.ts'),
 					St = t('./components/src/themes/snappy/snappy.ts');
 				function bt() {
-					return bt.c || (bt.c = t.n(f()));
+					return bt.c || (bt.c = t.n(x()));
 				}
 				function vt() {
-					return vt.c || (vt.c = t.n(Ae()));
+					return vt.c || (vt.c = t.n(fe()));
 				}
 				function st() {
-					return st.c || (st.c = t.n(S()));
+					return st.c || (st.c = t.n(T()));
 				}
-				function ve() {
-					return ve.c || (ve.c = t.n(pe()));
+				function ye() {
+					return ye.c || (ye.c = t.n(Te()));
 				}
 				function Ye() {
-					return Ye.c || (Ye.c = t.n(R()));
+					return Ye.c || (Ye.c = t.n(N()));
 				}
 				function it() {
 					return it.c || (it.c = t.n(Fe()));
 				}
-				const Qe = () => (0, ye().composeConfigs)([F(), X(), G(), D(), se(), N(), ne()]),
-					kt = (0, be.createBrowserChannel)({ page: 'preview' });
-				ye().addons.setChannel(kt), ie.global.CONFIG_TYPE === 'DEVELOPMENT' && (window.__STORYBOOK_SERVER_CHANNEL__ = kt);
-				const nt = new (ye().PreviewWeb)();
+				const Xe = () => (0, ae().composeConfigs)([R(), Y(), D(), I(), se(), U(), oe()]),
+					kt = (0, He.createBrowserChannel)({ page: 'preview' });
+				ae().addons.setChannel(kt), ie.global.CONFIG_TYPE === 'DEVELOPMENT' && (window.__STORYBOOK_SERVER_CHANNEL__ = kt);
+				const nt = new (ae().PreviewWeb)();
 				(window.__STORYBOOK_PREVIEW__ = nt),
 					(window.__STORYBOOK_STORY_STORE__ = nt.storyStore),
 					(window.__STORYBOOK_ADDONS_CHANNEL__ = kt),
-					(window.__STORYBOOK_CLIENT_API__ = new (ye().ClientApi)({ storyStore: nt.storyStore })),
-					nt.initialize({ importFn: Le, getProjectAnnotations: Qe });
+					(window.__STORYBOOK_CLIENT_API__ = new (ae().ClientApi)({ storyStore: nt.storyStore })),
+					nt.initialize({ importFn: Pe, getProjectAnnotations: Xe });
 			},
-			'@storybook/channels'(q) {
+			'@storybook/channels'(J) {
 				'use strict';
-				q.exports = __STORYBOOK_MODULE_CHANNELS__;
+				J.exports = __STORYBOOK_MODULE_CHANNELS__;
 			},
-			'@storybook/client-logger'(q) {
+			'@storybook/client-logger'(J) {
 				'use strict';
-				q.exports = __STORYBOOK_MODULE_CLIENT_LOGGER__;
+				J.exports = __STORYBOOK_MODULE_CLIENT_LOGGER__;
 			},
-			'@storybook/core-events'(q) {
+			'@storybook/core-events'(J) {
 				'use strict';
-				q.exports = __STORYBOOK_MODULE_CORE_EVENTS__;
+				J.exports = __STORYBOOK_MODULE_CORE_EVENTS__;
 			},
-			'@storybook/global'(q) {
+			'@storybook/global'(J) {
 				'use strict';
-				q.exports = __STORYBOOK_MODULE_GLOBAL__;
+				J.exports = __STORYBOOK_MODULE_GLOBAL__;
 			},
-			'@storybook/preview-api'(q) {
+			'@storybook/preview-api'(J) {
 				'use strict';
-				q.exports = __STORYBOOK_MODULE_PREVIEW_API__;
+				J.exports = __STORYBOOK_MODULE_PREVIEW_API__;
 			},
 		},
-		(q) => {
-			var H = (o) => q(o);
-			q.O(0, [9477], () => H('./storybook-config-entry.js'));
-			var t = q.O();
+		(J) => {
+			var O = (o) => J(o);
+			J.O(0, [2775], () => O('./storybook-config-entry.js'));
+			var t = J.O();
 		},
 	]);
 })();
 
-//# sourceMappingURL=main.fa26b3d0.iframe.bundle.js.map
+//# sourceMappingURL=main.18534e70.iframe.bundle.js.map
