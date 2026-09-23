@@ -313,6 +313,40 @@ describe('Snap Preact', () => {
 		cookies.unset(DEV_COOKIE);
 	});
 
+	describe('mode detection from NODE_ENV', () => {
+		const originalNodeEnv = process.env.NODE_ENV;
+
+		afterEach(() => {
+			process.env.NODE_ENV = originalNodeEnv;
+		});
+
+		it('enters development mode and disables the client network cache when NODE_ENV is development', () => {
+			process.env.NODE_ENV = 'development';
+			const snap = new Snap(generateBaseConfig());
+
+			// @ts-ignore - accessing private property
+			expect(snap.mode).toBe('development');
+			// @ts-ignore - accessing private property
+			expect(snap.client.mode).toBe('development');
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.configuration.cache.enabled).toBe(false);
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.cache.config.enabled).toBe(false);
+		});
+
+		it('stays in production mode with the client network cache enabled when NODE_ENV is production', () => {
+			process.env.NODE_ENV = 'production';
+			const snap = new Snap(generateBaseConfig());
+
+			// @ts-ignore - accessing private property
+			expect(snap.mode).toBe('production');
+			// @ts-ignore - accessing private property
+			expect(snap.client.mode).toBe('production');
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.cache.config.enabled).toBe(true);
+		});
+	});
+
 	it('exposes itself globally on the window', () => {
 		const baseConfig = generateBaseConfig();
 		const snap = new Snap(baseConfig);

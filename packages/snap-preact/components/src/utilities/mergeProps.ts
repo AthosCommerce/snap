@@ -650,7 +650,8 @@ interface MatchedSelector {
 	matchedPart: string;
 }
 
-const DEV_MODE = typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production';
+// bundlers substitute `process.env.NODE_ENV` as a literal - `typeof process` guards would defeat that
+const DEV_MODE = process.env.NODE_ENV !== 'production';
 // dev-mode legacy-match warnings are emitted once per selector/treePath pair
 const warnedLegacySelectors = new Set<string>();
 
