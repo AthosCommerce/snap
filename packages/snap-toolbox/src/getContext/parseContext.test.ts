@@ -12,24 +12,28 @@ describe('parseContext', () => {
 		expect(parse('   \n\t  ')).toStrictEqual({});
 	});
 
-	it('parses string assignments with single, double and template quotes', () => {
+	it('parses string assignments with single and double quotes', () => {
 		const vars = parse(`
 			single = 'one';
 			double = "two";
-			template = \`three\`;
 		`);
-		expect(vars).toStrictEqual({ single: 'one', double: 'two', template: 'three' });
+		expect(vars).toStrictEqual({ single: 'one', double: 'two' });
 	});
 
 	it('decodes string escape sequences like evaluation would', () => {
 		const vars = parse(`
 			escapes = "line1\\nline2\\ttabbed \\"quoted\\" \\\\backslash";
-			unicode = "\\u0041\\x42\\u{1F600}";
-			identity = "\\a\\q";
+			unicode = "\\u0041\\u00e9\\uD83D\\uDE00";
+			identity = "\\a\\q\\/\\'";
 		`);
 		expect(vars.escapes).toBe('line1\nline2\ttabbed "quoted" \\backslash');
-		expect(vars.unicode).toBe('AB😀');
-		expect(vars.identity).toBe('aq');
+		expect(vars.unicode).toBe('Aé😀');
+		expect(vars.identity).toBe("aq/'");
+	});
+
+	it('decodes the escapes emitted by json encoders (liquid json filter, php json_encode)', () => {
+		const vars = parse(`shopper = {"id":"12345","name":"Bob \\u0026 Co \\u003cbr\\u003e","url":"https:\\/\\/example.com\\/path"};`);
+		expect(vars.shopper).toStrictEqual({ id: '12345', name: 'Bob & Co <br>', url: 'https://example.com/path' });
 	});
 
 	it('parses number assignments', () => {
@@ -37,21 +41,17 @@ describe('parseContext', () => {
 			int = 42;
 			float = 99.99;
 			negative = -7;
-			positive = +7;
-			exponent = 1.5e3;
-			negativeExponent = 2e-2;
-			hex = 0xff;
-			leadingDot = .5;
+			negativeFloat = -0.5;
+			zero = 0;
+			fraction = 0.25;
 		`);
 		expect(vars).toStrictEqual({
 			int: 42,
 			float: 99.99,
 			negative: -7,
-			positive: 7,
-			exponent: 1500,
-			negativeExponent: 0.02,
-			hex: 255,
-			leadingDot: 0.5,
+			negativeFloat: -0.5,
+			zero: 0,
+			fraction: 0.25,
 		});
 	});
 
@@ -109,11 +109,12 @@ describe('parseContext', () => {
 		});
 	});
 
-	it('does not pollute the object prototype via __proto__ keys', () => {
-		const vars = parse(`obj = { __proto__: { polluted: true } };`);
+	it('fails on __proto__ object keys (evaluation would set the prototype)', () => {
+		expect(parseContext(`obj = { __proto__: { polluted: true } };`).success).toBe(false);
+		expect(parseContext(`obj = { "__proto__": null };`).success).toBe(false);
 		expect(({} as any).polluted).toBeUndefined();
-		expect(Object.getPrototypeOf(vars.obj)).toBe(Object.prototype);
-		expect(vars.obj.__proto__).toStrictEqual({ polluted: true });
+		// other prototype-ish keys are ordinary own properties
+		expect(parse(`obj = { constructor: 1, hasOwnProperty: 2 };`).obj).toStrictEqual({ constructor: 1, hasOwnProperty: 2 });
 	});
 
 	it('supports line and block comments', () => {
@@ -144,12 +145,9 @@ describe('parseContext', () => {
 		expect(parse(`; siteId = 'abc123';`)).toStrictEqual({ siteId: 'abc123' });
 	});
 
-	it('resolves references to previously assigned variables', () => {
-		const vars = parse(`
-			handle = 'shirts';
-			options = { collection: handle };
-		`);
-		expect(vars.options).toStrictEqual({ collection: 'shirts' });
+	it('ends line comments at any line terminator', () => {
+		expect(parse('// comment\rsiteId = "abc";')).toStrictEqual({ siteId: 'abc' });
+		expect(parse('// comment\u2028siteId = "abc";')).toStrictEqual({ siteId: 'abc' });
 	});
 
 	it('passes through HTML entities in strings untouched', () => {
@@ -179,10 +177,19 @@ describe('parseContext', () => {
 		expect(parseContext(`value = 1 + 2;`).success).toBe(false);
 		expect(parseContext(`value = 'a' + 'b';`).success).toBe(false);
 		expect(parseContext(`value = condition ? 1 : 2;`).success).toBe(false);
+		expect(parseContext(`value = +7;`).success).toBe(false);
+		expect(parseContext(`value = - 7;`).success).toBe(false);
 	});
 
-	it('fails on template literal interpolation', () => {
+	it('fails on template literals', () => {
+		expect(parseContext('value = `plain`;').success).toBe(false);
 		expect(parseContext('value = `has ${interpolation}`;').success).toBe(false);
+		expect(parseContext('obj = { `key`: 1 };').success).toBe(false);
+	});
+
+	it('fails on references to other variables', () => {
+		expect(parseContext(`handle = 'shirts'; options = { collection: handle };`).success).toBe(false);
+		expect(parseContext(`value = somethingElse;`).success).toBe(false);
 	});
 
 	it('fails on var, let and const declarations', () => {
@@ -195,12 +202,55 @@ describe('parseContext', () => {
 		expect(parseContext(`class = 'nope';`).success).toBe(false);
 	});
 
-	it('fails on references to unassigned variables', () => {
-		expect(parseContext(`value = somethingElse;`).success).toBe(false);
+	it('fails on less common number literal forms (left to evaluation)', () => {
+		// hex, exponents, leading dot, trailing dot
+		expect(parseContext(`value = 0xff;`).success).toBe(false);
+		expect(parseContext(`value = 1.5e3;`).success).toBe(false);
+		expect(parseContext(`value = 2E-2;`).success).toBe(false);
+		expect(parseContext(`value = .5;`).success).toBe(false);
+		expect(parseContext(`value = 1.;`).success).toBe(false);
+		// legacy octal / leading zero number literals
+		expect(parseContext(`value = 010;`).success).toBe(false);
+		expect(parseContext(`value = 08;`).success).toBe(false);
+		// numeric separators, bigint, binary and octal prefixes
+		expect(parseContext(`value = 1_000;`).success).toBe(false);
+		expect(parseContext(`value = 10n;`).success).toBe(false);
+		expect(parseContext(`value = 0b101;`).success).toBe(false);
+		expect(parseContext(`value = 0o17;`).success).toBe(false);
+	});
+
+	it('fails on less common escape sequences (left to evaluation)', () => {
+		// legacy octal escapes, \x, \u{...}, digits
+		expect(parseContext(`value = '\\1';`).success).toBe(false);
+		expect(parseContext(`value = '\\012';`).success).toBe(false);
+		expect(parseContext(`value = '\\0';`).success).toBe(false);
+		expect(parseContext(`value = '\\8\\9';`).success).toBe(false);
+		expect(parseContext(`value = '\\x41';`).success).toBe(false);
+		expect(parseContext(`value = '\\u{1F600}';`).success).toBe(false);
+		expect(parseContext(`value = '\\u12';`).success).toBe(false);
+		// line continuations
+		expect(parseContext('value = "a\\\nb";').success).toBe(false);
+		expect(parseContext('value = "a\\\r\nb";').success).toBe(false);
+		// trailing backslash
+		expect(parseContext('value = "a\\').success).toBe(false);
+	});
+
+	it('fails on assignments that are not separated by a semicolon or newline', () => {
+		// evaluation would throw a SyntaxError here - no automatic semicolon insertion without a line terminator
+		expect(parseContext(`first = 'one' second = 'two';`).success).toBe(false);
+		expect(parse(`first = 'one' /* multi\nline */ second = 'two';`)).toStrictEqual({ first: 'one', second: 'two' });
+	});
+
+	it('fails (rather than throwing) on nesting too deep to parse', () => {
+		const depth = 100000;
+		const script = `value = ${'['.repeat(depth)}${']'.repeat(depth)};`;
+		expect(parseContext(script).success).toBe(false);
+		expect(parseContextStatements(script).size).toBe(0);
 	});
 
 	it('fails on unterminated strings and syntax errors', () => {
 		expect(parseContext(`value = 'unterminated;`).success).toBe(false);
+		expect(parseContext(`value = 'multi\nline';`).success).toBe(false);
 		expect(parseContext(`invalid = syntax error;`).success).toBe(false);
 		expect(parseContext(`value = { broken: ;`).success).toBe(false);
 	});
@@ -220,6 +270,18 @@ describe('parseContextStatements', () => {
 			shopper: { id: 'snapdev' },
 			currency: { code: 'EUR' },
 		});
+	});
+
+	it('resynchronizes on a new-line assignment when an unsupported statement lacks a semicolon', () => {
+		const vars = parseContextStatements(`
+			func = () => 'returned value'
+			siteId = 'abc123'
+			cb = function () {
+				inner = 1;
+			}
+			shopper = { id: 'snapdev' };
+		`);
+		expect(Object.fromEntries(vars)).toStrictEqual({ siteId: 'abc123', shopper: { id: 'snapdev' } });
 	});
 
 	it('returns an empty result for a completely unparsable script', () => {

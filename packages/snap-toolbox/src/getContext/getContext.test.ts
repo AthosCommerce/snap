@@ -476,6 +476,55 @@ describe('variable name parsing', () => {
 	});
 });
 
+describe('variable name parsing ignores comments', () => {
+	it('does not declare names found in comments when evaluating', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		// the function forces the evaluation path; the comments contain `word =` patterns, including a literal keyword
+		scriptTag.innerHTML = `
+			// when true = the shopper is logged in
+			/* null = nothing; see https://example.com/docs */
+			siteId = 'abc123'; // url = "https://example.com/it's"
+			func = () => 'returned value';
+		`;
+
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+		const vars = getContext(['siteId', 'func'], scriptTag);
+		expect(vars.siteId).toBe('abc123');
+		expect(vars.func()).toBe('returned value');
+		expect(consoleError).not.toHaveBeenCalled();
+		consoleError.mockRestore();
+	});
+
+	it('does not treat comment markers inside strings as comments', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			url = "https://example.com/path"; // comment
+			glob = '/* not a comment */';
+			after = 'value';
+			func = () => after;
+		`;
+
+		const vars = getContext(['url', 'glob', 'after', 'func'], scriptTag);
+		expect(vars).toMatchObject({ url: 'https://example.com/path', glob: '/* not a comment */', after: 'value' });
+		expect(vars.func()).toBe('value');
+	});
+});
+
+describe('scripts that cannot be evaluated either', () => {
+	it('does not throw on nesting too deep for the parser or the engine', () => {
+		const depth = 100000;
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `siteId = 'abc123'; value = ${'['.repeat(depth)}${']'.repeat(depth)};`;
+
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+		expect(() => getContext(['siteId', 'value'], scriptTag)).not.toThrow();
+		consoleError.mockRestore();
+	});
+});
+
 describe('CSP safe static parsing', () => {
 	it('does not construct a Function for declarative context scripts', () => {
 		const scriptTag = document.createElement('script');
@@ -540,6 +589,7 @@ describe('behavior under a CSP that blocks unsafe-eval', () => {
 	let functionSpy: jest.SpyInstance;
 
 	beforeEach(() => {
+		// getContext evaluates via the global `Function` constructor - this mock stands in for a CSP without 'unsafe-eval'
 		functionSpy = jest.spyOn(global, 'Function').mockImplementation(() => {
 			throw new EvalError(`Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script`);
 		});
@@ -585,6 +635,25 @@ describe('behavior under a CSP that blocks unsafe-eval', () => {
 		// logs the CSP hint and the per-variable evaluation error for the unsalvageable variable
 		expect(consoleError.mock.calls.some((call) => String(call[0]).includes('Content Security Policy'))).toBe(true);
 		expect(consoleError).toHaveBeenCalledWith(`getContext: error evaluating 'func'`);
+
+		consoleError.mockRestore();
+	});
+
+	it('does not log errors for requested variables that the script never assigns', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			siteId = 'abc123';
+			func = () => 'returned value';
+		`;
+
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['siteId', 'shopper', 'merchandising'], scriptTag);
+		expect(vars).toStrictEqual({ siteId: 'abc123' });
+
+		// only the CSP hint - an unassigned variable evaluates to undefined without error, so no per-variable error is logged
+		expect(consoleError.mock.calls.filter((call) => String(call[0]).includes('error evaluating'))).toHaveLength(0);
 
 		consoleError.mockRestore();
 	});

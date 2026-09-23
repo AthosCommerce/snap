@@ -21,10 +21,9 @@ Context scripts are first read by a static parser that requires no JavaScript ev
 The statically parsed (CSP safe) syntax is:
 
 - assignments of the form `variableName = value;` (comments and extra semicolons are allowed)
-- values that are literals: strings (single, double, or backtick quoted without `${}` interpolation), numbers, booleans, `null`, `undefined`, arrays, and object literals (trailing commas allowed)
-- references to variables assigned earlier in the same script
+- values that are literals: strings (single or double quoted, with standard escape sequences such as `\n`, `\"` or `\u00e9`), plain decimal numbers (optionally negative), booleans, `null`, `undefined`, arrays, and object literals (trailing commas allowed)
 
-Anything else — functions, template literal interpolation, member access (e.g. `window.something`), function calls, or operators — requires JavaScript evaluation. Scripts containing such code continue to work on sites that allow `'unsafe-eval'`, but on sites with a strict CSP those variables will be `undefined` (an error is logged with a hint); any literal assignments in the same script are still returned.
+Anything else — functions, template literals, member access (e.g. `window.something`), function calls, operators, references to other variables, less common literal forms (hexadecimal or exponent numbers, numbers with a leading zero, `\x` or legacy octal escape sequences, line continuations), and assignments not separated by a semicolon or line break — requires JavaScript evaluation. Scripts containing such code continue to work on sites that allow `'unsafe-eval'`, but on sites with a strict CSP those variables will be `undefined` (an error is logged with a hint); any literal assignments in the same script are still returned.
 
 Typical usage would be getting integration context variables from a script tag and passing them off to a controller instantiation.
 

@@ -4,6 +4,9 @@ type ContextVariables = {
 	[variable: string]: any;
 };
 
+// string literals (single, double and template quoted), block comments and line comments
+const STRINGS_AND_COMMENTS = /`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"|\/\*[\s\S]*?\*\/|\/\/[^\n\r\u2028\u2029]*/g;
+
 export function getContext(evaluate: string[] = [], scriptOrSelector?: HTMLScriptElement | string): ContextVariables {
 	let script: HTMLScriptElement | undefined;
 
@@ -65,8 +68,9 @@ export function getContext(evaluate: string[] = [], scriptOrSelector?: HTMLScrip
 
 	// attempt to grab inner HTML variables
 	const scriptInnerVars = scriptInnerHTML
-		// first remove all string literals (including template literals) to avoid false matches
-		.replace(/`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"/g, '')
+		// first remove all string literals (including template literals) and comments to avoid false matches
+		// (a single pass so that `//` inside a string, or a quote inside a comment, is handled correctly)
+		.replace(STRINGS_AND_COMMENTS, '')
 		// then find variable assignments
 		.match(/([a-zA-Z_$][a-zA-Z_$0-9]*)\s*=/g)
 		?.map((match) => match.replace(/[\s=]/g, ''));
@@ -126,6 +130,11 @@ export function getContext(evaluate: string[] = [], scriptOrSelector?: HTMLScrip
 					salvagedVariables = salvagedVariables || parseContextStatements(scriptInnerHTML);
 					if (salvagedVariables.has(name)) {
 						scriptVariables[name] = salvagedVariables.get(name);
+						return;
+					}
+					// a variable that is never assigned in the script would have evaluated to undefined without error
+					if (!scriptInnerVars?.includes(name)) {
+						scriptVariables[name] = undefined;
 						return;
 					}
 				}
