@@ -432,7 +432,7 @@ export class Snap {
 				3. override via query param / cookie
 			*/
 
-			// node env
+			// node env (bundlers substitute `process.env.NODE_ENV` as a literal - `typeof process` guards would defeat that)
 			if (process.env.NODE_ENV && Object.values(AppMode).includes(process.env.NODE_ENV as AppMode)) {
 				this.mode = process.env.NODE_ENV as AppMode;
 			}

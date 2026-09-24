@@ -1,6 +1,6 @@
+import { waitFor } from '@testing-library/preact';
 import { version } from '@athoscommerce/snap-toolbox';
 import {
-	applyAutomaticThemeOverrides,
 	createAutocompleteTargeters,
 	createPlugins,
 	createSearchTargeters,
@@ -819,63 +819,223 @@ describe('createSnapConfig with custom plugins', () => {
 	});
 });
 
-describe('applyAutomaticThemeOverrides', () => {
-	it('adds shopify markets price formatter when markets plugin is configured', () => {
-		const config: SnapTemplatesConfigUnlocked = {
-			unlocked: true,
+describe('per currency component overrides', () => {
+	const configFor = (currency: 'AED' | 'USD') =>
+		({
 			config: {
-				platform: 'shopify',
+				platform: 'other',
 				siteId: 'test123',
+				currency,
 			},
 			theme: {
 				extends: 'base',
 			},
-			plugins: {
-				shopify: {
-					markets: {
-						token: 'token',
+			currencies: {
+				aed: {
+					price: {
+						symbol: 'د.إ',
+						symbolAfter: true,
 					},
 				},
 			},
-		};
+		} as SnapTemplatesConfig);
 
-		const resolved = applyAutomaticThemeOverrides(config);
-		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
+	it('layers the configured overrides on top of the built-in currency locale', async () => {
+		const store = new TemplatesStore({ config: configFor('AED') });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
 
-		expect(priceConfig?.format).toBeDefined();
+		const price = store.themes.local.global.theme.components?.price;
+
+		// the locale ships 'AED ' as a leading abbreviation - the site prefers the native sign, trailing
+		expect(price?.symbol).toBe('د.إ');
+		expect(price?.symbolAfter).toBe(true);
+		// untouched props still come from the locale layer
+		expect(price?.code).toBe('AED');
 	});
 
-	it('does not override an explicitly configured price formatter', () => {
-		const existingFormat = jest.fn();
-		const config: SnapTemplatesConfigUnlocked = {
-			unlocked: true,
+	it('does not apply overrides belonging to another currency', async () => {
+		const store = new TemplatesStore({ config: configFor('USD') });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		const price = store.themes.local.global.theme.components?.price;
+
+		expect(price?.symbol).toBe('$');
+		expect(price?.symbolAfter).toBeFalsy();
+	});
+
+	it('swaps the overrides when the currency changes at runtime', async () => {
+		const store = new TemplatesStore({ config: configFor('USD') });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		expect(store.themes.local.global.theme.components?.price?.symbol).toBe('$');
+
+		await store.setCurrency('AED');
+
+		// the overrides are keyed by currency, so they have to follow setCurrency - this is the path the
+		// shopify currency plugin takes
+		expect(store.themes.local.global.theme.components?.price?.symbol).toBe('د.إ');
+		expect(store.themes.local.global.theme.components?.price?.symbolAfter).toBe(true);
+
+		await store.setCurrency('USD');
+
+		expect(store.themes.local.global.theme.components?.price?.symbol).toBe('$');
+		expect(store.themes.local.global.theme.components?.price?.symbolAfter).toBeFalsy();
+	});
+
+	it('accepts uppercase currency keys', async () => {
+		const store = new TemplatesStore({
 			config: {
-				platform: 'shopify',
-				siteId: 'test123',
+				...configFor('AED'),
+				currencies: { AED: { price: { symbol: 'X' } } },
+			} as SnapTemplatesConfig,
+		});
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		expect(store.themes.local.global.theme.components?.price?.symbol).toBe('X');
+	});
+
+	it('is overridden by theme overrides, which remain the final say', async () => {
+		const store = new TemplatesStore({
+			config: {
+				...configFor('AED'),
+				theme: {
+					extends: 'base',
+					overrides: {
+						default: {
+							price: {
+								symbol: 'THEME',
+							},
+						},
+					},
+				},
+			} as SnapTemplatesConfig,
+		});
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		expect(store.themes.local.global.theme.components?.price?.symbol).toBe('THEME');
+		// props the theme override does not set still come from the currency overrides
+		expect(store.themes.local.global.theme.components?.price?.symbolAfter).toBe(true);
+	});
+});
+
+describe('translation overrides follow the active language', () => {
+	const config = {
+		config: {
+			platform: 'other',
+			siteId: 'test123',
+			language: 'EN',
+		},
+		theme: {
+			extends: 'base',
+		},
+		translations: {
+			en: {
+				filterSummary: {
+					title: 'English Title',
+				},
 			},
-			theme: {
-				extends: 'base',
-				overrides: {
-					default: {
-						price: {
-							format: existingFormat,
+			fr: {
+				filterSummary: {
+					title: 'Titre Français',
+				},
+			},
+		},
+	} as SnapTemplatesConfig;
+
+	it('applies the overrides for the configured language', async () => {
+		const store = new TemplatesStore({ config });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		expect(store.themes.local.global.theme.components?.filterSummary?.lang?.title).toBe('English Title');
+	});
+
+	it('swaps the overrides when the language changes at runtime', async () => {
+		const store = new TemplatesStore({ config });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		expect(store.themes.local.global.theme.components?.filterSummary?.lang?.title).toBe('English Title');
+
+		await store.setLanguage('FR');
+
+		// setLanguage used to swap only the language locale and leave the previous language's
+		// `translations` in place, so this stayed on 'English Title'
+		expect(store.language).toBe('fr');
+		expect(store.themes.local.global.theme.components?.filterSummary?.lang?.title).toBe('Titre Français');
+
+		await store.setLanguage('EN');
+
+		expect(store.themes.local.global.theme.components?.filterSummary?.lang?.title).toBe('English Title');
+	});
+
+	it('drops the overrides when the new language has none configured, falling through to its locale', async () => {
+		const store = new TemplatesStore({ config });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		await store.setLanguage('DE');
+		const title = store.themes.local.global.theme.components?.filterSummary?.lang?.title;
+
+		expect(store.language).toBe('de');
+		// no `translations.de` is configured, so the german locale's own value shows through
+		expect(title).not.toBe('English Title');
+		expect(title).toStrictEqual({ value: 'Aktuelle Filter' });
+	});
+});
+
+describe('shopify markets price formatting', () => {
+	const marketsConfig: SnapTemplatesConfigUnlocked = {
+		unlocked: true,
+		config: {
+			platform: 'shopify',
+			siteId: 'test123',
+			currency: 'SEK',
+		},
+		theme: {
+			extends: 'base',
+		},
+		plugins: {
+			shopify: {
+				markets: {
+					token: 'token',
+				},
+			},
+		},
+	};
+
+	it('does not install a price formatter - the currency locale drives formatting instead', async () => {
+		const store = new TemplatesStore({ config: marketsConfig });
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
+
+		const price = store.themes.local.global.theme.components?.price;
+
+		// the format function used to be derived from `shop.money_format`, which only ever described the
+		// store's base currency - the currency locale is now the single source of price formatting
+		expect(price?.format).toBeUndefined();
+		// the locale carries the separating space, since the symbol trails the amount
+		expect(price?.symbol).toBe('\u00A0kr');
+		expect(price?.symbolAfter).toBe(true);
+		expect(price?.code).toBe('SEK');
+	});
+
+	it('still honors an explicitly configured price formatter', async () => {
+		const existingFormat = jest.fn(() => 'formatted');
+		const store = new TemplatesStore({
+			config: {
+				...marketsConfig,
+				theme: {
+					extends: 'base',
+					overrides: {
+						default: {
+							price: {
+								format: existingFormat,
+							},
 						},
 					},
 				},
 			},
-			plugins: {
-				shopify: {
-					markets: {
-						token: 'token',
-					},
-				},
-			},
-		};
+		});
+		await waitFor(() => expect(store.themes.local.global).toBeDefined());
 
-		const resolved = applyAutomaticThemeOverrides(config);
-		const priceConfig = resolved.theme.overrides?.default?.price as { format?: unknown } | undefined;
-
-		expect(priceConfig?.format).toBe(existingFormat);
+		expect(store.themes.local.global.theme.components?.price?.format).toBe(existingFormat);
 	});
 });
 
@@ -988,6 +1148,102 @@ describe('createPlugins with built-in plugins', () => {
 		// Platform 'other' should include common addToCart plugin
 		// Common plugins: backgroundFilters, scrollToTop, logger, addToCart
 		expect(plugins.length).toBeGreaterThanOrEqual(4);
+	});
+
+	it('should not include the shopify currency plugin unless it is enabled', () => {
+		const shopifyConfig: SnapTemplatesConfig = {
+			...baseConfig,
+			config: {
+				...baseConfig.config,
+				platform: 'shopify',
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config: shopifyConfig });
+		const currencyPlugin = templatesStore.library.import.plugins.shopify.currency;
+
+		expect(createPlugins(shopifyConfig, templatesStore).find((plugin) => plugin[0] === currencyPlugin)).toBeUndefined();
+
+		const disabledConfig: SnapTemplatesConfig = { ...shopifyConfig, plugins: { shopify: { currency: { enabled: false } } } };
+		expect(createPlugins(disabledConfig, templatesStore).find((plugin) => plugin[0] === currencyPlugin)).toBeUndefined();
+	});
+
+	it('should enable the shopify currency plugin alongside the markets plugin', () => {
+		const shopifyConfig: SnapTemplatesConfig = {
+			...baseConfig,
+			config: {
+				...baseConfig.config,
+				platform: 'shopify',
+			},
+			plugins: {
+				shopify: {
+					markets: {
+						token: 'token',
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config: shopifyConfig });
+		const plugins = createPlugins(shopifyConfig, templatesStore);
+		const currencyPlugin = plugins.find((plugin) => plugin[0] === templatesStore.library.import.plugins.shopify.currency);
+
+		// markets converts price values into the storefront currency - without the currency plugin those values
+		// would be displayed with the symbol and separators of the configured currency instead
+		expect(currencyPlugin).toBeDefined();
+		expect(currencyPlugin![1]).toEqual({ enabled: true });
+		expect(currencyPlugin![2]).toBe(templatesStore);
+	});
+
+	it('should respect an explicit opt out of the currency plugin when markets is configured', () => {
+		const shopifyConfig: SnapTemplatesConfig = {
+			...baseConfig,
+			config: {
+				...baseConfig.config,
+				platform: 'shopify',
+			},
+			plugins: {
+				shopify: {
+					markets: {
+						token: 'token',
+					},
+					currency: {
+						enabled: false,
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config: shopifyConfig });
+		const plugins = createPlugins(shopifyConfig, templatesStore);
+
+		expect(plugins.find((plugin) => plugin[0] === templatesStore.library.import.plugins.shopify.currency)).toBeUndefined();
+	});
+
+	it('should include the shopify currency plugin with the templates store when enabled', () => {
+		const shopifyConfig: SnapTemplatesConfig = {
+			...baseConfig,
+			config: {
+				...baseConfig.config,
+				platform: 'shopify',
+			},
+			plugins: {
+				shopify: {
+					currency: {
+						enabled: true,
+					},
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config: shopifyConfig });
+		const plugins = createPlugins(shopifyConfig, templatesStore);
+		const currencyPlugin = plugins.find((plugin) => plugin[0] === templatesStore.library.import.plugins.shopify.currency);
+
+		expect(currencyPlugin).toBeDefined();
+		expect(currencyPlugin![1]).toEqual({ enabled: true });
+		// the plugin lives in snap-platforms and cannot import the templates store - it is passed in as an argument
+		expect(currencyPlugin![2]).toBe(templatesStore);
 	});
 });
 
