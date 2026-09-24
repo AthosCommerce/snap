@@ -270,6 +270,22 @@ describe('Tracker', () => {
 		}
 	});
 
+	it('will make preflight request when there are searched terms set', async () => {
+		jest.useFakeTimers();
+
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			tracker.cookies.searched.add(['shoes']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
+	});
+
 	it('will make preflight request when there is a shopperId set', async () => {
 		jest.useFakeTimers();
 
@@ -467,6 +483,100 @@ describe('Tracker', () => {
 		const viewedProducts = tracker.cookies.viewed.get();
 
 		expect(viewedProducts).toContain('viewed-product-123');
+	});
+
+	it('can add and get searched terms with the most recent first', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.add(['boots']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['boots', 'shoes']);
+	});
+
+	it('moves a repeated search term to the front instead of duplicating it', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.add(['boots']);
+		tracker.cookies.searched.add(['shoes']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['shoes', 'boots']);
+	});
+
+	it('keeps only the 10 most recent searched terms', () => {
+		const tracker = new Tracker(globals, config);
+
+		for (let i = 1; i <= 12; i++) {
+			tracker.cookies.searched.add([`term${i}`]);
+		}
+
+		const searched = tracker.cookies.searched.get();
+		expect(searched).toHaveLength(10);
+		expect(searched[0]).toBe('term12');
+		expect(searched[9]).toBe('term3');
+	});
+
+	it('stores searched terms as searchedTerm subjects with a timestamp', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+
+		const stored = JSON.parse(localStorageMock.getItem('ssSearchedTerms-xxxzzz') || '{}').value;
+		expect(stored).toHaveLength(1);
+		expect(stored[0].subject).toBe('searchedTerm');
+		expect(stored[0].value).toBe('shoes');
+		expect(new Date(stored[0].timestamp).toISOString()).toBe(stored[0].timestamp);
+	});
+
+	it('stores and returns searched terms with special characters unchanged', () => {
+		const tracker = new Tracker(globals, config);
+		const term = 'red & blue, 50% off';
+
+		tracker.cookies.searched.add([term]);
+
+		const stored = JSON.parse(localStorageMock.getItem('ssSearchedTerms-xxxzzz') || '{}').value;
+		expect(stored[0].value).toBe(term);
+		expect(tracker.cookies.searched.get()).toEqual([term]);
+	});
+
+	it('can clear searched terms', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.clear();
+
+		expect(tracker.cookies.searched.get()).toEqual([]);
+	});
+
+	it('keeps searched terms for each siteId separate', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['boots'], 'other1');
+		tracker.cookies.searched.add(['shoes']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+		expect(tracker.cookies.searched.get('other1')).toEqual(['boots']);
+	});
+
+	it('only clears searched terms for the given siteId', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['boots'], 'other1');
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.clear('other1');
+
+		expect(tracker.cookies.searched.get('other1')).toEqual([]);
+		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+	});
+
+	it('only returns searched terms from the past 2 weeks', () => {
+		const tracker = new Tracker(globals, config);
+		const recent = { subject: 'searchedTerm', value: 'shoes', timestamp: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString() };
+		const expired = { subject: 'searchedTerm', value: 'boots', timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() };
+		localStorageMock.setItem('ssSearchedTerms-xxxzzz', JSON.stringify({ value: [recent, expired] }));
+
+		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
 	});
 });
 

@@ -682,6 +682,12 @@ export class SearchController extends AbstractController {
 				params.personalization.lastViewed = lastViewedItems.join(',');
 			}
 
+			const lastSearchedTerms = this.tracker.cookies.searched.get(this.config.globals?.siteId);
+			if (lastSearchedTerms.length) {
+				params.personalization = params.personalization || {};
+				params.personalization.lastSearches = lastSearchedTerms.join(',');
+			}
+
 			if (shopperId) {
 				params.personalization = params.personalization || {};
 				params.personalization.shopper = shopperId;
@@ -698,10 +704,6 @@ export class SearchController extends AbstractController {
 			}
 			const params = this.params;
 
-			if (params.search?.query?.string && params.search?.query?.string.length) {
-				// save it to the history store
-				this.store.history.save(params.search.query.string);
-			}
 			this.store.loading = true;
 
 			try {
@@ -724,6 +726,11 @@ export class SearchController extends AbstractController {
 			if (this.store.loaded && stringyParams === prevStringyParams) {
 				// no param change - not searching
 				return;
+			}
+
+			if (params.search?.query?.string && params.search?.query?.string.length) {
+				// save it to the history store (also records it as a last search)
+				this.store.history.save(params.search.query.string);
 			}
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();

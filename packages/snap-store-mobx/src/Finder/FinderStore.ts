@@ -45,7 +45,7 @@ export class FinderStore extends AbstractStore<FinderStoreConfig> {
 	}
 
 	public setService(name: keyof StoreServices, service: UrlManager): void {
-		if (this.services[name] && service) {
+		if (name === 'urlManager' && this.services[name] && service) {
 			this.services[name] = service;
 		}
 	}

@@ -360,5 +360,16 @@ export class Tracker extends Beacon {
 				return viewedItems.map((item) => this.getProductId(item));
 			},
 		},
+		searched: {
+			get: (siteId?: string): string[] => {
+				return this.storage.searched.get(siteId);
+			},
+			add: (terms: string[], siteId?: string): void => {
+				this.storage.searched.add(terms, siteId);
+			},
+			clear: (siteId?: string): void => {
+				this.storage.searched.clear(siteId);
+			},
+		},
 	};
 }

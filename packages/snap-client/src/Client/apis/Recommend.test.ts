@@ -706,6 +706,29 @@ describe('Recommend Api', () => {
 		requestMock.mockReset();
 	});
 
+	it('batchRecommendations will utilize the `lastSearches` parameter when provided', async () => {
+		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
+
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve([mockData.recommend()]) } as Response));
+
+		api.batchRecommendations({ tag: 'crossSell', lastSearches: ['boots', 'shoes'], ...batchParams });
+
+		await jest.runAllTimersAsync();
+
+		const POSTParams = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+			body: `{"profiles":[{"tag":"crossSell"}],"siteId":"8uyt2m","products":["marnie-runner-2-7x10"],"lastViewed":["marnie-runner-2-7x10","ruby-runner-2-7x10","abbie-runner-2-7x10","riley-4x6","joely-5x8","helena-4x6","kwame-4x6","sadie-4x6","candice-runner-2-7x10","esmeray-4x6","camilla-230x160","candice-4x6","sahara-4x6","dayna-4x6","moema-4x6"],"lastSearches":["boots","shoes"]}`,
+		};
+
+		expect(requestMock).toHaveBeenCalledWith(RequestUrl, POSTParams);
+		requestMock.mockReset();
+	});
+
 	it('batchRecommendations will utilize the `blockedItems` parameter when provided', async () => {
 		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
 

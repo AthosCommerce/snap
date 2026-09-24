@@ -186,6 +186,28 @@ athos.tracker.events.product.pageView({
 });
 ```
 
+### Search Terms
+Each search query saved to the `SearchController` history store (`controller.store.history.save`) is also recorded as a searched term, including when the history `max` setting is `0`. The controller saves the query once the `beforeSearch` middleware has passed and the request is about to be made, so cancelled searches and re-renders with unchanged parameters are not recorded. The 10 most recent terms from the past 2 weeks are stored in local storage per siteId (most recent first) and sent as the `lastSearches` personalization parameter on search, autocomplete, finder and recommendation requests. Controllers configured with a `globals.siteId` record and send the terms of that siteId.
+
+The tracker also includes the terms of its own siteId on preflight requests, and sends a new preflight request whenever those terms change. Terms recorded for other siteIds are not included in these preflight requests; they are sent by the controllers configured with that siteId.
+
+Setting `globals.personalization.disabled` on a search controller stops it from recording terms, and on a search, autocomplete or finder controller stops it from sending them. Recommendation controllers and preflight requests do not use this setting and still send the stored terms of their siteId.
+
+```js
+// add search terms (most recent first)
+athos.tracker.cookies.searched.add(['boots']);
+
+// get search terms
+athos.tracker.cookies.searched.get(); // ['boots', ...]
+
+// clear search terms
+athos.tracker.cookies.searched.clear();
+
+// each method accepts an optional siteId (defaults to the tracker siteId)
+athos.tracker.cookies.searched.add(['bottes'], 'at1234');
+athos.tracker.cookies.searched.get('at1234'); // ['bottes']
+```
+
 ### Order Transaction
 Tracks order transaction. Should be invoked from an order confirmation page. Expects an object with the following:
 

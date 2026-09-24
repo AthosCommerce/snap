@@ -123,14 +123,15 @@ describe('Snap Client Integration Tests', () => {
 				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
 			});
 
+			const tracker = new Tracker(globals);
 			const controller = new SearchController(searchConfig, {
 				client: new Client(globals),
-				store: new SearchStore(searchConfig, services),
+				store: new SearchStore(searchConfig, { ...services, tracker }),
 				urlManager,
 				eventManager: new EventManager(),
 				profiler: new Profiler(),
 				logger: new Logger(),
-				tracker: new Tracker(globals),
+				tracker,
 			});
 			// no cache entries initially (NetworkCache writes "{}" to storage on construction via purgeExpired)
 			expect(cacheEntryCount()).toBe(0);
@@ -156,18 +157,19 @@ describe('Snap Client Integration Tests', () => {
 			// cache was updated with new entries
 			expect(cacheEntryCount()).toBeGreaterThan(0);
 
-			// it did make additional calls because the params changed (search + beacon render; meta is cached)
-			expect(fetchfn).toHaveBeenCalledTimes(5);
+			// it did make additional calls because the params changed (search + beacon render + preflight from the recorded search term; meta is cached)
+			expect(fetchfn).toHaveBeenCalledTimes(6);
 
 			// check that there are results in the store
 			expect(controller.store.results.length).toBeGreaterThan(0);
+			expect(tracker.cookies.searched.get()).toEqual(['dress']);
 
 			controller.urlManager.reset().set('query', '').go();
 			// wait for beacon render event (search and meta are both cached)
 			await jest.advanceTimersByTimeAsync(1000);
 
-			// only the beacon render event fired - search and meta came from cache
-			expect(fetchfn).toHaveBeenCalledTimes(6);
+			// only the beacon render event fired - search and meta came from cache (lastSearches is not part of the cache key so the changed personalization param still hits the cache)
+			expect(fetchfn).toHaveBeenCalledTimes(7);
 
 			fetchfn.mockReset();
 		});

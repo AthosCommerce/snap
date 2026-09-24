@@ -1,4 +1,5 @@
 import { UrlManager, UrlTranslator } from '@athoscommerce/snap-url-manager';
+import { Tracker } from '@athoscommerce/snap-tracker';
 
 import { SearchHistoryStore } from './SearchHistoryStore';
 
@@ -296,5 +297,78 @@ describe('History Store', () => {
 		historyStore.save('dont save');
 
 		expect(historyStore.queries).toHaveLength(config.settings.history.max);
+	});
+
+	describe('with a tracker service', () => {
+		const tracker = new Tracker({ siteId: 'atkzs2' });
+
+		beforeEach(() => {
+			tracker.cookies.searched.clear();
+			tracker.cookies.searched.clear('at5678');
+		});
+
+		it('records saved terms as last searches most recent first', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+
+			historyStore.save('boots');
+			historyStore.save('shoes');
+
+			expect(tracker.cookies.searched.get()).toEqual(['shoes', 'boots']);
+		});
+
+		it('records last searches for the siteId in the config globals', () => {
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: { id: '', globals: { siteId: 'at5678' } } });
+
+			historyStore.save('boots');
+
+			expect(tracker.cookies.searched.get('at5678')).toEqual(['boots']);
+			expect(tracker.cookies.searched.get()).toEqual([]);
+		});
+
+		it('records last searches when history max is zero', () => {
+			const historyStore = new SearchHistoryStore({
+				services: { ...services, tracker },
+				config: { id: '', settings: { history: { max: 0 } } },
+			});
+
+			historyStore.save('boots');
+
+			expect(historyStore.queries).toHaveLength(0);
+			expect(tracker.cookies.searched.get()).toEqual(['boots']);
+		});
+
+		it('does not record last searches when personalization is disabled', () => {
+			const historyStore = new SearchHistoryStore({
+				services: { ...services, tracker },
+				config: { id: '', globals: { personalization: { disabled: true } } },
+			});
+
+			historyStore.save('boots');
+
+			expect(historyStore.queries.map((query) => query.string)).toEqual(['boots']);
+			expect(tracker.cookies.searched.get()).toEqual([]);
+		});
+
+		it('does not change last searches when history terms are removed or reset', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+			historyStore.save('boots');
+
+			historyStore.remove('boots');
+			historyStore.reset();
+
+			expect(tracker.cookies.searched.get()).toEqual(['boots']);
+		});
+
+		it('stores history in the same format', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+
+			historyStore.save('boots');
+			historyStore.save('shoes');
+
+			expect(window.localStorage.getItem('athos-history')).toBe('{"history":"[\\"shoes\\",\\"boots\\"]"}');
+		});
 	});
 });
