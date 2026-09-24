@@ -324,9 +324,8 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Touch/Drag state
 	const [isDragging, setIsDragging] = useState(false);
-	// refs, not state - only read inside the drag handlers, never in render
-	// the document mouseup listener below is bound once per drag, so its closure goes stale
-	// refs stay current even from that stale closure, state would not
+	// refs, not state - the drag handlers can run before the re-render that follows a setState
+	const isDraggingRef = useRef(false);
 	const startXRef = useRef(0);
 	const currentXRef = useRef(0);
 	const [dragOffset, setDragOffset] = useState(0);
@@ -451,6 +450,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 		hasDraggedRef.current = false;
 		setIsPlaying(false);
+		isDraggingRef.current = true;
 		setIsDragging(true);
 		// a previous drag's mouseup may never have arrived (e.g. a native image drag hijacked it)
 		// that would leave dragOffset stuck from that aborted drag
@@ -466,7 +466,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	};
 
 	const handleDragMove = (clientX: number) => {
-		if (!isDragging || !touchDragging) return;
+		if (!isDraggingRef.current || !touchDragging) return;
 
 		currentXRef.current = clientX;
 		const diff = clientX - startXRef.current;
@@ -480,7 +480,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	};
 
 	const handleDragEnd = () => {
-		if (!isDragging || !touchDragging) return;
+		if (!isDraggingRef.current || !touchDragging) return;
 		const diff = currentXRef.current - startXRef.current;
 		const threshold = getNavigationThreshold();
 
@@ -494,6 +494,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 			}
 		}
 
+		isDraggingRef.current = false;
 		setIsDragging(false);
 		setDragOffset(0);
 		dragBaseTranslatePxRef.current = null;
@@ -517,22 +518,35 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		}
 	};
 
-	const handleMouseMove = (event: MouseEvent) => {
-		handleDragMove(event.clientX);
+	// document listeners are bound once per drag, so they call the latest handlers through refs
+	const dragMoveRef = useRef(handleDragMove);
+	const dragEndRef = useRef(handleDragEnd);
+	dragMoveRef.current = handleDragMove;
+	dragEndRef.current = handleDragEnd;
+	const removeMouseListenersRef = useRef<(() => void) | null>(null);
+
+	const handleMouseDown = (event: MouseEvent) => {
+		event.preventDefault();
+		handleDragStart(event.clientX);
+
+		// bound here rather than in an effect - a tap's synthetic mouseup fires before effects run
+		const onMouseMove = (e: MouseEvent) => dragMoveRef.current(e.clientX);
+		const onMouseUp = () => {
+			removeMouseListenersRef.current?.();
+			dragEndRef.current();
+		};
+		removeMouseListenersRef.current?.();
+		removeMouseListenersRef.current = () => {
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mouseup', onMouseUp);
+			removeMouseListenersRef.current = null;
+		};
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
 	};
 
-	// Add/remove mouse event listeners
-	useEffect(() => {
-		if (isDragging && touchDragging) {
-			document.addEventListener('mousemove', handleMouseMove);
-			document.addEventListener('mouseup', handleDragEnd);
-
-			return () => {
-				document.removeEventListener('mousemove', handleMouseMove);
-				document.removeEventListener('mouseup', handleDragEnd);
-			};
-		}
-	}, [isDragging, touchDragging]);
+	// clean up if unmounted mid-drag
+	useEffect(() => () => removeMouseListenersRef.current?.(), []);
 
 	// Pause autoplay on hover or focus
 	const handleMouseEnter = () => {
@@ -770,18 +784,9 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						}
 						onTouchEnd={touchDragging ? handleDragEnd : undefined}
 						// mouse events for desktop dragging
-						// move/up are handled by the document listeners below, not here
-						// that keeps the drag tracking even if the cursor leaves the track
-						// and avoids firing handleDragEnd twice on a release over the track
+						// move/up are bound on document in handleMouseDown so the drag keeps tracking outside the track
 						// @ts-ignore - mouse events
-						onMouseDown={
-							touchDragging
-								? (event: MouseEvent) => {
-										event.preventDefault();
-										handleDragStart(event.clientX);
-								  }
-								: undefined
-						}
+						onMouseDown={touchDragging ? handleMouseDown : undefined}
 					>
 						{normalizedSlides.map((slide, index) => {
 							const isVisible = index >= currentIndex && index < currentIndex + computedSlidesToShow;
