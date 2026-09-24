@@ -729,6 +729,61 @@ describe('Slideshow Component', () => {
 			const imgElements = rendered.container.querySelectorAll('img');
 			expect(imgElements).toHaveLength(3);
 		});
+
+		it('fires onClick for a touch tap followed by the compatibility mouse events', async () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+			const isDragging = () => track.classList.contains('ss__slideshow__track--dragging');
+
+			const microtasks = async () => {
+				await Promise.resolve();
+				await Promise.resolve();
+			};
+			// lets Preact's after-paint queue (rAF + setTimeout) run any pending effects
+			const nextFrame = async () => {
+				jest.advanceTimersByTime(100);
+				await microtasks();
+			};
+			const rawTouch = (type: string, clientX: number) => {
+				const event = new Event(type, { bubbles: true, cancelable: true });
+				Object.defineProperty(event, 'touches', { value: [{ clientX }] });
+				return event;
+			};
+			const rawMouse = (type: string) => new MouseEvent(type, { bubbles: true, cancelable: true, clientX: 100 });
+
+			// finger down, resting on the screen for at least a frame
+			track.dispatchEvent(rawTouch('touchstart', 100));
+			await microtasks();
+			expect(isDragging()).toBe(true);
+			await nextFrame();
+
+			// finger up; the browser waits before synthesizing the compatibility mouse events
+			track.dispatchEvent(new Event('touchend', { bubbles: true, cancelable: true }));
+			await microtasks();
+			expect(isDragging()).toBe(false);
+			await nextFrame();
+
+			// compatibility mousedown -> mouseup -> click arrive back to back, no frame in between
+			clickableSlide.dispatchEvent(rawMouse('mousedown'));
+			await microtasks();
+			clickableSlide.dispatchEvent(rawMouse('mouseup'));
+			await microtasks();
+			clickableSlide.dispatchEvent(rawMouse('click'));
+			await microtasks();
+
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
+			// the drag must have ended too - otherwise the track stays flagged as dragging until some
+			// unrelated mouseup elsewhere on the page
+			expect(isDragging()).toBe(false);
+		});
 	});
 
 	describe('JSX Content Support', () => {
