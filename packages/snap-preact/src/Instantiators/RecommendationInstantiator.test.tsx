@@ -969,6 +969,73 @@ describe('RecommendationInstantiator', () => {
 		});
 	});
 
+	it('passes config.settings.variants through to the created controller', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const variantsConfig = { realtime: { enabled: true, filters: ['first' as const] } };
+		const settingsConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				settings: {
+					variants: variantsConfig,
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(settingsConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.variants).toMatchObject(variantsConfig);
+	});
+
+	it('still supports the legacy top-level config.variants location', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const variantsConfig = { realtime: { enabled: true } };
+		const legacyConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				variants: variantsConfig,
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(legacyConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.variants).toMatchObject(variantsConfig);
+	});
+
+	it('prefers config.settings.variants over top-level config.variants when both are provided', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const bothConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				variants: { realtime: { enabled: false } },
+				settings: {
+					variants: { realtime: { enabled: true } },
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(bothConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.variants?.realtime?.enabled).toBe(true);
+	});
+
 	it('supports searchspring/recommend script type selector', async () => {
 		document.body.innerHTML = `<script type="searchspring/recommend" profile="${DEFAULT_PROFILE}"></script>`;
 
