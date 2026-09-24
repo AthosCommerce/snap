@@ -556,6 +556,68 @@ describe('Recommendation Controller', () => {
 		expect(controller.params.lastViewed).toEqual([product.sku]);
 	});
 
+	it('can set lastSearches param with the most recent term first', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['shoes']);
+		controller.tracker.cookies.searched.add(['boots']);
+
+		expect(controller.params.lastSearches).toEqual(['boots', 'shoes']);
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('sets lastSearches param for the siteId in the controller globals', async () => {
+		const config: RecommendationStoreConfig = { ...recommendConfig, globals: { ...recommendConfig.globals, siteId: 'at5678' } };
+		const controller = new RecommendationController(config, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+		controller.tracker.cookies.searched.add(['boots'], 'at5678');
+		controller.tracker.cookies.searched.add(['shoes']);
+
+		expect(controller.params.lastSearches).toEqual(['boots']);
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+	});
+
+	it('does not set cart or lastViewed params for a different siteId', async () => {
+		const config: RecommendationStoreConfig = { ...recommendConfig, globals: { ...recommendConfig.globals, siteId: 'at5678' } };
+		const controller = new RecommendationController(config, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.cart.set(['sku1']);
+		controller.tracker.track.product.view({ sku: 'sku2' });
+
+		expect(controller.params.cart).toBeUndefined();
+		expect(controller.params.lastViewed).toBeUndefined();
+
+		controller.tracker.cookies.cart.clear();
+	});
+
 	it('can set shopper param', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),

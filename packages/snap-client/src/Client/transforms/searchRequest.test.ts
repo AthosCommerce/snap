@@ -404,3 +404,41 @@ describe('request facets transform', () => {
 		expect(params).toEqual({});
 	});
 });
+
+describe('search request personalization transform', () => {
+	it('returns empty object if request missing', () => {
+		const params = transformSearchRequest.personalization();
+
+		expect(params).toEqual({});
+	});
+
+	it('generates personalization params', () => {
+		const params = transformSearchRequest.personalization({
+			personalization: {
+				disabled: true,
+				cart: 'sku1,sku2',
+				lastViewed: 'sku3,sku4',
+				lastSearches: 'boots,shoes',
+				shopper: 'shopper123',
+			},
+		});
+
+		expect(params).toEqual({
+			skipPersonalization: true,
+			cart: 'sku1,sku2',
+			lastViewed: 'sku3,sku4',
+			lastSearches: 'boots,shoes',
+			shopper: 'shopper123',
+		});
+	});
+
+	it('omits lastSearches when not provided', () => {
+		const params = transformSearchRequest.personalization({
+			personalization: {
+				lastViewed: 'sku3',
+			},
+		});
+
+		expect(params).toEqual({ lastViewed: 'sku3' });
+	});
+});

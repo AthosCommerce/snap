@@ -73,13 +73,20 @@ export class FinderController extends AbstractController {
 		tracking.domain = window.location.href;
 
 		// get only the finder fields and disable auto drill down
-		const defaultParams = {
+		const defaultParams: Record<string, any> = {
 			facets: {
 				include: this.config.fields.map((fieldConfig) => fieldConfig.field),
 				autoDrillDown: false,
 			},
 			tracking: tracking,
 		};
+
+		if (!this.config.globals?.personalization?.disabled) {
+			const lastSearchedTerms = this.tracker.cookies.searched.get(this.config.globals?.siteId);
+			if (lastSearchedTerms.length) {
+				defaultParams.personalization = { lastSearches: lastSearchedTerms.join(',') };
+			}
+		}
 
 		const params: Record<string, any> = deepmerge({ ...getSearchParams(urlState) }, deepmerge(defaultParams, this.config.globals));
 

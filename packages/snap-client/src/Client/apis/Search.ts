@@ -22,6 +22,8 @@ export class SearchAPI extends API<SearchRequesterPaths> {
 		const cacheParameters = { ...searchRequestParameters };
 		delete cacheParameters.pageLoadId;
 		delete cacheParameters.domain;
+		// lastSearches changes with every new search term and must not invalidate cached responses
+		delete cacheParameters.lastSearches;
 		// autocomplete only params
 		delete cacheParameters.input;
 		delete cacheParameters.redirectResponse;
