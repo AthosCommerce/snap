@@ -85,7 +85,7 @@ export const TabSelection = observer((properties: TabSelectionProps) => {
 		},
 		tabList: {
 			attributes: {
-				'aria-label': 'Result tabs',
+				'aria-label': 'Search result tabs',
 			},
 		},
 	};
@@ -106,6 +106,8 @@ export const TabSelection = observer((properties: TabSelectionProps) => {
 						const disabled = !enableEmptyTabs && !active && resultCount === 0;
 						const label = tab.label || tab.id;
 						const displayedCount = showResultCount ? resultCount : undefined;
+						// whitespace is not permitted in an id and would split the aria-controls id reference list
+						const controllerId = tab.controller.id.replace(/\s+/g, '-');
 
 						const defaultTabLang: Partial<TabSelectionLang> = {
 							tabButton: {
@@ -127,9 +129,11 @@ export const TabSelection = observer((properties: TabSelectionProps) => {
 									'ss__tab-selection__button--active': active,
 								})}
 								disabled={disabled}
-								// @ts-ignore - role and aria-selected are valid props for Button, but not defined in ButtonProps
+								// @ts-ignore - valid props for Button, but not defined in ButtonProps
+								id={`ss__tab--${controllerId}`}
 								role="tab"
 								aria-selected={active}
+								aria-controls={`ss__tabpanel--${controllerId}`}
 								{...tabLang.tabButton?.attributes}
 								onClick={(e) => {
 									onTabClick && onTabClick(e, tab);

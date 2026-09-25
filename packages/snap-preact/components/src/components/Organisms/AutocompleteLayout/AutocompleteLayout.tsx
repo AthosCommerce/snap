@@ -490,6 +490,9 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	const styling = mergeStyles<AutocompleteLayoutProps>(props, defaultStyles);
 
+	// whitespace is not permitted in an id and would split the aria-labelledby id reference list
+	const tabControllerId = tabManager?.active?.controller.id.replace(/\s+/g, '-');
+
 	//initialize lang
 	const defaultLang: Partial<AutocompleteLayoutLang> = {
 		contentTitle: {
@@ -791,6 +794,13 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 				)}
 				onClick={(e) => e.stopPropagation()}
 				ref={(e) => useA11y(e, 0, false, onReset)}
+				{...(tabManager?.active
+					? {
+							id: `ss__tabpanel--${tabControllerId}`,
+							role: 'tabpanel',
+							'aria-labelledby': `ss__tab--${tabControllerId}`,
+					  }
+					: {})}
 			>
 				<span
 					role={'link'}

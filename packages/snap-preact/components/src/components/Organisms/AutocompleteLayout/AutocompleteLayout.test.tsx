@@ -5,7 +5,9 @@ import { render } from '@testing-library/preact';
 import { AutocompleteLayout, AutocompleteLayoutProps } from './AutocompleteLayout';
 import { MockClient } from '@athoscommerce/snap-shared';
 import { AutocompleteControllerConfig } from '@athoscommerce/snap-controller';
+import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { createAutocompleteController } from '../../../../../src/create';
+import type { Tab, TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import { waitFor } from '@testing-library/preact';
 
 describe('AutocompleteLayout Component', () => {
@@ -114,6 +116,68 @@ describe('AutocompleteLayout Component', () => {
 			const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
 
 			expect(results.length).toBeGreaterThan(0);
+		});
+	});
+
+	it('does not render tabpanel attributes without a tabManager', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout controller={controller} input={controller.config.selector} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).not.toHaveAttribute('role');
+			expect(autocomplete).not.toHaveAttribute('id');
+			expect(autocomplete).not.toHaveAttribute('aria-labelledby');
+		});
+	});
+
+	it('renders as a tabpanel labelled by the active tab when a tabManager is provided', async () => {
+		const productsController = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		const blogConfig = { ...acConfig, id: uuidv4().split('-').join('') };
+		const blogController = createAutocompleteController({ client: clientConfig, controller: blogConfig }, { client: mockClient });
+		await productsController.bind();
+		await blogController.bind();
+
+		const createTab = (id: string, tabController: AutocompleteController): Tab => ({
+			id,
+			label: id,
+			siteId: globals.siteId,
+			param: id.toLowerCase(),
+			prefetch: false,
+			controller: tabController,
+			redirects: {},
+		});
+
+		const tabs = [createTab('Products', productsController), createTab('Blog', blogController)];
+		const tabManager = { tabs, active: tabs[1], param: 'tab', setActive: jest.fn() } as unknown as TabManagerStore;
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout controller={blogController} input={blogController.config.selector} tabManager={tabManager} />, {
+			container,
+		});
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const activeTab = rendered.container.querySelector('.ss__tab-selection__button--active');
+
+			expect(autocomplete).toHaveAttribute('role', 'tabpanel');
+			expect(autocomplete).toHaveAttribute('id', `ss__tabpanel--${blogController.id}`);
+			expect(autocomplete).toHaveAttribute('aria-labelledby', `ss__tab--${blogController.id}`);
+
+			// the active tab button and the panel reference each other
+			expect(activeTab).toHaveAttribute('id', autocomplete!.getAttribute('aria-labelledby')!);
+			expect(activeTab).toHaveAttribute('aria-controls', autocomplete!.getAttribute('id')!);
 		});
 	});
 

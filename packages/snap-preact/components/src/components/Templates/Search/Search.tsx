@@ -283,6 +283,9 @@ export const Search = observer((properties: SearchProps) => {
 
 	const styling = mergeStyles<SearchProps>(props, defaultStyles);
 
+	// whitespace is not permitted in an id and would split the aria-labelledby id reference list
+	const tabControllerId = controller.id.replace(/\s+/g, '-');
+
 	return (
 		<CacheProvider>
 			<div
@@ -305,7 +308,16 @@ export const Search = observer((properties: SearchProps) => {
 								<Sidebar {...subProps.Sidebar} controller={controller} />
 							</div>
 						) : null)}
-					<div className={classnames(`${classNamePrefix}__content`)}>
+					<div
+						className={classnames(`${classNamePrefix}__content`)}
+						{...(tabManager?.active
+							? {
+									id: `ss__tabpanel--${tabControllerId}`,
+									role: 'tabpanel',
+									'aria-labelledby': `ss__tab--${tabControllerId}`,
+							  }
+							: {})}
+					>
 						{!hideMiddleToolbar && <Toolbar {...subProps.MiddleToolbar} controller={controller} />}
 
 						{store.pagination.totalResults ? (
