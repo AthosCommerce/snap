@@ -324,8 +324,15 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Touch/Drag state
 	const [isDragging, setIsDragging] = useState(false);
-	// refs, not state - the drag handlers can run before the re-render that follows a setState
+	// mirrors `isDragging` state - the state drives renders (the dragging class, the transform,
+	// the autoplay effect), but the drag handlers below run through refs and can fire before
+	// the re-render that follows a setState (e.g. a tap's synthetic mouseup), so they read
+	// this ref instead. always update both via `setDragging`.
 	const isDraggingRef = useRef(false);
+	const setDragging = (value: boolean) => {
+		isDraggingRef.current = value;
+		setIsDragging(value);
+	};
 	const startXRef = useRef(0);
 	const currentXRef = useRef(0);
 	const [dragOffset, setDragOffset] = useState(0);
@@ -450,8 +457,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 		hasDraggedRef.current = false;
 		setIsPlaying(false);
-		isDraggingRef.current = true;
-		setIsDragging(true);
+		setDragging(true);
 		// a previous drag's mouseup may never have arrived (e.g. a native image drag hijacked it)
 		// that would leave dragOffset stuck from that aborted drag
 		// reset it so this drag always starts clean, not stacked on stale movement
@@ -494,8 +500,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 			}
 		}
 
-		isDraggingRef.current = false;
-		setIsDragging(false);
+		setDragging(false);
 		setDragOffset(0);
 		dragBaseTranslatePxRef.current = null;
 
