@@ -779,7 +779,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						onTouchMove={
 							touchDragging
 								? (event: TouchEvent) => {
-										if (isDragging) {
+										if (isDraggingRef.current) {
 											event.preventDefault(); // Prevent scrolling while dragging
 										}
 										const touch = event.touches[0];
