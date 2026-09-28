@@ -98,6 +98,13 @@ The `hideToggleSidebarButton` prop specifies whether the toggle sidebar button s
 <FacetsHorizontal controller={controller} hideToggleSidebarButton={true}/>
 ```
 
+### openFacetsInSidebar
+The `openFacetsInSidebar` prop changes what clicking a facet header does. Instead of opening a dropdown under the header, the click opens the sidebar slideout with that facet expanded, scrolled into view and focused.
+
+```tsx
+<FacetsHorizontal controller={controller} openFacetsInSidebar={true} />
+```
+
 ### toggleSidebarButtonText
 The `toggleSidebarButtonText` prop specifies the text displayed in the toggle sidebar button. Defaults to 'Filters'.
 
