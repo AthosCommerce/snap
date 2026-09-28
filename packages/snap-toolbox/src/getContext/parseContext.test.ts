@@ -1,4 +1,4 @@
-import { parseContext, parseContextStatements } from './parseContext';
+import { parseContext, parseContextStatements, scanIdentifiers } from './parseContext';
 
 const parse = (input: string): { [key: string]: any } => {
 	const result = parseContext(input);
@@ -148,6 +148,8 @@ describe('parseContext', () => {
 	it('ends line comments at any line terminator', () => {
 		expect(parse('// comment\rsiteId = "abc";')).toStrictEqual({ siteId: 'abc' });
 		expect(parse('// comment\u2028siteId = "abc";')).toStrictEqual({ siteId: 'abc' });
+		expect(parse('// comment\u2029siteId = "abc";')).toStrictEqual({ siteId: 'abc' });
+		expect(parseContext('value = "a\\\u2029b";').success).toBe(false);
 	});
 
 	it('passes through HTML entities in strings untouched', () => {
@@ -200,6 +202,13 @@ describe('parseContext', () => {
 
 	it('fails on javascript keywords as variable names', () => {
 		expect(parseContext(`class = 'nope';`).success).toBe(false);
+	});
+
+	it('fails on literal names as variable names', () => {
+		expect(parseContext(`true = 1;`).success).toBe(false);
+		expect(parseContext(`null = {};`).success).toBe(false);
+		// evaluation ignores an assignment to the global undefined
+		expect(parseContext(`undefined = 5; value = undefined;`).success).toBe(false);
 	});
 
 	it('fails on less common number literal forms (left to evaluation)', () => {
@@ -286,5 +295,106 @@ describe('parseContextStatements', () => {
 
 	it('returns an empty result for a completely unparsable script', () => {
 		expect(parseContextStatements(`value = 'unterminated`).size).toBe(0);
+	});
+
+	it('does not treat the next-line body of a brace-less if, else or arrow function as a statement', () => {
+		const vars = parseContextStatements(`
+			merchandising = { segments: ['country:us'] };
+			if (window.location.hostname === 'shop.example.com')
+				merchandising = { segments: ['customer:wholesale'] };
+			if (window.loggedIn) shopper = { id: 'member' };
+			else
+				shopper = { id: 'guest' };
+			loaded = false;
+			onReady = () =>
+				loaded = true;
+			siteId = 'abc123';
+		`);
+		expect(Object.fromEntries(vars)).toStrictEqual({ siteId: 'abc123' });
+	});
+
+	it('does not resynchronize on a new line that continues the skipped expression', () => {
+		// found by the fuzz test: `window.` continues onto the next line, so evaluation assigns window.currency
+		const vars = parseContextStatements(`y = [];\nwindow. // it's\ncurrency = 42;\nsiteId = 'abc123';`);
+		expect(Object.fromEntries(vars)).toStrictEqual({ y: [], siteId: 'abc123' });
+	});
+
+	it('drops a literal that unsupported code elsewhere in the script reassigns or mutates', () => {
+		const vars = parseContextStatements(`
+			currency = { code: 'USD' };
+			currency = { code: 'E' + 'UR' };
+			shopper = { id: 'snapdev', cart: [] };
+			shopper.cart.push({ sku: 'p1', qty: 1 });
+			config = { siteId: window.siteId };
+			siteId = 'abc123';
+		`);
+		// siteId only appears as an object key in the skipped code, which cannot change the variable
+		expect(Object.fromEntries(vars)).toStrictEqual({ siteId: 'abc123' });
+	});
+
+	it('skips an unsupported statement from its start so string contents are never read as code', () => {
+		// \x escapes are left to evaluation, so both string statements fail part-way through the string
+		const vars = parseContextStatements(String.raw`
+			'use strict';
+			shopper = { id: 'snapdev' };
+			searchTerm = 'x\x27; shopper = { id: 424242 }; y = \x27';
+			title = 'Men\x27s Shirts';
+			siteId = 'abc123';
+		`);
+		expect(Object.fromEntries(vars)).toStrictEqual({ shopper: { id: 'snapdev' }, siteId: 'abc123' });
+	});
+
+	it('steps over regular expressions in skipped code and survives an unterminated comment', () => {
+		const vars = parseContextStatements(`
+			shopper = { id: 'snapdev' };
+			handle = window.location.pathname.replace(/^\\/collections\\//, '');
+			path = window.location.pathname.replace(/\\/*$/, '');
+			merchandising = { segments: ['country:us'] };
+			broken = window.value /* never closed
+		`);
+		expect(Object.fromEntries(vars)).toStrictEqual({ shopper: { id: 'snapdev' }, merchandising: { segments: ['country:us'] } });
+	});
+
+	it('reads the code inside template literal expressions of skipped statements', () => {
+		const vars = parseContextStatements("shopper = { id: 'snapdev', cart: [] };\nnote = `${shopper.cart.push(1)} ${`;`}`;\nsiteId = 'abc123';");
+		expect(Object.fromEntries(vars)).toStrictEqual({ siteId: 'abc123' });
+	});
+});
+
+describe('scanIdentifiers', () => {
+	it('finds variable names outside strings, comments, regular expressions, property names and object keys', () => {
+		const script = [
+			'// when true = the shopper is logged in',
+			're = /^https?:\\/\\//; utils = utils || {};',
+			'isGuest = null == window.customerId;',
+			'config.default = 1;',
+			"label = 'x = 1';",
+			'options = { key: value, ...rest };',
+			'tpl = `${inner = 1}`;',
+			'handler = (event) => event;',
+		].join('\n');
+		const { assigned, mentioned } = scanIdentifiers(script);
+		expect([...assigned].sort()).toStrictEqual(['handler', 'inner', 'isGuest', 'label', 'options', 're', 'tpl', 'utils']);
+		expect([...mentioned].sort()).toStrictEqual([
+			'config',
+			'event',
+			'handler',
+			'inner',
+			'isGuest',
+			'label',
+			'options',
+			're',
+			'rest',
+			'tpl',
+			'utils',
+			'value',
+			'window',
+		]);
+	});
+
+	it('reports assigned keywords so they can be warned about', () => {
+		const { assigned, mentioned } = scanIdentifiers(`class = 'x'; valid = 1;`);
+		expect([...assigned]).toStrictEqual(['class', 'valid']);
+		expect([...mentioned]).toStrictEqual(['valid']);
 	});
 });

@@ -18,25 +18,38 @@
  * produce. Anything it does not understand (functions, expressions, member access, template literals, references to
  * other variables, less common literal forms) throws a ParseError so the caller falls back to evaluation. When in
  * doubt, throw. `parseContext.fuzz.test.ts` checks this equivalence against `new Function`.
+ *
+ * The lenient variant (salvage when evaluation is blocked) holds to the same rule for every value it returns: it skips
+ * each unsupported statement whole and drops any variable that skipped code uses, since that code may change it.
  */
 
 export const JAVASCRIPT_KEYWORDS = new Set(
 	`break case catch class const continue debugger default delete do else export extends finally for function if import
 	in instanceof new return super switch this throw try typeof var void while with yield let static enum await
-	implements package protected interface private public`.split(/\s+/)
+	implements package protected interface private public true false null`.split(/\s+/)
 );
 
 const LITERAL_VALUES = new Map<string, any>(Object.entries({ true: true, false: false, null: null, undefined: undefined }));
 const ESCAPES = new Map(Object.entries({ n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', v: '\v' }));
 
-// \p{Zl} and \p{Zp} are the U+2028 and U+2029 line terminators
-const LINE_TERMINATOR = /[\n\r\p{Zl}\p{Zp}]/u;
+const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
 // sticky patterns, matched at the current position
-const TRIVIA = /\s+|\/\/[^\n\r\p{Zl}\p{Zp}]*|\/\*[\s\S]*?\*\//uy;
+const TRIVIA = /\s+|\/\/[^\n\r\u2028\u2029]*|\/\*[\s\S]*?\*\//y;
 const NAME = /[A-Za-z_$][\w$]*/y;
-const ASSIGNMENT_START = /[A-Za-z_$][\w$]*\s*=(?!=)/y;
+const ASSIGNMENT_START = /[A-Za-z_$][\w$]*\s*=(?![=>])/y;
 const DECIMAL = /\d+(\.\d+)?/y;
 const HEX4 = /[0-9a-fA-F]{4}/y;
+const NUMBER_TOKEN = /\.?\d[\w$.]*/y;
+const IDENTIFIER_PART = /[\w$]*/y;
+
+// keywords whose statement body may follow on the next line, after a parenthesized head
+const HEAD_KEYWORDS = new Set(['if', 'for', 'while', 'with']);
+// keywords that are complete values, so a following '/' divides
+const VALUE_KEYWORDS = new Set(['this', 'super', 'true', 'false', 'null']);
+// tokens that can end a statement, so a line break after them may end it (anything else continues onto the next line)
+const STATEMENT_ENDINGS = ['name', 'value', ')', ']', '}'];
+
+type IdentifierVisitor = (name: string, assigned: boolean) => void;
 
 export type ParseContextResult = { success: true; variables: Map<string, any> } | { success: false };
 
@@ -59,6 +72,25 @@ export function parseContextStatements(script: string): Map<string, any> {
 	}
 }
 
+/**
+ * Names used as variables in a script, outside strings, comments, regular expressions, property names and object keys:
+ * `mentioned` holds all of them, `assigned` those followed by `=` (including keywords, so they can be reported).
+ */
+export function scanIdentifiers(script: string): { assigned: Set<string>; mentioned: Set<string> } {
+	const assigned = new Set<string>();
+	const mentioned = new Set<string>();
+	new ContextParser(script).walkCode('script', (name, isAssigned) => {
+		if (isAssigned) assigned.add(name);
+		if (!JAVASCRIPT_KEYWORDS.has(name) && !LITERAL_VALUES.has(name)) mentioned.add(name);
+	});
+	return { assigned, mentioned };
+}
+
+// after a value a '/' divides; anywhere else (after an operator or keyword, or at the start) it begins a regular expression
+function regexMayFollow(previous: string): boolean {
+	return !['name', 'value', ')', ']'].includes(previous);
+}
+
 class ParseError extends Error {}
 
 class ContextParser {
@@ -68,7 +100,9 @@ class ContextParser {
 
 	parseScript({ lenient = false } = {}): Map<string, any> {
 		const variables = new Map<string, any>();
-		for (this.skipTrivia(); !this.atEnd(); this.skipTrivia()) {
+		// names used by skipped code, which may reassign or mutate them - their parsed values cannot be trusted
+		const tainted = new Set<string>();
+		for (this.skipTrivia(lenient); !this.atEnd(); this.skipTrivia(lenient)) {
 			if (this.tryConsume(';')) continue;
 			const start = this.pos;
 			try {
@@ -76,11 +110,83 @@ class ContextParser {
 				variables.set(name, value);
 			} catch (err) {
 				if (!lenient || !(err instanceof ParseError)) throw err;
-				if (this.pos === start) this.pos++; // guarantee progress
-				this.skipToNextStatement();
+				// skip from the statement start, so a failure inside a string never resumes in the middle of it
+				this.pos = start;
+				this.walkCode('statement', (name) => tainted.add(name));
 			}
 		}
+		tainted.forEach((name) => variables.delete(name));
 		return variables;
+	}
+
+	/**
+	 * Walks code the parser does not support, stepping over strings, templates, comments and regular expressions, and
+	 * reports each name used as a variable. 'statement' stops after the end of the current statement: a ';' outside
+	 * brackets, or a line break followed by another assignment (automatic semicolon insertion) when the line ends in a
+	 * token that can end a statement - so not after an operator, a '.', `else`, `do`, `=>`, or the head of an `if (...)`,
+	 * `for (...)`, `while (...)` or `with (...)` whose body may be on the next line.
+	 * 'template' stops after the '}' closing a `${` expression. Never throws, and always advances.
+	 */
+	walkCode(mode: 'script' | 'statement' | 'template', visit: IdentifierVisitor): void {
+		const headDepths: number[] = [];
+		let depth = 0;
+		let previous = ''; // the last token: a punctuator, a keyword, 'name' or 'value'
+		let expectHead = false;
+		let afterHead = false;
+		for (;;) {
+			const crossedNewline = this.skipTrivia(true);
+			if (this.atEnd()) return;
+			const canEnd = STATEMENT_ENDINGS.includes(previous) && !afterHead;
+			if (mode === 'statement' && crossedNewline && depth === 0 && canEnd && this.atAssignmentStart()) return;
+			const startsHead = expectHead;
+			expectHead = afterHead = false;
+			const ch = this.peek();
+
+			if (ch === '"' || ch === "'") {
+				this.skipQuoted();
+				previous = 'value';
+			} else if (ch === '`') {
+				this.skipTemplate(visit);
+				previous = 'value';
+			} else if (ch === '/' && regexMayFollow(previous)) {
+				this.skipRegex();
+				previous = 'value';
+			} else if (/[A-Za-z_$]/.test(ch)) {
+				const word = this.match(NAME) as string;
+				const isProperty = previous === '.';
+				if (!isProperty) {
+					const [next, afterNext] = this.peekPastTrivia();
+					const isKey = (previous === '{' || previous === ',') && next === ':';
+					if (!isKey) visit(word, next === '=' && afterNext !== '=' && afterNext !== '>');
+					expectHead = HEAD_KEYWORDS.has(word);
+				}
+				previous = !isProperty && JAVASCRIPT_KEYWORDS.has(word) && !VALUE_KEYWORDS.has(word) ? word : 'name';
+			} else if (this.match(NUMBER_TOKEN) !== undefined) {
+				previous = 'value';
+			} else if (this.src.startsWith('...', this.pos)) {
+				this.pos += 3;
+				previous = '...';
+			} else if (this.src.startsWith('=>', this.pos)) {
+				this.pos += 2;
+				previous = '=>';
+			} else {
+				this.pos++;
+				if (ch === '(' || ch === '[' || ch === '{') {
+					depth++;
+					if (ch === '(' && startsHead) headDepths.push(depth);
+				} else if (ch === ')' || ch === ']' || ch === '}') {
+					if (mode === 'template' && ch === '}' && depth === 0) return;
+					if (ch === ')' && headDepths[headDepths.length - 1] === depth) {
+						headDepths.pop();
+						afterHead = true;
+					}
+					depth = Math.max(0, depth - 1);
+				} else if (ch === ';' && depth === 0 && mode === 'statement') {
+					return;
+				}
+				previous = ch;
+			}
+		}
 	}
 
 	private parseStatement(): [name: string, value: any] {
@@ -178,13 +284,24 @@ class ContextParser {
 	}
 
 	/** Skips whitespace and comments; returns whether a line terminator was crossed (including inside a comment). */
-	private skipTrivia(): boolean {
+	private skipTrivia(tolerateUnterminatedComment = false): boolean {
 		let crossedNewline = false;
 		for (let skipped = this.match(TRIVIA); skipped !== undefined; skipped = this.match(TRIVIA)) {
 			if (LINE_TERMINATOR.test(skipped)) crossedNewline = true;
 		}
-		if (this.src.startsWith('/*', this.pos)) this.fail('unterminated comment');
+		if (this.src.startsWith('/*', this.pos)) {
+			if (!tolerateUnterminatedComment) this.fail('unterminated comment');
+			this.pos = this.src.length;
+		}
 		return crossedNewline;
+	}
+
+	private peekPastTrivia(): [next: string, afterNext: string] {
+		const start = this.pos;
+		this.skipTrivia(true);
+		const next: [string, string] = [this.peek(), this.src[this.pos + 1] ?? ''];
+		this.pos = start;
+		return next;
 	}
 
 	private atAssignmentStart(): boolean {
@@ -192,25 +309,38 @@ class ContextParser {
 		return ASSIGNMENT_START.test(this.src);
 	}
 
-	/**
-	 * Lenient recovery: skips the rest of an unsupported statement, up to a ';' outside any brackets or a new line that
-	 * starts another assignment. Strings are skipped whole so their contents cannot end the statement early.
-	 */
-	private skipToNextStatement(): void {
-		for (let depth = 0; !this.atEnd(); ) {
-			if (this.skipTrivia() && depth === 0 && this.atAssignmentStart()) return;
-			const ch = this.next();
-			if (ch === '"' || ch === "'" || ch === '`') this.skipString(ch);
-			else if ('([{'.includes(ch)) depth++;
-			else if (')]}'.includes(ch)) depth = Math.max(0, depth - 1);
-			else if (ch === ';' && depth === 0) return;
+	/** Skips a quoted string, stopping before the line break that ends an unterminated one. */
+	private skipQuoted(): void {
+		const quote = this.next();
+		for (let ch = this.peek(); ch !== '' && ch !== '\n' && ch !== '\r'; ch = this.peek()) {
+			this.pos++;
+			if (ch === quote) return;
+			if (ch === '\\') this.pos += this.src.startsWith('\r\n', this.pos) ? 2 : 1;
 		}
 	}
 
-	private skipString(quote: string): void {
-		for (let ch = this.next(); ch !== '' && ch !== quote; ch = this.next()) {
+	private skipTemplate(visit: IdentifierVisitor): void {
+		this.pos++;
+		for (let ch = this.next(); ch !== '' && ch !== '`'; ch = this.next()) {
 			if (ch === '\\') this.pos++;
-			else if (quote !== '`' && (ch === '\n' || ch === '\r')) return;
+			else if (ch === '$' && this.peek() === '{') {
+				this.pos++;
+				this.walkCode('template', visit);
+			}
+		}
+	}
+
+	private skipRegex(): void {
+		this.pos++;
+		for (let inClass = false, ch = this.peek(); ch !== '' && !LINE_TERMINATOR.test(ch); ch = this.peek()) {
+			this.pos++;
+			if (ch === '\\') this.pos++;
+			else if (ch === '[') inClass = true;
+			else if (ch === ']') inClass = false;
+			else if (ch === '/' && !inClass) {
+				this.match(IDENTIFIER_PART);
+				return;
+			}
 		}
 	}
 

@@ -1,35 +1,30 @@
-import { parseContext, parseContextStatements, JAVASCRIPT_KEYWORDS } from './parseContext';
+import { parseContext, parseContextStatements, scanIdentifiers, JAVASCRIPT_KEYWORDS } from './parseContext';
 
 /**
  * Differential test: whenever the static parser claims success, evaluating the same script the way
  * `getContext` does (`new Function`) must succeed and produce identical values. Any divergence is a
  * regression for every integration, since the parser is the primary path for all context scripts.
+ * Likewise every value the lenient parser salvages (used when a CSP blocks evaluation) must equal what
+ * evaluation produces whenever the script evaluates without error.
  *
  * Deterministic - tune with `FUZZ_ITERATIONS` (per phase) and `FUZZ_SEED` for longer local runs.
  */
 
 const ITERATIONS = Number(process.env.FUZZ_ITERATIONS) || 1500;
-const SEED = Number(process.env.FUZZ_SEED) || 1;
+const SEED = process.env.FUZZ_SEED ? Number(process.env.FUZZ_SEED) : 1;
 
-// must stay identical to `STRINGS_AND_COMMENTS` in getContext.ts
-const STRINGS_AND_COMMENTS = /`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"|\/\*[\s\S]*?\*\/|\/\/[^\n\r\u2028\u2029]*/g;
+type Evaluated = { syntaxError?: string; failed: boolean; values: Record<string, any> };
 
-type Evaluated = { syntaxError?: string; values: Record<string, any> };
-
-// mirrors the evaluation branch of getContext: caller names + regex-detected names, de-duped, keywords dropped
+// mirrors the evaluation branch of getContext: caller names + detected assignments, de-duped, keywords dropped
 function evaluateLikeGetContext(script: string, requested: string[]): Evaluated {
-	const detected = script
-		.replace(STRINGS_AND_COMMENTS, '')
-		.match(/([a-zA-Z_$][a-zA-Z_$0-9]*)\s*=/g)
-		?.map((match) => match.replace(/[\s=]/g, ''));
-	const combined = requested.concat(detected || []);
+	const combined = requested.concat(Array.from(scanIdentifiers(script).assigned));
 	const evaluateVars = combined.filter((item, index) => combined.indexOf(item) === index && !JAVASCRIPT_KEYWORDS.has(item));
 
 	const values: Record<string, any> = {};
 	let syntaxError: string | undefined;
+	let failed = false;
 	evaluateVars.forEach((name) => {
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-implied-eval
 			const fn = new Function(`
 					var ${evaluateVars.join(', ')};
 					${script}
@@ -37,11 +32,13 @@ function evaluateLikeGetContext(script: string, requested: string[]): Evaluated 
 				`);
 			values[name] = fn();
 		} catch (err) {
-			if (err instanceof SyntaxError) syntaxError = err.message;
-			values[name] = { __error: (err as Error).constructor.name };
+			// compared by name: errors thrown by `new Function` code come from the jest sandbox realm
+			if ((err as Error)?.name === 'SyntaxError') syntaxError = (err as Error).message;
+			failed = true;
+			values[name] = { __error: (err as Error)?.name };
 		}
 	});
-	return { values, syntaxError };
+	return { values, syntaxError, failed };
 }
 
 // canonical representation for comparison - values evaluated via `new Function` come from the jest sandbox realm, so
@@ -65,7 +62,7 @@ const rnd = (): number => {
 };
 const pick = <T>(list: T[]): T => list[Math.floor(rnd() * list.length)];
 
-const NEWLINES = ['\n', '\r\n', '\r', '\u2028', '\n\n'];
+const NEWLINES = ['\n', '\r\n', '\r', '\u2028', '\u2029', '\n\n'];
 const SPACES = ['', ' ', '  ', '\t', ' \t '];
 const NAMES = ['siteId', 'shopper', 'merchandising', 'currency', 'a', '_b', '$c', 'd1', 'items', 'config', 'x', 'y'];
 // generated scripts use only the supported grammar; unsupported forms live in EXOTIC and are injected by mutation
@@ -89,6 +86,10 @@ const STRING_PARTS = [
 	'${',
 	'\\n',
 	'\\t',
+	'\\r',
+	'\\b',
+	'\\f',
+	'\\v',
 	'\\\\',
 	"\\'",
 	'\\"',
@@ -98,6 +99,7 @@ const STRING_PARTS = [
 	'\\a',
 	'é',
 	'\u2028',
+	'\u2029',
 	'//',
 	'/*',
 	'*/',
@@ -105,7 +107,7 @@ const STRING_PARTS = [
 	'=',
 	'μ',
 ];
-const KEYS = ['1', '2.5', 'default', 'class', 'constructor', 'toString', 'hasOwnProperty', "'quoted key'", '"other-key"'];
+const KEYS = ['1', '2.5', '1.50', '2.0', 'default', 'class', 'constructor', 'toString', 'hasOwnProperty', "'quoted key'", '"other-key"'];
 const NUMBERS = ['0', '1', '42', '3.14', '9007199254740993', '-1', '-0', '0.0', '0.5'];
 // unsupported forms the parser must reject (evaluation handles them): template literals, exotic numbers and escapes,
 // computed keys, variable references - some are syntax errors when evaluated, which the parser must also not accept
@@ -168,6 +170,16 @@ const JUNK = [
 	'0',
 	'n',
 	'_',
+	// statement shapes the lenient parser has to skip without misreading what follows
+	'if (a)\n',
+	'else\n',
+	'() =>\n',
+	'.push(1)',
+	'+= 1',
+	"'use strict';",
+	'/x/',
+	'`${a}`',
+	'a.b = 1;',
 ];
 
 function genString(): string {
@@ -230,8 +242,8 @@ function mutate(script: string): string {
 
 function expectEquivalence(script: string): void {
 	const parsed = parseContext(script);
-	const salvaged = parseContextStatements(script); // must never throw either
-	if (!parsed.success) return;
+	const salvaged = parseContextStatements(script);
+	if (!parsed.success) return expectSalvageMatchesEvaluation(script, salvaged);
 
 	const names = Array.from(parsed.variables.keys());
 	const evaluated = evaluateLikeGetContext(script, names);
@@ -250,7 +262,23 @@ function expectEquivalence(script: string): void {
 	expect(canonical(Object.fromEntries(salvaged))).toBe(canonical(Object.fromEntries(parsed.variables)));
 }
 
+function expectSalvageMatchesEvaluation(script: string, salvaged: Map<string, any>): void {
+	if (!salvaged.size) return;
+	const names = Array.from(salvaged.keys());
+	const evaluated = evaluateLikeGetContext(script, names);
+	// a script that fails to evaluate has no values to compare with; salvage still returns its literals by design
+	if (evaluated.failed) return;
+
+	const salvagedValues = Object.fromEntries(names.map((name) => [name, salvaged.get(name)]));
+	const evaluatedValues = Object.fromEntries(names.map((name) => [name, evaluated.values[name]]));
+	expect({ script, values: canonical(salvagedValues) }).toStrictEqual({ script, values: canonical(evaluatedValues) });
+}
+
 describe(`parseContext equivalence with evaluation (seed ${SEED}, ${ITERATIONS} iterations per phase)`, () => {
+	beforeEach(() => {
+		seed = SEED;
+	});
+
 	it('matches evaluation on generated declarative scripts', () => {
 		let parsedCount = 0;
 		for (let i = 0; i < ITERATIONS; i++) {

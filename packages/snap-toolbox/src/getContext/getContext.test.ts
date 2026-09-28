@@ -596,7 +596,7 @@ describe('behavior under a CSP that blocks unsafe-eval', () => {
 	});
 
 	afterEach(() => {
-		functionSpy.mockRestore();
+		jest.restoreAllMocks();
 	});
 
 	it('still resolves fully declarative context scripts', () => {
@@ -656,5 +656,126 @@ describe('behavior under a CSP that blocks unsafe-eval', () => {
 		expect(consoleError.mock.calls.filter((call) => String(call[0]).includes('error evaluating'))).toHaveLength(0);
 
 		consoleError.mockRestore();
+	});
+
+	it('attempts evaluation once per call - every blocked attempt is a separate CSP violation', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			siteId = 'abc123';
+			func = () => 'returned value';
+			shopper = { id: 'snapdev' };
+		`;
+		jest.spyOn(console, 'error').mockImplementation();
+
+		getContext(['siteId', 'func', 'shopper'], scriptTag);
+		expect(functionSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('returns nothing, rather than a stale value, for literals that other code in the script may change', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			merchandising = { segments: ['country:us'] };
+			if (window.location.hostname === 'shop.example.com')
+				merchandising = { segments: ['customer:wholesale'] };
+			currency = { code: 'USD' };
+			currency = { code: 'E' + 'UR' };
+			shopper = { id: 'snapdev', cart: [] };
+			shopper.cart.push({ sku: 'p1', qty: 1 });
+			siteId = 'abc123';
+		`;
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['merchandising', 'currency', 'shopper', 'siteId'], scriptTag);
+		expect(vars).toStrictEqual({ siteId: 'abc123' });
+		['merchandising', 'currency', 'shopper'].forEach((name) => expect(consoleError).toHaveBeenCalledWith(`getContext: error evaluating '${name}'`));
+	});
+
+	it('logs an error for a variable the script defines without a plain assignment', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			siteId = 'abc123';
+			function cart() {
+				return [];
+			}
+		`;
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['siteId', 'cart'], scriptTag);
+		expect(vars).toStrictEqual({ siteId: 'abc123' });
+		expect(consoleError).toHaveBeenCalledWith(`getContext: error evaluating 'cart'`);
+	});
+});
+
+describe('evaluation fallback', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('declares names assigned after a regular expression containing //', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `re = /^https?:\\/\\//; utils = utils || {}; siteId = 'abc123';`;
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['siteId'], scriptTag);
+		expect(vars).toStrictEqual({ siteId: 'abc123' });
+		expect(consoleError).not.toHaveBeenCalled();
+		expect(window).not.toHaveProperty('utils');
+	});
+
+	it('does not declare null, or globals that are only compared with ==', () => {
+		(window as any).Shopify = { formatMoney: (value: number) => `$${value}` };
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			shopper = { id: 'snapdev' };
+			fmt = function (e) { return null == e ? '' : String(e); };
+			format = function (value) { return typeof Shopify == 'undefined' ? String(value) : Shopify.formatMoney(value); };
+		`;
+
+		try {
+			const vars = getContext(['shopper', 'fmt', 'format'], scriptTag);
+			expect(vars.shopper).toEqual({ id: 'snapdev' });
+			expect(vars.fmt(null)).toBe('');
+			expect(vars.format(5)).toBe('$5');
+		} finally {
+			delete (window as any).Shopify;
+		}
+	});
+
+	it('does not report property names as JavaScript keywords', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `config = {}; config.default = 1;`;
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['config'], scriptTag);
+		expect(vars.config).toEqual({ default: 1 });
+		expect(consoleError).not.toHaveBeenCalled();
+	});
+
+	it('declares names assigned after a string containing // so they do not leak into the global scope', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `url = "https://example.com/store"; after = 'value'; func = () => after;`;
+
+		const vars = getContext(['func'], scriptTag);
+		expect(vars.func()).toBe('value');
+		expect(window).not.toHaveProperty('after');
+	});
+
+	it('leaves requested keywords out of the declared names', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `func = () => 'returned value';`;
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['class', 'func'], scriptTag);
+		expect(vars.func()).toBe('returned value');
+		expect(consoleError).toHaveBeenCalledTimes(1);
+		expect(consoleError).toHaveBeenCalledWith("getContext: JavaScript keyword found: 'class'! Please use a different variable name.");
 	});
 });
