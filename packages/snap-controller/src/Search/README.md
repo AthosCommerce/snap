@@ -88,6 +88,8 @@ controller.quickviewManager.close();
 ## Search History
 Search queries made by the controller are stored for later usage. This is enabled by default without providing any settings, to disable set the `max` to zero. The `config.settings.history.url` setting should be set when utilizing the history store outside of the search page in order for the URLs to direct users to the correct location. Common usage of the historical terms are on the search listing page or within autocomplete.
 
+Queries are saved once the `beforeSearch` middleware has passed and the request parameters have changed, so cancelled searches are not saved. Saved queries are also recorded by the tracker as searched terms (per siteId) for the `lastSearches` personalization parameter. This is independent of the history `max` setting; setting `max` to zero does not disable it, but `globals.personalization.disabled` does.
+
 ## Infinite
 When `config.settings.infinite` is defined and `store.pagination.next.url.go({ history: 'replace' })` is invoked, the next page will be fetched and its result set will be appended to the existing result set.
 

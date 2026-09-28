@@ -11,6 +11,7 @@ import type { SnapControllerServices, SnapRecommendationControllerConfig } from 
 
 export default (config: SnapRecommendationControllerConfig, services?: SnapControllerServices): RecommendationController => {
 	const urlManager = (services?.urlManager || new UrlManager(new UrlTranslator(config.url), reactLinker)).detach(true);
+	const tracker = services?.tracker || new Tracker(config.client!.globals);
 
 	// set client mode
 	if (config.mode && config.client) {
@@ -22,12 +23,12 @@ export default (config: SnapRecommendationControllerConfig, services?: SnapContr
 		config.controller,
 		{
 			client: services?.client || new Client(config.client!.globals, config.client!.config),
-			store: services?.store || new RecommendationStore(config.controller, { urlManager }),
+			store: services?.store || new RecommendationStore(config.controller, { urlManager, tracker }),
 			urlManager,
 			eventManager: services?.eventManager || new EventManager(),
 			profiler: services?.profiler || new Profiler(),
 			logger: services?.logger || new Logger({ mode: config.mode }),
-			tracker: services?.tracker || new Tracker(config.client!.globals),
+			tracker,
 			quickviewManager: services?.quickviewManager,
 		},
 		config.context

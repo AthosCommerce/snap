@@ -530,6 +530,48 @@ describe('Autocomplete Controller', () => {
 		expect(controller.params.personalization!.lastViewed).toEqual(product.sku);
 	});
 
+	it('can set personalization lastSearches param with the most recent term first', async () => {
+		const controller = new AutocompleteController(acConfig, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(acConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['shoes']);
+		controller.tracker.cookies.searched.add(['boots']);
+
+		expect(controller.params.personalization!.lastSearches).toEqual('boots,shoes');
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('sets personalization lastSearches param for the siteId in the controller globals', async () => {
+		const config: AutocompleteStoreConfig = { ...acConfig, globals: { siteId: 'at5678' } };
+		const controller = new AutocompleteController(config, {
+			client: new MockClient(globals, {}),
+			store: new AutocompleteStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+		controller.tracker.cookies.searched.add(['boots'], 'at5678');
+		controller.tracker.cookies.searched.add(['shoes']);
+
+		expect(controller.params.personalization!.lastSearches).toEqual('boots');
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+	});
+
 	it('can set personalization shopper param', async () => {
 		const controller = new AutocompleteController(acConfig, {
 			client: new MockClient(globals, {}),

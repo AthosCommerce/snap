@@ -72,6 +72,11 @@ export class SearchHistoryStore {
 
 			this.storage.set('history', JSON.stringify(history));
 		}
+
+		// last searches are stored separately and are not limited by the history max
+		if (!this.config.globals?.personalization?.disabled) {
+			this.services?.tracker?.cookies.searched.add([term], this.config.globals?.siteId);
+		}
 	}
 
 	public remove(term: string) {

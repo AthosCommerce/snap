@@ -232,6 +232,7 @@ transformSearchRequest.personalization = (request: SearchRequestModel | Autocomp
 		cart?: string;
 		shopper?: string;
 		lastViewed?: string;
+		lastSearches?: string;
 	} = {};
 
 	if (personalization.disabled) {
@@ -244,6 +245,10 @@ transformSearchRequest.personalization = (request: SearchRequestModel | Autocomp
 
 	if (personalization.lastViewed) {
 		params.lastViewed = personalization.lastViewed;
+	}
+
+	if (personalization.lastSearches) {
+		params.lastSearches = personalization.lastSearches;
 	}
 
 	if (personalization.shopper) {
