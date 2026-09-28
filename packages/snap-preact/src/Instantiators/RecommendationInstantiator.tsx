@@ -16,7 +16,7 @@ import {
 	RecommendationControllerConfig,
 	type QuickviewManager,
 } from '@athoscommerce/snap-controller';
-import { type BeaconSettings, type RecommendationStoreConfig, type VariantConfig } from '@athoscommerce/snap-store-mobx';
+import { QuickviewConfig, type BeaconSettings, type RecommendationStoreConfig, type VariantConfig } from '@athoscommerce/snap-store-mobx';
 import type { Middleware } from '@athoscommerce/snap-event-manager';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { createRecommendationController } from '../create';
@@ -37,6 +37,8 @@ export type RecommendationInstantiatorConfigSettings = {
 	realtime?: boolean;
 	batched?: boolean;
 	limit?: number;
+	quickview?: QuickviewConfig;
+	searchOnPageShow?: boolean;
 	settings?: RecommendationStoreConfig['settings'];
 	variants?: VariantConfig;
 	beacon?: BeaconSettings;
@@ -414,9 +416,10 @@ async function readyTheController(
 		limit: instance.config.config?.limit,
 		beacon: instance.config.config?.beacon || { enabled: true },
 		settings: {
-			...instance.config.config?.settings,
 			// `settings.variants` is the intended location; however top-level `variants` remains supported as a fallback
 			variants: instance.config.config?.settings?.variants ?? instance.config.config?.variants,
+			quickview: instance.config.config?.settings?.quickview ?? instance.config.config?.quickview,
+			searchOnPageShow: instance.config.config?.settings?.searchOnPageShow ?? instance.config.config?.searchOnPageShow,
 		},
 		globals,
 	};
