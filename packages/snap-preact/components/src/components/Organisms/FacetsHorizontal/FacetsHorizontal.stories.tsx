@@ -84,6 +84,16 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		openFacetsInSidebar: {
+			defaultValue: false,
+			description: 'Clicking a facet header opens that facet in the sidebar slideout instead of a dropdown',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		toggleSidebarButtonText: {
 			defaultValue: 'Filters',
 			description: 'Text to display in the toggle sidebar button',
