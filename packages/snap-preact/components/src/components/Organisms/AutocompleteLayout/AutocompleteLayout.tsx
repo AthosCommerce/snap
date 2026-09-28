@@ -490,8 +490,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	const styling = mergeStyles<AutocompleteLayoutProps>(props, defaultStyles);
 
-	// whitespace is not permitted in an id and would split the aria-labelledby id reference list
-	const tabControllerId = tabManager?.active?.controller.id.replace(/\s+/g, '-');
+	const tabControllerId = tabManager?.active?.controller.id;
 
 	//initialize lang
 	const defaultLang: Partial<AutocompleteLayoutLang> = {

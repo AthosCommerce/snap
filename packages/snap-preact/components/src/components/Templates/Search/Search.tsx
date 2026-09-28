@@ -284,7 +284,7 @@ export const Search = observer((properties: SearchProps) => {
 	const styling = mergeStyles<SearchProps>(props, defaultStyles);
 
 	// whitespace is not permitted in an id and would split the aria-labelledby id reference list
-	const tabControllerId = controller.id.replace(/\s+/g, '-');
+	const tabControllerId = controller.id;
 
 	return (
 		<CacheProvider>
