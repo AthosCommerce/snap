@@ -64,6 +64,28 @@ describe('Chat Api', () => {
 			});
 		});
 
+		it('does not retry a 429 response with quota limit errorCode CS_002', async () => {
+			const errorBody = { errorCode: 'CS_002', errorMessage: 'Quota limit reached' };
+			requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve(errorBody), headers: new Headers() } as Response));
+
+			const api = new ChatAPI(new ApiConfiguration({ ...apiConfig, maxRetry: 3 }));
+			await expect(
+				api.postMessage({
+					siteId: '8uyt2m',
+					context: { sessionId: 's1' },
+					tracking: baseTracking,
+					data: { requestType: 'general', message: 'hello' },
+				})
+			).rejects.toMatchObject({
+				fetchDetails: { status: 429 },
+				responseBody: { errorCode: 'CS_002' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+		});
+
 		it('rejects with reshaped error when HTTP 400 response', async () => {
 			requestMock = jest.spyOn(global.window, 'fetch').mockImplementation(() =>
 				Promise.resolve({

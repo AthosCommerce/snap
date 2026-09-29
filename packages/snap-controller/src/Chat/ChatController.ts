@@ -928,8 +928,14 @@ export class ChatController extends AbstractController {
 			this.store.currentChat?.setPendingRequest(null);
 			if (err) {
 				if (err.err && err.fetchDetails) {
-					// session limit exceeded — flag the current chat so the UI can show a banner
-					if (err.responseBody?.errorCode === 'CS_003') {
+					if (err.responseBody?.errorCode === 'CS_002') {
+						// exceeded maximum number of session allowed
+						this.store.error = {
+							type: ErrorType.WARNING,
+							message: 'Chat is temporarily unavailable. Please try again later.',
+						};
+					} else if (err.responseBody?.errorCode === 'CS_003') {
+						// session limit exceeded — flag the current chat so the UI can show a banner
 						if (this.store.currentChat) {
 							this.store.currentChat.sessionLimitReached = true;
 						}
