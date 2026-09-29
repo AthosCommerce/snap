@@ -1,11 +1,9 @@
-import { parseContext, JAVASCRIPT_KEYWORDS, LITERAL_VALUES } from './parseContext';
+import { parseContext, findAssignedNames, JAVASCRIPT_KEYWORDS } from './parseContext';
 
 type ContextVariables = {
 	[variable: string]: any;
 };
 
-// string literals (single, double and template quoted) - removed before looking for assignments
-const STRING_LITERALS = /`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"/g;
 // what `new Function` throws for the script itself - anything else means the host refused to evaluate (CSP, Trusted Types)
 const SCRIPT_ERRORS = ['SyntaxError', 'RangeError', 'InternalError'];
 
@@ -69,16 +67,7 @@ export function getContext(evaluate: string[] = [], scriptOrSelector?: HTMLScrip
 	const scriptInnerHTML = script?.innerHTML;
 
 	// find the variables the script assigns, to declare them (so they do not leak into the global scope)
-	const scriptInnerVars = scriptInnerHTML
-		// remove string literals first so that assignments inside strings are not matched
-		.replace(STRING_LITERALS, '')
-		// `==` and `=>` are not assignments
-		.match(/([a-zA-Z_$][a-zA-Z_$0-9]*)\s*=(?![=>])/g)
-		?.map((match) => match.replace(/[\s=]/g, ''))
-		// literal names (e.g. `true =` inside a comment) cannot be declared
-		.filter((name) => !LITERAL_VALUES.has(name));
-
-	const combinedVars = evaluate.concat(scriptInnerVars || []);
+	const combinedVars = evaluate.concat(findAssignedNames(scriptInnerHTML));
 
 	// de-dupe vars
 	const evaluateVars = combinedVars.filter((item, index) => {

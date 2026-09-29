@@ -26,7 +26,21 @@ export const JAVASCRIPT_KEYWORDS = new Set(
 	implements package protected interface private public`.split(/\s+/)
 );
 
-export const LITERAL_VALUES = new Map<string, any>(Object.entries({ true: true, false: false, null: null, undefined: undefined }));
+const LITERAL_VALUES = new Map<string, any>(Object.entries({ true: true, false: false, null: null, undefined: undefined }));
+
+// string literals (single, double and template quoted) - removed before looking for assignments
+const STRING_LITERALS = /`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"/g;
+
+/** The names a script assigns to (`name =`, but not `==` or `=>`), which `getContext` declares when it has to evaluate the script. */
+export function findAssignedNames(script: string): string[] {
+	return (
+		(script.replace(STRING_LITERALS, '').match(/([a-zA-Z_$][a-zA-Z_$0-9]*)\s*=(?![=>])/g) || [])
+			.map((match) => match.replace(/[\s=]/g, ''))
+			// literal names (e.g. `true =` inside a comment) cannot be declared
+			.filter((name) => !LITERAL_VALUES.has(name))
+	);
+}
+
 const ESCAPES = new Map(Object.entries({ n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', v: '\v' }));
 
 // \p{Zl} and \p{Zp} are the U+2028 and U+2029 line terminators

@@ -20,6 +20,18 @@ describe('parseContext', () => {
 		expect(vars).toStrictEqual({ single: 'one', double: 'two' });
 	});
 
+	it('keeps leading and trailing whitespace in strings', () => {
+		const vars = parse(`padded = "  both  "; tabbed = '\\tlead'; trailing = "end ";`);
+		expect(vars).toStrictEqual({ padded: '  both  ', tabbed: '\tlead', trailing: 'end ' });
+	});
+
+	it('skips unicode whitespace between tokens like evaluation would', () => {
+		// no-break space, byte order mark and ideographic space - platform templates emit them
+		const [nbsp, bom, ideographic] = [0xa0, 0xfeff, 0x3000].map((code) => String.fromCharCode(code));
+		const vars = parse(`siteId${nbsp}=${nbsp}'abc';${bom}\nshopper${ideographic}=${ideographic}{ id:${nbsp}"guest" }`);
+		expect(vars).toStrictEqual({ siteId: 'abc', shopper: { id: 'guest' } });
+	});
+
 	it('decodes string escape sequences like evaluation would', () => {
 		const vars = parse(`
 			escapes = "line1\\nline2\\ttabbed \\"quoted\\" \\\\backslash";
@@ -139,6 +151,10 @@ describe('parseContext', () => {
 			third = 'three'
 		`);
 		expect(vars).toStrictEqual({ first: 'one', second: 'two', third: 'three' });
+	});
+
+	it('uses the last assignment when a name is assigned twice', () => {
+		expect(parse(`siteId = 'first'; shopper = {}; siteId = 'second';`)).toStrictEqual({ siteId: 'second', shopper: {} });
 	});
 
 	it('tolerates stray leading semicolons', () => {
