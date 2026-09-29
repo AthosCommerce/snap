@@ -65,7 +65,7 @@ export class API<PathConfigurationType> {
 				}
 				return responseJSON;
 			} else if (response.status == 429) {
-				if (this.retryCount < this.configuration.maxRetry) {
+				if (this.shouldRetry(responseJSON) && this.retryCount < this.configuration.maxRetry) {
 					await new Promise((resolve) => setTimeout(resolve, this.retryDelay)); // delay retry
 					this.retryDelay = fibonacci(this.retryCount) * 1000;
 					this.retryCount++;
@@ -87,6 +87,12 @@ export class API<PathConfigurationType> {
 			// throw an object with fetch details
 			throw { err, fetchDetails: { status: response?.status, message: response?.statusText || 'FAILED', url, ...init }, responseBody: responseJSON };
 		}
+	}
+
+	// hook allowing API subclasses to opt out of retrying a rate limited (429) response by overriding this class method
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	protected shouldRetry(responseJSON: Json): boolean {
+		return true;
 	}
 
 	// hook allowing API subclasses to apply response header data to the parsed response body

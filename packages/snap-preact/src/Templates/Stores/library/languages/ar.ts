@@ -126,6 +126,11 @@ export const ar: LangComponents = {
 				title: 'إغلاق المحادثة',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'شعار الدردشة',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'محادثة جديدة',
@@ -263,6 +268,9 @@ export const ar: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'البحث عن منتجات مشابهة لهذه الصورة:',
 		},
+		attachmentImageName: {
+			value: 'صورة',
+		},
 		topicDriftScopeMessage: {
 			value: 'أنا هنا لمساعدتك في التسوق',
 		},
@@ -313,6 +321,9 @@ export const ar: LangComponents = {
 		dropOverlayText: {
 			value: 'أفلت الصورة لرفعها',
 		},
+		poweredByText: {
+			value: 'مدعوم من Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'مساعد مدعوم بالذكاء الاصطناعي. قد يرتكب أخطاء أحياناً. تجنّب مشاركة البيانات الشخصية.',
 		},
@@ -343,37 +354,37 @@ export const ar: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'إغلاق',
+				'aria-label': (data) => `إغلاق ${data?.title ?? ''}`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'فتح العنصر',
+				'aria-label': (data) => `فتح ${data?.item?.name ?? ''}`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'جارٍ تحميل العنصر',
+				'aria-label': (data) => `جارٍ تحميل ${data?.item?.name ?? ''}`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'إزالة العنصر',
+				'aria-label': (data) => `إزالة ${data?.item?.name ?? ''}`,
 			},
 		},
 		uploadFailedText: {
-			value: 'فشل رفع الملف',
+			value: (data) => `فشل رفع الملف - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'البحث عن هذا المصطلح',
+				'aria-label': (data) => `البحث عن "${data?.searchTerm ?? ''}"`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'فتح المنتج',
+				'aria-label': (data) => `فتح ${data?.productName || 'المنتج'}`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const ar: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'عرض تفاصيل المنتج',
-				title: 'عرض تفاصيل المنتج',
+				'aria-label': (data) => `عرض تفاصيل ${data?.attachment?.name ?? ''}`,
+				title: (data) => `عرض تفاصيل ${data?.attachment?.name ?? ''}`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'فلتر مُطبّق',
-				title: 'فلتر مُطبّق',
+				'aria-label': (data) => (data?.filterOptions?.length ? `فلتر: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `فلتر: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'فلاتر إضافية',
-				title: 'فلاتر إضافية',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} فلاتر إضافية`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} فلاتر أخرى`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const ar: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'عرض تفاصيل المنتج',
+				'aria-label': (data) => `عرض تفاصيل ${data?.productName ?? ''}`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'جارٍ تحميل تفاصيل المنتج...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'عرض سريع',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'إغلاق العرض السريع',
+			},
 		},
 		backToComparisonButton: {
 			value: 'الرجوع إلى المقارنة',
@@ -498,30 +519,14 @@ export const ar: LangComponents = {
 		addToCartButton: {
 			value: 'إضافة إلى السلة',
 		},
+		moreInfoButton: {
+			value: 'مزيد من المعلومات',
+		},
 		similarButton: {
 			value: 'منتجات مشابهة',
 		},
 		discussButton: {
 			value: 'ناقش',
-		},
-		inStockText: {
-			value: 'متوفر',
-		},
-		outOfStockText: {
-			value: 'غير متوفر',
-		},
-		unavailableText: {
-			value: 'غير متاح',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'اختيار المتغيرات',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'معلومات المنتج',
-			},
 		},
 	},
 	chatResult: {
@@ -991,6 +996,12 @@ export const ar: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'مزيد من المعلومات',
+		},
+		similarButton: {
+			value: 'منتجات مشابهة',
+		},
+		discussButton: {
+			value: 'ناقش',
 		},
 		loadingText: {
 			value: 'جارٍ التحميل…',

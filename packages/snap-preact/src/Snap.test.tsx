@@ -1697,6 +1697,66 @@ describe('Snap Preact', () => {
 			expect(search.quickviewManager).toBeUndefined();
 		});
 
+		it('creates a chat quickview manager whenever chat controllers are configured', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
+				...baseConfig,
+				controllers: {
+					chat: [{ config: { id: 'chat' } }],
+				},
+			});
+
+			// no quickview config — the chat manager exists anyway (chat renders the quickview
+			// inline in its secondary window and needs no component target), while the
+			// body-modal manager does not
+			expect(snap['quickviewManager']).toBeUndefined();
+			expect(snap['chatQuickviewManager']).toBeDefined();
+
+			const chat = await snap.getController('chat');
+			expect(chat.quickviewManager).toBe(snap['chatQuickviewManager']);
+		});
+
+		it('leaves non-chat controllers without a manager when only chat is configured', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
+				...baseConfig,
+				controllers: {
+					search: [{ config: { id: 'search' } }],
+					chat: [{ config: { id: 'chat' } }],
+				},
+			});
+
+			const search = await snap.getController('search');
+			expect(search.quickviewManager).toBeUndefined();
+
+			const chat = await snap.getController('chat');
+			expect(chat.quickviewManager).toBe(snap['chatQuickviewManager']);
+		});
+
+		it('gives chat its own manager with inherited settings when a quickview config exists', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
+				...baseConfig,
+				quickview: { config: { id: 'quickview', settings: { imagesField: 'gallery' } } },
+				controllers: {
+					search: [{ config: { id: 'search' } }],
+					chat: [{ config: { id: 'chat' } }],
+				},
+			});
+
+			const search = await snap.getController('search');
+			const chat = await snap.getController('chat');
+
+			// chat's manager owns a separate store so opening the chat panel can't open the body modal
+			expect(search.quickviewManager).toBe(snap['quickviewManager']);
+			expect(chat.quickviewManager).toBe(snap['chatQuickviewManager']);
+			expect(chat.quickviewManager).not.toBe(snap['quickviewManager']);
+			expect(chat.quickviewManager!.store).not.toBe(snap['quickviewManager']!.store);
+
+			// settings inherit from the quickview config
+			expect(snap['chatQuickviewManager']!.config.settings?.imagesField).toBe('gallery');
+		});
+
 		it('renders a targeted component with the manager', async () => {
 			const baseConfig = generateBaseConfig();
 

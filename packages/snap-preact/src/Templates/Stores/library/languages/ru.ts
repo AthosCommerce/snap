@@ -128,6 +128,11 @@ export const ru: LangComponents = {
 				title: 'Закрыть чат',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Логотип чата',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Новый чат',
@@ -265,6 +270,9 @@ export const ru: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Найти товары, похожие на это изображение:',
 		},
+		attachmentImageName: {
+			value: 'Изображение',
+		},
 		topicDriftScopeMessage: {
 			value: 'Я здесь, чтобы помочь вам с покупками',
 		},
@@ -315,6 +323,9 @@ export const ru: LangComponents = {
 		dropOverlayText: {
 			value: 'Отпустите изображение, чтобы загрузить',
 		},
+		poweredByText: {
+			value: 'Работает на Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'Помощник на основе ИИ. Может допускать ошибки. Не делитесь личными данными.',
 		},
@@ -345,37 +356,37 @@ export const ru: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Закрыть',
+				'aria-label': (data) => `Закрыть ${data?.title ?? ''}`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Открыть элемент',
+				'aria-label': (data) => `Открыть ${data?.item?.name ?? ''}`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Загрузка элемента',
+				'aria-label': (data) => `Загрузка ${data?.item?.name ?? ''}`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Удалить элемент',
+				'aria-label': (data) => `Удалить ${data?.item?.name ?? ''}`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Не удалось загрузить файл',
+			value: (data) => `Не удалось загрузить файл - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Искать этот запрос',
+				'aria-label': (data) => `Искать «${data?.searchTerm ?? ''}»`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Открыть товар',
+				'aria-label': (data) => `Открыть ${data?.productName || 'товар'}`,
 			},
 		},
 	},
@@ -446,20 +457,20 @@ export const ru: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Посмотреть детали товара',
-				title: 'Посмотреть детали товара',
+				'aria-label': (data) => `Посмотреть детали ${data?.attachment?.name ?? ''}`,
+				title: (data) => `Посмотреть детали ${data?.attachment?.name ?? ''}`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Применённый фильтр',
-				title: 'Применённый фильтр',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Фильтр: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Фильтр: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Дополнительные фильтры',
-				title: 'Дополнительные фильтры',
+				'aria-label': (data) => `Дополнительных фильтров: ${data?.hiddenFacetCount ?? 0}`,
+				title: (data) => `Ещё фильтров: ${data?.hiddenFacetCount ?? 0}`,
 			},
 		},
 	},
@@ -477,13 +488,23 @@ export const ru: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Посмотреть детали товара',
+				'aria-label': (data) => `Посмотреть детали ${data?.productName ?? ''}`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Загрузка деталей товара...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Быстрый просмотр',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Закрыть быстрый просмотр',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Вернуться к сравнению',
@@ -500,30 +521,14 @@ export const ru: LangComponents = {
 		addToCartButton: {
 			value: 'Добавить в корзину',
 		},
+		moreInfoButton: {
+			value: 'Подробнее',
+		},
 		similarButton: {
 			value: 'Похожие',
 		},
 		discussButton: {
 			value: 'Обсудить',
-		},
-		inStockText: {
-			value: 'В наличии',
-		},
-		outOfStockText: {
-			value: 'Нет в наличии',
-		},
-		unavailableText: {
-			value: 'недоступно',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Выбор вариантов',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Информация о товаре',
-			},
 		},
 	},
 	chatResult: {
@@ -994,6 +999,12 @@ export const ru: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'Подробнее',
+		},
+		similarButton: {
+			value: 'Похожие',
+		},
+		discussButton: {
+			value: 'Обсудить',
 		},
 		loadingText: {
 			value: 'Загрузка…',

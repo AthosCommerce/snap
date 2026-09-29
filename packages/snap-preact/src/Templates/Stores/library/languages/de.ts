@@ -126,6 +126,11 @@ export const de: LangComponents = {
 				title: 'Chat schließen',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Chat-Logo',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Neuer Chat',
@@ -264,6 +269,9 @@ export const de: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Produkte finden, die diesem Bild ähneln:',
 		},
+		attachmentImageName: {
+			value: 'Bild',
+		},
 		topicDriftScopeMessage: {
 			value: 'Ich bin hier, um Ihnen beim Einkaufen zu helfen',
 		},
@@ -314,6 +322,9 @@ export const de: LangComponents = {
 		dropOverlayText: {
 			value: 'Bild zum Hochladen hier ablegen',
 		},
+		poweredByText: {
+			value: 'Bereitgestellt von Athos Commerce.',
+		},
 		disclaimerText: {
 			value: 'KI-gestützter Assistent. Er macht manchmal Fehler. Vermeiden Sie die Weitergabe persönlicher Daten.',
 		},
@@ -344,37 +355,37 @@ export const de: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Schließen',
+				'aria-label': (data) => `${data?.title ?? ''} schließen`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Element öffnen',
+				'aria-label': (data) => `${data?.item?.name ?? ''} öffnen`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Element wird geladen',
+				'aria-label': (data) => `${data?.item?.name ?? ''} wird geladen`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Element entfernen',
+				'aria-label': (data) => `${data?.item?.name ?? ''} entfernen`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Hochladen fehlgeschlagen',
+			value: (data) => `Hochladen fehlgeschlagen - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Nach diesem Begriff suchen',
+				'aria-label': (data) => `Nach „${data?.searchTerm ?? ''}“ suchen`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Produkt öffnen',
+				'aria-label': (data) => `${data?.productName || 'Produkt'} öffnen`,
 			},
 		},
 	},
@@ -445,20 +456,20 @@ export const de: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Produktdetails anzeigen',
-				title: 'Produktdetails anzeigen',
+				'aria-label': (data) => `Details zu ${data?.attachment?.name ?? ''} anzeigen`,
+				title: (data) => `Details zu ${data?.attachment?.name ?? ''} anzeigen`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Angewendeter Filter',
-				title: 'Angewendeter Filter',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Filter: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Filter: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Weitere Filter',
-				title: 'Weitere Filter',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} zusätzliche Filter`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} weitere Filter`,
 			},
 		},
 	},
@@ -476,13 +487,23 @@ export const de: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Produktdetails anzeigen',
+				'aria-label': (data) => `Details zu ${data?.productName ?? ''} anzeigen`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Produktdetails werden geladen...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Schnellansicht',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Schnellansicht schließen',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Zurück zum Vergleich',
@@ -499,30 +520,14 @@ export const de: LangComponents = {
 		addToCartButton: {
 			value: 'In den Warenkorb legen',
 		},
+		moreInfoButton: {
+			value: 'Weitere Informationen',
+		},
 		similarButton: {
 			value: 'Ähnliche',
 		},
 		discussButton: {
 			value: 'Besprechen',
-		},
-		inStockText: {
-			value: 'Auf Lager',
-		},
-		outOfStockText: {
-			value: 'Ausverkauft',
-		},
-		unavailableText: {
-			value: 'nicht verfügbar',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Variantenauswahl',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Produktinformationen',
-			},
 		},
 	},
 	chatResult: {
@@ -994,6 +999,12 @@ export const de: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'Weitere Informationen',
+		},
+		similarButton: {
+			value: 'Ähnliche',
+		},
+		discussButton: {
+			value: 'Besprechen',
 		},
 		loadingText: {
 			value: 'Wird geladen…',

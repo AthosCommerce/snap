@@ -126,6 +126,11 @@ export const ja: LangComponents = {
 				title: 'チャットを閉じる',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'チャットのロゴ',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': '新しいチャット',
@@ -263,6 +268,9 @@ export const ja: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'この画像に似た商品を検索：',
 		},
+		attachmentImageName: {
+			value: '画像',
+		},
 		topicDriftScopeMessage: {
 			value: 'お買い物のお手伝いをします',
 		},
@@ -313,6 +321,9 @@ export const ja: LangComponents = {
 		dropOverlayText: {
 			value: '画像をドロップしてアップロード',
 		},
+		poweredByText: {
+			value: 'Athos Commerce 提供。',
+		},
 		disclaimerText: {
 			value: 'AIアシスタントです。誤った回答をすることがあります。個人情報の共有はお控えください。',
 		},
@@ -343,37 +354,37 @@ export const ja: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': '閉じる',
+				'aria-label': (data) => `${data?.title ?? ''}を閉じる`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'アイテムを開く',
+				'aria-label': (data) => `${data?.item?.name ?? ''}を開く`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'アイテムを読み込み中',
+				'aria-label': (data) => `${data?.item?.name ?? ''}を読み込み中`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'アイテムを削除',
+				'aria-label': (data) => `${data?.item?.name ?? ''}を削除`,
 			},
 		},
 		uploadFailedText: {
-			value: 'ファイルのアップロードに失敗しました',
+			value: (data) => `ファイルのアップロードに失敗しました - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'この語句で検索',
+				'aria-label': (data) => `「${data?.searchTerm ?? ''}」で検索`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': '商品を開く',
+				'aria-label': (data) => `${data?.productName || '商品'}を開く`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const ja: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': '商品の詳細を表示',
-				title: '商品の詳細を表示',
+				'aria-label': (data) => `${data?.attachment?.name ?? ''}の詳細を表示`,
+				title: (data) => `${data?.attachment?.name ?? ''}の詳細を表示`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': '適用中のフィルター',
-				title: '適用中のフィルター',
+				'aria-label': (data) => (data?.filterOptions?.length ? `フィルター: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `フィルター: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'その他のフィルター',
-				title: 'その他のフィルター',
+				'aria-label': (data) => `その他${data?.hiddenFacetCount ?? 0}件のフィルター`,
+				title: (data) => `他${data?.hiddenFacetCount ?? 0}件のフィルター`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const ja: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': '商品の詳細を表示',
+				'aria-label': (data) => `${data?.productName ?? ''}の詳細を表示`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: '商品の詳細を読み込み中...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'クイックビュー',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'クイックビューを閉じる',
+			},
 		},
 		backToComparisonButton: {
 			value: '比較に戻る',
@@ -498,30 +519,14 @@ export const ja: LangComponents = {
 		addToCartButton: {
 			value: 'カートに追加',
 		},
+		moreInfoButton: {
+			value: '詳細情報',
+		},
 		similarButton: {
 			value: '類似商品',
 		},
 		discussButton: {
 			value: '相談する',
-		},
-		inStockText: {
-			value: '在庫あり',
-		},
-		outOfStockText: {
-			value: '在庫切れ',
-		},
-		unavailableText: {
-			value: '利用不可',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'バリエーションの選択',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': '商品情報',
-			},
 		},
 	},
 	chatResult: {
@@ -992,6 +997,12 @@ export const ja: LangComponents = {
 		},
 		moreInfoButton: {
 			value: '詳細情報',
+		},
+		similarButton: {
+			value: '類似商品',
+		},
+		discussButton: {
+			value: '相談する',
 		},
 		loadingText: {
 			value: '読み込み中…',

@@ -6,6 +6,7 @@ export interface ChatLang {
 	openChatButton: Lang<never>;
 	closeChatButton: Lang<never>;
 	// primary header
+	headerLogo: Lang<never>;
 	newChatButton: Lang<never>;
 	chatHistoryButton: Lang<never>;
 	historyTitle: Lang<never>;
@@ -52,6 +53,7 @@ export interface ChatLang {
 	attachmentCompareTitle: Lang<never>;
 	attachmentAskProductTitle: Lang<never>;
 	attachmentImageSimilarTitle: Lang<never>;
+	attachmentImageName: Lang<never>;
 	// topic drift
 	topicDriftScopeMessage: Lang<never>;
 	topicDriftScopeSubMessage: Lang<never>;
@@ -68,6 +70,7 @@ export interface ChatLang {
 	uploadImageButton: Lang<never>;
 	sendMessageButton: Lang<never>;
 	dropOverlayText: Lang<never>;
+	poweredByText: Lang<never>;
 	disclaimerText: Lang<never>;
 	privacyPolicyLinkText: Lang<never>;
 	// expired chat
@@ -80,6 +83,9 @@ export const chatDefaultLang: Partial<ChatLang> = {
 	},
 	closeChatButton: {
 		attributes: { 'aria-label': 'Close chat', title: 'Close Chat' },
+	},
+	headerLogo: {
+		attributes: { alt: 'Chat logo' },
 	},
 	newChatButton: {
 		attributes: { 'aria-label': 'New chat', title: 'New Chat' },
@@ -140,6 +146,7 @@ export const chatDefaultLang: Partial<ChatLang> = {
 	attachmentCompareTitle: { value: 'Compare these products' },
 	attachmentAskProductTitle: { value: 'Ask about this product' },
 	attachmentImageSimilarTitle: { value: 'Find products similar to this image:' },
+	attachmentImageName: { value: 'Image' },
 	topicDriftScopeMessage: { value: "I'm here to help with shopping" },
 	topicDriftScopeSubMessage: { value: 'Try asking about products, comparisons, or recommendations' },
 	topicDriftMessage: { value: 'Looking for something new?' },
@@ -160,6 +167,7 @@ export const chatDefaultLang: Partial<ChatLang> = {
 		attributes: { 'aria-label': 'Send Message', title: 'Send Message' },
 	},
 	dropOverlayText: { value: 'Drop image to upload' },
+	poweredByText: { value: 'Powered by Athos Commerce.' },
 	disclaimerText: { value: 'AI-powered assistant. It sometimes makes mistakes. Avoid sharing personal data.' },
 	privacyPolicyLinkText: { value: 'Privacy Policy' },
 	expiredMessage: { value: 'This chat is expired. Please start a new chat.' },

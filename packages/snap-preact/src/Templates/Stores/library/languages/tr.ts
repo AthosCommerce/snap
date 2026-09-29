@@ -126,6 +126,11 @@ export const tr: LangComponents = {
 				title: 'Sohbeti kapat',
 			},
 		},
+		headerLogo: {
+			attributes: {
+				alt: 'Sohbet logosu',
+			},
+		},
 		newChatButton: {
 			attributes: {
 				'aria-label': 'Yeni sohbet',
@@ -263,6 +268,9 @@ export const tr: LangComponents = {
 		attachmentImageSimilarTitle: {
 			value: 'Bu görsele benzer ürünleri ara:',
 		},
+		attachmentImageName: {
+			value: 'Görsel',
+		},
 		topicDriftScopeMessage: {
 			value: 'Alışverişinizde size yardımcı olmak için buradayım',
 		},
@@ -313,6 +321,9 @@ export const tr: LangComponents = {
 		dropOverlayText: {
 			value: 'Yüklemek için görseli bırakın',
 		},
+		poweredByText: {
+			value: 'Athos Commerce tarafından desteklenmektedir.',
+		},
 		disclaimerText: {
 			value: 'Yapay zekâ destekli asistan. Bazen hata yapabilir. Kişisel verilerinizi paylaşmaktan kaçının.',
 		},
@@ -343,37 +354,37 @@ export const tr: LangComponents = {
 	chatAttachmentContext: {
 		closeButton: {
 			attributes: {
-				'aria-label': 'Kapat',
+				'aria-label': (data) => `${data?.title ?? ''} kapat`,
 			},
 		},
 		openItemButton: {
 			attributes: {
-				'aria-label': 'Öğeyi aç',
+				'aria-label': (data) => `${data?.item?.name ?? ''} öğesini aç`,
 			},
 		},
 		loadingIndicator: {
 			attributes: {
-				'aria-label': 'Öğe yükleniyor',
+				'aria-label': (data) => `${data?.item?.name ?? ''} yükleniyor`,
 			},
 		},
 		removeButton: {
 			attributes: {
-				'aria-label': 'Öğeyi kaldır',
+				'aria-label': (data) => `${data?.item?.name ?? ''} öğesini kaldır`,
 			},
 		},
 		uploadFailedText: {
-			value: 'Dosya yüklenemedi',
+			value: (data) => `Dosya yüklenemedi - ${data?.item?.name ?? ''}`,
 		},
 	},
 	chatInspirationResultMessage: {
 		searchQueryButton: {
 			attributes: {
-				'aria-label': 'Bu terimi ara',
+				'aria-label': (data) => `"${data?.searchTerm ?? ''}" ara`,
 			},
 		},
 		openProductButton: {
 			attributes: {
-				'aria-label': 'Ürünü aç',
+				'aria-label': (data) => `${data?.productName || 'Ürün'} öğesini aç`,
 			},
 		},
 	},
@@ -444,20 +455,20 @@ export const tr: LangComponents = {
 		},
 		productAttachmentButton: {
 			attributes: {
-				'aria-label': 'Ürün ayrıntılarını görüntüle',
-				title: 'Ürün ayrıntılarını görüntüle',
+				'aria-label': (data) => `${data?.attachment?.name ?? ''} ayrıntılarını görüntüle`,
+				title: (data) => `${data?.attachment?.name ?? ''} ayrıntılarını görüntüle`,
 			},
 		},
 		facetAttachment: {
 			attributes: {
-				'aria-label': 'Uygulanan filtre',
-				title: 'Uygulanan filtre',
+				'aria-label': (data) => (data?.filterOptions?.length ? `Filtre: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
+				title: (data) => (data?.filterOptions?.length ? `Filtre: ${data.filterOptions[0].facetKey} = ${data.filterOptions[0].label}` : ''),
 			},
 		},
 		facetOverflow: {
 			attributes: {
-				'aria-label': 'Ek filtreler',
-				title: 'Ek filtreler',
+				'aria-label': (data) => `${data?.hiddenFacetCount ?? 0} ek filtre`,
+				title: (data) => `${data?.hiddenFacetCount ?? 0} filtre daha`,
 			},
 		},
 	},
@@ -475,13 +486,23 @@ export const tr: LangComponents = {
 		},
 		viewProductButton: {
 			attributes: {
-				'aria-label': 'Ürün ayrıntılarını görüntüle',
+				'aria-label': (data) => `${data?.productName ?? ''} ayrıntılarını görüntüle`,
 			},
 		},
 	},
 	chatProductQueryMessage: {
 		loadingText: {
 			value: 'Ürün ayrıntıları yükleniyor...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Hızlı bakış',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Hızlı bakışı kapat',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Karşılaştırmaya geri dön',
@@ -498,30 +519,14 @@ export const tr: LangComponents = {
 		addToCartButton: {
 			value: 'Sepete ekle',
 		},
+		moreInfoButton: {
+			value: 'Daha fazla bilgi',
+		},
 		similarButton: {
 			value: 'Benzerler',
 		},
 		discussButton: {
 			value: 'Sohbet et',
-		},
-		inStockText: {
-			value: 'Stokta',
-		},
-		outOfStockText: {
-			value: 'Stokta yok',
-		},
-		unavailableText: {
-			value: 'kullanılamıyor',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Varyant seçimi',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Ürün bilgileri',
-			},
 		},
 	},
 	chatResult: {
@@ -992,6 +997,12 @@ export const tr: LangComponents = {
 		},
 		moreInfoButton: {
 			value: 'Daha fazla bilgi',
+		},
+		similarButton: {
+			value: 'Benzerler',
+		},
+		discussButton: {
+			value: 'Sohbet et',
 		},
 		loadingText: {
 			value: 'Yükleniyor…',
