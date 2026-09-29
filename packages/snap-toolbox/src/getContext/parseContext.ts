@@ -16,8 +16,8 @@
  *
  * The one rule that matters: whenever this parser succeeds, its result must equal what evaluating the script would
  * produce. Anything it does not understand (functions, expressions, member access, template literals, references to
- * other variables, less common literal forms) throws a ParseError so the caller falls back to evaluation. When in
- * doubt, throw. `parseContext.fuzz.test.ts` checks this equivalence against `new Function`.
+ * other variables, less common literal forms) throws so the caller falls back to evaluation - there is
+ * no partial result. When in doubt, throw. `parseContext.fuzz.test.ts` checks this equivalence against `new Function`.
  */
 
 export const JAVASCRIPT_KEYWORDS = new Set(
@@ -26,7 +26,7 @@ export const JAVASCRIPT_KEYWORDS = new Set(
 	implements package protected interface private public`.split(/\s+/)
 );
 
-const LITERAL_VALUES = new Map<string, any>(Object.entries({ true: true, false: false, null: null, undefined: undefined }));
+export const LITERAL_VALUES = new Map<string, any>(Object.entries({ true: true, false: false, null: null, undefined: undefined }));
 const ESCAPES = new Map(Object.entries({ n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', v: '\v' }));
 
 // \p{Zl} and \p{Zp} are the U+2028 and U+2029 line terminators
@@ -38,47 +38,29 @@ const ASSIGNMENT_START = /[A-Za-z_$][\w$]*\s*=(?!=)/y;
 const DECIMAL = /\d+(\.\d+)?/y;
 const HEX4 = /[0-9a-fA-F]{4}/y;
 
-export type ParseContextResult = { success: true; variables: Map<string, any> } | { success: false };
+export type ParseContextResult = { success: true; variables: Map<string, any> } | { success: false; reason: string };
 
-/** Parses a context script, returning `{ success: false }` if any part of it is unsupported. */
+/** Parses a context script; `reason` says what (and on which line) could not be read when any part of it is unsupported. */
 export function parseContext(script: string): ParseContextResult {
 	try {
 		return { success: true, variables: new ContextParser(script).parseScript() };
-	} catch (_err) {
+	} catch (err) {
 		// unsupported syntax, or anything unexpected (e.g. a stack overflow on absurd nesting): fall back to evaluation
-		return { success: false };
+		return { success: false, reason: (err as Error)?.message ?? String(err) };
 	}
 }
-
-/** Lenient variant used for salvage when evaluation is blocked: keeps the assignments it can parse, skips the rest. */
-export function parseContextStatements(script: string): Map<string, any> {
-	try {
-		return new ContextParser(script).parseScript({ lenient: true });
-	} catch (_err) {
-		return new Map();
-	}
-}
-
-class ParseError extends Error {}
 
 class ContextParser {
 	private pos = 0;
 
 	constructor(private readonly src: string) {}
 
-	parseScript({ lenient = false } = {}): Map<string, any> {
+	parseScript(): Map<string, any> {
 		const variables = new Map<string, any>();
 		for (this.skipTrivia(); !this.atEnd(); this.skipTrivia()) {
 			if (this.tryConsume(';')) continue;
-			const start = this.pos;
-			try {
-				const [name, value] = this.parseStatement();
-				variables.set(name, value);
-			} catch (err) {
-				if (!lenient || !(err instanceof ParseError)) throw err;
-				if (this.pos === start) this.pos++; // guarantee progress
-				this.skipToNextStatement();
-			}
+			const [name, value] = this.parseStatement();
+			variables.set(name, value);
 		}
 		return variables;
 	}
@@ -192,28 +174,6 @@ class ContextParser {
 		return ASSIGNMENT_START.test(this.src);
 	}
 
-	/**
-	 * Lenient recovery: skips the rest of an unsupported statement, up to a ';' outside any brackets or a new line that
-	 * starts another assignment. Strings are skipped whole so their contents cannot end the statement early.
-	 */
-	private skipToNextStatement(): void {
-		for (let depth = 0; !this.atEnd(); ) {
-			if (this.skipTrivia() && depth === 0 && this.atAssignmentStart()) return;
-			const ch = this.next();
-			if (ch === '"' || ch === "'" || ch === '`') this.skipString(ch);
-			else if ('([{'.includes(ch)) depth++;
-			else if (')]}'.includes(ch)) depth = Math.max(0, depth - 1);
-			else if (ch === ';' && depth === 0) return;
-		}
-	}
-
-	private skipString(quote: string): void {
-		for (let ch = this.next(); ch !== '' && ch !== quote; ch = this.next()) {
-			if (ch === '\\') this.pos++;
-			else if (quote !== '`' && (ch === '\n' || ch === '\r')) return;
-		}
-	}
-
 	private atEnd(): boolean {
 		return this.pos >= this.src.length;
 	}
@@ -243,6 +203,7 @@ class ContextParser {
 	}
 
 	private fail(message: string): never {
-		throw new ParseError(`${message} at position ${this.pos}`);
+		const line = (this.src.slice(0, this.pos).match(/\r\n|[\n\r\p{Zl}\p{Zp}]/gu) || []).length + 1;
+		throw new Error(`${message} (line ${line})`);
 	}
 }

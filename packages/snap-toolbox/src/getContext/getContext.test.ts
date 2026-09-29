@@ -476,11 +476,11 @@ describe('variable name parsing', () => {
 	});
 });
 
-describe('variable name parsing ignores comments', () => {
-	it('does not declare names found in comments when evaluating', () => {
+describe('variable name parsing tolerates comments', () => {
+	it('does not declare literal names found in comments when evaluating', () => {
 		const scriptTag = document.createElement('script');
 		scriptTag.setAttribute('type', 'athos');
-		// the function forces the evaluation path; the comments contain `word =` patterns, including a literal keyword
+		// the function forces the evaluation path; the comments contain `word =` patterns with literal names, which cannot be declared
 		scriptTag.innerHTML = `
 			// when true = the shopper is logged in
 			/* null = nothing; see https://example.com/docs */
@@ -614,7 +614,7 @@ describe('behavior under a CSP that blocks unsafe-eval', () => {
 		});
 	});
 
-	it('salvages declarative variables when the script also contains unsupported code', () => {
+	it('reads nothing from a script that also contains unsupported code, and says what and where', () => {
 		const scriptTag = document.createElement('script');
 		scriptTag.setAttribute('type', 'athos');
 		scriptTag.innerHTML = `
@@ -626,35 +626,96 @@ describe('behavior under a CSP that blocks unsafe-eval', () => {
 		const consoleError = jest.spyOn(console, 'error').mockImplementation();
 
 		const vars = getContext(['siteId', 'func', 'shopper'], scriptTag);
-		expect(vars).toStrictEqual({
-			siteId: 'abc123',
-			shopper: { id: 'snapdev' },
-		});
-		expect(vars.func).toBeUndefined();
+		expect(vars).toStrictEqual({});
 
-		// logs the CSP hint and the per-variable evaluation error for the unsalvageable variable
-		expect(consoleError.mock.calls.some((call) => String(call[0]).includes('Content Security Policy'))).toBe(true);
-		expect(consoleError).toHaveBeenCalledWith(`getContext: error evaluating 'func'`);
+		// a single error naming the unsupported statement - no per-variable errors
+		expect(consoleError).toHaveBeenCalledTimes(1);
+		expect(consoleError.mock.calls[0][0]).toContain(`Content Security Policy ('unsafe-eval') or Trusted Types policy blocks evaluation`);
+		expect(consoleError.mock.calls[0][0]).toContain(`unexpected '(' (line 3)`);
 
 		consoleError.mockRestore();
 	});
 
-	it('does not log errors for requested variables that the script never assigns', () => {
+	it('attempts evaluation once per call - every blocked attempt is a separate CSP violation', () => {
 		const scriptTag = document.createElement('script');
 		scriptTag.setAttribute('type', 'athos');
 		scriptTag.innerHTML = `
 			siteId = 'abc123';
 			func = () => 'returned value';
+			shopper = { id: 'snapdev' };
 		`;
+		jest.spyOn(console, 'error').mockImplementation();
 
+		getContext(['siteId', 'func', 'shopper'], scriptTag);
+		expect(functionSpy).toHaveBeenCalledTimes(1);
+
+		jest.mocked(console.error).mockRestore();
+	});
+
+	it('still takes the siteId from the script src and reads script attributes', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('src', 'https://snapui.athoscommerce.io/abc123/bundle.js');
+		scriptTag.setAttribute('id', 'athos-context');
+		scriptTag.setAttribute('branch', 'production');
+		scriptTag.innerHTML = `
+			shopper = { id: 'snapdev' };
+			func = () => 'returned value';
+		`;
+		jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['siteId', 'shopper', 'func', 'branch'], scriptTag);
+		expect(vars).toStrictEqual({ siteId: 'abc123', branch: 'production' });
+
+		jest.mocked(console.error).mockRestore();
+	});
+});
+
+describe('evaluation fallback', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('declares names assigned after a regular expression containing //', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `re = /^https?:\\/\\//; utils = utils || {}; siteId = 'abc123';`;
 		const consoleError = jest.spyOn(console, 'error').mockImplementation();
 
-		const vars = getContext(['siteId', 'shopper', 'merchandising'], scriptTag);
+		const vars = getContext(['siteId'], scriptTag);
 		expect(vars).toStrictEqual({ siteId: 'abc123' });
+		expect(consoleError).not.toHaveBeenCalled();
+		expect(window).not.toHaveProperty('utils');
+	});
 
-		// only the CSP hint - an unassigned variable evaluates to undefined without error, so no per-variable error is logged
-		expect(consoleError.mock.calls.filter((call) => String(call[0]).includes('error evaluating'))).toHaveLength(0);
+	it('does not declare null, or globals that are only compared with ==', () => {
+		(window as any).Shopify = { formatMoney: (value: number) => `$${value}` };
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `
+			shopper = { id: 'snapdev' };
+			fmt = function (e) { return null == e ? '' : String(e); };
+			format = function (value) { return typeof Shopify == 'undefined' ? String(value) : Shopify.formatMoney(value); };
+		`;
 
-		consoleError.mockRestore();
+		try {
+			const vars = getContext(['shopper', 'fmt', 'format'], scriptTag);
+			expect(vars.shopper).toEqual({ id: 'snapdev' });
+			expect(vars.fmt(null)).toBe('');
+			expect(vars.format(5)).toBe('$5');
+		} finally {
+			delete (window as any).Shopify;
+		}
+	});
+
+	it('leaves requested keywords out of the declared names', () => {
+		const scriptTag = document.createElement('script');
+		scriptTag.setAttribute('type', 'athos');
+		scriptTag.innerHTML = `func = () => 'returned value';`;
+		const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+		const vars = getContext(['class', 'func'], scriptTag);
+		expect(vars.func()).toBe('returned value');
+		expect(consoleError).toHaveBeenCalledTimes(1);
+		expect(consoleError).toHaveBeenCalledWith("getContext: JavaScript keyword found: 'class'! Please use a different variable name.");
 	});
 });

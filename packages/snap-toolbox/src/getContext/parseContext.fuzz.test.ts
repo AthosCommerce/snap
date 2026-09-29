@@ -1,4 +1,4 @@
-import { parseContext, parseContextStatements, JAVASCRIPT_KEYWORDS } from './parseContext';
+import { parseContext, JAVASCRIPT_KEYWORDS, LITERAL_VALUES } from './parseContext';
 
 /**
  * Differential test: whenever the static parser claims success, evaluating the same script the way
@@ -11,17 +11,18 @@ import { parseContext, parseContextStatements, JAVASCRIPT_KEYWORDS } from './par
 const ITERATIONS = Number(process.env.FUZZ_ITERATIONS) || 1500;
 const SEED = Number(process.env.FUZZ_SEED) || 1;
 
-// must stay identical to `STRINGS_AND_COMMENTS` in getContext.ts
-const STRINGS_AND_COMMENTS = /`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"|\/\*[\s\S]*?\*\/|\/\/[^\n\r\u2028\u2029]*/g;
+// must stay identical to `STRING_LITERALS` in getContext.ts
+const STRING_LITERALS = /`(?:\\[\s\S]|[^`\\])*`|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"/g;
 
 type Evaluated = { syntaxError?: string; values: Record<string, any> };
 
 // mirrors the evaluation branch of getContext: caller names + regex-detected names, de-duped, keywords dropped
 function evaluateLikeGetContext(script: string, requested: string[]): Evaluated {
 	const detected = script
-		.replace(STRINGS_AND_COMMENTS, '')
-		.match(/([a-zA-Z_$][a-zA-Z_$0-9]*)\s*=/g)
-		?.map((match) => match.replace(/[\s=]/g, ''));
+		.replace(STRING_LITERALS, '')
+		.match(/([a-zA-Z_$][a-zA-Z_$0-9]*)\s*=(?![=>])/g)
+		?.map((match) => match.replace(/[\s=]/g, ''))
+		.filter((name) => !LITERAL_VALUES.has(name));
 	const combined = requested.concat(detected || []);
 	const evaluateVars = combined.filter((item, index) => combined.indexOf(item) === index && !JAVASCRIPT_KEYWORDS.has(item));
 
@@ -230,7 +231,6 @@ function mutate(script: string): string {
 
 function expectEquivalence(script: string): void {
 	const parsed = parseContext(script);
-	const salvaged = parseContextStatements(script); // must never throw either
 	if (!parsed.success) return;
 
 	const names = Array.from(parsed.variables.keys());
@@ -245,9 +245,6 @@ function expectEquivalence(script: string): void {
 	});
 	// eslint-disable-next-line jest/no-standalone-expect
 	expect({ script, values: canonical(parsedValues) }).toStrictEqual({ script, values: canonical(evaluated.values) });
-	// the lenient variant must agree with the strict one on a fully parsable script
-	// eslint-disable-next-line jest/no-standalone-expect
-	expect(canonical(Object.fromEntries(salvaged))).toBe(canonical(Object.fromEntries(parsed.variables)));
 }
 
 describe(`parseContext equivalence with evaluation (seed ${SEED}, ${ITERATIONS} iterations per phase)`, () => {

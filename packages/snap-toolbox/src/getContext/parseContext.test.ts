@@ -1,4 +1,4 @@
-import { parseContext, parseContextStatements } from './parseContext';
+import { parseContext } from './parseContext';
 
 const parse = (input: string): { [key: string]: any } => {
 	const result = parseContext(input);
@@ -245,7 +245,11 @@ describe('parseContext', () => {
 		const depth = 100000;
 		const script = `value = ${'['.repeat(depth)}${']'.repeat(depth)};`;
 		expect(parseContext(script).success).toBe(false);
-		expect(parseContextStatements(script).size).toBe(0);
+	});
+
+	it('says what could not be read, and on which line', () => {
+		expect(parseContext(`siteId = 'abc123';\nfunc = () => 'returned value';`)).toStrictEqual({ success: false, reason: "unexpected '(' (line 2)" });
+		expect(parseContext(`shopper = window.customer;`)).toStrictEqual({ success: false, reason: "unsupported value 'window' (line 1)" });
 	});
 
 	it('fails on unterminated strings and syntax errors', () => {
@@ -253,38 +257,5 @@ describe('parseContext', () => {
 		expect(parseContext(`value = 'multi\nline';`).success).toBe(false);
 		expect(parseContext(`invalid = syntax error;`).success).toBe(false);
 		expect(parseContext(`value = { broken: ;`).success).toBe(false);
-	});
-});
-
-describe('parseContextStatements', () => {
-	it('salvages parsable assignments from a script with unsupported code', () => {
-		const vars = parseContextStatements(`
-			siteId = 'abc123';
-			func = () => { first(); second(); };
-			shopper = { id: 'snapdev' };
-			computed = window.location.href;
-			currency = { code: 'EUR' };
-		`);
-		expect(Object.fromEntries(vars)).toStrictEqual({
-			siteId: 'abc123',
-			shopper: { id: 'snapdev' },
-			currency: { code: 'EUR' },
-		});
-	});
-
-	it('resynchronizes on a new-line assignment when an unsupported statement lacks a semicolon', () => {
-		const vars = parseContextStatements(`
-			func = () => 'returned value'
-			siteId = 'abc123'
-			cb = function () {
-				inner = 1;
-			}
-			shopper = { id: 'snapdev' };
-		`);
-		expect(Object.fromEntries(vars)).toStrictEqual({ siteId: 'abc123', shopper: { id: 'snapdev' } });
-	});
-
-	it('returns an empty result for a completely unparsable script', () => {
-		expect(parseContextStatements(`value = 'unterminated`).size).toBe(0);
 	});
 });
