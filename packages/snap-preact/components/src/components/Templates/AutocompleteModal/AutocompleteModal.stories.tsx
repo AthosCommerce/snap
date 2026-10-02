@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { AutocompleteModal, AutocompleteModalProps } from './AutocompleteModal';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { AutocompleteController } from '@athoscommerce/snap-controller';
@@ -15,23 +13,11 @@ import type { AutocompleteRequestModelSearchSourceEnum } from '@athoscommerce/sn
 export default {
 	title: 'Templates/AutocompleteModal',
 	component: AutocompleteModal,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -62,6 +48,26 @@ export default {
 		),
 	],
 	argTypes: {
+		controller: {
+			description: 'Autocomplete controller reference',
+			type: { required: true },
+			table: {
+				type: {
+					summary: 'Autocomplete controller object',
+				},
+			},
+			control: false,
+		},
+		input: {
+			description: 'input element reference',
+			type: { required: true },
+			table: {
+				type: {
+					summary: 'Element or String as CSS Selector',
+				},
+			},
+			control: false,
+		},
 		buttonSelector: {
 			description: 'Modal button selector. (defaults to input)',
 			table: {
@@ -83,26 +89,6 @@ export default {
 				defaultValue: { summary: true },
 			},
 			control: { type: 'boolean' },
-		},
-		controller: {
-			description: 'Autocomplete controller reference',
-			type: { required: true },
-			table: {
-				type: {
-					summary: 'Autocomplete controller object',
-				},
-			},
-			control: { type: 'none' },
-		},
-		input: {
-			description: 'input element reference',
-			type: { required: true },
-			table: {
-				type: {
-					summary: 'Element or String as CSS Selector',
-				},
-			},
-			control: { type: 'none' },
 		},
 		layout: {
 			description: 'array of modules to render in specified layout',
@@ -273,81 +259,83 @@ const snapInstance = Snapify.autocomplete({
 	},
 });
 
-export const Default = (args: AutocompleteModalProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
-	const [termState, setTermState] = useState('');
+export const Default = {
+	render: (args: AutocompleteModalProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
+		const [termState, setTermState] = useState('');
 
-	const mockTerms: AutocompleteTermStore = [
-		{
-			active: termState === 'dress',
-			preview: () => setTermState('dress'),
-			value: 'dress',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shirt',
-			preview: () => setTermState('shirt'),
-			value: 'shirt',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shoes',
-			preview: () => setTermState('shoes'),
-			value: 'shoes',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'hat',
-			preview: () => setTermState('hat'),
-			value: 'hat',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'pants',
-			preview: () => setTermState('pants'),
-			value: 'pants',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'socks',
-			preview: () => setTermState('socks'),
-			value: 'socks',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-	];
+		const mockTerms: AutocompleteTermStore = [
+			{
+				active: termState === 'dress',
+				preview: () => setTermState('dress'),
+				value: 'dress',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shirt',
+				preview: () => setTermState('shirt'),
+				value: 'shirt',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shoes',
+				preview: () => setTermState('shoes'),
+				value: 'shoes',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'hat',
+				preview: () => setTermState('hat'),
+				value: 'hat',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'pants',
+				preview: () => setTermState('pants'),
+				value: 'pants',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'socks',
+				preview: () => setTermState('socks'),
+				value: 'socks',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+		];
 
-	controller.store.history = mockTerms;
+		controller.store.history = mockTerms;
 
-	const [inputFound, setInputFound] = useState(false);
+		const [inputFound, setInputFound] = useState(false);
 
-	useEffect(() => {
-		if (document.querySelector('#searchInput')) {
-			setInputFound(true);
-		}
-	}, []);
+		useEffect(() => {
+			if (document.querySelector('#searchInput')) {
+				setInputFound(true);
+			}
+		}, []);
 
-	return inputFound ? <AutocompleteModal {...args} controller={controller} input={controller?.config.selector} /> : <></>;
+		return inputFound ? <AutocompleteModal {...args} controller={controller} input={controller?.config.selector} /> : <></>;
+	},
+
+	loaders: [
+		async () => ({
+			controller: await snapInstance,
+		}),
+	],
 };
-
-Default.loaders = [
-	async () => ({
-		controller: await snapInstance,
-	}),
-];

@@ -7,6 +7,7 @@ Renders a Search Results Page.
 - Results
 - NoResults
 - Sidebar
+- Slideout
 - Toolbar
 
 ## Usage
@@ -35,7 +36,7 @@ const CustomResult = ({
 ```
 
 ### mobileDisplayAt
-The `mobileDisplayAt` prop defines a CSS media query that determines when the Sidebar component switches to mobile view with a slideout. The default breakpoint is "991px". You can also pass a boolean value to enable or disable mobile view regardless of screen size.
+The `mobileDisplayAt` prop defines a CSS media query that determines when the Sidebar component switches to mobile view with a slideout. It defaults to the theme's `tablet` breakpoint, falling back to `"991px"` when the theme does not define one. You can also pass a boolean value to enable or disable mobile view regardless of screen size — `true` always renders the mobile view, `false` never does.
 
 ```tsx
 <Search controller={controller} mobileDisplayAt={'400px'} />
@@ -83,7 +84,7 @@ The `hideBottomToolbar` prop specifies if the bottom ToolBar component should be
 ```
 
 ### toggleSidebarButtonText
-The `toggleSidebarButtonText` prop specifies the inner text of the Sidebar toggle button. If left undefined, no button will render. 
+The `toggleSidebarButtonText` prop specifies the inner text of the Sidebar toggle button. It defaults to `"Filters"`, so a toggle button renders once the store has loaded. No button renders if the text resolves to an empty value, or if `hideToggleSidebarButton` is `true`. 
 
 ```tsx
 <Search controller={controller} toggleSidebarButtonText={'Toggle Facets'} />

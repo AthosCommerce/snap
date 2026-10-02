@@ -1,29 +1,16 @@
 import { h } from 'preact';
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 import { Grid, GridProps } from './Grid';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Grid',
 	component: Grid,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -76,7 +63,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onSelect',
 		},
 		selected: {
@@ -87,7 +74,7 @@ export default {
 					summary: 'string | number',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		hideLabels: {
 			description: 'enable/disable option labels from rendering',
@@ -190,160 +177,165 @@ export default {
 	},
 };
 
-export const Default = (args: GridProps) => <Grid {...args} />;
-Default.args = {
-	options: [
-		{
-			value: 'one',
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-		{
-			value: 'five',
-		},
-		{
-			value: 'six',
-		},
-		{
-			value: 'seven',
-		},
-		{
-			value: 'eight',
-		},
-	],
-} as GridProps;
+export const Default = {
+	args: {
+		options: [
+			{
+				value: 'one',
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+			{
+				value: 'five',
+			},
+			{
+				value: 'six',
+			},
+			{
+				value: 'seven',
+			},
+			{
+				value: 'eight',
+			},
+		],
+	} as GridProps,
+};
 
-export const DisabledOption = (args: GridProps) => <Grid {...args} />;
-DisabledOption.args = {
-	options: [
-		{
-			value: 'one',
-			disabled: true,
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-		{
-			value: 'five',
-		},
-		{
-			value: 'six',
-		},
-		{
-			value: 'seven',
-		},
-		{
-			value: 'eight',
-		},
-	],
-} as GridProps;
+export const DisabledOption = {
+	args: {
+		options: [
+			{
+				value: 'one',
+				disabled: true,
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+			{
+				value: 'five',
+			},
+			{
+				value: 'six',
+			},
+			{
+				value: 'seven',
+			},
+			{
+				value: 'eight',
+			},
+		],
+	} as GridProps,
+};
 
-export const Images = (args: GridProps) => <Grid {...args} />;
-Images.args = {
-	options: [
-		{
-			value: 'Faded Khaki',
-			backgroundImageUrl:
-				'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/25caa3be92e5680ba340a62dc99cac3f_1b83cffd-c611-42bf-b6d8-59a497fe2ec7.jpg?v=1706125264',
-		},
-		{
-			value: 'Indigo',
-			backgroundImageUrl:
-				'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/4dae673375338093f817804c8da6305a_7de3d458-28f4-41d1-903a-b8916ef26dcb.jpg?v=1706125265https://cdn.shopify.com/s/files/1/0677/2424/7298/files/11136413-I_OK_x_Arvin_Gds_Wool_Boot_Socks_CBM_1_0e3b5702-49e2-4608-acb6-7c131891fc18_450x.jpg?v=1706124808',
-		},
-		{
-			value: 'Mirage',
-			backgroundImageUrl:
-				'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/a853b69a38627e53209e0cb98c90d154_63b6fc1d-2fe5-4c54-bb86-09bd4f7b550b.jpg?v=1706125265',
-		},
-		{
-			value: 'Toasted',
-			backgroundImageUrl:
-				'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/77f9701fc6979aadbedec33a68398aaa_cecd6b05-9aea-4db1-b4f1-ac245da74abb.jpg?v=1706125264',
-		},
-	],
-	overflowButtonInGrid: true,
-	hideLabels: true,
-	rows: 1,
-	columns: 4,
-} as GridProps;
+export const Images = {
+	args: {
+		options: [
+			{
+				value: 'Faded Khaki',
+				backgroundImageUrl:
+					'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/25caa3be92e5680ba340a62dc99cac3f_1b83cffd-c611-42bf-b6d8-59a497fe2ec7.jpg?v=1706125264',
+			},
+			{
+				value: 'Indigo',
+				backgroundImageUrl:
+					'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/4dae673375338093f817804c8da6305a_7de3d458-28f4-41d1-903a-b8916ef26dcb.jpg?v=1706125265https://cdn.shopify.com/s/files/1/0677/2424/7298/files/11136413-I_OK_x_Arvin_Gds_Wool_Boot_Socks_CBM_1_0e3b5702-49e2-4608-acb6-7c131891fc18_450x.jpg?v=1706124808',
+			},
+			{
+				value: 'Mirage',
+				backgroundImageUrl:
+					'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/a853b69a38627e53209e0cb98c90d154_63b6fc1d-2fe5-4c54-bb86-09bd4f7b550b.jpg?v=1706125265',
+			},
+			{
+				value: 'Toasted',
+				backgroundImageUrl:
+					'https://cdn.shopify.com/s/files/1/0677/2424/7298/files/77f9701fc6979aadbedec33a68398aaa_cecd6b05-9aea-4db1-b4f1-ac245da74abb.jpg?v=1706125264',
+			},
+		],
+		overflowButtonInGrid: true,
+		hideLabels: true,
+		rows: 1,
+		columns: 4,
+	} as GridProps,
+};
 
-export const backgroundColors = (args: GridProps) => <Grid {...args} />;
-backgroundColors.args = {
-	options: [
-		{
-			value: 'red',
-			background: 'red',
-		},
-		{
-			value: 'blue',
-			background: 'blue',
-		},
-		{
-			value: 'white',
-			background: 'white',
-			disabled: true,
-		},
-		{
-			value: 'black',
-			background: 'black',
-		},
-		{
-			value: 'green',
-			background: 'green',
-		},
-		{
-			value: 'yellow',
-			background: 'yellow',
-		},
-	],
-	hideLabels: true,
-	columns: 5,
-	overflowButtonInGrid: true,
-	rows: 1,
-} as GridProps;
+export const backgroundColors = {
+	args: {
+		options: [
+			{
+				value: 'red',
+				background: 'red',
+			},
+			{
+				value: 'blue',
+				background: 'blue',
+			},
+			{
+				value: 'white',
+				background: 'white',
+				disabled: true,
+			},
+			{
+				value: 'black',
+				background: 'black',
+			},
+			{
+				value: 'green',
+				background: 'green',
+			},
+			{
+				value: 'yellow',
+				background: 'yellow',
+			},
+		],
+		hideLabels: true,
+		columns: 5,
+		overflowButtonInGrid: true,
+		rows: 1,
+	} as GridProps,
+};
 
-export const overflow = (args: GridProps) => <Grid {...args} />;
-overflow.args = {
-	options: [
-		{
-			value: 'one',
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-		{
-			value: 'five',
-		},
-		{
-			value: 'six',
-		},
-		{
-			value: 'seven',
-		},
-		{
-			value: 'eight',
-		},
-	],
-	rows: 2,
-	columns: 3,
-} as GridProps;
+export const overflow = {
+	args: {
+		options: [
+			{
+				value: 'one',
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+			{
+				value: 'five',
+			},
+			{
+				value: 'six',
+			},
+			{
+				value: 'seven',
+			},
+			{
+				value: 'eight',
+			},
+		],
+		rows: 2,
+		columns: 3,
+	} as GridProps,
+};

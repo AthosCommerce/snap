@@ -1,10 +1,8 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { FacetListOptions, FacetListOptionsProps } from './FacetListOptions';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../FacetListOptions/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -12,23 +10,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Molecules/FacetListOptions',
 	component: FacetListOptions,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -40,7 +26,7 @@ export default {
 					summary: 'facet values store array',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		facet: {
 			description: 'Facet store reference',
@@ -50,7 +36,7 @@ export default {
 					summary: 'facet store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		hideCheckbox: {
 			defaultValue: false,
@@ -132,7 +118,7 @@ export default {
 				},
 				defaultValue: { summary: '{}' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		onClick: {
 			description: 'Facet option click event handler',
@@ -142,7 +128,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		...componentArgs,
@@ -161,15 +147,17 @@ const ObservableFacetListOptions = observer(({ args, controller }: { args: Facet
 	);
 });
 
-export const Default = (args: FacetListOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservableFacetListOptions args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: FacetListOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservableFacetListOptions args={args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

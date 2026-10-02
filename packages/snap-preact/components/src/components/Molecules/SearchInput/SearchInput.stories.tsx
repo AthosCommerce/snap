@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { SearchInput, SearchInputProps } from './SearchInput';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { SearchInput } from './SearchInput';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/SearchInput',
 	component: SearchInput,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -56,7 +42,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onChange',
 		},
 		onKeyUp: {
@@ -67,7 +53,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onKeyUp',
 		},
 		onKeyDown: {
@@ -78,7 +64,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onKeyDown',
 		},
 		onClick: {
@@ -89,7 +75,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		submitSearchButton: {
@@ -191,9 +177,10 @@ export default {
 		...componentArgs,
 	},
 };
-export const Default = (args: SearchInputProps) => <SearchInput {...args} />;
 
-Default.args = {
-	submitSearchButton: { icon: 'search-thin' },
-	clearSearchButton: { icon: 'close-thin' },
+export const Default = {
+	args: {
+		submitSearchButton: { icon: 'search-thin' },
+		clearSearchButton: { icon: 'close-thin' },
+	},
 };

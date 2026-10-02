@@ -2,7 +2,7 @@
 // Storybook manager-side config: UI theme + toolbar addon registration.
 
 import React from 'react';
-import { addons, types } from '@storybook/manager-api';
+import { addons, types } from 'storybook/manager-api';
 import athosTheme from './AthosTheme';
 import { ColorPickerTool } from './ColorPickerTool';
 
