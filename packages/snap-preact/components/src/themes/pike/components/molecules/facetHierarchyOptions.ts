@@ -4,14 +4,12 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
 
 // CSS in JS style script for the FacetHierarchyOptions component
 const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile as number;
-	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// shared styles
 	const sharedStyles = css({
@@ -63,15 +61,12 @@ const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => 
 	const facetHierarchyHorizontalStyles = css([
 		sharedStyles,
 		{
-			flexFlow: 'row wrap',
-			gap: `${custom.spacing.x1}px ${custom.spacing.x2}px`,
+			...custom.styles.columns(),
 			'.ss__facet-hierarchy-options__option': {
-				flex: '0 1 auto',
-				width: `calc((100% - ${custom.spacing.x2}px) / 2)`,
 				minWidth: '1px',
 				margin: 0,
 				'&.ss__facet-hierarchy-options__option--return, &.ss__facet-hierarchy-options__option--filtered': {
-					width: '100%',
+					gridColumn: '1 / -1',
 				},
 				'&.ss__facet-hierarchy-options__option--return': {
 					display: 'flex',
@@ -80,20 +75,6 @@ const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => 
 				'.ss__facet-hierarchy-options__option__value': {
 					display: 'block',
 					...custom.styles.textOverflow(),
-				},
-			},
-		},
-		{
-			[`${custom.utils.getBp(mobileBp)}`]: {
-				'.ss__facet-hierarchy-options__option': {
-					width: `calc((100% - ${custom.spacing.x2 * 2}px) / 3)`,
-				},
-			},
-		},
-		{
-			[`${custom.utils.getBp(tabletBp)}`]: {
-				'.ss__facet-hierarchy-options__option': {
-					width: `calc((100% - ${custom.spacing.x2 * 3}px) / 4)`,
 				},
 			},
 		},

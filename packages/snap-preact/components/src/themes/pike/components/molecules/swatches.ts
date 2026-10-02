@@ -63,6 +63,9 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 										textAlign: 'center',
 										fontSize: '10px',
 										lineHeight: 1,
+										wordBreak: 'normal',
+										overflowWrap: 'anywhere',
+										hyphens: 'auto',
 									},
 									[styleSelector]: {
 										border: 0,
@@ -84,7 +87,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 										},
 										'&:after': {
 											border: `1px solid ${custom.colors.black}`,
-											opacity: 0.15,
+											opacity: 0.45, // 3:1 boundary for light swatches on white (WCAG 1.4.11)
 										},
 										'.ss__swatches__slideshow__swatch__value': {
 											...custom.styles.srOnly(),
@@ -163,7 +166,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 												opacity: 1,
 											},
 											'&:after': {
-												opacity: 0.3,
+												opacity: 1, // selected outline must stand out from the 45% unselected outline
 											},
 										},
 										'.ss__swatches__slideshow__swatch__value': {

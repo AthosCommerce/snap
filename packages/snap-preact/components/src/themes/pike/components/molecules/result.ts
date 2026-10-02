@@ -4,12 +4,14 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
+const quickviewSize = 32;
 
 // CSS in JS style script for the Result component
 const resultStyleScript = (props: ResultProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const quickviewColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
 
 	// result styles
 	const resultStyles = css({
@@ -36,6 +38,22 @@ const resultStyleScript = (props: ResultProps) => {
 			'.ss__result__image-wrapper': {
 				flex: '0 1 auto',
 				border: `1px solid ${custom.colors.gray02}`,
+				// filled square over the image (like carousel arrows) - the component default is a transparent
+				// button, which leaves a light icon invisible on light product images
+				'.ss__button.ss__result__quickview': {
+					right: `${custom.spacing.x1}px`,
+					bottom: `${custom.spacing.x1}px`,
+					zIndex: 2,
+					width: `${quickviewSize}px`,
+					height: `${quickviewSize}px`,
+					padding: 0,
+					justifyContent: 'center',
+					color: quickviewColors[1],
+					'&, &:hover, &:not(.ss__button--disabled):hover': {
+						border: `1px solid ${quickviewColors[0]}`,
+						backgroundColor: quickviewColors[0],
+					},
+				},
 				a: {
 					display: 'block',
 				},
@@ -154,7 +172,7 @@ const resultStyleScript = (props: ResultProps) => {
 					'.ss__result__details__pricing': {
 						flex: '0 1 auto',
 					},
-					'.ss__callout-badge, .ss__result__details__rating-wrapper': {
+					'.ss__callout-badge, .ss__result__rating': {
 						justifyContent: 'flex-start',
 					},
 					'.ss__result__details__variant-selection': {
@@ -186,6 +204,9 @@ export const result: ThemeComponent<'result', ResultProps, ResultTemplatesLegalP
 	default: {
 		result: {
 			themeStyleScript: resultStyleScript,
+		},
+		'result button.quickview icon': {
+			size: `${custom.sizes.icon14}px`,
 		},
 	},
 };

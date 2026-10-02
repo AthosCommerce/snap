@@ -5,7 +5,7 @@ import { custom } from '../../custom';
 
 // static variables
 const searchInputHeight = custom.sizes.height;
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
 
 // CSS in JS style script for the SearchInput component
 const searchInputStyleScript = (props: SearchInputProps) => {
@@ -66,7 +66,20 @@ const searchInputStyleScript = (props: SearchInputProps) => {
 					color: lightGray,
 				},
 			},
+			'&.ss__input--disabled': {
+				...custom.styles.disabled(),
+			},
+			// ring the whole joined control (input + buttons) rather than the input alone
+			'&:has(.ss__search-input__input:focus-visible)': {
+				...custom.styles.focusRing(custom.utils.focusColor(variables?.colors?.secondary)),
+				'.ss__search-input__input': {
+					outline: 'none !important',
+				},
+			},
 			'.ss__search-input__icons': {
+				'&:empty': {
+					display: 'none',
+				},
 				gap: '1px',
 				margin: '0 0 0 -1px',
 				backgroundColor: darkPrimary,

@@ -71,7 +71,8 @@ const slideshowStyleScript = (props: SlideshowProps) => {
 			margin: 'auto',
 			width: 'auto',
 			gap: `${custom.spacing.x1}px`,
-			'.ss__slideshow__dot': {
+			// dots are buttons - out-specify the filled button styles
+			'.ss__button.ss__slideshow__dot': {
 				opacity: 1,
 				flex: '0 1 auto',
 				width: `${slideshowPaginationSize}px`,
@@ -79,11 +80,20 @@ const slideshowStyleScript = (props: SlideshowProps) => {
 				lineHeight: `${slideshowPaginationSize}px`,
 				minWidth: '1px',
 				margin: 0,
-				...custom.styles.box('', 0, false),
-			},
-			'.ss__slideshow__dot--active': {
-				backgroundColor: variables?.colors?.primary,
-				borderColor: variables?.colors?.primary,
+				padding: 0,
+				// a `currentColor` primary must resolve to the page color, not the button's contrast text color
+				color: 'inherit',
+				...custom.styles.borderRadius(0),
+				'&, &:hover, &:not(.ss__button--disabled):hover': {
+					border: `1px solid ${custom.colors.controlBorder}`,
+					backgroundColor: custom.colors.gray01,
+				},
+				'&.ss__slideshow__dot--active': {
+					'&, &:hover, &:not(.ss__button--disabled):hover': {
+						backgroundColor: variables?.colors?.primary,
+						borderColor: variables?.colors?.primary,
+					},
+				},
 			},
 		},
 	});

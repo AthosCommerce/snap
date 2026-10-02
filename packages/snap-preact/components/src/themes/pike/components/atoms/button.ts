@@ -19,6 +19,7 @@ const buttonStyleScript = (props: ButtonProps) => {
 	const sharedStyles = css([
 		{
 			cursor: 'pointer',
+			maxWidth: '100%',
 			padding: `0 ${custom.spacing.x4}px`,
 			justifyContent: 'center',
 			fontSize: '14px',
@@ -46,6 +47,13 @@ const buttonStyleScript = (props: ButtonProps) => {
 			},
 			[buttonDisabledSelectors]: {
 				...custom.styles.disabled(),
+			},
+			// text-only buttons (e.g. language driven content) render a bare text node, which cannot be
+			// truncated inside a flex container
+			'&:not(:has(> *))': {
+				display: 'inline-block',
+				verticalAlign: 'middle',
+				...custom.styles.textOverflow(),
 			},
 			'.ss__button__content': {
 				'&:has(span)': {
@@ -84,7 +92,9 @@ const buttonStyleScript = (props: ButtonProps) => {
 			alignItems: 'center',
 			gap: `${custom.spacing.x1}px`,
 			position: 'relative',
-			outline: 0,
+			'&:focus:not(:focus-visible)': {
+				outline: 0,
+			},
 		},
 		sharedStyles,
 	]);

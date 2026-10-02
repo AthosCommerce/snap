@@ -98,6 +98,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 				'.ss__list__title': {
 					fontSize: '14px',
 					textAlign: 'left',
+					textTransform: 'capitalize',
 				},
 				'.ss__list__options': {
 					'.ss__list__option': {

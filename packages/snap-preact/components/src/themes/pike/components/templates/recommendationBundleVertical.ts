@@ -71,9 +71,9 @@ const recommendationBundleVerticalStyleScript = (props: RecommendationBundleVert
 							right: '5px',
 						},
 					},
-					'ss__recommendation-bundle-vertical__wrapper__selector__result-wrapper__seed-badge, .ss__checkbox': {
+					'.ss__recommendation-bundle-vertical__wrapper__selector__result-wrapper__seed-badge, .ss__checkbox': {
 						position: 'absolute',
-						zIndex: '5px',
+						zIndex: 5,
 					},
 					'.ss__recommendation-bundle-vertical__wrapper__selector__result-wrapper__seed-badge': {
 						top: '5px',

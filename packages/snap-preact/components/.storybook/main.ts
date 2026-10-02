@@ -22,12 +22,16 @@ const markdownAsString: Plugin = {
 	},
 };
 
+// prop-combination matrices are a theme development aid, not library documentation -
+// only `npm run storybook:matrix` loads them, so they never appear in the library or the docs build
+const matrixStories = process.env.STORYBOOK_MATRIX ? ['../matrix/**/*.matrix.stories.tsx'] : [];
+
 const config: StorybookConfig = {
 	framework: {
 		name: getAbsolutePath('@storybook/preact-vite'),
 		options: {},
 	},
-	stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+	stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)', ...matrixStories],
 	addons: [getAbsolutePath('@storybook/addon-docs'), getAbsolutePath('@storybook/addon-themes')],
 	viteFinal: async (config) =>
 		mergeConfig(config, {

@@ -46,8 +46,5 @@ export const toolbar: ThemeComponent<'toolbar', ToolbarProps, ToolbarTemplatesLe
 		'toolbar filterSummary': {
 			title: `Current Filters:`,
 		},
-		'toolbar mobileSidebar filterSummary': {
-			title: `Current Filters`,
-		},
 	},
 };

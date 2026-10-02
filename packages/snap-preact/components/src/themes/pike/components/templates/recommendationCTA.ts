@@ -8,7 +8,7 @@ type CTAProps = {
 };
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
 
 // CSS in JS style script for the Recommendation CTA component
 export const recommendationCTAStyleScript = (props: CTAProps, handle: string, spacing?: string) => {
@@ -25,6 +25,8 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 		alignContent: 'center',
 		gap: `${custom.spacing.x2}px`,
 		...custom.styles.box(undefined, spacing ? spacing : `${custom.spacing.x2}px`),
+		// a container, not a control - decorative border
+		borderColor: custom.colors.gray02,
 		'& > *': {
 			flex: '1 1 100%',
 			minWidth: '1px',
@@ -59,7 +61,7 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 					'&, span': {
 						color: lightGray,
 					},
-					'& ~ ${recommendationHandle}__cta__subtotal__price': {
+					[`& ~ ${recommendationHandle}__cta__subtotal__price`]: {
 						'&, span': {
 							color: variables?.colors?.primary,
 						},

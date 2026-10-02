@@ -26,12 +26,12 @@ const recommendationBundleListStyleScript = (props: RecommendationBundleListProp
 	// bundle list styles
 	const bundleListStyles = css({
 		margin: `${custom.spacing.x4}px 0`,
+		// the tracker reorders its children (the list renders after the cta), so space them with gap, not margins
 		'.ss__recommendation-profile-tracker': {
+			flexDirection: 'column',
+			gap: `${custom.spacing.x2}px`,
 			'& > *': {
-				margin: `${custom.spacing.x2}px 0 0 0`,
-				'&:first-child': {
-					marginTop: 0,
-				},
+				margin: 0,
 			},
 		},
 		'.ss__recommendation-bundle-list__title': {
@@ -59,6 +59,12 @@ const recommendationBundleListStyleScript = (props: RecommendationBundleListProp
 					},
 					'.ss__result.ss__result--grid': {
 						...custom.styles.resultCompact('grid'),
+						// list rows read left to right - align swatches with the title rather than centering them
+						'.ss__result__details__variant-selection .ss__variant-selection': {
+							'.ss__slideshow .ss__slideshow__container .ss__slideshow__track, .ss__grid .ss__grid__options': {
+								justifyContent: 'flex-start',
+							},
+						},
 					},
 					'.ss__result.ss__result--list': {
 						...custom.styles.resultCompact(),

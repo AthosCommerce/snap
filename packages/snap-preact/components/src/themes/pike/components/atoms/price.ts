@@ -10,6 +10,11 @@ const priceStyleScript = (props: PriceProps) => {
 
 	// price styles
 	const priceStyles = css({
+		'&.ss__price--strike': {
+			'&, span': {
+				color: custom.colors.gray04,
+			},
+		},
 		'& ~ .ss__result__price': {
 			paddingLeft: `${custom.spacing.x1 / 2}px`,
 		},

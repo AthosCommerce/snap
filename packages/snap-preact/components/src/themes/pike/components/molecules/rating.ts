@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const darkGray = custom.utils.darkenColor();
+const darkGray = custom.colors.controlBorder;
 
 // CSS in JS style script for the Rating component
 const ratingStyleScript = (props: RatingProps) => {

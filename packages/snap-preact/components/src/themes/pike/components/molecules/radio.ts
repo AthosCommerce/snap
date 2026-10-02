@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const darkGray = custom.utils.darkenColor();
+const darkGray = custom.colors.controlBorder;
 
 // CSS in JS style script for the Radio component
 const radioStyleScript = (props: RadioProps) => {
@@ -24,11 +24,8 @@ const radioStyleScript = (props: RadioProps) => {
 			'&.ss__radio--active': {
 				borderColor: darkGray,
 				backgroundColor: custom.colors.white,
-				'.ss__icon': {
-					opacity: 1,
-				},
 			},
-			'.ss__icon': {
+			'&:not(.ss__radio--active) .ss__radio__icon': {
 				opacity: 0,
 			},
 		},

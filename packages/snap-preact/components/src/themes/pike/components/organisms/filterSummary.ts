@@ -7,10 +7,7 @@ import { custom } from '../../custom';
 const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const isSidebar =
-		props?.treePath && (props.treePath.includes('sidebar') || props.treePath.includes('mobileSidebar') || props.treePath.includes('storybook'))
-			? true
-			: false;
+	const isSidebar = props?.treePath?.includes('sidebar') ? true : false;
 
 	// filter summary styles
 	const filterSummaryStyles = isSidebar
@@ -19,7 +16,8 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 		  }
 		: {
 				display: 'flex',
-				alignItems: 'center',
+				// the title lines up with the first row of (possibly wrapping) filters
+				alignItems: 'baseline',
 				gap: `${custom.spacing.x2}px`,
 		  };
 
@@ -33,6 +31,8 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 		  }
 		: {
 				padding: 0,
+				flexShrink: 0,
+				whiteSpace: 'nowrap',
 				...custom.styles.headerText(variables?.colors?.secondary, '14px'),
 		  };
 

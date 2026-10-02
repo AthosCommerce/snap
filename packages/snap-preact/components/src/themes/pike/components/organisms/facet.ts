@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
 
 // CSS in JS style script for the Facet component
 const facetStyleScript = (props: FacetProps) => {

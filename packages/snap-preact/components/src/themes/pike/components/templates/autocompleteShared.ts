@@ -218,6 +218,8 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 			padding: 0,
 			height: 'auto',
 			lineHeight: 1,
+			// a text link - not the filled button's contrast color (`currentColor` header text resolves to it)
+			color: 'inherit',
 			'&, &:hover': {
 				backgroundColor: 'transparent',
 				border: 0,

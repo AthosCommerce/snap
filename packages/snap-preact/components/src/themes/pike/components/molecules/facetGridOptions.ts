@@ -18,7 +18,7 @@ const facetGridOptionsStyleScript = (props: FacetGridOptionsProps) => {
 		'.ss__facet-grid-options__option': {
 			height: '100%',
 			aspectRatio: 1,
-			padding: `${custom.spacing.x2}px`,
+			padding: `${custom.spacing.x1}px`,
 			'&, .ss__facet-grid-options__option__value': {
 				overflow: 'hidden',
 			},
@@ -27,6 +27,10 @@ const facetGridOptionsStyleScript = (props: FacetGridOptionsProps) => {
 				maxWidth: '100%',
 				maxHeight: '100%',
 				color: 'inherit',
+				// wrap long values between words (hyphenating when a word does not fit) rather than mid-word
+				wordBreak: 'normal',
+				overflowWrap: 'anywhere',
+				hyphens: 'auto',
 				'&, &.ss__facet-grid-options__option__value--smaller': {
 					fontSize: '12px',
 					lineHeight: 1,

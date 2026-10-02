@@ -7,7 +7,8 @@ import { custom } from '../../custom';
 const loadMoreStyleScript = (props: LoadMoreProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const borderColor = props?.backgroundColor != custom.colors.gray01 ? custom.utils.darkenColor(props.backgroundColor, 0.25) : custom.colors.gray02;
+	const borderColor =
+		props?.backgroundColor != custom.colors.gray01 ? custom.utils.darkenColor(props.backgroundColor, 0.25) : custom.colors.controlBorder;
 
 	// load more styles
 	const loadMoreStyles = css({
@@ -19,6 +20,8 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 				margin: 0,
 			},
 			'.ss__load-more__progress': {
+				// span the load more width so percentage indicator widths are relative to it, not the text
+				alignSelf: 'stretch',
 				'.ss__load-more__progress__indicator': {
 					margin: '0 auto',
 					border: `1px solid ${borderColor}`,

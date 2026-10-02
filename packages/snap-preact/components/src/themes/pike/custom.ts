@@ -1,11 +1,57 @@
 import { IconType } from '../../components/Atoms/Icon';
-import { colord } from 'colord';
+import { colord, extend } from 'colord';
+import a11yPlugin from 'colord/plugins/a11y';
+
+extend([a11yPlugin]);
+
+// parse a color for calculations - colors that cannot be resolved at style time
+// (`currentColor`, CSS variables, invalid values) are treated as black
+const parseColor = (color: string) => {
+	const parsed = colord(color);
+	return parsed.isValid() ? parsed : colord('#000000');
+};
 
 // calculate spacing
 const spacing = 5;
 const spacingCalc = (value: number) => {
 	return spacing * value;
 };
+
+/*
+	Pike design language - every component style should be expressible with these rules and tokens.
+
+	- Shape: square corners (`sizes.radius` 0); the only round shapes are radios, slider handles and
+	  thin bars (slider rails, scrollbars, progress indicators), which are pill-rounded.
+	- Surfaces: neutral controls are a "box" - 1px `controlBorder` over a `gray01` fill (`styles.box`).
+	  Popovers (dropdown content) sit on white with the same border. Decorative rules (dividers, image
+	  frames, panels, containers) use the lighter `gray02`.
+	- Accessibility: control boundaries and state indicators meet WCAG 1.4.11 non-text contrast (3:1
+	  against white and the gray01 fill) - `controlBorder` for borders, 45% black for swatch outlines.
+	  `gray02` is only for decoration that does not identify a control.
+	- Color roles: theme colors default to `currentColor`, so Pike inherits the site's text color.
+	    - primary: active/selected TEXT (`styles.activeText`), the 2px header underline, sale prices,
+	      active pagination dots and scrollbar thumbs.
+	    - secondary: FILLED selections and controls (buttons, carousel arrows, selected grid options,
+	      slider handles) via `utils.activeColors`, plus header text color.
+	  `currentColor` cannot be resolved to a hex value at style time, so `utils.activeColors` falls
+	  back to a black fill with white text - the default Pike look is monochrome.
+	- Neutrals: gray01 fill, gray02 decorative rule, controlBorder control boundary (and empty rating
+	  stars), gray04 muted text (option counts, strike prices, placeholders).
+	- Type: 14px base text (`styles.baseText`); headers are bold (`fonts.weight02`) via
+	  `styles.headerText` - 14px in compact contexts, 16px for facet/sidebar headers, 18-22px for
+	  section titles; option counts 10px; badges and fine print 12px.
+	- States: active = bold + primary text; selected (filled) = secondary fill + contrast text;
+	  disabled = `styles.disabled` (0.65 opacity, not-allowed cursor); unavailable variants add a
+	  strike through.
+	- Sizing: controls are `sizes.height` (35px) tall; spacing is a 5px scale (`spacing.x1`-`x8`);
+	  icons are 8-16px (`sizes.icon08`-`icon16`); chevrons for direction, plus/minus for overflow.
+	- Indicators: checkboxes are a box with a small filled square (`icons.check`); expand/collapse
+	  chevrons rotate 180deg on open.
+	- Focus: keyboard focus only (`:focus-visible`) gets a 2px ring offset 2px (`styles.focusRing`) in the
+	  secondary color, or black when that color is too light (`utils.focusColor`); white in dark contexts
+	  (gallery, overlay result details). Mouse focus shows no ring. Applied globally in `globalStyle`
+	  and in components that portal outside the theme scope (gallery, dropdown portals).
+*/
 
 // custom theme object
 // contains defaults, colors, utils, global styles, etc.
@@ -23,7 +69,9 @@ export const custom: CustomThemeType = {
 		white: '#ffffff',
 		black: '#000000',
 		gray01: '#f8f8f8', // lighter gray: bg color under terms, dropdown, checkboxes
-		gray02: '#ebebeb', // light gray: borders for autocomplete, dropdown, checkboxes
+		gray02: '#ebebeb', // light gray: decorative rules - dividers, image frames, panel borders
+		gray04: '#6b6b6b', // dark gray: muted text (counts, strike prices, placeholders)
+		controlBorder: '#8c8c8c', // control boundaries - 3.36:1 on white, 3.16:1 on gray01 (WCAG 1.4.11)
 		overlay: 'rgba(0, 0, 0, 0.80)', // color used for overlays
 	},
 	fonts: {
@@ -121,11 +169,30 @@ export const custom: CustomThemeType = {
 			const radiusStyle = hasRadius && custom.sizes.radius ? custom.styles.borderRadius() : null;
 
 			return {
-				border: `1px solid ${custom.colors.gray02}`,
+				border: `1px solid ${custom.colors.controlBorder}`,
 				...radiusStyle,
 				backgroundColor: custom.colors.gray01,
 				color: color || undefined,
 				padding: padding,
+			};
+		},
+		columns: (maxColumns = 4, minWidth = 140) => {
+			// horizontal option layouts - up to `maxColumns` columns, fewer when the CONTAINER is too
+			// narrow for `minWidth` columns (viewport breakpoints over-pack options in narrow containers)
+			const columnGap = custom.spacing.x2;
+			const maxColumnsWidth = `calc((100% - ${columnGap * (maxColumns - 1)}px) / ${maxColumns})`;
+			return {
+				display: 'grid',
+				gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, max(${minWidth}px, ${maxColumnsWidth})), 1fr))`,
+				gap: `${custom.spacing.x1}px ${columnGap}px`,
+			};
+		},
+		focusRing: (color: string) => {
+			// keyboard focus indicator (apply under `:focus-visible` only) - important to beat the outline that
+			// useA11y injects for `[ss-a11y]` elements, which is not a Pike color and is ignored by some browsers
+			return {
+				outline: `2px solid ${color} !important`,
+				outlineOffset: '2px !important',
 			};
 		},
 		disabled: () => {
@@ -135,9 +202,10 @@ export const custom: CustomThemeType = {
 					cursor: 'not-allowed !important',
 					opacity: 0.65,
 				},
+				// children keep their own opacity - resetting it here revealed intentionally hidden
+				// elements (unchecked radio icons) inside disabled options
 				'*': {
 					pointerEvents: 'none',
-					opacity: 1,
 				},
 			};
 		},
@@ -215,7 +283,7 @@ export const custom: CustomThemeType = {
 					backgroundColor: custom.colors.gray01,
 				},
 				'&::-webkit-scrollbar-thumb': {
-					backgroundColor: custom.colors.gray02,
+					backgroundColor: custom.colors.controlBorder,
 				},
 			};
 		},
@@ -243,18 +311,22 @@ export const custom: CustomThemeType = {
 	utils: {
 		activeColors: (color: string) => {
 			// get active color and related font color
-			const whiteColor = colord(custom.colors.white);
-			const blackColor = colord(custom.colors.black);
-			const activeColor = colord(color);
-			const accentColor = activeColor.isDark() || activeColor.toHex().toLowerCase() == custom.colors.primary ? whiteColor : blackColor;
-			return [activeColor.toHex().toLowerCase(), accentColor.toHex().toLowerCase()];
+			// unresolvable colors (`currentColor`, CSS variables) fall back to a black fill
+			const activeColor = parseColor(color);
+			const accentColor = activeColor.isDark() ? custom.colors.white : custom.colors.black;
+			return [activeColor.toHex().toLowerCase(), accentColor];
 		},
 		darkenColor: (color?: string, amount?: number) => {
 			// darken a color
 			amount = amount ? amount : 0.075;
 			color = color ? color : custom.colors.gray02;
-			const darkColor = colord(color).darken(amount).toHex().toLowerCase();
+			const darkColor = parseColor(color).darken(amount).toHex().toLowerCase();
 			return darkColor;
+		},
+		focusColor: (color?: string) => {
+			// focus ring color - the theme color when it has 3:1 contrast on white (WCAG 1.4.11), otherwise black
+			const parsed = colord(color || '');
+			return parsed.isValid() && parsed.contrast(custom.colors.white) >= 3 ? parsed.toHex().toLowerCase() : custom.colors.black;
 		},
 		getBp: (bp: number, rule?: string) => {
 			// get breakpoint selector
@@ -264,8 +336,8 @@ export const custom: CustomThemeType = {
 		lightenColor: (color?: string, amount?: number) => {
 			// lighten a color
 			amount = amount ? amount : 0.42;
-			color = color ? color : custom.colors.text;
-			const lightColor = colord(color).lighten(amount).toHex().toLowerCase();
+			color = color ? color : custom.colors.black;
+			const lightColor = parseColor(color).lighten(amount).toHex().toLowerCase();
 			return lightColor;
 		},
 	},
@@ -305,7 +377,9 @@ type CustomThemeType = {
 		baseText: (color?: string) => ObjectNumberOrStringType;
 		borderRadius: (value?: number, unit?: string) => { [key: string]: string } | null;
 		box: (color?: string, padding?: number | string, radius?: boolean) => ObjectNumberOrStringType;
+		columns: (maxColumns?: number, minWidth?: number) => ObjectNumberOrStringType;
 		disabled: () => ObjectNumberOrStringType | ObjectNestedType;
+		focusRing: (color: string) => ObjectNumberOrStringType;
 		headerText: (color?: string, fontSize?: string) => ObjectNumberOrStringType;
 		resultCompact: (layout?: string, imageWidth?: string, fontSize?: number) => ObjectNumberOrStringType | ObjectNestedType;
 		scrollbar: () => ObjectNestedType;
@@ -315,6 +389,7 @@ type CustomThemeType = {
 	utils: {
 		activeColors: (color: string) => string[];
 		darkenColor: (color?: string, amount?: number) => string;
+		focusColor: (color?: string) => string;
 		getBp: (bp: number, rule?: string) => string;
 		lightenColor: (color?: string, amount?: number) => string;
 	};
