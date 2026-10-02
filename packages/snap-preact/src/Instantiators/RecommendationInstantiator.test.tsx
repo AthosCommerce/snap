@@ -969,6 +969,241 @@ describe('RecommendationInstantiator', () => {
 		});
 	});
 
+	it('passes config.settings.variants through to the created controller', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const variantsConfig = { realtime: { enabled: true, filters: ['first' as const] } };
+		const settingsConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				settings: {
+					variants: variantsConfig,
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(settingsConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.variants).toMatchObject(variantsConfig);
+	});
+
+	it('still supports the legacy top-level config.variants location', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const variantsConfig = { realtime: { enabled: true } };
+		const legacyConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				variants: variantsConfig,
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(legacyConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.variants).toMatchObject(variantsConfig);
+	});
+
+	it('prefers config.settings.variants over top-level config.variants when both are provided', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const bothConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				variants: { realtime: { enabled: false } },
+				settings: {
+					variants: { realtime: { enabled: true } },
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(bothConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.variants?.realtime?.enabled).toBe(true);
+	});
+
+	it('passes config.settings.quickview through to the created controller', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const quickviewConfig = { clone: false, fetchProductData: false, imagesField: 'ss_images' };
+		const settingsConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				settings: {
+					quickview: quickviewConfig,
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(settingsConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.quickview).toMatchObject(quickviewConfig);
+	});
+
+	it('still supports the top-level config.quickview location', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const quickviewConfig = { clone: false, imagesField: ['images', 'ss_images'] };
+		const topLevelConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				quickview: quickviewConfig,
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(topLevelConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.quickview).toMatchObject(quickviewConfig);
+	});
+
+	it('prefers config.settings.quickview over top-level config.quickview when both are provided', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const bothConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				quickview: { clone: false, imagesField: 'top_level' },
+				settings: {
+					quickview: { clone: true, imagesField: 'settings' },
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(bothConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		const quickview = recommendationInstantiator.controller[controllerIds[0]].config.settings?.quickview;
+		expect(quickview?.clone).toBe(true);
+		expect(quickview?.imagesField).toBe('settings');
+	});
+
+	it('passes config.settings.searchOnPageShow through to the created controller', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const settingsConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				settings: {
+					searchOnPageShow: false,
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(settingsConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.searchOnPageShow).toBe(false);
+	});
+
+	it('still supports the top-level config.searchOnPageShow location', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const topLevelConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				searchOnPageShow: false,
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(topLevelConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.searchOnPageShow).toBe(false);
+	});
+
+	it('prefers config.settings.searchOnPageShow over top-level config.searchOnPageShow when both are provided', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		// settings is `false` while top-level is `true` to verify the nullish (not truthy) fallback
+		const bothConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				searchOnPageShow: true,
+				settings: {
+					searchOnPageShow: false,
+				},
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(bothConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		expect(recommendationInstantiator.controller[controllerIds[0]].config.settings?.searchOnPageShow).toBe(false);
+	});
+
+	it('does not re-search on persisted pageshow when top-level config.searchOnPageShow is false', async () => {
+		document.body.innerHTML = `<script type="athos/recommend" profile="${DEFAULT_PROFILE}"></script>`;
+
+		const disabledConfig: RecommendationInstantiatorConfig = {
+			...baseConfig,
+			config: {
+				branch: baseConfig.config.branch,
+				searchOnPageShow: false,
+			},
+		};
+
+		const client = new MockClient(baseConfig.client!.globals, {});
+		const recommendationInstantiator = new RecommendationInstantiator(disabledConfig, { client });
+		await wait();
+
+		const controllerIds = Object.keys(recommendationInstantiator.controller);
+		expect(controllerIds).toHaveLength(1);
+		const controller = recommendationInstantiator.controller[controllerIds[0]];
+
+		// wait for the initial search so the store is in the state where the pageshow listener would otherwise fire
+		await waitFor(() => {
+			expect(controller.store.loaded).toBe(true);
+		});
+		const searchSpy = jest.spyOn(controller, 'search');
+
+		const event = new Event('pageshow', { bubbles: true });
+		Object.defineProperty(event, 'persisted', { value: true });
+		window.dispatchEvent(event);
+		await wait(10);
+
+		expect(searchSpy).not.toHaveBeenCalled();
+	});
+
 	it('supports searchspring/recommend script type selector', async () => {
 		document.body.innerHTML = `<script type="searchspring/recommend" profile="${DEFAULT_PROFILE}"></script>`;
 

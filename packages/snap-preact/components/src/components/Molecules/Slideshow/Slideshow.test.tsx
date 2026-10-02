@@ -440,6 +440,29 @@ describe('Slideshow Component', () => {
 			expect(draggingResult).toBe(false); // prevented - blocks page scroll while dragging
 		});
 
+		it('prevents default on a touch move that arrives before the drag-start render completes', async () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const track = getTrack(rendered) as HTMLElement;
+
+			// dispatch directly rather than via fireEvent (which wraps in act() and flushes renders)
+			// so the setState queued by touchstart is still pending - a real first touchmove lands in
+			// exactly that window, while the bound handler is still the closure from the pre-drag render
+			track.dispatchEvent(touchEvent('touchstart', 500));
+			expect(track).not.toHaveClass('ss__slideshow__track--dragging'); // re-render has not run yet
+
+			const move = touchEvent('touchmove', 400);
+			const notPrevented = track.dispatchEvent(move);
+			expect(notPrevented).toBe(false); // prevented - page must not scroll even before the re-render
+			expect(move.defaultPrevented).toBe(true);
+
+			// let Preact's deferred render run - the drag tracked that same move, so scroll prevention
+			// and the drag are never out of step
+			await Promise.resolve();
+			await Promise.resolve();
+			expect(track).toHaveClass('ss__slideshow__track--dragging');
+			expect(track.style.transform).toBe('translateX(-100px)');
+		});
+
 		it('stops autoplay once a drag starts, even after the drag ends', () => {
 			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} autoPlay={true} autoPlayInterval={1000} dragThreshold={50} />);
 			const track = getTrack(rendered);
@@ -728,6 +751,61 @@ describe('Slideshow Component', () => {
 
 			const imgElements = rendered.container.querySelectorAll('img');
 			expect(imgElements).toHaveLength(3);
+		});
+
+		it('fires onClick for a touch tap followed by the compatibility mouse events', async () => {
+			const mockOnClick = jest.fn();
+			const args: SlideshowProps = {
+				...defaultProps,
+				slides: [{ src: 'a.jpg', onClick: mockOnClick }, { src: 'b.jpg' }, { src: 'c.jpg' }],
+				slidesToShow: 1,
+			};
+
+			const rendered = render(<Slideshow {...args} />);
+			const track = rendered.container.querySelector('.ss__slideshow__track') as HTMLElement;
+			const clickableSlide = rendered.container.querySelector('.ss__slideshow__slide--clickable') as HTMLElement;
+			const isDragging = () => track.classList.contains('ss__slideshow__track--dragging');
+
+			const microtasks = async () => {
+				await Promise.resolve();
+				await Promise.resolve();
+			};
+			// lets Preact's after-paint queue (rAF + setTimeout) run any pending effects
+			const nextFrame = async () => {
+				jest.advanceTimersByTime(100);
+				await microtasks();
+			};
+			const rawTouch = (type: string, clientX: number) => {
+				const event = new Event(type, { bubbles: true, cancelable: true });
+				Object.defineProperty(event, 'touches', { value: [{ clientX }] });
+				return event;
+			};
+			const rawMouse = (type: string) => new MouseEvent(type, { bubbles: true, cancelable: true, clientX: 100 });
+
+			// finger down, resting on the screen for at least a frame
+			track.dispatchEvent(rawTouch('touchstart', 100));
+			await microtasks();
+			expect(isDragging()).toBe(true);
+			await nextFrame();
+
+			// finger up; the browser waits before synthesizing the compatibility mouse events
+			track.dispatchEvent(new Event('touchend', { bubbles: true, cancelable: true }));
+			await microtasks();
+			expect(isDragging()).toBe(false);
+			await nextFrame();
+
+			// compatibility mousedown -> mouseup -> click arrive back to back, no frame in between
+			clickableSlide.dispatchEvent(rawMouse('mousedown'));
+			await microtasks();
+			clickableSlide.dispatchEvent(rawMouse('mouseup'));
+			await microtasks();
+			clickableSlide.dispatchEvent(rawMouse('click'));
+			await microtasks();
+
+			expect(mockOnClick).toHaveBeenCalledTimes(1);
+			// the drag must have ended too - otherwise the track stays flagged as dragging until some
+			// unrelated mouseup elsewhere on the page
+			expect(isDragging()).toBe(false);
 		});
 	});
 

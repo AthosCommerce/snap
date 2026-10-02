@@ -4,11 +4,5 @@ declare module 'is-plain-object' {
 	export function isPlainObject(o: any): boolean;
 }
 
-export {};
-
-declare global {
-	// ambient declaration for the bundler-substituted NODE_ENV check in mergeProps.ts;
-	// intentionally narrow rather than pulling in @types/node for this browser package
-	// eslint-disable-next-line no-var
-	var process: { env: { NODE_ENV?: string } } | undefined;
-}
+// `process.env.NODE_ENV` is substituted by bundlers at build time; `process` does not exist at runtime.
+declare const process: { env: { NODE_ENV?: string } };

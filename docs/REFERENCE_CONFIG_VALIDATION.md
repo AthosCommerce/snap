@@ -65,7 +65,7 @@ With just that, the rule checks everything it can from the code alone:
 
 - `customComponent` values reference a component registered in the matching `components` section
 - `resultComponent` and `globalResultComponent` values are `Result`, `OverlayResult`, or registered in `components.result`
-- Tab configurations are consistent (unique ids, correct `siteId`/`param` pairing — see [Tabs](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#tabs))
+- Tab configurations are consistent: unique ids, a unique `siteId` and `param` per tab within a feature, and matching `siteId`/`param` pairs across search and autocomplete — see [Tabs](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#tabs)
 - Comma-separated override selectors all target the same component type
 
 Adding **typed linting** unlocks the rest — the checks that need to know the real component prop types. Point `parserOptions.project` at your `tsconfig.json` for the config-authoring files:
