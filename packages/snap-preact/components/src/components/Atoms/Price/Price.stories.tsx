@@ -64,6 +64,28 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		code: {
+			description: 'ISO currency code rendered after the amount - supplied by the active currency locale in Snap Templates',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
+		showCode: {
+			description: 'Render the currency code after the amount, in addition to the symbol',
+			defaultValue: false,
+			table: {
+				type: {
+					summary: 'boolean',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		decimalPlaces: {
 			description: 'Number of decimal places',
 			defaultValue: 2,

@@ -203,6 +203,15 @@ export default {
 			},
 			control: { type: 'number', min: 0, step: 10 },
 		},
+		dragClickThreshold: {
+			description: 'Sets the number of pixels of drag travel before a drag is distinguished from a click',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'number' },
+				defaultValue: { summary: 10 },
+			},
+			control: { type: 'number', min: 0, step: 1 },
+		},
 		slideImageAlt: {
 			description: 'Provides default alt text for images, which will be appended with the image number for accessibility',
 			table: {

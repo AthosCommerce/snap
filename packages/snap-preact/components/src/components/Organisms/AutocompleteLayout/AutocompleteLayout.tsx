@@ -490,6 +490,8 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	const styling = mergeStyles<AutocompleteLayoutProps>(props, defaultStyles);
 
+	const tabControllerId = tabManager?.active?.controller.id;
+
 	//initialize lang
 	const defaultLang: Partial<AutocompleteLayoutLang> = {
 		contentTitle: {
@@ -539,35 +541,39 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		recsController = recs.recsController;
 	}
 
-	const findModule = (module: ModuleNamesWithColumns) => {
+	const findModule = (module: ModuleNamesWithColumns, rowCounter: { value: number }) => {
 		//new row
 		if (typeof module !== 'string') {
-			const children = module?.map((subModule) => findModule(subModule));
+			const children = module?.map((subModule) => findModule(subModule, rowCounter));
 			const hasContent = (module as string[]).some((subModule, i) => subModule !== '_' && children[i]);
 			if (!hasContent) return null;
-			return <div className="ss__autocomplete__row">{children}</div>;
+			return <div className={`ss__autocomplete__row ss__autocomplete__row--${rowCounter.value++}`}>{children}</div>;
 		}
 
 		if (module == 'c1' && column1?.layout?.length) {
-			const children = (column1.layout as any[]).map((m) => findModule(m));
+			const c1RowCounter = { value: 0 };
+			const children = (column1.layout as any[]).map((m) => findModule(m, c1RowCounter));
 			const hasContent = (column1.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c1">{children}</div>;
 		}
 		if (module == 'c2' && column2?.layout?.length) {
-			const children = (column2.layout as any[]).map((m) => findModule(m));
+			const c2RowCounter = { value: 0 };
+			const children = (column2.layout as any[]).map((m) => findModule(m, c2RowCounter));
 			const hasContent = (column2.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c2">{children}</div>;
 		}
 		if (module == 'c3' && column3?.layout?.length) {
-			const children = (column3.layout as any[]).map((m) => findModule(m));
+			const c3RowCounter = { value: 0 };
+			const children = (column3.layout as any[]).map((m) => findModule(m, c3RowCounter));
 			const hasContent = (column3.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c3">{children}</div>;
 		}
 		if (module == 'c4' && column4?.layout?.length) {
-			const children = (column4.layout as any[]).map((m) => findModule(m));
+			const c4RowCounter = { value: 0 };
+			const children = (column4.layout as any[]).map((m) => findModule(m, c4RowCounter));
 			const hasContent = (column4.layout as any[]).some((m, i) => (Array.isArray(m) ? Boolean(children[i]) : m !== '_' && Boolean(children[i])));
 			if (!hasContent) return null;
 			return <div className="ss__autocomplete__column ss__autocomplete__column--c4">{children}</div>;
@@ -769,6 +775,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		controller.log.warn(`unsupported layout found. ${props.layout}`);
 		layout = [];
 	}
+	const topRowCounter = { value: 0 };
 
 	/***************************************/
 	return visible && layout?.length ? (
@@ -786,6 +793,13 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 				)}
 				onClick={(e) => e.stopPropagation()}
 				ref={(e) => useA11y(e, 0, false, onReset)}
+				{...(tabManager?.active
+					? {
+							id: `ss__tabpanel--${tabControllerId}`,
+							role: 'tabpanel',
+							'aria-labelledby': `ss__tab--${tabControllerId}`,
+					  }
+					: {})}
 			>
 				<span
 					role={'link'}
@@ -797,7 +811,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 				></span>
 
 				{(layout as ModuleNamesWithColumns[])?.map((module) => {
-					return findModule(module as ModuleNames);
+					return findModule(module as ModuleNames, topRowCounter);
 				})}
 			</div>
 		</CacheProvider>

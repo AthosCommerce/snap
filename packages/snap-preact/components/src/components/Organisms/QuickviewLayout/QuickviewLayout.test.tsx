@@ -781,6 +781,40 @@ describe('QuickviewLayout', () => {
 		expect(c4!.querySelector('.ss__quickview__add-to-cart')).not.toBeNull();
 	});
 
+	it('numbers rows with a ss__quickview__row--N modifier class, restarting at 0 in each column', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine', imageUrl: 'http://example.com/main.jpg', price: 20 } },
+			attributes: {},
+		};
+		const { quickviewManager } = makeQuickviewManager({
+			store: { isOpen: true, product: storeProduct },
+		});
+
+		const rendered = render(
+			<QuickviewLayout
+				quickviewManager={quickviewManager}
+				layout={[['c1', 'c2']]}
+				// two rows in c1 — both render content, so c1 should count 0, 1.
+				column1={{ layout: [['slideshow'], ['productDetail.mappings.core.price']], width: '50%' }}
+				// a single row in c2 — must restart at 0, not continue c1's counter to 2.
+				column2={{ layout: [['productDetail.mappings.core.name']], width: '50%' }}
+			/>
+		);
+
+		const c1 = rendered.container.querySelector('.ss__quickview__column--c1')!;
+		const c2 = rendered.container.querySelector('.ss__quickview__column--c2')!;
+		const c1Rows = c1.querySelectorAll('.ss__quickview__row');
+		const c2Rows = c2.querySelectorAll('.ss__quickview__row');
+
+		expect(c1Rows).toHaveLength(2);
+		expect(c1Rows[0]).toHaveClass('ss__quickview__row--0');
+		expect(c1Rows[1]).toHaveClass('ss__quickview__row--1');
+
+		expect(c2Rows).toHaveLength(1);
+		expect(c2Rows[0]).toHaveClass('ss__quickview__row--0');
+	});
+
 	it('collapses a c3/c4 column whose modules have nothing to show', () => {
 		const storeProduct = {
 			id: 'mine',
@@ -850,6 +884,12 @@ describe('QuickviewLayout', () => {
 		const emptyRow = rows.find((row) => row.childNodes.length === 0);
 		expect(emptyRow).toBeDefined();
 		expect(getComputedStyle(emptyRow!).display).toBe('none');
+
+		// each row also gets a ss__quickview__row--N modifier, numbered in layout order (even the
+		// hidden one — it's still a distinct row, just visually empty).
+		expect(rows).toHaveLength(2);
+		expect(rows[0]).toHaveClass('ss__quickview__row--0');
+		expect(rows[1]).toHaveClass('ss__quickview__row--1');
 	});
 
 	it('hides a column whose modules render nothing in the DOM', () => {
