@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Banner, BannerProps } from './Banner';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import { SearchController } from '@athoscommerce/snap-controller';
@@ -11,35 +9,14 @@ import { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Atoms/Banner',
 	component: Banner,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
-		controller: {
-			description: 'Controller reference',
-			table: {
-				type: {
-					summary: 'Controller',
-				},
-			},
-			control: { type: 'none' },
-		},
 		content: {
 			description: 'Banner content store reference',
 			type: { required: true },
@@ -49,7 +26,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		type: {
 			description: 'Banner position type',
@@ -65,68 +42,93 @@ export default {
 				type: 'select',
 			},
 		},
+		controller: {
+			description: 'Controller reference',
+			table: {
+				type: {
+					summary: 'Controller',
+				},
+			},
+			control: false,
+		},
 		...componentArgs,
 	},
 };
 
 const snapInstance = Snapify.search({ id: 'Banner', globals: { siteId: 'atkzs2', search: { query: { string: 'jacket' } } } });
 
-export const Header = (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<Banner {...args} content={controller?.store?.merchandising?.content} />
-);
-Header.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Header = {
+	render: (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<Banner {...args} content={controller?.store?.merchandising?.content} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		type: 'header',
 	},
-];
-Header.args = {
-	type: 'header',
 };
 
-export const Footer = (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<Banner {...args} content={controller?.store?.merchandising?.content} />
-);
-Footer.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Footer = {
+	render: (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<Banner {...args} content={controller?.store?.merchandising?.content} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		type: 'footer',
 	},
-];
-Footer.args = {
-	type: 'footer',
 };
 
-export const Secondary = (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<Banner {...args} content={controller?.store?.merchandising?.content} />
-);
-Secondary.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Secondary = {
+	render: (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<Banner {...args} content={controller?.store?.merchandising?.content} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		type: 'banner',
 	},
-];
-Secondary.args = {
-	type: 'banner',
 };
 
-export const Left = (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<Banner {...args} content={controller?.store?.merchandising?.content} />
-);
-Left.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Left = {
+	render: (args: BannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<Banner {...args} content={controller?.store?.merchandising?.content} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		type: 'left',
 	},
-];
-Left.args = {
-	type: 'left',
 };

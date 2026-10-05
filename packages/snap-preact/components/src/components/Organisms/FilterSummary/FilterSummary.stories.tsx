@@ -1,10 +1,9 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { iconPaths } from '../../Atoms/Icon';
 import { FilterSummary, FilterSummaryProps } from './FilterSummary';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../FilterSummary/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -13,23 +12,11 @@ import type { SearchRequestModelFilterValue } from '@athoscommerce/snapi-types';
 export default {
 	title: 'Organisms/FilterSummary',
 	component: FilterSummary,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -39,6 +26,10 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onClick: fn(),
+		onClearAllClick: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'Controller reference',
@@ -47,7 +38,7 @@ export default {
 					summary: 'Controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		filters: {
 			description: 'Filters object',
@@ -57,7 +48,7 @@ export default {
 					summary: 'object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		title: {
 			defaultValue: 'Current Filters',
@@ -165,8 +156,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		type: {
 			defaultValue: 'inline',
@@ -191,8 +181,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClearAllClick',
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -217,47 +206,55 @@ const snapInstance = Snapify.search({
 	},
 });
 
-export const Regular = (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<FilterSummary {...args} controller={controller} />
-);
+export const Regular = {
+	render: (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<FilterSummary {...args} controller={controller} />
+	),
 
-Regular.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
-
-export const noFacetLabel = (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<FilterSummary {...args} controller={controller} />
-);
-
-noFacetLabel.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
-noFacetLabel.args = {
-	hideFacetLabel: true,
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 };
 
-export const customTitle = (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<FilterSummary {...args} controller={controller} />
-);
+export const noFacetLabel = {
+	render: (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<FilterSummary {...args} controller={controller} />
+	),
 
-customTitle.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		hideFacetLabel: true,
 	},
-];
-customTitle.args = {
-	title: 'Selected Filters',
+};
+
+export const customTitle = {
+	render: (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<FilterSummary {...args} controller={controller} />
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		title: 'Selected Filters',
+	},
 };

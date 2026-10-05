@@ -11,5 +11,8 @@
 		"outDir": "./dist/esm",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@emotion/react",
+		// Storybook serves this package as native ESM, where a type re-exported as a
+		// value is a hard runtime error rather than a bundler warning
+		"isolatedModules": true,
 	}
 }

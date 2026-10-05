@@ -1,32 +1,25 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { Dropdown, DropdownProps } from './Dropdown';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Dropdown/readme.md';
 
 export default {
 	title: 'Atoms/Dropdown',
 	component: Dropdown,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
+		onMouseEnter: fn(),
+		onMouseLeave: fn(),
+		onToggle: fn(),
 	},
 	argTypes: {
 		button: {
@@ -58,7 +51,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		disabled: {
 			description: 'Disable dropdown - prevents all click events',
@@ -134,8 +127,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		onMouseEnter: {
 			description: 'Dropdown mouse enter event handler',
@@ -145,7 +137,6 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			action: 'onMouseEnter',
 		},
 		onMouseLeave: {
 			description: 'Dropdown mouse leave event handler',
@@ -155,7 +146,6 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			action: 'onMouseLeave',
 		},
 		usePortal: {
 			description: 'boolean to specify if the dropdown content should be rendered in a portal.',
@@ -176,8 +166,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onToggle',
+			control: false,
 		},
 		focusTrapContent: {
 			description: 'boolean to enable ally focustrap',
@@ -215,40 +204,50 @@ export default {
 	},
 };
 
-export const Default = (args: DropdownProps) => <Dropdown {...args} />;
-Default.args = {
-	button: 'button text',
-	content: 'content text',
+export const Default = {
+	args: {
+		button: 'button text',
+		content: 'content text',
+	},
 };
 
-export const Hoverable = (args: DropdownProps) => <Dropdown {...args} />;
-Hoverable.args = {
-	button: 'hover over me',
-	content: 'content text',
-	toggleOnHover: true,
+export const Hoverable = {
+	args: {
+		button: 'hover over me',
+		content: 'content text',
+		toggleOnHover: true,
+	},
 };
 
-export const ExternalState = (args: DropdownProps) => <Dropdown {...args} />;
-ExternalState.args = {
-	button: 'button text',
-	content: 'content text',
-	open: true,
+export const ExternalState = {
+	args: {
+		button: 'button text',
+		content: 'content text',
+		open: true,
+	},
 };
 
-export const JSXContent = (args: DropdownProps) => <Dropdown {...args} />;
-JSXContent.args = {
-	button: 'button text',
-	content: <div>jsx content - (note this component receieved the open state as a prop)</div>,
+export const JSXContent = {
+	args: {
+		button: 'button text',
+		content: <div>jsx content - (note this component received the open state as a prop)</div>,
+	},
 };
 
-export const JSXChildren = (args: DropdownProps) => <Dropdown button={args.button}>{args.content}</Dropdown>;
-JSXChildren.args = {
-	button: 'button text',
-	content: <div>jsx content - (note this component receieved the open state as a prop)</div>,
+export const JSXChildren = {
+	render: (args: DropdownProps) => <Dropdown button={args.button}>{args.content}</Dropdown>,
+
+	args: {
+		button: 'button text',
+		content: <div>jsx content - (note this component received the open state as a prop)</div>,
+	},
 };
 
-export const StringChildren = (args: DropdownProps) => <Dropdown button={args.button}>{args.content}</Dropdown>;
-StringChildren.args = {
-	button: 'button text',
-	content: 'string content - (note this component receieved the open state as a prop)',
+export const StringChildren = {
+	render: (args: DropdownProps) => <Dropdown button={args.button}>{args.content}</Dropdown>,
+
+	args: {
+		button: 'button text',
+		content: 'string content - (note this component received the open state as a prop)',
+	},
 };

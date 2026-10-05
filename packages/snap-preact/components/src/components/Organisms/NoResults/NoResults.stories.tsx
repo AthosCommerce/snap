@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { NoResults, NoResultsProps } from './NoResults';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { NoResults } from './NoResults';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Organisms/NoResults',
 	component: NoResults,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -148,14 +134,14 @@ export default {
 	},
 };
 
-export const Default = (args: NoResultsProps) => <NoResults {...args} />;
+export const Default = {};
 
-export const WithRecommendations = (args: NoResultsProps) => <NoResults {...args} />;
-
-WithRecommendations.args = {
-	templates: {
-		recommendation: {
-			enabled: true,
+export const WithRecommendations = {
+	args: {
+		templates: {
+			recommendation: {
+				enabled: true,
+			},
 		},
 	},
 };

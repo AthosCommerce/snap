@@ -1,8 +1,6 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 
 import Readme from './readme.md';
@@ -12,26 +10,14 @@ import { SearchHeader, SearchHeaderProps } from './SearchHeader';
 export default {
 	title: 'Atoms/SearchHeader',
 	component: SearchHeader,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
-			actions: {
-				disabled: true,
+			description: {
+				component: Readme,
 			},
+		},
+		actions: {
+			disabled: true,
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -44,7 +30,7 @@ export default {
 					summary: 'Search controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		query: {
 			description: 'Search Query Store reference',
@@ -54,7 +40,7 @@ export default {
 					summary: 'Search Query Store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		pagination: {
 			description: 'Search Pagination Store reference',
@@ -64,7 +50,7 @@ export default {
 					summary: 'Search Pagination Store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		merchandising: {
 			description: 'Search Merchandising Store reference',
@@ -74,7 +60,7 @@ export default {
 					summary: 'Search Merchandising Store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		titleText: {
 			description: 'Search Title Text',
@@ -221,73 +207,81 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'SearchHeader', globals: { siteId: 'atkzs2', search: { query: { string: 'dress' } } } });
 
-export const Default = (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SearchHeader {...args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <SearchHeader {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
 
 const NoResultsSnapInstance = Snapify.search({
 	id: 'SearchHeader-noResults',
 	globals: { siteId: 'atkzs2', search: { query: { string: 'pokemon' } } },
 });
 
-export const NoResults = (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SearchHeader {...args} controller={controller} />;
-};
-
-NoResults.loaders = [
-	async () => {
-		await NoResultsSnapInstance.search();
-		return {
-			controller: NoResultsSnapInstance,
-		};
+export const NoResults = {
+	render: (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <SearchHeader {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await NoResultsSnapInstance.search();
+			return {
+				controller: NoResultsSnapInstance,
+			};
+		},
+	],
+};
 
 const correctedSnapInstance = Snapify.search({
 	id: 'SearchHeader-correctedResults',
 	globals: { siteId: 'atkzs2', search: { query: { string: 'drezz' } } },
 });
 
-export const CorrectedResults = (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SearchHeader {...args} controller={controller} />;
-};
-
-CorrectedResults.loaders = [
-	async () => {
-		await correctedSnapInstance.search();
-		return {
-			controller: correctedSnapInstance,
-		};
+export const CorrectedResults = {
+	render: (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <SearchHeader {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await correctedSnapInstance.search();
+			return {
+				controller: correctedSnapInstance,
+			};
+		},
+	],
+};
 
 const dymSnapInstance = Snapify.search({
 	id: 'SearchHeader-dymResults',
 	globals: { siteId: 'atkzs2', search: { query: { string: 'dnfarwts' } } },
 });
 
-export const DidYouMeanResults = (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <SearchHeader {...args} controller={controller} />;
-};
-
-DidYouMeanResults.loaders = [
-	async () => {
-		dymSnapInstance.on('afterSearch', ({ response }: any) => {
-			response.search.search.query = 'redd dress';
-			response.search.search.didYouMean = 'red dress';
-		});
-		await dymSnapInstance.search();
-		return {
-			controller: dymSnapInstance,
-		};
+export const DidYouMeanResults = {
+	render: (args: SearchHeaderProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <SearchHeader {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			dymSnapInstance.on('afterSearch', ({ response }: any) => {
+				response.search.search.query = 'redd dress';
+				response.search.search.didYouMean = 'red dress';
+			});
+			await dymSnapInstance.search();
+			return {
+				controller: dymSnapInstance,
+			};
+		},
+	],
+};

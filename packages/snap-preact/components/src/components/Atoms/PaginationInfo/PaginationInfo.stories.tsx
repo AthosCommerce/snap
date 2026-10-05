@@ -1,10 +1,8 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { PaginationInfo, PaginationInfoProps } from './PaginationInfo';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../PaginationInfo/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -12,23 +10,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Atoms/PaginationInfo',
 	component: PaginationInfo,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -40,7 +26,7 @@ export default {
 					summary: 'Search controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		pagination: {
 			description: 'Pagination store reference',
@@ -50,7 +36,7 @@ export default {
 					summary: 'pagination store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		infoText: {
 			description: 'Pagination info text to display',
@@ -72,15 +58,17 @@ const ObservablePaginationInfo = observer(({ args, controller }: { args: Paginat
 	return <PaginationInfo {...args} pagination={controller?.store?.pagination} />;
 });
 
-export const Default = (args: PaginationInfoProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservablePaginationInfo args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: PaginationInfoProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservablePaginationInfo args={args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

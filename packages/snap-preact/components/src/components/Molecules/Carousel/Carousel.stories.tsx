@@ -1,32 +1,29 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { Carousel, CarouselProps } from './Carousel';
-import { componentArgs, Colour, highlightedCode } from '../../../utilities';
+import { componentArgs, Colour } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Carousel',
 	component: Carousel,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onNextButtonClick: fn(),
+		onPrevButtonClick: fn(),
+		onClick: fn(),
+		onBeforeInit: fn(),
+		onInit: fn(),
+		onAfterInit: fn(),
+		onResize: fn(),
+		onTransitionEnd: fn(),
 	},
 	argTypes: {
 		loop: {
@@ -98,7 +95,7 @@ export default {
 				category: 'Templates Legal',
 				defaultValue: { summary: '[Navigation, Pagination, Scrollbar, A11y]' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		hideButtons: {
 			defaultValue: false,
@@ -174,8 +171,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onNextButtonClick',
+			control: false,
 		},
 		onPrevButtonClick: {
 			description: 'Carousel prev button click event handler',
@@ -185,8 +181,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onPrevButtonClick',
+			control: false,
 		},
 		onClick: {
 			description: 'Carousel onClick event handler (Swiper)',
@@ -196,8 +191,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		onBeforeInit: {
 			description: 'Carousel onBeforeInit event handler (Swiper)',
@@ -208,7 +202,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onBeforeInit',
 		},
 		onInit: {
 			description: 'Carousel onInit event handler (Swiper)',
@@ -218,8 +211,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onInit',
+			control: false,
 		},
 		onAfterInit: {
 			description: 'Carousel onAfterInit event handler (Swiper)',
@@ -230,7 +222,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onAfterInit',
 		},
 		onResize: {
 			description: 'Carousel onResize event handler (Swiper); receives no arguments',
@@ -241,7 +232,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onResize',
 		},
 		onTransitionEnd: {
 			description: 'Carousel onTransitionEnd event handler (Swiper); receives no arguments',
@@ -252,7 +242,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onTransitionEnd',
 		},
 		...componentArgs,
 	},
@@ -263,28 +252,31 @@ const carouselStep = Math.floor(180 / count);
 const colors = Array.from(Array(count).keys());
 const color = new Colour('#00aeef');
 
-export const Colors = (props: CarouselProps) => {
-	return (
-		<div style={{ maxWidth: '800px', height: props?.vertical ? '300px' : undefined }}>
-			<Carousel {...props}>
-				{colors.map((number, index) => (
-					<div
-						style={{
-							height: props?.vertical ? '100%' : '100px',
-							width: '100%',
-							minHeight: '1px',
-							minWidth: '1px',
-							background: color.lighten(index * carouselStep).hex,
-							margin: '0 auto',
-						}}
-					></div>
-				))}
-			</Carousel>
-		</div>
-	);
-};
-Colors.args = {
-	pagination: true,
-	hideButtons: true,
-	loop: false,
+export const Colors = {
+	render: (props: CarouselProps) => {
+		return (
+			<div style={{ maxWidth: '800px', height: props?.vertical ? '300px' : undefined }}>
+				<Carousel {...props}>
+					{colors.map((number, index) => (
+						<div
+							style={{
+								height: props?.vertical ? '100%' : '100px',
+								width: '100%',
+								minHeight: '1px',
+								minWidth: '1px',
+								background: color.lighten(index * carouselStep).hex,
+								margin: '0 auto',
+							}}
+						></div>
+					))}
+				</Carousel>
+			</div>
+		);
+	},
+
+	args: {
+		pagination: true,
+		hideButtons: true,
+		loop: false,
+	},
 };

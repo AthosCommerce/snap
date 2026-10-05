@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { FormattedNumber, FormattedNumberProps } from './FormattedNumber';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { FormattedNumber } from './FormattedNumber';
+import { componentArgs } from '../../../utilities';
 import Readme from '../FormattedNumber/readme.md';
 
 export default {
 	title: 'Atoms/FormattedNumber',
 	component: FormattedNumber,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -127,21 +113,24 @@ export default {
 	},
 };
 
-export const Default = (args: FormattedNumberProps) => <FormattedNumber {...args} />;
-Default.args = {
-	value: 1099.99,
+export const Default = {
+	args: {
+		value: 1099.99,
+	},
 };
 
-export const Temperature = (args: FormattedNumberProps) => <FormattedNumber {...args} />;
-Temperature.args = {
-	value: 100,
-	symbol: ' °C',
-	decimalPlaces: 2,
+export const Temperature = {
+	args: {
+		value: 100,
+		symbol: ' °C',
+		decimalPlaces: 2,
+	},
 };
 
-export const Length = (args: FormattedNumberProps) => <FormattedNumber {...args} />;
-Length.args = {
-	value: 100,
-	symbol: ' mm',
-	decimalPlaces: 2,
+export const Length = {
+	args: {
+		value: 100,
+		symbol: ' mm',
+		decimalPlaces: 2,
+	},
 };

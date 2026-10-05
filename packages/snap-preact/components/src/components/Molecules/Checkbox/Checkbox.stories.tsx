@@ -1,33 +1,23 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { Checkbox, CheckboxProps } from './Checkbox';
+import { Checkbox } from './Checkbox';
 import { iconPaths } from '../../Atoms/Icon';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Checkbox/readme.md';
 
 export default {
 	title: 'Molecules/Checkbox',
 	component: Checkbox,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		checked: {
@@ -131,8 +121,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		disableA11y: {
 			description: 'boolean to disable autoset ally properties',
@@ -149,15 +138,17 @@ export default {
 	},
 };
 
-export const Default = (args: CheckboxProps) => <Checkbox {...args} />;
+export const Default = {};
 
-export const Disabled = (args: CheckboxProps) => <Checkbox {...args} />;
-Disabled.args = {
-	checked: true,
-	disabled: true,
+export const Disabled = {
+	args: {
+		checked: true,
+		disabled: true,
+	},
 };
 
-export const Native = (args: CheckboxProps) => <Checkbox {...args} />;
-Native.args = {
-	native: true,
+export const Native = {
+	args: {
+		native: true,
+	},
 };

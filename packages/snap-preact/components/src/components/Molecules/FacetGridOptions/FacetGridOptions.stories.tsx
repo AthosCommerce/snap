@@ -1,10 +1,9 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { FacetGridOptions, FacetGridOptionsProps } from './FacetGridOptions';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../FacetGridOptions/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -12,26 +11,17 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Molecules/FacetGridOptions',
 	component: FacetGridOptions,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onClick: fn(),
+	},
 	argTypes: {
 		values: {
 			description: 'Facet.values store reference',
@@ -41,7 +31,7 @@ export default {
 					summary: 'facet values store array',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		facet: {
 			description: 'Facet store reference',
@@ -51,7 +41,7 @@ export default {
 					summary: 'facet store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		columns: {
 			defaultValue: 4,
@@ -121,7 +111,7 @@ export default {
 				},
 				defaultValue: { summary: '{}' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		onClick: {
 			description: 'Facet option click event handler',
@@ -131,8 +121,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -150,15 +139,17 @@ const ObservableFacetGridOptions = observer(({ args, controller }: { args: Facet
 	);
 });
 
-export const Default = (args: FacetGridOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservableFacetGridOptions args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: FacetGridOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservableFacetGridOptions args={args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
