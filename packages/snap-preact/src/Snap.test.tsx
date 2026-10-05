@@ -899,12 +899,11 @@ describe('Snap Preact', () => {
 		});
 
 		describe('early search keyed on the page context', () => {
-			const createSnap = (targeterConfig: { prefetch?: boolean } = {}, context?: SnapConfig['context']) => {
+			const createSnap = (targeterConfig: { prefetch?: boolean } = {}) => {
 				const baseConfig = generateBaseConfig();
 				const component = jest.fn(() => Component);
 				const searchConfig: SnapConfig = {
 					...baseConfig,
-					context,
 					controllers: {
 						search: [
 							{
@@ -955,16 +954,17 @@ describe('Snap Preact', () => {
 				expect(snap.controllers.search.store.loaded).toBe(true);
 			});
 
-			it('normalizes the case and whitespace of page.type', async () => {
+			it('does not normalize the case or whitespace of page.type', async () => {
 				document.body.innerHTML = `<script id="athos-context">page = { type: 'Category ' };</script>`;
-				const { component, searchSpy, categorySpy } = createSnap();
+				const { snap, component, searchSpy, categorySpy } = createSnap();
 
 				await wait();
 
-				// the early search runs, but SearchController only routes exact 'category' to the category endpoint
-				expect(searchSpy).toHaveBeenCalledTimes(1);
+				// matches SearchController, which only accepts the exact 'search' and 'category' values
+				expect(searchSpy).not.toHaveBeenCalled();
 				expect(categorySpy).not.toHaveBeenCalled();
-				expect(component).toHaveBeenCalledTimes(1);
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
 			});
 
 			it(`does not run the search early when page.type is 'product'`, async () => {
@@ -999,18 +999,6 @@ describe('Snap Preact', () => {
 				expect(searchSpy).not.toHaveBeenCalled();
 				expect(categorySpy).not.toHaveBeenCalled();
 				expect(component).not.toHaveBeenCalled();
-			});
-
-			it('falls back to the legacy pageType in config.context', async () => {
-				document.body.innerHTML = '';
-				const { snap, component, searchSpy, categorySpy } = createSnap({}, { pageType: 'search' });
-
-				await wait();
-
-				expect(searchSpy).toHaveBeenCalledTimes(1);
-				expect(categorySpy).not.toHaveBeenCalled();
-				expect(component).toHaveBeenCalledTimes(1);
-				expect(snap.controllers.search.store.loaded).toBe(true);
 			});
 		});
 	});
