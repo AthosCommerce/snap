@@ -23,6 +23,7 @@ export default {
 	decorators: [(Story: any) => <Story />],
 	args: {
 		onAddToCartClick: fn(),
+		onQuickviewClick: fn(),
 		onClick: fn(),
 	},
 	argTypes: {

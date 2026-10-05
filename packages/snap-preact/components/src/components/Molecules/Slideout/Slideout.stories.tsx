@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Slideout, SlideoutProps } from './Slideout';
 import { componentArgs } from '../../../utilities';
@@ -13,6 +14,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onChange: fn(),
 	},
 	argTypes: {
 		buttonContent: {
