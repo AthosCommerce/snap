@@ -40,9 +40,9 @@ jest.mock('../../Molecules/CalloutBadge', () => {
 
 import { ThemeProvider } from '../../../providers';
 import { chatAccentThemeComponents } from '../../Organisms/Chat/components/chatAccentTheme';
-import { ChatProductQueryMessage } from './ChatProductQueryMessage';
+import { ChatQuickview } from './ChatQuickview';
 
-describe('ChatProductQueryMessage Component', () => {
+describe('ChatQuickview Component', () => {
 	const makeController = (storeOverrides: any = {}, chatOverrides: any = {}) => {
 		const quickviewStore = {
 			isOpen: true,
@@ -89,29 +89,25 @@ describe('ChatProductQueryMessage Component', () => {
 
 	it('renders nothing for non-productQuery messages', () => {
 		const controller = makeController();
-		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'general', sourceProduct: {} } as any} controller={controller} />
-		);
-		expect(rendered.container.querySelector('.ss__chat-product-query-message')).toBeNull();
+		const rendered = render(<ChatQuickview chatItem={{ id: '1', messageType: 'general', sourceProduct: {} } as any} controller={controller} />);
+		expect(rendered.container.querySelector('.ss__chat-quickview')).toBeNull();
 	});
 
 	it('renders nothing when the controller has no quickview manager', () => {
 		const controller = makeController();
 		controller.quickviewManager = undefined;
-		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={controller} />
-		);
-		expect(rendered.container.querySelector('.ss__chat-product-query-message')).toBeNull();
+		const rendered = render(<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: {} } as any} controller={controller} />);
+		expect(rendered.container.querySelector('.ss__chat-quickview')).toBeNull();
 		expect(controller.log.warn).toHaveBeenCalled();
 	});
 
 	it('renders an inline QuickviewLayout from the quickview manager store', () => {
 		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
 
-		expect(rendered.container.querySelector('.ss__chat-product-query-message')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__chat-quickview')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__quickview')).not.toBeNull();
 		expect(rendered.getByText('Wool Hat')).toBeInTheDocument();
 
@@ -123,7 +119,7 @@ describe('ChatProductQueryMessage Component', () => {
 	it('renders the chat action modules in the default layout', () => {
 		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
 
 		expect(rendered.container.querySelector('.ss__quickview__add-to-cart')).not.toBeNull();
@@ -140,7 +136,7 @@ describe('ChatProductQueryMessage Component', () => {
 	it('renders the quickview loading state while the product loads', () => {
 		const controller = makeController({ loading: true, product: undefined });
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
 		expect(rendered.container.querySelector('.ss__quickview__loading')).not.toBeNull();
 	});
@@ -149,13 +145,13 @@ describe('ChatProductQueryMessage Component', () => {
 		const sourceMessage = { id: 'source-1', messageType: 'productComparison' };
 		const controller = makeController({ product: makeProduct() }, { chat: [sourceMessage] });
 		const rendered = render(
-			<ChatProductQueryMessage
+			<ChatQuickview
 				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' }, sourceMessageId: 'source-1' } as any}
 				controller={controller}
 			/>
 		);
 
-		const back = rendered.container.querySelector('.ss__chat-product-query-message__header__back');
+		const back = rendered.container.querySelector('.ss__chat-quickview__header__back');
 		expect(back).not.toBeNull();
 		expect(back).toHaveTextContent('Back to comparison');
 
@@ -168,13 +164,13 @@ describe('ChatProductQueryMessage Component', () => {
 		const sourceMessage = { id: 'source-1', messageType: 'inspirationResult' };
 		const controller = makeController({ product: makeProduct() }, { chat: [sourceMessage] });
 		const rendered = render(
-			<ChatProductQueryMessage
+			<ChatQuickview
 				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' }, sourceMessageId: 'source-1' } as any}
 				controller={controller}
 			/>
 		);
 
-		expect(rendered.container.querySelector('.ss__chat-product-query-message__header__back')).toHaveTextContent('Back to inspiration');
+		expect(rendered.container.querySelector('.ss__chat-quickview__header__back')).toHaveTextContent('Back to inspiration');
 	});
 
 	it('renders non-swatch selections as tile lists and counts values in the variant titles', () => {
@@ -188,7 +184,7 @@ describe('ChatProductQueryMessage Component', () => {
 		});
 		const controller = makeController({ product });
 		const rendered = render(
-			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
 
 		const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
@@ -204,7 +200,7 @@ describe('ChatProductQueryMessage Component', () => {
 		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
 			<ThemeProvider theme={{ type: 'templates', components: {} } as any}>
-				<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+				<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 			</ThemeProvider>
 		);
 
@@ -224,7 +220,7 @@ describe('ChatProductQueryMessage Component', () => {
 			}),
 		};
 		const rendered = render(
-			<ChatProductQueryMessage
+			<ChatQuickview
 				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any}
 				controller={controller}
 				theme={theme}
@@ -243,7 +239,7 @@ describe('ChatProductQueryMessage Component', () => {
 	it('passes a custom layout through to the QuickviewLayout', () => {
 		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
-			<ChatProductQueryMessage
+			<ChatQuickview
 				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any}
 				controller={controller}
 				layout={[['productDetail.mappings.core.name']]}
@@ -264,9 +260,9 @@ describe('ChatProductQueryMessage Component', () => {
 		});
 		const chatItem = { id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any;
 
-		const withDefault = render(<ChatProductQueryMessage chatItem={chatItem} controller={controller} />);
-		const defaultRoot = withDefault.container.querySelector('.ss__chat-product-query-message')!;
-		expect(defaultRoot).toHaveClass('ss__chat-product-query-message--default-layout');
+		const withDefault = render(<ChatQuickview chatItem={chatItem} controller={controller} />);
+		const defaultRoot = withDefault.container.querySelector('.ss__chat-quickview')!;
+		expect(defaultRoot).toHaveClass('ss__chat-quickview--default-layout');
 		expect(getComputedStyle(defaultRoot).height).toBe('100%');
 		const detailsRow = withDefault.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
 		expect(getComputedStyle(detailsRow).overflowY).toBe('auto');
@@ -274,10 +270,10 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(detailsRow.querySelector('.ss__quickview__column--c3 .ss__quickview__go-to-product')).not.toBeNull();
 
 		const withCustom = render(
-			<ChatProductQueryMessage chatItem={chatItem} controller={controller} layout={[['productDetail.mappings.core.name'], ['productDetailTable']]} />
+			<ChatQuickview chatItem={chatItem} controller={controller} layout={[['productDetail.mappings.core.name'], ['productDetailTable']]} />
 		);
-		const customRoot = withCustom.container.querySelector('.ss__chat-product-query-message')!;
-		expect(customRoot).not.toHaveClass('ss__chat-product-query-message--default-layout');
+		const customRoot = withCustom.container.querySelector('.ss__chat-quickview')!;
+		expect(customRoot).not.toHaveClass('ss__chat-quickview--default-layout');
 		expect(getComputedStyle(customRoot).height).not.toBe('100%');
 		const customSecondRow = withCustom.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
 		expect(getComputedStyle(customSecondRow).overflowY).not.toBe('auto');

@@ -490,7 +490,7 @@ export const ja: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: '商品の詳細を読み込み中...',
 		},

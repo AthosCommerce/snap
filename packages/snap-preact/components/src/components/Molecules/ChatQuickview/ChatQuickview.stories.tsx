@@ -2,13 +2,13 @@ import { h } from 'preact';
 
 import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 
-import { ChatProductQueryMessage, ChatProductQueryMessageProps } from './ChatProductQueryMessage';
+import { ChatQuickview, ChatQuickviewProps } from './ChatQuickview';
 import { componentArgs, highlightedCode } from '../../../utilities';
-import Readme from '../ChatProductQueryMessage/readme.md';
+import Readme from '../ChatQuickview/readme.md';
 
 export default {
-	title: 'Molecules/ChatProductQueryMessage',
-	component: ChatProductQueryMessage,
+	title: 'Molecules/ChatQuickview',
+	component: ChatQuickview,
 	tags: ['autodocs'],
 	parameters: {
 		docs: {
@@ -36,7 +36,7 @@ export default {
 		},
 		chatItem: {
 			description: 'productQuery chat message',
-			table: { category: 'Templates Legal', type: { summary: 'ChatProductQueryMessageItem' } },
+			table: { category: 'Templates Legal', type: { summary: 'ChatQuickviewItem' } },
 			control: { type: 'none' },
 		},
 		layout: {
@@ -98,7 +98,7 @@ mockController.quickviewManager = {
 	sourceController: mockController,
 };
 
-export const Default = (args: ChatProductQueryMessageProps) => <ChatProductQueryMessage {...args} controller={mockController} />;
+export const Default = (args: ChatQuickviewProps) => <ChatQuickview {...args} controller={mockController} />;
 Default.args = {
 	chatItem: { id: '1', messageType: 'productQuery', sourceProduct: {} } as any,
 };

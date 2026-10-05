@@ -30,7 +30,7 @@ import type { LibraryImports } from '../../../../../src/Templates/Stores/Library
 const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, column3, column4 }) => {
 	return css({
 		// note: `.ss__quickview__content` sizing/padding is owned by the rendering surface
-		// (QuickviewModal / QuickviewSlideout / ChatProductQueryMessage), not the layout
+		// (QuickviewModal / QuickviewSlideout / ChatQuickview), not the layout
 		// The module grid: a flex row of columns. Columns are full width below the desktop
 		// breakpoint (single column) and use their configured widths side-by-side above it.
 		'& .ss__quickview__row': {

@@ -490,7 +490,7 @@ export const vi: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Đang tải chi tiết sản phẩm...',
 		},

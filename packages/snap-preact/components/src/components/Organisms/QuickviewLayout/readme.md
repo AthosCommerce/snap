@@ -57,10 +57,10 @@ Each module returns `null` when it has nothing to show (no description, no displ
 |---|---|:---:|---|
 | `quickviewManager` | `QuickviewManager` | ✔️ | The component subscribes to `quickviewManager.store`. Renders `null` (with a console warning) when missing. |
 | `onClose` | `() => void` | | Hook into the quickview close. Will always call `quickviewManager.close()` in addition. |
-| `inline` | `boolean` | | Embedded in another panel (e.g. the chat secondary window via `ChatProductQueryMessage`): no `role="dialog"`/`aria-modal` focus trap, no window-Escape close, and no built-in close button — the host panel owns dismissal. Module presentation is unchanged. |
+| `inline` | `boolean` | | Embedded in another panel (e.g. the chat secondary window via `ChatQuickview`): no `role="dialog"`/`aria-modal` focus trap, no window-Escape close, and no built-in close button — the host panel owns dismissal. Module presentation is unchanged. |
 | `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
 | `hideBadge` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
-| `variantDropdownType` | `'dropdown' \| 'list'` | | Component type for variant selections that aren't swatches (by default they render as a dropdown). `ChatProductQueryMessage` sets `'list'`. |
+| `variantDropdownType` | `'dropdown' \| 'list'` | | Component type for variant selections that aren't swatches (by default they render as a dropdown). `ChatQuickview` sets `'list'`. |
 | `column1`–`column4` | `Column` | | `{ layout, width, alignContent }` configs for the `c1`–`c4` columns. |
 | `recommendation` | `{ component?, resultComponent?, config? }` | | Config for every `recommendation.<profile>` module (see Recommendations). |
 | `customComponent` | `string` | | Name of a custom template component override, resolved via the Snap templates library. |

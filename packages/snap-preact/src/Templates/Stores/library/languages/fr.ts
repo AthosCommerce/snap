@@ -496,7 +496,7 @@ export const fr: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Chargement des détails du produit...',
 		},

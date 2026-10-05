@@ -490,7 +490,7 @@ export const ko: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: '제품 세부 정보 로딩 중...',
 		},

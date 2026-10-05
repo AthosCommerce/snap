@@ -490,7 +490,7 @@ export const nl: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Productdetails worden geladen...',
 		},

@@ -13,7 +13,7 @@ import { Button, ButtonProps } from '../../Atoms/Button';
 import { QuickviewLayout, QuickviewLayoutProps, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
 import type { Product } from '@athoscommerce/snap-store-mobx';
 
-const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor, primaryColorText, theme }) => {
+const defaultStyles: StyleScript<ChatQuickviewProps> = ({ primaryColor, primaryColorText, theme }) => {
 	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
 	const colorPrimaryText = primaryColorText || '#fff';
 	const colorCta = Colour.concrete(theme?.variables?.colors?.accent) || '#feeeae';
@@ -26,7 +26,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 		flexDirection: 'column',
 		paddingBottom: '1em',
 
-		'.ss__chat-product-query-message__header__back.ss__button': {
+		'.ss__chat-quickview__header__back.ss__button': {
 			// Overlay banner pinned to the top of the secondary chat's scrollable messages
 			// container so it stays visible while the product details scroll underneath.
 			// Styling mirrors `.ss__chat__session-feedback` (dark primary bg, primary text,
@@ -84,7 +84,7 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 		// Default layout only: the component fills the chat's secondary window, the header banner row
 		// stays put, and the remaining rows (grouped in column 3) scroll on their own. A custom
 		// `layout` opts out since its rows are not grouped this way.
-		'&.ss__chat-product-query-message--default-layout': {
+		'&.ss__chat-quickview--default-layout': {
 			height: '100%',
 			minHeight: 0,
 			boxSizing: 'border-box',
@@ -440,11 +440,11 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 	});
 };
 
-export const ChatProductQueryMessage = observer((properties: ChatProductQueryMessageProps) => {
+export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 	const globalTheme: Theme = useTheme();
 	const globalTreePath = useTreePath();
 
-	const defaultProps: Partial<ChatProductQueryMessageProps> = {
+	const defaultProps: Partial<ChatQuickviewProps> = {
 		treePath: globalTreePath,
 		hideBadge: true,
 		// legacy chat presentation: non-swatch selections render as a row of selectable tiles
@@ -473,7 +473,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		},
 	};
 
-	const props = mergeProps('chatProductQueryMessage', globalTheme, defaultProps, properties);
+	const props = mergeProps('chatQuickview', globalTheme, defaultProps, properties);
 
 	const {
 		chatItem,
@@ -492,12 +492,12 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		recommendation,
 	} = props;
 
-	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatProductQueryMessage', props);
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatQuickview', props);
 
 	// the fixed-header/scrolling-details styling only applies to this component's own default layout
 	const isDefaultLayout = layout === defaultProps.layout;
 
-	const styling = mergeStyles<ChatProductQueryMessageProps>(props, defaultStyles);
+	const styling = mergeStyles<ChatQuickviewProps>(props, defaultStyles);
 
 	const { messageType } = chatItem;
 
@@ -515,7 +515,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	}
 
 	//initialize lang
-	const defaultLang: Partial<ChatProductQueryMessageLang> = {
+	const defaultLang: Partial<ChatQuickviewLang> = {
 		backToComparisonButton: {
 			value: 'Back to comparison',
 			attributes: {
@@ -537,13 +537,13 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const lang = deepmerge(defaultLang, props.lang || {});
 
 	if (messageType !== 'productQuery') {
-		controller?.log?.warn('ChatProductQueryMessage received message with unsupported type:', messageType, 'Expected type: productQuery');
+		controller?.log?.warn('ChatQuickview received message with unsupported type:', messageType, 'Expected type: productQuery');
 		return null;
 	}
 
 	if (!quickviewManager) {
 		controller?.log?.warn(
-			`ChatProductQueryMessage requires the controller's quickview manager — chat controllers receive one from Snap whenever they are configured`
+			`ChatQuickview requires the controller's quickview manager — chat controllers receive one from Snap whenever they are configured`
 		);
 		return null;
 	}
@@ -569,7 +569,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	};
 	props.theme = deepmerge.all([themePresentationProps, props?.theme || {}], { arrayMerge: (destinationArray, sourceArray) => sourceArray });
 
-	const subProps: ChatProductQueryMessageSubProps = {
+	const subProps: ChatQuickviewSubProps = {
 		button: {
 			disableStyles,
 			theme: props.theme,
@@ -596,18 +596,13 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	return (
 		<CacheProvider>
 			<div
-				className={classnames(
-					'ss__chat-product-query-message',
-					{ 'ss__chat-product-query-message--default-layout': isDefaultLayout },
-					className,
-					internalClassName
-				)}
+				className={classnames('ss__chat-quickview', { 'ss__chat-quickview--default-layout': isDefaultLayout }, className, internalClassName)}
 				{...styling}
 			>
 				{(cameFromInspiration || cameFromComparison) && (
 					<Button
 						{...subProps.button}
-						internalClassName={classnames('ss__chat-product-query-message__header__back')}
+						internalClassName={classnames('ss__chat-quickview__header__back')}
 						icon={{ icon: 'angle-left', size: '14px' }}
 						onClick={handleBack}
 						lang={{ button: cameFromComparison ? lang.backToComparisonButton : lang.backToInspirationButton }}
@@ -621,34 +616,34 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	);
 });
 
-interface ChatProductQueryMessageSubProps {
+interface ChatQuickviewSubProps {
 	button: Partial<ButtonProps>;
 	quickviewLayout: Partial<QuickviewLayoutProps>;
 }
 
-export type ChatProductQueryMessageProps = {
-	chatItem: ChatProductQueryMessageItem;
+export type ChatQuickviewProps = {
+	chatItem: ChatQuickviewItem;
 	controller?: ChatController;
-	lang?: Partial<ChatProductQueryMessageLang>;
+	lang?: Partial<ChatQuickviewLang>;
 	// `layout` is optional here (unlike on QuickviewLayout) because the container supplies a default
 	layout?: QuickviewLayoutTemplatesLegalProps['layout'];
-} & ChatProductQueryMessageTemplatesLegalProps &
+} & ChatQuickviewTemplatesLegalProps &
 	Omit<QuickviewLayoutTemplatesLegalProps, 'layout'> &
-	ComponentProps<ChatProductQueryMessageProps>;
+	ComponentProps<ChatQuickviewProps>;
 
-export type ChatProductQueryMessageItem = {
+export type ChatQuickviewItem = {
 	id: string;
 	messageType: 'productQuery';
 	sourceProduct: Product;
 	sourceMessageId?: string;
 };
 
-export type ChatProductQueryMessageTemplatesLegalProps = {
+export type ChatQuickviewTemplatesLegalProps = {
 	primaryColor?: string;
 	primaryColorText?: string;
 };
 
-export interface ChatProductQueryMessageLang extends Partial<QuickviewLayoutLang> {
+export interface ChatQuickviewLang extends Partial<QuickviewLayoutLang> {
 	backToComparisonButton?: Lang<never>;
 	backToInspirationButton?: Lang<never>;
 }

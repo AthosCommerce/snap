@@ -51,7 +51,7 @@ input.addEventListener('change', (e) => {
 ```
 
 ## ProductQuickView
-Pushes a `productQuery` message into the side-chat panel and opens the product quickview within the chat through the controller's [QuickviewManager](../Quickview/README.md) (`quickviewManager.show()` — products fetch, clone, variant build). The manager's store drives the panel: `store.isOpen` is the secondary window's visibility flag for product queries, and `ChatProductQueryMessage` renders a `QuickviewLayout` inline from `store.product`. Drops any prior `productQuery` attachment for a different product so the previous discussion target doesn't remain alongside the newly focused product.
+Pushes a `productQuery` message into the side-chat panel and opens the product quickview within the chat through the controller's [QuickviewManager](../Quickview/README.md) (`quickviewManager.show()` — products fetch, clone, variant build). The manager's store drives the panel: `store.isOpen` is the secondary window's visibility flag for product queries, and `ChatQuickview` renders a `QuickviewLayout` inline from `store.product`. Drops any prior `productQuery` attachment for a different product so the previous discussion target doesn't remain alongside the newly focused product.
 
 `productQuickView` is a no-op unless `settings.quickview.enabled` is `true`, and warns and no-ops when the controller was created without a `quickviewManager` service (Snap provides a chat-scoped manager automatically whenever chat controllers are configured).
 

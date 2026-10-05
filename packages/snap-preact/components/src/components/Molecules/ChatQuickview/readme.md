@@ -1,4 +1,4 @@
-# ChatProductQueryMessage
+# ChatQuickview
 
 Renders a `productQuery` chat message: an inline [QuickviewLayout](https://athoscommerce.github.io/snap/reference-quickview-layout) driven by the chat controller's quickview manager, plus a sticky "back to comparison / inspiration" banner when the message was opened from one of those flows.
 
@@ -10,14 +10,14 @@ Reads the product from `controller.quickviewManager.store` — populated by the 
 
 ## Usage
 ```tsx
-import { ChatProductQueryMessage } from '@athoscommerce/snap-preact/components';
+import { ChatQuickview } from '@athoscommerce/snap-preact/components';
 ```
 
 ### chatItem
 The chat message to render. Must have `messageType === 'productQuery'`. Messages of other types render nothing and emit a warning.
 
 ```tsx
-<ChatProductQueryMessage chatItem={chatItem} controller={controller} />
+<ChatQuickview chatItem={chatItem} controller={controller} />
 ```
 
 ### controller
@@ -48,7 +48,7 @@ column3: {
 
 The banner styling (primary background, button treatments, hidden slideshow chrome) is part of this component's default styles and keys off the first layout row — a custom `layout` whose first row is not the `c1`/`c2` banner should also restyle via `styleScript`/`disableStyles`.
 
-With the default `layout`, the component fills the chat's secondary window and the detail rows (grouped in `c3`) scroll on their own while the banner row stays fixed above them. This is gated on the `ss__chat-product-query-message--default-layout` modifier class, which is only added when no custom `layout` is supplied (via props or theme), so a custom layout keeps the plain flowing behaviour.
+With the default `layout`, the component fills the chat's secondary window and the detail rows (grouped in `c3`) scroll on their own while the banner row stays fixed above them. This is gated on the `ss__chat-quickview--default-layout` modifier class, which is only added when no custom `layout` is supplied (via props or theme), so a custom layout keeps the plain flowing behaviour.
 
 `button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. `button.more-info` links to the product page (`mappings.core.url`), tracking a clickThrough on the chat controller.
 

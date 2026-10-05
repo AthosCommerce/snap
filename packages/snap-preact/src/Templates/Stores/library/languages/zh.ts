@@ -490,7 +490,7 @@ export const zh: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: '正在加载产品详情...',
 		},

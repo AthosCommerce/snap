@@ -492,7 +492,7 @@ export const ru: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Загрузка деталей товара...',
 		},

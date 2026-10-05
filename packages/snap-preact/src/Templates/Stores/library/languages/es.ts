@@ -505,7 +505,7 @@ export const es: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Cargando detalles del producto...',
 		},

@@ -10,7 +10,7 @@ export type ChatAccentColors = {
 
 /**
  * Accent styling for buttons living inside child components (ChatResult's cart /
- * inquire icons and ChatProductQueryMessage's action buttons) — injected through
+ * inquire icons and ChatQuickview's action buttons) — injected through
  * the theme so each child applies it via its own style pipeline instead of the
  * organism reaching in with `!important` overrides.
  */
@@ -41,7 +41,7 @@ export const chatAccentThemeComponents = ({
 				},
 			},
 		},
-		chatProductQueryMessage: {
+		chatQuickview: {
 			style: {
 				'.ss__quickview__add-to-cart.ss__button': {
 					background: primaryAccentColorBg,

@@ -24,7 +24,7 @@ Molecules/Atoms:
 - ChatLoadingIndicator
 - ChatInspirationResultMessage
 - ChatProductComparisonMessage
-- ChatProductQueryMessage
+- ChatQuickview
 - Button, Image, Icon, Overlay, Dropdown, FacetSlider
 
 ## Usage

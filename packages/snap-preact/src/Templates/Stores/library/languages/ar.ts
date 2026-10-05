@@ -490,7 +490,7 @@ export const ar: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'جارٍ تحميل تفاصيل المنتج...',
 		},

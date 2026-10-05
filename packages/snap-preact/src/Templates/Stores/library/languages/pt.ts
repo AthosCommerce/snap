@@ -490,7 +490,7 @@ export const pt: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Carregando detalhes do produto...',
 		},
