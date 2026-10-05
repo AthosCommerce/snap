@@ -763,9 +763,8 @@ export class Snap {
 
 							// keep in sync with SearchController.ts:156 (page may be a string, e.g. page = "404")
 							const pageContext = this.context.page;
-							const contextPageType = (typeof pageContext === 'object' && pageContext?.type) || this.context.pageType; // pageType: legacy, config.context only
-							const contextPage = contextPageType && `${contextPageType}`.toLowerCase().trim();
-							const isPlp = ['search', 'category'].includes(contextPage);
+							const contextPageType = typeof pageContext === 'object' ? pageContext?.type : '';
+							const isPlp = ['search', 'category'].includes(contextPageType);
 
 							controller?.targeters?.forEach((target, target_index) => {
 								if (!target.selector) {
