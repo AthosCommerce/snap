@@ -13,10 +13,9 @@ export type QuickviewConfig = {
 	// The fields to display in the modal's attribute table (order preserved), or a function
 	// receiving the modal's product and returning them. Each entry configures the field, an
 	// optional display label (falling back to `meta.facets[field].label`, then the raw field key)
-	// and an optional display type (see DisplayFieldConfig). A plain string entry is shorthand
-	// for `{ field }` (the shape chat quickview settings use). Opt-in: when omitted, no
-	// attribute table renders.
-	displayFields?: (DisplayFieldConfig | string)[] | ((result: Product) => (DisplayFieldConfig | string)[]);
+	// and an optional display type (see DisplayFieldConfig). Opt-in: when omitted, no attribute
+	// table renders.
+	displayFields?: DisplayFieldConfig[] | ((result: Product) => DisplayFieldConfig[]);
 	// When false, the source `result` is used directly as the modal's product (no cloning).
 	// Variant selection in the modal will then mutate the source result tile. Default: true.
 	clone?: boolean;
@@ -147,12 +146,26 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 			});
 		}
 
-		// Initialize the modal's selections from the tile's captured choices. Runs after the
-		// productsData update above (whose autoSelect picks defaults) so the shopper's selection
-		// wins; makeSelections keeps the default for any option the modal's variant data no
-		// longer offers.
-		if (Object.keys(sourceSelections).length) {
-			product.variants?.makeSelections(sourceSelections);
+		// When the source result is itself a variant (its id matches a variant's uid — e.g. chat
+		// results), its options seed the modal's selections so the variant that was clicked is
+		// the one shown instead of the first available.
+		const matchedVariant = product.variants?.data.find(
+			(variant) => variant.mappings.core?.uid != null && `${variant.mappings.core.uid}` === `${result.id}`
+		);
+		const preferredSelections: Record<string, string[]> = {};
+		Object.entries(matchedVariant?.options || {}).forEach(([field, option]) => {
+			if (option?.value !== undefined) {
+				preferredSelections[field.toLowerCase()] = [option.value];
+			}
+		});
+
+		// Initialize the modal's selections from the tile's captured choices (which win over the
+		// matched variant's). Runs after the productsData update above (whose autoSelect picks
+		// defaults) so the shopper's selection wins; makeSelections keeps the default for any
+		// option the modal's variant data no longer offers.
+		Object.assign(preferredSelections, sourceSelections);
+		if (Object.keys(preferredSelections).length) {
+			product.variants?.makeSelections(preferredSelections);
 		}
 
 		this.product = product;

@@ -1,5 +1,4 @@
 import { h } from 'preact';
-import { useEffect } from 'preact/hooks';
 import { observer } from 'mobx-react-lite';
 import { css } from '@emotion/react';
 import classnames from 'classnames';
@@ -12,7 +11,7 @@ import { Lang, useCustomComponentOverride } from '../../../hooks';
 import type { ChatController } from '@athoscommerce/snap-controller';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { QuickviewLayout, QuickviewLayoutProps, QuickviewLayoutLang, QuickviewLayoutTemplatesLegalProps } from '../../Organisms/QuickviewLayout';
-import type { Product, VariantSelection } from '@athoscommerce/snap-store-mobx';
+import type { Product } from '@athoscommerce/snap-store-mobx';
 
 const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor, primaryColorText, theme }) => {
 	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
@@ -162,14 +161,11 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 				},
 			},
 
-			// pin the backgrounds so the Chat organism's generic `.ss__button:hover`
-			// lightening rule (higher specificity) doesn't recolor the action buttons
 			'.ss__button': {
 				flexDirection: 'row-reverse', // icon renders after the label — reverse to place it left
 				borderRadius: '0.5em',
 				padding: '0.4em 0.75em',
 				fontWeight: 'bold',
-				border: 'none',
 				whiteSpace: 'nowrap',
 				cursor: 'pointer',
 				fontSize: '0.8em',
@@ -180,30 +176,37 @@ const defaultStyles: StyleScript<ChatProductQueryMessageProps> = ({ primaryColor
 					width: 'auto',
 				},
 			},
-			'.ss__quickview__add-to-cart.ss__button': {
-				background: colorCta,
-				color: '#000',
+		},
 
-				svg: {
-					fill: '#000',
-					stroke: '#000',
-				},
-				'&:not(.ss__button--disabled):hover': {
-					background: colorCta,
-					filter: 'brightness(0.97)',
-				},
+		// Action button colors. Kept at the same specificity as the Chat organism's accent theme
+		// (chatAccentTheme.ts), which is applied after these and wins. The hover rules pin the
+		// backgrounds so the Chat organism's generic `.ss__button:hover` lightening rule doesn't
+		// recolor them.
+		'.ss__quickview__add-to-cart.ss__button': {
+			background: colorCta,
+			color: '#000',
+			border: 'none',
+
+			svg: {
+				fill: '#000',
+				stroke: '#000',
 			},
-			'.ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
-				background: '#000',
-				color: '#fff',
+			'&:not(.ss__button--disabled):hover': {
+				background: colorCta,
+				filter: 'brightness(0.97)',
+			},
+		},
+		'.ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
+			background: '#000',
+			color: '#fff',
+			border: 'none',
 
-				svg: {
-					fill: '#fff',
-					stroke: '#fff',
-				},
-				'&:not(.ss__button--disabled):hover': {
-					background: '#000',
-				},
+			svg: {
+				fill: '#fff',
+				stroke: '#fff',
+			},
+			'&:not(.ss__button--disabled):hover': {
+				background: '#000',
 			},
 		},
 
@@ -444,10 +447,13 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 	const defaultProps: Partial<ChatProductQueryMessageProps> = {
 		treePath: globalTreePath,
 		hideBadge: true,
+		// legacy chat presentation: non-swatch selections render as a row of selectable tiles
+		variantDropdownType: 'list',
 		// mirrors the legacy chat product panel: a header banner (image beside name/price and the
-		// add-to-cart/similar/discuss actions) followed by variants, the attribute table, and the
-		// description — the banner styling lives in defaultStyles above. The detail rows are grouped
-		// in column 3 so they can scroll independently of the banner (see defaultStyles).
+		// add-to-cart/similar/discuss actions) followed by variants, the attribute table, the
+		// description and a link to the product page — the banner styling lives in defaultStyles
+		// above. The detail rows are grouped in column 3 so they can scroll independently of the
+		// banner (see defaultStyles).
 		layout: [['c1', 'c2'], ['c3']],
 		column1: {
 			layout: ['slideshow'],
@@ -462,7 +468,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 			width: 'auto',
 		},
 		column3: {
-			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description']],
+			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
 			width: '100%',
 		},
 	};
@@ -478,6 +484,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		treePath,
 		layout,
 		hideBadge,
+		variantDropdownType,
 		column1,
 		column2,
 		column3,
@@ -492,44 +499,14 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 
 	const styling = mergeStyles<ChatProductQueryMessageProps>(props, defaultStyles);
 
-	const { messageType, sourceProduct } = chatItem;
+	const { messageType } = chatItem;
 
 	const quickviewManager = controller?.quickviewManager;
-	const product = quickviewManager?.store?.product as Product | undefined;
 
 	const chatMessages = controller?.store.currentChat?.chat || [];
 	const sourceMessage = chatItem.sourceMessageId ? chatMessages.find((m) => m.id === chatItem.sourceMessageId) : null;
 	const cameFromInspiration = sourceMessage?.messageType === 'inspirationResult';
 	const cameFromComparison = sourceMessage?.messageType === 'productComparison';
-
-	const variants = product?.variants;
-	const selections = variants?.selections || [];
-
-	// Ensure every selection has an initial value picked. Without this, entering
-	// the quickview from inspiration leaves all selections empty, and the first
-	// variant click can't narrow `refineSelections` to a single variant — so the
-	// active variant (and hero image) doesn't update until a second selection is
-	// made. Prefer the variant whose own id (uid) matches the clicked result's id
-	// so the panel reflects exactly the variant the user clicked; fall back to the
-	// first available value.
-	useEffect(() => {
-		if (messageType !== 'productQuery' || !product) return;
-
-		const sourceId = sourceProduct?.id;
-		const matchedVariant = sourceId != null ? variants?.data?.find((variant) => variant.mappings?.core?.uid === sourceId) : undefined;
-
-		selections.forEach((selection: VariantSelection) => {
-			if (selection.selected) return;
-			const matchedValue = matchedVariant?.options?.[selection.field]?.value;
-			const target =
-				(matchedValue != null && selection.values.find((v) => v.available && v.value == matchedValue)) ||
-				selection.values.find((v) => v.available) ||
-				selection.values[0];
-			if (target) {
-				selection.select(target.value);
-			}
-		});
-	}, [selections]);
 
 	// after all hooks — an override that resolves or fails mid-lifecycle must not
 	// change the hook count between renders
@@ -551,6 +528,9 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 				'aria-label': 'Back to inspiration',
 			},
 		},
+		variantTitle: {
+			value: ({ selection }) => `${selection.label || selection.field} (${selection.values.length})`,
+		},
 	};
 
 	//deep merge with props.lang
@@ -568,13 +548,19 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		return null;
 	}
 
-	// legacy chat presentation for the variant swatches: each tile shows the variant thumbnail with
-	// its value label beneath (the Swatches default hides labels). Injected through the theme so the
-	// children apply it via their own prop pipeline; the incoming theme wins on conflict.
+	// legacy chat presentation, injected through the theme so the children apply it via their own
+	// prop pipeline (the incoming theme wins on conflict): the action buttons carry icons, and swatch
+	// tiles show their value label beneath (the Swatches default hides labels).
 	const themePresentationProps: Theme = {
 		components: {
-			variantSelection: {
-				thumbnailSwatches: true,
+			'button.add-to-cart': {
+				icon: 'cart',
+			},
+			'button.similar': {
+				icon: 'search-thin',
+			},
+			'button.discuss': {
+				icon: 'chat',
 			},
 			swatches: {
 				hideLabels: false,
@@ -591,7 +577,7 @@ export const ChatProductQueryMessage = observer((properties: ChatProductQueryMes
 		},
 		quickviewLayout: {
 			// default props
-			...defined({ hideBadge, column1, column2, column3, column4, recommendation, lang }),
+			...defined({ hideBadge, variantDropdownType, column1, column2, column3, column4, recommendation, lang }),
 			// inherited props
 			...defined({
 				disableStyles,

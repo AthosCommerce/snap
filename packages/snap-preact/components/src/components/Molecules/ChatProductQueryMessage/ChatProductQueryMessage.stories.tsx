@@ -88,7 +88,7 @@ mockController.quickviewManager = {
 			attributes: { material: 'wool', color: 'black' },
 			variants: { selections: [] },
 		},
-		resolvedConfig: { displayFields: ['material', 'color'] },
+		resolvedConfig: { displayFields: [{ field: 'material' }, { field: 'color' }] },
 		error: undefined,
 	},
 	open: () => undefined,

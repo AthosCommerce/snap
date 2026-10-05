@@ -76,7 +76,7 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 
 	const props = mergeProps('variantSelection', globalTheme, defaultProps, properties);
 
-	const { selection, onSelect, thumbnailSwatches, disableStyles, className, internalClassName, treePath } = props;
+	const { selection, onSelect, disableStyles, className, internalClassName, treePath } = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('variantSelection', props);
 
@@ -92,17 +92,6 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 			type = 'dropdown';
 		}
 	}
-
-	// Swatch values without their own background fall back to each variant's thumbnail — but only
-	// when the thumbnails differ, otherwise the image carries no signal and the swatch stays text.
-	const thumbnails = selection.values.map((value) => value.thumbnailImageUrl);
-	const distinctThumbnails = thumbnails.some(Boolean) && thumbnails.some((thumbnail) => thumbnail !== thumbnails[0]);
-	const swatchOptions =
-		thumbnailSwatches && distinctThumbnails
-			? selection.values.map((value) =>
-					value.background || value.backgroundImageUrl ? value : { ...value, backgroundImageUrl: value.thumbnailImageUrl }
-			  )
-			: selection.values;
 
 	const onSelectHandler = (e: React.MouseEvent<HTMLElement, MouseEvent>, option: ListOption) => {
 		if (onSelect) {
@@ -253,7 +242,7 @@ export const VariantSelection = observer((properties: VariantSelectionProps) => 
 							return (
 								<>
 									{(() => {
-										return <Swatches {...subProps.swatches} options={swatchOptions} />;
+										return <Swatches {...subProps.swatches} options={selection.values} />;
 									})()}
 								</>
 							);
@@ -278,6 +267,5 @@ export type VariantSelectionProps = {
 
 export type VariantSelectionTemplatesLegalProps = {
 	type?: 'dropdown' | 'swatches' | 'list';
-	thumbnailSwatches?: boolean;
 	onSelect?: (e: React.MouseEvent<HTMLElement, MouseEvent>, option: ListOption) => void;
 };

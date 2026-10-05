@@ -706,6 +706,19 @@ describe('Chat Controller', () => {
 
 			expect(addToCartSpy).toHaveBeenCalledWith(expect.anything(), { quickView: true });
 		});
+
+		it('fires the delegated addToCart event without the quickview overrides, like other controllers', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			await controller.productQuickView(makeProduct());
+			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
+			const product = controller.quickviewManager!.store.product!;
+			await controller.quickviewManager!.addToCart(product);
+
+			expect(eventSpy).toHaveBeenCalledWith('addToCart', { controller, products: [product] });
+		});
 	});
 
 	describe('closeProductQuickview', () => {

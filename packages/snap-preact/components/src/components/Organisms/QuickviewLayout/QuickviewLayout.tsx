@@ -21,7 +21,7 @@ import { CalloutBadge } from '../../Molecules/CalloutBadge';
 import { Gallery } from '../../Molecules/Gallery';
 import { QuantityPicker } from '../../Molecules/QuantityPicker';
 
-import type { Product, DisplayFieldConfig } from '@athoscommerce/snap-store-mobx';
+import type { Product, DisplayFieldConfig, VariantSelection as VariantSelectionStore } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
 import type { ChatController, RecommendationController, RecommendationControllerConfig, QuickviewManager } from '@athoscommerce/snap-controller';
 import type { RecommendationProps, RecommendationGridProps } from '../../../';
@@ -166,9 +166,6 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			color: '#b00020',
 		},
 		'@media (min-width: 768px)': {
-			'& .ss__quickview__content': {
-				maxWidth: '880px',
-			},
 			'& .ss__quickview__column.ss__quickview__column--c1': {
 				flex: column1?.width == 'auto' ? '1 1 0' : `1 1 ${column1?.width}`,
 				maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
@@ -271,8 +268,20 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	};
 
 	const props = mergeProps('quickviewLayout', globalTheme, defaultProps, properties);
-	const { quickviewManager, className, internalClassName, disableStyles, treePath, hideBadge, column1, column2, column3, column4, recommendation } =
-		props;
+	const {
+		quickviewManager,
+		className,
+		internalClassName,
+		disableStyles,
+		treePath,
+		hideBadge,
+		variantDropdownType,
+		column1,
+		column2,
+		column3,
+		column4,
+		recommendation,
+	} = props;
 
 	// NOTE: the `!shouldRenderDefault` return lives below the last hook call — every hook in this
 	// component must run unconditionally on every render (shouldRenderDefault can flip while
@@ -306,11 +315,16 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		loadingText: {
 			value: 'Loading…',
 		},
+		variantTitle: {
+			value: ({ selection }: { selection: VariantSelectionStore }) => selection.label || selection.field,
+		},
 	};
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
+	// `variantTitle` needs a selection, so it is resolved per selection in the variant modules
+	const { variantTitle, ...layoutLang } = lang;
+	const mergedLang = useLang(layoutLang as any, {
 		quickviewManager,
 	});
 
@@ -466,12 +480,8 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	const store = quickviewManager.store;
 	const loading = Boolean(store.loading);
 	const configuredDisplayFields = store.resolvedConfig?.displayFields;
-	const resolvedDisplayFields =
+	const displayFields: DisplayFieldConfig[] | undefined =
 		typeof configuredDisplayFields === 'function' ? (product ? configuredDisplayFields(product) : undefined) : configuredDisplayFields;
-	// plain string entries are shorthand for `{ field }` (the shape chat quickview settings use)
-	const displayFields: DisplayFieldConfig[] | undefined = resolvedDisplayFields?.map((detail) =>
-		typeof detail === 'string' ? { field: detail } : detail
-	);
 	const error: { message: string; cause?: unknown } | undefined = store.error;
 
 	// Look up the display label for a field name from meta.facets[field].label.
@@ -646,18 +656,14 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		// the selection whose field matches (e.g. `variantSelection.color`). The field also matches its
 		// component-name form (`color_family` → `color-family`). A bare `variantSelection` module is
 		// not supported.
-		// Inline embeds (the chat panel) keep the legacy chat presentation: the title shows the
-		// value count, and every non-swatch selection renders as a list of selectable tiles
-		// instead of a dropdown.
+		// `variantDropdownType` swaps the component for selections that aren't swatches.
 		const renderSelection = (selection: NonNullable<typeof selections>[number]) => {
 			const isSwatch = selection.type === 'swatch' || selection.type === 'swatches';
-			const type = props.inline && !isSwatch ? 'list' : selection.type;
+			const type = variantDropdownType && !isSwatch ? variantDropdownType : selection.type;
+			const variantLang = useLang({ variantTitle } as any, { quickviewManager, selection });
 			return (
 				<div key={selection.field} className="ss__quickview__variant">
-					<div className="ss__quickview__variant-title">
-						{selection.label || selection.field}
-						{props.inline && <span className="ss__quickview__variant-title__count"> ({selection.values.length})</span>}
-					</div>
+					<div className="ss__quickview__variant-title" {...variantLang.variantTitle?.all}></div>
 					<VariantSelection
 						selection={selection}
 						type={type as VariantSelectionTemplatesLegalProps['type']}
@@ -691,7 +697,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					onClick={() => product && quickviewManager.addToCart([product])}
 					theme={props.theme}
 					treePath={treePath}
-					{...defined({ disableStyles, icon: props.inline ? 'cart' : undefined })}
+					{...defined({ disableStyles })}
 				/>
 			);
 		}
@@ -735,7 +741,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 						onClick={() => chatController.productSimilar(product)}
 						theme={props.theme}
 						treePath={treePath}
-						{...defined({ disableStyles, icon: props.inline ? 'search-thin' : undefined })}
+						{...defined({ disableStyles })}
 					/>
 				);
 			}
@@ -747,7 +753,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					onClick={() => chatController.productQuery(product)}
 					theme={props.theme}
 					treePath={treePath}
-					{...defined({ disableStyles, icon: props.inline ? 'chat' : undefined })}
+					{...defined({ disableStyles })}
 				/>
 			);
 		}
@@ -912,11 +918,17 @@ export interface QuickviewLayoutLang {
 	loadingText: Lang<{
 		quickviewManager: QuickviewManager;
 	}>;
+	variantTitle: Lang<{
+		quickviewManager: QuickviewManager;
+		selection: VariantSelectionStore;
+	}>;
 }
 
 export type QuickviewLayoutTemplatesLegalProps = {
 	layout: ModuleNamesWithColumns[];
 	hideBadge?: boolean;
+	// Component type for variant selections that aren't swatches (by default they render as a dropdown).
+	variantDropdownType?: 'dropdown' | 'list';
 	column1?: QuickviewColumn;
 	column2?: QuickviewColumn;
 	column3?: QuickviewColumn;

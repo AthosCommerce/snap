@@ -1,9 +1,16 @@
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
-import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
+import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes, TrackEventOverrides } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
-import { ChatRequestModel, ChatTrackingContext, MoiRequestModel, ProductIdentity, CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
+import {
+	ChatRequestModel,
+	ChatTrackingContext,
+	MoiRequestModel,
+	ProductIdentity,
+	CHAT_MAX_MESSAGE_LENGTH,
+	CHAT_ERROR_CODES,
+} from '@athoscommerce/snap-client';
 import type { ChatAttachmentImage, ChatAttachmentProduct, Product, Banner, ChatSessionStore } from '@athoscommerce/snap-store-mobx';
 import {
 	type Product as BeaconProduct,
@@ -83,16 +90,14 @@ const defaultConfig: ChatControllerConfig = {
 	},
 };
 
-/** Accepted so the QuickviewManager can delegate tracking back to a chat source controller
- * (it flags delegated events with `quickView: true`); forwarded on the fired event payloads. */
-type ChatTrackOverrides = { quickView?: boolean };
-
+// `overrides` keeps the signature compatible with QuickviewManager delegation; the chat beacon
+// schemas have no `quickView` flag, so chat does not forward them.
 type ChatTrackMethods = {
 	product: {
-		clickThrough: (e: MouseEvent, result: Product | Banner, overrides?: ChatTrackOverrides) => void;
-		click: (e: MouseEvent, result: Product | Banner, overrides?: ChatTrackOverrides) => void;
-		impression: (result: Product | Banner, overrides?: ChatTrackOverrides) => void;
-		addToCart: (result: Product, overrides?: ChatTrackOverrides) => void;
+		clickThrough: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		click: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		impression: (result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		addToCart: (result: Product, overrides?: TrackEventOverrides) => void;
 	};
 	feedback: (thumbs: 'UP' | 'DOWN') => void;
 };
@@ -483,19 +488,6 @@ export class ChatController extends AbstractController {
 		}
 	};
 
-	/** Open the product quickview panel through the shared QuickviewManager pipeline: the
-	 * manager fetches /v1/products, clones the result, builds variants and populates its
-	 * QuickviewStore — whose `isOpen` flag drives the chat secondary window for productQuery
-	 * messages. Superseded loads and back-outs are handled by the manager's own guards
-	 * (each show() supersedes the last; close() aborts an in-flight one). */
-	private loadProductQuickview = async (result: Product): Promise<void> => {
-		if (!this.quickviewManager) {
-			this.log.warn(`product quickview ignored — no 'quickviewManager' service was passed to this controller`);
-			return;
-		}
-		await this.quickviewManager.show(result, { controller: this });
-	};
-
 	/** Close the product quickview panel; also aborts an in-flight product load. */
 	closeProductQuickview = (): void => {
 		this.quickviewManager?.close();
@@ -533,7 +525,7 @@ export class ChatController extends AbstractController {
 		});
 
 		this.store.currentChat?.pushProductQueryMessage(result);
-		await this.loadProductQuickview(result);
+		await this.quickview(result);
 	};
 
 	/** Re-open an existing productQuery side-chat message (e.g. clicking the product
@@ -543,7 +535,7 @@ export class ChatController extends AbstractController {
 	reopenProductQuery = async (message: { id: string; sourceProduct?: Product }): Promise<void> => {
 		if (!message?.sourceProduct) return;
 		this.store.currentChat?.setActiveMessage(message.id);
-		await this.loadProductQuickview(message.sourceProduct);
+		await this.quickview(message.sourceProduct);
 	};
 
 	/** Switch the active chat session and re-sync the product quickview panel. The
@@ -570,7 +562,7 @@ export class ChatController extends AbstractController {
 		const quickviewStore = this.quickviewManager?.store;
 		if (quickviewStore?.isOpen && quickviewStore.product?.id === sourceProduct.id) return;
 
-		await this.loadProductQuickview(sourceProduct);
+		await this.quickview(sourceProduct);
 	};
 
 	compareProduct = (result: Product): void => {
@@ -632,7 +624,7 @@ export class ChatController extends AbstractController {
 		// user's variant selections; still reload if it was closed or errored
 		const quickviewStore = this.quickviewManager?.store;
 		if (!(quickviewStore?.isOpen && quickviewStore.product?.id === result.id && !quickviewStore.error)) {
-			this.loadProductQuickview(result);
+			this.quickview(result);
 		}
 		this.focusInputDesktopOnly();
 	};
@@ -928,18 +920,18 @@ export class ChatController extends AbstractController {
 			this.store.currentChat?.setPendingRequest(null);
 			if (err) {
 				if (err.err && err.fetchDetails) {
-					if (err.responseBody?.errorCode === 'CS_002') {
-						// exceeded maximum number of session allowed
+					if (err.responseBody?.errorCode === CHAT_ERROR_CODES.QUOTA_LIMIT) {
+						// quota limit reached — not retried by the client, and won't clear within a retry window
 						this.store.error = {
 							type: ErrorType.WARNING,
 							message: 'Chat is temporarily unavailable. Please try again later.',
 						};
-					} else if (err.responseBody?.errorCode === 'CS_003') {
+					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.SESSION_LIMIT) {
 						// session limit exceeded — flag the current chat so the UI can show a banner
 						if (this.store.currentChat) {
 							this.store.currentChat.sessionLimitReached = true;
 						}
-					} else if (err.responseBody?.errorCode === 'CS_006') {
+					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.CONTENT_POLICY) {
 						this.store.error = {
 							type: ErrorType.ERROR,
 							message:
@@ -1037,7 +1029,7 @@ export class ChatController extends AbstractController {
 
 	track: ChatTrackMethods = {
 		product: {
-			addToCart: (result: Product, overrides?: ChatTrackOverrides): void => {
+			addToCart: (result: Product): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.addToCart');
 					return;
@@ -1066,10 +1058,10 @@ export class ChatController extends AbstractController {
 					responseId,
 					results: [product],
 				};
-				this.eventManager.fire('track.product.addToCart', { controller: this, product: result, trackEvent: data, ...(overrides || {}) });
+				this.eventManager.fire('track.product.addToCart', { controller: this, product: result, trackEvent: data });
 				this.config.beacon?.enabled && this.tracker.events.chat.addToCart({ data, siteId: this.config.siteId });
 			},
-			clickThrough: (e: MouseEvent, result: Product | Banner, overrides?: ChatTrackOverrides): void => {
+			clickThrough: (e: MouseEvent, result: Product | Banner): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.clickThrough');
 					return;
@@ -1098,10 +1090,10 @@ export class ChatController extends AbstractController {
 					responseId,
 					results: [item],
 				};
-				this.eventManager.fire('track.product.clickThrough', { controller: this, event: e, product: result, trackEvent: data, ...(overrides || {}) });
+				this.eventManager.fire('track.product.clickThrough', { controller: this, event: e, product: result, trackEvent: data });
 				this.config.beacon?.enabled && this.tracker.events.chat.clickThrough({ data, siteId: this.config.siteId });
 			},
-			click: (e: MouseEvent, result: Product | Banner, overrides?: ChatTrackOverrides): void => {
+			click: (e: MouseEvent, result: Product | Banner): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.click');
 					return;
@@ -1120,7 +1112,7 @@ export class ChatController extends AbstractController {
 					if (this.events[responseId]?.product[result.id]?.clickThrough) {
 						return;
 					}
-					this.track.product.clickThrough(e, result as Product, overrides);
+					this.track.product.clickThrough(e, result as Product);
 					this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
 					this.events[responseId].product[result.id].clickThrough = true;
 					setTimeout(() => {
@@ -1130,7 +1122,7 @@ export class ChatController extends AbstractController {
 					}, CLICK_DUPLICATION_TIMEOUT);
 				}
 			},
-			impression: (result: Product | Banner, overrides?: ChatTrackOverrides): void => {
+			impression: (result: Product | Banner): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.impression');
 					return;
@@ -1181,7 +1173,7 @@ export class ChatController extends AbstractController {
 					responseId,
 					results: [item],
 				};
-				this.eventManager.fire('track.product.impression', { controller: this, product: result, trackEvent: data, ...(overrides || {}) });
+				this.eventManager.fire('track.product.impression', { controller: this, product: result, trackEvent: data });
 				this.config.beacon?.enabled && this.tracker.events.chat.impression({ data, siteId: this.config.siteId });
 				this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
 				this.events[responseId].product[result.id].impression = true;
@@ -1208,17 +1200,17 @@ export class ChatController extends AbstractController {
 		},
 	};
 
-	addToCart = async (_products: Product[] | Product, options?: ChatTrackOverrides): Promise<void> => {
+	addToCart = async (_products: Product[] | Product): Promise<void> => {
 		const products = typeof (_products as Product[])?.slice == 'function' ? (_products as Product[]).slice() : [_products];
 		if (!_products || products.length === 0) {
 			this.log.warn('No products provided to chat controller.addToCart');
 			return;
 		}
 		(products as Product[]).forEach((product) => {
-			this.track.product.addToCart(product, options);
+			this.track.product.addToCart(product);
 		});
 		if (products.length > 0) {
-			this.eventManager.fire('addToCart', { controller: this, products, ...(options || {}) });
+			this.eventManager.fire('addToCart', { controller: this, products });
 		}
 	};
 }

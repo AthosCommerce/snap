@@ -1008,5 +1008,8 @@ export const nl: LangComponents = {
 		loadingText: {
 			value: 'Laden…',
 		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
+		},
 	},
 };

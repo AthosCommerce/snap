@@ -1007,5 +1007,8 @@ export const tr: LangComponents = {
 		loadingText: {
 			value: 'Yükleniyor…',
 		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
+		},
 	},
 };

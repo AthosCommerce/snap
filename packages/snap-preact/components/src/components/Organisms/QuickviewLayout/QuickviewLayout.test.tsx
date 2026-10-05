@@ -297,30 +297,6 @@ describe('QuickviewLayout', () => {
 		expect(rendered.queryByText('color')).toBeNull();
 	});
 
-	it('accepts plain string displayFields entries as { field } shorthand', () => {
-		const storeProduct = {
-			id: 'mine',
-			mappings: { core: { name: 'Mine' } },
-			attributes: { color: 'red', size: 'M' },
-		};
-		const { quickviewManager } = makeQuickviewManager({
-			store: {
-				isOpen: true,
-				loading: false,
-				product: storeProduct,
-				// the string form is what chat quickview settings use (displayFields: string[])
-				resolvedConfig: { displayFields: ['size', { field: 'color' }] },
-			},
-		});
-
-		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
-
-		expect(rendered.getByText('size')).toBeInTheDocument();
-		expect(rendered.getByText('M')).toBeInTheDocument();
-		expect(rendered.getByText('color')).toBeInTheDocument();
-		expect(rendered.getByText('red')).toBeInTheDocument();
-	});
-
 	it('falls back to the field name when meta has no label for a field', () => {
 		const storeProduct = {
 			id: 'mine',
@@ -1786,45 +1762,7 @@ describe('QuickviewLayout', () => {
 			expect(close).toHaveBeenCalled();
 		});
 
-		it('shows the value count in variant titles and renders non-swatch selections as lists', () => {
-			const product = {
-				id: 'mine',
-				mappings: { core: { name: 'Mine' } },
-				attributes: {},
-				variants: {
-					selections: [
-						{
-							field: 'color',
-							label: 'Color',
-							type: 'swatches',
-							values: [{ value: 'Black' }, { value: 'Brown' }],
-							select: () => undefined,
-						},
-						{
-							field: 'size',
-							label: 'Size',
-							type: 'dropdown',
-							values: [{ value: 'S' }, { value: 'M' }, { value: 'L' }],
-							select: () => undefined,
-						},
-					],
-				},
-			};
-			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
-
-			const rendered = render(<QuickviewLayout inline quickviewManager={quickviewManager} layout={[['variantSelections']]} />);
-
-			const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
-			expect(titles[0].textContent).toBe('Color (2)');
-			expect(titles[1].textContent).toBe('Size (3)');
-
-			const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
-			expect(selections[0].getAttribute('data-type')).toBe('swatches');
-			// the explicit dropdown type is replaced by the tile list in the chat panel
-			expect(selections[1].getAttribute('data-type')).toBe('list');
-		});
-
-		it('keeps plain variant titles and configured selection types when not inline', () => {
+		it('leaves variant titles, selection types and button icons untouched', () => {
 			const product = {
 				id: 'mine',
 				mappings: { core: { name: 'Mine' } },
@@ -1835,33 +1773,71 @@ describe('QuickviewLayout', () => {
 			};
 			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
 
-			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelections']]} />);
+			const rendered = render(
+				<QuickviewLayout inline quickviewManager={quickviewManager} layout={[['variantSelections'], ['button.add-to-cart']]} />
+			);
 
 			expect(rendered.container.querySelector('.ss__quickview__variant-title')!.textContent).toBe('Size');
 			expect(rendered.container.querySelector('.ss__variant-selection-mock')!.getAttribute('data-type')).toBe('dropdown');
+			expect(rendered.container.querySelector('.ss__quickview__add-to-cart .ss__icon')).toBeNull();
+		});
+	});
+
+	describe('variant presentation', () => {
+		const product = {
+			id: 'mine',
+			mappings: { core: { name: 'Mine' } },
+			attributes: {},
+			variants: {
+				selections: [
+					{ field: 'color', label: 'Color', type: 'swatches', values: [{ value: 'Black' }, { value: 'Brown' }], select: () => undefined },
+					{ field: 'size', label: 'Size', type: 'dropdown', values: [{ value: 'S' }, { value: 'M' }, { value: 'L' }], select: () => undefined },
+				],
+			},
+		};
+
+		it('renders non-swatch selections with the variantDropdownType and leaves swatches alone', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelections']]} variantDropdownType="list" />);
+
+			const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
+			expect(selections[0].getAttribute('data-type')).toBe('swatches');
+			expect(selections[1].getAttribute('data-type')).toBe('list');
 		});
 
-		it('renders button icons only when inline', () => {
-			const sourceController = {
-				type: 'chat',
-				store: { meta: { data: { facets: {} } }, features: { similarProducts: { enabled: true } } },
-				log: { warn: jest.fn(), error: jest.fn() },
-				productSimilar: jest.fn(),
-				productQuery: jest.fn(),
-			};
-			const layout: QuickviewLayoutProps['layout'] = [['button.add-to-cart', 'button.similar', 'button.discuss']];
+		it('keeps the configured selection types without a variantDropdownType', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
 
-			const { quickviewManager } = makeQuickviewManager({ sourceController, store: { isOpen: true, product: storeProduct } });
-			const rendered = render(<QuickviewLayout inline quickviewManager={quickviewManager} layout={layout} />);
-			expect(rendered.container.querySelector('.ss__quickview__add-to-cart .ss__icon')).not.toBeNull();
-			expect(rendered.container.querySelector('.ss__quickview__similar .ss__icon')).not.toBeNull();
-			expect(rendered.container.querySelector('.ss__quickview__discuss .ss__icon')).not.toBeNull();
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelections']]} />);
 
-			const { quickviewManager: quickviewManager2 } = makeQuickviewManager({ sourceController, store: { isOpen: true, product: storeProduct } });
-			const rendered2 = render(<QuickviewLayout quickviewManager={quickviewManager2} layout={layout} />);
-			expect(rendered2.container.querySelector('.ss__quickview__add-to-cart .ss__icon')).toBeNull();
-			expect(rendered2.container.querySelector('.ss__quickview__similar .ss__icon')).toBeNull();
-			expect(rendered2.container.querySelector('.ss__quickview__discuss .ss__icon')).toBeNull();
+			const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
+			expect(selections[0].getAttribute('data-type')).toBe('swatches');
+			expect(selections[1].getAttribute('data-type')).toBe('dropdown');
+		});
+
+		it('renders variant titles through the variantTitle lang with the selection', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
+
+			const rendered = render(
+				<QuickviewLayout
+					quickviewManager={quickviewManager}
+					layout={[['variantSelections']]}
+					lang={{ variantTitle: { value: ({ selection }) => `${selection.label} (${selection.values.length})` } }}
+				/>
+			);
+
+			const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
+			expect(titles[0].textContent).toBe('Color (2)');
+			expect(titles[1].textContent).toBe('Size (3)');
+		});
+
+		it('defaults variant titles to the selection label', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['variantSelection.size']]} />);
+
+			expect(rendered.container.querySelector('.ss__quickview__variant-title')!.textContent).toBe('Size');
 		});
 	});
 });

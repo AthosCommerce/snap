@@ -10,7 +10,7 @@ The `ChatController` is used for the AI-powered conversational shopping assistan
 | globals | keys defined here will be passed to the chat API request | ➖ |   |
 | settings.feedbackAfterMessages | number of assistant messages before showing a session feedback prompt | `3` |   |
 | settings.quickview.enabled | enable the product quickview panel for chat product clicks | `false` |   |
-| settings.quickview.displayFields | array of field names shown in the panel's attribute table (string entries are shorthand for `{ field }`; merged over the quickview manager's `settings.displayFields`) | ➖ |   |
+| settings.quickview.displayFields | array of fields `{ field, label?, type? }` (`DisplayFieldConfig`) shown in the panel's attribute table (merged over the quickview manager's `settings.displayFields`). `type` selects how the value renders (`text` default, `price`, `rating`, `image`, `html`). | ➖ |   |
 | settings.bgFilters | `Record<string, string>` of background filters forwarded to the chat init API as `searchConfig.bgFilters` | ➖ |   |
 | settings.inputSelector | CSS selector used by `focusInput` to locate the chat text input | `'.ss__chat__input input[type="text"]'` |   |
 | beacon.enabled | enable or disable analytics tracking for chat events | `true` |   |

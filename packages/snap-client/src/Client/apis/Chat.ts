@@ -21,7 +21,11 @@ import { defined } from '../utils/defined';
 const JSON_HEADERS: HTTPHeaders = { 'Content-Type': 'application/json' };
 
 export const CHAT_MAX_MESSAGE_LENGTH = 256;
-export const CHAT_QUOTA_LIMIT_ERROR_CODE = 'CS_002';
+export const CHAT_ERROR_CODES = {
+	QUOTA_LIMIT: 'CS_002',
+	SESSION_LIMIT: 'CS_003',
+	CONTENT_POLICY: 'CS_006',
+} as const;
 
 const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> => {
 	return defined({
@@ -36,7 +40,7 @@ const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> =>
 export class ChatAPI extends API<ChatRequesterPaths> {
 	// a quota limit (CS_002) will not clear within the retry window, so retrying only delays surfacing the error
 	protected shouldRetry(responseJSON: Json): boolean {
-		return responseJSON?.errorCode !== CHAT_QUOTA_LIMIT_ERROR_CODE;
+		return responseJSON?.errorCode !== CHAT_ERROR_CODES.QUOTA_LIMIT;
 	}
 
 	// chat responses identify the chat session via an `x-session-id` response header;

@@ -1015,5 +1015,8 @@ export const fr: LangComponents = {
 		loadingText: {
 			value: 'Chargement…',
 		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
+		},
 	},
 };

@@ -1006,5 +1006,8 @@ export const zh: LangComponents = {
 		loadingText: {
 			value: '加载中…',
 		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
+		},
 	},
 };

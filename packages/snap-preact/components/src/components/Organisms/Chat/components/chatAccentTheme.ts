@@ -43,27 +43,28 @@ export const chatAccentThemeComponents = ({
 		},
 		chatProductQueryMessage: {
 			style: {
-				'.ss__chat-product-query-message__header__product__actions': {
-					'.ss__chat-product-query-message__header__product__actions__add-to-cart .ss__button': {
-						background: primaryAccentColorBg,
-						color: primaryAccentColorFg,
-						svg: {
-							fill: primaryAccentColorFg,
-							stroke: primaryAccentColorFg,
-						},
-						'&:not(.ss__button--disabled):hover': {
-							background: new Colour(primaryAccentColorBg).mixBlack(),
-						},
+				'.ss__quickview__add-to-cart.ss__button': {
+					background: primaryAccentColorBg,
+					color: primaryAccentColorFg,
+					svg: {
+						fill: primaryAccentColorFg,
+						stroke: primaryAccentColorFg,
 					},
-					'.ss__chat-product-query-message__header__product__actions__show-similar .ss__button, .ss__chat-product-query-message__header__product__actions__discuss-product .ss__button':
-						{
-							background: secondaryAccentColorBg,
-							color: secondaryAccentColorFg,
-							border: `1px solid ${secondaryAccentColorFg}`,
-							'&:not(.ss__button--disabled):hover': {
-								background: new Colour(secondaryAccentColorBg).mixBlack(),
-							},
-						},
+					'&:not(.ss__button--disabled):hover': {
+						background: new Colour(primaryAccentColorBg).mixBlack(),
+					},
+				},
+				'.ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
+					background: secondaryAccentColorBg,
+					color: secondaryAccentColorFg,
+					border: `1px solid ${secondaryAccentColorFg}`,
+					svg: {
+						fill: secondaryAccentColorFg,
+						stroke: secondaryAccentColorFg,
+					},
+					'&:not(.ss__button--disabled):hover': {
+						background: new Colour(secondaryAccentColorBg).mixBlack(),
+					},
 				},
 			},
 		},

@@ -1007,5 +1007,8 @@ export const hi: LangComponents = {
 		loadingText: {
 			value: 'लोड हो रहा है…',
 		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
+		},
 	},
 };

@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { render, fireEvent } from '@testing-library/preact';
 
 // Mock the heavy molecules the embedded QuickviewLayout renders — these tests assert the
-// chat wrapper's composition (layout embedding, back banner, variant preselection), not the
+// chat wrapper's composition (layout embedding, back banner, chat presentation), not the
 // internals of the slideshow/variant atoms.
 jest.mock('../../Molecules/Slideshow', () => {
 	const { h: hh } = require('preact');
@@ -19,7 +19,8 @@ jest.mock('../../Molecules/Slideshow', () => {
 jest.mock('../../Molecules/VariantSelection', () => {
 	const { h: hh } = require('preact');
 	return {
-		VariantSelection: ({ selection }: any) => hh('div', { className: 'ss__variant-selection-mock', 'data-field': selection?.field }),
+		VariantSelection: ({ selection, type }: any) =>
+			hh('div', { className: 'ss__variant-selection-mock', 'data-field': selection?.field, 'data-type': type ?? '' }),
 	};
 });
 
@@ -37,6 +38,8 @@ jest.mock('../../Molecules/CalloutBadge', () => {
 	};
 });
 
+import { ThemeProvider } from '../../../providers';
+import { chatAccentThemeComponents } from '../../Organisms/Chat/components/chatAccentTheme';
 import { ChatProductQueryMessage } from './ChatProductQueryMessage';
 
 describe('ChatProductQueryMessage Component', () => {
@@ -174,91 +177,67 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(rendered.container.querySelector('.ss__chat-product-query-message__header__back')).toHaveTextContent('Back to inspiration');
 	});
 
-	it('auto-selects the variant whose uid matches the clicked result id', () => {
-		const select = jest.fn();
+	it('renders non-swatch selections as tile lists and counts values in the variant titles', () => {
 		const product = makeProduct({
 			variants: {
-				data: [
-					{ available: true, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } },
-					{ available: true, mappings: { core: { uid: 'variant-brown' } }, options: { color: { value: 'brown' } } },
-				],
 				selections: [
-					{
-						field: 'color',
-						values: [
-							{ value: 'black', available: true },
-							{ value: 'brown', available: true },
-						],
-						selected: undefined,
-						select,
-					},
+					{ field: 'color', label: 'Color', type: 'swatches', values: [{ value: 'black' }, { value: 'brown' }], select: jest.fn() },
+					{ field: 'size', label: 'Size', type: 'dropdown', values: [{ value: 'S' }, { value: 'M' }, { value: 'L' }], select: jest.fn() },
 				],
 			},
 		});
 		const controller = makeController({ product });
-		render(
-			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-brown' } } as any}
-				controller={controller}
-			/>
+		const rendered = render(
+			<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
 		);
-		expect(select).toHaveBeenCalledWith('brown');
+
+		const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
+		expect(titles[0].textContent).toBe('Color (2)');
+		expect(titles[1].textContent).toBe('Size (3)');
+
+		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
+		expect(selections[0].getAttribute('data-type')).toBe('swatches');
+		expect(selections[1].getAttribute('data-type')).toBe('list');
 	});
 
-	it('falls back to the first available value when no variant uid matches', () => {
-		const select = jest.fn();
-		const product = makeProduct({
-			variants: {
-				data: [
-					{ available: false, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } },
-					{ available: true, mappings: { core: { uid: 'variant-brown' } }, options: { color: { value: 'brown' } } },
-				],
-				selections: [
-					{
-						field: 'color',
-						values: [
-							{ value: 'black', available: false },
-							{ value: 'brown', available: true },
-						],
-						selected: undefined,
-						select,
-					},
-				],
-			},
-		});
-		const controller = makeController({ product });
-		render(
-			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'no-such-variant' } } as any}
-				controller={controller}
-			/>
+	it('gives the action buttons their icons through named theme selectors', () => {
+		const controller = makeController({ product: makeProduct() });
+		const rendered = render(
+			<ThemeProvider theme={{ type: 'templates', components: {} } as any}>
+				<ChatProductQueryMessage chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			</ThemeProvider>
 		);
-		expect(select).toHaveBeenCalledWith('brown');
+
+		expect(rendered.container.querySelector('.ss__quickview__add-to-cart .ss__icon--cart')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__similar .ss__icon--search-thin')).not.toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__discuss .ss__icon--chat')).not.toBeNull();
 	});
 
-	it('does not reselect when a selection already has a value', () => {
-		const select = jest.fn();
-		const product = makeProduct({
-			variants: {
-				data: [{ available: true, mappings: { core: { uid: 'variant-black' } }, options: { color: { value: 'black' } } }],
-				selections: [
-					{
-						field: 'color',
-						values: [{ value: 'black', available: true }],
-						selected: { value: 'black' },
-						select,
-					},
-				],
-			},
-		});
-		const controller = makeController({ product });
-		render(
+	it('lets the Chat accent theme recolor the action buttons', () => {
+		const controller = makeController({ product: makeProduct() });
+		const theme = {
+			components: chatAccentThemeComponents({
+				primaryAccentColorBg: 'rgb(255, 0, 0)',
+				primaryAccentColorFg: 'rgb(0, 0, 255)',
+				secondaryAccentColorBg: 'rgb(0, 128, 0)',
+				secondaryAccentColorFg: 'rgb(255, 255, 0)',
+			}),
+		};
+		const rendered = render(
 			<ChatProductQueryMessage
-				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'variant-black' } } as any}
+				chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any}
 				controller={controller}
+				theme={theme}
 			/>
 		);
-		expect(select).not.toHaveBeenCalled();
+
+		const addToCart = rendered.container.querySelector('.ss__quickview__add-to-cart')!;
+		expect(getComputedStyle(addToCart).background).toBe('rgb(255, 0, 0)');
+		expect(getComputedStyle(addToCart).color).toBe('rgb(0, 0, 255)');
+
+		const discuss = rendered.container.querySelector('.ss__quickview__discuss')!;
+		expect(getComputedStyle(discuss).background).toBe('rgb(0, 128, 0)');
+		expect(getComputedStyle(discuss).color).toBe('rgb(255, 255, 0)');
 	});
 
 	it('passes a custom layout through to the QuickviewLayout', () => {
@@ -291,6 +270,8 @@ describe('ChatProductQueryMessage Component', () => {
 		expect(getComputedStyle(defaultRoot).height).toBe('100%');
 		const detailsRow = withDefault.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
 		expect(getComputedStyle(detailsRow).overflowY).toBe('auto');
+		// the product page link sits at the end of the scrolling details
+		expect(detailsRow.querySelector('.ss__quickview__column--c3 .ss__quickview__go-to-product')).not.toBeNull();
 
 		const withCustom = render(
 			<ChatProductQueryMessage chatItem={chatItem} controller={controller} layout={[['productDetail.mappings.core.name'], ['productDetailTable']]} />

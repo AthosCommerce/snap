@@ -1,6 +1,6 @@
 export * from './Client/Client';
 
-export { CHAT_MAX_MESSAGE_LENGTH } from './Client/apis/Chat';
+export { CHAT_MAX_MESSAGE_LENGTH, CHAT_ERROR_CODES } from './Client/apis/Chat';
 
 export {
 	ClientGlobals,

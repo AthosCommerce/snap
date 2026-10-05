@@ -1009,5 +1009,8 @@ export const de: LangComponents = {
 		loadingText: {
 			value: 'Wird geladen…',
 		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
+		},
 	},
 };
