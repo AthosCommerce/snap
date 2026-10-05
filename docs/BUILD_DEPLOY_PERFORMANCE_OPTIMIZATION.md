@@ -51,7 +51,9 @@ Otherwise, if you are not using the `Image` component, ensure product images are
 
 ### Prefetch Strategies
 
-Use `prefetch` sparingly and only for components that are likely to be viewed. When `prefetch` is enabled, the controller's search method is called immediately when the targeter is registered, before the target element is found in the DOM:
+On pages whose context declares `page = { type: 'search' }` or `page = { type: 'category' }`, search targeters prefetch by default: the controller's search is issued as soon as the bundle executes, before the target element is found in the DOM. Set `prefetch: true` on a targeter to force this on any page, or `prefetch: false` to opt a targeter out (for example when the page type is set but the results are rendered elsewhere).
+
+Use `prefetch: true` sparingly and only for components that are likely to be viewed:
 
 ```tsx
 const config = {

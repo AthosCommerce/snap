@@ -7,7 +7,7 @@ import { DomTargeter } from '@athoscommerce/snap-toolbox';
 
 The constructor accepts an array of targets, an onTarget callback function, and optionally the Document.
 
-When the DomTargeter is constructed it will immediately look for elements in the document that match each target selector. When found the `onTarget` functions will be executed. DomTargeters will additionally look for targets when the `DOMContentLoaded` document event fires. Should targets be added after, the `retarget` method can be utilized.
+When the DomTargeter is constructed it will immediately look for elements in the document that match each target selector. When found the `onTarget` functions will be executed. DomTargeters will additionally look for targets when the `DOMContentLoaded` document event fires, and targets with `autoRetarget` keep polling for elements until they are found (see [`autoRetarget`](#autoretarget)). Should targets be added after, the `retarget` method can be utilized.
 
 Typical usage would be to render a component into the DOM.
 
@@ -169,7 +169,16 @@ Default: `false`
 ```
 
 ### `autoRetarget`
-When `true`, DomTargeter will automatically retry finding the target element if it's not initially found. It uses an additive backoff strategy, starting at 100ms and increasing by 200ms each retry (100ms, 300ms, 500ms, 700ms, etc.), up to a maximum interval of 2000ms, for approximately 10 seconds total.
+When `true`, DomTargeter will automatically retry finding the target element if it's not initially found:
+
+- It checks immediately when constructed.
+- While `document.readyState` is `loading`, it rechecks about every 16ms, so elements are found as the parser reaches them.
+- On `DOMContentLoaded` it checks again immediately, then backs off: 300ms, 500ms, 700ms, and so on, up to 2000ms between checks.
+- It gives up about 12 seconds after `DOMContentLoaded` (or after construction, if the document had already been parsed) and unhides `hideTarget` targets.
+
+`clickRetarget` and `navigationRetarget` restart the backoff.
+
+This is intended for scripts placed in the document `<head>` together with `hideTarget`: the target is hidden before it is parsed and rendered into as soon as it exists.
 
 Default: `false`
 

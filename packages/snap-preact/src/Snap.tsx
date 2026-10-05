@@ -761,6 +761,11 @@ export class Snap {
 								}
 							};
 
+							// keep in sync with SearchController.ts:156 (page may be a string, e.g. page = "404")
+							const pageContext = this.context.page;
+							const contextPageType = typeof pageContext === 'object' ? pageContext?.type : '';
+							const isPlp = ['search', 'category'].includes(contextPageType);
+
 							controller?.targeters?.forEach((target, target_index) => {
 								if (!target.selector) {
 									throw new Error(`Targets at index ${target_index} missing selector value (string).`);
@@ -769,8 +774,7 @@ export class Snap {
 									throw new Error(`Targets at index ${target_index} missing component value (Component).`);
 								}
 
-								const contextPage = this.context.pageType && `${this.context.pageType}`.toLowerCase().trim();
-								if (target.prefetch || ['search', 'category'].includes(contextPage)) {
+								if (target.prefetch === true || (target.prefetch !== false && isPlp)) {
 									runSearch();
 									target.component();
 								}

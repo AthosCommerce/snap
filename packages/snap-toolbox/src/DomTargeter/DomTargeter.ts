@@ -17,6 +17,12 @@ export type OnTarget = (target: Target, elem: Element, originalElem?: Element, t
 
 let globallyTargetedElems: Array<Element> = [];
 
+// autoRetarget polling: fast while the document is loading, then a backoff from DOMContentLoaded
+const FAST_POLL_MS = 16;
+const BACKOFF_START_MS = 100;
+const BACKOFF_STEP_MS = 200;
+const BACKOFF_MAX_MS = 2000;
+
 export class DomTargeter {
 	private targets: Array<Target> = [];
 	private onTarget: OnTarget;
@@ -43,21 +49,29 @@ export class DomTargeter {
 		this.retarget();
 
 		this.targets.forEach((target) => {
-			let timeoutTime = 100;
+			let timeoutTime = BACKOFF_START_MS;
+			let pending: ReturnType<typeof setTimeout> | undefined;
 			const checker = () => {
 				if (this.abortController?.signal.aborted) {
 					return;
 				}
 				// lets not just keep trying forever - this waits roughly 12 seconds before giving up.
-				if (timeoutTime < 2000) {
+				if (timeoutTime < BACKOFF_MAX_MS) {
 					// increase the time till next check
-					timeoutTime = timeoutTime + 200;
+					timeoutTime = timeoutTime + BACKOFF_STEP_MS;
 					this.retarget();
-					setTimeout(checker, timeoutTime);
+					pending = setTimeout(checker, timeoutTime);
 				} else {
 					// timed out, lets unhide the target
 					target.hideTarget && this.unhideTarget(target.selector);
 				}
+			};
+
+			// restart the backoff, replacing any pending check so only one chain runs per target
+			const restart = () => {
+				timeoutTime = BACKOFF_START_MS;
+				clearTimeout(pending);
+				checker();
 			};
 
 			// add click event to restart retargeting check
@@ -74,8 +88,7 @@ export class DomTargeter {
 					elem.addEventListener(
 						'click',
 						() => {
-							timeoutTime = 100;
-							setTimeout(checker); // allow the click to complete
+							setTimeout(restart); // allow the click to complete
 						},
 						{ capture: true, signal: this.abortController?.signal }
 					);
@@ -88,8 +101,7 @@ export class DomTargeter {
 					(this.document.defaultView as any)?.navigation?.addEventListener(
 						'navigate',
 						() => {
-							timeoutTime = 100;
-							checker();
+							restart();
 						},
 						{ signal: this.abortController?.signal }
 					);
@@ -99,8 +111,35 @@ export class DomTargeter {
 			}
 
 			if (target.autoRetarget) {
-				// do initial retargeting check
-				checker();
+				if (this.document.readyState === 'loading') {
+					// poll quickly while the document is parsing, then back off from DOMContentLoaded
+					let backoffStarted = false;
+					const startBackoff = () => {
+						if (backoffStarted || this.abortController?.signal.aborted) {
+							return;
+						}
+						backoffStarted = true;
+						restart();
+					};
+
+					this.document.addEventListener('DOMContentLoaded', startBackoff, { signal: this.abortController?.signal });
+
+					const fastChecker = () => {
+						if (this.abortController?.signal.aborted || backoffStarted) {
+							return;
+						}
+						if (this.document.readyState !== 'loading') {
+							startBackoff();
+						} else {
+							this.retarget();
+							setTimeout(fastChecker, FAST_POLL_MS);
+						}
+					};
+					setTimeout(fastChecker, FAST_POLL_MS);
+				} else {
+					// do initial retargeting check
+					checker();
+				}
 			} else if (/complete|interactive|loaded/.test(this.document.readyState)) {
 				// DOMContent has loaded - unhide targets
 				target.hideTarget && this.unhideTarget(target.selector);
