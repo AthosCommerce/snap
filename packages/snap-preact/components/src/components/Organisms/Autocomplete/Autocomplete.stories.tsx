@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Autocomplete, AutocompleteProps } from './Autocomplete';
 import { componentArgs } from '../../../utilities';
@@ -45,6 +46,10 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onFacetOptionClick: fn(),
+		onTermClick: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'Autocomplete controller reference',
@@ -367,7 +372,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onFacetOptionClick',
 		},
 		onTermClick: {
 			description: 'Custom onClick event handler for Suggested & Trending Terms',
@@ -377,7 +381,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onTermClick',
 		},
 		...componentArgs,
 	},

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { RadioList, RadioListProps } from './RadioList';
 import { componentArgs } from '../../../utilities';
 import Readme from '../RadioList/readme.md';
@@ -16,6 +17,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onSelect: fn(),
+	},
 	argTypes: {
 		options: {
 			description: 'list of options to display',
@@ -104,7 +108,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onSelect',
 		},
 		horizontal: {
 			description: 'boolean to set the radio list in a horizontal layout',

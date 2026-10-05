@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
 import { Select, SelectProps } from './Select';
@@ -26,6 +27,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onSelect: fn(),
+	},
 	argTypes: {
 		options: {
 			description: 'Select options from store reference',
@@ -286,7 +290,6 @@ export default {
 					summary: 'function',
 				},
 			},
-			action: 'onSelect',
 		},
 		...componentArgs,
 	},

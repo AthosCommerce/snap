@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Facets, FacetsProps } from './Facets';
 import { componentArgs } from '../../../utilities';
@@ -24,6 +25,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onFacetOptionClick: fn(),
+	},
 	argTypes: {
 		facets: {
 			description: 'Facets store reference',
@@ -63,7 +67,6 @@ export default {
 				type: { summary: 'function' },
 			},
 			control: false,
-			action: 'onFacetOnClick',
 		},
 		...componentArgs,
 	},

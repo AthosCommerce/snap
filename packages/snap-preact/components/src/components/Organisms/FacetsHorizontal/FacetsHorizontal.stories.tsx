@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { FacetsHorizontal, FacetsHorizontalProps } from './FacetsHorizontal';
 import { componentArgs } from '../../../utilities';
@@ -24,6 +25,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onFacetOptionClick: fn(),
+	},
 	argTypes: {
 		facets: {
 			description: 'Facets store reference',
@@ -87,7 +91,6 @@ export default {
 				category: 'Templates Legal',
 				type: { summary: 'function' },
 			},
-			action: 'onFacetOptionClick',
 		},
 		showSelectedCount: {
 			description: 'shows the number of selected options within the facet headers',

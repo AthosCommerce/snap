@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
@@ -23,6 +24,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onRetryClick: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'Controller reference',
@@ -51,7 +55,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onRetryClick',
 		},
 		...componentArgs,
 	},

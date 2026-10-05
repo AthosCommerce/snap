@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Result, ResultProps } from './Result';
 import { FALLBACK_IMAGE_URL } from '../../Atoms/Image';
@@ -20,6 +21,10 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onAddToCartClick: fn(),
+		onClick: fn(),
+	},
 	argTypes: {
 		result: {
 			description: 'Result store Product reference',
@@ -177,7 +182,6 @@ export default {
 				defaultValue: { summary: 'Add To Cart' },
 			},
 			control: false,
-			action: 'onClick',
 		},
 		detailSlot: {
 			description: 'Slot for more product details (under price)',
@@ -237,7 +241,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

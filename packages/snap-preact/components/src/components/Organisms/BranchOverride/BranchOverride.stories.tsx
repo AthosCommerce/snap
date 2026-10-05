@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { BranchOverride } from './BranchOverride';
 import { componentArgs } from '../../../utilities';
@@ -26,6 +27,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onRemoveClick: fn(),
+	},
 	argTypes: {
 		branch: {
 			description: 'bundle branch name',
@@ -65,7 +69,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onRemoveClick',
 		},
 		darkMode: {
 			description: 'enable darkMode',

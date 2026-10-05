@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Dropdown, DropdownProps } from './Dropdown';
 import { componentArgs } from '../../../utilities';
@@ -13,6 +14,12 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
+		onMouseEnter: fn(),
+		onMouseLeave: fn(),
+		onToggle: fn(),
 	},
 	argTypes: {
 		button: {
@@ -121,7 +128,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onClick',
 		},
 		onMouseEnter: {
 			description: 'Dropdown mouse enter event handler',
@@ -131,7 +137,6 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			action: 'onMouseEnter',
 		},
 		onMouseLeave: {
 			description: 'Dropdown mouse leave event handler',
@@ -141,7 +146,6 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			action: 'onMouseLeave',
 		},
 		usePortal: {
 			description: 'boolean to specify if the dropdown content should be rendered in a portal.',
@@ -163,7 +167,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onToggle',
 		},
 		focusTrapContent: {
 			description: 'boolean to enable ally focustrap',

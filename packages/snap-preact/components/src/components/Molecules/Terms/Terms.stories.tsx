@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { componentArgs } from '../../../utilities';
 import { Terms, TermsProps } from './Terms';
@@ -21,6 +22,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onTermClick: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'autocomplete controller reference',
@@ -94,7 +98,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onTermClick',
 		},
 		vertical: {
 			description: 'boolean to adjust if each term should render in a vertically',

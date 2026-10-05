@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 import type { SearchController, SearchControllerConfig } from '@athoscommerce/snap-controller';
 
@@ -20,6 +21,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onSelect: fn(),
+	},
 	argTypes: {
 		selection: {
 			description: 'Variant Selection reference',
@@ -53,7 +57,6 @@ export default {
 					summary: 'function(e: React.MouseEvent<HTMLElement, MouseEvent>, option: ListOption)',
 				},
 			},
-			action: 'onSelect',
 		},
 		...componentArgs,
 	},

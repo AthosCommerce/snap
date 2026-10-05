@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
 import { FacetGridOptions, FacetGridOptionsProps } from './FacetGridOptions';
@@ -18,6 +19,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onClick: fn(),
+	},
 	argTypes: {
 		values: {
 			description: 'Facet.values store reference',
@@ -118,7 +122,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Modal } from './Modal';
 import { componentArgs } from '../../../utilities';
@@ -13,6 +14,10 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onOverlayClick: fn(),
+		onClick: fn(),
 	},
 	argTypes: {
 		button: {
@@ -56,7 +61,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onOverlayClick',
 		},
 		content: {
 			description: 'Content to be displayed in modal',
@@ -142,7 +146,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		disableA11y: {
 			description: 'boolean to disable autoset ally properties',

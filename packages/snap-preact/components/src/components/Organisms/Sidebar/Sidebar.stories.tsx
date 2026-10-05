@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Sidebar, SidebarProps } from './Sidebar';
 import { componentArgs } from '../../../utilities';
@@ -24,6 +25,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onToggleSidebar: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'Search controller reference',
@@ -251,7 +255,6 @@ export default {
 					summary: '() => void',
 				},
 			},
-			action: 'onToggleSidebar',
 		},
 		...componentArgs,
 	},

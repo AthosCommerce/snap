@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { RecommendationBundleList, RecommendationBundleListProps } from './RecommendationBundleList';
 import { componentArgs } from '../../../utilities';
@@ -32,6 +33,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onAddToCart: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'Controller reference',
@@ -80,7 +84,6 @@ export default {
 					summary: 'function',
 				},
 			},
-			action: 'onAddToCart',
 		},
 		limit: {
 			description: 'limit the number of results rendered',

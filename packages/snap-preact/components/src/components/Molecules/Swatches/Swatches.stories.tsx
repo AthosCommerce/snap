@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 import { Swatches, SwatchesProps } from './Swatches';
 import { componentArgs } from '../../../utilities';
@@ -21,6 +22,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onSelect: fn(),
+	},
 	argTypes: {
 		onSelect: {
 			description: 'option onSelect event handler',
@@ -31,7 +35,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onSelect',
 		},
 		options: {
 			description: 'list of options to display',

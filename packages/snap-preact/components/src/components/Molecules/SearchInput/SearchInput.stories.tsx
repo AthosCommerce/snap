@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { SearchInput } from './SearchInput';
 import { componentArgs } from '../../../utilities';
@@ -21,6 +22,12 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onChange: fn(),
+		onKeyUp: fn(),
+		onKeyDown: fn(),
+		onClick: fn(),
+	},
 	argTypes: {
 		value: {
 			defaultValue: '',
@@ -43,7 +50,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onChange',
 		},
 		onKeyUp: {
 			description: 'OnKeyUp Callback',
@@ -54,7 +60,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onKeyUp',
 		},
 		onKeyDown: {
 			description: 'OnKeyDown Callback',
@@ -65,7 +70,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onKeyDown',
 		},
 		onClick: {
 			description: 'OnClick Callback',
@@ -76,7 +80,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		submitSearchButton: {
 			description: 'Button component props for submit search button',

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Overlay } from './Overlay';
 import { componentArgs } from '../../../utilities';
@@ -13,6 +14,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		active: {
@@ -62,7 +66,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

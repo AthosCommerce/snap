@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { TabSelection, TabSelectionProps } from './TabSelection';
 import { componentArgs } from '../../../utilities';
@@ -15,6 +16,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onTabClick: fn(),
 	},
 	argTypes: {
 		tabManager: {
@@ -67,7 +71,6 @@ export default {
 				},
 			},
 			control: { type: 'none' },
-			action: 'onTabClick',
 		},
 		...componentArgs,
 	},

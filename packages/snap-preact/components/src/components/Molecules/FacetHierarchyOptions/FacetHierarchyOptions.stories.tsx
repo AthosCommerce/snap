@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
 import { FacetHierarchyOptions, FacetHierarchyOptionsProps } from './FacetHierarchyOptions';
@@ -18,6 +19,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		values: {
@@ -108,7 +112,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

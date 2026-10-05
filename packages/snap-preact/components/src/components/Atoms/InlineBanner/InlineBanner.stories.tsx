@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { InlineBanner, InlineBannerProps } from './InlineBanner';
 import { componentArgs } from '../../../utilities';
@@ -18,6 +19,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		banner: {
@@ -63,7 +67,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

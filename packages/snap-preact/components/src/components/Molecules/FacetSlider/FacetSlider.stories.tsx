@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { FacetSlider, FacetSliderProps } from './FacetSlider';
 import { componentArgs } from '../../../utilities';
@@ -43,6 +44,10 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onDrag: fn(),
+		onChange: fn(),
+	},
 	argTypes: {
 		facet: {
 			description: 'Facet store reference',
@@ -168,7 +173,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onDrag',
 		},
 		onChange: {
 			description:
@@ -180,7 +184,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onChange',
 		},
 		...componentArgs,
 	},
