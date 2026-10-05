@@ -466,6 +466,12 @@ export class AutocompleteController extends AbstractController {
 				params.personalization.lastViewed = lastViewedItems.join(',');
 			}
 
+			const lastSearchedTerms = this.tracker.cookies.searched.get(this.config.globals?.siteId);
+			if (lastSearchedTerms.length) {
+				params.personalization = params.personalization || {};
+				params.personalization.lastSearches = lastSearchedTerms.join(',');
+			}
+
 			if (shopperId) {
 				params.personalization = params.personalization || {};
 				params.personalization.shopper = shopperId;

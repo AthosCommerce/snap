@@ -270,6 +270,12 @@ export class RecommendationController extends AbstractController {
 			}
 		}
 
+		// searched terms are stored per siteId
+		const lastSearches = this.tracker.cookies.searched.get(params.siteId);
+		if (lastSearches?.length) {
+			params.lastSearches = lastSearches;
+		}
+
 		return params as RecommendRequestModel;
 	}
 

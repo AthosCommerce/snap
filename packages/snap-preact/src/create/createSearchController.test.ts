@@ -221,5 +221,16 @@ describe('createSearchController', () => {
 			// @ts-ignore - private property access
 			expect(controller.tracker.globals.siteId).toBe('custom');
 		});
+
+		it('provides the controller tracker to the store services', () => {
+			const controller = createSearchController(createConfig);
+
+			expect(controller.store.services.tracker).toBe(controller.tracker);
+
+			const customTracker = new Tracker({ siteId: 'custom' });
+			const customController = createSearchController(createConfig, { tracker: customTracker });
+
+			expect(customController.store.services.tracker).toBe(customTracker);
+		});
 	});
 });
