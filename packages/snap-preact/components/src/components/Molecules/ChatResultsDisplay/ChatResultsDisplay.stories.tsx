@@ -52,7 +52,7 @@ const mockController: any = {
 			similarProducts: { enabled: true },
 		},
 	},
-	track: { product: { click: () => undefined, addToCart: () => undefined } },
+	track: { product: { click: () => undefined, addToCart: () => undefined, impression: () => undefined } },
 	productSimilar: () => undefined,
 	compareProduct: () => undefined,
 	productQuery: () => undefined,
