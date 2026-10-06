@@ -65,11 +65,12 @@ const defaultStyles: StyleScript<ChatQuickviewProps> = ({ primaryColor, primaryC
 			},
 		},
 
-		// Content sizing for the chat's secondary window — each rendering surface owns its own
-		// `.ss__quickview__content` sizing (QuickviewLayout sets none). The content spans the
-		// panel with no gutter of its own so the header banner can bleed to the panel edges;
-		// every other section row gets the standard gutter below.
-		'.ss__quickview__content': {
+		// Content sizing for the chat's secondary window, overriding QuickviewLayout's modal sizing
+		// (close-button padding and min/max widths) — the extra `.ss__quickview` class out-ranks the
+		// layout's own same-specificity rule, whose styles are inserted after these. The content
+		// spans the panel with no gutter of its own so the header banner can bleed to the panel
+		// edges; every other section row gets the standard gutter below.
+		'.ss__quickview .ss__quickview__content': {
 			padding: 0,
 			minWidth: 'auto',
 			maxWidth: '100%',
@@ -468,7 +469,7 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 			width: 'auto',
 		},
 		column3: {
-			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+			layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description']],
 			width: '100%',
 		},
 	};

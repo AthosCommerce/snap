@@ -29,8 +29,14 @@ import type { LibraryImports } from '../../../../../src/Templates/Stores/Library
 
 const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, column3, column4 }) => {
 	return css({
-		// note: `.ss__quickview__content` sizing/padding is owned by the rendering surface
-		// (QuickviewModal / QuickviewSlideout / ChatQuickview), not the layout
+		'& .ss__quickview__content': {
+			// extra top padding keeps the close button clear of top content (e.g. overlay badges)
+			padding: '48px 20px 20px 20px',
+			minWidth: '320px',
+			maxWidth: '600px',
+			position: 'relative',
+			boxSizing: 'border-box',
+		},
 		// The module grid: a flex row of columns. Columns are full width below the desktop
 		// breakpoint (single column) and use their configured widths side-by-side above it.
 		'& .ss__quickview__row': {
@@ -166,6 +172,9 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			color: '#b00020',
 		},
 		'@media (min-width: 768px)': {
+			'& .ss__quickview__content': {
+				maxWidth: '880px',
+			},
 			'& .ss__quickview__column.ss__quickview__column--c1': {
 				flex: column1?.width == 'auto' ? '1 1 0' : `1 1 ${column1?.width}`,
 				maxWidth: column1?.width == 'auto' ? 'none' : column1?.width,
