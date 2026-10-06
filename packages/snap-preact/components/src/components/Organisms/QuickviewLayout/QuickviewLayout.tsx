@@ -21,7 +21,7 @@ import { CalloutBadge } from '../../Molecules/CalloutBadge';
 import { Gallery } from '../../Molecules/Gallery';
 import { QuantityPicker } from '../../Molecules/QuantityPicker';
 
-import type { Product, DisplayFieldConfig, VariantSelection as VariantSelectionStore } from '@athoscommerce/snap-store-mobx';
+import type { Product, DisplayFieldConfig } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
 import type { ChatController, RecommendationController, RecommendationControllerConfig, QuickviewManager } from '@athoscommerce/snap-controller';
 import type { RecommendationProps, RecommendationGridProps } from '../../../';
@@ -159,13 +159,6 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			cursor: 'pointer',
 			lineHeight: 1,
 			zIndex: 1,
-		},
-		'& .ss__quickview__title-link': {
-			color: 'inherit',
-			textDecoration: 'none',
-			'&:hover': {
-				textDecoration: 'underline',
-			},
 		},
 		'& .ss__quickview__loading': {
 			padding: '40px',
@@ -331,16 +324,11 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		loadingText: {
 			value: 'Loading…',
 		},
-		variantTitle: {
-			value: ({ selection }: { selection: VariantSelectionStore }) => selection.label || selection.field,
-		},
 	};
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	// `variantTitle` needs a selection, so it is resolved per selection in the variant modules
-	const { variantTitle, ...layoutLang } = lang;
-	const mergedLang = useLang(layoutLang as any, {
+	const mergedLang = useLang(lang as any, {
 		quickviewManager,
 	});
 
@@ -659,7 +647,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			// Preserve the legacy quickview classnames so existing styles/themes/tests keep matching.
 			const legacyClass =
 				field === 'name' ? 'ss__quickview__title' : field === 'description' ? 'ss__quickview__description' : `ss__quickview__${field}`;
-			const detail = (
+			return (
 				<ProductDetail
 					result={product}
 					field={path}
@@ -670,21 +658,6 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					{...defined({ disableStyles })}
 				/>
 			);
-			// The name links to the product page. The click is tracked through the manager (delegated
-			// to the source controller), which records it as a clickThrough because the anchor's
-			// href is the product url.
-			if (field === 'name' && url) {
-				return (
-					<a
-						className="ss__quickview__title-link"
-						href={url}
-						onClick={(e) => quickviewManager.track.product.click(e as unknown as MouseEvent, product)}
-					>
-						{detail}
-					</a>
-				);
-			}
-			return detail;
 		}
 
 		// `variantSelections` renders every variant selection; `variantSelection.<field>` renders only
@@ -695,10 +668,9 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		const renderSelection = (selection: NonNullable<typeof selections>[number]) => {
 			const isSwatch = selection.type === 'swatch' || selection.type === 'swatches';
 			const type = variantDropdownType && !isSwatch ? variantDropdownType : selection.type;
-			const variantLang = useLang({ variantTitle } as any, { quickviewManager, selection });
 			return (
 				<div key={selection.field} className="ss__quickview__variant">
-					<div className="ss__quickview__variant-title" {...variantLang.variantTitle?.all}></div>
+					<div className="ss__quickview__variant-title">{selection.label || selection.field}</div>
 					<VariantSelection
 						selection={selection}
 						type={type as VariantSelectionTemplatesLegalProps['type']}
@@ -742,7 +714,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			return (
 				<Button
 					name="more-info"
-					internalClassName="ss__quickview__go-to-product"
+					internalClassName="ss__quickview__more-info"
 					lang={{ button: lang.moreInfoButton }}
 					onClick={(e) => {
 						// track the redirect to the product page as a quickview clickThrough
@@ -954,10 +926,6 @@ export interface QuickviewLayoutLang {
 	discussButton: Lang<never>;
 	loadingText: Lang<{
 		quickviewManager: QuickviewManager;
-	}>;
-	variantTitle: Lang<{
-		quickviewManager: QuickviewManager;
-		selection: VariantSelectionStore;
 	}>;
 }
 

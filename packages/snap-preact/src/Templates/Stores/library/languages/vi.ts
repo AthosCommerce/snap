@@ -1007,8 +1007,5 @@ export const vi: LangComponents = {
 		loadingText: {
 			value: 'Đang tải…',
 		},
-		variantTitle: {
-			value: (data) => data?.selection?.label || data?.selection?.field || '',
-		},
 	},
 };

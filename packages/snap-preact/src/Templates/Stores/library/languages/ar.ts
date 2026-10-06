@@ -1006,8 +1006,5 @@ export const ar: LangComponents = {
 		loadingText: {
 			value: 'جارٍ التحميل…',
 		},
-		variantTitle: {
-			value: (data) => data?.selection?.label || data?.selection?.field || '',
-		},
 	},
 };

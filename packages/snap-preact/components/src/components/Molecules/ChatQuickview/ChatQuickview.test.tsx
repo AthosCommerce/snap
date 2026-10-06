@@ -4,39 +4,21 @@ import { render, fireEvent } from '@testing-library/preact';
 // Mock the heavy molecules the embedded QuickviewLayout renders — these tests assert the
 // chat wrapper's composition (layout embedding, back banner, chat presentation), not the
 // internals of the slideshow/variant atoms.
-jest.mock('../../Molecules/Slideshow', () => {
-	const { h: hh } = require('preact');
-	return {
-		Slideshow: ({ slides, className }: any) =>
-			hh(
-				'div',
-				{ className: `ss__slideshow-mock ${className || ''}` },
-				(slides || []).map((slide: any, i: number) => hh('img', { key: i, src: slide?.src, alt: slide?.alt }))
-			),
-	};
-});
+jest.mock('../../Molecules/Slideshow', () => ({
+	Slideshow: () => <div className="ss__slideshow-mock" />,
+}));
 
-jest.mock('../../Molecules/VariantSelection', () => {
-	const { h: hh } = require('preact');
-	return {
-		VariantSelection: ({ selection, type }: any) =>
-			hh('div', { className: 'ss__variant-selection-mock', 'data-field': selection?.field, 'data-type': type ?? '' }),
-	};
-});
+jest.mock('../../Molecules/VariantSelection', () => ({
+	VariantSelection: ({ selection, type }: any) => <div className="ss__variant-selection-mock" data-field={selection?.field} data-type={type ?? ''} />,
+}));
 
-jest.mock('../../Molecules/OverlayBadge', () => {
-	const { h: hh } = require('preact');
-	return {
-		OverlayBadge: ({ children }: any) => hh('div', { className: 'ss__overlay-badge-mock' }, children),
-	};
-});
+jest.mock('../../Molecules/OverlayBadge', () => ({
+	OverlayBadge: ({ children }: any) => <div className="ss__overlay-badge-mock">{children}</div>,
+}));
 
-jest.mock('../../Molecules/CalloutBadge', () => {
-	const { h: hh } = require('preact');
-	return {
-		CalloutBadge: () => hh('div', { className: 'ss__callout-badge-mock' }),
-	};
-});
+jest.mock('../../Molecules/CalloutBadge', () => ({
+	CalloutBadge: () => <div className="ss__callout-badge-mock" />,
+}));
 
 import { ThemeProvider } from '../../../providers';
 import { chatAccentThemeComponents } from '../../Organisms/Chat/components/chatAccentTheme';
@@ -173,7 +155,7 @@ describe('ChatQuickview Component', () => {
 		expect(rendered.container.querySelector('.ss__chat-quickview__header__back')).toHaveTextContent('Back to inspiration');
 	});
 
-	it('renders non-swatch selections as tile lists and counts values in the variant titles', () => {
+	it('renders non-swatch selections as tile lists under their selection labels', () => {
 		const product = makeProduct({
 			variants: {
 				selections: [
@@ -188,8 +170,8 @@ describe('ChatQuickview Component', () => {
 		);
 
 		const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
-		expect(titles[0].textContent).toBe('Color (2)');
-		expect(titles[1].textContent).toBe('Size (3)');
+		expect(titles[0].textContent).toBe('Color');
+		expect(titles[1].textContent).toBe('Size');
 
 		const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
 		expect(selections[0].getAttribute('data-type')).toBe('swatches');
@@ -210,7 +192,12 @@ describe('ChatQuickview Component', () => {
 	});
 
 	it('lets the Chat accent theme recolor the action buttons', () => {
-		const controller = makeController({ product: makeProduct() });
+		const controller = makeController({
+			product: makeProduct({
+				display: { mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } }, attributes: {} },
+				mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } },
+			}),
+		});
 		const theme = {
 			components: chatAccentThemeComponents({
 				primaryAccentColorBg: 'rgb(255, 0, 0)',
@@ -234,27 +221,40 @@ describe('ChatQuickview Component', () => {
 		const discuss = rendered.container.querySelector('.ss__quickview__discuss')!;
 		expect(getComputedStyle(discuss).background).toBe('rgb(0, 128, 0)');
 		expect(getComputedStyle(discuss).color).toBe('rgb(255, 255, 0)');
+
+		const moreInfo = rendered.container.querySelector('.ss__quickview__more-info')!;
+		expect(getComputedStyle(moreInfo).background).toBe('rgb(0, 128, 0)');
+		expect(getComputedStyle(moreInfo).color).toBe('rgb(255, 255, 0)');
 	});
 
-	it('links the product name to the product page and tracks the click through the quickview manager', () => {
+	it('renders More info beside add to cart and tracks a clickThrough before navigating to the product page', () => {
 		const product = makeProduct({
 			display: { mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } }, attributes: {} },
 			mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } },
 		});
 		const controller = makeController({ product });
 		const rendered = render(
-			<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			<ThemeProvider theme={{ type: 'templates', components: {} } as any}>
+				<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+			</ThemeProvider>
 		);
 
-		const link = rendered.container.querySelector('a.ss__quickview__title-link') as HTMLAnchorElement;
-		expect(link).not.toBeNull();
-		expect(link.getAttribute('href')).toBe('/wool-hat');
-		expect(link).toHaveTextContent('Wool Hat');
+		expect(rendered.container.querySelector('.ss__quickview__title')!.closest('a')).toBeNull();
 
-		// keep jsdom from attempting the navigation
-		rendered.container.addEventListener('click', (e) => e.preventDefault());
-		fireEvent.click(link);
-		expect(controller.quickviewManager.track.product.click).toHaveBeenCalledWith(expect.anything(), product);
+		const moreInfo = rendered.container.querySelector('.ss__quickview__add-to-cart')!.nextElementSibling as HTMLElement;
+		expect(moreInfo).toHaveClass('ss__quickview__more-info');
+		expect(moreInfo).toHaveTextContent('More info');
+		expect(moreInfo.querySelector('.ss__icon--info')).not.toBeNull();
+		// same banner button treatment as Similar / Discuss
+		expect(getComputedStyle(moreInfo).background).toBe('rgb(0, 0, 0)');
+		expect(getComputedStyle(moreInfo).color).toBe('rgb(255, 255, 255)');
+
+		const location = window.location;
+		Object.defineProperty(window, 'location', { value: { href: location.href }, writable: true, configurable: true });
+		moreInfo.click();
+		expect(controller.quickviewManager.track.product.clickThrough).toHaveBeenCalledWith(expect.anything(), product);
+		expect((window.location as any).href).toBe('/wool-hat');
+		Object.defineProperty(window, 'location', { value: location, writable: true, configurable: true });
 	});
 
 	it('passes a custom layout through to the QuickviewLayout', () => {

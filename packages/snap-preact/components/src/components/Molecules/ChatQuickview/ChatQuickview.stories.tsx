@@ -81,10 +81,10 @@ mockController.quickviewManager = {
 		product: {
 			id: 'sample-hat',
 			display: {
-				mappings: { core: { name: 'Sample Wool Hat', brand: 'Acme', price: 29.99 } },
+				mappings: { core: { name: 'Sample Wool Hat', brand: 'Acme', price: 29.99, url: '/sample-wool-hat' } },
 				attributes: { material: 'wool', color: 'black' },
 			},
-			mappings: { core: { name: 'Sample Wool Hat', brand: 'Acme', price: 29.99 } },
+			mappings: { core: { name: 'Sample Wool Hat', brand: 'Acme', price: 29.99, url: '/sample-wool-hat' } },
 			attributes: { material: 'wool', color: 'black' },
 			variants: { selections: [] },
 		},

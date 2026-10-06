@@ -1225,7 +1225,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
 
-		const button = rendered.container.querySelector('.ss__quickview__go-to-product') as HTMLElement;
+		const button = rendered.container.querySelector('.ss__quickview__more-info') as HTMLElement;
 		expect(button).not.toBeNull();
 
 		// Stub navigation to assert the target without leaving the test page.
@@ -1249,7 +1249,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
 
-		const button = rendered.container.querySelector('.ss__quickview__go-to-product') as HTMLElement;
+		const button = rendered.container.querySelector('.ss__quickview__more-info') as HTMLElement;
 		expect(button).not.toBeNull();
 
 		const original = window.location.href;
@@ -1260,55 +1260,6 @@ describe('QuickviewLayout', () => {
 		expect(clickThrough).toHaveBeenCalledWith(expect.anything(), storeProduct);
 		// navigation still happens after tracking
 		expect((window.location as any).href).toBe('/products/apex-bottle');
-	});
-
-	describe('title link', () => {
-		const storeProduct = {
-			id: 'mine',
-			mappings: { core: { name: 'Apex Bottle', url: '/products/apex-bottle' } },
-			attributes: {},
-		};
-		const titleLayout: QuickviewLayoutProps['layout'] = [['productDetail.mappings.core.name']];
-
-		it('links the title to the product url and tracks a product click', () => {
-			const click = jest.fn();
-			const { quickviewManager } = makeQuickviewManager({
-				store: { isOpen: true, product: storeProduct },
-				track: { product: { click } },
-			});
-
-			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={titleLayout} />);
-
-			const link = rendered.container.querySelector('a.ss__quickview__title-link') as HTMLAnchorElement;
-			expect(link).not.toBeNull();
-			expect(link.getAttribute('href')).toBe('/products/apex-bottle');
-			expect(link.querySelector('.ss__quickview__title')).toHaveTextContent('Apex Bottle');
-
-			// keep jsdom from attempting the navigation
-			rendered.container.addEventListener('click', (e) => e.preventDefault());
-			fireEvent.click(link);
-			expect(click).toHaveBeenCalledTimes(1);
-			expect(click).toHaveBeenCalledWith(expect.anything(), storeProduct);
-		});
-
-		it('renders a plain title when the product has no url', () => {
-			const { quickviewManager } = makeQuickviewManager({
-				store: { isOpen: true, product: { ...storeProduct, mappings: { core: { name: 'Apex Bottle' } } } },
-			});
-
-			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={titleLayout} />);
-
-			expect(rendered.container.querySelector('.ss__quickview__title')).toHaveTextContent('Apex Bottle');
-			expect(rendered.container.querySelector('a.ss__quickview__title-link')).toBeNull();
-		});
-
-		it('only links the name detail', () => {
-			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
-
-			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['productDetail.mappings.core.url']]} />);
-
-			expect(rendered.container.querySelector('a.ss__quickview__title-link')).toBeNull();
-		});
 	});
 
 	it('renders bare slideshow with no badges when hideBadge is set', () => {
@@ -1381,7 +1332,7 @@ describe('QuickviewLayout', () => {
 
 		const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} {...defaultLayoutProps} />);
 
-		expect(rendered.container.querySelector('.ss__quickview__go-to-product')).toBeNull();
+		expect(rendered.container.querySelector('.ss__quickview__more-info')).toBeNull();
 	});
 
 	it('opens the fullscreen gallery when the single image is clicked', () => {
@@ -1707,7 +1658,7 @@ describe('QuickviewLayout', () => {
 
 			const content = rendered.container.querySelector('.ss__quickview__content') as HTMLElement;
 			const closeButton = rendered.container.querySelector('.ss__quickview__close') as HTMLElement;
-			const moreInfoButton = rendered.container.querySelector('.ss__quickview__go-to-product') as HTMLElement;
+			const moreInfoButton = rendered.container.querySelector('.ss__quickview__more-info') as HTMLElement;
 			expect(moreInfoButton).not.toBeNull();
 
 			// Tab from the last focusable element wraps to the first (the close button).
@@ -1903,22 +1854,6 @@ describe('QuickviewLayout', () => {
 			const selections = rendered.container.querySelectorAll('.ss__variant-selection-mock');
 			expect(selections[0].getAttribute('data-type')).toBe('swatches');
 			expect(selections[1].getAttribute('data-type')).toBe('dropdown');
-		});
-
-		it('renders variant titles through the variantTitle lang with the selection', () => {
-			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product } });
-
-			const rendered = render(
-				<QuickviewLayout
-					quickviewManager={quickviewManager}
-					layout={[['variantSelections']]}
-					lang={{ variantTitle: { value: ({ selection }) => `${selection.label} (${selection.values.length})` } }}
-				/>
-			);
-
-			const titles = rendered.container.querySelectorAll('.ss__quickview__variant-title');
-			expect(titles[0].textContent).toBe('Color (2)');
-			expect(titles[1].textContent).toBe('Size (3)');
 		});
 
 		it('defaults variant titles to the selection label', () => {

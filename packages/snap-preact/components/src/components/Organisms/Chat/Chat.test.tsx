@@ -4,12 +4,9 @@ import { ThemeProvider } from '../../../providers';
 
 // Mock the secondary window so visibility tests assert the organism's gating logic
 // without standing up the full side-chat message rendering.
-jest.mock('./components/ChatSideChat', () => {
-	const { h: hh } = require('preact');
-	return {
-		ChatSideChat: () => hh('div', { className: 'ss__chat__secondary-mock' }),
-	};
-});
+jest.mock('./components/ChatSideChat', () => ({
+	ChatSideChat: () => <div className="ss__chat__secondary-mock" />,
+}));
 
 import { ChatOrganism } from './Chat';
 

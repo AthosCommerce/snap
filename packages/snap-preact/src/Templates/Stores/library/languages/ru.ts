@@ -1009,8 +1009,5 @@ export const ru: LangComponents = {
 		loadingText: {
 			value: 'Загрузка…',
 		},
-		variantTitle: {
-			value: (data) => data?.selection?.label || data?.selection?.field || '',
-		},
 	},
 };

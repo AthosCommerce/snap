@@ -36,7 +36,7 @@ column2: {
   layout: [
     ['productDetail.mappings.core.name'],
     ['productDetail.mappings.core.price'],
-    ['button.add-to-cart', 'button.similar', 'button.discuss'],
+    ['button.add-to-cart', 'button.more-info', 'button.similar', 'button.discuss'],
   ],
   width: 'auto',
 },
@@ -50,12 +50,11 @@ The banner styling (primary background, button treatments, hidden slideshow chro
 
 With the default `layout`, the component fills the chat's secondary window and the detail rows (grouped in `c3`) scroll on their own while the banner row stays fixed above them. This is gated on the `ss__chat-quickview--default-layout` modifier class, which is only added when no custom `layout` is supplied (via props or theme), so a custom layout keeps the plain flowing behaviour.
 
-`button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. The product name links to the product page (`mappings.core.url`, see the QuickviewLayout reference); the click is tracked through the quickview manager, which records it as a chat clickthrough.
+`button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. `button.more-info` (beside add to cart) links to the product page (`mappings.core.url`) and only renders when the product has one; the click is tracked through the quickview manager, which records it as a chat clickthrough.
 
 The chat presentation is supplied by this component rather than by the layout:
 - `variantDropdownType` defaults to `'list'`, so non-swatch selections render as selectable tiles instead of a dropdown.
-- The `variantTitle` lang entry appends the value count to each variant title (e.g. "Color (5)").
-- The theme gives the `button.add-to-cart` / `button.similar` / `button.discuss` buttons their `cart` / `search-thin` / `chat` icons (named selectors, so they apply with Snap Templates theming), and `swatches` `hideLabels: false` so each swatch shows its value label beneath it.
+- The theme gives the `button.add-to-cart` / `button.more-info` / `button.similar` / `button.discuss` buttons their `cart` / `info` / `search-thin` / `chat` icons (named selectors, so they apply with Snap Templates theming), and `swatches` `hideLabels: false` so each swatch shows its value label beneath it.
 
 Swatch tiles show variant thumbnails when the chat controller's variant options are configured with `thumbnailBackgroundImages` (e.g. `settings.variants.options.color.thumbnailBackgroundImages: true`); values without a background render as text tiles.
 
@@ -65,7 +64,7 @@ The attribute table's fields come from the quickview config merge (`quickview.se
 Templates-legal accent colors for the back banner.
 
 ### lang
-`backToComparisonButton` / `backToInspirationButton` for the banner, plus all `QuickviewLayout` lang entries (`addToCartButton`, `moreInfoButton`, `similarButton`, `discussButton`, `loadingText`, `variantTitle`, …) which are forwarded to the embedded layout. `variantTitle` defaults to the selection label followed by its value count.
+`backToComparisonButton` / `backToInspirationButton` for the banner, plus all `QuickviewLayout` lang entries (`addToCartButton`, `moreInfoButton`, `similarButton`, `discussButton`, `loadingText`, …) which are forwarded to the embedded layout.
 
 ## Behaviour
 

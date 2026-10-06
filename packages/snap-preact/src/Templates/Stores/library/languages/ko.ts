@@ -1007,8 +1007,5 @@ export const ko: LangComponents = {
 		loadingText: {
 			value: '로딩 중…',
 		},
-		variantTitle: {
-			value: (data) => data?.selection?.label || data?.selection?.field || '',
-		},
 	},
 };

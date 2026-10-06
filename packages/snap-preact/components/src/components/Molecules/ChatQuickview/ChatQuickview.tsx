@@ -197,7 +197,7 @@ const defaultStyles: StyleScript<ChatQuickviewProps> = ({ primaryColor, primaryC
 				filter: 'brightness(0.97)',
 			},
 		},
-		'.ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
+		'.ss__quickview__more-info.ss__button, .ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
 			background: '#000',
 			color: '#fff',
 			border: 'none',
@@ -423,21 +423,6 @@ const defaultStyles: StyleScript<ChatQuickviewProps> = ({ primaryColor, primaryC
 			color: colorText,
 			lineHeight: 1.5,
 		},
-
-		// discreet link to the product page below the details
-		'.ss__quickview__go-to-product.ss__button': {
-			background: 'transparent',
-			border: 'none',
-			padding: 0,
-			color: colorPrimary,
-			fontSize: '0.9em',
-			cursor: 'pointer',
-
-			'&:not(.ss__button--disabled):hover': {
-				background: 'transparent',
-				textDecoration: 'underline',
-			},
-		},
 	});
 };
 
@@ -451,8 +436,8 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 		// legacy chat presentation: non-swatch selections render as a row of selectable tiles
 		variantDropdownType: 'list',
 		// mirrors the legacy chat product panel: a header banner (image beside name/price and the
-		// add-to-cart/similar/discuss actions) followed by variants, the attribute table, and the
-		// description — the banner styling lives in defaultStyles above. The detail rows are
+		// add-to-cart/more-info/similar/discuss actions) followed by variants, the attribute table,
+		// and the description — the banner styling lives in defaultStyles above. The detail rows are
 		// grouped in column 3 so they can scroll independently of the banner (see defaultStyles).
 		layout: [['c1', 'c2'], ['c3']],
 		column1: {
@@ -463,7 +448,7 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 			layout: [
 				['productDetail.mappings.core.name'],
 				['productDetail.mappings.core.price'],
-				['button.add-to-cart', 'button.similar', 'button.discuss'],
+				['button.add-to-cart', 'button.more-info', 'button.similar', 'button.discuss'],
 			],
 			width: 'auto',
 		},
@@ -528,9 +513,6 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 				'aria-label': 'Back to inspiration',
 			},
 		},
-		variantTitle: {
-			value: ({ selection }) => `${selection.label || selection.field} (${selection.values.length})`,
-		},
 	};
 
 	//deep merge with props.lang
@@ -555,6 +537,9 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 		components: {
 			'button.add-to-cart': {
 				icon: 'cart',
+			},
+			'button.more-info': {
+				icon: 'info',
 			},
 			'button.similar': {
 				icon: 'search-thin',

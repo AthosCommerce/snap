@@ -720,7 +720,7 @@ describe('Chat Controller', () => {
 			expect(eventSpy).toHaveBeenCalledWith('addToCart', { controller, products: [product] });
 		});
 
-		it('records a chat clickThrough when the product link in the quickview is clicked', async () => {
+		it('records a chat clickThrough when the quickview More info button tracks through the quickview manager', async () => {
 			const controller = createController({ beacon: { enabled: true } });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
@@ -735,16 +735,7 @@ describe('Chat Controller', () => {
 			const eventSpy = jest.spyOn(controller.eventManager, 'fire');
 			const beaconSpy = jest.spyOn(controller.tracker.events.chat, 'clickThrough').mockImplementation(() => undefined as any);
 
-			// the panel's product name link tracks the click while the event is dispatching
-			const link = document.createElement('a');
-			link.setAttribute('href', '/products/prod1');
-			link.addEventListener('click', (e) => {
-				e.preventDefault();
-				controller.quickviewManager!.track.product.click(e, product);
-			});
-			document.body.appendChild(link);
-			link.click();
-			link.remove();
+			controller.quickviewManager!.track.product.clickThrough(new MouseEvent('click'), product);
 
 			expect(eventSpy).toHaveBeenCalledWith('track.product.clickThrough', expect.objectContaining({ controller, product }));
 			expect(beaconSpy).toHaveBeenCalledTimes(1);

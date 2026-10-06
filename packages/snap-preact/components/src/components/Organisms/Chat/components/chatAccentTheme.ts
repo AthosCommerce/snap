@@ -54,7 +54,7 @@ export const chatAccentThemeComponents = ({
 						background: new Colour(primaryAccentColorBg).mixBlack(),
 					},
 				},
-				'.ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
+				'.ss__quickview__more-info.ss__button, .ss__quickview__similar.ss__button, .ss__quickview__discuss.ss__button': {
 					background: secondaryAccentColorBg,
 					color: secondaryAccentColorFg,
 					border: `1px solid ${secondaryAccentColorFg}`,

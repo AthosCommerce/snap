@@ -1009,8 +1009,5 @@ export const it: LangComponents = {
 		loadingText: {
 			value: 'Caricamento…',
 		},
-		variantTitle: {
-			value: (data) => data?.selection?.label || data?.selection?.field || '',
-		},
 	},
 };

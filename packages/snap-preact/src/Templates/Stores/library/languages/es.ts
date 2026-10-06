@@ -1026,8 +1026,5 @@ export const es: LangComponents = {
 		loadingText: {
 			value: 'Cargando…',
 		},
-		variantTitle: {
-			value: (data) => data?.selection?.label || data?.selection?.field || '',
-		},
 	},
 };
