@@ -490,9 +490,19 @@ export const hi: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'उत्पाद विवरण लोड हो रहा है...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'त्वरित दृश्य',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'त्वरित दृश्य बंद करें',
+			},
 		},
 		backToComparisonButton: {
 			value: 'तुलना पर वापस जाएं',
@@ -509,30 +519,14 @@ export const hi: LangComponents = {
 		addToCartButton: {
 			value: 'कार्ट में जोड़ें',
 		},
+		moreInfoButton: {
+			value: 'अधिक जानकारी',
+		},
 		similarButton: {
 			value: 'समान',
 		},
 		discussButton: {
 			value: 'चर्चा करें',
-		},
-		inStockText: {
-			value: 'स्टॉक में है',
-		},
-		outOfStockText: {
-			value: 'स्टॉक में नहीं',
-		},
-		unavailableText: {
-			value: 'अनुपलब्ध',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'वेरिएंट चयन',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'उत्पाद जानकारी',
-			},
 		},
 	},
 	chatResult: {

@@ -490,9 +490,19 @@ export const ar: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'جارٍ تحميل تفاصيل المنتج...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'عرض سريع',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'إغلاق العرض السريع',
+			},
 		},
 		backToComparisonButton: {
 			value: 'الرجوع إلى المقارنة',
@@ -509,30 +519,14 @@ export const ar: LangComponents = {
 		addToCartButton: {
 			value: 'إضافة إلى السلة',
 		},
+		moreInfoButton: {
+			value: 'مزيد من المعلومات',
+		},
 		similarButton: {
 			value: 'منتجات مشابهة',
 		},
 		discussButton: {
 			value: 'ناقش',
-		},
-		inStockText: {
-			value: 'متوفر',
-		},
-		outOfStockText: {
-			value: 'غير متوفر',
-		},
-		unavailableText: {
-			value: 'غير متاح',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'اختيار المتغيرات',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'معلومات المنتج',
-			},
 		},
 	},
 	chatResult: {

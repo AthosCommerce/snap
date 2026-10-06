@@ -491,9 +491,19 @@ export const de: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Produktdetails werden geladen...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Schnellansicht',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Schnellansicht schließen',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Zurück zum Vergleich',
@@ -510,30 +520,14 @@ export const de: LangComponents = {
 		addToCartButton: {
 			value: 'In den Warenkorb legen',
 		},
+		moreInfoButton: {
+			value: 'Weitere Informationen',
+		},
 		similarButton: {
 			value: 'Ähnliche',
 		},
 		discussButton: {
 			value: 'Besprechen',
-		},
-		inStockText: {
-			value: 'Auf Lager',
-		},
-		outOfStockText: {
-			value: 'Ausverkauft',
-		},
-		unavailableText: {
-			value: 'nicht verfügbar',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Variantenauswahl',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Produktinformationen',
-			},
 		},
 	},
 	chatResult: {

@@ -490,9 +490,19 @@ export const ko: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: '제품 세부 정보 로딩 중...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': '빠른 보기',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': '빠른 보기 닫기',
+			},
 		},
 		backToComparisonButton: {
 			value: '비교로 돌아가기',
@@ -509,30 +519,14 @@ export const ko: LangComponents = {
 		addToCartButton: {
 			value: '장바구니에 담기',
 		},
+		moreInfoButton: {
+			value: '자세히 보기',
+		},
 		similarButton: {
 			value: '유사 제품',
 		},
 		discussButton: {
 			value: '문의하기',
-		},
-		inStockText: {
-			value: '재고 있음',
-		},
-		outOfStockText: {
-			value: '품절',
-		},
-		unavailableText: {
-			value: '이용 불가',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': '옵션 선택',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': '제품 정보',
-			},
 		},
 	},
 	chatResult: {

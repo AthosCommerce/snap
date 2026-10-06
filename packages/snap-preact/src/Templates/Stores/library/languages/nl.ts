@@ -490,9 +490,19 @@ export const nl: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Productdetails worden geladen...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Snelle weergave',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Snelle weergave sluiten',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Terug naar de vergelijking',
@@ -509,30 +519,14 @@ export const nl: LangComponents = {
 		addToCartButton: {
 			value: 'Aan winkelwagen toevoegen',
 		},
+		moreInfoButton: {
+			value: 'Meer informatie',
+		},
 		similarButton: {
 			value: 'Vergelijkbaar',
 		},
 		discussButton: {
 			value: 'Bespreken',
-		},
-		inStockText: {
-			value: 'Op voorraad',
-		},
-		outOfStockText: {
-			value: 'Uitverkocht',
-		},
-		unavailableText: {
-			value: 'niet beschikbaar',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Variantkeuze',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Productinformatie',
-			},
 		},
 	},
 	chatResult: {

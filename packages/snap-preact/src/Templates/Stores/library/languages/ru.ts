@@ -492,9 +492,19 @@ export const ru: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Загрузка деталей товара...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Быстрый просмотр',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Закрыть быстрый просмотр',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Вернуться к сравнению',
@@ -511,30 +521,14 @@ export const ru: LangComponents = {
 		addToCartButton: {
 			value: 'Добавить в корзину',
 		},
+		moreInfoButton: {
+			value: 'Подробнее',
+		},
 		similarButton: {
 			value: 'Похожие',
 		},
 		discussButton: {
 			value: 'Обсудить',
-		},
-		inStockText: {
-			value: 'В наличии',
-		},
-		outOfStockText: {
-			value: 'Нет в наличии',
-		},
-		unavailableText: {
-			value: 'недоступно',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Выбор вариантов',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Информация о товаре',
-			},
 		},
 	},
 	chatResult: {

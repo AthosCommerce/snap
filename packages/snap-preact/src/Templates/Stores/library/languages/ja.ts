@@ -490,9 +490,19 @@ export const ja: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: '商品の詳細を読み込み中...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'クイックビュー',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'クイックビューを閉じる',
+			},
 		},
 		backToComparisonButton: {
 			value: '比較に戻る',
@@ -509,30 +519,14 @@ export const ja: LangComponents = {
 		addToCartButton: {
 			value: 'カートに追加',
 		},
+		moreInfoButton: {
+			value: '詳細情報',
+		},
 		similarButton: {
 			value: '類似商品',
 		},
 		discussButton: {
 			value: '相談する',
-		},
-		inStockText: {
-			value: '在庫あり',
-		},
-		outOfStockText: {
-			value: '在庫切れ',
-		},
-		unavailableText: {
-			value: '利用不可',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'バリエーションの選択',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': '商品情報',
-			},
 		},
 	},
 	chatResult: {

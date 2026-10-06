@@ -29,7 +29,7 @@ import type { ChatInspirationResultMessageProps } from '../components/Molecules/
 import type { ChatMessageTextProps, ChatMessageTextTemplatesLegalProps } from '../components/Molecules/ChatMessageText';
 import type { ChatMessageUserProps, ChatMessageUserTemplatesLegalProps } from '../components/Molecules/ChatMessageUser';
 import type { ChatProductComparisonMessageProps } from '../components/Molecules/ChatProductComparisonMessage';
-import type { ChatProductQueryMessageProps, ChatProductQueryMessageTemplatesLegalProps } from '../components/Molecules/ChatProductQueryMessage';
+import type { ChatQuickviewProps, ChatQuickviewTemplatesLegalProps } from '../components/Molecules/ChatQuickview';
 import type { ChatResultProps } from '../components/Molecules/ChatResult';
 import type { ChatResultsDisplayProps } from '../components/Molecules/ChatResultsDisplay';
 import type { ChatSuggestedQuestionsProps, ChatSuggestedQuestionsTemplatesLegalProps } from '../components/Molecules/ChatSuggestedQuestions';
@@ -229,7 +229,7 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'chatMessageText',
 	'chatMessageUser',
 	'chatProductComparisonMessage',
-	'chatProductQueryMessage',
+	'chatQuickview',
 	'chatResult',
 	'chatResultsDisplay',
 	'chatSuggestedQuestions',
@@ -371,7 +371,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageText'>]?: Partial<ChatMessageTextTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageUser'>]?: Partial<ChatMessageUserTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatQuickview'>]?: Partial<ChatQuickviewTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResult'>]?: Partial<ChatResultProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> } &
@@ -390,7 +390,7 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageText'>]?: Partial<ChatMessageTextProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageUser'>]?: Partial<ChatMessageUserProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatQuickview'>]?: Partial<ChatQuickviewProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResult'>]?: Partial<ChatResultProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsProps> } &
@@ -662,7 +662,7 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageText'>]?: ThemeComponentCascade<ChatMessageTextTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessageUser'>]?: ThemeComponentCascade<ChatMessageUserTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductComparisonMessage'>]?: ThemeComponentCascade<ChatProductComparisonMessageProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatProductQueryMessage'>]?: ThemeComponentCascade<ChatProductQueryMessageTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatQuickview'>]?: ThemeComponentCascade<ChatQuickviewTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResult'>]?: ThemeComponentCascade<ChatResultProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatResultsDisplay'>]?: ThemeComponentCascade<ChatResultsDisplayProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: ThemeComponentCascade<ChatSuggestedQuestionsTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
@@ -939,7 +939,7 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatMessageText'>]?: Partial<ChatMessageTextTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatMessageUser'>]?: Partial<ChatMessageUserTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatProductComparisonMessage'>]?: Partial<ChatProductComparisonMessageProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatProductQueryMessage'>]?: Partial<ChatProductQueryMessageTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatQuickview'>]?: Partial<ChatQuickviewTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatResult'>]?: Partial<ChatResultProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatResultsDisplay'>]?: Partial<ChatResultsDisplayProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> } &
@@ -1048,7 +1048,7 @@ export type ComponentTypePropsMap = {
 	chatMessageText: ChatMessageTextProps;
 	chatMessageUser: ChatMessageUserProps;
 	chatProductComparisonMessage: ChatProductComparisonMessageProps;
-	chatProductQueryMessage: ChatProductQueryMessageProps;
+	chatQuickview: ChatQuickviewProps;
 	chatResult: ChatResultProps;
 	chatResultsDisplay: ChatResultsDisplayProps;
 	chatSuggestedQuestions: ChatSuggestedQuestionsProps;

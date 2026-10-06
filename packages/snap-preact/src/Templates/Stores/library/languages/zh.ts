@@ -490,9 +490,19 @@ export const zh: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: '正在加载产品详情...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': '快速预览',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': '关闭快速预览',
+			},
 		},
 		backToComparisonButton: {
 			value: '返回比较',
@@ -509,30 +519,14 @@ export const zh: LangComponents = {
 		addToCartButton: {
 			value: '加入购物车',
 		},
+		moreInfoButton: {
+			value: '更多信息',
+		},
 		similarButton: {
 			value: '相似产品',
 		},
 		discussButton: {
 			value: '咨询',
-		},
-		inStockText: {
-			value: '有货',
-		},
-		outOfStockText: {
-			value: '缺货',
-		},
-		unavailableText: {
-			value: '不可用',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': '款式选择',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': '产品信息',
-			},
 		},
 	},
 	chatResult: {

@@ -20,11 +20,7 @@ import {
 	ChatProductComparisonMessage,
 	ChatProductComparisonMessageProps,
 } from '../../../Molecules/ChatProductComparisonMessage/ChatProductComparisonMessage';
-import {
-	ChatProductQueryMessage,
-	ChatProductQueryMessageItem,
-	ChatProductQueryMessageProps,
-} from '../../../Molecules/ChatProductQueryMessage/ChatProductQueryMessage';
+import { ChatQuickview, ChatQuickviewItem, ChatQuickviewProps } from '../../../Molecules/ChatQuickview/ChatQuickview';
 import { useChatGestures } from '../hooks/useChatGestures';
 import { ChatLang, chatDefaultLang, langAttrOf } from '../Chat.lang';
 
@@ -170,7 +166,7 @@ export const ChatSideChat = observer((properties: ChatSideChatProps): JSX.Elemen
 			theme: props.theme,
 			treePath,
 		},
-		productQueryMessage: {
+		quickview: {
 			disableStyles,
 			theme: props.theme,
 			treePath,
@@ -209,11 +205,10 @@ export const ChatSideChat = observer((properties: ChatSideChatProps): JSX.Elemen
 				);
 			case 'productQuery':
 				return (
-					<ChatProductQueryMessage
-						{...subProps.productQueryMessage}
-						chatItem={activeMessage as unknown as ChatProductQueryMessageItem}
+					<ChatQuickview
+						{...subProps.quickview}
+						chatItem={activeMessage as unknown as ChatQuickviewItem}
 						controller={controller}
-						displayFields={controller.config.settings?.quickview?.displayFields}
 						primaryColor={primaryColorBg}
 						primaryColorText={primaryColorFg}
 					/>
@@ -276,7 +271,7 @@ export const ChatSideChat = observer((properties: ChatSideChatProps): JSX.Elemen
 interface ChatSideChatSubProps {
 	inspirationResultMessage: Partial<ChatInspirationResultMessageProps>;
 	productComparisonMessage: Partial<ChatProductComparisonMessageProps>;
-	productQueryMessage: Partial<ChatProductQueryMessageProps>;
+	quickview: Partial<ChatQuickviewProps>;
 }
 
 export type ChatSideChatProps = {

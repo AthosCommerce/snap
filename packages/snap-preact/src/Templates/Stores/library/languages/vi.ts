@@ -490,9 +490,19 @@ export const vi: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Đang tải chi tiết sản phẩm...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Xem nhanh',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Đóng xem nhanh',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Quay lại so sánh',
@@ -509,30 +519,14 @@ export const vi: LangComponents = {
 		addToCartButton: {
 			value: 'Thêm vào giỏ hàng',
 		},
+		moreInfoButton: {
+			value: 'Thêm thông tin',
+		},
 		similarButton: {
 			value: 'Tương tự',
 		},
 		discussButton: {
 			value: 'Thảo luận',
-		},
-		inStockText: {
-			value: 'Còn hàng',
-		},
-		outOfStockText: {
-			value: 'Hết hàng',
-		},
-		unavailableText: {
-			value: 'không khả dụng',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Chọn phiên bản',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Thông tin sản phẩm',
-			},
 		},
 	},
 	chatResult: {

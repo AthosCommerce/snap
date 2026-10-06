@@ -91,11 +91,11 @@ export type VariantOptionConfigMappings = {
 	};
 };
 
-// Chat-only quickview settings — an enable toggle with plain string display fields,
-// distinct from the QuickviewStore's QuickviewConfig used by the quickview manager.
+// Chat-only quickview settings — an enable toggle plus the attribute table's display fields,
+// merged by the quickview manager like any controller's `settings.quickview`.
 export type ChatQuickviewConfig = {
 	enabled: boolean;
-	displayFields?: string[];
+	displayFields?: DisplayFieldConfig[];
 };
 
 // Chat Config

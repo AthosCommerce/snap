@@ -490,9 +490,19 @@ export const pt: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Carregando detalhes do produto...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Visualização rápida',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Fechar visualização rápida',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Voltar para a comparação',
@@ -509,30 +519,14 @@ export const pt: LangComponents = {
 		addToCartButton: {
 			value: 'Adicionar ao carrinho',
 		},
+		moreInfoButton: {
+			value: 'Mais informações',
+		},
 		similarButton: {
 			value: 'Similares',
 		},
 		discussButton: {
 			value: 'Conversar',
-		},
-		inStockText: {
-			value: 'Em estoque',
-		},
-		outOfStockText: {
-			value: 'Esgotado',
-		},
-		unavailableText: {
-			value: 'indisponível',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Seleção de variantes',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Informações do produto',
-			},
 		},
 	},
 	chatResult: {

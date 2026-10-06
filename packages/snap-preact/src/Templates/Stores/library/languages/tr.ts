@@ -490,9 +490,19 @@ export const tr: LangComponents = {
 			},
 		},
 	},
-	chatProductQueryMessage: {
+	chatQuickview: {
 		loadingText: {
 			value: 'Ürün ayrıntıları yükleniyor...',
+		},
+		quickview: {
+			attributes: {
+				'aria-label': 'Hızlı bakış',
+			},
+		},
+		closeButton: {
+			attributes: {
+				'aria-label': 'Hızlı bakışı kapat',
+			},
 		},
 		backToComparisonButton: {
 			value: 'Karşılaştırmaya geri dön',
@@ -509,30 +519,14 @@ export const tr: LangComponents = {
 		addToCartButton: {
 			value: 'Sepete ekle',
 		},
+		moreInfoButton: {
+			value: 'Daha fazla bilgi',
+		},
 		similarButton: {
 			value: 'Benzerler',
 		},
 		discussButton: {
 			value: 'Sohbet et',
-		},
-		inStockText: {
-			value: 'Stokta',
-		},
-		outOfStockText: {
-			value: 'Stokta yok',
-		},
-		unavailableText: {
-			value: 'kullanılamıyor',
-		},
-		variantsGroup: {
-			attributes: {
-				'aria-label': 'Varyant seçimi',
-			},
-		},
-		productInformationTable: {
-			attributes: {
-				'aria-label': 'Ürün bilgileri',
-			},
 		},
 	},
 	chatResult: {

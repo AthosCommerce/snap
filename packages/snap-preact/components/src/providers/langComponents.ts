@@ -26,7 +26,7 @@ import type { ChatInspirationResultMessageLang } from '../components/Molecules/C
 import type { ChatMessageTextLang } from '../components/Molecules/ChatMessageText';
 import type { ChatMessageUserLang } from '../components/Molecules/ChatMessageUser';
 import type { ChatProductComparisonMessageLang } from '../components/Molecules/ChatProductComparisonMessage';
-import type { ChatProductQueryMessageLang } from '../components/Molecules/ChatProductQueryMessage';
+import type { ChatQuickviewLang } from '../components/Molecules/ChatQuickview';
 import type { ChatResultLang } from '../components/Molecules/ChatResult';
 import type { CheckboxLang } from '../components/Molecules/Checkbox';
 import type { ErrorHandlerLang } from '../components/Molecules/ErrorHandler';
@@ -118,7 +118,7 @@ export type LangComponents = {
 	chatMessageText: ChatMessageTextLang;
 	chatMessageUser: ChatMessageUserLang;
 	chatProductComparisonMessage: ChatProductComparisonMessageLang;
-	chatProductQueryMessage: ChatProductQueryMessageLang;
+	chatQuickview: ChatQuickviewLang;
 	chatResult: ChatResultLang;
 	checkbox: CheckboxLang;
 	slideshow: SlideshowLang;
