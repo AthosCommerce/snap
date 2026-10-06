@@ -20,7 +20,7 @@ import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
 import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
-const defaultStyles: StyleScript<AutocompleteSlideoutProps> = ({}) => {
+const defaultStyles: StyleScript<AutocompleteSlideoutStyleProps> = ({}) => {
 	return css({
 		border: '1px solid #eee',
 
@@ -154,7 +154,10 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 		},
 	};
 
-	const styling = mergeStyles<AutocompleteSlideoutProps>(props, defaultStyles);
+	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
+	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
+
+	const styling = mergeStyles<AutocompleteSlideoutStyleProps>({ ...props, searchInputInLayout }, defaultStyles);
 
 	const [active, setActive] = useState(false);
 
@@ -173,8 +176,6 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 		});
 	}
 
-	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
-	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
 	const searchInput = renderInput ? (
 		<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
 	) : undefined;
@@ -227,6 +228,7 @@ export type AutocompleteSlideoutProps = {
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
 
+export type AutocompleteSlideoutStyleProps = AutocompleteSlideoutProps & { searchInputInLayout?: boolean };
 export type AutocompleteSlideoutTemplatesLegalProps = {
 	resultComponent?: string;
 	overlayColor?: string;

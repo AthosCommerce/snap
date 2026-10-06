@@ -21,13 +21,7 @@ import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
 import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
-const defaultStyles: StyleScript<AutocompleteFixedProps & { inputBounds: inputBounds; searchInputInLayout: boolean }> = ({
-	inputBounds,
-	offset,
-	renderInput,
-	searchInputInLayout,
-	width,
-}) => {
+const defaultStyles: StyleScript<AutocompleteFixedStyleProps> = ({ inputBounds, offset, renderInput, searchInputInLayout, width }) => {
 	// the rendered input only overlays the native input when it sits above the layout
 	const inputAboveLayout = Boolean(renderInput) && !searchInputInLayout;
 
@@ -261,10 +255,7 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
 	) : undefined;
 
-	const styling = mergeStyles<AutocompleteFixedProps & { inputBounds: inputBounds; searchInputInLayout: boolean }>(
-		{ ...props, inputBounds, searchInputInLayout },
-		defaultStyles
-	);
+	const styling = mergeStyles<AutocompleteFixedStyleProps>({ ...props, inputBounds, searchInputInLayout }, defaultStyles);
 
 	let _input;
 	if (input) {
@@ -331,6 +322,8 @@ export type AutocompleteFixedProps = {
 } & Omit<AutocompleteFixedTemplatesLegalProps, 'resultComponent'> &
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
+
+export type AutocompleteFixedStyleProps = AutocompleteFixedProps & { inputBounds: inputBounds; searchInputInLayout: boolean };
 
 export type AutocompleteFixedTemplatesLegalProps = {
 	resultComponent?: string;

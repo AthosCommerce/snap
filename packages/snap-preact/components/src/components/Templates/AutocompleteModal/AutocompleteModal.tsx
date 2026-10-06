@@ -20,7 +20,7 @@ import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
 import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
-const defaultStyles: StyleScript<AutocompleteModalProps> = ({ width, height, theme }) => {
+const defaultStyles: StyleScript<AutocompleteModalStyleProps> = ({ width, height, theme }) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = theme?.variables;
 
@@ -194,7 +194,10 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		},
 	};
 
-	const styling = mergeStyles<AutocompleteModalProps>(props, defaultStyles);
+	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
+	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
+
+	const styling = mergeStyles<AutocompleteModalStyleProps>({ ...props, searchInputInLayout }, defaultStyles);
 
 	let _input;
 	if (input) {
@@ -208,8 +211,6 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		});
 	}
 
-	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
-	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
 	const searchInput = renderInput ? (
 		<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
 	) : undefined;
@@ -259,6 +260,7 @@ export type AutocompleteModalProps = {
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
 
+export type AutocompleteModalStyleProps = AutocompleteModalProps & { searchInputInLayout?: boolean };
 export type AutocompleteModalTemplatesLegalProps = {
 	resultComponent?: string;
 	buttonSelector?: string | Element;
