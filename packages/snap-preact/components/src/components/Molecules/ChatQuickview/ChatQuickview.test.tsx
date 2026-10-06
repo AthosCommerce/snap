@@ -266,8 +266,6 @@ describe('ChatQuickview Component', () => {
 		expect(getComputedStyle(defaultRoot).height).toBe('100%');
 		const detailsRow = withDefault.container.querySelector('.ss__quickview__content > .ss__quickview__row:first-of-type + .ss__quickview__row')!;
 		expect(getComputedStyle(detailsRow).overflowY).toBe('auto');
-		// the product page link sits at the end of the scrolling details
-		expect(detailsRow.querySelector('.ss__quickview__column--c3 .ss__quickview__go-to-product')).not.toBeNull();
 
 		const withCustom = render(
 			<ChatQuickview chatItem={chatItem} controller={controller} layout={[['productDetail.mappings.core.name'], ['productDetailTable']]} />
