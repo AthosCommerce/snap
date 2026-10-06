@@ -220,6 +220,9 @@ export const es: LangComponents = {
 		clearAllLabel: {
 			value: 'Borrar Todo',
 		},
+		noFiltersText: {
+			value: 'No se han aplicado filtros',
+		},
 	},
 	facet: {
 		showMoreText: {

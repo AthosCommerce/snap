@@ -189,6 +189,9 @@ export const ru: LangComponents = {
 		clearAllLabel: {
 			value: 'Очистить всё',
 		},
+		noFiltersText: {
+			value: 'Фильтры не применены',
+		},
 	},
 	facet: {
 		showMoreText: {

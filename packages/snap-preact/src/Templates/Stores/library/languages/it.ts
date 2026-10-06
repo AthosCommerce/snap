@@ -187,6 +187,9 @@ export const it: LangComponents = {
 		clearAllLabel: {
 			value: 'Cancella tutto',
 		},
+		noFiltersText: {
+			value: 'Nessun filtro applicato',
+		},
 	},
 	facet: {
 		showMoreText: {

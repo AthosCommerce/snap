@@ -103,6 +103,55 @@ describe('FilterSummary Component', () => {
 		expect(FilterElement).not.toBeInTheDocument();
 	});
 
+	it('does not render no filters text without showNoFiltersText', () => {
+		const rendered = render(<FilterSummary filters={[]} noFiltersText={'nothing selected yet'} />);
+		const FilterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
+
+		expect(FilterSummaryElement).not.toBeInTheDocument();
+	});
+
+	it('renders default no filters text when showNoFiltersText is set and there are no filters', () => {
+		const rendered = render(<FilterSummary filters={[]} showNoFiltersText />);
+		const FilterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
+		const titleElement = rendered.container.querySelector('.ss__filter-summary__title');
+		const noFiltersElement = rendered.container.querySelector('.ss__filter-summary__no-filters');
+
+		expect(FilterSummaryElement).toBeInTheDocument();
+		expect(FilterSummaryElement).toHaveClass('ss__filter-summary--no-filters');
+		expect(titleElement).toHaveTextContent('Current Filters');
+		expect(noFiltersElement).toBeInTheDocument();
+		expect(noFiltersElement).toHaveTextContent('No filters applied');
+		expect(rendered.container.querySelector('.ss__filter-summary__filters')).not.toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__filter-summary__clear-all')).not.toBeInTheDocument();
+	});
+
+	it('renders custom no filters text', () => {
+		const noFiltersText = 'nothing selected yet';
+		const rendered = render(<FilterSummary filters={[]} showNoFiltersText noFiltersText={noFiltersText} />);
+		const noFiltersElement = rendered.container.querySelector('.ss__filter-summary__no-filters');
+
+		expect(noFiltersElement).toBeInTheDocument();
+		expect(noFiltersElement).toHaveTextContent(noFiltersText);
+	});
+
+	it('can hide the title while rendering no filters text', () => {
+		const rendered = render(<FilterSummary filters={[]} showNoFiltersText hideTitle />);
+
+		expect(rendered.container.querySelector('.ss__filter-summary__no-filters')).toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__filter-summary__title')).not.toBeInTheDocument();
+	});
+
+	it('does not render no filters text when filters are applied', () => {
+		const rendered = render(<FilterSummary filters={filters} showNoFiltersText />);
+		const FilterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
+		const FilterElements = rendered.container.querySelectorAll('.ss__filter:not(.ss__filter-summary__clear-all)');
+
+		expect(FilterSummaryElement).toBeInTheDocument();
+		expect(FilterSummaryElement).not.toHaveClass('ss__filter-summary--no-filters');
+		expect(rendered.container.querySelector('.ss__filter-summary__no-filters')).not.toBeInTheDocument();
+		expect(FilterElements.length).toBe(3);
+	});
+
 	it('renders with custom seperator', () => {
 		const sep = '>>>';
 		const rendered = render(<FilterSummary filters={filters} separator={sep} />);
@@ -248,6 +297,34 @@ describe('FilterSummary lang works', () => {
 				jest.restoreAllMocks();
 			});
 		});
+	});
+
+	it('noFiltersText lang option renders when there are no filters', () => {
+		const value = 'custom no filters value';
+		const ariaLabel = 'custom no filters label';
+		const valueMock = jest.fn(() => value);
+
+		const rendered = render(
+			<FilterSummary
+				filters={[]}
+				showNoFiltersText
+				lang={{
+					noFiltersText: {
+						value: valueMock,
+						attributes: {
+							'aria-label': ariaLabel,
+						},
+					},
+				}}
+			/>
+		);
+
+		const langElem = rendered.container.querySelector('[ss-lang=noFiltersText]');
+		expect(langElem).toBeInTheDocument();
+		expect(langElem).toHaveClass('ss__filter-summary__no-filters');
+		expect(langElem?.innerHTML).toBe(value);
+		expect(langElem).toHaveAttribute('aria-label', ariaLabel);
+		expect(valueMock).toHaveBeenCalledWith({ filters: [] });
 	});
 });
 

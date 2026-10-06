@@ -187,6 +187,9 @@ export const ja: LangComponents = {
 		clearAllLabel: {
 			value: 'すべてクリア',
 		},
+		noFiltersText: {
+			value: 'フィルターは適用されていません',
+		},
 	},
 	facet: {
 		showMoreText: {

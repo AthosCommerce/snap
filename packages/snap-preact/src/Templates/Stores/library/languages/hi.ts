@@ -187,6 +187,9 @@ export const hi: LangComponents = {
 		clearAllLabel: {
 			value: 'सभी साफ़ करें',
 		},
+		noFiltersText: {
+			value: 'कोई फ़िल्टर लागू नहीं है',
+		},
 	},
 	facet: {
 		showMoreText: {

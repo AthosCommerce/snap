@@ -186,6 +186,9 @@ export const ar: LangComponents = {
 		clearAllLabel: {
 			value: 'مسح الكل',
 		},
+		noFiltersText: {
+			value: 'لم يتم تطبيق أي فلاتر',
+		},
 	},
 	facet: {
 		showMoreText: {

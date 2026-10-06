@@ -187,6 +187,9 @@ export const nl: LangComponents = {
 		clearAllLabel: {
 			value: 'Alles wissen',
 		},
+		noFiltersText: {
+			value: 'Geen filters toegepast',
+		},
 	},
 	facet: {
 		showMoreText: {
