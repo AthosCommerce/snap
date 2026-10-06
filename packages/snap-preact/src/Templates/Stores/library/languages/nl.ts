@@ -1005,8 +1005,17 @@ export const nl: LangComponents = {
 		moreInfoButton: {
 			value: 'Meer informatie',
 		},
+		similarButton: {
+			value: 'Vergelijkbaar',
+		},
+		discussButton: {
+			value: 'Bespreken',
+		},
 		loadingText: {
 			value: 'Laden…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

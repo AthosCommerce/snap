@@ -1004,8 +1004,17 @@ export const hi: LangComponents = {
 		moreInfoButton: {
 			value: 'अधिक जानकारी',
 		},
+		similarButton: {
+			value: 'समान',
+		},
+		discussButton: {
+			value: 'चर्चा करें',
+		},
 		loadingText: {
 			value: 'लोड हो रहा है…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

@@ -1004,8 +1004,17 @@ export const ko: LangComponents = {
 		moreInfoButton: {
 			value: '자세히 보기',
 		},
+		similarButton: {
+			value: '유사 제품',
+		},
+		discussButton: {
+			value: '문의하기',
+		},
 		loadingText: {
 			value: '로딩 중…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

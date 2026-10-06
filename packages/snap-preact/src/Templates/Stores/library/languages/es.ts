@@ -1023,8 +1023,17 @@ export const es: LangComponents = {
 		moreInfoButton: {
 			value: 'Más información',
 		},
+		similarButton: {
+			value: 'Similares',
+		},
+		discussButton: {
+			value: 'Consultar',
+		},
 		loadingText: {
 			value: 'Cargando…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

@@ -1004,8 +1004,17 @@ export const ja: LangComponents = {
 		moreInfoButton: {
 			value: '詳細情報',
 		},
+		similarButton: {
+			value: '類似商品',
+		},
+		discussButton: {
+			value: '相談する',
+		},
 		loadingText: {
 			value: '読み込み中…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

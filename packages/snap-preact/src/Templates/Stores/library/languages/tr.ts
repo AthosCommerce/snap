@@ -1004,8 +1004,17 @@ export const tr: LangComponents = {
 		moreInfoButton: {
 			value: 'Daha fazla bilgi',
 		},
+		similarButton: {
+			value: 'Benzerler',
+		},
+		discussButton: {
+			value: 'Sohbet et',
+		},
 		loadingText: {
 			value: 'Yükleniyor…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

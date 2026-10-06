@@ -1006,8 +1006,17 @@ export const ru: LangComponents = {
 		moreInfoButton: {
 			value: 'Подробнее',
 		},
+		similarButton: {
+			value: 'Похожие',
+		},
+		discussButton: {
+			value: 'Обсудить',
+		},
 		loadingText: {
 			value: 'Загрузка…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

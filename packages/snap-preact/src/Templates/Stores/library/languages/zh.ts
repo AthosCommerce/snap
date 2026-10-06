@@ -1003,8 +1003,17 @@ export const zh: LangComponents = {
 		moreInfoButton: {
 			value: '更多信息',
 		},
+		similarButton: {
+			value: '相似产品',
+		},
+		discussButton: {
+			value: '咨询',
+		},
 		loadingText: {
 			value: '加载中…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

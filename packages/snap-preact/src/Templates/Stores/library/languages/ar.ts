@@ -1003,8 +1003,17 @@ export const ar: LangComponents = {
 		moreInfoButton: {
 			value: 'مزيد من المعلومات',
 		},
+		similarButton: {
+			value: 'منتجات مشابهة',
+		},
+		discussButton: {
+			value: 'ناقش',
+		},
 		loadingText: {
 			value: 'جارٍ التحميل…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };

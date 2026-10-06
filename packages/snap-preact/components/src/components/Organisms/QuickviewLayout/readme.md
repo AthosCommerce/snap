@@ -34,10 +34,11 @@ Each module name maps to a library component (so theme selectors and `customComp
 
 - `slideshow` — the slideshow region (a `Slideshow` of one or more images; nav/pagination appear only for multiple images). Wrapped in `OverlayBadge` so overlay badges paint over it, unless `hideBadge` is set.
 - `calloutBadge` — the `CalloutBadge` molecule (callout badges rendered as their own block). Use `calloutBadge.<tag>` to pass a custom `tag` prop to `CalloutBadge` (e.g. `calloutBadge.callout-secondary`); the bare `calloutBadge` uses the component's default tag (`callout`). A custom tag also names the component, so `calloutBadge.<tag>` theme selectors can target it.
-- `variantSelections` — one `VariantSelection` per variant selection.
+- `variantSelections` — one `VariantSelection` per variant selection, each under a title from the `variantTitle` lang. Non-swatch selections render with `variantDropdownType` when set.
 - `variantSelection.<field>` — a single `VariantSelection` for the matching selection field (e.g. `variantSelection.color`). The field also matches its component-name form (`color_family` → `color-family`), so `variantSelection.<field>` theme selectors can target it. A bare `variantSelection` module is not supported.
-- `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid. The path's final segment names the component, so `productDetail.<name>` theme selectors can target it (e.g. `productDetail.description`).
+- `productDetail.<path>` — a single product field via the `ProductDetail` atom, resolved from an explicit dot-path (e.g. `productDetail.mappings.core.name` or `productDetail.attributes.brand`). `productDetail.mappings.core.name` is the title, rendered inside an `a.ss__quickview__title-link` to the product's `mappings.core.url` (plain text when there is no url) — the click is tracked with `quickviewManager.track.product.click`, delegated to the source controller, which records a clickThrough because the link's href is the product url; `productDetail.mappings.core.description` renders as rich HTML. Any product path is valid. The path's final segment names the component, so `productDetail.<name>` theme selectors can target it (e.g. `productDetail.description`).
 - `button.add-to-cart` / `button.more-info` — the action `Button`s (More info only renders when the product has a `url`). Clicking More info tracks a clickThrough for the product (`controller.track.product.clickThrough`, delegated with `quickView: true`) before navigating to the product page.
+- `button.similar` / `button.discuss` — chat-only action `Button`s, rendered only when the quickview was opened by a `ChatController` (they forward to `controller.productSimilar(product)` / `controller.productQuery(product)`). `button.similar` additionally requires the chat `similarProducts` feature. For any other source controller both render nothing, so a layout carrying them stays safe to share across surfaces. Like the other buttons they render without icons; theme the named selectors (e.g. `'button.discuss': { icon: 'chat' }`) to add them.
 - `quantityPicker` — the `QuantityPicker` molecule bound to the observable `product.quantity`, so `button.add-to-cart` adds the selected quantity to the cart. Part of both default layouts, between `variantSelections` and the action buttons.
 - `productDetailTable` — the `ProductDetailTable` molecule (opt-in via the `displayFields` config).
 - `recommendation.<profile>` — a recommendation carousel for the named profile. `<profile>` becomes the `RecommendationController` **tag**; the controller is seeded with the currently-viewed product (`mappings.core.parentId || product.id`) and rendered through the theme's `Recommendation` component (configurable via the `recommendation` prop). The profile also names the component, so `recommendation.<profile>` theme selectors can target it. Renders `null` until the controller's store is loaded.
@@ -56,8 +57,10 @@ Each module returns `null` when it has nothing to show (no description, no displ
 |---|---|:---:|---|
 | `quickviewManager` | `QuickviewManager` | ✔️ | The component subscribes to `quickviewManager.store`. Renders `null` (with a console warning) when missing. |
 | `onClose` | `() => void` | | Hook into the quickview close. Will always call `quickviewManager.close()` in addition. |
+| `inline` | `boolean` | | Embedded in another panel (e.g. the chat secondary window via `ChatQuickview`): no `role="dialog"`/`aria-modal` focus trap, no window-Escape close, and no built-in close button — the host panel owns dismissal. Module presentation is unchanged. |
 | `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
 | `hideBadge` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
+| `variantDropdownType` | `'dropdown' \| 'list'` | | Component type for variant selections that aren't swatches (by default they render as a dropdown). `ChatQuickview` sets `'list'`. |
 | `column1`–`column4` | `Column` | | `{ layout, width, alignContent }` configs for the `c1`–`c4` columns. |
 | `recommendation` | `{ component?, resultComponent?, config? }` | | Config for every `recommendation.<profile>` module (see Recommendations). |
 | `customComponent` | `string` | | Name of a custom template component override, resolved via the Snap templates library. |
@@ -89,7 +92,7 @@ Image resolution is variant-aware: when a variant is active its own image list i
 
 ## Variant selection
 
-When `product.variants.selections` is non-empty the `variantSelections` module renders one `VariantSelection` molecule per selection, while `variantSelection.<field>` renders only the matching selection. Each renders as **swatches** or a **dropdown** based on the field's `optionConfig.type`. Because the layout reads `product.display.mappings.core` / `product.display.attributes` (which compose `mask` over base data), the displayed name, image, and attributes refresh automatically when a variant is selected.
+When `product.variants.selections` is non-empty the `variantSelections` module renders one `VariantSelection` molecule per selection, while `variantSelection.<field>` renders only the matching selection. Each renders as **swatches** or a **dropdown** based on the field's `optionConfig.type` (non-swatch selections use `variantDropdownType` when set). Because the layout reads `product.display.mappings.core` / `product.display.attributes` (which compose `mask` over base data), the displayed name, image, and attributes refresh automatically when a variant is selected.
 
 ## `displayFields` and labels
 
@@ -143,6 +146,8 @@ Generic click tracking is disabled inside the quickview (`track: { click: false 
 - `addToCartButton` — value for the add-to-cart button (default `Add to Cart`).
 - `moreInfoButton` — value for the more-info button (default `More info`).
 - `loadingText` — value for the loading indicator (default `Loading…`).
+- `similarButton` / `discussButton` — values for the chat-only buttons (defaults `Similar` / `Discuss`).
+- `variantTitle` — value for each variant selection's title, receiving `{ quickviewManager, selection }` (default: the selection's `label`, falling back to its `field`).
 
 ## Notes
 

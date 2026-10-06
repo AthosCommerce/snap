@@ -1004,8 +1004,17 @@ export const vi: LangComponents = {
 		moreInfoButton: {
 			value: 'Thêm thông tin',
 		},
+		similarButton: {
+			value: 'Tương tự',
+		},
+		discussButton: {
+			value: 'Thảo luận',
+		},
 		loadingText: {
 			value: 'Đang tải…',
+		},
+		variantTitle: {
+			value: (data) => data?.selection?.label || data?.selection?.field || '',
 		},
 	},
 };
