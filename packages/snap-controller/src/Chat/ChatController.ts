@@ -3,7 +3,14 @@ import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
-import { ChatRequestModel, ChatTrackingContext, MoiRequestModel, ProductIdentity, CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
+import {
+	ChatRequestModel,
+	ChatTrackingContext,
+	MoiRequestModel,
+	ProductIdentity,
+	CHAT_MAX_MESSAGE_LENGTH,
+	CHAT_ERROR_CODES,
+} from '@athoscommerce/snap-client';
 import type { ChatAttachmentImage, ChatAttachmentProduct, Product, Banner, ChatSessionStore } from '@athoscommerce/snap-store-mobx';
 import {
 	type Product as BeaconProduct,
@@ -454,11 +461,16 @@ export class ChatController extends AbstractController {
 					thumbnailUrl: response.thumbnailUrl,
 				});
 			} catch (err: any) {
+				const status = err?.fetchDetails?.status;
 				const serverMessage = err?.responseBody?.errorMessage;
-				const errorMessage =
-					err?.fetchDetails?.status === 400 && serverMessage
-						? `${serverMessage}. Please try again.`
-						: 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+				let errorMessage: string;
+				if (status === 415) {
+					errorMessage = 'This file type is not supported';
+				} else if (status === 400 && serverMessage) {
+					errorMessage = `${serverMessage}. Please try again.`;
+				} else {
+					errorMessage = 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+				}
 
 				// a file-read failure happens before the attachment exists — create one
 				// so the failure still surfaces through the attachment error state
@@ -918,12 +930,18 @@ export class ChatController extends AbstractController {
 			this.store.currentChat?.setPendingRequest(null);
 			if (err) {
 				if (err.err && err.fetchDetails) {
-					// session limit exceeded — flag the current chat so the UI can show a banner
-					if (err.responseBody?.errorCode === 'CS_003') {
+					if (err.responseBody?.errorCode === CHAT_ERROR_CODES.QUOTA_LIMIT) {
+						// quota limit reached — not retried by the client, and won't clear within a retry window
+						this.store.error = {
+							type: ErrorType.WARNING,
+							message: 'Chat is temporarily unavailable. Please try again later.',
+						};
+					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.SESSION_LIMIT) {
+						// session limit exceeded — flag the current chat so the UI can show a banner
 						if (this.store.currentChat) {
 							this.store.currentChat.sessionLimitReached = true;
 						}
-					} else if (err.responseBody?.errorCode === 'CS_006') {
+					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.CONTENT_POLICY) {
 						this.store.error = {
 							type: ErrorType.ERROR,
 							message:

@@ -288,6 +288,32 @@ describe('Chat Controller', () => {
 			handleError.mockClear();
 		});
 
+		it('displays a try-again-later message for quota limit errors (CS_002)', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.inputValue = 'test message';
+			const handleError = jest.spyOn(controller, 'handleError');
+			const error = new Error('Quota limit reached');
+
+			controller.client.chat = jest.fn(() => {
+				throw {
+					err: error,
+					fetchDetails: { status: 429, url: 'test.com' },
+					responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
+				};
+			});
+
+			await controller.search();
+
+			expect(controller.store.error).toStrictEqual({
+				type: 'warning',
+				message: 'Chat is temporarily unavailable. Please try again later.',
+			});
+			expect(handleError).toHaveBeenCalledWith(error, { status: 429, url: 'test.com' });
+			handleError.mockClear();
+		});
+
 		it('handles 500 server error', async () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
@@ -2168,6 +2194,24 @@ describe('Chat Controller', () => {
 			expect(attachment.state).toBe('error');
 			expect(attachment.error?.message).toBe('Image format not supported. Please try again.');
 			expect(handleError).toHaveBeenCalledWith(error, { status: 400, url: 'test.com' });
+			handleError.mockClear();
+		});
+
+		it('sets an unsupported file type message on the attachment for 415 responses and reports the error', async () => {
+			const controller = createController();
+			const handleError = jest.spyOn(controller, 'handleError');
+			const error = new Error('unsupported media type');
+			controller.client.uploadImage = jest.fn().mockRejectedValue({
+				err: error,
+				fetchDetails: { status: 415, url: 'test.com' },
+			});
+
+			await controller.upload(asFileList([new File(['a'], 'photo.tiff', { type: 'image/tiff' })]));
+
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.state).toBe('error');
+			expect(attachment.error?.message).toBe('This file type is not supported');
+			expect(handleError).toHaveBeenCalledWith(error, { status: 415, url: 'test.com' });
 			handleError.mockClear();
 		});
 
