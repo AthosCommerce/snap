@@ -371,11 +371,12 @@ interface SelectSubProps {
 
 export type SelectProps = {
 	lang?: Partial<SelectLang>;
+	options: ListOption[];
+	selected?: ListOption;
 } & SelectTemplatesLegalProps &
 	ComponentProps<SelectProps>;
 
 export type SelectTemplatesLegalProps = {
-	options: ListOption[];
 	backgroundColor?: string;
 	borderColor?: string;
 	color?: string;
@@ -390,7 +391,6 @@ export type SelectTemplatesLegalProps = {
 	hideLabel?: boolean;
 	native?: boolean;
 	onSelect?: (e: React.ChangeEvent<HTMLSelectElement> | React.MouseEvent<HTMLElement>, option?: ListOption) => void;
-	selected?: ListOption;
 	separator?: string | JSX.Element;
 	startOpen?: boolean;
 	stayOpenOnSelection?: boolean;

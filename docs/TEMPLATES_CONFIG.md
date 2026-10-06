@@ -9,6 +9,7 @@ Snap templates is configuration based. The configuration defines which features 
 | `plugins` | Plugins configuration options |
 | `components` | Custom component registration |
 | `translations` | Custom language translations |
+| `currencies` | Per currency component overrides |
 | `url` | URL translator configuration |
 | `theme` | Theme configuration |
 | `search` | Search feature target declarations |
@@ -23,8 +24,8 @@ import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-prea
 const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: '8uyt2m',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 	},
 	theme: {
 		extends: 'pike',
@@ -109,7 +110,7 @@ To enable unlocked mode you must:
 
 This makes additional configuration capabilities available:
 
-1. **Custom Component Prop in Theme Overrides for all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component.
+1. **Custom Component Prop in Theme Overrides for almost all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. The one exception is `result`, which never supports `customComponent` (locked or unlocked) since it would bypass built-in impression tracking — use `resultComponent` or `globalResultComponent` to customize result rendering instead.
 
 2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
 
@@ -131,6 +132,37 @@ const config = validateTemplatesConfigUnlocked({
 new SnapTemplates(config);
 ```
 
+### Configuration Validation
+
+Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript verify the entire configuration — unknown keys, invalid override selectors and props, and wrong value types. Unknown keys and wrong value types are flagged on the exact line as you type. Mistakes inside `theme.overrides` that the IDE cannot see while typing (a misspelled selector, or any prop under an open-named selector such as `facet.<field>`) are reported where the config is passed to `new SnapTemplates(...)`.
+
+> [!IMPORTANT]
+> Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.
+
+
+### Per Currency Overrides
+
+| Configuration Option | Description | Type | Default |
+|----------------------|-------------|------|---------|
+| `currencies` | Per currency component overrides | Object | ➖ |
+| `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ |
+| `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ |
+
+Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), `config.currencies` overrides component props for that one currency, layered on top of its built-in locale. The value has the same shape as `theme.overrides.default`, so any component props are accepted.
+
+```tsx
+currencies: {
+	AED: {
+		price: {
+			symbol: 'د.إ',
+			symbolAfter: true,
+		},
+	},
+},
+```
+
+The overrides follow the active currency, including when it changes at run-time via `setCurrency()`. See [Per Currency Overrides](TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the full layer order.
+
 ### Language Translations
 
 | Configuration Option | Description | Type | Default |
@@ -148,7 +180,7 @@ Translations overrides can be provided in two ways:
 1. Simple translations: Use a string value for straightforward text replacements.
 2. Complex translations: Utilize functions to access component props and apply logic for dynamic text generation.
 
-When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](TEMPLATES_HOW_TO.md#responsive-translations) for an example.
+When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO.md#responsive-translations) for an example.
 
 The example below demonstrates both approaches for French language translations:
 - The `FilterSummary` component uses a simple string translation.
@@ -160,7 +192,7 @@ The example below demonstrates both approaches for French language translations:
 new SnapTemplates(validateTemplatesConfig({
 	...
 	translations: {
-		fr: {
+		FR: {
 			filterSummary: {
 				title: {
 					value: 'Filtres actuels'
@@ -192,6 +224,9 @@ Snap Templates was built to intentionally not support custom Preact components c
 - `customComponent` requires explicit component registration in `components` for the component section being overridden. Built-in fallback names are not used for `customComponent`.
 
 `globalResultComponent` utilizes `resultComponent` name resolution for result rendering and applies that selection globally across templates.
+
+> [!IMPORTANT]
+> `result` does not support the `customComponent` override prop, even in an unlocked configuration. Use `resultComponent` (on `search`, `autocompleteFixed`, a recommendation template, etc.) or `globalResultComponent` to customize result rendering instead.
 
 
 
@@ -298,8 +333,8 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `tabs[].id` | Unique tab identifier, also used as the controller id | String | Required |
-| `tabs[].siteId` | Athos Site ID the tab queries | String | Required |
-| `tabs[].param` | URL identifier for the tab's catalog | String | Required |
+| `tabs[].siteId` | Athos Site ID the tab queries, unique within the feature | String | Required |
+| `tabs[].param` | URL identifier for the tab's catalog, unique within the feature | String | Required |
 | `tabs[].label` | Display label for the tab | String | `tabs[].id` |
 | `tabs[].default` | Selects this tab on initial load | Boolean | first tab |
 | `tabs[].globals` | Request globals for this tab only | Object | ➖ |
@@ -310,6 +345,8 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 `tabs[].id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. The id becomes the controller id, and controllers share a single registry - a duplicate id is silently skipped and the affected tab never renders.
 
 `tabs[].param` does two things. It is the value written to the URL when the tab is selected, and it namespaces that tab's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
+
+Within a feature, every tab must have its own `siteId` and its own `param`.
 
 The URL parameter holding the active tab is always `tab` - it is registered as a custom query parameter on every tab controller and is not configurable.
 

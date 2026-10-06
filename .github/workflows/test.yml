@@ -1,9 +1,8 @@
 on:
+  # run on every pull request regardless of base branch
   pull_request:
-    branches:
-      - main
-      - develop
-      - beta
+  # manual runs against any ref
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

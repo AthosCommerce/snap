@@ -173,6 +173,8 @@ describe('Autocomplete', () => {
 		});
 
 		it('can hover over facet', function () {
+			cy.clearAllSessionStorage();
+
 			cy.get(config.selectors.website.input).first().should('exist').clear({ force: true }).type(config.startingQuery, { force: true });
 			cy.wait('@autocomplete').should('exist');
 

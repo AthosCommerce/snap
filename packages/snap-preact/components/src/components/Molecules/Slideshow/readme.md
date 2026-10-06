@@ -116,6 +116,13 @@ The `dragThreshold` prop sets the drag sensitivity.
 <Slideshow slides={slidesArray} dragThreshold={50} />
 ```
 
+### dragClickThreshold
+The `dragClickThreshold` prop sets the number of pixels of drag travel before a drag is distinguished from a click, preventing the trailing click from triggering slide `onClick` handlers.
+
+```tsx
+<Slideshow slides={slidesArray} dragClickThreshold={10} />
+```
+
 ### loop
 The `loop` prop enables continuous looping through the slideshow when reaching the end.
 
