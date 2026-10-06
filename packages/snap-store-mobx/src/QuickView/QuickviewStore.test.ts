@@ -194,6 +194,30 @@ describe('QuickviewStore', () => {
 			expect(variants.active).toBeDefined();
 		});
 
+		it('honors storeConfig variant option config (thumbnailBackgroundImages) when applying productsData', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const storeConfig: SearchStoreConfig = {
+				id: 'search',
+				settings: {
+					variants: {
+						options: {
+							color: { thumbnailBackgroundImages: true },
+						},
+					},
+				},
+			};
+			const { results } = sourceProducts();
+			const productsData = variantsProductsData();
+
+			store.update({ result: results[0], productsData, storeConfig });
+
+			const colorSelection = store.product!.variants!.selections.find((selection) => selection.field === 'color')!;
+			expect(colorSelection.values.length).toBeGreaterThan(0);
+			colorSelection.values.forEach((value) => {
+				expect(value.backgroundImageUrl).toBe(value.thumbnailImageUrl);
+			});
+		});
+
 		it('keeps variant selection on the clone from mutating the source result', () => {
 			const store = new QuickviewStore(quickviewConfig);
 			const { results } = sourceProducts('z7h1jh', 'variants');
@@ -226,6 +250,40 @@ describe('QuickviewStore', () => {
 
 			const modalSelection = store.product!.variants!.selections.find((selection) => selection.field === tileSelection.field)!;
 			expect(modalSelection.selected?.value).toBe(chosen.value);
+		});
+
+		it('selects the variant whose uid matches the source result id instead of the first available', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts();
+			const result = results[0];
+			const productsData = variantsProductsData();
+
+			// autoSelect alone lands on the first available variant — pick a different one to match
+			store.update({ result, productsData });
+			const defaultActiveUid = store.product!.variants!.active!.mappings.core?.uid;
+			const availableVariants = productsData.variants.data.filter((variant: any) => variant.mappings.core?.available !== false);
+			const clickedVariant = availableVariants[availableVariants.length - 1];
+			expect(clickedVariant.mappings.core.uid).not.toBe(defaultActiveUid);
+
+			(result as any).id = clickedVariant.mappings.core.uid;
+			store.update({ result, productsData });
+
+			const variants = store.product!.variants!;
+			expect(variants.active!.mappings.core?.uid).toBe(clickedVariant.mappings.core.uid);
+			variants.selections.forEach((selection) => {
+				expect(selection.selected?.value).toBe(clickedVariant.options[selection.field].value);
+			});
+		});
+
+		it('keeps the autoSelect default when no variant uid matches the source result id', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts();
+			const productsData = variantsProductsData();
+			const firstAvailable = productsData.variants.data.find((variant: any) => variant.mappings.core?.available !== false);
+
+			store.update({ result: results[0], productsData });
+
+			expect(store.product!.variants!.active!.mappings.core?.uid).toBe(firstAvailable.mappings.core.uid);
 		});
 
 		it('initializes the modal selections from the tile selection when productsData is skipped', () => {
