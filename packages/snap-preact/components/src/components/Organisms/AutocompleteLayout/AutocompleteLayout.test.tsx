@@ -761,4 +761,119 @@ describe('AutocompleteLayout Component', () => {
 			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
+
+	describe('searchInputSlot', () => {
+		const inLayoutArgs: Partial<AutocompleteLayoutProps> = {
+			layout: [['c1', 'c3']],
+			column1: { width: '300px', layout: [['searchInput'], ['termsList']] },
+		};
+		const slotSelector = '.ss__autocomplete__search-input-wrapper .slot-input';
+
+		it('keeps the layout mounted and renders the slot at the "searchInput" module without a focused input', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				...inLayoutArgs,
+				searchInputSlot: <input className="slot-input" type="text" />,
+			};
+
+			// the input is never focused and there is no query
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const slotInput = rendered.container.querySelector(`.ss__autocomplete__column--c1 ${slotSelector}`);
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(slotInput).toBeInTheDocument();
+
+			// the content modules still require a focused input with content
+			expect(rendered.container.querySelector('.ss__autocomplete__terms-wrapper')).not.toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__column--c3')).not.toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__content')).not.toBeInTheDocument();
+		});
+
+		it('renders the content modules once the input is focused with a query, without remounting the slot', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				...inLayoutArgs,
+				searchInputSlot: <input className="slot-input" type="text" />,
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			const slotInput = rendered.container.querySelector(slotSelector);
+			expect(slotInput).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__content')).not.toBeInTheDocument();
+
+			input.focus();
+			input.value = 'dress';
+
+			await waitFor(() => {
+				const content = rendered.container.querySelector('.ss__autocomplete__column--c3 .ss__autocomplete__content');
+				const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
+
+				expect(content).toBeInTheDocument();
+				expect(results.length).toBeGreaterThan(0);
+			});
+
+			// the same slot element is still in place after the content appeared
+			expect(rendered.container.querySelector(`.ss__autocomplete__column--c1 ${slotSelector}`)).toBe(slotInput);
+		});
+
+		it('renders the slot first in the layout when no "searchInput" module is present', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				searchInputSlot: <input className="slot-input" type="text" />,
+			};
+
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete')!;
+			expect(autocomplete).toBeInTheDocument();
+
+			// close button, then the slot - no rows render without a focused input
+			expect(autocomplete.children.length).toBe(2);
+			expect(autocomplete.children[0]).toHaveClass('ss__autocomplete__close-button');
+			expect(autocomplete.children[1]).toHaveClass('ss__autocomplete__search-input-wrapper');
+			expect(autocomplete.children[1].querySelector('.slot-input')).toBeInTheDocument();
+		});
+
+		it('ignores the "searchInput" module without a slot and keeps the focus requirement', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				layout: [['searchInput'], ['content']],
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			expect(rendered.container.querySelector('.ss__autocomplete')).not.toBeInTheDocument();
+
+			input.focus();
+			input.value = 'dress';
+
+			await waitFor(() => {
+				const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
+				expect(results.length).toBeGreaterThan(0);
+			});
+
+			expect(rendered.container.querySelector('.ss__autocomplete__search-input-wrapper')).not.toBeInTheDocument();
+		});
+	});
 });

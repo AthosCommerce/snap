@@ -1,7 +1,11 @@
 import { css } from '@emotion/react';
 import { autocompleteSlideoutThemeComponentProps } from '../../../themeComponents/autocompleteSlideout';
 import { ThemeComponent } from '../../../../providers';
-import { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps } from '../../../../components/Templates/AutocompleteSlideout';
+import {
+	AutocompleteSlideoutProps,
+	AutocompleteSlideoutStyleProps,
+	AutocompleteSlideoutTemplatesLegalProps,
+} from '../../../../components/Templates/AutocompleteSlideout';
 import { autocompleteSharedStyleScript } from '../templates/autocompleteShared';
 import { custom } from '../../custom';
 
@@ -9,7 +13,7 @@ import { custom } from '../../custom';
 const searchInputHeight = 40;
 
 // CSS in JS style script for the Search component
-const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutProps) => {
+const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutStyleProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
 
@@ -28,7 +32,7 @@ const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutProps) => {
 		padding: `${custom.spacing.x4}px`,
 		'.ss__autocomplete-slideout__inner': {
 			height: '100%',
-			'& > .ss__search-input': {
+			'& .ss__search-input': {
 				height: `${searchInputHeight}px`,
 				margin: `0 0 ${custom.spacing.x4}px 0`,
 				'.ss__button, .ss__search-input__button--close-search-button': {
@@ -41,7 +45,8 @@ const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutProps) => {
 			'.ss__autocomplete': {
 				alignContent: 'flex-start',
 				overflow: 'visible',
-				height: 'calc(100% - 60px)',
+				// reserve space for the search input (and its bottom margin) above the layout unless the input renders inside it
+				height: props.searchInputInLayout ? '100%' : `calc(100% - ${searchInputHeight + custom.spacing.x4}px)`,
 				overflowY: 'auto',
 				overflowX: 'hidden',
 				...custom.styles.scrollbar(),

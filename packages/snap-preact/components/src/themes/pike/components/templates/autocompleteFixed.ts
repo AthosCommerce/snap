@@ -34,7 +34,7 @@ const autocompleteFixedStyleScript = (props: AutocompleteFixedProps) => {
 		'.ss__modal': {
 			'.ss__modal__content': {
 				'.ss__autocomplete-fixed__inner': {
-					'& > .ss__search-input': {
+					'& .ss__search-input': {
 						height: `${searchInputHeight}px`,
 						margin: 0,
 						'.ss__button, .ss__search-input__button--close-search-button': {
