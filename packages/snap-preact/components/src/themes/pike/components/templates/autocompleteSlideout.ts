@@ -28,7 +28,7 @@ const autocompleteSlideoutStyleScript = (props: AutocompleteSlideoutProps) => {
 		padding: `${custom.spacing.x4}px`,
 		'.ss__autocomplete-slideout__inner': {
 			height: '100%',
-			'& > .ss__search-input': {
+			'& .ss__search-input': {
 				height: `${searchInputHeight}px`,
 				margin: `0 0 ${custom.spacing.x4}px 0`,
 				'.ss__button, .ss__search-input__button--close-search-button': {

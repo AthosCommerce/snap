@@ -7,7 +7,12 @@ import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
-import { AutocompleteLayout, AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps } from '../../Organisms/AutocompleteLayout';
+import {
+	AutocompleteLayout,
+	AutocompleteLayoutProps,
+	AutocompleteLayoutTemplatesLegalProps,
+	layoutHasModule,
+} from '../../Organisms/AutocompleteLayout';
 import { SlideDirectionType, Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
@@ -61,7 +66,22 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 		buttonSelector = input;
 	}
 
-	const { layout, disableStyles, slideDirection, overlayColor, renderInput, className, internalClassName, treePath, width, tabManager } = props;
+	const {
+		layout,
+		column1,
+		column2,
+		column3,
+		column4,
+		disableStyles,
+		slideDirection,
+		overlayColor,
+		renderInput,
+		className,
+		internalClassName,
+		treePath,
+		width,
+		tabManager,
+	} = props;
 
 	let controller = props.controller;
 	let controllers: AutocompleteController[] = [controller];
@@ -153,6 +173,12 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 		});
 	}
 
+	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
+	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
+	const searchInput = renderInput ? (
+		<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
+	) : undefined;
+
 	const acProps = {
 		...props,
 	};
@@ -173,16 +199,13 @@ export const AutocompleteSlideout = observer((properties: AutocompleteSlideoutPr
 				active={active}
 			>
 				<div className="ss__autocomplete-slideout__inner" ref={(e) => useA11y(e, 0, true, reset)}>
-					{renderInput ? (
-						<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
-					) : (
-						<></>
-					)}
+					{searchInput && !searchInputInLayout ? searchInput : <></>}
 					<AutocompleteLayout
 						{...acProps}
 						{...subProps.autocompleteLayout}
 						input={_input!}
 						controller={controller}
+						searchInputSlot={searchInputInLayout ? searchInput : undefined}
 						treePath={`${treePath} slideout`}
 					/>
 				</div>

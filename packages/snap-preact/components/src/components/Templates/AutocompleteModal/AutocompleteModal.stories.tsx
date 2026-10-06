@@ -110,9 +110,9 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"['c1' | 'c2' | 'c3' | 'c4' | 'Terms' | 'HistoryTerms' | 'TrendingTerms'| 'SuggestedTerms'| 'Facets' | 'FacetsHorizontal' | 'SeeMore' | 'Content' | '_' | 'Banner.left' | 'Banner.banner' | 'Banner.footer' | 'Banner.header']",
+						"['c1' | 'c2' | 'c3' | 'c4' | 'termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header'] | 'terms' | 'mobile' | 'tablet' | 'desktop'",
 				},
-				defaultValue: { summary: "[['button.see-more'],['termsList'], ['content']]" },
+				defaultValue: { summary: "[['c1', 'c2', 'c3']]" },
 			},
 			control: 'none',
 		},
@@ -122,11 +122,11 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['Terms' | 'HistoryTerms' | 'TrendingTerms'| 'SuggestedTerms'| 'Facets' | 'FacetsHorizontal' | 'SeeMore' | 'Content' | '_' | 'Banner.left' | 'Banner.banner' | 'Banner.footer' | 'Banner.header']}",
+						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
 				},
 				defaultValue: {
 					summary: `{
-					layout: ['Terms'],
+					layout: ['termsList'],
 					width: '150px'
 				}`,
 				},
@@ -139,11 +139,11 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['Terms' | 'HistoryTerms' | 'TrendingTerms'| 'SuggestedTerms'| 'Facets' | 'FacetsHorizontal' | 'SeeMore' | 'Content' | '_' | 'Banner.left' | 'Banner.banner' | 'Banner.footer' | 'Banner.header']}",
+						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
 				},
 				defaultValue: {
 					summary: `{
-					layout: ['Facets'],
+					layout: ['facets'],
 					width: '150px'
 				}`,
 				},
@@ -156,11 +156,11 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['Terms' | 'HistoryTerms' | 'TrendingTerms'| 'SuggestedTerms'| 'Facets' | 'FacetsHorizontal' | 'SeeMore' | 'Content' | '_' | 'Banner.left' | 'Banner.banner' | 'Banner.footer' | 'Banner.header']}",
+						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
 				},
 				defaultValue: {
 					summary: `{
-					layout: [['Content'], ['_', 'SeeMore']],
+					layout: [['tabSelection'], ['content'], ['_', 'button.see-more']],
 					width: 'auto'
 				}`,
 				},
@@ -173,7 +173,7 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['Terms' | 'HistoryTerms' | 'TrendingTerms'| 'SuggestedTerms'| 'Facets' | 'FacetsHorizontal' | 'SeeMore' | 'Content' | '_' | 'Banner.left' | 'Banner.banner' | 'Banner.footer' | 'Banner.header']}",
+						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
 				},
 			},
 			control: 'none',
@@ -351,3 +351,20 @@ Default.loaders = [
 		controller: await snapInstance,
 	}),
 ];
+
+export const SearchInputInLayout = (args: AutocompleteModalProps, context: { loaded: { controller: AutocompleteController } }) =>
+	Default(args, context);
+
+SearchInputInLayout.loaders = Default.loaders;
+
+SearchInputInLayout.args = {
+	layout: [['c1', 'c3']],
+	column1: {
+		width: '40%',
+		layout: [['searchInput'], ['terms.history', 'terms.trending']],
+	},
+	column3: {
+		width: 'auto',
+		layout: ['content'],
+	},
+};

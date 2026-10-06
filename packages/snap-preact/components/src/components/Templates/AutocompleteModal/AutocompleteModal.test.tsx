@@ -273,4 +273,106 @@ describe('AutocompleteModal Component', () => {
 			expect(footerBanner).toBeInTheDocument();
 		});
 	});
+
+	describe('search input placement', () => {
+		const inLayoutArgs: Partial<AutocompleteModalProps> = {
+			layout: [['c1', 'c3']],
+			column1: { width: '300px', layout: [['searchInput'], ['termsList']] },
+		};
+		const inLayoutInputSelector = `.ss__autocomplete .ss__autocomplete__column--c1 .ss__autocomplete__search-input-wrapper ${renderedInputSelector}`;
+
+		it('renders the search input above the layout when the layout has no "searchInput" module', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteModalProps = {
+				controller,
+				input: controller.config.selector,
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteModal {...args} />, { container });
+
+			await userEvent.click(input!);
+
+			await waitFor(() => {
+				const inner = rendered.container.querySelector('.ss__autocomplete-modal__inner');
+				const renderedInput = document.querySelector(renderedInputSelector) as HTMLInputElement;
+
+				expect(inner?.firstElementChild).toHaveClass('ss__autocomplete-modal__search-input');
+				expect(inner?.firstElementChild?.contains(renderedInput)).toBe(true);
+				expect(rendered.container.querySelector('.ss__autocomplete__search-input-wrapper')).not.toBeInTheDocument();
+
+				// the rendered input was focused and bound to the controller
+				expect(controller.store.state.focusedInput).toBe(renderedInput);
+			});
+		});
+
+		it('renders the search input inside the layout at the "searchInput" module and binds it', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteModalProps = {
+				controller,
+				input: controller.config.selector,
+				...inLayoutArgs,
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteModal {...args} />, { container });
+
+			await userEvent.click(input!);
+
+			let renderedInput: HTMLInputElement;
+			await waitFor(() => {
+				const inner = rendered.container.querySelector('.ss__autocomplete-modal__inner');
+				renderedInput = rendered.container.querySelector(inLayoutInputSelector) as HTMLInputElement;
+
+				expect(renderedInput).toBeInTheDocument();
+
+				// nothing renders above the layout
+				expect(inner?.firstElementChild).toHaveClass('ss__autocomplete');
+				expect(rendered.container.querySelectorAll('.ss__search-input').length).toBe(1);
+
+				// the rendered input was focused and bound to the controller
+				expect(controller.store.state.focusedInput).toBe(renderedInput);
+			});
+
+			renderedInput!.value = 'dress';
+			renderedInput!.dispatchEvent(new Event('input', { bubbles: true }));
+
+			await waitFor(() => {
+				const results = rendered.container.querySelectorAll('.ss__autocomplete__column--c3 .ss__autocomplete__content__results .ss__result');
+				expect(results.length).toBeGreaterThan(0);
+			});
+
+			// the input survived the content change without being remounted or losing its binding
+			expect(rendered.container.querySelector(inLayoutInputSelector)).toBe(renderedInput!);
+			expect(controller.store.state.focusedInput).toBe(renderedInput!);
+		});
+
+		it('does not render the search input when renderInput is false, even with a "searchInput" module in the layout', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteModalProps = {
+				controller,
+				input: controller.config.selector,
+				...inLayoutArgs,
+				renderInput: false,
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteModal {...args} />, { container });
+
+			await userEvent.click(input!);
+
+			await waitFor(() => {
+				expect(rendered.container.querySelector('.ss__autocomplete-modal')).toBeInTheDocument();
+			});
+
+			expect(rendered.container.querySelector('.ss__search-input')).not.toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__search-input-wrapper')).not.toBeInTheDocument();
+		});
+	});
 });
