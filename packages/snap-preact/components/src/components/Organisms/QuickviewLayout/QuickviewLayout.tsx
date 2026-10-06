@@ -160,6 +160,13 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 			lineHeight: 1,
 			zIndex: 1,
 		},
+		'& .ss__quickview__title-link': {
+			color: 'inherit',
+			textDecoration: 'none',
+			'&:hover': {
+				textDecoration: 'underline',
+			},
+		},
 		'& .ss__quickview__loading': {
 			padding: '40px',
 			textAlign: 'center',
@@ -652,7 +659,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			// Preserve the legacy quickview classnames so existing styles/themes/tests keep matching.
 			const legacyClass =
 				field === 'name' ? 'ss__quickview__title' : field === 'description' ? 'ss__quickview__description' : `ss__quickview__${field}`;
-			return (
+			const detail = (
 				<ProductDetail
 					result={product}
 					field={path}
@@ -663,6 +670,21 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 					{...defined({ disableStyles })}
 				/>
 			);
+			// The name links to the product page. The click is tracked through the manager (delegated
+			// to the source controller), which records it as a clickThrough because the anchor's
+			// href is the product url.
+			if (field === 'name' && url) {
+				return (
+					<a
+						className="ss__quickview__title-link"
+						href={url}
+						onClick={(e) => quickviewManager.track.product.click(e as unknown as MouseEvent, product)}
+					>
+						{detail}
+					</a>
+				);
+			}
+			return detail;
 		}
 
 		// `variantSelections` renders every variant selection; `variantSelection.<field>` renders only

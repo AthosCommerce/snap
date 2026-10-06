@@ -1262,6 +1262,55 @@ describe('QuickviewLayout', () => {
 		expect((window.location as any).href).toBe('/products/apex-bottle');
 	});
 
+	describe('title link', () => {
+		const storeProduct = {
+			id: 'mine',
+			mappings: { core: { name: 'Apex Bottle', url: '/products/apex-bottle' } },
+			attributes: {},
+		};
+		const titleLayout: QuickviewLayoutProps['layout'] = [['productDetail.mappings.core.name']];
+
+		it('links the title to the product url and tracks a product click', () => {
+			const click = jest.fn();
+			const { quickviewManager } = makeQuickviewManager({
+				store: { isOpen: true, product: storeProduct },
+				track: { product: { click } },
+			});
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={titleLayout} />);
+
+			const link = rendered.container.querySelector('a.ss__quickview__title-link') as HTMLAnchorElement;
+			expect(link).not.toBeNull();
+			expect(link.getAttribute('href')).toBe('/products/apex-bottle');
+			expect(link.querySelector('.ss__quickview__title')).toHaveTextContent('Apex Bottle');
+
+			// keep jsdom from attempting the navigation
+			rendered.container.addEventListener('click', (e) => e.preventDefault());
+			fireEvent.click(link);
+			expect(click).toHaveBeenCalledTimes(1);
+			expect(click).toHaveBeenCalledWith(expect.anything(), storeProduct);
+		});
+
+		it('renders a plain title when the product has no url', () => {
+			const { quickviewManager } = makeQuickviewManager({
+				store: { isOpen: true, product: { ...storeProduct, mappings: { core: { name: 'Apex Bottle' } } } },
+			});
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={titleLayout} />);
+
+			expect(rendered.container.querySelector('.ss__quickview__title')).toHaveTextContent('Apex Bottle');
+			expect(rendered.container.querySelector('a.ss__quickview__title-link')).toBeNull();
+		});
+
+		it('only links the name detail', () => {
+			const { quickviewManager } = makeQuickviewManager({ store: { isOpen: true, product: storeProduct } });
+
+			const rendered = render(<QuickviewLayout quickviewManager={quickviewManager} layout={[['productDetail.mappings.core.url']]} />);
+
+			expect(rendered.container.querySelector('a.ss__quickview__title-link')).toBeNull();
+		});
+	});
+
 	it('renders bare slideshow with no badges when hideBadge is set', () => {
 		const storeProduct = {
 			id: 'mine',

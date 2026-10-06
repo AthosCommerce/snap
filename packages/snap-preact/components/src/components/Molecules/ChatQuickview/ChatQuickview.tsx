@@ -451,10 +451,9 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 		// legacy chat presentation: non-swatch selections render as a row of selectable tiles
 		variantDropdownType: 'list',
 		// mirrors the legacy chat product panel: a header banner (image beside name/price and the
-		// add-to-cart/similar/discuss actions) followed by variants, the attribute table, the
-		// description and a link to the product page — the banner styling lives in defaultStyles
-		// above. The detail rows are grouped in column 3 so they can scroll independently of the
-		// banner (see defaultStyles).
+		// add-to-cart/similar/discuss actions) followed by variants, the attribute table, and the
+		// description — the banner styling lives in defaultStyles above. The detail rows are
+		// grouped in column 3 so they can scroll independently of the banner (see defaultStyles).
 		layout: [['c1', 'c2'], ['c3']],
 		column1: {
 			layout: ['slideshow'],

@@ -24,7 +24,7 @@ The chat message to render. Must have `messageType === 'productQuery'`. Messages
 `ChatController` reference. Supplies the quickview manager the layout renders from; when the controller has no quickview manager the component warns and renders nothing (Snap provides one to chat controllers automatically whenever they are configured).
 
 ### layout, column1–column4, hideBadge, variantDropdownType, recommendation
-Pass-throughs to the embedded `QuickviewLayout` (same shapes as on `QuickviewModal`/`QuickviewSlideout`). The default mirrors the chat product panel: a header banner on the theme's primary color (product image beside name, price, and the action buttons), followed by the variants, the attribute table, the description, and a link to the product page (badges are hidden by default — `hideBadge: true`):
+Pass-throughs to the embedded `QuickviewLayout` (same shapes as on `QuickviewModal`/`QuickviewSlideout`). The default mirrors the chat product panel: a header banner on the theme's primary color (product image beside name, price, and the action buttons), followed by the variants, the attribute table, and the description (badges are hidden by default — `hideBadge: true`):
 
 ```tsx
 layout: [['c1', 'c2'], ['c3']],
@@ -41,7 +41,7 @@ column2: {
   width: 'auto',
 },
 column3: {
-  layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description'], ['button.more-info']],
+  layout: [['variantSelections'], ['productDetailTable'], ['productDetail.mappings.core.description']],
   width: '100%',
 },
 ```
@@ -50,7 +50,7 @@ The banner styling (primary background, button treatments, hidden slideshow chro
 
 With the default `layout`, the component fills the chat's secondary window and the detail rows (grouped in `c3`) scroll on their own while the banner row stays fixed above them. This is gated on the `ss__chat-quickview--default-layout` modifier class, which is only added when no custom `layout` is supplied (via props or theme), so a custom layout keeps the plain flowing behaviour.
 
-`button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. `button.more-info` links to the product page (`mappings.core.url`), tracking a clickThrough on the chat controller.
+`button.similar` and `button.discuss` are the chat-only layout modules — they forward to `controller.productSimilar()` / `controller.productQuery()`. The product name links to the product page (`mappings.core.url`, see the QuickviewLayout reference); the click is tracked through the quickview manager, which records it as a chat clickthrough.
 
 The chat presentation is supplied by this component rather than by the layout:
 - `variantDropdownType` defaults to `'list'`, so non-swatch selections render as selectable tiles instead of a dropdown.

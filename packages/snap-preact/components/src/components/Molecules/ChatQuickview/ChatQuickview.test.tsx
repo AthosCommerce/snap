@@ -236,6 +236,27 @@ describe('ChatQuickview Component', () => {
 		expect(getComputedStyle(discuss).color).toBe('rgb(255, 255, 0)');
 	});
 
+	it('links the product name to the product page and tracks the click through the quickview manager', () => {
+		const product = makeProduct({
+			display: { mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } }, attributes: {} },
+			mappings: { core: { name: 'Wool Hat', price: 25, url: '/wool-hat' } },
+		});
+		const controller = makeController({ product });
+		const rendered = render(
+			<ChatQuickview chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any} controller={controller} />
+		);
+
+		const link = rendered.container.querySelector('a.ss__quickview__title-link') as HTMLAnchorElement;
+		expect(link).not.toBeNull();
+		expect(link.getAttribute('href')).toBe('/wool-hat');
+		expect(link).toHaveTextContent('Wool Hat');
+
+		// keep jsdom from attempting the navigation
+		rendered.container.addEventListener('click', (e) => e.preventDefault());
+		fireEvent.click(link);
+		expect(controller.quickviewManager.track.product.click).toHaveBeenCalledWith(expect.anything(), product);
+	});
+
 	it('passes a custom layout through to the QuickviewLayout', () => {
 		const controller = makeController({ product: makeProduct() });
 		const rendered = render(
