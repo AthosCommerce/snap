@@ -5,7 +5,9 @@ import { render } from '@testing-library/preact';
 import { AutocompleteLayout, AutocompleteLayoutProps } from './AutocompleteLayout';
 import { MockClient } from '@athoscommerce/snap-shared';
 import { AutocompleteControllerConfig } from '@athoscommerce/snap-controller';
+import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { createAutocompleteController } from '../../../../../src/create';
+import type { Tab, TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import { waitFor } from '@testing-library/preact';
 
 describe('AutocompleteLayout Component', () => {
@@ -114,6 +116,68 @@ describe('AutocompleteLayout Component', () => {
 			const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
 
 			expect(results.length).toBeGreaterThan(0);
+		});
+	});
+
+	it('does not render tabpanel attributes without a tabManager', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout controller={controller} input={controller.config.selector} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).not.toHaveAttribute('role');
+			expect(autocomplete).not.toHaveAttribute('id');
+			expect(autocomplete).not.toHaveAttribute('aria-labelledby');
+		});
+	});
+
+	it('renders as a tabpanel labelled by the active tab when a tabManager is provided', async () => {
+		const productsController = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		const blogConfig = { ...acConfig, id: uuidv4().split('-').join('') };
+		const blogController = createAutocompleteController({ client: clientConfig, controller: blogConfig }, { client: mockClient });
+		await productsController.bind();
+		await blogController.bind();
+
+		const createTab = (id: string, tabController: AutocompleteController): Tab => ({
+			id,
+			label: id,
+			siteId: globals.siteId,
+			param: id.toLowerCase(),
+			prefetch: false,
+			controller: tabController,
+			redirects: {},
+		});
+
+		const tabs = [createTab('Products', productsController), createTab('Blog', blogController)];
+		const tabManager = { tabs, active: tabs[1], param: 'tab', setActive: jest.fn() } as unknown as TabManagerStore;
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout controller={blogController} input={blogController.config.selector} tabManager={tabManager} />, {
+			container,
+		});
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const activeTab = rendered.container.querySelector('.ss__tab-selection__button--active');
+
+			expect(autocomplete).toHaveAttribute('role', 'tabpanel');
+			expect(autocomplete).toHaveAttribute('id', `ss__tabpanel--${blogController.id}`);
+			expect(autocomplete).toHaveAttribute('aria-labelledby', `ss__tab--${blogController.id}`);
+
+			// the active tab button and the panel reference each other
+			expect(activeTab).toHaveAttribute('id', autocomplete!.getAttribute('aria-labelledby')!);
+			expect(activeTab).toHaveAttribute('aria-controls', autocomplete!.getAttribute('id')!);
 		});
 	});
 
@@ -303,6 +367,45 @@ describe('AutocompleteLayout Component', () => {
 			const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
 
 			expect(results.length).toBeGreaterThan(0);
+		});
+	});
+
+	it('numbers rows with a ss__autocomplete__row--N modifier class, restarting at 0 in each column', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+		const args: AutocompleteLayoutProps = {
+			controller,
+			input: controller.config.selector,
+			// flat (unwrapped) top-level layout so only the columns' own rows are under test.
+			layout: ['c1', 'c2'],
+			column1: {
+				width: 'auto',
+				// two rows in c1 — both render content, so c1 should count 0, 1.
+				layout: [['facets'], ['content']],
+			},
+			column2: {
+				width: 'auto',
+				// a single row in c2 — must restart at 0, not continue c1's counter to 2.
+				layout: [['facets']],
+			},
+		};
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+		await waitFor(() => {
+			const c1Rows = rendered.container.querySelectorAll('.ss__autocomplete__column--c1 > .ss__autocomplete__row');
+			const c2Rows = rendered.container.querySelectorAll('.ss__autocomplete__column--c2 > .ss__autocomplete__row');
+
+			expect(c1Rows.length).toBe(2);
+			expect(c1Rows[0]).toHaveClass('ss__autocomplete__row--0');
+			expect(c1Rows[1]).toHaveClass('ss__autocomplete__row--1');
+
+			expect(c2Rows.length).toBe(1);
+			expect(c2Rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
 
@@ -538,6 +641,9 @@ describe('AutocompleteLayout Component', () => {
 			expect(rows[0].childNodes.length).toBe(1); // termsList
 			expect(rows[1].childNodes.length).toBe(1); // no-results
 			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
+			expect(rows[1]).toHaveClass('ss__autocomplete__row--1');
+			expect(rows[2]).toHaveClass('ss__autocomplete__row--2');
 		});
 	});
 
@@ -578,6 +684,9 @@ describe('AutocompleteLayout Component', () => {
 			expect(rows[0].childNodes.length).toBe(1); // termsList
 			expect(rows[1].childNodes.length).toBe(1); // content
 			expect(rows[2].childNodes.length).toBe(2); // separator + see-more button
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
+			expect(rows[1]).toHaveClass('ss__autocomplete__row--1');
+			expect(rows[2]).toHaveClass('ss__autocomplete__row--2');
 		});
 	});
 
@@ -613,6 +722,7 @@ describe('AutocompleteLayout Component', () => {
 			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
 			expect(rows.length).toBe(1);
 			expect(rows[0].childNodes.length).toBe(2);
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
 
@@ -648,6 +758,7 @@ describe('AutocompleteLayout Component', () => {
 			const rows = rendered.container.querySelectorAll('.ss__autocomplete > .ss__autocomplete__row');
 			expect(rows.length).toBe(1);
 			expect(rows[0].childNodes.length).toBe(3);
+			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
 		});
 	});
 });

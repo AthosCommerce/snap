@@ -99,9 +99,9 @@ export default {
 				},
 				defaultValue: { summary: 'carousel' },
 			},
+			options: ['carousel', 'grid'],
 			control: {
 				type: 'select',
-				options: ['carousel', 'grid'],
 			},
 		},
 		...componentArgs,

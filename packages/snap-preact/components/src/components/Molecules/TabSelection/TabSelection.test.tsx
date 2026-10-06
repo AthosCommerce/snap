@@ -14,6 +14,7 @@ const createTab = (id: string, totalResults?: number, label?: string): Tab =>
 		param: id,
 		prefetch: true,
 		controller: {
+			id,
 			store: {
 				loaded: typeof totalResults == 'number',
 				pagination: { totalResults },
@@ -95,6 +96,30 @@ describe('TabSelection Component', () => {
 		expect(buttons[1]).toHaveAttribute('aria-selected', 'true');
 	});
 
+	it('wires each tab to its panel using the controller id', () => {
+		const tabManager = createTabManager([createTab('Products', 12), createTab('Blog', 3)]);
+		const rendered = render(<TabSelection tabManager={tabManager} />);
+
+		const buttons = rendered.container.querySelectorAll('.ss__tab-selection__button');
+
+		expect(buttons[0]).toHaveAttribute('id', 'ss__tab--Products');
+		expect(buttons[0]).toHaveAttribute('aria-controls', 'ss__tabpanel--Products');
+		expect(buttons[0]).toHaveAttribute('aria-selected', 'true');
+		expect(buttons[1]).toHaveAttribute('id', 'ss__tab--Blog');
+		expect(buttons[1]).toHaveAttribute('aria-controls', 'ss__tabpanel--Blog');
+		expect(buttons[1]).toHaveAttribute('aria-selected', 'false');
+	});
+
+	it('replaces whitespace in controller ids when building element ids', () => {
+		const tabManager = createTabManager([createTab('Gift Cards', 4), createTab('Blog', 3)]);
+		const rendered = render(<TabSelection tabManager={tabManager} />);
+
+		const button = rendered.container.querySelectorAll('.ss__tab-selection__button')[0];
+
+		expect(button).toHaveAttribute('id', 'ss__tab--Gift-Cards');
+		expect(button).toHaveAttribute('aria-controls', 'ss__tabpanel--Gift-Cards');
+	});
+
 	it('sets the active tab on click', async () => {
 		const tabManager = createTabManager([createTab('Products', 12), createTab('Blog', 3)]);
 		const rendered = render(<TabSelection tabManager={tabManager} />);
@@ -155,7 +180,7 @@ describe('TabSelection Component', () => {
 		const tabList = rendered.container.querySelector('.ss__tab-selection__tabs');
 
 		expect(tabList).toHaveAttribute('role', 'tablist');
-		expect(tabList).toHaveAttribute('aria-label', 'Result tabs');
+		expect(tabList).toHaveAttribute('aria-label', 'Search result tabs');
 		expect(rendered.container.querySelectorAll('[role="tab"]')).toHaveLength(2);
 	});
 

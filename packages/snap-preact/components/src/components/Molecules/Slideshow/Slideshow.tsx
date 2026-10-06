@@ -12,9 +12,6 @@ import { Lang, useLang, useCustomComponentOverride } from '../../../hooks';
 import deepmerge from 'deepmerge';
 import { LangAttributes } from '../../../hooks/useLang';
 
-// Pointer travel (px) past which a press is treated as a drag rather than a click.
-const DRAG_CLICK_THRESHOLD = 5;
-
 const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, slideWidth, gap = 16, overlayNavigation = false, showNavigation }) => {
 	return css({
 		position: 'relative',
@@ -65,8 +62,10 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 				height: '100%',
 				objectFit: 'cover',
 				display: 'block',
-				// Prevent image dragging
+				// pointer-events:none isn't fully reliable for blocking native image drag
+				// this plus draggable={false} below covers all browsers
 				pointerEvents: 'none',
+				WebkitUserDrag: 'none',
 			},
 		},
 
@@ -82,11 +81,6 @@ const defaultStyles: StyleScript<SlideshowProps> = ({ theme, slidesToShow = 1, s
 
 		'.ss__slideshow__slide--clickable': {
 			cursor: 'pointer',
-
-			'&:hover img': {
-				opacity: 0.9,
-				transition: 'opacity 0.2s ease',
-			},
 
 			'&:focus-visible': {
 				outline: '2px solid #005fcc',
@@ -188,6 +182,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		ariaLabel: 'slideshow',
 		touchDragging: true,
 		dragThreshold: 50,
+		dragClickThreshold: 10,
 	};
 
 	const props = mergeProps('slideshow', globalTheme, defaultProps, properties);
@@ -214,6 +209,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		treePath,
 		overlayNavigation,
 		dragThreshold,
+		dragClickThreshold,
 	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('slideshow', props);
@@ -228,6 +224,9 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		Image: {
 			// default props
 			fallback: fallbackImage,
+			// images are draggable by default in every browser
+			// a native image drag can hijack our custom drag and eat the mouseup
+			draggable: false,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -325,9 +324,23 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 
 	// Touch/Drag state
 	const [isDragging, setIsDragging] = useState(false);
-	const [startX, setStartX] = useState(0);
-	const [currentX, setCurrentX] = useState(0);
+	// mirrors `isDragging` state - the state drives renders (the dragging class, the transform,
+	// the autoplay effect), but the drag handlers below run through refs and can fire before
+	// the re-render that follows a setState (e.g. a tap's synthetic mouseup), so they read
+	// this ref instead. always update both via `setDragging`.
+	const isDraggingRef = useRef(false);
+	const setDragging = (value: boolean) => {
+		isDraggingRef.current = value;
+		setIsDragging(value);
+	};
+	const startXRef = useRef(0);
+	const currentXRef = useRef(0);
 	const [dragOffset, setDragOffset] = useState(0);
+	// the track's on-screen translateX (px) captured when the current drag began
+	// starting a drag turns off the CSS transition immediately
+	// without this, interrupting an in-flight transition would snap the track to its target
+	// null means there's no drag in progress
+	const dragBaseTranslatePxRef = useRef<number | null>(null);
 
 	// Normalize slides to SlideshowSlide format
 	const normalizedSlides: SlideshowSlide[] = slides.map((slide, index) => {
@@ -422,15 +435,35 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		touchDragging = false;
 	}
 
+	// how far you need to drag before it counts as a navigation
+	// smaller of dragThreshold and 30% of a slide's width
+	const getNavigationThreshold = () => {
+		const trackContainerWidth = trackRef.current?.parentElement?.offsetWidth || 0;
+		const slideWidthPx = trackContainerWidth / visibleSlides;
+		return Math.min(dragThreshold!, slideWidthPx * 0.3);
+	};
+
 	// Touch/Mouse event handlers for dragging
 	const handleDragStart = (clientX: number) => {
 		if (!touchDragging) return;
 
+		// capture the track's actual current position, mid-transition or not
+		// the track has no margin and fills its parent's width
+		// so the gap between their left edges is exactly the current translateX in px
+		dragBaseTranslatePxRef.current = null;
+		if (trackRef.current?.parentElement) {
+			dragBaseTranslatePxRef.current = trackRef.current.getBoundingClientRect().left - trackRef.current.parentElement.getBoundingClientRect().left;
+		}
+
 		hasDraggedRef.current = false;
 		setIsPlaying(false);
-		setIsDragging(true);
-		setStartX(clientX);
-		setCurrentX(clientX);
+		setDragging(true);
+		// a previous drag's mouseup may never have arrived (e.g. a native image drag hijacked it)
+		// that would leave dragOffset stuck from that aborted drag
+		// reset it so this drag always starts clean, not stacked on stale movement
+		setDragOffset(0);
+		startXRef.current = clientX;
+		currentXRef.current = clientX;
 
 		// Pause autoplay during drag
 		if (intervalRef.current) {
@@ -439,24 +472,23 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	};
 
 	const handleDragMove = (clientX: number) => {
-		if (!isDragging || !touchDragging) return;
+		if (!isDraggingRef.current || !touchDragging) return;
 
-		setCurrentX(clientX);
-		const diff = clientX - startX;
-		// Past a few pixels of travel this is a drag, not a click — flag it so the trailing
-		// click (fired after mouseup/touchend) doesn't trigger slide onClick handlers.
-		if (Math.abs(diff) > DRAG_CLICK_THRESHOLD) {
+		currentXRef.current = clientX;
+		const diff = clientX - startXRef.current;
+		// past a few pixels this counts as a drag, not a click
+		// flags it so the trailing click after mouseup doesn't fire onClick
+		// clamped to the nav threshold so a drag big enough to navigate is always flagged
+		if (Math.abs(diff) > Math.min(dragClickThreshold!, getNavigationThreshold())) {
 			hasDraggedRef.current = true;
 		}
 		setDragOffset(diff);
 	};
 
 	const handleDragEnd = () => {
-		if (!isDragging || !touchDragging) return;
-		const diff = currentX - startX;
-		const trackContainerWidth = trackRef.current?.parentElement?.offsetWidth || 0;
-		const slideWidthPx = trackContainerWidth / visibleSlides;
-		const threshold = Math.min(dragThreshold!, slideWidthPx * 0.3); // 30% of slide width or dragThreshold, whichever is smaller
+		if (!isDraggingRef.current || !touchDragging) return;
+		const diff = currentXRef.current - startXRef.current;
+		const threshold = getNavigationThreshold();
 
 		if (Math.abs(diff) > threshold) {
 			if (diff > 0 && (loop || currentIndex > 0)) {
@@ -468,8 +500,9 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 			}
 		}
 
-		setIsDragging(false);
+		setDragging(false);
 		setDragOffset(0);
+		dragBaseTranslatePxRef.current = null;
 
 		// Resume autoplay if it was playing
 		if (isPlaying && normalizedSlides.length > computedSlidesToShow) {
@@ -490,22 +523,37 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 		}
 	};
 
-	const handleMouseMove = (event: MouseEvent) => {
-		handleDragMove(event.clientX);
+	// document listeners are bound once per drag, so they call the latest handlers through refs
+	const dragMoveRef = useRef(handleDragMove);
+	const dragEndRef = useRef(handleDragEnd);
+	dragMoveRef.current = handleDragMove;
+	dragEndRef.current = handleDragEnd;
+	const removeMouseListenersRef = useRef<(() => void) | null>(null);
+
+	const handleMouseDown = (event: MouseEvent) => {
+		// only the primary (left) button starts a drag; right/middle clicks keep their default behaviour
+		if (event.button !== 0) return;
+		event.preventDefault();
+		handleDragStart(event.clientX);
+
+		// bound here rather than in an effect - a tap's synthetic mouseup fires before effects run
+		const onMouseMove = (e: MouseEvent) => dragMoveRef.current(e.clientX);
+		const onMouseUp = () => {
+			removeMouseListenersRef.current?.();
+			dragEndRef.current();
+		};
+		removeMouseListenersRef.current?.();
+		removeMouseListenersRef.current = () => {
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mouseup', onMouseUp);
+			removeMouseListenersRef.current = null;
+		};
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
 	};
 
-	// Add/remove mouse event listeners
-	useEffect(() => {
-		if (isDragging && touchDragging) {
-			document.addEventListener('mousemove', handleMouseMove);
-			document.addEventListener('mouseup', handleDragEnd);
-
-			return () => {
-				document.removeEventListener('mousemove', handleMouseMove);
-				document.removeEventListener('mouseup', handleDragEnd);
-			};
-		}
-	}, [isDragging, touchDragging]);
+	// clean up if unmounted mid-drag
+	useEffect(() => () => removeMouseListenersRef.current?.(), []);
 
 	// Pause autoplay on hover or focus
 	const handleMouseEnter = () => {
@@ -626,7 +674,12 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	let translateX: number;
 	let translateUnit: 'px' | '%';
 
-	if (slideWidth) {
+	if (isDragging && dragBaseTranslatePxRef.current !== null) {
+		// while dragging, move from the position captured in handleDragStart
+		// not from currentIndex, so an interrupted transition continues smoothly
+		translateX = dragBaseTranslatePxRef.current + dragOffset;
+		translateUnit = 'px';
+	} else if (slideWidth) {
 		// Fixed-width mode: translate by pixel amounts (slideWidth + gap per slide)
 		const slideStepPx = slideWidth + (gap ?? 0);
 		translateX = -(currentIndex * slideStepPx);
@@ -728,7 +781,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 						onTouchMove={
 							touchDragging
 								? (event: TouchEvent) => {
-										if (isDragging) {
+										if (isDraggingRef.current) {
 											event.preventDefault(); // Prevent scrolling while dragging
 										}
 										const touch = event.touches[0];
@@ -737,25 +790,10 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 								: undefined
 						}
 						onTouchEnd={touchDragging ? handleDragEnd : undefined}
-						// Mouse events (for desktop dragging)
+						// mouse events for desktop dragging
+						// move/up are bound on document in handleMouseDown so the drag keeps tracking outside the track
 						// @ts-ignore - mouse events
-						onMouseDown={
-							touchDragging
-								? (event: MouseEvent) => {
-										// Only initiate dragging with the primary (left) mouse button.
-										// Right/middle clicks should not start a drag (e.g. opening the context menu).
-										if (event.button !== 0) return;
-										event.preventDefault();
-										handleDragStart(event.clientX);
-								  }
-								: undefined
-						}
-						// Mouse events (for desktop dragging)
-						// @ts-ignore - mouse events
-						onMouseUp={touchDragging ? handleDragEnd : undefined}
-						// Mouse events (for desktop dragging)
-						// @ts-ignore - mouse events
-						onMouseMove={touchDragging ? handleMouseMove : undefined}
+						onMouseDown={touchDragging ? handleMouseDown : undefined}
 					>
 						{normalizedSlides.map((slide, index) => {
 							const isVisible = index >= currentIndex && index < currentIndex + computedSlidesToShow;
@@ -943,6 +981,7 @@ export type SlideshowTemplatesLegalProps = {
 	ariaLabelledBy?: string;
 	touchDragging?: boolean;
 	dragThreshold?: number;
+	dragClickThreshold?: number;
 };
 
 interface SlideshowSubProps {

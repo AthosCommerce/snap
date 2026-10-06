@@ -59,6 +59,7 @@ const config: StorybookConfig = {
 			config.optimization.minimizer = [
 				new EsbuildPlugin({
 					target: 'es2020',
+					minify: true,
 					css: true,
 				}),
 			];

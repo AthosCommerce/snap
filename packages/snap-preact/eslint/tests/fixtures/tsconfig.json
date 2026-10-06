@@ -1,0 +1,7 @@
+{
+	// Reuses tsconfig.test.json purely for its `paths` mappings, which resolve
+	// @athoscommerce/snap-preact/* straight to source - no build required to run
+	// the typed-linting tests against real component prop types.
+	"extends": "../../../../../tsconfig.test.json",
+	"include": ["*.ts"]
+}

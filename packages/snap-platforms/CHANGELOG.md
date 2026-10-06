@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-platforms
+
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-platforms
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+### Bug Fixes
+
+- **pluginshopifymarkets:** bugfix for shopify markets plugin, moving from using currency to country for base compare ([cdcec4d](https://github.com/AthosCommerce/snap/commit/cdcec4d2c55c0ba660261afc7f6983a7422852f6))
+
+### Features
+
+- **currency plugin:** adding shopify currency plugin, and adding currency overrides ([c29892b](https://github.com/AthosCommerce/snap/commit/c29892bec4190133521d7ff6c16b4132c4bc5719))
+
 # [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
 
 **Note:** Version bump only for package @athoscommerce/snap-platforms
