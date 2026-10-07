@@ -428,6 +428,45 @@ describe('transformChatResponse.productRecommendation', () => {
 		expect(recommended.id).toBe('182146');
 		expect(recommended.mappings?.core).toEqual(expect.objectContaining({ name: 'Test Dress', sku: 'TEST-SKU', uid: '182146' }));
 	});
+
+	it('keeps recommendation results that arrive already in result shape', () => {
+		const shapedProduct = {
+			id: '48006265438402',
+			mappings: {
+				core: {
+					uid: '48006265438402',
+					parentId: '8687667151042',
+					name: 'Comfortable Linen Cargo Pants',
+					sku: 'ATH-BCEF9D45C4',
+					msrp: 53.8,
+					price: 53.8,
+					url: '/products/blue-linen-cargo-pants-60bc91',
+					imageUrl: 'https://cdn.example.com/blue-linen-cargo-pants.png',
+					available: true,
+				},
+			},
+			attributes: {
+				collection_name: ['Pants - Cargo Pants', 'Pants'],
+				color: 'Blue',
+			},
+		};
+		const data: MoiResponseModelProductRecommendation = {
+			messageType: 'productRecommendation',
+			id: 'rec-1',
+			recommendationResult: [
+				{
+					results: [shapedProduct as any],
+					profile: { name: 'Similar', tag: 'similar', type: 'product', limit: 4 },
+				},
+			],
+			sourceProduct: rawProduct as any,
+			text: 'You might also like these',
+		};
+
+		const recommended = transformChatResponse.productRecommendation(data, 'resp-123').recommendationResult[0].results[0];
+
+		expect(recommended).toEqual({ ...shapedProduct, responseId: 'resp-123' });
+	});
 });
 
 describe('transformChatResponse.productData facets', () => {

@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes, TrackEventOverrides } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
 import {
@@ -126,7 +127,7 @@ export class ChatController extends AbstractController {
 		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker, quickviewManager }, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 
 		this.store.setConfig(this.config);
 

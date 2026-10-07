@@ -213,8 +213,14 @@ transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorDa
 	};
 };
 
-const mapProductToSearchResultProduct = (product: RawResult, responseId: string): SearchResponseModelResult => {
-	return transformSearchResponse.result(product, { responseId } as SearchResponseType);
+// Chat responses that contain recommendation results skip going through transform
+const mapProductToSearchResultProduct = (product: RawResult | SearchResponseModelResult, responseId: string): SearchResponseModelResult => {
+	if ('mappings' in product) {
+		const result: SearchResponseModelResult & { responseId: string } = { ...product, responseId };
+		return result;
+	}
+
+	return transformSearchResponse.result(product as RawResult, { responseId } as SearchResponseType);
 };
 
 /** Derive overall low/high bounds from a list of range buckets. Treats `*` and missing

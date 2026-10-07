@@ -108,6 +108,23 @@ describe('Chat Controller', () => {
 			// defaultConfig sets feedbackAfterMessages to 3 via deepmerge in constructor
 			expect(controller.config.settings?.feedbackAfterMessages).toBe(3);
 		});
+
+		it('passes class instance plugin arguments through by reference (tests deepmerging plugins via mergeControllerConfig)', () => {
+			class FakeTemplatesStore {
+				currency = 'usd';
+				setCurrency(code: string) {
+					this.currency = code;
+				}
+			}
+			const templatesStore = new FakeTemplatesStore();
+			const plugin = jest.fn();
+
+			const controller = createController({ plugins: [[plugin, { enabled: true }, templatesStore]] });
+
+			expect(plugin).toHaveBeenCalledTimes(1);
+			expect(plugin.mock.calls[0][0]).toBe(controller);
+			expect(plugin.mock.calls[0][2]).toBe(templatesStore);
+		});
 	});
 
 	describe('checkChatStatus', () => {
