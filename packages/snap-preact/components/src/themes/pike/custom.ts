@@ -46,11 +46,19 @@ const spacingCalc = (value: number) => {
 	- Sizing: controls are `sizes.height` (35px) tall; spacing is a 5px scale (`spacing.x1`-`x8`);
 	  icons are 8-16px (`sizes.icon08`-`icon16`); chevrons for direction, plus/minus for overflow.
 	- Indicators: checkboxes are a box with a small filled square (`icons.check`); expand/collapse
-	  chevrons rotate 180deg on open.
+	  chevrons rotate 180deg on open, as does the sidebar toggle's filter icon.
+	- Panels (slideouts, modals): the panel content owns a 20px (`spacing.x4`) padding - the slideout itself
+	  has none. Close buttons are transparent icon buttons (hit area = icon + `spacing.x2` each side) whose
+	  icon lines up with the content edges - in-flow buttons keep the hit area inside the content box and
+	  push the icon to its right edge; absolutely positioned ones offset into the padding.
+	- Overlays on images (badges, quickview) share a 5px inset; the quickview button is a quiet white square
+	  shown on card hover/focus (always on touch devices).
 	- Focus: keyboard focus only (`:focus-visible`) gets a 2px ring offset 2px (`styles.focusRing`) in the
 	  secondary color, or black when that color is too light (`utils.focusColor`); white in dark contexts
-	  (gallery, overlay result details). Mouse focus shows no ring. Applied globally in `globalStyle`
-	  and in components that portal outside the theme scope (gallery, dropdown portals).
+	  (gallery, overlay result details). Mouse focus shows no ring. Text fields never get the ring
+	  (browsers treat every text field focus as :focus-visible) - their edge thickens to 2px in the focus
+	  color instead (`styles.fieldFocus`). Applied globally in `globalStyle` and in components that
+	  portal outside the theme scope (gallery, dropdown portals).
 */
 
 // custom theme object
@@ -193,6 +201,15 @@ export const custom: CustomThemeType = {
 			return {
 				outline: `2px solid ${color} !important`,
 				outlineOffset: '2px !important',
+			};
+		},
+		fieldFocus: (color: string) => {
+			// text entry focus - a 2px edge in the focus color instead of the ring (browsers treat every
+			// text field focus as :focus-visible, so a ring would also show for mouse users)
+			return {
+				outline: 'none !important',
+				borderColor: color,
+				boxShadow: `inset 0 0 0 1px ${color}`,
 			};
 		},
 		disabled: () => {
@@ -380,6 +397,7 @@ type CustomThemeType = {
 		columns: (maxColumns?: number, minWidth?: number) => ObjectNumberOrStringType;
 		disabled: () => ObjectNumberOrStringType | ObjectNestedType;
 		focusRing: (color: string) => ObjectNumberOrStringType;
+		fieldFocus: (color: string) => ObjectNumberOrStringType;
 		headerText: (color?: string, fontSize?: string) => ObjectNumberOrStringType;
 		resultCompact: (layout?: string, imageWidth?: string, fontSize?: number) => ObjectNumberOrStringType | ObjectNestedType;
 		scrollbar: () => ObjectNestedType;

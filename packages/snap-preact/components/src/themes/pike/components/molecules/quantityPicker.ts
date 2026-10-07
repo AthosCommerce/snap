@@ -33,6 +33,13 @@ const quantityPickerStyleScript = (props: QuantityPickerProps) => {
 			gap: 0,
 			height: `${custom.sizes.height}px`,
 			...custom.styles.box(undefined, 0),
+			// the borderless input sits inside the box - the box shows field focus
+			'&:has(.ss__quantity-picker__input:focus)': {
+				...custom.styles.fieldFocus(custom.utils.focusColor(variables?.colors?.secondary)),
+			},
+			'.ss__quantity-picker__input:focus': {
+				boxShadow: 'none',
+			},
 		},
 		[`& ${buttonSelectors}`]: {
 			width: `${custom.sizes.height - 2}px`,

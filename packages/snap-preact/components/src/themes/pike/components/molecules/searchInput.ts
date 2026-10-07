@@ -69,13 +69,6 @@ const searchInputStyleScript = (props: SearchInputProps) => {
 			'&.ss__input--disabled': {
 				...custom.styles.disabled(),
 			},
-			// ring the whole joined control (input + buttons) rather than the input alone
-			'&:has(.ss__search-input__input:focus-visible)': {
-				...custom.styles.focusRing(custom.utils.focusColor(variables?.colors?.secondary)),
-				'.ss__search-input__input': {
-					outline: 'none !important',
-				},
-			},
 			'.ss__search-input__icons': {
 				'&:empty': {
 					display: 'none',

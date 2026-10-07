@@ -60,6 +60,11 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 		[activeSelectors]: {
 			...custom.styles.activeText(variables?.colors?.primary),
 		},
+		// the terms title is an h5 - keep it the same color as the other section titles (site heading
+		// styles otherwise out-specify the terms component's own rule)
+		'.ss__terms__title h5': {
+			color: variables?.colors?.secondary,
+		},
 	});
 
 	// shared layout styles

@@ -6,7 +6,7 @@ import { custom } from '../../custom';
 // slider options
 const slider = {
 	handles: 20, // handle size
-	handleInner: 7, // handle inner size,
+	handleInner: 8, // handle inner size - keep the same parity as `handles` so the dot centers on a whole pixel
 	values: 14, // values size
 	bar: 6, // bar size
 	ticks: 17, // size of ticks

@@ -60,6 +60,8 @@ const buttonStyleScript = (props: ButtonProps) => {
 					display: 'inline-flex',
 					flexFlow: 'row nowrap',
 					alignItems: 'center',
+					// the component stretches the content to the button width - keep the label centered in it
+					justifyContent: 'center',
 					gap: `${custom.spacing.x1}px`,
 					span: {
 						...custom.styles.textOverflow(),

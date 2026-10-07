@@ -7,7 +7,19 @@ type QuickviewSharedProps = {
 };
 
 // static variables
-const closeSize = custom.sizes.height;
+const closeIcon = custom.sizes.icon14;
+const closeInset = custom.spacing.x2; // hit area padding around the close icon
+const closeSize = closeIcon + closeInset * 2;
+const contentPadding = custom.spacing.x4;
+// the close icon sits flush with the content's top/right padding edges
+const closeOffset = contentPadding - closeInset;
+// single column layouts reserve a header strip for the close icon: padding / icon / padding
+export const quickviewHeaderHeight = contentPadding + closeIcon + contentPadding;
+export const quickviewCloseClearance = closeIcon + custom.spacing.x2;
+// title line box (20px * 1.2) - a close icon sharing the title row centers on it
+const titleSize = 20;
+const titleLine = titleSize * 1.2;
+export const quickviewCloseTitleOffset = contentPadding + (titleLine - closeIcon) / 2 - closeInset;
 
 // CSS in JS style script for the quickview layout inside the QuickviewModal and QuickviewSlideout templates
 // (QuickviewLayout itself is a building block and is not themed directly)
@@ -19,7 +31,7 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 	return css({
 		'.ss__quickview': {
 			'.ss__quickview__content': {
-				padding: `${closeSize + custom.spacing.x2}px ${custom.spacing.x4}px ${custom.spacing.x4}px`,
+				padding: `${quickviewHeaderHeight}px ${contentPadding}px ${contentPadding}px`,
 				...custom.styles.baseText(),
 				// single column layouts (slideout) stack module rows directly in the content
 				display: 'flex',
@@ -35,8 +47,8 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 			'.ss__quickview__title': {
 				margin: 0,
 				paddingRight: 0,
-				...custom.styles.headerText(variables?.colors?.secondary, '20px'),
-				lineHeight: 1.2,
+				...custom.styles.headerText(variables?.colors?.secondary, `${titleSize}px`),
+				lineHeight: titleLine / titleSize,
 			},
 			'.ss__quickview__variants': {
 				gap: `${custom.spacing.x4}px`,
@@ -60,8 +72,8 @@ export const quickviewSharedStyleScript = (props: QuickviewSharedProps) => {
 			},
 			// close is an icon button on the panel - no fill
 			'.ss__button.ss__quickview__close': {
-				top: `${custom.spacing.x1}px`,
-				right: `${custom.spacing.x1}px`,
+				top: `${closeOffset}px`,
+				right: `${closeOffset}px`,
 				width: `${closeSize}px`,
 				height: `${closeSize}px`,
 				padding: 0,

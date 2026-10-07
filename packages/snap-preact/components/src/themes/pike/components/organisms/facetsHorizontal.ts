@@ -163,6 +163,10 @@ export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizont
 		'facetsHorizontal icon.overflow-more': {
 			size: `${custom.sizes.icon10}px`,
 		},
+		// plus and minus share one size so the toggle does not jump between states
+		'facetsHorizontal icon.overflow-less': {
+			size: `${custom.sizes.icon10}px`,
+		},
 		'facetsHorizontal dropdown facet': {
 			statefulOverflow: true,
 			horizontal: true,

@@ -38,9 +38,10 @@ const resultStyleScript = (props: ResultProps) => {
 			'.ss__result__image-wrapper': {
 				flex: '0 1 auto',
 				border: `1px solid ${custom.colors.gray02}`,
-				// filled square over the image (like carousel arrows) - the component default is a transparent
-				// button, which leaves a light icon invisible on light product images
+				// quiet white square over the image, revealed on hover/keyboard focus (always shown on touch
+				// devices, which cannot hover) - it fills with the secondary color while hovered itself
 				'.ss__button.ss__result__quickview': {
+					// same inset as the overlay badges
 					right: `${custom.spacing.x1}px`,
 					bottom: `${custom.spacing.x1}px`,
 					zIndex: 2,
@@ -48,10 +49,22 @@ const resultStyleScript = (props: ResultProps) => {
 					height: `${quickviewSize}px`,
 					padding: 0,
 					justifyContent: 'center',
-					color: quickviewColors[1],
-					'&, &:hover, &:not(.ss__button--disabled):hover': {
-						border: `1px solid ${quickviewColors[0]}`,
+					color: custom.colors.black,
+					opacity: 0,
+					transform: `translateY(${custom.spacing.x1}px)`,
+					transition: 'opacity ease 0.2s, transform ease 0.2s, background-color ease 0.2s, color ease 0.2s',
+					'&, &:not(.ss__button--disabled):hover': {
+						border: `1px solid ${custom.colors.gray02}`,
+						backgroundColor: custom.colors.white,
+					},
+					'&:not(.ss__button--disabled):hover': {
+						color: quickviewColors[1],
+						borderColor: quickviewColors[0],
 						backgroundColor: quickviewColors[0],
+					},
+					'@media (hover: none)': {
+						opacity: 1,
+						transform: 'none',
 					},
 				},
 				a: {
@@ -131,6 +144,13 @@ const resultStyleScript = (props: ResultProps) => {
 						},
 					},
 				},
+			},
+		},
+		// reveal the quickview button while the card is hovered or holds keyboard focus
+		'&:hover, &:focus-within': {
+			'.ss__result__image-wrapper .ss__button.ss__result__quickview': {
+				opacity: 1,
+				transform: 'none',
 			},
 		},
 		'&.ss__result--list': {

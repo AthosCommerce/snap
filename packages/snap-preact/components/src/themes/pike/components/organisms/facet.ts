@@ -5,6 +5,7 @@ import { custom } from '../../custom';
 
 // static variables
 const lightGray = custom.colors.gray04;
+const optionsGutter = custom.spacing.x2;
 
 // CSS in JS style script for the Facet component
 const facetStyleScript = (props: FacetProps) => {
@@ -25,7 +26,10 @@ const facetStyleScript = (props: FacetProps) => {
 				maxHeight: `490px`,
 				overflowY: 'auto',
 				overflowX: 'hidden',
-				paddingRight: `${custom.spacing.x2}px`,
+				// the scrollbar gutter hangs outside the column (negative margin) so expanding the
+				// options does not narrow them - palette and grid swatches would visibly shrink
+				paddingRight: `${optionsGutter}px`,
+				marginRight: `-${optionsGutter}px`,
 			},
 		},
 		'.ss__facet__header': {
@@ -159,6 +163,10 @@ export const facet: ThemeComponent<'facet', FacetProps, FacetTemplatesLegalProps
 			size: `${custom.sizes.icon08}px`,
 		},
 		'facet icon.overflow-more': {
+			size: `${custom.sizes.icon10}px`,
+		},
+		// plus and minus share one size so the toggle does not jump between states
+		'facet icon.overflow-less': {
 			size: `${custom.sizes.icon10}px`,
 		},
 	},
