@@ -57,4 +57,4 @@ const theme = {
 ## See also
 
 - [`Organisms/Chat`](../../Organisms/Chat/readme.md) for the underlying implementation, hooks, and a11y notes.
-- The 9 promoted Chat molecules (`ChatMessageUser`, `ChatMessageText`, `ChatSuggestedQuestions`, `ChatResultsDisplay`, `ChatResult`, `ChatAttachmentContext`, `ChatInspirationResultMessage`, `ChatProductComparisonMessage`, `ChatProductQueryMessage`) for per-message rendering.
+- The 9 promoted Chat molecules (`ChatMessageUser`, `ChatMessageText`, `ChatSuggestedQuestions`, `ChatResultsDisplay`, `ChatResult`, `ChatAttachmentContext`, `ChatInspirationResultMessage`, `ChatProductComparisonMessage`, `ChatQuickview`) for per-message rendering.

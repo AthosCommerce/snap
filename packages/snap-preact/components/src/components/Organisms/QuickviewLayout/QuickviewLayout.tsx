@@ -23,7 +23,7 @@ import { QuantityPicker } from '../../Molecules/QuantityPicker';
 
 import type { Product, DisplayFieldConfig } from '@athoscommerce/snap-store-mobx';
 import type { SnapTemplates } from '../../../../../src';
-import type { RecommendationController, RecommendationControllerConfig, QuickviewManager } from '@athoscommerce/snap-controller';
+import type { ChatController, RecommendationController, RecommendationControllerConfig, QuickviewManager } from '@athoscommerce/snap-controller';
 import type { RecommendationProps, RecommendationGridProps } from '../../../';
 import type { LibraryImports } from '../../../../../src/Templates/Stores/LibraryStore';
 
@@ -277,8 +277,20 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	};
 
 	const props = mergeProps('quickviewLayout', globalTheme, defaultProps, properties);
-	const { quickviewManager, className, internalClassName, disableStyles, treePath, hideBadge, column1, column2, column3, column4, recommendation } =
-		props;
+	const {
+		quickviewManager,
+		className,
+		internalClassName,
+		disableStyles,
+		treePath,
+		hideBadge,
+		variantDropdownType,
+		column1,
+		column2,
+		column3,
+		column4,
+		recommendation,
+	} = props;
 
 	// NOTE: the `!shouldRenderDefault` return lives below the last hook call — every hook in this
 	// component must run unconditionally on every render (shouldRenderDefault can flip while
@@ -302,6 +314,12 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		},
 		moreInfoButton: {
 			value: 'More info',
+		},
+		similarButton: {
+			value: 'Similar',
+		},
+		discussButton: {
+			value: 'Discuss',
 		},
 		loadingText: {
 			value: 'Loading…',
@@ -366,7 +384,8 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 	// is within it).
 	useEffect(() => {
 		const isOpenNow = Boolean(quickviewManager?.store?.isOpen);
-		if (!shouldRenderDefault || !isOpenNow) return;
+		// inline embeds (e.g. the chat secondary window) are not modal — Escape must not close them
+		if (!shouldRenderDefault || !isOpenNow || props.inline) return;
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === 'Escape' && !galleryOpen) {
 				quickviewManager.close();
@@ -374,7 +393,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [shouldRenderDefault, quickviewManager?.store?.isOpen, galleryOpen]);
+	}, [shouldRenderDefault, quickviewManager?.store?.isOpen, galleryOpen, props.inline]);
 
 	// Recommendation modules. `findModule` runs inside .map()/recursion and must not call hooks, so
 	// resolve every referenced profile's controller + components here (stable order) and let
@@ -493,12 +512,18 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 
 	// Dialog semantics + focus trap for the quickview content, following the autocomplete
 	// containers (AutocompleteModal/AutocompleteSlideout): useA11y traps Tab within the
-	// content and wires Escape to the callback above.
+	// content and wires Escape to the callback above. Inline embeds (e.g. the chat secondary
+	// window) are part of the surrounding page — no dialog role and no focus trap, which
+	// would otherwise stop the shopper tabbing out to the chat composer.
 	const contentProps = {
 		className: 'ss__quickview__content',
-		role: 'dialog' as const,
-		'aria-modal': 'true' as const,
-		ref: (e: HTMLDivElement | null) => useA11y(e, 0, true, handleEscape),
+		...(props.inline
+			? {}
+			: {
+					role: 'dialog' as const,
+					'aria-modal': 'true' as const,
+					ref: (e: HTMLDivElement | null) => useA11y(e, 0, true, handleEscape),
+			  }),
 		...mergedLang.quickview?.attributes,
 	};
 
@@ -639,42 +664,34 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 		// the selection whose field matches (e.g. `variantSelection.color`). The field also matches its
 		// component-name form (`color_family` → `color-family`). A bare `variantSelection` module is
 		// not supported.
-		if (module == 'variantSelections') {
-			if (!selections || selections.length === 0) return null;
+		// `variantDropdownType` swaps the component for selections that aren't swatches.
+		const renderSelection = (selection: NonNullable<typeof selections>[number]) => {
+			const isSwatch = selection.type === 'swatch' || selection.type === 'swatches';
+			const type = variantDropdownType && !isSwatch ? variantDropdownType : selection.type;
 			return (
-				<div className="ss__quickview__variants">
-					{selections.map((selection) => (
-						<div key={selection.field} className="ss__quickview__variant">
-							<div className="ss__quickview__variant-title">{selection.label || selection.field}</div>
-							<VariantSelection
-								selection={selection}
-								type={selection.type as VariantSelectionTemplatesLegalProps['type']}
-								theme={props.theme}
-								treePath={treePath}
-								{...defined({ disableStyles })}
-							/>
-						</div>
-					))}
-				</div>
-			);
-		}
-
-		if (module.startsWith('variantSelection.')) {
-			const name = module.slice('variantSelection.'.length);
-			const selection = selections?.find((selection) => selection.field === name || fieldNameToComponentName(selection.field) === name);
-			if (!name || !selection) return null;
-			return (
-				<div className="ss__quickview__variant">
+				<div key={selection.field} className="ss__quickview__variant">
 					<div className="ss__quickview__variant-title">{selection.label || selection.field}</div>
 					<VariantSelection
 						selection={selection}
-						type={selection.type as VariantSelectionTemplatesLegalProps['type']}
+						type={type as VariantSelectionTemplatesLegalProps['type']}
 						theme={props.theme}
 						treePath={treePath}
 						{...defined({ disableStyles })}
 					/>
 				</div>
 			);
+		};
+
+		if (module == 'variantSelections') {
+			if (!selections || selections.length === 0) return null;
+			return <div className="ss__quickview__variants">{selections.map((selection) => renderSelection(selection))}</div>;
+		}
+
+		if (module.startsWith('variantSelection.')) {
+			const name = module.slice('variantSelection.'.length);
+			const selection = selections?.find((selection) => selection.field === name || fieldNameToComponentName(selection.field) === name);
+			if (!name || !selection) return null;
+			return renderSelection(selection);
 		}
 
 		if (module == 'button.add-to-cart') {
@@ -697,7 +714,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 			return (
 				<Button
 					name="more-info"
-					internalClassName="ss__quickview__go-to-product"
+					internalClassName="ss__quickview__more-info"
 					lang={{ button: lang.moreInfoButton }}
 					onClick={(e) => {
 						// track the redirect to the product page as a quickview clickThrough
@@ -707,6 +724,40 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 						}
 						window.location.href = url;
 					}}
+					theme={props.theme}
+					treePath={treePath}
+					{...defined({ disableStyles })}
+				/>
+			);
+		}
+
+		// Chat-only modules: `button.similar` and `button.discuss` forward to the chat controller
+		// that opened the quickview. They render nothing for non-chat source controllers, so a
+		// layout carrying them stays safe to share across surfaces.
+		if (module == 'button.similar' || module == 'button.discuss') {
+			const chatController =
+				quickviewManager.sourceController?.type === 'chat' ? (quickviewManager.sourceController as unknown as ChatController) : undefined;
+			if (!product || !chatController) return null;
+			if (module == 'button.similar') {
+				if (!chatController.store.features?.similarProducts?.enabled) return null;
+				return (
+					<Button
+						name="similar"
+						internalClassName="ss__quickview__similar"
+						lang={{ button: lang.similarButton }}
+						onClick={() => chatController.productSimilar(product)}
+						theme={props.theme}
+						treePath={treePath}
+						{...defined({ disableStyles })}
+					/>
+				);
+			}
+			return (
+				<Button
+					name="discuss"
+					internalClassName="ss__quickview__discuss"
+					lang={{ button: lang.discussButton }}
+					onClick={() => chatController.productQuery(product)}
 					theme={props.theme}
 					treePath={treePath}
 					{...defined({ disableStyles })}
@@ -800,7 +851,7 @@ export const QuickviewLayout = observer((properties: QuickviewLayoutProps) => {
 				    assistive tech the rest of the page is inert. */}
 				{error || loading || product ? (
 					<div {...contentProps}>
-						{closeButton}
+						{!props.inline && closeButton}
 						{error ? (
 							<div className="ss__quickview__error" role="alert">
 								{error.message}
@@ -839,6 +890,8 @@ export type QuickviewModuleNames =
 	| `productDetail.${string}`
 	| 'button.add-to-cart'
 	| 'button.more-info'
+	| 'button.similar'
+	| 'button.discuss'
 	| 'quantityPicker'
 	| 'productDetailTable'
 	| `recommendation.${string}`
@@ -855,6 +908,9 @@ export type QuickviewColumn = {
 export type QuickviewLayoutProps = {
 	quickviewManager: QuickviewManager;
 	onClose?: () => void;
+	// Embedded in another panel (e.g. the chat secondary window): no dialog role/focus trap,
+	// no window-Escape close and no built-in close button — the host panel owns dismissal.
+	inline?: boolean;
 	lang?: Partial<QuickviewLayoutLang>;
 } & QuickviewLayoutTemplatesLegalProps &
 	ComponentProps<QuickviewLayoutProps>;
@@ -866,6 +922,8 @@ export interface QuickviewLayoutLang {
 	closeButton: Lang<never>;
 	addToCartButton: Lang<never>;
 	moreInfoButton: Lang<never>;
+	similarButton: Lang<never>;
+	discussButton: Lang<never>;
 	loadingText: Lang<{
 		quickviewManager: QuickviewManager;
 	}>;
@@ -874,6 +932,8 @@ export interface QuickviewLayoutLang {
 export type QuickviewLayoutTemplatesLegalProps = {
 	layout: ModuleNamesWithColumns[];
 	hideBadge?: boolean;
+	// Component type for variant selections that aren't swatches (by default they render as a dropdown).
+	variantDropdownType?: 'dropdown' | 'list';
 	column1?: QuickviewColumn;
 	column2?: QuickviewColumn;
 	column3?: QuickviewColumn;

@@ -79,7 +79,14 @@ let templatesConfig = validateTemplatesConfig({
 		settings: {
 			quickview: {
 				enabled: true,
-				displayFields: ['category', 'brand', 'color', 'price', 'rating', 'available', 'description'],
+				displayFields: [
+					{ field: 'category' },
+					{ field: 'brand' },
+					{ field: 'color' },
+					{ field: 'price', type: 'price' },
+					{ field: 'rating', type: 'rating' },
+					{ field: 'available' },
+				],
 			},
 		},
 	},

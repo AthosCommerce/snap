@@ -85,7 +85,8 @@ export const ChatAttachments = observer((props: ChatAttachmentsProps): JSX.Eleme
 	const dismissProductAttachment = (id: string): void => {
 		store.currentChat?.attachments.remove(id);
 		props.onProductAttachmentsRemoved && props.onProductAttachmentsRemoved();
-		store.currentChat?.dismissSideChat();
+		// dismiss through the controller so a product quickview closes with the window
+		controller.dismissSideChat();
 	};
 
 	const productItems: ChatAttachmentContextItem[] = productAttachments.map((item) => {
@@ -101,7 +102,7 @@ export const ChatAttachments = observer((props: ChatAttachmentsProps): JSX.Eleme
 
 	const imageItems: ChatAttachmentContextItem[] = imageAttachments.map((item) => ({
 		id: item.id,
-		name: item.fileName || 'Image',
+		name: item.fileName || langTextOf(lang.attachmentImageName) || '',
 		imageUrl: item.base64 || item.thumbnailUrl || '',
 		isLoading: item.state === 'loading',
 		hasError: !!item.error,
@@ -122,7 +123,7 @@ export const ChatAttachments = observer((props: ChatAttachmentsProps): JSX.Eleme
 					items={comparisonItems}
 					onClose={() => {
 						store.currentChat?.comparisons.resetCommitted();
-						store.currentChat?.dismissSideChat();
+						controller.dismissSideChat();
 					}}
 				/>
 			)}
@@ -134,7 +135,7 @@ export const ChatAttachments = observer((props: ChatAttachmentsProps): JSX.Eleme
 					onClose={() => {
 						productAttachments.forEach((item) => store.currentChat?.attachments.remove(item.id));
 						props.onProductAttachmentsRemoved && props.onProductAttachmentsRemoved();
-						store.currentChat?.dismissSideChat();
+						controller.dismissSideChat();
 					}}
 				/>
 			)}

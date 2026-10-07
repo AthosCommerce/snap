@@ -1,9 +1,16 @@
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
-import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes } from '../types';
+import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes, TrackEventOverrides } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
-import { ChatRequestModel, ChatTrackingContext, MoiRequestModel, ProductIdentity, CHAT_MAX_MESSAGE_LENGTH } from '@athoscommerce/snap-client';
+import {
+	ChatRequestModel,
+	ChatTrackingContext,
+	MoiRequestModel,
+	ProductIdentity,
+	CHAT_MAX_MESSAGE_LENGTH,
+	CHAT_ERROR_CODES,
+} from '@athoscommerce/snap-client';
 import type { ChatAttachmentImage, ChatAttachmentProduct, Product, Banner, ChatSessionStore } from '@athoscommerce/snap-store-mobx';
 import {
 	type Product as BeaconProduct,
@@ -83,12 +90,14 @@ const defaultConfig: ChatControllerConfig = {
 	},
 };
 
+// `overrides` keeps the signature compatible with QuickviewManager delegation; the chat beacon
+// schemas have no `quickView` flag, so chat does not forward them.
 type ChatTrackMethods = {
 	product: {
-		clickThrough: (e: MouseEvent, result: Product | Banner) => void;
-		click: (e: MouseEvent, result: Product | Banner) => void;
-		impression: (result: Product | Banner) => void;
-		addToCart: (result: Product) => void;
+		clickThrough: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		click: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		impression: (result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		addToCart: (result: Product, overrides?: TrackEventOverrides) => void;
 	};
 	feedback: (thumbs: 'UP' | 'DOWN') => void;
 };
@@ -111,10 +120,10 @@ export class ChatController extends AbstractController {
 
 	constructor(
 		config: ChatControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
+		{ client, store, urlManager, eventManager, profiler, logger, tracker, quickviewManager }: ControllerServices,
 		context?: ContextVariables
 	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker, quickviewManager }, context);
 
 		// deep merge config with defaults
 		this.config = deepmerge(defaultConfig, this.config);
@@ -433,7 +442,7 @@ export class ChatController extends AbstractController {
 		// dismiss any side-chat tied to the previous context (productQuery/productAnswer/productComparison)
 		const activeMessageType = this.store.currentChat?.activeMessage?.messageType;
 		if (activeMessageType === 'productQuery' || activeMessageType === 'productAnswer' || activeMessageType === 'productComparison') {
-			this.store.currentChat?.dismissSideChat();
+			this.dismissSideChat();
 		}
 
 		for (let i = 0; i < files.length; i++) {
@@ -454,11 +463,16 @@ export class ChatController extends AbstractController {
 					thumbnailUrl: response.thumbnailUrl,
 				});
 			} catch (err: any) {
+				const status = err?.fetchDetails?.status;
 				const serverMessage = err?.responseBody?.errorMessage;
-				const errorMessage =
-					err?.fetchDetails?.status === 400 && serverMessage
-						? `${serverMessage}. Please try again.`
-						: 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+				let errorMessage: string;
+				if (status === 415) {
+					errorMessage = 'This file type is not supported';
+				} else if (status === 400 && serverMessage) {
+					errorMessage = `${serverMessage}. Please try again.`;
+				} else {
+					errorMessage = 'Something went wrong behind the scenes. Please give it another shot in a moment.';
+				}
 
 				// a file-read failure happens before the attachment exists — create one
 				// so the failure still surfaces through the attachment error state
@@ -474,42 +488,24 @@ export class ChatController extends AbstractController {
 		}
 	};
 
-	/** Monotonic counter so a slower, earlier products fetch can't overwrite a later one. */
-	private quickviewRequestId = 0;
+	/** Close the product quickview panel; also aborts an in-flight product load. */
+	closeProductQuickview = (): void => {
+		this.quickviewManager?.close();
+	};
 
-	private loadProductQuickview = async (result: Product): Promise<void> => {
-		const parentId = (result.mappings?.core?.parentId as string) || result.id;
-		const requestId = ++this.quickviewRequestId;
-
-		// Don't replace the currently displayed product until the parent details
-		// have arrived — otherwise the panel flashes the new product without
-		// variants/mappings while the products API is in flight.
-		const isStillTargeting = (): boolean => {
-			if (this.quickviewRequestId !== requestId) return false;
-			// User backed out (popProductQueryMessage) — the active message no longer
-			// targets this product. Skip applying so the dismissed product doesn't
-			// pop back into view when the fetch resolves.
-			const activeMessage = this.store.currentChat?.activeMessage;
-			return activeMessage?.messageType === 'productQuery' && (activeMessage as any).sourceProduct?.id === result.id;
-		};
-
-		try {
-			const response = await this.client.products({ parentId });
-			if (!isStillTargeting()) return;
-			this.store.setProductQuickview(result);
-			this.store.updateProductQuickview(response);
-		} catch (err) {
-			if (!isStillTargeting()) return;
-			this.log.error('Failed to fetch product details', err);
-			// Still swap to the new product so the user sees the error in context
-			// rather than against the previous product's details.
-			this.store.setProductQuickview(result);
-			this.store.setProductQuickviewError('Failed to load product details. Please try again.');
-		}
+	/** Dismiss the secondary window: mark the active message dismissed and close the product
+	 * quickview so a stale `isOpen` can't re-show a productQuery panel later. */
+	dismissSideChat = (): void => {
+		this.store.currentChat?.dismissSideChat();
+		this.closeProductQuickview();
 	};
 
 	productQuickView = async (result: Product): Promise<void> => {
 		if (!this.config.settings?.quickview?.enabled) return;
+		if (!this.quickviewManager) {
+			this.log.warn(`product quickview ignored — no 'quickviewManager' service was passed to this controller`);
+			return;
+		}
 
 		if (!this.store.currentChat) {
 			this.store.createChat();
@@ -529,25 +525,23 @@ export class ChatController extends AbstractController {
 		});
 
 		this.store.currentChat?.pushProductQueryMessage(result);
-		await this.loadProductQuickview(result);
+		await this.quickview(result);
 	};
 
 	/** Re-open an existing productQuery side-chat message (e.g. clicking the product
-	 * circle on an earlier user message). The Product Information panel renders from the
-	 * single store.productQuickview slot, which may now be stale or cleared — so set the
-	 * message active AND reload the quickview for its product. */
+	 * circle on an earlier user message). The quickview store may be closed or hold
+	 * another product by now — so set the message active AND reload the quickview
+	 * for its product. */
 	reopenProductQuery = async (message: { id: string; sourceProduct?: Product }): Promise<void> => {
 		if (!message?.sourceProduct) return;
 		this.store.currentChat?.setActiveMessage(message.id);
-		await this.loadProductQuickview(message.sourceProduct);
+		await this.quickview(message.sourceProduct);
 	};
 
-	/** Switch the active chat session and re-sync the Product Information panel.
-	 * The panel renders from the single store.productQuickview slot, which belongs to
-	 * whichever chat last loaded it — and loadProductQuickview() discards responses that
-	 * arrive after the user switched away. Without a reload here, switching (back) to a
-	 * chat whose side panel targets a productQuery would show a permanently-loading blank
-	 * card (empty slot) or another chat's product. */
+	/** Switch the active chat session and re-sync the product quickview panel. The
+	 * QuickviewStore holds whichever product was last shown (possibly another chat's) —
+	 * reload it for the target chat's active productQuery, or close it when the target
+	 * chat's side panel isn't an (undismissed) product query. */
 	switchChat = async (id: string): Promise<void> => {
 		this.store.switchChat(id);
 
@@ -555,13 +549,20 @@ export class ChatController extends AbstractController {
 		if (chat?.id !== id) return;
 
 		const activeMessage = chat.activeMessage;
-		if (activeMessage?.messageType !== 'productQuery' || chat.dismissedSideChatMessageId === activeMessage.id) return;
+		const sourceProduct =
+			activeMessage?.messageType === 'productQuery' && chat.dismissedSideChatMessageId !== activeMessage.id
+				? ((activeMessage as any).sourceProduct as Product | undefined)
+				: undefined;
 
-		const sourceProduct = (activeMessage as any).sourceProduct as Product | undefined;
-		if (!sourceProduct || this.store.productQuickview?.id === sourceProduct.id) return;
+		if (!sourceProduct) {
+			this.closeProductQuickview();
+			return;
+		}
 
-		this.store.clearProductQuickview();
-		await this.loadProductQuickview(sourceProduct);
+		const quickviewStore = this.quickviewManager?.store;
+		if (quickviewStore?.isOpen && quickviewStore.product?.id === sourceProduct.id) return;
+
+		await this.quickview(sourceProduct);
 	};
 
 	compareProduct = (result: Product): void => {
@@ -576,7 +577,7 @@ export class ChatController extends AbstractController {
 		// dismiss the side-chat if it's currently showing a productQuery/productAnswer from a previous 'discuss product'
 		const activeMessageType = this.store.currentChat?.activeMessage?.messageType;
 		if (activeMessageType === 'productQuery' || activeMessageType === 'productAnswer') {
-			this.store.currentChat?.dismissSideChat();
+			this.dismissSideChat();
 		}
 
 		// starting a new comparison — drop the previous committed set and close any
@@ -620,9 +621,10 @@ export class ChatController extends AbstractController {
 		this.store.sendProductQuery(result, { requestType: 'productQuery' });
 		// skip the reload when the quickview already shows this product (e.g. Discuss
 		// clicked from the product information panel) — rebuilding it would wipe the
-		// user's variant selections; still reload if the previous attempt errored
-		if (this.store.productQuickview?.id !== result.id || this.store.productQuickviewError) {
-			this.loadProductQuickview(result);
+		// user's variant selections; still reload if it was closed or errored
+		const quickviewStore = this.quickviewManager?.store;
+		if (!(quickviewStore?.isOpen && quickviewStore.product?.id === result.id && !quickviewStore.error)) {
+			this.quickview(result);
 		}
 		this.focusInputDesktopOnly();
 	};
@@ -918,12 +920,18 @@ export class ChatController extends AbstractController {
 			this.store.currentChat?.setPendingRequest(null);
 			if (err) {
 				if (err.err && err.fetchDetails) {
-					// session limit exceeded — flag the current chat so the UI can show a banner
-					if (err.responseBody?.errorCode === 'CS_003') {
+					if (err.responseBody?.errorCode === CHAT_ERROR_CODES.QUOTA_LIMIT) {
+						// quota limit reached — not retried by the client, and won't clear within a retry window
+						this.store.error = {
+							type: ErrorType.WARNING,
+							message: 'Chat is temporarily unavailable. Please try again later.',
+						};
+					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.SESSION_LIMIT) {
+						// session limit exceeded — flag the current chat so the UI can show a banner
 						if (this.store.currentChat) {
 							this.store.currentChat.sessionLimitReached = true;
 						}
-					} else if (err.responseBody?.errorCode === 'CS_006') {
+					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.CONTENT_POLICY) {
 						this.store.error = {
 							type: ErrorType.ERROR,
 							message:

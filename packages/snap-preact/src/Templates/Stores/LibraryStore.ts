@@ -114,7 +114,7 @@ export type LibraryImports = {
 		chatMessageText: LibraryComponentImport;
 		chatMessageUser: LibraryComponentImport;
 		chatProductComparisonMessage: LibraryComponentImport;
-		chatProductQueryMessage: LibraryComponentImport;
+		chatQuickview: LibraryComponentImport;
 		chatResult: LibraryComponentImport;
 		chatResultsDisplay: LibraryComponentImport;
 		chatSuggestedQuestions: LibraryComponentImport;
@@ -242,7 +242,7 @@ export class LibraryStore {
 		chatMessageText: LibraryComponentMap;
 		chatMessageUser: LibraryComponentMap;
 		chatProductComparisonMessage: LibraryComponentMap;
-		chatProductQueryMessage: LibraryComponentMap;
+		chatQuickview: LibraryComponentMap;
 		chatResult: LibraryComponentMap;
 		chatResultsDisplay: LibraryComponentMap;
 		chatSuggestedQuestions: LibraryComponentMap;
@@ -337,7 +337,7 @@ export class LibraryStore {
 		chatMessageText: {},
 		chatMessageUser: {},
 		chatProductComparisonMessage: {},
-		chatProductQueryMessage: {},
+		chatQuickview: {},
 		chatResult: {},
 		chatResultsDisplay: {},
 		chatSuggestedQuestions: {},
@@ -607,7 +607,7 @@ export class LibraryStore {
 			chatMessageText: {},
 			chatMessageUser: {},
 			chatProductComparisonMessage: {},
-			chatProductQueryMessage: {},
+			chatQuickview: {},
 			chatResult: {},
 			chatResultsDisplay: {},
 			chatSuggestedQuestions: {},

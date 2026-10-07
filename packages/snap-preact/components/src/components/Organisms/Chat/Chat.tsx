@@ -421,7 +421,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		position: 'right',
 		hideMessageTypeIndicatorText: false,
 		buttonBelowMessage: false,
-		poweredByText: 'Powered by Athos Commerce.',
 	};
 
 	let props = mergeProps('chat', globalTheme, defaultProps, properties);
@@ -569,8 +568,14 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 	const sideChatTypes = isMobile
 		? ['inspirationResult', ...(isFirstMobileComparison ? ['productComparison'] : []), ...(mobileProductInfoOpen ? ['productQuery'] : [])]
 		: ['inspirationResult', 'productComparison', 'productQuery'];
+	// productQuery panels are additionally driven by the chat quickview store — the controller's
+	// `show()` opening the store is what opens the window, and `close()` is what dismisses it
+	const quickviewOpen = Boolean(controller.quickviewManager?.store.isOpen);
 	const shouldShowSideChat =
-		activeMessage && sideChatTypes.includes(activeMessage?.messageType) && store.currentChat?.dismissedSideChatMessageId !== activeMessage.id;
+		activeMessage &&
+		sideChatTypes.includes(activeMessage?.messageType) &&
+		store.currentChat?.dismissedSideChatMessageId !== activeMessage.id &&
+		(activeMessage.messageType !== 'productQuery' || quickviewOpen);
 
 	const hasSideChat = !!shouldShowSideChat;
 
@@ -584,7 +589,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		const onKeyDown = (e: KeyboardEvent): void => {
 			if (e.key !== 'Escape') return;
 			if (store.currentChat?.activeMessage && shouldShowSideChat) {
-				store.currentChat?.dismissSideChat();
+				// dismiss through the controller so the product quickview closes with the window
+				controller.dismissSideChat();
 			} else {
 				controller.handlers.button.click();
 			}
@@ -621,7 +627,8 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		);
 		productAttachmentsToRemove.forEach((item) => store.currentChat?.attachments.remove(item.id));
 		setMobileProductInfoOpen(false);
-		store.currentChat?.dismissSideChat();
+		// dismiss through the controller so the product quickview closes with the window
+		controller.dismissSideChat();
 	};
 
 	const requestType = store.currentChat?.requestType;
@@ -750,7 +757,9 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 						>
 							<div className={'ss__chat__header'}>
 								<div className="ss__chat__header__title">
-									{logo ? <Image className="ss__chat__header__title__logo" src={logo} alt={title || 'Chat logo'} /> : null}
+									{logo ? (
+										<Image className="ss__chat__header__title__logo" src={logo} alt={title || langAttrOf(lang.headerLogo, 'alt') || ''} />
+									) : null}
 									<div className="ss__chat__header__title__text">
 										{title ? <div className="ss__chat__header__title__text__primary">{title}</div> : null}
 										{subtitle ? <div className="ss__chat__header__title__text__secondary">{subtitle}</div> : null}

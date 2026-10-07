@@ -28,7 +28,7 @@ export * from './components/Molecules/ChatInspirationResultMessage';
 export * from './components/Molecules/ChatMessageText';
 export * from './components/Molecules/ChatMessageUser';
 export * from './components/Molecules/ChatProductComparisonMessage';
-export * from './components/Molecules/ChatProductQueryMessage';
+export * from './components/Molecules/ChatQuickview';
 export * from './components/Molecules/ChatResult';
 export * from './components/Molecules/ChatResultsDisplay';
 export * from './components/Molecules/ChatSuggestedQuestions';

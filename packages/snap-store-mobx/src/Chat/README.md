@@ -63,12 +63,6 @@ A `SearchFacetStore` reflecting the facets on the current `productSearchResult` 
 ## `urlVersion` property
 A counter that bumps on every `urlManager` state change so observers re-evaluate `isFacetSelected` (mobx can't subscribe to the underlying UrlManager directly).
 
-## `productQuickview` property
-The currently viewed product in the quickview panel, or `null` if no product quickview is open. Set via `setProductQuickview()` and cleared via `clearProductQuickview()`.
-
-## `productQuickviewError` property
-An error message string if the product quickview failed to load, or `null` otherwise.
-
 ## `error` property
 An error object (inherited from `AbstractStore`) set when a chat request fails. Contains the following properties:
 
@@ -79,6 +73,8 @@ An error object (inherited from `AbstractStore`) set when a chat request fails. 
 | `code` | `number` (optional) | HTTP status code (e.g. `429` for rate limiting, `500` for server errors) |
 
 Session-limit-exceeded responses (`CS_003`) are flagged on `currentChat.sessionLimitReached` instead of populating `error`.
+
+Quota-limit responses (HTTP 429 with `errorCode` `CS_002`) are not retried by the client; they populate `error` with a `warning` asking the user to try again later and no `code`, so no immediate retry is offered.
 
 ## `impressionStorage` property
 A `StorageStore` (local storage) recording which products have already fired a chat impression, keyed `chatId` → `responseId` → `productId`. Because it is persisted, a product impressed on one page is not re-impressed when the chat reopens on a later page. Entries for a chat are dropped when that chat is pruned during `createChat`.
@@ -107,19 +103,7 @@ store.switchChat('session-id');
 Drops all stored chat sessions except the current one. If there is no current chat, falls back to `reset()`.
 
 ### `reset()`
-Clears all chat sessions and product quickview state, wipes localStorage, and creates a fresh empty chat.
-
-### `setProductQuickview(product)`
-Sets the product to display in the quickview panel. Clones the supplied `Product` so that variant selections and the parent-mappings merge done by `updateProductQuickview` only affect the quickview — the carousel and other surfaces still hold the original instance.
-
-### `updateProductQuickview(response)`
-Updates the current quickview product with parent-level data from the products API response, merging `mappings.core` and creating/updating `Variants`.
-
-### `setProductQuickviewError(message)`
-Sets an error message for the product quickview.
-
-### `clearProductQuickview()`
-Clears the product quickview, closing the panel.
+Clears all chat sessions, wipes localStorage, and creates a fresh empty chat. The product quickview panel's state lives in the chat controller's `QuickviewManager` store, not here.
 
 ### `compareProduct(result)`
 Adds a product to the comparison set on the current chat session.

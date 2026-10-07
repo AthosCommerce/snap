@@ -39,7 +39,7 @@ describe('LibraryStore', () => {
 			chatMessageUser: {},
 			chatMessages: {},
 			chatProductComparisonMessage: {},
-			chatProductQueryMessage: {},
+			chatQuickview: {},
 			chatResult: {},
 			chatResultsDisplay: {},
 			chatSessionFeedback: {},
