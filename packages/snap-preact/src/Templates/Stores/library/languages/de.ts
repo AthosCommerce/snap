@@ -186,6 +186,9 @@ export const de: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Alle löschen',
+			attributes: {
+				'aria-label': 'Alle löschen',
+			},
 		},
 		noFiltersText: {
 			value: 'Keine Filter angewendet',

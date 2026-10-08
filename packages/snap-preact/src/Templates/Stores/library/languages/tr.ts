@@ -186,6 +186,9 @@ export const tr: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Tümünü temizle',
+			attributes: {
+				'aria-label': 'Tümünü temizle',
+			},
 		},
 		noFiltersText: {
 			value: 'Uygulanan filtre yok',

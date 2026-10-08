@@ -81,6 +81,7 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		type: 'inline',
 		clearAllLabel: 'Clear All',
 		noFiltersText: 'No filters applied',
+		hideNoFiltersText: true,
 		clearAllIcon: 'close-thin',
 		filterIcon: 'close-thin',
 		filters: properties.controller?.store?.filters,
@@ -102,7 +103,7 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		clearAllLabel,
 		hideClearAll,
 		noFiltersText,
-		showNoFiltersText,
+		hideNoFiltersText,
 		onClick,
 		onClearAllClick,
 		disableStyles,
@@ -152,15 +153,13 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(
-		lang as any,
-		{
-			filters,
-		},
-		{ activeBreakpoint: globalTheme?.activeBreakpoint }
-	);
+	const langOptions = { activeBreakpoint: globalTheme?.activeBreakpoint };
+	const mergedLang = {
+		...useLang({ title: lang.title }, { filters }, langOptions),
+		...useLang({ noFiltersText: lang.noFiltersText }, { controller: properties.controller }, langOptions),
+	};
 
-	if (!filters?.length && !showNoFiltersText) {
+	if (!filters?.length && hideNoFiltersText) {
 		return null;
 	}
 
@@ -197,9 +196,7 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 									onClearAllClick && onClearAllClick(e);
 									properties.controller?.urlManager.remove('filter').remove('page').go();
 								}}
-								lang={{
-									filter: { attributes: { 'aria-label': clearAllLabel } },
-								}}
+								lang={{ filter: lang.clearAllLabel }}
 							/>
 						)}
 					</div>
@@ -229,7 +226,7 @@ export type FilterSummaryTemplatesLegalProps = {
 	clearAllLabel?: string;
 	hideClearAll?: boolean;
 	noFiltersText?: string;
-	showNoFiltersText?: boolean;
+	hideNoFiltersText?: boolean;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, filterFilter: FilterType) => void;
 	onClearAllClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
@@ -243,7 +240,7 @@ export interface FilterSummaryLang {
 		value?: string;
 	}>;
 	noFiltersText: Lang<{
-		filters: FilterType[];
+		controller?: SearchController | AutocompleteController;
 	}>;
 }
 

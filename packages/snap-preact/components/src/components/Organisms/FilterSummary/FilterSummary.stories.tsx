@@ -127,20 +127,20 @@ export default {
 			},
 			control: 'text',
 		},
-		showNoFiltersText: {
-			description: 'Render the no filters text when there are no filters applied',
+		hideNoFiltersText: {
+			description: 'Prevents the no filters text from rendering when there are no filters applied',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
+				defaultValue: { summary: true },
 			},
 			control: 'boolean',
 		},
 		noFiltersText: {
 			defaultValue: 'No filters applied',
-			description: 'Text to show when there are no filters applied (requires showNoFiltersText)',
+			description: 'Text to show when there are no filters applied (requires hideNoFiltersText to be false)',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -283,27 +283,4 @@ customTitle.loaders = [
 ];
 customTitle.args = {
 	title: 'Selected Filters',
-};
-
-const noFiltersSnapInstance = Snapify.search({
-	id: 'FilterSummary-noFilters',
-	globals: {
-		siteId: 'atkzs2',
-	},
-});
-
-export const noFilters = (args: FilterSummaryProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<FilterSummary {...args} controller={controller} />
-);
-
-noFilters.loaders = [
-	async () => {
-		await noFiltersSnapInstance.search();
-		return {
-			controller: noFiltersSnapInstance,
-		};
-	},
-];
-noFilters.args = {
-	showNoFiltersText: true,
 };

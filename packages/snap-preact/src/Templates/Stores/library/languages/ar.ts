@@ -185,6 +185,9 @@ export const ar: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'مسح الكل',
+			attributes: {
+				'aria-label': 'مسح الكل',
+			},
 		},
 		noFiltersText: {
 			value: 'لم يتم تطبيق أي فلاتر',

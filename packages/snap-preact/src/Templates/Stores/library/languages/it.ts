@@ -186,6 +186,9 @@ export const it: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Cancella tutto',
+			attributes: {
+				'aria-label': 'Cancella tutto',
+			},
 		},
 		noFiltersText: {
 			value: 'Nessun filtro applicato',

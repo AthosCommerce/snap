@@ -219,6 +219,9 @@ export const es: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Borrar Todo',
+			attributes: {
+				'aria-label': 'Borrar Todo',
+			},
 		},
 		noFiltersText: {
 			value: 'No se han aplicado filtros',
