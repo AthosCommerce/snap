@@ -186,6 +186,12 @@ export const vi: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Xóa tất cả',
+			attributes: {
+				'aria-label': 'Xóa tất cả',
+			},
+		},
+		noFiltersText: {
+			value: 'Không có bộ lọc nào được áp dụng',
 		},
 	},
 	facet: {

@@ -127,6 +127,29 @@ export default {
 			},
 			control: 'text',
 		},
+		hideNoFiltersText: {
+			description: 'Prevents the no filters text from rendering when there are no filters applied',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: true },
+			},
+			control: 'boolean',
+		},
+		noFiltersText: {
+			defaultValue: 'No filters applied',
+			description: 'Text to show when there are no filters applied (requires hideNoFiltersText to be false)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string',
+				},
+				defaultValue: { summary: 'No filters applied' },
+			},
+			control: 'text',
+		},
 		clearAllIcon: {
 			defaultValue: 'close-thin',
 			description: 'Icon name',

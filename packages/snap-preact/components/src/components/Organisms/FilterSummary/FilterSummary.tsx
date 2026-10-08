@@ -27,6 +27,9 @@ const defaultStyles: StyleScript<FilterSummaryProps> = (props) => {
 			gap: '10px',
 			flexWrap: 'wrap',
 		},
+		'.ss__filter-summary__no-filters': {
+			margin: '5px 0',
+		},
 
 		'&.ss__filter-summary--list': {
 			'& .ss__filter-summary__clear-all .ss__filter__value': {
@@ -77,6 +80,8 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		title: 'Current Filters',
 		type: 'inline',
 		clearAllLabel: 'Clear All',
+		noFiltersText: 'No filters applied',
+		hideNoFiltersText: true,
 		clearAllIcon: 'close-thin',
 		filterIcon: 'close-thin',
 		filters: properties.controller?.store?.filters,
@@ -97,6 +102,8 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		hideTitle,
 		clearAllLabel,
 		hideClearAll,
+		noFiltersText,
+		hideNoFiltersText,
 		onClick,
 		onClearAllClick,
 		disableStyles,
@@ -139,19 +146,24 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 		clearAllLabel: {
 			value: clearAllLabel,
 		},
+		noFiltersText: {
+			value: noFiltersText,
+		},
 	};
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(
-		lang as any,
-		{
-			filters,
-		},
-		{ activeBreakpoint: globalTheme?.activeBreakpoint }
-	);
+	const langOptions = { activeBreakpoint: globalTheme?.activeBreakpoint };
+	const mergedLang = {
+		...useLang({ title: lang.title }, { filters }, langOptions),
+		...useLang({ noFiltersText: lang.noFiltersText }, { controller: properties.controller }, langOptions),
+	};
 
-	return filters?.length ? (
+	if (!filters?.length && hideNoFiltersText) {
+		return null;
+	}
+
+	return (
 		<CacheProvider>
 			<div
 				{...styling}
@@ -159,38 +171,41 @@ export const FilterSummary = observer((properties: FilterSummaryProps) => {
 					'ss__filter-summary',
 					{ 'ss__filter-summary--list': type === 'list' },
 					{ 'ss__filter-summary--inline': type === 'inline' },
+					{ 'ss__filter-summary--no-filters': !filters?.length },
 					className,
 					internalClassName
 				)}
 			>
 				{!hideTitle && <div className="ss__filter-summary__title" {...mergedLang.title?.all}></div>}
 
-				<div className="ss__filter-summary__filters">
-					{filters.map((filter) => (
-						<Filter {...subProps.filter} filter={filter} onClick={(e) => onClick && onClick(e, filter)} />
-					))}
+				{filters?.length ? (
+					<div className="ss__filter-summary__filters">
+						{filters.map((filter) => (
+							<Filter {...subProps.filter} filter={filter} onClick={(e) => onClick && onClick(e, filter)} />
+						))}
 
-					{!hideClearAll && (
-						<Filter
-							{...subProps.filter}
-							name={'clear-all'}
-							icon={clearAllIcon}
-							internalClassName={`${subProps?.filter?.internalClassName} ss__filter-summary__clear-all`}
-							hideFacetLabel
-							valueLabel={clearAllLabel}
-							onClick={(e) => {
-								onClearAllClick && onClearAllClick(e);
-								properties.controller?.urlManager.remove('filter').remove('page').go();
-							}}
-							lang={{
-								filter: { attributes: { 'aria-label': clearAllLabel } },
-							}}
-						/>
-					)}
-				</div>
+						{!hideClearAll && (
+							<Filter
+								{...subProps.filter}
+								name={'clear-all'}
+								icon={clearAllIcon}
+								internalClassName={`${subProps?.filter?.internalClassName} ss__filter-summary__clear-all`}
+								hideFacetLabel
+								valueLabel={clearAllLabel}
+								onClick={(e) => {
+									onClearAllClick && onClearAllClick(e);
+									properties.controller?.urlManager.remove('filter').remove('page').go();
+								}}
+								lang={{ filter: lang.clearAllLabel }}
+							/>
+						)}
+					</div>
+				) : (
+					<div className="ss__filter-summary__no-filters" {...mergedLang.noFiltersText?.all}></div>
+				)}
 			</div>
 		</CacheProvider>
-	) : null;
+	);
 });
 
 export type FilterSummaryProps = {
@@ -210,6 +225,8 @@ export type FilterSummaryTemplatesLegalProps = {
 	hideFacetLabel?: boolean;
 	clearAllLabel?: string;
 	hideClearAll?: boolean;
+	noFiltersText?: string;
+	hideNoFiltersText?: boolean;
 	onClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, filterFilter: FilterType) => void;
 	onClearAllClick?: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
@@ -221,6 +238,9 @@ export interface FilterSummaryLang {
 	clearAllLabel: Lang<{
 		label?: string;
 		value?: string;
+	}>;
+	noFiltersText: Lang<{
+		controller?: SearchController | AutocompleteController;
 	}>;
 }
 
