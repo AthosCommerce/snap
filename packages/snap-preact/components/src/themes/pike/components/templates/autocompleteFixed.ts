@@ -94,6 +94,11 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 			viewportMaxHeight: false,
 			contentTitle: 'Product Suggestions',
 		},
+		// the fixed autocomplete opens over the page without dimming it (the global `modal` overlay color
+		// would otherwise apply, and theme selectors win over the overlayColor the template passes down)
+		'autocompleteFixed modal': {
+			overlayColor: 'transparent',
+		},
 		'autocompleteFixed terms': {
 			vertical: true,
 		},

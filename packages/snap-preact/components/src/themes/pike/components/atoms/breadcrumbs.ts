@@ -11,7 +11,9 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 	// breadcrumbs styles
 	const breadcrumbsStyles = css({
 		'.ss__breadcrumbs__crumbs': {
-			gap: `${custom.spacing.x2}px`,
+			// crumbs stay on one line each - the trail wraps, and only the current (last) crumb breaks
+			flexWrap: 'wrap',
+			gap: `${custom.spacing.x1}px ${custom.spacing.x2}px`,
 			margin: 0,
 			padding: 0,
 			'&, li': {
@@ -21,12 +23,18 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 				display: 'block',
 				padding: 0,
 				fontSize: '14px',
+				whiteSpace: 'nowrap',
 				'&:last-child': {
+					whiteSpace: 'normal',
+					minWidth: 0,
 					...custom.styles.activeText(variables?.colors?.primary),
 				},
 				a: {
 					fontSize: 'inherit',
 				},
+			},
+			'.ss__breadcrumbs__separator__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
 			},
 		},
 	});

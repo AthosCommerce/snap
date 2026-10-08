@@ -11,14 +11,18 @@ import { facetListOptions } from './facetListOptions';
 import { facetPaletteOptions } from './facetPaletteOptions';
 import { facetSlider } from './facetSlider';
 import { filter } from './filter';
+import { gallery } from './gallery';
 import { grid } from './grid';
 import { layoutSelector } from './layoutSelector';
 import { list } from './list';
 import { loadMore } from './loadMore';
 import { modal } from './modal';
 import { overlayBadge } from './overlayBadge';
+import { overlayResult } from './overlayResult';
 import { pagination } from './pagination';
 import { perPage } from './perPage';
+import { productDetailTable } from './productDetailTable';
+import { quantityPicker } from './quantityPicker';
 import { radio } from './radio';
 import { radioList } from './radioList';
 import { result } from './result';
@@ -29,6 +33,7 @@ import { slideout } from './slideout';
 import { sortBy } from './sortBy';
 import { rating } from './rating';
 import { swatches } from './swatches';
+import { tabSelection } from './tabSelection';
 import { variantSelection } from './variantSelection';
 import { terms } from './terms';
 
@@ -44,14 +49,18 @@ export const molecules = {
 		...facetPaletteOptions.default,
 		...facetSlider.default,
 		...filter.default,
+		...gallery.default,
 		...grid.default,
 		...layoutSelector.default,
 		...list.default,
 		...loadMore.default,
 		...modal.default,
 		...overlayBadge.default,
+		...overlayResult.default,
 		...pagination.default,
 		...perPage.default,
+		...productDetailTable.default,
+		...quantityPicker.default,
 		...radio.default,
 		...radioList.default,
 		...rating.default,
@@ -62,6 +71,7 @@ export const molecules = {
 		...slideout.default,
 		...sortBy.default,
 		...swatches.default,
+		...tabSelection.default,
 		...terms.default,
 		...variantSelection.default,
 	},
@@ -76,14 +86,18 @@ export const molecules = {
 		...facetPaletteOptions.mobile,
 		...facetSlider.mobile,
 		...filter.mobile,
+		...gallery.mobile,
 		...grid.mobile,
 		...layoutSelector.mobile,
 		...list.mobile,
 		...loadMore.mobile,
 		...modal.mobile,
 		...overlayBadge.mobile,
+		...overlayResult.mobile,
 		...pagination.mobile,
 		...perPage.mobile,
+		...productDetailTable.mobile,
+		...quantityPicker.mobile,
 		...radio.mobile,
 		...radioList.mobile,
 		...rating.mobile,
@@ -94,6 +108,7 @@ export const molecules = {
 		...slideout.mobile,
 		...sortBy.mobile,
 		...swatches.mobile,
+		...tabSelection.mobile,
 		...terms.mobile,
 		...variantSelection.mobile,
 	},
@@ -108,14 +123,18 @@ export const molecules = {
 		...facetPaletteOptions.tablet,
 		...facetSlider.tablet,
 		...filter.tablet,
+		...gallery.tablet,
 		...grid.tablet,
 		...layoutSelector.tablet,
 		...list.tablet,
 		...loadMore.tablet,
 		...modal.tablet,
 		...overlayBadge.tablet,
+		...overlayResult.tablet,
 		...pagination.tablet,
 		...perPage.tablet,
+		...productDetailTable.tablet,
+		...quantityPicker.tablet,
 		...radio.tablet,
 		...radioList.tablet,
 		...rating.tablet,
@@ -126,6 +145,7 @@ export const molecules = {
 		...slideout.tablet,
 		...sortBy.tablet,
 		...swatches.tablet,
+		...tabSelection.tablet,
 		...terms.tablet,
 		...variantSelection.tablet,
 	},
@@ -140,14 +160,18 @@ export const molecules = {
 		...facetPaletteOptions.desktop,
 		...facetSlider.desktop,
 		...filter.desktop,
+		...gallery.desktop,
 		...grid.desktop,
 		...layoutSelector.desktop,
 		...list.desktop,
 		...loadMore.desktop,
 		...modal.desktop,
 		...overlayBadge.desktop,
+		...overlayResult.desktop,
 		...pagination.desktop,
 		...perPage.desktop,
+		...productDetailTable.desktop,
+		...quantityPicker.desktop,
 		...radio.desktop,
 		...radioList.desktop,
 		...rating.desktop,
@@ -158,6 +182,7 @@ export const molecules = {
 		...slideout.desktop,
 		...sortBy.desktop,
 		...swatches.desktop,
+		...tabSelection.desktop,
 		...terms.desktop,
 		...variantSelection.desktop,
 	},

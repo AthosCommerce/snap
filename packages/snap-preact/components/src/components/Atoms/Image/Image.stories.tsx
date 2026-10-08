@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Image, FALLBACK_IMAGE_URL, ImageProps } from './Image';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 
 const searchResponse = {
 	product1: {
@@ -23,23 +21,11 @@ import Readme from '../Image/readme.md';
 export default {
 	title: 'Atoms/Image',
 	component: Image,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -138,7 +124,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onError',
 		},
 		onLoad: {
@@ -149,7 +135,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onLoad',
 		},
 		onClick: {
@@ -160,7 +146,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		onMouseOver: {
@@ -171,7 +157,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onMouseOver',
 		},
 		onMouseOut: {
@@ -182,7 +168,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onMouseOut',
 		},
 		onPointerDown: {
@@ -233,28 +219,40 @@ export default {
 	},
 };
 
-export const Default = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-Default.args = {
-	src: searchResponse.product1.image,
-	alt: searchResponse.product1.name,
+export const Default = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: searchResponse.product1.image,
+		alt: searchResponse.product1.name,
+	},
 };
 
-export const BrokenImg = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-BrokenImg.args = {
-	src: 'intentionally_broken_image.jpg',
-	alt: searchResponse.product1.name,
+export const BrokenImg = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: 'intentionally_broken_image.jpg',
+		alt: searchResponse.product1.name,
+	},
 };
 
-export const ManualFallBack = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-ManualFallBack.args = {
-	src: 'intentionally_broken_image.jpg',
-	alt: searchResponse.product1.name,
-	fallback: searchResponse.product1.image,
+export const ManualFallBack = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: 'intentionally_broken_image.jpg',
+		alt: searchResponse.product1.name,
+		fallback: searchResponse.product1.image,
+	},
 };
 
-export const onhover = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-onhover.args = {
-	src: searchResponse.product1.image,
-	alt: searchResponse.product1.name,
-	hoverSrc: searchResponse.product2.image,
+export const onhover = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: searchResponse.product1.image,
+		alt: searchResponse.product1.name,
+		hoverSrc: searchResponse.product2.image,
+	},
 };

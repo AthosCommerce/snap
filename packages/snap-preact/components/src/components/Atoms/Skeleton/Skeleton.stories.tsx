@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
-import { Skeleton, SkeletonProps } from './Skeleton';
+import { componentArgs } from '../../../utilities';
+import { Skeleton } from './Skeleton';
 import Readme from '../Skeleton/readme.md';
 
 export default {
 	title: 'Atoms/Skeleton',
 	component: Skeleton,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -101,15 +87,17 @@ export default {
 	},
 };
 
-export const Default = (args: SkeletonProps) => <Skeleton {...args} />;
-Default.args = {
-	width: '100px',
-	height: '100px',
+export const Default = {
+	args: {
+		width: '100px',
+		height: '100px',
+	},
 };
 
-export const Circle = (args: SkeletonProps) => <Skeleton {...args} />;
-Circle.args = {
-	width: '100px',
-	height: '100px',
-	round: true,
+export const Circle = {
+	args: {
+		width: '100px',
+		height: '100px',
+		round: true,
+	},
 };

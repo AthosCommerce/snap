@@ -30,7 +30,8 @@ const carouselStyleScript = (props: CarouselProps) => {
 			...custom.styles.disabled(),
 		},
 		'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
-			width: `${carouselOptions.button}px`,
+			width: 'auto',
+			minWidth: `${carouselOptions.button}px`,
 			height: `${carouselOptions.button}px`,
 			display: 'block',
 			position: 'absolute',
@@ -49,6 +50,11 @@ const carouselStyleScript = (props: CarouselProps) => {
 				lineHeight: 1,
 				backgroundColor: buttonColor,
 				color: fontColor,
+				'&:not(:has(.ss__icon))': {
+					padding: `0 ${custom.spacing.x2}px`,
+					fontSize: '14px',
+					fontWeight: custom.fonts.weight01,
+				},
 			},
 			'.swiper-button-disabled': {
 				...custom.styles.disabled(),
@@ -91,10 +97,11 @@ const carouselStyleScript = (props: CarouselProps) => {
 					minWidth: '1px',
 					margin: 0,
 					...custom.styles.box('', 0, false),
+					...custom.styles.borderRadius(0),
 				},
 				'.swiper-pagination-bullet-active': {
-					backgroundColor: variables?.colors?.primary,
-					borderColor: variables?.colors?.primary,
+					backgroundColor: variables?.colors?.accent,
+					borderColor: variables?.colors?.accent,
 				},
 			},
 			'& > .swiper-scrollbar': {
@@ -114,12 +121,43 @@ const carouselStyleScript = (props: CarouselProps) => {
 					right: 0,
 					zIndex: 1,
 					margin: 'auto',
-					border: `1px solid ${custom.colors.gray02}`,
+					border: `1px solid ${custom.colors.controlBorder}`,
 				},
 				'.swiper-scrollbar-drag': {
 					zIndex: 2,
-					backgroundColor: variables?.colors?.primary,
+					backgroundColor: variables?.colors?.accent,
 				},
+			},
+		},
+		'&.ss__carousel-vertical': {
+			'.ss__carousel__prev-wrapper, .ss__carousel__next-wrapper': {
+				left: 0,
+				right: 0,
+				margin: '0 auto',
+				width: `${carouselOptions.button}px`,
+				'& > div .ss__icon': {
+					left: 0,
+					right: 0,
+					transform: 'rotate(90deg)',
+				},
+			},
+			'.ss__carousel__prev-wrapper': {
+				top: 0,
+				bottom: 'auto',
+			},
+			'.ss__carousel__next-wrapper': {
+				top: 'auto',
+				bottom: 0,
+			},
+			'.swiper-container-vertical > .swiper-pagination': {
+				position: 'absolute',
+				top: '50%',
+				right: 0,
+				left: 'auto',
+				width: 'auto',
+				margin: 0,
+				flexDirection: 'column',
+				transform: 'translateY(-50%)',
 			},
 		},
 		'.swiper-grid-column': {

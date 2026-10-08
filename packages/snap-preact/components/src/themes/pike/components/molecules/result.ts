@@ -4,15 +4,18 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
+const quickviewSize = 32;
 
 // CSS in JS style script for the Result component
 const resultStyleScript = (props: ResultProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const quickviewColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
 
 	// result styles
 	const resultStyles = css({
+		// a sale price is emphasized text, like any other active text
 		'&.ss__result--sale': {
 			'.ss__result__details': {
 				'.ss__result__details__pricing': {
@@ -36,6 +39,35 @@ const resultStyleScript = (props: ResultProps) => {
 			'.ss__result__image-wrapper': {
 				flex: '0 1 auto',
 				border: `1px solid ${custom.colors.gray02}`,
+				// quiet white square over the image, revealed on hover/keyboard focus (always shown on touch
+				// devices, which cannot hover) - it fills with the secondary color while hovered itself
+				'.ss__button.ss__result__quickview': {
+					// same inset as the overlay badges
+					right: `${custom.spacing.x1}px`,
+					bottom: `${custom.spacing.x1}px`,
+					zIndex: 2,
+					width: `${quickviewSize}px`,
+					height: `${quickviewSize}px`,
+					padding: 0,
+					justifyContent: 'center',
+					color: custom.colors.black,
+					opacity: 0,
+					transform: `translateY(${custom.spacing.x1}px)`,
+					transition: 'opacity ease 0.2s, transform ease 0.2s, background-color ease 0.2s, color ease 0.2s',
+					'&, &:not(.ss__button--disabled):hover': {
+						border: `1px solid ${custom.colors.gray02}`,
+						backgroundColor: custom.colors.white,
+					},
+					'&:not(.ss__button--disabled):hover': {
+						color: quickviewColors[1],
+						borderColor: quickviewColors[0],
+						backgroundColor: quickviewColors[0],
+					},
+					'@media (hover: none)': {
+						opacity: 1,
+						transform: 'none',
+					},
+				},
 				a: {
 					display: 'block',
 				},
@@ -115,6 +147,13 @@ const resultStyleScript = (props: ResultProps) => {
 				},
 			},
 		},
+		// reveal the quickview button while the card is hovered or holds keyboard focus
+		'&:hover, &:focus-within': {
+			'.ss__result__image-wrapper .ss__button.ss__result__quickview': {
+				opacity: 1,
+				transform: 'none',
+			},
+		},
 		'&.ss__result--list': {
 			'.ss__result__details': {
 				textAlign: 'center',
@@ -154,7 +193,7 @@ const resultStyleScript = (props: ResultProps) => {
 					'.ss__result__details__pricing': {
 						flex: '0 1 auto',
 					},
-					'.ss__callout-badge, .ss__result__details__rating-wrapper': {
+					'.ss__callout-badge, .ss__result__rating': {
 						justifyContent: 'flex-start',
 					},
 					'.ss__result__details__variant-selection': {
@@ -186,6 +225,9 @@ export const result: ThemeComponent<'result', ResultProps, ResultTemplatesLegalP
 	default: {
 		result: {
 			themeStyleScript: resultStyleScript,
+		},
+		'result button.quickview icon': {
+			size: `${custom.sizes.icon14}px`,
 		},
 	},
 };

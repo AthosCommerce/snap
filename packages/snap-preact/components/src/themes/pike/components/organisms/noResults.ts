@@ -22,9 +22,6 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 			},
 			a: {
 				color: variables?.colors?.primary,
-				'&:hover': {
-					color: variables?.colors?.secondary,
-				},
 			},
 			ul: {
 				padding: 0,

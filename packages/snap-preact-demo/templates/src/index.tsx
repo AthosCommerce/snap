@@ -27,7 +27,7 @@ let templatesConfig = validateTemplatesConfig({
 		},
 	},
 	theme: {
-		extends: 'base',
+		extends: 'pike',
 		style: globalStyles,
 		overrides: {
 			default: {

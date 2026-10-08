@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { ProductDetailProps, ProductDetail } from './ProductDetail';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { ProductDetail } from './ProductDetail';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ProductDetail/readme.md';
 
 const mockResult = {
@@ -22,23 +20,11 @@ const mockResult = {
 export default {
 	title: 'Atoms/ProductDetail',
 	component: ProductDetail,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -80,15 +66,17 @@ export default {
 	},
 };
 
-export const Default = (args: ProductDetailProps) => <ProductDetail {...args} />;
-Default.args = {
-	result: mockResult,
-	field: 'mappings.core.name',
+export const Default = {
+	args: {
+		result: mockResult,
+		field: 'mappings.core.name',
+	},
 };
 
-export const Description = (args: ProductDetailProps) => <ProductDetail {...args} />;
-Description.args = {
-	result: mockResult,
-	field: 'mappings.core.description',
-	html: true,
+export const Description = {
+	args: {
+		result: mockResult,
+		field: 'mappings.core.description',
+		html: true,
+	},
 };

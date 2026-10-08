@@ -6,6 +6,7 @@ import { custom } from '../../custom';
 // static variables
 const swatchesSpacing = custom.spacing.x1;
 const swatchesSize = 28;
+const swatchesNavSize = 16;
 const swatchesSelector = 'ss__swatches__slideshow__swatch';
 const darkSelector = `&.${swatchesSelector}--dark, &:has(.${swatchesSelector}__inner--grey), &:has(.${swatchesSelector}__inner--gray)`;
 const imageSelector = '&:has(.ss__image)';
@@ -53,16 +54,19 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 									position: 'relative',
 									width: '100%',
 									height: '100%',
-									...custom.styles.box(undefined, `${custom.spacing.x1}px`),
+									...custom.styles.box(undefined, `0 ${custom.spacing.x1 / 2}px`),
 									'&, .ss__swatches__slideshow__swatch__value': {
 										overflow: 'hidden',
 									},
+									// text swatches (values without a color) - one truncated line; wrapping a name into a
+									// 28px square splits it mid-word and clips the second line
 									'.ss__swatches__slideshow__swatch__value': {
 										maxWidth: '100%',
 										maxHeight: '100%',
 										textAlign: 'center',
 										fontSize: '10px',
-										lineHeight: 1,
+										lineHeight: 1.2,
+										...custom.styles.textOverflow(),
 									},
 									[styleSelector]: {
 										border: 0,
@@ -84,7 +88,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 										},
 										'&:after': {
 											border: `1px solid ${custom.colors.black}`,
-											opacity: 0.15,
+											opacity: 0.45, // 3:1 boundary for light swatches on white (WCAG 1.4.11)
 										},
 										'.ss__swatches__slideshow__swatch__value': {
 											...custom.styles.srOnly(),
@@ -163,7 +167,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 												opacity: 1,
 											},
 											'&:after': {
-												opacity: 0.3,
+												opacity: 1, // selected outline must stand out from the 45% unselected outline
 											},
 										},
 										'.ss__swatches__slideshow__swatch__value': {
@@ -182,10 +186,22 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 				},
 				'.ss__slideshow__navigation--prev, .ss__slideshow__navigation--next': {
 					flex: '0 1 auto',
-					width: `${swatchesSize}px`,
+					width: `${swatchesNavSize}px`,
 					height: `${swatchesSize}px`,
 					margin: 0,
 					position: 'static',
+					// quiet chevrons - filled arrow blocks outweighed the swatches they page through
+					'.ss__button': {
+						color: variables?.colors?.accent || 'inherit',
+						[`&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled`]: {
+							border: 0,
+							backgroundColor: 'transparent',
+						},
+						'.ss__icon': {
+							left: 0,
+							right: 0,
+						},
+					},
 				},
 				'.ss__slideshow__navigation--prev': {
 					order: -1,

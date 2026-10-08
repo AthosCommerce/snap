@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { QuantityPicker, QuantityPickerProps } from './QuantityPicker';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { QuantityPicker } from './QuantityPicker';
+import { componentArgs } from '../../../utilities';
 import Readme from '../QuantityPicker/readme.md';
 
 export default {
 	title: 'Molecules/QuantityPicker',
 	component: QuantityPicker,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -129,27 +115,31 @@ export default {
 	},
 };
 
-export const Default = (args: QuantityPickerProps) => <QuantityPicker {...args} />;
+export const Default = {};
 
-export const MinMax = (args: QuantityPickerProps) => <QuantityPicker {...args} />;
-MinMax.args = {
-	min: 2,
-	max: 10,
+export const MinMax = {
+	args: {
+		min: 2,
+		max: 10,
+	},
 };
 
-export const Disabled = (args: QuantityPickerProps) => <QuantityPicker {...args} />;
-Disabled.args = {
-	startValue: 3,
-	disabled: true,
+export const Disabled = {
+	args: {
+		startValue: 3,
+		disabled: true,
+	},
 };
 
-export const HiddenButtons = (args: QuantityPickerProps) => <QuantityPicker {...args} />;
-HiddenButtons.args = {
-	startValue: 3,
-	hideButtons: true,
+export const HiddenButtons = {
+	args: {
+		startValue: 3,
+		hideButtons: true,
+	},
 };
 
-export const Label = (args: QuantityPickerProps) => <QuantityPicker {...args} />;
-Label.args = {
-	label: 'Quantity',
+export const Label = {
+	args: {
+		label: 'Quantity',
+	},
 };

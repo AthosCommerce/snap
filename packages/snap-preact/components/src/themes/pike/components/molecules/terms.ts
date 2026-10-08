@@ -28,8 +28,9 @@ const termsStyleScript = (props: TermsProps) => {
 				margin: 0,
 			},
 			'.ss__terms__option': {
+				// plain text - only the active term takes the primary (active text) color
 				'&, a': {
-					color: variables?.colors?.primary,
+					color: 'inherit',
 				},
 				a: {
 					fontSize: '14px',

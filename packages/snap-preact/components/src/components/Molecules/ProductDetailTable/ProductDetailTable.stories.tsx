@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { ProductDetailTableProps, ProductDetailTable } from './ProductDetailTable';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { ProductDetailTable } from './ProductDetailTable';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ProductDetailTable/readme.md';
 
 const mockResult = {
@@ -26,23 +24,11 @@ const mockResult = {
 export default {
 	title: 'Molecules/ProductDetailTable',
 	component: ProductDetailTable,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -65,15 +51,16 @@ export default {
 	},
 };
 
-export const Default = (args: ProductDetailTableProps) => <ProductDetailTable {...args} />;
-Default.args = {
-	result: mockResult,
-	displayFields: [
-		{ field: 'brand', label: 'Brand' },
-		{ field: 'material', label: 'Material' },
-		{ field: 'colors', label: 'Colors' },
-		{ field: 'price', label: 'Price', type: 'price' },
-		{ field: 'rating', label: 'Rating', type: 'rating' },
-		{ field: 'thumbnailImageUrl', label: 'Image', type: 'image' },
-	],
+export const Default = {
+	args: {
+		result: mockResult,
+		displayFields: [
+			{ field: 'brand', label: 'Brand' },
+			{ field: 'material', label: 'Material' },
+			{ field: 'colors', label: 'Colors' },
+			{ field: 'price', label: 'Price', type: 'price' },
+			{ field: 'rating', label: 'Rating', type: 'rating' },
+			{ field: 'thumbnailImageUrl', label: 'Image', type: 'image' },
+		],
+	},
 };

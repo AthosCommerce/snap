@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const darkGray = custom.utils.darkenColor();
+const darkGray = custom.colors.controlBorder;
 
 // CSS in JS style script for the Rating component
 const ratingStyleScript = (props: RatingProps) => {
@@ -23,6 +23,10 @@ const ratingStyleScript = (props: RatingProps) => {
 			'.ss__rating__stars': {
 				gap: '2px',
 				gridTemplateColumns: 'repeat(5, 1fr)',
+				// filled stars are indicators; empty stars keep the control boundary gray
+				'.ss__rating__stars__star--full .ss__icon': {
+					...custom.styles.indicator(variables?.colors?.accent),
+				},
 			},
 		},
 		'.ss__rating__count, .ss__rating__text': {

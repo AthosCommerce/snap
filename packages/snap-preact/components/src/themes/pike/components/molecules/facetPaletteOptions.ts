@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
 const paletteColors = {
 	brown: '#845329',
 	purple: '#7c368e',
@@ -16,8 +16,6 @@ const paletteColors = {
 const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile as number;
-	const tabletBp = variables?.breakpoints?.tablet as number;
 	const hasCheckbox = !props?.hideCheckbox ? true : false;
 	const isList = props?.layout == 'list' ? true : false;
 	const innerBorder = isList ? 3 : 5;
@@ -31,7 +29,7 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 						opacity: 1,
 					},
 					'&:after': {
-						opacity: 0.3,
+						opacity: 1, // selected outline must stand out from the 45% unselected outline
 					},
 				},
 				'.ss__facet-palette-options__option__value': {
@@ -64,7 +62,7 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 					},
 					'&:after': {
 						border: `1px solid ${custom.colors.black}`,
-						opacity: 0.15,
+						opacity: 0.45, // 3:1 boundary for light swatches on white (WCAG 1.4.11)
 					},
 					'&[style*="url"]': {
 						backgroundRepeat: 'no-repeat !important',
@@ -160,7 +158,6 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 			},
 			'.ss__facet-palette-options__option__value__count': {
 				position: 'relative',
-				top: props?.treePath == 'storybook facetPaletteOptions' ? '1px' : '',
 				margin: 0,
 			},
 		},
@@ -188,29 +185,15 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 		sharedStyles,
 		sharedListStyles,
 		{
-			flexFlow: 'row wrap',
-			gap: `${custom.spacing.x1}px ${custom.spacing.x2}px`,
+			// matches the component's own `--list` display rule specificity
+			'&.ss__facet-palette-options--list': {
+				...custom.styles.columns(),
+			},
 			'.ss__facet-palette-options__option': {
-				flex: '0 1 auto',
-				width: `calc((100% - ${custom.spacing.x2}px) / 2)`,
 				minWidth: '1px',
 				margin: 0,
 				'.ss__facet-palette-options__option__value': {
 					...custom.styles.textOverflow(),
-				},
-			},
-		},
-		{
-			[`${custom.utils.getBp(mobileBp)}`]: {
-				'.ss__facet-palette-options__option': {
-					width: `calc((100% - ${custom.spacing.x2 * 2}px) / 3)`,
-				},
-			},
-		},
-		{
-			[`${custom.utils.getBp(tabletBp)}`]: {
-				'.ss__facet-palette-options__option': {
-					width: `calc((100% - ${custom.spacing.x2 * 3}px) / 4)`,
 				},
 			},
 		},
@@ -226,6 +209,11 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 // FacetPaletteOptions component props
 export const facetPaletteOptions: ThemeComponent<'facetPaletteOptions', FacetPaletteOptionsProps, FacetPaletteOptionsTemplatesLegalProps> = {
 	default: {
+		// the opt-in remove icon sits on top of the swatch color - restore its white fill (the global
+		// `icon` color would otherwise make it invisible on dark swatches)
+		'facetPaletteOptions icon': {
+			color: custom.colors.white,
+		},
 		facetPaletteOptions: {
 			themeStyleScript: facetPaletteStyleScript,
 			hideIcon: true,

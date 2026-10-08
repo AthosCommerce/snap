@@ -1,7 +1,6 @@
 import { h } from 'preact';
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
 import { RadioList, RadioListProps } from './RadioList';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../RadioList/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { Snapify } from '../../../utilities/snapify';
@@ -9,23 +8,11 @@ import { Snapify } from '../../../utilities/snapify';
 export default {
 	title: 'Molecules/RadioList',
 	component: RadioList,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -116,7 +103,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onSelect',
 		},
 		horizontal: {
@@ -149,7 +136,7 @@ export default {
 					summary: 'string | number',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -157,124 +144,137 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'RadioList', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: RadioListProps) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<RadioList {...args} />
-		</div>
-	);
-};
-Default.args = {
-	options: [
-		{
-			value: 'one',
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-	],
-} as RadioListProps;
-
-export const Icons = (args: RadioListProps) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<RadioList {...args} />
-		</div>
-	);
-};
-Icons.args = {
-	options: [
-		{
-			label: '1 wide',
-			value: '1 wide',
-			icon: 'square',
-		},
-		{
-			label: '2 wide',
-			value: '2 wide',
-			icon: {
-				icon: 'layout-large',
-			},
-		},
-		{
-			label: '3 wide',
-			value: '3 wide',
-			icon: {
-				icon: 'layout-grid',
-			},
-		},
-	],
-} as RadioListProps;
-
-export const Native = (args: RadioListProps) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<RadioList {...args} />
-		</div>
-	);
-};
-Native.args = {
-	native: true,
-	options: [
-		{
-			value: 'one',
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-	],
-} as RadioListProps;
-
-export const PerPage = (args: RadioListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<RadioList {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />
-		</div>
-	);
-};
-
-PerPage.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: RadioListProps) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<RadioList {...args} />
+			</div>
+		);
 	},
-];
 
-PerPage.args = {
-	titleText: 'Per Page',
-} as RadioListProps;
-
-export const SortBy = (args: RadioListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<RadioList {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />
-		</div>
-	);
+	args: {
+		options: [
+			{
+				value: 'one',
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+		],
+	} as RadioListProps,
 };
 
-SortBy.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Icons = {
+	render: (args: RadioListProps) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<RadioList {...args} />
+			</div>
+		);
 	},
-];
 
-SortBy.args = {
-	titleText: 'Sort By',
-} as RadioListProps;
+	args: {
+		options: [
+			{
+				label: '1 wide',
+				value: '1 wide',
+				icon: 'square',
+			},
+			{
+				label: '2 wide',
+				value: '2 wide',
+				icon: {
+					icon: 'layout-large',
+				},
+			},
+			{
+				label: '3 wide',
+				value: '3 wide',
+				icon: {
+					icon: 'layout-grid',
+				},
+			},
+		],
+	} as RadioListProps,
+};
+
+export const Native = {
+	render: (args: RadioListProps) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<RadioList {...args} />
+			</div>
+		);
+	},
+
+	args: {
+		native: true,
+		options: [
+			{
+				value: 'one',
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+		],
+	} as RadioListProps,
+};
+
+export const PerPage = {
+	render: (args: RadioListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<RadioList {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		titleText: 'Per Page',
+	} as RadioListProps,
+};
+
+export const SortBy = {
+	render: (args: RadioListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<RadioList {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		titleText: 'Sort By',
+	} as RadioListProps,
+};

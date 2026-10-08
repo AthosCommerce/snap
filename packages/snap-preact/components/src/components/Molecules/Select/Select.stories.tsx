@@ -1,10 +1,8 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Select, SelectProps } from './Select';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import { iconPaths } from '../../Atoms/Icon';
 import Readme from '../Select/readme.md';
@@ -14,23 +12,11 @@ import { ListOption } from '../../../types';
 export default {
 	title: 'Molecules/Select',
 	component: Select,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -50,7 +36,7 @@ export default {
 					summary: 'Array of Option objects',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		selected: {
 			description: 'Current selected options from store reference',
@@ -60,7 +46,7 @@ export default {
 					summary: 'Option object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		disabled: {
 			description: 'Disable select',
@@ -321,65 +307,73 @@ const ObservableSelect = observer(({ args, controller }: { args: SelectProps; co
 	);
 });
 
-export const Default = (args: SelectProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservableSelect args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: SelectProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservableSelect args={args} controller={controller} />;
 	},
-];
-Default.args = {
-	label: 'Sort By',
-};
 
-export const Native = (args: SelectProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservableSelect args={args} controller={controller} />;
-};
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 
-Native.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+	args: {
+		label: 'Sort By',
 	},
-];
-Native.args = {
-	label: 'Sort By',
-	native: true,
 };
 
-export const IconOptions = (args: SelectProps) => {
-	const iconOptions: ListOption[] = [
-		{
-			label: '1 wide',
-			value: '1 wide',
-			icon: 'square',
-		},
-		{
-			label: '2 wide',
-			value: '2 wide',
-			icon: {
-				icon: 'layout-large',
-			},
-		},
-		{
-			label: '3 wide',
-			value: '3 wide',
-			icon: {
-				icon: 'layout-grid',
-			},
-		},
-	];
+export const Native = {
+	render: (args: SelectProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservableSelect args={args} controller={controller} />;
+	},
 
-	return <Select {...args} options={iconOptions} />;
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		label: 'Sort By',
+		native: true,
+	},
 };
 
-IconOptions.args = {
-	label: 'Layout',
+export const IconOptions = {
+	render: (args: SelectProps) => {
+		const iconOptions: ListOption[] = [
+			{
+				label: '1 wide',
+				value: '1 wide',
+				icon: 'square',
+			},
+			{
+				label: '2 wide',
+				value: '2 wide',
+				icon: {
+					icon: 'layout-large',
+				},
+			},
+			{
+				label: '3 wide',
+				value: '3 wide',
+				icon: {
+					icon: 'layout-grid',
+				},
+			},
+		];
+
+		return <Select {...args} options={iconOptions} />;
+	},
+
+	args: {
+		label: 'Layout',
+	},
 };

@@ -6,7 +6,7 @@ import { custom } from '../../custom';
 // slider options
 const slider = {
 	handles: 20, // handle size
-	handleInner: 7, // handle inner size,
+	handleInner: 8, // handle inner size - keep the same parity as `handles` so the dot centers on a whole pixel
 	values: 14, // values size
 	bar: 6, // bar size
 	ticks: 17, // size of ticks
@@ -25,6 +25,9 @@ const ticksSpacing = slider.ticks + custom.spacing.x1;
 const stickySpacing = slider.values + custom.spacing.x2;
 const handlesPlusSticky = handlesSizeHalf + stickySpacing;
 const ticksPlusSticky = ticksSpacing + stickySpacing;
+// slider is inset by half a handle (plus the 4px focus ring) so handles at the ends stay inside the facet,
+// which clips overflow
+const handlesInset = slider.handles / 2 + 4;
 
 // CSS in JS style script for the FacetSlider component
 const facetSliderStyleScript = (props: FacetSliderProps) => {
@@ -32,7 +35,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 	const variables = props?.theme?.variables;
 	const hasTicks = props?.showTicks ? true : false;
 	const hasStickyHandles = props?.stickyHandleLabel ? true : false;
-	const trackBorderColor = props?.trackColor != custom.colors.gray01 ? custom.utils.darkenColor(props.trackColor, 0.25) : custom.colors.gray02;
+	const trackBorderColor = props?.trackColor != custom.colors.gray01 ? custom.utils.darkenColor(props.trackColor, 0.25) : custom.colors.controlBorder;
 	const activeColors = custom.utils.activeColors(props?.handleColor || variables?.colors?.secondary || custom.colors.secondary);
 
 	// values font styles
@@ -43,20 +46,18 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 
 	// shared styles
 	const sharedStyles = css({
-		'&, .ss__facet-slider__slider': {
-			margin: 'auto',
-		},
+		margin: 'auto',
 		'.ss__facet-slider__slider button, .ss__facet-slider__labels label': {
 			margin: 0,
 			padding: 0,
-			'&:focus': {
+			'&:focus:not(:focus-visible)': {
 				outline: 0,
 			},
 		},
 		'.ss__facet-slider__slider': {
 			display: 'block',
 			top: 0,
-			width: '100%',
+			width: `calc(100% - ${handlesInset * 2}px)`,
 			height: `${slider.bar}px`,
 			'.ss__facet-slider__segment, .ss__facet-slider__rail, .ss__facet-slider__handles': {
 				height: '100%',
@@ -71,7 +72,9 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 				},
 				'.ss__facet-slider__tick__label': {
 					top: `${slider.ticks}px`,
+					fontSize: '10px',
 					lineHeight: 1,
+					color: props?.tickTextColor || custom.colors.gray04,
 				},
 			},
 			'.ss__facet-slider__segment': {
@@ -79,13 +82,26 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 				...custom.styles.borderRadius(slider.bar),
 			},
 			'.ss__facet-slider__rail': {
+				// the selected range is a position indicator (the component colors it primary)
+				backgroundColor: props?.railColor || variables?.colors?.accent,
 				...custom.styles.borderRadius(slider.bar),
 			},
 			'.ss__facet-slider__handles': {
 				position: 'relative',
-				margin: `0 ${slider.handles / 2}px`,
 				button: {
+					// ring the round handle, not the (differently sized) button hit area
+					'&:focus-visible': {
+						outline: 'none !important',
+						'.ss__facet-slider__handle': {
+							...custom.styles.focusRing(custom.utils.focusColor(variables?.colors?.secondary)),
+						},
+					},
 					'.ss__facet-slider__handle': {
+						// a filled control - secondary with a contrast dot (the component defaults the fill to primary)
+						backgroundColor: activeColors[0],
+						'&.ss__facet-slider__handle--active': {
+							backgroundColor: props?.handleDraggingColor || activeColors[0],
+						},
 						transform: 'none',
 						width: `${slider.handles}px`,
 						height: `${slider.handles}px`,
@@ -132,7 +148,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 	if (hasTicks && hasStickyHandles) {
 		spacingStyles = css({
 			'.ss__facet-slider__slider': {
-				margin: `${valuesTop ? handlesPlusSticky : handlesSizeHalf}px auto ${valuesTop ? ticksSpacing : ticksPlusSticky}px auto`,
+				margin: `${valuesTop ? handlesPlusSticky : handlesSizeHalf}px ${handlesInset}px ${valuesTop ? ticksSpacing : ticksPlusSticky}px`,
 				'.ss__facet-slider__handles button .ss__facet-slider__handle': {
 					'.ss__facet-slider__handle__label.ss__facet-slider__handle__label--sticky': {
 						top: valuesTop ? `auto` : `${handlesSizeHalf + ticksPlusSticky - slider.bar}px`,
@@ -144,7 +160,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 	} else if (hasTicks && !hasStickyHandles) {
 		spacingStyles = css({
 			'.ss__facet-slider__slider': {
-				margin: `${handlesSizeHalf}px auto ${ticksSpacing}px auto`,
+				margin: `${handlesSizeHalf}px ${handlesInset}px ${ticksSpacing}px`,
 			},
 			'.ss__facet-slider__labels': {
 				order: valuesTop ? -1 : '',
@@ -154,7 +170,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 	} else if (!hasTicks && hasStickyHandles) {
 		spacingStyles = css({
 			'.ss__facet-slider__slider': {
-				margin: `${valuesTop ? handlesPlusSticky : handlesSizeHalf}px auto ${valuesTop ? handlesSizeHalf : handlesPlusSticky}px auto`,
+				margin: `${valuesTop ? handlesPlusSticky : handlesSizeHalf}px ${handlesInset}px ${valuesTop ? handlesSizeHalf : handlesPlusSticky}px`,
 				'.ss__facet-slider__handles button .ss__facet-slider__handle': {
 					'.ss__facet-slider__handle__label.ss__facet-slider__handle__label--sticky': {
 						top: valuesTop ? 'auto' : `${handlesSpacing}px`,
@@ -166,7 +182,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 	} else {
 		spacingStyles = css({
 			'.ss__facet-slider__slider': {
-				margin: `${handlesSizeHalf}px auto`,
+				margin: `${handlesSizeHalf}px ${handlesInset}px`,
 			},
 			'.ss__facet-slider__labels': {
 				order: valuesTop ? -1 : '',
@@ -187,8 +203,6 @@ export const facetSlider: ThemeComponent<'facetSlider', FacetSliderProps, FacetS
 		facetSlider: {
 			themeStyleScript: facetSliderStyleScript,
 			trackColor: custom.colors.gray01,
-			tickTextColor: custom.colors.text,
-			valueTextColor: custom.colors.text,
 		},
 	},
 };

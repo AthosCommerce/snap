@@ -1,32 +1,18 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Gallery, GalleryProps } from './Gallery';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Gallery',
 	component: Gallery,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -145,76 +131,88 @@ const sampleImages = [
 	'https://picsum.photos/800/600?random=5',
 ];
 
-export const Default = (args: GalleryProps) => {
-	const [open, setOpen] = useState(false);
+export const Default = {
+	render: (args: GalleryProps) => {
+		const [open, setOpen] = useState(false);
 
-	return (
-		<div>
-			<button onClick={() => setOpen(true)}>Open Gallery</button>
-			<Gallery {...args} open={open} onClose={() => setOpen(false)} />
-		</div>
-	);
-};
-Default.args = {
-	images: sampleImages,
-	startIndex: 0,
-	alt: 'Gallery image',
-};
-
-export const StartAtIndex = (args: GalleryProps) => {
-	const [open, setOpen] = useState(false);
-
-	return (
-		<div>
-			<button onClick={() => setOpen(true)}>Open at Image 3</button>
-			<Gallery {...args} open={open} onClose={() => setOpen(false)} />
-		</div>
-	);
-};
-StartAtIndex.args = {
-	images: sampleImages,
-	startIndex: 2,
-	alt: 'Gallery image',
-};
-
-export const SingleImage = (args: GalleryProps) => {
-	const [open, setOpen] = useState(false);
-
-	return (
-		<div>
-			<button onClick={() => setOpen(true)}>Open Single Image</button>
-			<Gallery {...args} open={open} onClose={() => setOpen(false)} />
-		</div>
-	);
-};
-SingleImage.args = {
-	images: ['https://picsum.photos/800/600?random=10'],
-	alt: 'Single gallery image',
-};
-
-export const ThumbnailTrigger = (args: GalleryProps) => {
-	const [open, setOpen] = useState(false);
-	const [startIndex, setStartIndex] = useState(0);
-
-	return (
-		<div>
-			<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-				{sampleImages.map((src, i) => (
-					<img
-						src={src}
-						alt={`Thumbnail ${i + 1}`}
-						style={{ width: '100px', height: '75px', objectFit: 'cover', cursor: 'pointer', borderRadius: '4px' }}
-						onClick={() => {
-							setStartIndex(i);
-							setOpen(true);
-						}}
-					/>
-				))}
+		return (
+			<div>
+				<button onClick={() => setOpen(true)}>Open Gallery</button>
+				<Gallery {...args} open={open} onClose={() => setOpen(false)} />
 			</div>
-			<Gallery {...args} images={sampleImages} open={open} startIndex={startIndex} onClose={() => setOpen(false)} />
-		</div>
-	);
+		);
+	},
+
+	args: {
+		images: sampleImages,
+		startIndex: 0,
+		alt: 'Gallery image',
+	},
 };
-ThumbnailTrigger.args = {
-	alt: 'Product image',
+
+export const StartAtIndex = {
+	render: (args: GalleryProps) => {
+		const [open, setOpen] = useState(false);
+
+		return (
+			<div>
+				<button onClick={() => setOpen(true)}>Open at Image 3</button>
+				<Gallery {...args} open={open} onClose={() => setOpen(false)} />
+			</div>
+		);
+	},
+
+	args: {
+		images: sampleImages,
+		startIndex: 2,
+		alt: 'Gallery image',
+	},
+};
+
+export const SingleImage = {
+	render: (args: GalleryProps) => {
+		const [open, setOpen] = useState(false);
+
+		return (
+			<div>
+				<button onClick={() => setOpen(true)}>Open Single Image</button>
+				<Gallery {...args} open={open} onClose={() => setOpen(false)} />
+			</div>
+		);
+	},
+
+	args: {
+		images: ['https://picsum.photos/800/600?random=10'],
+		alt: 'Single gallery image',
+	},
+};
+
+export const ThumbnailTrigger = {
+	render: (args: GalleryProps) => {
+		const [open, setOpen] = useState(false);
+		const [startIndex, setStartIndex] = useState(0);
+
+		return (
+			<div>
+				<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+					{sampleImages.map((src, i) => (
+						<img
+							src={src}
+							alt={`Thumbnail ${i + 1}`}
+							style={{ width: '100px', height: '75px', objectFit: 'cover', cursor: 'pointer', borderRadius: '4px' }}
+							onClick={() => {
+								setStartIndex(i);
+								setOpen(true);
+							}}
+						/>
+					))}
+				</div>
+				<Gallery {...args} images={sampleImages} open={open} startIndex={startIndex} onClose={() => setOpen(false)} />
+			</div>
+		);
+	},
+
+	args: {
+		alt: 'Product image',
+	},
 };

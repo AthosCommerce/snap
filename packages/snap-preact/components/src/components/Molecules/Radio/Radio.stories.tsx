@@ -1,32 +1,18 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { Radio, RadioProps } from './Radio';
+import { Radio } from './Radio';
 import { iconPaths } from '../../Atoms/Icon';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Radio',
 	component: Radio,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -133,7 +119,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onClick',
 		},
 		disableA11y: {
@@ -151,15 +137,17 @@ export default {
 	},
 };
 
-export const Default = (args: RadioProps) => <Radio {...args} />;
+export const Default = {};
 
-export const Disabled = (args: RadioProps) => <Radio {...args} />;
-Disabled.args = {
-	checked: true,
-	disabled: true,
+export const Disabled = {
+	args: {
+		checked: true,
+		disabled: true,
+	},
 };
 
-export const Native = (args: RadioProps) => <Radio {...args} />;
-Native.args = {
-	native: true,
+export const Native = {
+	args: {
+		native: true,
+	},
 };

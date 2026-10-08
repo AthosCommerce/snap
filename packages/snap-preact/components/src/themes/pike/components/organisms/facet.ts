@@ -4,7 +4,8 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
+const optionsGutter = custom.spacing.x2;
 
 // CSS in JS style script for the Facet component
 const facetStyleScript = (props: FacetProps) => {
@@ -25,15 +26,19 @@ const facetStyleScript = (props: FacetProps) => {
 				maxHeight: `490px`,
 				overflowY: 'auto',
 				overflowX: 'hidden',
-				paddingRight: `${custom.spacing.x2}px`,
+				// the scrollbar gutter hangs outside the column (negative margin) so expanding the
+				// options does not narrow them - palette and grid swatches would visibly shrink
+				paddingRight: `${optionsGutter}px`,
+				marginRight: `-${optionsGutter}px`,
 			},
 		},
 		'.ss__facet__header': {
 			margin: ` 0 0 ${custom.spacing.x4}px 0`,
 			padding: ` 0 0 ${custom.spacing.x2}px 0`,
-			borderBottom: `2px solid ${variables?.colors?.primary}`,
+			// secondary title on the accent section rule (the component colors both primary)
+			borderBottom: `2px solid ${variables?.colors?.accent}`,
 			gap: `${custom.spacing.x2}px`,
-			...custom.styles.headerText('', '16px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '16px'),
 			'.ss__facet__header__inner': {
 				flex: '1 1 0%',
 				gap: `${custom.spacing.x1}px`,
@@ -65,6 +70,7 @@ const facetStyleScript = (props: FacetProps) => {
 				},
 			},
 			'.ss__facet__dropdown__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
 				transition: 'transform ease 0.5s',
 				transform: 'rotate(180deg)',
 			},
@@ -159,6 +165,10 @@ export const facet: ThemeComponent<'facet', FacetProps, FacetTemplatesLegalProps
 			size: `${custom.sizes.icon08}px`,
 		},
 		'facet icon.overflow-more': {
+			size: `${custom.sizes.icon10}px`,
+		},
+		// plus and minus share one size so the toggle does not jump between states
+		'facet icon.overflow-less': {
 			size: `${custom.sizes.icon10}px`,
 		},
 	},

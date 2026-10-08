@@ -94,6 +94,7 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 							},
 						},
 						'.ss__dropdown__button__heading__icon': {
+							...custom.styles.indicator(variables?.colors?.accent),
 							transition: 'transform ease 0.5s',
 						},
 					},
@@ -161,6 +162,10 @@ export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizont
 			size: `${custom.sizes.icon08}px`,
 		},
 		'facetsHorizontal icon.overflow-more': {
+			size: `${custom.sizes.icon10}px`,
+		},
+		// plus and minus share one size so the toggle does not jump between states
+		'facetsHorizontal icon.overflow-less': {
 			size: `${custom.sizes.icon10}px`,
 		},
 		'facetsHorizontal dropdown facet': {

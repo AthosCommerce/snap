@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Facets, FacetsProps } from './Facets';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 
 import Readme from '../Facets/readme.md';
@@ -12,23 +10,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Organisms/Facets',
 	component: Facets,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -47,7 +33,7 @@ export default {
 					summary: 'Facets store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		limit: {
 			description: 'Maximum number of facets to display',
@@ -68,7 +54,7 @@ export default {
 					summary: 'Controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		onFacetOptionClick: {
 			description: 'Callback function for when a facet option is clicked',
@@ -76,7 +62,7 @@ export default {
 				category: 'Templates Legal',
 				type: { summary: 'function' },
 			},
-			control: { type: 'none' },
+			control: false,
 			action: 'onFacetOnClick',
 		},
 		...componentArgs,
@@ -85,15 +71,17 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'Facets', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: FacetsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Facets {...args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: FacetsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <Facets {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
