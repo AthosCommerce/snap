@@ -33,6 +33,9 @@ const breadcrumbsStyleScript = (props: BreadcrumbsProps) => {
 					fontSize: 'inherit',
 				},
 			},
+			'.ss__breadcrumbs__separator__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
+			},
 		},
 	});
 

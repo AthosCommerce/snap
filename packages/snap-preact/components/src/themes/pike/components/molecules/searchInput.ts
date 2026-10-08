@@ -11,7 +11,9 @@ const lightGray = custom.colors.gray04;
 const searchInputStyleScript = (props: SearchInputProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const darkPrimary = custom.utils.darkenColor(variables?.colors?.primary, 0.15);
+	// the icon buttons are secondary-filled - the 1px seam between them is a darker shade of that fill
+	const buttonColor = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary)[0];
+	const seamColor = custom.utils.darkenColor(buttonColor, 0.15);
 
 	// search input styles
 	const searchInputStyles = css({
@@ -75,7 +77,7 @@ const searchInputStyleScript = (props: SearchInputProps) => {
 				},
 				gap: '1px',
 				margin: '0 0 0 -1px',
-				backgroundColor: darkPrimary,
+				backgroundColor: seamColor,
 			},
 			'.ss__button': {
 				borderRadius: custom.sizes.radius ? 0 : '',

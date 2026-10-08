@@ -28,7 +28,7 @@ const sidebarStyleScript = (props: SidebarProps) => {
 			: {}),
 		'.ss__sidebar__title': {
 			margin: `0 0 ${custom.spacing.x6}px 0`,
-			...custom.styles.headerText(variables?.colors?.primary, '20px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '20px'),
 			lineHeight: 1.2,
 		},
 		// an empty header (hidden title, no close button) takes no space

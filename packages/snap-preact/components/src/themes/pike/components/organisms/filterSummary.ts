@@ -26,7 +26,8 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 		? {
 				margin: `0 0 ${custom.spacing.x4}px 0`,
 				padding: `0 0 ${custom.spacing.x2}px 0`,
-				borderBottom: `2px solid ${variables?.colors?.primary}`,
+				// same anatomy as a facet header - secondary title on the accent rule
+				borderBottom: `2px solid ${variables?.colors?.accent}`,
 				...custom.styles.headerText(variables?.colors?.secondary, '16px'),
 		  }
 		: {
@@ -93,6 +94,8 @@ const filterSummaryStyleScript = (props: FilterSummaryProps) => {
 									top: '1.5px',
 									left: 0,
 									...custom.styles.box('', '3px'),
+									// an action icon - the component fills it with primary
+									fill: 'currentColor',
 									width: `${custom.sizes.icon16}px`,
 									height: `${custom.sizes.icon16}px`,
 								},

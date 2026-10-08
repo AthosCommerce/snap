@@ -82,6 +82,8 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 				...custom.styles.borderRadius(slider.bar),
 			},
 			'.ss__facet-slider__rail': {
+				// the selected range is a position indicator (the component colors it primary)
+				backgroundColor: props?.railColor || variables?.colors?.accent,
 				...custom.styles.borderRadius(slider.bar),
 			},
 			'.ss__facet-slider__handles': {
@@ -95,6 +97,11 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 						},
 					},
 					'.ss__facet-slider__handle': {
+						// a filled control - secondary with a contrast dot (the component defaults the fill to primary)
+						backgroundColor: activeColors[0],
+						'&.ss__facet-slider__handle--active': {
+							backgroundColor: props?.handleDraggingColor || activeColors[0],
+						},
 						transform: 'none',
 						width: `${slider.handles}px`,
 						height: `${slider.handles}px`,

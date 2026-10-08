@@ -28,6 +28,10 @@ const radioStyleScript = (props: RadioProps) => {
 			'&:not(.ss__radio--active) .ss__radio__icon': {
 				opacity: 0,
 			},
+			// the bullet is an indicator (the component colors it primary)
+			'.ss__radio__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
+			},
 		},
 	]);
 

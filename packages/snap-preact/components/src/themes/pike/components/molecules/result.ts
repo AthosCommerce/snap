@@ -15,6 +15,7 @@ const resultStyleScript = (props: ResultProps) => {
 
 	// result styles
 	const resultStyles = css({
+		// a sale price is emphasized text, like any other active text
 		'&.ss__result--sale': {
 			'.ss__result__details': {
 				'.ss__result__details__pricing': {

@@ -28,6 +28,8 @@ const loadMoreStyleScript = (props: LoadMoreProps) => {
 					...custom.styles.borderRadius(5),
 					'.ss__load-more__progress__indicator__bar': {
 						margin: '-1px',
+						// a progress indicator (the component colors it primary)
+						backgroundColor: props?.color || variables?.colors?.accent,
 					},
 				},
 				'.ss__load-more__progress__text': {

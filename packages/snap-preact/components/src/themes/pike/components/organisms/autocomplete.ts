@@ -180,6 +180,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						margin: 0,
 					},
 					'.ss__icon': {
+						...custom.styles.indicator(variables?.colors?.accent),
 						position: 'absolute',
 						top: 0,
 						bottom: 0,

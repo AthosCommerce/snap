@@ -28,11 +28,25 @@ const spacingCalc = (value: number) => {
 	- Accessibility: control boundaries and state indicators meet WCAG 1.4.11 non-text contrast (3:1
 	  against white and the gray01 fill) - `controlBorder` for borders, 45% black for swatch outlines.
 	  `gray02` is only for decoration that does not identify a control.
-	- Color roles: theme colors default to `currentColor`, so Pike inherits the site's text color.
-	    - primary: active/selected TEXT (`styles.activeText`), the 2px header underline, sale prices,
-	      active pagination dots and scrollbar thumbs.
-	    - secondary: FILLED selections and controls (buttons, carousel arrows, selected grid options,
-	      slider handles) via `utils.activeColors`, plus header text color.
+	- Color roles: Pike is monochrome by default (all three theme colors are `currentColor`) and the three
+	  colors tint three layers that every template shows together - the loud layer, the reading layer and
+	  the quiet layer. The library components color their own controls with `primary` (borders, prices,
+	  facet headers, slider fills, check marks, icon fills) and those defaults render under the theme
+	  scripts, so every Pike script sets its colors explicitly - a theme color that "just works" is usually
+	  a leak from a component default.
+	    - secondary - VOICE AND SURFACES: every title (`styles.headerText` - page, sidebar, facet, filter
+	      summary, recommendation, bundle, quickview, list/grid/terms headings) and every filled control
+	      (`utils.activeColors` - buttons, carousel/slideshow arrows, selected grid/swatch/layout options,
+	      slider handles, the bundle seed badge, the quickview hover fill), plus the focus ring.
+	    - primary - EMPHASIS IN TEXT: active/selected option text (`styles.activeText`), the active page
+	      number, the current crumb, the active tab and term, links (no results, header subtitle, show
+	      more/less), the results query and sale prices. Always text, never a fill or a line.
+	    - accent - INDICATORS (`styles.indicator`): the small marks that point - the 2px rule under section
+	      headers and the active tab, check squares and radio bullets, direction chevrons on neutral
+	      surfaces (selects, facet collapse, dropdowns, breadcrumb separators, hierarchy return, pagination
+	      arrows, swatch paging, autocomplete see-more), position and progress marks (carousel bullets and
+	      scrollbar, slideshow dots, slider rail, load more and loading bars) and filled rating stars.
+	      Chevrons inside filled controls stay in the fill's contrast color.
 	  `currentColor` cannot be resolved to a hex value at style time, so `utils.activeColors` falls
 	  back to a black fill with white text - the default Pike look is monochrome.
 	- Neutrals: gray01 fill, gray02 decorative rule, controlBorder control boundary (and empty rating
@@ -46,7 +60,8 @@ const spacingCalc = (value: number) => {
 	- Sizing: controls are `sizes.height` (35px) tall; spacing is a 5px scale (`spacing.x1`-`x8`);
 	  icons are 8-16px (`sizes.icon08`-`icon16`); chevrons for direction, plus/minus for overflow.
 	- Indicators: checkboxes are a box with a small filled square (`icons.check`); expand/collapse
-	  chevrons rotate 180deg on open, as does the sidebar toggle's filter icon.
+	  chevrons rotate 180deg on open, as does the sidebar toggle's filter icon. Indicators take the accent
+	  color (see color roles).
 	- Panels (slideouts, modals): the panel content owns a 20px (`spacing.x4`) padding - the slideout itself
 	  has none. Close buttons are transparent icon buttons (hit area = icon + `spacing.x2` each side) whose
 	  icon lines up with the content edges - in-flow buttons keep the hit area inside the content box and
@@ -193,6 +208,14 @@ export const custom: CustomThemeType = {
 				display: 'grid',
 				gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, max(${minWidth}px, ${maxColumnsWidth})), 1fr))`,
 				gap: `${custom.spacing.x1}px ${columnGap}px`,
+			};
+		},
+		indicator: (color?: string) => {
+			// an indicator icon or mark (chevrons, check squares, stars) - the Icon component sets its own
+			// `fill`, so inheriting `color` alone is not enough
+			return {
+				color: color || undefined,
+				fill: color || undefined,
 			};
 		},
 		focusRing: (color: string) => {
@@ -398,6 +421,7 @@ type CustomThemeType = {
 		disabled: () => ObjectNumberOrStringType | ObjectNestedType;
 		focusRing: (color: string) => ObjectNumberOrStringType;
 		fieldFocus: (color: string) => ObjectNumberOrStringType;
+		indicator: (color?: string) => ObjectNumberOrStringType;
 		headerText: (color?: string, fontSize?: string) => ObjectNumberOrStringType;
 		resultCompact: (layout?: string, imageWidth?: string, fontSize?: number) => ObjectNumberOrStringType | ObjectNestedType;
 		scrollbar: () => ObjectNestedType;

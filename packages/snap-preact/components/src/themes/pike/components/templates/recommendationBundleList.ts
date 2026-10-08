@@ -101,6 +101,8 @@ const recommendationBundleListStyleScript = (props: RecommendationBundleListProp
 						minWidth: '1px',
 						padding: 0,
 						'.ss__icon': {
+							// the "plus" joining the bundle images is an indicator
+							...custom.styles.indicator(variables?.colors?.accent),
 							top: 0,
 							bottom: 0,
 							right: `-${custom.spacing.x2 + plusIconSize}px`,

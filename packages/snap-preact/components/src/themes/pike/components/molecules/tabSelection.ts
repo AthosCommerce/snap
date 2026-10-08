@@ -45,7 +45,8 @@ const tabSelectionStyleScript = (props: TabSelectionProps) => {
 					fontWeight: custom.fonts.weight01,
 					// inactive tabs are muted, so a `currentColor` primary must inherit the page color instead
 					color: activeColor,
-					borderBottomColor: 'currentColor',
+					// the section rule, in the accent color like facet headers
+					borderBottomColor: variables?.colors?.accent || 'currentColor',
 				},
 			},
 			'.ss__tab-selection__button__count': {

@@ -32,6 +32,7 @@ const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => 
 		'.ss__facet-hierarchy-options__option.ss__facet-hierarchy-options__option--return': {
 			'.ss__icon': {
 				padding: 0,
+				...custom.styles.indicator(variables?.colors?.accent),
 			},
 		},
 		'.ss__facet-hierarchy-options__option.ss__facet-hierarchy-options__option--filtered': {

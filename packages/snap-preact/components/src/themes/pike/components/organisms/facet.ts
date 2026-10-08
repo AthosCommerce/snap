@@ -35,9 +35,10 @@ const facetStyleScript = (props: FacetProps) => {
 		'.ss__facet__header': {
 			margin: ` 0 0 ${custom.spacing.x4}px 0`,
 			padding: ` 0 0 ${custom.spacing.x2}px 0`,
-			borderBottom: `2px solid ${variables?.colors?.primary}`,
+			// secondary title on the accent section rule (the component colors both primary)
+			borderBottom: `2px solid ${variables?.colors?.accent}`,
 			gap: `${custom.spacing.x2}px`,
-			...custom.styles.headerText('', '16px'),
+			...custom.styles.headerText(variables?.colors?.secondary, '16px'),
 			'.ss__facet__header__inner': {
 				flex: '1 1 0%',
 				gap: `${custom.spacing.x1}px`,
@@ -69,6 +70,7 @@ const facetStyleScript = (props: FacetProps) => {
 				},
 			},
 			'.ss__facet__dropdown__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
 				transition: 'transform ease 0.5s',
 				transform: 'rotate(180deg)',
 			},

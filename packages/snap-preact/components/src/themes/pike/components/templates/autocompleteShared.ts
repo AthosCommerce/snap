@@ -232,6 +232,9 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 			'.ss__button__content': {
 				margin: 0,
 			},
+			'.ss__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
+			},
 		},
 	});
 

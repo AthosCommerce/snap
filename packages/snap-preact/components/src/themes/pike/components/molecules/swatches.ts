@@ -192,7 +192,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 					position: 'static',
 					// quiet chevrons - filled arrow blocks outweighed the swatches they page through
 					'.ss__button': {
-						color: 'inherit',
+						color: variables?.colors?.accent || 'inherit',
 						[`&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled`]: {
 							border: 0,
 							backgroundColor: 'transparent',
