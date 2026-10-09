@@ -574,7 +574,7 @@ export type MoiResponseModelActions = {
 export type MoiResponseModelProductRecommendation = BaseResponseProperties & {
 	messageType: 'productRecommendation';
 	recommendationResult: {
-		results: (RawResult | SearchResponseModelResult)[];
+		results: SearchResponseModelResult[];
 		profile: {
 			name: string;
 			tag: string;

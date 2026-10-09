@@ -1,5 +1,6 @@
 import { transformChatResponse } from './chatResponse';
 import { MockData } from '@athoscommerce/snap-shared';
+import type { SearchResponseModelResult } from '@athoscommerce/snapi-types';
 import type {
 	MoiResponseModel,
 	MoiResponseModelActions,
@@ -381,20 +382,40 @@ describe('transformChatResponse.productRecommendation', () => {
 		available: 'true',
 	};
 
-	it('maps recommendation results and sourceProduct with the responseId', () => {
-		const data: MoiResponseModelProductRecommendation = {
-			messageType: 'productRecommendation',
-			id: 'rec-1',
-			recommendationResult: [
-				{
-					results: [rawProduct as any],
-					profile: { name: 'Similar', tag: 'similar', type: 'product', limit: 4 },
-				},
-			],
-			sourceProduct: rawProduct as any,
-			text: 'You might also like these',
-		};
+	const shapedProduct: SearchResponseModelResult = {
+		id: '48006265438402',
+		mappings: {
+			core: {
+				uid: '48006265438402',
+				parentId: '8687667151042',
+				name: 'Comfortable Linen Cargo Pants',
+				sku: 'ATH-BCEF9D45C4',
+				msrp: 53.8,
+				price: 53.8,
+				url: '/products/blue-linen-cargo-pants-60bc91',
+				imageUrl: 'https://cdn.example.com/blue-linen-cargo-pants.png',
+				available: true,
+			},
+		},
+		attributes: {
+			collection_name: ['Pants - Cargo Pants', 'Pants'],
+		},
+	};
 
+	const data: MoiResponseModelProductRecommendation = {
+		messageType: 'productRecommendation',
+		id: 'rec-1',
+		recommendationResult: [
+			{
+				results: [shapedProduct],
+				profile: { name: 'Similar', tag: 'similar', type: 'product', limit: 4 },
+			},
+		],
+		sourceProduct: rawProduct as any,
+		text: 'You might also like these',
+	};
+
+	it('maps recommendation results and sourceProduct with the responseId', () => {
 		const result = transformChatResponse.productRecommendation(data, 'resp-123');
 
 		expect(result.messageType).toBe('productRecommendation');
@@ -407,65 +428,19 @@ describe('transformChatResponse.productRecommendation', () => {
 		expect((result.recommendationResult[0].results[0] as any).responseId).toBe('resp-123');
 	});
 
-	it('runs recommendation results through the product transform', () => {
-		const data: MoiResponseModelProductRecommendation = {
-			messageType: 'productRecommendation',
-			id: 'rec-1',
-			recommendationResult: [
-				{
-					results: [rawProduct as any],
-					profile: { name: 'Similar', tag: 'similar', type: 'product', limit: 4 },
-				},
-			],
-			sourceProduct: rawProduct as any,
-			text: 'You might also like these',
-		};
+	it('runs the raw sourceProduct through the product transform', () => {
+		const { sourceProduct } = transformChatResponse.productRecommendation(data, 'resp-123');
 
-		const recommended = transformChatResponse.productRecommendation(data, 'resp-123').recommendationResult[0].results[0];
-
-		// results must be mapped like every other message branch — SearchResultStore
-		// reads `mappings.core`, and `id` must be the uid rather than the catalog id
-		expect(recommended.id).toBe('182146');
-		expect(recommended.mappings?.core).toEqual(expect.objectContaining({ name: 'Test Dress', sku: 'TEST-SKU', uid: '182146' }));
+		// `id` is the uid, not the catalog id
+		expect(sourceProduct.id).toBe('182146');
+		expect(sourceProduct.mappings?.core).toEqual(expect.objectContaining({ name: 'Test Dress', sku: 'TEST-SKU', uid: '182146' }));
 	});
 
-	it('keeps recommendation results that arrive already in result shape', () => {
-		const shapedProduct = {
-			id: '48006265438402',
-			mappings: {
-				core: {
-					uid: '48006265438402',
-					parentId: '8687667151042',
-					name: 'Comfortable Linen Cargo Pants',
-					sku: 'ATH-BCEF9D45C4',
-					msrp: 53.8,
-					price: 53.8,
-					url: '/products/blue-linen-cargo-pants-60bc91',
-					imageUrl: 'https://cdn.example.com/blue-linen-cargo-pants.png',
-					available: true,
-				},
-			},
-			attributes: {
-				collection_name: ['Pants - Cargo Pants', 'Pants'],
-				color: 'Blue',
-			},
-		};
-		const data: MoiResponseModelProductRecommendation = {
-			messageType: 'productRecommendation',
-			id: 'rec-1',
-			recommendationResult: [
-				{
-					results: [shapedProduct as any],
-					profile: { name: 'Similar', tag: 'similar', type: 'product', limit: 4 },
-				},
-			],
-			sourceProduct: rawProduct as any,
-			text: 'You might also like these',
-		};
-
+	it('passes recommendation results through unchanged apart from the responseId', () => {
 		const recommended = transformChatResponse.productRecommendation(data, 'resp-123').recommendationResult[0].results[0];
 
 		expect(recommended).toEqual({ ...shapedProduct, responseId: 'resp-123' });
+		expect(shapedProduct).not.toHaveProperty('responseId');
 	});
 });
 

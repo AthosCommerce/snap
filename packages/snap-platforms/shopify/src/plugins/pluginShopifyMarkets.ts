@@ -1,7 +1,8 @@
 import { AbstractController, AutocompleteController, RecommendationController, SearchController } from '@athoscommerce/snap-controller';
 import { Product, SearchResultStore } from '@athoscommerce/snap-store-mobx';
+import type { ChatSessionStore } from '@athoscommerce/snap-store-mobx';
 
-import type { QuickviewObj } from '@athoscommerce/snap-controller';
+import type { ChatController, QuickviewObj, SwitchChatObj } from '@athoscommerce/snap-controller';
 import { AbstractPluginConfig } from '../../../common/src/types';
 
 export type PluginShopifyMarketsConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsConfig;
@@ -88,6 +89,29 @@ const markResultsAsPriceFetched = (results: Product[] | SearchResultStore) => {
 		}
 	});
 };
+
+const isChatController = (controller: AbstractController): controller is ChatController => controller.type === 'chat';
+
+const getChatProducts = (chat?: ChatSessionStore): Product[] =>
+	(chat?.chat || [])
+		.flatMap((message): unknown[] => {
+			switch (message.messageType) {
+				case 'productSearchResult':
+					return Array.from(message.results || []);
+				case 'inspirationResult':
+					return message.inspirationSections?.flatMap((section) => Array.from(section.products || [])) || [];
+				case 'productAnswer':
+					return [message.sourceProduct];
+				case 'productComparison':
+					return Array.from(message.searchResults || []);
+				case 'productRecommendation':
+					return message.recommendationResult?.flatMap((rec) => Array.from(rec.results || [])) || [];
+				default:
+					return [];
+			}
+		})
+		// messages restored from storage hold plain data until they are hydrated
+		.filter((result): result is Product => typeof result === 'object' && result !== null && 'type' in result && result.type === 'product');
 
 export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginShopifyMarketsConfig) => {
 	if (!config?.token) {
@@ -376,7 +400,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 	// Fetch (as needed) and apply localized pricing for the given products
 	const updateProductPricing = async (
 		products: Product[],
-		controller: SearchController | AutocompleteController | RecommendationController
+		controller: SearchController | AutocompleteController | RecommendationController | ChatController
 	): Promise<void> => {
 		if (products.length === 0) return;
 
@@ -400,19 +424,42 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		products.forEach(applyCachedPrices);
 	};
 
-	cntrlr.on('afterStore', async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController }, next) => {
+	const priceProducts = async (
+		products: Product[],
+		controller: SearchController | AutocompleteController | RecommendationController | ChatController
+	): Promise<void> => {
 		try {
-			const { results } = controller.store;
-			const products: Product[] = results.filter((result) => result.type !== 'banner') as Product[];
-
 			await updateProductPricing(products, controller);
 		} catch (error) {
 			controller.log.warn('[shopifyMarkets] Request failed:', error);
-			markResultsAsPriceFetched(controller.store.results);
+			markResultsAsPriceFetched(products);
 		}
+	};
 
-		await next();
-	});
+	cntrlr.on(
+		'afterStore',
+		async ({ controller }: { controller: SearchController | AutocompleteController | RecommendationController | ChatController }, next) => {
+			const products: Product[] = isChatController(controller)
+				? getChatProducts(controller.store.currentChat)
+				: (controller.store.results.filter((result) => result.type !== 'banner') as Product[]);
+
+			await priceProducts(products, controller);
+			await next();
+		}
+	);
+
+	// restored chats and responses applied to a background chat skip afterStore
+	if (isChatController(cntrlr)) {
+		cntrlr.on('init', async ({ controller }: { controller: ChatController }, next) => {
+			await priceProducts(getChatProducts(controller.store.currentChat), controller);
+			await next();
+		});
+
+		cntrlr.on('switchChat', async ({ controller, chat }: SwitchChatObj, next) => {
+			await priceProducts(getChatProducts(chat), controller);
+			await next();
+		});
+	}
 
 	cntrlr.on('quickview', async ({ controller }: QuickviewObj, next) => {
 		// The quickview modal displays the manager's (cloned) product, whose variants were just

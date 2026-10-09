@@ -549,6 +549,19 @@ export class ChatController extends AbstractController {
 		const chat = this.store.currentChat;
 		if (chat?.id !== id) return;
 
+		try {
+			await this.eventManager.fire('switchChat', { controller: this, id, chat });
+		} catch (err: any) {
+			if (err?.message == 'cancelled') {
+				this.log.warn(`'switchChat' middleware cancelled`);
+			} else {
+				this.log.error(`error in 'switchChat' middleware`, err);
+			}
+		}
+
+		// the user may have switched chats again while the middleware ran — that switch owns the quickview
+		if (this.store.currentChat?.id !== id) return;
+
 		const activeMessage = chat.activeMessage;
 		const sourceProduct =
 			activeMessage?.messageType === 'productQuery' && chat.dismissedSideChatMessageId !== activeMessage.id

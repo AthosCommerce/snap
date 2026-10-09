@@ -22,6 +22,7 @@ import type {
 	RecommendationStoreConfig,
 	ChatStoreConfig,
 	ChatStore,
+	ChatSessionStore,
 	Product,
 	SearchStoreConfigSettings,
 	AutocompleteStoreConfigSettings,
@@ -83,6 +84,12 @@ export type RestorePositionObj = {
 export type QuickviewObj = {
 	controller: SearchController | AutocompleteController | RecommendationController;
 	product: Product;
+};
+
+export type SwitchChatObj = {
+	controller: ChatController;
+	id: string;
+	chat: ChatSessionStore;
 };
 
 // Overrides passed to `track.*` methods. `quickView` is set by the QuickviewManager when

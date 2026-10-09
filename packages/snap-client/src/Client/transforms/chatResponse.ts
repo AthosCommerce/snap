@@ -195,9 +195,10 @@ transformChatResponse.productRecommendation = (
 		messageType: data.messageType,
 		id: data.id,
 
+		// already in result shape from the recommend API
 		recommendationResult: data.recommendationResult?.map((rec) => ({
 			...rec,
-			results: rec.results?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
+			results: rec.results?.map((product) => ({ ...product, responseId })) || [],
 		})),
 		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct, responseId),
 		text: data.text,
@@ -213,14 +214,8 @@ transformChatResponse.error = (data: MoiResponseModelError): ChatResponseErrorDa
 	};
 };
 
-// Chat responses that contain recommendation results skip going through transform
-const mapProductToSearchResultProduct = (product: RawResult | SearchResponseModelResult, responseId: string): SearchResponseModelResult => {
-	if ('mappings' in product) {
-		const result: SearchResponseModelResult & { responseId: string } = { ...product, responseId };
-		return result;
-	}
-
-	return transformSearchResponse.result(product as RawResult, { responseId } as SearchResponseType);
+const mapProductToSearchResultProduct = (product: RawResult, responseId: string): SearchResponseModelResult => {
+	return transformSearchResponse.result(product, { responseId } as SearchResponseType);
 };
 
 /** Derive overall low/high bounds from a list of range buckets. Treats `*` and missing

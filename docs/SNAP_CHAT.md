@@ -464,6 +464,7 @@ The Chat controller fires the following middleware events that can be hooked int
 | Event | Description |
 |---|---|
 | `init` | Fired during controller initialization; checks chat availability |
+| `switchChat` | Fired when `switchChat()` makes another stored chat current, with `{ controller, id, chat }` |
 | `addToCart` | Fired when a product is added to the cart |
 | `track.product.impression` | Fired when a product impression is tracked |
 | `track.product.clickThrough` | Fired when a product click-through is tracked |
