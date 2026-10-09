@@ -44,6 +44,58 @@ const addToCartConfig = {
 }
 ```
 
+### pluginSwymWishlist
+
+The BigCommerce **Swym Wishlist plugin** is the [common Swym Wishlist plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist) for BigCommerce stores. It connects the [Swym Wishlist Plus](https://www.bigcommerce.com/apps/wishlist-plus/) app to Snap results: after each search the results are registered in Swym's product data and the wishlist buttons rendered in the result component are initialized through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. See the common plugin for how it works and the available configuration; the plugin is opt-in and only runs when `enabled` is `true`.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| enabled | the plugin is opt-in and only runs when this is set to `true` | boolean | false | ✔️ |
+| resolver | how results map to Swym's identifiers | SwymWishlistResolver | `swymWishlistResolver` (core mappings) | ➖ |
+
+In SnapTemplates the plugin is configured under `plugins.bigCommerce.swymWishlist`. With Snap it is attached to a controller through the controller `plugins` configuration:
+
+```tsx
+import { pluginSwymWishlist } from '@athoscommerce/snap-platforms/bigcommerce';
+
+...
+	{
+		config: {
+			id: 'search',
+			plugins: [[pluginSwymWishlist, { enabled: true }]],
+			...
+		},
+		targeters: [...],
+	}
+...
+```
+
+Render the wishlist button in the result component with `swymWishlistButtonProps` from the same package; see the [common plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist) for a complete result component.
+
+```tsx
+import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/bigcommerce';
+
+const wishlistButton = swymWishlistButtonProps(result);
+```
+
+#### Product Identifiers
+
+Swym's BigCommerce SDK identifies products and variants by their BigCommerce entity ids, which the feed carries in the core mappings, so the plugin resolves them with the core mappings resolver:
+
+| Swym field | Button attribute | Resolved from |
+|------------|------------------|---------------|
+| `empi` (product id) | `data-product-id` | the product entity id: `mappings.core.parentId`, or `mappings.core.uid` when the feed has no `parentId` |
+| `epi` (variant id) | `data-variant-id` | the variant entity id: the active (selected) variant's `mappings.core.uid` when [Snap variants](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md) are in use; otherwise the product entity id stands in for it |
+| `du` (product URL) | `data-product-url` | `mappings.core.url` without its query string, made absolute with `window.location.origin` |
+
+A feed shaped differently can be mapped with a custom `resolver` in the config, see the [common plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist).
+
+#### Notes
+
+- Swym's storefront SDK is available on Stencil themes.
+- Configure Snap variants so the wishlisted item carries the variant entity id; without them the product entity id is sent for both.
+- On a product page, Swym's BigCommerce SDK binds every button to the variant selected on that page instead of the button's own `data-variant-id`. Results rendered on product pages (recommendations, for example) are therefore wishlisted with the page's variant.
+
 ### pluginBackgroundFilters
 Plugin to set up background filters for BigCommerce. Script context is used to automatically apply best practice BigCommerce background filtering. Background filtering in this plugin only applies to search controllers.
 

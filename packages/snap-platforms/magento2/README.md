@@ -56,6 +56,55 @@ const addToCartConfig = {
 }
 ```
 
+### pluginSwymWishlist
+
+The Magento 2 **Swym Wishlist plugin** is the [common Swym Wishlist plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist) for Magento 2 stores. It connects Swym Wishlist Plus to Snap results: after each search the results are registered in Swym's product data and the wishlist buttons rendered in the result component are initialized through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. See the common plugin for how it works and the available configuration; the plugin is opt-in and only runs when `enabled` is `true`.
+
+> [!IMPORTANT]
+> Swym does not publish a Magento 2 storefront SDK. This plugin expects a Swym build that exposes the same SDK as the Shopify and BigCommerce ones: a `window.SwymCallbacks` queue and `swat.initializeActionButtons`, binding `[data-swaction="addToWishlist"][data-with-epi]` buttons. Confirm with Swym that the store's integration provides it; without the SDK on the page the plugin waits for it and does nothing.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| enabled | the plugin is opt-in and only runs when this is set to `true` | boolean | false | ✔️ |
+| resolver | how results map to Swym's identifiers | SwymWishlistResolver | `swymWishlistResolver` (core mappings) | ➖ |
+
+In SnapTemplates the plugin is configured under `plugins.magento2.swymWishlist`. With Snap it is attached to a controller through the controller `plugins` configuration:
+
+```tsx
+import { pluginSwymWishlist } from '@athoscommerce/snap-platforms/magento2';
+
+...
+	{
+		config: {
+			id: 'search',
+			plugins: [[pluginSwymWishlist, { enabled: true }]],
+			...
+		},
+		targeters: [...],
+	}
+...
+```
+
+Render the wishlist button in the result component with `swymWishlistButtonProps` from the same package; see the [common plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist) for a complete result component.
+
+```tsx
+import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/magento2';
+
+const wishlistButton = swymWishlistButtonProps(result);
+```
+
+#### Product Identifiers
+
+The plugin resolves Swym's identifiers with the core mappings resolver, where Magento 2 feeds carry the product entity id and the storefront URL:
+
+| Swym field | Button attribute | Resolved from |
+|------------|------------------|---------------|
+| `empi` (product id) | `data-product-id` | the product entity id: `mappings.core.parentId`, or `mappings.core.uid` when the feed has no `parentId` |
+| `epi` (variant id) | `data-variant-id` | the active (selected) child product's `mappings.core.uid` when [Snap variants](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md) are in use; otherwise the product entity id stands in for it |
+| `du` (product URL) | `data-product-url` | `mappings.core.url` without its query string, made absolute with `window.location.origin` |
+
+A feed shaped differently (a SKU in `uid`, for example) can be mapped with a custom `resolver` in the config, see the [common plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist).
+
 ### pluginBackgroundFilters
 Plugin to set up background filters for Magento2. Script context is used to automatically apply best practice Magento2 background filtering. Product visibility is handled by default using the `visibility` field with a value of `Search` on search requests, and `Catalog` when displaying category data. Background filtering in this plugin applies to search (category and visibility) and autocomplete (visibility only) controllers.
 

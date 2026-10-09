@@ -24,10 +24,12 @@ import type {
 	PluginAddToCartConfig as PluginMagento2AddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginMagento2BackgroundFiltersConfig,
 	PluginBaseConfig as PluginMagento2BaseConfig,
+	PluginSwymWishlistConfig as PluginMagento2SwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/magento2';
 import type {
 	PluginAddToCartConfig as PluginBigCommerceAddToCartConfig,
 	PluginBackgroundFiltersConfig as PluginBigcommerceBackgroundFiltersConfig,
+	PluginSwymWishlistConfig as PluginBigCommerceSwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/bigcommerce';
 import type {
 	PluginAddToCartConfig,
@@ -35,6 +37,7 @@ import type {
 	PluginKlaviyoEventsConfig,
 	PluginLoggerConfig,
 	PluginScrollToTopConfig,
+	PluginSwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/common';
 import type {
 	ThemeResponsiveComplete,
@@ -52,7 +55,11 @@ import type {
 import type { GlobalThemeStyleScript, IntegrationPlatforms } from '../../types';
 import type { ClientConfig } from '@athoscommerce/snap-client';
 import { RecommendationInstantiatorConfigSettings } from '../../Instantiators/RecommendationInstantiator';
-import type { PluginMarketsConfig, PluginCurrencyConfig } from '@athoscommerce/snap-platforms/shopify';
+import type {
+	PluginMarketsConfig,
+	PluginCurrencyConfig,
+	PluginSwymWishlistConfig as PluginShopifySwymWishlistConfig,
+} from '@athoscommerce/snap-platforms/shopify';
 export type TemplateThemeTypes = 'library' | 'local';
 export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTemplateTypes}`;
 
@@ -145,6 +152,7 @@ export type CommonPlugins = {
 	logger?: PluginLoggerConfig;
 	addToCart?: PluginAddToCartConfig;
 	klaviyoEvents?: PluginKlaviyoEventsConfig;
+	swymWishlist?: PluginSwymWishlistConfig;
 };
 export type ShopifyPlugins = {
 	backgroundFilters?: PluginShopifyBackgroundFiltersConfig;
@@ -152,17 +160,20 @@ export type ShopifyPlugins = {
 	addToCart?: PluginShopifyAddToCartConfig;
 	markets?: PluginMarketsConfig;
 	currency?: PluginCurrencyConfig;
+	swymWishlist?: PluginShopifySwymWishlistConfig;
 };
 
 export type BigCommercePlugins = {
 	backgroundFilters?: PluginBigcommerceBackgroundFiltersConfig;
 	addToCart?: PluginBigCommerceAddToCartConfig;
+	swymWishlist?: PluginBigCommerceSwymWishlistConfig;
 };
 
 export type Magento2Plugins = {
 	base?: PluginMagento2BaseConfig;
 	backgroundFilters?: PluginMagento2BackgroundFiltersConfig;
 	addToCart?: PluginMagento2AddToCartConfig;
+	swymWishlist?: PluginMagento2SwymWishlistConfig;
 };
 
 export type CustomPluginConfig = {
