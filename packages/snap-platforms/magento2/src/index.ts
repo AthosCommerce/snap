@@ -9,5 +9,12 @@ export {
 	pluginMagento2AddToCart as pluginAddToCart,
 	PluginMagento2AddToCartConfig as PluginAddToCartConfig,
 } from './plugins/pluginMagento2AddToCart';
+export {
+	pluginMagento2SwymWishlist as pluginSwymWishlist,
+	PluginMagento2SwymWishlistConfig as PluginSwymWishlistConfig,
+	swymWishlistButtonProps,
+	SwymWishlistButtonProps,
+	swymWishlistResolver,
+} from './plugins/pluginMagento2SwymWishlist';
 
 export { pluginMagento2Base as pluginBase, PluginMagento2BaseConfig as PluginBaseConfig } from './plugins/pluginMagento2Base';

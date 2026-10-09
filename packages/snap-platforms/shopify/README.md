@@ -323,3 +323,107 @@ The two plugins are halves of one feature, and the dependency runs both ways:
 Because of that, configuring `markets` turns this plugin on for you. Enabling this plugin *without* Markets is only correct when something else is converting the price values — on a multi-currency storefront with no conversion it will label base-currency amounts with the shopper's market symbol.
 
 The plugin reads the currency at load time. Shopify's currency and market selectors reload the page, so the new currency is picked up on the next load.
+
+### pluginShopifySwymWishlist
+
+The Shopify **Swym Wishlist plugin** is the [common Swym Wishlist plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist) with Shopify's product identifiers. It connects the [Swym Wishlist Plus](https://apps.shopify.com/swym-relay) app to Snap results: after each search the results are registered in Swym's product data and the wishlist buttons rendered in the result component are initialized through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. See the common plugin for how it works and the available configuration; the plugin is opt-in and only runs when `enabled` is `true`.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| enabled | the plugin is opt-in and only runs when this is set to `true` | boolean | false | ✔️ |
+| resolver | how results map to Swym's identifiers | SwymWishlistResolver | the Shopify `swymWishlistResolver` | ➖ |
+
+#### Setup
+
+1. Enable the plugin in your SnapTemplates config:
+
+```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		shopify: {
+			swymWishlist: {
+				enabled: true,
+			},
+		},
+	},
+	components: {
+		result: {
+			WishlistResult: async () => (await import('./components/WishlistResult')).WishlistResult,
+		},
+	},
+	theme: {
+		extends: 'pike',
+		globalResultComponent: 'WishlistResult',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+
+new SnapTemplates(config);
+```
+
+2. Render a wishlist button in your result component with `swymWishlistButtonProps` from the Shopify package. It returns `undefined` when a variant id or product URL cannot be resolved for the result, in which case no button should be rendered.
+
+```tsx
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { Price } from '@athoscommerce/snap-preact/components';
+import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/shopify';
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
+
+export const WishlistResult = observer(({ result, treePath }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const wishlistButton = swymWishlistButtonProps(result);
+
+	return (
+		<article className="ss__result">
+			<a href={core?.url}>
+				<img src={core?.imageUrl} alt={core?.name} />
+				<h2>{core?.name}</h2>
+			</a>
+			<Price value={core?.price} treePath={treePath} />
+			{wishlistButton && <button type="button" aria-label="Add to Wishlist" {...wishlistButton} />}
+		</article>
+	);
+});
+```
+
+Usage with Snap (attach to a controller via the controller `plugins` configuration):
+
+```tsx
+import { pluginSwymWishlist } from '@athoscommerce/snap-platforms/shopify';
+
+...
+	{
+		config: {
+			id: 'search',
+			plugins: [[pluginSwymWishlist, { enabled: true }]],
+			...
+		},
+		targeters: [...],
+	}
+...
+```
+
+#### Product Identifiers
+
+The Shopify `swymWishlistResolver` resolves the identifiers Swym keeps for a wishlisted item from a result. Shopify feeds come in two shapes, one record per product or one record per variant, and the resolver handles both:
+
+| Swym field | Button attribute | Resolved from |
+|------------|------------------|---------------|
+| `empi` (product id) | `data-product-id` | `mappings.core.parentId`, or `mappings.core.uid` when the feed has no `parentId` |
+| `epi` (variant id) | `data-variant-id` | the active (selected) variant's `mappings.core.uid` when [Snap variants](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md) are in use; otherwise `mappings.core.uid` when the feed has a `parentId` (one record per variant), or `attributes.ss_id` when it does not (one record per product) |
+| `du` (product URL) | `data-product-url` | `https://<storefront>/products/<attributes.handle>`, or `mappings.core.url` (without its query string) when the feed has no `handle` |
+
+The storefront origin is taken from `window.location.origin`, like Swym's own snippets. The product data is registered by product id and by handle, as Swym's Shopify snippets do, and the registered variant URLs select the variant through the `variant` query parameter. A feed shaped differently can be mapped with a custom `resolver` in the config, see the [common plugin](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist).
+
+#### Notes
+
+- Swym's own *Add to Wishlist button on collection pages* setting injects a button into every product tile matching the theme's tile selector. When a result component reuses the theme's tile markup this can add a second button to Snap's results; scope that selector to the theme's own grid, or turn the setting off.

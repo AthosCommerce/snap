@@ -9,6 +9,7 @@ Plugins provide functionality to tie into various events within the Snap control
 | `plugins.common.backgroundFilters` | Background filter configurations | Object | Enabled |
 | `plugins.common.scrollToTop` | Configuration for scrolling to top after search | Object | Enabled |
 | `plugins.common.addToCart` | Configuration for add to cart function | Object | Disabled |
+| `plugins.common.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results | Object | Disabled |
 
 
 > [!NOTE]
@@ -23,6 +24,7 @@ When `config.platform` is `shopify`, the following plugins are available:
 | `plugins.shopify.mutateResults` | Shopify Updating results configuration | Object | Enabled |
 | `plugins.shopify.addToCart` | Shopify add to cart function configuration | Object | Enabled |
 | `plugins.shopify.backgroundFilters` | Background filter configurations | Object | Enabled |
+| `plugins.shopify.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results | Object | Disabled |
 
 
 > [!NOTE]
@@ -36,6 +38,7 @@ When `config.platform` is `magento2`, the following plugins are available:
 |----------------------|-------------|------|---------|
 | `plugins.magento2.addToCart` | Magento2 add to cart function configuration | Object | Enabled |
 | `plugins.magento2.backgroundFilters` | Background filter configurations | Object | Enabled |
+| `plugins.magento2.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results | Object | Disabled |
 
 
 > [!NOTE]
@@ -49,6 +52,7 @@ When `config.platform` is `bigCommerce`, the following plugins are available:
 |----------------------|-------------|------|---------|
 | `plugins.bigCommerce.addToCart` | BigCommerce add to cart function configuration | Object | Enabled |
 | `plugins.bigCommerce.backgroundFilters` | Background filter configurations | Object | Enabled |
+| `plugins.bigCommerce.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results | Object | Disabled |
 
 
 > [!NOTE]
