@@ -13,7 +13,7 @@ import type { ChatRequestModel, ProductsResponseModel } from '@athoscommerce/sna
 
 import { ChatController } from './ChatController';
 import { QuickviewManager } from '../Quickview/QuickviewManager';
-import type { ChatControllerConfig } from '../types';
+import type { ChatControllerConfig, SwitchChatObj } from '../types';
 
 const globals = { siteId: '8uyt2m' };
 
@@ -107,6 +107,23 @@ describe('Chat Controller', () => {
 
 			// defaultConfig sets feedbackAfterMessages to 3 via deepmerge in constructor
 			expect(controller.config.settings?.feedbackAfterMessages).toBe(3);
+		});
+
+		it('passes class instance plugin arguments through by reference (tests deepmerging plugins via mergeControllerConfig)', () => {
+			class FakeTemplatesStore {
+				currency = 'usd';
+				setCurrency(code: string) {
+					this.currency = code;
+				}
+			}
+			const templatesStore = new FakeTemplatesStore();
+			const plugin = jest.fn();
+
+			const controller = createController({ plugins: [[plugin, { enabled: true }, templatesStore]] });
+
+			expect(plugin).toHaveBeenCalledTimes(1);
+			expect(plugin.mock.calls[0][0]).toBe(controller);
+			expect(plugin.mock.calls[0][2]).toBe(templatesStore);
 		});
 	});
 
@@ -874,6 +891,67 @@ describe('Chat Controller', () => {
 			await controller.switchChat(chatB.id);
 
 			expect(controller.quickviewManager!.store.isOpen).toBe(false);
+		});
+
+		it('fires the switchChat event with the target chat and its id once it is the current chat', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			controller.store.createChat({ sessionId: 'session-b' });
+
+			const calls: { eventData: any; currentChatId: string }[] = [];
+			controller.on('switchChat', async (eventData: any, next: Next) => {
+				calls.push({ eventData, currentChatId: controller.store.currentChatId });
+				await next();
+			});
+
+			await controller.switchChat(chatA.id);
+
+			expect(calls).toEqual([{ eventData: { controller, id: chatA.id, chat: chatA }, currentChatId: chatA.id }]);
+			expect(calls[0].eventData.chat).toBe(chatA);
+		});
+
+		it('does not re-sync the quickview for a chat that was switched away from while its switchChat middleware ran', async () => {
+			const controller = createController();
+			controller.client.products = jest.fn().mockResolvedValue(productsResponse);
+
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+			await controller.productQuickView(makeProduct('prod1', 'parent1'));
+			const chatB = controller.store.createChat({ sessionId: 'session-b' });
+			await controller.productQuickView(makeProduct('prod2', 'parent2'));
+
+			let releaseChatA!: () => void;
+			const chatAMiddleware = new Promise<void>((resolve) => (releaseChatA = resolve));
+			controller.on('switchChat', async ({ id }: SwitchChatObj, next: Next) => {
+				if (id === chatA.id) await chatAMiddleware;
+				await next();
+			});
+
+			const switchToChatA = controller.switchChat(chatA.id);
+			await controller.switchChat(chatB.id);
+			expect(controller.store.currentChatId).toBe(chatB.id);
+			expect(controller.quickviewManager!.store.product?.id).toBe('prod2');
+
+			releaseChatA();
+			await switchToChatA;
+
+			expect(controller.store.currentChatId).toBe(chatB.id);
+			expect(controller.quickviewManager!.store.product?.id).toBe('prod2');
+			expect(controller.quickviewManager!.store.isOpen).toBe(true);
+		});
+
+		it('does not fire the switchChat event for an unknown chat id', async () => {
+			const controller = createController();
+			const chatA = controller.store.createChat({ sessionId: 'session-a' });
+
+			const middleware = jest.fn(async (_: any, next: Next) => {
+				await next();
+			});
+			controller.on('switchChat', middleware);
+
+			await controller.switchChat('unknown-chat-id');
+
+			expect(middleware).not.toHaveBeenCalled();
+			expect(controller.store.currentChatId).toBe(chatA.id);
 		});
 	});
 

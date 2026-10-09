@@ -25,11 +25,20 @@ type MockResult = {
 	state: Record<string, unknown>;
 };
 
+type MockChatMessage = {
+	messageType: string;
+	[key: string]: unknown;
+};
+
 type MockController = {
+	type?: string;
 	config: Record<string, unknown>;
 	setConfig: (newConfig: Record<string, unknown>) => void;
 	store: {
-		results: MockResult[];
+		results?: MockResult[];
+		currentChat?: {
+			chat: MockChatMessage[];
+		};
 	};
 	quickviewManager?: {
 		store: {
@@ -62,19 +71,21 @@ const createController = (results: MockResult[]): MockController => {
 		}),
 	};
 
-	const runEvent = async (event: string) => {
+	const runEvent = async (event: string, payload: Record<string, unknown> = {}) => {
 		const handler = handlers[event];
 		if (!handler) {
 			throw new Error(`${event} handler was not registered`);
 		}
 
-		await handler({ controller }, async () => Promise.resolve());
+		await handler({ controller, ...payload }, async () => Promise.resolve());
 	};
 
 	const runAfterStore = async () => runEvent('afterStore');
 	const runQuickview = async () => runEvent('quickview');
+	const runInit = async () => runEvent('init');
+	const runSwitchChat = async (id: string) => runEvent('switchChat', { id, chat: controller.store.currentChat });
 
-	return Object.assign(controller, { runAfterStore, runQuickview });
+	return Object.assign(controller, { runAfterStore, runQuickview, runInit, runSwitchChat });
 };
 
 const makeFetchResponse = (
@@ -892,5 +903,180 @@ describe('shopify/pluginShopifyMarkets', () => {
 			expect(controller.log.warn).toHaveBeenCalledWith('[shopifyMarkets] Quickview request failed:', expect.any(Error));
 			expect(quickviewProduct.state.priceFetched).toBe(true);
 		});
+	});
+
+	describe('chat controller', () => {
+		const createChatProduct = (parentId: string): MockResult => ({
+			type: 'product',
+			mappings: {
+				core: {
+					parentId,
+					price: 5,
+					msrp: 10,
+				},
+			},
+			state: {},
+		});
+
+		const createChatController = (chat: MockChatMessage[]): MockController => {
+			const controller = createController([]);
+			controller.type = 'chat';
+			controller.store = { currentChat: { chat } };
+			return controller;
+		};
+
+		it('prices the products of every product-bearing chat message', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(
+				makeFetchResponse([
+					{ id: '1', price: 11, msrp: 21 },
+					{ id: '2', price: 12, msrp: 22 },
+					{ id: '3', price: 13, msrp: 23 },
+					{ id: '4', price: 14, msrp: 24 },
+					{ id: '5', price: 15, msrp: 25 },
+				])
+			);
+			(global as any).fetch = fetchMock;
+
+			const searchProduct = createChatProduct('1');
+			const inspirationProduct = createChatProduct('2');
+			const answerProduct = createChatProduct('3');
+			const comparisonProduct = createChatProduct('4');
+			const recommendationProduct = createChatProduct('5');
+
+			const controller = createChatController([
+				{ messageType: 'user', text: 'wide leg trousers' },
+				{ messageType: 'text', text: 'Here are some options' },
+				{ messageType: 'productSearchResult', results: [searchProduct] },
+				{ messageType: 'inspirationResult', inspirationSections: [{ products: [inspirationProduct] }] },
+				{ messageType: 'productAnswer', sourceProduct: answerProduct },
+				{ messageType: 'productComparison', searchResults: [comparisonProduct] },
+				{ messageType: 'productRecommendation', recommendationResult: [{ results: [recommendationProduct] }] },
+			]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			await (controller as any).runAfterStore();
+
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:1 OR id:2 OR id:3 OR id:4 OR id:5');
+			expect([searchProduct, inspirationProduct, answerProduct, comparisonProduct, recommendationProduct]).toEqual([
+				{ type: 'product', mappings: { core: { parentId: '1', price: 11, msrp: 21 } }, state: { priceFetched: true } },
+				{ type: 'product', mappings: { core: { parentId: '2', price: 12, msrp: 22 } }, state: { priceFetched: true } },
+				{ type: 'product', mappings: { core: { parentId: '3', price: 13, msrp: 23 } }, state: { priceFetched: true } },
+				{ type: 'product', mappings: { core: { parentId: '4', price: 14, msrp: 24 } }, state: { priceFetched: true } },
+				{ type: 'product', mappings: { core: { parentId: '5', price: 15, msrp: 25 } }, state: { priceFetched: true } },
+			]);
+		});
+
+		it('ignores stored chat products that have not been hydrated into Product instances', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '7', price: 17, msrp: 27 }]));
+			(global as any).fetch = fetchMock;
+
+			const hydratedProduct = createChatProduct('7');
+			const storedProduct = { mappings: { core: { parentId: '8', price: 5, msrp: 10 } } };
+
+			const controller = createChatController([
+				{ messageType: 'productSearchResult', results: [storedProduct] },
+				{ messageType: 'productSearchResult', results: [hydratedProduct] },
+			]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			await (controller as any).runAfterStore();
+
+			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:7');
+			expect(hydratedProduct.mappings.core.price).toBe(17);
+			expect(storedProduct).toEqual({ mappings: { core: { parentId: '8', price: 5, msrp: 10 } } });
+		});
+
+		it('sets priceFetched on chat products and warns when the fetch fails', async () => {
+			const fetchMock = jest.fn().mockRejectedValue(new Error('network error'));
+			(global as any).fetch = fetchMock;
+
+			const product = createChatProduct('6');
+			const controller = createChatController([{ messageType: 'productSearchResult', results: [product] }]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			await (controller as any).runAfterStore();
+
+			expect(controller.log.warn).toHaveBeenCalledWith('[shopifyMarkets] Request failed:', new Error('network error'));
+			expect(product.mappings.core.price).toBe(5);
+			expect(product.state.priceFetched).toBe(true);
+		});
+
+		it('prices the products of the restored current chat on init', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '9', price: 19, msrp: 29 }]));
+			(global as any).fetch = fetchMock;
+
+			const product = createChatProduct('9');
+			const controller = createChatController([{ messageType: 'productSearchResult', results: [product] }]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '9', price: 5, msrp: 10 } }, state: {} });
+
+			await (controller as any).runInit();
+
+			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:9');
+			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '9', price: 19, msrp: 29 } }, state: { priceFetched: true } });
+		});
+
+		it('prices the products of the chat switched to', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '10', price: 20, msrp: 30 }]));
+			(global as any).fetch = fetchMock;
+
+			const product = createChatProduct('10');
+			const controller = createChatController([{ messageType: 'productRecommendation', recommendationResult: [{ results: [product] }] }]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			expect(product.mappings.core.price).toBe(5);
+
+			await (controller as any).runSwitchChat('chat-id');
+
+			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:10');
+			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '10', price: 20, msrp: 30 } }, state: { priceFetched: true } });
+		});
+
+		it('marks restored products as price fetched without a request in the base country', async () => {
+			window.Shopify.country = 'US';
+			const fetchMock = jest.fn();
+			(global as any).fetch = fetchMock;
+
+			const product = createChatProduct('11');
+			const controller = createChatController([{ messageType: 'productSearchResult', results: [product] }]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			await (controller as any).runInit();
+
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '11', price: 5, msrp: 10 } }, state: { priceFetched: true } });
+		});
+	});
+
+	it('does not register init or switchChat middleware on non-chat controllers', () => {
+		const controller = createController([]);
+		controller.type = 'search';
+
+		pluginShopifyMarkets(controller as any, {
+			token: 'token',
+		});
+
+		const events = controller.on.mock.calls.map(([event]) => event);
+		expect(events).toEqual(['afterStore', 'quickview']);
 	});
 });

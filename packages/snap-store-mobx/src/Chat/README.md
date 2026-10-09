@@ -163,6 +163,8 @@ Each chat session is represented by a `ChatSessionStore` instance, accessible vi
 ### `save()`
 Persists the current session state to local storage on a debounced timer (multiple calls within the same tick are coalesced into a single write).
 
+Products are persisted as the data they were built from (the response, or the stored data they were hydrated from) rather than as their current `mappings`, so changes made to a product after the store update — for example by `afterStore` middleware localizing prices — are not persisted, and a restored session starts from the same data as the original response.
+
 ### `saveImmediate()`
 Synchronously persists the current session state to local storage, cancelling any pending debounced save.
 

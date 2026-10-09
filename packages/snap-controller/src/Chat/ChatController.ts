@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import { filters } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 import { ChatControllerConfig, ContextVariables, ControllerServices, ControllerTypes, TrackEventOverrides } from '../types';
 import { ErrorType, ChatStore } from '@athoscommerce/snap-store-mobx';
 import {
@@ -126,7 +127,7 @@ export class ChatController extends AbstractController {
 		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker, quickviewManager }, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 
 		this.store.setConfig(this.config);
 
@@ -547,6 +548,19 @@ export class ChatController extends AbstractController {
 
 		const chat = this.store.currentChat;
 		if (chat?.id !== id) return;
+
+		try {
+			await this.eventManager.fire('switchChat', { controller: this, id, chat });
+		} catch (err: any) {
+			if (err?.message == 'cancelled') {
+				this.log.warn(`'switchChat' middleware cancelled`);
+			} else {
+				this.log.error(`error in 'switchChat' middleware`, err);
+			}
+		}
+
+		// the user may have switched chats again while the middleware ran — that switch owns the quickview
+		if (this.store.currentChat?.id !== id) return;
 
 		const activeMessage = chat.activeMessage;
 		const sourceProduct =

@@ -195,9 +195,10 @@ transformChatResponse.productRecommendation = (
 		messageType: data.messageType,
 		id: data.id,
 
+		// already in result shape from the recommend API
 		recommendationResult: data.recommendationResult?.map((rec) => ({
 			...rec,
-			results: rec.results?.map((product) => mapProductToSearchResultProduct(product, responseId)) || [],
+			results: rec.results?.map((product) => ({ ...product, responseId })) || [],
 		})),
 		sourceProduct: mapProductToSearchResultProduct(data.sourceProduct, responseId),
 		text: data.text,
