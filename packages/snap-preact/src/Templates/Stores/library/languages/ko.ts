@@ -186,6 +186,12 @@ export const ko: LangComponents = {
 		},
 		clearAllLabel: {
 			value: '모두 지우기',
+			attributes: {
+				'aria-label': '모두 지우기',
+			},
+		},
+		noFiltersText: {
+			value: '적용된 필터가 없습니다',
 		},
 	},
 	facet: {
