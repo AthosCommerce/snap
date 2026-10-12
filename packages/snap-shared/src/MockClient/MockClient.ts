@@ -40,6 +40,15 @@ export class MockClient extends Client {
 		return { meta, search };
 	}
 
+	async category() {
+		const searchData = this.mockData.search();
+
+		if (this.mockConfig.delay) await wait(this.mockConfig.delay);
+
+		const [meta, search] = await Promise.all([this.meta() as MetaResponseModel, searchData as SearchResponseModel]);
+		return { meta, search };
+	}
+
 	async finder() {
 		const searchData = this.mockData.search();
 

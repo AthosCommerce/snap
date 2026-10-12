@@ -1,34 +1,35 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { Slideout, SlideoutProps } from './Slideout';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Slideout/readme.md';
 
 export default {
 	title: 'Molecules/Slideout',
 	component: Slideout,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
+	args: {
+		onChange: fn(),
+	},
 	argTypes: {
+		buttonContent: {
+			description: 'Slideout button content (children), appended to buttonText',
+			type: { required: true },
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string, jsx',
+				},
+			},
+			control: { type: 'text' },
+		},
 		active: {
 			description: 'Initial state of the slideout.',
 			table: {
@@ -73,17 +74,6 @@ export default {
 					summary: 'string',
 				},
 				defaultValue: { summary: '' },
-			},
-			control: { type: 'text' },
-		},
-		buttonContent: {
-			description: 'Slideout button content (children), appended to buttonText',
-			type: { required: true },
-			table: {
-				category: 'Templates Legal',
-				type: {
-					summary: 'string, jsx',
-				},
 			},
 			control: { type: 'text' },
 		},
@@ -156,13 +146,15 @@ export default {
 	},
 };
 
-export const Default = (args: SlideoutProps) => (
-	<Slideout {...args}>
-		<div>props.children will be rendered here</div>
-	</Slideout>
-);
+export const Default = {
+	render: (args: SlideoutProps) => (
+		<Slideout {...args}>
+			<div>props.children will be rendered here</div>
+		</Slideout>
+	),
 
-Default.args = {
-	active: true,
-	buttonContent: 'Click Me',
+	args: {
+		active: true,
+		buttonContent: 'Click Me',
+	},
 };

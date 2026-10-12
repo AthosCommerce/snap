@@ -46,7 +46,7 @@ There are a few core context variables utilized by Snap, `shopper`, `merchandisi
 | currency.code | currency code string, ie. 'EUR' (ISO 4217) | all | currency code of the shopper's cart contents or order confirmation. Used for beacon events containing pricing data |
 | merchandising.segments | array of strings used for merchandising | any | segmented merchandising allows for custom control over products returned on search requests and must also be setup within the Athos Search & Product Discovery Console (ASD) |
 | config | object containing Snap configurations | any | advanced usage of Snap (not recommended for standard integrations) |
-| page.type | 'search' (default) or 'category' | PLP | explicitly indicate the page type (category or search). This is used to differentiate category and search beacon events. If not provided, the page type will be inferred as 'category' if a common category background filter is present. |
+| page.type | 'search' (default) or 'category' | PLP | explicitly indicate the page type (category or search). This is used to differentiate category and search beacon events. If not provided, the page type will be inferred as 'category' if a common category background filter is present. Setting it also makes Snap issue the search request as soon as the bundle executes, before the target element is found. |
 
 ## Examples
 
@@ -111,3 +111,4 @@ Example using multiple context variables together.
 
 If your site requires a strict [Content Security Policy (CSP)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP), an entry of `https://*.athoscommerce.io` should be added to your CSP configuration to ensure Athos is functional. 
 
+The `'unsafe-eval'` source expression is NOT required, as long as context scripts contain only variable assignments of literal values (strings, numbers, booleans, objects, and arrays) — as shown in all of the examples above. Context variables are read using a static parser that performs no JavaScript evaluation. Context scripts containing functions, expressions, or references such as `window.something` require `'unsafe-eval'` to be evaluated; on a site whose CSP disallows it, no variables are read from the script at all (an error naming the unsupported statement is logged to the console, and the site id is still taken from the script `src`).
