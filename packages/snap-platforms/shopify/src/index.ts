@@ -19,10 +19,3 @@ export {
 	PluginShopifyCurrencyConfig as PluginCurrencyConfig,
 	PluginShopifyCurrencyStore as PluginCurrencyStore,
 } from './plugins/pluginShopifyCurrency';
-export {
-	pluginShopifySwymWishlist as pluginSwymWishlist,
-	PluginShopifySwymWishlistConfig as PluginSwymWishlistConfig,
-	swymWishlistButtonProps,
-	SwymWishlistButtonProps,
-	swymWishlistResolver,
-} from './plugins/pluginShopifySwymWishlist';

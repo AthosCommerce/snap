@@ -1,5 +1,4 @@
-import { pluginSwymWishlist, swymWishlistButtonProps, swymWishlistResolver } from './pluginSwymWishlist';
-import type { SwymWishlistResolver } from './pluginSwymWishlist';
+import { pluginSwymWishlist, swymWishlistButtonProps } from './pluginSwymWishlist';
 import { MockClient } from '@athoscommerce/snap-shared';
 import { Product, SearchStore } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
@@ -52,6 +51,10 @@ const createController = (siteId = 'z7h1jh', search = 'variants'): SearchControl
 };
 
 const products = (controller: SearchController): Product[] => controller.store.results.filter((result) => result.type === 'product') as Product[];
+
+// a result as the store shapes it: `display` carries the core mappings (and the selected variant's, when one is set)
+const fakeProduct = (core: Record<string, unknown>, extra: Record<string, unknown> = {}): Product =>
+	({ type: 'product', mappings: { core }, attributes: {}, display: { mappings: { core } }, ...extra } as unknown as Product);
 
 const renderButtons = (ids: string[], parent: Element = document.body): HTMLElement => {
 	const grid = document.createElement('div');
@@ -149,21 +152,47 @@ describe('common/pluginSwymWishlist', () => {
 		});
 	});
 
-	describe('swymWishlistResolver', () => {
-		it('uses the uid as the product id and the active variant for a product-level feed with Snap variants', async () => {
+	describe('swymWishlistButtonProps', () => {
+		it('uses the uid as the product id and the selected variant for a product-level feed with Snap variants', async () => {
 			const controller = createController();
 			await controller.search();
 			const product = products(controller)[0];
-			const activeVariantId = String(product.variants!.active!.mappings.core!.uid);
+			const active = product.variants!.active!;
+			const activeVariantId = String(active.mappings.core!.uid);
 
 			expect(product.mappings.core!.parentId).toBeUndefined();
 			expect(activeVariantId).not.toBe(product.mappings.core!.uid);
+			// the selected variant's mappings are masked onto the display data
+			expect(String(product.display.mappings.core!.uid)).toBe(activeVariantId);
 
-			expect(swymWishlistResolver.product(product)).toEqual({
-				productId: '8318690263298',
-				variantId: activeVariantId,
-				url: 'http://localhost/products/fort-chino-pants',
+			expect(swymWishlistButtonProps(product)).toEqual({
+				className: 'swym-button swym-add-to-wishlist-view-product product_8318690263298',
+				'data-swaction': 'addToWishlist',
+				'data-with-epi': 'true',
+				'data-product-id': '8318690263298',
+				'data-variant-id': activeVariantId,
+				'data-product-url': `http://localhost${active.mappings.core!.url}`,
 			});
+		});
+
+		it('follows the variant selection', async () => {
+			const controller = createController();
+			await controller.search();
+			const product = products(controller)[0];
+			const variant = product.variants!.data[1];
+			const variantId = String(variant.mappings.core!.uid);
+
+			expect(swymWishlistButtonProps(product)!['data-variant-id']).not.toBe(variantId);
+
+			product.variants!.setActive(variant);
+
+			expect(swymWishlistButtonProps(product)).toEqual(
+				expect.objectContaining({
+					'data-product-id': '8318690263298',
+					'data-variant-id': variantId,
+					'data-product-url': `http://localhost${variant.mappings.core!.url}`,
+				})
+			);
 		});
 
 		it('uses the parent id as the product and the uid as the variant for a variant-level feed', async () => {
@@ -173,70 +202,31 @@ describe('common/pluginSwymWishlist', () => {
 
 			expect(product.variants).toBeUndefined();
 
-			// the core url is used without its variant query
-			expect(swymWishlistResolver.product(product)).toEqual({
-				productId: '14908638822766',
-				variantId: '53085291676014',
-				url: 'http://localhost/products/red-gloves',
+			expect(swymWishlistButtonProps(product)).toEqual({
+				className: 'swym-button swym-add-to-wishlist-view-product product_14908638822766',
+				'data-swaction': 'addToWishlist',
+				'data-with-epi': 'true',
+				'data-product-id': '14908638822766',
+				'data-variant-id': '53085291676014',
+				'data-product-url': 'http://localhost/products/red-gloves?variant=53085291676014',
 			});
 		});
 
-		it('uses the product id as the variant id for a product without variants', () => {
-			const product = { mappings: { core: { uid: 100, url: 'plain-tee' } }, attributes: {} } as unknown as Product;
-
-			expect(swymWishlistResolver.product(product)).toEqual({ productId: '100', variantId: '100', url: 'http://localhost/plain-tee' });
+		it('uses the uid as both ids for a result without a parent', () => {
+			expect(swymWishlistButtonProps(fakeProduct({ uid: 100, url: 'plain-tee' }))).toEqual(
+				expect.objectContaining({ 'data-product-id': '100', 'data-variant-id': '100', 'data-product-url': 'http://localhost/plain-tee' })
+			);
 		});
 
 		it('keeps an absolute core url as is', () => {
-			const product = {
-				mappings: { core: { uid: '100', url: 'https://shop.example.com/products/plain-tee?variant=200' } },
-				attributes: {},
-			} as unknown as Product;
+			const product = fakeProduct({ uid: '100', url: 'https://shop.example.com/products/plain-tee?variant=100' });
 
-			expect(swymWishlistResolver.product(product)!.url).toBe('https://shop.example.com/products/plain-tee');
+			expect(swymWishlistButtonProps(product)!['data-product-url']).toBe('https://shop.example.com/products/plain-tee?variant=100');
 		});
 
-		it('returns undefined when the product id or the product url cannot be resolved', () => {
-			const noId = { mappings: { core: { url: '/products/plain-tee' } }, attributes: {} } as unknown as Product;
-			const noUrl = { mappings: { core: { uid: '100' } }, attributes: {} } as unknown as Product;
-
-			expect(swymWishlistResolver.product(noId)).toBeUndefined();
-			expect(swymWishlistResolver.product(noUrl)).toBeUndefined();
-		});
-	});
-
-	describe('swymWishlistButtonProps', () => {
-		it('builds the button attributes from the resolved ids', async () => {
-			const controller = createController();
-			await controller.search();
-			const product = products(controller)[0];
-			const activeVariantId = String(product.variants!.active!.mappings.core!.uid);
-
-			expect(swymWishlistButtonProps(product)).toEqual({
-				className: 'swym-button swym-add-to-wishlist-view-product product_8318690263298',
-				'data-swaction': 'addToWishlist',
-				'data-with-epi': 'true',
-				'data-product-id': '8318690263298',
-				'data-variant-id': activeVariantId,
-				'data-product-url': 'http://localhost/products/fort-chino-pants',
-			});
-		});
-
-		it('uses the given resolver', () => {
-			const resolver: SwymWishlistResolver = { product: () => ({ productId: 'p', variantId: 'v', url: 'https://shop.example.com/p' }) };
-
-			expect(swymWishlistButtonProps({} as Product, resolver)).toEqual({
-				className: 'swym-button swym-add-to-wishlist-view-product product_p',
-				'data-swaction': 'addToWishlist',
-				'data-with-epi': 'true',
-				'data-product-id': 'p',
-				'data-variant-id': 'v',
-				'data-product-url': 'https://shop.example.com/p',
-			});
-		});
-
-		it('returns undefined when the product cannot be resolved', () => {
-			expect(swymWishlistButtonProps({ mappings: { core: {} }, attributes: {} } as unknown as Product)).toBeUndefined();
+		it('returns undefined when the ids or the url cannot be resolved', () => {
+			expect(swymWishlistButtonProps(fakeProduct({ url: '/products/plain-tee' }))).toBeUndefined();
+			expect(swymWishlistButtonProps(fakeProduct({ uid: '100' }))).toBeUndefined();
 		});
 	});
 
@@ -262,7 +252,7 @@ describe('common/pluginSwymWishlist', () => {
 			const expectedViewProduct = {
 				empi: 8318690263298,
 				epi: activeId,
-				du: 'http://localhost/products/fort-chino-pants',
+				du: `http://localhost${active.mappings.core!.url}`,
 				dt: core.name,
 				iu: core.thumbnailImageUrl,
 				pr: 50,
@@ -277,14 +267,11 @@ describe('common/pluginSwymWishlist', () => {
 				],
 			};
 			expect(swymWindow.SwymViewProducts!['8318690263298']).toEqual(expectedViewProduct);
-			// the core mappings resolver registers no extra keys
-			expect(swymWindow.SwymViewProducts!['fort-chino-pants']).toBeUndefined();
 
 			expect(swymWindow.SwymProductVariants![variantId]).toEqual({
 				empi: 8318690263298,
 				epi: variantId,
-				// the variant's own core url, without its query
-				du: 'http://localhost/products/fort-chino-pants',
+				du: `http://localhost${variant.mappings.core!.url}`,
 				dt: core.name,
 				iu: variant.mappings.core!.thumbnailImageUrl,
 				pr: Number(variant.mappings.core!.price),
@@ -320,7 +307,7 @@ describe('common/pluginSwymWishlist', () => {
 			expect(swymWindow.SwymViewProducts!['14908638822766']).toEqual({
 				empi: 14908638822766,
 				epi: 53085291676014,
-				du: 'http://localhost/products/red-gloves',
+				du: 'http://localhost/products/red-gloves?variant=53085291676014',
 				dt: 'red gloves',
 				iu: core.thumbnailImageUrl,
 				pr: 0,
@@ -337,21 +324,21 @@ describe('common/pluginSwymWishlist', () => {
 		it('coerces numeric strings for variant prices and quantities', async () => {
 			const controller = createController();
 			pluginSwymWishlist(controller, { enabled: true });
-			const product = {
-				type: 'product',
-				mappings: { core: { uid: '100', url: '/products/plain-tee' } },
-				attributes: {},
-				variants: {
-					data: [
-						{
-							mappings: { core: { uid: '300', price: '8.5', msrp: '' } },
-							attributes: { title: 'Small', quantity: '5' },
-							options: {},
-							available: true,
-						},
-					],
-				},
-			} as unknown as Product;
+			const product = fakeProduct(
+				{ uid: '100', url: '/products/plain-tee' },
+				{
+					variants: {
+						data: [
+							{
+								mappings: { core: { uid: '300', price: '8.5', msrp: '' } },
+								attributes: { title: 'Small', quantity: '5' },
+								options: {},
+								available: true,
+							},
+						],
+					},
+				}
+			);
 
 			await afterStore(controller, [product]);
 
@@ -367,26 +354,6 @@ describe('common/pluginSwymWishlist', () => {
 				variants: [{ Small: 300 }],
 			});
 			expect(swymWindow.SwymWatchProducts!['300']).toEqual({ id: 300, available: true, inventory_quantity: 5, title: 'Small' });
-		});
-
-		it('registers the product data under the extra keys and with the variant urls of the resolver', async () => {
-			const resolver: SwymWishlistResolver = {
-				product: (product) => {
-					const resolved = swymWishlistResolver.product(product);
-					return resolved && { ...resolved, keys: [`custom-${resolved.productId}`] };
-				},
-				variantUrl: (_, { variantId, product }) => `${product.url}#${variantId}`,
-			};
-			const controller = createController();
-			pluginSwymWishlist(controller, { enabled: true, resolver });
-
-			await controller.search();
-
-			const variantId = String(products(controller)[0].variants!.data[1].mappings.core!.uid);
-
-			expect(swymWindow.SwymViewProducts!['custom-8318690263298']).toBe(swymWindow.SwymViewProducts!['8318690263298']);
-			expect(swymWindow.SwymWatchProducts!['custom-8318690263298']).toBe(swymWindow.SwymWatchProducts!['8318690263298']);
-			expect(swymWindow.SwymProductVariants![variantId].du).toBe(`http://localhost/products/fort-chino-pants#${variantId}`);
 		});
 
 		it('merges into existing Swym maps instead of replacing them', async () => {
@@ -478,11 +445,7 @@ describe('common/pluginSwymWishlist', () => {
 			expect(swat.initializeActionButtons).not.toHaveBeenCalled();
 
 			// a second search returns a different product, whose button does render
-			const other = {
-				type: 'product',
-				mappings: { core: { uid: '100', url: '/products/plain-tee' } },
-				attributes: {},
-			} as unknown as Product;
+			const other = fakeProduct({ uid: '100', url: '/products/plain-tee' });
 			renderButtons(['100']);
 			await afterStore(controller, [other]);
 			await jest.advanceTimersByTimeAsync(0);
@@ -731,25 +694,6 @@ describe('common/pluginSwymWishlist', () => {
 			grid.querySelector('button')!.setAttribute('data-variant-id', 'another-variant');
 			await flush();
 			expect(errorSpy).toHaveBeenCalledTimes(2);
-		});
-
-		it('matches buttons by the product id of the configured resolver', async () => {
-			const resolver: SwymWishlistResolver = {
-				product: (product) => {
-					const resolved = swymWishlistResolver.product(product);
-					return resolved && { ...resolved, productId: `custom-${resolved.productId}` };
-				},
-			};
-			const swat = loadSwym();
-			const controller = createController();
-			pluginSwymWishlist(controller, { enabled: true, resolver });
-			const grid = renderButtons(['custom-8318690263298', 'custom-8318574559490']);
-
-			await controller.search();
-			await flush();
-
-			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
-			expect(grid.getAttribute('data-ss-swym-wishlist')).toBe('search');
 		});
 
 		it('does not halt the event chain', async () => {

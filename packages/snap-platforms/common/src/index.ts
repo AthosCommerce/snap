@@ -3,13 +3,4 @@ export { pluginScrollToTop, PluginScrollToTopConfig } from './plugins/pluginScro
 export { pluginLogger, PluginLoggerConfig } from './plugins/pluginLogger';
 export { pluginAddToCart, PluginAddToCartConfig } from './plugins/pluginAddToCart';
 export { pluginKlaviyoEvents, PluginKlaviyoEventsConfig } from './plugins/pluginKlaviyoEvents';
-export {
-	pluginSwymWishlist,
-	PluginSwymWishlistConfig,
-	swymWishlistButtonProps,
-	SwymWishlistButtonProps,
-	swymWishlistResolver,
-	SwymWishlistResolver,
-	SwymWishlistProduct,
-	SwymWishlistVariant,
-} from './plugins/pluginSwymWishlist';
+export { pluginSwymWishlist, PluginSwymWishlistConfig, swymWishlistButtonProps, SwymWishlistButtonProps } from './plugins/pluginSwymWishlist';

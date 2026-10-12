@@ -712,7 +712,7 @@ For detailed configuration options, see the [Shopify Currency plugin documentati
 
 ### Using the Swym Wishlist Plugin
 
-The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It is available for each platform (`plugins.shopify`, `plugins.bigCommerce`, `plugins.magento2`, and `plugins.common` for other platforms) and is opt-in, so set `enabled: true`. On Shopify:
+The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It is configured under `plugins.common.swymWishlist` on every platform and is opt-in, so set `enabled: true`:
 
 ```tsx
 const config = validateTemplatesConfig({
@@ -721,7 +721,7 @@ const config = validateTemplatesConfig({
 		platform: 'shopify',
 	},
 	plugins: {
-		shopify: {
+		common: {
 			swymWishlist: {
 				enabled: true,
 			},
@@ -744,12 +744,12 @@ const config = validateTemplatesConfig({
 new SnapTemplates(config);
 ```
 
-In your result component, render the button with the attributes from `swymWishlistButtonProps`, imported from the same platform package (`@athoscommerce/snap-platforms/shopify`, `/bigcommerce`, `/magento2` or `/common`). It returns `undefined` when the result has no resolvable variant id or product URL.
+In your result component, render the button with the attributes from `swymWishlistButtonProps`. It returns `undefined` when the result has no resolvable id or product URL.
 
 ```tsx
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/shopify';
+import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/common';
 import type { ResultProps } from '@athoscommerce/snap-preact/components';
 
 export const WishlistResult = observer(({ result }: ResultProps) => {
@@ -764,7 +764,7 @@ export const WishlistResult = observer(({ result }: ResultProps) => {
 });
 ```
 
-The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. For how the plugin works and how product and variant ids are resolved from each platform's feed, see the [Swym Wishlist plugin documentation](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist) and the platform packages ([Shopify](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifyswymwishlist), [BigCommerce](https://athoscommerce.github.io/snap/reference-platforms-bigcommerce#pluginswymwishlist), [Magento 2](https://athoscommerce.github.io/snap/reference-platforms-magento2#pluginswymwishlist)).
+The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. For how the plugin works, how product and variant ids are resolved, and platform notes, see the [Swym Wishlist plugin documentation](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist).
 
 ---
 

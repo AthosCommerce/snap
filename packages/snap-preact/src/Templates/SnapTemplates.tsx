@@ -62,8 +62,6 @@ import {
 	pluginMarkets as pluginShopifyMarkets,
 	PluginCurrencyConfig as PluginShopifyCurrencyConfig,
 	pluginCurrency as pluginShopifyCurrency,
-	PluginSwymWishlistConfig as PluginShopifySwymWishlistConfig,
-	pluginSwymWishlist as pluginShopifySwymWishlist,
 } from '@athoscommerce/snap-platforms/shopify';
 
 import {
@@ -71,8 +69,6 @@ import {
 	PluginAddToCartConfig as PluginBigCommerceAddToCartConfig,
 	pluginBackgroundFilters as pluginBigcommerceBackgroundFilters,
 	PluginBackgroundFiltersConfig as PluginBigcommerceBackgroundFiltersConfig,
-	pluginSwymWishlist as pluginBigcommerceSwymWishlist,
-	PluginSwymWishlistConfig as PluginBigCommerceSwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/bigcommerce';
 import {
 	pluginAddToCart as pluginMagento2AddToCart,
@@ -81,8 +77,6 @@ import {
 	PluginBackgroundFiltersConfig as PluginMagento2BackgroundFiltersConfig,
 	pluginBase as pluginMagento2Base,
 	PluginBaseConfig as PluginMagento2BaseConfig,
-	pluginSwymWishlist as pluginMagento2SwymWishlist,
-	PluginSwymWishlistConfig as PluginMagento2SwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/magento2';
 import { combineMerge } from '../utils';
 
@@ -208,16 +202,13 @@ type TemplatePlugins =
 	| [typeof pluginShopifyAddToCart, PluginShopifyAddToCartConfig]
 	| [typeof pluginShopifyMarkets, PluginShopifyMarketsConfig]
 	| [typeof pluginShopifyCurrency, PluginShopifyCurrencyConfig, TemplatesStore]
-	| [typeof pluginShopifySwymWishlist, PluginShopifySwymWishlistConfig]
 	// bigCommerce
 	| [typeof pluginBigcommerceBackgroundFilters, PluginBigcommerceBackgroundFiltersConfig]
 	| [typeof pluginBigcommerceAddToCart, PluginBigCommerceAddToCartConfig]
-	| [typeof pluginBigcommerceSwymWishlist, PluginBigCommerceSwymWishlistConfig]
 	// magento2
 	| [typeof pluginMagento2Base, PluginMagento2BaseConfig]
 	| [typeof pluginMagento2BackgroundFilters, PluginMagento2BackgroundFiltersConfig]
 	| [typeof pluginMagento2AddToCart, PluginMagento2AddToCartConfig]
-	| [typeof pluginMagento2SwymWishlist, PluginMagento2SwymWishlistConfig]
 	// custom
 	| [PluginFunction, ...unknown[]];
 
@@ -815,6 +806,10 @@ export function createPlugins(
 	if (klaviyoEventsConfig?.enabled === true) {
 		plugins.push([templatesStore.library.import.plugins.common.klaviyoEvents, klaviyoEventsConfig]);
 	}
+	const swymWishlistConfig = deepmerge(templateConfig.plugins?.common?.swymWishlist || {}, controllerConfig?.plugins?.common?.swymWishlist || {});
+	if (swymWishlistConfig?.enabled === true) {
+		plugins.push([templatesStore.library.import.plugins.common.swymWishlist, swymWishlistConfig]);
+	}
 
 	switch (templatesStore.platform) {
 		case 'shopify':
@@ -842,13 +837,6 @@ export function createPlugins(
 				// `enabled` is resolved onto the config so the plugin survives the tab plugin filter below
 				plugins.push([templatesStore.library.import.plugins.shopify.currency, { ...currencyConfig, enabled: true }, templatesStore]);
 			}
-			const swymWishlistConfig = deepmerge(
-				templateConfig.plugins?.shopify?.swymWishlist || {},
-				controllerConfig?.plugins?.shopify?.swymWishlist || {}
-			);
-			if (swymWishlistConfig?.enabled === true) {
-				plugins.push([templatesStore.library.import.plugins.shopify.swymWishlist, swymWishlistConfig]);
-			}
 			break;
 		case 'bigCommerce':
 			plugins.push([
@@ -859,13 +847,6 @@ export function createPlugins(
 				templatesStore.library.import.plugins.bigcommerce.addToCart,
 				deepmerge(templateConfig.plugins?.bigCommerce?.addToCart || {}, controllerConfig?.plugins?.bigCommerce?.addToCart || {}),
 			]);
-			const bigCommerceSwymWishlistConfig = deepmerge(
-				templateConfig.plugins?.bigCommerce?.swymWishlist || {},
-				controllerConfig?.plugins?.bigCommerce?.swymWishlist || {}
-			);
-			if (bigCommerceSwymWishlistConfig?.enabled === true) {
-				plugins.push([templatesStore.library.import.plugins.bigcommerce.swymWishlist, bigCommerceSwymWishlistConfig]);
-			}
 			break;
 		case 'magento2':
 			plugins.push([
@@ -880,26 +861,12 @@ export function createPlugins(
 				templatesStore.library.import.plugins.magento2.addToCart,
 				deepmerge(templateConfig.plugins?.magento2?.addToCart || {}, controllerConfig?.plugins?.magento2?.addToCart || {}),
 			]);
-			const magento2SwymWishlistConfig = deepmerge(
-				templateConfig.plugins?.magento2?.swymWishlist || {},
-				controllerConfig?.plugins?.magento2?.swymWishlist || {}
-			);
-			if (magento2SwymWishlistConfig?.enabled === true) {
-				plugins.push([templatesStore.library.import.plugins.magento2.swymWishlist, magento2SwymWishlistConfig]);
-			}
 			break;
 		case 'other':
 			plugins.push([
 				templatesStore.library.import.plugins.common.addToCart,
 				deepmerge(templateConfig.plugins?.common?.addToCart || {}, controllerConfig?.plugins?.common?.addToCart || {}),
 			]);
-			const commonSwymWishlistConfig = deepmerge(
-				templateConfig.plugins?.common?.swymWishlist || {},
-				controllerConfig?.plugins?.common?.swymWishlist || {}
-			);
-			if (commonSwymWishlistConfig?.enabled === true) {
-				plugins.push([templatesStore.library.import.plugins.common.swymWishlist, commonSwymWishlistConfig]);
-			}
 
 		default:
 			break;

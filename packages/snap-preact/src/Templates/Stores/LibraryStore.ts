@@ -14,10 +14,7 @@ import { pluginMutateResults as shopifyPluginMutateResults } from './library/plu
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
 import { pluginMarkets as shopifyPluginMarkets } from './library/plugins/shopify/pluginMarkets';
 import { pluginCurrency as shopifyPluginCurrency } from './library/plugins/shopify/pluginCurrency';
-import { pluginSwymWishlist as shopifyPluginSwymWishlist } from './library/plugins/shopify/pluginSwymWishlist';
-import { pluginSwymWishlist as bigCommercePluginSwymWishlist } from './library/plugins/bigCommerce/pluginSwymWishlist';
-import { pluginSwymWishlist as magento2PluginSwymWishlist } from './library/plugins/magento2/pluginSwymWishlist';
-import { pluginSwymWishlist as commonPluginSwymWishlist } from './library/plugins/common/pluginSwymWishlist';
+import { pluginSwymWishlist } from './library/plugins/common/pluginSwymWishlist';
 import { pluginAddToCart as bigCommercePluginAddToCart } from './library/plugins/bigCommerce/pluginAddToCart';
 import { pluginAddToCart as magento2PluginAddToCart } from './library/plugins/magento2/pluginAddToCart';
 import { pluginAddToCart as commonPluginAddToCart } from './library/plugins/common/pluginAddToCart';
@@ -56,18 +53,15 @@ export type LibraryImports = {
 			addToCart: typeof shopifyPluginAddToCart;
 			markets: typeof shopifyPluginMarkets;
 			currency: typeof shopifyPluginCurrency;
-			swymWishlist: typeof shopifyPluginSwymWishlist;
 		};
 		bigcommerce: {
 			backgroundFilters: PluginFunction;
 			addToCart: typeof bigCommercePluginAddToCart;
-			swymWishlist: typeof bigCommercePluginSwymWishlist;
 		};
 		magento2: {
 			base: typeof magento2PluginBase;
 			backgroundFilters: PluginFunction;
 			addToCart: typeof magento2PluginAddToCart;
-			swymWishlist: typeof magento2PluginSwymWishlist;
 		};
 		common: {
 			backgroundFilters: typeof pluginBackgroundFilters;
@@ -75,7 +69,7 @@ export type LibraryImports = {
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
 			klaviyoEvents: typeof pluginKlaviyoEvents;
-			swymWishlist: typeof commonPluginSwymWishlist;
+			swymWishlist: typeof pluginSwymWishlist;
 		};
 		custom?: {
 			[name: string]: PluginFunction;
@@ -405,18 +399,15 @@ export class LibraryStore {
 				addToCart: shopifyPluginAddToCart,
 				markets: shopifyPluginMarkets,
 				currency: shopifyPluginCurrency,
-				swymWishlist: shopifyPluginSwymWishlist,
 			},
 			bigcommerce: {
 				backgroundFilters: bigCommercePluginBackgroundFilters,
 				addToCart: bigCommercePluginAddToCart,
-				swymWishlist: bigCommercePluginSwymWishlist,
 			},
 			magento2: {
 				base: magento2PluginBase,
 				backgroundFilters: magento2PluginBackgroundFilters,
 				addToCart: magento2PluginAddToCart,
-				swymWishlist: magento2PluginSwymWishlist,
 			},
 			common: {
 				backgroundFilters: pluginBackgroundFilters,
@@ -424,7 +415,7 @@ export class LibraryStore {
 				logger: pluginLogger,
 				addToCart: commonPluginAddToCart,
 				klaviyoEvents: pluginKlaviyoEvents,
-				swymWishlist: commonPluginSwymWishlist,
+				swymWishlist: pluginSwymWishlist,
 			},
 		},
 		component: {

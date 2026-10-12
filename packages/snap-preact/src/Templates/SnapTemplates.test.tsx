@@ -1150,71 +1150,44 @@ describe('createPlugins with built-in plugins', () => {
 		expect(plugins.length).toBeGreaterThanOrEqual(4);
 	});
 
-	it('should include the shopify swym wishlist plugin only when it is enabled', () => {
-		const shopifyConfig: SnapTemplatesConfig = {
+	it.each(['shopify', 'bigCommerce', 'magento2', 'other'] as const)(
+		'should include the swym wishlist plugin on the %s platform only when it is enabled',
+		(platform) => {
+			const config: SnapTemplatesConfig = { ...baseConfig, config: { ...baseConfig.config, platform } };
+			const templatesStore = new TemplatesStore({ config });
+			const swymWishlistPlugin = templatesStore.library.import.plugins.common.swymWishlist;
+
+			// opt-in: not configured and explicitly disabled both leave it out
+			expect(createPlugins(config, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
+
+			const disabledConfig: SnapTemplatesConfig = { ...config, plugins: { common: { swymWishlist: { enabled: false } } } };
+			expect(createPlugins(disabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
+
+			const enabledConfig: SnapTemplatesConfig = { ...config, plugins: { common: { swymWishlist: { enabled: true } } } };
+			expect(createPlugins(enabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toEqual([
+				swymWishlistPlugin,
+				{ enabled: true },
+			]);
+		}
+	);
+
+	it('should enable the swym wishlist plugin from a controller-specific config', () => {
+		const config: SnapTemplatesConfig = {
 			...baseConfig,
-			config: {
-				...baseConfig.config,
-				platform: 'shopify',
-			},
-		};
-
-		const templatesStore = new TemplatesStore({ config: shopifyConfig });
-		const swymWishlistPlugin = templatesStore.library.import.plugins.shopify.swymWishlist;
-
-		// opt-in: not configured and explicitly disabled both leave it out
-		expect(createPlugins(shopifyConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
-
-		const disabledConfig: SnapTemplatesConfig = { ...shopifyConfig, plugins: { shopify: { swymWishlist: { enabled: false } } } };
-		expect(createPlugins(disabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
-
-		const enabledConfig: SnapTemplatesConfig = { ...shopifyConfig, plugins: { shopify: { swymWishlist: { enabled: true } } } };
-		const plugin = createPlugins(enabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin);
-		expect(plugin).toEqual([swymWishlistPlugin, { enabled: true }]);
-	});
-
-	it('should enable the shopify swym wishlist plugin from a controller-specific config', () => {
-		const shopifyConfig: SnapTemplatesConfig = {
-			...baseConfig,
-			config: {
-				...baseConfig.config,
-				platform: 'shopify',
-			},
 			search: {
 				targets: [{ selector: '#search', component: 'Search' }],
-				plugins: { shopify: { swymWishlist: { enabled: true } } },
+				plugins: { common: { swymWishlist: { enabled: true } } },
 			},
 		};
 
-		const templatesStore = new TemplatesStore({ config: shopifyConfig });
-		const swymWishlistPlugin = templatesStore.library.import.plugins.shopify.swymWishlist;
-
-		expect(createPlugins(shopifyConfig, templatesStore, 'search').find((plugin) => plugin[0] === swymWishlistPlugin)).toEqual([
-			swymWishlistPlugin,
-			{ enabled: true },
-		]);
-		expect(createPlugins(shopifyConfig, templatesStore, 'autocomplete').find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
-	});
-
-	it.each([
-		['bigCommerce', 'bigCommerce', 'bigcommerce'],
-		['magento2', 'magento2', 'magento2'],
-		['other', 'common', 'common'],
-	] as const)('should include the swym wishlist plugin for the %s platform only when it is enabled', (platform, configKey, libraryKey) => {
-		const config: SnapTemplatesConfig = { ...baseConfig, config: { ...baseConfig.config, platform } };
 		const templatesStore = new TemplatesStore({ config });
-		const swymWishlistPlugin = templatesStore.library.import.plugins[libraryKey].swymWishlist;
+		const swymWishlistPlugin = templatesStore.library.import.plugins.common.swymWishlist;
 
-		expect(createPlugins(config, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
-
-		const disabledConfig: SnapTemplatesConfig = { ...config, plugins: { [configKey]: { swymWishlist: { enabled: false } } } };
-		expect(createPlugins(disabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
-
-		const enabledConfig: SnapTemplatesConfig = { ...config, plugins: { [configKey]: { swymWishlist: { enabled: true } } } };
-		expect(createPlugins(enabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toEqual([
+		expect(createPlugins(config, templatesStore, 'search').find((plugin) => plugin[0] === swymWishlistPlugin)).toEqual([
 			swymWishlistPlugin,
 			{ enabled: true },
 		]);
+		expect(createPlugins(config, templatesStore, 'autocomplete').find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
 	});
 
 	it('should not include the shopify currency plugin unless it is enabled', () => {

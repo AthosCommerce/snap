@@ -3,30 +3,7 @@ import type { AbstractController, AutocompleteController, RecommendationControll
 import type { Product } from '@athoscommerce/snap-store-mobx';
 import type { AbstractPluginConfig } from '../types';
 
-export type SwymWishlistVariant = NonNullable<Product['variants']>['data'][number];
-
-// the identifiers Swym keeps for a wishlisted item, resolved from a result
-export type SwymWishlistProduct = {
-	// Swym `empi` - the platform's product id
-	productId: string;
-	// Swym `epi` - the platform's variant id; the active (selected) variant when Snap variants are in use
-	variantId: string;
-	// Swym `du` - the absolute product URL
-	url: string;
-	// keys the product data is registered under besides the product id (e.g. the Shopify handle)
-	keys?: string[];
-};
-
-// how results map to Swym identifiers - each platform supplies its own, `swymWishlistResolver` is the default
-export type SwymWishlistResolver = {
-	product: (product: Product) => SwymWishlistProduct | undefined;
-	// the URL of one of the product's variants; defaults to the variant's own core url, or the product URL
-	variantUrl?: (variant: SwymWishlistVariant, context: { variantId: string; product: SwymWishlistProduct }) => string;
-};
-
-export type PluginSwymWishlistConfig = AbstractPluginConfig & {
-	resolver?: SwymWishlistResolver;
-};
+export type PluginSwymWishlistConfig = AbstractPluginConfig;
 
 // attributes the Swym SDK reads from a grid wishlist button - `swymWishlistButtonProps` builds them from a result
 export type SwymWishlistButtonProps = {
@@ -73,6 +50,7 @@ type SwymWindow = Window & {
 };
 
 type ResultsController = SearchController | AutocompleteController | RecommendationController;
+type Variant = NonNullable<Product['variants']>['data'][number];
 
 const LOG_PREFIX = '[swymWishlist]';
 const CONTAINER_ATTRIBUTE = 'data-ss-swym-wishlist';
@@ -86,7 +64,6 @@ export const pluginSwymWishlist = (cntrlr: AbstractController, config?: PluginSw
 
 	if (cntrlr.type !== 'search' && cntrlr.type !== 'autocomplete' && cntrlr.type !== 'recommendation') return;
 
-	const resolver = config.resolver || swymWishlistResolver;
 	const containerSelector = `[${CONTAINER_ATTRIBUTE}="${cntrlr.id.replace(/["\\]/g, '\\$&')}"]`;
 	const swym = swymReady();
 
@@ -109,9 +86,9 @@ export const pluginSwymWishlist = (cntrlr: AbstractController, config?: PluginSw
 	cntrlr.on('afterStore', async ({ controller }: { controller: ResultsController }, next) => {
 		const products = controller.store.results.filter((result) => result.type === 'product') as Product[];
 
-		registerSwymProductData(products, resolver);
+		registerSwymProductData(products);
 
-		const productIds = new Set(products.flatMap((product) => matchableProductIds(product, resolver)));
+		const productIds = new Set(products.flatMap(matchableProductIds));
 		const run = ++latestRun;
 
 		// not awaited - the Swym SDK may load (or never load) long after the results have rendered
@@ -175,53 +152,47 @@ export const pluginSwymWishlist = (cntrlr: AbstractController, config?: PluginSw
 
 // the attributes and classnames the Swym SDK needs on a wishlist button rendered for a result; the `product_{id}`
 // classname is how the SDK finds the button again to mark it as added
-export const swymWishlistButtonProps = (
-	result: Product,
-	resolver: SwymWishlistResolver = swymWishlistResolver
-): SwymWishlistButtonProps | undefined => {
-	const product = resolver.product(result);
-	if (!product) return undefined;
+export const swymWishlistButtonProps = (result: Product): SwymWishlistButtonProps | undefined => {
+	const ids = resolveIds(result);
+	if (!ids) return undefined;
 
 	return {
-		className: `swym-button swym-add-to-wishlist-view-product product_${product.productId}`,
+		className: `swym-button swym-add-to-wishlist-view-product product_${ids.productId}`,
 		'data-swaction': 'addToWishlist',
 		'data-with-epi': 'true',
-		'data-product-id': product.productId,
-		'data-variant-id': product.variantId,
-		'data-product-url': product.url,
+		'data-product-id': ids.productId,
+		'data-variant-id': ids.variantId,
+		'data-product-url': ids.url,
 	};
 };
 
 /*
-	The default resolver uses the core mappings, which every platform's feed provides:
-	- `parentId` is the product id and `uid` the variant id when the feed has one record per variant
-	- `uid` is the product id otherwise, and also stands in for the variant id unless Snap variants are in use
-	- `url` is the product URL, without its query string
+	Swym identifies a wishlisted item by its product id (`empi`), variant id (`epi`) and product URL (`du`). Every
+	result is a variant: `uid` is the variant id and `parentId` the product id (`uid` doubles as the product id when
+	the result has no parent). When Snap variants are in use the selected variant's mappings are masked onto the
+	result's display data, so the variant id and URL are read from there.
 */
-export const swymWishlistResolver: SwymWishlistResolver = {
-	product: (product) => {
-		const core = product.mappings.core || {};
-		const parentId = idString(core.parentId);
-		const uid = idString(core.uid);
+const resolveIds = (product: Product): { productId: string; variantId: string; url: string } | undefined => {
+	const core = product.mappings.core || {};
+	const display = product.display.mappings.core || {};
 
-		const productId = parentId || uid;
-		const variantId = idString(product.variants?.active?.mappings.core?.uid) || uid;
-		const url = absoluteUrl(core.url?.split('?')[0]);
+	const productId = idString(core.parentId) || idString(core.uid);
+	const variantId = idString(display.uid);
+	const url = absoluteUrl(display.url);
 
-		if (!productId || !variantId || !url) return undefined;
+	if (!productId || !variantId || !url) return undefined;
 
-		return { productId, variantId, url };
-	},
+	return { productId, variantId, url };
 };
 
-export const idString = (value: unknown): string | undefined => {
+const idString = (value: unknown): string | undefined => {
 	if (typeof value === 'string' && value !== '') return value;
 	if (typeof value === 'number' && Number.isFinite(value)) return String(value);
 	return undefined;
 };
 
 // Swym stores product URLs as absolute URLs - a path is resolved against the storefront origin
-export const absoluteUrl = (path: string | undefined): string | undefined => {
+const absoluteUrl = (path: string | undefined): string | undefined => {
 	if (!path) return undefined;
 	if (/^https?:\/\//i.test(path)) return path;
 	return `${window.location.origin}${path.startsWith('/') ? '' : '/'}${path}`;
@@ -266,12 +237,11 @@ const findButtons = (controller: AbstractController, productIds: Set<string>): E
 // Swym stores platform ids as numbers; non-numeric ids are kept as given
 const swymId = (id: string): SwymId => (/^\d+$/.test(id) ? Number(id) : id);
 
-// ids a button rendered for this product may carry in `data-product-id`: the resolved product id, or the core ids
+// ids a button rendered for this product may carry in `data-product-id` - the product id, or the result's own uid
 // when the button was written by hand
-const matchableProductIds = (product: Product, resolver: SwymWishlistResolver): string[] => {
+const matchableProductIds = (product: Product): string[] => {
 	const core = product.mappings.core || {};
-	const ids = [resolver.product(product)?.productId, idString(core.parentId), idString(core.uid)];
-	return ids.filter((id): id is string => Boolean(id));
+	return [idString(core.parentId), idString(core.uid)].filter((id): id is string => Boolean(id));
 };
 
 // prices and quantities arrive as numbers or numeric strings depending on the feed
@@ -281,35 +251,29 @@ const numeric = (value: unknown): number | undefined => {
 	return Number.isFinite(number) ? number : undefined;
 };
 
-const variantTitle = (variant: SwymWishlistVariant): string => {
+const variantTitle = (variant: Variant): string => {
 	const title = variant.attributes?.title;
 	if (typeof title === 'string' && title) return title;
-	const options: SwymWishlistVariant['options'] = variant.options || {};
+	const options: Variant['options'] = variant.options || {};
 	return Object.values(options)
 		.map((option) => option.value)
 		.join(' / ');
 };
 
-const variantUrl = (variant: SwymWishlistVariant, variantId: string, product: SwymWishlistProduct, resolver: SwymWishlistResolver): string => {
-	if (resolver.variantUrl) return resolver.variantUrl(variant, { variantId, product });
-	return absoluteUrl(variant.mappings.core?.url?.split('?')[0]) || product.url;
-};
-
 // the maps are shared by every Swym button on the page, so entries are merged in rather than replaced
-const registerSwymProductData = (products: Product[], resolver: SwymWishlistResolver): void => {
+const registerSwymProductData = (products: Product[]): void => {
 	const swymWindow = window as SwymWindow;
 	const viewProducts = (swymWindow.SwymViewProducts = swymWindow.SwymViewProducts || {});
 	const productVariants = (swymWindow.SwymProductVariants = swymWindow.SwymProductVariants || {});
 	const watchProducts = (swymWindow.SwymWatchProducts = swymWindow.SwymWatchProducts || {});
 
 	products.forEach((product) => {
-		const resolved = resolver.product(product);
-		if (!resolved) return;
+		const ids = resolveIds(product);
+		if (!ids) return;
 
 		const core = product.mappings.core || {};
-		const empi = swymId(resolved.productId);
-		const epi = swymId(resolved.variantId);
-		const keys = [resolved.productId, ...(resolved.keys || [])];
+		const empi = swymId(ids.productId);
+		const epi = swymId(ids.variantId);
 
 		const watchVariants: Record<string, SwymWatchVariant> = {};
 		const variants = product.variants?.data || [];
@@ -325,7 +289,7 @@ const registerSwymProductData = (products: Product[], resolver: SwymWishlistReso
 			productVariants[variantId] = {
 				empi,
 				epi: swymId(variantId),
-				du: variantUrl(variant, variantId, resolved, resolver),
+				du: absoluteUrl(variantCore.url) || ids.url,
 				dt: core.name,
 				iu: variantCore.thumbnailImageUrl || variantCore.imageUrl || core.thumbnailImageUrl || core.imageUrl,
 				pr: numeric(variantCore.price),
@@ -349,17 +313,17 @@ const registerSwymProductData = (products: Product[], resolver: SwymWishlistReso
 				id: epi,
 				available: core.available !== false,
 			};
-			watchVariants[resolved.variantId] = watchVariant;
-			watchProducts[resolved.variantId] = watchVariant;
+			watchVariants[ids.variantId] = watchVariant;
+			watchProducts[ids.variantId] = watchVariant;
 		}
 
 		const active = product.variants?.active;
-		const activeVariant = active && productVariants[resolved.variantId];
+		const activeVariant = active && productVariants[ids.variantId];
 
-		const viewProduct: SwymProductData = {
+		viewProducts[ids.productId] = {
 			empi,
 			epi,
-			du: resolved.url,
+			du: ids.url,
 			dt: core.name,
 			iu: core.thumbnailImageUrl || core.imageUrl,
 			pr: numeric(core.price),
@@ -367,11 +331,7 @@ const registerSwymProductData = (products: Product[], resolver: SwymWishlistReso
 			stk: activeVariant?.stk,
 			variants: [{ [active ? variantTitle(active) : 'Default Title']: epi }],
 		};
-
-		keys.forEach((key) => {
-			viewProducts[key] = viewProduct;
-			watchProducts[key] = watchVariants;
-		});
+		watchProducts[ids.productId] = watchVariants;
 	});
 };
 
