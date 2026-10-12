@@ -550,7 +550,6 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 
 	// the slot element can only be rendered once - the first 'searchInput' module claims it
 	let searchInputRendered = false;
-	const hasSearchInputModule = layoutHasModule({ layout: props.layout, column1, column2, column3, column4 }, 'searchInput');
 
 	const findModule = (module: ModuleNamesWithColumns, rowCounter: { value: number }): h.JSX.Element | null => {
 		//new row
@@ -819,7 +818,6 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 					{...mergedLang.closeButton?.all}
 				></span>
 
-				{searchInputSlot && !hasSearchInputModule ? <div className="ss__autocomplete__search-input-wrapper">{searchInputSlot}</div> : null}
 				{layout.map((module) => findModule(module, topRowCounter))}
 			</div>
 		</CacheProvider>

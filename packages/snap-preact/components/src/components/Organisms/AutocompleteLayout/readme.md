@@ -132,7 +132,7 @@ layout: ['facets']
 ### searchInputSlot
 The `searchInputSlot` prop provides an element (typically a `SearchInput`) for the `searchInput` layout module. The autocomplete templates (`AutocompleteModal`, `AutocompleteFixed` and `AutocompleteSlideout`) pass their rendered search input through this prop whenever their layout contains a `searchInput` module.
 
-While a slot is provided the layout stays rendered regardless of input focus and content, so the slot element is never unmounted - the parent component is responsible for showing and hiding the layout. The other modules still only render while the bound input is focused and there are terms or results to show. The slot renders at the first `searchInput` module in the layout, or first in the layout when no `searchInput` module is present.
+While a slot is provided the layout stays rendered regardless of input focus and content, so the slot element is never unmounted - the parent component is responsible for showing and hiding the layout. The other modules still only render while the bound input is focused and there are terms or results to show. The slot renders at the first `searchInput` module in the layout.
 
 ```tsx
 <AutocompleteLayout

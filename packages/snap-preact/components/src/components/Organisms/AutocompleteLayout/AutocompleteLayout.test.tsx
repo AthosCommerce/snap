@@ -828,28 +828,6 @@ describe('AutocompleteLayout Component', () => {
 			expect(rendered.container.querySelector(`.ss__autocomplete__column--c1 ${slotSelector}`)).toBe(slotInput);
 		});
 
-		it('renders the slot first in the layout when no "searchInput" module is present', async () => {
-			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
-			await controller.bind();
-
-			const args: AutocompleteLayoutProps = {
-				controller,
-				input: controller.config.selector,
-				searchInputSlot: <input className="slot-input" type="text" />,
-			};
-
-			const rendered = render(<AutocompleteLayout {...args} />, { container });
-
-			const autocomplete = rendered.container.querySelector('.ss__autocomplete')!;
-			expect(autocomplete).toBeInTheDocument();
-
-			// close button, then the slot - no rows render without a focused input
-			expect(autocomplete.children.length).toBe(2);
-			expect(autocomplete.children[0]).toHaveClass('ss__autocomplete__close-button');
-			expect(autocomplete.children[1]).toHaveClass('ss__autocomplete__search-input-wrapper');
-			expect(autocomplete.children[1].querySelector('.slot-input')).toBeInTheDocument();
-		});
-
 		it('ignores the "searchInput" module without a slot and keeps the focus requirement', async () => {
 			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
 			await controller.bind();
