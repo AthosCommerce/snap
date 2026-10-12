@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render, waitFor } from '@testing-library/preact';
+import { render, waitFor, fireEvent } from '@testing-library/preact';
 import { FacetsHorizontal } from './FacetsHorizontal';
 import { IndividualFacetType } from '../Facets/Facets';
 import { ThemeProvider } from '../../../providers';
@@ -287,7 +287,7 @@ describe('FacetsHorizontal Component', () => {
 
 		// the Slideout renders nothing when window.matchMedia is unavailable (jsdom)
 		const originalMatchMedia = window.matchMedia;
-		beforeEach(() => {
+		beforeAll(() => {
 			Object.defineProperty(window, 'matchMedia', {
 				configurable: true,
 				writable: true,
@@ -522,7 +522,10 @@ describe('FacetsHorizontal Component', () => {
 				await waitFor(() => expect(slideout(rendered.container)).toHaveClass('ss__slideout--active'));
 				await waitFor(() => expect(document.activeElement).not.toBe(opener));
 
-				await userEvent.keyboard('{Escape}');
+				// focus must be inside the slideout: Escape is handled by the sidebar wrapper's useA11y focus trap, not a window listener
+				expect(slideout(rendered.container).contains(document.activeElement)).toBe(true);
+				// useA11y matches Escape on keyCode, which userEvent.keyboard('{Escape}') does not set
+				fireEvent.keyDown(document.activeElement!, { key: 'Escape', keyCode: 27 });
 
 				await waitFor(() => expect(slideout(rendered.container)).not.toHaveClass('ss__slideout--active'));
 				await waitFor(() => expect(document.activeElement).toBe(opener));

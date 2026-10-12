@@ -18,6 +18,7 @@ import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import { Sidebar, SidebarProps } from '../Sidebar';
+import { useA11y } from '../../../hooks/useA11y';
 
 const defaultStyles: StyleScript<FacetsHorizontalProps> = ({ theme }) => {
 	return css({
@@ -116,7 +117,6 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		limit,
 		alwaysShowToggleSidebarButton,
 		hideToggleSidebarButton,
-		openFacetsInSidebar,
 		onFacetOptionClick,
 		showSelectedCount,
 		hideSelectedCountParenthesis,
@@ -132,6 +132,9 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		controller,
 		treePath,
 	} = props;
+
+	//we just dont allow this prop to be used outside of the search controller.
+	const openFacetsInSidebar = controller?.type !== 'search' ? false : props.openFacetsInSidebar;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetsHorizontal', props);
 
@@ -181,6 +184,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 	}
 
 	const [sidebarOpenState, setSidebarOpenState] = useState(false);
+	const renderToggleSidebarButton = Boolean(!hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton));
 
 	const subProps: FacetsHorizontalSubProps = {
 		dropdown: {
@@ -222,7 +226,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 			internalClassName: `ss__facets-horizontal__content__facet`,
 			justContent: true,
 			// this should be turned on if there is ever a filters button rendering.
-			statefulOverflow: !hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton) ? true : undefined,
+			statefulOverflow: renderToggleSidebarButton ? true : undefined,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -282,9 +286,9 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 	// field of the header that opened the sidebar; focus returns to it when the sidebar closes
 	const openerField = useRef<string | undefined>(undefined);
 
-	const openFacetInSidebar = (facet: IndividualFacetType) => {
+	const openFacetsInSidebarFunc = (facet: IndividualFacetType) => {
 		// expand the facet so it renders open in the sidebar
-		if (facet.collapsed && typeof facet.toggleCollapse == 'function') {
+		if (facet.collapsed) {
 			facet.toggleCollapse();
 			autoOpenedFacet.current = facet;
 		}
@@ -334,19 +338,6 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		}
 	}, [sidebarOpenState]);
 
-	// close the sidebar on Escape while it is open
-	useEffect(() => {
-		if (!sidebarOpenState) return;
-
-		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' || e.key === 'Esc') {
-				setSidebarOpenState(false);
-			}
-		};
-		document.addEventListener('keydown', onKeyDown);
-		return () => document.removeEventListener('keydown', onKeyDown);
-	}, [sidebarOpenState]);
-
 	//initialize lang
 	const defaultLang: Partial<FacetsHorizontalLang> = {
 		toggleSidebarButtonText: {
@@ -374,7 +365,6 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		);
 	};
 
-	const renderToggleSidebarButton = Boolean(!hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton));
 	// the slideout is also needed when facet headers open the sidebar
 	const renderSlideout = renderToggleSidebarButton || Boolean(openFacetsInSidebar);
 
@@ -429,7 +419,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 								open={openFacetsInSidebar ? false : selectedFacet?.field === facet.field}
 								onClick={(e) => {
 									if (openFacetsInSidebar) {
-										openFacetInSidebar(facet);
+										openFacetsInSidebarFunc(facet);
 										return;
 									}
 									// @ts-ignore - escape key closes the dropdown
@@ -487,7 +477,12 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 				</div>
 				{renderSlideout && (
 					<Slideout {...subProps.slideout} active={sidebarOpenState}>
-						<Sidebar {...subProps.sidebar} controller={controller as SearchController} />
+						<div
+							className={'ss__facets-horizontal__slideout__sidebar-wrapper'}
+							ref={(e) => useA11y(e, 0, true, () => setSidebarOpenState((prev) => !prev))}
+						>
+							<Sidebar {...subProps.sidebar} controller={controller as SearchController} />
+						</div>
 					</Slideout>
 				)}
 			</div>
