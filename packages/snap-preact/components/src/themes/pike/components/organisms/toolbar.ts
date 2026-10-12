@@ -11,9 +11,14 @@ const toolbarStyleScript = (props: ToolbarProps) => {
 
 	// toolbar styles
 	const toolbarStyles = css({
+		// same anatomy as the select it sits beside - label left, icon right, 10px inset
 		'.ss__layout__sidebar-toggle-button-wrapper .ss__button': {
+			justifyContent: 'space-between',
+			gap: `${custom.spacing.x2}px`,
+			padding: `0 ${custom.spacing.x2}px`,
 			'.ss__button__content': {
 				textAlign: 'left',
+				justifyContent: 'flex-start',
 			},
 		},
 		'.ss__layout': {
@@ -46,8 +51,11 @@ export const toolbar: ThemeComponent<'toolbar', ToolbarProps, ToolbarTemplatesLe
 		'toolbar filterSummary': {
 			title: `Current Filters:`,
 		},
-		'toolbar mobileSidebar filterSummary': {
-			title: `Current Filters`,
+		'toolbar button.sidebar-toggle': {
+			icon: custom.icons.filter,
+		},
+		'toolbar button.sidebar-toggle icon': {
+			size: `${custom.sizes.icon14}px`,
 		},
 	},
 };

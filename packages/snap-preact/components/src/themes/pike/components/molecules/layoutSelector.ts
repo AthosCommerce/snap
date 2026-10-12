@@ -31,12 +31,17 @@ const layoutSelectorStyleScript = (props: LayoutSelectorProps) => {
 			flexFlow: 'nowrap',
 			gap: `${custom.spacing.x1}px`,
 			'.ss__list__option': {
-				flex: '1 1 0%',
-				width: `auto`,
+				flex: '0 1 auto',
+				minWidth: props?.hideOptionLabels ? `${custom.sizes.height}px` : '1px',
+				width: props?.hideOptionLabels ? `${custom.sizes.height}px` : 'auto',
 				height: `${custom.sizes.height}px`,
 				lineHeight: `${custom.sizes.height}px`,
+				justifyContent: 'center',
 				margin: 0,
-				...custom.styles.box(undefined, `0 ${custom.spacing.x2}px`),
+				...custom.styles.box(undefined, props?.hideOptionLabels ? 0 : `0 ${custom.spacing.x2}px`),
+				'.ss__list__option__label': {
+					...custom.styles.textOverflow(),
+				},
 			},
 			'.ss__list__option--selected': {
 				'&, &:hover': {
@@ -45,7 +50,7 @@ const layoutSelectorStyleScript = (props: LayoutSelectorProps) => {
 					color: activeIconColor,
 				},
 				'&, *': {
-					cursor: 'text',
+					cursor: 'default',
 				},
 			},
 		},

@@ -25,7 +25,8 @@
 		"lint": "eslint '{src,components}/**/*.{js,jsx,ts,tsx}'",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"storybook": "storybook dev -c ./components/.storybook -p 6006"
+		"storybook": "storybook dev -c ./components/.storybook -p 6006",
+		"storybook:matrix": "STORYBOOK_MATRIX=true storybook dev -c ./components/.storybook -p 6007"
 	},
 	"dependencies": {
 		"@athoscommerce/snap-client": "1.13.2",

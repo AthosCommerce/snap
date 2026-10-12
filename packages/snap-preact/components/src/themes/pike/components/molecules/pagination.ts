@@ -29,6 +29,9 @@ const paginationStyleScript = (props: PaginationProps) => {
 			},
 			'.ss__pagination__page--previous, .ss__pagination__page--next': {
 				lineHeight: `10px`,
+				'.ss__pagination__icon': {
+					...custom.styles.indicator(variables?.colors?.accent),
+				},
 			},
 		},
 		[`${custom.utils.getBp(mobileBp)}`]: {

@@ -10,8 +10,6 @@ const checkboxSpacing = custom.sizes.icon16 + custom.spacing.x2;
 const listStyleScript = (props: ListProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile as number;
-	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// shared styles
 	const sharedStyles = css({
@@ -53,6 +51,10 @@ const listStyleScript = (props: ListProps) => {
 			'.ss__list__option--selected': {
 				...custom.styles.activeText(variables?.colors?.primary),
 			},
+			// icon-only options have no checkbox, label or bold text to show selection - mute the rest
+			...(props?.hideOptionCheckboxes && props?.hideOptionLabels
+				? { '.ss__list__option:not(.ss__list__option--selected) .ss__list__option__icon': { fill: custom.colors.gray04 } }
+				: {}),
 		},
 	});
 
@@ -82,30 +84,16 @@ const listStyleScript = (props: ListProps) => {
 				display: 'block',
 			},
 			'.ss__list__options': {
-				flexFlow: 'row wrap',
-				gap: `${custom.spacing.x1}px ${custom.spacing.x2}px`,
+				// icon-only options sit inline - label columns would spread them apart
+				...(props?.hideOptionLabels
+					? { display: 'flex', flexFlow: 'row wrap', gap: `${custom.spacing.x1}px ${custom.spacing.x2}px` }
+					: custom.styles.columns()),
 				'.ss__list__option': {
-					flex: '0 1 auto',
-					width: `calc((100% - ${custom.spacing.x2}px) / 2)`,
 					minWidth: '1px',
 					margin: 0,
 					'.ss__list__option__label': {
 						...custom.styles.textOverflow(),
 					},
-				},
-			},
-		},
-		{
-			[`${custom.utils.getBp(mobileBp)}`]: {
-				'.ss__list__options .ss__list__option': {
-					width: `calc((100% - ${custom.spacing.x2 * 2}px) / 3)`,
-				},
-			},
-		},
-		{
-			[`${custom.utils.getBp(tabletBp)}`]: {
-				'.ss__list__options .ss__list__option': {
-					width: `calc((100% - ${custom.spacing.x2 * 3}px) / 4)`,
 				},
 			},
 		},

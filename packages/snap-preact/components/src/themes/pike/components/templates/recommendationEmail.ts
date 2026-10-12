@@ -34,7 +34,7 @@ const recommendationEmailStyleScript = (props: RecommendationEmailProps) => {
 			overflow: 'hidden',
 		},
 		'.ss__result': {
-			'&, &*': {
+			'&, & *': {
 				textAlign: 'center',
 			},
 			'.ss__result__image-wrapper': {

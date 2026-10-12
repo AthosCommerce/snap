@@ -8,7 +8,7 @@ type CTAProps = {
 };
 
 // static variables
-const lightGray = custom.utils.lightenColor();
+const lightGray = custom.colors.gray04;
 
 // CSS in JS style script for the Recommendation CTA component
 export const recommendationCTAStyleScript = (props: CTAProps, handle: string, spacing?: string) => {
@@ -25,6 +25,8 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 		alignContent: 'center',
 		gap: `${custom.spacing.x2}px`,
 		...custom.styles.box(undefined, spacing ? spacing : `${custom.spacing.x2}px`),
+		// a container, not a control - decorative border
+		borderColor: custom.colors.gray02,
 		'& > *': {
 			flex: '1 1 100%',
 			minWidth: '1px',
@@ -42,6 +44,10 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 			},
 			[`${recommendationHandle}__cta__subtotal__icon__wrapper`]: {
 				lineHeight: 1,
+				// the "plus" joining the bundle is an indicator
+				'.ss__icon': {
+					...custom.styles.indicator(variables?.colors?.accent),
+				},
 			},
 			[`${recommendationHandle}__cta__subtotal__title`]: {
 				display: 'block',
@@ -59,7 +65,8 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 					'&, span': {
 						color: lightGray,
 					},
-					'& ~ ${recommendationHandle}__cta__subtotal__price': {
+					// a discounted subtotal is a sale price - emphasized text, like result sale prices
+					[`& ~ ${recommendationHandle}__cta__subtotal__price`]: {
 						'&, span': {
 							color: variables?.colors?.primary,
 						},

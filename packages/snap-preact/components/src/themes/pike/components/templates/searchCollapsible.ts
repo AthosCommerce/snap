@@ -33,7 +33,8 @@ const searchCollapsibleStyleScript = (props: SearchCollapsibleProps) => {
 			'.ss__search-collapsible__sidebar, .ss__search-collapsible__content': {
 				minWidth: '1px',
 			},
-			'.ss__search-collapsible__sidebar': {
+			// direct child only - the mobile slideout also wraps its sidebar in `__sidebar` and sizes it itself
+			'& > .ss__search-collapsible__sidebar': {
 				flex: '0 1 auto',
 				'.ss__sidebar': {
 					width: '250px',
