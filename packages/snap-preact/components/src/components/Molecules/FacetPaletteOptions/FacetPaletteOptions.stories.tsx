@@ -1,10 +1,9 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { FacetPaletteOptions, FacetPaletteOptionsProps } from './FacetPaletteOptions';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../FacetPaletteOptions/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -12,26 +11,17 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Molecules/FacetPaletteOptions',
 	component: FacetPaletteOptions,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onClick: fn(),
+	},
 	argTypes: {
 		values: {
 			description: 'Facet.values store reference',
@@ -41,7 +31,7 @@ export default {
 					summary: 'facet values store array',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		facet: {
 			description: 'Facet store reference',
@@ -51,7 +41,7 @@ export default {
 					summary: 'facet store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		columns: {
 			defaultValue: 4,
@@ -179,7 +169,7 @@ export default {
 				},
 				defaultValue: { summary: '{}' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		onClick: {
 			description: 'Facet option click event handler',
@@ -189,8 +179,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		colorMapping: {
 			description: 'Object of color mapping values',
@@ -215,42 +204,46 @@ const ObservableFacetPaletteOptions = observer(({ args, controller }: { args: Fa
 	return <FacetPaletteOptions {...args} values={sizeFacet.values} />;
 });
 
-export const Default = (args: FacetPaletteOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<ObservableFacetPaletteOptions args={args} controller={controller} />
-		</div>
-	);
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: FacetPaletteOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<ObservableFacetPaletteOptions args={args} controller={controller} />
+			</div>
+		);
 	},
-];
 
-export const List = (args: FacetPaletteOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<ObservableFacetPaletteOptions args={args} controller={controller} />
-		</div>
-	);
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 };
 
-List.args = {
-	layout: 'list',
-	hideCount: false,
-	hideCheckbox: false,
-};
-
-List.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const List = {
+	render: (args: FacetPaletteOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<ObservableFacetPaletteOptions args={args} controller={controller} />
+			</div>
+		);
 	},
-];
+
+	args: {
+		layout: 'list',
+		hideCount: false,
+		hideCheckbox: false,
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

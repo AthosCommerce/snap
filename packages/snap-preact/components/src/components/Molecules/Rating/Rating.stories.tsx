@@ -1,32 +1,18 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
-import { Rating, RatingProps } from './Rating';
+import { Rating } from './Rating';
 import { iconPaths } from '../../Atoms/Icon';
 
 export default {
 	title: 'Molecules/Rating',
 	component: Rating,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -119,21 +105,24 @@ export default {
 	},
 };
 
-export const Default = (props: RatingProps) => <Rating {...props} />;
-Default.args = {
-	value: 4.5,
+export const Default = {
+	args: {
+		value: 4.5,
+	},
 };
 
-export const StarsWithCount = (props: RatingProps) => <Rating {...props} />;
-StarsWithCount.args = {
-	value: 3,
-	count: 33,
-	emptyIcon: 'star',
+export const StarsWithCount = {
+	args: {
+		value: 3,
+		count: 33,
+		emptyIcon: 'star',
+	},
 };
 
-export const Hearts = (props: RatingProps) => <Rating {...props} />;
-Hearts.args = {
-	value: 3.3,
-	fullIcon: 'heart',
-	emptyIcon: 'heart-o',
+export const Hearts = {
+	args: {
+		value: 3.3,
+		fullIcon: 'heart',
+		emptyIcon: 'heart-o',
+	},
 };

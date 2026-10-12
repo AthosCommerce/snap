@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { FacetsHorizontal, FacetsHorizontalProps } from './FacetsHorizontal';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import { iconPaths } from '../../Atoms/Icon';
 import Readme from '../FacetsHorizontal/readme.md';
@@ -12,23 +11,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Organisms/FacetsHorizontal',
 	component: FacetsHorizontal,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -38,6 +25,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onFacetOptionClick: fn(),
+	},
 	argTypes: {
 		facets: {
 			description: 'Facets store reference',
@@ -47,7 +37,7 @@ export default {
 					summary: 'Facets store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		limit: {
 			description: 'Maximum number of facets to display',
@@ -101,7 +91,6 @@ export default {
 				category: 'Templates Legal',
 				type: { summary: 'function' },
 			},
-			action: 'onFacetOptionClick',
 		},
 		showSelectedCount: {
 			description: 'shows the number of selected options within the facet headers',
@@ -197,7 +186,7 @@ export default {
 					summary: 'Controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -205,15 +194,17 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'FacetsHorizontal', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: FacetsHorizontalProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <FacetsHorizontal {...args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: FacetsHorizontalProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <FacetsHorizontal {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
