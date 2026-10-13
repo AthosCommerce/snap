@@ -13,7 +13,7 @@ import { Sidebar, SidebarProps } from '../../Organisms/Sidebar';
 import { Toolbar, ToolbarProps } from '../../Organisms/Toolbar';
 import { NoResults, NoResultsProps } from '../../Organisms/NoResults';
 import { Lang, useLang, useMediaQuery } from '../../../hooks';
-import { FOCUSABLE_ELEMENTS } from '../../../hooks/useA11y';
+import { FOCUSABLE_ELEMENTS, useA11y } from '../../../hooks/useA11y';
 import { SearchFilterStore } from '@athoscommerce/snap-store-mobx';
 import deepmerge from 'deepmerge';
 import { useLayoutOptions } from '../../../hooks/useLayoutOptions';
@@ -299,7 +299,7 @@ export const Search = observer((properties: SearchProps) => {
 						store.pagination.totalResults > 0 &&
 						(isMobile ? (
 							<Slideout {...subProps.Slideout} active={justTransitionedToMobile ? false : sidebarOpenState}>
-								<div className={`${classNamePrefix}__sidebar`}>
+								<div className={`${classNamePrefix}__sidebar ${classNamePrefix}__slideout__sidebar-wrapper`} ref={(e) => useA11y(e, 0, true)}>
 									<Sidebar {...subProps.MobileSidebar} controller={controller} />
 								</div>
 							</Slideout>

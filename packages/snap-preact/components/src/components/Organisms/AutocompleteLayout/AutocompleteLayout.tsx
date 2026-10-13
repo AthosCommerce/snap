@@ -392,6 +392,7 @@ export const AutocompleteLayout = observer((properties: AutocompleteLayoutProps)
 		facetsHorizontal: {
 			name: 'autocomplete',
 			// default props
+			controller,
 			// inherited props
 			...defined({
 				disableStyles,
