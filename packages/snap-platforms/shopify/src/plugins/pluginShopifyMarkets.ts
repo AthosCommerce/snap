@@ -94,7 +94,7 @@ const isChatController = (controller: AbstractController): controller is ChatCon
 
 const getChatProducts = (chat?: ChatSessionStore): Product[] =>
 	(chat?.chat || [])
-		.flatMap((message): unknown[] => {
+		.flatMap((message) => {
 			switch (message.messageType) {
 				case 'productSearchResult':
 					return Array.from(message.results || []);
@@ -106,12 +106,15 @@ const getChatProducts = (chat?: ChatSessionStore): Product[] =>
 					return Array.from(message.searchResults || []);
 				case 'productRecommendation':
 					return message.recommendationResult?.flatMap((rec) => Array.from(rec.results || [])) || [];
+				case 'productQuery':
+					// its sourceProduct is a product from another message or the quickview's product, both priced already
+					return [];
 				default:
 					return [];
 			}
 		})
 		// messages restored from storage hold plain data until they are hydrated
-		.filter((result): result is Product => typeof result === 'object' && result !== null && 'type' in result && result.type === 'product');
+		.filter((result) => result instanceof Product);
 
 export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginShopifyMarketsConfig) => {
 	if (!config?.token) {
@@ -466,12 +469,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		// repopulated from /v1/products in base currency — so pricing must be re-applied to it
 		const product = controller.quickviewManager?.store?.product;
 		if (product) {
-			try {
-				await updateProductPricing([product], controller);
-			} catch (error) {
-				controller.log.warn('[shopifyMarkets] Quickview request failed:', error);
-				markResultsAsPriceFetched([product]);
-			}
+			await priceProducts([product], controller);
 		}
 		await next();
 	});

@@ -893,7 +893,7 @@ describe('Chat Controller', () => {
 			expect(controller.quickviewManager!.store.isOpen).toBe(false);
 		});
 
-		it('fires the switchChat event with the target chat and its id once it is the current chat', async () => {
+		it('fires the switchChat event with the target chat once it is the current chat', async () => {
 			const controller = createController();
 			const chatA = controller.store.createChat({ sessionId: 'session-a' });
 			controller.store.createChat({ sessionId: 'session-b' });
@@ -906,7 +906,7 @@ describe('Chat Controller', () => {
 
 			await controller.switchChat(chatA.id);
 
-			expect(calls).toEqual([{ eventData: { controller, id: chatA.id, chat: chatA }, currentChatId: chatA.id }]);
+			expect(calls).toEqual([{ eventData: { controller, chat: chatA }, currentChatId: chatA.id }]);
 			expect(calls[0].eventData.chat).toBe(chatA);
 		});
 
@@ -921,8 +921,8 @@ describe('Chat Controller', () => {
 
 			let releaseChatA!: () => void;
 			const chatAMiddleware = new Promise<void>((resolve) => (releaseChatA = resolve));
-			controller.on('switchChat', async ({ id }: SwitchChatObj, next: Next) => {
-				if (id === chatA.id) await chatAMiddleware;
+			controller.on('switchChat', async ({ chat }: SwitchChatObj, next: Next) => {
+				if (chat.id === chatA.id) await chatAMiddleware;
 				await next();
 			});
 

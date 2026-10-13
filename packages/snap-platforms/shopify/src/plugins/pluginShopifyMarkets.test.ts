@@ -1,3 +1,5 @@
+import { Product } from '@athoscommerce/snap-store-mobx';
+
 import { pluginShopifyMarkets } from './pluginShopifyMarkets';
 
 type MockVariant = {
@@ -83,7 +85,7 @@ const createController = (results: MockResult[]): MockController => {
 	const runAfterStore = async () => runEvent('afterStore');
 	const runQuickview = async () => runEvent('quickview');
 	const runInit = async () => runEvent('init');
-	const runSwitchChat = async (id: string) => runEvent('switchChat', { id, chat: controller.store.currentChat });
+	const runSwitchChat = async () => runEvent('switchChat', { chat: controller.store.currentChat });
 
 	return Object.assign(controller, { runAfterStore, runQuickview, runInit, runSwitchChat });
 };
@@ -900,23 +902,21 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			await (controller as any).runQuickview();
 
-			expect(controller.log.warn).toHaveBeenCalledWith('[shopifyMarkets] Quickview request failed:', expect.any(Error));
+			expect(controller.log.warn).toHaveBeenCalledWith('[shopifyMarkets] Request failed:', expect.any(Error));
 			expect(quickviewProduct.state.priceFetched).toBe(true);
 		});
 	});
 
 	describe('chat controller', () => {
-		const createChatProduct = (parentId: string): MockResult => ({
-			type: 'product',
-			mappings: {
-				core: {
-					parentId,
-					price: 5,
-					msrp: 10,
-				},
-			},
-			state: {},
-		});
+		const createChatProduct = (parentId: string): Product =>
+			new Product({
+				config: { id: 'chat' },
+				data: { result: { id: parentId, mappings: { core: { parentId, price: 5, msrp: 10 } } }, meta: {} },
+				position: 0,
+				responseId: '',
+			});
+
+		const pricing = (product: Product) => ({ core: product.mappings.core, state: product.state });
 
 		const createChatController = (chat: MockChatMessage[]): MockController => {
 			const controller = createController([]);
@@ -961,12 +961,12 @@ describe('shopify/pluginShopifyMarkets', () => {
 
 			expect(fetchMock).toHaveBeenCalledTimes(1);
 			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:1 OR id:2 OR id:3 OR id:4 OR id:5');
-			expect([searchProduct, inspirationProduct, answerProduct, comparisonProduct, recommendationProduct]).toEqual([
-				{ type: 'product', mappings: { core: { parentId: '1', price: 11, msrp: 21 } }, state: { priceFetched: true } },
-				{ type: 'product', mappings: { core: { parentId: '2', price: 12, msrp: 22 } }, state: { priceFetched: true } },
-				{ type: 'product', mappings: { core: { parentId: '3', price: 13, msrp: 23 } }, state: { priceFetched: true } },
-				{ type: 'product', mappings: { core: { parentId: '4', price: 14, msrp: 24 } }, state: { priceFetched: true } },
-				{ type: 'product', mappings: { core: { parentId: '5', price: 15, msrp: 25 } }, state: { priceFetched: true } },
+			expect([searchProduct, inspirationProduct, answerProduct, comparisonProduct, recommendationProduct].map(pricing)).toEqual([
+				{ core: { parentId: '1', price: 11, msrp: 21 }, state: { priceFetched: true } },
+				{ core: { parentId: '2', price: 12, msrp: 22 }, state: { priceFetched: true } },
+				{ core: { parentId: '3', price: 13, msrp: 23 }, state: { priceFetched: true } },
+				{ core: { parentId: '4', price: 14, msrp: 24 }, state: { priceFetched: true } },
+				{ core: { parentId: '5', price: 15, msrp: 25 }, state: { priceFetched: true } },
 			]);
 		});
 
@@ -989,8 +989,30 @@ describe('shopify/pluginShopifyMarkets', () => {
 			await (controller as any).runAfterStore();
 
 			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:7');
-			expect(hydratedProduct.mappings.core.price).toBe(17);
+			expect(pricing(hydratedProduct)).toEqual({ core: { parentId: '7', price: 17, msrp: 27 }, state: { priceFetched: true } });
 			expect(storedProduct).toEqual({ mappings: { core: { parentId: '8', price: 5, msrp: 10 } } });
+		});
+
+		it('skips the sourceProduct of productQuery messages', async () => {
+			const fetchMock = jest.fn().mockResolvedValue(makeFetchResponse([{ id: '12', price: 22, msrp: 32 }]));
+			(global as any).fetch = fetchMock;
+
+			const searchProduct = createChatProduct('12');
+			const queryProduct = createChatProduct('13');
+
+			const controller = createChatController([
+				{ messageType: 'productSearchResult', results: [searchProduct] },
+				{ messageType: 'productQuery', sourceProduct: queryProduct },
+			]);
+
+			pluginShopifyMarkets(controller as any, {
+				token: 'token',
+			});
+
+			await (controller as any).runAfterStore();
+
+			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:12');
+			expect(pricing(queryProduct)).toEqual({ core: { parentId: '13', price: 5, msrp: 10 }, state: {} });
 		});
 
 		it('sets priceFetched on chat products and warns when the fetch fails', async () => {
@@ -1007,8 +1029,7 @@ describe('shopify/pluginShopifyMarkets', () => {
 			await (controller as any).runAfterStore();
 
 			expect(controller.log.warn).toHaveBeenCalledWith('[shopifyMarkets] Request failed:', new Error('network error'));
-			expect(product.mappings.core.price).toBe(5);
-			expect(product.state.priceFetched).toBe(true);
+			expect(pricing(product)).toEqual({ core: { parentId: '6', price: 5, msrp: 10 }, state: { priceFetched: true } });
 		});
 
 		it('prices the products of the restored current chat on init', async () => {
@@ -1022,12 +1043,12 @@ describe('shopify/pluginShopifyMarkets', () => {
 				token: 'token',
 			});
 
-			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '9', price: 5, msrp: 10 } }, state: {} });
+			expect(pricing(product)).toEqual({ core: { parentId: '9', price: 5, msrp: 10 }, state: {} });
 
 			await (controller as any).runInit();
 
 			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:9');
-			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '9', price: 19, msrp: 29 } }, state: { priceFetched: true } });
+			expect(pricing(product)).toEqual({ core: { parentId: '9', price: 19, msrp: 29 }, state: { priceFetched: true } });
 		});
 
 		it('prices the products of the chat switched to', async () => {
@@ -1041,12 +1062,12 @@ describe('shopify/pluginShopifyMarkets', () => {
 				token: 'token',
 			});
 
-			expect(product.mappings.core.price).toBe(5);
+			expect(pricing(product)).toEqual({ core: { parentId: '10', price: 5, msrp: 10 }, state: {} });
 
-			await (controller as any).runSwitchChat('chat-id');
+			await (controller as any).runSwitchChat();
 
 			expect(JSON.parse(fetchMock.mock.calls[0][1].body).variables.query).toBe('id:10');
-			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '10', price: 20, msrp: 30 } }, state: { priceFetched: true } });
+			expect(pricing(product)).toEqual({ core: { parentId: '10', price: 20, msrp: 30 }, state: { priceFetched: true } });
 		});
 
 		it('marks restored products as price fetched without a request in the base country', async () => {
@@ -1064,7 +1085,7 @@ describe('shopify/pluginShopifyMarkets', () => {
 			await (controller as any).runInit();
 
 			expect(fetchMock).not.toHaveBeenCalled();
-			expect(product).toEqual({ type: 'product', mappings: { core: { parentId: '11', price: 5, msrp: 10 } }, state: { priceFetched: true } });
+			expect(pricing(product)).toEqual({ core: { parentId: '11', price: 5, msrp: 10 }, state: { priceFetched: true } });
 		});
 	});
 

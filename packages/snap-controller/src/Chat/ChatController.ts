@@ -550,7 +550,7 @@ export class ChatController extends AbstractController {
 		if (chat?.id !== id) return;
 
 		try {
-			await this.eventManager.fire('switchChat', { controller: this, id, chat });
+			await this.eventManager.fire('switchChat', { controller: this, chat });
 		} catch (err: any) {
 			if (err?.message == 'cancelled') {
 				this.log.warn(`'switchChat' middleware cancelled`);

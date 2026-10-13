@@ -6,7 +6,7 @@ import type {
 	RecommendationController,
 	ChatController,
 } from './index';
-import type { QuickviewManager } from './Quickview/QuickviewManager';
+import type { QuickviewManager, SourceController } from './Quickview/QuickviewManager';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 
 import type { Client } from '@athoscommerce/snap-client';
@@ -82,13 +82,12 @@ export type RestorePositionObj = {
 };
 
 export type QuickviewObj = {
-	controller: SearchController | AutocompleteController | RecommendationController;
+	controller: SourceController;
 	product: Product;
 };
 
 export type SwitchChatObj = {
 	controller: ChatController;
-	id: string;
 	chat: ChatSessionStore;
 };
 

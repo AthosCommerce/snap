@@ -141,7 +141,7 @@ To run custom logic on add-to-cart (e.g. forward to a host cart), register an `a
 ```
 
 ## HandleFeedback
-Records session-level feedback on the current chat. Accepts `'UP'` or `'DOWN'`. Fires the `track.product.feedback` event and automatically dismisses the feedback prompt after 3 seconds.
+Records session-level feedback on the current chat. Accepts `'UP'` or `'DOWN'`. Fires the `track.feedback` event and automatically dismisses the feedback prompt after 3 seconds.
 
 ```js
 chatController.handleFeedback('UP');
@@ -181,7 +181,7 @@ The controller automatically determines the request type based on the current co
 - Invoked after the store has been updated with the chat response (asynchronous event can be awaited)
 
 ### switchChat
-- Called with `eventData` = { controller, id, chat } — `chat` is the `ChatSessionStore` switched to
+- Called with `eventData` = { controller, chat } — `chat` is the `ChatSessionStore` switched to
 - Invoked after `switchChat()` makes the target chat current, before the product quickview is re-synced (asynchronous event can be awaited); the re-sync is skipped if another chat was switched to while it ran
 - Not invoked when `id` does not match a stored chat
 - The products of the chat switched to have not passed through `afterStore` on this page when the session was restored from storage or its response arrived while another chat was current — middleware that adjusts products in `afterStore` can apply the same adjustments here
@@ -204,6 +204,6 @@ The controller automatically determines the request type based on the current co
 - Called with `eventData` = { controller, product, trackEvent }
 - Always invoked after `track.product.addToCart()` method has been invoked
 
-### track.product.feedback
+### track.feedback
 - Called with `eventData` = { controller, trackEvent }
-- Always invoked after `track.product.feedback()` method has been invoked (no-op if there is no current chat sessionId)
+- Always invoked after `track.feedback()` method has been invoked (no-op if there is no current chat sessionId)

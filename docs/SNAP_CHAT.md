@@ -320,7 +320,7 @@ The Chat controller automatically determines the request type based on the curre
 
 ## Tracking
 
-The Chat controller provides tracking methods under `controller.track.product` for analytics. These are automatically invoked by the `Chat` component but can also be called manually:
+The Chat controller provides tracking methods under `controller.track.product`, plus `controller.track.feedback` for session feedback. These are automatically invoked by the `Chat` component but can also be called manually:
 
 ```js
 // track a product impression
@@ -333,7 +333,7 @@ controller.track.product.clickThrough(event, result);
 controller.track.product.addToCart(result);
 
 // track session feedback
-controller.track.product.feedback('UP');
+controller.track.feedback('UP');
 ```
 
 Tracking requires `beacon` to be enabled in the controller config:
@@ -464,12 +464,15 @@ The Chat controller fires the following middleware events that can be hooked int
 | Event | Description |
 |---|---|
 | `init` | Fired during controller initialization; checks chat availability |
-| `switchChat` | Fired when `switchChat()` makes another stored chat current, with `{ controller, id, chat }` |
+| `beforeSearch` | Fired before a chat request is sent; middleware can cancel the request |
+| `afterSearch` | Fired after the chat API response is received, before the store is updated; middleware can cancel the store update |
+| `afterStore` | Fired after the store has been updated with the chat response |
+| `switchChat` | Fired when `switchChat()` makes another stored chat current, with `{ controller, chat }` |
 | `addToCart` | Fired when a product is added to the cart |
 | `track.product.impression` | Fired when a product impression is tracked |
 | `track.product.clickThrough` | Fired when a product click-through is tracked |
 | `track.product.addToCart` | Fired when a product add-to-cart is tracked |
-| `track.product.feedback` | Fired when session feedback is tracked |
+| `track.feedback` | Fired when session feedback is tracked |
 
 ```js
 import { Chat } from '@athoscommerce/snap-preact/components';
