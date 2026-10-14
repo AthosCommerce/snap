@@ -3,7 +3,7 @@
 Snap Templates configurations are verified by two cooperating layers:
 
 1. **The TypeScript compiler** is the authority: an invalid configuration will not compile. No tooling setup is required beyond wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`).
-2. **The `validate-config` ESLint rule** is an advisory layer that puts the error squiggle on the exact line of the mistake and lists what is valid there. If the linter is not set up (or a check cannot run), nothing goes unchecked — the compiler enforces the same rules; only the pinpoint squiggles are lost.
+2. **The Snap config ESLint rules** are an advisory layer that puts the error squiggle on the exact line of the mistake and lists what is valid there. If the linter is not set up (or a check cannot run), the compiler still enforces the same rules and only the pinpoint squiggles are lost. The one exception is the [layout banner check](#layout-banner-check), which only the linter performs.
 
 This page is the reference for how each layer works, how to read the errors, and how to set up the linter. For guide-level usage, see [Templates Config](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md) and [Templates Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md).
 
@@ -36,12 +36,12 @@ Argument of type 'InvalidThemeOverrides<{ default: { 'search, searchHorizontal':
 		"search" | "searchHorizontal" } } }>' is not assignable to ...
 ```
 
-### Setting up the `validate-config` ESLint rule
+### Setting up the ESLint rules
 
 > [!TIP]
-> Projects initialized with `snapfu` come with all of this prewired — the [preact-templates scaffold](https://github.com/AthosCommerce/snapfu-scaffold-preact-templates) enables the `validate-config` rule on all TypeScript files and typed linting for the config entry point out of the box. The setup below is only needed for projects configured by hand.
+> Projects initialized with `snapfu` come with all of this prewired. The [preact-templates scaffold](https://github.com/AthosCommerce/snapfu-scaffold-preact-templates) enables the recommended rules on all TypeScript files, and typed linting for the config entry point. The setup below is only needed for projects configured by hand.
 
-Register the plugin and enable the rule in your ESLint flat config, scoped to the file(s) that author the config:
+Register the plugin and enable its recommended rules in your ESLint flat config, scoped to the file(s) that author the config:
 
 ```js
 // eslint.config.js
@@ -55,18 +55,26 @@ module.exports = [
 			'snap-config': snapConfigPlugin,
 		},
 		rules: {
-			'snap-config/validate-config': 'error',
+			...snapConfigPlugin.configs.recommended.rules,
 		},
 	},
 ];
 ```
 
-With just that, the rule checks everything it can from the code alone:
+Spreading `configs.recommended.rules` keeps the rules and their severities in step with your installed `@athoscommerce/snap-preact` version: new rules apply automatically when you upgrade. To change one rule's severity, set it after the spread, for example `'snap-config/hidden-layout-banners': 'off'`.
 
-- `customComponent` values reference a component registered in the matching `components` section
-- `resultComponent` and `globalResultComponent` values are `Result`, `OverlayResult`, or registered in `components.result`
-- Tab configurations are consistent: unique ids, a unique `siteId` and `param` per tab within a feature, and matching `siteId`/`param` pairs across search and autocomplete — see [Tabs](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#tabs)
-- Comma-separated override selectors all target the same component type
+With just that, the rules check everything they can from the code alone:
+
+| Rule                                | Checks                                                                                                                                                                                                                                                                | Severity |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `snap-config/component-references`  | `customComponent` values reference a component registered in the matching `components` section. `resultComponent` and `globalResultComponent` values are `Result`, `OverlayResult`, or registered in `components.result`.                                             | error    |
+| `snap-config/tabs`                  | Tab configurations are consistent: unique ids, a unique `siteId` and `param` per tab within a feature, and matching `siteId`/`param` pairs across search and autocomplete. See [Tabs](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#tabs). | error    |
+| `snap-config/override-selectors`    | Comma-separated override selectors all target the same component type. With typed linting (below), also unknown selectors and invalid props.                                                                                                                          | error    |
+| `snap-config/layout-banners`        | Overridden search and autocomplete layouts still render every merchandising banner the default layouts render. See [Layout banner check](#layout-banner-check).                                                                                                       | error    |
+| `snap-config/hidden-layout-banners` | Hide props such as `hideSidebar` don't stop a banner from rendering. See [Layout banner check](#layout-banner-check).                                                                                                                                                 | warning  |
+
+> [!NOTE]
+> Older configs enable a single `snap-config/validate-config` rule. It still works, as a deprecated alias that runs every rule above except `hidden-layout-banners`, but switch to `configs.recommended`. Don't enable both, or every problem is reported twice.
 
 Adding **typed linting** unlocks the rest — the checks that need to know the real component prop types. Point `parserOptions.project` at your `tsconfig.json` for the config-authoring files:
 
@@ -82,7 +90,7 @@ Adding **typed linting** unlocks the rest — the checks that need to know the r
 	},
 ```
 
-This adds pinpoint squiggles for the checks the compiler reports at the use site:
+This adds pinpoint squiggles to `override-selectors` for the checks the compiler reports at the use site:
 
 - Unknown theme override selectors
 - Invalid or mistyped props on any override selector — including open-named selectors such as `facet.<field>`, where the IDE cannot offer autocompletion
@@ -101,6 +109,32 @@ override props resolve against that component.
 
 > [!NOTE]
 > Typed linting builds a TypeScript program for each matched file, so scope it to the few files that actually author the config rather than your whole project.
+
+### Layout banner check
+
+Merchandising banners returned by the API render only where a template's layouts place them:
+
+- **Search templates:** `banner.header`, `banner.banner` and `banner.footer` go in the toolbar layouts, and `banner.left` goes in the sidebar layout.
+- **Autocomplete templates:** the `content` module renders the header, banner and footer banners, and `facets` renders the left banner. Explicit `banner.*` modules can be placed anywhere.
+
+The default layouts already place the banners. A `layout` set in `theme.overrides` replaces the default for that toolbar, sidebar or template, so it can leave a banner with nowhere to render.
+
+For every search and autocomplete template in `targets`, at every breakpoint, the rules work out which banners the default layouts render and which ones still render with your overrides applied. Each override that drops a banner is reported:
+
+- **`layout-banners` reports an error** for:
+  - a `layout` that leaves a banner out.
+  - an autocomplete `column1`–`column4` override without a `layout`. The override replaces the whole column object, including its default `layout`.
+- **`hidden-layout-banners` reports a warning** for a hide prop that hides a banner: `hideSidebar`, `hideTopToolbar`, `hideMiddleToolbar`, `hideBottomToolbar` or `excludeBanners`. Hiding a toolbar or the sidebar is often deliberate, and `banner.left` can only render in the sidebar, so this is a warning rather than an error.
+
+Moving a banner to another layout of the same template is fine. So is overriding one layout while the banner lives in a layout you didn't change.
+
+```
+The "layout" set by the "toolbar.top" override leaves 'banner.header' out of every
+layout of Search (all breakpoints), so those merchandising banners returned by the
+API will not render. Add them to this layout or another layout of the template.
+```
+
+Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads, variables, a `customComponent` override, and a target `component` that isn't a string literal. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
 
 ### Checking limitations
 
