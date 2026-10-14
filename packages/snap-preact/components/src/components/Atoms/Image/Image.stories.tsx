@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { Image, FALLBACK_IMAGE_URL, ImageProps } from './Image';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 
 const searchResponse = {
 	product1: {
@@ -23,23 +22,11 @@ import Readme from '../Image/readme.md';
 export default {
 	title: 'Atoms/Image',
 	component: Image,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -53,6 +40,17 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onError: fn(),
+		onLoad: fn(),
+		onClick: fn(),
+		onMouseOver: fn(),
+		onMouseOut: fn(),
+		onPointerDown: fn(),
+		onPointerMove: fn(),
+		onPointerUp: fn(),
+		onPointerLeave: fn(),
+	},
 	argTypes: {
 		src: {
 			description: 'Image url',
@@ -138,8 +136,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onError',
+			control: false,
 		},
 		onLoad: {
 			description: 'Image loaded event handler',
@@ -149,8 +146,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onLoad',
+			control: false,
 		},
 		onClick: {
 			description: 'Image click event handler',
@@ -160,8 +156,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		onMouseOver: {
 			description: 'Image mouse enter event handler',
@@ -171,8 +166,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onMouseOver',
+			control: false,
 		},
 		onMouseOut: {
 			description: 'Image mouse exit event handler',
@@ -182,8 +176,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onMouseOut',
+			control: false,
 		},
 		onPointerDown: {
 			description: 'Image pointer down event handler',
@@ -194,7 +187,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerDown',
 		},
 		onPointerMove: {
 			description: 'Image pointer move event handler',
@@ -205,7 +197,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerMove',
 		},
 		onPointerUp: {
 			description: 'Image pointer up event handler',
@@ -216,7 +207,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerUp',
 		},
 		onPointerLeave: {
 			description: 'Image pointer leave event handler',
@@ -227,34 +217,45 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerLeave',
 		},
 		...componentArgs,
 	},
 };
 
-export const Default = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-Default.args = {
-	src: searchResponse.product1.image,
-	alt: searchResponse.product1.name,
+export const Default = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: searchResponse.product1.image,
+		alt: searchResponse.product1.name,
+	},
 };
 
-export const BrokenImg = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-BrokenImg.args = {
-	src: 'intentionally_broken_image.jpg',
-	alt: searchResponse.product1.name,
+export const BrokenImg = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: 'intentionally_broken_image.jpg',
+		alt: searchResponse.product1.name,
+	},
 };
 
-export const ManualFallBack = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-ManualFallBack.args = {
-	src: 'intentionally_broken_image.jpg',
-	alt: searchResponse.product1.name,
-	fallback: searchResponse.product1.image,
+export const ManualFallBack = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: 'intentionally_broken_image.jpg',
+		alt: searchResponse.product1.name,
+		fallback: searchResponse.product1.image,
+	},
 };
 
-export const onhover = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
-onhover.args = {
-	src: searchResponse.product1.image,
-	alt: searchResponse.product1.name,
-	hoverSrc: searchResponse.product2.image,
+export const onhover = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: searchResponse.product1.image,
+		alt: searchResponse.product1.name,
+		hoverSrc: searchResponse.product2.image,
+	},
 };

@@ -1,8 +1,7 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Terms, TermsProps } from './Terms';
 import Readme from './readme.md';
 import { AutocompleteController } from '@athoscommerce/snap-controller';
@@ -15,26 +14,17 @@ import { useState } from 'preact/hooks';
 export default {
 	title: 'Molecules/Terms',
 	component: Terms,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onTermClick: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'autocomplete controller reference',
@@ -44,7 +34,7 @@ export default {
 					summary: 'autocomplete controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		terms: {
 			description: 'autocomplete term store reference',
@@ -54,7 +44,7 @@ export default {
 					summary: 'autocomplete term store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		title: {
 			description: 'terms title',
@@ -107,8 +97,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onTermClick',
+			control: false,
 		},
 		vertical: {
 			description: 'boolean to adjust if each term should render in a vertically',
@@ -138,79 +127,81 @@ const snapInstance = Snapify.autocomplete({
 	},
 });
 
-export const Default = (args: TermsProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
-	const [termState, setTermState] = useState('');
+export const Default = {
+	render: (args: TermsProps, { loaded: { controller } }: { loaded: { controller: AutocompleteController } }) => {
+		const [termState, setTermState] = useState('');
 
-	const mockTerms: AutocompleteTermStore = [
-		{
-			active: termState === 'dress',
-			preview: () => setTermState('dress'),
-			value: 'dress',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shirt',
-			preview: () => setTermState('shirt'),
-			value: 'shirt',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'shoes',
-			preview: () => setTermState('shoes'),
-			value: 'shoes',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'hat',
-			preview: () => setTermState('hat'),
-			value: 'hat',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'pants',
-			preview: () => setTermState('pants'),
-			value: 'pants',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-		{
-			active: termState === 'socks',
-			preview: () => setTermState('socks'),
-			value: 'socks',
-			type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
-			url: {
-				href: '#',
-			} as UrlManager,
-		},
-	];
+		const mockTerms: AutocompleteTermStore = [
+			{
+				active: termState === 'dress',
+				preview: () => setTermState('dress'),
+				value: 'dress',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shirt',
+				preview: () => setTermState('shirt'),
+				value: 'shirt',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'shoes',
+				preview: () => setTermState('shoes'),
+				value: 'shoes',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'hat',
+				preview: () => setTermState('hat'),
+				value: 'hat',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'pants',
+				preview: () => setTermState('pants'),
+				value: 'pants',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+			{
+				active: termState === 'socks',
+				preview: () => setTermState('socks'),
+				value: 'socks',
+				type: 'suggested' as AutocompleteRequestModelSearchSourceEnum,
+				url: {
+					href: '#',
+				} as UrlManager,
+			},
+		];
 
-	setTimeout(() => {
-		controller.bind();
-	});
+		setTimeout(() => {
+			controller.bind();
+		});
 
-	return (
-		<div style={{ maxWidth: args?.vertical ? '500px' : '1200px' }}>
-			<Terms {...args} controller={controller} terms={mockTerms} />
-		</div>
-	);
+		return (
+			<div style={{ maxWidth: args?.vertical ? '500px' : '1200px' }}>
+				<Terms {...args} controller={controller} terms={mockTerms} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => ({
+			controller: await snapInstance,
+		}),
+	],
 };
-
-Default.loaders = [
-	async () => ({
-		controller: await snapInstance,
-	}),
-];

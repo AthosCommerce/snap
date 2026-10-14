@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { BadgeImageProps, BadgeImage } from './BadgeImage';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { BadgeImage } from './BadgeImage';
+import { componentArgs } from '../../../utilities';
 import Readme from '../BadgeImage/readme.md';
 
 export default {
 	title: 'Atoms/BadgeImage',
 	component: BadgeImage,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -42,16 +28,6 @@ export default {
 		),
 	],
 	argTypes: {
-		tag: {
-			description: 'Badge location tag',
-			table: {
-				type: {
-					summary: 'string',
-				},
-				category: 'Templates Legal',
-			},
-			control: { type: 'text' },
-		},
 		url: {
 			description: 'Badge image url',
 			type: { required: true },
@@ -61,6 +37,16 @@ export default {
 				},
 				category: 'Templates Legal',
 				defaultValue: { summary: '' },
+			},
+			control: { type: 'text' },
+		},
+		tag: {
+			description: 'Badge location tag',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
 			},
 			control: { type: 'text' },
 		},
@@ -79,8 +65,9 @@ export default {
 	},
 };
 
-export const Default = (args: BadgeImageProps) => <BadgeImage {...args} />;
-Default.args = {
-	url: '//cdn.searchspring.net/ajax_search/img/star-badge-new-blue.png',
-	label: 'placeholder badge image',
+export const Default = {
+	args: {
+		url: '//cdn.searchspring.net/ajax_search/img/star-badge-new-blue.png',
+		label: 'placeholder badge image',
+	},
 };

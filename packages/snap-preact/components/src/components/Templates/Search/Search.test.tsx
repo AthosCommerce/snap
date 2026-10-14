@@ -12,6 +12,7 @@ import { MockClient } from '@athoscommerce/snap-shared';
 import { QueryStringTranslator, UrlManager, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Search } from './Search';
 import userEvent from '@testing-library/user-event';
+import type { Tab, TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const globals = { siteId: '8uyt2m' };
 
@@ -253,6 +254,56 @@ describe('Search Template Component', () => {
 
 		expect(element).toBeInTheDocument();
 		expect(sidebar).not.toBeInTheDocument();
+	});
+
+	it('does not render tabpanel attributes without a tabManager', () => {
+		const rendered = render(<Search controller={controller} />);
+		const content = rendered.container.querySelector('.ss__search__content');
+
+		expect(content).toBeInTheDocument();
+		expect(content).not.toHaveAttribute('role');
+		expect(content).not.toHaveAttribute('id');
+		expect(content).not.toHaveAttribute('aria-labelledby');
+	});
+
+	it('renders the content as a tabpanel labelled by the active tab', async () => {
+		const blogConfig = { ...searchConfigDefault, id: uuidv4().split('-').join('') };
+		const blogController = new SearchController(blogConfig, {
+			client: mockClient,
+			store: new SearchStore(blogConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		await blogController.search();
+
+		const createTab = (id: string, tabController: SearchController): Tab => ({
+			id,
+			label: id,
+			siteId: globals.siteId,
+			param: id.toLowerCase(),
+			prefetch: true,
+			controller: tabController,
+			redirects: {},
+		});
+
+		const tabs = [createTab('Products', controller), createTab('Blog', blogController)];
+		const tabManager = { tabs, active: tabs[1], param: 'tab', setActive: jest.fn() } as unknown as TabManagerStore;
+
+		const rendered = render(<Search controller={controller} tabManager={tabManager} />);
+
+		const content = rendered.container.querySelector('.ss__search__content');
+		const activeTab = rendered.container.querySelector('.ss__tab-selection__button--active');
+
+		expect(content).toHaveAttribute('role', 'tabpanel');
+		expect(content).toHaveAttribute('id', `ss__tabpanel--${blogController.id}`);
+		expect(content).toHaveAttribute('aria-labelledby', `ss__tab--${blogController.id}`);
+
+		// the active tab button and the panel reference each other
+		expect(activeTab).toHaveAttribute('id', content!.getAttribute('aria-labelledby')!);
+		expect(activeTab).toHaveAttribute('aria-controls', content!.getAttribute('id')!);
 	});
 
 	it('renders with classname', () => {
