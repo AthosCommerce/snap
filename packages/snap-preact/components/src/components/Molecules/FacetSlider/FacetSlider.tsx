@@ -272,10 +272,14 @@ export const FacetSlider = observer((properties: FacetSliderProps) => {
 
 							//deep merge with props.lang
 							const lang = deepmerge(defaultLang, props.lang || {});
-							const mergedLang = useLang(lang as any, {
-								facet,
-								value,
-							});
+							const mergedLang = useLang(
+								lang as any,
+								{
+									facet,
+									value,
+								},
+								{ activeBreakpoint: globalTheme?.activeBreakpoint }
+							);
 
 							return (
 								<button

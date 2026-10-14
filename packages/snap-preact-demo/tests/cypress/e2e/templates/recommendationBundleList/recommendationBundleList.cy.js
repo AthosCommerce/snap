@@ -96,13 +96,17 @@ describe('BundledRecommendations', () => {
 		});
 
 		it('renders cta section', function () {
+			let initialCartCount;
+
 			cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
 				cy.get(config?.selectors?.recommendation.cta).should('exist');
+
+				initialCartCount = store.cart.count;
 
 				//title
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-list__wrapper__cta__subtotal__title`)
 					.should('exist')
-					.should('contain', 'Subtotal for');
+					.should('have.text', `Subtotal for ${initialCartCount} items`);
 				//msrp
 				if (store.results.filter((result) => result.mappings.core.msrp).length) {
 					cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-list__wrapper__cta__subtotal__strike`)
@@ -125,10 +129,13 @@ describe('BundledRecommendations', () => {
 				.click({ force: true })
 				.then(() => {
 					cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
+						//unchecking the seed item should remove exactly one item from the cart
+						expect(store.cart.count).to.equal(initialCartCount - 1);
+
 						//title
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle-list__wrapper__cta__subtotal__title`)
 							.should('exist')
-							.should('contain', 'Subtotal for');
+							.should('have.text', `Subtotal for ${store.cart.count} items`);
 
 						//strike
 						if (store.results.filter((result) => result.mappings.core.msrp).length) {

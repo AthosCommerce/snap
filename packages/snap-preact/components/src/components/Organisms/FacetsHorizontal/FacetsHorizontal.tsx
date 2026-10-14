@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
@@ -18,6 +18,7 @@ import { Icon, IconProps, IconType } from '../../Atoms/Icon';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Slideout, SlideoutProps } from '../../Molecules/Slideout';
 import { Sidebar, SidebarProps } from '../Sidebar';
+import { useA11y } from '../../../hooks/useA11y';
 
 const defaultStyles: StyleScript<FacetsHorizontalProps> = ({ theme }) => {
 	return css({
@@ -132,6 +133,9 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		treePath,
 	} = props;
 
+	//we just dont allow this prop to be used outside of the search controller.
+	const openFacetsInSidebar = controller?.type !== 'search' ? false : props.openFacetsInSidebar;
+
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('facetsHorizontal', props);
 
 	if (!shouldRenderDefault) {
@@ -180,6 +184,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 	}
 
 	const [sidebarOpenState, setSidebarOpenState] = useState(false);
+	const renderToggleSidebarButton = Boolean(!hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton));
 
 	const subProps: FacetsHorizontalSubProps = {
 		dropdown: {
@@ -221,7 +226,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 			internalClassName: `ss__facets-horizontal__content__facet`,
 			justContent: true,
 			// this should be turned on if there is ever a filters button rendering.
-			statefulOverflow: !hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton) ? true : undefined,
+			statefulOverflow: renderToggleSidebarButton ? true : undefined,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -245,6 +250,7 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		sidebar: {
 			// default props
 			internalClassName: 'ss__facets-horizontal__sidebar',
+			onToggleSidebar: () => setSidebarOpenState(false),
 			// inherited props
 			...defined({
 				disableStyles,
@@ -272,6 +278,66 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		selectedFacet && setSelectedFacet(undefined);
 	});
 
+	// facet field to scroll into view once the slideout renders
+	const [sidebarFacetField, setSidebarFacetField] = useState<string | undefined>(undefined);
+
+	// facet expanded by a header click; collapsed again when the sidebar closes
+	const autoOpenedFacet = useRef<IndividualFacetType | undefined>(undefined);
+	// field of the header that opened the sidebar; focus returns to it when the sidebar closes
+	const openerField = useRef<string | undefined>(undefined);
+
+	const openFacetsInSidebarFunc = (facet: IndividualFacetType) => {
+		// expand the facet so it renders open in the sidebar
+		if (facet.collapsed) {
+			facet.toggleCollapse();
+			autoOpenedFacet.current = facet;
+		}
+		openerField.current = facet.field;
+		setSidebarFacetField(facet.field);
+		setSidebarOpenState(true);
+	};
+
+	useEffect(() => {
+		if (!sidebarFacetField || !sidebarOpenState) return;
+
+		// slideout content is already mounted; match by class so field names need no CSS escaping
+		const slideoutElem = innerRef.current?.querySelector('.ss__facets-horizontal__slideout');
+		const facetElem = Array.from(slideoutElem?.querySelectorAll('.ss__facet') || []).find((elem) =>
+			elem.classList.contains(`ss__facet--${sidebarFacetField}`)
+		);
+
+		if (facetElem) {
+			if (typeof facetElem.scrollIntoView == 'function') {
+				facetElem.scrollIntoView({ block: 'start' });
+			}
+			// move focus into the sidebar so keyboard navigation continues from the opened facet
+			facetElem.querySelector<HTMLElement>('.ss__facet__header')?.focus({ preventScroll: true });
+		}
+
+		setSidebarFacetField(undefined);
+	}, [sidebarFacetField, sidebarOpenState]);
+
+	useEffect(() => {
+		if (sidebarOpenState) return;
+
+		// re-collapse the auto-opened facet (slideout content is already unmounted, so nothing flickers)
+		const facet = autoOpenedFacet.current;
+		autoOpenedFacet.current = undefined;
+		if (facet && !facet.collapsed && typeof facet.toggleCollapse == 'function') {
+			facet.toggleCollapse();
+		}
+
+		// return focus to the header that opened the sidebar
+		const field = openerField.current;
+		openerField.current = undefined;
+		if (field) {
+			const headerDropdown = Array.from(innerRef.current?.querySelectorAll('.ss__facets-horizontal__header__dropdown') || []).find((elem) =>
+				elem.classList.contains(`ss__facets-horizontal__header__dropdown--${field}`)
+			);
+			headerDropdown?.querySelector<HTMLElement>('.ss__dropdown__button')?.focus();
+		}
+	}, [sidebarOpenState]);
+
 	//initialize lang
 	const defaultLang: Partial<FacetsHorizontalLang> = {
 		toggleSidebarButtonText: {
@@ -281,7 +347,11 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, { facets: facets, sidebarOpenState: sidebarOpenState });
+	const mergedLang = useLang(
+		lang as any,
+		{ facets: facets, sidebarOpenState: sidebarOpenState },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const ToggleSidebarButton = ({ sidebarOpenState, setSidebarOpenState, subProps }: any) => {
 		return (
@@ -295,7 +365,8 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 		);
 	};
 
-	const renderSidebar = Boolean(!hideToggleSidebarButton && (isOverflowing || alwaysShowToggleSidebarButton));
+	// the slideout is also needed when facet headers open the sidebar
+	const renderSlideout = renderToggleSidebarButton || Boolean(openFacetsInSidebar);
 
 	//todo investigate keyboard navigation here when overlay prop is true/false
 	return (facetsToShow && facetsToShow?.length > 0) || isOverflowing ? (
@@ -328,10 +399,14 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 
 						//deep merge with props.lang
 						const lang = deepmerge(defaultLang, props.lang || {});
-						const mergedLang = useLang(lang as any, {
-							selectedFacet,
-							facet,
-						});
+						const mergedLang = useLang(
+							lang as any,
+							{
+								selectedFacet,
+								facet,
+							},
+							{ activeBreakpoint: globalTheme?.activeBreakpoint }
+						);
 
 						return (
 							<Dropdown
@@ -341,9 +416,13 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 									`ss__facets-horizontal__header__dropdown--${facet.display}`,
 									`ss__facets-horizontal__header__dropdown--${facet.field}`
 								)}
-								open={selectedFacet?.field === facet.field}
+								open={openFacetsInSidebar ? false : selectedFacet?.field === facet.field}
 								onClick={(e) => {
-									// @ts-ignore - this is a workaround for the fact that selectedFacet is not defined when the onclick is triggered by the escape key.
+									if (openFacetsInSidebar) {
+										openFacetsInSidebarFunc(facet);
+										return;
+									}
+									// @ts-ignore - escape key closes the dropdown
 									if (selectedFacet !== facet && e.code !== 'Escape') {
 										setSelectedFacet(facet);
 									} else {
@@ -388,15 +467,22 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 								}
 								disableOverlay={false}
 							>
-								<Facet {...subProps.facet} facet={facet} />
+								{!openFacetsInSidebar && <Facet {...subProps.facet} facet={facet} />}
 							</Dropdown>
 						);
 					})}
-					{renderSidebar && <ToggleSidebarButton sidebarOpenState={sidebarOpenState} setSidebarOpenState={setSidebarOpenState} subProps={subProps} />}
+					{renderToggleSidebarButton && (
+						<ToggleSidebarButton sidebarOpenState={sidebarOpenState} setSidebarOpenState={setSidebarOpenState} subProps={subProps} />
+					)}
 				</div>
-				{renderSidebar && (
+				{renderSlideout && (
 					<Slideout {...subProps.slideout} active={sidebarOpenState}>
-						<Sidebar {...subProps.sidebar} controller={controller as SearchController} />
+						<div
+							className={'ss__facets-horizontal__slideout__sidebar-wrapper'}
+							ref={(e) => useA11y(e, 0, true, () => setSidebarOpenState((prev) => !prev))}
+						>
+							<Sidebar {...subProps.sidebar} controller={controller as SearchController} />
+						</div>
 					</Slideout>
 				)}
 			</div>
@@ -431,6 +517,7 @@ export type FacetsHorizontalTemplatesLegalProps = {
 	limit?: number;
 	alwaysShowToggleSidebarButton?: boolean;
 	hideToggleSidebarButton?: boolean;
+	openFacetsInSidebar?: boolean;
 	iconCollapse?: IconType | Partial<IconProps>;
 	iconExpand?: IconType | Partial<IconProps>;
 	toggleSidebarButtonText?: string;

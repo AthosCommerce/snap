@@ -1,10 +1,8 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Pagination, PaginationProps } from './Pagination';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../Pagination/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -12,23 +10,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Molecules/Pagination',
 	component: Pagination,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -40,7 +26,7 @@ export default {
 					summary: 'Search controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		pagination: {
 			description: 'Pagination store reference',
@@ -50,7 +36,7 @@ export default {
 					summary: 'pagination store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		pages: {
 			description:
@@ -180,6 +166,27 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		hidePages: {
+			description: 'Hide main page number buttons (excludes first and last)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		ellipsisContent: {
+			description: 'Custom content for the ellipsis sections',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string, JSX',
+				},
+			},
+			control: { type: 'text' },
+		},
 		hideNext: {
 			description: 'Hide next button',
 			table: {
@@ -212,15 +219,17 @@ const ObservablePagination = observer(({ args, controller }: { args: PaginationP
 	return <Pagination {...args} pagination={controller?.store?.pagination} />;
 });
 
-export const Default = (args: PaginationProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservablePagination args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: PaginationProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservablePagination args={args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

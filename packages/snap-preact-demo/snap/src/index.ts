@@ -215,6 +215,31 @@ let config: SnapConfig = {
 			},
 		],
 	},
+	quickview: {
+		config: {
+			id: 'quickview',
+			settings: {
+				displayFields: [{ field: 'price', type: 'price' }, { field: 'color' }, { field: 'size' }],
+			},
+		},
+		targeters: [
+			{
+				selector: 'body',
+				inject: {
+					action: 'append',
+					element: () => {
+						const el = document.createElement('div');
+						el.id = 'athos-quickview';
+						return el;
+					},
+				},
+				component: async () => {
+					return (await import('@athoscommerce/snap-preact/components')).QuickviewModal;
+					// return (await import('@athoscommerce/snap-preact/components')).QuickviewSlideout;
+				},
+			},
+		],
+	},
 };
 
 // used to add config settings from cypress e2e tests

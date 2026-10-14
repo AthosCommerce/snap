@@ -45,7 +45,26 @@ export const Image = observer((properties: ImageProps) => {
 
 	const props = mergeProps('image', globalTheme, defaultProps, properties);
 
-	const { alt, src, fallback, title, hoverSrc, lazy, onMouseOver, onMouseOut, onError, onLoad, onClick, className, internalClassName } = props;
+	const {
+		alt,
+		src,
+		fallback,
+		title,
+		hoverSrc,
+		lazy,
+		onMouseOver,
+		onMouseOut,
+		onError,
+		onLoad,
+		onClick,
+		onPointerDown,
+		onPointerMove,
+		onPointerUp,
+		onPointerLeave,
+		className,
+		internalClassName,
+		draggable,
+	} = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('image', props);
 
@@ -91,6 +110,19 @@ export const Image = observer((properties: ImageProps) => {
 						hoverSrc && setHover(false);
 						onMouseOut && onMouseOut(e);
 					}}
+					onPointerDown={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerDown && onPointerDown(e);
+					}}
+					onPointerMove={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerMove && onPointerMove(e);
+					}}
+					onPointerUp={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerUp && onPointerUp(e);
+					}}
+					onPointerLeave={(e: React.MouseEvent<HTMLImageElement>) => {
+						onPointerLeave && onPointerLeave(e);
+					}}
+					draggable={draggable}
 				/>
 			</div>
 		</CacheProvider>
@@ -108,8 +140,13 @@ export type ImageTemplatesLegalProps = {
 	hoverSrc?: string;
 	onMouseOver?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onMouseOut?: (e: React.MouseEvent<HTMLImageElement>) => void;
+	onPointerDown?: (e: React.MouseEvent<HTMLImageElement>) => void;
+	onPointerMove?: (e: React.MouseEvent<HTMLImageElement>) => void;
+	onPointerUp?: (e: React.MouseEvent<HTMLImageElement>) => void;
+	onPointerLeave?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onError?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onLoad?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onClick?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	lazy?: boolean;
+	draggable?: boolean;
 };

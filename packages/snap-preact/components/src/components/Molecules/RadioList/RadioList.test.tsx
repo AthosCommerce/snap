@@ -159,6 +159,34 @@ describe('RadioList Component', () => {
 		});
 	});
 
+	it('resyncs the selection when the selected prop returns to an earlier value', () => {
+		const { container, rerender } = render(<RadioList options={options} selected={options[0]} />);
+
+		const selectedLabel = () => container.querySelector('.ss__radio-list__option--selected .ss__radio-list__option__label')?.innerHTML;
+
+		expect(selectedLabel()).toBe(options[0].label);
+
+		rerender(<RadioList options={options} selected={options[1]} />);
+
+		expect(selectedLabel()).toBe(options[1].label);
+
+		// back to the value the prop held on mount - eg. switching back to the previously viewed tab
+		rerender(<RadioList options={options} selected={options[0]} />);
+
+		expect(selectedLabel()).toBe(options[0].label);
+	});
+
+	it('does not revert a selection made before the selected prop catches up', async () => {
+		const { container, rerender } = render(<RadioList options={options} selected={options[0]} />);
+
+		await userEvent.click(container.querySelectorAll('.ss__radio-list__option')[1]);
+
+		// the store has not updated yet, so 'selected' still holds the previous option
+		rerender(<RadioList options={options} selected={options[0]} />);
+
+		expect(container.querySelector('.ss__radio-list__option--selected .ss__radio-list__option__label')?.innerHTML).toBe(options[1].label);
+	});
+
 	it('uses label when passed, and value if not', async () => {
 		const selectFn = jest.fn();
 		const options2 = [

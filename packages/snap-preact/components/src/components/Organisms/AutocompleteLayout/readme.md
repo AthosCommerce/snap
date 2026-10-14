@@ -64,7 +64,9 @@ The `_` module is used a seperator module to center|left|right justify the other
 
 available modules to use in the layout are 
 
-`c1`, `c2`, `c3`, `c4`, `termsList`, `terms.history`, `terms.trending`, `terms.suggestions`, `facets`, `facetsHorizontal`, `button.see-more`, `content`, `no-results`, `_`, `banner.left`, `banner.banner`, `banner.footer`, `banner.header`
+`c1`, `c2`, `c3`, `c4`, `termsList`, `terms.history`, `terms.trending`, `terms.suggestions`, `facets`, `facetsHorizontal`, `button.see-more`, `content`, `no-results`, `tabSelection`, `searchInput`, `_`, `banner.left`, `banner.banner`, `banner.footer`, `banner.header`
+
+The `searchInput` module renders the element provided via the `searchInputSlot` prop (see below) and renders nothing without it.
 
 
 ```tsx
@@ -74,7 +76,7 @@ available modules to use in the layout are
 ### column1
 The `column1` prop specifies the layout to render in the `C1` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `['termsList']`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -88,7 +90,7 @@ The `column1` prop specifies the layout to render in the `C1` module. Takes an o
 ### column2
 The `column2` prop specifies a layout array to render in the `C2` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `['facets']`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -102,7 +104,7 @@ The `column2` prop specifies a layout array to render in the `C2` module. Takes 
 ### column3
 The `column3` prop specifies a layout array to render in the `C3` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `[['content'], ['_', 'button.see-more']]`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -116,7 +118,7 @@ The `column3` prop specifies a layout array to render in the `C3` module. Takes 
 ### column4
 The `column4` prop specifies a layout array to render in the `C4` module. Takes an object with two properties, 
 
-`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
+`width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will share the available space equally with any other auto columns. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `[['content'], ['_', 'button.see-more']]`. All layout modules are available to use with the exception of the `Cx` modules. Additional arrays for new rows are also supported.
 
@@ -125,6 +127,21 @@ The `column4` prop specifies a layout array to render in the `C4` module. Takes 
 width: '150px',
 layout: ['facets']
 }}/>
+```
+
+### searchInputSlot
+The `searchInputSlot` prop provides an element (typically a `SearchInput`) for the `searchInput` layout module. The autocomplete templates (`AutocompleteModal`, `AutocompleteFixed` and `AutocompleteSlideout`) pass their rendered search input through this prop whenever their layout contains a `searchInput` module.
+
+While a slot is provided the layout stays rendered regardless of input focus and content, so the slot element is never unmounted - the parent component is responsible for showing and hiding the layout. The other modules still only render while the bound input is focused and there are terms or results to show. The slot renders at the first `searchInput` module in the layout.
+
+```tsx
+<AutocompleteLayout
+	controller={controller}
+	input={'#searchInput'}
+	layout={[['c1', 'c3']]}
+	column1={{ width: '300px', layout: [['searchInput'], ['terms.history', 'terms.trending']] }}
+	searchInputSlot={<SearchInput placeholderText={'Search'} />}
+/>
 ```
 
 ### width

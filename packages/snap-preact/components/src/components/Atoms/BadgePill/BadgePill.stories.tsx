@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { BadgePillProps, BadgePill } from './BadgePill';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { BadgePill } from './BadgePill';
+import { componentArgs } from '../../../utilities';
 import Readme from '../BadgePill/readme.md';
 
 export default {
 	title: 'Atoms/BadgePill',
 	component: BadgePill,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -90,9 +76,10 @@ export default {
 	},
 };
 
-export const Default = (args: BadgePillProps) => <BadgePill {...args} />;
-Default.args = {
-	value: '30% Off',
-	color: '#0000FF',
-	colorText: '#FFFFFF',
+export const Default = {
+	args: {
+		value: '30% Off',
+		color: '#0000FF',
+		colorText: '#FFFFFF',
+	},
 };

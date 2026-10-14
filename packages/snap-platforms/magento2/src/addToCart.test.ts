@@ -217,6 +217,7 @@ describe('Magento2', () => {
 		});
 
 		it('will redirect by default', async () => {
+			jest.useFakeTimers();
 			const item = results[0];
 
 			addToCart([item]);
@@ -238,14 +239,18 @@ describe('Magento2', () => {
 
 			expect(fetchedFormData).toMatchObject(body);
 
-			await wait(300);
+			// the redirect is a 0-delay setTimeout scheduled once the fetches settle
+			await jest.runAllTimersAsync();
 
 			expect(window.location.href).toEqual(CART_ROUTE);
 
 			fetchMock.mockClear();
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
 		});
 
 		it('will not redirect if config is false', async () => {
+			jest.useFakeTimers();
 			const item = results[0] as Product;
 			const config = {
 				redirect: false,
@@ -270,14 +275,18 @@ describe('Magento2', () => {
 
 			expect(fetchedFormData).toMatchObject(body);
 
-			await wait(300);
+			// the redirect is a 0-delay setTimeout scheduled once the fetches settle
+			await jest.runAllTimersAsync();
 
 			expect(window.location.href).toEqual(ORIGIN);
 
 			fetchMock.mockClear();
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
 		});
 
 		it('can use a custom redirect', async () => {
+			jest.useFakeTimers();
 			const item = results[0] as Product;
 			const config = {
 				redirect: 'https://redirect.localhost',
@@ -302,11 +311,14 @@ describe('Magento2', () => {
 
 			expect(fetchedFormData).toMatchObject(body);
 
-			await wait(300);
+			// the redirect is a 0-delay setTimeout scheduled once the fetches settle
+			await jest.runAllTimersAsync();
 
 			expect(window.location.href).toEqual(config.redirect);
 
 			fetchMock.mockClear();
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
 		});
 
 		it('can add multiple items', async () => {

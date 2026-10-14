@@ -177,9 +177,13 @@ export const LoadMore = observer((properties: LoadMoreProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		pagination: store,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			pagination: store,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return store.totalResults ? (
 		<CacheProvider>

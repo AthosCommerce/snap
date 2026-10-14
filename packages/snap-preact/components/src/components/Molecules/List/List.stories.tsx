@@ -1,7 +1,7 @@
 import { h } from 'preact';
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 import { List, ListProps } from './List';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
 import { Snapify } from '../../../utilities/snapify';
@@ -9,26 +9,17 @@ import { Snapify } from '../../../utilities/snapify';
 export default {
 	title: 'Molecules/List',
 	component: List,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onSelect: fn(),
+	},
 	argTypes: {
 		options: {
 			description: 'list of options to display',
@@ -139,8 +130,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onSelect',
+			control: false,
 		},
 		disabled: {
 			description: 'boolean to set the select in a disabled state',
@@ -172,7 +162,7 @@ export default {
 					summary: 'string | number',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -180,54 +170,60 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'List', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: ListProps) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<List {...args} />
-		</div>
-	);
-};
-Default.args = {
-	options: [
-		{
-			value: 'one',
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-	],
-} as ListProps;
+export const Default = {
+	render: (args: ListProps) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<List {...args} />
+			</div>
+		);
+	},
 
-export const DisabledOption = (args: ListProps) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<List {...args} />
-		</div>
-	);
+	args: {
+		options: [
+			{
+				value: 'one',
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+		],
+	} as ListProps,
 };
-DisabledOption.args = {
-	options: [
-		{
-			value: 'one',
-			disabled: true,
-		},
-		{
-			value: 'two',
-		},
-		{
-			value: 'three',
-		},
-		{
-			value: 'four',
-		},
-	],
-} as ListProps;
+
+export const DisabledOption = {
+	render: (args: ListProps) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<List {...args} />
+			</div>
+		);
+	},
+
+	args: {
+		options: [
+			{
+				value: 'one',
+				disabled: true,
+			},
+			{
+				value: 'two',
+			},
+			{
+				value: 'three',
+			},
+			{
+				value: 'four',
+			},
+		],
+	} as ListProps,
+};
 
 const viewOptions = [
 	{
@@ -251,59 +247,66 @@ const viewOptions = [
 	},
 ];
 
-export const Icons = (args: ListProps) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<List {...args} />
-		</div>
-	);
-};
-Icons.args = {
-	requireSelection: true,
-	options: viewOptions,
-	selected: viewOptions[0],
-} as ListProps;
-
-export const PerPage = (args: ListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<List {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />
-		</div>
-	);
-};
-
-PerPage.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Icons = {
+	render: (args: ListProps) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<List {...args} />
+			</div>
+		);
 	},
-];
 
-PerPage.args = {
-	titleText: 'Per Page',
-	requireSelection: true,
-} as Partial<ListProps>;
-
-export const SortBy = (args: ListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
-			<List {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />
-		</div>
-	);
+	args: {
+		requireSelection: true,
+		options: viewOptions,
+		selected: viewOptions[0],
+	} as ListProps,
 };
 
-SortBy.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const PerPage = {
+	render: (args: ListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<List {...args} options={controller.store.pagination.pageSizeOptions} selected={controller.store.pagination.pageSizeOptions[0]} />
+			</div>
+		);
 	},
-];
 
-SortBy.args = {
-	titleText: 'Sort By',
-	requireSelection: true,
-} as Partial<ListProps>;
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		titleText: 'Per Page',
+		requireSelection: true,
+	} as Partial<ListProps>,
+};
+
+export const SortBy = {
+	render: (args: ListProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.horizontal ? '1200px' : '500px' }}>
+				<List {...args} options={controller?.store?.sorting.options} selected={controller?.store?.sorting.current} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		titleText: 'Sort By',
+		requireSelection: true,
+	} as Partial<ListProps>,
+};

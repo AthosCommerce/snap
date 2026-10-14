@@ -516,13 +516,16 @@ describe('mergeProps function with theme type', () => {
 	});
 });
 describe('sortSelectors function', () => {
-	it('orders strings by spaces', () => {
+	it('orders strings by segment weights (deeper paths and named segments sort later)', () => {
+		// weights are 1-based per segment (mergeProps.ts selectorWeight()): a named segment counts
+		// ((i+1)*2)**2 vs (i+1)*2 unnamed. Note 'search toolbar perPage' (2+4+6=12) sorts BEFORE
+		// 'search toolbar.top' (2+16=18): a named segment now outweighs an extra unnamed level.
 		const expected = [
 			'search',
 			'search toolbar',
+			'search toolbar perPage',
 			'search toolbar.top',
 			'search toolbar.bottom',
-			'search toolbar perPage',
 			'search toolbar.top perPage',
 			'search toolbar.bottom perPage',
 			'search toolbar perPage.named',
@@ -963,11 +966,15 @@ describe('mergeProps function with theme name - prop merge order (templates beha
 	});
 });
 
-describe('respread logic - primitive value collision regression', () => {
-	it('does NOT misclassify a non-theme boolean prop as theme-derived when the value collides with a parent theme value', () => {
-		// Bug: the old respread logic checked `parentThemeValuesArray.indexOf(propValue)`,
-		// so ANY prop with value `true` was treated as theme-derived if ANY parent theme
-		// prop happened to be `true` — even for unrelated keys.
+describe('respread logic - value-identity matching (step 2, mergeProps.ts respreadParentThemeDerivedProps())', () => {
+	// NOTE: a passed prop counts as parent-theme-derived when the parent map has the SAME key
+	// with the identical value (any type), or — renamed-prop forwarding — when its value is
+	// identical to ANY parent map value and the value is a string or a (non-null) object.
+	// Booleans and numbers never match cross-key (they collide with unrelated theme values too
+	// easily). The discriminating collision tests live in mergeProps.templates-priority.test.ts;
+	// the tests here pin what the respread does and does not touch.
+
+	it('a value-colliding passed boolean is not respread and does not affect UNRELATED child base theme props', () => {
 		const componentType = 'icon';
 		const globalTheme = {
 			type: 'templates',
@@ -979,11 +986,10 @@ describe('respread logic - primitive value collision regression', () => {
 		};
 		const defaultProps = {};
 
-		// Parent theme had `startOpen: true` tracked in its theme map.
-		// The child receives `visible: true` as a directly-passed prop (NOT from theme).
-		// Because both are `true`, the old value-only indexOf check would misclassify
-		// `visible` as theme-derived and respread it, potentially overriding the child's
-		// base theme for unrelated props.
+		// Parent theme map tracks `startOpen: true`. The child receives `visible: true` — a
+		// different key that merely shares the value `true`. Booleans never match cross-key,
+		// so `visible` is not respread; it survives via the normal props spread only because
+		// the base theme does not define it, and the unrelated `icon` is untouched.
 		const parentThemePropsMap = new Map<string, any>([['startOpen', true]]);
 		const properties = {
 			visible: true,
@@ -995,14 +1001,11 @@ describe('respread logic - primitive value collision regression', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// `visible` was NOT in the parent theme map (only `startOpen` was), so it should
-		// not be respread. The child's base theme `icon: 'ban'` should remain intact.
 		expect((props as any).icon).toBe('ban');
-		// `visible` should still be present from the normal props spread
 		expect((props as any).visible).toBe(true);
 	});
 
-	it('does NOT misclassify a non-theme number prop when the value collides with a parent theme number', () => {
+	it('a value-colliding passed number is not respread and leaves other child base theme props intact', () => {
 		const componentType = 'select';
 		const globalTheme = {
 			type: 'templates',
@@ -1013,8 +1016,9 @@ describe('respread logic - primitive value collision regression', () => {
 		};
 		const defaultProps: Partial<SelectProps> = {};
 
-		// Parent theme had `columns: 3` tracked in its theme map.
-		// The child receives `limit: 3` as a directly-passed prop (NOT from theme).
+		// Parent theme map tracks `columns: 3`; the child receives `limit: 3`. Numbers never
+		// match cross-key, so `limit` is not respread (it survives via the normal props spread),
+		// and `separator` keeps its base theme value.
 		const parentThemePropsMap = new Map<string, any>([['columns', 3]]);
 		const properties: Partial<SelectProps> = {
 			theme: {
@@ -1026,20 +1030,19 @@ describe('respread logic - primitive value collision regression', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// `limit` was NOT a key in the parent theme map — only `columns` was.
-		// Even though both have value 3, `limit` must not be respread.
 		expect(props.separator).toBe('base-sep');
+		expect((props as any).limit).toBe(3);
 	});
 
-	it('correctly identifies theme-derived props by key match even for primitive values', () => {
-		// When the parent theme map contains key `startOpen` with value `true`,
-		// and the child also receives `startOpen: true`, it IS theme-derived (key+value match).
+	it('respreads a genuinely parent-theme-derived prop (key and value in parent map) over the child base theme', () => {
 		const componentType = 'icon';
 		const globalTheme = {
 			type: 'templates',
 			name: GLOBAL_THEME_NAME,
 			components: {
-				'*icon': { icon: 'ban' },
+				// the child's base theme also defines `startOpen`, so this test fails if the
+				// respread stops restoring parent-theme-derived values
+				'*icon': { icon: 'ban', startOpen: false },
 			},
 		};
 		const defaultProps = {};
@@ -1055,27 +1058,29 @@ describe('respread logic - primitive value collision regression', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// `startOpen` is in the parent theme map with the same value, so it IS theme-derived
-		// and should be respread (winning over child's base theme).
+		// the respread (value match at mergeProps.ts respreadParentThemeDerivedProps()) restores the parent-theme-derived
+		// `startOpen: true` over the child base theme's `false`
 		expect((props as any).startOpen).toBe(true);
+		expect((props as any).icon).toBe('ban');
 	});
 
-	it('correctly identifies theme-derived object props by reference equality', () => {
-		// Object references are safe to match by value — they are unique references.
+	it('respreads a passed object prop whose REFERENCE appears among parent theme map values, even under a different key', () => {
 		const componentType = 'icon';
 		const globalTheme = {
 			type: 'templates',
 			name: GLOBAL_THEME_NAME,
 			components: {
-				'*icon': { icon: 'ban' },
+				// the child's base theme defines `customStyle`, so this test fails if the
+				// reference match stops respreading
+				'*icon': { icon: 'ban', customStyle: { color: 'blue' } },
 			},
 		};
 		const defaultProps = {};
 
 		const sharedStyleObj = { color: 'red', fontSize: 14 };
-		// Parent theme tracked `style` pointing to the same object reference.
-		// Even though the child receives it under a DIFFERENT key (`customStyle`),
-		// object reference matching should detect it as theme-derived.
+		// Parent theme tracked the object under key `style`; the child receives the SAME
+		// reference under a DIFFERENT key (`customStyle`). The value-identity check matches the
+		// reference (keys are ignored), so `customStyle` is respread over the child base theme.
 		const parentThemePropsMap = new Map<string, any>([['style', sharedStyleObj]]);
 		const properties = {
 			customStyle: sharedStyleObj,
@@ -1087,19 +1092,19 @@ describe('respread logic - primitive value collision regression', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// Object reference match — the same object was in the parent theme map
 		expect((props as any).customStyle).toBe(sharedStyleObj);
 	});
 
-	it('does NOT match different objects with identical content as theme-derived', () => {
-		// Two different object instances with the same content should NOT match
-		// via reference equality (they are separate allocations).
+	it('does NOT respread a different object with identical content (no reference match): child base theme wins', () => {
 		const componentType = 'icon';
+		const baseStyleObj = { color: 'green' };
 		const globalTheme = {
 			type: 'templates',
 			name: GLOBAL_THEME_NAME,
 			components: {
-				'*icon': { icon: 'ban' },
+				// the child's base theme defines `style`, so the outcome discriminates between
+				// reference matching (base theme wins) and structural matching (respread would win)
+				'*icon': { icon: 'ban', style: baseStyleObj },
 			},
 		};
 		const defaultProps = {};
@@ -1117,10 +1122,10 @@ describe('respread logic - primitive value collision regression', () => {
 		// @ts-ignore
 		const props = mergeProps(componentType, globalTheme, defaultProps, properties);
 
-		// Key matches ('style' === 'style') but value does NOT match (different reference).
-		// So `style` is NOT theme-derived. The child's base theme should apply normally.
+		// `childStyleObj` is not reference-equal to any parent map value, so it is not respread;
+		// the base theme's `style` object wins (matching happens by identity, not content)
 		expect((props as any).icon).toBe('ban');
-		expect((props as any).style).toBe(childStyleObj);
+		expect((props as any).style).toBe(baseStyleObj);
 	});
 });
 
@@ -1194,6 +1199,80 @@ describe('filterSelectors function', () => {
 			'(M)search toolbar.top pagination icon.next',
 			'(T)search toolbar.top pagination icon.next',
 			'(D)search toolbar.top pagination icon.next',
+		];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+});
+
+describe('filterSelectors with comma-separated selectors', () => {
+	it('matches comma-separated selectors when any individual selector matches the treePath', () => {
+		const treePath = 'recommendation.crosssell carousel icon.prev';
+
+		const selectors = {
+			// comma-separated: first part matches this treePath
+			'recommendation.crosssell icon.prev, recommendation.similar icon.prev': {},
+			// comma-separated: second part matches this treePath
+			'recommendation.similar icon.prev, recommendation.crosssell icon.prev': {},
+			// comma-separated: neither part matches
+			'recommendation.similar icon.prev, search icon.prev': {},
+			// comma-separated with non-named match
+			'recommendation.crosssell icon, recommendation.similar icon': {},
+			// regular single selector that matches
+			'recommendation.crosssell icon.prev': {},
+			// regular single selector that doesn't match
+			'recommendation.similar icon.prev': {},
+		};
+
+		const expected = [
+			'recommendation.crosssell icon.prev, recommendation.similar icon.prev',
+			'recommendation.similar icon.prev, recommendation.crosssell icon.prev',
+			'recommendation.crosssell icon, recommendation.similar icon',
+			'recommendation.crosssell icon.prev',
+		];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+
+	it('matches comma-separated selectors for unnamed components', () => {
+		const treePath = 'search results';
+
+		const selectors = {
+			'search results, recommendation results': {},
+			'autocomplete results, recommendation results': {},
+			results: {},
+		};
+
+		const expected = ['search results, recommendation results', 'results'];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+
+	it('deduplicates comma-separated selectors when multiple parts match', () => {
+		const treePath = 'search toolbar pagination icon.next';
+
+		const selectors = {
+			// both parts match the treePath
+			'search icon.next, toolbar icon.next': {},
+			'icon.next': {},
+		};
+
+		const expected = ['search icon.next, toolbar icon.next', 'icon.next'];
+
+		expect(filterSelectors(selectors, treePath)).toEqual(expected);
+	});
+
+	it('handles comma-separated selectors with prefixes', () => {
+		const treePath = 'recommendation.crosssell carousel icon.prev';
+
+		const selectors = {
+			'*recommendation.crosssell icon.prev, *recommendation.similar icon.prev': {},
+			'*(M)recommendation.crosssell icon.prev, *(M)recommendation.similar icon.prev': {},
+		};
+
+		const expected = [
+			'*recommendation.crosssell icon.prev, *recommendation.similar icon.prev',
+			'*(M)recommendation.crosssell icon.prev, *(M)recommendation.similar icon.prev',
 		];
 
 		expect(filterSelectors(selectors, treePath)).toEqual(expected);

@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import type { SearchController } from '@athoscommerce/snap-controller';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import { Results, ResultsProps } from '../../Organisms/Results';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { ComponentProps, StyleScript, JSXComponent, LayoutSelectorOptions } from '../../../types';
@@ -12,7 +13,7 @@ import { Sidebar, SidebarProps } from '../../Organisms/Sidebar';
 import { Toolbar, ToolbarProps } from '../../Organisms/Toolbar';
 import { NoResults, NoResultsProps } from '../../Organisms/NoResults';
 import { Lang, useLang, useMediaQuery } from '../../../hooks';
-import { FOCUSABLE_ELEMENTS } from '../../../hooks/useA11y';
+import { FOCUSABLE_ELEMENTS, useA11y } from '../../../hooks/useA11y';
 import { SearchFilterStore } from '@athoscommerce/snap-store-mobx';
 import deepmerge from 'deepmerge';
 import { useLayoutOptions } from '../../../hooks/useLayoutOptions';
@@ -79,10 +80,10 @@ export const Search = observer((properties: SearchProps) => {
 		disableStyles,
 		className,
 		internalClassName,
-		controller,
 		hideSidebar,
 		toggleSidebarButtonText,
 		hideTopToolbar,
+		tabManager,
 		hideMiddleToolbar,
 		hideBottomToolbar,
 		resultComponent,
@@ -93,6 +94,7 @@ export const Search = observer((properties: SearchProps) => {
 		alias,
 	} = props;
 
+	let controller = props.controller;
 	let classNamePrefix = 'ss__search';
 	if (props.alias) {
 		classNamePrefix = `ss__${componentNameToClassName(props.alias)}`;
@@ -100,6 +102,10 @@ export const Search = observer((properties: SearchProps) => {
 
 	// handle selected layoutOptions - must always call to preserve hook order
 	useLayoutOptions(props, globalTheme);
+
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as SearchController;
+	}
 
 	const store = controller.store;
 
@@ -139,7 +145,11 @@ export const Search = observer((properties: SearchProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, { filters: store.filters, sidebarOpenState: sidebarOpenState });
+	const mergedLang = useLang(
+		lang as any,
+		{ filters: store.filters, sidebarOpenState: sidebarOpenState },
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	const ToggleSidebar = () => {
 		return (
@@ -177,6 +187,7 @@ export const Search = observer((properties: SearchProps) => {
 			internalClassName: `${classNamePrefix}__header-section__toolbar--top-toolbar`,
 			layout: [['banner.header'], ['searchHeader', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			...defined({
 				disableStyles,
 			}),
@@ -188,9 +199,10 @@ export const Search = observer((properties: SearchProps) => {
 			name: 'middle',
 			internalClassName: `${classNamePrefix}__content__toolbar--middle-toolbar`,
 			layout: isMobile
-				? [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
-				: [['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
+				? [['tabSelection'], ['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']]
+				: [['tabSelection'], ['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -204,6 +216,7 @@ export const Search = observer((properties: SearchProps) => {
 			internalClassName: `${classNamePrefix}__content__toolbar--bottom-toolbar`,
 			layout: [['banner.footer'], ['_', 'pagination', '_']],
 			toggleSideBarButton: { ...toggleSidebarButtonProps },
+			tabManager: tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -233,7 +246,7 @@ export const Search = observer((properties: SearchProps) => {
 				disableStyles,
 			}),
 			theme: props.theme,
-			treePath,
+			treePath: `${treePath} slideout`,
 		},
 		Results: {
 			// default props
@@ -270,6 +283,9 @@ export const Search = observer((properties: SearchProps) => {
 
 	const styling = mergeStyles<SearchProps>(props, defaultStyles);
 
+	// whitespace is not permitted in an id and would split the aria-labelledby id reference list
+	const tabControllerId = controller.id;
+
 	return (
 		<CacheProvider>
 			<div
@@ -283,7 +299,7 @@ export const Search = observer((properties: SearchProps) => {
 						store.pagination.totalResults > 0 &&
 						(isMobile ? (
 							<Slideout {...subProps.Slideout} active={justTransitionedToMobile ? false : sidebarOpenState}>
-								<div className={`${classNamePrefix}__sidebar`}>
+								<div className={`${classNamePrefix}__sidebar ${classNamePrefix}__slideout__sidebar-wrapper`} ref={(e) => useA11y(e, 0, true)}>
 									<Sidebar {...subProps.MobileSidebar} controller={controller} />
 								</div>
 							</Slideout>
@@ -292,7 +308,16 @@ export const Search = observer((properties: SearchProps) => {
 								<Sidebar {...subProps.Sidebar} controller={controller} />
 							</div>
 						) : null)}
-					<div className={classnames(`${classNamePrefix}__content`)}>
+					<div
+						className={classnames(`${classNamePrefix}__content`)}
+						{...(tabManager?.active
+							? {
+									id: `ss__tabpanel--${tabControllerId}`,
+									role: 'tabpanel',
+									'aria-labelledby': `ss__tab--${tabControllerId}`,
+							  }
+							: {})}
+					>
 						{!hideMiddleToolbar && <Toolbar {...subProps.MiddleToolbar} controller={controller} />}
 
 						{store.pagination.totalResults ? (
@@ -314,6 +339,7 @@ export type SearchProps = {
 	lang?: Partial<SearchLang>;
 	alias?: 'searchCollapsible' | 'searchHorizontal';
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<SearchTemplatesLegalProps, 'resultComponent'> &
 	Omit<ComponentProps, 'customComponent'>;
 

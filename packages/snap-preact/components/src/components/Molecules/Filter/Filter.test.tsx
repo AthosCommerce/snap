@@ -213,6 +213,23 @@ describe('Filter Component', () => {
 				});
 			});
 		});
+
+		it('renders lang value inside the value element without replacing the button', () => {
+			const value = 'custom value';
+			const valueMock = jest.fn(() => value);
+
+			const rendered = render(<Filter {...args} lang={{ filter: { value: valueMock } }} />);
+
+			const filterElement = rendered.container.querySelector('.ss__filter');
+			const valueElement = filterElement?.querySelector('.ss__filter__value');
+			expect(valueElement).toHaveAttribute('ss-lang', 'filter');
+			expect(valueElement?.innerHTML).toBe(value);
+			expect(filterElement?.querySelector('.ss__filter__button')).toBeInTheDocument();
+			expect(filterElement?.querySelector('.ss__icon')).toBeInTheDocument();
+			expect(filterElement?.querySelector('.ss__filter__label')).toHaveTextContent(args.facetLabel);
+			expect(filterElement).toHaveAttribute('aria-label', `remove selected ${args.facetLabel} filter ${args.valueLabel}`);
+			expect(valueMock).toHaveBeenCalledWith({ label: args.facetLabel, value: args.valueLabel });
+		});
 	});
 });
 

@@ -1,4 +1,5 @@
 import { AbstractionGroup } from '../../../../types';
+import { currencyCodes } from '../../LibraryStore';
 import { TemplateEditorStore } from '../TemplateEditorStore';
 
 export const configUI = (store: TemplateEditorStore): AbstractionGroup[] => {
@@ -93,11 +94,7 @@ export const configUI = (store: TemplateEditorStore): AbstractionGroup[] => {
 					getDisplayState: () => 'visible',
 					getOptions: () => [
 						{
-							options: [
-								{ label: 'USD', value: 'usd' },
-								{ label: 'EUR', value: 'eur' },
-								{ label: 'AUD', value: 'aud' },
-							],
+							options: currencyCodes.map((code) => ({ label: code.toUpperCase(), value: code })),
 						},
 					],
 					getValue: () => {

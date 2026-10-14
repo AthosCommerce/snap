@@ -129,6 +129,34 @@ describe('Grid Component', () => {
 		expect(myFunc).toHaveBeenCalled();
 	});
 
+	it('resyncs the selection when the selected prop returns to an earlier value', () => {
+		const { container, rerender } = render(<Grid options={options} selected={options[1]} />);
+
+		const selectedOption = () => container.querySelector('.ss__grid__option--selected');
+
+		expect(selectedOption()).toHaveTextContent(options[1].value);
+
+		rerender(<Grid options={options} selected={options[2]} />);
+
+		expect(selectedOption()).toHaveTextContent(options[2].value);
+
+		// back to the value the prop held on mount - eg. switching back to the previously viewed tab
+		rerender(<Grid options={options} selected={options[1]} />);
+
+		expect(selectedOption()).toHaveTextContent(options[1].value);
+	});
+
+	it('does not revert a selection made before the selected prop catches up', async () => {
+		const { container, rerender } = render(<Grid options={options} selected={options[1]} />);
+
+		await userEvent.click(container.querySelectorAll('.ss__grid__option')[2]);
+
+		// the store has not updated yet, so 'selected' still holds the previous option
+		rerender(<Grid options={options} selected={options[1]} />);
+
+		expect(container.querySelector('.ss__grid__option--selected')).toHaveTextContent(options[2].value);
+	});
+
 	it('disabled Grid option elements have correct classes', () => {
 		gridComponent = render(<Grid options={options} />);
 

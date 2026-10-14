@@ -115,7 +115,7 @@ export const Button = observer((properties: ButtonProps) => {
 
 	//deep merge with props.lang
 	const langs = deepmerge(defaultLang, lang || {});
-	const mergedLang = useLang(langs as any, {});
+	const mergedLang = useLang(langs as any, {}, { activeBreakpoint: globalTheme?.activeBreakpoint });
 
 	// @ts-ignore - additionalProps may contain dangerouslySetInnerHTML which is fine to spread on the element, but doesn't fit the ButtonProps type definition so we need to ignore it here.
 	const hasDangerouslySetInnerHTML = Boolean(additionalProps.dangerouslySetInnerHTML);
@@ -187,4 +187,11 @@ export type ButtonNames =
 	| 'close-search'
 	| 'clear-search'
 	| 'submit-search'
-	| 'reset-facet';
+	| 'reset-facet'
+	| 'add-to-cart'
+	| 'quickview'
+	| 'more-info'
+	| 'increment'
+	| 'decrement'
+	| 'zoom-in'
+	| 'zoom-out';

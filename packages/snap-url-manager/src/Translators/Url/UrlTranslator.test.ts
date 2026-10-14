@@ -1,4 +1,4 @@
-import { UrlTranslator, CoreMap } from './UrlTranslator';
+import { UrlTranslator, CoreMap, UrlTranslatorConfig } from './UrlTranslator';
 import { UrlState, ParamLocationType } from '../../types';
 
 describe('UrlTranslator', () => {
@@ -397,6 +397,40 @@ describe('UrlTranslator', () => {
 					direction: 'asc',
 				},
 			]);
+		});
+
+		it('does not apply the corePrefix twice when constructed from another translator config', () => {
+			const corePrefix = 'p-';
+			const state: UrlState = { query: 'foo', page: 2 };
+
+			const urlTranslator = new UrlTranslator({ settings: { corePrefix } });
+			const derivedTranslator = new UrlTranslator(urlTranslator.getConfig() as UrlTranslatorConfig);
+
+			expect(derivedTranslator.serialize(state)).toBe(urlTranslator.serialize(state));
+			expect(derivedTranslator.serialize(state)).toBe(`/?${corePrefix}q=foo&${corePrefix}page=2`);
+			expect(derivedTranslator.deserialize(`?${corePrefix}q=foo&${corePrefix}page=2`)).toEqual(state);
+		});
+
+		it('only applies the corePrefix to the params named by corePrefixParams', () => {
+			const corePrefix = 'p-';
+			const state: UrlState = {
+				query: 'foo',
+				page: 2,
+				filter: { brand: ['nike'] },
+				sort: [{ field: 'price', direction: 'asc' }],
+			};
+
+			const urlTranslator = new UrlTranslator({
+				settings: {
+					corePrefix,
+					corePrefixParams: ['filter', 'sort'],
+				},
+			});
+
+			const serialized = urlTranslator.serialize(state);
+
+			expect(serialized).toBe(`/?q=foo&page=2#/${corePrefix}filter:brand:nike/${corePrefix}sort:price:asc`);
+			expect(urlTranslator.deserialize(serialized)).toEqual(state);
 		});
 
 		it('deserializes hash range filters correctly', () => {

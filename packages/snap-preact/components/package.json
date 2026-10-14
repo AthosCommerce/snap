@@ -4,5 +4,6 @@
 	"description": "Snap Preact Component Library",
 	"main": "../dist/cjs/components/src/index.js",
 	"module": "../dist/esm/components/src/index.js",
+	"types": "../dist/esm/components/src/index.d.ts",
 	"sideEffects": false
 }

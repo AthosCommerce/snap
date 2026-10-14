@@ -27,11 +27,9 @@ describe('Query', () => {
 
 	it('synchronizes the query with the input by default', () => {
 		cy.snapController('autocomplete').then((acController) => {
-			if (acController.config.settings.initializeFromUrl) {
-				expect(acController.store.state.input).to.equal(query);
-			} else {
-				expect(acController.store.state.input).to.equal('');
-			}
+			// the input syncs from the url during render, so assert via .its() to let it retry
+			const expected = acController.config.settings.initializeFromUrl ? query : '';
+			cy.wrap(acController).its('store.state.input').should('equal', expected);
 		});
 	});
 

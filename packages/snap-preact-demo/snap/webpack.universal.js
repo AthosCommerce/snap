@@ -1,5 +1,6 @@
 import { merge } from 'webpack-merge';
 import common from '../webpack.common.js';
+import { universalTranspilationRule, UniversalSyntaxCheckPlugin } from '@athoscommerce/snap-preact/webpack';
 import path from 'path';
 import childProcess from 'child_process';
 import { fileURLToPath } from 'url';
@@ -18,25 +19,8 @@ export default merge(common, {
 		chunkLoadingGlobal: `${branchName}BundleChunks`,
 	},
 	target: 'browserslist:universal',
+	plugins: [new UniversalSyntaxCheckPlugin()],
 	module: {
-		rules: [
-			{
-				test: /\.(js|jsx)$/,
-				include: [/node_modules\/\@athoscommerce/, /node_modules\/\@searchspring/, path.resolve(__dirname, 'src'), path.resolve(__dirname, '../')],
-				use: {
-					loader: 'babel-loader',
-					options: {
-						presets: [
-							[
-								'@babel/preset-env',
-								{
-									browserslistEnv: 'universal',
-								},
-							],
-						],
-					},
-				},
-			},
-		],
+		rules: [universalTranspilationRule()],
 	},
 });

@@ -313,6 +313,40 @@ describe('Snap Preact', () => {
 		cookies.unset(DEV_COOKIE);
 	});
 
+	describe('mode detection from NODE_ENV', () => {
+		const originalNodeEnv = process.env.NODE_ENV;
+
+		afterEach(() => {
+			process.env.NODE_ENV = originalNodeEnv;
+		});
+
+		it('enters development mode and disables the client network cache when NODE_ENV is development', () => {
+			process.env.NODE_ENV = 'development';
+			const snap = new Snap(generateBaseConfig());
+
+			// @ts-ignore - accessing private property
+			expect(snap.mode).toBe('development');
+			// @ts-ignore - accessing private property
+			expect(snap.client.mode).toBe('development');
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.configuration.cache.enabled).toBe(false);
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.cache.config.enabled).toBe(false);
+		});
+
+		it('stays in production mode with the client network cache enabled when NODE_ENV is production', () => {
+			process.env.NODE_ENV = 'production';
+			const snap = new Snap(generateBaseConfig());
+
+			// @ts-ignore - accessing private property
+			expect(snap.mode).toBe('production');
+			// @ts-ignore - accessing private property
+			expect(snap.client.mode).toBe('production');
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.cache.config.enabled).toBe(true);
+		});
+	});
+
 	it('exposes itself globally on the window', () => {
 		const baseConfig = generateBaseConfig();
 		const snap = new Snap(baseConfig);
@@ -715,11 +749,8 @@ describe('Snap Preact', () => {
 			const client = new MockClient(searchConfig.client!.globals as ClientGlobals);
 			const snap = new Snap(searchConfig, { client });
 
-			// wait is needed due to promise usage (async)
-			await wait(200);
-
 			// after onTarget resolves element minHeight is removed
-			expect((contentElem as HTMLElement).style.minHeight).toBe('');
+			await waitFor(() => expect((contentElem as HTMLElement).style.minHeight).toBe(''));
 		});
 
 		it(`will render the component before the search resolves`, async () => {
@@ -865,6 +896,110 @@ describe('Snap Preact', () => {
 			expect(search.store.loaded).toBe(true);
 
 			spy.mockClear();
+		});
+
+		describe('early search keyed on the page context', () => {
+			const createSnap = (targeterConfig: { prefetch?: boolean } = {}) => {
+				const baseConfig = generateBaseConfig();
+				const component = jest.fn(() => Component);
+				const searchConfig: SnapConfig = {
+					...baseConfig,
+					controllers: {
+						search: [
+							{
+								config: {
+									id: 'search',
+								},
+								targeters: [
+									{
+										...targeterConfig,
+										selector: '#athos-dne',
+										component,
+									},
+								],
+							},
+						],
+					},
+				};
+
+				const client = new MockClient(searchConfig.client!.globals as ClientGlobals);
+				const searchSpy = jest.spyOn(client, 'search');
+				const categorySpy = jest.spyOn(client, 'category');
+				const snap = new Snap(searchConfig, { client });
+
+				return { snap, component, searchSpy, categorySpy };
+			};
+
+			it(`runs the search early when page.type is 'search'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'search' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).toHaveBeenCalledTimes(1);
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).toHaveBeenCalledTimes(1);
+				expect(snap.controllers.search.store.loaded).toBe(true);
+			});
+
+			it(`runs the category search early when page.type is 'category'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'category' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(categorySpy).toHaveBeenCalledTimes(1);
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(component).toHaveBeenCalledTimes(1);
+				expect(snap.controllers.search.store.loaded).toBe(true);
+			});
+
+			it('does not normalize the case or whitespace of page.type', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'Category ' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				// matches SearchController, which only accepts the exact 'search' and 'category' values
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
+			});
+
+			it(`does not run the search early when page.type is 'product'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'product' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
+			});
+
+			it('does not run the search early when page is a string', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = "404";</script>`;
+				const { component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+			});
+
+			it('does not run the search early when the targeter sets prefetch to false', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'search' };</script>`;
+				const { component, searchSpy, categorySpy } = createSnap({ prefetch: false });
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+			});
 		});
 	});
 
@@ -1414,6 +1549,99 @@ describe('Snap Preact', () => {
 			await snap.getController('trendingRecs');
 			await wait();
 			expect(onTarget).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe('creates the quickview manager via config', () => {
+		it('creates a quickview manager from the quickview config', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({ ...baseConfig, quickview: { config: { id: 'quickview' } } });
+
+			expect(snap['quickviewManager']).toBeDefined();
+			expect(snap['quickviewManager']!.type).toBe('quickview');
+			expect(snap['quickviewManager']!.config.id).toBe('quickview');
+		});
+
+		it('defaults the manager config when none is provided', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({ ...baseConfig, quickview: {} });
+
+			expect(snap['quickviewManager']!.config.id).toBe('quickview');
+		});
+
+		it('does not create a manager when there is no quickview config', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap(baseConfig);
+
+			expect(snap['quickviewManager']).toBeUndefined();
+		});
+
+		it('passes the manager to controllers as the quickview service', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
+				...baseConfig,
+				quickview: { config: { id: 'quickview' } },
+				controllers: {
+					search: [{ config: { id: 'search' } }],
+				},
+			});
+
+			// created ahead of the controllers, so the service is there from construction
+			const search = await snap.getController('search');
+			expect(search.quickviewManager).toBe(snap['quickviewManager']);
+
+			const autocomplete = await snap.createController('autocomplete', { id: 'ac', selector: '#ac-input' });
+			expect(autocomplete.quickviewManager).toBe(snap['quickviewManager']);
+		});
+
+		it('leaves controllers without a manager when there is no quickview config', async () => {
+			const baseConfig = generateBaseConfig();
+			const snap = new Snap({
+				...baseConfig,
+				controllers: {
+					search: [{ config: { id: 'search' } }],
+				},
+			});
+
+			const search = await snap.getController('search');
+			expect(search.quickviewManager).toBeUndefined();
+		});
+
+		it('renders a targeted component with the manager', async () => {
+			const baseConfig = generateBaseConfig();
+
+			const QuickviewComponent = jest.fn((_props: Record<string, unknown>) => null);
+			const snap = new Snap({
+				...baseConfig,
+				quickview: {
+					config: { id: 'quickview' },
+					targeters: [{ selector: '#athos-content', component: () => QuickviewComponent }],
+				},
+			});
+
+			// the component import/render is deferred until the first open
+			await wait(50);
+			expect(QuickviewComponent).not.toHaveBeenCalled();
+
+			snap['quickviewManager']!.open();
+			await wait(50);
+
+			expect(QuickviewComponent).toHaveBeenCalled();
+			expect(QuickviewComponent.mock.calls[0][0]).toEqual(expect.objectContaining({ quickviewManager: snap['quickviewManager'], snap }));
+		});
+
+		it('logs an error when a quickview targeter is missing a selector or component', async () => {
+			const baseConfig = generateBaseConfig();
+			const logger = new Logger();
+			const spy = jest.spyOn(logger, 'error');
+
+			// @ts-ignore - intentionally invalid targeter
+			new Snap({ ...baseConfig, quickview: { targeters: [{ component: () => Component }] } }, { logger });
+			expect(spy).toHaveBeenCalledTimes(1);
+
+			// @ts-ignore - intentionally invalid targeter
+			new Snap({ ...baseConfig, quickview: { targeters: [{ selector: '#athos-content' }] } }, { logger });
+			expect(spy).toHaveBeenCalledTimes(2);
 		});
 	});
 

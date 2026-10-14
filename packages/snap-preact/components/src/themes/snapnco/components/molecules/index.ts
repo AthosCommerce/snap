@@ -29,7 +29,7 @@ import { swatches } from './swatches';
 import { variantSelection } from './variantSelection';
 import { terms } from './terms';
 
-export const molecules: ThemeResponsiveComplete = {
+export const molecules = {
 	default: {
 		...carousel.default,
 		...checkbox.default,
@@ -146,4 +146,4 @@ export const molecules: ThemeResponsiveComplete = {
 		...variantSelection.desktop,
 		...terms.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

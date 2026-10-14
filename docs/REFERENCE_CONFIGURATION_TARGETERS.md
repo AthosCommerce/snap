@@ -11,6 +11,8 @@ Each object in the array defines an entry point on the page where a component wi
 | `component` | `function` | A function that returns a reference to the component to render at the target selector. Making this an async function is recommended to allow for code splitting. |
 | `hideTarget` | `boolean` | Whether to hide the target node before the component is mounted and rendered. It is recommended to enable this to prevent flashy behaviour. |
 | `autoRetarget` | `boolean` | Whether to continuously query for the selector in the DOM until it finds it and triggers a retarget. This is useful for dynamically generated selectors that might not exist at dom ready. |
+| `prefetch` | `boolean` | Run the controller's search and start the component import as soon as the targeter is registered, before the selector is found. Defaults to `true` on pages whose context sets `page.type` to `search` or `category`, otherwise `false`. Set to `false` to opt out. |
+| `renderAfterSearch` | `boolean` | Wait for the search to resolve before rendering the component into the target. Default `false`. |
 | `skeleton` | `function` | A function that returns a reference to the component to render immediately at the target selector to show briefly while the data is returning and the real component is rendering. You can use any component you want for this, although `@athoscommerce/snap-preact/components` provides a `Skeleton` component for you to use if preferred. |
 | `props` | `object` | Convenient way of passing additional props to the component, by default we pass `controller` |
 | `onTarget` | `function` | Callback that fires after a target is found. This is useful for triggering other actions such as initializing the controller. |

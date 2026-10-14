@@ -15,7 +15,7 @@ import { search } from './search';
 import { searchHorizontal } from './searchHorizontal';
 import { searchCollapsible } from './searchCollapsible';
 
-export const templates: ThemeResponsiveComplete = {
+export const templates = {
 	default: {
 		...autocompleteFixed.default,
 		...autocompleteModal.default,
@@ -76,4 +76,4 @@ export const templates: ThemeResponsiveComplete = {
 		...searchCollapsible.desktop,
 		...searchHorizontal.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

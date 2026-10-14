@@ -8,14 +8,15 @@ import { Tracker } from '@athoscommerce/snap-tracker';
 
 import type { ClientConfig, ClientGlobals, RecommendRequestModel, RecommendationRequestFilterModel } from '@athoscommerce/snap-client';
 import type { UrlTranslatorConfig } from '@athoscommerce/snap-url-manager';
-import type {
+import {
 	AbstractController,
 	RecommendationController,
 	Attachments,
 	ContextVariables,
 	RecommendationControllerConfig,
+	type QuickviewManager,
 } from '@athoscommerce/snap-controller';
-import type { BeaconSettings, VariantConfig } from '@athoscommerce/snap-store-mobx';
+import { QuickviewConfig, type BeaconSettings, type RecommendationStoreConfig, type VariantConfig } from '@athoscommerce/snap-store-mobx';
 import type { Middleware } from '@athoscommerce/snap-event-manager';
 import type { Target } from '@athoscommerce/snap-toolbox';
 import { createRecommendationController } from '../create';
@@ -36,6 +37,9 @@ export type RecommendationInstantiatorConfigSettings = {
 	realtime?: boolean;
 	batched?: boolean;
 	limit?: number;
+	quickview?: QuickviewConfig;
+	searchOnPageShow?: boolean;
+	settings?: RecommendationStoreConfig['settings'];
 	variants?: VariantConfig;
 	beacon?: BeaconSettings;
 };
@@ -60,6 +64,7 @@ export type RecommendationInstantiatorServices = {
 	logger?: Logger;
 	tracker?: Tracker;
 	snap?: Snap;
+	quickviewManager?: QuickviewManager;
 };
 
 type RecommendationProfileCounts = {
@@ -95,6 +100,7 @@ export class RecommendationInstantiator {
 	public client: Client;
 	public tracker: Tracker;
 	public logger: Logger;
+	public quickviewManager?: QuickviewManager;
 	public controller: {
 		[key: string]: RecommendationController;
 	} = {};
@@ -141,6 +147,7 @@ export class RecommendationInstantiator {
 		this.client = services?.client || new Client(this.config.client!.globals, this.config.client!.config);
 		this.tracker = services?.tracker || new Tracker(this.config.client!.globals);
 		this.logger = services?.logger || new Logger({ prefix: 'RecommendationInstantiator ', mode: this.mode });
+		this.quickviewManager = services?.quickviewManager;
 
 		const profileCount: RecommendationProfileCounts = {};
 
@@ -409,7 +416,10 @@ async function readyTheController(
 		limit: instance.config.config?.limit,
 		beacon: instance.config.config?.beacon || { enabled: true },
 		settings: {
-			variants: instance.config.config?.variants,
+			// `settings.variants` is the intended location; however top-level `variants` remains supported as a fallback
+			variants: instance.config.config?.settings?.variants ?? instance.config.config?.variants,
+			quickview: instance.config.config?.settings?.quickview ?? instance.config.config?.quickview,
+			searchOnPageShow: instance.config.config?.settings?.searchOnPageShow ?? instance.config.config?.searchOnPageShow,
 		},
 		globals,
 	};
@@ -431,7 +441,7 @@ async function readyTheController(
 			context,
 			mode: instance.config.mode,
 		},
-		{ client: instance.client, tracker: instance.tracker }
+		{ client: instance.client, tracker: instance.tracker, quickviewManager: instance.quickviewManager }
 	);
 
 	// mark element with controller id so cleanupStaleControllers knows it's active

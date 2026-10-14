@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Recommendation, RecommendationProps } from './Recommendation';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 
 import Readme from './readme.md';
@@ -14,23 +12,11 @@ import type { Next } from '@athoscommerce/snap-event-manager';
 export default {
 	title: 'Templates/Recommendation',
 	component: Recommendation,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -53,7 +39,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		title: {
 			description: 'Recommendation title',
@@ -110,7 +96,7 @@ export default {
 					summary: 'Results store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultComponent: {
 			description: 'Slot for custom result component',
@@ -128,7 +114,7 @@ export default {
 				},
 				defaultValue: { summary: '[Navigation, Pagination]' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		pagination: {
 			defaultValue: false,
@@ -210,7 +196,7 @@ export default {
 				},
 				defaultValue: { summary: 'Breakpoint object' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -218,19 +204,23 @@ export default {
 
 const snapInstance = Snapify.recommendation({ id: 'Recommendation', tag: 'trending', globals: { siteId: 'atkzs2' } });
 
-export const Default = (props: RecommendationProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return <Recommendation {...props} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		snapInstance.on('afterStore', async ({ controller }: { controller: RecommendationController }, next: Next) => {
-			controller.store.results.forEach((result: Product) => (result.mappings.core!.url = 'javascript:void(0);'));
-			await next();
-		});
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (props: RecommendationProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
+		return <Recommendation {...props} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			snapInstance.on('afterStore', async ({ controller }: { controller: RecommendationController }, next: Next) => {
+				// neutralize mock links. '#' is safe here because recommendations hold no UrlManager state —
+				// in a Search or Autocomplete story it would clear the hash-stored filter/sort/pageSize params.
+				controller.store.results.forEach((result: Product) => (result.mappings.core!.url = '#'));
+				await next();
+			});
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

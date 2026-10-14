@@ -426,18 +426,21 @@ export class Variants {
 		// setting function in constructor to prevent exposing mask as class property
 		this.setActive = (variant: Variant) => {
 			this.active = variant;
+
 			const activeBadges = new Badges({
 				data: {
 					meta: meta,
 					result: variant as SearchResponseModelResult,
 				},
 			});
+
 			mask.set({
 				mappings: this.active.mappings,
 				attributes: this.active.attributes,
-				badges: activeBadges,
 				state: this.active.state,
 				custom: this.active.custom,
+				// always the active variant's badge set - even when empty
+				badges: activeBadges,
 			});
 		};
 

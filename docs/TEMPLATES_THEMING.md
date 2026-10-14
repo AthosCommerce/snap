@@ -2,7 +2,7 @@
 Theming in Snap Templates is the primary method of customizing a template. A theme configuration defines a theme from the library to extend, theme variables, component props and responsive changes via overrides as well as global styles and product cart component specification.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -27,7 +27,7 @@ new SnapTemplates({
 		],
 	},
 	...
-});
+}));
 ```
 
 ### Theme Configuration Overview
@@ -51,7 +51,7 @@ The `extends` property is the base theme name to start from and will already con
 Each theme includes a common set of shared variables (for example, colors and breakpoints) that remain compatible when switching between themes.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -65,7 +65,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 ### Theme `style`
@@ -86,14 +86,14 @@ const globalStyles = (theme) => {
 	};
 };
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
 		style: globalStyles,
 	},
 	...
-});
+}));
 ```
 
 ### Theme `globalResultComponent`
@@ -112,7 +112,7 @@ If a more specific template-level override is set with `resultComponent`, that s
 **Usage Example:**
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	config: { ... },
 	components: {
 		result: {
@@ -131,7 +131,7 @@ new SnapTemplates({
 			},
 		},
 	},
-});
+}));
 ```
 
 ### Theme `overrides`
@@ -143,19 +143,54 @@ Themes and components provide their own default component prop configurations. T
 2. Responsive keys such as `mobile`, `tablet`, and `desktop`: Breakpoint-specific overrides that are merged on top of `default`.
 
 
+#### Typed Override Selectors with `validateTemplatesConfig`
+
+Wrapping the config in `validateTemplatesConfig` makes TypeScript verify every override selector and its props — including selectors that carry an open, site-specific name such as `facet.<field>` or `recommendation.<profile>`. Mistakes the IDE cannot flag while you type are reported where the config is passed to `new SnapTemplates(...)`:
+
+```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+const templatesConfig = validateTemplatesConfig({
+	config: { ... },
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'facet.price': {
+					clearAllIcon: 'cog', // ✓ checked as Facet props
+					showTicks: false, // ✗ not a Facet prop - `new SnapTemplates(templatesConfig)` below errors
+				},
+				'facet.price facetSlider': {
+					showTicks: false, // ✓ checked as FacetSlider props
+				},
+			},
+		},
+	},
+});
+
+new SnapTemplates(templatesConfig);
+```
+
+> [!IMPORTANT]
+> Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks override mistakes on the exact line, with the valid props listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup, how to read the type errors, and the checking limitations.
+
+For an unlocked configuration (`unlocked: true`, see [Unlocked Configuration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#unlocked-configuration)), import `validateTemplatesConfigUnlocked` instead — it checks selectors the same way, additionally allowing the `customComponent` field that unlocked configs support.
+
+
 #### Templates Legal Props
 
 When customizing components via theme overrides, not all component props are available. Each component defines a subset of its props as "templates legal" — these are the props that are safe and supported for use within theme configuration. Props that are not templates legal are restricted to internal use and cannot be configured through the theme.
 
 This distinction exists to provide a stable, supported API surface for template customization while preventing access to internal props that could lead to unexpected behavior or break compatibility with future updates.
 
-To see the full list of templates legal props for each component, refer to the **Storybook component library**. Each component's documentation in Storybook will indicate which props are available for use in theme overrides. To access the full set of component props in overrides, you must use an unlocked configuration. See [Unlocked Configuration](./templates-config#unlocked-configuration) for more details.
+To see the full list of templates legal props for each component, refer to the **Storybook component library**. Each component's documentation in Storybook will indicate which props are available for use in theme overrides. To access the full set of component props in overrides, you must use an unlocked configuration. See [Unlocked Configuration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
 
 
 ```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
 import { css } from '@emotion/react';
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -174,7 +209,7 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
 
 
@@ -188,7 +223,7 @@ Some components contain multiple subcomponents of the same type. For instance, t
 Here's an example that demonstrates targeting specific subcomponents:
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -213,8 +248,82 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```
+
+##### Nesting Overrides with `$children`
+
+Tree path selectors can get long and repetitive when several overrides target components inside the same parent. Every override supports a `$children` property that nests child selectors under the parent instead — the two forms below are equivalent:
+
+```tsx
+// tree path form
+overrides: {
+	default: {
+		'carousel icon.next': { icon: 'angle-right' },
+		'carousel icon.prev': { icon: 'angle-left' },
+	},
+},
+```
+
+```tsx
+// $children form
+overrides: {
+	default: {
+		carousel: {
+			$children: {
+				'icon.next': { icon: 'angle-right' },
+				'icon.prev': { icon: 'angle-left' },
+			},
+		},
+	},
+},
+```
+
+At construction time each child selector is prefixed with its parent's selector (`'icon.next'` under `carousel` becomes `'carousel icon.next'`), so the behavior is identical to writing the tree paths out flat — `$children` is purely an authoring convenience for organizing large override lists. The parent override can still carry its own props alongside `$children`, nesting can go multiple levels deep, and child selectors are type-checked the same way as top-level ones.
+
+`$children` is especially useful under open-named selectors, where it scopes overrides to one specific instance:
+
+```tsx
+overrides: {
+	default: {
+		// only the palette inside the "color" facet
+		'facet.color': {
+			$children: {
+				facetPaletteOptions: { columns: 3 },
+			},
+		},
+	},
+},
+```
+
+Two details worth knowing:
+
+- A comma-separated parent distributes over its children: `'search facets, searchHorizontal facets'` with a child `icon` targets the icon in both templates.
+- If a `$children` entry and a literal tree path selector resolve to the same target, they are shallow-merged and the one defined last wins — prefer one form per target.
+
+##### Grouping Selectors with Commas
+
+Just like CSS, several selectors can share one override object by separating them with commas. This is useful when the same component appears in multiple templates and should be configured identically in each:
+
+```tsx
+new SnapTemplates(validateTemplatesConfig({
+	...
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				// the `facets` component in BOTH the search and searchHorizontal templates
+				'search facets, searchHorizontal facets': {
+					limit: 4,
+				},
+			},
+		},
+	},
+	...
+}));
+```
+
+Every selector in the group must target the **same type of component** — the component named by the last segment of each comma-separated part (`facet.color` counts as `facet`, `toolbar.middle` as `toolbar`). This is required because the group shares one set of override props, and those props can only be validated against a single component. A group that mixes component types — such as `'search, searchHorizontal'` — is rejected (see [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md)). To apply the same props to different component types, write them as separate selectors, each with its own override object.
 
 ##### The `resultComponent` Override Prop
 
@@ -232,7 +341,7 @@ Valid values are:
 **Usage Example (Locked Configuration):**
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	config: { ... },
 	components: {
 		result: {
@@ -256,54 +365,57 @@ new SnapTemplates({
 			},
 		},
 	},
-});
+}));
 ```
 
 ##### The `customComponent` Override Prop
 
-All Atom, Molecule, and Organism components support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
+All Atom, Molecule, and Organism components (with the exception of `Result`) support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 
-Unlike `resultComponent`, `customComponent` does not use built-in fallback names. The value must be explicitly registered in `components` for the component section you are overriding (for example, `components.result` for `result` overrides).
+Unlike `resultComponent`, `customComponent` does not use built-in fallback names. The value must be explicitly registered in `components` for the component section you are overriding (for example, `components.sortBy` for `sortBy` overrides).
 
 > [!NOTE]
-> When using a locked configuration (the default), only the `resultComponent` prop is available. To use `customComponent`, you must use an unlocked configuration. See [Unlocked Configuration](./TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
+> When using a locked configuration (the default), only the `resultComponent` prop is available. To use `customComponent`, you must use an unlocked configuration. See [Unlocked Configuration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
+
+> [!IMPORTANT]
+> `result` is the one component that does **not** support `customComponent`, in locked or unlocked configurations — To swap out result rendering, use [`resultComponent`](#the-resultcomponent-override-prop) on a parent (`search`, `autocompleteFixed`, a recommendation template, etc.) or the `globalResultComponent` theme setting instead.
 
 **Usage Example:**
 
 First, register your custom component in the configuration:
 
 ```tsx
-import { MyCustomResult } from './components/MyCustomResult';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: { ... },
 	components: {
-		result: {
-			CustomResult: async () => (await import('./components/Result')).CustomResult,
+		sortBy: {
+			CustomSortBy: async () => (await import('./components/SortBy')).CustomSortBy,
 		},
 	},
 	theme: {
 		extends: 'base',
 		overrides: {
 			default: {
-				// Replace all Result components with MyCustomResult
-				result: {
-					customComponent: 'MyCustomResult',
+				// Replace all SortBy components with CustomSortBy
+				sortBy: {
+					customComponent: 'CustomSortBy',
 				},
 			},
 		},
 	},
 	// ...
-} as SnapTemplatesConfigUnlocked);
+}));
 ```
 
 You can also target specific instances using more specific selectors:
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: { ... },
 	components: {
@@ -336,31 +448,33 @@ new SnapTemplates({
 		},
 	},
 	// ...
-} as SnapTemplatesConfigUnlocked);
+}));
 ```
 
 **Custom Component Props:**
 
-Your custom component will receive all the same props that the original component would receive. For example, a custom Result component receives:
+Your custom component will receive all the same props that the original component would receive. For example, a custom SortBy component receives:
 
-- `result` - The product/result data object
+- `sorting` - The sorting store (also accessible via `controller.store.sorting`)
 - `controller` - The controller instance
 - `theme` - The current theme configuration
 - `treePath` - The component tree path for cascading props
 - Plus any additional props passed through overrides
 
 ```tsx
-// MyCustomResult.tsx
-import type { ResultProps } from '@athoscommerce/snap-preact/components';
-export const MyCustomResult = (props: ResultProps) => {
-	const { result, controller, onClick } = props;
-	const core = result?.display?.mappings.core || result?.mappings?.core;
-	
+// CustomSortBy.tsx
+import type { SortByProps } from '@athoscommerce/snap-preact/components';
+export const CustomSortBy = (props: SortByProps) => {
+	const { controller } = props;
+	const sorting = controller?.store?.sorting;
+
 	return (
-		<div className="my-custom-result" onClick={onClick}>
-			<img src={core?.thumbnailImageUrl} alt={core?.name} />
-			<h3>{core?.name}</h3>
-			<span>${core?.price}</span>
+		<div className="my-custom-sort-by">
+			{sorting?.options?.map((option) => (
+				<button key={option.value} onClick={() => option.url?.go()}>
+					{option.label}
+				</button>
+			))}
 		</div>
 	);
 };
@@ -374,10 +488,12 @@ The breakpoints for these overrides are defined in `theme.variables.breakpoints`
 
 Each responsive override object can define additional prop configurations that build on top of the `default` overrides for the applicable breakpoints.
 
+Only the four keys `default`, `mobile`, `tablet`, and `desktop` are valid override groups — anything else is rejected when the config is used.
+
 In the following example, the number of columns for the `search results` component is adjusted for each breakpoint. The default configuration sets the number of columns to 4, but this is overridden for mobile (1 column), tablet (2 columns), and desktop (3 columns) based on the viewport size.
 
 ```tsx
-new SnapTemplates({
+new SnapTemplates(validateTemplatesConfig({
 	...
 	theme: {
 		extends: 'base',
@@ -405,5 +521,5 @@ new SnapTemplates({
 		},
 	},
 	...
-});
+}));
 ```

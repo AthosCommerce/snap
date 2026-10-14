@@ -53,6 +53,13 @@ The `slidesToMove` prop specifies the number of slides to advance when using nav
 <Slideshow slides={slidesArray} slidesToMove={2} />
 ```
 
+### startIndex
+The `startIndex` prop sets the initial slide index. When it changes after mount the slideshow navigates to that slide in place (clamped to the valid range) rather than remounting — useful for syncing the active slide to external state.
+
+```tsx
+<Slideshow slides={slidesArray} startIndex={2} />
+```
+
 ### gap
 The `gap` prop sets the spacing between slides in pixels.
 
@@ -107,6 +114,13 @@ The `dragThreshold` prop sets the drag sensitivity.
 
 ```tsx
 <Slideshow slides={slidesArray} dragThreshold={50} />
+```
+
+### dragClickThreshold
+The `dragClickThreshold` prop sets the number of pixels of drag travel before a drag is distinguished from a click, preventing the trailing click from triggering slide `onClick` handlers.
+
+```tsx
+<Slideshow slides={slidesArray} dragClickThreshold={10} />
 ```
 
 ### loop

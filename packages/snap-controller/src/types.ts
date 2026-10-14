@@ -1,4 +1,5 @@
 import type { AbstractController, AutocompleteController, SearchController, FinderController, RecommendationController } from './index';
+import type { QuickviewManager } from './Quickview/QuickviewManager';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 
 import type { Client } from '@athoscommerce/snap-client';
@@ -12,6 +13,9 @@ import type {
 	FinderStoreConfig,
 	AutocompleteStoreConfig,
 	RecommendationStoreConfig,
+	Product,
+	SearchStoreConfigSettings,
+	AutocompleteStoreConfigSettings,
 } from '@athoscommerce/snap-store-mobx';
 import type { Tracker, ProductViewEvent } from '@athoscommerce/snap-tracker';
 import type { Profiler } from '@athoscommerce/snap-profiler';
@@ -67,6 +71,18 @@ export type RestorePositionObj = {
 	element?: ElementPositionObj;
 };
 
+export type QuickviewObj = {
+	controller: SearchController | AutocompleteController | RecommendationController;
+	product: Product;
+};
+
+// Overrides passed to `track.*` methods. `quickView` is set by the QuickviewManager when
+// delegating tracking calls to the originating (source) controller, so the resulting beacon
+// event is flagged as having occurred within the quickview modal rather than the source page.
+export type TrackEventOverrides = {
+	quickView?: boolean;
+};
+
 export type ElementPositionObj = {
 	href?: string;
 	selector?: string;
@@ -90,6 +106,9 @@ export type ControllerServices = {
 	profiler: Profiler;
 	logger: Logger;
 	tracker: Tracker;
+	// Optional: only controllers wired to a quickview manager can open the quickview modal.
+	// Shared across every controller in a Snap instance — one modal, many openers.
+	quickviewManager?: QuickviewManager;
 };
 
 export type Attachments = {
@@ -126,3 +145,24 @@ export type AutocompleteControllerConfig = ControllerConfig & AutocompleteStoreC
 export type RecommendationControllerConfig = ControllerConfig & RecommendationStoreConfig;
 
 export type ControllerConfigs = SearchControllerConfig | AutocompleteControllerConfig | FinderControllerConfig | RecommendationControllerConfig;
+
+// General tab config values
+export type TabConfig = {
+	id: string;
+	param: string;
+	siteId: string;
+	label?: string;
+	default?: boolean;
+	globals?: any;
+	prefetch?: boolean;
+};
+
+export type SearchTabConfig = TabConfig & {
+	settings?: SearchStoreConfigSettings;
+	config?: SearchControllerConfig;
+};
+
+export type AutocompleteTabConfig = Omit<TabConfig, 'prefetch'> & {
+	settings?: AutocompleteStoreConfigSettings;
+	config?: AutocompleteControllerConfig;
+};

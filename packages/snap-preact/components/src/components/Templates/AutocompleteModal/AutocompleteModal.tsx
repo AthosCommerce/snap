@@ -7,14 +7,20 @@ import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
-import { AutocompleteLayout, AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps } from '../../Organisms/AutocompleteLayout';
+import {
+	AutocompleteLayout,
+	AutocompleteLayoutProps,
+	AutocompleteLayoutTemplatesLegalProps,
+	layoutHasModule,
+} from '../../Organisms/AutocompleteLayout';
 import { Modal, ModalProps } from '../../Molecules/Modal';
 import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
 import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
+import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
-const defaultStyles: StyleScript<AutocompleteModalProps> = ({ width, height, theme }) => {
+const defaultStyles: StyleScript<AutocompleteModalStyleProps> = ({ width, height, theme }) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = theme?.variables;
 
@@ -98,7 +104,15 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		buttonSelector = input;
 	}
 
-	const { layout, disableStyles, overlayColor, controller, renderInput, className, internalClassName, treePath } = props;
+	const { layout, column1, column2, column3, column4, disableStyles, overlayColor, renderInput, className, internalClassName, treePath, tabManager } =
+		props;
+
+	let controller = props.controller;
+	let controllers: AutocompleteController[] = [controller];
+	if (tabManager && tabManager.active) {
+		controller = tabManager.active?.controller as AutocompleteController;
+		controllers = tabManager.tabs.map((tab) => tab.controller as AutocompleteController);
+	}
 
 	const renderedInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
 
@@ -116,7 +130,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		return () => {
 			controller.eventManager.events['focusChange']?.remove(onFocusChange);
 		};
-	}, []);
+	}, [controller]);
 
 	const reset = () => {
 		controller.setFocused();
@@ -128,6 +142,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 			// default props
 			layout: layout,
 			onReset: () => reset(),
+			tabManager,
 			// inherited props
 			...defined({
 				disableStyles,
@@ -138,7 +153,7 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		},
 		modal: {
 			// default props
-			internalClassName: 'autocomplete-modal__modal',
+			internalClassName: 'ss__autocomplete-modal__modal',
 			buttonSelector: buttonSelector,
 			onOverlayClick: reset,
 			overlayColor: overlayColor,
@@ -153,8 +168,8 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		},
 		searchInput: {
 			// default props
-			// autocomplete__search-input is required for useAcRenderedInput hook.
-			internalClassName: 'autocomplete-modal__search-input autocomplete__search-input',
+			// ss__autocomplete__search-input is required for useAcRenderedInput hook.
+			internalClassName: 'ss__autocomplete-modal__search-input ss__autocomplete__search-input',
 			submitSearchButton: {
 				onClick: () => {
 					() => reset();
@@ -179,19 +194,26 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 		},
 	};
 
-	const styling = mergeStyles<AutocompleteModalProps>(props, defaultStyles);
+	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
+	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
+
+	const styling = mergeStyles<AutocompleteModalStyleProps>({ ...props, searchInputInLayout }, defaultStyles);
 
 	let _input;
 	if (input) {
 		_input = useAcRenderedInput({
 			input: input as Element,
-			controller,
+			controllers,
 			renderedInputRef,
 			renderInput: Boolean(renderInput),
 			buttonSelector,
 			setActive: setActive,
 		});
 	}
+
+	const searchInput = renderInput ? (
+		<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
+	) : undefined;
 
 	const acProps = {
 		...props,
@@ -208,16 +230,13 @@ export const AutocompleteModal = observer((properties: AutocompleteModalProps) =
 			<div {...styling} className={classNames('ss__autocomplete-modal', className, internalClassName)}>
 				<Modal {...subProps.modal}>
 					<div className="ss__autocomplete-modal__inner" ref={(e) => useA11y(e, 0, true, reset)}>
-						{renderInput ? (
-							<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
-						) : (
-							<></>
-						)}
+						{searchInput && !searchInputInLayout ? searchInput : <></>}
 						<AutocompleteLayout
 							{...acProps}
 							{...subProps.autocompleteLayout}
 							input={_input!}
 							controller={controller}
+							searchInputSlot={searchInputInLayout ? searchInput : undefined}
 							treePath={`${treePath} modal`}
 						/>
 					</div>
@@ -236,10 +255,12 @@ interface AutocompleteModalSubProps {
 export type AutocompleteModalProps = {
 	controller: AutocompleteController;
 	resultComponent?: JSXComponent | JSX.Element;
+	tabManager?: TabManagerStore;
 } & Omit<AutocompleteModalTemplatesLegalProps, 'resultComponent'> &
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
 
+export type AutocompleteModalStyleProps = AutocompleteModalProps & { searchInputInLayout?: boolean };
 export type AutocompleteModalTemplatesLegalProps = {
 	resultComponent?: string;
 	buttonSelector?: string | Element;

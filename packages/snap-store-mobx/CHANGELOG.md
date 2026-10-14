@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+### Features
+
+- **snap:** adding ability to target children in templates overrides, as well as comma separated overrides ([049ddca](https://github.com/AthosCommerce/snap/commit/049ddca3a00a82da8b7fda627b6d09aa7a8a9763))
+
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- initial quickview ([1fd8a0c](https://github.com/AthosCommerce/snap/commit/1fd8a0cf787ab24d6e5980e7c22b173df678aaca))
+- quickview initial pr feedback ([cf98107](https://github.com/AthosCommerce/snap/commit/cf98107bafe31872de2957b275a01235c46f97cd))
+- quickview layout improvements, named calloutBadge, variantSelection, lang props, a11y ([9c7d19c](https://github.com/AthosCommerce/snap/commit/9c7d19c0a54126fa2de316077ce993cfc70ded9e))
+
+### Features
+
+- initial quickview ([b89cc1a](https://github.com/AthosCommerce/snap/commit/b89cc1a9f1998b1f08bd2dca0460a4ecf113d9e4))
+
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+
 ## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-store-mobx

@@ -1,6 +1,6 @@
 import { Carousel } from '../../../../src/components/Molecules/Carousel';
 import { Scrollbar } from 'swiper/modules';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { Theme, ThemeProvider } from '../../../../src/providers';
 
 const theme = {
@@ -14,7 +14,7 @@ const theme = {
 
 const children = ['red', 'blue', 'yellow', 'green', 'white', 'orange', 'black'];
 
-describe('Carousel Component', async () => {
+describe('Carousel Component', () => {
 	it('renders with results', () => {
 		mount(
 			<Carousel>
@@ -190,6 +190,95 @@ describe('Carousel Component', async () => {
 		cy.get('.ss__carousel .swiper-scrollbar').should('exist');
 	});
 
+	it('can enable scrollbar without providing the Scrollbar module', () => {
+		mount(
+			<Carousel scrollbar>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
+		cy.get('.ss__carousel .swiper-scrollbar').should('exist');
+		cy.get('.ss__carousel .swiper-scrollbar .swiper-scrollbar-drag').should('exist');
+	});
+
+	it('can enable scrollbar with a config object', () => {
+		mount(
+			<Carousel scrollbar={{ draggable: true, dragClass: 'custom-drag' }}>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
+		cy.get('.ss__carousel .swiper-scrollbar .custom-drag').should('exist');
+	});
+
+	it('does not render a scrollbar by default', () => {
+		mount(
+			<Carousel>
+				{children.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
+		cy.get('.ss__carousel .swiper-scrollbar').should('not.exist');
+	});
+
+	it('autoAdjustSlides reduces slidesPerView and slidesPerGroup to children length', () => {
+		// default breakpoints at 1200px use slidesPerView: 5
+		cy.viewport(1200, 750);
+		const fewChildren = children.slice(0, 2);
+
+		mount(
+			<Carousel autoAdjustSlides={true} onInit={cy.stub().as('onInitFunc')}>
+				{fewChildren.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
+
+		cy.get('.ss__carousel .swiper-slide').should('have.length', fewChildren.length);
+		cy.get('@onInitFunc')
+			.should('have.been.calledOnce')
+			.its('firstCall.args.0.params')
+			.then((params) => {
+				expect(params.slidesPerView).to.equal(fewChildren.length);
+				expect(params.slidesPerGroup).to.equal(fewChildren.length);
+			});
+	});
+
+	it('does not adjust slidesPerView when autoAdjustSlides is false', () => {
+		cy.viewport(1200, 750);
+		const fewChildren = children.slice(0, 2);
+
+		mount(
+			<Carousel onInit={cy.stub().as('onInitFunc')}>
+				{fewChildren.map((child, idx) => (
+					<div className={'findMe'} key={idx}>
+						{child}
+					</div>
+				))}
+			</Carousel>
+		);
+
+		cy.get('.ss__carousel .swiper-slide').should('have.length', fewChildren.length);
+		cy.get('@onInitFunc')
+			.should('have.been.calledOnce')
+			.its('firstCall.args.0.params')
+			.then((params) => {
+				expect(params.slidesPerView).to.equal(5);
+				expect(params.slidesPerGroup).to.equal(5);
+			});
+	});
+
 	it('can use breakpoints', () => {
 		// Change the viewport to 1200px.
 		cy.viewport(1200, 750);
@@ -342,7 +431,7 @@ describe('Carousel Component', async () => {
 		next.should('not.have.text', theme.components.carousel.nextButton);
 	});
 
-	it('breakpoints override theme prop', async () => {
+	it('breakpoints override theme prop', () => {
 		// Change the viewport to 1200px.
 		cy.viewport(1200, 750);
 

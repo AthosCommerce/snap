@@ -10,7 +10,7 @@ import meta from '../../fixtures/meta.json';
 import json from '../../fixtures/recommend-results-default.json';
 import profile from '../../fixtures/profile-default.json';
 import { Recommendation } from '../../../../src/components/Templates/Recommendation';
-import { mount } from '@cypress/react';
+import { mount } from 'cypress/react';
 import { ThemeProvider } from '../../../../src/providers';
 
 const globals = { siteId: '8uyt2m' };
@@ -46,7 +46,7 @@ const controller = new RecommendationController(recommendConfig, {
 	tracker: new Tracker(globals, { mode: 'development' }),
 });
 
-describe('Recommendation Component', async () => {
+describe('Recommendation Component', () => {
 	before(() => {
 		cy.spy(controller.tracker.events.recommendations, 'render').as('render');
 		cy.spy(controller.track.product, 'impression').as('impression');
@@ -59,7 +59,7 @@ describe('Recommendation Component', async () => {
 		await controller.search();
 	});
 
-	it('tracks as expected', async () => {
+	it('tracks as expected', () => {
 		cy.wrap(controller.store).its('loaded').should('eq', true);
 		cy.wrap(controller.store).its('results.length').should('be.greaterThan', 0);
 
@@ -76,8 +76,8 @@ describe('Recommendation Component', async () => {
 		cy.get('.ss__recommendation .findMe .result').should('have.length', controller.store.results.length);
 		// should be called 20 times (one for each result rendered)
 		cy.get('@render').its('callCount').should('eq', 1);
-		cy.wait(3000);
-		cy.get('@impression').its('callCount').should('eq', 5);
+		// impressions fire after a minimum visible time, so retry instead of sleeping
+		cy.get('@impression', { timeout: 6000 }).its('callCount').should('eq', 5);
 	});
 
 	it('renders with results', () => {

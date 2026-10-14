@@ -1,0 +1,31 @@
+import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import Readme from '../Usage/Usage.md';
+
+<Meta title="Documentation/Usage" />
+
+<style>
+	{`
+	.header {
+		display: flex;
+		align-items: center;
+	}
+
+	.header .subtitle {
+		text-transform: uppercase;
+		color: #00cee1;
+	}
+
+	.header img {
+		width: 300px;
+		margin-right: 20px;
+	}
+  `}
+</style>
+
+<div className="header">
+	<span className="subtitle">SNAP PREACT COMPONENETS</span>
+</div>
+
+---
+
+<Markdown>{Readme}</Markdown>

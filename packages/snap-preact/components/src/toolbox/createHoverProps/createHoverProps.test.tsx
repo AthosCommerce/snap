@@ -5,14 +5,18 @@ import userEvent from '@testing-library/user-event';
 
 import { createHoverProps } from './createHoverProps';
 
-const wait = (time?: number) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
-};
-
 describe('createHoverProps', () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+	});
+
+	afterEach(() => {
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
+	});
+
 	it('calls the callback provided after the default time', async () => {
+		const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 		const callback = jest.fn();
 		const delay = 333;
 		const hoverProps = createHoverProps(callback, { delay, focusElem: false });
@@ -21,15 +25,16 @@ describe('createHoverProps', () => {
 		const rendered = render(<div className="hover-element" {...hoverProps}></div>);
 
 		const element = rendered.container.querySelector('.hover-element');
-		await userEvent.hover(element!);
+		await user.hover(element!);
 
-		await wait(delay + 200);
+		await jest.advanceTimersByTimeAsync(delay);
 
 		expect(callback).toHaveBeenCalled();
 		expect(element).not.toHaveFocus();
 	});
 
 	it('does not call the callback provided if hover stops before delay', async () => {
+		const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 		const callback = jest.fn();
 		const delay = 333;
 		const hoverProps = createHoverProps(callback, { delay });
@@ -38,12 +43,17 @@ describe('createHoverProps', () => {
 		const rendered = render(<div className="hover-element" {...hoverProps}></div>);
 
 		const element = rendered.container.querySelector('.hover-element');
-		await userEvent.hover(element!);
+		await user.hover(element!);
 
-		// don't wait the full delay, then unhover
-		await wait(delay - 200);
+		// don't elapse the full delay, then unhover
+		await jest.advanceTimersByTimeAsync(delay - 200);
+		expect(callback).not.toHaveBeenCalled();
 
-		await userEvent.unhover(element!);
+		await user.unhover(element!);
+
+		// draining every remaining timer proves the pending callback was cleared,
+		// not merely that it had yet to fire
+		await jest.runAllTimersAsync();
 
 		expect(callback).not.toHaveBeenCalled();
 	});
