@@ -170,14 +170,17 @@ const BANNER_LAYOUT_PROPS = [...SEARCH_TEMPLATE_PROPS, 'layout', ...AUTOCOMPLETE
  * (missingLayoutBanners), 'hidden' for hide props (hiddenLayoutBanners).
  */
 function validateLayoutBanners(configObjectExpression, context, kind) {
-	const overridesProp = findProperty(findObjectProperty(configObjectExpression, 'theme'), 'overrides');
+	const theme = findObjectProperty(configObjectExpression, 'theme');
+	const overridesProp = findProperty(theme, 'overrides');
 	if (!overridesProp || unwrapTs(overridesProp.value).type !== 'ObjectExpression') return;
 
 	const userLayers = collectUserLayers(unwrapTs(overridesProp.value));
 	if (!userLayers) return;
 
-	const themeName = staticValueOf(findProperty(findObjectProperty(configObjectExpression, 'theme'), 'extends')?.value);
-	const baseLayers = buildBaseLayers(typeof themeName === 'string' ? themeName : 'base');
+	// themes differ in their default layouts, so without knowing which one there's nothing to compare against
+	const themeName = extendedThemeName(theme);
+	if (themeName === UNKNOWN) return;
+	const baseLayers = buildBaseLayers(themeName);
 
 	const checks = [];
 	for (const template of collectUsedTemplates(configObjectExpression, 'search', SEARCH_TEMPLATES)) {
@@ -553,6 +556,21 @@ function collectUserLayers(overridesObjectExpression) {
 	}
 
 	return layers;
+}
+
+/**
+ * The library theme named by `theme.extends`, or UNKNOWN when it can't be read statically: a
+ * non-literal value, or a spread (or computed key) in `theme` that may set it. `extends` is
+ * required by the config type, so a missing one is read as 'base'.
+ */
+function extendedThemeName(themeObjectExpression) {
+	let name = 'base';
+	for (const prop of themeObjectExpression.properties) {
+		const key = prop.type === 'Property' ? getStaticPropertyName(prop) : null;
+		if (key === null) name = UNKNOWN;
+		else if (key === 'extends') name = staticValueOf(prop.value);
+	}
+	return typeof name === 'string' ? name : UNKNOWN;
 }
 
 /**

@@ -62,7 +62,12 @@ The weight is the layer weight plus, for each segment, `((i + 1) * 2) ** (named 
 4. Parent-theme-derived respread
 5. User override selectors
 6. `props.theme.components` selectors injected by a parent (e.g. `layoutOptions[].overrides`)
-7. `customComponent` respread exceptions
+7. Final respread exceptions (T8), which re-apply raw props over every layer above:
+   - `customComponent` paths respread the raw props at every depth.
+   - Storybook-rooted paths (`storybook <type>`) respread the story's full args at the subtree root. Deeper in the subtree, only keys provably forwarded from those args are respread.
+   - Both keep the enriched `theme` built by the earlier steps rather than the raw one.
+
+Separately, a directly passed `lang` always survives the theme layers (T6).
 
 **Each selector's props are spread shallowly.** If a user overrides `autocompleteModal: { column2: { width: '200px' } }`, the whole `column2` object is replaced and the default `column2.layout` is lost.
 
@@ -72,14 +77,14 @@ A component's effective default layout comes from up to three places, and all of
 
 1. **Template internals**, which are not exported:
    - `Search.tsx` `subProps`: toolbar and sidebar layouts. The middle toolbar's layout depends on `isMobile`.
-   - `AutocompleteLayout.tsx`: `defaultProps` holds `layout`, `column1`–`column4`, and the prebuilt string layouts `terms`/`mobile`/`tablet`/`desktop`.
+   - `AutocompleteLayout.tsx`: `defaultProps` holds `layout` (`[['c1', 'c2', 'c3']]`) and `column1`–`column3`. The prebuilt string layouts `terms`/`mobile`/`tablet`/`desktop` are not in `defaultProps`; the render body expands them into module arrays after `mergeProps`.
    - The `defaultProps.layout` of each template.
 2. **`themes/themeComponents/*.ts`**: per-template, per-breakpoint layouts and `hideSidebar` toggles. Every theme spreads these.
 3. **Per-theme files**. For example, pike sets the autocomplete `layout` to `'desktop'`/`'mobile'`, including `'desktop'` on tablet, and sets `search.mobileDisplayAt`.
 
 ### Banners in layouts
 
-Merchandising banners only render where a layout puts them. There is no TypeScript guarantee, so the lint rules check that user overrides don't drop banners the defaults render. `layout-banners` reports layouts that leave a banner out as errors. `hidden-layout-banners` reports hide props such as `hideSidebar` and `excludeBanners` that hide one. It's a warning in `configs.recommended`, because hiding is often deliberate. Both rules share `eslint/src/utils/banners.cjs`.
+Merchandising banners only render where a layout puts them. There is no TypeScript guarantee, so the lint rules check that user overrides don't drop banners the defaults render. `layout-banners` reports layouts that leave a banner out as errors. `hidden-layout-banners` reports hide props such as `hideSidebar` and `excludeBanners` that hide one. It's a warning in `configs.recommended`, because hiding is often deliberate. Both rules share `eslint/src/utils/banners.cjs`, which fails open: anything it can't resolve statically, including a `theme.extends` it can't read, is not reported.
 
 - **Search** (`Layout.tsx`):
   - Toolbars can render `banner.header`, `banner.banner` and `banner.footer`. The `left` banner is not a legal toolbar module.
@@ -102,6 +107,6 @@ Merchandising banners only render where a layout puts them. There is no TypeScri
 
 The plugin is exported as `@athoscommerce/snap-preact/eslintplugin`, and projects register it as `snap-config`.
 
-- **One rule per file** in `eslint/src/rules/`. Each rule finds configs with `createConfigVisitors` from `eslint/src/utils/config-visitors.cjs`, and has its own test file in `eslint/tests/`.
-- **Projects enable `configs.recommended`** rather than listing rules. That's how a new rule or a severity change reaches projects with a snap-preact bump alone, with no scaffold change. So a new rule goes in `index.cjs` under both `rules` and `configs.recommended`. `eslint/tests/plugin.test.cjs` fails if it's missing from the recommended config.
+- **One rule per file** in `eslint/src/rules/`. Each rule finds configs with `createConfigVisitors` from `eslint/src/utils/config-visitors.cjs`. Each rule has a test file in `eslint/tests/`, except `hidden-layout-banners`, which is tested in `layout-banners.test.cjs`.
+- **Projects spread `configs.recommended.rules`** rather than listing rules. That's how a new rule or a severity change reaches projects with a snap-preact bump alone, with no scaffold change. So a new rule goes in `index.cjs` under both `rules` and `configs.recommended`. `eslint/tests/plugin.test.cjs` fails if it's missing from the recommended config.
 - **`validate-config` is a deprecated alias.** It runs `component-references`, `tabs`, `override-selectors` and `layout-banners` for older project configs that still enable it by name. Don't add new rules to it, and don't put it in `configs.recommended`, or every problem gets reported twice.

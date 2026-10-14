@@ -2,8 +2,8 @@
 
 Snap Templates configurations are verified by two cooperating layers:
 
-1. **The TypeScript compiler** is the authority: an invalid configuration will not compile. No tooling setup is required beyond wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`).
-2. **The Snap config ESLint rules** are an advisory layer that puts the error squiggle on the exact line of the mistake and lists what is valid there. If the linter is not set up (or a check cannot run), the compiler still enforces the same rules and only the pinpoint squiggles are lost. The one exception is the [layout banner check](#layout-banner-check), which only the linter performs.
+1. **The TypeScript compiler** checks the config's shape and its theme override typing: unknown keys, wrong value types, and invalid override selectors and props. A configuration with any of these will not compile. No tooling setup is required beyond wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`).
+2. **The Snap config ESLint rules** put the override errors the compiler reports on the exact line of the mistake, and list what is valid there. They also check how parts of the config relate to each other, which the compiler can't: that `customComponent` and `resultComponent` values name a registered (or built-in) component, that [tabs](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#tabs) are configured consistently, and that layout overrides still render the merchandising banners (see [Layout banner check](#layout-banner-check)). Without the linter, the compiler still rejects shape and override mistakes, but those relationship checks don't run at all.
 
 This page is the reference for how each layer works, how to read the errors, and how to set up the linter. For guide-level usage, see [Templates Config](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md) and [Templates Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md).
 
@@ -134,7 +134,7 @@ layout of Search (all breakpoints), so those merchandising banners returned by t
 API will not render. Add them to this layout or another layout of the template.
 ```
 
-Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads, variables, a `customComponent` override, and a target `component` that isn't a string literal. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
+Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads, variables, a `customComponent` override, and a target `component` that isn't a string literal. When the rules can't tell which theme `theme.extends` names (a variable, or a spread in `theme` that may set it), they skip the config entirely, because each theme has its own default layouts. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
 
 ### Checking limitations
 

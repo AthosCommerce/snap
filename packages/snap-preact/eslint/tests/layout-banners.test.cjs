@@ -133,6 +133,25 @@ ruleTester.run('layout-banners', layoutBanners, {
 			`,
 		},
 		{
+			// the default layouts differ per theme, so an unknown theme leaves nothing to compare against
+			name: 'theme extends from a variable is not checked',
+			code: `
+				const config: SnapTemplatesConfig = {
+					theme: { extends: themeName, overrides: { default: { 'toolbar.top': { layout: [['searchHeader']] } } } },
+					search: { targets: [{ selector: '#search', component: 'Search' }] },
+				};
+			`,
+		},
+		{
+			name: 'spread in theme after extends may replace it',
+			code: `
+				const config: SnapTemplatesConfig = {
+					theme: { extends: 'base', ...sharedTheme, overrides: { default: { 'toolbar.top': { layout: [['searchHeader']] } } } },
+					search: { targets: [{ selector: '#search', component: 'Search' }] },
+				};
+			`,
+		},
+		{
 			name: 'customComponent toolbar is not checked',
 			code: `
 				const config: SnapTemplatesConfig = {
@@ -317,6 +336,22 @@ ruleTester.run('layout-banners', layoutBanners, {
 		{
 			name: 'tablet autocomplete layout without facets on pike, whose tablet default has them',
 			code: config({ theme: 'pike', autocomplete: 'AutocompleteModal', overrides: `{ tablet: { autocompleteModal: { layout: [['c1', 'c3']] } } }` }),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'autocompleteModal', banners: "'banner.left'", where: 'AutocompleteModal (tablet)' },
+				},
+			],
+		},
+		{
+			// base renders [['c1', 'c3']] on tablet too, so this is only reported if pike is the theme compared against
+			name: 'theme extends set after a spread is still read',
+			code: `
+				const config: SnapTemplatesConfig = {
+					theme: { ...sharedTheme, extends: 'pike', overrides: { tablet: { autocompleteModal: { layout: [['c1', 'c3']] } } } },
+					autocomplete: { targets: [{ inputSelector: 'input', component: 'AutocompleteModal' }] },
+				};
+			`,
 			errors: [
 				{
 					messageId: 'missingLayoutBanners',
