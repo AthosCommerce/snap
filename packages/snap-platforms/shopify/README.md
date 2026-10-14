@@ -182,6 +182,7 @@ new SnapTemplates(config);
 4. Sets `result.state.priceFetched = true` when pricing is ready to display
 5. Caches results in an in-memory price cache local to the plugin instance, segmented per country, so switching between two non-base markets never reuses another market's cached prices
 6. When a quickview is opened, the same localized pricing (product and variant level) is applied to the quickview product — its variants are repopulated from `/v1/products` in the base currency, so the plugin re-applies cached prices (fetching them first if not already cached)
+7. In chat, after each response the plugin prices the products in every message of the current conversation (search results, inspiration sections, product answers, comparisons and recommendations), since chat has no top-level result list. The current conversation is priced the same way on `init` and `switchChat`, as a session restored from storage — or one whose response arrived while another chat was current — has not passed through `afterStore`
 
 Price *formatting* is not handled by this plugin. Use [`pluginShopifyCurrency`](#pluginshopifycurrency) instead, which applies the correct locale for the active currency. The `format` prop and `theme.overrides.default.price.format` are still supported for bespoke formatting.
 

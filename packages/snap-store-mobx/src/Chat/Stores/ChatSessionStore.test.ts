@@ -228,6 +228,123 @@ describe('ChatSessionStore badge persistence', () => {
 	});
 });
 
+describe('ChatSessionStore response data persistence', () => {
+	const meta: any = {};
+
+	const createResult = (): any => ({
+		id: 'prod1',
+		responseId: 'response1',
+		mappings: { core: { uid: 'prod1', parentId: 'prod1', name: 'Product 1', price: 10, msrp: 12 } },
+		attributes: {},
+		badges: [],
+		variants: {
+			data: [
+				{ mappings: { core: { uid: 'variant1', price: 10, msrp: 12 } }, attributes: {}, options: { size: { value: 'S' } } },
+				{ mappings: { core: { uid: 'variant2', price: 11, msrp: 13 } }, attributes: {}, options: { size: { value: 'M' } } },
+			],
+		},
+	});
+
+	const localizePrices = (product: any) => {
+		product.mappings.core.price = 14.49;
+		product.mappings.core.msrp = 17.39;
+		product.variants.data.forEach((variant: any) => {
+			variant.mappings.core.price = 14.49;
+		});
+	};
+
+	const createStorage = () => {
+		const saved: Record<string, any> = {};
+		const storage = {
+			state: {},
+			set: jest.fn((key: string, value: any) => {
+				saved[key] = value;
+			}),
+			get: jest.fn((key: string) => saved[key]),
+		} as any;
+		return { saved, storage };
+	};
+
+	const restore = (saved: Record<string, any>, storage: any, id: string) => {
+		const restoredData = JSON.parse(JSON.stringify(saved[`chats.${id}`]));
+		const restored = new ChatSessionStore({ data: { ...restoredData, id }, stores: { storage } });
+		restored.hydrateResults(meta);
+		return restored;
+	};
+
+	it('persists the original response data of results rather than later changes to their mappings', () => {
+		const { saved, storage } = createStorage();
+		const store = new ChatSessionStore({ data: { sessionId: 'test-session' }, stores: { storage } });
+
+		store.update({
+			chat: {
+				context: { sessionId: 'test-session' },
+				data: [{ messageType: 'productSearchResult', id: 'msg1', results: [createResult()] }],
+			} as any,
+			meta,
+		});
+
+		const product = (store.chat[0] as any).results[0];
+		localizePrices(product);
+		expect(product.mappings.core.price).toBe(14.49);
+
+		store.saveImmediate();
+
+		const restoredProduct = (restore(saved, storage, store.id).chat[0] as any).results[0];
+		expect(restoredProduct.mappings.core.price).toBe(10);
+		expect(restoredProduct.mappings.core.msrp).toBe(12);
+		expect(restoredProduct.variants.data.map((variant: any) => variant.mappings.core.price)).toEqual([10, 11]);
+	});
+
+	it('persists the original response data of a productAnswer sourceProduct', () => {
+		const { saved, storage } = createStorage();
+		const store = new ChatSessionStore({ data: { sessionId: 'test-session' }, stores: { storage } });
+
+		store.update({
+			chat: {
+				context: { sessionId: 'test-session' },
+				data: [{ messageType: 'productAnswer', id: 'msg1', text: 'answer', sourceProduct: createResult() }],
+			} as any,
+			meta,
+		});
+
+		const product = (store.chat[0] as any).sourceProduct;
+		localizePrices(product);
+		expect(product.mappings.core.price).toBe(14.49);
+
+		store.saveImmediate();
+
+		const restoredProduct = (restore(saved, storage, store.id).chat[0] as any).sourceProduct;
+		expect(restoredProduct.mappings.core.price).toBe(10);
+		expect(restoredProduct.mappings.core.msrp).toBe(12);
+	});
+
+	it('keeps persisting the stored data of a restored session after its products change', () => {
+		const { saved, storage } = createStorage();
+		const store = new ChatSessionStore({ data: { sessionId: 'test-session' }, stores: { storage } });
+
+		store.update({
+			chat: {
+				context: { sessionId: 'test-session' },
+				data: [{ messageType: 'productSearchResult', id: 'msg1', results: [createResult()] }],
+			} as any,
+			meta,
+		});
+		store.saveImmediate();
+
+		const restored = restore(saved, storage, store.id);
+		const restoredProduct = (restored.chat[0] as any).results[0];
+		localizePrices(restoredProduct);
+		expect(restoredProduct.mappings.core.price).toBe(14.49);
+
+		restored.saveImmediate();
+
+		const restoredAgain = (restore(saved, storage, store.id).chat[0] as any).results[0];
+		expect(restoredAgain.mappings.core.price).toBe(10);
+		expect(restoredAgain.variants.data.map((variant: any) => variant.mappings.core.price)).toEqual([10, 11]);
+	});
+});
+
 describe('ChatSessionStore activeMessage', () => {
 	it('returns null for an empty chat', () => {
 		const store = createStore();

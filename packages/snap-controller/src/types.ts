@@ -6,7 +6,7 @@ import type {
 	RecommendationController,
 	ChatController,
 } from './index';
-import type { QuickviewManager } from './Quickview/QuickviewManager';
+import type { QuickviewManager, SourceController } from './Quickview/QuickviewManager';
 import type { EventManager, Middleware } from '@athoscommerce/snap-event-manager';
 
 import type { Client } from '@athoscommerce/snap-client';
@@ -22,6 +22,7 @@ import type {
 	RecommendationStoreConfig,
 	ChatStoreConfig,
 	ChatStore,
+	ChatSessionStore,
 	Product,
 	SearchStoreConfigSettings,
 	AutocompleteStoreConfigSettings,
@@ -81,8 +82,13 @@ export type RestorePositionObj = {
 };
 
 export type QuickviewObj = {
-	controller: SearchController | AutocompleteController | RecommendationController;
+	controller: SourceController;
 	product: Product;
+};
+
+export type SwitchChatObj = {
+	controller: ChatController;
+	chat: ChatSessionStore;
 };
 
 // Overrides passed to `track.*` methods. `quickView` is set by the QuickviewManager when

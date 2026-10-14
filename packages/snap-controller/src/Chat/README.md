@@ -90,6 +90,13 @@ chatController.compareProduct(result2);
 // next search() call will compare these products
 ```
 
+## SwitchChat
+Makes the stored chat with the given id the current chat (see the ChatStore `switchChat` docs), then fires the `switchChat` [event](#events) and re-syncs the product quickview: it is reloaded for the target chat's active (undismissed) productQuery product, or closed otherwise. The quickview is left alone when another chat was switched to while the middleware ran. Does nothing when the id does not match a stored chat.
+
+```js
+await chatController.switchChat('chat-id');
+```
+
 ## OpenChat
 Opens the chat UI. Optionally accepts an initial message to start a conversation immediately. With no message, a new chat session is created if none exists and the input is focused. If the persisted active session has expired (past the `sessionEndTime` returned by `chatInit`) a fresh session is created so the user lands in a usable chat rather than the expired placeholder. If the reopened session has a pending (unanswered) request, it is resumed — see [ResumePendingRequest](#resumependingrequest). Also exposed as the global event `controller/chat/send` (fire via `window.athos.fire('controller/chat/send', { message })`).
 
@@ -134,7 +141,7 @@ To run custom logic on add-to-cart (e.g. forward to a host cart), register an `a
 ```
 
 ## HandleFeedback
-Records session-level feedback on the current chat. Accepts `'UP'` or `'DOWN'`. Fires the `track.product.feedback` event and automatically dismisses the feedback prompt after 3 seconds.
+Records session-level feedback on the current chat. Accepts `'UP'` or `'DOWN'`. Fires the `track.feedback` event and automatically dismisses the feedback prompt after 3 seconds.
 
 ```js
 chatController.handleFeedback('UP');
@@ -173,6 +180,12 @@ The controller automatically determines the request type based on the current co
 - Called with `eventData` = { controller, request, response }
 - Invoked after the store has been updated with the chat response (asynchronous event can be awaited)
 
+### switchChat
+- Called with `eventData` = { controller, chat } — `chat` is the `ChatSessionStore` switched to
+- Invoked after `switchChat()` makes the target chat current, before the product quickview is re-synced (asynchronous event can be awaited); the re-sync is skipped if another chat was switched to while it ran
+- Not invoked when `id` does not match a stored chat
+- The products of the chat switched to have not passed through `afterStore` on this page when the session was restored from storage or its response arrived while another chat was current — middleware that adjusts products in `afterStore` can apply the same adjustments here
+
 ### addToCart
 - Called with `eventData` = { controller, products }
 - Always invoked after `addToCart()` method has been invoked
@@ -191,6 +204,6 @@ The controller automatically determines the request type based on the current co
 - Called with `eventData` = { controller, product, trackEvent }
 - Always invoked after `track.product.addToCart()` method has been invoked
 
-### track.product.feedback
+### track.feedback
 - Called with `eventData` = { controller, trackEvent }
-- Always invoked after `track.product.feedback()` method has been invoked (no-op if there is no current chat sessionId)
+- Always invoked after `track.feedback()` method has been invoked (no-op if there is no current chat sessionId)

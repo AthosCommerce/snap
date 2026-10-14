@@ -1,4 +1,4 @@
-import { makeObservable, observable, computed } from 'mobx';
+import { makeObservable, observable, computed, toJS } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 
 import type {
@@ -39,24 +39,42 @@ export function getProductThumbnailUrl(core?: SearchResponseModelResultCoreMappi
 	return core?.thumbnailImageUrl || core?.imageUrl || core?.parentImageUrl;
 }
 
+// persisted instead of each Product's mappings, which middleware may change (e.g. localized prices)
+const productSources = new WeakMap<Product, SerializedProduct>();
+
+// sources are snapshotted with toJS because a Product keeps observable mappings by reference
 function createChatResultStore(results: SearchResponseModelResult[], meta: MetaResponseModel, config?: ChatStoreConfig): SearchResultStore {
-	return new SearchResultStore({
+	const sources = results.map((result) => toJS(result));
+	const store = new SearchResultStore({
 		config: chatResultConfig(config),
 		state: { loaded: true },
 		data: {
-			search: { results },
+			search: { results: sources },
 			meta,
 		},
 	});
+
+	const sourcesById = new Map(sources.map((source) => [source.id, source]));
+	store.forEach((result) => {
+		const source = sourcesById.get(result.id);
+		if (result instanceof Product && source) {
+			productSources.set(result, source);
+		}
+	});
+
+	return store;
 }
 
 function createChatProduct(result: SearchResponseModelResult, meta: MetaResponseModel, config?: ChatStoreConfig): Product {
-	return new Product({
+	const source = toJS(result);
+	const product = new Product({
 		config: chatResultConfig(config),
-		data: { result, meta },
+		data: { result: source, meta },
 		position: 0,
 		responseId: '',
 	});
+	productSources.set(product, source);
+	return product;
 }
 
 /** Plain serializable product shape persisted to storage in place of Product instances. */
@@ -65,6 +83,10 @@ export type SerializedProduct = SearchResponseModelResult & { responseId?: strin
 /** Extract raw serializable data from a Product instance for storage. */
 function serializeProduct(product: Product | SerializedProduct): SerializedProduct {
 	if (!(product instanceof Product)) return product;
+
+	const source = productSources.get(product);
+	if (source) return source;
+
 	const raw: SerializedProduct = {
 		id: product.id,
 		responseId: product.responseId,
