@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { QuickviewSlideout, QuickviewSlideoutProps } from './QuickviewSlideout';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../../Organisms/QuickviewLayout/readme.md';
 
 // Build a fresh mock quickview manager per story so each Storybook story renders independently.
@@ -69,23 +67,11 @@ const errorController = buildMockController({
 export default {
 	title: 'Templates/QuickviewSlideout',
 	component: QuickviewSlideout,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -213,14 +199,16 @@ export default {
 		},
 		...componentArgs,
 	},
-	args: {},
 };
 
-export const Default = (args: QuickviewSlideoutProps) => <QuickviewSlideout {...args} quickviewManager={defaultController} />;
-Default.args = {};
+export const Default = {
+	render: (args: QuickviewSlideoutProps) => <QuickviewSlideout {...args} quickviewManager={defaultController} />,
+};
 
-export const Loading = (args: QuickviewSlideoutProps) => <QuickviewSlideout {...args} quickviewManager={loadingController} />;
-Loading.args = {};
+export const Loading = {
+	render: (args: QuickviewSlideoutProps) => <QuickviewSlideout {...args} quickviewManager={loadingController} />,
+};
 
-export const ErrorState = (args: QuickviewSlideoutProps) => <QuickviewSlideout {...args} quickviewManager={errorController} />;
-ErrorState.args = {};
+export const ErrorState = {
+	render: (args: QuickviewSlideoutProps) => <QuickviewSlideout {...args} quickviewManager={errorController} />,
+};

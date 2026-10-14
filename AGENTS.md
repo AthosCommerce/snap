@@ -88,12 +88,76 @@ snapps/              ← gitignored; local co-development area
 
 - **Commits**: Conventional commits required (Commitizen enforced). Use `npm run commit`.
 - **Pre-commit hook**: Husky runs `lint-staged` — Prettier + ESLint on staged `.js/.ts/.tsx` files.
-- **`no-explicit-any` is OFF** — the codebase uses `any` freely.
+- **`no-explicit-any` is off in lint, but don't write `any` in production code** — existing usages are debt, not precedent. See [Types](#types).
 - **`@ts-ignore` requires a description** (`ban-ts-comment` with `allow-with-description`).
-- **Unused vars**: Error, but `h`, `jsx`, and underscore-prefixed vars are allowed (`varsIgnorePattern: "^(h|jsx|_+)$"`).
+- **Unused vars**: Error, but `h`, `jsx`, and names made only of underscores (`_`, `__`) are allowed (`varsIgnorePattern: "^(h|jsx|_+)$"`). Use those to discard destructured props, as components do with `style: _`.
 - **No debugger statements** (`no-debugger: error`).
-- **Preact, not React**: JSX pragma is `h`. React is aliased to Preact in bundler configs. Do not import from `react`.
-- **Test files are excluded from lint and build** (see `tsconfig.json` excludes and `.eslintrc.cjs` `ignorePatterns`), so `npm run typecheck:tests` is the only thing that type-checks them.
+- **Preact, not React**: JSX pragma is `h`. React is aliased to Preact in bundler configs. Do not import from `react` — hooks come from `preact/hooks`.
+- **Test files are excluded from lint and build** (see `tsconfig.json` excludes and `eslint.config.cjs` `ignores`), so `npm run typecheck:tests` is the only thing that type-checks them.
+
+## Standards
+
+Snap is open source and integrators build directly on its public surface, so PRs are reviewed against these standards. Lint enforces only a few of them; the rest are on the author. Component rules are in `packages/snap-preact/components/AGENTS.md` and docs rules in `docs/AGENTS.md`.
+
+### Public interfaces are long-term commitments
+
+A consumer-facing surface is anything an integrator can touch: exports, component props, config options, theme and lang keys, classnames, events and tracking methods. Once released to `develop`/`main` it is hard to take back. Internal code can be refactored later; interfaces can't.
+
+- **Check for an existing mechanism first.** Before adding a prop, option, method, store field or package, look for one that already covers the need and extend it instead of adding a parallel path.
+- **Extensible signatures.** Add an options object rather than another positional parameter: `useLang(lang, data, { activeBreakpoint })`, not `useLang(lang, data, activeBreakpoint)`.
+- **Precise types, no surprising defaults.** Use string-literal unions over `string`, and match sibling types (if sibling props accept CSS strings like `'12px'`, so does yours). A default an integrator wouldn't expect (e.g. a country defaulting to `'US'`) should be required instead, or documented.
+- **Data lives in the layer that owns it.** Plugin-only data doesn't go on core stores (`AbstractStore`, `result.custom`), and stores don't mutate each other.
+- **Consistent names.** Match sibling names and existing conventions (plugins are `pluginX`, e.g. `pluginBackgroundFilters`). A rename is applied everywhere: types, `subProps` keys, story args, lang keys, theme entries and docs.
+- **Don't break released surfaces.** Removing or renaming a released prop, export, classname, default or config key needs a compatible path. Surfaces that exist only on `beta` can change freely.
+
+### Types
+
+- **No `any` in production code.** Use the real type, a generic, or `unknown` with narrowing. `any` is tolerated in tests.
+- **Fix the type instead of casting.** Don't cast to force a value the type rejects (e.g. a filter `type: 'hierarchy'` when only `'value' | 'range'` exist).
+- **`import type`** for imports used only as types.
+- **Suppressions are a last resort.** `@ts-ignore` and `eslint-disable` need a reason and only when no typed fix exists. Use `_` names instead of disabling `no-unused-vars`.
+- **One home per type.** Reuse shared types rather than redefining them locally; component prop types are registered in `packages/snap-preact/components/src/providers/themeComponents.ts`.
+
+### Correctness
+
+- **`0` is a valid number.** Don't truthiness-check numeric values (`if (low && high)`); compare against `undefined` or use `Number.isFinite`.
+- **DOM listeners** are attached in `useEffect` with cleanup and a stable handler reference, never in the render body or a loop.
+- **MobX:** set the observed property; don't replace the observed object (`result.state = { ... }`).
+- **Tracking identifiers come from `result.mappings.core`** (`uid`, `parentId`, `sku`), not `result.id` or `attributes`. When the child variant is unknown, omit child fields rather than copying the parent's values.
+- **Keep the original error.** Don't swallow or replace it in a `catch`; log it with the instance logger (`this.log`), not `console.*`. An intentionally empty `catch` gets a comment saying why.
+- **Guard what can be missing, not what can't.** Handle lookups that can fail (meta facets by field, optional config). Don't add optional chaining or fallbacks for values that are always defined.
+- **Fix sibling paths too.** A bug fixed in one controller or code path often exists in its siblings (Search, Autocomplete, Recommendation); check them.
+
+### Tests
+
+- **Bug fixes come with a test** that fails without the fix. New props, options and features get tests of their behavior (event wiring, rendered label/href/class), not just that something renders or is defined.
+- **Assert exact values** when they're known: `toEqual` the full expected payload rather than `toContain` or `length > 0`. Assert the "before" state when testing a change, so the test can't pass without the behavior.
+- **Names match the test.** A test's name and comments describe what its body actually checks.
+- **No fixed waits** (`cy.wait(1100)`); use fake timers. Don't select on emotion-generated classnames.
+- **Nothing left behind:** no `it.only`, `rendered.debug()` or permanently skipped tests.
+
+### Leftovers and scope
+
+- **Remove everything that existed for a removed thing:** types, props, `*Names` unions, lang entries, theme entries, story args, docs, and styles targeting its classnames. Search for the old name before finishing.
+- **Delete, don't comment out.** No `console.log`, `debugger` or stray TODOs in source; track deferred work in an issue.
+- **One concern per PR.** Unrelated fixes, refactors and drive-by changes go in their own PR. Explain any change that isn't self-evident in the PR description.
+- **No manual version bumps:** `standard-version` handles them in the publish workflow.
+
+### Docs move with the code
+
+Docs must match the code in both directions, in the same PR. When a prop, option, default or behavior changes, update every place that describes it: the component `readme.md`, Storybook stories and argTypes, `docs/*.md`, package READMEs and code examples. When editing docs, make sure the code actually does what they say.
+
+### Dependencies and imports
+
+- Type-only and test-only packages go in root `devDependencies`.
+- Import only from packages declared in the importing package's `package.json`. No relative imports into another package's `src`, and a package never imports from its own entry point.
+
+### Before opening a PR
+
+- `npm run lint`, `npm run typecheck:tests` and `npm run test:core` pass.
+- The PR description lists interface changes: consumer-facing surfaces added, changed or removed, and whether any change breaks a released surface.
+- Docs are updated for everything the PR touches.
+- The author has read the whole diff and can explain every line, including generated code.
 
 ## Testing
 
@@ -117,7 +181,7 @@ snapps/              ← gitignored; local co-development area
 ## Gotchas
 
 - **Jest needs no build; Cypress does.** `jest.base.config.json` maps `@athoscommerce/*` to each package's `src/`, so `npm run test:core` and `npm run typecheck:tests` run from a clean tree. Only the Cypress suites (`npm run test:e2e`) need a build, and `npm run build` is enough — see the note above. If you add a new workspace package or sub-export, add it to that `moduleNameMapper` *and* to `paths` in `tsconfig.test.json`, or its imports will fall back to `dist/` and reintroduce the stale-build hazard.
-- **Jest is transpile-only** (`isolatedModules`), so it will not fail on type errors. `npm run typecheck:tests` is the only type gate for test files — the build's `tsconfig.json` `exclude` and `.eslintrc.cjs` `ignorePatterns` both skip `*.test.ts(x)`. `tsconfig.test.json` must also include the ambient `*.d.ts` shims (`is-plain-object`, `css.escape`), which package builds get free via `include: ["src"]`; omitting them yields spurious `TS7016`.
+- **Jest is transpile-only** (`isolatedModules`), so it will not fail on type errors. `npm run typecheck:tests` is the only type gate for test files — the build's `tsconfig.json` `exclude` and `eslint.config.cjs` `ignores` both skip `*.test.ts(x)`. `tsconfig.test.json` must also include the ambient `*.d.ts` shims (`is-plain-object`, `css.escape`), which package builds get free via `include: ["src"]`; omitting them yields spurious `TS7016`.
 - **`testTimeout` is a global-only Jest option** — setting it in a project config (`packages/*/jest.config.js`) is silently ignored and emits an "Unknown option" warning. Suites needing more than the 5s default call `jest.setTimeout()` in-file; do not "clean those up" as redundant.
 - **A fresh git worktree has no `node_modules` and no `dist`** — run `npm ci` (and `npm run build` before Cypress) before anything else. Until you do, `npx tsc` falls through to whatever compiler is installed globally and reports confusing, unrelated config errors. The toolchain is two aliased packages — `@typescript/native` (`typescript@7.0.2`, the compiler `tsc` resolves to) and `typescript` (`@typescript/typescript6@6.0.2`, the compatibility API for ESLint/Jest/TypeDoc) — so only the local install matches `tsconfig.json`.
 - `git stash` is repository-global, not per-worktree — `git stash list` and `git stash pop` operate on shared refs across every worktree. With several worktrees checked out, prefer committing over stashing.

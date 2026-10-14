@@ -1,7 +1,7 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 import { LayoutSelector, LayoutSelectorProps } from './LayoutSelector';
 import { ListOption } from '../../../types';
@@ -9,24 +9,15 @@ import { ListOption } from '../../../types';
 export default {
 	title: 'Molecules/LayoutSelector',
 	component: LayoutSelector,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onSelect: fn(),
 	},
 	argTypes: {
 		options: {
@@ -48,7 +39,7 @@ export default {
 					summary: 'onSelect event handler',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		type: {
 			description: 'type of Select to render.',
@@ -105,7 +96,7 @@ export default {
 					summary: 'Option object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		showSingleOption: {
 			defaultValue: false,
@@ -152,58 +143,50 @@ const layoutOptions: ListOption[] = [
 		value: 'custom',
 	},
 ];
-export const Default = (args: LayoutSelectorProps) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
-			<LayoutSelector
-				{...args}
-				onSelect={() => {
-					console.log('');
-				}}
-			/>
-		</div>
-	);
+
+export const Default = {
+	render: (args: LayoutSelectorProps) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
+				<LayoutSelector {...args} />
+			</div>
+		);
+	},
+
+	args: {
+		label: 'Layout',
+		options: layoutOptions,
+	},
 };
 
-Default.args = {
-	label: 'Layout',
-	options: layoutOptions,
+export const List = {
+	render: (args: LayoutSelectorProps) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
+				<LayoutSelector {...args} />
+			</div>
+		);
+	},
+
+	args: {
+		options: layoutOptions,
+		label: 'List Layout Selector',
+		type: 'list',
+	},
 };
 
-export const List = (args: LayoutSelectorProps) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
-			<LayoutSelector
-				{...args}
-				onSelect={() => {
-					console.log('');
-				}}
-			/>
-		</div>
-	);
-};
+export const Radio = {
+	render: (args: LayoutSelectorProps) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
+				<LayoutSelector {...args} />
+			</div>
+		);
+	},
 
-List.args = {
-	options: layoutOptions,
-	label: 'List Layout Selector',
-	type: 'list',
-};
-
-export const Radio = (args: LayoutSelectorProps) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
-			<LayoutSelector
-				{...args}
-				onSelect={() => {
-					console.log('');
-				}}
-			/>
-		</div>
-	);
-};
-
-Radio.args = {
-	options: layoutOptions,
-	label: 'Radio Layout Selector',
-	type: 'radio',
+	args: {
+		options: layoutOptions,
+		label: 'Radio Layout Selector',
+		type: 'radio',
+	},
 };

@@ -1,31 +1,18 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { SearchInput, SearchInputProps } from './SearchInput';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { SearchInput } from './SearchInput';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/SearchInput',
 	component: SearchInput,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -35,6 +22,12 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onChange: fn(),
+		onKeyUp: fn(),
+		onKeyDown: fn(),
+		onClick: fn(),
+	},
 	argTypes: {
 		value: {
 			defaultValue: '',
@@ -56,8 +49,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onChange',
+			control: false,
 		},
 		onKeyUp: {
 			description: 'OnKeyUp Callback',
@@ -67,8 +59,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onKeyUp',
+			control: false,
 		},
 		onKeyDown: {
 			description: 'OnKeyDown Callback',
@@ -78,8 +69,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onKeyDown',
+			control: false,
 		},
 		onClick: {
 			description: 'OnClick Callback',
@@ -89,8 +79,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		submitSearchButton: {
 			description: 'Button component props for submit search button',
@@ -191,9 +180,10 @@ export default {
 		...componentArgs,
 	},
 };
-export const Default = (args: SearchInputProps) => <SearchInput {...args} />;
 
-Default.args = {
-	submitSearchButton: { icon: 'search-thin' },
-	clearSearchButton: { icon: 'close-thin' },
+export const Default = {
+	args: {
+		submitSearchButton: { icon: 'search-thin' },
+		clearSearchButton: { icon: 'close-thin' },
+	},
 };

@@ -5,7 +5,9 @@ import { render } from '@testing-library/preact';
 import { AutocompleteLayout, AutocompleteLayoutProps } from './AutocompleteLayout';
 import { MockClient } from '@athoscommerce/snap-shared';
 import { AutocompleteControllerConfig } from '@athoscommerce/snap-controller';
+import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { createAutocompleteController } from '../../../../../src/create';
+import type { Tab, TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import { waitFor } from '@testing-library/preact';
 
 describe('AutocompleteLayout Component', () => {
@@ -114,6 +116,68 @@ describe('AutocompleteLayout Component', () => {
 			const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
 
 			expect(results.length).toBeGreaterThan(0);
+		});
+	});
+
+	it('does not render tabpanel attributes without a tabManager', async () => {
+		const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		await controller.bind();
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout controller={controller} input={controller.config.selector} />, { container });
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(autocomplete).not.toHaveAttribute('role');
+			expect(autocomplete).not.toHaveAttribute('id');
+			expect(autocomplete).not.toHaveAttribute('aria-labelledby');
+		});
+	});
+
+	it('renders as a tabpanel labelled by the active tab when a tabManager is provided', async () => {
+		const productsController = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+		const blogConfig = { ...acConfig, id: uuidv4().split('-').join('') };
+		const blogController = createAutocompleteController({ client: clientConfig, controller: blogConfig }, { client: mockClient });
+		await productsController.bind();
+		await blogController.bind();
+
+		const createTab = (id: string, tabController: AutocompleteController): Tab => ({
+			id,
+			label: id,
+			siteId: globals.siteId,
+			param: id.toLowerCase(),
+			prefetch: false,
+			controller: tabController,
+			redirects: {},
+		});
+
+		const tabs = [createTab('Products', productsController), createTab('Blog', blogController)];
+		const tabManager = { tabs, active: tabs[1], param: 'tab', setActive: jest.fn() } as unknown as TabManagerStore;
+
+		const input = document.querySelector('.athos-ac') as HTMLInputElement;
+		input.focus();
+		input.value = 'dress';
+
+		const rendered = render(<AutocompleteLayout controller={blogController} input={blogController.config.selector} tabManager={tabManager} />, {
+			container,
+		});
+
+		await waitFor(() => {
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const activeTab = rendered.container.querySelector('.ss__tab-selection__button--active');
+
+			expect(autocomplete).toHaveAttribute('role', 'tabpanel');
+			expect(autocomplete).toHaveAttribute('id', `ss__tabpanel--${blogController.id}`);
+			expect(autocomplete).toHaveAttribute('aria-labelledby', `ss__tab--${blogController.id}`);
+
+			// the active tab button and the panel reference each other
+			expect(activeTab).toHaveAttribute('id', autocomplete!.getAttribute('aria-labelledby')!);
+			expect(activeTab).toHaveAttribute('aria-controls', autocomplete!.getAttribute('id')!);
 		});
 	});
 
@@ -695,6 +759,99 @@ describe('AutocompleteLayout Component', () => {
 			expect(rows.length).toBe(1);
 			expect(rows[0].childNodes.length).toBe(3);
 			expect(rows[0]).toHaveClass('ss__autocomplete__row--0');
+		});
+	});
+
+	describe('searchInputSlot', () => {
+		const inLayoutArgs: Partial<AutocompleteLayoutProps> = {
+			layout: [['c1', 'c3']],
+			column1: { width: '300px', layout: [['searchInput'], ['termsList']] },
+		};
+		const slotSelector = '.ss__autocomplete__search-input-wrapper .slot-input';
+
+		it('keeps the layout mounted and renders the slot at the "searchInput" module without a focused input', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				...inLayoutArgs,
+				searchInputSlot: <input className="slot-input" type="text" />,
+			};
+
+			// the input is never focused and there is no query
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			const autocomplete = rendered.container.querySelector('.ss__autocomplete');
+			const slotInput = rendered.container.querySelector(`.ss__autocomplete__column--c1 ${slotSelector}`);
+
+			expect(autocomplete).toBeInTheDocument();
+			expect(slotInput).toBeInTheDocument();
+
+			// the content modules still require a focused input with content
+			expect(rendered.container.querySelector('.ss__autocomplete__terms-wrapper')).not.toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__column--c3')).not.toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__content')).not.toBeInTheDocument();
+		});
+
+		it('renders the content modules once the input is focused with a query, without remounting the slot', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				...inLayoutArgs,
+				searchInputSlot: <input className="slot-input" type="text" />,
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			const slotInput = rendered.container.querySelector(slotSelector);
+			expect(slotInput).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__autocomplete__content')).not.toBeInTheDocument();
+
+			input.focus();
+			input.value = 'dress';
+
+			await waitFor(() => {
+				const content = rendered.container.querySelector('.ss__autocomplete__column--c3 .ss__autocomplete__content');
+				const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
+
+				expect(content).toBeInTheDocument();
+				expect(results.length).toBeGreaterThan(0);
+			});
+
+			// the same slot element is still in place after the content appeared
+			expect(rendered.container.querySelector(`.ss__autocomplete__column--c1 ${slotSelector}`)).toBe(slotInput);
+		});
+
+		it('ignores the "searchInput" module without a slot and keeps the focus requirement', async () => {
+			const controller = createAutocompleteController({ client: clientConfig, controller: acConfig }, { client: mockClient });
+			await controller.bind();
+
+			const args: AutocompleteLayoutProps = {
+				controller,
+				input: controller.config.selector,
+				layout: [['searchInput'], ['content']],
+			};
+
+			const input = document.querySelector('.athos-ac') as HTMLInputElement;
+			const rendered = render(<AutocompleteLayout {...args} />, { container });
+
+			expect(rendered.container.querySelector('.ss__autocomplete')).not.toBeInTheDocument();
+
+			input.focus();
+			input.value = 'dress';
+
+			await waitFor(() => {
+				const results = rendered.container.querySelectorAll('.ss__autocomplete__content__results .ss__result');
+				expect(results.length).toBeGreaterThan(0);
+			});
+
+			expect(rendered.container.querySelector('.ss__autocomplete__search-input-wrapper')).not.toBeInTheDocument();
 		});
 	});
 });

@@ -37,7 +37,7 @@ const autocompleteModalStyleScript = (props: AutocompleteModalProps) => {
 					flexFlow: 'column nowrap',
 					maxWidth: '1000px',
 					overflow: 'visible',
-					'& > .ss__search-input': {
+					'& .ss__search-input': {
 						height: 'auto',
 						flex: `0 0 ${searchInputHeight}px`,
 						margin: 0,

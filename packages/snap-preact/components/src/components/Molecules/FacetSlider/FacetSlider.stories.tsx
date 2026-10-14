@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { FacetSlider, FacetSliderProps } from './FacetSlider';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../FacetSlider/readme.md';
 import type { RangeFacet } from '@athoscommerce/snap-store-mobx';
 
@@ -31,23 +30,11 @@ const sliderFacetMock = {
 export default {
 	title: 'Molecules/FacetSlider',
 	component: FacetSlider,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -57,6 +44,10 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onDrag: fn(),
+		onChange: fn(),
+	},
 	argTypes: {
 		facet: {
 			description: 'Facet store reference',
@@ -66,7 +57,7 @@ export default {
 					summary: 'facet store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		showTicks: {
 			description: 'enables/disables ticks',
@@ -181,8 +172,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onDrag',
+			control: false,
 		},
 		onChange: {
 			description:
@@ -193,11 +183,12 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onChange',
+			control: false,
 		},
 		...componentArgs,
 	},
 };
 
-export const Price = (args: FacetSliderProps) => <FacetSlider {...args} facet={sliderFacetMock as RangeFacet} />;
+export const Price = {
+	render: (args: FacetSliderProps) => <FacetSlider {...args} facet={sliderFacetMock as RangeFacet} />,
+};

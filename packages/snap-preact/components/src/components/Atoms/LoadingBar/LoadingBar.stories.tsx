@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
 import { LoadingBar, LoadingBarProps } from './LoadingBar';
-import { componentArgs, highlightedCode } from '../../../utilities';
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Atoms/LoadingBar',
 	component: LoadingBar,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -80,9 +66,12 @@ export default {
 	},
 };
 
-export const Active = (args: LoadingBarProps) => {
-	return <LoadingBar {...args} style={{ maxWidth: '1200px', margin: '1rem', overflow: 'hidden' }} />;
-};
-Active.args = {
-	active: true,
+export const Active = {
+	render: (args: LoadingBarProps) => {
+		return <LoadingBar {...args} style={{ maxWidth: '1200px', margin: '1rem', overflow: 'hidden' }} />;
+	},
+
+	args: {
+		active: true,
+	},
 };
