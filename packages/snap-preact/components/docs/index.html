@@ -3,55 +3,57 @@
   <head>
     <meta charset="utf-8" />
 
-    <title>@storybook/cli - Storybook</title>
+    <title>storybook - Storybook</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     
-    <link
-      rel="prefetch"
-      href="./sb-common-assets/nunito-sans-regular.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="prefetch"
-      href="./sb-common-assets/nunito-sans-bold.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link rel="stylesheet" href="./sb-common-assets/fonts.css" />
+    <style>
+      @font-face {
+        font-family: 'Nunito Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('./sb-common-assets/nunito-sans-regular.woff2') format('woff2');
+      }
+
+      @font-face {
+        font-family: 'Nunito Sans';
+        font-style: italic;
+        font-weight: 400;
+        font-display: swap;
+        src: url('./sb-common-assets/nunito-sans-italic.woff2') format('woff2');
+      }
+
+      @font-face {
+        font-family: 'Nunito Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('./sb-common-assets/nunito-sans-bold.woff2') format('woff2');
+      }
+
+      @font-face {
+        font-family: 'Nunito Sans';
+        font-style: italic;
+        font-weight: 700;
+        font-display: swap;
+        src: url('./sb-common-assets/nunito-sans-bold-italic.woff2') format('woff2');
+      }
+    </style>
 
     <link href="./sb-manager/runtime.js" rel="modulepreload" />
 
     
-    <link href="./sb-addons/controls-0/manager-bundle.js" rel="modulepreload" />
+    <link href="./sb-addons/storybook-core-server-presets-0/common-manager-bundle.js" rel="modulepreload" />
     
-    <link href="./sb-addons/actions-1/manager-bundle.js" rel="modulepreload" />
+    <link href="./sb-addons/docs-1/manager-bundle.js" rel="modulepreload" />
     
-    <link href="./sb-addons/viewport-2/manager-bundle.js" rel="modulepreload" />
+    <link href="./sb-addons/themes-2/manager-bundle.js" rel="modulepreload" />
     
-    <link href="./sb-addons/links-3/manager-bundle.js" rel="modulepreload" />
-    
-    <link href="./sb-addons/themes-4/manager-bundle.js" rel="modulepreload" />
-    
-    <link href="./sb-addons/components-storybook-5/manager-bundle.js" rel="modulepreload" />
-      <!-- .storybook/manager-head.html -->
-
-<!-- styling used to hide the toolbar on "docs" pages -->
-<style>
-	[role='main']:nth-child(5) div:has(+ [offset]) {
-		display: none;
-	}
-
-	[role='main']:nth-child(5) [offset] {
-		top: 0;
-		height: 100%;
-	}
-</style> 
+    <link href="./sb-addons/components-storybook-3/manager-bundle.js" rel="modulepreload" />
+       
 
     <style>
       #storybook-root[hidden] {
@@ -69,12 +71,22 @@
       
         
           window['FEATURES'] = {
-  "warnOnLegacyHierarchySeparator": true,
-  "buildStoriesJson": false,
-  "storyStoreV7": true,
+  "actions": true,
   "argTypeTargetsV7": true,
+  "babelRemoveBugfixes": false,
+  "backgrounds": true,
+  "changeDetection": true,
+  "componentsManifest": false,
+  "controls": true,
+  "disallowImplicitActionsInRenderV8": true,
+  "highlight": true,
+  "interactions": true,
   "legacyDecoratorFileOrder": false,
-  "disallowImplicitActionsInRenderV8": false
+  "measure": true,
+  "outline": true,
+  "menuOnboardingChecklist": true,
+  "sidebarOnboardingChecklist": true,
+  "viewport": true
 };
         
       
@@ -88,8 +100,7 @@
       
         
           window['DOCS_OPTIONS'] = {
-  "defaultName": "Docs",
-  "autodocs": "tag"
+  "defaultName": "Docs"
 };
         
       
@@ -98,6 +109,28 @@
         
       
         
+          window['DOCGEN_STORY_PREPARED'] = false;
+        
+      
+        
+      
+        
+      
+        
+          window['TAGS_OPTIONS'] = {};
+        
+      
+        
+          window['STORYBOOK_BUILDER'] = "vite";
+        
+      
+        
+          window['STORYBOOK_FRAMEWORK'] = "preact-vite";
+        
+      
+        
+          window['STORYBOOK_RENDERER'] = "preact";
+        
       
         
       
@@ -105,23 +138,19 @@
     
 
     <script type="module">
+      import './sb-manager/globals-runtime.js';
+
+      
+        import './sb-addons/storybook-core-server-presets-0/common-manager-bundle.js';
+      
+        import './sb-addons/docs-1/manager-bundle.js';
+      
+        import './sb-addons/themes-2/manager-bundle.js';
+      
+        import './sb-addons/components-storybook-3/manager-bundle.js';
+      
+
       import './sb-manager/runtime.js';
-
-      
-      import './sb-addons/controls-0/manager-bundle.js';
-      
-      import './sb-addons/actions-1/manager-bundle.js';
-      
-      import './sb-addons/viewport-2/manager-bundle.js';
-      
-      import './sb-addons/links-3/manager-bundle.js';
-      
-      import './sb-addons/themes-4/manager-bundle.js';
-      
-      import './sb-addons/components-storybook-5/manager-bundle.js';
-      
     </script>
-
-    <link href="./sb-preview/runtime.js" rel="prefetch" as="script" />
   </body>
 </html>
