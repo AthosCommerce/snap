@@ -659,6 +659,12 @@ export const ja: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'すべてクリア',
+			attributes: {
+				'aria-label': 'すべてクリア',
+			},
+		},
+		noFiltersText: {
+			value: 'フィルターは適用されていません',
 		},
 	},
 	facet: {

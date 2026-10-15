@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { InlineBanner, InlineBannerProps } from './InlineBanner';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import { ResultsLayout } from '../../../types';
@@ -14,24 +13,15 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Atoms/InlineBanner',
 	component: InlineBanner,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		banner: {
@@ -42,7 +32,7 @@ export default {
 					summary: 'inline banner store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		layout: {
 			description: 'Banner layout',
@@ -76,8 +66,7 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -98,17 +87,19 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'InlineBanner', globals: { siteId: 'atkzs2', search: { query: { string: 'jacket' } } } });
 
-export const Default = (args: InlineBannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	const inlineBanners = controller?.store?.results?.filter((result) => result.type === 'banner').pop() as Banner;
+export const Default = {
+	render: (args: InlineBannerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		const inlineBanners = controller?.store?.results?.filter((result) => result.type === 'banner').pop() as Banner;
 
-	return inlineBanners && <InlineBanner {...args} banner={inlineBanners} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+		return inlineBanners && <InlineBanner {...args} banner={inlineBanners} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

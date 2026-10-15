@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
+
+### Bug Fixes
+
+- **filter:** fixing lang issue for clear all filters button, and changing data passed to no filters text ([2425a74](https://github.com/AthosCommerce/snap/commit/2425a7462260ce2f0d38a3804da451a8eb345bfe))
+- **preact:** correct 'received' typo and replace javascript: URLs in story mock data ([82f8149](https://github.com/AthosCommerce/snap/commit/82f8149b9c169d0ffa59bfde0d305c277e83d240))
+- **preact:** key the early search on the documented page.type context variable ([af0b5eb](https://github.com/AthosCommerce/snap/commit/af0b5ebed13eda544f62953b05c2358f768878b8))
+- **realtime variants:** bugfix for setting location ([c9a1c17](https://github.com/AthosCommerce/snap/commit/c9a1c17dbe8127592b31c203117a588a850812f8))
+- **slideshow:** bugfix for ios drag/click functionality ([6dc9fad](https://github.com/AthosCommerce/snap/commit/6dc9fad7c52b5e251ed27b48c66950ed5b3f15be))
+- **swatches.story:** fix type prop in storybook ([75a4a63](https://github.com/AthosCommerce/snap/commit/75a4a63f5bcaccf59276e80bd4a1d941ccb4c624))
+
+### Features
+
+- **autocomplete:** adding new module to layouts to add ability to add input into ac layout ([8371acd](https://github.com/AthosCommerce/snap/commit/8371acda6ed2b687c09da76c8b21b914199b6aff))
+- **facetshorizontal:** adding new prop openFacetsInSidebar to open facets in a slideout not dropdown ([5fbd64f](https://github.com/AthosCommerce/snap/commit/5fbd64faa7c5fc9b9fa4c34e49ce9fda9702f34a))
+- **filtersummary:** adding props and langs for no filters selected text ([3f87df9](https://github.com/AthosCommerce/snap/commit/3f87df987bf3c76654fcd66cc43670c6df3b3ae6))
+
 ## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
 
 ### Bug Fixes

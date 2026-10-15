@@ -71,7 +71,7 @@ The `lang` prop allows you to override translatable text strings used by the Fil
 
 | Lang Key | Description | Data Provided |
 |---|---|---|
-| `filter` | Filter element text/attributes | `label` (string), `value` (string) |
+| `filter` | Filter text and attributes. `value` replaces the rendered value text (`.ss__filter__value`), `attributes` are applied to the filter link element | `label` (string), `value` (string) |
 
 ### Example
 

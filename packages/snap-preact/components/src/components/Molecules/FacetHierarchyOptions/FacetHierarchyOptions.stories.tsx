@@ -1,10 +1,9 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { FacetHierarchyOptions, FacetHierarchyOptionsProps } from './FacetHierarchyOptions';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import { FacetDisplay } from '../../../types';
 import Readme from '../FacetHierarchyOptions/readme.md';
@@ -14,24 +13,15 @@ import { iconPaths } from '../../Atoms/Icon';
 export default {
 	title: 'Molecules/FacetHierarchyOptions',
 	component: FacetHierarchyOptions,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		values: {
@@ -42,7 +32,7 @@ export default {
 					summary: 'object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		facet: {
 			description: 'Facet store reference',
@@ -52,7 +42,7 @@ export default {
 					summary: 'facet store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		returnIcon: {
 			description: 'return Icon name',
@@ -111,7 +101,7 @@ export default {
 				},
 				defaultValue: { summary: '{}' },
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		onClick: {
 			description: 'Facet option click event handler',
@@ -121,8 +111,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -143,15 +132,17 @@ const ObservableFacetHierarchyOptions = observer(({ args, controller }: { args: 
 	);
 });
 
-export const Default = (args: FacetHierarchyOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservableFacetHierarchyOptions args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: FacetHierarchyOptionsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservableFacetHierarchyOptions args={args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

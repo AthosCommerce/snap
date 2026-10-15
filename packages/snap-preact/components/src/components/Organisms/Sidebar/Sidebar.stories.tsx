@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { Sidebar, SidebarProps } from './Sidebar';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -12,23 +11,11 @@ import { iconPaths } from '../../..';
 export default {
 	title: 'Organisms/Sidebar',
 	component: Sidebar,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -38,6 +25,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onToggleSidebar: fn(),
+	},
 	argTypes: {
 		controller: {
 			description: 'Search controller reference',
@@ -47,7 +37,7 @@ export default {
 					summary: 'Search controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		layout: {
 			description: 'specifies the layout of the sidebar',
@@ -265,7 +255,6 @@ export default {
 					summary: '() => void',
 				},
 			},
-			action: 'onToggleSidebar',
 		},
 		...componentArgs,
 	},
@@ -273,15 +262,17 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'Sidebar', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: SidebarProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Sidebar {...args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: SidebarProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <Sidebar {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
