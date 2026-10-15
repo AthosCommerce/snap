@@ -118,6 +118,36 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		hoverSrcset: {
+			description: 'Image onHover srcset attribute, or an array of widths to generate it from hoverSrc',
+			table: {
+				type: {
+					summary: 'string | number[]',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
+		srcset: {
+			description: 'Image srcset attribute, or an array of widths to generate it from src using the `width` query parameter (Shopify CDN)',
+			table: {
+				type: {
+					summary: 'string | number[]',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
+		sizes: {
+			description: 'Image sizes attribute',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
 		draggable: {
 			description: 'Image draggable attribute',
 			table: {
@@ -258,4 +288,12 @@ export const onhover = {
 		alt: searchResponse.product1.name,
 		hoverSrc: searchResponse.product2.image,
 	},
+};
+
+export const Srcset = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
+Srcset.args = {
+	src: searchResponse.product1.image,
+	srcset: [320, 640, 960, 1280, 1920],
+	sizes: '(max-width: 600px) 100vw, 300px',
+	alt: searchResponse.product1.name,
 };

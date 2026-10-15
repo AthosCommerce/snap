@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
 import { ThemeProvider } from '../../../providers';
-import { render, waitFor } from '@testing-library/preact';
+import { render, waitFor, fireEvent } from '@testing-library/preact';
 
 import { Image, FALLBACK_IMAGE_URL } from './Image';
 import userEvent from '@testing-library/user-event';
@@ -91,6 +91,156 @@ describe('image Component', () => {
 		});
 	});
 
+	describe('srcset and sizes', () => {
+		const srcset = `${result?.thumbnailImageUrl} 1x, ${result?.imageUrl} 2x`;
+		const hoverSrcset = `${rolloverImage} 1x`;
+		const sizes = '(max-width: 600px) 100vw, 300px';
+
+		it('does not render srcset or sizes attributes when not provided', () => {
+			const rendered = render(<Image alt={result?.name!} src={result?.thumbnailImageUrl!} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).not.toHaveAttribute('srcset');
+			expect(imageElement).not.toHaveAttribute('sizes');
+		});
+
+		it('renders srcset and sizes attributes', () => {
+			const rendered = render(<Image alt={result?.name!} src={result?.thumbnailImageUrl!} srcset={srcset} sizes={sizes} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).toHaveAttribute('src', result?.thumbnailImageUrl);
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+		});
+
+		it('swaps srcset for hoverSrcset on hover and restores it on mouse out', async () => {
+			const rendered = render(
+				<Image
+					alt={result?.name!}
+					src={result?.thumbnailImageUrl!}
+					srcset={srcset}
+					sizes={sizes}
+					hoverSrc={rolloverImage}
+					hoverSrcset={hoverSrcset}
+				/>
+			);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+
+			await userEvent.hover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', rolloverImage));
+			expect(imageElement).toHaveAttribute('srcset', hoverSrcset);
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+
+			await userEvent.unhover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', result?.thumbnailImageUrl));
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+		});
+
+		it('removes srcset on hover when hoverSrcset is not provided so hoverSrc is displayed', async () => {
+			const rendered = render(<Image alt={result?.name!} src={result?.thumbnailImageUrl!} srcset={srcset} hoverSrc={rolloverImage} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')! as HTMLImageElement;
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+
+			await userEvent.hover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', rolloverImage));
+			expect(imageElement.srcset).toBe('');
+		});
+
+		it('removes srcset and sizes when falling back on error', () => {
+			const onErrorFunc = jest.fn();
+			const rendered = render(<Image alt={result?.name!} src={result?.thumbnailImageUrl!} srcset={srcset} sizes={sizes} onError={onErrorFunc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+
+			fireEvent.error(imageElement);
+			expect(onErrorFunc).toHaveBeenCalled();
+			expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);
+			expect(imageElement).not.toHaveAttribute('srcset');
+			expect(imageElement).not.toHaveAttribute('sizes');
+		});
+
+		describe('array of widths', () => {
+			const src = 'https://cdn.example.com/image.jpg?v=123';
+			const hoverSrc = 'https://cdn.example.com/hover.jpg';
+
+			it('generates width descriptor candidates from src using the width query parameter', () => {
+				const rendered = render(<Image alt="image" src={src} srcset={[320, 640]} sizes={sizes} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute('src', src);
+				expect(imageElement).toHaveAttribute(
+					'srcset',
+					'https://cdn.example.com/image.jpg?v=123&width=320 320w, https://cdn.example.com/image.jpg?v=123&width=640 640w'
+				);
+				expect(imageElement).toHaveAttribute('sizes', sizes);
+			});
+
+			it('adds a query string when src has none', () => {
+				const rendered = render(<Image alt="image" src="https://cdn.example.com/image.jpg" srcset={[320]} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute('srcset', 'https://cdn.example.com/image.jpg?width=320 320w');
+			});
+
+			it('replaces an existing width query parameter', () => {
+				const rendered = render(<Image alt="image" src="https://cdn.example.com/image.jpg?width=1920&v=123" srcset={[320]} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute('srcset', 'https://cdn.example.com/image.jpg?v=123&width=320 320w');
+			});
+
+			it('ignores invalid and duplicate widths', () => {
+				const rendered = render(<Image alt="image" src={src} srcset={[320, 320, 0, -100, 640.5, 640]} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute(
+					'srcset',
+					'https://cdn.example.com/image.jpg?v=123&width=320 320w, https://cdn.example.com/image.jpg?v=123&width=640 640w'
+				);
+			});
+
+			it('does not render srcset when no widths are valid', () => {
+				const rendered = render(<Image alt="image" src={src} srcset={[]} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).not.toHaveAttribute('srcset');
+			});
+
+			it('does not render srcset when src is empty and the fallback is displayed', () => {
+				const rendered = render(<Image alt="image" src="" srcset={[320]} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);
+				expect(imageElement).not.toHaveAttribute('srcset');
+			});
+
+			it('applies the same widths to hoverSrc on hover when hoverSrcset is not provided', async () => {
+				const rendered = render(<Image alt="image" src={src} srcset={[320, 640]} hoverSrc={hoverSrc} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute(
+					'srcset',
+					'https://cdn.example.com/image.jpg?v=123&width=320 320w, https://cdn.example.com/image.jpg?v=123&width=640 640w'
+				);
+
+				await userEvent.hover(imageElement);
+				await waitFor(() => expect(imageElement).toHaveAttribute('src', hoverSrc));
+				expect(imageElement).toHaveAttribute(
+					'srcset',
+					'https://cdn.example.com/hover.jpg?width=320 320w, https://cdn.example.com/hover.jpg?width=640 640w'
+				);
+
+				await userEvent.unhover(imageElement);
+				await waitFor(() => expect(imageElement).toHaveAttribute('src', src));
+				expect(imageElement).toHaveAttribute(
+					'srcset',
+					'https://cdn.example.com/image.jpg?v=123&width=320 320w, https://cdn.example.com/image.jpg?v=123&width=640 640w'
+				);
+			});
+
+			it('uses hoverSrcset widths on hover when provided', async () => {
+				const rendered = render(<Image alt="image" src={src} srcset={[320, 640]} hoverSrc={hoverSrc} hoverSrcset={[100]} />);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+
+				await userEvent.hover(imageElement);
+				await waitFor(() => expect(imageElement).toHaveAttribute('src', hoverSrc));
+				expect(imageElement).toHaveAttribute('srcset', 'https://cdn.example.com/hover.jpg?width=100 100w');
+			});
+		});
+	});
+
 	describe('click func', () => {
 		it('custom onclick src on hover', async () => {
 			const clickfunc = jest.fn();
@@ -164,5 +314,26 @@ describe('Image theming works', () => {
 		const image = rendered.container.querySelector('.ss__image');
 		expect(image).toBeInTheDocument();
 		expect(image?.classList.length).toBe(2);
+	});
+});
+
+describe('srcset candidate urls', () => {
+	const renderSrcset = (src: string, widths: number[] = [320]) => {
+		const rendered = render(<Image alt="image" src={src} srcset={widths} />);
+		return rendered.container.querySelector('.ss__image img')!.getAttribute('srcset');
+	};
+
+	it('appends to an existing query string and keeps other parameters', () => {
+		expect(renderSrcset('https://cdn.example.com/image.jpg?width=1920&v=123&crop=center')).toBe(
+			'https://cdn.example.com/image.jpg?v=123&crop=center&width=320 320w'
+		);
+	});
+
+	it('preserves a hash fragment', () => {
+		expect(renderSrcset('https://cdn.example.com/image.jpg?v=123#top')).toBe('https://cdn.example.com/image.jpg?v=123&width=320#top 320w');
+	});
+
+	it('supports protocol relative urls', () => {
+		expect(renderSrcset('//cdn.example.com/image.jpg')).toBe('//cdn.example.com/image.jpg?width=320 320w');
 	});
 });

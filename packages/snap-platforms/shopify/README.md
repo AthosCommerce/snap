@@ -46,6 +46,29 @@ export const AddToCart = (props) => {
 };
 ```
 
+## stripShopifyImageSize
+The `stripShopifyImageSize` function removes Shopify's legacy size suffix from an image URL (eg. `image_600x600.jpg?v=123` becomes `image.jpg?v=123`). The query string and hash are kept. Width only (`_600x`), height only (`_x600`), crop (`_600x600_crop_center`) and density (`_600x600@2x`) variants are supported, and URLs without a suffix are returned unchanged.
+
+The Shopify CDN ignores the `width` query parameter when the filename has a size suffix. Remove it before passing the URL to the `Image` component when using an array of widths for its `srcset` prop, otherwise every candidate is the same image.
+
+```tsx
+import { Image } from '@athoscommerce/snap-preact/components';
+import { stripShopifyImageSize } from '@athoscommerce/snap-platforms/shopify';
+
+export const CustomResult = (props) => {
+	const core = props.result.mappings.core;
+
+	return (
+		<Image
+			src={stripShopifyImageSize(core.thumbnailImageUrl)}
+			srcset={[320, 640, 960]}
+			sizes='(min-width: 991px) 200px, 50vw'
+			alt={core.name}
+		/>
+	)
+};
+```
+
 ## Plugins
 
 ### pluginAddToCart
