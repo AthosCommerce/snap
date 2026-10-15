@@ -1,10 +1,9 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { Filter, FilterProps } from './Filter';
 import { iconPaths } from '../../Atoms/Icon/paths';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../Filter/readme.md';
 
@@ -14,24 +13,15 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Molecules/Filter',
 	component: Filter,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		filter: {
@@ -41,7 +31,7 @@ export default {
 					summary: 'object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		facetLabel: {
 			description: 'Filter field',
@@ -116,8 +106,7 @@ export default {
 					summary: 'function',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -137,49 +126,54 @@ const snapInstance = Snapify.search({
 	},
 });
 
-export const Default = (args: FilterProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<Filter
-		{...args}
-		facetLabel={controller?.store?.facets.filter((facet) => facet.type === 'value').shift().label}
-		valueLabel={
-			controller?.store?.facets
-				.filter((facet) => facet.type === 'value')
-				.shift()
-				.values.shift().value
-		}
-	/>
-);
+export const Default = {
+	render: (args: FilterProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<Filter
+			{...args}
+			facetLabel={controller?.store?.facets.filter((facet) => facet.type === 'value').shift().label}
+			valueLabel={
+				controller?.store?.facets
+					.filter((facet) => facet.type === 'value')
+					.shift()
+					.values.shift().value
+			}
+		/>
+	),
 
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
+
+export const NoFacetLabel = {
+	render: (args: FilterProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
+		<Filter
+			{...args}
+			facetLabel={controller?.store?.facets.filter((facet) => facet.type === 'value').shift().label}
+			valueLabel={
+				controller?.store?.facets
+					.filter((facet) => facet.type === 'value')
+					.shift()
+					.values.shift().value
+			}
+		/>
+	),
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		hideFacetLabel: true,
 	},
-];
-
-export const NoFacetLabel = (args: FilterProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => (
-	<Filter
-		{...args}
-		facetLabel={controller?.store?.facets.filter((facet) => facet.type === 'value').shift().label}
-		valueLabel={
-			controller?.store?.facets
-				.filter((facet) => facet.type === 'value')
-				.shift()
-				.values.shift().value
-		}
-	/>
-);
-
-NoFacetLabel.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
-	},
-];
-NoFacetLabel.args = {
-	hideFacetLabel: true,
 };

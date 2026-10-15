@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { RecommendationEmail, RecommendationEmailProps } from './RecommendationEmail';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 
 import Readme from './readme.md';
@@ -14,23 +12,11 @@ import type { Next } from '@athoscommerce/snap-event-manager';
 export default {
 	title: 'Templates/RecommendationEmail',
 	component: RecommendationEmail,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -42,7 +28,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		results: {
 			description: 'Results store reference, overrides controller.store.results',
@@ -51,7 +37,7 @@ export default {
 					summary: 'Results store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultComponent: {
 			description: 'Custom component to render each result',
@@ -61,7 +47,7 @@ export default {
 					summary: 'ResultComponent',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultWidth: {
 			description: 'Width of each result card',
@@ -1237,20 +1223,24 @@ const results = [
 
 const snapInstance = Snapify.recommendation({ id: 'RecommendationEmail', tag: 'email-trending', globals: { siteId: 'atkzs2' } });
 
-export const Default = (props: RecommendationEmailProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return <RecommendationEmail {...props} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		snapInstance.on('init', async ({ controller }: { controller: RecommendationController }, next: Next) => {
-			controller.store.results = results as unknown as Product[];
-			controller.store.results.forEach((result: Product) => (result.mappings.core!.url = 'javascript:void(0);'));
-			await next();
-		});
-		await snapInstance.init();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (props: RecommendationEmailProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
+		return <RecommendationEmail {...props} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			snapInstance.on('init', async ({ controller }: { controller: RecommendationController }, next: Next) => {
+				controller.store.results = results as unknown as Product[];
+				// neutralize mock links. '#' is safe here because recommendations hold no UrlManager state —
+				// in a Search or Autocomplete story it would clear the hash-stored filter/sort/pageSize params.
+				controller.store.results.forEach((result: Product) => (result.mappings.core!.url = '#'));
+				await next();
+			});
+			await snapInstance.init();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

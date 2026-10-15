@@ -897,6 +897,110 @@ describe('Snap Preact', () => {
 
 			spy.mockClear();
 		});
+
+		describe('early search keyed on the page context', () => {
+			const createSnap = (targeterConfig: { prefetch?: boolean } = {}) => {
+				const baseConfig = generateBaseConfig();
+				const component = jest.fn(() => Component);
+				const searchConfig: SnapConfig = {
+					...baseConfig,
+					controllers: {
+						search: [
+							{
+								config: {
+									id: 'search',
+								},
+								targeters: [
+									{
+										...targeterConfig,
+										selector: '#athos-dne',
+										component,
+									},
+								],
+							},
+						],
+					},
+				};
+
+				const client = new MockClient(searchConfig.client!.globals as ClientGlobals);
+				const searchSpy = jest.spyOn(client, 'search');
+				const categorySpy = jest.spyOn(client, 'category');
+				const snap = new Snap(searchConfig, { client });
+
+				return { snap, component, searchSpy, categorySpy };
+			};
+
+			it(`runs the search early when page.type is 'search'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'search' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).toHaveBeenCalledTimes(1);
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).toHaveBeenCalledTimes(1);
+				expect(snap.controllers.search.store.loaded).toBe(true);
+			});
+
+			it(`runs the category search early when page.type is 'category'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'category' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(categorySpy).toHaveBeenCalledTimes(1);
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(component).toHaveBeenCalledTimes(1);
+				expect(snap.controllers.search.store.loaded).toBe(true);
+			});
+
+			it('does not normalize the case or whitespace of page.type', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'Category ' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				// matches SearchController, which only accepts the exact 'search' and 'category' values
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
+			});
+
+			it(`does not run the search early when page.type is 'product'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'product' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
+			});
+
+			it('does not run the search early when page is a string', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = "404";</script>`;
+				const { component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+			});
+
+			it('does not run the search early when the targeter sets prefetch to false', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'search' };</script>`;
+				const { component, searchSpy, categorySpy } = createSnap({ prefetch: false });
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+			});
+		});
 	});
 
 	describe('creates autocomplete controllers via config', () => {

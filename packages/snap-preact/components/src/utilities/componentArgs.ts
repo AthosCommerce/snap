@@ -40,6 +40,6 @@ export const componentArgs = {
 			},
 			category: 'default Props',
 		},
-		control: { type: 'none' },
+		control: false,
 	},
 };

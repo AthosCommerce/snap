@@ -659,6 +659,12 @@ export const zh: LangComponents = {
 		},
 		clearAllLabel: {
 			value: '清除全部',
+			attributes: {
+				'aria-label': '清除全部',
+			},
+		},
+		noFiltersText: {
+			value: '未应用筛选条件',
 		},
 	},
 	facet: {

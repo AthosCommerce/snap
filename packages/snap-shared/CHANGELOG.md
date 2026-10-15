@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
+
+### Bug Fixes
+
+- **preact:** key the early search on the documented page.type context variable ([af0b5eb](https://github.com/AthosCommerce/snap/commit/af0b5ebed13eda544f62953b05c2358f768878b8))
+
 ## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-shared
