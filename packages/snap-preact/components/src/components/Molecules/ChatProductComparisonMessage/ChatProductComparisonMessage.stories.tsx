@@ -1,43 +1,29 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { ChatProductComparisonMessage, ChatProductComparisonMessageProps } from './ChatProductComparisonMessage';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { ChatProductComparisonMessage } from './ChatProductComparisonMessage';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatProductComparisonMessage/readme.md';
 
 export default {
 	title: 'Molecules/ChatProductComparisonMessage',
 	component: ChatProductComparisonMessage,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		chatItem: {
 			description: 'productComparison chat message',
 			table: { category: 'Templates Legal', type: { summary: 'ChatResponseProductComparisonData' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -60,7 +46,8 @@ const mockChatItem: any = {
 	],
 };
 
-export const Default = (args: ChatProductComparisonMessageProps) => <ChatProductComparisonMessage {...args} />;
-Default.args = {
-	chatItem: mockChatItem,
+export const Default = {
+	args: {
+		chatItem: mockChatItem,
+	},
 };
