@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { ChatAttachmentContext, ChatAttachmentContextProps } from './ChatAttachmentContext';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { ChatAttachmentContext } from './ChatAttachmentContext';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatAttachmentContext/readme.md';
 
 export default {
 	title: 'Molecules/ChatAttachmentContext',
 	component: ChatAttachmentContext,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -42,29 +28,32 @@ export default {
 		onClose: {
 			description: 'optional close handler',
 			table: { category: 'Templates Legal', type: { summary: '() => void' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
 };
 
-export const Default = (args: ChatAttachmentContextProps) => <ChatAttachmentContext {...args} />;
-Default.args = {
-	title: 'Attachments',
-	items: [
-		{ id: '1', name: 'photo.png', imageUrl: 'https://picsum.photos/64/64' },
-		{ id: '2', name: 'screenshot.png', imageUrl: 'https://picsum.photos/64/64' },
-	],
+export const Default = {
+	args: {
+		title: 'Attachments',
+		items: [
+			{ id: '1', name: 'photo.png', imageUrl: 'https://picsum.photos/64/64' },
+			{ id: '2', name: 'screenshot.png', imageUrl: 'https://picsum.photos/64/64' },
+		],
+	},
 };
 
-export const Loading = (args: ChatAttachmentContextProps) => <ChatAttachmentContext {...args} />;
-Loading.args = {
-	title: 'Attachments',
-	items: [{ id: '1', name: 'uploading.png', imageUrl: 'https://picsum.photos/64/64', isLoading: true }],
+export const Loading = {
+	args: {
+		title: 'Attachments',
+		items: [{ id: '1', name: 'uploading.png', imageUrl: 'https://picsum.photos/64/64', isLoading: true }],
+	},
 };
 
-export const Error = (args: ChatAttachmentContextProps) => <ChatAttachmentContext {...args} />;
-Error.args = {
-	title: 'Attachments',
-	items: [{ id: '1', name: 'failed.png', hasError: true, errorMessage: 'Upload failed' }],
+export const Error = {
+	args: {
+		title: 'Attachments',
+		items: [{ id: '1', name: 'failed.png', hasError: true, errorMessage: 'Upload failed' }],
+	},
 };

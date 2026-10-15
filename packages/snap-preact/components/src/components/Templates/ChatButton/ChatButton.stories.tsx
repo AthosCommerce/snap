@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatButton, ChatButtonProps } from './ChatButton';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../../Organisms/ChatButton/readme.md';
 import type { ChatController } from '@athoscommerce/snap-controller';
@@ -11,30 +9,18 @@ import type { ChatController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Templates/ChatButton',
 	component: ChatButton,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		content: {
 			description: 'button label content (omit for icon-only)',
@@ -85,25 +71,30 @@ const seeded = (() => {
 	return snapInstance;
 })();
 
-export const IconOnly = (args: ChatButtonProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
-	<ChatButton {...args} controller={controller} />
-);
-IconOnly.loaders = [async () => ({ controller: seeded })];
-IconOnly.args = {};
-
-export const TextAndIcon = (args: ChatButtonProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
-	<ChatButton {...args} controller={controller} />
-);
-TextAndIcon.loaders = [async () => ({ controller: seeded })];
-TextAndIcon.args = {
-	content: 'Ask AI',
+export const IconOnly = {
+	render: (args: ChatButtonProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
+		<ChatButton {...args} controller={controller} />
+	),
+	loaders: [async () => ({ controller: seeded })],
 };
 
-export const TextOnly = (args: ChatButtonProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
-	<ChatButton {...args} controller={controller} />
-);
-TextOnly.loaders = [async () => ({ controller: seeded })];
-TextOnly.args = {
-	content: 'Ask AI',
-	icon: false,
+export const TextAndIcon = {
+	render: (args: ChatButtonProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
+		<ChatButton {...args} controller={controller} />
+	),
+	loaders: [async () => ({ controller: seeded })],
+	args: {
+		content: 'Ask AI',
+	},
+};
+
+export const TextOnly = {
+	render: (args: ChatButtonProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
+		<ChatButton {...args} controller={controller} />
+	),
+	loaders: [async () => ({ controller: seeded })],
+	args: {
+		content: 'Ask AI',
+		icon: false,
+	},
 };

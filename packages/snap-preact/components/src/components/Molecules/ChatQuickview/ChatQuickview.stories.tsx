@@ -1,43 +1,29 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatQuickview, ChatQuickviewProps } from './ChatQuickview';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatQuickview/readme.md';
 
 export default {
 	title: 'Molecules/ChatQuickview',
 	component: ChatQuickview,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		chatItem: {
 			description: 'productQuery chat message',
 			table: { category: 'Templates Legal', type: { summary: 'ChatQuickviewItem' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		layout: {
 			description: 'QuickviewLayout module grid rendered for the product (defaults to the chat header-banner layout)',
@@ -98,7 +84,9 @@ mockController.quickviewManager = {
 	sourceController: mockController,
 };
 
-export const Default = (args: ChatQuickviewProps) => <ChatQuickview {...args} controller={mockController} />;
-Default.args = {
-	chatItem: { id: '1', messageType: 'productQuery', sourceProduct: {} } as any,
+export const Default = {
+	render: (args: ChatQuickviewProps) => <ChatQuickview {...args} controller={mockController} />,
+	args: {
+		chatItem: { id: '1', messageType: 'productQuery', sourceProduct: {} } as any,
+	},
 };
