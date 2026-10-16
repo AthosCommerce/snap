@@ -60,6 +60,7 @@ export type TemplateTypes = 'search' | 'autocomplete' | `recommendation/${RecsTe
 export type SearchTargetConfig = {
 	selector: string;
 	component: keyof LibraryImports['component']['search'];
+	emptyTarget?: boolean;
 };
 
 export type AutocompleteTargetConfig = {
@@ -98,6 +99,7 @@ export type TemplateTarget = {
 	type: TemplateTypes;
 	selector?: string;
 	component: ComponentLibraryType | (string & NonNullable<unknown>);
+	emptyTarget?: boolean;
 };
 
 export type TemplatesStoreSettings = {
