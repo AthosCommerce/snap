@@ -289,6 +289,8 @@ In addition to the common target properties, the following properties apply to t
 
 `selector` - DOM selector where this target will inject into
 
+`emptyTarget` - Whether to remove the existing content of the `selector` element as soon as it is found. Defaults to `true`. Set it to `false` to keep content such as a loading skeleton in place until the search components are ready - see [Keeping a loading skeleton](#keeping-a-loading-skeleton).
+
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `search` | Search configuration | Object | ➖ |
@@ -298,6 +300,45 @@ In addition to the common target properties, the following properties apply to t
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
 | `search.targets[].component` | Component to use for search | String | Required |
+| `search.targets[].emptyTarget` | Remove the target's existing content when it is found; set to `false` to keep it until the search components render | Boolean | true |
+
+##### Keeping a loading skeleton
+
+By default the content of a search target is removed as soon as the target is found, which leaves the element empty while the search request, theme and components load. To show a loading skeleton for that time instead, place the skeleton markup inside the target element and set `emptyTarget: false`:
+
+```html
+<div id="athos-templates">
+	<!-- placeholder skeleton markup - shown until the search components render -->
+	<div class="skeleton-toolbar"></div>
+	<div class="skeleton-results"></div>
+</div>
+```
+
+```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+const templatesConfig = validateTemplatesConfig({
+	config: {
+		siteId: 'REPLACE_WITH_YOUR_SITE_ID',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [
+			{
+				selector: '#athos-templates',
+				component: 'Search',
+				emptyTarget: false,
+			},
+		],
+	},
+});
+
+new SnapTemplates(templatesConfig);
+```
+
+With `emptyTarget: false` the target renders once the search response has returned and the theme has loaded, and the existing content is then replaced in full - nothing inside the target is kept alongside the search components. An inline `min-height` on the target is still removed as soon as the target is found, so give the skeleton itself the height you want to reserve.
 
 #### Autocomplete
 

@@ -1,5 +1,6 @@
 import { h, render } from 'preact';
 import deepmerge from 'deepmerge';
+import { when } from 'mobx';
 
 import { Snap } from '../Snap';
 import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSelect';
@@ -377,13 +378,20 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 		// console.log('selector', targetConfig.selector);
 		// console.log('overrideTemplateStoreTarget', overrideTemplateStoreTarget);
 
+		// a target that keeps its content (such as a skeleton) is rendered once the search and theme are ready
+		const keepTargetContent = targetConfig.emptyTarget === false;
+
 		const targeter: ExtendedTarget = {
 			selector: targetConfig.selector,
 			autoRetarget: true,
 			hideTarget: true,
+			...(keepTargetContent ? { emptyTarget: false, renderAfterSearch: true } : {}),
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.search[targetConfig.component]());
+
+				// TemplateSelect renders nothing while the theme loads - the first render must be the real UI
+				if (keepTargetContent) componentImportPromises.push(when(() => !templatesStore.loading));
 
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
