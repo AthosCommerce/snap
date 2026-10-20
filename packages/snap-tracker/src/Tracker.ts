@@ -362,10 +362,10 @@ export class Tracker extends Beacon {
 		},
 		searched: {
 			get: (siteId?: string): string[] => {
-				return this.storage.searched.get(siteId);
+				return this.getLastSearches(siteId);
 			},
-			add: (terms: string[], siteId?: string): void => {
-				this.storage.searched.add(terms, siteId);
+			add: (queries: string[], siteId?: string): void => {
+				this.storage.searched.add(queries, siteId);
 			},
 			clear: (siteId?: string): void => {
 				this.storage.searched.clear(siteId);

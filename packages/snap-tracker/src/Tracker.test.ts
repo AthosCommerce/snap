@@ -517,15 +517,14 @@ describe('Tracker', () => {
 		expect(searched[9]).toBe('term3');
 	});
 
-	it('stores searched terms as searchedTerm subjects with a timestamp', () => {
+	it('stores searched queries with a timestamp', () => {
 		const tracker = new Tracker(globals, config);
 
 		tracker.cookies.searched.add(['shoes']);
 
-		const stored = JSON.parse(localStorageMock.getItem('ssSearchedTerms-xxxzzz') || '{}').value;
+		const stored = JSON.parse(localStorageMock.getItem('ssSearchedQueries-xxxzzz') || '{}').value;
 		expect(stored).toHaveLength(1);
-		expect(stored[0].subject).toBe('searchedTerm');
-		expect(stored[0].value).toBe('shoes');
+		expect(stored[0].query).toBe('shoes');
 		expect(new Date(stored[0].timestamp).toISOString()).toBe(stored[0].timestamp);
 	});
 
@@ -535,8 +534,8 @@ describe('Tracker', () => {
 
 		tracker.cookies.searched.add([term]);
 
-		const stored = JSON.parse(localStorageMock.getItem('ssSearchedTerms-xxxzzz') || '{}').value;
-		expect(stored[0].value).toBe(term);
+		const stored = JSON.parse(localStorageMock.getItem('ssSearchedQueries-xxxzzz') || '{}').value;
+		expect(stored[0].query).toBe(term);
 		expect(tracker.cookies.searched.get()).toEqual([term]);
 	});
 
@@ -572,9 +571,9 @@ describe('Tracker', () => {
 
 	it('only returns searched terms from the past 2 weeks', () => {
 		const tracker = new Tracker(globals, config);
-		const recent = { subject: 'searchedTerm', value: 'shoes', timestamp: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString() };
-		const expired = { subject: 'searchedTerm', value: 'boots', timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() };
-		localStorageMock.setItem('ssSearchedTerms-xxxzzz', JSON.stringify({ value: [recent, expired] }));
+		const recent = { query: 'shoes', timestamp: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString() };
+		const expired = { query: 'boots', timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() };
+		localStorageMock.setItem('ssSearchedQueries-xxxzzz', JSON.stringify({ value: [recent, expired] }));
 
 		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
 	});
