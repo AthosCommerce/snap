@@ -73,6 +73,19 @@ let templatesConfig = validateTemplatesConfig({
 			},
 		},
 	},
+	// recommendation custom component mapping needed to work with existing non-snap templates profile template selections
+	recommendation: {
+		bundle: {
+			Bundle: {
+				component: 'RecommendationBundleList',
+			},
+		},
+		default: {
+			Default: {
+				component: 'Recommendation',
+			},
+		},
+	},
 });
 
 if (window.mergeSnapConfig) {
