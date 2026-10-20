@@ -225,13 +225,13 @@ export const TAB_PREFIXED_PARAMS: (keyof CoreMap)[] = ['filter', 'sort', 'pageSi
 export class SnapTemplates extends Snap {
 	templates: TemplatesStore;
 	constructor(config: SnapTemplatesConfig | SnapTemplatesConfigUnlocked) {
-		let context: { editor?: { mode?: string } } = {};
+		let context: { editor?: { mode?: string }; siteId?: string } = {};
 		try {
-			context = getContext(['editor']);
+			context = getContext(['editor', 'siteId']);
 		} catch {
 			context = {};
 		}
-		const { editor } = context;
+		const { editor, siteId } = context;
 
 		const urlParams = url(window.location.href);
 		const editorCookieValue = cookies.get(TEMPLATE_EDITOR_COOKIE);
@@ -251,6 +251,12 @@ export class SnapTemplates extends Snap {
 		const templatesStore = new TemplatesStore({ config: config, settings: { editMode } });
 
 		const snapConfig = createSnapConfig(config, templatesStore);
+
+		// the context siteId (a script variable, or the siteId in the bundle url path) takes priority over `config.siteId`
+		// so that a single bundle deployed to multiple siteIds uses the siteId it was loaded from
+		if (siteId && snapConfig.client?.globals) {
+			snapConfig.client.globals.siteId = siteId;
+		}
 
 		super(snapConfig, { templatesStore });
 

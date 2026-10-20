@@ -58,17 +58,19 @@ new SnapTemplates(templatesConfig);
 |----------------------|-------------|------|:---------:|:---------:|
 | `config` | Global configuration options | Object | ➖ | ➖ |
 | `config.platform` | Shopping platform for the integration | String | 'other' | ➖ |
-| `config.siteId` | Athos Site ID | String | ➖ | ➖ |
+| `config.siteId` | Athos Site ID - used when the page context provides no siteId | String | ➖ | ➖ |
 | `config.language` | Language code for localization - supports ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
 | `config.currency` | Currency code for pricing - supports ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
 
 The `config` object defines the integration platform, Athos siteId and current localization to be used.
 
-If a `siteId` is not provided, the siteId found on the `bundle.js` url path will be used. For example `8uyt2m` will be used if the page contains the following script:
+A siteId from the page context takes priority over `config.siteId`. That is the `siteId` variable in the context script or, when the script doesn't set one, the siteId found on the `bundle.js` url path. For example `8uyt2m` will be used if the page contains the following script:
 
 ```
 <script src="https://snapui.athoscommerce.io/8uyt2m/bundle.js" id="athos-context"></script>
 ```
+
+This allows a project deployed to [multiple siteIds](BUILD_DEPLOY.md#project-packagejson-configuration) to use the siteId it was loaded from. `config.siteId` is used when the context has no siteId, such as during local development where the script `src` is `bundle.js`. [Tabs](#tabs) always use their own `tabs[].siteId`.
 
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
 - `window.athos.templates.setCurrency('eur')`

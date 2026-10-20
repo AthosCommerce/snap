@@ -1983,7 +1983,17 @@ describe('SnapTemplates tab managers', () => {
 	});
 });
 
-describe('SnapTemplates siteId context fallback', () => {
+describe('SnapTemplates siteId context', () => {
+	const siteIdConfig: SnapTemplatesConfig = {
+		config: {
+			platform: 'other',
+			siteId: 'config',
+		},
+		theme: {
+			extends: 'base',
+		},
+	};
+
 	afterEach(() => {
 		delete window.athos;
 		document.body.innerHTML = '';
@@ -2004,5 +2014,51 @@ describe('SnapTemplates siteId context fallback', () => {
 		const snap = new SnapTemplates(config);
 
 		expect((snap.client as any).globals.siteId).toBe('siteid');
+	});
+
+	it('prefers the context siteId variable over config.siteId', () => {
+		document.body.innerHTML = `<script id="athos-context">siteId = 'contxt';</script>`;
+
+		const snap = new SnapTemplates(siteIdConfig);
+
+		expect((snap.client as any).globals.siteId).toBe('contxt');
+		expect((snap.tracker as any).globals.siteId).toBe('contxt');
+	});
+
+	it('prefers the siteId in the bundle url path over config.siteId', () => {
+		document.body.innerHTML = `<script src="https://snapui.athoscommerce.io/bundle/bundle.js" id="athos-context"></script>`;
+
+		const snap = new SnapTemplates(siteIdConfig);
+
+		expect((snap.client as any).globals.siteId).toBe('bundle');
+		expect((snap.tracker as any).globals.siteId).toBe('bundle');
+	});
+
+	it('uses config.siteId when the context has no siteId', () => {
+		document.body.innerHTML = `<script src="bundle.js" id="athos-context"></script>`;
+
+		const snap = new SnapTemplates(siteIdConfig);
+
+		expect((snap.client as any).globals.siteId).toBe('config');
+		expect((snap.tracker as any).globals.siteId).toBe('config');
+	});
+
+	it('keeps each tab on its own siteId', () => {
+		document.body.innerHTML = `<script src="https://snapui.athoscommerce.io/bundle/bundle.js" id="athos-context"></script>`;
+
+		const snap = new SnapTemplates({
+			...siteIdConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'products', siteId: 'abc123', param: 'prod' },
+					{ id: 'blog', siteId: 'xyz789', param: 'blog' },
+				],
+			},
+		});
+
+		expect((snap.client as any).globals.siteId).toBe('bundle');
+		expect((snap.controllers.products.client as any).globals.siteId).toBe('abc123');
+		expect((snap.controllers.blog.client as any).globals.siteId).toBe('xyz789');
 	});
 });
