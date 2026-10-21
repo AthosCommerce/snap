@@ -20,7 +20,7 @@ The `SearchController` is used when making queries to the API `search` endpoint.
 | settings.filters.hierarchy.showFullPath | boolean to show the full hierarchy path in the filter  | false |   |
 | settings.filters.hierarchy.displayDelimiter | string to adjust the delimiter between each level of the full hierarchy path | ' / ' |   |
 | settings.filters.rangeFormatValue | setting to re-format the value of a range filter using sprintf  | false |   |
-| settings.history.max | how many search terms should be kept in the history store | 25 |   | 
+| settings.history.max | how many search terms should be kept in the history store | 10 |   | 
 | settings.history.url | allows for adjust the root URL for history store terms (default is relative URLs) | ➖ |   | 
 | settings.pagination.pageSizeOptions | setting to change the page size options available | ➖ |   | 
 | settings.variants.field | used to set the field in which to grab the variant data from | ➖ |   | 
