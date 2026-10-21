@@ -187,4 +187,15 @@ describe('Autocomplete Store', () => {
 		autocompleteStore.resetHistory();
 		expect(autocompleteStore.history[0].active).toBeFalsy();
 	});
+
+	it('does not trim stored history when reading it', () => {
+		const historyData = Array.from({ length: 15 }, (_, index) => `term${index}`);
+		global.localStorage.setItem(`athos-history`, JSON.stringify({ history: JSON.stringify(historyData) }));
+
+		const autocompleteStore = new AutocompleteStore(autocompleteConfig, services);
+
+		expect(autocompleteStore.history.length).toBe(autocompleteConfig.settings.history.limit);
+		const storedHistory = JSON.parse(JSON.parse(global.localStorage.getItem(`athos-history`)!).history);
+		expect(storedHistory).toEqual(historyData);
+	});
 });

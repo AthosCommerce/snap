@@ -211,6 +211,15 @@ describe('History Store', () => {
 		});
 	});
 
+	it('keeps 10 terms by default', () => {
+		const historyData = Array.from({ length: 12 }, (_, index) => `term${index}`);
+		// @ts-ignore - imcomplete config
+		const historyStore = new SearchHistoryStore({ services, config: {} });
+		historyData.map((term) => historyStore.save(term));
+
+		expect(historyStore.queries.map((query) => query.string)).toEqual(historyData.slice(2).reverse());
+	});
+
 	it('listens to limit when config is passed', async () => {
 		const historyData = ['dressred', 'dress', 'glasses', 'term', 'term2', 'term3', 'term4', 'term5'];
 		const config = {
@@ -257,6 +266,17 @@ describe('History Store', () => {
 		historyStore.queries.map((term, idx) => {
 			expect(term.string).toBe(historyData[idx]);
 		});
+	});
+
+	it('does not trim or empty terms on construction when trim is false', () => {
+		const historyData = ['dress', 'glasses', 'term', 'term2', 'term3'];
+		// @ts-ignore - imcomplete config
+		const historyStore = new SearchHistoryStore({ services, config: {} });
+		historyData.map((term) => historyStore.save(term));
+
+		new SearchHistoryStore({ services, config: { id: '', settings: { history: { max: 3 } } }, trim: false });
+		new SearchHistoryStore({ services, config: { id: '', settings: { history: { max: 0 } } }, trim: false });
+		expect(historyStore.getStoredData()).toEqual(historyData.reverse());
 	});
 
 	it('empties history when max is changed to zero', async () => {

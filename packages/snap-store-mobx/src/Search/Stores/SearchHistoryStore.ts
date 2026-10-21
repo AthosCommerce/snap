@@ -5,6 +5,7 @@ import { Query } from './SearchQueryStore';
 type SearchHistoryStoreConfig = {
 	services: StoreServices;
 	config: Partial<AutocompleteStoreConfig | SearchStoreConfig>;
+	trim?: boolean;
 };
 
 export class SearchHistoryStore {
@@ -14,11 +15,11 @@ export class SearchHistoryStore {
 	private max: number;
 
 	constructor(params: SearchHistoryStoreConfig) {
-		const { services, config } = params || {};
+		const { services, config, trim = true } = params || {};
 		this.config = config;
 		this.services = services;
 
-		this.max = this.config.settings?.history?.max ?? 25;
+		this.max = this.config.settings?.history?.max ?? 10;
 
 		if (this.config.settings?.history?.url) {
 			this.services.urlManager = this.services.urlManager.withConfig((translatorConfig: any) => {
@@ -35,12 +36,12 @@ export class SearchHistoryStore {
 		});
 
 		// reset to zero to clear any potentially existing terms
-		if (this.max === 0) {
+		if (trim && this.max === 0) {
 			this.reset();
 		}
 
 		// trim history if the current queries are more than config max
-		if (this.queries.length > this.max) {
+		if (trim && this.queries.length > this.max) {
 			this.getStoredData().forEach((term, index) => {
 				if (index > this.max - 1) {
 					this.remove(term);

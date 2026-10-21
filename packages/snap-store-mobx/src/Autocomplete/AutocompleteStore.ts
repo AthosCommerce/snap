@@ -90,12 +90,14 @@ export class AutocompleteStore extends AbstractStore<AutocompleteStoreConfig> {
 	public initHistory(): void {
 		const limit = this.config.settings?.history?.limit;
 		if (limit && this.config.settings?.history?.enabled !== false) {
+			// history is only read here; trimming would enforce the default max instead of the search controller's history max
 			const historyStore = new SearchHistoryStore({
 				services: this.services,
 				config: {
 					id: this.config.id,
 					globals: this.config.globals,
 				},
+				trim: false,
 			});
 
 			this.history = new AutocompleteHistoryStore({
