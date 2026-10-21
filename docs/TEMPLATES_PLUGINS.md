@@ -9,6 +9,7 @@ Plugins provide functionality to tie into various events within the Snap control
 | `plugins.common.backgroundFilters` | Background filter configurations | Object | Enabled |
 | `plugins.common.scrollToTop` | Configuration for scrolling to top after search | Object | Enabled |
 | `plugins.common.addToCart` | Configuration for add to cart function | Object | Disabled |
+| `plugins.common.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results | Object | Disabled |
 
 
 > [!NOTE]

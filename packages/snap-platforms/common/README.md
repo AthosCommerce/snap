@@ -241,6 +241,129 @@ const loggerConfig = {
 }
 ```
 
+### pluginSwymWishlist
+Connects the [Swym Wishlist Plus](https://developers.getswym.com/docs/list-api) app to Snap results, so a wishlist button on a result card behaves like the ones in the rest of the theme: adding and removing, the added state, popups, notifications, multiple lists and login prompts all follow the settings in the Swym admin. The plugin is opt-in and only runs when `enabled` is `true`. Search, autocomplete and recommendation controllers are supported; the plugin does nothing when attached to other controller types.
+
+After each search the plugin does two things:
+
+1. registers every product in the results in Swym's product data (`SwymViewProducts`, `SwymProductVariants` and `SwymWatchProducts`) — the same objects Swym's theme snippets populate — so Swym has the title, image, price and availability it needs for popups, notifications and back in stock alerts
+2. initializes the wishlist buttons rendered for the results through the Swym SDK (`swat.initializeActionButtons`), looking for them only inside the elements the controller renders into, so the theme's own buttons and other controllers' buttons for the same products are left alone
+
+> [!IMPORTANT]
+> The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. The plugin waits for the SDK through `window.SwymCallbacks`, so it does not matter whether Swym or Snap loads first.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| enabled | the plugin is opt-in and only runs when this is set to `true` | boolean | false | ✔️ |
+
+#### Setup
+
+1. Enable the plugin. In SnapTemplates it is configured under `plugins.common.swymWishlist` on every platform:
+
+```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		common: {
+			swymWishlist: {
+				enabled: true,
+			},
+		},
+	},
+	components: {
+		result: {
+			WishlistResult: async () => (await import('./components/WishlistResult')).WishlistResult,
+		},
+	},
+	theme: {
+		extends: 'pike',
+		globalResultComponent: 'WishlistResult',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+
+new SnapTemplates(config);
+```
+
+With Snap it is attached to a controller through the controller `plugins` configuration:
+
+```tsx
+import { pluginSwymWishlist } from '@athoscommerce/snap-platforms/common';
+
+...
+	{
+		config: {
+			id: 'search',
+			plugins: [[pluginSwymWishlist, { enabled: true }]],
+			...
+		},
+		targeters: [...],
+	}
+...
+```
+
+2. Render a wishlist button in your result component. `swymWishlistButtonProps` builds the attributes Swym expects on a grid button from a result: the Swym classnames, `data-product-id`, `data-variant-id` and `data-product-url`. It returns `undefined` when an id or the product URL cannot be resolved for the result, in which case no button should be rendered.
+
+```tsx
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { Price } from '@athoscommerce/snap-preact/components';
+import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/common';
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
+
+export const WishlistResult = observer(({ result, treePath }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const wishlistButton = swymWishlistButtonProps(result);
+
+	return (
+		<article className="ss__result">
+			<a href={core?.url}>
+				<img src={core?.imageUrl} alt={core?.name} />
+				<h2>{core?.name}</h2>
+			</a>
+			<Price value={core?.price} treePath={treePath} />
+			{wishlistButton && <button type="button" aria-label="Add to Wishlist" {...wishlistButton} />}
+		</article>
+	);
+});
+```
+
+#### Product Identifiers
+
+Swym identifies a wishlisted item by its product id (`empi`), variant id (`epi`) and product URL (`du`). Every result is a variant, so all three come from the core mappings, on every platform. `swymWishlistButtonProps` and the registered product data resolve them the same way, so the two always agree:
+
+| Swym field | Button attribute | Resolved from |
+|------------|------------------|---------------|
+| `empi` (product id) | `data-product-id` | `mappings.core.parentId`, or `mappings.core.uid` when the result has no parent |
+| `epi` (variant id) | `data-variant-id` | `display.mappings.core.uid` — the result's `uid`, or the selected variant's when [Snap variants](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md) are in use |
+| `du` (product URL) | `data-product-url` | `display.mappings.core.url`, made absolute with `window.location.origin` |
+
+#### How It Works
+
+1. On controller creation the plugin registers a callback with `window.SwymCallbacks`, which the Swym SDK invokes once it has loaded (immediately, when it has already loaded)
+2. After each search, every product in the results is merged into `window.SwymViewProducts` (keyed by product id), `window.SwymProductVariants` (keyed by variant id) and `window.SwymWatchProducts`; entries the theme registered are kept
+3. Once the results have rendered, the plugin finds the wishlist buttons rendered for them — `[data-swaction="addToWishlist"]` elements inside the controller's targets whose `data-product-id` belongs to a product in the results — tags the closest element containing all of them with `data-ss-swym-wishlist="<controller id>"` and calls `swat.initializeActionButtons` with that container selector. Swym then binds each button: click to add or remove, the `swym-added` state, popups and notifications. A controller without targets (results rendered by hand) is searched across the whole page
+4. The Swym SDK reads `data-variant-id` when it binds a button, so when a button's variant changes (a result's variant selection changed and the button re-rendered) the container is initialized again
+5. If no buttons have rendered for the results within a few seconds, the plugin logs a warning once per controller
+
+#### Platform Notes
+
+- **Shopify:** Swym's own *Add to Wishlist button on collection pages* setting injects a button into every product tile matching the theme's tile selector. When a result component reuses the theme's tile markup this can add a second button to Snap's results; scope that selector to the theme's own grid, or turn the setting off.
+- **BigCommerce:** Swym's storefront SDK is available on Stencil themes. On a product page it binds every button to the variant selected on that page instead of the button's own `data-variant-id`, so results rendered on product pages (recommendations, for example) are wishlisted with the page's variant.
+- **Magento 2:** Swym does not publish a Magento 2 storefront SDK. The plugin expects a Swym build that exposes the same SDK as the Shopify and BigCommerce ones (`window.SwymCallbacks` and `swat.initializeActionButtons`, binding `[data-swaction="addToWishlist"][data-with-epi]` buttons); without the SDK on the page it waits for it and does nothing.
+
+#### Notes
+
+- Buttons written by hand without `data-with-epi` are supported as well. Swym then takes the product and variant from the registered product data instead of the button's attributes, so `data-product-id` must be the product id and the variant is the one active when the results loaded.
+- Keep the button's `className` stable between renders. Swym adds its own state classnames (`swym-added`, `swym-loaded`) to the element, and a `className` that changes with component state would overwrite them. Additional classnames can be appended to the ones `swymWishlistButtonProps` returns.
+
 ### scrollToTop
 Configures the behavior of scrolling to the top of the page after a search has occurred.
 
