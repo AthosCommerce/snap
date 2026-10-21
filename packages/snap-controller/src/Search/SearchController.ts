@@ -285,12 +285,10 @@ export class SearchController extends AbstractController {
 				const config = search.controller.config as SearchControllerConfig;
 				const nonBackgroundFilters = search?.request?.filters?.filter((filter: SearchRequestModelFilter) => !filter.background);
 				const singleResultUrl = response?.results?.length && response?.results[0].mappings?.core?.url;
-				// totalResults includes every inline banner in the campaign, so a single product is one more than the banner count
-				const inlineBannerCount = response.merchandising?.content?.inline?.length ?? 0;
 				if (
 					config?.settings?.redirects?.singleResult &&
 					response.search?.query &&
-					response.pagination?.totalResults === inlineBannerCount + 1 &&
+					controller.store.pagination.totalProducts === 1 &&
 					!nonBackgroundFilters?.length &&
 					singleResultUrl
 				) {

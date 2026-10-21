@@ -181,6 +181,8 @@ describe('Search Controller', () => {
 
 		// one product and one inline banner make up the two totalResults
 		expect(controller.store.pagination.totalResults).toBe(2);
+		expect(controller.store.pagination.totalInlineBanners).toBe(1);
+		expect(controller.store.pagination.totalProducts).toBe(1);
 		expect(controller.store.results.map((result) => result.type)).toEqual(['product', 'banner']);
 
 		expect(window.location.replace).toHaveBeenCalledTimes(1);
@@ -223,6 +225,8 @@ describe('Search Controller', () => {
 		await controller.search();
 
 		expect(controller.store.pagination.totalResults).toBe(3);
+		expect(controller.store.pagination.totalInlineBanners).toBe(1);
+		expect(controller.store.pagination.totalProducts).toBe(2);
 		expect(controller.store.results.map((result) => result.type)).toEqual(['product', 'banner', 'product']);
 
 		expect(window.location.replace).not.toHaveBeenCalled();

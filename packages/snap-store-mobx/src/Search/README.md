@@ -495,7 +495,13 @@ Default values:
 ```
 
 ### `totalResults` property
-The total results for the current query.
+The total results for the current query. This count includes inline banners; use `totalProducts` for the number of products.
+
+### `totalInlineBanners` property
+The number of inline banners in the current query's merchandising campaign. Every inline banner is counted in `totalResults`, including banners positioned on other pages.
+
+### `totalProducts` getter
+The number of products for the current query: `totalResults` minus `totalInlineBanners`.
 
 ### `begin` getter
 The number of the first product position on the current page.
