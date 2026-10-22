@@ -48,9 +48,6 @@ export const toolbar: ThemeComponent<'toolbar', ToolbarProps, ToolbarTemplatesLe
 		toolbar: {
 			themeStyleScript: toolbarStyleScript,
 		},
-		'toolbar filterSummary': {
-			title: `Current Filters:`,
-		},
 		'toolbar button.sidebar-toggle': {
 			icon: custom.icons.filter,
 		},

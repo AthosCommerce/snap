@@ -123,6 +123,13 @@ The `hideClearButton` prop will disable the clear all Button component from rend
 <Sidebar controller={controller} hideClearButton />
 ```
 
+### hideClearButtonWithoutFilters
+The `hideClearButtonWithoutFilters` prop hides the clear all Button component when no filters are applied (per the URL state, which includes hierarchy filters), so the apply button takes the full footer width.
+
+```tsx
+<Sidebar controller={controller} hideClearButtonWithoutFilters />
+```
+
 ### clearButtonText
 The `clearButtonText` prop will change the inner text of the clear all Button component.
 

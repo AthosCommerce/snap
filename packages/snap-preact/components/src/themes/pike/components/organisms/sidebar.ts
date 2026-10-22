@@ -94,6 +94,10 @@ const sidebarStyleScript = (props: SidebarProps) => {
 			marginBottom: isPanel ? `${custom.spacing.x6}px` : '',
 			'.ss__layout': {
 				gap: `${custom.spacing.x6}px`,
+				// a flat layout (no rows) makes each module a flex item that shrinks to its content - stack them full width
+				'& > *:not(.ss__layout__separator)': {
+					width: '100%',
+				},
 			},
 			'.ss__select': {
 				width: '100%',
@@ -113,6 +117,7 @@ export const sidebar: ThemeComponent<'sidebar', SidebarProps, SidebarTemplatesLe
 		sidebar: {
 			themeStyleScript: sidebarStyleScript,
 			closeButtonIcon: custom.icons.close,
+			hideClearButtonWithoutFilters: true,
 		},
 		'sidebar button.close icon': {
 			size: `${closeIcon}px`,

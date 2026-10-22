@@ -274,6 +274,17 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 						borderTop: `1px solid ${custom.colors.gray02}`,
 					},
 				},
+				// the column stretches to the tallest column - stack its rows (no wrapping lines) so the
+				// see more row can sit at the bottom however few results there are
+				'.ss__autocomplete__column:has(.ss__autocomplete__button--see-more)': {
+					flexFlow: 'column nowrap',
+					'& > .ss__autocomplete__row': {
+						flex: '0 0 auto',
+					},
+					'& > .ss__autocomplete__row:has(.ss__autocomplete__button--see-more)': {
+						marginTop: 'auto',
+					},
+				},
 			},
 		},
 		termsWrapperStyles,

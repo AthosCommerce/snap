@@ -89,7 +89,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed'] || {}),
 			themeStyleScript: autocompleteFixedStyleScript,
-			layout: 'desktop',
 			width: '940px',
 			viewportMaxHeight: false,
 			contentTitle: 'Product Suggestions',
@@ -150,7 +149,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.mobile,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.mobile?.['autocompleteFixed'] || {}),
-			layout: 'mobile',
 			width: 'auto',
 		},
 		'autocompleteFixed terms': {
@@ -173,7 +171,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.tablet,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.tablet?.['autocompleteFixed'] || {}),
-			layout: 'desktop',
 			width: '600px',
 		},
 		'autocompleteFixed terms': {
@@ -212,7 +209,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.desktop,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.desktop?.['autocompleteFixed'] || {}),
-			layout: 'desktop',
 			width: '700px',
 		},
 		'autocompleteFixed terms': {

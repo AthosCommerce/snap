@@ -48,7 +48,6 @@ const searchCollapsibleStyleScript = (props: SearchCollapsibleProps) => {
 		[`${custom.utils.getBp(tabletBp)}`]: {
 			'&:not(:has(.ss__no-results))': {
 				'.ss__search-collapsible__header-section': {
-					margin: 0,
 					'.ss__toolbar': {
 						'.ss__layout__row:has(.ss__search-header)': {
 							flexWrap: 'nowrap',
@@ -106,8 +105,12 @@ export const searchCollapsible: ThemeComponent<'searchCollapsible', SearchCollap
 			...(searchCollapsibleThemeComponentProps.default?.['searchCollapsible'] || {}),
 			themeStyleScript: searchCollapsibleStyleScript,
 		},
+		// the toolbar carries the heading beside the desktop sidebar - the slideout panel keeps its own
 		'searchCollapsible sidebar': {
 			hideTitleText: true,
+		},
+		'searchCollapsible slideout sidebar': {
+			hideTitleText: false,
 		},
 		'searchCollapsible button.sidebar-toggle': {
 			icon: custom.icons.filter,
