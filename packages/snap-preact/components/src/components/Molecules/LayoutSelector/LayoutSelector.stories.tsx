@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
@@ -14,6 +15,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onSelect: fn(),
 	},
 	argTypes: {
 		options: {
@@ -144,12 +148,7 @@ export const Default = {
 	render: (args: LayoutSelectorProps) => {
 		return (
 			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
-				<LayoutSelector
-					{...args}
-					onSelect={() => {
-						console.log('');
-					}}
-				/>
+				<LayoutSelector {...args} />
 			</div>
 		);
 	},
@@ -164,12 +163,7 @@ export const List = {
 	render: (args: LayoutSelectorProps) => {
 		return (
 			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
-				<LayoutSelector
-					{...args}
-					onSelect={() => {
-						console.log('');
-					}}
-				/>
+				<LayoutSelector {...args} />
 			</div>
 		);
 	},
@@ -185,12 +179,7 @@ export const Radio = {
 	render: (args: LayoutSelectorProps) => {
 		return (
 			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'dropdown' ? '500px' : '300px' }}>
-				<LayoutSelector
-					{...args}
-					onSelect={() => {
-						console.log('');
-					}}
-				/>
+				<LayoutSelector {...args} />
 			</div>
 		);
 	},

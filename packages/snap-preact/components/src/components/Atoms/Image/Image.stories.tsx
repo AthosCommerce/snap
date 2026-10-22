@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Image, FALLBACK_IMAGE_URL, ImageProps } from './Image';
 import { componentArgs } from '../../../utilities';
@@ -39,6 +40,17 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onError: fn(),
+		onLoad: fn(),
+		onClick: fn(),
+		onMouseOver: fn(),
+		onMouseOut: fn(),
+		onPointerDown: fn(),
+		onPointerMove: fn(),
+		onPointerUp: fn(),
+		onPointerLeave: fn(),
+	},
 	argTypes: {
 		src: {
 			description: 'Image url',
@@ -125,7 +137,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onError',
 		},
 		onLoad: {
 			description: 'Image loaded event handler',
@@ -136,7 +147,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onLoad',
 		},
 		onClick: {
 			description: 'Image click event handler',
@@ -147,7 +157,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onClick',
 		},
 		onMouseOver: {
 			description: 'Image mouse enter event handler',
@@ -158,7 +167,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onMouseOver',
 		},
 		onMouseOut: {
 			description: 'Image mouse exit event handler',
@@ -169,7 +177,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onMouseOut',
 		},
 		onPointerDown: {
 			description: 'Image pointer down event handler',
@@ -180,7 +187,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerDown',
 		},
 		onPointerMove: {
 			description: 'Image pointer move event handler',
@@ -191,7 +197,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerMove',
 		},
 		onPointerUp: {
 			description: 'Image pointer up event handler',
@@ -202,7 +207,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerUp',
 		},
 		onPointerLeave: {
 			description: 'Image pointer leave event handler',
@@ -213,7 +217,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onPointerLeave',
 		},
 		...componentArgs,
 	},

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Carousel, CarouselProps } from './Carousel';
 import { componentArgs, Colour } from '../../../utilities';
@@ -13,6 +14,16 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onNextButtonClick: fn(),
+		onPrevButtonClick: fn(),
+		onClick: fn(),
+		onBeforeInit: fn(),
+		onInit: fn(),
+		onAfterInit: fn(),
+		onResize: fn(),
+		onTransitionEnd: fn(),
 	},
 	argTypes: {
 		loop: {
@@ -161,7 +172,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onNextButtonClick',
 		},
 		onPrevButtonClick: {
 			description: 'Carousel prev button click event handler',
@@ -172,7 +182,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onPrevButtonClick',
 		},
 		onClick: {
 			description: 'Carousel onClick event handler (Swiper)',
@@ -183,7 +192,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onClick',
 		},
 		onBeforeInit: {
 			description: 'Carousel onBeforeInit event handler (Swiper)',
@@ -194,7 +202,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onBeforeInit',
 		},
 		onInit: {
 			description: 'Carousel onInit event handler (Swiper)',
@@ -205,7 +212,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onInit',
 		},
 		onAfterInit: {
 			description: 'Carousel onAfterInit event handler (Swiper)',
@@ -216,7 +222,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onAfterInit',
 		},
 		onResize: {
 			description: 'Carousel onResize event handler (Swiper); receives no arguments',
@@ -227,7 +232,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onResize',
 		},
 		onTransitionEnd: {
 			description: 'Carousel onTransitionEnd event handler (Swiper); receives no arguments',
@@ -238,7 +242,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'none' },
-			action: 'onTransitionEnd',
 		},
 		...componentArgs,
 	},

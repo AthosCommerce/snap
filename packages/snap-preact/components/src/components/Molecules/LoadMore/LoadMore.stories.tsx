@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { LoadMore, LoadMoreProps } from './LoadMore';
 import { componentArgs } from '../../../utilities';
@@ -17,6 +18,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		controller: {
@@ -188,7 +192,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

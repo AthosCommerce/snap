@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { Grid, GridProps } from './Grid';
 import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
@@ -20,6 +21,10 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onSelect: fn(),
+		onOverflowButtonClick: fn(),
+	},
 	argTypes: {
 		options: {
 			description: 'list of options to display',
@@ -64,7 +69,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onSelect',
 		},
 		selected: {
 			description: 'Current selected option',
@@ -171,7 +175,6 @@ export default {
 					summary: 'function',
 				},
 			},
-			action: 'onOverflowButtonClick',
 		},
 		...componentArgs,
 	},

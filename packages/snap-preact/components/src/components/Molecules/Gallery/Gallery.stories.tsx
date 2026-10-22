@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { useState } from 'preact/hooks';
 
 import { Gallery, GalleryProps } from './Gallery';
@@ -14,6 +15,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClose: fn(),
 	},
 	argTypes: {
 		images: {
@@ -54,7 +58,6 @@ export default {
 				},
 			},
 			control: { type: 'none' },
-			action: 'onClose',
 		},
 		alt: {
 			description: 'Alt text applied to the displayed image',

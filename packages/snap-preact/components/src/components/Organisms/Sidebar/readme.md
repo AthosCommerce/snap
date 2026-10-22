@@ -170,6 +170,7 @@ The `onToggleSidebar` prop specifies a callback function that is invoked when th
 
 ```tsx
 <Sidebar controller={controller} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+```
 
 ## Lang
 

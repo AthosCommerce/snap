@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Button } from './Button';
 import { componentArgs } from '../../../utilities';
@@ -14,6 +15,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		content: {
@@ -55,7 +59,6 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
-			action: 'onClick',
 		},
 		color: {
 			description: 'Button text color',

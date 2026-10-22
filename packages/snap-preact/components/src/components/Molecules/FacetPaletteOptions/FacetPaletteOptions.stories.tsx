@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { observer } from 'mobx-react-lite';
 
 import { FacetPaletteOptions, FacetPaletteOptionsProps } from './FacetPaletteOptions';
@@ -18,6 +19,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onClick: fn(),
+	},
 	argTypes: {
 		values: {
 			description: 'Facet.values store reference',
@@ -176,7 +180,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		colorMapping: {
 			description: 'Object of color mapping values',

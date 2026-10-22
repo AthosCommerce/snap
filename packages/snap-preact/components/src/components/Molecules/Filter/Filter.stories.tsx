@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Filter, FilterProps } from './Filter';
 import { iconPaths } from '../../Atoms/Icon/paths';
@@ -18,6 +19,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		filter: {
@@ -103,7 +107,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		...componentArgs,
 	},

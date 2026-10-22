@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { Radio } from './Radio';
 import { iconPaths } from '../../Atoms/Icon';
@@ -14,6 +15,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		checked: {
@@ -120,7 +124,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onClick',
 		},
 		disableA11y: {
 			description: 'boolean to disable autoset ally properties',

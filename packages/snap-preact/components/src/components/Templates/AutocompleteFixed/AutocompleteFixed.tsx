@@ -7,7 +7,12 @@ import type { AutocompleteController } from '@athoscommerce/snap-controller';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider } from '../../../providers';
 import { ComponentProps, StyleScript, JSXComponent } from '../../../types';
-import { AutocompleteLayout, AutocompleteLayoutProps, AutocompleteLayoutTemplatesLegalProps } from '../../Organisms/AutocompleteLayout';
+import {
+	AutocompleteLayout,
+	AutocompleteLayoutProps,
+	AutocompleteLayoutTemplatesLegalProps,
+	layoutHasModule,
+} from '../../Organisms/AutocompleteLayout';
 import { Modal, ModalProps } from '../../Molecules/Modal';
 import classNames from 'classnames';
 import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
@@ -16,7 +21,10 @@ import { useA11y } from '../../../hooks';
 import { useAcRenderedInput } from '../../../hooks/useAcRenderedInput';
 import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
-const defaultStyles: StyleScript<AutocompleteFixedProps & { inputBounds: inputBounds }> = ({ inputBounds, offset, renderInput, width }) => {
+const defaultStyles: StyleScript<AutocompleteFixedStyleProps> = ({ inputBounds, offset, renderInput, searchInputInLayout, width }) => {
+	// the rendered input only overlays the native input when it sits above the layout
+	const inputAboveLayout = Boolean(renderInput) && !searchInputInLayout;
+
 	return css({
 		position: 'absolute',
 		left: '0',
@@ -35,7 +43,8 @@ const defaultStyles: StyleScript<AutocompleteFixedProps & { inputBounds: inputBo
 			maxWidth: '100vw',
 			pointerEvents: 'auto',
 
-			'.ss__search-input': {
+			// direct child only - this sizes the input overlaying the native one, not an input placed inside the layout
+			'& > .ss__search-input': {
 				background: '#fff',
 				width: `${inputBounds.width}px`,
 				height: `${inputBounds.height}px`,
@@ -46,7 +55,7 @@ const defaultStyles: StyleScript<AutocompleteFixedProps & { inputBounds: inputBo
 		'.ss__autocomplete-fixed__inner__layout-wrapper': {
 			width: width,
 			overflowY: 'scroll',
-			maxHeight: `calc(90vh - ${inputBounds.top || 0}px - ${renderInput ? `${inputBounds.height}px` : '0px'} + ${offset?.top || 0}px)`,
+			maxHeight: `calc(90vh - ${inputBounds.top || 0}px - ${inputAboveLayout ? `${inputBounds.height}px` : '0px'} + ${offset?.top || 0}px)`,
 		},
 
 		'.ss__search-input__button--close-search-icon': {
@@ -87,7 +96,21 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		buttonSelector = input;
 	}
 
-	const { layout, disableStyles, renderInput, overlayColor, className, internalClassName, offset, treePath, tabManager } = props;
+	const {
+		layout,
+		column1,
+		column2,
+		column3,
+		column4,
+		disableStyles,
+		renderInput,
+		overlayColor,
+		className,
+		internalClassName,
+		offset,
+		treePath,
+		tabManager,
+	} = props;
 
 	let controller = props.controller;
 	let controllers: AutocompleteController[] = [controller];
@@ -226,7 +249,13 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 		window.addEventListener('resize', debouncedHandleResize);
 	}, []);
 
-	const styling = mergeStyles<AutocompleteFixedProps & { inputBounds: inputBounds }>({ ...props, inputBounds }, defaultStyles);
+	// the search input renders inside the layout when it contains a 'searchInput' module, otherwise above the layout
+	const searchInputInLayout = Boolean(renderInput) && layoutHasModule({ layout, column1, column2, column3, column4 }, 'searchInput');
+	const searchInput = renderInput ? (
+		<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
+	) : undefined;
+
+	const styling = mergeStyles<AutocompleteFixedStyleProps>({ ...props, inputBounds, searchInputInLayout }, defaultStyles);
 
 	let _input;
 	if (input) {
@@ -255,17 +284,14 @@ export const AutocompleteFixed = observer((properties: AutocompleteFixedProps) =
 			<div {...styling} className={classNames('ss__autocomplete-fixed', className, internalClassName)}>
 				<Modal {...subProps.modal}>
 					<div className="ss__autocomplete-fixed__inner" ref={(e) => useA11y(e, 0, true, reset)}>
-						{renderInput ? (
-							<SearchInput {...subProps.searchInput} value={controller.store.state.input || ('' as string)} inputRef={renderedInputRef} />
-						) : (
-							<></>
-						)}
+						{searchInput && !searchInputInLayout ? searchInput : <></>}
 						<div className="ss__autocomplete-fixed__inner__layout-wrapper">
 							<AutocompleteLayout
 								{...acProps}
 								{...subProps.autocompleteLayout}
 								input={_input!}
 								controller={controller}
+								searchInputSlot={searchInputInLayout ? searchInput : undefined}
 								treePath={`${treePath} modal`}
 							/>
 						</div>
@@ -296,6 +322,8 @@ export type AutocompleteFixedProps = {
 } & Omit<AutocompleteFixedTemplatesLegalProps, 'resultComponent'> &
 	AutocompleteLayoutProps &
 	Omit<ComponentProps, 'customComponent'>;
+
+export type AutocompleteFixedStyleProps = AutocompleteFixedProps & { inputBounds: inputBounds; searchInputInLayout: boolean };
 
 export type AutocompleteFixedTemplatesLegalProps = {
 	resultComponent?: string;

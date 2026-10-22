@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { QuantityPicker } from './QuantityPicker';
 import { componentArgs } from '../../../utilities';
@@ -13,6 +14,9 @@ export default {
 				component: Readme,
 			},
 		},
+	},
+	args: {
+		onChange: fn(),
 	},
 	argTypes: {
 		value: {
@@ -109,7 +113,6 @@ export default {
 				},
 			},
 			control: { type: 'none' },
-			action: 'onChange',
 		},
 		...componentArgs,
 	},

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 import { List, ListProps } from './List';
 import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
@@ -16,6 +17,9 @@ export default {
 		},
 	},
 	decorators: [(Story: any) => <Story />],
+	args: {
+		onSelect: fn(),
+	},
 	argTypes: {
 		options: {
 			description: 'list of options to display',
@@ -127,7 +131,6 @@ export default {
 				},
 			},
 			control: false,
-			action: 'onSelect',
 		},
 		disabled: {
 			description: 'boolean to set the select in a disabled state',

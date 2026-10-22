@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
 import { FacetsHorizontal, FacetsHorizontalProps } from './FacetsHorizontal';
 import { componentArgs } from '../../../utilities';
@@ -24,6 +25,9 @@ export default {
 			</div>
 		),
 	],
+	args: {
+		onFacetOptionClick: fn(),
+	},
 	argTypes: {
 		facets: {
 			description: 'Facets store reference',
@@ -70,6 +74,16 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		openFacetsInSidebar: {
+			defaultValue: false,
+			description: 'Clicking a facet header opens that facet in the sidebar slideout instead of a dropdown',
+			table: {
+				category: 'Templates Legal',
+				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		toggleSidebarButtonText: {
 			defaultValue: 'Filters',
 			description: 'Text to display in the toggle sidebar button',
@@ -87,7 +101,6 @@ export default {
 				category: 'Templates Legal',
 				type: { summary: 'function' },
 			},
-			action: 'onFacetOptionClick',
 		},
 		showSelectedCount: {
 			description: 'shows the number of selected options within the facet headers',
