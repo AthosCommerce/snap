@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render, fireEvent, createEvent } from '@testing-library/preact';
+import { render, fireEvent } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { Slideshow, SlideshowProps, SlideshowSlide } from './Slideshow';
 import { ThemeProvider } from '@emotion/react';
@@ -284,136 +284,6 @@ describe('Slideshow Component', () => {
 		});
 	});
 
-	describe('Drag/Touch Behavior', () => {
-		it('starts dragging on primary (left) mouse button', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			fireEvent.mouseDown(track, { button: 0, clientX: 100 });
-
-			expect(track).toHaveClass('ss__slideshow__track--dragging');
-		});
-
-		it('does not start dragging on right-click (non-primary button)', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			fireEvent.mouseDown(track, { button: 2, clientX: 100 });
-
-			expect(track).not.toHaveClass('ss__slideshow__track--dragging');
-		});
-
-		// The fireEvent.touch* shorthands don't attach `touches`, so build the event explicitly.
-		const fireTouch = (node: Element, type: 'touchStart' | 'touchMove' | 'touchEnd', clientX: number) => {
-			const event = createEvent[type](node, { touches: [{ clientX }], changedTouches: [{ clientX }] });
-			fireEvent(node, event);
-		};
-
-		it('navigates to next slide on a left touch swipe', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			// Initially at index 0
-			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
-
-			// Swipe left (drag content leftwards) to advance to the next slide
-			fireTouch(track, 'touchStart', 300);
-			fireTouch(track, 'touchMove', 100);
-			fireTouch(track, 'touchEnd', 100);
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
-		});
-
-		it('navigates to previous slide on a right touch swipe', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			// Advance to index 1 first
-			fireTouch(track, 'touchStart', 300);
-			fireTouch(track, 'touchMove', 100);
-			fireTouch(track, 'touchEnd', 100);
-			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
-
-			// Swipe right (drag content rightwards) to go back
-			fireTouch(track, 'touchStart', 100);
-			fireTouch(track, 'touchMove', 300);
-			fireTouch(track, 'touchEnd', 300);
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
-		});
-
-		it('commits a mouse drag released outside the track', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
-
-			// Drag left on the track, but move and release the mouse outside of it
-			fireEvent.mouseDown(track, { button: 0, clientX: 300 });
-			fireEvent.mouseMove(document, { clientX: 100 });
-			fireEvent.mouseUp(document, { clientX: 100 });
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
-		});
-
-		it('advances a single slide group when a mouse drag is released over the track', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			fireEvent.mouseDown(track, { button: 0, clientX: 300 });
-			fireEvent.mouseMove(track, { clientX: 100 });
-			fireEvent.mouseUp(track, { clientX: 100 });
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
-		});
-
-		it('starts a drag from the gap between slides, where the pointer hits the container rather than the track', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const container = rendered.container.querySelector('.ss__slideshow__container')!;
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			fireEvent.mouseDown(container, { button: 0, clientX: 300 });
-			expect(track).toHaveClass('ss__slideshow__track--dragging');
-
-			fireEvent.mouseMove(document, { clientX: 100 });
-			fireEvent.mouseUp(document, { clientX: 100 });
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
-		});
-
-		it('commits a long mouse drag across multiple slides', () => {
-			const args: SlideshowProps = { ...defaultProps, slides: mockImages, slidesToShow: 2 };
-
-			const rendered = render(<Slideshow {...args} />);
-			const container = rendered.container.querySelector('.ss__slideshow__container')!;
-			const track = rendered.container.querySelector('.ss__slideshow__track')!;
-
-			// jsdom has no layout; give the container a width so a slide is 200px wide
-			Object.defineProperty(container, 'offsetWidth', { value: 400, configurable: true });
-
-			// Drag left by two slide widths
-			fireEvent.mouseDown(track, { button: 0, clientX: 500 });
-			fireEvent.mouseMove(document, { clientX: 100 });
-			fireEvent.mouseUp(document, { clientX: 100 });
-
-			expect(track).toHaveAttribute('aria-label', 'Slide group 2 of 5');
-		});
-	});
-
 	describe('Touch/Drag Functionality', () => {
 		// jsdom reports offsetWidth as 0, which collapses the drag threshold to 0
 		// and makes the drag-offset percentage math divide by zero - stub a real width.
@@ -636,6 +506,56 @@ describe('Slideshow Component', () => {
 			} finally {
 				HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
 			}
+		});
+
+		it('starts dragging on primary (left) mouse button', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const track = getTrack(rendered);
+
+			fireEvent.mouseDown(track, { button: 0, clientX: 100 });
+
+			expect(track).toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		it('does not start dragging on right-click (non-primary button)', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const track = getTrack(rendered);
+
+			fireEvent.mouseDown(track, { button: 2, clientX: 100 });
+
+			expect(track).not.toHaveClass('ss__slideshow__track--dragging');
+		});
+
+		it('starts a drag from the gap between slides, where the pointer hits the container rather than the track', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const container = rendered.container.querySelector('.ss__slideshow__container')!;
+			const track = getTrack(rendered);
+
+			fireEvent.mouseDown(container, { button: 0, clientX: 300 });
+			expect(track).toHaveClass('ss__slideshow__track--dragging');
+
+			fireEvent.mouseMove(document, { clientX: 100 });
+			fireEvent.mouseUp(document, { clientX: 100 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 1 of 5');
+		});
+
+		it('commits a long mouse drag across multiple slides', () => {
+			const rendered = render(<Slideshow {...defaultProps} slidesToShow={2} />);
+			const container = rendered.container.querySelector('.ss__slideshow__container')!;
+			const track = getTrack(rendered);
+
+			// narrower than the stubbed 1000px so a slide is 200px wide
+			Object.defineProperty(container, 'offsetWidth', { value: 400, configurable: true });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 0 of 5');
+
+			// Drag left by two slide widths
+			fireEvent.mouseDown(track, { button: 0, clientX: 500 });
+			fireEvent.mouseMove(document, { clientX: 100 });
+			fireEvent.mouseUp(document, { clientX: 100 });
+
+			expect(track).toHaveAttribute('aria-label', 'Slide group 2 of 5');
 		});
 	});
 
