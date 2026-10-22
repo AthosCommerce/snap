@@ -8,7 +8,13 @@ import { Profiler } from '@athoscommerce/snap-profiler';
 import { Logger } from '@athoscommerce/snap-logger';
 import { Tracker } from '@athoscommerce/snap-tracker';
 
-import type { ClientConfig, ClientGlobals } from '@athoscommerce/snap-client';
+import type {
+	ClientConfig,
+	ClientGlobals,
+	ChatStatusResponseModel,
+	ChatInitResponseModel,
+	UploadImageResponseModel,
+} from '@athoscommerce/snap-client';
 import type {
 	SearchControllerConfig,
 	AutocompleteControllerConfig,
@@ -33,6 +39,88 @@ const controllers: {
 
 const client = {
 	globals: { siteId: 'atkzs2' },
+};
+
+type ChatMock = {
+	status: ChatStatusResponseModel;
+};
+
+const MOCK_CHAT_SESSION_ID = 'storybook-chat-session';
+
+const MOCK_CHAT_RESULTS = ['Alpine Wool Beanie', 'Trailhead Cap', 'Summit Toque', 'Glacier Liner', 'Ridgeway Hat', 'Harbor Knit Cap'].map(
+	(name, index) => {
+		const id = `storybook-product-${index + 1}`;
+		const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(name)}/480/480`;
+
+		return {
+			id,
+			uid: id,
+			sku: id,
+			parentId: id,
+			name,
+			price: String(24 + index * 6),
+			msrp: String(30 + index * 6),
+			url: `#${id}`,
+			imageUrl,
+			thumbnailImageUrl: imageUrl,
+			parentImageUrl: '',
+			available: 'true',
+		};
+	}
+);
+
+// Storybook has no chat backend, so the chat endpoints are answered from fixtures; meta and every
+// other request still reach the network. Every message gets the same sample products back.
+const mockChatFetch = ({ status }: ChatMock): WindowOrWorkerGlobalScope['fetch'] => {
+	let responseCount = 0;
+	const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+	return async (input, init) => {
+		const url = new URL(input instanceof Request ? input.url : input.toString(), window.location.href);
+
+		if (url.pathname.endsWith('/v1/chat/status')) {
+			return json(status);
+		}
+
+		if (url.pathname.endsWith('/v1/chat/init')) {
+			const session: ChatInitResponseModel = {
+				chatSessionId: MOCK_CHAT_SESSION_ID,
+				sessionEndTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+			};
+			return json(session);
+		}
+
+		if (url.pathname.endsWith('/v1/chat/upload-image')) {
+			const file = init?.body instanceof FormData ? init.body.get('file') : null;
+			const imageUrl = file instanceof Blob ? URL.createObjectURL(file) : '';
+			const upload: UploadImageResponseModel = { imageId: `storybook-image-${Date.now()}`, imageUrl, thumbnailUrl: imageUrl };
+			return json(upload);
+		}
+
+		if (url.pathname.endsWith('/v1/chat/send')) {
+			responseCount++;
+			return json({
+				responseId: `storybook-response-${responseCount}`,
+				context: { sessionId: url.searchParams.get('chatSessionId') || MOCK_CHAT_SESSION_ID },
+				data: [
+					{
+						messageType: 'productSearchResult',
+						id: `storybook-message-${responseCount}`,
+						text: 'Storybook has no chat backend, so every message gets these sample products.',
+						searchResult: {
+							results: MOCK_CHAT_RESULTS,
+							pagination: { totalResults: MOCK_CHAT_RESULTS.length },
+							facets: [],
+							sorting: { options: [] },
+							filterSummary: [],
+						},
+					},
+				],
+			});
+		}
+
+		return fetch(input, init);
+	};
 };
 
 export class Snapify {
@@ -73,13 +161,20 @@ export class Snapify {
 		return cntrlr;
 	}
 
-	static chat(config: ChatControllerConfig): ChatController {
+	static chat(config: ChatControllerConfig, mock: ChatMock): ChatController {
 		const id = config.id;
 		if (controllers[id]) {
 			return controllers[id] as ChatController;
 		}
 
-		const cntrlr: ChatController = (controllers[id] = createChatController({ client, controller: config }));
+		// the mock goes in at construction because init() sends its status request before this returns
+		const cntrlr: ChatController = (controllers[id] = createChatController({
+			client: { ...client, config: { fetchApi: mockChatFetch(mock) } },
+			controller: config,
+		}));
+
+		// a status cached in sessionStorage by an earlier load would make init() skip the request, so apply the fixture directly
+		cntrlr.store.handleChatStatusResponse(mock.status);
 
 		cntrlr.on('afterStore', async ({ controller }: { controller: ChatController }, next) => {
 			controller.log.debug('controller', controller);
