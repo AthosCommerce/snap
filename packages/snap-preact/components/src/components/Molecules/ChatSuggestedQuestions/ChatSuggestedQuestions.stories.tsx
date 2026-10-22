@@ -1,38 +1,24 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatSuggestedQuestions, ChatSuggestedQuestionsProps } from './ChatSuggestedQuestions';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatSuggestedQuestions/readme.md';
 
 export default {
 	title: 'Molecules/ChatSuggestedQuestions',
 	component: ChatSuggestedQuestions,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		questions: {
 			description: 'list of suggestion strings',
@@ -57,7 +43,9 @@ const mockController: any = {
 	openChat: (q: string) => console.log('openChat', q),
 };
 
-export const Default = (args: ChatSuggestedQuestionsProps) => <ChatSuggestedQuestions {...args} controller={mockController} />;
-Default.args = {
-	questions: ['What is on sale right now?', 'Show me waterproof jackets', 'Compare these two products'],
+export const Default = {
+	render: (args: ChatSuggestedQuestionsProps) => <ChatSuggestedQuestions {...args} controller={mockController} />,
+	args: {
+		questions: ['What is on sale right now?', 'Show me waterproof jackets', 'Compare these two products'],
+	},
 };

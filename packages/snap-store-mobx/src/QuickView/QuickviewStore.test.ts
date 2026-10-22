@@ -1,4 +1,4 @@
-import { isObservableProp } from 'mobx';
+import { isObservableProp, remove, set } from 'mobx';
 import { MockData } from '@athoscommerce/snap-shared';
 
 import { QuickviewStore } from './QuickviewStore';
@@ -344,6 +344,51 @@ describe('QuickviewStore', () => {
 
 			expect(store.product).toBe(result);
 			expect(store.product!.variants).toBeUndefined();
+		});
+
+		it('backfills the core mappings the source result is missing from productsData onto the clone', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts();
+			const result = results[0];
+			// recommend API results (e.g. chat "similar" products) carry no description
+			remove(result.mappings.core!, 'description');
+			expect(result.mappings.core!.description).toBeUndefined();
+
+			store.update({ result, productsData: { mappings: { core: { description: '<p>Full description</p>' } } } });
+
+			expect(store.product!.mappings.core!.description).toBe('<p>Full description</p>');
+			expect(store.product!.display.mappings.core!.description).toBe('<p>Full description</p>');
+			expect(result.mappings.core!.description).toBeUndefined();
+		});
+
+		it('keeps the core mappings the source result already has over productsData', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts();
+			const result = results[0];
+			set(result.mappings.core!, 'msrp', 0);
+			set(result.mappings.core!, 'description', 'Source description');
+			const sourceCore = { ...result.mappings.core };
+
+			store.update({
+				result,
+				productsData: { mappings: { core: { uid: 'parent-uid', name: 'Parent name', price: 99, msrp: 120, description: 'Parent description' } } },
+			});
+
+			expect(store.product!.mappings.core).toEqual(sourceCore);
+		});
+
+		it('backfills the missing core mappings onto the source result when clone is false', () => {
+			const store = new QuickviewStore(quickviewConfig);
+			const { results } = sourceProducts();
+			const result = results[0];
+			remove(result.mappings.core!, 'description');
+			expect(result.mappings.core!.description).toBeUndefined();
+
+			store.update({ result, productsData: { mappings: { core: { description: '<p>Full description</p>' } } }, config: { clone: false } });
+
+			expect(store.product).toBe(result);
+			expect(result.mappings.core!.description).toBe('<p>Full description</p>');
+			expect(result.display.mappings.core!.description).toBe('<p>Full description</p>');
 		});
 
 		it('stores the per-quickview config and clears a previous error', () => {
