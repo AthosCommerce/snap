@@ -11,8 +11,11 @@ const galleryStyleScript = (props: GalleryProps) => {
 	// full screen lightbox - square toolbar buttons and Pike type on the dark backdrop
 	const galleryStyles = css({
 		// the gallery portals outside the theme scope (no global focus ring) and sits on a dark backdrop
-		'& :focus-visible, & [ss-a11y]:focus-visible': {
+		'& :focus-visible': {
 			...custom.styles.focusRing(custom.colors.white),
+		},
+		'& [ss-a11y]:focus-visible': {
+			...custom.styles.focusRing(custom.colors.white, true),
 		},
 		'.ss__gallery__toolbar': {
 			gap: `${custom.spacing.x1}px`,

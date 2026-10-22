@@ -8,7 +8,7 @@ type CTAProps = {
 };
 
 // static variables
-const lightGray = custom.colors.gray04;
+const lightGray = custom.colors.gray03;
 
 // CSS in JS style script for the Recommendation CTA component
 export const recommendationCTAStyleScript = (props: CTAProps, handle: string, spacing?: string) => {

@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.colors.gray04;
+const lightGray = custom.colors.gray03;
 const paletteColors = {
 	brown: '#845329',
 	purple: '#7c368e',
@@ -22,6 +22,11 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 
 	// shared styles
 	const sharedStyles = css({
+		// the opt-in remove icon sits on top of the swatch color - white, whatever the global icon color
+		'.ss__facet-palette-options__icon': {
+			color: custom.colors.white,
+			fill: custom.colors.white,
+		},
 		'.ss__facet-palette-options__option': {
 			'&.ss__facet-palette-options__option--filtered': {
 				'.ss__facet-palette-options__option__wrapper .ss__facet-palette-options__option__palette': {
@@ -209,11 +214,6 @@ const facetPaletteStyleScript = (props: FacetPaletteOptionsProps) => {
 // FacetPaletteOptions component props
 export const facetPaletteOptions: ThemeComponent<'facetPaletteOptions', FacetPaletteOptionsProps, FacetPaletteOptionsTemplatesLegalProps> = {
 	default: {
-		// the opt-in remove icon sits on top of the swatch color - restore its white fill (the global
-		// `icon` color would otherwise make it invisible on dark swatches)
-		'facetPaletteOptions icon': {
-			color: custom.colors.white,
-		},
 		facetPaletteOptions: {
 			themeStyleScript: facetPaletteStyleScript,
 			hideIcon: true,

@@ -5,7 +5,7 @@ import { custom } from '../../custom';
 
 // static variables
 const searchInputHeight = custom.sizes.height;
-const lightGray = custom.colors.gray04;
+const lightGray = custom.colors.gray03;
 
 // CSS in JS style script for the SearchInput component
 const searchInputStyleScript = (props: SearchInputProps) => {

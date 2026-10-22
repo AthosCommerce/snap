@@ -48,8 +48,11 @@ const overlayResultStyleScript = (props: OverlayResultProps) => {
 			'.ss__callout-badge, .ss__rating': {
 				justifyContent: 'flex-start',
 			},
-			'& :focus-visible, & [ss-a11y]:focus-visible': {
+			'& :focus-visible': {
 				...custom.styles.focusRing(overlayText),
+			},
+			'& [ss-a11y]:focus-visible': {
+				...custom.styles.focusRing(overlayText, true),
 			},
 			'.ss__overlay-result__details__title, .ss__overlay-result__details__pricing, .ss__overlay-result__rating': {
 				margin: 0,

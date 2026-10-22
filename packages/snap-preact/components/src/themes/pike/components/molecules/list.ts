@@ -53,7 +53,7 @@ const listStyleScript = (props: ListProps) => {
 			},
 			// icon-only options have no checkbox, label or bold text to show selection - mute the rest
 			...(props?.hideOptionCheckboxes && props?.hideOptionLabels
-				? { '.ss__list__option:not(.ss__list__option--selected) .ss__list__option__icon': { fill: custom.colors.gray04 } }
+				? { '.ss__list__option:not(.ss__list__option--selected) .ss__list__option__icon': { fill: custom.colors.gray03 } }
 				: {}),
 		},
 	});

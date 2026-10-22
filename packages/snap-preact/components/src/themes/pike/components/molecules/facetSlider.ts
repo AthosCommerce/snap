@@ -74,7 +74,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 					top: `${slider.ticks}px`,
 					fontSize: '10px',
 					lineHeight: 1,
-					color: props?.tickTextColor || custom.colors.gray04,
+					color: props?.tickTextColor || custom.colors.gray03,
 				},
 			},
 			'.ss__facet-slider__segment': {

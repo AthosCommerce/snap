@@ -53,7 +53,7 @@ const radioListStyleScript = (props: RadioListProps) => {
 			},
 			// icon-only options have no checkbox, label or bold text to show selection - mute the rest
 			...(props?.hideOptionRadios && props?.hideOptionLabels
-				? { '.ss__radio-list__option:not(.ss__radio-list__option--selected) .ss__radio-list__option__icon': { fill: custom.colors.gray04 } }
+				? { '.ss__radio-list__option:not(.ss__radio-list__option--selected) .ss__radio-list__option__icon': { fill: custom.colors.gray03 } }
 				: {}),
 		},
 	});

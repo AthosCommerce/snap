@@ -9,23 +9,18 @@ const closeIcon = custom.sizes.icon14; // matches the quickview close icon
 const closeInset = custom.spacing.x2; // hit area padding around the close icon (to its left, above and below)
 const closeSize = closeIcon + closeInset * 2;
 
+// a sidebar rendered in a slideout (`... slideout sidebar` in the tree path) is a panel - it owns the
+// slideout padding and pins its footer. A nested theme selector cannot carry a style script, so the
+// path is the signal rather than which buttons happen to be shown
+const isPanel = (props: SidebarProps) => /\bslideout\b/.test(props?.treePath || '');
+
 // CSS in JS style script for the Sidebar component
 const sidebarStyleScript = (props: SidebarProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	// the close and footer buttons are only shown when the sidebar is a panel (the search slideout)
-	const isPanel = !props?.hideCloseButton || !props?.hideApplyButton || !props?.hideClearButton;
 
 	// sidebar styles
 	const sidebarStyles = css({
-		...(isPanel
-			? {
-					display: 'flex',
-					flexDirection: 'column',
-					minHeight: '100%',
-					padding: `${panelPadding}px ${panelPadding}px 0`,
-			  }
-			: {}),
 		'.ss__sidebar__title': {
 			margin: `0 0 ${custom.spacing.x6}px 0`,
 			...custom.styles.headerText(variables?.colors?.secondary, '20px'),
@@ -91,7 +86,6 @@ const sidebarStyleScript = (props: SidebarProps) => {
 			},
 		},
 		'.ss__sidebar__inner': {
-			marginBottom: isPanel ? `${custom.spacing.x6}px` : '',
 			'.ss__layout': {
 				gap: `${custom.spacing.x6}px`,
 				// a flat layout (no rows) makes each module a flex item that shrinks to its content - stack them full width
@@ -108,7 +102,18 @@ const sidebarStyleScript = (props: SidebarProps) => {
 		},
 	});
 
-	return sidebarStyles;
+	// panel styles
+	const panelStyles = css({
+		display: 'flex',
+		flexDirection: 'column',
+		minHeight: '100%',
+		padding: `${panelPadding}px ${panelPadding}px 0`,
+		'.ss__sidebar__inner': {
+			marginBottom: `${custom.spacing.x6}px`,
+		},
+	});
+
+	return isPanel(props) ? css([sidebarStyles, panelStyles]) : sidebarStyles;
 };
 
 // Sidebar component props

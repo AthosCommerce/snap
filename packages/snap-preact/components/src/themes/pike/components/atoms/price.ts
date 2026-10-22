@@ -14,7 +14,7 @@ const priceStyleScript = (props: PriceProps) => {
 		color: 'inherit',
 		'&.ss__price--strike': {
 			'&, span': {
-				color: custom.colors.gray04,
+				color: custom.colors.gray03,
 			},
 		},
 		'& ~ .ss__result__price': {

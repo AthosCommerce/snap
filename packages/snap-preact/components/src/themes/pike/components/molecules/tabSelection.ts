@@ -31,7 +31,7 @@ const tabSelectionStyleScript = (props: TabSelectionProps) => {
 			margin: `0 0 -1px 0`,
 			lineHeight: 1.5,
 			fontWeight: 'normal',
-			color: custom.colors.gray04,
+			color: custom.colors.gray03,
 			'&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled': {
 				border: 0,
 				borderBottom: `${underline}px solid transparent`,
@@ -53,7 +53,7 @@ const tabSelectionStyleScript = (props: TabSelectionProps) => {
 				marginLeft: `${custom.spacing.x1}px`,
 				fontSize: '12px',
 				fontWeight: 'normal',
-				color: custom.colors.gray04,
+				color: custom.colors.gray03,
 			},
 		},
 	});

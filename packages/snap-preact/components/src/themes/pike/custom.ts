@@ -50,7 +50,7 @@ const spacingCalc = (value: number) => {
 	  `currentColor` cannot be resolved to a hex value at style time, so `utils.activeColors` falls
 	  back to a black fill with white text - the default Pike look is monochrome.
 	- Neutrals: gray01 fill, gray02 decorative rule, controlBorder control boundary (and empty rating
-	  stars), gray04 muted text (option counts, strike prices, placeholders).
+	  stars), gray03 muted text (option counts, strike prices, placeholders).
 	- Type: 14px base text (`styles.baseText`); headers are bold (`fonts.weight02`) via
 	  `styles.headerText` - 14px in compact contexts, 16px for facet/sidebar headers, 18-22px for
 	  section titles; option counts 10px; badges and fine print 12px.
@@ -93,7 +93,7 @@ export const custom: CustomThemeType = {
 		black: '#000000',
 		gray01: '#f8f8f8', // lighter gray: bg color under terms, dropdown, checkboxes
 		gray02: '#ebebeb', // light gray: decorative rules - dividers, image frames, panel borders
-		gray04: '#6b6b6b', // dark gray: muted text (counts, strike prices, placeholders)
+		gray03: '#6b6b6b', // dark gray: muted text (counts, strike prices, placeholders)
 		controlBorder: '#8c8c8c', // control boundaries - 3.36:1 on white, 3.16:1 on gray01 (WCAG 1.4.11)
 		overlay: 'rgba(0, 0, 0, 0.80)', // color used for overlays
 	},
@@ -218,12 +218,13 @@ export const custom: CustomThemeType = {
 				fill: color || undefined,
 			};
 		},
-		focusRing: (color: string) => {
-			// keyboard focus indicator (apply under `:focus-visible` only) - important to beat the outline that
-			// useA11y injects for `[ss-a11y]` elements, which is not a Pike color and is ignored by some browsers
+		focusRing: (color: string, important?: boolean) => {
+			// keyboard focus indicator (apply under `:focus-visible` only) - `important` only for `[ss-a11y]`
+			// elements, to beat the outline useA11y injects (not a Pike color and ignored by some browsers)
+			const suffix = important ? ' !important' : '';
 			return {
-				outline: `2px solid ${color} !important`,
-				outlineOffset: '2px !important',
+				outline: `2px solid ${color}${suffix}`,
+				outlineOffset: `2px${suffix}`,
 			};
 		},
 		fieldFocus: (color: string) => {
@@ -373,13 +374,6 @@ export const custom: CustomThemeType = {
 			rule = rule && (rule == 'min' || rule == 'max') ? rule : 'min';
 			return `@media (${rule}-width: ${rule == 'min' ? bp + 1 : bp}px)`;
 		},
-		lightenColor: (color?: string, amount?: number) => {
-			// lighten a color
-			amount = amount ? amount : 0.42;
-			color = color ? color : custom.colors.black;
-			const lightColor = parseColor(color).lighten(amount).toHex().toLowerCase();
-			return lightColor;
-		},
 	},
 };
 
@@ -419,7 +413,7 @@ type CustomThemeType = {
 		box: (color?: string, padding?: number | string, radius?: boolean) => ObjectNumberOrStringType;
 		columns: (maxColumns?: number, minWidth?: number) => ObjectNumberOrStringType;
 		disabled: () => ObjectNumberOrStringType | ObjectNestedType;
-		focusRing: (color: string) => ObjectNumberOrStringType;
+		focusRing: (color: string, important?: boolean) => ObjectNumberOrStringType;
 		fieldFocus: (color: string) => ObjectNumberOrStringType;
 		indicator: (color?: string) => ObjectNumberOrStringType;
 		headerText: (color?: string, fontSize?: string) => ObjectNumberOrStringType;
@@ -433,6 +427,5 @@ type CustomThemeType = {
 		darkenColor: (color?: string, amount?: number) => string;
 		focusColor: (color?: string) => string;
 		getBp: (bp: number, rule?: string) => string;
-		lightenColor: (color?: string, amount?: number) => string;
 	};
 };

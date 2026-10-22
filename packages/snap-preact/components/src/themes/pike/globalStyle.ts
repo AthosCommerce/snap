@@ -13,9 +13,13 @@ export const globalStyle: ThemeGlobalStyleScript = ({ variables }) => {
 		'&, *, *:before, *:after': {
 			boxSizing: 'border-box',
 		},
-		// keyboard focus ring - `[ss-a11y]` raises specificity above the rule useA11y injects for those elements
-		[`& :focus-visible:not(${textFields}), & [ss-a11y]:focus-visible:not(${textFields})`]: {
+		// keyboard focus ring
+		[`& :focus-visible:not(${textFields})`]: {
 			...custom.styles.focusRing(focusColor),
+		},
+		// `[ss-a11y]` elements also carry the outline useA11y injects (with !important) - beat it
+		[`& [ss-a11y]:focus-visible:not(${textFields})`]: {
+			...custom.styles.focusRing(focusColor, true),
 		},
 		// text fields show focus with a stronger edge instead of the ring, so mouse users see no ring
 		[`& :is(${textFields}):focus`]: {

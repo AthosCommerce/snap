@@ -4,7 +4,7 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // static variables
-const lightGray = custom.colors.gray04;
+const lightGray = custom.colors.gray03;
 const quickviewSize = 32;
 
 // CSS in JS style script for the Result component
