@@ -60,6 +60,11 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 		[activeSelectors]: {
 			...custom.styles.activeText(variables?.colors?.primary),
 		},
+		// the terms title is an h5 - keep it the same color as the other section titles (site heading
+		// styles otherwise out-specify the terms component's own rule)
+		'.ss__terms__title h5': {
+			color: variables?.colors?.secondary,
+		},
 	});
 
 	// shared layout styles
@@ -218,12 +223,17 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 			padding: 0,
 			height: 'auto',
 			lineHeight: 1,
+			// a text link - not the filled button's contrast color (`currentColor` header text resolves to it)
+			color: 'inherit',
 			'&, &:hover': {
 				backgroundColor: 'transparent',
 				border: 0,
 			},
 			'.ss__button__content': {
 				margin: 0,
+			},
+			'.ss__icon': {
+				...custom.styles.indicator(variables?.colors?.accent),
 			},
 		},
 	});
@@ -262,6 +272,17 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 						padding: `${custom.spacing.x4}px ${custom.spacing.x4}px 0 ${custom.spacing.x4}px`,
 						margin: `0 -${custom.spacing.x4}px`,
 						borderTop: `1px solid ${custom.colors.gray02}`,
+					},
+				},
+				// the column stretches to the tallest column - stack its rows (no wrapping lines) so the
+				// see more row can sit at the bottom however few results there are
+				'.ss__autocomplete__column:has(.ss__autocomplete__button--see-more)': {
+					flexFlow: 'column nowrap',
+					'& > .ss__autocomplete__row': {
+						flex: '0 0 auto',
+					},
+					'& > .ss__autocomplete__row:has(.ss__autocomplete__button--see-more)': {
+						marginTop: 'auto',
 					},
 				},
 			},

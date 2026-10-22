@@ -12,6 +12,7 @@ const errorHandlerStyleScript = (props: ErrorHandlerProps) => {
 	const errorHandlerStyles = css({
 		gap: `${custom.spacing.x2}px`,
 		padding: `${custom.spacing.x2}px`,
+		...custom.styles.borderRadius(0),
 		'.ss__error-handler__message, .ss__error-handler__button': {
 			gap: `${custom.spacing.x1}px`,
 		},
@@ -30,6 +31,16 @@ const errorHandlerStyleScript = (props: ErrorHandlerProps) => {
 		},
 		'.ss__error-handler__button': {
 			flex: `0 1 auto`,
+			// secondary action - a neutral outline (the component would otherwise outline it in primary)
+			color: 'inherit',
+			'&, &:hover, &:not(.ss__button--disabled):hover': {
+				borderColor: custom.colors.controlBorder,
+				backgroundColor: custom.colors.white,
+			},
+			// Pike buttons are not uppercased (compounded to match the component's per-type rule specificity)
+			'&.ss__button': {
+				textTransform: custom.fonts.transform,
+			},
 			margin: 0,
 			padding: `0 ${custom.spacing.x2}px`,
 			height: '28px',

@@ -26,6 +26,13 @@ const dropdownStyleScript = (props: DropdownProps) => {
 			},
 		},
 		'&.ss__dropdown__portal': {
+			// portaled content is outside the theme scope - apply the focus ring here
+			'& :focus-visible': {
+				...custom.styles.focusRing(custom.utils.focusColor(variables?.colors?.secondary)),
+			},
+			'& [ss-a11y]:focus-visible': {
+				...custom.styles.focusRing(custom.utils.focusColor(variables?.colors?.secondary), true),
+			},
 			'.ss__dropdown__content': {
 				marginTop: `${custom.spacing.x1}px`,
 				...custom.styles.box(),

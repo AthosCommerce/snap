@@ -94,6 +94,7 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 							},
 						},
 						'.ss__dropdown__button__heading__icon': {
+							...custom.styles.indicator(variables?.colors?.accent),
 							transition: 'transform ease 0.5s',
 						},
 					},
@@ -128,6 +129,16 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 				{
 					display: 'flex',
 				},
+			// same anatomy as the toolbar's sidebar toggle - label left, icon right
+			'.ss__facets-horizontal__header__toggle-sidebar': {
+				justifyContent: 'space-between',
+				gap: `${custom.spacing.x2}px`,
+				padding: `0 ${custom.spacing.x2}px`,
+				'.ss__button__content': {
+					textAlign: 'left',
+					justifyContent: 'flex-start',
+				},
+			},
 		},
 		[`${custom.utils.getBp(mobileBp)}`]: {
 			'.ss__facets-horizontal__header': {
@@ -157,10 +168,24 @@ export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizont
 			iconCollapse: custom.icons.arrowDown,
 			alwaysShowToggleSidebarButton: true,
 		},
+		'facetsHorizontal button.sidebar-toggle': {
+			icon: custom.icons.filter,
+		},
+		'facetsHorizontal button.sidebar-toggle icon': {
+			size: `${custom.sizes.icon14}px`,
+		},
+		// a panel (close button) - the sidebar then owns the slideout padding
+		'facetsHorizontal sidebar': {
+			hideCloseButton: false,
+		},
 		'facetsHorizontal button.reset-facet icon': {
 			size: `${custom.sizes.icon08}px`,
 		},
 		'facetsHorizontal icon.overflow-more': {
+			size: `${custom.sizes.icon10}px`,
+		},
+		// plus and minus share one size so the toggle does not jump between states
+		'facetsHorizontal icon.overflow-less': {
 			size: `${custom.sizes.icon10}px`,
 		},
 		'facetsHorizontal dropdown facet': {

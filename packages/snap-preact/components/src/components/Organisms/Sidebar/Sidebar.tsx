@@ -76,6 +76,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 		onToggleSidebar,
 		hideHeader,
 		hideClearButton,
+		hideClearButtonWithoutFilters,
 		hideCloseButton,
 		hideClearButtonText,
 		hideApplyButtonText,
@@ -195,7 +196,7 @@ export const Sidebar = observer((properties: SidebarProps) => {
 								{!hideApplyButtonText && applyButtonText ? <span {...mergedLang.applyButtonText?.all}></span> : undefined}
 							</Button>
 						)}
-						{!hideClearButton && (
+						{!hideClearButton && !(hideClearButtonWithoutFilters && !Object.keys(controller?.urlManager?.state?.filter || {}).length) && (
 							<Button
 								internalClassName="ss__sidebar__footer__clear-button"
 								icon={clearButtonIcon}
@@ -235,6 +236,7 @@ export type SidebarTemplatesLegalProps = {
 	hideFooter?: boolean;
 	hideApplyButton?: boolean;
 	hideClearButton?: boolean;
+	hideClearButtonWithoutFilters?: boolean;
 	hideCloseButton?: boolean;
 	hideClearButtonText?: boolean;
 	hideApplyButtonText?: boolean;
