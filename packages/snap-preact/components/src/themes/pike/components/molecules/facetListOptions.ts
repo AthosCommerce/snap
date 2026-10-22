@@ -66,6 +66,8 @@ const facetListOptionsStyleScript = (props: FacetListOptionsProps) => {
 					display: 'flex',
 					alignItems: 'baseline',
 					'.ss__facet-list-options__option__value__label': {
+						// a flex item keeps `min-width: auto` - without this the nowrap label never shrinks and overflows its column
+						minWidth: 0,
 						...custom.styles.textOverflow(),
 					},
 				},

@@ -107,6 +107,12 @@ const overlayResultStyleScript = (props: OverlayResultProps) => {
 			'.ss__overlay-result__button--addToCart': {
 				width: '100%',
 				marginTop: `${custom.spacing.x1}px`,
+				// the filled control inverts on the overlay too - the default black fill has no edge on the dark gradient
+				'&, &:hover, &:not(.ss__button--disabled):hover, &.ss__button--disabled': {
+					color: custom.colors.black,
+					borderColor: overlayText,
+					backgroundColor: overlayText,
+				},
 			},
 		},
 	});

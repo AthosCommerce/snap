@@ -88,10 +88,14 @@ const radioListStyleScript = (props: RadioListProps) => {
 				...(props?.hideOptionLabels
 					? { display: 'flex', flexFlow: 'row wrap', gap: `${custom.spacing.x1}px ${custom.spacing.x2}px` }
 					: custom.styles.columns()),
+				// the component sets `justify-items: flex-start`, which stops grid items stretching to their column
+				justifyItems: 'stretch',
 				'.ss__radio-list__option': {
 					minWidth: '1px',
 					margin: 0,
 					'.ss__radio-list__option__label': {
+						// a flex item keeps `min-width: auto` - without this the nowrap label never shrinks and overflows its column
+						minWidth: 0,
 						...custom.styles.textOverflow(),
 					},
 				},
