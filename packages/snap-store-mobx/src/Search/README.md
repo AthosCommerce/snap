@@ -166,7 +166,7 @@ This is a reference to the `StorageStore` instance that is used to store the cur
 ### `history` property
 This is a reference to the `HistoryStore` instance that is used to store the previously searched terms. This store's historical terms can be accessed via `queries`. It also has a few methods used to modify the search history, namely `save`, `remove` and `reset`.
 
-When a `tracker` service is provided (the `createSearchController` function of `@athoscommerce/snap-preact` provides the controller tracker), `save` also records the term as a searched term for the `globals.siteId` in the store config, unless `globals.personalization.disabled` is set. `remove` and `reset` only modify the search history.
+When a `tracker` service is provided (the `createSearchController` function of `@athoscommerce/snap-preact` provides the controller tracker), `save` also records the term as a searched term for the `globals.siteId` in the store config, unless `globals.personalization.disabled` is set. `remove` also removes the term from the searched terms, and `reset` clears the searched terms, for that siteId even when `globals.personalization.disabled` is set. Emptying or trimming the history to the configured `max` does not change the searched terms.
 
 ### `step` property
 Only applicable to facets where `type` is `range`.

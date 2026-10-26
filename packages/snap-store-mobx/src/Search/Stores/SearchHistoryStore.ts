@@ -34,18 +34,14 @@ export class SearchHistoryStore {
 			key: `athos-history${this.config.globals?.siteId ? `-${this.config.globals?.siteId}` : ``}`,
 		});
 
-		// reset to zero to clear any potentially existing terms
+		// clear and trim only the history here - last searches are not limited by the history max
 		if (this.max === 0) {
-			this.reset();
+			this.storage.clear();
 		}
 
-		// trim history if the current queries are more than config max
-		if (this.queries.length > this.max) {
-			this.getStoredData().forEach((term, index) => {
-				if (index > this.max - 1) {
-					this.remove(term);
-				}
-			});
+		const storedData = this.getStoredData();
+		if (storedData.length > this.max) {
+			this.storage.set('history', JSON.stringify(storedData.slice(0, this.max)));
 		}
 	}
 
@@ -88,10 +84,13 @@ export class SearchHistoryStore {
 			history.splice(index, 1);
 			this.storage.set('history', JSON.stringify(history));
 		}
+
+		this.services?.tracker?.cookies.searched.remove([term], this.config.globals?.siteId);
 	}
 
 	public reset(): void {
 		this.storage.clear();
+		this.services?.tracker?.cookies.searched.clear(this.config.globals?.siteId);
 	}
 
 	public getStoredData(limit?: number): string[] {
@@ -107,7 +106,7 @@ export class SearchHistoryStore {
 				}
 			} catch (err) {
 				// storage corrupted - resetting it
-				this.reset();
+				this.storage.clear();
 			}
 		}
 

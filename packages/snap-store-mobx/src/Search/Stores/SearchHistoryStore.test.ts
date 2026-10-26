@@ -350,14 +350,99 @@ describe('History Store', () => {
 			expect(tracker.cookies.searched.get()).toEqual([]);
 		});
 
-		it('does not change last searches when history terms are removed or reset', () => {
+		it('removes a term from last searches when it is removed from history', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+			historyStore.save('boots');
+			historyStore.save('shoes');
+
+			historyStore.remove('boots');
+
+			expect(historyStore.queries.map((query) => query.string)).toEqual(['shoes']);
+			expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+		});
+
+		it('removes a term from last searches when it is not in history', () => {
+			const historyStore = new SearchHistoryStore({
+				services: { ...services, tracker },
+				config: { id: '', settings: { history: { max: 0 } } },
+			});
+			historyStore.save('boots');
+
+			historyStore.remove('boots');
+
+			expect(tracker.cookies.searched.get()).toEqual([]);
+		});
+
+		it('clears last searches when history is reset', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+			historyStore.save('boots');
+			historyStore.save('shoes');
+
+			historyStore.reset();
+
+			expect(historyStore.queries).toHaveLength(0);
+			expect(tracker.cookies.searched.get()).toEqual([]);
+		});
+
+		it('only removes and clears last searches for the siteId in the config globals', () => {
+			tracker.cookies.searched.add(['boots']);
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: { id: '', globals: { siteId: 'at5678' } } });
+			historyStore.save('boots');
+			historyStore.save('shoes');
+
+			historyStore.remove('boots');
+			expect(tracker.cookies.searched.get('at5678')).toEqual(['shoes']);
+
+			historyStore.reset();
+			expect(tracker.cookies.searched.get('at5678')).toEqual([]);
+			expect(tracker.cookies.searched.get()).toEqual(['boots']);
+		});
+
+		it('removes and clears last searches when personalization is disabled', () => {
+			tracker.cookies.searched.add(['shoes', 'boots']);
+			const historyStore = new SearchHistoryStore({
+				services: { ...services, tracker },
+				config: { id: '', globals: { personalization: { disabled: true } } },
+			});
+
+			historyStore.remove('boots');
+			expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+
+			historyStore.reset();
+			expect(tracker.cookies.searched.get()).toEqual([]);
+		});
+
+		it('does not clear last searches when a history store with a max of zero empties the history', () => {
 			// @ts-ignore - imcomplete config
 			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
 			historyStore.save('boots');
 
-			historyStore.remove('boots');
-			historyStore.reset();
+			new SearchHistoryStore({ services: { ...services, tracker }, config: { id: '', settings: { history: { max: 0 } } } });
 
+			expect(historyStore.queries).toHaveLength(0);
+			expect(tracker.cookies.searched.get()).toEqual(['boots']);
+		});
+
+		it('does not remove last searches when a history store with a lower max trims the history', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+			['boots', 'shoes', 'sandals'].forEach((term) => historyStore.save(term));
+
+			new SearchHistoryStore({ services: { ...services, tracker }, config: { id: '', settings: { history: { max: 1 } } } });
+
+			expect(historyStore.queries.map((query) => query.string)).toEqual(['sandals']);
+			expect(tracker.cookies.searched.get()).toEqual(['sandals', 'shoes', 'boots']);
+		});
+
+		it('does not clear last searches when the stored history is corrupted', () => {
+			// @ts-ignore - imcomplete config
+			const historyStore = new SearchHistoryStore({ services: { ...services, tracker }, config: {} });
+			historyStore.save('boots');
+			window.localStorage.setItem('athos-history', '{"history":"not json"}');
+
+			expect(historyStore.queries).toHaveLength(0);
 			expect(tracker.cookies.searched.get()).toEqual(['boots']);
 		});
 

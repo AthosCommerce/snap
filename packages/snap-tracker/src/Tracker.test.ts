@@ -286,6 +286,30 @@ describe('Tracker', () => {
 		}
 	});
 
+	it('will make preflight request when a searched term is removed', async () => {
+		jest.useFakeTimers();
+
+		try {
+			const tracker = new Tracker(globals, config);
+			tracker.cookies.searched.add(['shoes', 'boots']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			tracker.cookies.searched.remove(['boots']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+
+			tracker.cookies.searched.remove(['not-searched']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
+	});
+
 	it('will make preflight request when there is a shopperId set', async () => {
 		jest.useFakeTimers();
 
@@ -546,6 +570,48 @@ describe('Tracker', () => {
 		tracker.cookies.searched.clear();
 
 		expect(tracker.cookies.searched.get()).toEqual([]);
+	});
+
+	it('can remove searched terms', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.add(['boots']);
+		tracker.cookies.searched.add(['sandals']);
+		tracker.cookies.searched.remove(['boots', 'not-searched']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['sandals', 'shoes']);
+	});
+
+	it('removes searched terms regardless of case and surrounding whitespace', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['Shoes']);
+		tracker.cookies.searched.remove([' shoes ']);
+
+		expect(tracker.cookies.searched.get()).toEqual([]);
+	});
+
+	it('keeps the timestamps of the remaining searched terms when removing', () => {
+		const tracker = new Tracker(globals, config);
+		const older = { query: 'shoes', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() };
+		const newer = { query: 'boots', timestamp: new Date().toISOString() };
+		localStorageMock.setItem('ssSearchedQueries-xxxzzz', JSON.stringify({ value: [newer, older] }));
+
+		tracker.cookies.searched.remove(['boots']);
+
+		expect(JSON.parse(localStorageMock.getItem('ssSearchedQueries-xxxzzz') || '{}').value).toEqual([older]);
+	});
+
+	it('only removes searched terms for the given siteId', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['boots'], 'other1');
+		tracker.cookies.searched.add(['boots']);
+		tracker.cookies.searched.remove(['boots'], 'other1');
+
+		expect(tracker.cookies.searched.get('other1')).toEqual([]);
+		expect(tracker.cookies.searched.get()).toEqual(['boots']);
 	});
 
 	it('keeps searched terms for each siteId separate', () => {

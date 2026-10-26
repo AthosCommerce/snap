@@ -193,12 +193,17 @@ The tracker also includes the terms of its own siteId on preflight requests, and
 
 Setting `globals.personalization.disabled` on a search controller stops it from recording terms, and on a search, autocomplete or finder controller stops it from sending them. Recommendation controllers and preflight requests do not use this setting and still send the stored terms of their siteId.
 
+Removing a query from the history store (`controller.store.history.remove`) also removes it from the searched terms, and resetting the history store (`controller.store.history.reset`) clears the searched terms of its siteId. This applies even when `globals.personalization.disabled` is set. Emptying or trimming the history because of the history `max` setting does not remove searched terms.
+
 ```js
 // add search terms (most recent first)
 athos.tracker.cookies.searched.add(['boots']);
 
 // get search terms
 athos.tracker.cookies.searched.get(); // ['boots', ...]
+
+// remove search terms (ignores case)
+athos.tracker.cookies.searched.remove(['boots']);
 
 // clear search terms
 athos.tracker.cookies.searched.clear();
