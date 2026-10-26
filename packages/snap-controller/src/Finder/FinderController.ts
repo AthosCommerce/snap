@@ -5,6 +5,7 @@ import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
 import { AbstractController } from '../Abstract/AbstractController';
 import { getSearchParams } from '../utils/getParams';
+import { getLastSearchesParam } from '../utils/getLastSearchesParam';
 import { ControllerTypes } from '../types';
 import type { FinderStore } from '@athoscommerce/snap-store-mobx';
 import type { FinderControllerConfig, ControllerServices, ContextVariables } from '../types';
@@ -82,9 +83,9 @@ export class FinderController extends AbstractController {
 		};
 
 		if (!this.config.globals?.personalization?.disabled) {
-			const lastSearchedTerms = this.tracker.cookies.searched.get(this.config.globals?.siteId);
-			if (lastSearchedTerms.length) {
-				defaultParams.personalization = { lastSearches: lastSearchedTerms.join(',') };
+			const lastSearches = getLastSearchesParam(this.tracker.cookies.searched.get(this.config.globals?.siteId));
+			if (lastSearches) {
+				defaultParams.personalization = { lastSearches };
 			}
 		}
 

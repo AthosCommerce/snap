@@ -368,15 +368,7 @@ export class Tracker extends Beacon {
 				this.storage.searched.add(queries, siteId);
 			},
 			remove: (queries: string[], siteId?: string): void => {
-				if (queries.length) {
-					// beacon treats queries that differ only by case as the same query
-					const queriesToRemove = queries.map((query) => `${query}`.trim().toLowerCase());
-					const searchedQueries = this.storage.searched.get(siteId);
-					this.storage.searched.set(
-						searchedQueries.filter((item) => !queriesToRemove.includes(item.query.toLowerCase())),
-						siteId
-					);
-				}
+				this.storage.searched.remove(queries, siteId);
 			},
 			clear: (siteId?: string): void => {
 				this.storage.searched.clear(siteId);

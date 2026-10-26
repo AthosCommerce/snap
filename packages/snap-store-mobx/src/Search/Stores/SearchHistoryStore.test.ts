@@ -259,6 +259,33 @@ describe('History Store', () => {
 		});
 	});
 
+	it('does not trim terms when a store without a max configuration is created', async () => {
+		const historyData = Array.from({ length: 30 }, (_, index) => `term${index}`);
+		const historyStore = new SearchHistoryStore({ services, config: { id: '', settings: { history: { max: 50 } } } });
+		historyData.map((term) => historyStore.save(term));
+
+		// the autocomplete store creates a history store without settings to read the stored terms
+		// @ts-ignore - imcomplete config
+		new SearchHistoryStore({ services, config: {} });
+
+		expect(historyStore.queries).toHaveLength(30);
+	});
+
+	it('limits terms to the default max when no max configuration is provided', async () => {
+		const historyData = Array.from({ length: 30 }, (_, index) => `term${index}`);
+		const historyStore = new SearchHistoryStore({ services, config: { id: '', settings: { history: { max: 50 } } } });
+		historyData.map((term) => historyStore.save(term));
+
+		// @ts-ignore - imcomplete config
+		const defaultHistoryStore = new SearchHistoryStore({ services, config: {} });
+		expect(defaultHistoryStore.queries).toHaveLength(25);
+		expect(defaultHistoryStore.getStoredData()).toHaveLength(30);
+
+		defaultHistoryStore.save('new term');
+		expect(defaultHistoryStore.getStoredData()).toHaveLength(25);
+		expect(defaultHistoryStore.queries[0].string).toBe('new term');
+	});
+
 	it('empties history when max is changed to zero', async () => {
 		const historyData = ['dressred', 'dress', 'glasses'];
 

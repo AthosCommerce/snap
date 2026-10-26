@@ -35,18 +35,21 @@ export class SearchHistoryStore {
 		});
 
 		// clear and trim only the history here - last searches are not limited by the history max
-		if (this.max === 0) {
-			this.storage.clear();
-		}
+		// only a configured max changes the shared history, so stores using the default max (autocomplete) do not trim it
+		if (typeof this.config.settings?.history?.max == 'number') {
+			if (this.max === 0) {
+				this.storage.clear();
+			}
 
-		const storedData = this.getStoredData();
-		if (storedData.length > this.max) {
-			this.storage.set('history', JSON.stringify(storedData.slice(0, this.max)));
+			const storedData = this.getStoredData();
+			if (storedData.length > this.max) {
+				this.storage.set('history', JSON.stringify(storedData.slice(0, this.max)));
+			}
 		}
 	}
 
 	get queries(): Query[] {
-		const queries = this.getStoredData();
+		const queries = this.getStoredData(this.max);
 		return queries.map((query) => new Query(this.services, query));
 	}
 
@@ -62,11 +65,8 @@ export class SearchHistoryStore {
 			}
 
 			history.unshift(term);
-			if (history.length > this.max) {
-				history.pop();
-			}
 
-			this.storage.set('history', JSON.stringify(history));
+			this.storage.set('history', JSON.stringify(history.slice(0, this.max)));
 		}
 
 		// last searches are stored separately and are not limited by the history max

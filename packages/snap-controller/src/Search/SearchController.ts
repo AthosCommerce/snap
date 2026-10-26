@@ -6,6 +6,7 @@ import { AbstractController } from '../Abstract/AbstractController';
 import { ErrorType, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { getSearchParams } from '../utils/getParams';
+import { getLastSearchesParam } from '../utils/getLastSearchesParam';
 import { ControllerTypes, PageContextVariable } from '../types';
 
 import type { Product, Banner, SearchStore, ValueFacet, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
@@ -147,6 +148,11 @@ export class SearchController extends AbstractController {
 		}
 
 		this.store.setConfig(this.config);
+
+		// the history store records searched terms with the tracker - use the controller tracker when the store was not given one
+		if (!this.store.services.tracker) {
+			this.store.services.tracker = this.tracker;
+		}
 
 		this.storage = new StorageStore({
 			type: 'session',
@@ -683,10 +689,10 @@ export class SearchController extends AbstractController {
 				params.personalization.lastViewed = lastViewedItems.join(',');
 			}
 
-			const lastSearchedTerms = this.tracker.cookies.searched.get(this.config.globals?.siteId);
-			if (lastSearchedTerms.length) {
+			const lastSearches = getLastSearchesParam(this.tracker.cookies.searched.get(this.config.globals?.siteId));
+			if (lastSearches) {
 				params.personalization = params.personalization || {};
-				params.personalization.lastSearches = lastSearchedTerms.join(',');
+				params.personalization.lastSearches = lastSearches;
 			}
 
 			if (shopperId) {

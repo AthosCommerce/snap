@@ -859,7 +859,7 @@ describe('Search Controller', () => {
 		controller.tracker.cookies.searched.clear();
 	});
 
-	it('does not record history store terms when the store has no tracker service', async () => {
+	it('records history store terms with the controller tracker when the store has no tracker service', async () => {
 		const store = new SearchStore(searchConfig, { urlManager });
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
@@ -875,8 +875,30 @@ describe('Search Controller', () => {
 		await controller.search();
 		store.history.save('boots');
 
-		expect(store.services.tracker).toBeUndefined();
-		expect(controller.tracker.cookies.searched.get()).toEqual([]);
+		expect(store.services.tracker).toBe(controller.tracker);
+		expect(controller.tracker.cookies.searched.get()).toEqual(['boots', 'dress']);
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('replaces commas within searched terms in the personalization lastSearches param', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, { urlManager }),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['boots']);
+		controller.tracker.cookies.searched.add(['red, blue dress']);
+
+		expect(controller.params.personalization!.lastSearches).toEqual('red blue dress,boots');
+
+		controller.tracker.cookies.searched.clear();
 	});
 
 	it('records history store terms through the tracker service of the store', async () => {

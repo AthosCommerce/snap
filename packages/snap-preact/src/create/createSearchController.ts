@@ -11,7 +11,6 @@ import type { SnapControllerServices, SnapSearchControllerConfig } from '../type
 
 export default (config: SnapSearchControllerConfig, services?: SnapControllerServices): SearchController => {
 	const urlManager = services?.urlManager || new UrlManager(new UrlTranslator(config.url), reactLinker);
-	const tracker = services?.tracker || new Tracker(config.client!.globals);
 
 	// set client mode
 	if (config.mode && config.client) {
@@ -23,12 +22,12 @@ export default (config: SnapSearchControllerConfig, services?: SnapControllerSer
 		config.controller,
 		{
 			client: services?.client || new Client(config.client!.globals, config.client!.config),
-			store: services?.store || new SearchStore(config.controller, { urlManager, tracker }),
+			store: services?.store || new SearchStore(config.controller, { urlManager }),
 			urlManager,
 			eventManager: services?.eventManager || new EventManager(),
 			profiler: services?.profiler || new Profiler(),
 			logger: services?.logger || new Logger({ mode: config.mode }),
-			tracker,
+			tracker: services?.tracker || new Tracker(config.client!.globals),
 			quickviewManager: services?.quickviewManager,
 		},
 		config.context
