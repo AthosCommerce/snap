@@ -365,7 +365,7 @@ describe('History Store', () => {
 			expect(tracker.cookies.searched.get()).toEqual(['boots']);
 		});
 
-		it('does not record last searches when personalization is disabled', () => {
+		it('records last searches when personalization is disabled', () => {
 			const historyStore = new SearchHistoryStore({
 				services: { ...services, tracker },
 				config: { id: '', globals: { personalization: { disabled: true } } },
@@ -374,7 +374,7 @@ describe('History Store', () => {
 			historyStore.save('boots');
 
 			expect(historyStore.queries.map((query) => query.string)).toEqual(['boots']);
-			expect(tracker.cookies.searched.get()).toEqual([]);
+			expect(tracker.cookies.searched.get()).toEqual(['boots']);
 		});
 
 		it('removes a term from last searches when it is removed from history', () => {

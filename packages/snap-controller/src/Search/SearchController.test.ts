@@ -792,6 +792,35 @@ describe('Search Controller', () => {
 		controller.tracker.cookies.searched.clear();
 	});
 
+	it('records the search query but does not send lastSearches when personalization is disabled', async () => {
+		const config: SearchControllerConfig = {
+			...searchConfig,
+			globals: {
+				personalization: {
+					disabled: true,
+				},
+			},
+		};
+		const tracker = new Tracker(globals);
+		const controller = new SearchController(config, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(config, { urlManager, tracker }),
+			urlManager: urlManager.set('query', 'dress'),
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker,
+		});
+		controller.tracker.cookies.searched.clear();
+
+		await controller.search();
+
+		expect(controller.tracker.cookies.searched.get()).toEqual(['dress']);
+		expect(controller.params.personalization?.lastSearches).toBeUndefined();
+
+		controller.tracker.cookies.searched.clear();
+	});
+
 	it('records the search query as a searched term when searching', async () => {
 		const tracker = new Tracker(globals);
 		const controller = new SearchController(searchConfig, {

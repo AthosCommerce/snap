@@ -70,9 +70,8 @@ export class SearchHistoryStore {
 		}
 
 		// last searches are stored separately and are not limited by the history max
-		if (!this.config.globals?.personalization?.disabled) {
-			this.services?.tracker?.cookies.searched.add([term], this.config.globals?.siteId);
-		}
+		// they are recorded even when personalization is disabled, which only omits them from requests
+		this.services?.tracker?.cookies.searched.add([term], this.config.globals?.siteId);
 	}
 
 	public remove(term: string) {
