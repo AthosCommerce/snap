@@ -191,9 +191,9 @@ Each search query saved to the `SearchController` history store (`controller.sto
 
 The tracker also includes the terms of its own siteId on preflight requests, and sends a new preflight request whenever those terms change. Terms recorded for other siteIds are not included in these preflight requests; they are sent by the controllers configured with that siteId.
 
-Setting `globals.personalization.disabled` on a search controller stops it from recording terms, and on a search, autocomplete or finder controller stops it from sending them. Recommendation controllers and preflight requests do not use this setting and still send the stored terms of their siteId.
+Setting `globals.personalization.disabled` on a search, autocomplete or finder controller only stops it from sending the terms; search controllers still record them. Recommendation controllers and preflight requests do not use this setting and still send the stored terms of their siteId.
 
-Removing a query from the history store (`controller.store.history.remove`) also removes it from the searched terms, and resetting the history store (`controller.store.history.reset`) clears the searched terms of its siteId. This applies even when `globals.personalization.disabled` is set. Emptying or trimming the history because of the history `max` setting does not remove searched terms.
+Removing a query from the history store (`controller.store.history.remove`) also removes it from the searched terms, and resetting the history store (`controller.store.history.reset`) clears the searched terms of its siteId. Emptying or trimming the history because of the history `max` setting does not remove searched terms.
 
 ```js
 // add search terms (most recent first)
