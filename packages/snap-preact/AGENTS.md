@@ -35,6 +35,7 @@ Read this before changing a theme, a template's default layout, selector matchin
 `mergeProps(componentType, …)` appends `componentType` (plus `.name` when the component has a valid `name` prop) to the parent's treePath.
 
 - Templates render with no root `TreePathProvider`, so the **root segment is the template's alias**: `search`, `searchCollapsible`, `searchHorizontal`, `autocompleteModal`, and so on. `SearchCollapsible` and `SearchHorizontal` render `<Search alias="…">`, so their subtree is rooted at the alias, not at `search`.
+- **With two or more tabs, the root is named after the active tab.** `getTabManager` only creates a tab manager for 2+ tabs, and then `TemplateSelect` passes the active tab's id, lowercased, as the template's `name`. So the root becomes `search.products`, and its children `search.products toolbar.top`. A tab id with characters outside `[A-Za-z0-9-]` is silently dropped from the treePath. Plain `search toolbar.top` still matches every tab, because ancestor segments match by type.
 - Templates inject extra segments in some places. Selectors have to account for these:
   - Search toolbars: `<alias> toolbar.top|middle|bottom`.
   - Search sidebar: `<alias> sidebar` on desktop. Below `mobileDisplayAt` it becomes `<alias> slideout sidebar`. `mobileDisplayAt` defaults to the tablet breakpoint, and pike sets it to the mobile breakpoint.
@@ -109,4 +110,4 @@ The plugin is exported as `@athoscommerce/snap-preact/eslintplugin`, and project
 
 - **One rule per file** in `eslint/src/rules/`. Each rule finds configs with `createConfigVisitors` from `eslint/src/utils/config-visitors.cjs`. Each rule has a test file in `eslint/tests/`, except `hidden-layout-banners`, which is tested in `layout-banners.test.cjs`.
 - **Projects spread `configs.recommended.rules`** rather than listing rules. That's how a new rule or a severity change reaches projects with a snap-preact bump alone, with no scaffold change. So a new rule goes in `index.cjs` under both `rules` and `configs.recommended`. `eslint/tests/plugin.test.cjs` fails if it's missing from the recommended config.
-- **`validate-config` is a deprecated alias.** It runs `component-references`, `tabs`, `override-selectors` and `layout-banners` for older project configs that still enable it by name. Don't add new rules to it, and don't put it in `configs.recommended`, or every problem gets reported twice.
+- **`validate-config` is a deprecated alias.** For older project configs that still enable it by name, it runs exactly the checks it always had: `component-references`, `tabs` and `override-selectors`. That way upgrading snap-preact never adds errors to those projects. Don't add new rules to it, and don't put it in `configs.recommended`, or every problem gets reported twice.

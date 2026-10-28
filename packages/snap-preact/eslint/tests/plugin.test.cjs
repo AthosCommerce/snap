@@ -56,7 +56,7 @@ describe('configs.recommended', () => {
 describe('validate-config (deprecated)', () => {
 	it('is marked deprecated in favor of the split rules', () => {
 		expect(plugin.rules['validate-config'].meta.deprecated).toBe(true);
-		expect(plugin.rules['validate-config'].meta.replacedBy).toEqual(['component-references', 'tabs', 'override-selectors', 'layout-banners']);
+		expect(plugin.rules['validate-config'].meta.replacedBy).toEqual(['component-references', 'tabs', 'override-selectors']);
 	});
 
 	new RuleTester({
@@ -66,13 +66,13 @@ describe('validate-config (deprecated)', () => {
 		valid: [],
 		invalid: [
 			{
-				// hidden banners are a warning, so the alias leaves them to hidden-layout-banners
-				name: 'runs the four error rules',
+				// the banner checks are newer than validate-config - an upgrade alone must not add errors
+				// to projects still enabling it, so they come only from configs.recommended
+				name: 'runs only the checks validate-config always had, not the banner checks',
 				code,
 				errors: [
 					{ messageId: 'invalidCustomComponent' },
 					{ messageId: 'mixedSelectorGroup' },
-					{ messageId: 'missingLayoutBanners' },
 					{ messageId: 'duplicateTabId' },
 					{ messageId: 'duplicateTabId' },
 				],

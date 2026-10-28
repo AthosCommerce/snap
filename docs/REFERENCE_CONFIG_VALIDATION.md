@@ -74,7 +74,7 @@ With just that, the rules check everything they can from the code alone:
 | `snap-config/hidden-layout-banners` | Hide props such as `hideSidebar` don't stop a banner from rendering. See [Layout banner check](#layout-banner-check).                                                                                                                                                 | warning  |
 
 > [!NOTE]
-> Older configs enable a single `snap-config/validate-config` rule. It still works, as a deprecated alias that runs every rule above except `hidden-layout-banners`, but switch to `configs.recommended`. Don't enable both, or every problem is reported twice.
+> Older configs enable a single `snap-config/validate-config` rule. It still works, as a deprecated alias that runs the checks it always had: `component-references`, `tabs` and `override-selectors`. The layout banner checks are newer and only come from `configs.recommended`, so upgrading `@athoscommerce/snap-preact` never adds errors to a config that still uses the alias. Switch to `configs.recommended` to get them, and don't enable both, or every problem is reported twice.
 
 Adding **typed linting** unlocks the rest — the checks that need to know the real component prop types. Point `parserOptions.project` at your `tsconfig.json` for the config-authoring files:
 
@@ -126,7 +126,9 @@ For every search and autocomplete template in `targets`, at every breakpoint, th
   - an autocomplete `column1`–`column4` override without a `layout`. The override replaces the whole column object, including its default `layout`.
 - **`hidden-layout-banners` reports a warning** for a hide prop that hides a banner: `hideSidebar`, `hideTopToolbar`, `hideMiddleToolbar`, `hideBottomToolbar` or `excludeBanners`. Hiding a toolbar or the sidebar is often deliberate, and `banner.left` can only render in the sidebar, so this is a warning rather than an error.
 
-Moving a banner to another layout of the same template is fine. So is overriding one layout while the banner lives in a layout you didn't change.
+Moving a banner to another layout of the same template is fine. So is overriding one layout while the banner lives in a layout you didn't change. When several overrides drop the same banner, each one is reported; an override that leaves the banner alone never is.
+
+With two or more tabs in `search.tabs` or `autocomplete.tabs`, each tab's template is checked separately, so tab-specific selectors such as `search.products toolbar.top` are covered.
 
 ```
 The "layout" set by the "toolbar.top" override leaves 'banner.header' out of every
@@ -134,7 +136,7 @@ layout of Search (all breakpoints), so those merchandising banners returned by t
 API will not render. Add them to this layout or another layout of the template.
 ```
 
-Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads, variables, a `customComponent` override, and a target `component` that isn't a string literal. When the rules can't tell which theme `theme.extends` names (a variable, or a spread in `theme` that may set it), they skip the config entirely, because each theme has its own default layouts. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
+Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads (including a spread after a property, which may replace it), variables, a `customComponent` override, a target `component` or tab `id` that isn't a string literal, and `layoutOptions` whose `overrides` change a layout or hide prop (which option is selected decides what renders). When the rules can't tell which theme `theme.extends` names (a variable, or a spread in `theme` that may set it), they skip the config entirely, because each theme has its own default layouts. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
 
 ### Checking limitations
 
@@ -142,6 +144,7 @@ Values the rules can't read from the code are assumed to keep every banner, so t
 - Open-named selectors like `facet.price` do not get IDE autocompletion for their props, because their names are site-specific. If you get a prop wrong, the error and the ESLint rule list the valid props; they are also documented in the Storybook component library.
 - Selectors that name a template target instance — such as `search.<targetName>` — are not prop-checked at all; their contents are intentionally left open.
 - Values typed as `any` (for example, config merged in from an untyped source) are not checked.
+- The layout banner checks don't compare a `mobileDisplayAt` width (such as `'991px'`) against the breakpoints. When it's set, an override that only targets the mobile slideout sidebar (`slideout sidebar`) isn't checked.
 - Unknown keys outside `theme.overrides` are flagged when the config is written inline in the call (standard TypeScript excess-property checking). A config object assigned to a variable first is still checked for value types and for its `theme.overrides`, but not for unknown keys elsewhere — add `satisfies SnapTemplatesConfig` to the variable to get those flagged at the declaration:
 
   ```ts

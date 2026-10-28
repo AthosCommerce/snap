@@ -170,11 +170,12 @@ const BANNER_LAYOUT_PROPS = [...SEARCH_TEMPLATE_PROPS, 'layout', ...AUTOCOMPLETE
  * (missingLayoutBanners), 'hidden' for hide props (hiddenLayoutBanners).
  */
 function validateLayoutBanners(configObjectExpression, context, kind) {
-	const theme = findObjectProperty(configObjectExpression, 'theme');
-	const overridesProp = findProperty(theme, 'overrides');
-	if (!overridesProp || unwrapTs(overridesProp.value).type !== 'ObjectExpression') return;
+	const theme = readObjectProperty(configObjectExpression, 'theme');
+	if (!theme || theme === UNKNOWN) return;
+	const overrides = readObjectProperty(theme, 'overrides');
+	if (!overrides || overrides === UNKNOWN) return;
 
-	const userLayers = collectUserLayers(unwrapTs(overridesProp.value));
+	const userLayers = collectUserLayers(overrides);
 	if (!userLayers) return;
 
 	// themes differ in their default layouts, so without knowing which one there's nothing to compare against
@@ -182,16 +183,24 @@ function validateLayoutBanners(configObjectExpression, context, kind) {
 	if (themeName === UNKNOWN) return;
 	const baseLayers = buildBaseLayers(themeName);
 
+	// one check per template root - a template rendered under several tabs is checked once per tab
 	const checks = [];
-	for (const template of collectUsedTemplates(configObjectExpression, 'search', SEARCH_TEMPLATES)) {
-		checks.push({ template, evaluate: (selectors, breakpoint) => evaluateSearch(SEARCH_TEMPLATES[template], breakpoint, selectors) });
+	for (const { template, tab } of collectUsedTemplates(configObjectExpression, 'search', SEARCH_TEMPLATES)) {
+		const root = templateRoot(SEARCH_TEMPLATES[template], tab);
+		checks.push({
+			template,
+			tab,
+			props: [...SEARCH_TEMPLATE_PROPS, ...SEARCH_SLOT_PROPS],
+			evaluate: (selectors, breakpoint) => evaluateSearch(root, breakpoint, selectors),
+		});
 	}
-	for (const template of collectUsedTemplates(configObjectExpression, 'autocomplete', AUTOCOMPLETE_TEMPLATES)) {
-		checks.push({ template, evaluate: (selectors) => evaluateAutocomplete(AUTOCOMPLETE_TEMPLATES[template], selectors) });
+	for (const { template, tab } of collectUsedTemplates(configObjectExpression, 'autocomplete', AUTOCOMPLETE_TEMPLATES)) {
+		const definition = { ...AUTOCOMPLETE_TEMPLATES[template], alias: templateRoot(AUTOCOMPLETE_TEMPLATES[template].alias, tab) };
+		checks.push({ template, tab, props: AUTOCOMPLETE_PROPS, evaluate: (selectors) => evaluateAutocomplete(definition, selectors) });
 	}
 	if (checks.length === 0) return;
 
-	// culprit (entry + prop) -> { entry, prop, missing: Map<banner, Map<template, Set<breakpoint>>> }
+	// culprit (entry + prop) -> { entry, prop, missing: Map<banner, Map<check, Set<breakpoint>>> }
 	const culprits = new Map();
 
 	for (const breakpoint of BREAKPOINTS) {
@@ -200,31 +209,21 @@ function validateLayoutBanners(configObjectExpression, context, kind) {
 		const baseSelectors = selectorsFor(baseLayers, null, breakpoint);
 		const allSelectors = selectorsFor(baseLayers, userLayers, breakpoint);
 
-		for (const { template, evaluate } of checks) {
-			const expected = evaluate(baseSelectors, breakpoint).banners;
-			const actual = evaluate(allSelectors, breakpoint);
-			const missing = BANNERS.filter((banner) => expected.has(banner) && !actual.banners.has(banner));
+		for (const check of checks) {
+			const expected = check.evaluate(baseSelectors, breakpoint);
+			const actual = check.evaluate(allSelectors, breakpoint);
+			const missing = BANNERS.filter((banner) => expected.has(banner) && !actual.has(banner));
 			if (missing.length === 0) continue;
 
-			// blame the override props that, when removed on their own, bring a missing banner back
-			const blamed = new Map(missing.map((banner) => [banner, []]));
-			for (const candidate of actual.userProps.values()) {
-				const restored = evaluate(withoutProp(allSelectors, candidate.entry, candidate.prop), breakpoint).banners;
-				for (const banner of missing) {
-					if (restored.has(banner)) blamed.get(banner).push(candidate);
-				}
-			}
-
+			const setters = userSetters(allSelectors, check.props);
 			for (const banner of missing) {
-				// no single override is responsible (they only drop it together) - blame all of them
-				const responsible = blamed.get(banner).length ? blamed.get(banner) : Array.from(actual.userProps.values());
-				for (const { entry, prop } of responsible) {
-					const key = `${entry.id} ${prop}`;
+				for (const { entry, prop } of blameSetters(check, breakpoint, allSelectors, setters, banner)) {
+					const key = setterKey(entry, prop);
 					if (!culprits.has(key)) culprits.set(key, { entry, prop, missing: new Map() });
-					const byTemplate = culprits.get(key).missing;
-					if (!byTemplate.has(banner)) byTemplate.set(banner, new Map());
-					if (!byTemplate.get(banner).has(template)) byTemplate.get(banner).set(template, new Set());
-					byTemplate.get(banner).get(template).add(breakpoint);
+					const byCheck = culprits.get(key).missing;
+					if (!byCheck.has(banner)) byCheck.set(banner, new Map());
+					if (!byCheck.get(banner).has(check)) byCheck.get(banner).set(check, new Set());
+					byCheck.get(banner).get(check).add(breakpoint);
 				}
 			}
 		}
@@ -236,9 +235,9 @@ function validateLayoutBanners(configObjectExpression, context, kind) {
 		const banners = BANNERS.filter((banner) => missing.has(banner));
 		const where = new Map();
 		for (const banner of banners) {
-			for (const [template, breakpoints] of missing.get(banner)) {
-				if (!where.has(template)) where.set(template, new Set());
-				breakpoints.forEach((breakpoint) => where.get(template).add(breakpoint));
+			for (const [check, breakpoints] of missing.get(banner)) {
+				if (!where.has(check)) where.set(check, new Set());
+				breakpoints.forEach((breakpoint) => where.get(check).add(breakpoint));
 			}
 		}
 
@@ -250,12 +249,59 @@ function validateLayoutBanners(configObjectExpression, context, kind) {
 				prop,
 				selector: entry.selector,
 				banners: banners.map((banner) => `'banner.${banner}'`).join(', '),
-				where: Array.from(where)
-					.map(([template, breakpoints]) => `${template} (${describeBreakpoints(breakpoints)})`)
-					.join(', '),
+				where: describeWhere(where, checks),
 			},
 		});
 	}
+}
+
+/**
+ * The user override props to blame for a banner that no longer renders. Starting from the
+ * defaults - every user setter of the template's layout props removed, so the banner renders -
+ * the setters are added back one at a time, and each one the banner doesn't survive is blamed
+ * (and left out again). That blames every override that drops the banner from where the defaults
+ * render it, including one a more specific override shadows, and never one that leaves it alone.
+ */
+function blameSetters(check, breakpoint, selectors, setters, banner) {
+	const removed = new Set(setters.map(({ entry, prop }) => setterKey(entry, prop)));
+	// the banner renders with no user setters at all, unless something unblameable dropped it
+	if (!check.evaluate(withoutProps(selectors, removed), breakpoint).has(banner)) return [];
+
+	const blamed = [];
+	for (const setter of setters) {
+		const key = setterKey(setter.entry, setter.prop);
+		removed.delete(key);
+		if (!check.evaluate(withoutProps(selectors, removed), breakpoint).has(banner)) {
+			removed.add(key);
+			blamed.push(setter);
+		}
+	}
+	return blamed;
+}
+
+/**
+ * Every user override entry setting one of `props`, in layer and source order, as a blame
+ * candidate. UNKNOWN values already count as rendering everything, so they're never to blame,
+ * and entries targeting no banner layout component can't change a template's banners.
+ */
+function userSetters(selectors, props) {
+	const setters = [];
+	for (const { entry, source } of selectors) {
+		if (source !== 'user' || !entry.parts.some(targetsBannerLayout)) continue;
+		for (const prop of props) {
+			if (Object.prototype.hasOwnProperty.call(entry.props, prop) && entry.props[prop] !== UNKNOWN) setters.push({ entry, prop });
+		}
+	}
+	return setters;
+}
+
+function setterKey(entry, prop) {
+	return `${entry.id} ${prop}`;
+}
+
+/** Whether a selector (no comma) targets a component whose props decide where banners render. */
+function targetsBannerLayout(selector) {
+	return BANNER_LAYOUT_COMPONENTS.includes(selector.trim().split(' ').pop().split('.')[0]);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -263,25 +309,28 @@ function validateLayoutBanners(configObjectExpression, context, kind) {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Banners rendered by a Search/SearchCollapsible/SearchHorizontal template: its three toolbars
- * and its sidebar, unless hidden. Returns the banners plus every winning user override prop
- * that took part (the candidates for blame).
+ * Banners rendered by a Search/SearchCollapsible/SearchHorizontal template (rooted at `root`, its
+ * alias plus any tab name): its three toolbars and its sidebar, unless hidden.
  */
-function evaluateSearch(alias, breakpoint, selectors) {
-	const userProps = new Map();
-	const resolve = (treePath, start, names) => trackUserProps(resolveProps(treePath, start, selectors, names), userProps);
+function evaluateSearch(root, breakpoint, selectors) {
+	const resolve = (treePath, start, names) => resolveProps(treePath, start, selectors, names);
 
-	const templateProps = resolve(alias, defaultsFor(SEARCH_TEMPLATE_PROPS, { mobileDisplayAt: SEARCH_MOBILE_DISPLAY_AT }), SEARCH_TEMPLATE_PROPS);
+	// the selected layout option's overrides apply over every theme selector (useLayoutOptions) -
+	// when the user's options can change a layout, which option is selected decides what renders
+	const { layoutOptions } = resolve(root, defaultsFor(['layoutOptions'], {}), ['layoutOptions']);
+	if (layoutOptions.source === 'user' && layoutOptionsTouchBanners(layoutOptions.value)) return new Set(BANNERS);
+
+	const templateProps = resolve(root, defaultsFor(SEARCH_TEMPLATE_PROPS, { mobileDisplayAt: SEARCH_MOBILE_DISPLAY_AT }), SEARCH_TEMPLATE_PROPS);
 	const isHidden = (name) => templateProps[name].value === true;
 
 	const banners = new Set();
 	// an unresolvable mobileDisplayAt could be either - evaluate both and keep whatever renders in either
 	for (const isMobile of isMobileAt(breakpoint, templateProps.mobileDisplayAt.value)) {
 		const slots = [
-			{ hiddenBy: 'hideTopToolbar', treePath: `${alias} toolbar.top`, layout: SEARCH_TOOLBAR_LAYOUTS.top(isMobile) },
-			{ hiddenBy: 'hideMiddleToolbar', treePath: `${alias} toolbar.middle`, layout: SEARCH_TOOLBAR_LAYOUTS.middle(isMobile) },
-			{ hiddenBy: 'hideBottomToolbar', treePath: `${alias} toolbar.bottom`, layout: SEARCH_TOOLBAR_LAYOUTS.bottom(isMobile) },
-			{ hiddenBy: 'hideSidebar', treePath: isMobile ? `${alias} slideout sidebar` : `${alias} sidebar`, layout: SEARCH_SIDEBAR_LAYOUT },
+			{ hiddenBy: 'hideTopToolbar', treePath: `${root} toolbar.top`, layout: SEARCH_TOOLBAR_LAYOUTS.top(isMobile) },
+			{ hiddenBy: 'hideMiddleToolbar', treePath: `${root} toolbar.middle`, layout: SEARCH_TOOLBAR_LAYOUTS.middle(isMobile) },
+			{ hiddenBy: 'hideBottomToolbar', treePath: `${root} toolbar.bottom`, layout: SEARCH_TOOLBAR_LAYOUTS.bottom(isMobile) },
+			{ hiddenBy: 'hideSidebar', treePath: isMobile ? `${root} slideout sidebar` : `${root} sidebar`, layout: SEARCH_SIDEBAR_LAYOUT },
 		];
 		for (const slot of slots) {
 			if (isHidden(slot.hiddenBy)) continue;
@@ -292,12 +341,13 @@ function evaluateSearch(alias, breakpoint, selectors) {
 		}
 	}
 
-	return { banners, userProps };
+	return banners;
 }
 
 /**
- * Banners rendered by an Autocomplete* template. The template's props (layout, columns,
- * excludeBanners) are passed through to AutocompleteLayout, whose own selectors apply on top.
+ * Banners rendered by an Autocomplete* template (`alias` here is its root: the alias plus any tab
+ * name). The template's props (layout, columns, excludeBanners) are passed through to
+ * AutocompleteLayout, whose own selectors apply on top.
  */
 function evaluateAutocomplete({ alias, wrapper, layout }, selectors) {
 	const templateProps = resolveProps(
@@ -308,11 +358,36 @@ function evaluateAutocomplete({ alias, wrapper, layout }, selectors) {
 	);
 	const props = resolveProps(`${alias} ${wrapper} autocompleteLayout`, templateProps, selectors, AUTOCOMPLETE_PROPS);
 
-	// only the final props are blame candidates - a template-level value the layout's own selectors replaced didn't matter
-	const userProps = new Map();
-	trackUserProps(props, userProps);
+	return autocompleteBanners(props);
+}
 
-	return { banners: autocompleteBanners(props), userProps };
+/**
+ * Whether a Search template's `layoutOptions` can change where banners render: any option whose
+ * overrides set a layout-relevant prop on a banner layout component, nest `$children`, or can't
+ * be read statically.
+ */
+function layoutOptionsTouchBanners(options) {
+	if (options === undefined || options === null) return false;
+	if (!Array.isArray(options)) return true;
+
+	// a value that can't be read, or an object literal whose spread may set `key`
+	const opaque = (value, key) => value === UNKNOWN || Boolean(value && typeof value === 'object' && value[OPEN_KEYS] && !(key in value));
+
+	return options.some((option) => {
+		if (!option || typeof option !== 'object') return option === UNKNOWN;
+		if (opaque(option, 'overrides')) return true;
+		const { overrides } = option;
+		if (overrides === undefined || overrides === null) return false;
+		if (typeof overrides !== 'object' || opaque(overrides, 'components')) return true;
+		const { components } = overrides;
+		if (components === undefined || components === null) return false;
+		if (typeof components !== 'object' || components === UNKNOWN || components[OPEN_KEYS]) return true;
+
+		return Object.entries(components).some(([selector, props]) => {
+			if (!props || typeof props !== 'object' || props === UNKNOWN || props[OPEN_KEYS] || '$children' in props) return true;
+			return selector.split(/\s*,\s*/).some(targetsBannerLayout) && BANNER_LAYOUT_PROPS.some((prop) => prop in props);
+		});
+	});
 }
 
 /** Banners an AutocompleteLayout renders - see findModule in AutocompleteLayout.tsx. */
@@ -455,22 +530,16 @@ function selectorsFor(baseLayers, userLayers, breakpoint) {
 	return selectors;
 }
 
-/** The same selectors with one prop dropped from one entry - "what if this override didn't set it". */
-function withoutProp(selectors, entry, prop) {
+/** The same selectors with the `removed` setters (setterKey) dropped - "what if these overrides didn't set them". */
+function withoutProps(selectors, removed) {
+	if (removed.size === 0) return selectors;
 	return selectors.map((selector) => {
-		if (selector.entry !== entry) return selector;
+		const names = Object.keys(selector.entry.props).filter((prop) => removed.has(setterKey(selector.entry, prop)));
+		if (names.length === 0) return selector;
 		const props = { ...selector.entry.props };
-		delete props[prop];
+		names.forEach((prop) => delete props[prop]);
 		return { ...selector, entry: { ...selector.entry, props } };
 	});
-}
-
-function trackUserProps(resolved, userProps) {
-	for (const value of Object.values(resolved)) {
-		// UNKNOWN values already count as rendering everything, so they can't be to blame
-		if (value.source === 'user' && value.value !== UNKNOWN) userProps.set(`${value.entry.id} ${value.prop}`, value);
-	}
-	return resolved;
 }
 
 function defaultsFor(names, values) {
@@ -502,9 +571,11 @@ function buildBaseLayers(themeName) {
 
 /**
  * The user's override entries per breakpoint, flattened like ThemeStore does (`$children` nested
- * selectors joined with spaces, comma parts cross-multiplied). A breakpoint whose selector map
- * can't be read statically (a spread, a computed key, not an object literal) is marked opaque and
- * skipped; when `default` is opaque nothing can be checked, so null is returned.
+ * selectors joined with spaces, comma parts cross-multiplied). A selector reached more than once
+ * (written directly and through `$children`, say) is merged into one entry the way ThemeStore
+ * merges it: in the first one's position, with later props winning. A breakpoint whose selector
+ * map can't be read statically (a spread, a computed key, not an object literal) is marked opaque
+ * and skipped; when `default` is opaque nothing can be checked, so null is returned.
  */
 function collectUserLayers(overridesObjectExpression) {
 	if (overridesObjectExpression.properties.some((prop) => prop.type !== 'Property' || getStaticPropertyName(prop) === null)) return null;
@@ -518,7 +589,19 @@ function collectUserLayers(overridesObjectExpression) {
 		if (!breakpointProp) continue;
 
 		const selectorMap = unwrapTs(breakpointProp.value);
-		const entries = selectorMap.type === 'ObjectExpression' ? [] : null;
+		// flattened selector -> entry, in first-reached order like ThemeStore's flattened object
+		const entries = selectorMap.type === 'ObjectExpression' ? new Map() : null;
+		const addEntry = (selector, parts, props, propNodes, keyNode) => {
+			const existing = entries.get(selector);
+			if (!existing) {
+				entries.set(selector, { id: nextId++, selector, parts, props, propNodes, keyNode });
+				return;
+			}
+			// a spread in the later props may replace any earlier prop it doesn't list after itself
+			if (props[OPEN_KEYS]) Object.keys(existing.props).forEach((name) => !(name in props) && (existing.props[name] = UNKNOWN));
+			Object.assign(existing.props, props);
+			Object.assign(existing.propNodes, propNodes);
+		};
 		const flatten = (mapNode, parentParts) => {
 			for (const prop of mapNode.properties) {
 				const key = prop.type === 'Property' ? getStaticPropertyName(prop) : null;
@@ -536,9 +619,10 @@ function collectUserLayers(overridesObjectExpression) {
 				}
 
 				delete props.$children;
-				entries.push({ id: nextId++, selector: fullParts.join(', '), parts: fullParts, props, propNodes, keyNode: prop.key });
-
 				const childrenProp = propNodes.$children;
+				delete propNodes.$children;
+				addEntry(fullParts.join(', '), fullParts, props, propNodes, prop.key);
+
 				if (childrenProp) {
 					const children = unwrapTs(childrenProp.value);
 					if (children.type !== 'ObjectExpression' || !flatten(children, fullParts)) return false;
@@ -552,7 +636,7 @@ function collectUserLayers(overridesObjectExpression) {
 			layers.opaque.add(breakpoint);
 			continue;
 		}
-		layers[breakpoint] = entries;
+		layers[breakpoint] = Array.from(entries.values());
 	}
 
 	return layers;
@@ -560,27 +644,27 @@ function collectUserLayers(overridesObjectExpression) {
 
 /**
  * The library theme named by `theme.extends`, or UNKNOWN when it can't be read statically: a
- * non-literal value, or a spread (or computed key) in `theme` that may set it. `extends` is
+ * non-literal value, or a spread (or computed key) after it that may replace it. `extends` is
  * required by the config type, so a missing one is read as 'base'.
  */
 function extendedThemeName(themeObjectExpression) {
-	let name = 'base';
-	for (const prop of themeObjectExpression.properties) {
-		const key = prop.type === 'Property' ? getStaticPropertyName(prop) : null;
-		if (key === null) name = UNKNOWN;
-		else if (key === 'extends') name = staticValueOf(prop.value);
-	}
+	const prop = readProperty(themeObjectExpression, 'extends');
+	if (prop === undefined) return 'base';
+	const name = prop === UNKNOWN ? UNKNOWN : staticValueOf(prop.value);
 	return typeof name === 'string' ? name : UNKNOWN;
 }
 
 /**
- * Built-in templates targeted by config.<feature>.targets. Targets whose component can't be read
- * statically make the whole feature unknown, so nothing is checked for it. Custom (registered)
- * components are skipped - their layouts are unknown.
+ * Built-in templates config.<feature>.targets renders, once per tab they render under (`tab` is
+ * the tab id, or null without tabs). Anything that can't be read statically - the targets, a
+ * target's component, the tabs - makes the whole feature unknown, so nothing is checked for it.
+ * Custom (registered) components are skipped - their layouts are unknown.
  */
 function collectUsedTemplates(configObjectExpression, feature, templates) {
-	const targetsProp = findProperty(findObjectProperty(configObjectExpression, feature), 'targets');
-	if (!targetsProp) return [];
+	const featureConfig = readObjectProperty(configObjectExpression, feature);
+	if (!featureConfig || featureConfig === UNKNOWN) return [];
+	const targetsProp = readProperty(featureConfig, 'targets');
+	if (!targetsProp || targetsProp === UNKNOWN) return [];
 	const targets = unwrapTs(targetsProp.value);
 	if (targets.type !== 'ArrayExpression') return [];
 
@@ -588,12 +672,44 @@ function collectUsedTemplates(configObjectExpression, feature, templates) {
 	for (const element of targets.elements) {
 		const target = element && unwrapTs(element);
 		if (!target || target.type !== 'ObjectExpression') return [];
-		const componentProp = findProperty(target, 'component');
-		const component = componentProp ? staticValueOf(componentProp.value) : undefined;
+		const componentProp = readProperty(target, 'component');
+		const component = componentProp && componentProp !== UNKNOWN ? staticValueOf(componentProp.value) : UNKNOWN;
 		if (typeof component !== 'string') return [];
 		if (Object.prototype.hasOwnProperty.call(templates, component)) used.add(component);
 	}
-	return Array.from(used);
+
+	const tabs = tabIds(featureConfig);
+	if (tabs === UNKNOWN) return [];
+	return Array.from(used).flatMap((template) => tabs.map((tab) => ({ template, tab })));
+}
+
+/**
+ * The tabs a feature's template renders under. With two or more tabs, TemplateSelect passes the
+ * active tab's id as the template's `name` (see getTabManager and TemplateSelect.tsx), so each
+ * tab renders it under its own treePath root. Returns the tab ids, [null] for a single untabbed
+ * render, or UNKNOWN when the tabs can't be read statically.
+ */
+function tabIds(featureConfig) {
+	const tabsProp = readProperty(featureConfig, 'tabs');
+	if (tabsProp === undefined) return [null];
+	if (tabsProp === UNKNOWN) return UNKNOWN;
+
+	const tabs = staticValueOf(tabsProp.value);
+	if (tabs === undefined) return [null];
+	if (!Array.isArray(tabs) || tabs.includes(UNKNOWN)) return UNKNOWN;
+	if (tabs.length < 2) return [null];
+
+	const ids = tabs.map((tab) => (tab && typeof tab === 'object' ? tab.id : UNKNOWN));
+	return ids.every((id) => typeof id === 'string') ? ids : UNKNOWN;
+}
+
+/**
+ * A template's treePath root: its alias, plus the tab name TemplateSelect gives it - the tab id
+ * lowercased, which mergeProps only appends when it's a valid name (QUIRK[name-regex-silent-drop]).
+ */
+function templateRoot(alias, tab) {
+	const name = tab === null ? '' : tab.toLowerCase();
+	return /^[A-Za-z0-9-]+$/.test(name) ? `${alias}.${name}` : alias;
 }
 
 /**
@@ -640,10 +756,27 @@ function unwrapTs(node) {
 	return node;
 }
 
-function findObjectProperty(objectExpression, name) {
-	const prop = findProperty(objectExpression, name);
-	const value = prop && unwrapTs(prop.value);
-	return value && value.type === 'ObjectExpression' ? value : null;
+/**
+ * The property `name` of an object literal as the runtime reads it - the last one wins: its
+ * Property node, undefined when it's absent, or UNKNOWN when a spread (or computed key) after it
+ * - or anywhere, when it's absent - may set it.
+ */
+function readProperty(objectExpression, name) {
+	let result;
+	for (const prop of objectExpression.properties) {
+		const key = prop.type === 'Property' ? getStaticPropertyName(prop) : null;
+		if (key === null) result = UNKNOWN;
+		else if (key === name) result = prop;
+	}
+	return result;
+}
+
+/** readProperty for a value that must be an object literal to be read: its ObjectExpression, undefined, or UNKNOWN. */
+function readObjectProperty(objectExpression, name) {
+	const prop = readProperty(objectExpression, name);
+	if (prop === undefined || prop === UNKNOWN) return prop;
+	const value = unwrapTs(prop.value);
+	return value.type === 'ObjectExpression' ? value : UNKNOWN;
 }
 
 /** A property's static key, or null when it is computed from an expression - which could be any key. */
@@ -654,6 +787,26 @@ function getStaticPropertyName(property) {
 function describeBreakpoints(breakpoints) {
 	if (breakpoints.size === BREAKPOINTS.length) return 'all breakpoints';
 	return BREAKPOINTS.filter((breakpoint) => breakpoints.has(breakpoint)).join(', ');
+}
+
+/**
+ * Where banners went missing, for a message: "Search (mobile)", or per tab - "Search on the
+ * products tab (all breakpoints)" - unless every tab of the template lost them at the same
+ * breakpoints, which reads as the plain template.
+ */
+function describeWhere(where, checks) {
+	const parts = [];
+	for (const template of new Set(Array.from(where.keys(), (check) => check.template))) {
+		const templateChecks = checks.filter((check) => check.template === template);
+		const described = templateChecks.map((check) => (where.has(check) ? describeBreakpoints(where.get(check)) : null));
+		// untabbed, or every tab lost them at the same breakpoints - the tabs don't matter to the message
+		if (described.every((text) => text === described[0])) {
+			parts.push(`${template} (${described[0]})`);
+			continue;
+		}
+		templateChecks.forEach((check, i) => described[i] && parts.push(`${template} on the ${check.tab} tab (${described[i]})`));
+	}
+	return parts.join(', ');
 }
 
 module.exports = {

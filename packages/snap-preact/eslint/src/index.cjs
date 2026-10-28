@@ -16,7 +16,7 @@ const plugin = {
 		'override-selectors': require('./rules/override-selectors.cjs'),
 		'layout-banners': require('./rules/layout-banners.cjs'),
 		'hidden-layout-banners': require('./rules/hidden-layout-banners.cjs'),
-		// deprecated - runs the four error rules above for configs that still enable it by name
+		// deprecated - runs the checks it always had (component-references, tabs, override-selectors) for configs that still enable it by name
 		'validate-config': require('./rules/validate-config.cjs'),
 	},
 };

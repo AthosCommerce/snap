@@ -7,14 +7,33 @@ const ruleTester = new RuleTester({
 	parserOptions: { ecmaVersion: 2020, sourceType: 'module' },
 });
 
-// a config targeting the given templates, with `overrides` as theme.overrides
-const config = ({ search, autocomplete, overrides, theme = 'base' }) => `
+// a config targeting the given templates, with `overrides` as theme.overrides and optional tabs
+const config = ({ search, autocomplete, overrides, theme = 'base', searchTabs, autocompleteTabs }) => `
 	const config: SnapTemplatesConfig = {
 		theme: { extends: '${theme}', overrides: ${overrides} },
-		${search ? `search: { targets: [{ selector: '#search', component: '${search}' }] },` : ''}
-		${autocomplete ? `autocomplete: { targets: [{ inputSelector: 'input', component: '${autocomplete}' }] },` : ''}
+		${search ? `search: { ${searchTabs ? `tabs: ${searchTabs}, ` : ''}targets: [{ selector: '#search', component: '${search}' }] },` : ''}
+		${
+			autocomplete
+				? `autocomplete: { ${
+						autocompleteTabs ? `tabs: ${autocompleteTabs}, ` : ''
+				  }targets: [{ inputSelector: 'input', component: '${autocomplete}' }] },`
+				: ''
+		}
 	};
 `;
+
+// with two or more tabs the template renders under each tab's lowercased id - 'search.products', 'search.blog'
+const TWO_TABS = `[{ id: 'products', siteId: 'abc123', param: 'products' }, { id: 'Blog', siteId: 'xyz789', param: 'blog' }]`;
+
+// both of these drop banner.header; the other two overrides leave it alone
+const OVERLAPPING_DROPS = `{
+	default: {
+		'toolbar.top': { layout: [['searchHeader']] },
+		'search toolbar.top': { layout: [['searchHeader']] },
+		search: { hideSidebar: false },
+		'toolbar.bottom': { layout: [['banner.footer'], ['pagination']] },
+	},
+}`;
 
 ruleTester.run('layout-banners', layoutBanners, {
 	valid: [
@@ -174,6 +193,101 @@ ruleTester.run('layout-banners', layoutBanners, {
 			// base renders [['c1', 'c3']] on tablet (no left banner), pike renders 'desktop' (with facets)
 			name: 'tablet autocomplete layout without facets on the base theme',
 			code: config({ autocomplete: 'AutocompleteModal', overrides: `{ tablet: { autocompleteModal: { layout: [['c1', 'c3']] } } }` }),
+		},
+		{
+			name: 'a spread after a target component may swap the template',
+			code: `
+				const config: SnapTemplatesConfig = {
+					theme: { extends: 'base', overrides: { default: { 'toolbar.top': { layout: [['searchHeader']] } } } },
+					search: { targets: [{ selector: '#search', component: 'Search', ...targetOptions }] },
+				};
+			`,
+		},
+		{
+			name: 'a spread after targets may replace them',
+			code: `
+				const config: SnapTemplatesConfig = {
+					theme: { extends: 'base', overrides: { default: { 'toolbar.top': { layout: [['searchHeader']] } } } },
+					search: { targets: [{ selector: '#search', component: 'Search' }], ...searchConfig },
+				};
+			`,
+		},
+		{
+			name: 'a spread after theme may replace it',
+			code: `
+				const config: SnapTemplatesConfig = {
+					theme: { extends: 'base', overrides: { default: { 'toolbar.top': { layout: [['searchHeader']] } } } },
+					search: { targets: [{ selector: '#search', component: 'Search' }] },
+					...sharedConfig,
+				};
+			`,
+		},
+		{
+			name: 'a general override dropping a banner that every tab restores',
+			code: config({
+				search: 'Search',
+				searchTabs: TWO_TABS,
+				overrides: `{
+					default: {
+						'toolbar.top': { layout: [['searchHeader']] },
+						'search.products toolbar.top': { layout: [['banner.header'], ['searchHeader']] },
+						'search.blog toolbar.top': { layout: [['banner.header'], ['searchHeader']] },
+					},
+				}`,
+			}),
+		},
+		{
+			// a single tab gets no tab manager, so the template renders without a tab name
+			name: 'a tab-specific selector never applies with only one tab',
+			code: config({
+				search: 'Search',
+				searchTabs: `[{ id: 'products', siteId: 'abc123', param: 'products' }]`,
+				overrides: `{ default: { 'search.products toolbar.top': { layout: [['searchHeader']] } } }`,
+			}),
+		},
+		{
+			name: 'tab ids that cannot be read are not checked',
+			code: config({
+				search: 'Search',
+				searchTabs: `[{ id: productsTabId, siteId: 'abc123', param: 'products' }, { id: 'blog', siteId: 'xyz789', param: 'blog' }]`,
+				overrides: `{ default: { 'toolbar.top': { layout: [['searchHeader']] } } }`,
+			}),
+		},
+		{
+			// ThemeStore merges the $children 'search sidebar' into the first 'search sidebar', which sits
+			// before 'slideout sidebar' - so on mobile the equally weighted 'slideout sidebar' still wins
+			name: 'a selector reached again through $children merges into the first one, as at runtime',
+			code: config({
+				search: 'Search',
+				overrides: `{
+					mobile: {
+						'search sidebar': { layout: [['facets']] },
+						'slideout sidebar': { layout: [['facets'], ['banner.left']] },
+						search: { $children: { sidebar: { layout: [['facets']] } } },
+					},
+				}`,
+			}),
+		},
+		{
+			// the selected option's overrides apply over every theme selector, so the option decides
+			name: 'layout options that can change a layout are not checked',
+			code: config({
+				search: 'Search',
+				overrides: `{
+					default: {
+						search: { layoutOptions: [{ value: 1, default: true, overrides: { components: { 'toolbar.top': { layout: [['banner.header']] } } } }] },
+						'toolbar.top': { layout: [['searchHeader'], ['layoutSelector']] },
+					},
+				}`,
+			}),
+		},
+		{
+			// a width isn't compared against the breakpoints, so whether the slideout sidebar renders is unknown
+			name: 'a mobileDisplayAt width is not resolved',
+			code: config({
+				search: 'Search',
+				overrides: `{ default: { search: { mobileDisplayAt: '991px' }, 'slideout sidebar': { layout: [['facets']] } } }`,
+			}),
 		},
 	],
 	invalid: [
@@ -378,6 +492,139 @@ ruleTester.run('layout-banners', layoutBanners, {
 				},
 			],
 		},
+		{
+			name: 'every override that drops a banner is blamed, and no override that leaves it alone',
+			code: config({ search: 'Search', overrides: OVERLAPPING_DROPS }),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search (all breakpoints)' },
+				},
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'search toolbar.top', banners: "'banner.header'", where: 'Search (all breakpoints)' },
+				},
+			],
+		},
+		{
+			name: 'a default and a breakpoint override that both drop a banner are both blamed',
+			code: config({
+				search: 'Search',
+				overrides: `{
+					default: { 'toolbar.top': { layout: [['searchHeader']] } },
+					mobile: { 'toolbar.top': { layout: [['searchHeader', '_']] } },
+				}`,
+			}),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search (all breakpoints)' },
+				},
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search (mobile)' },
+				},
+			],
+		},
+		{
+			// the hide prop is hidden-layout-banners' warning - but the layout also drops the banner
+			name: 'a layout that drops a banner is blamed even when its toolbar is also hidden',
+			code: config({
+				search: 'Search',
+				overrides: `{ default: { search: { hideTopToolbar: true }, 'toolbar.top': { layout: [['searchHeader']] } } }`,
+			}),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search (all breakpoints)' },
+				},
+			],
+		},
+		{
+			name: 'a tab-specific selector that drops a banner',
+			code: config({
+				search: 'Search',
+				searchTabs: TWO_TABS,
+				overrides: `{ default: { 'search.products toolbar.top': { layout: [['searchHeader']] } } }`,
+			}),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: {
+						prop: 'layout',
+						selector: 'search.products toolbar.top',
+						banners: "'banner.header'",
+						where: 'Search on the products tab (all breakpoints)',
+					},
+				},
+			],
+		},
+		{
+			name: 'a general override dropping a banner that only one tab restores',
+			code: config({
+				search: 'Search',
+				searchTabs: TWO_TABS,
+				overrides: `{
+					default: {
+						'toolbar.top': { layout: [['searchHeader']] },
+						'search.products toolbar.top': { layout: [['banner.header'], ['searchHeader']] },
+					},
+				}`,
+			}),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search on the Blog tab (all breakpoints)' },
+				},
+			],
+		},
+		{
+			name: 'a general override dropping a banner on every tab reads as the template',
+			code: config({ search: 'Search', searchTabs: TWO_TABS, overrides: `{ default: { 'toolbar.top': { layout: [['searchHeader']] } } }` }),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search (all breakpoints)' },
+				},
+			],
+		},
+		{
+			name: 'an autocomplete tab-specific override that drops a banner',
+			code: config({
+				autocomplete: 'AutocompleteModal',
+				autocompleteTabs: TWO_TABS,
+				overrides: `{ default: { 'autocompleteModal.products': { layout: [['c1', 'c3']] } } }`,
+			}),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: {
+						prop: 'layout',
+						selector: 'autocompleteModal.products',
+						banners: "'banner.left'",
+						where: 'AutocompleteModal on the products tab (default, desktop)',
+					},
+				},
+			],
+		},
+		{
+			name: 'layout options that only change results are still checked',
+			code: config({
+				search: 'Search',
+				overrides: `{
+					default: {
+						search: { layoutOptions: [{ value: 1, default: true, overrides: { components: { 'search results': { columns: 3 } } } }] },
+						'toolbar.top': { layout: [['searchHeader'], ['layoutSelector']] },
+					},
+				}`,
+			}),
+			errors: [
+				{
+					messageId: 'missingLayoutBanners',
+					data: { prop: 'layout', selector: 'toolbar.top', banners: "'banner.header'", where: 'Search (all breakpoints)' },
+				},
+			],
+		},
 	],
 });
 
@@ -425,6 +672,10 @@ ruleTester.run('hidden-layout-banners', hiddenLayoutBanners, {
 					},
 				}`,
 			}),
+		},
+		{
+			name: 'a hide prop that hides nothing is never blamed for another override dropping a banner',
+			code: config({ search: 'Search', overrides: OVERLAPPING_DROPS }),
 		},
 	],
 	invalid: [
@@ -475,6 +726,20 @@ ruleTester.run('hidden-layout-banners', hiddenLayoutBanners, {
 				{
 					messageId: 'hiddenLayoutBanners',
 					data: { prop: 'hideBottomToolbar', selector: 'search', banners: "'banner.footer'", where: 'Search (all breakpoints)' },
+				},
+			],
+		},
+		{
+			// the layout is layout-banners' error - but the hidden toolbar also hides the banner
+			name: 'a hidden toolbar is blamed even when its layout also drops the banner',
+			code: config({
+				search: 'Search',
+				overrides: `{ default: { search: { hideTopToolbar: true }, 'toolbar.top': { layout: [['searchHeader']] } } }`,
+			}),
+			errors: [
+				{
+					messageId: 'hiddenLayoutBanners',
+					data: { prop: 'hideTopToolbar', selector: 'search', banners: "'banner.header'", where: 'Search (all breakpoints)' },
 				},
 			],
 		},
