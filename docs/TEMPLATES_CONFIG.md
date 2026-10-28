@@ -289,7 +289,7 @@ In addition to the common target properties, the following properties apply to t
 
 `selector` - DOM selector where this target will inject into
 
-`emptyTarget` - Whether to remove the existing content of the `selector` element as soon as it is found. Defaults to `true`. Set it to `false` to keep content such as a loading skeleton in place until the search components are ready - see [Keeping a loading skeleton](#keeping-a-loading-skeleton).
+`emptyTarget` - Whether to remove the existing content of the `selector` element as soon as it is found. Defaults to `false`: content such as a loading skeleton stays in place until the search components render - see [Target content and loading skeletons](#target-content-and-loading-skeletons).
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
@@ -300,11 +300,11 @@ In addition to the common target properties, the following properties apply to t
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
 | `search.targets[].component` | Component to use for search | String | Required |
-| `search.targets[].emptyTarget` | Remove the target's existing content when it is found; set to `false` to keep it until the search components render | Boolean | true |
+| `search.targets[].emptyTarget` | Remove the target's existing content as soon as it is found and render before the search resolves | Boolean | false |
 
-##### Keeping a loading skeleton
+##### Target content and loading skeletons
 
-By default the content of a search target is removed as soon as the target is found, which leaves the element empty while the search request, theme and components load. To show a loading skeleton for that time instead, place the skeleton markup inside the target element and set `emptyTarget: false`:
+By default a search target keeps its existing content while the search request, theme and components load. The search components render once the search response has returned and the theme has loaded, and they then replace the content in full - nothing inside the target is kept alongside them. To show a loading skeleton for that time, place the skeleton markup inside the target element:
 
 ```html
 <div id="athos-templates">
@@ -313,6 +313,10 @@ By default the content of a search target is removed as soon as the target is fo
 	<div class="skeleton-results"></div>
 </div>
 ```
+
+Because the content stays until the search components render, anything else left inside the target - such as server-rendered platform markup like a native product grid - remains visible and clickable until then. Remove it from the target or replace it with skeleton markup. An inline `min-height` on the target is still removed as soon as the target is found, so give the skeleton itself the height you want to reserve.
+
+To remove the target's content as soon as it is found and render the search components before the search resolves, set `emptyTarget: true`. This matches the default for [Standard Snap targeters](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIGURATION_TARGETERS.md).
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
@@ -329,7 +333,7 @@ const templatesConfig = validateTemplatesConfig({
 			{
 				selector: '#athos-templates',
 				component: 'Search',
-				emptyTarget: false,
+				emptyTarget: true,
 			},
 		],
 	},
@@ -337,8 +341,6 @@ const templatesConfig = validateTemplatesConfig({
 
 new SnapTemplates(templatesConfig);
 ```
-
-With `emptyTarget: false` the target renders once the search response has returned and the theme has loaded, and the existing content is then replaced in full - nothing inside the target is kept alongside the search components. An inline `min-height` on the target is still removed as soon as the target is found, so give the skeleton itself the height you want to reserve.
 
 #### Autocomplete
 

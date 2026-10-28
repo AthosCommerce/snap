@@ -378,8 +378,9 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 		// console.log('selector', targetConfig.selector);
 		// console.log('overrideTemplateStoreTarget', overrideTemplateStoreTarget);
 
-		// a target that keeps its content (such as a skeleton) is rendered once the search and theme are ready
-		const keepTargetContent = targetConfig.emptyTarget === false;
+		// by default a target keeps its content (such as a skeleton) and is rendered once the search and theme are ready
+		// `emptyTarget: true` empties it when found and renders before the search resolves
+		const keepTargetContent = targetConfig.emptyTarget !== true;
 
 		const targeter: ExtendedTarget = {
 			selector: targetConfig.selector,
