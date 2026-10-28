@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
@@ -50,6 +50,7 @@ export const Image = observer((properties: ImageProps) => {
 		src,
 		srcset,
 		sizes,
+		buildSrcsetUrl,
 		fallback,
 		title,
 		hoverSrc,
@@ -89,8 +90,12 @@ export const Image = observer((properties: ImageProps) => {
 	const styling = mergeStyles<ImageProps>(props, defaultStyles);
 
 	// when `srcset` is an array of widths and no `hoverSrcset` is provided, the same widths are applied to `hoverSrc`
-	const srcsetAttribute = resolveSrcset(src, srcset);
-	const hoverSrcsetAttribute = resolveSrcset(hoverSrc, hoverSrcset ?? (Array.isArray(srcset) ? srcset : undefined));
+	const srcsetUrlBuilder = buildSrcsetUrl || defaultBuildSrcsetUrl;
+	const srcsetAttribute = useMemo(() => resolveSrcset(src, srcset, srcsetUrlBuilder), [src, srcset, srcsetUrlBuilder]);
+	const hoverSrcsetAttribute = useMemo(
+		() => resolveSrcset(hoverSrc, hoverSrcset ?? (Array.isArray(srcset) ? srcset : undefined), srcsetUrlBuilder),
+		[hoverSrc, hoverSrcset, srcset, srcsetUrlBuilder]
+	);
 
 	return (
 		<CacheProvider>
@@ -109,10 +114,12 @@ export const Image = observer((properties: ImageProps) => {
 					onClick={(e: React.MouseEvent<HTMLImageElement>) => onClick && onClick(e)}
 					onError={(e: React.MouseEvent<HTMLImageElement>) => {
 						const imageElement = e.target as HTMLImageElement;
-						// srcset candidates take precedence over src, so remove them to ensure the fallback is displayed
-						imageElement.removeAttribute('srcset');
-						imageElement.removeAttribute('sizes');
-						imageElement.src = fallback || '';
+						if (imageElement.getAttribute('srcset')) {
+							// srcset candidates take precedence over src, so remove the srcset to retry with src (sizes is ignored without a srcset)
+							imageElement.removeAttribute('srcset');
+						} else {
+							imageElement.src = fallback || '';
+						}
 						onError && onError(e);
 					}}
 					onMouseOver={(e: React.MouseEvent<HTMLImageElement>) => {
@@ -142,8 +149,10 @@ export const Image = observer((properties: ImageProps) => {
 	);
 });
 
-// builds the url of an image at a given width by setting the `width` query parameter (supported by the Shopify CDN)
-const buildSrcsetUrl = (src: string, width: number): string => {
+export type SrcsetUrlBuilder = (src: string, width: number) => string;
+
+// default `buildSrcsetUrl` - builds the url of an image at a given width by setting the `width` query parameter (supported by the Shopify CDN)
+export const defaultBuildSrcsetUrl: SrcsetUrlBuilder = (src, width) => {
 	const hashIndex = src.indexOf('#');
 	const hash = hashIndex === -1 ? '' : src.slice(hashIndex);
 	const url = hashIndex === -1 ? src : src.slice(0, hashIndex);
@@ -154,17 +163,20 @@ const buildSrcsetUrl = (src: string, width: number): string => {
 	return `${path}?${params.join('&')}${hash}`;
 };
 
+// encodes whitespace in a srcset candidate url (whitespace separates the url from its descriptor)
+const encodeSrcsetUrl = (url: string): string => url.replace(/\s/g, (char) => encodeURIComponent(char));
+
 // resolves a srcset prop (srcset string or array of widths) into a srcset attribute value
-const resolveSrcset = (src: string | undefined, srcset: string | number[] | undefined): string | undefined => {
+const resolveSrcset = (src: string | undefined, srcset: string | number[] | undefined, buildSrcsetUrl: SrcsetUrlBuilder): string | undefined => {
 	if (!Array.isArray(srcset)) {
 		return srcset;
 	}
 	if (!src) {
 		return undefined;
 	}
-	// width descriptors must be unique positive integers
-	const widths = Array.from(new Set(srcset.filter((width) => Number.isInteger(width) && width > 0)));
-	return widths.map((width) => `${buildSrcsetUrl(src, width)} ${width}w`).join(', ') || undefined;
+	// width descriptors must be unique positive integers (numeric strings from loosely typed config are coerced)
+	const widths = Array.from(new Set(srcset.map(Number).filter((width) => Number.isInteger(width) && width > 0)));
+	return widths.map((width) => `${encodeSrcsetUrl(buildSrcsetUrl(src, width))} ${width}w`).join(', ') || undefined;
 };
 
 export type ImageProps = ImageTemplatesLegalProps & ComponentProps<ImageProps>;
@@ -174,6 +186,7 @@ export type ImageTemplatesLegalProps = {
 	src: string;
 	srcset?: string | number[];
 	sizes?: string;
+	buildSrcsetUrl?: SrcsetUrlBuilder;
 	title?: string;
 	fallback?: string;
 	height?: string;

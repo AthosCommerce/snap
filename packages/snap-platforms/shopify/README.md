@@ -46,27 +46,40 @@ export const AddToCart = (props) => {
 };
 ```
 
-## stripShopifyImageSize
-The `stripShopifyImageSize` function removes Shopify's legacy size suffix from an image URL (eg. `image_600x600.jpg?v=123` becomes `image.jpg?v=123`). The query string and hash are kept. Width only (`_600x`), height only (`_x600`), crop (`_600x600_crop_center`) and density (`_600x600@2x`) variants are supported, and URLs without a suffix are returned unchanged.
+## buildShopifySrcsetUrl
+The `buildShopifySrcsetUrl` function builds the URL of a Shopify CDN image at a given width, for use as the `buildSrcsetUrl` prop of the `Image` component when its `srcset` prop is an array of widths. It removes the legacy size suffix from the URL (see `stripShopifyImageSize` below), since the Shopify CDN ignores the `width` query parameter when the filename has one, and then sets the `width` query parameter (eg. `image_600x600.jpg?v=123` at a width of `320` becomes `image.jpg?v=123&width=320`).
 
-The Shopify CDN ignores the `width` query parameter when the filename has a size suffix. Remove it before passing the URL to the `Image` component when using an array of widths for its `srcset` prop, otherwise every candidate is the same image.
+It can be set per image, or through the theme to apply to all images.
 
 ```tsx
 import { Image } from '@athoscommerce/snap-preact/components';
-import { stripShopifyImageSize } from '@athoscommerce/snap-platforms/shopify';
+import { buildShopifySrcsetUrl } from '@athoscommerce/snap-platforms/shopify';
 
 export const CustomResult = (props) => {
 	const core = props.result.mappings.core;
 
 	return (
 		<Image
-			src={stripShopifyImageSize(core.thumbnailImageUrl)}
+			src={core.thumbnailImageUrl}
 			srcset={[320, 640, 960]}
 			sizes='(min-width: 991px) 200px, 50vw'
+			buildSrcsetUrl={buildShopifySrcsetUrl}
 			alt={core.name}
 		/>
 	)
 };
+```
+
+## stripShopifyImageSize
+The `stripShopifyImageSize` function removes Shopify's legacy size suffix from an image URL (eg. `image_600x600.jpg?v=123` becomes `image.jpg?v=123`). The query string and hash are kept. Width only (`_600x`), height only (`_x600`), named (`_grande`, `_large`, ...), crop (`_600x600_crop_center`), density (`_600x600@2x`) and progressive (`_600x.progressive`) variants are supported, URLs without a suffix are returned unchanged, and a missing URL returns an empty string.
+
+> [!NOTE]
+> The suffix is matched by its shape at the end of the filename, so an original filename that happens to end in a size-like suffix (eg. `banner_1920x1080.jpg`) is also altered.
+
+```tsx
+import { stripShopifyImageSize } from '@athoscommerce/snap-platforms/shopify';
+
+const originalImageUrl = stripShopifyImageSize(core.thumbnailImageUrl);
 ```
 
 ## Plugins

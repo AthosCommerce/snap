@@ -38,21 +38,13 @@ The `hoverSrc` prop specifies the URL of the alternative image to display on hov
 ### srcset
 The `srcset` prop sets the image `srcset` attribute. It accepts either an array of widths or a `srcset` string.
 
-When given an array of widths, a candidate URL is generated for each width by setting the `width` query parameter on the `src` (eg. `image.jpg?v=123&width=320`), along with a width (`w`) descriptor. The `sizes` prop should also be provided so that the browser can select the appropriate candidate for the space the image occupies.
+When given an array of widths, a candidate URL is generated for each width from the `src` (see `buildSrcsetUrl` below) along with a width (`w`) descriptor. The `sizes` prop should also be provided so that the browser can select the appropriate candidate for the space the image occupies.
 
 ```tsx
 <Image src={searchResponse.results.mappings.core.imageUrl} srcset={[320, 640, 960, 1280]} sizes='(max-width: 600px) 100vw, 400px' alt='image' />
 ```
 
-The `width` query parameter is supported by the Shopify CDN. Shopify ignores it when the filename has a legacy size suffix (eg. `image_600x600.jpg`), so every candidate would be the same image. Remove the suffix from the `src` first with the `stripShopifyImageSize` function from `@athoscommerce/snap-platforms/shopify`.
-
-```tsx
-import { stripShopifyImageSize } from '@athoscommerce/snap-platforms/shopify';
-
-<Image src={stripShopifyImageSize(searchResponse.results.mappings.core.imageUrl)} srcset={[320, 640, 960, 1280]} sizes='(max-width: 600px) 100vw, 400px' alt='image' />
-```
-
-For other image CDNs, provide a `srcset` string instead. A `srcset` string is set on the attribute as-is, and may use width (`w`) or pixel density (`x`) descriptors.
+A `srcset` string is set on the attribute as-is, and may use width (`w`) or pixel density (`x`) descriptors.
 
 ```tsx
 <Image
@@ -63,13 +55,42 @@ For other image CDNs, provide a `srcset` string instead. A `srcset` string is se
 />
 ```
 
-The `src` is used by browsers that do not support `srcset`. If the image fails to load, `srcset` and `sizes` are removed so that the `fallback` image is displayed.
+The `src` is used by browsers that do not support `srcset`. If a `srcset` candidate fails to load, the `srcset` is removed so that the browser retries with the `src`. If that also fails, the `fallback` image is displayed. The `onError` callback is invoked for each failed load, so it may be called twice.
 
 ### sizes
 The `sizes` prop sets the image `sizes` attribute - a comma-separated list of media conditions and the width the image will be displayed at when each condition matches. It is used by the browser to choose between `srcset` candidates that use width (`w`) descriptors. Without it, browsers assume the image is displayed at the full viewport width.
 
 ```tsx
 <Image src={searchResponse.results.mappings.core.imageUrl} srcset={[320, 640, 960, 1280]} sizes='(max-width: 600px) 100vw, 400px' alt='image' />
+```
+
+### buildSrcsetUrl
+The `buildSrcsetUrl` prop is a function used to build the candidate URL for each width when `srcset` (or `hoverSrcset`) is an array of widths. It receives the image URL and a width, and returns the URL of the image at that width. It can also be set through the theme to apply to all images.
+
+By default the `width` query parameter is set on the URL (eg. `image.jpg?v=123&width=320`), which is supported by the Shopify CDN. Shopify ignores the parameter when the filename has a legacy size suffix (eg. `image_600x600.jpg`), so Shopify sites should use the `buildShopifySrcsetUrl` function from `@athoscommerce/snap-platforms/shopify`, which removes the suffix before setting the parameter. The default is exported as `defaultBuildSrcsetUrl` for use in custom functions.
+
+```tsx
+import { buildShopifySrcsetUrl } from '@athoscommerce/snap-platforms/shopify';
+
+<Image
+	src={searchResponse.results.mappings.core.imageUrl}
+	srcset={[320, 640, 960, 1280]}
+	sizes='(max-width: 600px) 100vw, 400px'
+	buildSrcsetUrl={buildShopifySrcsetUrl}
+	alt='image'
+/>
+```
+
+Provide a custom function for other image CDNs:
+
+```tsx
+<Image
+	src='https://cdn.example.com/images/image.jpg'
+	srcset={[320, 640, 960, 1280]}
+	sizes='(max-width: 600px) 100vw, 400px'
+	buildSrcsetUrl={(src, width) => src.replace('/images/', `/images/${width}w/`)}
+	alt='image'
+/>
 ```
 
 ### hoverSrcset
@@ -154,7 +175,7 @@ The `onPointerLeave` prop allows for a custom callback function when a pointer l
 ```
 
 #### onError
-The `onError` prop allows for a custom callback function when the image has encountered an error.
+The `onError` prop allows for a custom callback function when the image has encountered an error. It is invoked for each failed load, so when a `srcset` candidate fails and the `src` is retried it may be called twice.
 
 ```tsx
 <Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onError={(e)=>{console.log(e)}} />

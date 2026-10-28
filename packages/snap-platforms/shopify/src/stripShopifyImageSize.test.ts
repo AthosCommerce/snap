@@ -13,6 +13,12 @@ describe('stripShopifyImageSize', () => {
 		});
 	});
 
+	it('removes named size and progressive suffix variants', () => {
+		['shirt_grande.jpg', 'shirt_large.jpg', 'shirt_master.jpg', 'shirt_600x.progressive.jpg', 'shirt_grande.progressive.jpg'].forEach((file) => {
+			expect(stripShopifyImageSize(`${base}${file}`)).toBe(`${base}shirt.jpg`);
+		});
+	});
+
 	it('supports protocol relative and store /cdn/shop/ urls', () => {
 		expect(stripShopifyImageSize('//cdn.shopify.com/s/files/1/0001/files/shirt_600x600.jpg')).toBe(
 			'//cdn.shopify.com/s/files/1/0001/files/shirt.jpg'
@@ -34,6 +40,10 @@ describe('stripShopifyImageSize', () => {
 
 	it('returns urls without a size suffix unchanged', () => {
 		expect(stripShopifyImageSize(`${base}shirt.jpg?v=1`)).toBe(`${base}shirt.jpg?v=1`);
+	});
+
+	it('returns an empty string when the url is missing', () => {
 		expect(stripShopifyImageSize('')).toBe('');
+		expect(stripShopifyImageSize(undefined)).toBe('');
 	});
 });

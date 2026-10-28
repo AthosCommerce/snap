@@ -128,17 +128,17 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'text' },
+			control: { type: 'object' },
 		},
 		srcset: {
-			description: 'Image srcset attribute, or an array of widths to generate it from src using the `width` query parameter (Shopify CDN)',
+			description: 'Image srcset attribute, or an array of widths to generate it from src using buildSrcsetUrl',
 			table: {
 				type: {
 					summary: 'string | number[]',
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'text' },
+			control: { type: 'object' },
 		},
 		sizes: {
 			description: 'Image sizes attribute',
@@ -149,6 +149,17 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: { type: 'text' },
+		},
+		buildSrcsetUrl: {
+			description:
+				'Function used to build the image url for each width when srcset is an array of widths (defaults to setting the `width` query parameter)',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: false,
 		},
 		draggable: {
 			description: 'Image draggable attribute',
@@ -294,5 +305,14 @@ Srcset.args = {
 	src: searchResponse.product1.image,
 	srcset: [320, 640, 960, 1280, 1920],
 	sizes: '(max-width: 600px) 100vw, 300px',
+	alt: searchResponse.product1.name,
+};
+
+// the only candidate fails to load, so the srcset is removed and the browser retries with the src
+export const SrcsetRetry = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
+SrcsetRetry.args = {
+	src: searchResponse.product1.image,
+	srcset: 'intentionally_broken_candidate.jpg 320w',
+	sizes: '300px',
 	alt: searchResponse.product1.name,
 };
