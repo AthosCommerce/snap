@@ -1,6 +1,6 @@
 import { h } from 'preact';
 
-import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
@@ -90,12 +90,10 @@ export const Image = observer((properties: ImageProps) => {
 	const styling = mergeStyles<ImageProps>(props, defaultStyles);
 
 	// when `srcset` is an array of widths and no `hoverSrcset` is provided, the same widths are applied to `hoverSrc`
+	// resolved on every render (not memoized) so that widths arrays from an observable theme are read within the observer
 	const srcsetUrlBuilder = buildSrcsetUrl || defaultBuildSrcsetUrl;
-	const srcsetAttribute = useMemo(() => resolveSrcset(src, srcset, srcsetUrlBuilder), [src, srcset, srcsetUrlBuilder]);
-	const hoverSrcsetAttribute = useMemo(
-		() => resolveSrcset(hoverSrc, hoverSrcset ?? (Array.isArray(srcset) ? srcset : undefined), srcsetUrlBuilder),
-		[hoverSrc, hoverSrcset, srcset, srcsetUrlBuilder]
-	);
+	const srcsetAttribute = resolveSrcset(src, srcset, srcsetUrlBuilder);
+	const hoverSrcsetAttribute = resolveSrcset(hoverSrc, hoverSrcset ?? (Array.isArray(srcset) ? srcset : undefined), srcsetUrlBuilder);
 
 	return (
 		<CacheProvider>

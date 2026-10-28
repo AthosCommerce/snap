@@ -1,7 +1,8 @@
 import { h } from 'preact';
 
 import { ThemeProvider } from '../../../providers';
-import { render, waitFor, fireEvent } from '@testing-library/preact';
+import { render, waitFor, fireEvent, act } from '@testing-library/preact';
+import { observable } from 'mobx';
 
 import { Image, FALLBACK_IMAGE_URL } from './Image';
 import userEvent from '@testing-library/user-event';
@@ -276,6 +277,27 @@ describe('image Component', () => {
 				);
 				const imageElement = rendered.container.querySelector('.ss__image img')!;
 				expect(imageElement).toHaveAttribute('srcset', 'https://cdn.example.com/image.jpg?w=320 320w');
+			});
+
+			it('updates when an observable widths array from the theme changes in place', async () => {
+				const globalTheme = observable({ components: { image: { srcset: [320] } } });
+				const rendered = render(
+					<ThemeProvider theme={globalTheme}>
+						<Image alt="image" src="https://cdn.example.com/image.jpg" />
+					</ThemeProvider>
+				);
+				const imageElement = rendered.container.querySelector('.ss__image img')!;
+				expect(imageElement).toHaveAttribute('srcset', 'https://cdn.example.com/image.jpg?width=320 320w');
+
+				act(() => {
+					globalTheme.components.image.srcset.push(640);
+				});
+				await waitFor(() =>
+					expect(imageElement).toHaveAttribute(
+						'srcset',
+						'https://cdn.example.com/image.jpg?width=320 320w, https://cdn.example.com/image.jpg?width=640 640w'
+					)
+				);
 			});
 
 			it('ignores invalid and duplicate widths', () => {
