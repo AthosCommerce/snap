@@ -188,6 +188,12 @@ export const fr: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Tout effacer',
+			attributes: {
+				'aria-label': 'Tout effacer',
+			},
+		},
+		noFiltersText: {
+			value: 'Aucun filtre appliqué',
 		},
 	},
 	facet: {

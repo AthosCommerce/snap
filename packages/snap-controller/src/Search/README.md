@@ -248,12 +248,12 @@ export class Content extends Component {
 - Called with `eventData` = { controller, request, response }
 - Always invoked after an API request is made 
 - Invokes `window.location.replace()` if API response contains merchandising redirects AND if `config.settings.redirects.merchandising = true` (default)
-- Invokes `window.location.replace()` to redirect to product detail page if API response returned a single product AND `config.settings.redirects.singleResult = true` (default)
 - Sets `controller.store.loading = false`
 
 ### afterStore
 - Called with `eventData` = { controller, request, response }
 - Always invoked after data has been stored in mobx store
+- Invokes `window.location.replace()` to redirect to product detail page if the query returned a single product (`controller.store.pagination.totalProducts === 1`, so inline banners are not counted) AND `config.settings.redirects.singleResult = true` (default)
 
 ### restorePosition
 - Called with `eventData` = { controller, element }

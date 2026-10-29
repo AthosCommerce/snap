@@ -13,7 +13,7 @@ import { Sidebar, SidebarProps } from '../../Organisms/Sidebar';
 import { Toolbar, ToolbarProps } from '../../Organisms/Toolbar';
 import { NoResults, NoResultsProps } from '../../Organisms/NoResults';
 import { Lang, useLang, useMediaQuery } from '../../../hooks';
-import { FOCUSABLE_ELEMENTS } from '../../../hooks/useA11y';
+import { FOCUSABLE_ELEMENTS, useA11y } from '../../../hooks/useA11y';
 import { SearchFilterStore } from '@athoscommerce/snap-store-mobx';
 import deepmerge from 'deepmerge';
 import { useLayoutOptions } from '../../../hooks/useLayoutOptions';
@@ -283,6 +283,9 @@ export const Search = observer((properties: SearchProps) => {
 
 	const styling = mergeStyles<SearchProps>(props, defaultStyles);
 
+	// whitespace is not permitted in an id and would split the aria-labelledby id reference list
+	const tabControllerId = controller.id;
+
 	return (
 		<CacheProvider>
 			<div
@@ -296,7 +299,7 @@ export const Search = observer((properties: SearchProps) => {
 						store.pagination.totalResults > 0 &&
 						(isMobile ? (
 							<Slideout {...subProps.Slideout} active={justTransitionedToMobile ? false : sidebarOpenState}>
-								<div className={`${classNamePrefix}__sidebar`}>
+								<div className={`${classNamePrefix}__sidebar ${classNamePrefix}__slideout__sidebar-wrapper`} ref={(e) => useA11y(e, 0, true)}>
 									<Sidebar {...subProps.MobileSidebar} controller={controller} />
 								</div>
 							</Slideout>
@@ -305,7 +308,16 @@ export const Search = observer((properties: SearchProps) => {
 								<Sidebar {...subProps.Sidebar} controller={controller} />
 							</div>
 						) : null)}
-					<div className={classnames(`${classNamePrefix}__content`)}>
+					<div
+						className={classnames(`${classNamePrefix}__content`)}
+						{...(tabManager?.active
+							? {
+									id: `ss__tabpanel--${tabControllerId}`,
+									role: 'tabpanel',
+									'aria-labelledby': `ss__tab--${tabControllerId}`,
+							  }
+							: {})}
+					>
 						{!hideMiddleToolbar && <Toolbar {...subProps.MiddleToolbar} controller={controller} />}
 
 						{store.pagination.totalResults ? (

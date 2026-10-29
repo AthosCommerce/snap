@@ -332,8 +332,8 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `tabs[].id` | Unique tab identifier, also used as the controller id | String | Required |
-| `tabs[].siteId` | Athos Site ID the tab queries | String | Required |
-| `tabs[].param` | URL identifier for the tab's catalog | String | Required |
+| `tabs[].siteId` | Athos Site ID the tab queries, unique within the feature | String | Required |
+| `tabs[].param` | URL identifier for the tab's catalog, unique within the feature | String | Required |
 | `tabs[].label` | Display label for the tab | String | `tabs[].id` |
 | `tabs[].default` | Selects this tab on initial load | Boolean | first tab |
 | `tabs[].globals` | Request globals for this tab only | Object | ➖ |
@@ -344,6 +344,8 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 `tabs[].id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. The id becomes the controller id, and controllers share a single registry - a duplicate id is silently skipped and the affected tab never renders.
 
 `tabs[].param` does two things. It is the value written to the URL when the tab is selected, and it namespaces that tab's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
+
+Within a feature, every tab must have its own `siteId` and its own `param`.
 
 The URL parameter holding the active tab is always `tab` - it is registered as a custom query parameter on every tab controller and is not configurable.
 
