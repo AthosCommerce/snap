@@ -1,4 +1,4 @@
-# Autocomplete ⌨️
+# Autocomplete
 
 >[!IMPORTANT]
 >If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
@@ -207,7 +207,7 @@ export const Autocomplete = withController(observer((props) => {
 >`Results` is the same component from the [Search](https://athoscommerce.github.io/snap/snap-search#searchcontrollerstoreresults) page — Autocomplete's `results` property is identical, so it renders without changes.
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: The original `<input/>` still shows alongside the rendered Autocomplete component. Why?**
 <br>

@@ -1,4 +1,4 @@
-# Tracking 📊
+# Tracking
 
 >[!IMPORTANT]
 >If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
@@ -7,11 +7,11 @@ Snap automatically tracks result **impressions and clicks** out of the box when 
 
 ## Quick Reference
 
-### ✅ Tracked Automatically
+### Tracked Automatically
 - **[Impressions](./snap-tracking-automatic#impressions)** — via the default `Result`/Autocomplete components, or the `withTracking` hook / `ResultTracker` component for custom result cards
 - **[Product Click](./snap-tracking-automatic#product-click)** — same as above
 
-### 🛠️ Requires Manual Setup
+### Requires Manual Setup
 - **[Product Add To Cart](./snap-tracking-manual#product-add-to-cart)** — tracking is bundled into `controller.addToCart()`, but you still need to enable the default component's button or wire up your own handler
 - **[Shopper Login](./snap-tracking-manual#shopper-login)**
 - **[Currency](./snap-tracking-manual#currency)**

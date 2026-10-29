@@ -1,4 +1,4 @@
-# Search 🔍
+# Search
 >[!IMPORTANT]
 > If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers. 
 
@@ -438,7 +438,7 @@ export const Content = observer((props) => {
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: My facets array is always empty, even though I know the site has filterable attributes. Why?**
 <br>

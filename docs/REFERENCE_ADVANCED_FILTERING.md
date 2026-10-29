@@ -1,4 +1,4 @@
-# Advanced Filtering 🧪
+# Advanced Filtering
 
 Snap supports two ways to pre-apply a filter without the shopper explicitly selecting it — pick the one that matches whether the filter should be visible and removable, or invisible and locked in.
 

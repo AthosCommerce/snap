@@ -1,4 +1,4 @@
-# Setup 🛠️
+# Setup
 
 This page walks through everything needed to go from an empty project to a MVP working Snap Integration: installing the Snapfu CLI, scaffolding a new project, running the local development server, connecting a mockup file (or the Snapfu Chrome extension) to preview it, and wiring up the minimum viable controller and components to get results on the page.
 
@@ -188,7 +188,7 @@ With that in place, `npm run dev` will render live search results into your mock
 >Continue to our **Features** section for more in depth details on setting up your Feature Controllers.
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: I'm using the Snapfu Chrome extension and the bundle silently fails to load or the page never updates. What's wrong?**
 <br>

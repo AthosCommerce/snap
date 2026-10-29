@@ -1,4 +1,4 @@
-# Manual Tracking 🛠️
+# Manual Tracking
 
 These events need to be wired up manually, since they're events Snap has no way to detect without explicit instrumentation. For events that are already tracked out of the box, see [Automatic Tracking](./snap-tracking-automatic).
 
@@ -295,7 +295,7 @@ Allows for real-time updates to any recommendations when an element with this at
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: My `Order Transaction` or `Product View` event isn't showing up in reporting. Why?**
 <br>

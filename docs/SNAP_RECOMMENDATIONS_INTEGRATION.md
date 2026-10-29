@@ -1,4 +1,4 @@
-# Profile Setup 🧩
+# Profile Setup
 
 >[!WARNING]
 > Changes to the recommendation integration scripts were made in Snap `v0.60.0`. Legacy Recommendation Integrations docs can still be found [`here`](https://athoscommerce.github.io/snap/snap-recommendations-legacy)
@@ -280,7 +280,7 @@ The example below filters the recommendations for products matching field `color
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: I added a new profile to an existing batch, but it's not being deduped against the others. Why?**
 <br>

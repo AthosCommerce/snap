@@ -1,4 +1,4 @@
-# Recommendations 🎯
+# Recommendations
 
 >[!IMPORTANT]
 >If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
@@ -214,7 +214,7 @@ export const Bundled = observer((props) => {
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: My recommendation profile doesn't render anywhere on the page. Why?**
 <br>

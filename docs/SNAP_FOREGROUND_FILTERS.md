@@ -1,4 +1,4 @@
-# Foreground Filters 🚦
+# Foreground Filters
 
 > [!NOTE]
 > Foreground filters are only usable with a `SearchController`.
@@ -159,7 +159,7 @@ const snap = new Snap(config);
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: My initial filter isn't being applied on page load. Why?**
 <br>

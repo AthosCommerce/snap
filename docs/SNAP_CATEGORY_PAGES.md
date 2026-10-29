@@ -1,4 +1,4 @@
-# Category Pages 🗂️
+# Category Pages
 
 > [!IMPORTANT]
 > Category pages use the **same** `SearchController` and `SearchStore` as a standard search page. **Snap doesn't have a separate category controller**. The rest of this page covers how to build a category page by applying the category as a **Background Filter** in your search controller's config.
@@ -105,7 +105,7 @@ Background filters aren't limited to category — the same pattern can restrict 
 See [Background Filters](https://athoscommerce.github.io/snap/snap-background-filters) for the full Background Filter Object reference.
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: My category page returns zero results even though the collection has products. Why?**
 <br>

@@ -1,4 +1,4 @@
-# Automatic Tracking ✅
+# Automatic Tracking
 
 These events are tracked out of the box when using the default `Result`/Autocomplete components — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](./snap-tracking-manual).
 
@@ -98,7 +98,7 @@ const Results = withController((props) => {
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: I'm using the default `Result`/Autocomplete components and don't see any tracking calls. Do I need to add anything?**
 <br>

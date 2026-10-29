@@ -1,4 +1,4 @@
-# Finder 🧭
+# Finder
 
 >[!IMPORTANT]
 >If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
@@ -180,7 +180,7 @@ export const Finder = observer((props) => {
 ```
 
 ---
-## Troubleshooting FAQ ❓
+## Troubleshooting FAQ
 
 **Q: Finder renders nothing — no dropdowns show up at all. Why?**
 <br>
