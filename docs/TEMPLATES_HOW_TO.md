@@ -758,7 +758,11 @@ export const WishlistResult = observer(({ result }: ResultProps) => {
 	return (
 		<article>
 			<h2>{core?.name}</h2>
-			{wishlistButton && <button type="button" aria-label="Add to Wishlist" {...wishlistButton} />}
+			{wishlistButton && (
+				<button type="button" {...wishlistButton}>
+					<span className="swym-wishlist-cta">Add to Wishlist</span>
+				</button>
+			)}
 		</article>
 	);
 });

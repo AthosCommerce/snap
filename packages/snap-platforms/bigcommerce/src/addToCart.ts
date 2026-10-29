@@ -1,15 +1,23 @@
 import type { Product } from '@athoscommerce/snap-store-mobx';
+import { getVariantId } from './getVariantId';
 
 export type BigCommerceAddToCartConfig = {
 	redirect?: boolean | string;
 	idFieldName?: string; // display.mappings.core.id
 };
 
+type BigCommerceId = number | string;
+
+// a Storefront Cart API line item - https://docs.bigcommerce.com/docs/rest-storefront/carts/cart-items
 type LineItem = {
-	product_id: string;
+	productId: BigCommerceId;
 	quantity: number;
-	optionSelections?: { optionId?: string; optionValue?: string }[];
+	variantId?: BigCommerceId;
+	optionSelections?: { optionId: BigCommerceId; optionValue: BigCommerceId }[];
 };
+
+// BigCommerce ids are integers; anything else is passed through for the API to report
+const toId = (value: unknown): BigCommerceId => (typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : (value as BigCommerceId));
 
 export const addToCart = async (items: Product[], config?: BigCommerceAddToCartConfig) => {
 	if (!items) {
@@ -20,7 +28,8 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 	const lineItems: LineItem[] = [];
 
 	items.map((item) => {
-		let id = item?.display?.mappings?.core?.uid;
+		const core = item?.display?.mappings?.core;
+		let id: unknown = core?.uid;
 
 		// try to find custom field in data
 		if (config?.idFieldName) {
@@ -41,27 +50,37 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 			}
 		}
 
-		if (id && item.quantity) {
-			const productDetails: LineItem = {
-				product_id: id,
-				quantity: item.quantity,
-			};
+		if (!id || !item.quantity) return;
 
-			const options = item.variants?.active?.options;
-			if (options) {
-				productDetails.optionSelections = [];
-				Object.keys(options).forEach((option) => {
-					const optionId = options[option].optionId;
-					const optionValue = options[option].optionValue;
+		// a product with options in an Athos feed is identified as `{parentId}_{variantId}`
+		const parentId = item.mappings?.core?.parentId ?? core?.parentId;
+		const variantId = config?.idFieldName ? undefined : getVariantId({ uid: core?.uid, parentId });
 
-					if (optionId && optionValue) {
-						productDetails.optionSelections?.push({ optionId, optionValue });
-					}
-				});
-			}
-
-			lineItems.push(productDetails);
+		if (variantId && parentId !== undefined) {
+			lineItems.push({ productId: toId(parentId), quantity: item.quantity, variantId: toId(variantId) });
+			return;
 		}
+
+		const lineItem: LineItem = {
+			productId: toId(id),
+			quantity: item.quantity,
+		};
+
+		// feeds whose variants carry the product id identify the variant through its option selections
+		const options = item.variants?.active?.options;
+		if (options) {
+			lineItem.optionSelections = [];
+			Object.keys(options).forEach((option) => {
+				const optionId = options[option].optionId;
+				const optionValue = options[option].optionValue;
+
+				if (optionId && optionValue) {
+					lineItem.optionSelections?.push({ optionId: toId(optionId), optionValue: toId(optionValue) });
+				}
+			});
+		}
+
+		lineItems.push(lineItem);
 	});
 
 	if (lineItems.length) {

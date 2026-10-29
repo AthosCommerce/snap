@@ -10,6 +10,12 @@ The `redirect` property can be set to `false` or supplied with an alternate redi
 
 The `idFieldName` property takes a stringified path in the result reference, to look for the product id to add. `display.mappings.core.sku` for example. By default it will use `display.mappings.core.uid`.
 
+Each product is added through the BigCommerce Storefront Cart API as follows:
+
+- A uid in the Athos `{parentId}_{variantId}` form (a product with options) is added as product `parentId` with variant `variantId`, using [`getVariantId`](#getvariantid). This covers the selected variant when Snap variants are in use.
+- Any other uid is added as that product id. When Snap variants are in use, the selected variant's option selections (`optionId` and `optionValue`) are sent with it, for feeds whose variants carry the product id as their uid.
+- With `idFieldName` set, the value at that path is always added as the product id.
+
 ```tsx
 import { addToCart } from '@athoscommerce/snap-platforms/bigcommerce';
 
@@ -25,6 +31,19 @@ export const AddToCart = (props) => {
 };
 ```
 
+### getVariantId
+The `getVariantId` function returns the BigCommerce variant id of a result. Athos BigCommerce feeds identify a product with options as `{parentId}_{variantId}` in `mappings.core.uid`, with the product id in `mappings.core.parentId`; when the uid starts with the parentId followed by an underscore, the numeric id after the underscore is the variant id. It takes the `uid` and `parentId` and returns the variant id as a string, or `undefined` when the uid is in any other form. A product without options has a uid equal to its parentId and returns `undefined`: its feed carries no variant id, and the product id identifies it on its own wherever BigCommerce accepts one, such as the cart.
+
+```tsx
+import { getVariantId } from '@athoscommerce/snap-platforms/bigcommerce';
+
+const core = result.display.mappings.core;
+
+getVariantId({ uid: core?.uid, parentId: core?.parentId }); // '20252' for uid '19936_20252' and parentId '19936'
+```
+
+Pass `result.display.mappings.core` to get the selected variant's id when [Snap variants](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md) are in use.
+
 ## Plugins
 
 ### pluginAddToCart
@@ -34,7 +53,7 @@ Plugin to attach a custom function to the addToCart controller event.
 |----------------------|-------------|------|---------|----------|
 | enabled | configuration to allow for disabling the plugin | boolean | true | ➖ |
 | redirect | set to `false` or provide alternate redirect URL | boolean \| string | '/cart.php' | ➖ |
-| idFieldName | field name to use for the product identifier to use when adding product | string | 'display.mappings.core.uid' | ➖ |
+| idFieldName | field name to use for the product identifier to use when adding product; when set, the value is always added as the product id (see [addToCart](#addtocart)) | string | 'display.mappings.core.uid' | ➖ |
 
 
 ```tsx

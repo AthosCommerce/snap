@@ -12,6 +12,8 @@ import type { AbstractController } from '@athoscommerce/snap-controller';
 type SwymMock = { initializeActionButtons: jest.Mock };
 type SwymWindow = Window & {
 	SwymCallbacks?: Array<(swat: SwymMock) => void>;
+	initSwymBC?: unknown;
+	swymJSObject?: { apiToken?: string };
 	SwymViewProducts?: Record<string, any>;
 	SwymProductVariants?: Record<string, any>;
 	SwymWatchProducts?: Record<string, any>;
@@ -62,7 +64,7 @@ const renderButtons = (ids: string[], parent: Element = document.body): HTMLElem
 	grid.innerHTML = ids
 		.map(
 			(id) =>
-				`<div class="ss__result"><button data-swaction="addToWishlist" data-with-epi="true" data-product-id="${id}" data-variant-id="v-${id}" data-product-url="http://localhost/products/${id}"></button></div>`
+				`<div class="ss__result"><button data-swaction="addToWishlist" data-with-epi="true" data-product-id="${id}" data-variant-id="v-${id}" data-product-url="http://localhost/products/${id}"><span class="swym-wishlist-cta">Add to Wishlist</span></button></div>`
 		)
 		.join('');
 	parent.appendChild(grid);
@@ -70,7 +72,8 @@ const renderButtons = (ids: string[], parent: Element = document.body): HTMLElem
 };
 
 // simulates the Swym SDK finishing its load: pending callbacks run, and later pushes run immediately
-const loadSwym = (): SwymMock => {
+const loadSwym = (options: { bigCommerce?: boolean } = {}): SwymMock => {
+	if (options.bigCommerce) swymWindow.initSwymBC = () => {};
 	const swat: SwymMock = { initializeActionButtons: jest.fn() };
 	const callbacks = (swymWindow.SwymCallbacks = swymWindow.SwymCallbacks || []);
 	callbacks.forEach((callback) => callback(swat));
@@ -96,6 +99,8 @@ describe('common/pluginSwymWishlist', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
 		delete swymWindow.SwymCallbacks;
+		delete swymWindow.initSwymBC;
+		delete swymWindow.swymJSObject;
 		delete swymWindow.SwymViewProducts;
 		delete swymWindow.SwymProductVariants;
 		delete swymWindow.SwymWatchProducts;
@@ -373,6 +378,234 @@ describe('common/pluginSwymWishlist', () => {
 		});
 	});
 
+	describe('BigCommerce composite ids', () => {
+		it('takes the variant id from a {productId}_{variantId} uid', () => {
+			const product = fakeProduct({ uid: '19936_20252', parentId: '19936', url: '/godfather-otf-p/1gfas-am.htm' });
+
+			expect(swymWishlistButtonProps(product)).toEqual({
+				className: 'swym-button swym-add-to-wishlist-view-product product_19936',
+				'data-swaction': 'addToWishlist',
+				'data-with-epi': 'true',
+				'data-product-id': '19936',
+				'data-variant-id': '20252',
+				'data-product-url': 'http://localhost/godfather-otf-p/1gfas-am.htm',
+			});
+		});
+
+		it('uses the product id as the variant id of a product without options until it has been looked up', () => {
+			const product = fakeProduct({ uid: '22585', parentId: '22585', url: '/flashbang/' });
+
+			expect(swymWishlistButtonProps(product)).toEqual(expect.objectContaining({ 'data-product-id': '22585', 'data-variant-id': '22585' }));
+		});
+
+		it('keeps a uid whose prefix is not the product id as it is', () => {
+			const product = fakeProduct({ uid: 'abc_123', parentId: '999', url: '/other/' });
+
+			expect(swymWishlistButtonProps(product)).toEqual(expect.objectContaining({ 'data-product-id': '999', 'data-variant-id': 'abc_123' }));
+		});
+
+		it('registers composite ids as numbers, for the result and for its Snap variants', async () => {
+			loadSwym({ bigCommerce: true });
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+			renderButtons(['19936']);
+			const variant = {
+				mappings: { core: { uid: '19936_20253', url: '/godfather-otf-p/1gfas-am.htm', price: 20 } },
+				options: { color: { value: 'Black' } },
+				attributes: {},
+				available: true,
+			};
+			const product = fakeProduct(
+				{ uid: '19936_20252', parentId: '19936', url: '/godfather-otf-p/1gfas-am.htm', name: 'Godfather' },
+				{ variants: { data: [variant] } }
+			);
+
+			await afterStore(controller, [product]);
+
+			expect(swymWindow.SwymViewProducts!['19936']).toEqual(expect.objectContaining({ empi: 19936, epi: 20252 }));
+			expect(swymWindow.SwymProductVariants!['20253']).toEqual(expect.objectContaining({ empi: 19936, epi: 20253 }));
+			expect(swymWindow.SwymWatchProducts!['20253']).toEqual(expect.objectContaining({ id: 20253 }));
+		});
+	});
+
+	describe('BigCommerce variant lookup', () => {
+		// a BigCommerce product without options carries only its product id, which Swym rejects as a variant id, so its
+		// base variant id is looked up through the storefront GraphQL API when the BigCommerce SDK is loaded
+		const graphqlResponse = (products: Array<{ id: number; variants: Array<{ id: number; purchasable?: boolean }> }>) => ({
+			ok: true,
+			json: async () => ({
+				data: {
+					site: {
+						products: {
+							edges: products.map((product) => ({
+								node: {
+									entityId: product.id,
+									variants: {
+										edges: product.variants.map((variant) => ({ node: { entityId: variant.id, isPurchasable: variant.purchasable !== false } })),
+									},
+								},
+							})),
+						},
+					},
+				},
+			}),
+		});
+
+		let fetchMock: jest.Mock;
+		// only the lookup's own requests - the controllers' beacon tracker also sends through fetch
+		const graphqlCalls = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/graphql'));
+
+		beforeEach(() => {
+			fetchMock = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+			(global as any).fetch = fetchMock;
+		});
+
+		afterEach(() => {
+			delete (global as any).fetch;
+		});
+
+		it('looks up the variant ids of products without options before binding', async () => {
+			fetchMock.mockResolvedValue(
+				graphqlResponse([
+					{ id: 8937, variants: [{ id: 6438 }] },
+					{ id: 583, variants: [{ id: 294, purchasable: false }, { id: 295 }] },
+				])
+			);
+			const swat = loadSwym({ bigCommerce: true });
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true, bigCommerce: { token: 'storefront-token' } });
+			renderButtons(['8937', '583', '19936']);
+			const results = [
+				fakeProduct({ uid: '8937', parentId: '8937', url: '/16-oz-square-juice-bottles-pet/' }),
+				fakeProduct({ uid: '583', url: '/compostable-lids/' }),
+				// a product with options already carries its variant id
+				fakeProduct({ uid: '19936_20252', parentId: '19936', url: '/godfather/' }),
+			];
+
+			await afterStore(controller, results);
+			await flush();
+
+			expect(graphqlCalls()).toHaveLength(1);
+			const [url, init] = graphqlCalls()[0];
+			expect(url).toBe('http://localhost/graphql');
+			expect(init.method).toBe('POST');
+			expect(init.headers).toEqual({ 'Content-Type': 'application/json', Authorization: 'Bearer storefront-token' });
+			expect(JSON.parse(init.body).variables).toEqual({ ids: [8937, 583] });
+
+			expect(swymWindow.SwymViewProducts!['8937']).toEqual(expect.objectContaining({ empi: 8937, epi: 6438 }));
+			// the first purchasable variant is used
+			expect(swymWindow.SwymViewProducts!['583']).toEqual(expect.objectContaining({ empi: 583, epi: 295 }));
+			expect(swymWindow.SwymViewProducts!['19936']).toEqual(expect.objectContaining({ empi: 19936, epi: 20252 }));
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
+
+			// the helper picks the looked up variant id up on later renders
+			expect(swymWishlistButtonProps(results[0])).toEqual(expect.objectContaining({ 'data-product-id': '8937', 'data-variant-id': '6438' }));
+		});
+
+		it('looks each product up once per page', async () => {
+			fetchMock.mockResolvedValue(graphqlResponse([{ id: 101, variants: [{ id: 1001 }] }]));
+			loadSwym({ bigCommerce: true });
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true, bigCommerce: { token: 'storefront-token' } });
+			renderButtons(['101']);
+			const results = [fakeProduct({ uid: '101', url: '/one' })];
+
+			await afterStore(controller, results);
+			await flush();
+			await afterStore(controller, results);
+			await flush();
+
+			expect(graphqlCalls()).toHaveLength(1);
+			expect(swymWindow.SwymViewProducts!['101'].epi).toBe(1001);
+		});
+
+		it('falls back to the token the Swym SDK or its page embed exposes', async () => {
+			fetchMock.mockResolvedValue(graphqlResponse([{ id: 201, variants: [{ id: 2001 }] }]));
+			const swat = loadSwym({ bigCommerce: true });
+			(swat as any).platform = { apiToken: 'sdk-token' };
+			swymWindow.swymJSObject = { apiToken: 'embed-token' };
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+			renderButtons(['201']);
+
+			await afterStore(controller, [fakeProduct({ uid: '201', url: '/two' })]);
+			await flush();
+			expect(graphqlCalls()[0][1].headers.Authorization).toBe('Bearer sdk-token');
+
+			// the page embed's token is used when the SDK does not expose one
+			fetchMock.mockResolvedValue(graphqlResponse([{ id: 202, variants: [{ id: 2002 }] }]));
+			delete (swat as any).platform;
+			renderButtons(['202']);
+			await afterStore(controller, [fakeProduct({ uid: '202', url: '/two-b' })]);
+			await flush();
+			expect(graphqlCalls()[1][1].headers.Authorization).toBe('Bearer embed-token');
+		});
+
+		it('warns once and still binds when no token is available', async () => {
+			const swat = loadSwym({ bigCommerce: true });
+			const controller = createController();
+			const warnSpy = jest.spyOn(controller.log, 'warn').mockImplementation(() => {});
+			pluginSwymWishlist(controller, { enabled: true });
+			renderButtons(['301']);
+			const results = [fakeProduct({ uid: '301', url: '/three' })];
+
+			await afterStore(controller, results);
+			await flush();
+			await afterStore(controller, results);
+			await flush();
+
+			expect(graphqlCalls()).toHaveLength(0);
+			expect(warnSpy).toHaveBeenCalledTimes(1);
+			expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('No BigCommerce Storefront API token'));
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(2);
+			expect(swymWindow.SwymViewProducts!['301'].epi).toBe(301);
+		});
+
+		it('warns once and still binds when the lookup fails', async () => {
+			fetchMock.mockResolvedValue({ ok: false, status: 401, json: async () => ({}) });
+			const swat = loadSwym({ bigCommerce: true });
+			const controller = createController();
+			const warnSpy = jest.spyOn(controller.log, 'warn').mockImplementation(() => {});
+			pluginSwymWishlist(controller, { enabled: true, bigCommerce: { token: 'storefront-token' } });
+			renderButtons(['401']);
+			const results = [fakeProduct({ uid: '401', url: '/four' })];
+
+			await afterStore(controller, results);
+			await flush();
+			await afterStore(controller, results);
+			await flush();
+
+			expect(warnSpy).toHaveBeenCalledTimes(1);
+			expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Looking up BigCommerce variant ids failed'), expect.any(Error));
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(2);
+		});
+
+		it('does not look up products that already carry a variant id', async () => {
+			loadSwym({ bigCommerce: true });
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true, bigCommerce: { token: 'storefront-token' } });
+			renderButtons(['19936']);
+
+			await afterStore(controller, [fakeProduct({ uid: '19936_20252', parentId: '19936', url: '/godfather/' })]);
+			await flush();
+
+			expect(graphqlCalls()).toHaveLength(0);
+		});
+
+		it('does not look up variants with the Shopify SDK', async () => {
+			loadSwym();
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true, bigCommerce: { token: 'storefront-token' } });
+			renderButtons(['501']);
+
+			await afterStore(controller, [fakeProduct({ uid: '501', url: '/five' })]);
+			await flush();
+
+			expect(graphqlCalls()).toHaveLength(0);
+			expect(swymWindow.SwymViewProducts!['501'].epi).toBe(501);
+		});
+	});
+
 	describe('button initialization', () => {
 		it('initializes the buttons of the results inside their common container once Swym loads', async () => {
 			const controller = createController();
@@ -485,7 +718,7 @@ describe('common/pluginSwymWishlist', () => {
 			const grid = renderButtons(['not-in-results']);
 			document.body.insertAdjacentHTML(
 				'beforeend',
-				'<div id="other"><button data-swaction="addToWishlist" data-with-epi="true" data-product-id="8318690263298"></button></div>'
+				'<div id="other"><button data-swaction="addToWishlist" data-with-epi="true" data-product-id="8318690263298"><span class="swym-wishlist-cta">Add</span></button></div>'
 			);
 
 			await controller.search();
@@ -503,7 +736,7 @@ describe('common/pluginSwymWishlist', () => {
 
 			const grid = document.createElement('div');
 			grid.innerHTML =
-				'<button data-swaction="addToWishlist" data-product-id="8318690263298"></button><button data-swaction="addToWishlist" data-product-id="8318574559490"></button>';
+				'<button data-swaction="addToWishlist" data-product-id="8318690263298"><span class="swym-wishlist-cta">Add</span></button><button data-swaction="addToWishlist" data-product-id="8318574559490"><span class="swym-wishlist-cta">Add</span></button>';
 			document.body.appendChild(grid);
 
 			await controller.search();
@@ -511,6 +744,108 @@ describe('common/pluginSwymWishlist', () => {
 
 			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
 			expect(grid.getAttribute('data-ss-swym-wishlist')).toBe('search');
+		});
+
+		it('removes data-with-epi from the buttons before binding when the BigCommerce SDK is loaded', async () => {
+			const swat = loadSwym({ bigCommerce: true });
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+			const grid = renderButtons(['8318690263298', '8318574559490']);
+
+			await controller.search();
+			await flush();
+
+			const buttons = Array.from(grid.querySelectorAll('button'));
+			expect(buttons).toHaveLength(2);
+			// the BigCommerce SDK binds a `data-with-epi` button with its ids alone and no product URL, which its API
+			// rejects - without the attribute it binds through the registered product data instead
+			buttons.forEach((button) => {
+				expect(button.hasAttribute('data-with-epi')).toBe(false);
+				expect(button.getAttribute('data-product-id')).toBeTruthy();
+				expect(button.getAttribute('data-variant-id')).toBeTruthy();
+			});
+			expect(swymWindow.SwymViewProducts!['8318690263298'].du).toMatch(/^http:\/\/localhost\/products\/fort-chino-pants/);
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
+		});
+
+		it('keeps data-with-epi on the buttons with the Shopify SDK', async () => {
+			const swat = loadSwym();
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+			const grid = renderButtons(['8318690263298', '8318574559490']);
+
+			await controller.search();
+			await flush();
+
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
+			grid.querySelectorAll('button').forEach((button) => expect(button.getAttribute('data-with-epi')).toBe('true'));
+		});
+
+		it('registers the product data again before rebinding when the variant of a button changes', async () => {
+			const swat = loadSwym();
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+			const grid = renderButtons(['8318690263298', '8318574559490']);
+
+			await controller.search();
+			await flush();
+			const epi = Number(products(controller)[0].display.mappings.core!.uid);
+			expect(swymWindow.SwymViewProducts!['8318690263298'].epi).toBe(epi);
+
+			// stale registered data is what Swym would bind with on BigCommerce, where it reads the registered product
+			swymWindow.SwymViewProducts!['8318690263298'].epi = 'stale';
+			grid.querySelector('button')!.setAttribute('data-variant-id', 'another-variant');
+			await flush();
+
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(2);
+			expect(swymWindow.SwymViewProducts!['8318690263298'].epi).toBe(epi);
+		});
+
+		it('warns once with the BigCommerce SDK when buttons have no swym-wishlist-cta element, and still binds them', async () => {
+			const swat = loadSwym({ bigCommerce: true });
+			const controller = createController();
+			const warnSpy = jest.spyOn(controller.log, 'warn').mockImplementation(() => {});
+			pluginSwymWishlist(controller, { enabled: true });
+
+			const grid = document.createElement('div');
+			grid.innerHTML =
+				'<button data-swaction="addToWishlist" data-with-epi="true" data-product-id="8318690263298" data-variant-id="v-1"></button>' +
+				'<button data-swaction="addToWishlist" data-with-epi="true" data-product-id="8318574559490" data-variant-id="v-2"><span class="swym-wishlist-cta">Add</span></button>';
+			document.body.appendChild(grid);
+
+			await controller.search();
+			await flush();
+
+			// Swym's BigCommerce SDK throws while binding a button without the element, so the markup is flagged
+			expect(warnSpy).toHaveBeenCalledTimes(1);
+			expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Wishlist buttons without a '.swym-wishlist-cta' element found"));
+			// the buttons are still handed to Swym, which binds the ones that have the element
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
+
+			await afterStore(controller);
+			await flush();
+
+			expect(warnSpy).toHaveBeenCalledTimes(1);
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(2);
+		});
+
+		it('does not warn about the swym-wishlist-cta element with the Shopify SDK', async () => {
+			const swat = loadSwym();
+			const controller = createController();
+			const warnSpy = jest.spyOn(controller.log, 'warn').mockImplementation(() => {});
+			pluginSwymWishlist(controller, { enabled: true });
+
+			const grid = document.createElement('div');
+			grid.innerHTML =
+				'<button data-swaction="addToWishlist" data-with-epi="true" data-product-id="8318690263298" data-variant-id="v-1"></button>' +
+				'<button data-swaction="addToWishlist" data-with-epi="true" data-product-id="8318574559490" data-variant-id="v-2"></button>';
+			document.body.appendChild(grid);
+
+			await controller.search();
+			await flush();
+
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(1);
+			expect(warnSpy).not.toHaveBeenCalled();
 		});
 
 		it('warns once when no buttons render for the results', async () => {
@@ -596,6 +931,52 @@ describe('common/pluginSwymWishlist', () => {
 			expect(grid.getAttribute('data-ss-swym-wishlist')).toBe('search');
 			expect(rail.hasAttribute('data-ss-swym-wishlist')).toBe(false);
 			expect(document.body.hasAttribute('data-ss-swym-wishlist')).toBe(false);
+		});
+
+		it('binds the buttons of each element the controller renders into separately', async () => {
+			const swat = loadSwym();
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+
+			// two disjoint targets whose only common ancestor is the body, which also holds a theme wishlist button
+			document.body.innerHTML = '<div id="top"></div><div id="theme"></div><div id="bottom"></div>';
+			controller.createTargeter({ selector: '#top' }, () => {});
+			controller.createTargeter({ selector: '#bottom' }, () => {});
+			const top = renderButtons(['8318690263298', '8318574559490'], document.getElementById('top')!);
+			const bottom = renderButtons(['8318568333570', '8318690263298'], document.getElementById('bottom')!);
+			const theme = renderButtons(['8318690263298'], document.getElementById('theme')!);
+
+			await controller.search();
+			await flush();
+
+			expect(top.getAttribute('data-ss-swym-wishlist')).toBe('search');
+			expect(bottom.getAttribute('data-ss-swym-wishlist')).toBe('search__1');
+			expect(swat.initializeActionButtons.mock.calls).toEqual([['[data-ss-swym-wishlist="search"]'], ['[data-ss-swym-wishlist="search__1"]']]);
+			// neither the body nor the theme's button is ever inside a bound container
+			expect(document.body.hasAttribute('data-ss-swym-wishlist')).toBe(false);
+			expect(theme.closest('[data-ss-swym-wishlist]')).toBeNull();
+		});
+
+		it('rebinds only the container whose button changed variant', async () => {
+			const swat = loadSwym();
+			const controller = createController();
+			pluginSwymWishlist(controller, { enabled: true });
+
+			document.body.innerHTML = '<div id="top"></div><div id="bottom"></div>';
+			controller.createTargeter({ selector: '#top' }, () => {});
+			controller.createTargeter({ selector: '#bottom' }, () => {});
+			renderButtons(['8318690263298', '8318574559490'], document.getElementById('top')!);
+			const bottom = renderButtons(['8318568333570', '8318690263298'], document.getElementById('bottom')!);
+
+			await controller.search();
+			await flush();
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(2);
+
+			bottom.querySelector('button')!.setAttribute('data-variant-id', 'another-variant');
+			await flush();
+
+			expect(swat.initializeActionButtons).toHaveBeenCalledTimes(3);
+			expect(swat.initializeActionButtons).toHaveBeenLastCalledWith('[data-ss-swym-wishlist="search__1"]');
 		});
 
 		it('looks beside the targeted element when the component is injected next to it', async () => {
