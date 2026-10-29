@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import { fireEvent, render } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 
 import { ThemeProvider } from '../../../providers/theme';
@@ -128,6 +128,74 @@ describe('SearchInput Component', () => {
 		await userEvent.click(closeButton!);
 
 		expect(func).toHaveBeenCalled();
+	});
+
+	it('uses defaultValue as the initial value when value is not provided', async () => {
+		const rendered = render(<SearchInput defaultValue={'dress'} />);
+		const input: HTMLInputElement = rendered.container.querySelector('.ss__search-input__input')!;
+
+		expect(input.value).toBe('dress');
+
+		await userEvent.type(input, 'es');
+		expect(input.value).toBe('dresses');
+	});
+
+	it('ignores defaultValue when value is provided', () => {
+		const rendered = render(<SearchInput value={'shoes'} defaultValue={'dress'} />);
+		const input: HTMLInputElement = rendered.container.querySelector('.ss__search-input__input')!;
+
+		expect(input.value).toBe('shoes');
+	});
+
+	it('invokes onSubmit with the input value when Enter is pressed', async () => {
+		const onSubmit = jest.fn();
+		const rendered = render(<SearchInput onSubmit={onSubmit} />);
+		const input: HTMLInputElement = rendered.container.querySelector('.ss__search-input__input')!;
+
+		await userEvent.type(input, 'dress');
+		expect(onSubmit).not.toHaveBeenCalled();
+
+		await userEvent.type(input, '{Enter}');
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+		expect(onSubmit.mock.calls[0][0].key).toBe('Enter');
+		expect(onSubmit.mock.calls[0][1]).toBe('dress');
+	});
+
+	it('does not invoke onSubmit for an Enter that confirms an IME composition', () => {
+		const onSubmit = jest.fn();
+		const rendered = render(<SearchInput defaultValue={'dress'} onSubmit={onSubmit} />);
+		const input: HTMLInputElement = rendered.container.querySelector('.ss__search-input__input')!;
+
+		fireEvent.keyDown(input, { key: 'Enter', keyCode: 229 });
+		expect(onSubmit).not.toHaveBeenCalled();
+
+		fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+		expect(onSubmit.mock.calls[0][1]).toBe('dress');
+	});
+
+	it('invokes onSubmit and submitSearchButton.onClick when the submit button is clicked', async () => {
+		const onSubmit = jest.fn();
+		const onClick = jest.fn();
+		const rendered = render(<SearchInput defaultValue={'dress'} onSubmit={onSubmit} submitSearchButton={{ onClick }} />);
+		const submitButton = rendered.container.querySelector('.ss__search-input__button--submit-search-button')!;
+
+		await userEvent.click(submitButton);
+
+		expect(onClick).toHaveBeenCalledTimes(1);
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+		expect(onSubmit.mock.calls[0][0].type).toBe('click');
+		expect(onSubmit.mock.calls[0][1]).toBe('dress');
+	});
+
+	it('does not invoke onSubmit from the submit button when disabled', async () => {
+		const onSubmit = jest.fn();
+		const rendered = render(<SearchInput defaultValue={'dress'} onSubmit={onSubmit} disabled />);
+		const submitButton = rendered.container.querySelector('.ss__search-input__button--submit-search-button')!;
+
+		await userEvent.click(submitButton);
+
+		expect(onSubmit).not.toHaveBeenCalled();
 	});
 
 	describe('search input lang works', () => {

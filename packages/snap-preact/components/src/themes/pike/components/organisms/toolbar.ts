@@ -20,6 +20,9 @@ const toolbarStyleScript = (props: ToolbarProps) => {
 			'&, .ss__layout__row': {
 				gap: `${custom.spacing.x2}px`,
 			},
+			'.ss__layout__search-input': {
+				margin: 0,
+			},
 		},
 		'.ss__pagination-info': {
 			fontSize: props?.name == 'bottom' ? '16px' : '18px',

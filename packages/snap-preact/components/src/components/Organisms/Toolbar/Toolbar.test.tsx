@@ -179,6 +179,107 @@ describe('Toolbar Component', () => {
 		expect(func).toHaveBeenCalled();
 	});
 
+	describe('searchInput module', () => {
+		let goStates: UrlManager['state'][];
+		let goSpy: jest.SpyInstance;
+
+		const createController = async (state: Record<string, unknown>) => {
+			const stateUrlManager = urlManager.set(state);
+			const stateController = new SearchController(searchConfig, {
+				client: mockClient,
+				store: new SearchStore(searchConfig, { urlManager: stateUrlManager }),
+				urlManager: stateUrlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+			await stateController.search();
+			return stateController;
+		};
+
+		beforeEach(() => {
+			goStates = [];
+			// record the state each navigation would load instead of changing the jsdom location shared by every test
+			goSpy = jest.spyOn(UrlManager.prototype, 'go').mockImplementation(function (this: UrlManager) {
+				goStates.push(this.state);
+			});
+		});
+
+		afterEach(() => {
+			goSpy.mockRestore();
+		});
+
+		it('renders a search input holding the current query', async () => {
+			const queryController = await createController({ query: 'dress' });
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input.ss__search-input .ss__search-input__input')!;
+			expect(input).toBeInTheDocument();
+			expect(input.value).toBe('dress');
+		});
+
+		it('searches the submitted query on page one without filters', async () => {
+			const queryController = await createController({
+				query: 'dress',
+				page: 3,
+				filter: { color: ['red'] },
+				sort: { field: 'price', direction: 'asc' },
+			});
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, ' shoes {Enter}');
+
+			expect(goStates).toEqual([{ query: 'shoes', sort: { field: 'price', direction: 'asc' } }]);
+		});
+
+		it('searches the submitted query from the submit button', async () => {
+			const queryController = await createController({ query: 'dress', page: 2 });
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+			const submitButton = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__button--submit-search-button')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, 'shoes');
+			await userEvent.click(submitButton);
+
+			expect(goStates).toEqual([{ query: 'shoes' }]);
+		});
+
+		it('does not search a blank query', async () => {
+			const queryController = await createController({ query: 'dress' });
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, '   {Enter}');
+
+			expect(goSpy).not.toHaveBeenCalled();
+		});
+
+		it('can replace the submit behavior with a themed onSubmit', async () => {
+			const onSubmit = jest.fn();
+			const queryController = await createController({ query: 'dress' });
+			const theme = {
+				components: {
+					searchInput: {
+						onSubmit,
+					},
+				},
+			};
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} theme={theme} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.type(input, 'es{Enter}');
+
+			expect(onSubmit).toHaveBeenCalledTimes(1);
+			expect(onSubmit.mock.calls[0][1]).toBe('dresses');
+			expect(goSpy).not.toHaveBeenCalled();
+		});
+	});
+
 	it('renders with classname', () => {
 		const className = 'classy';
 		const rendered = render(<Toolbar controller={controller} className={className} />);
