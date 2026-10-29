@@ -145,6 +145,8 @@ export type LangComponents = {
 	filterSummary: FilterSummaryLang;
 	noResults: NoResultsLang;
 	quickviewLayout: QuickviewLayoutLang;
+	quickviewModal?: QuickviewLayoutLang;
+	quickviewSlideout?: QuickviewLayoutLang;
 	recommendationBundle: RecommendationBundleLang;
 	// bundleCTA: BundledCTALang;
 	// bundleSelector: BundleSelectorLang;
@@ -157,6 +159,9 @@ export type LangComponents = {
 	// autocompleteTerms: AutocompleteTermsLang;
 	recommendation: RecommendationLang;
 	autocompleteLayout: AutocompleteLayoutLang;
+	autocompleteFixed?: AutocompleteLayoutLang;
+	autocompleteSlideout?: AutocompleteLayoutLang;
+	autocompleteModal?: AutocompleteLayoutLang;
 	search: SearchLang;
 	searchHorizontal: SearchLang;
 	searchCollapsible: SearchLang;

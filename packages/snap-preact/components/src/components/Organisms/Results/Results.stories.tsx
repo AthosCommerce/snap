@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Results, ResultsProps } from './Results';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import { ResultsLayout } from '../../../types';
 
@@ -13,23 +11,11 @@ import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Organisms/Results',
 	component: Results,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -42,7 +28,7 @@ export default {
 					summary: 'Results store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		layout: {
 			description: 'Results layout',
@@ -99,7 +85,7 @@ export default {
 					summary: 'object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultComponent: {
 			description: 'Slot for custom result component',
@@ -116,7 +102,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		excludeBanners: {
 			defaultValue: false,
@@ -136,42 +122,48 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'Results', globals: { siteId: 'atkzs2' } });
 
-export const Grid = (args: ResultsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '800px' }}>
-			<Results {...args} controller={controller} results={controller?.store?.results} />
-		</div>
-	);
-};
-
-Grid.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Grid = {
+	render: (args: ResultsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '800px' }}>
+				<Results {...args} controller={controller} results={controller?.store?.results} />
+			</div>
+		);
 	},
-];
-Grid.args = {
-	layout: 'grid',
-};
 
-export const List = (args: ResultsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '800px' }}>
-			<Results {...args} controller={controller} results={controller?.store?.results} layout={ResultsLayout.list} />
-		</div>
-	);
-};
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 
-List.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+	args: {
+		layout: 'grid',
 	},
-];
-List.args = {
-	layout: 'list',
+};
+
+export const List = {
+	render: (args: ResultsProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.layout == 'list' ? '650px' : '800px' }}>
+				<Results {...args} controller={controller} results={controller?.store?.results} layout={ResultsLayout.list} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		layout: 'list',
+	},
 };

@@ -14,7 +14,6 @@ let templatesConfig = validateTemplatesConfig({
 		platform: 'other',
 		client: clientConfig,
 	},
-
 	plugins: {
 		common: {
 			addToCart: {

@@ -6,13 +6,13 @@ import { AbstractPluginConfig } from '../../../common/src/types';
 
 export type PluginShopifyMarketsConfig = Omit<AbstractPluginConfig, 'enabled'> & ShopifyMarketsConfig;
 
-export const SHOPIFY_GRAPHQL_API_PATH = '/api/2025-04/graphql.json';
+export const SHOPIFY_GRAPHQL_API_PATH = '/api/2026-07/graphql.json';
 
 export type ShopifyMarketsConfig = {
 	token: string;
 	baseUrl?: string;
 	path?: string;
-	baseCurrency?: string;
+	baseCountry?: ShopifyCountryCode;
 	idFieldName?: string;
 };
 
@@ -101,7 +101,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 	}
 
 	const shopify = window?.Shopify as ShopifyObj;
-	const { token, baseCurrency = 'USD', idFieldName = 'mappings.core.uid' } = config;
+	const { token, baseCountry = 'US', idFieldName = 'mappings.core.uid' } = config;
 
 	const baseUrl = config.baseUrl || shopify?.shop || window?.location?.host;
 	const path = config.path || SHOPIFY_GRAPHQL_API_PATH;
@@ -239,7 +239,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 
 	// Re-format data from Storefront API response into a more manageable format, paginating variants as needed
 	const formatMarketsData = async (productData: ShopifyMarketsProductNode[]): Promise<GraphQLPriceCache> => {
-		const formattedData: GraphQLPriceCache = {};
+		const formattedData: GraphQLPriceCache = Object.create(null);
 
 		for (const currentProduct of productData) {
 			const id = currentProduct.id.replace('gid://shopify/Product/', '');
@@ -282,13 +282,22 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		return formattedData;
 	};
 
-	// In-memory cache for GraphQL pricing data, scoped to this plugin instance
-	let priceCache: GraphQLPriceCache = {};
+	// In-memory cache for GraphQL pricing data, scoped to this plugin instance and segmented per country,
+	// — two countries can share a currency while still pricing products differently
+	const priceCachesByCountry: Record<string, GraphQLPriceCache> = Object.create(null);
 
-	// Prices only need fetching when the shopper's active currency differs from the base currency
+	const getActiveCache = (): GraphQLPriceCache => {
+		const country = (shopify?.country || baseCountry).toUpperCase();
+		if (!priceCachesByCountry[country]) {
+			priceCachesByCountry[country] = Object.create(null);
+		}
+		return priceCachesByCountry[country];
+	};
+
+	// Prices only need fetching when the shopper's country differs from the base country
 	const shouldFetchPrices = (): boolean => {
-		const activeCurrency = shopify?.currency?.active?.toUpperCase();
-		return !!activeCurrency && activeCurrency !== baseCurrency.toUpperCase();
+		const activeCountry = shopify?.country?.toUpperCase();
+		return !!activeCountry && activeCountry !== baseCountry.toUpperCase();
 	};
 
 	const getParentId = (result: Product): string | undefined => {
@@ -301,19 +310,17 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		return undefined;
 	};
 
-	// Fetch pricing data for any parentIds missing from the cache and merge it in
+	// Fetch pricing data for any parentIds missing from the active market's cache and merge it in
 	const ensurePricesCached = async (parentIds: string[]): Promise<void> => {
-		const uncachedIds = parentIds.filter((parentId) => !priceCache[parentId]);
+		const cache = getActiveCache();
+		const uncachedIds = parentIds.filter((parentId) => !cache[parentId]);
 
 		if (uncachedIds.length > 0) {
 			const productData = await fetchMarketsData(uncachedIds);
 
 			if (productData?.data?.search?.nodes?.length) {
 				const formattedProductData = await formatMarketsData(productData.data.search.nodes);
-				priceCache = {
-					...priceCache,
-					...formattedProductData,
-				};
+				Object.assign(cache, formattedProductData);
 			}
 		}
 	};
@@ -323,7 +330,7 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		const parentId = getParentId(result);
 		if (!parentId) return;
 
-		const cachedData = priceCache[parentId];
+		const cachedData = getActiveCache()[parentId];
 
 		if (cachedData) {
 			const { price, msrp } = cachedData;
@@ -422,3 +429,253 @@ export const pluginShopifyMarkets = (cntrlr: AbstractController, config: PluginS
 		await next();
 	});
 };
+
+// Shopify's CountryCode enum (shopify.dev/docs/api/admin-graphql/latest/enums/CountryCode) — mostly ISO 3166-1
+// alpha-2, but with Shopify-specific additions ('XK' Kosovo, 'AN' Netherlands Antilles, 'AC'/'TA', 'ZZ' Rest of World)
+// and some ISO codes omitted where Shopify has no corresponding market
+export type ShopifyCountryCode =
+	| 'AC'
+	| 'AD'
+	| 'AE'
+	| 'AF'
+	| 'AG'
+	| 'AI'
+	| 'AL'
+	| 'AM'
+	| 'AN'
+	| 'AO'
+	| 'AR'
+	| 'AT'
+	| 'AU'
+	| 'AW'
+	| 'AX'
+	| 'AZ'
+	| 'BA'
+	| 'BB'
+	| 'BD'
+	| 'BE'
+	| 'BF'
+	| 'BG'
+	| 'BH'
+	| 'BI'
+	| 'BJ'
+	| 'BL'
+	| 'BM'
+	| 'BN'
+	| 'BO'
+	| 'BQ'
+	| 'BR'
+	| 'BS'
+	| 'BT'
+	| 'BV'
+	| 'BW'
+	| 'BY'
+	| 'BZ'
+	| 'CA'
+	| 'CC'
+	| 'CD'
+	| 'CF'
+	| 'CG'
+	| 'CH'
+	| 'CI'
+	| 'CK'
+	| 'CL'
+	| 'CM'
+	| 'CN'
+	| 'CO'
+	| 'CR'
+	| 'CU'
+	| 'CV'
+	| 'CW'
+	| 'CX'
+	| 'CY'
+	| 'CZ'
+	| 'DE'
+	| 'DJ'
+	| 'DK'
+	| 'DM'
+	| 'DO'
+	| 'DZ'
+	| 'EC'
+	| 'EE'
+	| 'EG'
+	| 'EH'
+	| 'ER'
+	| 'ES'
+	| 'ET'
+	| 'FI'
+	| 'FJ'
+	| 'FK'
+	| 'FO'
+	| 'FR'
+	| 'GA'
+	| 'GB'
+	| 'GD'
+	| 'GE'
+	| 'GF'
+	| 'GG'
+	| 'GH'
+	| 'GI'
+	| 'GL'
+	| 'GM'
+	| 'GN'
+	| 'GP'
+	| 'GQ'
+	| 'GR'
+	| 'GS'
+	| 'GT'
+	| 'GW'
+	| 'GY'
+	| 'HK'
+	| 'HM'
+	| 'HN'
+	| 'HR'
+	| 'HT'
+	| 'HU'
+	| 'ID'
+	| 'IE'
+	| 'IL'
+	| 'IM'
+	| 'IN'
+	| 'IO'
+	| 'IQ'
+	| 'IR'
+	| 'IS'
+	| 'IT'
+	| 'JE'
+	| 'JM'
+	| 'JO'
+	| 'JP'
+	| 'KE'
+	| 'KG'
+	| 'KH'
+	| 'KI'
+	| 'KM'
+	| 'KN'
+	| 'KP'
+	| 'KR'
+	| 'KW'
+	| 'KY'
+	| 'KZ'
+	| 'LA'
+	| 'LB'
+	| 'LC'
+	| 'LI'
+	| 'LK'
+	| 'LR'
+	| 'LS'
+	| 'LT'
+	| 'LU'
+	| 'LV'
+	| 'LY'
+	| 'MA'
+	| 'MC'
+	| 'MD'
+	| 'ME'
+	| 'MF'
+	| 'MG'
+	| 'MK'
+	| 'ML'
+	| 'MM'
+	| 'MN'
+	| 'MO'
+	| 'MQ'
+	| 'MR'
+	| 'MS'
+	| 'MT'
+	| 'MU'
+	| 'MV'
+	| 'MW'
+	| 'MX'
+	| 'MY'
+	| 'MZ'
+	| 'NA'
+	| 'NC'
+	| 'NE'
+	| 'NF'
+	| 'NG'
+	| 'NI'
+	| 'NL'
+	| 'NO'
+	| 'NP'
+	| 'NR'
+	| 'NU'
+	| 'NZ'
+	| 'OM'
+	| 'PA'
+	| 'PE'
+	| 'PF'
+	| 'PG'
+	| 'PH'
+	| 'PK'
+	| 'PL'
+	| 'PM'
+	| 'PN'
+	| 'PS'
+	| 'PT'
+	| 'PY'
+	| 'QA'
+	| 'RE'
+	| 'RO'
+	| 'RS'
+	| 'RU'
+	| 'RW'
+	| 'SA'
+	| 'SB'
+	| 'SC'
+	| 'SD'
+	| 'SE'
+	| 'SG'
+	| 'SH'
+	| 'SI'
+	| 'SJ'
+	| 'SK'
+	| 'SL'
+	| 'SM'
+	| 'SN'
+	| 'SO'
+	| 'SR'
+	| 'SS'
+	| 'ST'
+	| 'SV'
+	| 'SX'
+	| 'SY'
+	| 'SZ'
+	| 'TA'
+	| 'TC'
+	| 'TD'
+	| 'TF'
+	| 'TG'
+	| 'TH'
+	| 'TJ'
+	| 'TK'
+	| 'TL'
+	| 'TM'
+	| 'TN'
+	| 'TO'
+	| 'TR'
+	| 'TT'
+	| 'TV'
+	| 'TW'
+	| 'TZ'
+	| 'UA'
+	| 'UG'
+	| 'UM'
+	| 'US'
+	| 'UY'
+	| 'UZ'
+	| 'VA'
+	| 'VC'
+	| 'VE'
+	| 'VG'
+	| 'VN'
+	| 'VU'
+	| 'WF'
+	| 'WS'
+	| 'XK'
+	| 'YE'
+	| 'YT'
+	| 'ZA'
+	| 'ZM'
+	| 'ZW'
+	| 'ZZ';

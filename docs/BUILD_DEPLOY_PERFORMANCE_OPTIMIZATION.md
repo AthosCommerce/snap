@@ -51,7 +51,9 @@ Otherwise, if you are not using the `Image` component, ensure product images are
 
 ### Prefetch Strategies
 
-Use `prefetch` sparingly and only for components that are likely to be viewed. When `prefetch` is enabled, the controller's search method is called immediately when the targeter is registered, before the target element is found in the DOM:
+On pages whose context declares `page = { type: 'search' }` or `page = { type: 'category' }`, search targeters prefetch by default: the controller's search is issued as soon as the bundle executes, before the target element is found in the DOM. Set `prefetch: true` on a targeter to force this on any page, or `prefetch: false` to opt a targeter out (for example when the page type is set but the results are rendered elsewhere).
+
+Use `prefetch: true` sparingly and only for components that are likely to be viewed:
 
 ```tsx
 const config = {
@@ -112,7 +114,7 @@ By adding a `min-height` to elements that are being targeted by Snap components,
 
 ### Use Skeleton Components
 
-We recommended using server-side rendered skeletons inside the target elements for the best LCP performance. If this is the case, also set the `renderAfterSearch` property to `true`.
+We recommended using server-side rendered skeletons inside the target elements for the best LCP performance. If this is the case, set the `emptyTarget` property to `false` so the skeleton is not removed when the target is found, and set `renderAfterSearch` to `true` so it stays until the search has resolved. The skeleton is replaced in full when the component renders.
 
 ```html
 <div id="athos-content" style="min-height: 100vh;">
@@ -124,7 +126,7 @@ We recommended using server-side rendered skeletons inside the target elements f
 ```
 
 ```tsx
-import { Snap } from '@athos/snap-preact';
+import { Snap } from '@athoscommerce/snap-preact';
 
 const config = {
   controllers: {
@@ -134,8 +136,9 @@ const config = {
       },
       targeters: [{
         selector: '#athos-content',
-        component: () => import('./Search'),
-        renderAfterSearch: true, // Render the skeleton after search is ready
+        component: async () => (await import('./Search')).Search,
+        emptyTarget: false, // Keep the skeleton when the target is found
+        renderAfterSearch: true, // Replace the skeleton once the search is ready
       }]
     }]
   }

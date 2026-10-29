@@ -1,7 +1,3 @@
-// Currencies supported by Snap Templates — matches the list of currencies supported by Shopify (ISO 4217).
-// Symbols, decimal places and separators are sourced from CLDR — decimalPlaces is only set when not 2, and
-// separators are only set when the currency has a single dominant convention that differs from the component
-// defaults (multi-locale currencies like EUR/USD/CHF/CAD keep the defaults and can be overridden per site).
 export const currencies = {
 	// United Arab Emirates Dirham
 	aed: {
@@ -35,9 +31,10 @@ export const currencies = {
 	amd: {
 		components: {
 			price: {
-				symbol: '֏',
+				symbol: '\u00A0֏',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -55,9 +52,10 @@ export const currencies = {
 	aoa: {
 		components: {
 			price: {
-				symbol: 'Kz',
+				symbol: '\u00A0Kz',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -93,9 +91,10 @@ export const currencies = {
 	azn: {
 		components: {
 			price: {
-				symbol: '₼',
+				symbol: '\u00A0₼',
 				thousandsSeparator: '.',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -103,9 +102,10 @@ export const currencies = {
 	bam: {
 		components: {
 			price: {
-				symbol: 'KM',
+				symbol: '\u00A0KM',
 				thousandsSeparator: '.',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -122,6 +122,7 @@ export const currencies = {
 		components: {
 			price: {
 				symbol: '৳',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -315,9 +316,10 @@ export const currencies = {
 	czk: {
 		components: {
 			price: {
-				symbol: 'Kč',
+				symbol: '\u00A0Kč',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -336,9 +338,10 @@ export const currencies = {
 	dkk: {
 		components: {
 			price: {
-				symbol: 'kr',
+				symbol: '\u00A0kr',
 				thousandsSeparator: '.',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -420,9 +423,10 @@ export const currencies = {
 	gel: {
 		components: {
 			price: {
-				symbol: '₾',
+				symbol: '\u00A0₾',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -454,10 +458,11 @@ export const currencies = {
 	gnf: {
 		components: {
 			price: {
-				symbol: 'FG',
+				symbol: '\u00A0FG',
 				decimalPlaces: 0,
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -497,9 +502,10 @@ export const currencies = {
 	hrk: {
 		components: {
 			price: {
-				symbol: 'kn',
+				symbol: '\u00A0kn',
 				thousandsSeparator: '.',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -517,10 +523,11 @@ export const currencies = {
 	huf: {
 		components: {
 			price: {
-				symbol: 'Ft',
+				symbol: '\u00A0Ft',
 				decimalPlaces: 0,
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -539,7 +546,8 @@ export const currencies = {
 	ils: {
 		components: {
 			price: {
-				symbol: '₪',
+				symbol: '\u00A0₪',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -573,10 +581,11 @@ export const currencies = {
 	isk: {
 		components: {
 			price: {
-				symbol: 'kr',
+				symbol: '\u00A0kr',
 				decimalPlaces: 0,
 				thousandsSeparator: '.',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -637,6 +646,7 @@ export const currencies = {
 		components: {
 			price: {
 				symbol: '៛',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -652,10 +662,11 @@ export const currencies = {
 	kmf: {
 		components: {
 			price: {
-				symbol: 'CF',
+				symbol: '\u00A0CF',
 				decimalPlaces: 0,
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -689,9 +700,10 @@ export const currencies = {
 	kzt: {
 		components: {
 			price: {
-				symbol: '₸',
+				symbol: '\u00A0₸',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -755,9 +767,10 @@ export const currencies = {
 	lvl: {
 		components: {
 			price: {
-				symbol: 'Ls',
+				symbol: '\u00A0Ls',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -817,8 +830,9 @@ export const currencies = {
 	mmk: {
 		components: {
 			price: {
-				symbol: 'K',
+				symbol: '\u00A0K',
 				decimalPlaces: 0,
+				symbolAfter: true,
 			},
 		},
 	},
@@ -852,7 +866,8 @@ export const currencies = {
 	mur: {
 		components: {
 			price: {
-				symbol: 'Rs',
+				symbol: '\u00A0Rs',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -926,9 +941,10 @@ export const currencies = {
 	nok: {
 		components: {
 			price: {
-				symbol: 'kr',
+				symbol: '\u00A0kr',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1002,9 +1018,10 @@ export const currencies = {
 	pln: {
 		components: {
 			price: {
-				symbol: 'zł',
+				symbol: '\u00A0zł',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1051,9 +1068,10 @@ export const currencies = {
 	rub: {
 		components: {
 			price: {
-				symbol: '₽',
+				symbol: '\u00A0₽',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1104,9 +1122,10 @@ export const currencies = {
 	sek: {
 		components: {
 			price: {
-				symbol: 'kr',
+				symbol: '\u00A0kr',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1158,7 +1177,8 @@ export const currencies = {
 	ssp: {
 		components: {
 			price: {
-				symbol: '£',
+				symbol: '\u00A0£',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1166,9 +1186,10 @@ export const currencies = {
 	stn: {
 		components: {
 			price: {
-				symbol: 'Db',
+				symbol: '\u00A0Db',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1274,9 +1295,10 @@ export const currencies = {
 	uah: {
 		components: {
 			price: {
-				symbol: '₴',
+				symbol: '\u00A0₴',
 				thousandsSeparator: '\u00A0',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},
@@ -1341,10 +1363,11 @@ export const currencies = {
 	vnd: {
 		components: {
 			price: {
-				symbol: '₫',
+				symbol: '\u00A0₫',
 				decimalPlaces: 0,
 				thousandsSeparator: '.',
 				decimalSeparator: ',',
+				symbolAfter: true,
 			},
 		},
 	},

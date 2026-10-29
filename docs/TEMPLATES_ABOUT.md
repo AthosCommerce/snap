@@ -32,8 +32,8 @@ import { globalStyles } from './styles';
 const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: 'atkzs2',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 		platform: 'shopify',
 	},
 	components: {
@@ -112,8 +112,8 @@ import { globalStyles } from './styles';
 const templatesConfig = validateTemplatesConfig({
 	config: {
 		siteId: 'atkzs2',
-		language: 'en',
-		currency: 'usd',
+		language: 'EN',
+		currency: 'USD',
 		platform: 'shopify',
 	},
 	theme: {
@@ -138,7 +138,7 @@ const templatesConfig = validateTemplatesConfig({
 		},
 	},
 	translations: {
-		en: {
+		EN: {
 			searchHeader: {
 				titleText: {
 					value: 'Search Results',

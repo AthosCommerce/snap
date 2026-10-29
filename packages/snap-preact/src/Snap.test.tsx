@@ -313,6 +313,40 @@ describe('Snap Preact', () => {
 		cookies.unset(DEV_COOKIE);
 	});
 
+	describe('mode detection from NODE_ENV', () => {
+		const originalNodeEnv = process.env.NODE_ENV;
+
+		afterEach(() => {
+			process.env.NODE_ENV = originalNodeEnv;
+		});
+
+		it('enters development mode and disables the client network cache when NODE_ENV is development', () => {
+			process.env.NODE_ENV = 'development';
+			const snap = new Snap(generateBaseConfig());
+
+			// @ts-ignore - accessing private property
+			expect(snap.mode).toBe('development');
+			// @ts-ignore - accessing private property
+			expect(snap.client.mode).toBe('development');
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.configuration.cache.enabled).toBe(false);
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.cache.config.enabled).toBe(false);
+		});
+
+		it('stays in production mode with the client network cache enabled when NODE_ENV is production', () => {
+			process.env.NODE_ENV = 'production';
+			const snap = new Snap(generateBaseConfig());
+
+			// @ts-ignore - accessing private property
+			expect(snap.mode).toBe('production');
+			// @ts-ignore - accessing private property
+			expect(snap.client.mode).toBe('production');
+			// @ts-ignore - accessing private property
+			expect(snap.client.requesters.search.cache.config.enabled).toBe(true);
+		});
+	});
+
 	it('exposes itself globally on the window', () => {
 		const baseConfig = generateBaseConfig();
 		const snap = new Snap(baseConfig);
@@ -823,6 +857,91 @@ describe('Snap Preact', () => {
 			expect(injectedComponent).not.toBeNull();
 		});
 
+		it(`keeps the target content until the component renders when 'emptyTarget' is false, then replaces all of it`, async () => {
+			const skeletonHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+			document.body.innerHTML = `<script id="athos-context"></script><div id="athos-content">${skeletonHTML}</div>`;
+			const contentElem = document.querySelector('#athos-content')!;
+			const firstSkeletonElem = contentElem.firstElementChild;
+
+			const onTarget = jest.fn();
+			const baseConfig = generateBaseConfig();
+			const searchConfig = {
+				...baseConfig,
+				controllers: {
+					search: [
+						{
+							config: {
+								id: 'search',
+							},
+							targeters: [
+								{
+									selector: '#athos-content',
+									emptyTarget: false,
+									renderAfterSearch: true,
+									onTarget,
+									component: () => Component,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(searchConfig.client!.globals as ClientGlobals, undefined, { delay: 50 });
+			const snap = new Snap(searchConfig, { client });
+			const search = await snap.getController('search');
+
+			// the target has been found while the search is still pending - its content is untouched
+			await waitFor(() => expect(onTarget).toHaveBeenCalledTimes(1));
+			expect(search.store.loading).toBe(true);
+			expect(contentElem.innerHTML).toBe(skeletonHTML);
+
+			// once rendered only the component remains - no skeleton node is reused or left behind
+			await waitFor(() => expect(contentElem.innerHTML).toBe('<div class="injectedComponent">search</div>'));
+			expect(contentElem.firstElementChild).not.toBe(firstSkeletonElem);
+		});
+
+		it(`clears the target content only before the first render when 'emptyTarget' is false`, async () => {
+			document.body.innerHTML = `<script id="athos-context"></script><div id="athos-content"><div class="placeholder"></div><div class="placeholder"></div></div>`;
+			const contentElem = document.querySelector('#athos-content')!;
+
+			// one component type for both renders, so the second render is a Preact update of the first
+			const Content = (props: any) => <div className="content">{props.controller ? props.controller.type : 'loading'}</div>;
+			const baseConfig = generateBaseConfig();
+			const searchConfig = {
+				...baseConfig,
+				controllers: {
+					search: [
+						{
+							config: {
+								id: 'search',
+							},
+							targeters: [
+								{
+									selector: '#athos-content',
+									emptyTarget: false,
+									renderAfterSearch: true,
+									skeleton: () => Content,
+									component: () => Content,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(searchConfig.client!.globals as ClientGlobals, undefined, { delay: 50 });
+			const snap = new Snap(searchConfig, { client });
+			const search = await snap.getController('search');
+
+			// the skeleton render replaces the existing content while the search is pending
+			await waitFor(() => expect(contentElem.innerHTML).toBe('<div class="content">loading</div>'));
+			expect(search.store.loading).toBe(true);
+
+			// the component render updates the DOM Snap rendered rather than clearing it
+			await waitFor(() => expect(contentElem.innerHTML).toBe('<div class="content">search</div>'));
+		});
+
 		it(`runs the controller 'search' method when prefetch is set when selector not found`, async () => {
 			const baseConfig = generateBaseConfig();
 			const searchConfig = {
@@ -862,6 +981,110 @@ describe('Snap Preact', () => {
 			expect(search.store.loaded).toBe(true);
 
 			spy.mockClear();
+		});
+
+		describe('early search keyed on the page context', () => {
+			const createSnap = (targeterConfig: { prefetch?: boolean } = {}) => {
+				const baseConfig = generateBaseConfig();
+				const component = jest.fn(() => Component);
+				const searchConfig: SnapConfig = {
+					...baseConfig,
+					controllers: {
+						search: [
+							{
+								config: {
+									id: 'search',
+								},
+								targeters: [
+									{
+										...targeterConfig,
+										selector: '#athos-dne',
+										component,
+									},
+								],
+							},
+						],
+					},
+				};
+
+				const client = new MockClient(searchConfig.client!.globals as ClientGlobals);
+				const searchSpy = jest.spyOn(client, 'search');
+				const categorySpy = jest.spyOn(client, 'category');
+				const snap = new Snap(searchConfig, { client });
+
+				return { snap, component, searchSpy, categorySpy };
+			};
+
+			it(`runs the search early when page.type is 'search'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'search' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).toHaveBeenCalledTimes(1);
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).toHaveBeenCalledTimes(1);
+				expect(snap.controllers.search.store.loaded).toBe(true);
+			});
+
+			it(`runs the category search early when page.type is 'category'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'category' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(categorySpy).toHaveBeenCalledTimes(1);
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(component).toHaveBeenCalledTimes(1);
+				expect(snap.controllers.search.store.loaded).toBe(true);
+			});
+
+			it('does not normalize the case or whitespace of page.type', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'Category ' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				// matches SearchController, which only accepts the exact 'search' and 'category' values
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
+			});
+
+			it(`does not run the search early when page.type is 'product'`, async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'product' };</script>`;
+				const { snap, component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+				expect(snap.controllers.search.store.loaded).toBe(false);
+			});
+
+			it('does not run the search early when page is a string', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = "404";</script>`;
+				const { component, searchSpy, categorySpy } = createSnap();
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+			});
+
+			it('does not run the search early when the targeter sets prefetch to false', async () => {
+				document.body.innerHTML = `<script id="athos-context">page = { type: 'search' };</script>`;
+				const { component, searchSpy, categorySpy } = createSnap({ prefetch: false });
+
+				await wait();
+
+				expect(searchSpy).not.toHaveBeenCalled();
+				expect(categorySpy).not.toHaveBeenCalled();
+				expect(component).not.toHaveBeenCalled();
+			});
 		});
 	});
 

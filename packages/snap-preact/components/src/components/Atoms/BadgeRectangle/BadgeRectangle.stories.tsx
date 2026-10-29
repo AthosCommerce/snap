@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { BadgeRectangleProps, BadgeRectangle } from './BadgeRectangle';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { BadgeRectangle } from './BadgeRectangle';
+import { componentArgs } from '../../../utilities';
 import Readme from '../BadgeRectangle/readme.md';
 
 export default {
 	title: 'Atoms/BadgeRectangle',
 	component: BadgeRectangle,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -90,9 +76,10 @@ export default {
 	},
 };
 
-export const Default = (args: BadgeRectangleProps) => <BadgeRectangle {...args} />;
-Default.args = {
-	value: '30% Off',
-	color: '#0000FF',
-	colorText: '#FFFFFF',
+export const Default = {
+	args: {
+		value: '30% Off',
+		color: '#0000FF',
+		colorText: '#FFFFFF',
+	},
 };

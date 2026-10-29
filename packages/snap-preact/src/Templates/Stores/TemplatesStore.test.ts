@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/preact';
 
-import { TemplatesStore, TemplateTarget } from './TemplateStore';
+import { TemplatesStore, TemplateTarget, resolveCurrencyOverridesTheme, resolveTranslationsOverridesTheme, withCurrencyCode } from './TemplateStore';
 import type { SnapTemplatesConfig } from '../SnapTemplates';
 import { GLOBAL_THEME_NAME, TargetStore } from './TargetStore';
 //todo - these tests sometimes take over 10 seconds to run, currently unclear why.
@@ -230,5 +230,153 @@ describe('TemplateStore', () => {
 
 		expect(store.targets[type][targetObject!.index]).toBeDefined();
 		expect(store.getTarget(target.type, targetObject!.index)).toBe(targetObject);
+	});
+});
+
+describe('resolveCurrencyOverridesTheme', () => {
+	const currencies = {
+		aed: {
+			price: {
+				symbol: 'د.إ',
+				symbolAfter: true,
+			},
+		},
+		usd: {
+			price: {
+				showCode: true,
+			},
+		},
+	};
+
+	it('wraps the overrides for the given currency in a theme layer', () => {
+		expect(resolveCurrencyOverridesTheme(currencies, 'aed')).toStrictEqual({
+			components: {
+				price: {
+					symbol: 'د.إ',
+					symbolAfter: true,
+				},
+			},
+		});
+	});
+
+	it('returns only the requested currency', () => {
+		expect(resolveCurrencyOverridesTheme(currencies, 'usd')).toStrictEqual({
+			components: { price: { showCode: true } },
+		});
+	});
+
+	it('returns an empty layer for a currency with no overrides', () => {
+		expect(resolveCurrencyOverridesTheme(currencies, 'eur')).toStrictEqual({});
+	});
+
+	it('returns an empty layer when nothing is configured', () => {
+		expect(resolveCurrencyOverridesTheme(undefined, 'aed')).toStrictEqual({});
+		expect(resolveCurrencyOverridesTheme({}, 'aed')).toStrictEqual({});
+	});
+
+	it('accepts uppercase keys the way config.currency does', () => {
+		const uppercase = { AED: { price: { symbol: 'X' } } };
+
+		expect(resolveCurrencyOverridesTheme(uppercase, 'aed')).toStrictEqual({
+			components: { price: { symbol: 'X' } },
+		});
+	});
+
+	it('is not confused by a currency code that is also a component name', () => {
+		// codes are three letters, so this only guards against an accidental lookup by component
+		expect(resolveCurrencyOverridesTheme({ aed: { price: {} } }, 'aed')).toStrictEqual({
+			components: { price: {} },
+		});
+	});
+});
+
+describe('resolveTranslationsOverridesTheme', () => {
+	const translations = {
+		en: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filter Results',
+				},
+			},
+		},
+		fr: {
+			search: {
+				toggleSidebarButtonText: {
+					value: 'Filtrer les résultats',
+				},
+			},
+		},
+	};
+
+	it('wraps the overrides for the given language in a theme layer', () => {
+		expect(resolveTranslationsOverridesTheme(translations, 'en')).toStrictEqual({
+			components: {
+				search: {
+					lang: {
+						toggleSidebarButtonText: {
+							value: 'Filter Results',
+						},
+					},
+				},
+			},
+		});
+	});
+
+	it('returns only the requested language', () => {
+		expect(resolveTranslationsOverridesTheme(translations, 'fr')).toStrictEqual({
+			components: {
+				search: {
+					lang: {
+						toggleSidebarButtonText: {
+							value: 'Filtrer les résultats',
+						},
+					},
+				},
+			},
+		});
+	});
+
+	it('returns an empty layer for a language with no overrides', () => {
+		expect(resolveTranslationsOverridesTheme(translations, 'es')).toStrictEqual({ components: {} });
+	});
+
+	it('returns an empty layer when nothing is configured', () => {
+		expect(resolveTranslationsOverridesTheme(undefined, 'en')).toStrictEqual({ components: {} });
+		expect(resolveTranslationsOverridesTheme({}, 'en')).toStrictEqual({ components: {} });
+	});
+
+	it('accepts uppercase keys the way config.language does', () => {
+		const uppercase = { EN: { search: { toggleSidebarButtonText: { value: 'X' } } } };
+
+		expect(resolveTranslationsOverridesTheme(uppercase, 'en')).toStrictEqual({
+			components: {
+				search: {
+					lang: {
+						toggleSidebarButtonText: {
+							value: 'X',
+						},
+					},
+				},
+			},
+		});
+	});
+});
+
+describe('withCurrencyCode', () => {
+	it('adds the uppercased ISO code to the price component', () => {
+		expect(withCurrencyCode('sek', { components: { price: { symbol: '\u00A0kr' } } })).toStrictEqual({
+			components: { price: { symbol: '\u00A0kr', code: 'SEK' } },
+		});
+	});
+
+	it('adds the code to an empty locale layer', () => {
+		expect(withCurrencyCode('usd', {})).toStrictEqual({ components: { price: { code: 'USD' } } });
+	});
+
+	it('does not mutate the locale layer it is given', () => {
+		const locale = { components: { price: { symbol: '$' } } };
+		withCurrencyCode('usd', locale);
+
+		expect(locale).toStrictEqual({ components: { price: { symbol: '$' } } });
 	});
 });
