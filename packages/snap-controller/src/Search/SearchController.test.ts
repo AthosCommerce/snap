@@ -970,6 +970,10 @@ describe('Search Controller', () => {
 
 	it('records history store terms with the controller tracker when the store has no tracker service', async () => {
 		const store = new SearchStore(searchConfig, { urlManager });
+		const setService = jest.spyOn(store, 'setService');
+
+		expect(store.services.tracker).toBeUndefined();
+
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
 			store,
@@ -981,6 +985,9 @@ describe('Search Controller', () => {
 		});
 		controller.tracker.cookies.searched.clear();
 
+		expect(setService).toHaveBeenCalledTimes(1);
+		expect(setService).toHaveBeenCalledWith('tracker', controller.tracker);
+
 		await controller.search();
 		store.history.save('boots');
 
@@ -990,7 +997,7 @@ describe('Search Controller', () => {
 		controller.tracker.cookies.searched.clear();
 	});
 
-	it('replaces commas within searched terms in the personalization lastSearches param', async () => {
+	it('encodes commas within searched terms in the personalization lastSearches param', async () => {
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
 			store: new SearchStore(searchConfig, { urlManager }),
@@ -1005,7 +1012,7 @@ describe('Search Controller', () => {
 		controller.tracker.cookies.searched.add(['boots']);
 		controller.tracker.cookies.searched.add(['red, blue dress']);
 
-		expect(controller.params.personalization!.lastSearches).toEqual('red blue dress,boots');
+		expect(controller.params.personalization!.lastSearches).toEqual('red%2C%20blue%20dress,boots');
 
 		controller.tracker.cookies.searched.clear();
 	});
@@ -1013,6 +1020,7 @@ describe('Search Controller', () => {
 	it('records history store terms through the tracker service of the store', async () => {
 		const storeTracker = new Tracker({ siteId: 'at5678' });
 		const store = new SearchStore(searchConfig, { urlManager, tracker: storeTracker });
+		const setService = jest.spyOn(store, 'setService');
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
 			store,
@@ -1024,6 +1032,9 @@ describe('Search Controller', () => {
 		});
 		controller.tracker.cookies.searched.clear();
 		storeTracker.cookies.searched.clear();
+
+		expect(setService).not.toHaveBeenCalled();
+		expect(store.services.tracker).toBe(storeTracker);
 
 		store.history.save('boots');
 

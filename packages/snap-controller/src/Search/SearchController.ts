@@ -151,7 +151,7 @@ export class SearchController extends AbstractController {
 
 		// the history store records searched terms with the tracker - use the controller tracker when the store was not given one
 		if (!this.store.services.tracker) {
-			this.store.services.tracker = this.tracker;
+			this.store.setService('tracker', this.tracker);
 		}
 
 		this.storage = new StorageStore({

@@ -1,7 +1,7 @@
-// the API expects a comma separated list of terms, so commas within a term are replaced to keep each term intact
+// the API expects a comma separated list of terms, so commas within a term are encoded
 export function getLastSearchesParam(terms: string[]): string {
 	return terms
-		.map((term) => term.replace(/,/g, ' ').replace(/\s+/g, ' ').trim())
+		.map((term) => encodeURIComponent(term))
 		.filter(Boolean)
 		.join(',');
 }

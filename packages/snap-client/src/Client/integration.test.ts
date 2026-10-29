@@ -165,11 +165,12 @@ describe('Snap Client Integration Tests', () => {
 			expect(tracker.cookies.searched.get()).toEqual(['dress']);
 
 			controller.urlManager.reset().set('query', '').go();
-			// wait for beacon render event (search and meta are both cached)
+			// wait for the search + beacon render event (meta is cached)
 			await jest.advanceTimersByTimeAsync(1000);
 
-			// only the beacon render event fired - search and meta came from cache (lastSearches is not part of the cache key so the changed personalization param still hits the cache)
-			expect(fetchfn).toHaveBeenCalledTimes(7);
+			// search and beacon render fired - meta came from cache, but the search did not because lastSearches now includes the recorded term
+			expect(fetchfn).toHaveBeenCalledTimes(8);
+			expect(fetchfn.mock.calls[6][0]).toContain('lastSearches=dress');
 
 			fetchfn.mockReset();
 		});

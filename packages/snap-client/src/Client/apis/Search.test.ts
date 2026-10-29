@@ -200,7 +200,7 @@ describe('Search Api', () => {
 	});
 
 	it.each(['getSearch', 'getAutocomplete', 'getCategory', 'getFinder'] as const)(
-		'%s reuses the cached response when only the lastSearches personalization param changes',
+		'%s does not reuse the cached response when the lastSearches personalization param changes',
 		async (method) => {
 			const api = new SearchAPI(new ApiConfiguration({}));
 			const requestMock = jest
@@ -213,19 +213,22 @@ describe('Search Api', () => {
 				personalization: { lastSearches: 'shoes' },
 			});
 
-			await api[method]({
-				siteId: '8uyt2m',
-				search: { query: { string: 'dress' } },
-				personalization: { lastSearches: 'boots,shoes' },
-			});
-
 			expect(requestMock).toHaveBeenCalledTimes(1);
 			expect(requestMock.mock.calls[0][0]).toContain('lastSearches=shoes');
 
 			await api[method]({
 				siteId: '8uyt2m',
 				search: { query: { string: 'dress' } },
-				personalization: { lastSearches: 'boots,shoes', lastViewed: 'sku1' },
+				personalization: { lastSearches: 'boots,shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+			expect(requestMock.mock.calls[1][0]).toContain('lastSearches=boots%2Cshoes');
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'boots,shoes' },
 			});
 
 			expect(requestMock).toHaveBeenCalledTimes(2);
