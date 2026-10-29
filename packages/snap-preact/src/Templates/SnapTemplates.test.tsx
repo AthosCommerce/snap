@@ -1777,7 +1777,54 @@ describe('createSearchTargeters emptyTarget', () => {
 		theme: { extends: 'base' },
 	};
 
-	it('keeps the target content and renders after the search by default and when emptyTarget is false', () => {
+	it('leaves emptyTarget and renderAfterSearch unset by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toStrictEqual([
+			{
+				selector: '#search',
+				autoRetarget: true,
+				hideTarget: true,
+				component: expect.any(Function),
+				props: { target: templatesStore.targets.search[0], templatesStore },
+			},
+		]);
+	});
+
+	it('sets emptyTarget to false and renders after the search when emptyTarget is false', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search', emptyTarget: false }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toStrictEqual([
+			{
+				selector: '#search',
+				autoRetarget: true,
+				hideTarget: true,
+				emptyTarget: false,
+				renderAfterSearch: true,
+				component: expect.any(Function),
+				props: { target: templatesStore.targets.search[0], templatesStore },
+			},
+		]);
+		expect(templatesStore.targets.search[0].emptyTarget).toBe(false);
+	});
+
+	it('waits for the theme to load before resolving the component when emptyTarget is false', async () => {
 		const config: SnapTemplatesConfig = {
 			...baseConfig,
 			search: {
@@ -1789,75 +1836,14 @@ describe('createSearchTargeters emptyTarget', () => {
 		};
 
 		const templatesStore = new TemplatesStore({ config });
-		const targeters = createSearchTargeters(config, templatesStore);
-
-		expect(targeters).toStrictEqual([
-			{
-				selector: '#search',
-				autoRetarget: true,
-				hideTarget: true,
-				emptyTarget: false,
-				renderAfterSearch: true,
-				component: expect.any(Function),
-				props: { target: templatesStore.targets.search[0], templatesStore },
-			},
-			{
-				selector: '#search-skeleton',
-				autoRetarget: true,
-				hideTarget: true,
-				emptyTarget: false,
-				renderAfterSearch: true,
-				component: expect.any(Function),
-				props: { target: templatesStore.targets.search[1], templatesStore },
-			},
-		]);
-		expect(templatesStore.targets.search[0].emptyTarget).toBeUndefined();
-		expect(templatesStore.targets.search[1].emptyTarget).toBe(false);
-	});
-
-	it('leaves emptyTarget and renderAfterSearch unset when emptyTarget is true', () => {
-		const config: SnapTemplatesConfig = {
-			...baseConfig,
-			search: {
-				targets: [{ selector: '#search', component: 'Search', emptyTarget: true }],
-			},
-		};
-
-		const templatesStore = new TemplatesStore({ config });
-		const targeters = createSearchTargeters(config, templatesStore);
-
-		expect(targeters).toStrictEqual([
-			{
-				selector: '#search',
-				autoRetarget: true,
-				hideTarget: true,
-				component: expect.any(Function),
-				props: { target: templatesStore.targets.search[0], templatesStore },
-			},
-		]);
-		expect(templatesStore.targets.search[0].emptyTarget).toBe(true);
-	});
-
-	it('waits for the theme to load before resolving the component unless emptyTarget is true', async () => {
-		const config: SnapTemplatesConfig = {
-			...baseConfig,
-			search: {
-				targets: [
-					{ selector: '#search', component: 'Search', emptyTarget: true },
-					{ selector: '#search-skeleton', component: 'Search' },
-				],
-			},
-		};
-
-		const templatesStore = new TemplatesStore({ config });
-		const [emptyTargeter, keepContentTargeter] = createSearchTargeters(config, templatesStore);
+		const [defaultTargeter, keepContentTargeter] = createSearchTargeters(config, templatesStore);
 
 		// let the initial theme load finish, then hold the store in its loading state
 		await waitFor(() => expect(templatesStore.loading).toBe(false));
 		templatesStore.loading = true;
 
-		// an `emptyTarget: true` target does not wait for the theme
-		expect(await emptyTargeter.component!()).toBe(TemplateSelect);
+		// a default target does not wait for the theme
+		expect(await defaultTargeter.component!()).toBe(TemplateSelect);
 
 		let resolvedComponent: unknown;
 		keepContentTargeter.component!().then((component: unknown) => {
