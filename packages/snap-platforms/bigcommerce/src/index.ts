@@ -7,3 +7,4 @@ export {
 	pluginBigcommerceAddToCart as pluginAddToCart,
 	PluginBigCommerceAddToCartConfig as PluginAddToCartConfig,
 } from './plugins/pluginBigcommerceAddToCart';
+export { getVariantId, GetVariantIdIds } from './getVariantId';

@@ -1150,6 +1150,46 @@ describe('createPlugins with built-in plugins', () => {
 		expect(plugins.length).toBeGreaterThanOrEqual(4);
 	});
 
+	it.each(['shopify', 'bigCommerce', 'magento2', 'other'] as const)(
+		'should include the swym wishlist plugin on the %s platform only when it is enabled',
+		(platform) => {
+			const config: SnapTemplatesConfig = { ...baseConfig, config: { ...baseConfig.config, platform } };
+			const templatesStore = new TemplatesStore({ config });
+			const swymWishlistPlugin = templatesStore.library.import.plugins.common.swymWishlist;
+
+			// opt-in: not configured and explicitly disabled both leave it out
+			expect(createPlugins(config, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
+
+			const disabledConfig: SnapTemplatesConfig = { ...config, plugins: { common: { swymWishlist: { enabled: false } } } };
+			expect(createPlugins(disabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
+
+			const enabledConfig: SnapTemplatesConfig = { ...config, plugins: { common: { swymWishlist: { enabled: true } } } };
+			expect(createPlugins(enabledConfig, templatesStore).find((plugin) => plugin[0] === swymWishlistPlugin)).toEqual([
+				swymWishlistPlugin,
+				{ enabled: true },
+			]);
+		}
+	);
+
+	it('should enable the swym wishlist plugin from a controller-specific config', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				plugins: { common: { swymWishlist: { enabled: true } } },
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const swymWishlistPlugin = templatesStore.library.import.plugins.common.swymWishlist;
+
+		expect(createPlugins(config, templatesStore, 'search').find((plugin) => plugin[0] === swymWishlistPlugin)).toEqual([
+			swymWishlistPlugin,
+			{ enabled: true },
+		]);
+		expect(createPlugins(config, templatesStore, 'autocomplete').find((plugin) => plugin[0] === swymWishlistPlugin)).toBeUndefined();
+	});
+
 	it('should not include the shopify currency plugin unless it is enabled', () => {
 		const shopifyConfig: SnapTemplatesConfig = {
 			...baseConfig,

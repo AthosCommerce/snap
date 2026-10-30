@@ -49,6 +49,8 @@ import {
 	PluginLoggerConfig,
 	pluginKlaviyoEvents,
 	PluginKlaviyoEventsConfig,
+	pluginSwymWishlist,
+	PluginSwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/common';
 import {
 	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
@@ -194,6 +196,7 @@ type TemplatePlugins =
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
 	| [typeof pluginKlaviyoEvents, PluginKlaviyoEventsConfig]
+	| [typeof pluginSwymWishlist, PluginSwymWishlistConfig]
 	// shopify
 	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
@@ -810,6 +813,10 @@ export function createPlugins(
 	const klaviyoEventsConfig = deepmerge(templateConfig.plugins?.common?.klaviyoEvents || {}, controllerConfig?.plugins?.common?.klaviyoEvents || {});
 	if (klaviyoEventsConfig?.enabled === true) {
 		plugins.push([templatesStore.library.import.plugins.common.klaviyoEvents, klaviyoEventsConfig]);
+	}
+	const swymWishlistConfig = deepmerge(templateConfig.plugins?.common?.swymWishlist || {}, controllerConfig?.plugins?.common?.swymWishlist || {});
+	if (swymWishlistConfig?.enabled === true) {
+		plugins.push([templatesStore.library.import.plugins.common.swymWishlist, swymWishlistConfig]);
 	}
 
 	switch (templatesStore.platform) {

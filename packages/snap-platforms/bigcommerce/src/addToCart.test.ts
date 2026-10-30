@@ -19,6 +19,9 @@ const CART_EXISTS_ROUTE = `/api/storefront/carts/${MOCK_CART_ID}/items`;
 const REDIRECT_ROUTE = '/cart.php';
 const MOCK_ADDED_RESPONSE = { id: MOCK_CART_ID };
 
+// the Storefront Cart API takes integer ids
+const toId = (value: unknown) => (/^\d+$/.test(String(value)) ? Number(value) : value);
+
 const wait = (time = 1) => {
 	return new Promise((resolve) => {
 		setTimeout(resolve, time);
@@ -187,7 +190,7 @@ describe('addToCart', () => {
 			const postBody = {
 				lineItems: [
 					{
-						product_id: item.id,
+						productId: toId(item.id),
 						quantity: item.quantity,
 					},
 				],
@@ -239,7 +242,7 @@ describe('addToCart', () => {
 			const postBody = {
 				lineItems: [
 					{
-						product_id: item.display.mappings.core?.uid,
+						productId: toId(item.display.mappings.core?.uid),
 						quantity: item.quantity,
 						optionSelections: [
 							{
@@ -278,7 +281,7 @@ describe('addToCart', () => {
 
 			const postBody = {
 				lineItems: items.map((item) => ({
-					product_id: item.id,
+					productId: toId(item.id),
 					quantity: item.quantity,
 				})),
 			};
@@ -314,7 +317,7 @@ describe('addToCart', () => {
 			const postBody = {
 				lineItems: [
 					{
-						product_id: item.mappings.core?.sku,
+						productId: toId(item.mappings.core?.sku),
 						quantity: item.quantity,
 					},
 				],
@@ -330,6 +333,64 @@ describe('addToCart', () => {
 			expect(fetchMock).toHaveBeenCalledTimes(2);
 
 			fetchMock.mockClear();
+		});
+	});
+
+	describe('with Athos {parentId}_{variantId} uids', () => {
+		const cartPost = (lineItems: unknown[]) => ({ headers: HEADERS, method: 'POST', body: JSON.stringify({ lineItems }) });
+		const athosProduct = (core: Record<string, unknown>, extra: Record<string, unknown> = {}) =>
+			({ type: 'product', quantity: 1, mappings: { core }, display: { mappings: { core } }, attributes: {}, ...extra } as unknown as Product);
+
+		beforeEach(() => fetchMock.mockClear());
+		afterAll(() => fetchMock.mockClear());
+
+		it('sends the parentId as the product and the id after the underscore as the variant', async () => {
+			const item = athosProduct({ uid: '19936_20252', parentId: '19936' });
+
+			await addToCart([item], { redirect: false });
+
+			expect(fetchMock).toHaveBeenLastCalledWith(CART_EXISTS_ROUTE, cartPost([{ productId: 19936, quantity: 1, variantId: 20252 }]));
+		});
+
+		it('sends the variant instead of option selections when Snap variants are in use', async () => {
+			const item = athosProduct(
+				{ uid: '19936_20252', parentId: '19936' },
+				{ variants: { active: { options: { color: { value: 'Black', optionId: '570', optionValue: '2900' } } } } }
+			);
+
+			await addToCart([item], { redirect: false });
+
+			expect(fetchMock).toHaveBeenLastCalledWith(CART_EXISTS_ROUTE, cartPost([{ productId: 19936, quantity: 1, variantId: 20252 }]));
+		});
+
+		it('sends only the product for a product without options, whose uid is its parentId', async () => {
+			const item = athosProduct({ uid: '22585', parentId: '22585' });
+
+			await addToCart([item], { redirect: false });
+
+			expect(fetchMock).toHaveBeenLastCalledWith(CART_EXISTS_ROUTE, cartPost([{ productId: 22585, quantity: 1 }]));
+		});
+
+		it('keeps a custom idFieldName as the product id', async () => {
+			const item = athosProduct({ uid: '19936_20252', parentId: '19936', sku: '777' });
+
+			await addToCart([item], { redirect: false, idFieldName: 'display.mappings.core.sku' });
+
+			expect(fetchMock).toHaveBeenLastCalledWith(CART_EXISTS_ROUTE, cartPost([{ productId: 777, quantity: 1 }]));
+		});
+
+		it('adds composite and plain items in one request', async () => {
+			const items = [athosProduct({ uid: '19936_20252', parentId: '19936' }), athosProduct({ uid: '22585', parentId: '22585' }, { quantity: 3 })];
+
+			await addToCart(items, { redirect: false });
+
+			expect(fetchMock).toHaveBeenLastCalledWith(
+				CART_EXISTS_ROUTE,
+				cartPost([
+					{ productId: 19936, quantity: 1, variantId: 20252 },
+					{ productId: 22585, quantity: 3 },
+				])
+			);
 		});
 	});
 
@@ -361,7 +422,7 @@ describe('addToCart', () => {
 			const postBody = {
 				lineItems: [
 					{
-						product_id: item.id,
+						productId: toId(item.id),
 						quantity: item.quantity,
 					},
 				],
@@ -412,7 +473,7 @@ describe('addToCart', () => {
 			const postBody = {
 				lineItems: [
 					{
-						product_id: item.display.mappings.core?.uid,
+						productId: toId(item.display.mappings.core?.uid),
 						quantity: item.quantity,
 						optionSelections: [
 							{
@@ -449,7 +510,7 @@ describe('addToCart', () => {
 
 			const postBody = {
 				lineItems: items.map((item) => ({
-					product_id: item.id,
+					productId: toId(item.id),
 					quantity: item.quantity,
 				})),
 			};
