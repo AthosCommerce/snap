@@ -34,6 +34,9 @@ let templatesConfig = validateTemplatesConfig({
 				result: {
 					hideQuickviewButton: false,
 				},
+				'toolbar.top': {
+					layout: [['banner.header'], ['searchHeader', '_'], ['searchInput']],
+				},
 			},
 		},
 	},

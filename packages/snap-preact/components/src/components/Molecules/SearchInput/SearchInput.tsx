@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
-import { Dispatch, MutableRef, StateUpdater, useState } from 'preact/hooks';
+import { Dispatch, MutableRef, StateUpdater, useRef, useState } from 'preact/hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
 import { Lang, LangAttributes, useLang } from '../../../hooks/useLang';
@@ -90,6 +90,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 	const {
 		placeholderText,
 		value,
+		defaultValue,
 		submitSearchButton,
 		closeSearchButton,
 		clearSearchButton,
@@ -102,6 +103,7 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		onClick,
 		onKeyDown,
 		onKeyUp,
+		onSubmit,
 		disabled,
 		disableStyles,
 		className,
@@ -121,10 +123,14 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 	const stateful = value === undefined;
 
 	if (stateful) {
-		[inputValue, setInputValue] = useState('');
+		[inputValue, setInputValue] = useState(defaultValue || '');
 	} else {
 		inputValue = value;
 	}
+
+	// submit reads the element's value, which can be set outside of render (e.g. by the clear button)
+	const internalInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
+	const renderedInputRef = inputRef || internalInputRef;
 
 	const subProps: SearchInputSubProps = {
 		submitSearchButton: {
@@ -132,6 +138,11 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 			...submitSearchButton,
 			internalClassName: 'ss__search-input__button--submit-search-button',
 			name: 'submit-search',
+			onClick: (e) => {
+				submitSearchButton?.onClick && submitSearchButton.onClick(e);
+
+				!disabled && onSubmit && onSubmit(e, renderedInputRef.current?.value ?? '');
+			},
 
 			// inherited props
 			...defined({
@@ -227,8 +238,15 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 					{...mergedLang.placeholderText.attributes}
 					value={inputValue}
 					name={inputName}
-					ref={inputRef}
-					onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => onKeyDown && onKeyDown(e)}
+					ref={renderedInputRef}
+					onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+						onKeyDown && onKeyDown(e);
+
+						// keyCode 229: Enter that confirms an IME composition is not a submit
+						if (onSubmit && e.key === 'Enter' && e.keyCode !== 229) {
+							onSubmit(e, e.currentTarget.value);
+						}
+					}}
 					onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => onKeyUp && onKeyUp(e)}
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 						if (setInputValue) {
@@ -254,6 +272,7 @@ export type SearchInputProps = {
 	lang?: Partial<SearchInputLang>;
 	inputRef?: MutableRef<HTMLInputElement | null>;
 	value?: string;
+	defaultValue?: string;
 } & SearchInputTemplatesLegalProps &
 	ComponentProps<SearchInputProps>;
 
@@ -271,6 +290,7 @@ export type SearchInputTemplatesLegalProps = {
 	onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 	onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 	onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+	onSubmit?: (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement, MouseEvent>, value: string) => void;
 	disableA11y?: boolean;
 };
 
