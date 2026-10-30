@@ -66,7 +66,6 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.default?.['autocompleteSlideout'] || {}),
 			themeStyleScript: autocompleteSlideoutStyleScript,
-			layout: 'mobile',
 			contentTitle: 'Product Suggestions',
 		},
 		'autocompleteSlideout terms': {
@@ -93,7 +92,6 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		...autocompleteSlideoutThemeComponentProps.mobile,
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.mobile?.['autocompleteSlideout'] || {}),
-			layout: 'mobile',
 		},
 		'autocompleteSlideout terms': {
 			vertical: false,
@@ -115,7 +113,6 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		...autocompleteSlideoutThemeComponentProps.tablet,
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.tablet?.['autocompleteSlideout'] || {}),
-			layout: 'mobile',
 		},
 		'autocompleteSlideout terms': {
 			vertical: false,
@@ -137,7 +134,6 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		...autocompleteSlideoutThemeComponentProps.desktop,
 		autocompleteSlideout: {
 			...(autocompleteSlideoutThemeComponentProps.desktop?.['autocompleteSlideout'] || {}),
-			layout: 'mobile',
 		},
 		'autocompleteSlideout terms': {
 			vertical: false,

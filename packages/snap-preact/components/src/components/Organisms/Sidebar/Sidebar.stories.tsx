@@ -223,6 +223,17 @@ export default {
 			},
 			control: { type: 'boolean' },
 		},
+		hideClearButtonWithoutFilters: {
+			description: 'hides the clear all filters button when no filters are applied',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		clearButtonText: {
 			description: 'Text to render in the clear all facets button',
 			type: { required: false },

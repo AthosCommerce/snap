@@ -22,11 +22,23 @@ const searchHorizontalStyleScript = (props: SearchHorizontalProps) => {
 				flex: '1 1 0%',
 				gap: `${custom.spacing.x4}px`,
 			},
+			// facets share a toolbar row (e.g. with sort by) - take the remaining width so the dropdown labels fit,
+			// and no margin, which would offset them from the row's other (vertically centered) items
 			'.ss__facets-horizontal': {
-				margin: `0 0 ${custom.spacing.x4}px 0`,
+				flex: '1 1 0%',
+				minWidth: 0,
+				margin: 0,
 			},
 			'.ss__toolbar': {
 				'.ss__layout__row': {
+					// the facets fill the row themselves - a separator would take half the space and truncate their labels
+					'&:has(.ss__facets-horizontal)': {
+						// facets may wrap onto several lines - align the row's other items with the first line
+						alignItems: 'flex-start',
+						'.ss__layout__separator': {
+							display: 'none',
+						},
+					},
 					'.ss__layout__sidebar-toggle-button-wrapper': {
 						'.ss__button': {
 							width: '100%',

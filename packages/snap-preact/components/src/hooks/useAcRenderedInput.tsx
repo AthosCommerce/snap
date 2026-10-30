@@ -25,7 +25,7 @@ export function useAcRenderedInput({
 	// adds the rendered input to the controller's selector (once) and binds it
 	const bindRenderedInput = async (cntrlrs: AutocompleteController[]) => {
 		for (const cntrlr of cntrlrs) {
-			if (!cntrlr.config.selector.includes(RENDERED_INPUT_SELECTOR)) {
+			if (!cntrlr.config.selector?.includes(RENDERED_INPUT_SELECTOR)) {
 				cntrlr.config.selector = `${cntrlr.config.selector}, ${RENDERED_INPUT_SELECTOR}`;
 			}
 			boundController.current = cntrlr;

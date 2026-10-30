@@ -25,6 +25,7 @@ TypeScript 7.0 native compiler (strict), Preact 10, MobX 6, Emotion CSS-in-JS, L
 | Format all      | `npm run format`           | Prettier via Lerna                                                                                      |
 | Dev (all watch) | `npm run dev`              | Runs each workspace's `dev` script in parallel (watchers/dev servers); demo at `https://localhost:2222` |
 | Storybook       | `npm run storybook:preact` | Port 6006                                                                                               |
+| Prop matrices   | `npm run storybook:matrix` | Port 6007; library Storybook plus `components/matrix/*.matrix.stories.tsx` (theme dev only, never in docs) |
 | Commit          | `npm run commit`           | Commitizen, conventional-changelog, 150 char max header                                                 |
 
 ### Single-package operations

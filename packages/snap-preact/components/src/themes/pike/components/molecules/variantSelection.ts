@@ -47,6 +47,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 						},
 					},
 					'.ss__variant-selection__icon': {
+						...custom.styles.indicator(variables?.colors?.accent),
 						transition: 'transform ease 0.5s',
 					},
 				},
@@ -98,6 +99,7 @@ const variantSelectionStyleScript = (props: VariantSelectionProps) => {
 				'.ss__list__title': {
 					fontSize: '14px',
 					textAlign: 'left',
+					textTransform: 'capitalize',
 				},
 				'.ss__list__options': {
 					'.ss__list__option': {

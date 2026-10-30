@@ -12,6 +12,8 @@ const overlayBadgeStyleScript = (props: OverlayBadgeProps) => {
 	const overlayBadgeStyles = css({
 		'.ss__overlay-badge__grid-wrapper': {
 			zIndex: 1,
+			// inset badges from the image edge
+			padding: `${custom.spacing.x1}px`,
 			gap: `${custom.spacing.x2}px`,
 			bottom: 'auto',
 			'.ss__overlay-badge__grid-wrapper__slot': {
