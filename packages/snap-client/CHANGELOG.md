@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
 # [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
 
 **Note:** Version bump only for package @athoscommerce/snap-client

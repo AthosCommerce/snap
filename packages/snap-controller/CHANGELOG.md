@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
+
+### Bug Fixes
+
+- **searchcontroller:** bugfix for single result redirect when banners are in result set ([a7881f6](https://github.com/AthosCommerce/snap/commit/a7881f63d518bb37227a36c3121ac1f09bd5874f))
+
 # [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
 
 **Note:** Version bump only for package @athoscommerce/snap-controller
