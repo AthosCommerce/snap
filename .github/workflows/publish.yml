@@ -58,14 +58,39 @@ jobs:
           npm run build:prod
 
       - name: Publish packages
+        id: release
         if: github.event_name == 'push' && github.ref_name == 'main'
+        # keep going so the next step can finish a publish that died part-way through
+        continue-on-error: true
         run: npm run release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Resume failed publish (from-package)
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.resume == 'true' && github.ref_name == 'main'
-        run: npx lerna publish from-package --yes --no-verify-access
+      # Publishes whatever the registry is still missing. Runs when the release
+      # step failed, or on a manual dispatch with "resume" checked.
+      #
+      # npm signs provenance with Sigstore before it uploads each tarball. When
+      # Rekor accepts the entry but answers slowly, npm's 5s timeout resubmits
+      # the same signed entry and gets a 409 "equivalent entry already exists"
+      # (TLOG_CREATE_ENTRY_ERROR), which aborts that package. Nothing was
+      # uploaded, so retrying is safe - `from-package` only publishes versions
+      # the registry doesn't have, and every attempt gets further.
+      - name: Publish unpublished packages (from-package)
+        if: github.ref_name == 'main' && (steps.release.outcome == 'failure' || (github.event_name == 'workflow_dispatch' && github.event.inputs.resume == 'true'))
+        run: |
+          # `lerna publish` versions, commits and tags before it publishes. If HEAD
+          # never moved it failed before any of that - there is nothing to resume,
+          # so surface the failure instead of a green job.
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
+            echo "::error::lerna publish failed before versioning - nothing to resume"
+            exit 1
+          fi
+          for attempt in 1 2 3 4 5; do
+            npx lerna publish from-package --yes && exit 0
+            echo "::warning::lerna publish from-package failed (attempt $attempt of 5), retrying in 10s"
+            sleep 10
+          done
+          exit 1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
