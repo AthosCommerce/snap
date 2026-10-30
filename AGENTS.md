@@ -53,6 +53,10 @@ Steps stop at the first failure, so a lint or unit-test failure costs ~1 minute 
 
 CI calls `test:core` / `test:e2e` directly rather than `npm test`, which is the full-suite entry point and would build and run Cypress twice.
 
+### Publishing
+
+`.github/workflows/publish.yml` runs `npm run release` (lerna: version bump, tag, GitHub release, then npm publish) on every push to `main`. npm signs provenance with Sigstore first, and a slow Rekor response makes it retry its own entry and fail that package with a 409 `TLOG_CREATE_ENTRY_ERROR`. The workflow treats that as resumable: if the release step fails after versioning, a follow-up step runs `lerna publish from-package` in a retry loop until every package is on the registry. The same step backs the workflow's manual `resume` input, so a release that still ends red can be finished by dispatching Publish on `main` with `resume` checked - `from-package` only uploads versions the registry doesn't have, so re-running it is safe.
+
 ## Architecture
 
 ```
