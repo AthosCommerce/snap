@@ -427,7 +427,7 @@ describe('search request personalization transform', () => {
 			skipPersonalization: true,
 			cart: 'sku1,sku2',
 			lastViewed: 'sku3,sku4',
-			lastSearches: 'boots,shoes',
+			lastSearches: ['boots', 'shoes'],
 			shopper: 'shopper123',
 		});
 	});
@@ -440,5 +440,25 @@ describe('search request personalization transform', () => {
 		});
 
 		expect(params).toEqual({ lastViewed: 'sku3' });
+	});
+
+	it('splits lastSearches on commas and decodes each term so encoded commas stay within a term', () => {
+		const params = transformSearchRequest.personalization({
+			personalization: {
+				lastSearches: 'red%2C%20blue%20dress,boots,50%25%20off',
+			},
+		});
+
+		expect(params).toEqual({ lastSearches: ['red, blue dress', 'boots', '50% off'] });
+	});
+
+	it('keeps a lastSearches term as provided when it is not a valid encoding', () => {
+		const params = transformSearchRequest.personalization({
+			personalization: {
+				lastSearches: '50% off,boots',
+			},
+		});
+
+		expect(params).toEqual({ lastSearches: ['50% off', 'boots'] });
 	});
 });

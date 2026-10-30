@@ -232,7 +232,7 @@ transformSearchRequest.personalization = (request: SearchRequestModel | Autocomp
 		cart?: string;
 		shopper?: string;
 		lastViewed?: string;
-		lastSearches?: string;
+		lastSearches?: string[];
 	} = {};
 
 	if (personalization.disabled) {
@@ -247,8 +247,9 @@ transformSearchRequest.personalization = (request: SearchRequestModel | Autocomp
 		params.lastViewed = personalization.lastViewed;
 	}
 
+	// the API decodes the param before splitting it on commas, so each term is sent as its own param to keep commas within a term
 	if (personalization.lastSearches) {
-		params.lastSearches = personalization.lastSearches;
+		params.lastSearches = personalization.lastSearches.split(',').map(decodeLastSearchesTerm);
 	}
 
 	if (personalization.shopper) {
@@ -257,3 +258,12 @@ transformSearchRequest.personalization = (request: SearchRequestModel | Autocomp
 
 	return params;
 };
+
+function decodeLastSearchesTerm(term: string): string {
+	try {
+		return decodeURIComponent(term);
+	} catch {
+		// not an encoded term (eg. a literal '%') - send it as provided
+		return term;
+	}
+}

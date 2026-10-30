@@ -175,6 +175,40 @@ describe('Snap Client Integration Tests', () => {
 			fetchfn.mockReset();
 		});
 
+		it('sends searched terms from the tracker as lastSearches params that decode back to the original terms', async () => {
+			jest.useFakeTimers({ doNotFake: ['performance'] });
+
+			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation((url: any) => {
+				const urlStr = typeof url === 'string' ? url : url.toString();
+				if (urlStr.includes('/v1/search')) {
+					return Promise.resolve({ status: 200, json: () => Promise.resolve(mockLegacySearchResponse) } as Response);
+				}
+				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
+			});
+
+			const tracker = new Tracker(globals);
+			tracker.cookies.searched.add(['red, blue dress', 'boots']);
+
+			const controller = new SearchController(searchConfig, {
+				client: new Client(globals),
+				store: new SearchStore(searchConfig, { ...services, tracker }),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker,
+			});
+
+			await controller.search();
+			await jest.advanceTimersByTimeAsync(500);
+
+			const searchUrls = fetchfn.mock.calls.map(([url]) => `${url}`).filter((url) => url.includes('/v1/search'));
+			expect(searchUrls).toHaveLength(1);
+			expect(new URL(searchUrls[0]).searchParams.getAll('lastSearches')).toEqual(['red, blue dress', 'boots']);
+
+			fetchfn.mockReset();
+		});
+
 		it('Cache can be disabled via requester configs', async () => {
 			// mock fetch - all responses return empty objects
 			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation(() => {
