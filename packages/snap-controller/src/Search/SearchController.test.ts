@@ -152,6 +152,86 @@ describe('Search Controller', () => {
 		expect(window.location.replace).toHaveBeenCalledTimes(1);
 	});
 
+	it('redirects to the single result when inline banners are counted in totalResults', async () => {
+		// settings.redirects.singleResult is true by default
+
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.init();
+
+		controller.urlManager = controller.urlManager.reset().set('query', '40745sk');
+
+		//@ts-ignore
+		delete window.location;
+		//@ts-ignore
+		window.location = {
+			...window.location,
+			replace: jest.fn(),
+		} as unknown as string & Location;
+		(controller.client as MockClient).mockData.updateConfig({ search: '40745sk.inlineBanner' });
+		await controller.search();
+
+		// one product and one inline banner make up the two totalResults
+		expect(controller.store.pagination.totalResults).toBe(2);
+		expect(controller.store.pagination.totalInlineBanners).toBe(1);
+		expect(controller.store.pagination.totalProducts).toBe(1);
+		expect(controller.store.results.map((result) => result.type)).toEqual(['product', 'banner']);
+
+		expect(window.location.replace).toHaveBeenCalledTimes(1);
+		expect(window.location.replace).toHaveBeenCalledWith(
+			'https://www.bbwheelsonline.com/weathertech-40745sk-cargo-liner-w-bumper-protector-black-jeep-wrangler-jk/'
+		);
+	});
+
+	it('does not redirect when more than one result remains after excluding inline banners', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.init();
+
+		controller.urlManager = controller.urlManager.reset().set('query', '40745sk');
+
+		//@ts-ignore
+		delete window.location;
+		//@ts-ignore
+		window.location = {
+			...window.location,
+			replace: jest.fn(),
+		} as unknown as string & Location;
+
+		// two products and one inline banner
+		const mockData = (controller.client as MockClient).mockData;
+		const searchData = mockData.search('40745sk.inlineBanner');
+		const [product] = searchData.results!;
+		searchData.results = [product, { ...product, id: `${product.id}-2`, mappings: { core: { ...product.mappings!.core, uid: `${product.id}-2` } } }];
+		searchData.pagination!.totalResults = 3;
+		jest.spyOn(mockData, 'search').mockReturnValue(searchData);
+
+		await controller.search();
+
+		expect(controller.store.pagination.totalResults).toBe(3);
+		expect(controller.store.pagination.totalInlineBanners).toBe(1);
+		expect(controller.store.pagination.totalProducts).toBe(2);
+		expect(controller.store.results.map((result) => result.type)).toEqual(['product', 'banner', 'product']);
+
+		expect(window.location.replace).not.toHaveBeenCalled();
+	});
+
 	it('tests merchandising redirect setting disabled', async () => {
 		searchConfig = {
 			...searchConfig,

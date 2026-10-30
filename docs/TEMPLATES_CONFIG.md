@@ -136,7 +136,7 @@ new SnapTemplates(config);
 Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript verify the entire configuration — unknown keys, invalid override selectors and props, and wrong value types. Unknown keys and wrong value types are flagged on the exact line as you type. Mistakes inside `theme.overrides` that the IDE cannot see while typing (a misspelled selector, or any prop under an open-named selector such as `facet.<field>`) are reported where the config is passed to `new SnapTemplates(...)`.
 
 > [!IMPORTANT]
-> Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.
+> Enable the Snap config ESLint rules (prewired in snapfu-scaffolded projects) — they mark configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.
 
 
 ### Per Currency Overrides
@@ -289,6 +289,8 @@ In addition to the common target properties, the following properties apply to t
 
 `selector` - DOM selector where this target will inject into
 
+`emptyTarget` - Whether to remove the existing content of the `selector` element as soon as it is found. Defaults to `true`. Set it to `false` to keep content such as a loading skeleton in place until the search components are ready - see [Keeping a loading skeleton](#keeping-a-loading-skeleton).
+
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `search` | Search configuration | Object | ➖ |
@@ -298,6 +300,45 @@ In addition to the common target properties, the following properties apply to t
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
 | `search.targets[].component` | Component to use for search | String | Required |
+| `search.targets[].emptyTarget` | Remove the target's existing content when it is found; set to `false` to keep it until the search components render | Boolean | true |
+
+##### Keeping a loading skeleton
+
+By default the content of a search target is removed as soon as the target is found, which leaves the element empty while the search request, theme and components load. To show a loading skeleton for that time instead, place the skeleton markup inside the target element and set `emptyTarget: false`:
+
+```html
+<div id="athos-templates">
+	<!-- placeholder skeleton markup - shown until the search components render -->
+	<div class="skeleton-toolbar"></div>
+	<div class="skeleton-results"></div>
+</div>
+```
+
+```tsx
+import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+
+const templatesConfig = validateTemplatesConfig({
+	config: {
+		siteId: 'REPLACE_WITH_YOUR_SITE_ID',
+	},
+	theme: {
+		extends: 'pike',
+	},
+	search: {
+		targets: [
+			{
+				selector: '#athos-templates',
+				component: 'Search',
+				emptyTarget: false,
+			},
+		],
+	},
+});
+
+new SnapTemplates(templatesConfig);
+```
+
+With `emptyTarget: false` the target renders once the search response has returned and the theme has loaded, and the existing content is then replaced in full - nothing inside the target is kept alongside the search components. An inline `min-height` on the target is still removed as soon as the target is found, so give the skeleton itself the height you want to reserve.
 
 #### Autocomplete
 
