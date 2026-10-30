@@ -727,6 +727,7 @@ export class TemplateEditorStore {
 						({
 							selector: target.selector,
 							component: target.target.component,
+							emptyTarget: target.target.emptyTarget,
 						} as SearchTargetConfig)
 				);
 

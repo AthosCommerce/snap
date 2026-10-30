@@ -45,5 +45,6 @@ Integrators style and target components by classname, so classnames are part of 
 ## Documentation (readme, stories and tests)
 
 - **`readme.md`** documents every prop with an example and lists the sub-components. It changes in the same PR as the props type.
+- **Sitemap:** a story's `title` and its readme import decide the component's public docs URL in `docs-sitemap.json`. Run `npm run build:sitemap` after adding a component or changing either.
 - **Stories:** put defaults in `Story.args` and spread `{...args}` last, so controls can change every prop. argTypes defaults match the component's real defaults. Don't mutate store data to fake a state; use a query or a background filter.
 - **Tests** cover the behavior of each new prop, not just that the component renders.

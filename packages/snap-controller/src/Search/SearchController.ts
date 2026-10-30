@@ -288,7 +288,7 @@ export class SearchController extends AbstractController {
 				if (
 					config?.settings?.redirects?.singleResult &&
 					response.search?.query &&
-					response.pagination?.totalResults === 1 &&
+					controller.store.pagination.totalProducts === 1 &&
 					!nonBackgroundFilters?.length &&
 					singleResultUrl
 				) {
