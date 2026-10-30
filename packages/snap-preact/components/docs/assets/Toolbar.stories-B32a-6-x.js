@@ -1,0 +1,119 @@
+import { j as o } from './iframe-U9T2Y9ZS.js';
+import { S as i } from './snapify-Df13VkEj.js';
+import { T as n } from './Toolbar-CNU8uQG3.js';
+import { c as l } from './componentArgs-DfBuq-N1.js';
+import './preload-helper-PPVm8Dsz.js';
+import './RecommendationController-C8Rx5Y3Q.js';
+import './AutocompleteController-DOm9KL9U.js';
+import './defined-CdKp_MB-.js';
+import './FacetsHorizontal-B68XtXsV.js';
+import './useA11y-BuGQuOJb.js';
+import './useClickOutside-DeMSpwd-.js';
+import './useLang-Dx66cFD0.js';
+import './Dropdown-Bgi8cN4O.js';
+import './Facet-HxPfd-CW.js';
+import './types-DqusP3LW.js';
+import './fieldNameToComponentName-CjebIDZG.js';
+import './Button-rwG4FGUK.js';
+import './SearchInput-CBuvCU_0.js';
+import './FacetListOptions-DXiMkJ6r.js';
+import './Checkbox-Dsv4fCi7.js';
+import './Radio-CBQqiZ56.js';
+import './createHoverProps-B_zlUBHN.js';
+import './FacetHierarchyOptions-DNUnpz6e.js';
+import './FacetPaletteOptions-8YWwPWlW.js';
+import './names-Cka5BSlk.js';
+import './Image-C5uuJXju.js';
+import './handleize-xLHhB8k5.js';
+import './FacetGridOptions--7mFlBiQ.js';
+import './FacetSlider-FfvPprOV.js';
+import './Slideout-xOZDsJn4.js';
+import './Overlay-BH_wZt84.js';
+import './PaginationInfo-Bg650W-a.js';
+import './SearchHeader-DMztF-MS.js';
+import './Facets-B-EVV1pK.js';
+import './Banner-D10o1Oav.js';
+import './withTracking-B-gE0m0K.js';
+import './createImpressionObserver-B76-2cq4.js';
+import './Breadcrumbs-BMN0fsvC.js';
+import './LoadMore-CrQlsgeP.js';
+import './useIntersection-D52kaMEq.js';
+import './Pagination-DoORxBwJ.js';
+import './PerPage-2HjLiwSz.js';
+import './Select-HVXhT1EH.js';
+import './selectionKey-CmN2KTR5.js';
+import './List-9eXTq04g.js';
+import './RadioList-Dpb6I9cR.js';
+import './SortBy-Blw6YrBp.js';
+import './LayoutSelector-CDjnVls8.js';
+import './FilterSummary-h_KJo5Qw.js';
+import './Filter-xKdvsRSa.js';
+import './TabSelection-Cf26zrT4.js';
+const s =
+		"# Toolbar\n\nRenders a search results toolbar.\n\n## Sub-components\n\n- SearchHeader\n- FilterSummary\n- LayoutSelector\n- PerPage\n- SortBy\n- Pagination\n- PaginationInfo\n- Button\n- Banner\n- FacetsHorizontal;\n\n\n## Usage\n\n### controller\nThe required `controller` prop specifies a reference to the search controller.\n\n```tsx\n<Toolbar controller={controller.store.results} />\n```\n\n### layout\nThe `layout` prop is used to specify which child components render and where. The prop takes an array of specific module names, the order of these module names determines the order in which they will be rendered. Additionally you can pass arrays of modules to the array to specify new rows in the display.\n\nThe `_` module is used a seperator module to center,left,right justify the other elements in the layout.\n\navailable modules to use in the layout are \n\n`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;\n\n\n```tsx\n<Toolbar controller={controller.store.results} layout={['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>\n```\n\n### toggleSideBarButton\nThe `toggleSideBarButton` prop specifies an element to be used as the toggleSideBarButton. This element will render in the layout as `button.sidebar-toggle`. If it is not provided in the layout, the button will not render.\n\n```tsx\n\nconst button = () => {\n    return <div>Toggle Sidebar</div>\n}\n<Toolbar controller={controller.store.results} toggleSideBarButton={button} layout={[`button.sidebar-toggle`]}/>\n```\n\n\n",
+	ie = {
+		title: 'Organisms/Toolbar',
+		component: n,
+		parameters: { docs: { description: { component: s } } },
+		decorators: [(r) => o('div', { style: { maxWidth: '1200px' }, children: o(r, {}) })],
+		argTypes: {
+			controller: { description: 'Controller reference', type: { required: !0 }, table: { type: { summary: 'Controller' } }, control: !1 },
+			layout: {
+				description: 'array of modules to render in specified layout',
+				table: {
+					category: 'Templates Legal',
+					type: {
+						summary:
+							'[`searchHeader` | `breadcrumbs` | `filterSummary` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
+					},
+					defaultValue: { summary: "['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']" },
+				},
+				control: 'none',
+			},
+			toggleSideBarButton: {
+				description: 'specifies an element to be used as the toggleSideBarButton',
+				table: { category: 'Templates Legal', type: { summary: 'object' }, defaultValue: { summary: '' } },
+				control: { type: 'object' },
+			},
+			...l,
+		},
+	},
+	t = i.search({ id: 'Toolbar', globals: { siteId: 'atkzs2' } }),
+	e = {
+		render: (r, { loaded: { controller: a } }) => o(n, { ...r, controller: a }),
+		loaders: [async () => (await t.search(), { controller: t })],
+		args: { layout: [['filterSummary', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']] },
+	};
+e.parameters = {
+	...e.parameters,
+	docs: {
+		...e.parameters?.docs,
+		source: {
+			originalSource: `{
+  render: (args: ToolbarProps, {
+    loaded: {
+      controller
+    }
+  }: {
+    loaded: {
+      controller: SearchController;
+    };
+  }) => {
+    return <Toolbar {...args} controller={controller} />;
+  },
+  loaders: [async () => {
+    await snapInstance.search();
+    return {
+      controller: snapInstance
+    };
+  }],
+  args: {
+    layout: [['filterSummary', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']]
+  }
+}`,
+			...e.parameters?.docs?.source,
+		},
+	},
+};
+const le = ['Default'];
+export { e as Default, le as __namedExportsOrder, ie as default };
