@@ -186,6 +186,33 @@ athos.tracker.events.product.pageView({
 });
 ```
 
+### Search Terms
+Each search query saved to the `SearchController` history store (`controller.store.history.save`) is also recorded as a searched term, including when the history `max` setting is `0`. The controller saves the query once the `beforeSearch` middleware has passed and the request is about to be made, so cancelled searches and re-renders with unchanged parameters are not recorded. The 10 most recent terms from the past 2 weeks are stored in local storage per siteId (most recent first) and sent as the `lastSearches` personalization parameter on search, autocomplete, finder and recommendation requests. Search, autocomplete and finder requests send the terms as a comma separated list, so commas within a term are replaced with spaces. Controllers configured with a `globals.siteId` record and send the terms of that siteId.
+
+The tracker also includes the terms of its own siteId on preflight requests, and sends a new preflight request whenever those terms change. Terms recorded for other siteIds are not included in these preflight requests; they are sent by the controllers configured with that siteId.
+
+Setting `globals.personalization.disabled` on a search, autocomplete or finder controller only stops it from sending the terms; search controllers still record them. Recommendation controllers and preflight requests do not use this setting and still send the stored terms of their siteId.
+
+Removing a query from the history store (`controller.store.history.remove`) also removes it from the searched terms, and resetting the history store (`controller.store.history.reset`) clears the searched terms of its siteId. Emptying or trimming the history because of the history `max` setting does not remove searched terms.
+
+```js
+// add search terms (most recent first)
+athos.tracker.cookies.searched.add(['boots']);
+
+// get search terms
+athos.tracker.cookies.searched.get(); // ['boots', ...]
+
+// remove search terms (ignores case)
+athos.tracker.cookies.searched.remove(['boots']);
+
+// clear search terms
+athos.tracker.cookies.searched.clear();
+
+// each method accepts an optional siteId (defaults to the tracker siteId)
+athos.tracker.cookies.searched.add(['bottes'], 'at1234');
+athos.tracker.cookies.searched.get('at1234'); // ['bottes']
+```
+
 ### Order Transaction
 Tracks order transaction. Should be invoked from an order confirmation page. Expects an object with the following:
 

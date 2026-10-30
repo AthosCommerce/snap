@@ -4,6 +4,13 @@ The search store is meant to hold the search API response and associated state. 
 ## `meta` property
 The meta property is an object containing the meta data retrieved from the Athos Meta API. The majority of this data is used elsewhere in constructing other SearchStore data like 'sorting' and 'facets'.
 
+## `setService` method
+Used to set a service (`urlManager` or `tracker`) on the store.
+
+```js
+store.setService('tracker', tracker);
+```
+
 ## Quickview
 
 The quickview modal state does not live on `SearchStore` — it is held by the `QuickviewStore`, the store of the shared [QuickviewManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Quickview), reached via any controller at `controller.quickviewManager.store`. `SearchController` exposes a `quickview(result)` method that forwards to the manager.
@@ -165,6 +172,8 @@ This is a reference to the `StorageStore` instance that is used to store the cur
 
 ### `history` property
 This is a reference to the `HistoryStore` instance that is used to store the previously searched terms. This store's historical terms can be accessed via `queries`. It also has a few methods used to modify the search history, namely `save`, `remove` and `reset`.
+
+When a `tracker` service is provided (when creating the store or with the `setService` method - a `SearchController` sets its tracker with `setService` when the store was created without one), `save` also records the term as a searched term for the `globals.siteId` in the store config, including when `globals.personalization.disabled` is set. `remove` also removes the term from the searched terms, and `reset` clears the searched terms, for that siteId. Emptying or trimming the history to the configured `max` does not change the searched terms.
 
 ### `step` property
 Only applicable to facets where `type` is `range`.
