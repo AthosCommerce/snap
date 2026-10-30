@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
+
+### Bug Fixes
+
+- **layout-banners:** address PR review edge cases ([75262c3](https://github.com/AthosCommerce/snap/commit/75262c3dd4655b16263bde0c54105018a184b0a2))
+- **searchcontroller:** bugfix for single result redirect when banners are in result set ([a7881f6](https://github.com/AthosCommerce/snap/commit/a7881f63d518bb37227a36c3121ac1f09bd5874f))
+
+### Features
+
+- **empty target:** adding empty target settings for targeters for templates skeletons ([355243f](https://github.com/AthosCommerce/snap/commit/355243fb1ce5c4b5ca1289df1879fae48271b519))
+
 # [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
 
 ### Bug Fixes
