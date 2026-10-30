@@ -175,7 +175,7 @@ describe('Snap Client Integration Tests', () => {
 			fetchfn.mockReset();
 		});
 
-		it('sends searched terms from the tracker as lastSearches params that decode back to the original terms', async () => {
+		it('sends searched terms from the tracker as one lastSearches param, encoded once, with commas within a term replaced with spaces', async () => {
 			jest.useFakeTimers({ doNotFake: ['performance'] });
 
 			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation((url: any) => {
@@ -204,7 +204,7 @@ describe('Snap Client Integration Tests', () => {
 
 			const searchUrls = fetchfn.mock.calls.map(([url]) => `${url}`).filter((url) => url.includes('/v1/search'));
 			expect(searchUrls).toHaveLength(1);
-			expect(new URL(searchUrls[0]).searchParams.getAll('lastSearches')).toEqual(['red, blue dress', 'boots']);
+			expect(new URL(searchUrls[0]).searchParams.getAll('lastSearches')).toEqual(['red blue dress,boots']);
 
 			fetchfn.mockReset();
 		});

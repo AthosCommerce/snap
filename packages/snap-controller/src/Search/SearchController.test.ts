@@ -997,7 +997,7 @@ describe('Search Controller', () => {
 		controller.tracker.cookies.searched.clear();
 	});
 
-	it('encodes commas within searched terms in the personalization lastSearches param', async () => {
+	it('replaces commas within searched terms with spaces in the personalization lastSearches param', async () => {
 		const controller = new SearchController(searchConfig, {
 			client: new MockClient(globals, {}),
 			store: new SearchStore(searchConfig, { urlManager }),
@@ -1012,7 +1012,7 @@ describe('Search Controller', () => {
 		controller.tracker.cookies.searched.add(['boots']);
 		controller.tracker.cookies.searched.add(['red, blue dress']);
 
-		expect(controller.params.personalization!.lastSearches).toEqual('red%2C%20blue%20dress,boots');
+		expect(controller.params.personalization!.lastSearches).toEqual('red blue dress,boots');
 
 		controller.tracker.cookies.searched.clear();
 	});

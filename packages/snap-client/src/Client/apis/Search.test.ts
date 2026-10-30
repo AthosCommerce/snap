@@ -223,7 +223,7 @@ describe('Search Api', () => {
 			});
 
 			expect(requestMock).toHaveBeenCalledTimes(2);
-			expect(requestMock.mock.calls[1][0]).toContain('lastSearches=boots&lastSearches=shoes');
+			expect(requestMock.mock.calls[1][0]).toContain('lastSearches=boots%2Cshoes');
 
 			await api[method]({
 				siteId: '8uyt2m',
@@ -232,28 +232,6 @@ describe('Search Api', () => {
 			});
 
 			expect(requestMock).toHaveBeenCalledTimes(2);
-
-			requestMock.mockReset();
-		}
-	);
-
-	it.each(['getSearch', 'getAutocomplete', 'getCategory', 'getFinder'] as const)(
-		'%s sends each lastSearches term as its own query param that decodes back to the term',
-		async (method) => {
-			const api = new SearchAPI(new ApiConfiguration({}));
-			const requestMock = jest
-				.spyOn(global.window, 'fetch')
-				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
-
-			await api[method]({
-				siteId: '8uyt2m',
-				search: { query: { string: 'dress' } },
-				personalization: { lastSearches: 'red%2C%20blue%20dress,50%25%20off' },
-			});
-
-			const url = requestMock.mock.calls[0][0] as string;
-			expect(url).toContain('lastSearches=red%2C%20blue%20dress&lastSearches=50%25%20off');
-			expect(new URL(url).searchParams.getAll('lastSearches')).toEqual(['red, blue dress', '50% off']);
 
 			requestMock.mockReset();
 		}
