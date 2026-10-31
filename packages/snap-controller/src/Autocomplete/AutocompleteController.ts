@@ -5,6 +5,7 @@ import { ErrorType, Product, Banner, MerchandisingContentBanner } from '@athosco
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { AbstractController } from '../Abstract/AbstractController';
 import { getSearchParams } from '../utils/getParams';
+import { getLastSearchesParam } from '../utils/getLastSearchesParam';
 import { ControllerTypes } from '../types';
 
 import { AutocompleteStore } from '@athoscommerce/snap-store-mobx';
@@ -464,6 +465,12 @@ export class AutocompleteController extends AbstractController {
 			if (lastViewedItems.length) {
 				params.personalization = params.personalization || {};
 				params.personalization.lastViewed = lastViewedItems.join(',');
+			}
+
+			const lastSearches = getLastSearchesParam(this.tracker.cookies.searched.get(this.config.globals?.siteId));
+			if (lastSearches) {
+				params.personalization = params.personalization || {};
+				params.personalization.lastSearches = lastSearches;
 			}
 
 			if (shopperId) {

@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
+
+### Bug Fixes
+
+- clear tracker last searches when search history terms are removed or reset ([a14d7e9](https://github.com/AthosCommerce/snap/commit/a14d7e9b3b853ebde2999535d8326c1915635d8d))
+- keep commas from splitting lastSearches terms and record searched terms with the controller tracker ([c930d42](https://github.com/AthosCommerce/snap/commit/c930d424be08e16a8194160a9d06a95b16000d91))
+- record last searches even when personalization is disabled ([7c301da](https://github.com/AthosCommerce/snap/commit/7c301da0e525f8e31cb0bcec9a3a1d9bef15ea66))
+- remove lastSearches from cache key, encode terms, searchController to call setService for tracker ([de6c49e](https://github.com/AthosCommerce/snap/commit/de6c49e81f194f5b6521cc14595d402e128eea10))
+- replace commas within lastSearches terms with spaces instead of encoding them ([b9404ca](https://github.com/AthosCommerce/snap/commit/b9404caae063c0e61d19bdfb533d27696f15e845))
+- send lastSearches as one query param per term ([8320c61](https://github.com/AthosCommerce/snap/commit/8320c611b3b77845282b1809295671ac23beab6d))
+
+### Features
+
+- add lastSearches url param to apis ([299d532](https://github.com/AthosCommerce/snap/commit/299d532260ad6e8020752b4851484807a09d1936))
+
 # [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
 
 ### Bug Fixes

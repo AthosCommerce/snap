@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
+
+### Bug Fixes
+
+- remove lastSearches from cache key, encode terms, searchController to call setService for tracker ([de6c49e](https://github.com/AthosCommerce/snap/commit/de6c49e81f194f5b6521cc14595d402e128eea10))
+- replace commas within lastSearches terms with spaces instead of encoding them ([b9404ca](https://github.com/AthosCommerce/snap/commit/b9404caae063c0e61d19bdfb533d27696f15e845))
+- send lastSearches as one query param per term ([8320c61](https://github.com/AthosCommerce/snap/commit/8320c611b3b77845282b1809295671ac23beab6d))
+
+### Features
+
+- add lastSearches url param to apis ([299d532](https://github.com/AthosCommerce/snap/commit/299d532260ad6e8020752b4851484807a09d1936))
+
 # [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
 
 **Note:** Version bump only for package @athoscommerce/snap-client

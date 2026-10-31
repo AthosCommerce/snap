@@ -34,23 +34,22 @@ export class SearchHistoryStore {
 			key: `athos-history${this.config.globals?.siteId ? `-${this.config.globals?.siteId}` : ``}`,
 		});
 
-		// reset to zero to clear any potentially existing terms
-		if (this.max === 0) {
-			this.reset();
-		}
+		// clear and trim only the history here - last searches are not limited by the history max
+		// only a configured max changes the shared history, so stores using the default max (autocomplete) do not trim it
+		if (typeof this.config.settings?.history?.max == 'number') {
+			if (this.max === 0) {
+				this.storage.clear();
+			}
 
-		// trim history if the current queries are more than config max
-		if (this.queries.length > this.max) {
-			this.getStoredData().forEach((term, index) => {
-				if (index > this.max - 1) {
-					this.remove(term);
-				}
-			});
+			const storedData = this.getStoredData();
+			if (storedData.length > this.max) {
+				this.storage.set('history', JSON.stringify(storedData.slice(0, this.max)));
+			}
 		}
 	}
 
 	get queries(): Query[] {
-		const queries = this.getStoredData();
+		const queries = this.getStoredData(this.max);
 		return queries.map((query) => new Query(this.services, query));
 	}
 
@@ -66,12 +65,13 @@ export class SearchHistoryStore {
 			}
 
 			history.unshift(term);
-			if (history.length > this.max) {
-				history.pop();
-			}
 
-			this.storage.set('history', JSON.stringify(history));
+			this.storage.set('history', JSON.stringify(history.slice(0, this.max)));
 		}
+
+		// last searches are stored separately and are not limited by the history max
+		// they are recorded even when personalization is disabled, which only omits them from requests
+		this.services?.tracker?.cookies.searched.add([term], this.config.globals?.siteId);
 	}
 
 	public remove(term: string) {
@@ -83,10 +83,13 @@ export class SearchHistoryStore {
 			history.splice(index, 1);
 			this.storage.set('history', JSON.stringify(history));
 		}
+
+		this.services?.tracker?.cookies.searched.remove([term], this.config.globals?.siteId);
 	}
 
 	public reset(): void {
 		this.storage.clear();
+		this.services?.tracker?.cookies.searched.clear(this.config.globals?.siteId);
 	}
 
 	public getStoredData(limit?: number): string[] {
@@ -102,7 +105,7 @@ export class SearchHistoryStore {
 				}
 			} catch (err) {
 				// storage corrupted - resetting it
-				this.reset();
+				this.storage.clear();
 			}
 		}
 

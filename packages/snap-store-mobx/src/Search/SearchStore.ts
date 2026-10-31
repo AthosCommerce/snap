@@ -58,6 +58,10 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 		});
 	}
 
+	public setService<Name extends keyof StoreServices>(name: Name, service: StoreServices[Name]): void {
+		this.services[name] = service;
+	}
+
 	public reset(): void {
 		this.update();
 	}
