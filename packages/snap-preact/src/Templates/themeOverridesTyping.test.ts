@@ -443,6 +443,77 @@ typeOnly(() => {
 	});
 	// @ts-expect-error - customComponent is only legal on the unlocked config family
 	const _lockedCustomComponentUse: SnapTemplatesConfig = lockedCustomComponentConfig;
+
+	// ---- layoutOptions: each option and its overrides.components are checked like the overrides themselves ----
+
+	// valid layoutOptions stay usable
+	const validLayoutOptionsConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'base',
+			overrides: {
+				default: {
+					search: {
+						layoutOptions: [
+							{ value: 1, label: '4 Wide', icon: 'layout-grid-4', default: true, overrides: { components: { 'search results': { columns: 4 } } } },
+							{ value: 2, label: '2 Wide', overrides: { components: { 'search results': { columns: 2 }, 'facet.color': { limit: 4 } } } },
+						],
+					},
+				},
+			},
+		},
+	});
+	const _validLayoutOptionsUse: SnapTemplatesConfig = validLayoutOptionsConfig;
+
+	// a misspelled option key next to valid ones
+	const badLayoutOptionKeyConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'base',
+			overrides: {
+				default: {
+					search: { layoutOptions: [{ value: 1, label: '4 Wide', defualt: true }] },
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'defualt' is not a layout option key
+	const _badLayoutOptionKeyUse: SnapTemplatesConfig = badLayoutOptionKeyConfig;
+
+	// a misspelled selector inside an option's overrides.components (only the final segment resolves a
+	// component, same as for theme.overrides - a typo in an earlier segment is not caught)
+	const badLayoutOptionSelectorConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'base',
+			overrides: {
+				default: {
+					search: {
+						layoutOptions: [{ value: 1, overrides: { components: { 'search results': { columns: 4 }, 'search resultz': { columns: 3 } } } }],
+					},
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'resultz' does not resolve to a component
+	const _badLayoutOptionSelectorUse: SnapTemplatesConfig = badLayoutOptionSelectorConfig;
+
+	// a misspelled prop next to a valid one inside an option's overrides.components
+	const badLayoutOptionPropConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'base',
+			overrides: {
+				default: {
+					searchHorizontal: {
+						layoutOptions: [{ value: 1, overrides: { components: { 'searchHorizontal results': { columns: 4, columnz: 3 } } } }],
+					},
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'columnz' is not a Results prop
+	const _badLayoutOptionPropUse: SnapTemplatesConfig = badLayoutOptionPropConfig;
 });
 
 describe('theme.overrides typing regression guards', () => {
