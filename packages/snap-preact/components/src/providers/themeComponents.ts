@@ -109,7 +109,7 @@ type ThemeComponentTemplateUnNamedSelectors<TemplateComponentType extends string
 // e.g. 'recommendation.crosssell icon.prev, recommendation.similar icon.prev'
 // The patterns use `${string}, ` as a prefix to accept any preceding comma-separated selectors.
 // The deferred `ThemeOverridesErrors` pass below enforces that all comma-separated
-// parts target the same component type (see ThemeSelectorGroupKinds), and the validate-config
+// parts target the same component type (see ThemeSelectorGroupKinds), and the override-selectors
 // ESLint rule squiggles violations at the selector; prop checking then resolves against the
 // final (space/comma-separated) segment.
 

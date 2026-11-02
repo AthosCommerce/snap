@@ -1,5 +1,6 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { RecommendRequestModel } from '@athoscommerce/snap-client';
+import type { Tracker } from '@athoscommerce/snap-tracker';
 
 import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
@@ -211,6 +212,7 @@ export type DisplayFieldConfig = {
 
 export type StoreServices = {
 	urlManager: UrlManager;
+	tracker?: Tracker;
 };
 
 export enum ErrorType {

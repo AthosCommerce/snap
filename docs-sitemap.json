@@ -324,6 +324,350 @@
 		"docs/ACCESSIBILITY_STATEMENT.md": {
 			"url": "/about-accessibility",
 			"title": "Accessibility Statement"
+		},
+		"packages/snap-preact/components/src/components/Atoms/BadgeImage/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-badgeimage--docs",
+			"title": "BadgeImage"
+		},
+		"packages/snap-preact/components/src/components/Atoms/BadgePill/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-badgepill--docs",
+			"title": "BadgePill"
+		},
+		"packages/snap-preact/components/src/components/Atoms/BadgeRectangle/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-badgerectangle--docs",
+			"title": "BadgeRectangle"
+		},
+		"packages/snap-preact/components/src/components/Atoms/BadgeText/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-badgetext--docs",
+			"title": "BadgeText"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Banner/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-banner--docs",
+			"title": "Banner"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Breadcrumbs/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-breadcrumbs--docs",
+			"title": "Breadcrumbs"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Button/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-button--docs",
+			"title": "Button"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Dropdown/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-dropdown--docs",
+			"title": "Dropdown"
+		},
+		"packages/snap-preact/components/src/components/Atoms/FormattedNumber/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-formattednumber--docs",
+			"title": "FormattedNumber"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Icon/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-icon--docs",
+			"title": "Icon"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Image/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-image--docs",
+			"title": "Image"
+		},
+		"packages/snap-preact/components/src/components/Atoms/InlineBanner/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-inlinebanner--docs",
+			"title": "InlineBanner"
+		},
+		"packages/snap-preact/components/src/components/Atoms/LoadingBar/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-loadingbar--docs",
+			"title": "LoadingBar"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Overlay/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-overlay--docs",
+			"title": "Overlay"
+		},
+		"packages/snap-preact/components/src/components/Atoms/PaginationInfo/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-paginationinfo--docs",
+			"title": "PaginationInfo"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Price/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-price--docs",
+			"title": "Price"
+		},
+		"packages/snap-preact/components/src/components/Atoms/ProductDetail/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-productdetail--docs",
+			"title": "ProductDetail"
+		},
+		"packages/snap-preact/components/src/components/Atoms/SearchHeader/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-searchheader--docs",
+			"title": "SearchHeader"
+		},
+		"packages/snap-preact/components/src/components/Atoms/Skeleton/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-skeleton--docs",
+			"title": "Skeleton"
+		},
+		"packages/snap-preact/components/src/components/Molecules/CalloutBadge/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-calloutbadge--docs",
+			"title": "CalloutBadge"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Carousel/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-carousel--docs",
+			"title": "Carousel"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Checkbox/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-checkbox--docs",
+			"title": "Checkbox"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ErrorHandler/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-errorhandler--docs",
+			"title": "ErrorHandler"
+		},
+		"packages/snap-preact/components/src/components/Molecules/FacetGridOptions/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-facetgridoptions--docs",
+			"title": "FacetGridOptions"
+		},
+		"packages/snap-preact/components/src/components/Molecules/FacetHierarchyOptions/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-facethierarchyoptions--docs",
+			"title": "FacetHierarchyOptions"
+		},
+		"packages/snap-preact/components/src/components/Molecules/FacetListOptions/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-facetlistoptions--docs",
+			"title": "FacetListOptions"
+		},
+		"packages/snap-preact/components/src/components/Molecules/FacetPaletteOptions/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-facetpaletteoptions--docs",
+			"title": "FacetPaletteOptions"
+		},
+		"packages/snap-preact/components/src/components/Molecules/FacetSlider/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-facetslider--docs",
+			"title": "FacetSlider"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Filter/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-filter--docs",
+			"title": "Filter"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Gallery/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-gallery--docs",
+			"title": "Gallery"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Grid/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-grid--docs",
+			"title": "Grid"
+		},
+		"packages/snap-preact/components/src/components/Molecules/LayoutSelector/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-layoutselector--docs",
+			"title": "LayoutSelector"
+		},
+		"packages/snap-preact/components/src/components/Molecules/List/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-list--docs",
+			"title": "List"
+		},
+		"packages/snap-preact/components/src/components/Molecules/LoadMore/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-loadmore--docs",
+			"title": "LoadMore"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Modal/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-modal--docs",
+			"title": "Modal"
+		},
+		"packages/snap-preact/components/src/components/Molecules/OverlayBadge/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-overlaybadge--docs",
+			"title": "OverlayBadge"
+		},
+		"packages/snap-preact/components/src/components/Molecules/OverlayResult/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-overlayresult--docs",
+			"title": "OverlayResult"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Pagination/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-pagination--docs",
+			"title": "Pagination"
+		},
+		"packages/snap-preact/components/src/components/Molecules/PerPage/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-perpage--docs",
+			"title": "PerPage"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ProductDetailTable/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-productdetailtable--docs",
+			"title": "ProductDetailTable"
+		},
+		"packages/snap-preact/components/src/components/Molecules/QuantityPicker/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-quantitypicker--docs",
+			"title": "QuantityPicker"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Radio/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-radio--docs",
+			"title": "Radio"
+		},
+		"packages/snap-preact/components/src/components/Molecules/RadioList/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-radiolist--docs",
+			"title": "RadioList"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Rating/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-rating--docs",
+			"title": "Rating"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Result/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-result--docs",
+			"title": "Result"
+		},
+		"packages/snap-preact/components/src/components/Molecules/SearchInput/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-searchinput--docs",
+			"title": "SearchInput"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Select/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-select--docs",
+			"title": "Select"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Slideout/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-slideout--docs",
+			"title": "Slideout"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Slideshow/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-slideshow--docs",
+			"title": "Slideshow"
+		},
+		"packages/snap-preact/components/src/components/Molecules/SortBy/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-sortby--docs",
+			"title": "SortBy"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Swatches/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-swatches--docs",
+			"title": "Swatches"
+		},
+		"packages/snap-preact/components/src/components/Molecules/TabSelection/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-tabselection--docs",
+			"title": "TabSelection"
+		},
+		"packages/snap-preact/components/src/components/Molecules/Terms/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-terms--docs",
+			"title": "Terms"
+		},
+		"packages/snap-preact/components/src/components/Molecules/VariantSelection/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-variantselection--docs",
+			"title": "VariantSelection"
+		},
+		"packages/snap-preact/components/src/components/Organisms/Autocomplete/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-autocomplete--docs",
+			"title": "Autocomplete"
+		},
+		"packages/snap-preact/components/src/components/Organisms/BranchOverride/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-branchoverride--docs",
+			"title": "BranchOverride"
+		},
+		"packages/snap-preact/components/src/components/Organisms/Facet/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-facet--docs",
+			"title": "Facet"
+		},
+		"packages/snap-preact/components/src/components/Organisms/Facets/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-facets--docs",
+			"title": "Facets"
+		},
+		"packages/snap-preact/components/src/components/Organisms/FacetsHorizontal/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-facetshorizontal--docs",
+			"title": "FacetsHorizontal"
+		},
+		"packages/snap-preact/components/src/components/Organisms/FilterSummary/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-filtersummary--docs",
+			"title": "FilterSummary"
+		},
+		"packages/snap-preact/components/src/components/Organisms/NoResults/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-noresults--docs",
+			"title": "NoResults"
+		},
+		"packages/snap-preact/components/src/components/Organisms/Results/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-results--docs",
+			"title": "Results"
+		},
+		"packages/snap-preact/components/src/components/Organisms/Sidebar/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-sidebar--docs",
+			"title": "Sidebar"
+		},
+		"packages/snap-preact/components/src/components/Organisms/TermsList/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-termslist--docs",
+			"title": "TermsList"
+		},
+		"packages/snap-preact/components/src/components/Organisms/Toolbar/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Forganisms-toolbar--docs",
+			"title": "Toolbar"
+		},
+		"packages/snap-preact/components/src/components/Templates/AutocompleteFixed/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-autocompletefixed--docs",
+			"title": "AutocompleteFixed"
+		},
+		"packages/snap-preact/components/src/components/Templates/AutocompleteModal/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-autocompletemodal--docs",
+			"title": "AutocompleteModal"
+		},
+		"packages/snap-preact/components/src/components/Templates/AutocompleteSlideout/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-autocompleteslideout--docs",
+			"title": "AutocompleteSlideout"
+		},
+		"packages/snap-preact/components/src/components/Templates/Recommendation/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendation--docs",
+			"title": "Recommendation"
+		},
+		"packages/snap-preact/components/src/components/Templates/RecommendationBundle/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendationbundle--docs",
+			"title": "RecommendationBundle"
+		},
+		"packages/snap-preact/components/src/components/Templates/RecommendationBundleEasyAdd/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendationbundleeasyadd--docs",
+			"title": "RecommendationBundleEasyAdd"
+		},
+		"packages/snap-preact/components/src/components/Templates/RecommendationBundleList/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendationbundlelist--docs",
+			"title": "RecommendationBundleList"
+		},
+		"packages/snap-preact/components/src/components/Templates/RecommendationBundleVertical/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendationbundlevertical--docs",
+			"title": "RecommendationBundleVertical"
+		},
+		"packages/snap-preact/components/src/components/Templates/RecommendationEmail/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendationemail--docs",
+			"title": "RecommendationEmail"
+		},
+		"packages/snap-preact/components/src/components/Templates/RecommendationGrid/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendationgrid--docs",
+			"title": "RecommendationGrid"
+		},
+		"packages/snap-preact/components/src/components/Templates/Search/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-search--docs",
+			"title": "Search"
+		},
+		"packages/snap-preact/components/src/components/Templates/SearchCollapsible/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-searchcollapsible--docs",
+			"title": "SearchCollapsible"
+		},
+		"packages/snap-preact/components/src/components/Templates/SearchHorizontal/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-searchhorizontal--docs",
+			"title": "SearchHorizontal"
+		},
+		"packages/snap-preact/components/src/components/Trackers/ResultTracker/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftrackers-resulttracker--docs",
+			"title": "ResultTracker"
+		},
+		"packages/snap-preact/components/src/documentation/About/About.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fdocumentation-about--docs",
+			"title": "About"
+		},
+		"packages/snap-preact/components/src/documentation/About/About.mdx": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fdocumentation-about--docs",
+			"title": "About"
+		},
+		"packages/snap-preact/components/src/documentation/Theme/Theme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fdocumentation-theme--docs",
+			"title": "Theme"
+		},
+		"packages/snap-preact/components/src/documentation/Theme/Theme.mdx": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fdocumentation-theme--docs",
+			"title": "Theme"
+		},
+		"packages/snap-preact/components/src/documentation/Usage/Usage.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fdocumentation-usage--docs",
+			"title": "Usage"
+		},
+		"packages/snap-preact/components/src/documentation/Usage/Usage.mdx": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fdocumentation-usage--docs",
+			"title": "Usage"
+		},
+		"packages/snap-client/README.md": {
+			"url": "/packages/snap-client/docs/",
+			"title": "@athoscommerce/snap-client"
 		}
 	}
 }

@@ -114,7 +114,7 @@ By adding a `min-height` to elements that are being targeted by Snap components,
 
 ### Use Skeleton Components
 
-We recommended using server-side rendered skeletons inside the target elements for the best LCP performance. If this is the case, also set the `renderAfterSearch` property to `true`.
+We recommended using server-side rendered skeletons inside the target elements for the best LCP performance. If this is the case, set the `emptyTarget` property to `false` so the skeleton is not removed when the target is found, and set `renderAfterSearch` to `true` so it stays until the search has resolved. The skeleton is replaced in full when the component renders.
 
 ```html
 <div id="athos-content" style="min-height: 100vh;">
@@ -126,7 +126,7 @@ We recommended using server-side rendered skeletons inside the target elements f
 ```
 
 ```tsx
-import { Snap } from '@athos/snap-preact';
+import { Snap } from '@athoscommerce/snap-preact';
 
 const config = {
   controllers: {
@@ -136,8 +136,9 @@ const config = {
       },
       targeters: [{
         selector: '#athos-content',
-        component: () => import('./Search'),
-        renderAfterSearch: true, // Render the skeleton after search is ready
+        component: async () => (await import('./Search')).Search,
+        emptyTarget: false, // Keep the skeleton when the target is found
+        renderAfterSearch: true, // Replace the skeleton once the search is ready
       }]
     }]
   }

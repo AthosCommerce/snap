@@ -1,4 +1,5 @@
 import { h, render } from 'preact';
+import type { VNode } from 'preact';
 import deepmerge from 'deepmerge';
 import { isPlainObject } from 'is-plain-object';
 import { configure as configureMobx, when } from 'mobx';
@@ -140,6 +141,21 @@ This usually happens when you pass a JSX Element, and not a function that return
 	]
 
 The error above happened in the following targeter in the Snap Config`;
+
+// elements Snap has rendered into - an `emptyTarget: false` target is only cleared before the first render
+const renderedTargetElems = new WeakSet<Element>();
+
+// A target with `emptyTarget: false` keeps its content (such as a server-rendered skeleton) when it is found.
+// Preact's first render into a non-empty element reuses existing nodes and leaves the rest behind, so the
+// content is cleared in the same task as the first render - nothing is painted in between.
+const renderIntoTarget = (vnode: VNode, target: Target, elem: Element) => {
+	if (target.emptyTarget === false && !renderedTargetElems.has(elem)) {
+		while (elem.firstChild) elem.removeChild(elem.firstChild);
+	}
+	renderedTargetElems.add(elem);
+	render(vnode, elem);
+};
+
 export class Snap {
 	private mode = AppMode.production;
 	private config: SnapConfig;
@@ -753,7 +769,7 @@ export class Snap {
 									targetFunctionPromises.push(target.component!());
 									const [_, Component] = await Promise.all(targetFunctionPromises);
 									setTimeout(() => {
-										render(<Component controller={this.controllers[controller.config.id]} snap={this} {...target.props} />, elem);
+										renderIntoTarget(<Component controller={this.controllers[controller.config.id]} snap={this} {...target.props} />, target, elem);
 									});
 								} catch (err) {
 									this.logger.error(err);
@@ -783,7 +799,7 @@ export class Snap {
 									if (target && target.skeleton && elem) {
 										const Skeleton = await target.skeleton!();
 										setTimeout(() => {
-											render(<Skeleton />, elem);
+											renderIntoTarget(<Skeleton />, target, elem);
 										});
 									}
 									await targetFunction(target, elem, originalElem!);
