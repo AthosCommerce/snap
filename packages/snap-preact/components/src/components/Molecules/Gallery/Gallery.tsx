@@ -9,7 +9,7 @@ import deepmerge from 'deepmerge';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
 import { mergeProps, mergeStyles, defined } from '../../../utilities';
-import { Lang, useA11y, useLang } from '../../../hooks';
+import { Lang, useA11y, useLang, useCustomComponentOverride } from '../../../hooks';
 import { Button } from '../../Atoms/Button';
 import { Image } from '../../Atoms/Image';
 
@@ -244,6 +244,12 @@ export const Gallery = observer((properties: GalleryProps) => {
 		}
 		wasOpenRef.current = isOpenNow;
 	});
+
+	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('gallery', props);
+
+	if (!shouldRenderDefault) {
+		return overrideElement;
+	}
 
 	const styling = mergeStyles<GalleryProps>(props, defaultStyles);
 

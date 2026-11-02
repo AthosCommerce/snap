@@ -1,7 +1,7 @@
 import { h } from 'preact';
-import { render, fireEvent } from '@testing-library/preact';
+import { render, fireEvent, waitFor } from '@testing-library/preact';
 
-import { ThemeProvider } from '../../../providers';
+import { ThemeProvider, SnapProvider } from '../../../providers';
 import { Gallery } from './Gallery';
 
 const IMAGES = ['http://example.com/a.jpg', 'http://example.com/b.jpg', 'http://example.com/c.jpg'];
@@ -34,6 +34,33 @@ describe('Gallery', () => {
 
 	it('renders nothing when there are no images', () => {
 		render(<Gallery images={[]} open={true} />);
+		expect(document.querySelector('.ss__gallery')).toBeNull();
+	});
+
+	it('renders a registered customComponent in place of the gallery, passing it the gallery props', async () => {
+		const snap = {
+			templates: {
+				library: {
+					import: {
+						component: {
+							gallery: {
+								CustomGallery: async () => (props: any) => <div className="custom-gallery">{props.images.length} images</div>,
+							},
+						},
+					},
+				},
+			},
+		} as any;
+
+		const rendered = render(
+			<SnapProvider snap={snap}>
+				<Gallery images={IMAGES} open={true} customComponent="CustomGallery" />
+			</SnapProvider>
+		);
+
+		await waitFor(() => {
+			expect(rendered.container.querySelector('.custom-gallery')?.textContent).toBe('3 images');
+		});
 		expect(document.querySelector('.ss__gallery')).toBeNull();
 	});
 
