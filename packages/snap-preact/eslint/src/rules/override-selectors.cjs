@@ -10,7 +10,9 @@ const { createConfigVisitors } = require('../utils/config-visitors.cjs');
 const { findProperty, getPropertyName } = require('../utils/ast.cjs');
 
 const OPEN_NAMED_COMPONENT_PROPS_TYPE = {
+	calloutBadge: 'CalloutBadgeTemplatesLegalProps',
 	facet: 'FacetTemplatesLegalProps',
+	productDetail: 'ProductDetailTemplatesLegalProps',
 	variantSelection: 'VariantSelectionTemplatesLegalProps',
 	recommendation: 'RecommendationTemplatesLegalProps',
 	recommendationBundle: 'RecommendationBundleTemplatesLegalProps',
