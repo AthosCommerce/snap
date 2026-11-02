@@ -1,6 +1,6 @@
 # Manual Tracking
 
-These events need to be wired up manually, since they're events Snap has no way to detect without explicit instrumentation. For events that are already tracked out of the box, see [Automatic Tracking](./snap-tracking-automatic).
+These events need to be wired up manually, since they're events Snap has no way to detect without explicit instrumentation. For events that are already tracked out of the box, see [Automatic Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md).
 
 ### Product Add To Cart
 Tracks product add to cart events. It is recommended to invoke on each product `onClick` event via the `controller.addToCart()` method available on all controller types.

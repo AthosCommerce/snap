@@ -132,9 +132,9 @@ plugins: {
 
 ### pluginShopifyMarkets
 
-The **Markets plugin** automatically fetches and displays region-specific product pricing from the Shopify Storefront API. It's designed for storefronts that use Shopify Markets. When a customer's active market (country) differs from the store's base market, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates search results dynamically. Country — not currency — is what decides whether a fetch is needed, since Shopify Markets can price two countries differently even when they share a currency (for example, two countries settling in the same currency but with different price lists).
+The **Markets plugin** fetches region-specific product pricing from the Shopify Storefront API and writes it onto the results. It's designed for storefronts that use Shopify Markets. When a customer's active market (country) differs from the store's base market, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates the results' `mappings.core.price` and `mappings.core.msrp`; otherwise the indexed prices are kept. Country — not currency — is what decides whether a fetch is needed, since Shopify Markets can price two countries differently even when they share a currency (for example, two countries settling in the same currency but with different price lists).
 
-The Markets plugin localizes the price *values*. Displaying them correctly also needs the matching currency locale, so configuring `markets` automatically enables [`pluginShopifyCurrency`](#pluginshopifycurrency) — no separate opt in is required. Set `currency.enabled: false` to suppress that if you are formatting prices some other way.
+The Markets plugin localizes the price *values*. Displaying them correctly also needs the matching currency locale, so configuring `markets` with a non-empty `token` automatically enables [`pluginShopifyCurrency`](#pluginshopifycurrency) — no separate opt in is required. Set `currency.enabled: false` to suppress that if you are formatting prices some other way. Without a `token`, the Markets plugin is not registered at all.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
@@ -166,6 +166,9 @@ const config = validateTemplatesConfig({
 			},
 		},
 	},
+	theme: {
+		extends: 'pike',
+	},
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
@@ -179,7 +182,7 @@ new SnapTemplates(config);
 1. After search results load, the plugin detects if the active market (`Shopify.country`) differs from `baseCountry` — currency is not used for this decision, since two countries can share a currency while pricing products differently
 2. For uncached products, it fetches localized `priceRange` and `compareAtPriceRange` from Shopify GraphQL
 3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
-4. Sets `result.state.priceFetched = true` when pricing is ready to display
+4. Sets `result.state.priceFetched = true` when pricing is ready to display. It is also set to `true` when no fetch is needed or the request fails, so the indexed prices are shown in those cases. One exception: when a fetch runs, a result without `mappings.core.parentId` is never flagged, so its prices stay hidden
 5. Caches results in an in-memory price cache local to the plugin instance, segmented per country, so switching between two non-base markets never reuses another market's cached prices
 6. When a quickview is opened, the same localized pricing (product and variant level) is applied to the quickview product — its variants are repopulated from `/v1/products` in the base currency, so the plugin re-applies cached prices (fetching them first if not already cached)
 
@@ -187,12 +190,13 @@ Price *formatting* is not handled by this plugin. Use [`pluginShopifyCurrency`](
 
 #### Using in Your Result Component
 
-Always check the `priceFetched` flag before rendering prices to ensure data has been fetched.
+While Markets is active, the built-in `Result` and `OverlayResult` components wait for `result.state.priceFetched` before rendering prices. In a custom result component, check the `priceFetched` flag yourself before rendering prices (only while Markets is configured - without it the flag is never set).
 
 ```tsx
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 import { Price } from '@athoscommerce/snap-preact/components';
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
 
 export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 	const core = result.display.mappings.core;
@@ -205,7 +209,7 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 			{priceFetched && (
 				<div className="pricing">
 					{core?.price && core?.msrp && core.price < core.msrp ? (
-						<Fragment>
+						<>
 							{/* Show strikethrough MSRP */}
 							<Price
 								value={core.msrp}
@@ -218,7 +222,7 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 								treePath={treePath}
 								className="sale-price"
 							/>
-						</Fragment>
+						</>
 					) : (
 						<Price
 							value={core?.price}
@@ -254,13 +258,13 @@ theme: {
 
 The **Currency plugin** reads the storefront's active currency from `Shopify.currency.active` and applies it to the Snap Templates currency locale, so the `Price` component's symbol, decimal places and separators follow the market the shopper is browsing in. It pairs with [`pluginShopifyMarkets`](#pluginshopifymarkets), which localizes the price *values* — this plugin localizes how those values are *displayed*.
 
-The currency locales ship with Snap Templates (`Uppercase<CurrencyCodes>`, the ISO 4217 list Shopify supports), so no currency table needs to be defined per site. Each locale carries the `symbol`, `decimalPlaces`, `thousandsSeparator`, `decimalSeparator` and `symbolAfter` for that currency, and the plugin also supplies the ISO code to the `Price` component's `code` prop. Per-site adjustments are made through `theme.overrides.default.price`.
+The currency locales ship with Snap Templates (`Uppercase<CurrencyCodes>`, ISO 4217 codes in a list intended to match the currencies Shopify supports - see [Supported Currencies](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-currencies)), so no currency table needs to be defined per site. Each locale sets the `symbol` for that currency, plus `decimalPlaces`, `thousandsSeparator`, `decimalSeparator` and `symbolAfter` where they differ from the `Price` defaults (`2`, `','`, `'.'`, `false`), and the active currency's ISO code is passed to the `Price` component's `code` prop. Per-site adjustments are made through `theme.overrides.default.price`.
 
-To show the currency code alongside the amount — the equivalent of Shopify's `money_with_currency_format`, useful when several markets share a symbol — enable `showCode`:
+To show the currency code after the amount (e.g. `$1,099.99 USD`, similar to Shopify's `money_with_currency_format`) — useful when several markets share a symbol — enable `showCode`. `showCode` has no effect when a `format` function is set:
 
 ```tsx
 theme: {
-	extends: 'bocachica',
+	extends: 'pike',
 	overrides: {
 		default: {
 			price: {
@@ -293,6 +297,9 @@ const config = validateTemplatesConfig({
 			},
 		},
 	},
+	theme: {
+		extends: 'pike',
+	},
 	search: {
 		targets: [{ selector: '#search', component: 'Search' }],
 	},
@@ -305,7 +312,7 @@ new SnapTemplates(config);
 
 1. On controller creation, the plugin reads `Shopify.currency.active`
 2. If that code is missing or is not one of the supported currencies, the plugin leaves `config.currency` in place and logs a warning
-3. `templates.setCurrency(code)` imports the currency locale and applies it to every theme, updating the `Price` component's `symbol`, `decimalPlaces`, `thousandsSeparator` and `decimalSeparator`
+3. `templates.setCurrency(code)` imports the currency locale and applies it to every theme, updating the `Price` component's `symbol`, `decimalPlaces`, `thousandsSeparator`, `decimalSeparator` and `symbolAfter`
 4. The currency is only applied once per page load, even though the plugin is attached to every controller
 
 This plugin is the single source of price formatting. A `format` function — passed to `Price` directly or set via `theme.overrides.default.price.format` — still takes precedence over all of it, since the function produces the entire string itself.
@@ -322,4 +329,4 @@ The two plugins are halves of one feature, and the dependency runs both ways:
 
 Because of that, configuring `markets` turns this plugin on for you. Enabling this plugin *without* Markets is only correct when something else is converting the price values — on a multi-currency storefront with no conversion it will label base-currency amounts with the shopper's market symbol.
 
-The plugin reads the currency at load time. Shopify's currency and market selectors reload the page, so the new currency is picked up on the next load.
+The plugin does not watch for currency changes: it reads `Shopify.currency.active` once, when the controllers are created, so a currency change made by a selector that reloads the page is picked up on the next load. The display currency can also be changed at any time with `window.athos.templates.setCurrency('EUR')` - this changes formatting only, not the price values.

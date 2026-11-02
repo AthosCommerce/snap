@@ -105,6 +105,38 @@
 			"url": "/templates-how-tos",
 			"title": "How Tos"
 		},
+		"docs/TEMPLATES_HOW_TO_LAYOUT_OPTIONS.md": {
+			"url": "/templates-how-to-layout-options",
+			"title": "Layout Options & Layout Selector"
+		},
+		"docs/TEMPLATES_HOW_TO_THEME_VARIABLES.md": {
+			"url": "/templates-how-to-theme-variables",
+			"title": "Using Theme Variables in Styles"
+		},
+		"docs/TEMPLATES_HOW_TO_TOOLBAR_LAYOUTS.md": {
+			"url": "/templates-how-to-toolbar-layouts",
+			"title": "Customizing Toolbar Layouts"
+		},
+		"docs/TEMPLATES_HOW_TO_AUTOCOMPLETE_LAYOUTS.md": {
+			"url": "/templates-how-to-autocomplete-layouts",
+			"title": "Customizing Autocomplete Layouts"
+		},
+		"docs/TEMPLATES_HOW_TO_CUSTOM_COMPONENTS.md": {
+			"url": "/templates-how-to-custom-components",
+			"title": "Custom Component Overrides"
+		},
+		"docs/TEMPLATES_HOW_TO_SHOPIFY_MARKETS.md": {
+			"url": "/templates-how-to-shopify-markets",
+			"title": "Using the Shopify Markets Plugin"
+		},
+		"docs/TEMPLATES_HOW_TO_SHOPIFY_CURRENCY.md": {
+			"url": "/templates-how-to-shopify-currency",
+			"title": "Using the Shopify Currency Plugin"
+		},
+		"docs/TEMPLATES_HOW_TO_TRANSLATIONS.md": {
+			"url": "/templates-how-to-translations",
+			"title": "Language Translations"
+		},
 		"docs/SNAP_CLIENT.md": {
 			"url": "/snap-client",
 			"title": "Snap Client"
@@ -280,6 +312,10 @@
 		"packages/snap-store-mobx/src/Cart/README.md": {
 			"url": "/reference-store-cart",
 			"title": "CartStore"
+		},
+		"packages/snap-store-mobx/src/QuickView/README.md": {
+			"url": "/reference-store-quickview",
+			"title": "QuickviewStore"
 		},
 		"packages/snap-toolbox/README.md": {
 			"url": "/reference-toolbox",

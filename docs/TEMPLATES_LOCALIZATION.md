@@ -1,10 +1,10 @@
 ## Localization
 
-Snap Templates localization is controlled by two [config](TEMPLATES_CONFIG.md) options: `config.language` selects the text translations applied across components, and `config.currency` selects how prices are displayed. Both can also be changed at run-time via `window.athos.templates.setLanguage()` and `window.athos.templates.setCurrency()`.
+Snap Templates localization is controlled by two [config](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md) options: `config.language` selects the text translations applied across components, and `config.currency` selects how prices are displayed. They default to English (`EN`) and US Dollar (`USD`); an unknown code logs a console warning and falls back to that default. Both can also be changed at run-time via `window.athos.templates.setLanguage()` and `window.athos.templates.setCurrency()` (async; an unknown code logs a warning and leaves the current value unchanged).
 
 ### Supported Languages
 
-Languages use ISO 639 codes and are case-insensitive. Default translations can be overridden per component via `config.translations`.
+Languages use ISO 639-1 codes, written in uppercase or lowercase (`'FR'` or `'fr'`). Default translations can be overridden per component via the top-level `translations` property.
 
 | Code | Language |
 |------|----------|
@@ -26,9 +26,9 @@ Languages use ISO 639 codes and are case-insensitive. Default translations can b
 
 ### Supported Currencies
 
-Currencies use ISO 4217 codes and are case-insensitive - the list matches the currencies supported by Shopify. The example column shows how a price is displayed by default for each currency.
+Currencies use ISO 4217 codes, written in uppercase or lowercase (`'EUR'` or `'eur'`) - the list is intended to match the currencies supported by Shopify. The example column shows how a price is displayed by default for each currency (thousands separators shown as spaces are non-breaking spaces in the output).
 
-Each currency's symbol, symbol position, decimal places, and separators come from CLDR. Where a currency has more than one accepted presentation, override them per currency with [`config.currencies`](#per-currency-overrides), or for every currency at once with theme overrides on the `price` component.
+Each currency's locale sets its symbol and, where they differ from the `Price` component defaults (2 decimal places, `,` thousands separator, `.` decimal separator, symbol before the amount), its decimal places, separators and symbol position. Currencies used across many regions follow one convention - for example EUR uses the defaults (`€1,234,567.89`). Where a currency has more than one accepted presentation, override them per currency with the top-level [`currencies`](#per-currency-overrides) property, or for every currency at once with theme overrides on the `price` component.
 
 | Code | Currency | Example |
 |------|----------|---------|
@@ -194,9 +194,9 @@ Each currency's symbol, symbol position, decimal places, and separators come fro
 
 ### Per Currency Overrides
 
-Several currencies have more than one accepted presentation - `$1,099.99` or `1,099.99 USD`, `AED 1,099.99` or `1,099.99 د.إ`. The built-in locales pick one convention per currency; `config.currencies` overrides component props for a single currency, layered on top of that locale.
+Several currencies have more than one accepted presentation - `$1,099.99` or `$1,099.99 USD`, `AED 1,099.99` or `1,099.99 د.إ`. The built-in locales pick one convention per currency; the top-level `currencies` property overrides component props for a single currency, layered on top of that locale.
 
-It follows the same shape as [`config.translations`](TEMPLATES_CONFIG.md#translations), keyed by currency code instead of language code:
+Like [`translations`](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#language-translations), it is keyed by code (currency code instead of language code) and then by component, but each component entry holds component props rather than lang entries:
 
 ```tsx
 new SnapTemplates(validateTemplatesConfig({
@@ -207,7 +207,7 @@ new SnapTemplates(validateTemplatesConfig({
 	currencies: {
 		AED: {
 			price: {
-				symbol: 'د.إ',      // the locale ships the 'AED ' abbreviation instead
+				symbol: '\u00A0د.إ', // leading non-breaking space; the locale ships the 'AED ' abbreviation instead
 				symbolAfter: true,
 			},
 		},
@@ -217,7 +217,7 @@ new SnapTemplates(validateTemplatesConfig({
 			},
 		},
 	},
-	theme: { extends: 'bocachica' },
+	theme: { extends: 'pike' },
 	...
 }));
 ```
@@ -228,6 +228,8 @@ new SnapTemplates(validateTemplatesConfig({
 | `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ | ➖ |
 | `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ | ➖ |
 
-Any component props are accepted, not just `price` - the value has the same shape as `theme.overrides.default`.
+Any component props are accepted, not just `price` - the value uses the same type as `theme.overrides.default` (component names and treePath selectors such as `'result price'`). One difference: `$children` blocks are not expanded here, so write the full selector instead.
 
-Only the block for the active currency is applied, and it follows the currency: when the currency changes at run-time - via `setCurrency()`, or by the [Shopify Currency plugin](reference-platforms-shopify#pluginshopifycurrency) - the previous currency's overrides are dropped and the new currency's are applied.
+The theme is built from layers merged in this order, later layers winning for the same selector: the extended theme, the currency locale, `currencies` for the active currency, the language locale, `translations` for the active language, then `theme.overrides` (`default`, then the active breakpoint). A prop set for the same selector in `theme.overrides` therefore wins over `currencies`.
+
+Only the block for the active currency is applied (looked up by the lowercase code, then the uppercase code), and it follows the currency: when the currency changes at run-time - via `window.athos.templates.setCurrency()`, or by the [Shopify Currency plugin](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#pluginshopifycurrency) - the previous currency's overrides are dropped and the new currency's are applied.

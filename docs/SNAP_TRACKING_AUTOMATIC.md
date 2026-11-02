@@ -1,6 +1,6 @@
 # Automatic Tracking
 
-These events are tracked out of the box when using the default `Result`/Autocomplete components — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](./snap-tracking-manual).
+These events are tracked out of the box when using the default `Result`/Autocomplete components — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md).
 
 ### Product Click
 Tracks product click events. Not required when using `withTracking` or `ResultTracker`. It is recommended to invoke on each product `onmousedown` or `onClick` event via the `controller.track.product.click()` method available on all controller types.

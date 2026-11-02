@@ -138,14 +138,16 @@ The `renderInput` prop specifies whether the Search Input should be rendered.
 ```
 
 #### Positioning the search input
-By default the rendered search input sits above the layout. Add the `searchInput` module to the `layout` prop (or to one of the column layouts) to render the input at that position instead. The layout stays rendered while the component is open so the input is never lost, while the other modules still only render once the input is focused and there are terms or results to show. `renderInput={false}` disables the rendered input in both cases.
+By default the rendered search input sits above the layout. Add the `searchInput` module to the `layout` prop (or to one of the column layouts) to render the input at that position instead. The layout stays rendered while the component is open so the input is never lost, while the other modules (except `_` spacers) still only render once the input is focused and there are terms to show or a search has loaded. `renderInput={false}` disables the rendered input in both cases.
+
+Leaving `c2` out of the layout also drops the left merchandising banner that the facets column renders, so this example places `banner.left` in the first column.
 
 ```tsx
 <AutocompleteModal
 	controller={controller}
 	input={'#searchInput'}
 	layout={[['c1', 'c3']]}
-	column1={{ width: '40%', layout: [['searchInput'], ['terms.history', 'terms.trending']] }}
+	column1={{ width: '40%', layout: [['searchInput'], ['terms.history', 'terms.trending'], ['banner.left']] }}
 	column3={{ width: 'auto', layout: ['content'] }}
 />
 ```

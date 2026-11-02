@@ -4,7 +4,7 @@ Snap templates is configuration based. The configuration defines which features 
 
 | Configuration Key | Description |
 |----|-----------------------|
-| `unlocked` | Enable advanced configuration options (default: `false`) |
+| `unlocked` | Set to `true` (together with `validateTemplatesConfigUnlocked`) to enable advanced configuration options. Omit it for locked mode - `unlocked: false` is not accepted |
 | `config` | Global configuration options |
 | `plugins` | Plugins configuration options |
 | `components` | Custom component registration |
@@ -15,6 +15,7 @@ Snap templates is configuration based. The configuration defines which features 
 | `search` | Search feature target declarations |
 | `autocomplete` | Autocomplete feature target declarations |
 | `recommendation` | Recommendation feature target declarations |
+| `quickview` | Quickview feature target declarations - see [Quickview](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_QUICKVIEW.md) |
 
 Here is a minimal example starting configuration to enable search and autocomplete using the `pike` theme.
 
@@ -57,10 +58,11 @@ new SnapTemplates(templatesConfig);
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|:---------:|:---------:|
 | `config` | Global configuration options | Object | ➖ | ➖ |
-| `config.platform` | Shopping platform for the integration | String | 'other' | ➖ |
+| `config.platform` | Shopping platform for the integration - `'shopify'`, `'bigCommerce'`, `'magento2'` or `'other'` | String | 'other' | ➖ |
 | `config.siteId` | Athos Site ID | String | ➖ | ➖ |
-| `config.language` | Language code for localization - supports ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
-| `config.currency` | Currency code for pricing - supports ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
+| `config.client` | Configuration passed to the Athos API client | ClientConfig Object | ➖ | ➖ |
+| `config.language` | Language code for localization - one of the supported ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
+| `config.currency` | Currency code for pricing - one of the supported ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
 
 The `config` object defines the integration platform, Athos siteId and current localization to be used.
 
@@ -69,6 +71,8 @@ If a `siteId` is not provided, the siteId found on the `bundle.js` url path will
 ```
 <script src="https://snapui.athoscommerce.io/8uyt2m/bundle.js" id="athos-context"></script>
 ```
+
+A `siteId` variable set inside that context script takes precedence over the url path. If no siteId is found in any of these places, `new SnapTemplates` throws `SnapTemplates: config provided must contain a valid config.siteId value`.
 
 It is possible to switch language and currency at run-time using methods on the TemplateStore that are exposed to the window: 
 - `window.athos.templates.setCurrency('eur')`
@@ -81,7 +85,7 @@ By default, Snap Templates operates in "locked" mode, which provides a curated s
 
 #### Locked Mode (Default)
 
-In locked mode, no `unlocked` flag is required — just wrap your config in `validateTemplatesConfig`. This mode is recommended for most integrations as it provides type safety, prevents configuration errors, and ensures compatibility with future updates.
+In locked mode, no `unlocked` flag is used — just wrap your config in `validateTemplatesConfig`. This mode is recommended for most integrations as it limits the configuration to the curated set of options.
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
@@ -109,9 +113,9 @@ To enable unlocked mode you must:
 
 This makes additional configuration capabilities available:
 
-1. **Custom Component Prop in Theme Overrides for almost all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. The one exception is `result`, which never supports `customComponent` (locked or unlocked) since it would bypass built-in impression tracking — use `resultComponent` or `globalResultComponent` to customize result rendering instead.
+1. **Custom Component Prop in Theme Overrides for almost all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. The one exception is `result`, which never supports `customComponent` (locked or unlocked) — use `resultComponent` or `globalResultComponent` to customize result rendering instead. A component used as a `customComponent` must be registered under `components.<componentType>` (see [Registering additional components](#registering-additional-components)).
 
-2. **Custom Plugins** - Ability to define and register custom plugin functions that integrate with the controller lifecycle.
+2. **Custom Plugins** - Ability to define and register custom plugin functions (under `plugins.custom`) that integrate with the controller lifecycle.
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
@@ -133,11 +137,10 @@ new SnapTemplates(config);
 
 ### Configuration Validation
 
-Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript verify the entire configuration — unknown keys, invalid override selectors and props, and wrong value types. Unknown keys and wrong value types are flagged on the exact line as you type. Mistakes inside `theme.overrides` that the IDE cannot see while typing (a misspelled selector, or any prop under an open-named selector such as `facet.<field>`) are reported where the config is passed to `new SnapTemplates(...)`.
+Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript check the configuration: unknown keys, wrong value types, and invalid theme override selectors and props. Write the config object inside the `validateTemplatesConfig(...)` call - the result can then be passed straight to `new SnapTemplates(...)` or assigned to a variable first. Some mistakes are flagged on the line where you make them; mistakes inside `theme.overrides` that your IDE cannot see while you type are reported where the config is passed to `new SnapTemplates(...)`, as an `InvalidThemeOverrides<...>` error. A few values are not checked at all.
 
 > [!IMPORTANT]
-> Enable the Snap config ESLint rules (prewired in snapfu-scaffolded projects) — they mark configuration mistakes on the exact line, with the valid options listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup and for how to read the type errors.
-
+> Enable the Snap config ESLint rules with typed linting (both prewired in snapfu-scaffolded projects) — they mark configuration mistakes on the exact line, and many of their messages list the valid options. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for which mistake is reported where, the exact error messages, the checking limitations, and the linter setup.
 
 ### Per Currency Overrides
 
@@ -147,20 +150,20 @@ Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnl
 | `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ |
 | `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ |
 
-Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), `config.currencies` overrides component props for that one currency, layered on top of its built-in locale. The value has the same shape as `theme.overrides.default`, so any component props are accepted.
+Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), the top-level `currencies` key overrides component props for that one currency, layered on top of its built-in locale. The value accepts the same selectors and props as `theme.overrides.default` (props under open-named selectors such as `facet.<field>` are not type-checked here), except that `$children` blocks are not expanded - write the full selector instead.
 
 ```tsx
 currencies: {
 	AED: {
 		price: {
-			symbol: 'د.إ',
+			symbol: ' د.إ', // leading non-breaking space - a symbol placed after the value gets no space of its own
 			symbolAfter: true,
 		},
 	},
 },
 ```
 
-The overrides follow the active currency, including when it changes at run-time via `setCurrency()`. See [Per Currency Overrides](TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the full layer order.
+The overrides follow the active currency, including when it changes at run-time via `setCurrency()`. See [Per Currency Overrides](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the full layer order.
 
 ### Language Translations
 
@@ -170,16 +173,16 @@ The overrides follow the active currency, including when it changes at run-time 
 | `translations[languageCode]` | Translation overrides for specific language code | Object | ➖ |
 | `translations[languageCode][componentName]` | Translations for a specific component | Component Lang Object | ➖ |
 
-When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using `config.translations`
+When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using the top-level `translations` key. Only the overrides for the active language are applied.
 
-See [Supported Languages](TEMPLATES_LOCALIZATION.md#supported-languages) for the full list of available language codes.
+See [Supported Languages](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-languages) for the full list of available language codes.
 
 Translations overrides can be provided in two ways:
 
 1. Simple translations: Use a string value for straightforward text replacements.
 2. Complex translations: Utilize functions to access component props and apply logic for dynamic text generation.
 
-When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO.md#responsive-translations) for an example.
+When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_TRANSLATIONS.md#responsive-translations) for an example.
 
 The example below demonstrates both approaches for French language translations:
 - The `FilterSummary` component uses a simple string translation.
@@ -200,10 +203,10 @@ new SnapTemplates(validateTemplatesConfig({
 			searchHeader: {
 				noResultsText: {
 					value: ({ pagination, search }) => {
-						return `<span>${search?.query ? 'Aucun résultat trouvé pour' + search.query.string : 'Aucun résultat trouvé' }</span>`
+						return `<span>${search?.query ? 'Aucun résultat trouvé pour ' + search.query.string : 'Aucun résultat trouvé' }</span>`
 					},
 					attributes: {
-						'aria-label': `Aucun résultat trouvé pour ${search?.query?.string}`,
+						'aria-label': ({ search }) => `Aucun résultat trouvé pour ${search?.query?.string}`,
 					},
 				}
 			},
@@ -215,7 +218,7 @@ new SnapTemplates(validateTemplatesConfig({
 
 
 ### Registering additional components
-Snap Templates was built to intentionally not support custom Preact components composing the search experience and layouts. Snap Templates supports customization of the Result component and support for custom badge components. Custom result and badge components must first be registered via `config.components` before they can be applied to a feature target. Component registration can be defined as synchronously or asynchronously function imports.
+Snap Templates was built to intentionally not support custom Preact components composing the search experience and layouts. Snap Templates supports customization of the Result component and support for custom badge components. Custom result and badge components must first be registered via the top-level `components` key before they can be applied to a feature target. In an [unlocked configuration](#unlocked-mode), `components` also accepts other component types, which can then be used with the `customComponent` override prop. Component registration can be defined as synchronously or asynchronously function imports.
 
 `resultComponent` and `customComponent` do not resolve names the same way:
 
@@ -234,6 +237,7 @@ Snap Templates was built to intentionally not support custom Preact components c
 | `components` | Custom component definitions | Object | ➖ |
 | `components.badge[name]` | Custom badge component definition | Function (component) | ➖ |
 | `components.result[name]` | Custom result component definition | Function (component) | ➖ |
+| `components[componentType][name]` | Unlocked only - custom component for `customComponent` overrides of other component types (e.g. `button`) | Function (component) | ➖ |
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
@@ -295,11 +299,12 @@ In addition to the common target properties, the following properties apply to t
 |----------------------|-------------|------|---------|
 | `search` | Search configuration | Object | ➖ |
 | `search.globals` | Search request globals | Object | ➖ |
+| `search.settings` | Search store settings | SearchStoreConfigSettings Object | ➖ |
 | `search.plugins` | Search specific plugins configurations | Object | ➖ |
 | `search.tabs` | Search tab configurations - see [Tabs](#tabs) | Array | ➖ |
 | `search.targets` | Search target configurations | Array | Required |
 | `search.targets[].selector` | CSS selector for search target | String | Required |
-| `search.targets[].component` | Component to use for search | String | Required |
+| `search.targets[].component` | Component to use for search - `'Search'`, `'SearchCollapsible'` or `'SearchHorizontal'` | String | Required |
 | `search.targets[].emptyTarget` | Remove the target's existing content when it is found; set to `false` to keep it until the search components render | Boolean | true |
 
 ##### Keeping a loading skeleton
@@ -346,19 +351,20 @@ In addition to the common target properties, the following properties apply to t
 
 `inputSelector` - The DOM selector of the `<input>` element(s) autocomplete should bind to. This is required for each autocomplete target.
 
-`selector` - DOM selector where this target will inject into. If not provided, `inputSelector` is used as the selector, and the component is injected after the matched input element unless configured otherwise.
+`selector` - DOM selector of the element the component is injected after. If not provided, `inputSelector` is used as the selector. In both cases the component renders in a new element inserted directly after the matched element.
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `autocomplete` | Autocomplete configuration | Object | ➖ |
-| `autocomplete.action` | URL to navigate to on form submission (required if input is not inside a `<form>`) | String | ➖ |
+| `autocomplete.action` | URL to navigate to when the shopper presses Enter in the input (required if input is not inside a `<form>`; when set, it is used instead of the form's `action`) | String | ➖ |
 | `autocomplete.globals` | Autocomplete request globals | Object | ➖ |
+| `autocomplete.settings` | Autocomplete store settings, merged over the default `{ trending: { limit: 5 } }` | AutocompleteStoreConfigSettings Object | ➖ |
 | `autocomplete.plugins` | Autocomplete specific plugins configurations | Object | ➖ |
 | `autocomplete.tabs` | Autocomplete tab configurations - see [Tabs](#tabs) | Array | ➖ |
 | `autocomplete.targets` | Autocomplete target configurations | Array | Required |
 | `autocomplete.targets[].inputSelector` | DOM selector for the autocomplete `<input>` element | String | Required |
-| `autocomplete.targets[].selector` | DOM selector where the component injects; defaults to `inputSelector` | String | ➖ |
-| `autocomplete.targets[].component` | Component to use for autocomplete | String | 'AutocompleteFixed' |
+| `autocomplete.targets[].selector` | DOM selector of the element the component is injected after; defaults to `inputSelector` | String | ➖ |
+| `autocomplete.targets[].component` | Component to use for autocomplete - `'AutocompleteFixed'`, `'AutocompleteModal'` or `'AutocompleteSlideout'` | String | Required |
 
 #### Tabs
 
@@ -377,32 +383,21 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 | `tabs[].param` | URL identifier for the tab's catalog, unique within the feature | String | Required |
 | `tabs[].label` | Display label for the tab | String | `tabs[].id` |
 | `tabs[].default` | Selects this tab on initial load | Boolean | first tab |
-| `tabs[].globals` | Request globals for this tab only | Object | ➖ |
+| `tabs[].globals` | Request globals for this tab only, merged over the feature level globals (not type-checked) | Object | ➖ |
 | `tabs[].settings` | Store settings for this tab only, merged over the feature level settings | Object | ➖ |
-| `tabs[].plugins` | Plugins for this tab only, replacing the feature level plugins | Object | ➖ |
+| `tabs[].plugins` | Plugins for this tab only, replacing the top-level and feature level plugins | Object | ➖ |
 | `search.tabs[].prefetch` | Search this tab before it is selected | Boolean | true |
 
-`tabs[].id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. The id becomes the controller id, and controllers share a single registry - a duplicate id is silently skipped and the affected tab never renders.
-
-`tabs[].param` does two things. It is the value written to the URL when the tab is selected, and it namespaces that tab's `filter`, `sort`, `pageSize`, `rq`, and `page` parameters so two tabs can hold different refinements and pagination positions at the same time.
-
-Within a feature, every tab must have its own `siteId` and its own `param`.
-
-The URL parameter holding the active tab is always `tab` - it is registered as a custom query parameter on every tab controller and is not configurable.
-
-The `query` parameter is deliberately **not** namespaced - a single query applies across every tab.
+Every tab `id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. Within a feature, every tab must also have its own `siteId` and its own `param`.
 
 > [!IMPORTANT]
 > When tabs are used in both `search` and `autocomplete`, a tab for a given catalog **must be configured with the same `siteId` and the same `param` in both features**. Unlike `id`, which must be unique across the entire configuration, `param` is meant to be shared between the two. This pairing is what allows a shopper to submit from a tabbed autocomplete and land on the matching tab of the search results page - an autocomplete tab whose `param` matches no search tab drops the shopper on the default tab.
 
-`tabs[].plugins` **replaces** the feature level `plugins` for that tab rather than merging with them. Supplying an empty object runs no plugins for that tab.
-
-`prefetch` applies to search tabs only - autocomplete has nothing to fetch until the shopper types. Setting it to `false` defers a tab's request until it is selected, at the cost of showing no result count on that tab beforehand.
-
-Targets are attached to the default tab's controller, so adding tabs does not produce an additional request for the untabbed controller.
+> [!NOTE]
+> For how tabs work - what happens to a duplicate `id`, how `param` namespaces the URL, how `plugins` replacement and `prefetch` behave, and which controller the targets attach to - see [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md).
 
 #### Recommendation
-In addition to the defining recommendation targets, the recommendation configuration also contains the following following properties:
+In addition to the recommendation targets, the recommendation configuration also contains the following properties:
 
 `settings` - Recommendation Instantiator config settings. 
 
@@ -410,7 +405,7 @@ In addition to the defining recommendation targets, the recommendation configura
 |----------------------|-------------|------|---------|
 | `recommendation` | Recommendation configuration | Object | ➖ |
 | `recommendation.plugins` | Recommendation specific plugins configurations | Object | ➖ |
-| `recommendation.settings` | Recommendation Instantiator Config Settings | RecommendationInstantiatorConfigSettings | ➖ |
+| `recommendation.settings` | Recommendation Instantiator Config Settings. When `settings` is provided, its type requires `branch` | RecommendationInstantiatorConfigSettings (without `settings`) | `{ branch: 'production' }` |
 
 
 There are three types of recommendations:
@@ -418,6 +413,12 @@ There are three types of recommendations:
 1. default
 2. bundle
 3. email
+
+Each `[profileComponentName]` key is matched against the template component name set on the recommendation profile. Snap Templates also registers these built-in profile names, and your entries are merged with them:
+
+- default: `SnapTemplatesRecommendationCarousel` (`Recommendation`), `SnapTemplatesRecommendationGrid` (`RecommendationGrid`)
+- bundle: `SnapTemplatesBundleDefault` (`RecommendationBundle`), `SnapTemplatesBundleEasyAdd` (`RecommendationBundleEasyAdd`), `SnapTemplatesBundleList` (`RecommendationBundleList`), `SnapTemplatesBundleVertical` (`RecommendationBundleVertical`)
+- email: `SnapTemplatesEmailDefault` (`RecommendationEmail`)
 
 
 #### Default Recommendations
@@ -428,7 +429,7 @@ Standard product recommendation typically rendered in a carousel
 |----------------------|-------------|------|---------|
 | `recommendation.default` | Default recommendation configurations | Object | ➖ |
 | `recommendation.default[profileComponentName]` | Configuration for a specific default recommendation profile | Object | ➖ |
-| `recommendation.default[profileComponentName].component` | Component to use for default recommendation | String | 'Recommendation' |
+| `recommendation.default[profileComponentName].component` | Component to use for default recommendation - `'Recommendation'` or `'RecommendationGrid'` | String | Required |
 
 
 #### Bundle Recommendations
@@ -439,7 +440,7 @@ Product recommendations that require and include a seed product sku.
 |----------------------|-------------|------|---------|
 | `recommendation.bundle` | Bundle recommendation configurations | Object | ➖ |
 | `recommendation.bundle[profileComponentName]` | Configuration for a specific bundle recommendation profile | Object | ➖ |
-| `recommendation.bundle[profileComponentName].component` | Component to use for bundle recommendation | String | 'RecommendationBundle' |
+| `recommendation.bundle[profileComponentName].component` | Component to use for bundle recommendation - `'RecommendationBundle'`, `'RecommendationBundleEasyAdd'`, `'RecommendationBundleList'` or `'RecommendationBundleVertical'` | String | Required |
 
 
 #### Email Recommendations
@@ -450,4 +451,4 @@ Product recommendations for external email campaigns. Email recommendations are 
 |----------------------|-------------|------|---------|
 | `recommendation.email` | Email recommendation configurations | Object | ➖ |
 | `recommendation.email[profileComponentName]` | Configuration for a specific email recommendation profile | Object | ➖ |
-| `recommendation.email[profileComponentName].component` | Component to use for email recommendation | String | 'RecommendationEmail' |
+| `recommendation.email[profileComponentName].component` | Component to use for email recommendation - `'RecommendationEmail'` | String | Required |

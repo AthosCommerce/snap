@@ -77,7 +77,7 @@ snapps/              ← gitignored; local co-development area
 
 - SDK orchestrator: `packages/snap-preact/src/Snap.tsx`
 - Components: `packages/snap-preact/components/src/` (Atomic Design: Atoms → Molecules → Organisms → Templates)
-- 5 themes in `packages/snap-preact/components/src/themes/` (`base`, `bocachica`, `pike`, `snapnco`, `snappy`); the sibling `themeComponents/` directory is shared pieces, not a theme
+- 5 themes in `packages/snap-preact/components/src/themes/` (`base`, `bocachica`, `pike`, `snapnco`, `snappy`); the sibling `themeComponents/` directory is shared pieces, not a theme. Snap Templates only offers `base` and `pike` for `theme.extends` — the others are commented out of `LibraryImports.theme` in `packages/snap-preact/src/Templates/Stores/LibraryStore.ts`
 - How Snap Templates theme overrides resolve (layers, breakpoints, treePaths, selector priority, default layouts): `packages/snap-preact/AGENTS.md`
 - Platform integrations use conditional `exports` in `snap-platforms/package.json`
 

@@ -8,7 +8,7 @@ The `RecommendationController` is used when making queries to the API `recommend
 |---|---|:---:|:---:|
 | id | unique identifier for this controller | ➖ | ✔️ |
 | tag | unique name of the recommendations profile | ➖ | ✔️ |
-| realtime | update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#cart-attribute-tracking)) | ➖ |   |
+| realtime | update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#cart-attribute-tracking)) | ➖ |   |
 | batched | batch multiple recommendations into a single network request | true |   |
 | limit | maximum number of results to display, can also be set globally via globals | 20 |  |
 | globals | keys defined here will be passed to the API request (can overwrite global config)| ➖ |   |
