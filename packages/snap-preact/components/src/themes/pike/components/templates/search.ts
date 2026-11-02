@@ -34,9 +34,6 @@ const searchStyleScript = (props: SearchProps) => {
 			},
 			'.ss__toolbar': {
 				'.ss__layout__row': {
-					'&:has(.ss__pagination-info:last-child)': {
-						flexDirection: 'row-reverse',
-					},
 					'.ss__layout__sidebar-toggle-button-wrapper': {
 						'.ss__button': {
 							width: '100%',
@@ -46,6 +43,10 @@ const searchStyleScript = (props: SearchProps) => {
 			},
 			'.ss__search__content__toolbar--bottom-toolbar': {
 				marginTop: `40px`,
+			},
+
+			'.ss__pagination-info': {
+				textAlign: 'right',
 			},
 		},
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {

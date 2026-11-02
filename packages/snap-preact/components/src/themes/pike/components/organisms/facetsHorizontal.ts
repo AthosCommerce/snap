@@ -140,6 +140,9 @@ const facetsHorizontalStyleScript = (props: FacetsHorizontalProps) => {
 				},
 			},
 		},
+		'.ss__slideout--active': {
+			padding: '10px',
+		},
 		[`${custom.utils.getBp(mobileBp)}`]: {
 			'.ss__facets-horizontal__header': {
 				'& > *': {
