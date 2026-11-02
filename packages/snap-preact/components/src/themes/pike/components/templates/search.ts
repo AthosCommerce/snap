@@ -8,8 +8,6 @@ import { custom } from '../../custom';
 const searchStyleScript = (props: SearchProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile as number;
-	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// search styles
 	const searchStyles = css({
@@ -58,46 +56,6 @@ const searchStyleScript = (props: SearchProps) => {
 				},
 			},
 		},
-		[`${custom.utils.getBp(mobileBp)}`]: {
-			'.ss__search__main-section': {
-				'.ss__toolbar': {
-					'.ss__layout__row': {
-						'&:has(.ss__select)': {
-							'.ss__layout__separator': {
-								display: 'none',
-							},
-						},
-						'.ss__select': {
-							flex: '1 1 0%',
-						},
-						'.ss__pagination-info': {
-							flex: '1 1 100%',
-							order: -1,
-						},
-					},
-				},
-			},
-		},
-		[`${custom.utils.getBp(tabletBp)}`]: {
-			'.ss__search__main-section': {
-				'.ss__toolbar': {
-					'.ss__layout__row': {
-						'&:has(.ss__select)': {
-							'.ss__layout__separator': {
-								display: 'block',
-							},
-						},
-						'.ss__select': {
-							flex: '0 1 auto',
-						},
-						'.ss__pagination-info': {
-							flex: '1 1 0%',
-							order: 0,
-						},
-					},
-				},
-			},
-		},
 	});
 
 	return searchStyles;
@@ -110,7 +68,6 @@ export const search: ThemeComponent<'search', SearchProps, SearchTemplatesLegalP
 		search: {
 			...(searchThemeComponentProps.default?.['search'] || {}),
 			themeStyleScript: searchStyleScript,
-			mobileDisplayAt: `${custom.breakpoints.mobile}px`,
 		},
 	},
 	mobile: {

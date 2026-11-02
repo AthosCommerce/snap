@@ -190,7 +190,7 @@ ruleTester.run('layout-banners', layoutBanners, {
 			}),
 		},
 		{
-			// base renders [['c1', 'c3']] on tablet (no left banner), pike renders 'desktop' (with facets)
+			// the shared tablet default is [['c1', 'c3']] (no left banner)
 			name: 'tablet autocomplete layout without facets on the base theme',
 			code: config({ autocomplete: 'AutocompleteModal', overrides: `{ tablet: { autocompleteModal: { layout: [['c1', 'c3']] } } }` }),
 		},
@@ -448,28 +448,18 @@ ruleTester.run('layout-banners', layoutBanners, {
 			],
 		},
 		{
-			name: 'tablet autocomplete layout without facets on pike, whose tablet default has them',
-			code: config({ theme: 'pike', autocomplete: 'AutocompleteModal', overrides: `{ tablet: { autocompleteModal: { layout: [['c1', 'c3']] } } }` }),
-			errors: [
-				{
-					messageId: 'missingLayoutBanners',
-					data: { prop: 'layout', selector: 'autocompleteModal', banners: "'banner.left'", where: 'AutocompleteModal (tablet)' },
-				},
-			],
-		},
-		{
-			// base renders [['c1', 'c3']] on tablet too, so this is only reported if pike is the theme compared against
+			// only a spread after extends makes the theme unknown (and so unreported) - one before it doesn't
 			name: 'theme extends set after a spread is still read',
 			code: `
 				const config: SnapTemplatesConfig = {
-					theme: { ...sharedTheme, extends: 'pike', overrides: { tablet: { autocompleteModal: { layout: [['c1', 'c3']] } } } },
-					autocomplete: { targets: [{ inputSelector: 'input', component: 'AutocompleteModal' }] },
+					theme: { ...sharedTheme, extends: 'base', overrides: { default: { sidebar: { layout: [['facets']] } } } },
+					search: { targets: [{ selector: '#search', component: 'Search' }] },
 				};
 			`,
 			errors: [
 				{
 					messageId: 'missingLayoutBanners',
-					data: { prop: 'layout', selector: 'autocompleteModal', banners: "'banner.left'", where: 'AutocompleteModal (tablet)' },
+					data: { prop: 'layout', selector: 'sidebar', banners: "'banner.left'", where: 'Search (all breakpoints)' },
 				},
 			],
 		},
