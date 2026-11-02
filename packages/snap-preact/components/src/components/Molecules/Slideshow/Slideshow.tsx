@@ -307,7 +307,7 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	// Tracks whether the pointer moved during the current press. The browser fires a `click`
 	// after a drag's `mouseup`, by which point `isDragging` state has already been reset — so a
 	// swipe would otherwise be treated as a click (e.g. opening a lightbox). This synchronous ref
-	// lets `handleSlideClick` suppress that trailing click.
+	// lets `handleContainerClickCapture` and `handleSlideClick` suppress that trailing click.
 	const hasDraggedRef = useRef(false);
 
 	// Track container width for slideWidth-based visible slide calculation
@@ -327,8 +327,6 @@ export const Slideshow = observer((properties: SlideshowProps) => {
 	}, []);
 
 	// Touch/Drag state
-	// drag positions live in refs so the document-level mousemove/mouseup listeners
-	// (registered once per drag) always read current values instead of stale state
 	const [isDragging, setIsDragging] = useState(false);
 	// mirrors `isDragging` state - the state drives renders (the dragging class, the transform,
 	// the autoplay effect), but the drag handlers below run through refs and can fire before

@@ -1,48 +1,34 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatInspirationResultMessage, ChatInspirationResultMessageProps } from './ChatInspirationResultMessage';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatInspirationResultMessage/readme.md';
 
 export default {
 	title: 'Molecules/ChatInspirationResultMessage',
 	component: ChatInspirationResultMessage,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		chatItem: {
 			description: 'inspirationResult chat message',
 			table: { category: 'Templates Legal', type: { summary: 'ChatResponseInspirationResultData' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		onProductQuickView: {
 			description: 'callback fired after a product thumbnail is clicked',
 			table: { category: 'Templates Legal', type: { summary: '() => void' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -92,7 +78,9 @@ const mockChatItem: any = {
 	],
 };
 
-export const Default = (args: ChatInspirationResultMessageProps) => <ChatInspirationResultMessage {...args} controller={mockController} />;
-Default.args = {
-	chatItem: mockChatItem,
+export const Default = {
+	render: (args: ChatInspirationResultMessageProps) => <ChatInspirationResultMessage {...args} controller={mockController} />,
+	args: {
+		chatItem: mockChatItem,
+	},
 };

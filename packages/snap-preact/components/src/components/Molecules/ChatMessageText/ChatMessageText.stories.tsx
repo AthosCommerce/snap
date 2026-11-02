@@ -1,43 +1,29 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatMessageText, ChatMessageTextProps } from './ChatMessageText';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatMessageText/readme.md';
 
 export default {
 	title: 'Molecules/ChatMessageText',
 	component: ChatMessageText,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		chatItem: {
 			description: 'chat message to render',
 			table: { category: 'Templates Legal', type: { summary: 'object' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		primaryColor: {
 			description: 'accent color',
@@ -59,8 +45,10 @@ const mockController: any = {
 	productQuickView: () => undefined,
 };
 
-export const Default = (args: ChatMessageTextProps) => <ChatMessageText {...args} controller={mockController} />;
-Default.args = {
-	chatItem: { id: '1', text: 'Here are some great suggestions for you!', messageType: 'general' },
-	scrollToBottom: () => undefined,
+export const Default = {
+	render: (args: ChatMessageTextProps) => <ChatMessageText {...args} controller={mockController} />,
+	args: {
+		chatItem: { id: '1', text: 'Here are some great suggestions for you!', messageType: 'general' },
+		scrollToBottom: () => undefined,
+	},
 };
