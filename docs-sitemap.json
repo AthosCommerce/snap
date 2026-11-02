@@ -141,6 +141,10 @@
 			"url": "/build-deploy",
 			"title": "Build & Deploy"
 		},
+		"docs/BUILD_DEPLOY_INTEGRATION.md": {
+			"url": "/build-deploy-integration",
+			"title": "Integration"
+		},
 		"docs/BUILD_DEPLOY_CHECKLIST.md": {
 			"url": "/build-deploy-ckecklist",
 			"title": "QA Checklist"

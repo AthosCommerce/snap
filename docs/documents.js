@@ -280,6 +280,13 @@ var documents = [
 				searchable: true,
 			},
 			{
+				label: 'Integration',
+				route: '/build-deploy-integration',
+				type: 'markdown',
+				url: './docs/BUILD_DEPLOY_INTEGRATION.md',
+				searchable: true,
+			},
+			{
 				label: 'QA Checklist',
 				route: '/build-deploy-ckecklist',
 				type: 'markdown',
