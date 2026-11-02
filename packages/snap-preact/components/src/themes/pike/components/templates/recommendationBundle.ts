@@ -84,9 +84,9 @@ const recommendationBundleStyleScript = (props: RecommendationBundleProps) => {
 					},
 				},
 				'.ss__recommendation-bundle__wrapper__selector__result-wrapper': {
-					'ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge, .ss__checkbox': {
+					'.ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge, .ss__checkbox': {
 						position: 'absolute',
-						zIndex: '5px',
+						zIndex: 5,
 					},
 					'.ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': {
 						top: '5px',

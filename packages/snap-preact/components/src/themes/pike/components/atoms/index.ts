@@ -17,6 +17,7 @@ import { loadingBar } from './loadingBar';
 import { overlay } from './overlay';
 import { paginationInfo } from './paginationInfo';
 import { price } from './price';
+import { productDetail } from './productDetail';
 import { searchHeader } from './searchHeader';
 import { skeleton } from './skeleton';
 
@@ -38,6 +39,7 @@ export const atoms = {
 		...overlay.default,
 		...paginationInfo.default,
 		...price.default,
+		...productDetail.default,
 		...searchHeader.default,
 		...skeleton.default,
 	},
@@ -58,6 +60,7 @@ export const atoms = {
 		...overlay.mobile,
 		...paginationInfo.mobile,
 		...price.mobile,
+		...productDetail.mobile,
 		...searchHeader.mobile,
 		...skeleton.mobile,
 	},
@@ -78,6 +81,7 @@ export const atoms = {
 		...overlay.tablet,
 		...paginationInfo.tablet,
 		...price.tablet,
+		...productDetail.tablet,
 		...searchHeader.tablet,
 		...skeleton.tablet,
 	},
@@ -98,6 +102,7 @@ export const atoms = {
 		...overlay.desktop,
 		...paginationInfo.desktop,
 		...price.desktop,
+		...productDetail.desktop,
 		...searchHeader.desktop,
 		...skeleton.desktop,
 	},
