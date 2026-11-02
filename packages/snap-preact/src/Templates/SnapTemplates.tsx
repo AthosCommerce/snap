@@ -873,13 +873,20 @@ export function createPlugins(
 			break;
 	}
 
-	// Handle custom plugins (only available when unlocked: true)
+	// Handle custom plugins (only available when unlocked: true) - the locked config types reject them, and a locked
+	// config that gets past the types has them skipped here, as LibraryStore skips its custom components
 	const customPlugins: CustomPlugins = deepmerge(
 		(templateConfig as { plugins?: PluginsConfigsUnlocked }).plugins?.custom || {},
 		(controllerConfig as { plugins?: PluginsConfigsUnlocked })?.plugins?.custom || {}
 	);
+	const customPluginNames = Object.keys(customPlugins);
 
-	Object.keys(customPlugins).forEach((pluginName) => {
+	if (customPluginNames.length && !(templatesStore.config as TemplatesStoreConfigUnlocked).unlocked) {
+		console.warn(`Snap Templates: custom plugins require unlocked: true - skipping ${customPluginNames.join(', ')}`);
+		return plugins as PluginGrouping[];
+	}
+
+	customPluginNames.forEach((pluginName) => {
 		const customPlugin = customPlugins[pluginName];
 		if (customPlugin?.function) {
 			plugins.push([customPlugin.function, ...(customPlugin.args || [])]);
