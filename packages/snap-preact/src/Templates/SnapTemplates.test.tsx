@@ -1456,6 +1456,27 @@ describe('createSnapConfig additional coverage', () => {
 		expect(recsConfig?.config?.branch).toBe('staging');
 	});
 
+	it('should default the recommendation branch when settings omit it', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			recommendation: {
+				default: {
+					Default: { component: 'Recommendation' },
+				},
+				settings: {
+					limit: 5,
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const recsConfig = snapConfig.instantiators?.recommendation;
+		expect(recsConfig?.config?.branch).toBe('production');
+		expect(recsConfig?.config?.limit).toBe(5);
+	});
+
 	it('should not create search controller when search config not provided', () => {
 		const templatesStore = new TemplatesStore({ config: baseConfig });
 		const snapConfig = createSnapConfig(baseConfig, templatesStore);

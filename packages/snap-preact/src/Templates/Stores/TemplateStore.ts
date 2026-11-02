@@ -236,7 +236,7 @@ export type TemplatesStoreConfigLocked = {
 		bundle?: {
 			[profileComponentName: string]: RecommendationBundleTargetConfig;
 		};
-		settings?: Omit<RecommendationInstantiatorConfigSettings, 'settings'>;
+		settings?: Partial<Omit<RecommendationInstantiatorConfigSettings, 'settings'>>;
 		plugins?: PluginsConfigsLocked;
 	};
 };

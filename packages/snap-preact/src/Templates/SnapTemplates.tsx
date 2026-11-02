@@ -714,9 +714,6 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 	const originalRecsConfig = templateConfig.recommendation || {};
 	templateConfig.recommendation = deepmerge(
 		{
-			settings: {
-				branch: 'production',
-			},
 			bundle: {
 				SnapTemplatesBundleDefault: {
 					component: 'RecommendationBundle',
@@ -752,7 +749,8 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 			components: createRecommendationComponentMapping(templateConfig, templatesStore),
 			config: {
 				plugins: createPlugins(templateConfig, templatesStore, 'recommendation'),
-				...templateConfig.recommendation?.settings!,
+				branch: 'production',
+				...templateConfig.recommendation?.settings,
 			},
 		};
 
