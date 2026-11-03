@@ -7,7 +7,7 @@ import type {
 	SearchResponseModelResultCoreMappings,
 	SearchResponseModelResultVariants,
 } from '@athoscommerce/snapi-types';
-import type { NO_BEACON_PARAM } from './Client/transforms';
+import type { BEACON_PARAM } from './Client/transforms';
 
 export type HTTPHeaders = { [key: string]: string };
 
@@ -155,10 +155,8 @@ export type RecommendRequestGlobalsModel = {
 	batchId?: number;
 	test?: boolean;
 	withRecInfo?: boolean;
-	tracking?: {
-		// false opts the request out of API tracking (sends NO_BEACON_PARAM)
-		beacon?: boolean;
-	};
+	// false opts the request out of API tracking (sent as BEACON_PARAM: false)
+	beacon?: boolean;
 };
 
 export type RecommendRequestOptionsModel = {
@@ -189,7 +187,7 @@ export type RecommendPostRequestModel = {
 	withRecInfo?: boolean;
 	blockedItems?: string[];
 	filters?: RecommendPostRequestFiltersModel[];
-	[NO_BEACON_PARAM]?: boolean;
+	[BEACON_PARAM]?: boolean;
 };
 
 export type RecommendPostRequestProfileModel = {

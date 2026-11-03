@@ -55,11 +55,11 @@ describe('Finder Controller', () => {
 			});
 
 			it.each([
-				{ name: 'by default', beacon: undefined, expected: true },
+				{ name: 'by default', beacon: undefined, expected: undefined },
 				{ name: 'when beacon is disabled', beacon: { enabled: false }, expected: false },
 				{ name: 'when beacon.enabled is null', beacon: { enabled: null as unknown as boolean }, expected: false },
 				{ name: 'when beacon.enabled is undefined', beacon: { enabled: undefined as unknown as boolean }, expected: false },
-			])('sets tracking.beacon in the request from beacon.enabled $name', async ({ beacon, expected }) => {
+			])('passes tracking.beacon: $expected to the client $name', async ({ beacon, expected }) => {
 				if (beacon) config = { ...config, beacon };
 
 				const controller = new FinderController(config, {
@@ -77,6 +77,26 @@ describe('Finder Controller', () => {
 
 				expect(finderfn).toHaveBeenCalledTimes(1);
 				expect(finderfn.mock.calls[0][0]?.tracking?.beacon).toBe(expected);
+			});
+
+			it('opts the request out of tracking when beacon is disabled even if globals set tracking.beacon', async () => {
+				config = { ...config, beacon: { enabled: false }, globals: { ...config.globals, tracking: { beacon: true } } };
+
+				const controller = new FinderController(config, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(config, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+				const finderfn = jest.spyOn(controller.client, 'finder');
+
+				await controller.search();
+
+				expect(finderfn).toHaveBeenCalledTimes(1);
+				expect(finderfn.mock.calls[0][0]?.tracking?.beacon).toBe(false);
 			});
 
 			it(`can persist selections`, async () => {

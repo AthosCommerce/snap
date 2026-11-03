@@ -12,6 +12,8 @@ import {
 
 // Athos APIs track requests by default; this param is sent when a request opts out of API tracking (`tracking.beacon: false` in the request)
 export const NO_BEACON_PARAM = 'noBeacon';
+// sent as false when a recommendation request opts out of API tracking (`beacon: false` in the request)
+export const BEACON_PARAM = 'beacon';
 
 export function beaconParams(beacon?: boolean): { [NO_BEACON_PARAM]?: boolean } {
 	return beacon === false ? { [NO_BEACON_PARAM]: true } : {};

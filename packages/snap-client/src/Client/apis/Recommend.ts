@@ -1,7 +1,7 @@
 import { API } from './Abstract';
 import { HTTPHeaders, RecommendPostRequestProfileModel, RecommendRequesterPaths } from '../../types';
 import { AppMode } from '@athoscommerce/snap-toolbox';
-import { beaconParams, NO_BEACON_PARAM, transformRecommendationFiltersPost } from '../transforms';
+import { BEACON_PARAM, transformRecommendationFiltersPost } from '../transforms';
 import { ProfileRequestModel, ProfileResponseModel, RecommendResponseModel, RecommendRequestModel, RecommendPostRequestModel } from '../../types';
 import { DEVELOPMENT_MODE_PARAM } from './Search';
 
@@ -53,8 +53,8 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 		const batchId = parameters.batchId || 1;
 
 		// set up batch key and deferred promises
-		// the no beacon param applies to the whole batch, so requests opting out of tracking are batched separately
-		const beaconKey = parameters.tracking?.beacon === false ? `:${NO_BEACON_PARAM}` : '';
+		// the beacon param applies to the whole batch, so requests opting out of tracking are batched separately
+		const beaconKey = parameters.beacon === false ? `:${BEACON_PARAM}=false` : '';
 		const key = (parameters.batched ? `${parameters.profile?.siteId || parameters.siteId}:${batchId}` : `${Math.random()}:${batchId}`) + beaconKey;
 		const batch = (this.batches[key] = this.batches[key] || { timeout: null, request: { profiles: [] }, entries: [] });
 		const deferred = new Deferred();
@@ -123,7 +123,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 				}
 
 				// parameters used globally
-				const { products, blockedItems, filters, test, cart, lastViewed, lastSearches, shopper, withRecInfo, tracking } = entry.request;
+				const { products, blockedItems, filters, test, cart, lastViewed, lastSearches, shopper, withRecInfo, beacon } = entry.request;
 
 				// merge and de-dupe global array fields
 				const dedupedProducts = Array.from(new Set((batch.request.products || []).concat(products || [])));
@@ -149,7 +149,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 						shopper,
 						withRecInfo: mergedWithRecInfo,
 					}),
-					...beaconParams(tracking?.beacon),
+					...(beacon === false ? { [BEACON_PARAM]: false } : {}),
 				};
 				if (this.configuration.mode == AppMode.development) {
 					batch.request[DEVELOPMENT_MODE_PARAM] = true;
