@@ -89,7 +89,7 @@ Both caching and retries can be disabled or configured for each endpoint in the 
 
 ## Opting out of API tracking
 
-Requests made by the `search`, `category`, `finder`, `autocomplete` and `recommend` methods are tracked by the API by default. To opt a `search`, `category`, `finder` or `autocomplete` request out of API tracking, set `tracking.beacon` to `false` in its parameters; the request is then sent with `noBeacon=true`. For `autocomplete`, this applies to the autocomplete request, not the suggest request made before it.
+Requests made by the `search`, `category`, `finder`, `autocomplete` and `recommend` methods are tracked by the API by default. To opt a `search`, `category`, `finder` or `autocomplete` request out of API tracking, set `tracking.beacon` to `false` in its parameters; the request is then sent with `beacon=false`. For `autocomplete`, this applies to the autocomplete request, not the suggest request made before it.
 
 To opt a `recommend` request out, set `beacon` to `false` in its parameters; the request is then sent with `beacon: false`.
 

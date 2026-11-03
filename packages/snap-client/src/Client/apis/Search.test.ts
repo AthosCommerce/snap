@@ -298,7 +298,7 @@ describe('Search Api', () => {
 			['getCategory', 'category'],
 			['getFinder', 'finder'],
 			['getAutocomplete', 'autocomplete'],
-		] as const)('%s sends the no beacon param when tracking.beacon is false', async (method, endpoint) => {
+		] as const)('%s sends beacon=false when tracking.beacon is false', async (method, endpoint) => {
 			const api = new SearchAPI(new ApiConfiguration({}));
 			const requestMock = jest
 				.spyOn(global.window, 'fetch')
@@ -308,14 +308,14 @@ describe('Search Api', () => {
 
 			expect(requestMock).toHaveBeenCalledTimes(1);
 			expect(requestMock).toHaveBeenCalledWith(
-				`https://8uyt2m.a.athoscommerce.net/v1/${endpoint}?siteId=8uyt2m&q=untracked&noBeacon=true&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				`https://8uyt2m.a.athoscommerce.net/v1/${endpoint}?siteId=8uyt2m&q=untracked&beacon=false&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
 				params
 			);
 
 			requestMock.mockReset();
 		});
 
-		it('does not send the no beacon param when tracking.beacon is true', async () => {
+		it('does not send the beacon param when tracking.beacon is true', async () => {
 			const api = new SearchAPI(new ApiConfiguration({}));
 			const requestMock = jest
 				.spyOn(global.window, 'fetch')
@@ -347,7 +347,7 @@ describe('Search Api', () => {
 			// repeated untracked request is served from the cache
 			expect(requestMock).toHaveBeenCalledTimes(1);
 			expect(requestMock).toHaveBeenLastCalledWith(
-				`https://8uyt2m.a.athoscommerce.net/v1/search?siteId=8uyt2m&q=cached&noBeacon=true&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				`https://8uyt2m.a.athoscommerce.net/v1/search?siteId=8uyt2m&q=cached&beacon=false&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
 				params
 			);
 

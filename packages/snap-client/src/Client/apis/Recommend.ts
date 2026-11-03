@@ -1,7 +1,7 @@
 import { API } from './Abstract';
 import { HTTPHeaders, RecommendPostRequestProfileModel, RecommendRequesterPaths } from '../../types';
 import { AppMode } from '@athoscommerce/snap-toolbox';
-import { BEACON_PARAM, transformRecommendationFiltersPost } from '../transforms';
+import { BEACON_PARAM, beaconParams, transformRecommendationFiltersPost } from '../transforms';
 import { ProfileRequestModel, ProfileResponseModel, RecommendResponseModel, RecommendRequestModel, RecommendPostRequestModel } from '../../types';
 import { DEVELOPMENT_MODE_PARAM } from './Search';
 
@@ -149,7 +149,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 						shopper,
 						withRecInfo: mergedWithRecInfo,
 					}),
-					...(beacon === false ? { [BEACON_PARAM]: false } : {}),
+					...beaconParams(beacon),
 				};
 				if (this.configuration.mode == AppMode.development) {
 					batch.request[DEVELOPMENT_MODE_PARAM] = true;
