@@ -56,8 +56,10 @@ export const useLayoutOptions = (props: any, globalTheme: Theme) => {
 	};
 	let shouldUseOverrides = false;
 	if (globalTheme.components && props.treePath) {
-		// pull out the template (top level parent) component from the treePath to use in filtering out globalTheme overrides
-		const templateComponent = props.treePath.split(' ')[0];
+		// pull out the template (top level parent) segment from the treePath to use in filtering out globalTheme overrides -
+		// with tabs it is named after the active tab (e.g. 'search.products'), and a key may name it or just its type
+		const templateSegment = props.treePath.split(' ')[0];
+		const [templateType] = templateSegment.split('.');
 
 		// we only want to use overrides if one of the toolbars is actually rendering the layoutSelector
 		Object.keys(globalTheme.components).forEach((key) => {
@@ -65,21 +67,11 @@ export const useLayoutOptions = (props: any, globalTheme: Theme) => {
 			// prefixComponentKeys/normalizeCommaSeparatedKeys) - it applies if ANY part matches
 			const parts = key.includes(',') ? key.split(/\s*,\s*/) : [key];
 			const matchesToolbar = parts.some((part) => {
-				const paths = part.split(' ');
+				// strip the layer prefix ('*', '*(M)', '(M)', ...) that ThemeStore adds to the first segment
+				const paths = part.replace(/^\*?(\([MTD]\))?/, '').split(' ');
 				const componentTypeAndName = paths.splice(-1).pop() ?? '';
 				const [componentType] = componentTypeAndName.split('.');
-				return (
-					componentType == 'toolbar' &&
-					(paths[0] == templateComponent ||
-						paths[0] == `*${templateComponent}` ||
-						paths[0] == `*(M)${templateComponent}` ||
-						paths[0] == `*(T)${templateComponent}` ||
-						paths[0] == `*(D)${templateComponent}` ||
-						paths[0] == `(M)${templateComponent}` ||
-						paths[0] == `(T)${templateComponent}` ||
-						paths[0] == `(D)${templateComponent}` ||
-						!paths.length)
-				);
+				return componentType == 'toolbar' && (!paths.length || paths[0] == templateType || paths[0] == templateSegment);
 			});
 			if (globalTheme.components && matchesToolbar) {
 				const toolbarConfig = globalTheme.components[key as keyof typeof globalTheme.components] as Partial<ToolbarProps>;

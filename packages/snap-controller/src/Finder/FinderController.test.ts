@@ -126,6 +126,76 @@ describe('Finder Controller', () => {
 				});
 			});
 
+			it(`sets personalization lastSearches param with the most recent term first`, async () => {
+				const controller = new FinderController(config, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(config, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.add(['shoes']);
+				controller.tracker.cookies.searched.add(['boots']);
+
+				expect(controller.params.personalization).toStrictEqual({ lastSearches: 'boots,shoes' });
+
+				controller.tracker.cookies.searched.clear();
+				expect(controller.params.personalization).toBeUndefined();
+			});
+
+			it(`sets personalization lastSearches param for the siteId in the controller globals`, async () => {
+				const siteConfig: FinderControllerConfig = { ...config, globals: { siteId: 'at5678' } };
+				const controller = new FinderController(siteConfig, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(siteConfig, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.clear('at5678');
+				controller.tracker.cookies.searched.add(['boots'], 'at5678');
+				controller.tracker.cookies.searched.add(['shoes']);
+
+				expect(controller.params.personalization).toStrictEqual({ lastSearches: 'boots' });
+
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.clear('at5678');
+			});
+
+			it(`does not set personalization lastSearches param when personalization is disabled`, async () => {
+				const disabledConfig = {
+					...config,
+					globals: {
+						personalization: {
+							disabled: true,
+						},
+					},
+				};
+				const controller = new FinderController(disabledConfig, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(disabledConfig, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.add(['shoes']);
+
+				expect(controller.params.personalization?.lastSearches).toBeUndefined();
+
+				controller.tracker.cookies.searched.clear();
+			});
+
 			it(`allows for config globals to overwrite / merge with default parameters`, async () => {
 				config = {
 					...config,

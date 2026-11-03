@@ -10,6 +10,7 @@ Snap automatically tracks result **impressions and clicks** out of the box when 
 ### Tracked Automatically
 - **[Impressions](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#impressions)** — via the default `Result`/Autocomplete components, or the `withTracking` hook / `ResultTracker` component for custom result cards
 - **[Product Click](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#product-click)** — same as above
+- **[Search Terms](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#search-terms)** — recorded from the search controller's history store and sent as the `lastSearches` personalization parameter
 
 ### Requires Manual Setup
 - **[Product Add To Cart](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#product-add-to-cart)** — tracking is bundled into `controller.addToCart()`, but you still need to enable the default component's button or wire up your own handler

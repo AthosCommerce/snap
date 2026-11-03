@@ -94,7 +94,7 @@ import type { QuickviewLayoutTemplatesLegalProps } from '../components/Organisms
 import type { QuickviewModalProps } from '../components/Templates/QuickviewModal';
 import type { QuickviewSlideoutProps } from '../components/Templates/QuickviewSlideout';
 import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../components/Molecules/Slideshow';
-import type { StyleScript } from '../types';
+import type { LayoutSelectorOption, StyleScript } from '../types';
 
 export type ThemeComponentProps<ComponentProps> = {
 	default: Partial<ComponentProps>;
@@ -733,12 +733,45 @@ type ThemeOverridePropsChecked<Legal, Authored, NamedMap, CheckValues extends bo
 						[Prop in keyof Authored]: Prop extends '$children'
 							? ThemeOverridesMapChecked<Authored[Prop], NamedMap, CheckValues>
 							: Prop extends keyof Legal
-								? CheckValues extends true ? Legal[Prop] : unknown
+								? Prop extends 'layoutOptions'
+									? ThemeLayoutOptionsChecked<Authored[Prop], NamedMap, CheckValues>
+									: CheckValues extends true ? Legal[Prop] : unknown
 								: Prop extends ThemeOverrideAlwaysAllowedProps
 									? unknown
 									: ThemeOverrideInvalidProp<Prop>;
 					}
 				: CheckValues extends true ? Legal : unknown; // a non-object override value can never be right
+
+// Step 4a - `layoutOptions` (search templates) nests overrides inside the prop's value, which the
+// prop-key walk above would otherwise leave unchecked: each option's keys must be layout option
+// keys, and each option's `overrides.components` is walked like a selector map.
+// prettier-ignore
+type ThemeLayoutOptionsChecked<Authored, NamedMap, CheckValues extends boolean> =
+	Authored extends readonly unknown[]
+		? { [Index in keyof Authored]: ThemeLayoutOptionChecked<Authored[Index], NamedMap, CheckValues> }
+		: unknown;
+
+// prettier-ignore
+type ThemeLayoutOptionChecked<Authored, NamedMap, CheckValues extends boolean> =
+	Authored extends object
+		? {
+				[Key in keyof Authored]: Key extends 'overrides'
+					? ThemeLayoutOptionOverridesChecked<Authored[Key], NamedMap, CheckValues>
+					: Key extends keyof LayoutSelectorOption
+						? unknown
+						: ThemeOverrideInvalidProp<Key>;
+			}
+		: unknown;
+
+// prettier-ignore
+type ThemeLayoutOptionOverridesChecked<Authored, NamedMap, CheckValues extends boolean> =
+	Authored extends object
+		? {
+				[Key in keyof Authored]: Key extends 'components'
+					? ThemeOverridesMapChecked<Authored[Key], NamedMap, CheckValues>
+					: ThemeOverrideInvalidProp<Key>;
+			}
+		: unknown;
 
 /*
 	Entry point for `validateTemplatesConfig` / `validateTemplatesConfigUnlocked`

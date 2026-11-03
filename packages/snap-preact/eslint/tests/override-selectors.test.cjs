@@ -59,6 +59,20 @@ describe('override-selectors: theme override selector/prop typed checks', () => 
 		expect(gridErrors[0].message).toContain('RecommendationGridTemplatesLegalProps');
 	});
 
+	it('resolves the calloutBadge and productDetail open-named component types', () => {
+		const messages = lint({ typed: true });
+
+		const calloutErrors = messages.filter((m) => m.message.includes('"calloutBadge.sale"'));
+		expect(calloutErrors).toHaveLength(1);
+		expect(calloutErrors[0].message).toContain('"fakeCalloutProp"');
+		expect(calloutErrors[0].message).toContain('CalloutBadgeTemplatesLegalProps');
+
+		const detailErrors = messages.filter((m) => m.message.includes('"productDetail.specs"'));
+		expect(detailErrors).toHaveLength(1);
+		expect(detailErrors[0].message).toContain('"fakeDetailProp"');
+		expect(detailErrors[0].message).toContain('ProductDetailTemplatesLegalProps');
+	});
+
 	it('flags a valid prop key with an incompatible value type (color: 5, expects string)', () => {
 		const messages = lint({ typed: true });
 

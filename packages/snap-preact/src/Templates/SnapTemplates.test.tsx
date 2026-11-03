@@ -287,11 +287,11 @@ describe('createPlugins with custom plugins', () => {
 		expect(plugins.length).toBeGreaterThan(0);
 	});
 
-	it('should handle custom plugins at runtime even with unlocked false config', () => {
+	it('should skip custom plugins in a locked config that gets past the types, with a warning', () => {
 		const customPluginFn: PluginFunction = jest.fn();
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-		// Note: TypeScript will error on this, but runtime should handle it
-		// This tests that the runtime code doesn't crash with unexpected config
+		// the locked config types reject `custom` - cast to get it to the runtime
 		const config = {
 			config: {
 				platform: 'other',
@@ -312,10 +312,24 @@ describe('createPlugins with custom plugins', () => {
 		const templatesStore = new TemplatesStore({ config });
 		const plugins = createPlugins(config, templatesStore);
 
-		// Custom plugin should still work at runtime even if types don't allow it
-		// This tests the runtime behavior
-		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
-		expect(customPluginEntry).toBeDefined();
+		expect(plugins.find((plugin) => plugin[0] === customPluginFn)).toBeUndefined();
+		expect(warnSpy).toHaveBeenCalledWith('Snap Templates: custom plugins require unlocked: true - skipping myCustomPlugin');
+
+		// the built-in plugins are unaffected
+		expect(plugins.map((plugin) => plugin[0])).toEqual(createPlugins(baseConfig, templatesStore).map((plugin) => plugin[0]));
+
+		warnSpy.mockRestore();
+	});
+
+	it('should not warn about custom plugins in a locked config without any', () => {
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		createPlugins(baseConfig, templatesStore);
+
+		expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('custom plugins'));
+
+		warnSpy.mockRestore();
 	});
 });
 
@@ -816,6 +830,38 @@ describe('createSnapConfig with custom plugins', () => {
 		expect(overridingTabPlugins.length).toBe(1);
 
 		expect(emptyTabPlugins.length).toBe(0);
+	});
+
+	it('should skip custom tab plugins in a locked config that gets past the types', () => {
+		const tabPluginFn: PluginFunction = jest.fn();
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+		// the locked config types reject `custom` - cast to get it to the runtime
+		const config = {
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'products', siteId: 'abc123', param: 'products' },
+					{ id: 'overrides', siteId: 'abc123', param: 'overrides', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
+				],
+			},
+		} as SnapTemplatesConfig;
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const overridingTabPlugins = snapConfig.controllers?.search?.[1]?.config?.plugins || [];
+		expect(overridingTabPlugins.length).toBe(0);
+		expect(warnSpy).toHaveBeenCalledWith('Snap Templates: custom plugins require unlocked: true - skipping tabPlugin');
+
+		warnSpy.mockRestore();
 	});
 });
 
@@ -1454,6 +1500,27 @@ describe('createSnapConfig additional coverage', () => {
 
 		const recsConfig = snapConfig.instantiators?.recommendation;
 		expect(recsConfig?.config?.branch).toBe('staging');
+	});
+
+	it('should default the recommendation branch when settings omit it', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			recommendation: {
+				default: {
+					Default: { component: 'Recommendation' },
+				},
+				settings: {
+					limit: 5,
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const recsConfig = snapConfig.instantiators?.recommendation;
+		expect(recsConfig?.config?.branch).toBe('production');
+		expect(recsConfig?.config?.limit).toBe(5);
 	});
 
 	it('should not create search controller when search config not provided', () => {

@@ -1,0 +1,17 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "storybook",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "storybook", "--workspace=@athoscommerce/snap-preact", "--", "--no-open"],
+			"port": 6006
+		},
+		{
+			"name": "storybook-matrix",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "storybook:matrix", "--workspace=@athoscommerce/snap-preact", "--", "--no-open"],
+			"port": 6007
+		}
+	]
+}

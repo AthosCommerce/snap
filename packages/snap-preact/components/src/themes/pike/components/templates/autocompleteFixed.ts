@@ -89,10 +89,14 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed'] || {}),
 			themeStyleScript: autocompleteFixedStyleScript,
-			layout: 'desktop',
 			width: '940px',
 			viewportMaxHeight: false,
 			contentTitle: 'Product Suggestions',
+		},
+		// the fixed autocomplete opens over the page without dimming it (the global `modal` overlay color
+		// would otherwise apply, and theme selectors win over the overlayColor the template passes down)
+		'autocompleteFixed modal': {
+			overlayColor: 'transparent',
 		},
 		'autocompleteFixed terms': {
 			vertical: true,
@@ -145,7 +149,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.mobile,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.mobile?.['autocompleteFixed'] || {}),
-			layout: 'mobile',
 			width: 'auto',
 		},
 		'autocompleteFixed terms': {
@@ -168,7 +171,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.tablet,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.tablet?.['autocompleteFixed'] || {}),
-			layout: 'desktop',
 			width: '600px',
 		},
 		'autocompleteFixed terms': {
@@ -207,7 +209,6 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		...autocompleteFixedThemeComponentProps.desktop,
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.desktop?.['autocompleteFixed'] || {}),
-			layout: 'desktop',
 			width: '700px',
 		},
 		'autocompleteFixed terms': {

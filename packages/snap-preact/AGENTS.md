@@ -38,7 +38,7 @@ Read this before changing a theme, a template's default layout, selector matchin
 - **With two or more tabs, the root is named after the active tab.** `getTabManager` only creates a tab manager for 2+ tabs, and then `TemplateSelect` passes the active tab's id, lowercased, as the template's `name`. So the root becomes `search.products`, and its children `search.products toolbar.top`. A tab id with characters outside `[A-Za-z0-9-]` is silently dropped from the treePath. Plain `search toolbar.top` still matches every tab, because ancestor segments match by type.
 - Templates inject extra segments in some places. Selectors have to account for these:
   - Search toolbars: `<alias> toolbar.top|middle|bottom`.
-  - Search sidebar: `<alias> sidebar` on desktop. Below `mobileDisplayAt` it becomes `<alias> slideout sidebar`. `mobileDisplayAt` defaults to the tablet breakpoint, and pike sets it to the mobile breakpoint.
+  - Search sidebar: `<alias> sidebar` on desktop. Below `mobileDisplayAt` it becomes `<alias> slideout sidebar`. `mobileDisplayAt` defaults to the tablet breakpoint.
   - Autocomplete layout: `autocompleteModal modal autocompleteLayout`, `autocompleteFixed modal autocompleteLayout`, `autocompleteSlideout slideout autocompleteLayout`.
 
 ## Selector matching (`matchSelectors`)
@@ -74,14 +74,15 @@ Separately, a directly passed `lang` always survives the theme layers (T6).
 
 ## Where default layouts come from
 
-A component's effective default layout comes from up to three places, and all of them need checking:
+A component's effective default layout comes from two places, and both need checking:
 
 1. **Template internals**, which are not exported:
    - `Search.tsx` `subProps`: toolbar and sidebar layouts. The middle toolbar's layout depends on `isMobile`.
    - `AutocompleteLayout.tsx`: `defaultProps` holds `layout` (`[['c1', 'c2', 'c3']]`) and `column1`–`column3`. The prebuilt string layouts `terms`/`mobile`/`tablet`/`desktop` are not in `defaultProps`; the render body expands them into module arrays after `mergeProps`.
    - The `defaultProps.layout` of each template.
 2. **`themes/themeComponents/*.ts`**: per-template, per-breakpoint layouts and `hideSidebar` toggles. Every theme spreads these.
-3. **Per-theme files**. For example, pike sets the autocomplete `layout` to `'desktop'`/`'mobile'`, including `'desktop'` on tablet, and sets `search.mobileDisplayAt`.
+
+Themes don't change layouts. Per-theme files style components but leave layout, hide props and `mobileDisplayAt` to the shared defaults above, so every theme renders the same modules and banners in the same places.
 
 ### Banners in layouts
 
@@ -97,11 +98,11 @@ Merchandising banners only render where a layout puts them. There is no TypeScri
   - `facets` and `facetsHorizontal` implicitly render left.
   - `excludeBanners` turns off the implicit banners. Explicit `banner.*` modules still render.
 - **FacetsHorizontal has its own overflow sidebar** at `… facetsHorizontal sidebar`. It shows `banner.left` by default, and snappy removes it. That sidebar only renders when the facets overflow, so the lint rule doesn't count it as a place where banners render.
-- **Not every shipped default renders every banner.** SearchHorizontal hides the sidebar, and with it `left`, except on mobile. The autocomplete `mobile` layout and the base tablet `[['c1', 'c3']]` layout have no `facets`, so they render no `left`. AutocompleteSlideout never renders `left`.
+- **Not every shipped default renders every banner.** SearchHorizontal hides the sidebar, and with it `left`, except on mobile. The autocomplete `mobile` layout and the shared tablet `[['c1', 'c3']]` layout have no `facets`, so they render no `left`. AutocompleteSlideout never renders `left`.
 
-**Keep the lint rules in sync.** The default-layout tables in `eslint/src/utils/banners.cjs` mirror the sources listed above. Update them in the same PR whenever a template's default layout, a `themeComponents` layout, or a theme's layout or hide prop changes.
+**Keep the lint rules in sync.** The default-layout tables in `eslint/src/utils/banners.cjs` mirror the sources listed above. Update them in the same PR whenever a template's default layout or a `themeComponents` layout changes.
 
-- `components/src/themes/layoutBannerDefaults.test.ts` fails when a theme drifts from the tables.
+- `components/src/themes/layoutBannerDefaults.test.ts` fails when a theme drifts from the tables. With the per-theme table (`THEME_SELECTORS`) empty, that includes any theme setting a layout or hide prop of its own.
 - Template internals such as `Search.tsx` `subProps` and the `AutocompleteLayout` defaults are not covered by that test, so check them by hand.
 
 ## The lint plugin (`eslint/`)

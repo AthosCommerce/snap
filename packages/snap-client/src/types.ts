@@ -147,6 +147,7 @@ export type RecommendRequestGlobalsModel = {
 	products?: string[];
 	cart?: string[];
 	lastViewed?: string[];
+	lastSearches?: string[];
 	shopper?: string;
 	filters?: RecommendationRequestFilterModel[];
 	blockedItems?: string[];
@@ -178,6 +179,7 @@ export type RecommendPostRequestModel = {
 	shopper?: string;
 	cart?: string[];
 	lastViewed?: string[];
+	lastSearches?: string[];
 	test?: boolean;
 	withRecInfo?: boolean;
 	blockedItems?: string[];
