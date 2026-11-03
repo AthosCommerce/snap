@@ -215,7 +215,10 @@ interface QuickviewModalSubProps {
 export type QuickviewModalProps = {
 	quickviewManager: QuickviewManager;
 	lang?: Partial<QuickviewLayoutLang>;
+} & QuickviewModalTemplatesLegalProps &
+	Omit<ComponentProps, 'customComponent'>;
+
+export type QuickviewModalTemplatesLegalProps = {
 	// `layout` is optional here (unlike on QuickviewLayout) because the container supplies a default
 	layout?: QuickviewLayoutTemplatesLegalProps['layout'];
-} & Omit<QuickviewLayoutTemplatesLegalProps, 'layout'> &
-	Omit<ComponentProps, 'customComponent'>;
+} & Omit<QuickviewLayoutTemplatesLegalProps, 'layout'>;

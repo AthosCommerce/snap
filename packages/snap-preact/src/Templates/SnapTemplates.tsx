@@ -451,7 +451,7 @@ export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, te
 			// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
 			// provides the global templates ThemeProvider. Without it the quickview renders outside the
 			// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
-			// `quickviewLayout`) are silently dropped.
+			// `quickviewSlideout`) are silently dropped.
 			const target = new TargetStore({
 				target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
 			});
