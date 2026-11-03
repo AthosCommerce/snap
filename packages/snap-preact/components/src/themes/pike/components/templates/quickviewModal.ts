@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { QuickviewModalProps } from '../../../../components/Templates/QuickviewModal';
+import type { QuickviewModalProps, QuickviewModalTemplatesLegalProps } from '../../../../components/Templates/QuickviewModal';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 import { quickviewSharedStyleScript, quickviewCloseClearance, quickviewCloseTitleOffset } from './quickviewShared';
@@ -36,7 +36,7 @@ const quickviewModalStyleScript = (props: QuickviewModalProps) => {
 };
 
 // QuickviewModal component props
-export const quickviewModal: ThemeComponent<'quickviewModal', QuickviewModalProps, Partial<QuickviewModalProps>> = {
+export const quickviewModal: ThemeComponent<'quickviewModal', QuickviewModalProps, QuickviewModalTemplatesLegalProps> = {
 	default: {
 		quickviewModal: {
 			themeStyleScript: quickviewModalStyleScript,

@@ -514,6 +514,113 @@ typeOnly(() => {
 	});
 	// @ts-expect-error - 'columnz' is not a Results prop
 	const _badLayoutOptionPropUse: SnapTemplatesConfig = badLayoutOptionPropConfig;
+
+	// ---- quickview: the containers render outside any template, so their selectors are unscoped ----
+
+	// the containers take the layout props and pass them to QuickviewLayout (every column needs a `width`)
+	const validQuickviewConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		quickview: { targets: [{ component: 'QuickviewSlideout' }] },
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					quickviewSlideout: { slideDirection: 'right', width: '500px' },
+					quickviewModal: {
+						layout: [['c1', 'c2']],
+						column1: { layout: ['slideshow'], width: '50%' },
+						column2: {
+							layout: [
+								['productDetail.mappings.core.name'],
+								['variantSelections'],
+								['button.add-to-cart', 'quantityPicker'],
+								['productDetailTable'],
+								['recommendation.similar'],
+							],
+							width: 'auto',
+						},
+					},
+				},
+			},
+		},
+	});
+	const _validQuickviewUse: SnapTemplatesConfig = validQuickviewConfig;
+
+	// a misspelled prop next to a valid one on each quickview selector
+	const badQuickviewSlideoutPropConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					quickviewSlideout: { slideDirection: 'right', widht: '500px' },
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'widht' is not a QuickviewSlideout prop
+	const _badQuickviewSlideoutPropUse: SnapTemplatesConfig = badQuickviewSlideoutPropConfig;
+
+	const badQuickviewModalPropConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					quickviewModal: { layout: [['c1', 'c2']], colum1: { layout: ['slideshow'], width: '50%' } },
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'colum1' is not a QuickviewModal prop
+	const _badQuickviewModalPropUse: SnapTemplatesConfig = badQuickviewModalPropConfig;
+
+	// QuickviewLayout is rendered BY the containers, so like AutocompleteLayout it has no selector of its own
+	const quickviewLayoutSelectorConfig = validateTemplatesConfig({
+		config: { platform: 'other' },
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					quickviewModal: { hideBadge: true },
+					quickviewLayout: { layout: [['c1', 'c2']] },
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'quickviewLayout' is not a theme override selector
+	const _quickviewLayoutSelectorUse: SnapTemplatesConfig = quickviewLayoutSelectorConfig;
+
+	// unlocked: the quickview selectors are legal there too
+	const unlockedQuickviewConfig = validateTemplatesConfigUnlocked({
+		unlocked: true,
+		config: { platform: 'other' },
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					quickviewModal: { hideBadge: true },
+					quickviewSlideout: { slideDirection: 'left', width: '400px' },
+				},
+			},
+		},
+	});
+	const _unlockedQuickviewUse: SnapTemplatesConfigUnlocked = unlockedQuickviewConfig;
+
+	const unlockedBadQuickviewPropConfig = validateTemplatesConfigUnlocked({
+		unlocked: true,
+		config: { platform: 'other' },
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					quickviewSlideout: { slideDirection: 'left', widht: '400px' },
+				},
+			},
+		},
+	});
+	// @ts-expect-error - 'widht' is not a QuickviewSlideout prop
+	const _unlockedBadQuickviewPropUse: SnapTemplatesConfigUnlocked = unlockedBadQuickviewPropConfig;
 });
 
 describe('theme.overrides typing regression guards', () => {

@@ -90,9 +90,8 @@ import type { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps
 import type { SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps } from '../components/Templates/SearchCollapsible';
 import type { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../components/Templates/AutocompleteModal';
 import type { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../components/Templates/AutocompleteFixed';
-import type { QuickviewLayoutTemplatesLegalProps } from '../components/Organisms/QuickviewLayout';
-import type { QuickviewModalProps } from '../components/Templates/QuickviewModal';
-import type { QuickviewSlideoutProps } from '../components/Templates/QuickviewSlideout';
+import type { QuickviewModalProps, QuickviewModalTemplatesLegalProps } from '../components/Templates/QuickviewModal';
+import type { QuickviewSlideoutProps, QuickviewSlideoutTemplatesLegalProps } from '../components/Templates/QuickviewSlideout';
 import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../components/Molecules/Slideshow';
 import type { LayoutSelectorOption, StyleScript } from '../types';
 
@@ -432,6 +431,8 @@ type ThemeComponentsRestrictedNamedProps =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteFixed'>]?: ThemeComponentCascade<AutocompleteFixedTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteModal'>]?: ThemeComponentCascade<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: ThemeComponentCascade<AutocompleteSlideoutTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewModal'>]?: ThemeComponentCascade<QuickviewModalTemplatesLegalProps> } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewSlideout'>]?: ThemeComponentCascade<QuickviewSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: ThemeComponentCascade<RecommendationTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: ThemeComponentCascade<RecommendationBundleTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: ThemeComponentCascade<RecommendationBundleEasyAddTemplatesLegalProps> } &
@@ -592,6 +593,8 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteModal'>]?: unknown } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'autocompleteSlideout'>]?: ThemeComponentCascade<AutocompleteSlideoutTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesOpenNamedOnlySelectors<'autocompleteSlideout'>]?: unknown } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewModal'>]?: ThemeComponentCascade<QuickviewModalTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
+	{ [K in ThemeComponentOverridesUnNamedSelectors<'quickviewSlideout'>]?: ThemeComponentCascade<QuickviewSlideoutTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendation'>]?: ThemeComponentCascade<RecommendationTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundle'>]?: ThemeComponentCascade<RecommendationBundleTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'recommendationBundleEasyAdd'>]?: ThemeComponentCascade<RecommendationBundleEasyAddTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
@@ -881,9 +884,8 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteFixed'>]?: Partial<AutocompleteFixedTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteModal'>]?: Partial<AutocompleteModalTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'autocompleteSlideout'>]?: Partial<AutocompleteSlideoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewLayout'>]?: Partial<QuickviewLayoutTemplatesLegalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewModal'>]?: Partial<QuickviewModalProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewSlideout'>]?: Partial<QuickviewSlideoutProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewModal'>]?: Partial<QuickviewModalTemplatesLegalProps> } &
+	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'quickviewSlideout'>]?: Partial<QuickviewSlideoutTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendation'>]?: Partial<RecommendationTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundle'>]?: Partial<RecommendationBundleTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'recommendationBundleEasyAdd'>]?: Partial<RecommendationBundleEasyAddTemplatesLegalProps> } &

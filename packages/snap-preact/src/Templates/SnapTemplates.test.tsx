@@ -1589,7 +1589,7 @@ describe('createSnapConfig additional coverage', () => {
 		const targeter = snapConfig.quickview!.targeters![0];
 
 		// TemplateSelect is the wrapper that provides the global templates ThemeProvider — without it
-		// theme overrides (e.g. `quickviewLayout`) are dropped because the component falls back to
+		// theme overrides (e.g. `quickviewSlideout`) are dropped because the component falls back to
 		// production-mode prop merging.
 		const Component = await targeter.component!();
 		expect(Component).toBe(TemplateSelect);
