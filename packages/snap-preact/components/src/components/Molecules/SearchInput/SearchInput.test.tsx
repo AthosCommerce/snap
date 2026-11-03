@@ -147,6 +147,25 @@ describe('SearchInput Component', () => {
 		expect(input.value).toBe('shoes');
 	});
 
+	it('keeps working when value switches between provided and not provided', async () => {
+		const onSubmit = jest.fn();
+		const rendered = render(<SearchInput defaultValue={'dress'} onSubmit={onSubmit} />);
+		const input = () => rendered.container.querySelector<HTMLInputElement>('.ss__search-input__input')!;
+
+		expect(input().value).toBe('dress');
+
+		rendered.rerender(<SearchInput value={'shoes'} defaultValue={'dress'} onSubmit={onSubmit} />);
+		expect(input().value).toBe('shoes');
+
+		rendered.rerender(<SearchInput defaultValue={'dress'} onSubmit={onSubmit} />);
+		expect(input().value).toBe('dress');
+
+		await userEvent.type(input(), 'es{Enter}');
+		expect(input().value).toBe('dresses');
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+		expect(onSubmit.mock.calls[0][1]).toBe('dresses');
+	});
+
 	it('invokes onSubmit with the input value when Enter is pressed', async () => {
 		const onSubmit = jest.fn();
 		const rendered = render(<SearchInput onSubmit={onSubmit} />);
@@ -167,6 +186,9 @@ describe('SearchInput Component', () => {
 		const input: HTMLInputElement = rendered.container.querySelector('.ss__search-input__input')!;
 
 		fireEvent.keyDown(input, { key: 'Enter', keyCode: 229 });
+		expect(onSubmit).not.toHaveBeenCalled();
+
+		fireEvent.keyDown(input, { key: 'Enter', keyCode: 13, isComposing: true });
 		expect(onSubmit).not.toHaveBeenCalled();
 
 		fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });

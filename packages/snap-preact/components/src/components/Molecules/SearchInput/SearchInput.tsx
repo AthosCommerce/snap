@@ -7,7 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { defined, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath } from '../../../providers';
 import { ComponentProps, StyleScript } from '../../../types';
-import { Dispatch, MutableRef, StateUpdater, useRef, useState } from 'preact/hooks';
+import { MutableRef, useRef, useState } from 'preact/hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import deepmerge from 'deepmerge';
 import { Lang, LangAttributes, useLang } from '../../../hooks/useLang';
@@ -117,16 +117,12 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 		return overrideElement;
 	}
 
-	let inputValue: string | undefined;
-	let setInputValue: undefined | Dispatch<StateUpdater<string>>;
-
 	const stateful = value === undefined;
 
-	if (stateful) {
-		[inputValue, setInputValue] = useState(defaultValue || '');
-	} else {
-		inputValue = value;
-	}
+	// hooks run unconditionally so their order holds when value switches between provided and not provided
+	const [stateValue, setStateValue] = useState(defaultValue || '');
+	const inputValue = stateful ? stateValue : value;
+	const setInputValue = stateful ? setStateValue : undefined;
 
 	// submit reads the element's value, which can be set outside of render (e.g. by the clear button)
 	const internalInputRef: MutableRef<HTMLInputElement | null> = useRef(null);
@@ -242,8 +238,10 @@ export const SearchInput = observer((properties: SearchInputProps) => {
 					onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
 						onKeyDown && onKeyDown(e);
 
-						// keyCode 229: Enter that confirms an IME composition is not a submit
-						if (onSubmit && e.key === 'Enter' && e.keyCode !== 229) {
+						// an Enter that confirms an IME composition is not a submit. Preact passes the native event, whose
+						// isComposing React's event type does not declare; keyCode 229 covers browsers that only report that
+						const composing = ('isComposing' in e && e.isComposing === true) || e.keyCode === 229;
+						if (onSubmit && e.key === 'Enter' && !composing) {
 							onSubmit(e, e.currentTarget.value);
 						}
 					}}
