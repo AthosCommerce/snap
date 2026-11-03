@@ -34,7 +34,7 @@ Before diving into your implementation, let's get familiar with some of the comm
 
 - **Search** — The standard controller type used for search results and category pages.
 
-- **Site ID (`siteId`)** — The unique identifier for your Athos account, found in the Athos Search & Product Discovery Console and required in `client.globals.siteId`.
+- **Site ID (`siteId`)** — The unique identifier for your Athos account, found in the Athos Search & Product Discovery Console. Set it in `client.globals.siteId` (Snap) or `config.siteId` (Snap Templates); when neither is set, the `siteId` from the script context is used.
 
 - **Snap** — The primary export of `@athoscommerce/snap-preact` used to build a fully custom "Snap Integration," with complete control over controllers, targets, and components.
 

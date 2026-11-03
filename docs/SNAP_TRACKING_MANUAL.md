@@ -234,7 +234,7 @@ This method will compare the provided cart contents with the current cart conten
 
 ### Cart Attribute Tracking
 
-This is not required if the above `Cart Contents` and `Order Transaction` tracking has not been implemented OR you are not using the `realtime` recommendations configuration.
+This is only needed when using the `realtime` recommendations configuration.
 
 Adding the following attributes to clickable cart elements allows for real-time updates to any recommendations (disabled by default) when the cart changes. If the click event occurs on a nested element, the attribute data will attempt to be retrieved from up to 3 parent nodes.
 

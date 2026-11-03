@@ -78,7 +78,7 @@ Global context variables are set via a `globals` object in the recommendations s
 ### Global Variables
 | Option | Value | Placement | Description | Required
 |---|---|:---:|---|:---:|
-| products | array of SKU strings | product detail page | SKU value(s) to identify the current product(s) being viewed — can be omitted on placements other than a product detail page | ✔️ |
+| products | array of SKU strings | product detail page | SKU value(s) to identify the current product(s) being viewed — can be omitted on placements other than a product detail page |   |
 | blockedItems | array of strings | all | SKU values to identify which products to exclude from the response |   |
 | filters | array of filters | all | optional recommendation filters to apply to ALL profiles in the batch |   |
 | cart | array (or function that returns an array) of current cart skus | all | optional method of setting cart contents |   |
