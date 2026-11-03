@@ -199,6 +199,7 @@ theme: {
 						['productDetailTable'],
 						['recommendation.similar'],
 					],
+					width: 'auto',
 				},
 			},
 		},
@@ -208,13 +209,15 @@ theme: {
 
 Modules with nothing to show (no description, no variants, no displayed attributes) render nothing, so empty rows and columns collapse.
 
-Button and dialog text are customizable through `lang`:
+Button and dialog text are customizable through `translations` (see [Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_TRANSLATIONS.md)):
 
 ```tsx
-quickviewLayout: {
-	lang: {
-		addToCartButton: { value: 'Add to Bag' },
-		moreInfoButton: { value: 'View Full Details' },
+translations: {
+	EN: {
+		quickviewLayout: {
+			addToCartButton: { value: 'Add to Bag' },
+			moreInfoButton: { value: 'View Full Details' },
+		},
 	},
 },
 ```

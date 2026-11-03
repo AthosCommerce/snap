@@ -22,7 +22,7 @@ When `config.platform` is `shopify`, the following plugins are available:
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
-| `plugins.shopify.mutateResults` | Shopify Updating results configuration | Object | Enabled |
+| `plugins.shopify.mutateResults` | Shopify Updating results configuration | Object | Enabled, but its only mutation (`mutations.collectionInUrl`) is off until `enabled: true` |
 | `plugins.shopify.addToCart` | Shopify add to cart function configuration | Object | Enabled |
 | `plugins.shopify.backgroundFilters` | Background filter configurations | Object | Enabled |
 | `plugins.shopify.markets` | Shopify Markets localized pricing - see [Using the Shopify Markets Plugin](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_SHOPIFY_MARKETS.md) | Object | Disabled (enabled when `token` is set) |
@@ -63,7 +63,7 @@ When `config.platform` is `bigCommerce`, the following plugins are available:
 
 ### Custom Plugins (Unlocked Only)
 
-When `unlocked: true`, you can define custom plugins under `plugins.custom` (the locked config types reject `custom`). Custom plugins allow you to hook into controller events and extend functionality beyond the built-in platform plugins. Plugins under the top-level `plugins.custom` run on every search, autocomplete and recommendation controller, so a plugin should check `controller.type` before assuming a controller type.
+When `unlocked: true`, you can define custom plugins under `plugins.custom`. The locked config types reject `custom`, and a locked config that gets past the types has its custom plugins skipped at runtime, with a console warning naming them. Custom plugins allow you to hook into controller events and extend functionality beyond the built-in platform plugins. Plugins under the top-level `plugins.custom` run on every search, autocomplete and recommendation controller, so a plugin should check `controller.type` before assuming a controller type.
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
@@ -162,7 +162,7 @@ const config = validateTemplatesConfigUnlocked({
 new SnapTemplates(config);
 ```
 
-Custom plugins can also be defined at the feature level (search, autocomplete, recommendation) to only apply to specific controllers. Feature-level plugins are added to the top-level ones. Avoid reusing a top-level plugin name at the feature level: the two entries are deep-merged, so the feature-level `function` wins but the `args` arrays are concatenated. When `search.tabs` or `autocomplete.tabs` are configured, a tab that sets its own `plugins` uses only those, not the top-level or feature-level plugins:
+Custom plugins can also be defined at the feature level (search, autocomplete, recommendation) to only apply to specific controllers. Feature-level plugins are added to the top-level ones. Avoid reusing a top-level plugin name at the feature level: the two entries are deep-merged, so the feature-level `function` wins but the `args` arrays are concatenated. When `search.tabs` or `autocomplete.tabs` are configured, a tab that sets its own `plugins` uses only those, not the top-level or feature-level plugins - including the built-in plugins that are otherwise enabled by default:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';

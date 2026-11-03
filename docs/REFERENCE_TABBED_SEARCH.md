@@ -64,9 +64,9 @@ When tabs are configured, no untabbed controller is created, so adding tabs does
 
 The `tabSelection` module is already present in some default layouts, so no theme changes are needed to make the tabs appear there. On the `Search` template it sits in the middle toolbar, and in `AutocompleteLayout` it sits above the content in the default `column3` layout (used by the default, `desktop` and `tablet` autocomplete layouts).
 
-It is not in the default layouts of `SearchHorizontal` or `SearchCollapsible`, or in the prebuilt `mobile` and `terms` autocomplete layouts. Both `base` and `pike` use the `mobile` autocomplete layout at the mobile breakpoint, and `pike` uses it for `AutocompleteSlideout` at every width. In those cases, add `'tabSelection'` to a `layout` array yourself.
+It is not in the default layouts of `SearchHorizontal` or `SearchCollapsible`, or in the prebuilt `mobile` and `terms` autocomplete layouts. Both `base` and `pike` use the `mobile` autocomplete layout at the mobile breakpoint, for all three autocomplete templates; at other widths `AutocompleteSlideout`'s own default layout includes `tabSelection`. In those cases, add `'tabSelection'` to a `layout` array yourself.
 
-To move it, include `'tabSelection'` in a different toolbar or column `layout` array. On the `Search` template, also override the middle toolbar layout without it, or the tabs render twice. With `pike`, the middle toolbar's default layout differs on mobile, so it is overridden there too:
+To move it, include `'tabSelection'` in a different toolbar or column `layout` array. On the `Search` template, also override the middle toolbar layout without it, or the tabs render twice. The middle toolbar uses a different default layout below `mobileDisplayAt` (the tablet breakpoint by default), with the sidebar toggle, so it is overridden at both `mobile` and `tablet` too:
 
 ```tsx
 theme: {
@@ -81,6 +81,11 @@ theme: {
 			},
 		},
 		mobile: {
+			'search toolbar.middle': {
+				layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
+			},
+		},
+		tablet: {
 			'search toolbar.middle': {
 				layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 			},

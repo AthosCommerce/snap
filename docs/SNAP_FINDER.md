@@ -22,7 +22,7 @@ There are two types of Finder configurations, a **Hierarchy** and **Non-Hierarch
 >[!IMPORTANT]
 >Before configuring Finder, make sure the field you'll be using is set up correctly in the Athos Search & Product Discovery Console:
 >- Marked for 'Filter' on the [Field Settings page](https://console.athoscommerce.net/data-configurations/field-settings)
->- Set as a hierarchy display type under Site Customizations > Display Settings > Filtering, with the 'Hierarchy Delimiter' (under advanced settings) matching the delimiter your field's values actually use
+>- For a Hierarchy configuration, set as a hierarchy display type under Site Customizations > Display Settings > Filtering, with the 'Hierarchy Delimiter' (under advanced settings) matching the delimiter your field's values actually use
 
 ### Hierarchy Configuration
 To use a Hierarchy configuration, ensure that the config's `fields` array contain a single entry, and that the field is of type `hierarchy` in the Athos Search & Product Discovery Console. Here is an example of a Hierarchy `FinderControllerConfig` object:
@@ -63,7 +63,7 @@ const snap = new Snap({
 ```
 
 ### Non-Hierarchy Configuration
-To use a Non-Hierarchy configuration, multiple `fields` are specified. All fields must have a `type` or `value` and NOT `hierarchy`. Facet types can be configured in the Athos Search & Product Discovery Console. Here is an example of a Non-Hierarchy `FinderControllerConfig` object:
+To use a Non-Hierarchy configuration, multiple `fields` are specified. The fields must not use the hierarchy display type - a field with that display type is handled as a hierarchy. Facet types can be configured in the Athos Search & Product Discovery Console. Here is an example of a Non-Hierarchy `FinderControllerConfig` object:
 
 ```js
 // src/index.js
@@ -184,7 +184,7 @@ export const Finder = observer((props) => {
 
 **Q: Finder renders nothing — no dropdowns show up at all. Why?**
 <br>
-**A:** Confirm the field is marked for 'Filter' on the [Field Settings page](https://console.athoscommerce.net/data-configurations/field-settings) in the Athos Search & Product Discovery Console — without that, the store's `selections` array stays empty and the component has nothing to render.
+**A:** Confirm the field is marked for 'Filter' on the [Field Settings page](https://console.athoscommerce.net/data-configurations/field-settings) in the Athos Search & Product Discovery Console — without that, the API returns no facet for it, so its dropdown stays disabled with only the placeholder option (and a hierarchy field without `levels` renders no dropdowns at all).
 
 **Q: My hierarchy dropdowns don't cascade in order — they all show unselected values at once instead of enforcing a sequence. Why?**
 <br>

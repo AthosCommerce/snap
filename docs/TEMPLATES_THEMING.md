@@ -365,7 +365,7 @@ new SnapTemplates(validateTemplatesConfig({
 
 ##### The `customComponent` Override Prop
 
-Most Atom, Molecule, Organism, and Template components support a `customComponent` prop (the `result` override does not accept it) that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
+Most Atom, Molecule and Organism components support a `customComponent` prop (the `result` override and the template components, such as `search` or `autocompleteFixed`, do not) that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 

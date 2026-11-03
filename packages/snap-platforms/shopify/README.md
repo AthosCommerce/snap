@@ -105,7 +105,7 @@ Collection Page with Tags:
 ```
 
 ### pluginMutateResults
-Enables updating the URL for products within search results; product URLs will be prefixed with their category route. The platform specific context variable `collection.handle` must be provided for this functionality.
+Enables updating the URL for products within search results; product URLs will be prefixed with their category route. It only applies to search controllers, and requires the `collection.handle` and `page.type: 'category'` context variables.
 
 > [!IMPORTANT]
 > Requires that the `Shopify` object is available on the window.
@@ -114,14 +114,16 @@ Enables updating the URL for products within search results; product URLs will b
 |----------------------|-------------|------|---------|----------|
 | mutations | Shopify results mutations configuration object | object | ➖ | ➖ |
 | mutations.collectionInUrl | collection in URL Mutation configuration object | object | ➖ | ➖ |
-| mutations.collectionInUrl.enabled | configuration to allow for disabling of the mutation | object | true | ➖ |
+| mutations.collectionInUrl.enabled | enables the mutation | boolean | false | ➖ |
 
 ```tsx
 const mutateResultsConfig = {
-	collectionInUrl: {
-		enabled: true,
-	}
-}
+	mutations: {
+		collectionInUrl: {
+			enabled: true,
+		},
+	},
+};
 ...
 plugins: {
 	shopify: {
@@ -139,7 +141,7 @@ The Markets plugin localizes the price *values*. Displaying them correctly also 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
 | token | Shopify Storefront Access Token | string | — | ✅ |
-| baseCountry | Your store's base/catalog market (country code) | string | `'US'` | ➖ |
+| baseCountry | Your store's base/catalog market (uppercase country code) | `ShopifyCountryCode` | `'US'` | ➖ |
 | baseUrl | Optional override for store URL | string | — | ➖ |
 | path | Optional override for GraphQL API path | string | `'/api/2026-07/graphql.json'` | ➖ |
 | idFieldName | Dot-notation path on the variant object used to match against Shopify variant IDs | string | `'mappings.core.uid'` | ➖ |
@@ -182,7 +184,7 @@ new SnapTemplates(config);
 1. After search results load, the plugin detects if the active market (`Shopify.country`) differs from `baseCountry` — currency is not used for this decision, since two countries can share a currency while pricing products differently
 2. For uncached products, it fetches localized `priceRange` and `compareAtPriceRange` from Shopify GraphQL
 3. Updates `result.mappings.core.price` and `result.mappings.core.msrp` (which in turn updates `result.display`)
-4. Sets `result.state.priceFetched = true` when pricing is ready to display. It is also set to `true` when no fetch is needed or the request fails, so the indexed prices are shown in those cases. One exception: when a fetch runs, a result without `mappings.core.parentId` is never flagged, so its prices stay hidden
+4. Sets `result.state.priceFetched = true` when pricing is ready to display. It is also set to `true` when no fetch is needed or the request fails, so the indexed prices are shown in those cases.
 5. Caches results in an in-memory price cache local to the plugin instance, segmented per country, so switching between two non-base markets never reuses another market's cached prices
 6. When a quickview is opened, the same localized pricing (product and variant level) is applied to the quickview product — its variants are repopulated from `/v1/products` in the base currency, so the plugin re-applies cached prices (fetching them first if not already cached)
 

@@ -48,7 +48,8 @@ new SnapTemplates(validateTemplatesConfig({
 				'toolbar.middle': {
 					layout: [
 						['filterSummary'],
-						['paginationInfo', '_'],
+						['button.sidebar-toggle', 'paginationInfo', '_'],
+						['tabSelection'],
 						['banner.banner'],
 					],
 				},
@@ -64,6 +65,8 @@ new SnapTemplates(validateTemplatesConfig({
 	...
 }));
 ```
+
+The middle layout keeps `button.sidebar-toggle` and `tabSelection`: an unscoped toolbar override replaces every template's layout, and the sidebar toggle is how shoppers open the filters on `Search` below `mobileDisplayAt` and on `SearchCollapsible`, whose own toggle is in the top toolbar this example replaces.
 
 ### Example: Responsive Toolbar Adjustments
 

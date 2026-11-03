@@ -153,7 +153,7 @@ Leaving `c2` out of the layout also drops the left merchandising banner that the
 ```
 
 ### width
-The `width` prop specifies a width for the overall component. The default value is '100%'.
+The `width` prop specifies a width for the overall component. The default value is '950px'.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} width="800px" />

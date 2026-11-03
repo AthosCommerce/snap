@@ -51,7 +51,7 @@ Recommendations script blocks can be placed **anywhere** on the page and will au
 In this example the `recently-viewed` profile `tag` is set to render inside the `.ss__recs__recently-viewed` element.
 
 > [!IMPORTANT]
-> Each profile entry creates a single controller and API request, regardless of how many DOM elements match its `selector`. If multiple elements match, they all render using the same shared controller and recommendation data. To render different recommendation data in different locations, use separate profile entries.
+> Each profile entry creates a single controller (profiles in the same script block share one batched API request), regardless of how many DOM elements match its `selector`. If multiple elements match, they all render using the same shared controller and recommendation data. To render different recommendation data in different locations, use separate profile entries.
 ---
 ## Recommendation Context Variables
 Context variables are set within the script blocks and can be used to set either global or per profile (profile specific) functionality. Variables are used to alter the results displayed by our recommendations and may be required depending on the profile placements in use.
@@ -98,7 +98,7 @@ Global context variables are set via a `globals` object in the recommendations s
 | options.query | string | dynamic custom | query to search |   |
 | options.filters | array of filters | all | optional recommendation filters, scoped to this profile only |   |
 | options.realtime | boolean | all | optional update recommendations if cart contents change (requires [cart attribute tracking](https://athoscommerce.github.io/snap/snap-tracking-manual#cart-attribute-tracking)) |   |
-| options.limit | number (default: 20, max: 20) | all | optional maximum number of results to display, can also be set globally via RecommendationController config globals |   |
+| options.limit | number (default: 20, max: 20) | all | optional maximum number of results to display |   |
 
 >[!TIP]
 >Global `filters` (above) and profile-level `options.filters` (above) are two different things despite the shared name — global `filters` apply to every profile in the batch, while `options.filters` scope to just that one profile.
@@ -288,7 +288,7 @@ The example below filters the recommendations for products matching field `color
 
 **Q: I set `options.limit: 50` but I'm still only getting 20 results. Why?**
 <br>
-**A:** `options.limit` caps at 20 within the script block. To display more, set the limit globally via the RecommendationController config's `globals` instead.
+**A:** The API caps `limit` at 20, so it can't be raised from the script block or the controller config - a `limit` in the RecommendationController config's `globals` is ignored for profiles in a script block, which send their own `options.limit`.
 
 **Q: A filter is excluding products from a profile I never applied a filter to. Why?**
 <br>

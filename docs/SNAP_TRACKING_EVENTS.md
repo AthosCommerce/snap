@@ -8,6 +8,7 @@ For full setup details on any event, see [Automatic Tracking](https://github.com
 |---|---|---|
 | [Product Click](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#product-click) | Automatic* | None — default components handle it (custom cards: `controller.track.product.click()`) |
 | [Impressions](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#impressions) | Automatic* | None — default components handle it (custom cards: `withTracking` / `ResultTracker`) |
+| [Search Terms](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#search-terms) | Automatic | None — recorded from the search controller's history store (manage with `athos.tracker.cookies.searched`) |
 | [Product Add To Cart](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#product-add-to-cart) | Manual | `controller.addToCart()` |
 | [Shopper Login](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#shopper-login) | Manual | `shopper.id` context var |
 | [Currency](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#currency) | Manual | `currency` context var |

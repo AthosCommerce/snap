@@ -228,7 +228,7 @@ new SnapTemplates(validateTemplatesConfig({
 | `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ | ➖ |
 | `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ | ➖ |
 
-Any component props are accepted, not just `price` - the value uses the same type as `theme.overrides.default` (component names and treePath selectors such as `'result price'`). One difference: `$children` blocks are not expanded here, so write the full selector instead.
+Any component props are accepted, not just `price` - the value uses the same type as `theme.overrides.default` (component names and treePath selectors such as `'result price'`).
 
 The theme is built from layers merged in this order, later layers winning for the same selector: the extended theme, the currency locale, `currencies` for the active currency, the language locale, `translations` for the active language, then `theme.overrides` (`default`, then the active breakpoint). A prop set for the same selector in `theme.overrides` therefore wins over `currencies`.
 

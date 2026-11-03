@@ -1,9 +1,9 @@
 # Automatic Tracking
 
-These events are tracked out of the box when using the default `Result`/Autocomplete components — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md).
+Product clicks and impressions are tracked out of the box when using the default `Result`/Autocomplete components, and search terms are recorded by the search controller whichever components are used — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md).
 
 ### Product Click
-Tracks product click events. Not required when using `withTracking` or `ResultTracker`. It is recommended to invoke on each product `onmousedown` or `onClick` event via the `controller.track.product.click()` method available on all controller types.
+Tracks product click events. Not required when using `withTracking` or `ResultTracker`. It is recommended to invoke on each product `onmousedown` or `onClick` event via the `controller.track.product.click()` method available on Search, Autocomplete and Recommendation controllers.
 
 ```tsx
 controller.store.results.map(result => {
@@ -18,14 +18,15 @@ controller.store.results.map(result => {
 ```
 
 ### Impressions
-Impression tracking occurs when products come into the viewport. It is recommended to use the `withTracking` hook within custom product result cards to track impressions. Alternatively, the `ResultTracker` component can be used to track impressions as well - be aware that this component adds an additional wrapping element. 
+Impression tracking occurs when products come into the viewport. It is recommended to use the `withTracking` higher-order component within custom product result cards to track impressions. Alternatively, the `ResultTracker` component can be used to track impressions as well - be aware that this component adds an additional wrapping element. 
 
 >[!NOTE]
 >This does not need to be implemented if using the default `Result` component from `@athoscommerce/snap-preact/components` or default Autocomplete component without custom result cards.
 
 ### Typical Tracking Integration Example
 ```tsx
-import { withTracking } from '@athoscommerce/snap-preact/components';
+import { h } from 'preact';
+import { withController, withTracking } from '@athoscommerce/snap-preact/components';
 
 const Results = withController((props) => {
 	const { controller } = props;
@@ -68,7 +69,8 @@ Note that a `key` is required on the custom result component to ensure that the 
 ### Alternative Tracking Integration Example using `ResultTracker`
 
 ```tsx
-import { ResultTracker } from '@athoscommerce/snap-preact/components';
+import { h } from 'preact';
+import { withController, ResultTracker } from '@athoscommerce/snap-preact/components';
 
 const Results = withController((props) => {
 	const { controller } = props;

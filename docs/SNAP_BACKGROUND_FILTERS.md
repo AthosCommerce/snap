@@ -6,8 +6,8 @@ Background filters allow a page to be refined without displaying the active filt
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
 | `field` | string | ✔️ | The field name to filter on (e.g., 'collection_handle', 'category', 'brand') |
-| `value` | string \| number \| array | ✔️ | The value(s) to filter by. Can be a single value or array of values (if type is 'range'). For multiple 'value' type filters provide an entry for each value as a new background filter object. |
-| `type` | string | ✔️ | Filter type. Common values: 'value', 'range' |
+| `value` | string \| number \| object | ✔️ | The value to filter by: a string or number for type 'value', or `{ low, high }` for type 'range'. For multiple 'value' type filters provide an entry for each value as a new background filter object. |
+| `type` | string | ✔️ | Filter type. Supported values: 'value', 'range' |
 | `background` | boolean | ✔️ | Must be set to `true` to indicate this is a background filter |
 
 

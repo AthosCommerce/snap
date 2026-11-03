@@ -20,7 +20,7 @@ Before diving into your implementation, let's get familiar with some of the comm
 
 - **Foreground Filter** — A filter pre-applied to the URL on page load, visible and removable like any other applied filter (unlike a Background Filter). Only usable with a SearchController. See [Foreground Filters](https://athoscommerce.github.io/snap/snap-foreground-filters).
 
-- **Instantiator** — Used with Recommendation controllers to create and manage multiple recommendation instances found on a page (one per script tag), accessible via `snap.recommendations`.
+- **Instantiator** — Used with Recommendation controllers to create and manage multiple recommendation instances found on a page (one per script tag), configured via `instantiators.recommendation` and accessible via `snap.getInstantiator('recommendation')`.
 
 - **Middleware** — A function attached to a controller event (e.g. `beforeSearch`, `afterSearch`) via `controller.on()`, used to hook custom logic into the search lifecycle.
 

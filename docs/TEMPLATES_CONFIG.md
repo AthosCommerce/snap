@@ -61,8 +61,8 @@ new SnapTemplates(templatesConfig);
 | `config.platform` | Shopping platform for the integration - `'shopify'`, `'bigCommerce'`, `'magento2'` or `'other'` | String | 'other' | ➖ |
 | `config.siteId` | Athos Site ID | String | ➖ | ➖ |
 | `config.client` | Configuration passed to the Athos API client | ClientConfig Object | ➖ | ➖ |
-| `config.language` | Language code for localization - one of the supported ISO 639 codes, case-insensitive (eg: 'EN', 'FR', 'DE') - see [Supported Languages](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
-| `config.currency` | Currency code for pricing - one of the supported ISO 4217 codes, case-insensitive (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
+| `config.language` | Language code for localization - one of the supported ISO 639 codes, uppercase or lowercase (eg: 'EN', 'FR', 'DE') - see [Supported Languages](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-languages) | String | 'en' | ➖ |
+| `config.currency` | Currency code for pricing - one of the supported ISO 4217 codes, uppercase or lowercase (eg: 'USD', 'EUR', 'JPY') - see [Supported Currencies](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-currencies) | String | 'usd' | ➖ |
 
 The `config` object defines the integration platform, Athos siteId and current localization to be used.
 
@@ -150,7 +150,7 @@ Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnl
 | `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ |
 | `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ |
 
-Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), the top-level `currencies` key overrides component props for that one currency, layered on top of its built-in locale. The value accepts the same selectors and props as `theme.overrides.default` (props under open-named selectors such as `facet.<field>` are not type-checked here), except that `$children` blocks are not expanded - write the full selector instead.
+Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), the top-level `currencies` key overrides component props for that one currency, layered on top of its built-in locale. The value accepts the same selectors and props as `theme.overrides.default` (props under open-named selectors such as `facet.<field>` are not type-checked here).
 
 ```tsx
 currencies: {
@@ -356,7 +356,7 @@ In addition to the common target properties, the following properties apply to t
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `autocomplete` | Autocomplete configuration | Object | ➖ |
-| `autocomplete.action` | URL to navigate to when the shopper presses Enter in the input (required if input is not inside a `<form>`; when set, it is used instead of the form's `action`) | String | ➖ |
+| `autocomplete.action` | URL to navigate to when the shopper presses Enter in the input (required if input is not inside a `<form>`; when set, it is used instead of the form's `action`). It is also the root of the links autocomplete renders, such as terms and 'see more' | String | ➖ |
 | `autocomplete.globals` | Autocomplete request globals | Object | ➖ |
 | `autocomplete.settings` | Autocomplete store settings, merged over the default `{ trending: { limit: 5 } }` | AutocompleteStoreConfigSettings Object | ➖ |
 | `autocomplete.plugins` | Autocomplete specific plugins configurations | Object | ➖ |
@@ -385,7 +385,7 @@ See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFEREN
 | `tabs[].default` | Selects this tab on initial load | Boolean | first tab |
 | `tabs[].globals` | Request globals for this tab only, merged over the feature level globals (not type-checked) | Object | ➖ |
 | `tabs[].settings` | Store settings for this tab only, merged over the feature level settings | Object | ➖ |
-| `tabs[].plugins` | Plugins for this tab only, replacing the top-level and feature level plugins | Object | ➖ |
+| `tabs[].plugins` | Plugins for this tab only, replacing the top-level and feature level plugins - including the built-in plugins that are otherwise enabled by default | Object | ➖ |
 | `search.tabs[].prefetch` | Search this tab before it is selected | Boolean | true |
 
 Every tab `id` must be unique across the entire configuration, including between search tabs and autocomplete tabs. Within a feature, every tab must also have its own `siteId` and its own `param`.
@@ -405,7 +405,7 @@ In addition to the recommendation targets, the recommendation configuration also
 |----------------------|-------------|------|---------|
 | `recommendation` | Recommendation configuration | Object | ➖ |
 | `recommendation.plugins` | Recommendation specific plugins configurations | Object | ➖ |
-| `recommendation.settings` | Recommendation Instantiator Config Settings. When `settings` is provided, its type requires `branch` | RecommendationInstantiatorConfigSettings (without `settings`) | `{ branch: 'production' }` |
+| `recommendation.settings` | Recommendation Instantiator Config Settings. `branch` defaults to `'production'` | RecommendationInstantiatorConfigSettings (without `settings`) | `{ branch: 'production' }` |
 
 
 There are three types of recommendations:

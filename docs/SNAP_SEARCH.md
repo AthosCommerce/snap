@@ -110,7 +110,7 @@ const Result = withController(withTracking(observer((props) => {
 ```
 
 > [!NOTE]
-> When `pagination.totalResults` is `0`, render a `<NoResults/>` component instead of `<Results/>` — this is a component you build yourself (there's nothing store-specific to it). See [Putting It Together](https://athoscommerce.github.io/snap/snap-search#putting-it-together) below for where it fits alongside everything else.
+> When `pagination.totalResults` is `0`, render a `<NoResults/>` component instead of `<Results/>` — either the library's `NoResults` component or your own. See [Putting It Together](https://athoscommerce.github.io/snap/snap-search#putting-it-together) below for where it fits alongside everything else.
 
 ### SearchController.store.facets
 
@@ -367,7 +367,7 @@ export const SortBy = withController(observer((props) => {
 	const { store } = controller;
 	const { sorting } = store;
 	
-	return sorting.length !== 0 ? (
+	return sorting.options.length !== 0 ? (
 		<div class="ss__sorting">
 			<label for="ss__sort--select">Sort</label>
 
@@ -409,8 +409,9 @@ With `results`, `facets`, `filters`, `pagination`, `search`, `sorting`, and `mer
 
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { ControllerProvider, Banner, Pagination } from '@athoscommerce/snap-preact/components';
+import { ControllerProvider, Banner } from '@athoscommerce/snap-preact/components';
 import { Results } from '../Results/Results';
+import { Pagination } from '../Pagination/Pagination';
 import { NoResults } from '../NoResults/NoResults';
 import { SearchHeader } from '../SearchHeader/SearchHeader';
 

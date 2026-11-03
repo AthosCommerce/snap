@@ -37,4 +37,4 @@ Each locale sets the `symbol` for that currency, plus `decimalPlaces`, `thousand
 
 The plugin does not watch for currency changes: it reads `Shopify.currency.active` once, when the controllers are created, so a currency change made by a selector that reloads the page is picked up on the next load. The display currency can also be changed at any time with `window.athos.templates.setCurrency('EUR')` - this changes formatting only, not the price values.
 
-For detailed configuration options, see the [Shopify Currency plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifycurrency).
+For detailed configuration options, see the [Shopify Currency plugin documentation](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#pluginshopifycurrency).

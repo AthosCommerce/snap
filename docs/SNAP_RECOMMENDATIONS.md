@@ -47,7 +47,7 @@ const snap = new Snap({
 ```
 
 >[!NOTE]
-> Note that the component is not required to be named `Default`, however `instantiators.recommendation.component` must contain the `Default` key as seen in the example above.
+> Note that the component is not required to be named `Default`, however `instantiators.recommendation.components` must contain the `Default` key as seen in the example above.
 
 
 The following example assumes a `recently-viewed` profile has been configured in the Athos Search & Product Discovery Console (ASD) with the `Default` template selected. The profile (specified via the `tag` property) will render inside the `.ss__recs__recently-viewed` element below the script block. While the target element can be placed anywhere on the page, it's recommended to group elements with their corresponding script blocks for easier integration management. The component configuration is handled within the [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators).
@@ -137,7 +137,7 @@ const snap = new Snap({
 ```
 
 >[!NOTE]
-> Note that the component is not required to be named `Bundle`, however `instantiators.recommendation.component` must contain the `Bundle` key as seen in the example above.
+> Note that the component is not required to be named `Bundle`, however `instantiators.recommendation.components` must contain the `Bundle` key as seen in the example above.
 
 The following example assumes a `bundle` profile has been configured in the Athos Search & Product Discovery Console (ASD) with the `Bundle` template selected. The profile (specified via the `tag` property) will render inside the `.ss__recs__bundle` element below the script block. While the target element can be placed anywhere on the page, it's recommended to group elements with their corresponding script blocks for easier integration management. The component configuration is handled within the [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators). 
 
@@ -146,7 +146,7 @@ The following example assumes a `bundle` profile has been configured in the Atho
 
 ```html
 <script type="athos/recommendations">
-	global: {
+	globals = {
 		products: ['product_sku_123'],
 	};
 	profiles = [
@@ -218,7 +218,7 @@ export const Bundled = observer((props) => {
 
 **Q: My recommendation profile doesn't render anywhere on the page. Why?**
 <br>
-**A:** Confirm the `tag` in your script block's `profiles` array matches a profile actually configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net), and that `selector` matches an element present on the page — the `RecommendationInstantiator` only creates a controller when both a matching profile and a matching selector exist.
+**A:** Confirm the `tag` in your script block's `profiles` array matches a profile actually configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net), and that `selector` matches an element present on the page — the `RecommendationInstantiator` creates a controller for each profile whose `selector` matches an element, and a `tag` that isn't a configured profile (or has no template) makes the request error or render nothing, so check the console.
 
 **Q: My Bundle recommendation profile returns no results. Why?**
 <br>

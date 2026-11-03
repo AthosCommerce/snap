@@ -6,7 +6,7 @@ The `layoutOptions` prop on the Search templates lets users switch between pre-d
 
 Each option has a `value` (the only required field) and usually a `label` and/or display `icon`, an optional `default` flag, and an `overrides` block that is applied when that option is active. The option marked `default: true` is active until the user picks another; if no option is marked `default`, no option's overrides apply until the user picks one.
 
-The overrides only take effect when a toolbar `layout` in the theme includes the `layoutSelector` module — none of the built-in toolbar layouts do, so add it in your overrides, either under an unscoped toolbar selector in `default` (`'toolbar.top'`) or under a toolbar selector that starts with the template name (`'search toolbar.top'`, as below). The selector itself only renders when there are results and at least two options (set `showSingleOption: true` to show a single option).
+The overrides only take effect when a toolbar `layout` in the theme includes the `layoutSelector` module — none of the built-in toolbar layouts do, so add it in your overrides, either under an unscoped toolbar selector (`'toolbar.top'`) or under a toolbar selector that starts with the template name (`'search toolbar.top'`, as below). A toolbar override in a breakpoint group (`mobile`, `tablet`, `desktop`) only counts at that breakpoint. With tabbed search, `'search toolbar.top'` counts on every tab, and a selector that names one tab (`'search.products toolbar.top'`) only on that tab. The selector itself only renders when there are results and at least two options (set `showSingleOption: true` to show a single option).
 
 ```tsx
 new SnapTemplates(validateTemplatesConfig({

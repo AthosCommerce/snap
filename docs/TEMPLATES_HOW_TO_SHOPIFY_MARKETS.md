@@ -31,7 +31,7 @@ const config = validateTemplatesConfig({
 new SnapTemplates(config);
 ```
 
-While Markets is active, the built-in `Result` and `OverlayResult` components wait for `result.state.priceFetched` before rendering prices. In a custom result component, check the `priceFetched` flag yourself before rendering prices (only while Markets is configured - without it the flag is never set). The plugin also sets it to `true` when no fetch is needed or the request fails, so the indexed prices are shown in those cases. One exception: when a fetch runs, a result without `mappings.core.parentId` is never flagged, so its prices stay hidden.
+While Markets is active, the built-in `Result` and `OverlayResult` components wait for `result.state.priceFetched` before rendering prices. In a custom result component, check the `priceFetched` flag yourself before rendering prices (only while Markets is configured - without it the flag is never set). The plugin also sets it to `true` when no fetch is needed or the request fails, so the indexed prices are shown in those cases.
 
 ```tsx
 import { h } from 'preact';
@@ -55,4 +55,4 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 
 If you need a custom formatter, you can still set `theme.overrides.default.price.format` in your template config; it takes precedence over the currency locale. When `format` is set, the `Price` component renders only the string it returns - the locale's `symbol` and `showCode` are not applied.
 												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#pluginshopifymarkets).

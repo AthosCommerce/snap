@@ -12,9 +12,9 @@ To set up Autocomplete using Snap, we'll need to define an autocomplete controll
 When setting up your Autocomplete Controller you'll notice a duplicate **`selector`** property between `config` and `targeters` — each one controls something different:
 
 - **`config.selector`** — the `<input/>` element(s) to attach Autocomplete's events (focus, keydown, submit) to. Supports a selector matching multiple elements.
-- **`targeter.selector`** — the DOM node the `targeter.component` renders into.
+- **`targeter.selector`** — the element(s) after which Snap injects a container (`.ss__autocomplete--target`) that the `targeter.component` renders into, one per matched element.
 
-In the example below, both use the same selector, so the Autocomplete component renders as a child node directly below whichever `<input/>` is currently focused.
+In the example below, both use the same selector, so the Autocomplete component renders in a container directly after each `<input/>`.
 
 
 ```js
@@ -134,7 +134,7 @@ Identical to `SearchController.store.merchandising`.
 
 ### AutocompleteController.store.search
 
-Same shape as `SearchController.store.search`, with one difference: it does not contain a `didYouMean` query.
+Same shape as `SearchController.store.search`, except that it does not contain a `didYouMean` query and adds a `correctedQuery`.
 
 >[!TIP]
 >See the [AutocompleteStore reference](https://athoscommerce.github.io/snap/reference-store-autocomplete#search-property) for the full property breakdown.
@@ -183,7 +183,7 @@ With `terms`, `trending`, `history`, and `results` each wired in, the root `Auto
 
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { withController } from '@athoscommerce/snap-preact/components';
+import { ControllerProvider, withController } from '@athoscommerce/snap-preact/components';
 import { Terms } from '../Terms/Terms';
 import { Results } from '../Results/Results';
 
@@ -192,13 +192,16 @@ export const Autocomplete = withController(observer((props) => {
 	const { store } = controller;
 	const { search, terms, trending, history, results } = store;
 
-	return store.loaded ? (
-		<div class="ss__autocomplete">
-			{search?.query?.string
-				? <Terms terms={terms} />
-				: <Terms terms={[...trending, ...history]} />}
-			{results.length !== 0 && <Results />}
-		</div>
+	// trending and history are shown before the first autocomplete response, so don't gate on store.loaded alone
+	return store.loaded || trending.length || history.length ? (
+		<ControllerProvider controller={controller}>
+			<div class="ss__autocomplete">
+				{search?.query?.string
+					? <Terms terms={terms} />
+					: <Terms terms={[...trending, ...history]} />}
+				{results.length !== 0 && <Results />}
+			</div>
+		</ControllerProvider>
 	) : null;
 }));
 ```
@@ -209,17 +212,13 @@ export const Autocomplete = withController(observer((props) => {
 ---
 ## Troubleshooting FAQ
 
-**Q: The original `<input/>` still shows alongside the rendered Autocomplete component. Why?**
-<br>
-**A:** Set `hideTarget: true` on the targeter — it hides the original target element before the component mounts. Without it, both the original `<input/>` and the rendered component stay visible together.
-
 **Q: Trending terms never show up, even with an empty, focused input. Why?**
 <br>
 **A:** Confirm `settings.trending` is set on the AutocompleteController config — trending terms are opt-in and won't populate `store.trending` without it.
 
 **Q: History / "Recent Searches" never shows up. Why?**
 <br>
-**A:** Confirm `settings.history` is enabled in the config, and that a search has actually been submitted at least once in this browser — history is written to localStorage on search submission, not on every keystroke, so a fresh browser with no prior searches will show nothing here.
+**A:** Confirm `settings.history` is enabled in the config, and that a search has actually run at least once in this browser — history is written to localStorage when the search controller runs a query (after its `beforeSearch` middleware passes), not on every keystroke, so a fresh browser with no prior searches will show nothing here. A search controller with `settings.history.max: 0` also clears the stored history.
 
 **Q: Hovering a suggested term doesn't update the results/facets preview. Why?**
 <br>

@@ -126,7 +126,7 @@ This adds pinpoint squiggles to `override-selectors` for the checks the compiler
 - Unknown props on any override selector — including open-named selectors such as `facet.<field>`, where the IDE cannot offer autocompletion
 - Wrong value types on props under open-named selectors (value types under other selectors are already reported by the compiler on their own line, so the rule leaves them alone)
 
-The rule does not check the props of an override that sets `customComponent`, and does not check props under the open-named `calloutBadge.<name>` and `productDetail.<name>` selectors (the compiler still does).
+The rule does not check the props of an override that sets `customComponent`.
 
 Example messages (copied from ESLint's JSON output):
 
@@ -177,7 +177,7 @@ Values the rules can't read from the code are assumed to keep every banner, so t
 - On an override that sets `customComponent` (unlocked configs), the other props are not checked.
 - Values typed as `any` (for example, config merged in from an untyped source) are not checked.
 - Overrides under the top-level `currencies` key are checked as ordinary types, so props under open-named selectors there are not checked.
-- Inside `layoutOptions` (on the search templates), misspellings are not caught: a misspelled option key next to valid ones (`defualt: true`), a misspelled selector under `overrides.components` (`'serch results'`), and a misspelled prop next to a valid one (`columns: 4, columnz: 3`) all compile without an error. Wrong value types there are still caught (`columns: 'four'` reports `TS2322` on its line).
+- Inside `layoutOptions` (on the search templates), each option and its `overrides.components` are checked the same way as `theme.overrides`, with the same exceptions - a typo in an earlier segment of a selector there (`'serch results'`) is not caught either.
 - The layout banner checks don't compare a `mobileDisplayAt` width (such as `'991px'`) against the breakpoints. When it's set, an override that only targets the mobile slideout sidebar (`slideout sidebar`) isn't checked.
 - The ESLint rules only read a config written as an object literal inside `validateTemplatesConfig(...)` or `validateTemplatesConfigUnlocked(...)`, passed inline to `new SnapTemplates(...)`, or assigned to a variable annotated `: SnapTemplatesConfig`. They don't read a `theme.overrides` object kept in a separate variable, or a config variable written with `satisfies`.
 - The full compiler checks need the config object written inside the `validateTemplatesConfig(...)` call. A config object (or `theme.overrides` object) assigned to a plain variable first and then passed in is checked differently:

@@ -12,7 +12,7 @@ Snap is built using the Model View Controller (MVC) pattern. When constructing a
 You pass a config object listing every controller your project uses and the DOM target each one renders to.
  
 **2. Controller → search.**
-Each controller exposes `controller.search()`, which reads state from `controller.urlManager` and sends it to the Athos API. For `Search` controllers, urlManager tracks URL query/hash params. `Autocomplete`, `Recommendations`, and `Finder` controllers keep their urlManager detached from the URL — so, for example, opening an autocomplete dropdown never touches the browser's address bar or fires a full-page search.
+Each controller exposes `controller.search()`, which builds the request and sends it to the Athos API. `Search`, `Autocomplete` and `Finder` controllers read their state from `controller.urlManager`; `Recommendation` controllers build theirs from their config and globals. For `Search` controllers, urlManager tracks URL query/hash params. `Autocomplete`, `Recommendations`, and `Finder` controllers keep their urlManager detached from the URL — so, for example, opening an autocomplete dropdown never touches the browser's address bar or fires a full-page search.
  
 **3. API → store.**
 The response lands in `controller.store`. Each controller type (`Search`, `Autocomplete`, `Recommendations`, `Finder`) has its own store schema.

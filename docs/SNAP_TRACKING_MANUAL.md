@@ -3,7 +3,7 @@
 These events need to be wired up manually, since they're events Snap has no way to detect without explicit instrumentation. For events that are already tracked out of the box, see [Automatic Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md).
 
 ### Product Add To Cart
-Tracks product add to cart events. It is recommended to invoke on each product `onClick` event via the `controller.addToCart()` method available on all controller types.
+Tracks product add to cart events. It is recommended to invoke on each product `onClick` event via the `controller.addToCart()` method available on Search, Autocomplete and Recommendation controllers.
 
 `controller.addToCart()` returns a Promise that settles after add-to-cart middleware has completed (it will reject if middleware cancels or throws). This makes it safe to run post-cart actions after a successful `await`.
 
@@ -34,6 +34,9 @@ controller.store.results.map(result => {
 >[!TIP]
 >If you are unable to render the contents in the DOM due to caching or other limitations, you can instead call the corresponding tracking method directly using the global `window.athos.tracker` object.
 
+>[!NOTE]
+>If using Shopify and you have installed Athos's Shopify Pixel Tracking extension, the following events will be tracked by the extension and integrating these events is not required.
+
 
 ### Shopper Login
 Identifies the logged-in user. Should be invoked if a user is logged into their account. The value should contain any unique identifier (ie. user ID, email, hash)
@@ -49,7 +52,7 @@ Identifies the logged-in user. Should be invoked if a user is logged into their 
 </script>
 ```
 
-- (Alternative) using the global `athos.tracker.track.shopper.login` method.
+- (Alternative) using the global `athos.tracker.events.shopper.login` method.
 
 ```js
 athos.tracker.events.shopper.login({
@@ -111,8 +114,8 @@ Tracks order transaction. Should be invoked from an order confirmation page. Exp
 | `results[].parentId` | string | ✔️ | Parent Product ID |
 | `results[].uid` | string | ✔️ | Product UID |
 | `results[].sku` | string | ➖ | Product SKU |
-| `results[].qty` | number | ➖ | Product quantity |
-| `results[].price` | number | ➖ | Product price |
+| `results[].qty` | number | ✔️ | Product quantity |
+| `results[].price` | number | ✔️ | Product price |
 
 ```js
 athos.tracker.events.order.transaction({
@@ -129,15 +132,15 @@ athos.tracker.events.order.transaction({
 				parentId: 'product123',
 				uid: 'product123_red',
 				sku: 'product123_red',
-				qty: '1',
-				price: '9.99'
+				qty: 1,
+				price: 9.99
 			},
 			{
 				parentId: 'product_456',
 				uid: 'product_456_blue',
 				sku: 'product_456_blue',
-				qty: '2',
-				price: '10.99'
+				qty: 2,
+				price: 10.99
 			}
 		]
 	}
@@ -159,8 +162,8 @@ This requires integrating into platform cart events or manually attaching click 
 | `(results \| cart)[].parentId` | string | ✔️ | Parent Product ID |
 | `(results \| cart)[].uid` | string | ✔️ | Product UID |
 | `(results \| cart)[].sku` | string | ➖ | Product SKU |
-| `(results \| cart)[].qty` | number | ➖ | Product quantity |
-| `(results \| cart)[].price` | number | ➖ | Product price |
+| `(results \| cart)[].qty` | number | ✔️ | Product quantity |
+| `(results \| cart)[].price` | number | ✔️ | Product price |
 
 ```js
 athos.tracker.events.cart.add({
@@ -170,8 +173,8 @@ athos.tracker.events.cart.add({
 				parentId: 'product123',
 				uid: 'product123_red',
 				sku: 'product123_red',
-				qty: '1',
-				price: '9.99'
+				qty: 1,
+				price: 9.99
 			}
 		],
 		cart: [
@@ -179,8 +182,8 @@ athos.tracker.events.cart.add({
 				parentId: 'product_456',
 				uid: 'product_456_blue',
 				sku: 'product_456_blue',
-				qty: '1',
-				price: '9.99'
+				qty: 1,
+				price: 9.99
 			}
 		]
 	}
@@ -195,8 +198,8 @@ athos.tracker.events.cart.remove({
 				parentId: 'product123',
 				uid: 'product123_red',
 				sku: 'product123_red',
-				qty: '1',
-				price: '9.99'
+				qty: 1,
+				price: 9.99
 			}
 		],
 		cart: []
@@ -206,7 +209,7 @@ athos.tracker.events.cart.remove({
 
 #### (Alternative) Defining cart contents via the `shopper.cart` context variable
 
-This method will compare the provided cart contents with the current cart contents stored in local storage and only send events if there are differences.
+This method will compare the provided cart contents with the current cart contents stored in local storage and only send events if there are differences. Each item requires `qty`, `price` and one of `parentId`, `uid` or `sku` - items missing any of these are dropped.
 
 ```html
 <script src="https://snapui.athoscommerce.io/[your_site_id]/bundle.js" id="athos-context">
@@ -239,7 +242,7 @@ Adding the following attributes to clickable cart elements allows for real-time 
 >If you are using multiple custom Tracker instances with a different tracker `config.id`, attributes are namespaced by the tracker's `id` (Default: `'track'`, Example: `ss-track-cart-add`)
 
 #### Add to cart
-Adds product identifier to `ssCartProducts` cookie. Supports multiple products using a comma delimiter. It is preferable to use the more specific variant `uid` or `sku` instead of `parentId` when available.
+Adds product identifier to the cart products storage (`athosCartProducts`, or `ssCartProducts` for legacy siteIds). Supports multiple products using a comma delimiter. It is preferable to use the more specific variant `uid` or `sku` instead of `parentId` when available.
 
 ```html
 <button ss-track-cart-add='product123_red'>Add to cart</button>
@@ -257,7 +260,7 @@ athos.tracker.cookies.cart.add(['product123'])
 
 
 #### Remove from cart
-Removes product identifier from `ssCartProducts` cookie. Supports multiple products using a comma delimiter. It is preferable to use the more specific variant `uid` or `sku` instead of `parentId` when available.
+Removes product identifier from the cart products storage (`athosCartProducts`, or `ssCartProducts` for legacy siteIds). Supports multiple products using a comma delimiter. It is preferable to use the more specific variant `uid` or `sku` instead of `parentId` when available.
 
 ```html
 <button ss-track-cart-remove='product123_red'>Remove</button>
@@ -275,7 +278,7 @@ athos.tracker.cookies.cart.remove(['product123'])
 
 
 #### Clear cart
-Clears all products currently stored in the `ssCartProducts` cookie.
+Clears all products currently stored in the cart products storage (`athosCartProducts`, or `ssCartProducts` for legacy siteIds).
 
 ```html
 <button ss-track-cart-clear>Clear Cart</button>
