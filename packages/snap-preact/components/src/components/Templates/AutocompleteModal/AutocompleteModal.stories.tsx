@@ -165,14 +165,14 @@ export default {
 			control: 'none',
 		},
 		width: {
-			defaultValue: '500px',
+			defaultValue: '950px',
 			description: 'Change width of the component',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '500px' },
+				defaultValue: { summary: '950px' },
 			},
 			control: { type: 'text' },
 		},
