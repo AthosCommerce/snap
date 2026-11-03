@@ -286,4 +286,80 @@ describe('Search Api', () => {
 
 		requestMock.mockReset();
 	});
+
+	describe('tracking.beacon request parameter', () => {
+		const params = {
+			headers: {},
+			method: 'GET',
+		};
+
+		it.each([
+			['getSearch', 'search'],
+			['getCategory', 'category'],
+			['getFinder', 'finder'],
+			['getAutocomplete', 'autocomplete'],
+		] as const)('%s sends the no beacon param when tracking.beacon is false', async (method, endpoint) => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			await api[method]({ siteId: '8uyt2m', search: { query: { string: 'untracked' } }, tracking: { beacon: false } });
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock).toHaveBeenCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/${endpoint}?siteId=8uyt2m&q=untracked&noBeacon=true&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			requestMock.mockReset();
+		});
+
+		it('does not send the no beacon param when tracking.beacon is true', async () => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			await api.getSearch({ siteId: '8uyt2m', search: { query: { string: 'tracked' } }, tracking: { beacon: true } });
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock).toHaveBeenCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/search?siteId=8uyt2m&q=tracked&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			requestMock.mockReset();
+		});
+
+		it('does not answer a tracked request from the cache entry of an untracked request', async () => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			const request = { siteId: '8uyt2m', search: { query: { string: 'cached' } } };
+			const untrackedRequest = { ...request, tracking: { beacon: false } };
+
+			await api.getSearch(untrackedRequest);
+			await api.getSearch(untrackedRequest);
+
+			// repeated untracked request is served from the cache
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock).toHaveBeenLastCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/search?siteId=8uyt2m&q=cached&noBeacon=true&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			await api.getSearch(request);
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+			expect(requestMock).toHaveBeenLastCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/search?siteId=8uyt2m&q=cached&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			requestMock.mockReset();
+		});
+	});
 });

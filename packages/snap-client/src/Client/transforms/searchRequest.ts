@@ -10,6 +10,13 @@ import {
 	AutocompleteRequestModelSearch,
 } from '@athoscommerce/snapi-types';
 
+// Athos APIs track requests by default; this param is sent when a request opts out of API tracking (`tracking.beacon: false` in the request)
+export const NO_BEACON_PARAM = 'noBeacon';
+
+export function beaconParams(beacon?: boolean): { [NO_BEACON_PARAM]?: boolean } {
+	return beacon === false ? { [NO_BEACON_PARAM]: true } : {};
+}
+
 export function transformSearchRequest(request: SearchRequestModel | AutocompleteRequestModel): any {
 	const data = mergeParams(
 		transformSearchRequest.sorts(request),
@@ -23,7 +30,7 @@ export function transformSearchRequest(request: SearchRequestModel | Autocomplet
 		transformSearchRequest.personalization(request)
 	);
 
-	return data;
+	return { ...data, ...beaconParams(request.tracking?.beacon) };
 }
 
 transformSearchRequest.sorts = (request: SearchRequestModel | AutocompleteRequestModel = {}) => {

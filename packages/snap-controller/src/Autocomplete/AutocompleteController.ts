@@ -433,6 +433,7 @@ export class AutocompleteController extends AbstractController {
 		params.tracking = params.tracking || {};
 
 		params.tracking.domain = window.location.href;
+		params.tracking.beacon = !!this.config.beacon?.enabled;
 
 		if (userId) {
 			params.tracking.userId = userId;

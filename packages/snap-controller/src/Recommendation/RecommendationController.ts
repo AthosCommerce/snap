@@ -276,6 +276,9 @@ export class RecommendationController extends AbstractController {
 			params.lastSearches = lastSearches;
 		}
 
+		params.tracking = params.tracking || {};
+		params.tracking.beacon = !!this.config.beacon?.enabled;
+
 		return params as RecommendRequestModel;
 	}
 

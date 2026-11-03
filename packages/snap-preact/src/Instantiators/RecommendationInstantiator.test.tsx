@@ -322,6 +322,7 @@ describe('RecommendationInstantiator', () => {
 			products: ['prod1234'],
 			siteId: '8uyt2m',
 			tag: 'legacy',
+			tracking: { beacon: true },
 		});
 	});
 
@@ -345,6 +346,7 @@ describe('RecommendationInstantiator', () => {
 			products: ['prod1234'],
 			siteId: '8uyt2m',
 			tag: 'legacy',
+			tracking: { beacon: true },
 		});
 	});
 
@@ -368,6 +370,7 @@ describe('RecommendationInstantiator', () => {
 			products: ['prod1234', 'prod4567'],
 			siteId: '8uyt2m',
 			tag: 'legacy',
+			tracking: { beacon: true },
 		});
 	});
 
@@ -438,6 +441,7 @@ describe('RecommendationInstantiator', () => {
 			},
 			siteId: '8uyt2m',
 			tag: 'legacy',
+			tracking: { beacon: true },
 		});
 
 		expect(clientSpy).toHaveBeenNthCalledWith(2, {
@@ -450,6 +454,7 @@ describe('RecommendationInstantiator', () => {
 			},
 			siteId: '8uyt2m',
 			tag: 'legacy',
+			tracking: { beacon: true },
 		});
 
 		expect(clientSpy).toHaveBeenNthCalledWith(3, {
@@ -462,6 +467,7 @@ describe('RecommendationInstantiator', () => {
 			},
 			siteId: '8uyt2m',
 			tag: 'legacy',
+			tracking: { beacon: true },
 		});
 	});
 
@@ -567,6 +573,7 @@ describe('RecommendationInstantiator', () => {
 				brands: ['nike', 'h&m'],
 				limit: 5,
 			},
+			tracking: { beacon: true },
 		});
 	});
 
@@ -643,6 +650,7 @@ describe('RecommendationInstantiator', () => {
 					},
 				],
 			},
+			tracking: { beacon: true },
 		});
 	});
 
@@ -800,6 +808,7 @@ describe('RecommendationInstantiator', () => {
 					},
 				],
 			},
+			tracking: { beacon: true },
 		});
 
 		expect(clientSpy).toHaveBeenNthCalledWith(2, {
@@ -825,6 +834,7 @@ describe('RecommendationInstantiator', () => {
 					},
 				],
 			},
+			tracking: { beacon: true },
 		});
 	});
 
@@ -873,6 +883,7 @@ describe('RecommendationInstantiator', () => {
 			profile: {
 				order: 0,
 			},
+			tracking: { beacon: true },
 		});
 	});
 

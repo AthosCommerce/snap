@@ -168,6 +168,24 @@ const { meta, search } = await client.search({
 });
 ```
 
+## Opting out of API tracking
+Requests are tracked by the API by default. Set `tracking.beacon` to `false` in a request's parameters to opt it out of API tracking (it is sent with `noBeacon=true`). See [Opting out of API tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md#opting-out-of-api-tracking) for caching and batching details.
+
+```js
+const client = new Client(globals, clientConfig);
+
+const { meta, search } = await client.search({
+  search: {
+    query: {
+      string: 'dress'
+    }
+  },
+  tracking: {
+    beacon: false
+  }
+});
+```
+
 ## `search` method
 Makes a request to the Athos Search API and returns a promise.  
 

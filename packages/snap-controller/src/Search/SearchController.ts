@@ -662,6 +662,7 @@ export class SearchController extends AbstractController {
 
 		params.tracking = params.tracking || {};
 		params.tracking.domain = window.location.href;
+		params.tracking.beacon = !!this.config.beacon?.enabled;
 
 		const { userId, sessionId, pageLoadId, shopperId } = this.tracker.getContext();
 		if (userId) {

@@ -72,6 +72,7 @@ export class FinderController extends AbstractController {
 			tracking!.pageLoadId = pageLoadId;
 		}
 		tracking.domain = window.location.href;
+		tracking.beacon = !!this.config.beacon?.enabled;
 
 		// get only the finder fields and disable auto drill down
 		const defaultParams: Record<string, any> = {
