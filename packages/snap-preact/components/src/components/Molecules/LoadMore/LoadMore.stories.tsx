@@ -71,7 +71,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
+				defaultValue: { summary: 'controller.store.loading' },
 			},
 			control: { type: 'boolean' },
 		},
@@ -94,7 +94,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '#cccccc' },
+				defaultValue: { summary: 'theme.variables.colors.primary' },
 			},
 			control: { type: 'color' },
 		},
@@ -105,7 +105,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '#f8f8f8' },
+				defaultValue: { summary: 'theme.variables.colors.secondary' },
 			},
 			control: { type: 'color' },
 		},
@@ -159,7 +159,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'spinner' },
 			},
@@ -174,7 +174,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: "'button' | 'outside'",
 				},
 				defaultValue: { summary: 'button' },
 			},

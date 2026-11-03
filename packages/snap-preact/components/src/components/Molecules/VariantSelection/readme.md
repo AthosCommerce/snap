@@ -22,7 +22,7 @@ The required `selection` prop specifies a reference to the searchResultStores Va
 ```
 
 ### type
-The optional `type` prop specifies what type of selection you wish to render. Options are `dropdown`, `list`, or `swatches`, with `dropdown` being the default.
+The optional `type` prop specifies what type of selection you wish to render. Options are `dropdown`, `list`, or `swatches`. When not provided, it defaults to `swatches` if the selection's `type` is `swatch`, and `dropdown` otherwise.
 
 ```tsx
 <VariantSelection selection={VariantSelection} type={'swatches'} />

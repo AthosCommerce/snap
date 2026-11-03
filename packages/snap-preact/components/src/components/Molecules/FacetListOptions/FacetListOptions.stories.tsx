@@ -50,7 +50,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
+				defaultValue: { summary: 'false (true when horizontal)' },
 			},
 			control: { type: 'boolean' },
 		},

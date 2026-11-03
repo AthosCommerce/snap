@@ -81,7 +81,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'Filters' },
 			},
 			control: { type: 'text' },
 		},
@@ -110,14 +110,26 @@ export default {
 			control: { type: 'boolean' },
 		},
 		mobileDisplayAt: {
-			defaultValue: '',
-			description: 'specifies a CSS media query for when the Sidebar component should render in mobile view, which will render in a slideout',
+			description:
+				'specifies a Boolean or CSS media query for when the Sidebar component should render in mobile view, which will render in a slideout',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string | boolean',
+				},
+				defaultValue: { summary: "`${theme.variables.breakpoints.tablet}px` or '991px'" },
+			},
+			control: { type: 'text' },
+		},
+		sidebarWidth: {
+			defaultValue: '270px',
+			description: 'CSS width of the sidebar',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: '270px' },
 			},
 			control: { type: 'text' },
 		},
@@ -151,6 +163,15 @@ export default {
 					summary: 'component',
 				},
 			},
+		},
+		lang: {
+			description: 'Custom language keys (`toggleSidebarButtonText`)',
+			table: {
+				type: {
+					summary: 'Partial<SearchLang>',
+				},
+			},
+			control: { type: 'object' },
 		},
 		...componentArgs,
 	},

@@ -52,7 +52,7 @@ export default {
 		},
 		title: {
 			defaultValue: 'Current Filters',
-			description: 'Filters object',
+			description: 'Filter summary title',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -92,6 +92,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: ':' },
 			},
 			control: { type: 'text' },
 		},
@@ -147,7 +148,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				defaultValue: { summary: 'close-thin' },
 			},
@@ -162,7 +163,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				defaultValue: { summary: 'close-thin' },
 			},
@@ -187,7 +188,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: "'inline' | 'list'",
 				},
 				defaultValue: { summary: 'inline' },
 			},

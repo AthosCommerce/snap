@@ -66,7 +66,7 @@ export default {
 			description: 'Search Title Text',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
 				defaultValue: {
@@ -79,7 +79,7 @@ export default {
 			description: 'Search Subtitle Text',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
 			},
@@ -89,7 +89,7 @@ export default {
 			description: 'Original query redirect text',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
 				defaultValue: {
@@ -103,7 +103,7 @@ export default {
 			description: 'no results found text',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
 				defaultValue: { summary: '<span>No results found.</span>' },
@@ -114,7 +114,7 @@ export default {
 			description: '"Did you mean" text',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
 				defaultValue: { summary: 'Did you mean <a href=${search?.didYouMean?.url.href}>${search?.didYouMean?.string}</a>?' },
@@ -125,12 +125,12 @@ export default {
 			description: 'Expanded search text',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
 				defaultValue: {
 					summary:
-						'We couldn\'t find an exact match for "<span className="ss__search-header__results-query">${search?.query?.string}</span>", but here\'s something similar:',
+						'We couldn\'t find an exact match for "<span class="ss__search-header__results-query">${search?.query?.string}</span>", but here\'s something similar:',
 				},
 			},
 			control: { type: 'text' },

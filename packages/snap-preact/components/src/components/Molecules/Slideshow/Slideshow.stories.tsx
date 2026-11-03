@@ -23,10 +23,11 @@ export default {
 	argTypes: {
 		slides: {
 			description: 'Array of slides to display in the slideshow',
+			type: { required: true },
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string[] | SlideshowImage[]',
+					summary: '(string | SlideshowSlide)[]',
 				},
 			},
 			control: { type: 'object' },
@@ -110,7 +111,7 @@ export default {
 		},
 		alwaysShowNavigation: {
 			description:
-				'Always show navigation buttons even when slides count is below slidesPerView threshold. Useful for maintaining consistent layout in product card grids.',
+				'Always show navigation buttons even when slides count is below slidesToShow threshold. Useful for maintaining consistent layout in product card grids.',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -121,7 +122,7 @@ export default {
 			control: { type: 'boolean' },
 		},
 		centerInsufficientSlides: {
-			description: 'Center slides when there are fewer slides than slidesPerView',
+			description: 'Center slides when there are fewer slides than slidesToShow',
 			table: {
 				category: 'Templates Legal',
 				type: { summary: 'boolean' },

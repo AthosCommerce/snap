@@ -14,7 +14,7 @@ The required `controller` prop specifies a reference to the RecommendationContro
 ```
 
 ### onAddToCart 
-the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed an array of selected item ids and their quantities. 
+the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed the click event and an array of the selected products. 
 
 ```tsx
 <RecommendationBundleEasyAdd controller={controller} onAddToCart={(e, items)=>{console.log(items)}} />
@@ -32,6 +32,13 @@ The `title` prop specifies the bundle title
 
 ```tsx
 <RecommendationBundleEasyAdd controller={controller} onAddToCart={(e, items)=>{console.log(items)}} title={'Recommended Bundle'} />
+```
+
+### description
+The `description` prop specifies the bundle description
+
+```tsx
+<RecommendationBundleEasyAdd controller={controller} onAddToCart={(e, items)=>{console.log(items)}} description={'Recommended Bundle products are so awesome!'} />
 ```
 
 ### resultComponent
@@ -115,7 +122,7 @@ The `vertical` prop sets the carousel scroll direction to vertical.
 ```
 
 ### lazyRender 
-The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enable` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
+The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enabled` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
 
 ```tsx
 const customLazyRenderProps = {
@@ -126,3 +133,26 @@ const customLazyRenderProps = {
 <RecommendationBundleEasyAdd controller={controller} lazyRender={ customLazyRenderProps } onAddToCart={(e, items)=>{console.log(items)}} />
 ```
 
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the RecommendationBundleEasyAdd component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `seedText` | Seed product label text | _(none)_ |
+| `ctaButtonText` | Add to cart CTA button text | _(none)_ |
+| `ctaButtonSuccessText` | CTA button text after successful add | _(none)_ |
+| `ctaSubtotalTitle` | Subtotal section title | `cartStore` (CartStore) |
+
+### Example
+
+```tsx
+<RecommendationBundleEasyAdd
+	controller={controller}
+	lang={{
+		ctaButtonText: {
+			value: 'Add Bundle to Cart',
+		},
+	}}
+/>
+```

@@ -18,7 +18,7 @@ import { Results } from '@athoscommerce/snap-preact/components';
 The `controller` prop specifies a reference to the search controller.
 
 ```tsx
-<Results controller={controller.store.results} />
+<Results controller={controller} />
 ```
 
 ### results

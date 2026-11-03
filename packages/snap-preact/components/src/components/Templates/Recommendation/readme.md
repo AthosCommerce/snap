@@ -92,6 +92,20 @@ The `vertical` prop sets the carousel scroll direction to vertical.
 <Recommendation vertical={true}>{children}<Recommendation/>
 ```
 
+### scrollbar
+The `scrollbar` prop specifies if the carousel should display a scrollbar.
+
+```tsx
+<Recommendation controller={controller} scrollbar={true} />
+```
+
+### slidesPerView
+The `slidesPerView` prop specifies the number of results to display per page. Values from `breakpoints` override it when breakpoints are in use.
+
+```tsx
+<Recommendation controller={controller} slidesPerView={3} />
+```
+
 ### hideButtons
 The `hideButtons` prop specifies if the carousel should hide prev/next buttons.
 
@@ -114,7 +128,7 @@ The `nextButton` prop specifies the next button element of the carousel. This ca
 ```
 
 ### modules
-The `modules` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include `Navigation`, `Pagination` and `A11y` modules by default.
+The `modules` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include `Navigation`, `Pagination`, `Scrollbar` and `A11y` modules by default.
 
 ```tsx
 import { Scrollbar } from 'swiper';
@@ -122,7 +136,7 @@ import { Scrollbar } from 'swiper';
 ```
 
 ### lazyRender 
-The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enable` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
+The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enabled` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
 
 ```tsx
 const customLazyRenderProps = {

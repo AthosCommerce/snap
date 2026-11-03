@@ -89,7 +89,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				defaultValue: { summary: 'close-thin' },
 			},

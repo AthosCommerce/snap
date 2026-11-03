@@ -179,6 +179,9 @@ The `lang` prop allows you to override translatable text strings used by the Sid
 | Lang Key | Description | Data Provided |
 |---|---|---|
 | `titleText` | Sidebar heading text | `controller` (SearchController) |
+| `closeButtonText` | Close button text | `controller` (SearchController) |
+| `applyButtonText` | Apply button text | `controller` (SearchController) |
+| `clearButtonText` | Clear all button text | `controller` (SearchController) |
 
 ### Example
 

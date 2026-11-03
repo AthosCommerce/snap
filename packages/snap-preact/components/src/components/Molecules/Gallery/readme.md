@@ -4,6 +4,7 @@ Renders a fullscreen lightbox-style image gallery overlay with navigation, zoom 
 
 ## Sub-components
 - Button
+- Image
 
 ## Usage
 

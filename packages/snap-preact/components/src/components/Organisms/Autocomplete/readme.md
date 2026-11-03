@@ -126,7 +126,7 @@ The `viewportMaxHeight` prop will restrict autocomplete from overflowing the vie
 ### termsSlot
 The `termsSlot` prop accepts a custom JSX element to render instead of the default terms section. This will also replace the trending terms.
 
-The following props are available to be used within your custom component: `terms`, `trending`, `termsTitle`, `trendingTitle`, `showTrending`, `valueProps`, `emIfy`, `controller`
+The following props are available to be used within your custom component: `terms`, `trending`, `termsTitle`, `trendingTitle`, `showTrending`, `history`, `historyTitle`, `valueProps`, `emIfy`, `onTermClick`, `controller`
 
 ```tsx
 <Autocomplete controller={controller} input={'#searchInput'} termsSlot={<CustomTermsComponent />} />
@@ -250,7 +250,7 @@ The `retainTrending` prop specifies if the trending terms within autocomplete sh
 ```
 
 ### retainHistory
-The `retainHistory` prop specifies if the trending terms within autocomplete should be rendered when there is a query. 
+The `retainHistory` prop specifies if the historical terms within autocomplete should be rendered when there is a query. 
 
 ```tsx
 <Autocomplete controller={controller} input={'#searchInput'} retainHistory={true} />
@@ -269,11 +269,15 @@ const breakpoints = {
         rows: 1,
         hideFacets: true,
         vertical: true,
+        hideHistory: true,
+        hideTrending: true,
     },
     540: {
         columns: 3,
         rows: 1,
         vertical: true,
+        hideHistory: true,
+        hideTrending: true,
     },
     768: {
         columns: 2,
