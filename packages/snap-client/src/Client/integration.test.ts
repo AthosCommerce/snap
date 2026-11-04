@@ -123,14 +123,15 @@ describe('Snap Client Integration Tests', () => {
 				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
 			});
 
+			const tracker = new Tracker(globals);
 			const controller = new SearchController(searchConfig, {
 				client: new Client(globals),
-				store: new SearchStore(searchConfig, services),
+				store: new SearchStore(searchConfig, { ...services, tracker }),
 				urlManager,
 				eventManager: new EventManager(),
 				profiler: new Profiler(),
 				logger: new Logger(),
-				tracker: new Tracker(globals),
+				tracker,
 			});
 			// no cache entries initially (NetworkCache writes "{}" to storage on construction via purgeExpired)
 			expect(cacheEntryCount()).toBe(0);
@@ -156,18 +157,54 @@ describe('Snap Client Integration Tests', () => {
 			// cache was updated with new entries
 			expect(cacheEntryCount()).toBeGreaterThan(0);
 
-			// it did make additional calls because the params changed (search + beacon render; meta is cached)
-			expect(fetchfn).toHaveBeenCalledTimes(5);
+			// it did make additional calls because the params changed (search + beacon render + preflight from the recorded search term; meta is cached)
+			expect(fetchfn).toHaveBeenCalledTimes(6);
 
 			// check that there are results in the store
 			expect(controller.store.results.length).toBeGreaterThan(0);
+			expect(tracker.cookies.searched.get()).toEqual(['dress']);
 
 			controller.urlManager.reset().set('query', '').go();
-			// wait for beacon render event (search and meta are both cached)
+			// wait for the search + beacon render event (meta is cached)
 			await jest.advanceTimersByTimeAsync(1000);
 
-			// only the beacon render event fired - search and meta came from cache
-			expect(fetchfn).toHaveBeenCalledTimes(6);
+			// search and beacon render fired - meta came from cache, but the search did not because lastSearches now includes the recorded term
+			expect(fetchfn).toHaveBeenCalledTimes(8);
+			expect(fetchfn.mock.calls[6][0]).toContain('lastSearches=dress');
+
+			fetchfn.mockReset();
+		});
+
+		it('sends searched terms from the tracker as one lastSearches param, encoded once, with commas within a term replaced with spaces', async () => {
+			jest.useFakeTimers({ doNotFake: ['performance'] });
+
+			const fetchfn = jest.spyOn(global.window, 'fetch').mockImplementation((url: any) => {
+				const urlStr = typeof url === 'string' ? url : url.toString();
+				if (urlStr.includes('/v1/search')) {
+					return Promise.resolve({ status: 200, json: () => Promise.resolve(mockLegacySearchResponse) } as Response);
+				}
+				return Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response);
+			});
+
+			const tracker = new Tracker(globals);
+			tracker.cookies.searched.add(['red, blue dress', 'boots']);
+
+			const controller = new SearchController(searchConfig, {
+				client: new Client(globals),
+				store: new SearchStore(searchConfig, { ...services, tracker }),
+				urlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker,
+			});
+
+			await controller.search();
+			await jest.advanceTimersByTimeAsync(500);
+
+			const searchUrls = fetchfn.mock.calls.map(([url]) => `${url}`).filter((url) => url.includes('/v1/search'));
+			expect(searchUrls).toHaveLength(1);
+			expect(new URL(searchUrls[0]).searchParams.getAll('lastSearches')).toEqual(['red blue dress,boots']);
 
 			fetchfn.mockReset();
 		});

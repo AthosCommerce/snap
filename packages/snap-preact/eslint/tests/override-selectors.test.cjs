@@ -7,7 +7,7 @@ process.env.TSESTREE_SINGLE_RUN = 'false';
 const fs = require('fs');
 const path = require('path');
 const { Linter } = require('eslint');
-const rule = require('../src/validate-config.cjs');
+const rule = require('../src/rules/override-selectors.cjs');
 const tsParser = require('@typescript-eslint/parser');
 
 const FIXTURE_DIR = path.join(__dirname, 'fixtures');
@@ -17,7 +17,7 @@ const code = fs.readFileSync(FIXTURE_FILE, 'utf-8');
 
 function lint({ typed }) {
 	const linter = new Linter();
-	linter.defineRule('validate-config', rule);
+	linter.defineRule('override-selectors', rule);
 	// pre-register the already-required parser module by name - Linter.verify()'s own
 	// module resolution for a `parser` path string doesn't work reliably under Jest
 	linter.defineParser('ts-parser', tsParser);
@@ -31,13 +31,13 @@ function lint({ typed }) {
 		{
 			parser: 'ts-parser',
 			parserOptions,
-			rules: { 'validate-config': 'error' },
+			rules: { 'override-selectors': 'error' },
 		},
 		FIXTURE_FILE
 	);
 }
 
-describe('validate-config: theme override selector/prop typed checks', () => {
+describe('override-selectors: theme override selector/prop typed checks', () => {
 	it('flags a bad prop on an open-named dotted selector (facet.price), leaves the valid prop alone', () => {
 		const messages = lint({ typed: true });
 
@@ -57,6 +57,20 @@ describe('validate-config: theme override selector/prop typed checks', () => {
 		expect(gridErrors).toHaveLength(1);
 		expect(gridErrors[0].message).toContain('"anotherFakeProp"');
 		expect(gridErrors[0].message).toContain('RecommendationGridTemplatesLegalProps');
+	});
+
+	it('resolves the calloutBadge and productDetail open-named component types', () => {
+		const messages = lint({ typed: true });
+
+		const calloutErrors = messages.filter((m) => m.message.includes('"calloutBadge.sale"'));
+		expect(calloutErrors).toHaveLength(1);
+		expect(calloutErrors[0].message).toContain('"fakeCalloutProp"');
+		expect(calloutErrors[0].message).toContain('CalloutBadgeTemplatesLegalProps');
+
+		const detailErrors = messages.filter((m) => m.message.includes('"productDetail.specs"'));
+		expect(detailErrors).toHaveLength(1);
+		expect(detailErrors[0].message).toContain('"fakeDetailProp"');
+		expect(detailErrors[0].message).toContain('ProductDetailTemplatesLegalProps');
 	});
 
 	it('flags a valid prop key with an incompatible value type (color: 5, expects string)', () => {

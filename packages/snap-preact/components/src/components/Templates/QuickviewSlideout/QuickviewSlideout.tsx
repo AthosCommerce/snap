@@ -185,11 +185,14 @@ interface QuickviewSlideoutSubProps {
 
 export type QuickviewSlideoutProps = {
 	quickviewManager: QuickviewManager;
+	lang?: Partial<QuickviewLayoutLang>;
+} & QuickviewSlideoutTemplatesLegalProps &
+	Omit<ComponentProps, 'customComponent'>;
+
+export type QuickviewSlideoutTemplatesLegalProps = {
 	slideDirection?: SlideDirectionType;
 	width?: string;
 	overlayColor?: string;
-	lang?: Partial<QuickviewLayoutLang>;
 	// `layout` is optional here (unlike on QuickviewLayout) because the container supplies a default
 	layout?: QuickviewLayoutTemplatesLegalProps['layout'];
-} & Omit<QuickviewLayoutTemplatesLegalProps, 'layout'> &
-	Omit<ComponentProps, 'customComponent'>;
+} & Omit<QuickviewLayoutTemplatesLegalProps, 'layout'>;

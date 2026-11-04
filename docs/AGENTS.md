@@ -18,4 +18,4 @@ Applies to `docs/*.md`, package READMEs and component `readme.md` files. These p
 
 ## Adding a page
 
-Register new pages in `docs/documents.js`, then run `npm run build:sitemap` and commit `docs-sitemap.json`. CI fails when the sitemap is stale.
+Register new pages in `docs/documents.js`, then run `npm run build:sitemap` and commit `docs-sitemap.json`. CI fails when the sitemap is stale. The sitemap also picks up Storybook docs pages (each story's readme import and title) and TypeDoc package READMEs, so changes to those need a regenerated sitemap too.

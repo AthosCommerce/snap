@@ -13,6 +13,7 @@ export class TargetStore {
 	public type: TemplateTypes;
 	public selector: string;
 	public component: string;
+	public emptyTarget?: boolean;
 	public theme: {
 		location: TemplateThemeTypes;
 		name: string;
@@ -25,6 +26,7 @@ export class TargetStore {
 		this.type = target.type;
 		this.selector = target.selector || '';
 		this.component = target.component || '';
+		this.emptyTarget = target.emptyTarget;
 		this.theme = {
 			location: 'local',
 			name: GLOBAL_THEME_NAME,

@@ -1,5 +1,7 @@
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
 import type { ChatRequestModel, RecommendRequestModel } from '@athoscommerce/snap-client';
+import type { Tracker } from '@athoscommerce/snap-tracker';
+
 import type { QuickviewConfig } from './QuickView/QuickviewStore';
 import type {
 	SearchResponseModelFacetValueAllOfValues,
@@ -248,6 +250,7 @@ export type DisplayFieldConfig = {
 
 export type StoreServices = {
 	urlManager: UrlManager;
+	tracker?: Tracker;
 };
 
 export enum ErrorType {

@@ -857,6 +857,91 @@ describe('Snap Preact', () => {
 			expect(injectedComponent).not.toBeNull();
 		});
 
+		it(`keeps the target content until the component renders when 'emptyTarget' is false, then replaces all of it`, async () => {
+			const skeletonHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+			document.body.innerHTML = `<script id="athos-context"></script><div id="athos-content">${skeletonHTML}</div>`;
+			const contentElem = document.querySelector('#athos-content')!;
+			const firstSkeletonElem = contentElem.firstElementChild;
+
+			const onTarget = jest.fn();
+			const baseConfig = generateBaseConfig();
+			const searchConfig = {
+				...baseConfig,
+				controllers: {
+					search: [
+						{
+							config: {
+								id: 'search',
+							},
+							targeters: [
+								{
+									selector: '#athos-content',
+									emptyTarget: false,
+									renderAfterSearch: true,
+									onTarget,
+									component: () => Component,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(searchConfig.client!.globals as ClientGlobals, undefined, { delay: 50 });
+			const snap = new Snap(searchConfig, { client });
+			const search = await snap.getController('search');
+
+			// the target has been found while the search is still pending - its content is untouched
+			await waitFor(() => expect(onTarget).toHaveBeenCalledTimes(1));
+			expect(search.store.loading).toBe(true);
+			expect(contentElem.innerHTML).toBe(skeletonHTML);
+
+			// once rendered only the component remains - no skeleton node is reused or left behind
+			await waitFor(() => expect(contentElem.innerHTML).toBe('<div class="injectedComponent">search</div>'));
+			expect(contentElem.firstElementChild).not.toBe(firstSkeletonElem);
+		});
+
+		it(`clears the target content only before the first render when 'emptyTarget' is false`, async () => {
+			document.body.innerHTML = `<script id="athos-context"></script><div id="athos-content"><div class="placeholder"></div><div class="placeholder"></div></div>`;
+			const contentElem = document.querySelector('#athos-content')!;
+
+			// one component type for both renders, so the second render is a Preact update of the first
+			const Content = (props: any) => <div className="content">{props.controller ? props.controller.type : 'loading'}</div>;
+			const baseConfig = generateBaseConfig();
+			const searchConfig = {
+				...baseConfig,
+				controllers: {
+					search: [
+						{
+							config: {
+								id: 'search',
+							},
+							targeters: [
+								{
+									selector: '#athos-content',
+									emptyTarget: false,
+									renderAfterSearch: true,
+									skeleton: () => Content,
+									component: () => Content,
+								},
+							],
+						},
+					],
+				},
+			};
+
+			const client = new MockClient(searchConfig.client!.globals as ClientGlobals, undefined, { delay: 50 });
+			const snap = new Snap(searchConfig, { client });
+			const search = await snap.getController('search');
+
+			// the skeleton render replaces the existing content while the search is pending
+			await waitFor(() => expect(contentElem.innerHTML).toBe('<div class="content">loading</div>'));
+			expect(search.store.loading).toBe(true);
+
+			// the component render updates the DOM Snap rendered rather than clearing it
+			await waitFor(() => expect(contentElem.innerHTML).toBe('<div class="content">search</div>'));
+		});
+
 		it(`runs the controller 'search' method when prefetch is set when selector not found`, async () => {
 			const baseConfig = generateBaseConfig();
 			const searchConfig = {

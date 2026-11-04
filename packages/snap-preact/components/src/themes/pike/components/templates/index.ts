@@ -6,6 +6,8 @@ import { chat } from './chat';
 import { chatButton } from './chatButton';
 import { autocompleteModal } from './autocompleteModal';
 import { autocompleteSlideout } from './autocompleteSlideout';
+import { quickviewModal } from './quickviewModal';
+import { quickviewSlideout } from './quickviewSlideout';
 import { recommendation } from './recommendation';
 import { recommendationBundle } from './recommendationBundle';
 import { recommendationBundleEasyAdd } from './recommendationBundleEasyAdd';
@@ -24,6 +26,8 @@ export const templates = {
 		...autocompleteFixed.default,
 		...autocompleteModal.default,
 		...autocompleteSlideout.default,
+		...quickviewModal.default,
+		...quickviewSlideout.default,
 		...recommendation.default,
 		...recommendationBundle.default,
 		...recommendationBundleEasyAdd.default,
@@ -41,6 +45,8 @@ export const templates = {
 		...autocompleteFixed.mobile,
 		...autocompleteModal.mobile,
 		...autocompleteSlideout.mobile,
+		...quickviewModal.mobile,
+		...quickviewSlideout.mobile,
 		...recommendation.mobile,
 		...recommendationBundle.mobile,
 		...recommendationBundleEasyAdd.mobile,
@@ -58,6 +64,8 @@ export const templates = {
 		...autocompleteFixed.tablet,
 		...autocompleteModal.tablet,
 		...autocompleteSlideout.tablet,
+		...quickviewModal.tablet,
+		...quickviewSlideout.tablet,
 		...recommendation.tablet,
 		...recommendationBundle.tablet,
 		...recommendationBundleEasyAdd.tablet,
@@ -75,6 +83,8 @@ export const templates = {
 		...autocompleteFixed.desktop,
 		...autocompleteModal.desktop,
 		...autocompleteSlideout.desktop,
+		...quickviewModal.desktop,
+		...quickviewSlideout.desktop,
 		...recommendation.desktop,
 		...recommendationBundle.desktop,
 		...recommendationBundleEasyAdd.desktop,
