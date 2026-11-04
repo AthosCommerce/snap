@@ -152,6 +152,86 @@ describe('Search Controller', () => {
 		expect(window.location.replace).toHaveBeenCalledTimes(1);
 	});
 
+	it('redirects to the single result when inline banners are counted in totalResults', async () => {
+		// settings.redirects.singleResult is true by default
+
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.init();
+
+		controller.urlManager = controller.urlManager.reset().set('query', '40745sk');
+
+		//@ts-ignore
+		delete window.location;
+		//@ts-ignore
+		window.location = {
+			...window.location,
+			replace: jest.fn(),
+		} as unknown as string & Location;
+		(controller.client as MockClient).mockData.updateConfig({ search: '40745sk.inlineBanner' });
+		await controller.search();
+
+		// one product and one inline banner make up the two totalResults
+		expect(controller.store.pagination.totalResults).toBe(2);
+		expect(controller.store.pagination.totalInlineBanners).toBe(1);
+		expect(controller.store.pagination.totalProducts).toBe(1);
+		expect(controller.store.results.map((result) => result.type)).toEqual(['product', 'banner']);
+
+		expect(window.location.replace).toHaveBeenCalledTimes(1);
+		expect(window.location.replace).toHaveBeenCalledWith(
+			'https://www.bbwheelsonline.com/weathertech-40745sk-cargo-liner-w-bumper-protector-black-jeep-wrangler-jk/'
+		);
+	});
+
+	it('does not redirect when more than one result remains after excluding inline banners', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.init();
+
+		controller.urlManager = controller.urlManager.reset().set('query', '40745sk');
+
+		//@ts-ignore
+		delete window.location;
+		//@ts-ignore
+		window.location = {
+			...window.location,
+			replace: jest.fn(),
+		} as unknown as string & Location;
+
+		// two products and one inline banner
+		const mockData = (controller.client as MockClient).mockData;
+		const searchData = mockData.search('40745sk.inlineBanner');
+		const [product] = searchData.results!;
+		searchData.results = [product, { ...product, id: `${product.id}-2`, mappings: { core: { ...product.mappings!.core, uid: `${product.id}-2` } } }];
+		searchData.pagination!.totalResults = 3;
+		jest.spyOn(mockData, 'search').mockReturnValue(searchData);
+
+		await controller.search();
+
+		expect(controller.store.pagination.totalResults).toBe(3);
+		expect(controller.store.pagination.totalInlineBanners).toBe(1);
+		expect(controller.store.pagination.totalProducts).toBe(2);
+		expect(controller.store.results.map((result) => result.type)).toEqual(['product', 'banner', 'product']);
+
+		expect(window.location.replace).not.toHaveBeenCalled();
+	});
+
 	it('tests merchandising redirect setting disabled', async () => {
 		searchConfig = {
 			...searchConfig,
@@ -743,6 +823,252 @@ describe('Search Controller', () => {
 		controller.tracker.track.product.view(product);
 
 		expect(controller.params.personalization!.lastViewed).toEqual(product.sku);
+	});
+
+	it('can set personalization lastSearches param with the most recent term first', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['shoes']);
+		controller.tracker.cookies.searched.add(['boots']);
+
+		expect(controller.params.personalization!.lastSearches).toEqual('boots,shoes');
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('does not set personalization lastSearches param when personalization is disabled', async () => {
+		const config: SearchControllerConfig = {
+			...searchConfig,
+			globals: {
+				personalization: {
+					disabled: true,
+				},
+			},
+		};
+		const controller = new SearchController(config, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['shoes']);
+
+		expect(controller.params.personalization?.lastSearches).toBeUndefined();
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('records the search query but does not send lastSearches when personalization is disabled', async () => {
+		const config: SearchControllerConfig = {
+			...searchConfig,
+			globals: {
+				personalization: {
+					disabled: true,
+				},
+			},
+		};
+		const tracker = new Tracker(globals);
+		const controller = new SearchController(config, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(config, { urlManager, tracker }),
+			urlManager: urlManager.set('query', 'dress'),
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker,
+		});
+		controller.tracker.cookies.searched.clear();
+
+		await controller.search();
+
+		expect(controller.tracker.cookies.searched.get()).toEqual(['dress']);
+		expect(controller.params.personalization?.lastSearches).toBeUndefined();
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('records the search query as a searched term when searching', async () => {
+		const tracker = new Tracker(globals);
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, { urlManager, tracker }),
+			urlManager: urlManager.set('query', 'dress'),
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker,
+		});
+		controller.tracker.cookies.searched.clear();
+
+		await controller.search();
+
+		expect(controller.tracker.cookies.searched.get()).toEqual(['dress']);
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('does not record the search query when beforeSearch middleware cancels the search', async () => {
+		const tracker = new Tracker(globals);
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, { urlManager, tracker }),
+			urlManager: urlManager.set('query', 'dress'),
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker,
+		});
+		controller.tracker.cookies.searched.clear();
+		const save = jest.spyOn(controller.store.history, 'save');
+		controller.on('beforeSearch', () => false);
+
+		await controller.search();
+
+		expect(save).not.toHaveBeenCalled();
+		expect(controller.tracker.cookies.searched.get()).toEqual([]);
+
+		save.mockRestore();
+	});
+
+	it('does not record the search query again when the params have not changed', async () => {
+		const tracker = new Tracker(globals);
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, { urlManager, tracker }),
+			urlManager: urlManager.set('query', 'dress'),
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker,
+		});
+		controller.tracker.cookies.searched.clear();
+		const add = jest.spyOn(controller.tracker.cookies.searched, 'add');
+
+		await controller.search();
+		await controller.search();
+
+		expect(add).toHaveBeenCalledTimes(1);
+		expect(controller.tracker.cookies.searched.get()).toEqual(['dress']);
+
+		add.mockRestore();
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('records history store terms with the controller tracker when the store has no tracker service', async () => {
+		const store = new SearchStore(searchConfig, { urlManager });
+		const setService = jest.spyOn(store, 'setService');
+
+		expect(store.services.tracker).toBeUndefined();
+
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store,
+			urlManager: urlManager.set('query', 'dress'),
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.searched.clear();
+
+		expect(setService).toHaveBeenCalledTimes(1);
+		expect(setService).toHaveBeenCalledWith('tracker', controller.tracker);
+
+		await controller.search();
+		store.history.save('boots');
+
+		expect(store.services.tracker).toBe(controller.tracker);
+		expect(controller.tracker.cookies.searched.get()).toEqual(['boots', 'dress']);
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('replaces commas within searched terms with spaces in the personalization lastSearches param', async () => {
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, { urlManager }),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['boots']);
+		controller.tracker.cookies.searched.add(['red, blue dress']);
+
+		expect(controller.params.personalization!.lastSearches).toEqual('red blue dress,boots');
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('records history store terms through the tracker service of the store', async () => {
+		const storeTracker = new Tracker({ siteId: 'at5678' });
+		const store = new SearchStore(searchConfig, { urlManager, tracker: storeTracker });
+		const setService = jest.spyOn(store, 'setService');
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store,
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.searched.clear();
+		storeTracker.cookies.searched.clear();
+
+		expect(setService).not.toHaveBeenCalled();
+		expect(store.services.tracker).toBe(storeTracker);
+
+		store.history.save('boots');
+
+		expect(storeTracker.cookies.searched.get()).toEqual(['boots']);
+		expect(controller.tracker.cookies.searched.get()).toEqual([]);
+
+		storeTracker.cookies.searched.clear();
+	});
+
+	it('sets personalization lastSearches param for the siteId in the controller globals', async () => {
+		const config: SearchControllerConfig = {
+			...searchConfig,
+			globals: {
+				siteId: 'at5678',
+			},
+		};
+		const controller = new SearchController(config, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(config, { urlManager }),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+		controller.tracker.cookies.searched.add(['boots'], 'at5678');
+		controller.tracker.cookies.searched.add(['shoes']);
+
+		expect(controller.params.personalization!.lastSearches).toEqual('boots');
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
 	});
 
 	it('can set personalization shopper param', async () => {

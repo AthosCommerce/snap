@@ -199,6 +199,44 @@ describe('Search Api', () => {
 		requestMock.mockReset();
 	});
 
+	it.each(['getSearch', 'getAutocomplete', 'getCategory', 'getFinder'] as const)(
+		'%s does not reuse the cached response when the lastSearches personalization param changes',
+		async (method) => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock.mock.calls[0][0]).toContain('lastSearches=shoes');
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'boots,shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+			expect(requestMock.mock.calls[1][0]).toContain('lastSearches=boots%2Cshoes');
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'boots,shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+
+			requestMock.mockReset();
+		}
+	);
+
 	it('can call getEndpoint', async () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 

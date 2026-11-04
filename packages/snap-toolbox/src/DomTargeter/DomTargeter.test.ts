@@ -1517,4 +1517,166 @@ describe('DomTargeter', () => {
 			}).not.toThrow();
 		});
 	});
+
+	describe('autoRetarget while document is loading', () => {
+		// holds document.readyState and swallows jsdom's own DOMContentLoaded so tests control when it fires
+		const createLoadingDocument = (contents: string, initialReadyState: DocumentReadyState = 'loading') => {
+			const dom = createDocument(contents);
+			const document = dom.window.document;
+
+			let readyState: DocumentReadyState = initialReadyState;
+			Object.defineProperty(document, 'readyState', { get: () => readyState, configurable: true });
+
+			let dispatching = false;
+			document.addEventListener(
+				'DOMContentLoaded',
+				(e) => {
+					if (!dispatching) e.stopImmediatePropagation();
+				},
+				true
+			);
+
+			const fireDOMContentLoaded = () => {
+				readyState = 'interactive';
+				dispatching = true;
+				document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
+				dispatching = false;
+			};
+
+			const addTarget = (className = 'dynamic') => {
+				const elem = document.createElement('div');
+				elem.className = className;
+				document.getElementById('content')!.appendChild(elem);
+			};
+
+			return { dom, document, fireDOMContentLoaded, addTarget };
+		};
+
+		it('polls quickly until DOMContentLoaded', async () => {
+			const { document, addTarget } = createLoadingDocument(`<div id="content"></div>`);
+			const onTarget = jest.fn();
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true }], onTarget, document);
+
+			await jest.advanceTimersByTimeAsync(10);
+			addTarget();
+			await jest.advanceTimersByTimeAsync(22); // t=32
+			expect(onTarget).toHaveBeenCalledTimes(1);
+
+			// the loop keeps running after a match
+			await jest.advanceTimersByTimeAsync(18); // t=50
+			addTarget();
+			await jest.advanceTimersByTimeAsync(20); // t=70
+			expect(onTarget).toHaveBeenCalledTimes(2);
+		});
+
+		it('retargets synchronously on DOMContentLoaded', () => {
+			const { document, fireDOMContentLoaded, addTarget } = createLoadingDocument(`<div id="content"></div>`);
+			const onTarget = jest.fn();
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true }], onTarget, document);
+
+			addTarget();
+			expect(onTarget).toHaveBeenCalledTimes(0);
+
+			fireDOMContentLoaded();
+			expect(onTarget).toHaveBeenCalledTimes(1);
+		});
+
+		it('backs off from DOMContentLoaded', async () => {
+			const { document, fireDOMContentLoaded, addTarget } = createLoadingDocument(`<div id="content"></div>`);
+			const onTarget = jest.fn();
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true }], onTarget, document);
+
+			fireDOMContentLoaded(); // t=0, next checks at 300 and 800
+
+			await jest.advanceTimersByTimeAsync(310);
+			addTarget();
+			await jest.advanceTimersByTimeAsync(480); // t=790
+			expect(onTarget).toHaveBeenCalledTimes(0);
+
+			await jest.advanceTimersByTimeAsync(10); // t=800
+			expect(onTarget).toHaveBeenCalledTimes(1);
+		});
+
+		it('unhides hideTarget targets about 12 seconds after DOMContentLoaded', async () => {
+			const { document, fireDOMContentLoaded } = createLoadingDocument(`<div id="content"></div>`);
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true, hideTarget: true }], () => {}, document);
+
+			fireDOMContentLoaded();
+
+			await jest.advanceTimersByTimeAsync(11999);
+			expect(document.head.querySelector('style')?.innerHTML).toContain('.dynamic');
+
+			await jest.advanceTimersByTimeAsync(1);
+			expect(document.head.querySelector('style')).toBeNull();
+		});
+
+		it('measures the give-up time from a late DOMContentLoaded', async () => {
+			const { document, fireDOMContentLoaded } = createLoadingDocument(`<div id="content"></div>`);
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true, hideTarget: true }], () => {}, document);
+
+			await jest.advanceTimersByTimeAsync(3000);
+			fireDOMContentLoaded();
+
+			await jest.advanceTimersByTimeAsync(11999); // t=14999
+			expect(document.head.querySelector('style')?.innerHTML).toContain('.dynamic');
+
+			await jest.advanceTimersByTimeAsync(1); // t=15000
+			expect(document.head.querySelector('style')).toBeNull();
+		});
+
+		it('does not retarget after destroy', async () => {
+			const { document, fireDOMContentLoaded, addTarget } = createLoadingDocument(`<div id="content"></div>`);
+			const onTarget = jest.fn();
+
+			const targeter = new DomTargeter([{ selector: '.dynamic', autoRetarget: true }], onTarget, document);
+
+			targeter.destroy();
+
+			addTarget();
+			fireDOMContentLoaded();
+			await jest.advanceTimersByTimeAsync(500);
+
+			expect(onTarget).toHaveBeenCalledTimes(0);
+		});
+
+		it('starts the backoff immediately when the document is already parsed', async () => {
+			const { document, addTarget } = createLoadingDocument(`<div id="content"></div>`, 'interactive');
+			const onTarget = jest.fn();
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true }], onTarget, document);
+
+			await jest.advanceTimersByTimeAsync(10);
+			addTarget();
+			await jest.advanceTimersByTimeAsync(289); // t=299
+			expect(onTarget).toHaveBeenCalledTimes(0);
+
+			await jest.advanceTimersByTimeAsync(1); // t=300
+			expect(onTarget).toHaveBeenCalledTimes(1);
+		});
+
+		it('runs a single backoff chain after clickRetarget restarts it', async () => {
+			const { dom, document, fireDOMContentLoaded, addTarget } = createLoadingDocument(`<div id="content"></div>`);
+			const onTarget = jest.fn();
+
+			new DomTargeter([{ selector: '.dynamic', autoRetarget: true, clickRetarget: true }], onTarget, document);
+
+			fireDOMContentLoaded(); // t=0, next check at 300
+
+			await jest.advanceTimersByTimeAsync(100);
+			document.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })); // restart, next check at 400
+
+			await jest.advanceTimersByTimeAsync(150); // t=250
+			addTarget();
+			await jest.advanceTimersByTimeAsync(149); // t=399, the replaced check at 300 must not run
+			expect(onTarget).toHaveBeenCalledTimes(0);
+
+			await jest.advanceTimersByTimeAsync(1); // t=400
+			expect(onTarget).toHaveBeenCalledTimes(1);
+		});
+	});
 });

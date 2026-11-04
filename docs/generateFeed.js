@@ -209,8 +209,28 @@ const OUTPUT_FILE = 'snap-docs.json';
 		}
 	}
 
+	// every feed entry deep-links into Storybook via `?path=/docs/...`, so a readme only earns an entry if
+	// Storybook actually builds a docs page next to it. mirrors the `stories` globs in
+	// packages/snap-preact/components/.storybook/main.ts — `*.mdx` and `*.stories.@(js|jsx|ts|tsx)`.
+	function hasStorybookEntry(markdownPath) {
+		try {
+			return fs.readdirSync(path.dirname(markdownPath)).some((file) => /(\.mdx|\.stories\.(js|jsx|ts|tsx))$/.test(file));
+		} catch (err) {
+			return false;
+		}
+	}
+
 	async function buildComponentLibraryLinks(details) {
-		const paths = await findMarkdownFiles(details.path);
+		const allPaths = await findMarkdownFiles(details.path);
+		const paths = allPaths.filter((markdownPath) => {
+			if (hasStorybookEntry(markdownPath)) {
+				return true;
+			}
+			// intermediate/internal components with no story would emit a dead `?path=` link
+			console.log(`Skipping (no adjacent Storybook story): ${path.relative(process.cwd(), markdownPath)}`);
+			return false;
+		});
+
 		const links = paths.map((path) => {
 			// Handle both absolute and relative paths
 			let packagePath;

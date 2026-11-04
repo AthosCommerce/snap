@@ -1,10 +1,8 @@
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { OverlayBadgeProps, OverlayBadge } from './OverlayBadge';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../OverlayBadge/readme.md';
 
@@ -14,23 +12,11 @@ import type { Product } from '@athoscommerce/snap-store-mobx';
 export default {
 	title: 'Molecules/OverlayBadge',
 	component: OverlayBadge,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -63,7 +49,7 @@ export default {
 					summary: 'result store Product object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		controller: {
 			description: 'Controller reference',
@@ -73,7 +59,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		children: {
 			description: 'Overlay content to be displayed',
@@ -136,127 +122,129 @@ const ObservableOverlayBadge = observer(({ args, controller }: { args: OverlayBa
 	);
 });
 
-export const Default = (args: OverlayBadgeProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <ObservableOverlayBadge args={args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		snapInstance.on('afterSearch', ({ response }: any) => {
-			/**
-			 * Mock badge response - TODO: remove when badges are available in response
-			 *
-			 * Controller is shared between stories, therefore both badges are defined
-			 * here so that when switching between OverlayBadge and CalloutBadge stories,
-			 * a page reload is not required
-			 */
-
-			response.search.results[0].badges = [
-				{
-					tag: 'free-shipping',
-					value: 'Free Shipping',
-				},
-				{
-					tag: 'last-one',
-					value: 'Last One!',
-				},
-				{
-					tag: 'on-sale',
-					value: 'On Sale',
-				},
-				{
-					tag: 'save-percent',
-					value: 'Save 30%',
-				},
-				{
-					tag: 'inventory-remaining',
-					value: '1 in stock',
-				},
-			];
-
-			response.meta = {
-				...response.meta,
-				badges: {
-					locations: {
-						left: [
-							{
-								tag: 'left',
-								name: 'Left',
-							},
-						],
-						right: [
-							{
-								tag: 'right',
-								name: 'Right',
-							},
-						],
-						callout: [
-							{
-								tag: 'callout',
-								name: 'Callout',
-							},
-						],
-					},
-					tags: {
-						'free-shipping': {
-							location: 'left/left',
-							component: 'BadgeRectangle',
-							priority: 1,
-							enabled: true,
-							parameters: {
-								color: '#1d4990',
-								colorText: '#FFFFFF',
-							},
-						},
-						'last-one': {
-							location: 'left/left',
-							component: 'BadgePill',
-							priority: 1,
-							enabled: true,
-							parameters: {
-								color: '#515151',
-								colorText: '#FFFFFF',
-							},
-						},
-						'inventory-remaining': {
-							location: 'left/left',
-							component: 'BadgePill',
-							priority: 1,
-							enabled: true,
-							parameters: {
-								color: '#382F5A',
-								colorText: '#FFFFFF',
-							},
-						},
-						'on-sale': {
-							location: 'right/right',
-							component: 'BadgePill',
-							priority: 1,
-							enabled: true,
-							parameters: {
-								color: '#00CEE1',
-								colorText: '#FFFFFF',
-							},
-						},
-						'save-percent': {
-							location: 'right/right',
-							component: 'BadgeRectangle',
-							priority: 1,
-							enabled: true,
-							parameters: {
-								color: '#8F6CF6',
-								colorText: '#FFFFFF',
-							},
-						},
-					},
-				},
-			};
-		});
-
-		await snapInstance.search();
-
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: OverlayBadgeProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <ObservableOverlayBadge args={args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			snapInstance.on('afterSearch', ({ response }: any) => {
+				/**
+				 * Mock badge response - TODO: remove when badges are available in response
+				 *
+				 * Controller is shared between stories, therefore both badges are defined
+				 * here so that when switching between OverlayBadge and CalloutBadge stories,
+				 * a page reload is not required
+				 */
+
+				response.search.results[0].badges = [
+					{
+						tag: 'free-shipping',
+						value: 'Free Shipping',
+					},
+					{
+						tag: 'last-one',
+						value: 'Last One!',
+					},
+					{
+						tag: 'on-sale',
+						value: 'On Sale',
+					},
+					{
+						tag: 'save-percent',
+						value: 'Save 30%',
+					},
+					{
+						tag: 'inventory-remaining',
+						value: '1 in stock',
+					},
+				];
+
+				response.meta = {
+					...response.meta,
+					badges: {
+						locations: {
+							left: [
+								{
+									tag: 'left',
+									name: 'Left',
+								},
+							],
+							right: [
+								{
+									tag: 'right',
+									name: 'Right',
+								},
+							],
+							callout: [
+								{
+									tag: 'callout',
+									name: 'Callout',
+								},
+							],
+						},
+						tags: {
+							'free-shipping': {
+								location: 'left/left',
+								component: 'BadgeRectangle',
+								priority: 1,
+								enabled: true,
+								parameters: {
+									color: '#1d4990',
+									colorText: '#FFFFFF',
+								},
+							},
+							'last-one': {
+								location: 'left/left',
+								component: 'BadgePill',
+								priority: 1,
+								enabled: true,
+								parameters: {
+									color: '#515151',
+									colorText: '#FFFFFF',
+								},
+							},
+							'inventory-remaining': {
+								location: 'left/left',
+								component: 'BadgePill',
+								priority: 1,
+								enabled: true,
+								parameters: {
+									color: '#382F5A',
+									colorText: '#FFFFFF',
+								},
+							},
+							'on-sale': {
+								location: 'right/right',
+								component: 'BadgePill',
+								priority: 1,
+								enabled: true,
+								parameters: {
+									color: '#00CEE1',
+									colorText: '#FFFFFF',
+								},
+							},
+							'save-percent': {
+								location: 'right/right',
+								component: 'BadgeRectangle',
+								priority: 1,
+								enabled: true,
+								parameters: {
+									color: '#8F6CF6',
+									colorText: '#FFFFFF',
+								},
+							},
+						},
+					},
+				};
+			});
+
+			await snapInstance.search();
+
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

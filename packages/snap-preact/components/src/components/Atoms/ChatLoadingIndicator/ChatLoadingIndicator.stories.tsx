@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { ChatLoadingIndicator, ChatLoadingIndicatorProps } from './ChatLoadingIndicator';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { ChatLoadingIndicator } from './ChatLoadingIndicator';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatLoadingIndicator/readme.md';
 
 export default {
 	title: 'Atoms/ChatLoadingIndicator',
 	component: ChatLoadingIndicator,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -43,13 +29,15 @@ export default {
 	},
 };
 
-export const Default = (args: ChatLoadingIndicatorProps) => <ChatLoadingIndicator {...args} />;
-Default.args = {
-	loading: true,
+export const Default = {
+	args: {
+		loading: true,
+	},
 };
 
-export const CustomVerbs = (args: ChatLoadingIndicatorProps) => <ChatLoadingIndicator {...args} />;
-CustomVerbs.args = {
-	loading: true,
-	verbs: ['Brewing', 'Stirring', 'Pouring'],
+export const CustomVerbs = {
+	args: {
+		loading: true,
+		verbs: ['Brewing', 'Stirring', 'Pouring'],
+	},
 };

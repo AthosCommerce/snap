@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable, set } from 'mobx';
 import { AbstractStore } from '../Abstract/AbstractStore';
 import { Product } from '../Search/Stores';
 import type { DisplayFieldConfig, QuickviewStoreConfig, StoreConfigs, SearchStoreConfig } from '../types';
@@ -122,6 +122,20 @@ export class QuickviewStore extends AbstractStore<QuickviewStoreConfig> {
 			if ((result as any).badges) {
 				product.badges = (result as any).badges;
 			}
+		}
+
+		// Backfill the core fields the source result lacks from /v1/products — e.g. recommend API
+		// results (recommendations, chat "similar" products) carry no `description`. The source
+		// result's own values win: they can be variant-specific (uid, price, url) where productsData
+		// describes the parent product.
+		const productsCore = productsData?.mappings?.core;
+		const core = product.mappings.core;
+		if (productsCore && core) {
+			Object.entries(productsCore).forEach(([field, value]) => {
+				if (core[field as keyof typeof core] === undefined) {
+					set(core, field, value);
+				}
+			});
 		}
 
 		// Apply variants from /v1/products if available. Force autoSelect on so a default

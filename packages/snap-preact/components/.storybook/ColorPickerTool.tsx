@@ -3,7 +3,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { useGlobals } from '@storybook/manager-api';
+import { useGlobals } from 'storybook/manager-api';
 
 export const COLOR_KEYS = ['primary', 'secondary', 'accent'] as const;
 export type ColorKey = typeof COLOR_KEYS[number];

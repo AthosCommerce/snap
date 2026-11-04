@@ -25,7 +25,7 @@ console.log(store.toJSON());
 Used to update the store with trending terms data
 
 ## `setService` method
-Used to update any services on the store
+Used to update the `urlManager` service on the store
 
 ## `reset` method
 Reset store to the initial state by clearing data and locks

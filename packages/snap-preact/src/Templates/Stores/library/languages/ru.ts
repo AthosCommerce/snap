@@ -661,6 +661,12 @@ export const ru: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Очистить всё',
+			attributes: {
+				'aria-label': 'Очистить всё',
+			},
+		},
+		noFiltersText: {
+			value: 'Фильтры не применены',
 		},
 	},
 	facet: {

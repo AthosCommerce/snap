@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { TabSelection, TabSelectionProps } from './TabSelection';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 import Readme from '../TabSelection/readme.md';
@@ -11,24 +10,15 @@ import Readme from '../TabSelection/readme.md';
 export default {
 	title: 'Molecules/TabSelection',
 	component: TabSelection,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onTabClick: fn(),
 	},
 	argTypes: {
 		tabManager: {
@@ -81,7 +71,6 @@ export default {
 				},
 			},
 			control: { type: 'none' },
-			action: 'onTabClick',
 		},
 		...componentArgs,
 	},
@@ -101,16 +90,18 @@ const controllers = tabConfigs.map((tab) =>
 	})
 );
 
-export const Default = (args: TabSelectionProps, { loaded: { tabManager } }: { loaded: { tabManager: TabManagerStore } }) => {
-	return <TabSelection {...args} tabManager={tabManager} />;
-};
-
-Default.loaders = [
-	async () => {
-		await Promise.all(controllers.map((controller) => controller.search()));
-
-		return {
-			tabManager: new TabManagerStore(tabConfigs, controllers),
-		};
+export const Default = {
+	render: (args: TabSelectionProps, { loaded: { tabManager } }: { loaded: { tabManager: TabManagerStore } }) => {
+		return <TabSelection {...args} tabManager={tabManager} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await Promise.all(controllers.map((controller) => controller.search()));
+
+			return {
+				tabManager: new TabManagerStore(tabConfigs, controllers),
+			};
+		},
+	],
+};

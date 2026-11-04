@@ -25,6 +25,7 @@ TypeScript 7.0 native compiler (strict), Preact 10, MobX 6, Emotion CSS-in-JS, L
 | Format all      | `npm run format`           | Prettier via Lerna                                                                                      |
 | Dev (all watch) | `npm run dev`              | Runs each workspace's `dev` script in parallel (watchers/dev servers); demo at `https://localhost:2222` |
 | Storybook       | `npm run storybook:preact` | Port 6006                                                                                               |
+| Prop matrices   | `npm run storybook:matrix` | Port 6007; library Storybook plus `components/matrix/*.matrix.stories.tsx` (theme dev only, never in docs) |
 | Commit          | `npm run commit`           | Commitizen, conventional-changelog, 150 char max header                                                 |
 
 ### Single-package operations
@@ -78,6 +79,7 @@ snapps/              ← gitignored; local co-development area
 - SDK orchestrator: `packages/snap-preact/src/Snap.tsx`
 - Components: `packages/snap-preact/components/src/` (Atomic Design: Atoms → Molecules → Organisms → Templates)
 - 5 themes in `packages/snap-preact/components/src/themes/` (`base`, `bocachica`, `pike`, `snapnco`, `snappy`); the sibling `themeComponents/` directory is shared pieces, not a theme
+- How Snap Templates theme overrides resolve (layers, breakpoints, treePaths, selector priority, default layouts): `packages/snap-preact/AGENTS.md`
 - Platform integrations use conditional `exports` in `snap-platforms/package.json`
 
 ### Build output

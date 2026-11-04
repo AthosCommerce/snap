@@ -1,32 +1,23 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { Modal, ModalProps } from './Modal';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { Modal } from './Modal';
+import { componentArgs } from '../../../utilities';
 import Readme from './readme.md';
 
 export default {
 	title: 'Molecules/Modal',
 	component: Modal,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onOverlayClick: fn(),
+		onClick: fn(),
 	},
 	argTypes: {
 		button: {
@@ -69,8 +60,7 @@ export default {
 					summary: 'function(e: Event)',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onOverlayClick',
+			control: false,
 		},
 		content: {
 			description: 'Content to be displayed in modal',
@@ -155,8 +145,7 @@ export default {
 					summary: 'function(e: Event)',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		disableA11y: {
 			description: 'boolean to disable autoset ally properties',
@@ -173,21 +162,24 @@ export default {
 	},
 };
 
-export const Default = (args: ModalProps) => <Modal {...args} />;
-Default.args = {
-	button: 'button text',
-	content: 'content text',
+export const Default = {
+	args: {
+		button: 'button text',
+		content: 'content text',
+	},
 };
 
-export const ExternalState = (args: ModalProps) => <Modal {...args} />;
-ExternalState.args = {
-	button: 'button text',
-	content: 'content text',
-	open: true,
+export const ExternalState = {
+	args: {
+		button: 'button text',
+		content: 'content text',
+		open: true,
+	},
 };
 
-export const JSXContent = (args: ModalProps) => <Modal {...args} />;
-JSXContent.args = {
-	button: 'button text',
-	content: <div>jsx content - (note this component receieved the open state as a prop)</div>,
+export const JSXContent = {
+	args: {
+		button: 'button text',
+		content: <div>jsx content - (note this component received the open state as a prop)</div>,
+	},
 };

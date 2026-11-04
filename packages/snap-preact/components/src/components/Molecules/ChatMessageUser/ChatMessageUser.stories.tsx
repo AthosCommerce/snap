@@ -1,43 +1,29 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatMessageUser, ChatMessageUserProps } from './ChatMessageUser';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatMessageUser/readme.md';
 
 export default {
 	title: 'Molecules/ChatMessageUser',
 	component: ChatMessageUser,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		chatItem: {
 			description: 'chat message to render',
 			table: { category: 'Templates Legal', type: { summary: 'object' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		primaryColor: {
 			description: 'message bubble background color',
@@ -60,7 +46,9 @@ const mockController: any = {
 	productQuickView: () => undefined,
 };
 
-export const Default = (args: ChatMessageUserProps) => <ChatMessageUser {...args} controller={mockController} />;
-Default.args = {
-	chatItem: { id: '1', text: 'Show me running shoes', requestType: 'productSearch' },
+export const Default = {
+	render: (args: ChatMessageUserProps) => <ChatMessageUser {...args} controller={mockController} />,
+	args: {
+		chatItem: { id: '1', text: 'Show me running shoes', requestType: 'productSearch' },
+	},
 };

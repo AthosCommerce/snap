@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { Chat, ChatProps } from './Chat';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../Chat/readme.md';
 import type { ChatController } from '@athoscommerce/snap-controller';
@@ -11,30 +9,18 @@ import type { ChatController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Templates/Chat',
 	component: Chat,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		logo: {
 			description: 'header logo URL',
@@ -106,50 +92,24 @@ export default {
 	},
 };
 
-const snapInstance = Snapify.chat({
-	id: 'ChatStoryDefault',
-	siteId: '8uyt2m',
-});
-
-// Force the chat-status endpoint to return enabled=true with imageSearch +
-// similarProducts both enabled, so the storybook works end-to-end without a
-// real backend. The controller calls postStatus on init AND on every chat
-// action, so we override the method (not just the cached store state).
-const seeded = (() => {
-	const STATUS_RESPONSE = {
-		chatbot: {
-			status: { enabled: true },
-			suggestedQuestions: ['What is on sale right now?', 'Show me waterproof jackets'],
-			welcomeMessage: 'Hi! Ask me anything about our catalog.',
+const snapInstance = Snapify.chat(
+	{ id: 'ChatStoryDefault' },
+	{
+		status: {
+			chatbot: {
+				status: { enabled: true },
+				suggestedQuestions: ['What is on sale right now?', 'Show me waterproof jackets'],
+				welcomeMessage: 'Hi! Ask me anything about our catalog.',
+			},
+			features: {
+				imageSearch: { enabled: true },
+				similarProducts: { enabled: true },
+			},
 		},
-		features: {
-			imageSearch: { enabled: true },
-			similarProducts: { enabled: true },
-		},
-	};
-
-	const client = (snapInstance as any).client;
-	if (client?.chat) {
-		client.chat.postStatus = async () => STATUS_RESPONSE;
 	}
-
-	// Apply the seeded status to the store immediately so the bubble renders
-	// on first paint, before the async controller.init() resolves.
-	const store = (snapInstance as any).store;
-	if (typeof store.handleChatStatusResponse === 'function') {
-		store.handleChatStatusResponse(STATUS_RESPONSE);
-	} else {
-		store.chatEnabled = true;
-		store.features = STATUS_RESPONSE.features;
-		store.suggestedQuestions = STATUS_RESPONSE.chatbot.suggestedQuestions;
-		store.welcomeMessage = STATUS_RESPONSE.chatbot.welcomeMessage;
-	}
-
-	return snapInstance;
-})();
-
-export const Default = (args: ChatProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => (
-	<Chat {...args} controller={controller} />
 );
-Default.loaders = [async () => ({ controller: seeded })];
-Default.args = {};
+
+export const Default = {
+	render: (args: ChatProps, { loaded: { controller } }: { loaded: { controller: ChatController } }) => <Chat {...args} controller={controller} />,
+	loaders: [async () => ({ controller: snapInstance })],
+};

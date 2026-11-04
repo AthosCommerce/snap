@@ -100,7 +100,7 @@ export class ThemeStore {
 		this.editorOverrides = editorOverrides || {};
 		this.variables = variables || {};
 		this.currency = currency;
-		this.currencyOverrides = currencyOverrides || {};
+		this.currencyOverrides = normalizeOverrideLayer(currencyOverrides);
 		this.language = language;
 		this.languageOverrides = languageOverrides;
 		this.innerWidth = innerWidth;
@@ -234,7 +234,7 @@ export class ThemeStore {
 
 	public setCurrency(currency: ThemeMinimal, currencyOverrides: ThemeMinimal = {}) {
 		this.currency = currency;
-		this.currencyOverrides = currencyOverrides;
+		this.currencyOverrides = normalizeOverrideLayer(currencyOverrides);
 	}
 
 	public setLanguage(language: ThemeMinimal, languageOverrides: ThemeMinimal = {}) {
@@ -357,6 +357,11 @@ function prefixComponentKeys(prefix: string, components?: ThemeComponentsRestric
 	}
 
 	return newComponents;
+}
+
+// currency overrides take the same selectors as theme.overrides.default, so they get the same $children flattening and comma normalizing
+function normalizeOverrideLayer(layer?: ThemeMinimal): ThemeMinimal {
+	return layer?.components ? { ...layer, components: normalizeCommaSeparatedKeys(flattenCascadingOverrides(layer.components)) } : layer || {};
 }
 
 function normalizeCommaSeparatedKeys(components: ThemeComponentsRestricted): ThemeComponentsRestricted {
