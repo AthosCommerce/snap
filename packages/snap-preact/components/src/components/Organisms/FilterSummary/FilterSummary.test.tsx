@@ -5,8 +5,13 @@ import { ThemeProvider } from '../../../providers';
 import { FilterSummary } from './FilterSummary';
 import userEvent from '@testing-library/user-event';
 
-import { MockData } from '@athoscommerce/snap-shared';
-import { SearchFilterStore } from '@athoscommerce/snap-store-mobx';
+import { MockClient, MockData } from '@athoscommerce/snap-shared';
+import { SearchFilterStore, SearchStore } from '@athoscommerce/snap-store-mobx';
+import { SearchController, SearchControllerConfig } from '@athoscommerce/snap-controller';
+import { EventManager } from '@athoscommerce/snap-event-manager';
+import { Profiler } from '@athoscommerce/snap-profiler';
+import { Logger } from '@athoscommerce/snap-logger';
+import { Tracker } from '@athoscommerce/snap-tracker';
 import { UrlManager, UrlTranslator } from '@athoscommerce/snap-url-manager';
 import { IconType } from '../../Atoms/Icon';
 
@@ -97,10 +102,52 @@ describe('FilterSummary Component', () => {
 	});
 
 	it('does not render if no filters', () => {
-		const rendered = render(<FilterSummary filters={[]} />);
-		const FilterElement = rendered.container.querySelector('.ss__filter-summary');
+		const rendered = render(<FilterSummary filters={[]} noFiltersText={'nothing selected yet'} />);
+		const FilterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
 
-		expect(FilterElement).not.toBeInTheDocument();
+		expect(FilterSummaryElement).not.toBeInTheDocument();
+	});
+
+	it('renders default no filters text when hideNoFiltersText is false and there are no filters', () => {
+		const rendered = render(<FilterSummary filters={[]} hideNoFiltersText={false} />);
+		const FilterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
+		const titleElement = rendered.container.querySelector('.ss__filter-summary__title');
+		const noFiltersElement = rendered.container.querySelector('.ss__filter-summary__no-filters');
+
+		expect(FilterSummaryElement).toBeInTheDocument();
+		expect(FilterSummaryElement).toHaveClass('ss__filter-summary--no-filters');
+		expect(titleElement).toHaveTextContent('Current Filters');
+		expect(noFiltersElement).toBeInTheDocument();
+		expect(noFiltersElement).toHaveTextContent('No filters applied');
+		expect(rendered.container.querySelector('.ss__filter-summary__filters')).not.toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__filter-summary__clear-all')).not.toBeInTheDocument();
+	});
+
+	it('renders custom no filters text', () => {
+		const noFiltersText = 'nothing selected yet';
+		const rendered = render(<FilterSummary filters={[]} hideNoFiltersText={false} noFiltersText={noFiltersText} />);
+		const noFiltersElement = rendered.container.querySelector('.ss__filter-summary__no-filters');
+
+		expect(noFiltersElement).toBeInTheDocument();
+		expect(noFiltersElement).toHaveTextContent(noFiltersText);
+	});
+
+	it('can hide the title while rendering no filters text', () => {
+		const rendered = render(<FilterSummary filters={[]} hideNoFiltersText={false} hideTitle />);
+
+		expect(rendered.container.querySelector('.ss__filter-summary__no-filters')).toBeInTheDocument();
+		expect(rendered.container.querySelector('.ss__filter-summary__title')).not.toBeInTheDocument();
+	});
+
+	it('does not render no filters text when hideNoFiltersText is false and filters are applied', () => {
+		const rendered = render(<FilterSummary filters={filters} hideNoFiltersText={false} />);
+		const FilterSummaryElement = rendered.container.querySelector('.ss__filter-summary');
+		const FilterElements = rendered.container.querySelectorAll('.ss__filter:not(.ss__filter-summary__clear-all)');
+
+		expect(FilterSummaryElement).toBeInTheDocument();
+		expect(FilterSummaryElement).not.toHaveClass('ss__filter-summary--no-filters');
+		expect(rendered.container.querySelector('.ss__filter-summary__no-filters')).not.toBeInTheDocument();
+		expect(FilterElements.length).toBe(3);
 	});
 
 	it('renders with custom seperator', () => {
@@ -249,6 +296,90 @@ describe('FilterSummary lang works', () => {
 			});
 		});
 	});
+
+	it('noFiltersText lang option renders when there are no filters', () => {
+		const value = 'custom no filters value';
+		const ariaLabel = 'custom no filters label';
+		const valueMock = jest.fn(() => value);
+
+		const globals = { siteId: '8uyt2m' };
+		const searchConfig: SearchControllerConfig = { id: 'search', globals: { filters: [] }, settings: {} };
+		const controller = new SearchController(searchConfig, {
+			client: new MockClient(globals, {}),
+			store: new SearchStore(searchConfig, services),
+			urlManager: services.urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		const rendered = render(
+			<FilterSummary
+				controller={controller}
+				filters={[]}
+				hideNoFiltersText={false}
+				lang={{
+					noFiltersText: {
+						value: valueMock,
+						attributes: {
+							'aria-label': ariaLabel,
+						},
+					},
+				}}
+			/>
+		);
+
+		const langElem = rendered.container.querySelector('[ss-lang=noFiltersText]');
+		expect(langElem).toBeInTheDocument();
+		expect(langElem).toHaveClass('ss__filter-summary__no-filters');
+		expect(langElem?.innerHTML).toBe(value);
+		expect(langElem).toHaveAttribute('aria-label', ariaLabel);
+		expect(valueMock).toHaveBeenCalledWith({ controller });
+	});
+
+	it('clearAllLabel lang option is applied to the clear all button', () => {
+		const value = 'custom clear all value';
+		const ariaLabel = 'custom clear all label';
+		const valueMock = jest.fn(() => value);
+		const labelMock = jest.fn(() => ariaLabel);
+
+		const rendered = render(
+			<FilterSummary
+				filters={filters}
+				lang={{
+					clearAllLabel: {
+						value: valueMock,
+						attributes: {
+							'aria-label': labelMock,
+						},
+					},
+				}}
+			/>
+		);
+
+		const clearAllButton = rendered.container.querySelector('.ss__filter-summary__clear-all');
+		expect(clearAllButton).toBeInTheDocument();
+		expect(clearAllButton).toHaveAttribute('aria-label', ariaLabel);
+		expect(clearAllButton?.querySelector('.ss__filter__value')?.innerHTML).toBe(value);
+		expect(clearAllButton?.querySelector('.ss__icon')).toBeInTheDocument();
+		expect(valueMock).toHaveBeenCalledWith({ value: 'Clear All' });
+		expect(labelMock).toHaveBeenCalledWith({ value: 'Clear All' });
+	});
+
+	it('clearAllLabel lang value replaces the clear all button text only', () => {
+		const rendered = render(<FilterSummary filters={filters} lang={{ clearAllLabel: { value: 'Tout effacer' } }} />);
+
+		const clearAllButton = rendered.container.querySelector('.ss__filter-summary__clear-all');
+		expect(clearAllButton).toHaveTextContent('Tout effacer');
+		expect(clearAllButton).not.toHaveTextContent('Clear All');
+		expect(clearAllButton).toHaveAttribute('aria-label', 'Clear All');
+
+		const filterValues = Array.from(rendered.container.querySelectorAll('.ss__filter:not(.ss__filter-summary__clear-all) .ss__filter__value')).map(
+			(elem) => elem.textContent
+		);
+		expect(filterValues).toEqual(filters.map((filter) => filter.value.label));
+	});
 });
 
 describe('FilterSummary theming works', () => {
@@ -280,6 +411,32 @@ describe('FilterSummary theming works', () => {
 		const element = rendered.container.querySelector('.ss__filter-summary');
 		expect(element).toBeInTheDocument();
 		expect(element).toHaveTextContent(globalTheme.components.filterSummary.title);
+	});
+
+	it('applies theme lang to the clear all button', () => {
+		const globalTheme = {
+			components: {
+				filterSummary: {
+					lang: {
+						clearAllLabel: {
+							value: 'Tout effacer',
+							attributes: {
+								'aria-label': 'Tout effacer',
+							},
+						},
+					},
+				},
+			},
+		};
+		const rendered = render(
+			<ThemeProvider theme={globalTheme}>
+				<FilterSummary filters={filters} />
+			</ThemeProvider>
+		);
+		const clearAllButton = rendered.container.querySelector('.ss__filter-summary__clear-all');
+		expect(clearAllButton).toHaveTextContent('Tout effacer');
+		expect(clearAllButton).not.toHaveTextContent('Clear All');
+		expect(clearAllButton).toHaveAttribute('aria-label', 'Tout effacer');
 	});
 
 	it('is themeable with theme prop', () => {

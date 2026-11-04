@@ -1,4 +1,5 @@
 import { UrlManager, UrlTranslator } from '@athoscommerce/snap-url-manager';
+import { Tracker } from '@athoscommerce/snap-tracker';
 import { MockData } from '@athoscommerce/snap-shared';
 
 import { SearchStore } from './SearchStore';
@@ -49,6 +50,38 @@ describe('Search Store', () => {
 
 		expect(searchStore.sorting).toBeDefined();
 		expect(searchStore.sorting?.options).toHaveLength(0);
+	});
+
+	it('can setService', () => {
+		const searchStore = new SearchStore(searchConfig, { ...services });
+		const tracker = new Tracker({ siteId: 'atkzs2' });
+		const newUrlManager = new UrlManager(new UrlTranslator()).detach();
+
+		expect(searchStore.services.tracker).toBeUndefined();
+		expect(searchStore.services.urlManager).toBe(services.urlManager);
+
+		searchStore.setService('tracker', tracker);
+		searchStore.setService('urlManager', newUrlManager);
+
+		expect(searchStore.services.tracker).toBe(tracker);
+		expect(searchStore.services.urlManager).toBe(newUrlManager);
+	});
+
+	it('records history terms with the tracker service set with setService', () => {
+		const searchStore = new SearchStore(searchConfig, { ...services });
+		const tracker = new Tracker({ siteId: 'atkzs2' });
+		tracker.cookies.searched.clear();
+
+		searchStore.history.save('dress');
+
+		expect(tracker.cookies.searched.get()).toEqual([]);
+
+		searchStore.setService('tracker', tracker);
+		searchStore.history.save('boots');
+
+		expect(tracker.cookies.searched.get()).toEqual(['boots']);
+
+		searchStore.history.reset();
 	});
 
 	it('update function updates all of the stores', () => {

@@ -224,6 +224,45 @@ describe('useLayoutOptions', () => {
 			runHook(props, globalTheme, { value: 1, label: 'grid' });
 			expect(props.theme.components.results).toEqual({ columns: 4 });
 		});
+
+		it.each(['(M)toolbar.top', '*(T)toolbar', '*toolbar.middle'])('merges overrides when an unscoped toolbar key has a layer prefix (%s)', (key) => {
+			const props = makeProps({ treePath: 'search results result' });
+			const globalTheme = {
+				components: {
+					[key]: { layout: ['layoutSelector'] },
+				},
+			};
+			runHook(props, globalTheme, { value: 1, label: 'grid' });
+			expect(props.theme.components.results).toEqual({ columns: 4 });
+		});
+
+		it.each(['search toolbar.top', 'search.products toolbar.top', '(M)search.products toolbar.top'])(
+			'merges overrides under a tabbed treePath root (search.products) for key %s',
+			(key) => {
+				const props = makeProps({ treePath: 'search.products results result' });
+				const globalTheme = {
+					components: {
+						[key]: { layout: ['layoutSelector'] },
+					},
+				};
+				runHook(props, globalTheme, { value: 1, label: 'grid' });
+				expect(props.theme.components.results).toEqual({ columns: 4 });
+			}
+		);
+
+		it.each([
+			['search.blog toolbar.top', 'search.products results result'],
+			['searchHorizontal toolbar.top', 'search results result'],
+		])('does not merge overrides when toolbar key %s targets another template than %s', (key, treePath) => {
+			const props = makeProps({ treePath });
+			const globalTheme = {
+				components: {
+					[key]: { layout: ['layoutSelector'] },
+				},
+			};
+			runHook(props, globalTheme, { value: 1, label: 'grid' });
+			expect(props.theme.components.results).toBeUndefined();
+		});
 	});
 
 	/**

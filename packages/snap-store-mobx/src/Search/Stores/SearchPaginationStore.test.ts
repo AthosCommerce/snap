@@ -79,6 +79,36 @@ describe('Pagination Store', () => {
 		expect(pagination.totalResults).toBe(searchData.search.pagination?.totalResults);
 	});
 
+	it('has no inline banners and totalProducts equal to totalResults when the response has no inline banners', () => {
+		const pagination = new SearchPaginationStore({
+			config: searchConfig,
+			services,
+			data: {
+				search: searchData.search,
+				meta: searchData.meta,
+			},
+		});
+		expect(pagination.totalResults).toBe(4460);
+		expect(pagination.totalInlineBanners).toBe(0);
+		expect(pagination.totalProducts).toBe(4460);
+	});
+
+	it('excludes inline banners counted in totalResults from totalProducts', () => {
+		// 7 products and 4 inline banners
+		searchData = mockData.searchMeta('inlineBanners-x4');
+		const pagination = new SearchPaginationStore({
+			config: searchConfig,
+			services,
+			data: {
+				search: searchData.search,
+				meta: searchData.meta,
+			},
+		});
+		expect(pagination.totalResults).toBe(11);
+		expect(pagination.totalInlineBanners).toBe(4);
+		expect(pagination.totalProducts).toBe(7);
+	});
+
 	it('sets the default pageSizeOptions', () => {
 		const pagination = new SearchPaginationStore({
 			config: searchConfig,

@@ -415,6 +415,8 @@ For full control, pass a 2-D array of module names. The special column tokens `c
 | `content` | Product results |
 | `no-results` | No-results message |
 | `button.see-more` | "See N results" CTA |
+| `tabSelection` | Tab selection for tabbed search |
+| `searchInput` | The template's rendered search input (see below) |
 | `banner.header` | Header banner |
 | `banner.banner` | Main banner |
 | `banner.footer` | Footer banner |
@@ -518,6 +520,40 @@ new SnapTemplates(validateTemplatesConfig({
 				'autocompleteFixed results': {
 					columns: 2,
 					rows: 3,
+				},
+			},
+		},
+	},
+	...
+}));
+```
+
+#### Example: Placing the Search Input Inside the Layout
+
+The autocomplete templates render their search input above the layout by default. Add the `searchInput` module to the `layout` (or to one of the column layouts) to render the input at that position instead - for example a modal with the input and term lists in a left column and products on the right. The layout stays rendered while the template is open so the input is never lost, while the other modules still only render once the input is focused and there are terms or results to show. Setting `renderInput: false` disables the rendered input in both cases.
+
+```tsx
+new SnapTemplates(validateTemplatesConfig({
+	...
+	theme: {
+		extends: 'pike',
+		overrides: {
+			default: {
+				autocompleteModal: {
+					layout: [['c1', 'c3']],
+
+					// search input above the history and trending terms
+					column1: {
+						width: '40%',
+						layout: [['searchInput'], ['terms.history', 'terms.trending']],
+						alignContent: 'flex-start'
+					},
+
+					// product results
+					column3: {
+						width: 'auto',
+						layout: ['content'],
+					},
 				},
 			},
 		},

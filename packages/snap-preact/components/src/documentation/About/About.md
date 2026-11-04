@@ -4,7 +4,7 @@ This collection of ecommerce components allows you to quickly build and theme a 
 
 ### Installation
 
-```sh
+```bash
 npm install --save @athoscommerce/snap-preact
 ```
 

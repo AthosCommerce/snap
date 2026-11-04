@@ -340,47 +340,51 @@ describe('Dropdown Component', () => {
 	});
 
 	it('correctly handles touch events with toggleOnHover enabled', async () => {
-		const toggleFn = jest.fn();
+		jest.useFakeTimers();
+		const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-		const rendered = render(<Dropdown button={'open me'} onToggle={toggleFn} toggleOnHover />);
+		try {
+			const toggleFn = jest.fn();
 
-		const button = rendered.container.querySelector('.ss__dropdown__button')!;
-		const dropdown = rendered.container.querySelector('.ss__dropdown')!;
+			const rendered = render(<Dropdown button={'open me'} onToggle={toggleFn} toggleOnHover />);
 
-		expect(dropdown).not.toHaveClass('ss__dropdown--open');
+			const button = rendered.container.querySelector('.ss__dropdown__button')!;
+			const dropdown = rendered.container.querySelector('.ss__dropdown')!;
 
-		const touchStartEvent = new Event('touchstart', { bubbles: true });
-		button.dispatchEvent(touchStartEvent);
-
-		await userEvent.click(button);
-
-		// dropdown is opened
-		waitFor(() => {
-			expect(dropdown).toHaveClass('ss__dropdown--open');
-		});
-		expect(toggleFn).toHaveBeenCalled();
-
-		await userEvent.click(button);
-
-		// dropdown is closed
-		waitFor(() => {
 			expect(dropdown).not.toHaveClass('ss__dropdown--open');
-		});
-		expect(toggleFn).toHaveBeenCalled();
 
-		await userEvent.hover(dropdown);
+			const touchStartEvent = new Event('touchstart', { bubbles: true });
+			button.dispatchEvent(touchStartEvent);
 
-		// expect that hover will not have changed the class
-		waitFor(() => {
+			await user.click(button);
+
+			// dropdown is opened
+			await waitFor(() => expect(dropdown).toHaveClass('ss__dropdown--open'));
+			expect(toggleFn).toHaveBeenCalledTimes(1);
+
+			await user.click(button);
+
+			// dropdown is closed
+			await waitFor(() => expect(dropdown).not.toHaveClass('ss__dropdown--open'));
+			expect(toggleFn).toHaveBeenCalledTimes(2);
+
+			// hover is ignored while the touch interaction is active
+			await user.unhover(dropdown);
+			await user.hover(dropdown);
 			expect(dropdown).not.toHaveClass('ss__dropdown--open');
-		});
+			expect(toggleFn).toHaveBeenCalledTimes(2);
 
-		// hovering again will work after touchevents are reset
-		await userEvent.hover(dropdown);
+			// elapse the 300ms touch interaction reset so hover works again
+			await user.unhover(dropdown);
+			await jest.advanceTimersByTimeAsync(300);
+			await user.hover(dropdown);
 
-		waitFor(() => {
-			expect(dropdown).toHaveClass('ss__dropdown--open');
-		});
+			await waitFor(() => expect(dropdown).toHaveClass('ss__dropdown--open'));
+			expect(toggleFn).toHaveBeenCalledTimes(3);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('renders content in a portal when usePortal is true', async () => {

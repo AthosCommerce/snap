@@ -135,15 +135,13 @@ export class AutocompleteStore extends AbstractStore<AutocompleteStoreConfig> {
 		this.history?.forEach((term) => (term.active = false));
 	}
 
-	public setService(name: keyof StoreServices, service: UrlManager): void {
+	public setService(name: 'urlManager', service: UrlManager): void {
 		if (this.services[name] && service) {
 			this.services[name] = service;
-			if (name === 'urlManager') {
-				this.state.url = service;
-				this.history?.forEach((term) => {
-					term.url = service.set({ query: term.value });
-				});
-			}
+			this.state.url = service;
+			this.history?.forEach((term) => {
+				term.url = service.set({ query: term.value });
+			});
 		}
 	}
 

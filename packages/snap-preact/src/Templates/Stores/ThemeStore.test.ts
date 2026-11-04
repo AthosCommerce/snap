@@ -542,6 +542,39 @@ describe('ThemeStore', () => {
 		expect(store.theme.components?.price?.symbolAfter).toBe(true);
 	});
 
+	it('flattens $children in currencyOverrides, from the constructor and from setCurrency', () => {
+		const config: ThemeStoreThemeConfig = {
+			name: GLOBAL_THEME_NAME,
+			type: 'local',
+			base: testTheme,
+			overrides: {},
+			variables: {},
+			currency: {},
+			currencyOverrides: {
+				components: {
+					result: {
+						$children: {
+							price: { symbolAfter: true },
+						},
+					},
+				} as any,
+			},
+			language: {},
+			languageOverrides: {},
+			innerWidth: 0,
+		};
+
+		const store = new ThemeStore({ config, dependencies, settings });
+
+		expect((store.theme.components as any)['result']).not.toHaveProperty('$children');
+		expect((store.theme.components as any)['result price']).toEqual({ symbolAfter: true });
+
+		store.setCurrency({}, { components: { result: { $children: { price: { showCode: true } } } } as any });
+
+		expect((store.theme.components as any)['result']).not.toHaveProperty('$children');
+		expect((store.theme.components as any)['result price']).toEqual({ showCode: true });
+	});
+
 	it('defaults currencyOverrides to an empty layer when not provided', () => {
 		const config: ThemeStoreThemeConfig = {
 			name: GLOBAL_THEME_NAME,

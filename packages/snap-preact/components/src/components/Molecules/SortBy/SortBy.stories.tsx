@@ -1,32 +1,18 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { SortBy, SortByProps } from './SortBy';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../SortBy/readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Molecules/SortBy',
 	component: SortBy,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
@@ -38,7 +24,7 @@ export default {
 					summary: 'reference to the SearchSortingStore',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		controller: {
 			description: 'reference to the Search Controller',
@@ -47,7 +33,7 @@ export default {
 					summary: 'reference to the Search Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		label: {
 			description: 'Header label text to render.',
@@ -90,64 +76,73 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'SortBy', globals: { siteId: 'atkzs2' } });
 
-export const Default = (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
-			<SortBy {...args} sorting={controller?.store?.sorting} />
-		</div>
-	);
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+				<SortBy {...args} sorting={controller?.store?.sorting} />
+			</div>
+		);
 	},
-];
-Default.args = {
-	label: 'Sort By',
-};
 
-export const List = (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
-			<SortBy {...args} sorting={controller?.store?.sorting} />
-		</div>
-	);
-};
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
 
-List.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+	args: {
+		label: 'Sort By',
 	},
-];
-List.args = {
-	label: '',
-	type: 'list',
 };
 
-export const Radio = (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return (
-		<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
-			<SortBy {...args} sorting={controller?.store?.sorting} />
-		</div>
-	);
-};
-
-Radio.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const List = {
+	render: (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+				<SortBy {...args} sorting={controller?.store?.sorting} />
+			</div>
+		);
 	},
-];
-Radio.args = {
-	label: 'Sort By',
-	type: 'radio',
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		label: '',
+		type: 'list',
+	},
+};
+
+export const Radio = {
+	render: (args: SortByProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return (
+			<div style={{ maxWidth: args?.type == 'list' || args?.type == 'radio' ? '500px' : '300px' }}>
+				<SortBy {...args} sorting={controller?.store?.sorting} />
+			</div>
+		);
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		label: 'Sort By',
+		type: 'radio',
+	},
 };

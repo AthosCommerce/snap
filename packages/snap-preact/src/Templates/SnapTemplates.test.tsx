@@ -288,11 +288,11 @@ describe('createPlugins with custom plugins', () => {
 		expect(plugins.length).toBeGreaterThan(0);
 	});
 
-	it('should handle custom plugins at runtime even with unlocked false config', () => {
+	it('should skip custom plugins in a locked config that gets past the types, with a warning', () => {
 		const customPluginFn: PluginFunction = jest.fn();
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-		// Note: TypeScript will error on this, but runtime should handle it
-		// This tests that the runtime code doesn't crash with unexpected config
+		// the locked config types reject `custom` - cast to get it to the runtime
 		const config = {
 			config: {
 				platform: 'other',
@@ -313,10 +313,24 @@ describe('createPlugins with custom plugins', () => {
 		const templatesStore = new TemplatesStore({ config });
 		const plugins = createPlugins(config, templatesStore);
 
-		// Custom plugin should still work at runtime even if types don't allow it
-		// This tests the runtime behavior
-		const customPluginEntry = plugins.find((plugin) => plugin[0] === customPluginFn);
-		expect(customPluginEntry).toBeDefined();
+		expect(plugins.find((plugin) => plugin[0] === customPluginFn)).toBeUndefined();
+		expect(warnSpy).toHaveBeenCalledWith('Snap Templates: custom plugins require unlocked: true - skipping myCustomPlugin');
+
+		// the built-in plugins are unaffected
+		expect(plugins.map((plugin) => plugin[0])).toEqual(createPlugins(baseConfig, templatesStore).map((plugin) => plugin[0]));
+
+		warnSpy.mockRestore();
+	});
+
+	it('should not warn about custom plugins in a locked config without any', () => {
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+		const templatesStore = new TemplatesStore({ config: baseConfig });
+		createPlugins(baseConfig, templatesStore);
+
+		expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('custom plugins'));
+
+		warnSpy.mockRestore();
 	});
 });
 
@@ -878,6 +892,38 @@ describe('createSnapConfig with custom plugins', () => {
 		expect(overridingTabPlugins.length).toBe(1);
 
 		expect(emptyTabPlugins.length).toBe(0);
+	});
+
+	it('should skip custom tab plugins in a locked config that gets past the types', () => {
+		const tabPluginFn: PluginFunction = jest.fn();
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+		// the locked config types reject `custom` - cast to get it to the runtime
+		const config = {
+			config: {
+				platform: 'other',
+				siteId: 'test123',
+			},
+			theme: {
+				extends: 'base',
+			},
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+				tabs: [
+					{ id: 'products', siteId: 'abc123', param: 'products' },
+					{ id: 'overrides', siteId: 'abc123', param: 'overrides', plugins: { custom: { tabPlugin: { function: tabPluginFn } } } },
+				],
+			},
+		} as SnapTemplatesConfig;
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const overridingTabPlugins = snapConfig.controllers?.search?.[1]?.config?.plugins || [];
+		expect(overridingTabPlugins.length).toBe(0);
+		expect(warnSpy).toHaveBeenCalledWith('Snap Templates: custom plugins require unlocked: true - skipping tabPlugin');
+
+		warnSpy.mockRestore();
 	});
 });
 
@@ -1518,6 +1564,27 @@ describe('createSnapConfig additional coverage', () => {
 		expect(recsConfig?.config?.branch).toBe('staging');
 	});
 
+	it('should default the recommendation branch when settings omit it', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			recommendation: {
+				default: {
+					Default: { component: 'Recommendation' },
+				},
+				settings: {
+					limit: 5,
+				},
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const snapConfig = createSnapConfig(config, templatesStore);
+
+		const recsConfig = snapConfig.instantiators?.recommendation;
+		expect(recsConfig?.config?.branch).toBe('production');
+		expect(recsConfig?.config?.limit).toBe(5);
+	});
+
 	it('should not create search controller when search config not provided', () => {
 		const templatesStore = new TemplatesStore({ config: baseConfig });
 		const snapConfig = createSnapConfig(baseConfig, templatesStore);
@@ -1584,7 +1651,7 @@ describe('createSnapConfig additional coverage', () => {
 		const targeter = snapConfig.quickview!.targeters![0];
 
 		// TemplateSelect is the wrapper that provides the global templates ThemeProvider — without it
-		// theme overrides (e.g. `quickviewLayout`) are dropped because the component falls back to
+		// theme overrides (e.g. `quickviewSlideout`) are dropped because the component falls back to
 		// production-mode prop merging.
 		const Component = await targeter.component!();
 		expect(Component).toBe(TemplateSelect);
@@ -1981,6 +2048,94 @@ describe('createSearchTargeters autoRetarget and hideTarget', () => {
 			expect(targeter.autoRetarget).toBe(true);
 			expect(targeter.hideTarget).toBe(true);
 		});
+	});
+});
+
+describe('createSearchTargeters emptyTarget', () => {
+	const baseConfig: SnapTemplatesConfig = {
+		config: { platform: 'other', siteId: 'test123' },
+		theme: { extends: 'base' },
+	};
+
+	it('leaves emptyTarget and renderAfterSearch unset by default', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search' }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toStrictEqual([
+			{
+				selector: '#search',
+				autoRetarget: true,
+				hideTarget: true,
+				component: expect.any(Function),
+				props: { target: templatesStore.targets.search[0], templatesStore },
+			},
+		]);
+	});
+
+	it('sets emptyTarget to false and renders after the search when emptyTarget is false', () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [{ selector: '#search', component: 'Search', emptyTarget: false }],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const targeters = createSearchTargeters(config, templatesStore);
+
+		expect(targeters).toStrictEqual([
+			{
+				selector: '#search',
+				autoRetarget: true,
+				hideTarget: true,
+				emptyTarget: false,
+				renderAfterSearch: true,
+				component: expect.any(Function),
+				props: { target: templatesStore.targets.search[0], templatesStore },
+			},
+		]);
+		expect(templatesStore.targets.search[0].emptyTarget).toBe(false);
+	});
+
+	it('waits for the theme to load before resolving the component when emptyTarget is false', async () => {
+		const config: SnapTemplatesConfig = {
+			...baseConfig,
+			search: {
+				targets: [
+					{ selector: '#search', component: 'Search' },
+					{ selector: '#search-skeleton', component: 'Search', emptyTarget: false },
+				],
+			},
+		};
+
+		const templatesStore = new TemplatesStore({ config });
+		const [defaultTargeter, keepContentTargeter] = createSearchTargeters(config, templatesStore);
+
+		// let the initial theme load finish, then hold the store in its loading state
+		await waitFor(() => expect(templatesStore.loading).toBe(false));
+		templatesStore.loading = true;
+
+		// a default target does not wait for the theme
+		expect(await defaultTargeter.component!()).toBe(TemplateSelect);
+
+		let resolvedComponent: unknown;
+		keepContentTargeter.component!().then((component: unknown) => {
+			resolvedComponent = component;
+		});
+
+		// the component import has already resolved - only the theme is outstanding
+		await new Promise((resolve) => setTimeout(resolve));
+		expect(resolvedComponent).toBeUndefined();
+
+		templatesStore.loading = false;
+		await waitFor(() => expect(resolvedComponent).toBe(TemplateSelect));
 	});
 });
 

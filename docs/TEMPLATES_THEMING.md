@@ -172,7 +172,7 @@ new SnapTemplates(templatesConfig);
 ```
 
 > [!IMPORTANT]
-> Enable the `validate-config` ESLint rule (prewired in snapfu-scaffolded projects) — it marks override mistakes on the exact line, with the valid props listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup, how to read the type errors, and the checking limitations.
+> Enable the Snap config ESLint rules (prewired in snapfu-scaffolded projects) — they mark override mistakes on the exact line, with the valid props listed in the message. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for the setup, how to read the type errors, and the checking limitations.
 
 For an unlocked configuration (`unlocked: true`, see [Unlocked Configuration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#unlocked-configuration)), import `validateTemplatesConfigUnlocked` instead — it checks selectors the same way, additionally allowing the `customComponent` field that unlocked configs support.
 

@@ -87,6 +87,20 @@ The `hideClearAll` prop prevents the 'clear all' button from rendering.
 <FilterSummary filters={controller.store.filters} hideClearAll={true} />
 ```
 
+### hideNoFiltersText
+The `hideNoFiltersText` prop prevents the component from rendering when there are no filters applied. The default value is `true`. Set it to `false` to render the `noFiltersText` when there are no filters.
+
+```tsx
+<FilterSummary filters={controller.store.filters} hideNoFiltersText={false} />
+```
+
+### noFiltersText
+The `noFiltersText` prop specifies the text to show when there are no filters applied. Only rendered when `hideNoFiltersText` is `false`. The default value is `'No filters applied'`.
+
+```tsx
+<FilterSummary filters={controller.store.filters} hideNoFiltersText={false} noFiltersText={'No filters applied'} />
+```
+
 ### type
 The `type` prop determines what layout the filters should be rendered as. Options are `list` or `inline`. `inline` is default.
 
@@ -118,6 +132,7 @@ The `lang` prop allows you to override translatable text strings used by the Fil
 |---|---|---|
 | `title` | Filter summary section title | `filters` (FilterType[]) |
 | `clearAllLabel` | Clear all filters button text | `label` (string), `value` (string) |
+| `noFiltersText` | Text shown when no filters are applied (requires `hideNoFiltersText` to be `false`) | `controller` (SearchController \| AutocompleteController) |
 
 ### Example
 

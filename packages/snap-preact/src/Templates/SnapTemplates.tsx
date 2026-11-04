@@ -1,5 +1,6 @@
 import { h, render } from 'preact';
 import deepmerge from 'deepmerge';
+import { when } from 'mobx';
 
 import { Snap } from '../Snap';
 import { TemplateSelect } from '../../components/src/components/Atoms/TemplateSelect';
@@ -378,13 +379,20 @@ export const createSearchTargeters = (templateConfig: SnapTemplatesConfig, templ
 		// console.log('selector', targetConfig.selector);
 		// console.log('overrideTemplateStoreTarget', overrideTemplateStoreTarget);
 
+		// a target that keeps its content (such as a skeleton) is rendered once the search and theme are ready
+		const keepTargetContent = targetConfig.emptyTarget === false;
+
 		const targeter: ExtendedTarget = {
 			selector: targetConfig.selector,
 			autoRetarget: true,
 			hideTarget: true,
+			...(keepTargetContent ? { emptyTarget: false, renderAfterSearch: true } : {}),
 			component: async () => {
 				const componentImportPromises = [];
 				componentImportPromises.push(templatesStore.library.import.component.search[targetConfig.component]());
+
+				// TemplateSelect renders nothing while the theme loads - the first render must be the real UI
+				if (keepTargetContent) componentImportPromises.push(when(() => !templatesStore.loading));
 
 				await Promise.all(componentImportPromises);
 				return TemplateSelect;
@@ -478,7 +486,7 @@ export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, te
 			// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
 			// provides the global templates ThemeProvider. Without it the quickview renders outside the
 			// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
-			// `quickviewLayout`) are silently dropped.
+			// `quickviewSlideout`) are silently dropped.
 			const target = new TargetStore({
 				target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
 			});
@@ -742,9 +750,6 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 	const originalRecsConfig = templateConfig.recommendation || {};
 	templateConfig.recommendation = deepmerge(
 		{
-			settings: {
-				branch: 'production',
-			},
 			bundle: {
 				SnapTemplatesBundleDefault: {
 					component: 'RecommendationBundle',
@@ -780,7 +785,8 @@ export function createSnapConfig(templateConfig: SnapTemplatesConfig | SnapTempl
 			components: createRecommendationComponentMapping(templateConfig, templatesStore),
 			config: {
 				plugins: createPlugins(templateConfig, templatesStore, 'recommendation'),
-				...templateConfig.recommendation?.settings!,
+				branch: 'production',
+				...templateConfig.recommendation?.settings,
 			},
 		};
 
@@ -922,13 +928,20 @@ export function createPlugins(
 			break;
 	}
 
-	// Handle custom plugins (only available when unlocked: true)
+	// Handle custom plugins (only available when unlocked: true) - the locked config types reject them, and a locked
+	// config that gets past the types has them skipped here, as LibraryStore skips its custom components
 	const customPlugins: CustomPlugins = deepmerge(
 		(templateConfig as { plugins?: PluginsConfigsUnlocked }).plugins?.custom || {},
 		(controllerConfig as { plugins?: PluginsConfigsUnlocked })?.plugins?.custom || {}
 	);
+	const customPluginNames = Object.keys(customPlugins);
 
-	Object.keys(customPlugins).forEach((pluginName) => {
+	if (customPluginNames.length && !(templatesStore.config as TemplatesStoreConfigUnlocked).unlocked) {
+		console.warn(`Snap Templates: custom plugins require unlocked: true - skipping ${customPluginNames.join(', ')}`);
+		return plugins as PluginGrouping[];
+	}
+
+	customPluginNames.forEach((pluginName) => {
 		const customPlugin = customPlugins[pluginName];
 		if (customPlugin?.function) {
 			plugins.push([customPlugin.function, ...(customPlugin.args || [])]);

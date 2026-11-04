@@ -1,9 +1,8 @@
 import { h } from 'preact';
-
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
+import { fn } from 'storybook/test';
 
 import { LoadMore, LoadMoreProps } from './LoadMore';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { iconPaths } from '../../Atoms/Icon';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from '../LoadMore/readme.md';
@@ -13,24 +12,15 @@ import type { SearchRequestModelFilterTypeEnum } from '@athoscommerce/snapi-type
 export default {
 	title: 'Molecules/LoadMore',
 	component: LoadMore,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		controller: {
@@ -40,7 +30,7 @@ export default {
 					summary: 'Search controller object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		pagination: {
 			description: 'Pagination store reference',
@@ -49,7 +39,7 @@ export default {
 					summary: 'pagination store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		autoFetch: {
 			description: 'Automatically load more results when component comes into viewport',
@@ -201,8 +191,7 @@ export default {
 					summary: 'function(e: Event)',
 				},
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -223,15 +212,17 @@ const snapInstance = Snapify.search({
 	},
 });
 
-export const Default = (args: LoadMoreProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <LoadMore {...args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: LoadMoreProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <LoadMore {...args} controller={controller} />;
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

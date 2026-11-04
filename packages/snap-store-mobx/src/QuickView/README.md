@@ -38,12 +38,12 @@ A `QuickviewError` (`{ message: string, cause?: unknown }`) or `undefined`. Set 
 ## `update` method
 `update({ result, productsData?, config?, storeConfig?, meta? })`
 
-Builds (or reuses) the `Product` instance and applies variants from `productsData`. Returns early if no `result` is provided.
+Builds (or reuses) the `Product` instance, backfills its missing core fields and applies variants from `productsData`. Returns early if no `result` is provided.
 
 | argument | description |
 |---|---|
 | `result` | The source `Product` to preview. Required. Any variant selections already made on it (e.g. swatches clicked on the result tile) are captured as `update()` starts and re-applied after the variants are (re)built, overriding the `autoSelect` defaults. With cloning (default) this is a point-in-time snapshot onto an independent product — no live link in either direction after open. With `clone: false` the modal and tile share the product, so this instead preserves the tile's selection across the `productsData` rebuild (which would otherwise reset it); modal interactions then mutate the tile directly. |
-| `productsData` | Data from `/v1/products`: `{ mappings?: { core? }, variants?: { data?, optionConfig? } }`. When it contains `variants.data` (and the product has a `Variants` instance), the variants are updated with `autoSelect: true` so a default variant is picked as soon as the data arrives; `variants.optionConfig` is applied first so each selection gets its configured `type` (`dropdown`/`swatches`) and `count`. |
+| `productsData` | Data from `/v1/products`: `{ mappings?: { core? }, variants?: { data?, optionConfig? } }`. Any `mappings.core` field the source result is missing (e.g. `description`, which recommend API results don't carry) is filled in from `mappings.core`; fields the source result already has are kept, since they can be variant-specific. With `clone: false` the filled-in fields are written to the source result. When it contains `variants.data` (and the product has a `Variants` instance), the variants are updated with `autoSelect: true` so a default variant is picked as soon as the data arrives; `variants.optionConfig` is applied first so each selection gets its configured `type` (`dropdown`/`swatches`) and `count`. |
 | `config` | Per-quickview `QuickviewConfig` (see above). Stored on `resolvedConfig`. Honors `config.clone` (default `true`). |
 | `storeConfig` | Optional store-config passthrough, used when cloning so the clone's variants pick up the existing `settings.variants` configuration. |
 | `meta` | Optional raw meta data passthrough for badges processing on the cloned product. The store does not retain it — badge and facet-label consumers read meta off the originating controller's store (`quickviewManager.sourceController.store.meta`). |

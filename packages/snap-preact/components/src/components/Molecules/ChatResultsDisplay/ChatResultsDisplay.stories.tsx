@@ -1,43 +1,29 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ChatResultsDisplay, ChatResultsDisplayProps } from './ChatResultsDisplay';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ChatResultsDisplay/readme.md';
 
 export default {
 	title: 'Molecules/ChatResultsDisplay',
 	component: ChatResultsDisplay,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	argTypes: {
 		controller: {
 			description: 'reference to a ChatController',
 			table: { type: { summary: 'ChatController' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		chatItem: {
 			description: 'chat message whose results should be rendered',
 			table: { category: 'Templates Legal', type: { summary: 'object' } },
-			control: { type: 'none' },
+			control: false,
 		},
 		...componentArgs,
 	},
@@ -84,7 +70,8 @@ const mockChatItem = {
 	],
 };
 
-export const Default = (args: ChatResultsDisplayProps) => (
-	<ChatResultsDisplay {...args} chatItem={mockChatItem} controller={mockController} scrollToBottom={() => undefined} />
-);
-Default.args = {};
+export const Default = {
+	render: (args: ChatResultsDisplayProps) => (
+		<ChatResultsDisplay {...args} chatItem={mockChatItem} controller={mockController} scrollToBottom={() => undefined} />
+	),
+};

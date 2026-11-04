@@ -659,6 +659,12 @@ export const nl: LangComponents = {
 		},
 		clearAllLabel: {
 			value: 'Alles wissen',
+			attributes: {
+				'aria-label': 'Alles wissen',
+			},
+		},
+		noFiltersText: {
+			value: 'Geen filters toegepast',
 		},
 	},
 	facet: {
