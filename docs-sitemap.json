@@ -365,6 +365,10 @@
 			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-button--docs",
 			"title": "Button"
 		},
+		"packages/snap-preact/components/src/components/Atoms/ChatLoadingIndicator/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-chatloadingindicator--docs",
+			"title": "ChatLoadingIndicator"
+		},
 		"packages/snap-preact/components/src/components/Atoms/Dropdown/readme.md": {
 			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fatoms-dropdown--docs",
 			"title": "Dropdown"
@@ -420,6 +424,42 @@
 		"packages/snap-preact/components/src/components/Molecules/Carousel/readme.md": {
 			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-carousel--docs",
 			"title": "Carousel"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatAttachmentContext/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatattachmentcontext--docs",
+			"title": "ChatAttachmentContext"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatInspirationResultMessage/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatinspirationresultmessage--docs",
+			"title": "ChatInspirationResultMessage"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatMessageText/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatmessagetext--docs",
+			"title": "ChatMessageText"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatMessageUser/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatmessageuser--docs",
+			"title": "ChatMessageUser"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatProductComparisonMessage/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatproductcomparisonmessage--docs",
+			"title": "ChatProductComparisonMessage"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatQuickview/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatquickview--docs",
+			"title": "ChatQuickview"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatResult/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatresult--docs",
+			"title": "ChatResult"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatResultsDisplay/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatresultsdisplay--docs",
+			"title": "ChatResultsDisplay"
+		},
+		"packages/snap-preact/components/src/components/Molecules/ChatSuggestedQuestions/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-chatsuggestedquestions--docs",
+			"title": "ChatSuggestedQuestions"
 		},
 		"packages/snap-preact/components/src/components/Molecules/Checkbox/readme.md": {
 			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Fmolecules-checkbox--docs",
@@ -608,6 +648,14 @@
 		"packages/snap-preact/components/src/components/Templates/AutocompleteSlideout/readme.md": {
 			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-autocompleteslideout--docs",
 			"title": "AutocompleteSlideout"
+		},
+		"packages/snap-preact/components/src/components/Templates/Chat/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-chat--docs",
+			"title": "Chat"
+		},
+		"packages/snap-preact/components/src/components/Organisms/ChatButton/readme.md": {
+			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-chatbutton--docs",
+			"title": "ChatButton"
 		},
 		"packages/snap-preact/components/src/components/Templates/Recommendation/readme.md": {
 			"url": "/preact-components?params=%3Fpath%3D%2Fdocs%2Ftemplates-recommendation--docs",
