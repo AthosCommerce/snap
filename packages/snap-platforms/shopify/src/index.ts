@@ -1,5 +1,6 @@
 export { addToCart, ShopifyAddToCartConfig as AddToCartConfig } from './addToCart';
 export { shopifyPriceFormat } from './shopifyPriceFormat';
+export { shopifyImageSrcset } from './shopifyImageSrcset';
 export {
 	pluginShopifyBackgroundFilters as pluginBackgroundFilters,
 	PluginShopifyBackgroundFiltersConfig as PluginBackgroundFiltersConfig,
