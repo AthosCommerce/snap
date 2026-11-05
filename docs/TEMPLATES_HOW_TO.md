@@ -226,6 +226,8 @@ The `_` token is a flex spacer. Items to the left of `_` are left-aligned, items
 | `sortBy` | Sort order selector |
 | `pagination` | Page number controls |
 | `paginationInfo` | "Showing X–Y of Z results" text |
+| `tabSelection` | Tab selection for tabbed search |
+| `searchInput` | Search input holding the current query (see below) |
 | `button.sidebar-toggle` | Collapsible sidebar toggle button |
 | `banner.header` | Header banner slot |
 | `banner.banner` | Main content banner slot |

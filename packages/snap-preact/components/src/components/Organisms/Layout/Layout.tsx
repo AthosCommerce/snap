@@ -23,6 +23,7 @@ import { Facets, FacetsProps } from '../Facets';
 import { FacetsHorizontal, FacetsHorizontalProps } from '../FacetsHorizontal';
 import { Breadcrumbs, BreadcrumbsProps } from '../../Atoms/Breadcrumbs';
 import { TabSelection, TabSelectionProps } from '../../Molecules/TabSelection';
+import { SearchInput, SearchInputProps } from '../../Molecules/SearchInput';
 import type { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const defaultStyles: StyleScript<LayoutProps> = ({}) => {
@@ -224,6 +225,24 @@ export const Layout = observer((properties: LayoutProps) => {
 			theme: props?.theme,
 			treePath: properties.treePath,
 		},
+		SearchInput: {
+			// default props
+			internalClassName: 'ss__layout__search-input',
+			onSubmit: (_e, value) => {
+				const query = value.trim();
+				if (query) {
+					// matches the url of SearchQueryStore queries (e.g. didYouMean): a new query starts on page one without filters
+					controller.urlManager.remove('page').remove('filter').set('query', query).go();
+				}
+			},
+			// inherited props
+			...defined({
+				disableStyles,
+			}),
+			// component theme overrides
+			theme: props?.theme,
+			treePath: properties.treePath,
+		},
 	};
 
 	const ToggleSideBarButton = toggleSideBarButton;
@@ -235,6 +254,11 @@ export const Layout = observer((properties: LayoutProps) => {
 				return <SearchHeader {...subProps.SearchHeader} />;
 			case 'tabSelection':
 				return tabManager ? <TabSelection {...subProps.TabSelection} tabManager={tabManager} /> : null;
+			case 'searchInput': {
+				// keyed by the query so the input resets when the query changes outside of it (e.g. history navigation)
+				const query = controller.urlManager.state.query;
+				return <SearchInput {...subProps.SearchInput} key={query} defaultValue={query} />;
+			}
 			case 'filterSummary':
 				if (hasResults) {
 					return <FilterSummary {...subProps.FilterSummary} />;
@@ -356,6 +380,7 @@ export type ModuleNames =
 	| 'paginationInfo'
 	| 'breadcrumbs'
 	| 'tabSelection'
+	| 'searchInput'
 	| '_'
 	| 'button.sidebar-toggle'
 	| 'banner.header'
@@ -381,4 +406,5 @@ interface LayoutSubProps {
 	ToggleSideBarButton: Partial<ButtonProps>;
 	Breadcrumbs: Partial<BreadcrumbsProps>;
 	TabSelection: Partial<TabSelectionProps>;
+	SearchInput: Partial<SearchInputProps>;
 }

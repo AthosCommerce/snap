@@ -27,6 +27,7 @@ export default {
 		onKeyUp: fn(),
 		onKeyDown: fn(),
 		onClick: fn(),
+		onSubmit: fn(),
 	},
 	argTypes: {
 		value: {
@@ -38,6 +39,15 @@ export default {
 					summary: 'string',
 				},
 				defaultValue: { summary: '' },
+			},
+			control: { type: 'text' },
+		},
+		defaultValue: {
+			description: 'sets the initial value when value is not provided',
+			table: {
+				type: {
+					summary: 'string',
+				},
 			},
 			control: { type: 'text' },
 		},
@@ -77,6 +87,16 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary: 'function',
+				},
+			},
+			control: false,
+		},
+		onSubmit: {
+			description: 'Invoked with the event and input value on Enter or submit search button click',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: '(e, value: string) => void',
 				},
 			},
 			control: false,
