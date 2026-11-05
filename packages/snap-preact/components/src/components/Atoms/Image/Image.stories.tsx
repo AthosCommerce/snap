@@ -118,6 +118,47 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		hoverSrcset: {
+			description: 'Image onHover srcset attribute, or an array of widths to generate it from hoverSrc',
+			table: {
+				type: {
+					summary: 'string | number[]',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'object' },
+		},
+		srcset: {
+			description: 'Image srcset attribute, or an array of widths to generate it from src using buildSrcsetUrl',
+			table: {
+				type: {
+					summary: 'string | number[]',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'object' },
+		},
+		sizes: {
+			description: 'Image sizes attribute',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
+		buildSrcsetUrl: {
+			description:
+				'Function used to build the image url for each width when srcset is an array of widths (defaults to setting the `width` query parameter)',
+			table: {
+				type: {
+					summary: 'function',
+				},
+				category: 'Templates Legal',
+			},
+			control: false,
+		},
 		draggable: {
 			description: 'Image draggable attribute',
 			table: {
@@ -258,4 +299,21 @@ export const onhover = {
 		alt: searchResponse.product1.name,
 		hoverSrc: searchResponse.product2.image,
 	},
+};
+
+export const Srcset = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
+Srcset.args = {
+	src: searchResponse.product1.image,
+	srcset: [320, 640, 960, 1280, 1920],
+	sizes: '(max-width: 600px) 100vw, 300px',
+	alt: searchResponse.product1.name,
+};
+
+// the only candidate fails to load, so the srcset is removed and the browser retries with the src
+export const SrcsetRetry = (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />;
+SrcsetRetry.args = {
+	src: searchResponse.product1.image,
+	srcset: 'intentionally_broken_candidate.jpg 320w',
+	sizes: '300px',
+	alt: searchResponse.product1.name,
 };

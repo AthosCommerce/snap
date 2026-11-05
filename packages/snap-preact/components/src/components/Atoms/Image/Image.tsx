@@ -48,9 +48,13 @@ export const Image = observer((properties: ImageProps) => {
 	const {
 		alt,
 		src,
+		srcset,
+		sizes,
+		buildSrcsetUrl,
 		fallback,
 		title,
 		hoverSrc,
+		hoverSrcset,
 		lazy,
 		onMouseOver,
 		onMouseOut,
@@ -85,11 +89,19 @@ export const Image = observer((properties: ImageProps) => {
 
 	const styling = mergeStyles<ImageProps>(props, defaultStyles);
 
+	// when `srcset` is an array of widths and no `hoverSrcset` is provided, the same widths are applied to `hoverSrc`
+	// resolved on every render (not memoized) so that widths arrays from an observable theme are read within the observer
+	const srcsetUrlBuilder = buildSrcsetUrl || defaultBuildSrcsetUrl;
+	const srcsetAttribute = resolveSrcset(src, srcset, srcsetUrlBuilder);
+	const hoverSrcsetAttribute = resolveSrcset(hoverSrc, hoverSrcset ?? (Array.isArray(srcset) ? srcset : undefined), srcsetUrlBuilder);
+
 	return (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__image', { 'ss__image--hidden': !visibile }, className, internalClassName)}>
 				<img
 					src={(isHovering ? hoverSrc : src) || fallback}
+					srcSet={isHovering ? hoverSrcsetAttribute : srcsetAttribute}
+					sizes={sizes}
 					alt={alt}
 					title={title || alt}
 					loading={lazy ? 'lazy' : undefined}
@@ -99,7 +111,13 @@ export const Image = observer((properties: ImageProps) => {
 					}}
 					onClick={(e: React.MouseEvent<HTMLImageElement>) => onClick && onClick(e)}
 					onError={(e: React.MouseEvent<HTMLImageElement>) => {
-						(e.target as HTMLImageElement).src = fallback || '';
+						const imageElement = e.target as HTMLImageElement;
+						if (imageElement.getAttribute('srcset')) {
+							// srcset candidates take precedence over src, so remove the srcset to retry with src (sizes is ignored without a srcset)
+							imageElement.removeAttribute('srcset');
+						} else {
+							imageElement.src = fallback || '';
+						}
 						onError && onError(e);
 					}}
 					onMouseOver={(e: React.MouseEvent<HTMLImageElement>) => {
@@ -129,15 +147,49 @@ export const Image = observer((properties: ImageProps) => {
 	);
 });
 
+export type SrcsetUrlBuilder = (src: string, width: number) => string;
+
+// default `buildSrcsetUrl` - builds the url of an image at a given width by setting the `width` query parameter (supported by the Shopify CDN)
+export const defaultBuildSrcsetUrl: SrcsetUrlBuilder = (src, width) => {
+	const hashIndex = src.indexOf('#');
+	const hash = hashIndex === -1 ? '' : src.slice(hashIndex);
+	const url = hashIndex === -1 ? src : src.slice(0, hashIndex);
+	const queryIndex = url.indexOf('?');
+	const path = queryIndex === -1 ? url : url.slice(0, queryIndex);
+	const params = (queryIndex === -1 ? [] : url.slice(queryIndex + 1).split('&')).filter((param) => param && !param.startsWith('width='));
+	params.push(`width=${width}`);
+	return `${path}?${params.join('&')}${hash}`;
+};
+
+// encodes whitespace in a srcset candidate url (whitespace separates the url from its descriptor)
+const encodeSrcsetUrl = (url: string): string => url.replace(/\s/g, (char) => encodeURIComponent(char));
+
+// resolves a srcset prop (srcset string or array of widths) into a srcset attribute value
+const resolveSrcset = (src: string | undefined, srcset: string | number[] | undefined, buildSrcsetUrl: SrcsetUrlBuilder): string | undefined => {
+	if (!Array.isArray(srcset)) {
+		return srcset;
+	}
+	if (!src) {
+		return undefined;
+	}
+	// width descriptors must be unique positive integers (numeric strings from loosely typed config are coerced)
+	const widths = Array.from(new Set(srcset.map(Number).filter((width) => Number.isInteger(width) && width > 0)));
+	return widths.map((width) => `${encodeSrcsetUrl(buildSrcsetUrl(src, width))} ${width}w`).join(', ') || undefined;
+};
+
 export type ImageProps = ImageTemplatesLegalProps & ComponentProps<ImageProps>;
 
 export type ImageTemplatesLegalProps = {
 	alt: string;
 	src: string;
+	srcset?: string | number[];
+	sizes?: string;
+	buildSrcsetUrl?: SrcsetUrlBuilder;
 	title?: string;
 	fallback?: string;
 	height?: string;
 	hoverSrc?: string;
+	hoverSrcset?: string | number[];
 	onMouseOver?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onMouseOut?: (e: React.MouseEvent<HTMLImageElement>) => void;
 	onPointerDown?: (e: React.MouseEvent<HTMLImageElement>) => void;
