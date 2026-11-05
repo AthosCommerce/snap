@@ -668,7 +668,7 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 
 If you need a custom formatter, you can still set `theme.overrides.default.price.format` in your template config; it takes precedence over the currency locale.
 												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](reference-platforms-shopify#pluginshopifymarkets).
 
 ---
 
@@ -706,13 +706,13 @@ Each locale carries the `symbol`, `decimalPlaces`, `thousandsSeparator`, `decima
 
 The currency is read at load time. Shopify's currency and market selectors reload the page, so a currency change is picked up on the next load. The currency can also be changed at any time with `window.athos.templates.setCurrency('EUR')`.
 
-For detailed configuration options, see the [Shopify Currency plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifycurrency).
+For detailed configuration options, see the [Shopify Currency plugin documentation](reference-platforms-shopify#pluginshopifycurrency).
 
 ---
 
 ### Using the Swym Wishlist Plugin
 
-The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It is configured under `plugins.common.swymWishlist` on every platform and is opt-in, so set `enabled: true`:
+The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It is configured under `plugins.common.swymWishlist` and can be used on every platform by setting `enabled: true`:
 
 ```tsx
 const config = validateTemplatesConfig({
@@ -768,7 +768,7 @@ export const WishlistResult = observer(({ result }: ResultProps) => {
 });
 ```
 
-The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. For how the plugin works, how product and variant ids are resolved, and platform notes, see the [Swym Wishlist plugin documentation](https://athoscommerce.github.io/snap/package-platforms-common#pluginswymwishlist).
+The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. For how the plugin works, how product and variant ids are resolved, and platform notes, see the [Swym Wishlist plugin documentation](package-platforms-common#pluginswymwishlist).
 
 ---
 
