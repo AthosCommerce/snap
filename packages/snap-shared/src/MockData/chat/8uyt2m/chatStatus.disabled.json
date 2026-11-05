@@ -3,7 +3,7 @@
 		"status": {
 			"enabled": false,
 			"disableReason": {
-				"code": 1,
+				"code": "CS_004",
 				"message": "Chat is disabled for this site"
 			}
 		},
