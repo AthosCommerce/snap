@@ -1994,6 +1994,71 @@ describe('SearchResultStore', () => {
 				const previouslySelectedSelections = variants.selections.map((selection) => selection.selected?.value);
 				expect(previouslySelectedSelections).toStrictEqual(['Desert', '30', '34']);
 			});
+
+			describe('selection value order', () => {
+				// own MockData instance - updating the shared one here would change its siteId for every other test
+				const meta = new MockData({ siteId: 'z7h1jh' }).searchMeta('variants').meta;
+				const sizeVariant = (colour: string, size: string): VariantData => ({
+					mappings: { core: { price: 79.95, available: true } },
+					options: { colour: { value: colour }, size: { value: size } },
+					badges: [],
+				});
+
+				it('sorts selection values correctly when the first colour has incomplete sizes', () => {
+					const mask = new ProductMask();
+					// Snow Marle is first in the data but is missing XS and S - Bay Leaf has every size
+					const variantData: VariantData[] = [
+						...['M', 'L', 'XL', 'XXL'].map((size) => sizeVariant('Snow Marle', size)),
+						...['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => sizeVariant('Bay Leaf', size)),
+					];
+
+					const variants = new Variants({ data: { mask, variants: variantData, meta } });
+					const sizeSelection = variants.selections.find((selection) => selection.field === 'size');
+
+					// NOT the data order: M, L, XL, XXL, XS, S
+					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL']);
+				});
+
+				it('slots values missing from the most complete group in next to their neighbours', () => {
+					const mask = new ProductMask();
+					// Snow Marle and Bay Leaf tie for the most sizes, and neither has all of them; only Clay has 3XL
+					const variantData: VariantData[] = [
+						...['M', 'L', 'XL', 'XXL'].map((size) => sizeVariant('Snow Marle', size)),
+						...['XS', 'S', 'M', 'L'].map((size) => sizeVariant('Bay Leaf', size)),
+						...['XXL', '3XL'].map((size) => sizeVariant('Clay', size)),
+					];
+
+					const variants = new Variants({ data: { mask, variants: variantData, meta } });
+					const sizeSelection = variants.selections.find((selection) => selection.field === 'size');
+
+					// XS and S go before M (where Bay Leaf puts them), 3XL goes after XXL (where Clay puts it)
+					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']);
+				});
+
+				it('sorts the values of the first option before any selections are made', () => {
+					const mask = new ProductMask();
+					// size is the first option, so its selection is created before the colour selection exists
+					const variantData: VariantData[] = [
+						['M', 'Snow Marle'],
+						['L', 'Snow Marle'],
+						['S', 'Bay Leaf'],
+						['M', 'Bay Leaf'],
+						['L', 'Bay Leaf'],
+					].map(([size, colour]) => ({
+						mappings: { core: { price: 79.95, available: true } },
+						options: { size: { value: size }, colour: { value: colour } },
+						badges: [],
+					}));
+
+					// without autoSelect nothing gets selected, so the values are never refined once every selection exists
+					const variants = new Variants({ data: { mask, variants: variantData, meta } });
+					const sizeSelection = variants.selections[0];
+
+					expect(sizeSelection.field).toBe('size');
+					expect(sizeSelection.selected).toBeUndefined();
+					expect(sizeSelection.values.map((value) => value.value)).toStrictEqual(['S', 'M', 'L']);
+				});
+			});
 		});
 	});
 
