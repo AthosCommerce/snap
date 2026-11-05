@@ -51,7 +51,7 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 		if (!id || !item.quantity) return;
 
 		// a product with options in an Athos feed is identified as `{parentId}_{variantId}`
-		const parentId = item.mappings?.core?.parentId ?? core?.parentId;
+		const parentId = core?.parentId;
 		const variantId = config?.idFieldName ? undefined : getVariantId({ uid: core?.uid, parentId });
 
 		if (variantId && parentId) {
