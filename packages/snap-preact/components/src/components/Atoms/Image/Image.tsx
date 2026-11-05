@@ -48,6 +48,8 @@ export const Image = observer((properties: ImageProps) => {
 	const {
 		alt,
 		src,
+		srcset,
+		sizes,
 		fallback,
 		title,
 		hoverSrc,
@@ -85,11 +87,17 @@ export const Image = observer((properties: ImageProps) => {
 
 	const styling = mergeStyles<ImageProps>(props, defaultStyles);
 
+	// a srcset function is applied to `hoverSrc` while hovering, a srcset string is removed while hovering so that `hoverSrc` is displayed
+	const srcsetAttribute = resolveSrcset(src, srcset);
+	const hoverSrcsetAttribute = typeof srcset == 'function' ? resolveSrcset(hoverSrc, srcset) : undefined;
+
 	return (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__image', { 'ss__image--hidden': !visibile }, className, internalClassName)}>
 				<img
 					src={(isHovering ? hoverSrc : src) || fallback}
+					srcSet={isHovering ? hoverSrcsetAttribute : srcsetAttribute}
+					sizes={sizes}
 					alt={alt}
 					title={title || alt}
 					loading={lazy ? 'lazy' : undefined}
@@ -99,7 +107,13 @@ export const Image = observer((properties: ImageProps) => {
 					}}
 					onClick={(e: React.MouseEvent<HTMLImageElement>) => onClick && onClick(e)}
 					onError={(e: React.MouseEvent<HTMLImageElement>) => {
-						(e.target as HTMLImageElement).src = fallback || '';
+						const imageElement = e.target as HTMLImageElement;
+						if (imageElement.getAttribute('srcset')) {
+							// srcset candidates take precedence over src, so remove the srcset to retry with src before falling back
+							imageElement.removeAttribute('srcset');
+						} else {
+							imageElement.src = fallback || '';
+						}
 						onError && onError(e);
 					}}
 					onMouseOver={(e: React.MouseEvent<HTMLImageElement>) => {
@@ -129,11 +143,23 @@ export const Image = observer((properties: ImageProps) => {
 	);
 });
 
+// a srcset attribute value, or a function that builds one from an image url (called with `src`, and with `hoverSrc` while hovering)
+export type ImageSrcset = string | ((src: string) => string | undefined);
+
+const resolveSrcset = (src: string | undefined, srcset: ImageSrcset | undefined): string | undefined => {
+	if (typeof srcset == 'function') {
+		return (src && srcset(src)) || undefined;
+	}
+	return srcset;
+};
+
 export type ImageProps = ImageTemplatesLegalProps & ComponentProps<ImageProps>;
 
 export type ImageTemplatesLegalProps = {
 	alt: string;
 	src: string;
+	srcset?: ImageSrcset;
+	sizes?: string;
 	title?: string;
 	fallback?: string;
 	height?: string;

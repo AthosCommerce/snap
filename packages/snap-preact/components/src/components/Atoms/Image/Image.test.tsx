@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
 import { ThemeProvider } from '../../../providers';
-import { render, waitFor } from '@testing-library/preact';
+import { render, waitFor, fireEvent } from '@testing-library/preact';
 
 import { Image, FALLBACK_IMAGE_URL } from './Image';
 import userEvent from '@testing-library/user-event';
@@ -88,6 +88,147 @@ describe('image Component', () => {
 			await userEvent.hover(imageElement);
 			await waitFor(() => expect(onHoverFunc).toHaveBeenCalled());
 			expect(imageElement).toHaveAttribute('src', rolloverImage);
+		});
+	});
+
+	describe('srcset and sizes', () => {
+		const src = 'https://cdn.example.com/image.jpg';
+		const hoverSrc = 'https://cdn.example.com/hover.jpg';
+		const srcset = `${src} 1x, https://cdn.example.com/image@2x.jpg 2x`;
+		const sizes = '(max-width: 600px) 100vw, 300px';
+		const srcsetFunction = (url: string) => `${url}?width=320 320w, ${url}?width=640 640w`;
+
+		it('does not render srcset or sizes attributes when not provided', () => {
+			const rendered = render(<Image alt="image" src={src} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).not.toHaveAttribute('srcset');
+			expect(imageElement).not.toHaveAttribute('sizes');
+		});
+
+		it('renders srcset and sizes attributes', () => {
+			const rendered = render(<Image alt="image" src={src} srcset={srcset} sizes={sizes} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).toHaveAttribute('src', src);
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+		});
+
+		it('removes a srcset string on hover so hoverSrc is displayed, and restores it on mouse out', async () => {
+			const rendered = render(<Image alt="image" src={src} srcset={srcset} sizes={sizes} hoverSrc={hoverSrc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')! as HTMLImageElement;
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+
+			await userEvent.hover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', hoverSrc));
+			expect(imageElement.srcset).toBe('');
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+
+			await userEvent.unhover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', src));
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+		});
+
+		it('calls a srcset function with src and renders the result', () => {
+			const srcsetMock = jest.fn(srcsetFunction);
+			const rendered = render(<Image alt="image" src={src} srcset={srcsetMock} sizes={sizes} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(srcsetMock).toHaveBeenCalledWith(src);
+			expect(imageElement).toHaveAttribute('src', src);
+			expect(imageElement).toHaveAttribute(
+				'srcset',
+				'https://cdn.example.com/image.jpg?width=320 320w, https://cdn.example.com/image.jpg?width=640 640w'
+			);
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+		});
+
+		it('applies a srcset function to hoverSrc on hover, and restores it on mouse out', async () => {
+			const rendered = render(<Image alt="image" src={src} srcset={srcsetFunction} hoverSrc={hoverSrc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+
+			await userEvent.hover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', hoverSrc));
+			expect(imageElement).toHaveAttribute(
+				'srcset',
+				'https://cdn.example.com/hover.jpg?width=320 320w, https://cdn.example.com/hover.jpg?width=640 640w'
+			);
+
+			await userEvent.unhover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', src));
+			expect(imageElement).toHaveAttribute(
+				'srcset',
+				'https://cdn.example.com/image.jpg?width=320 320w, https://cdn.example.com/image.jpg?width=640 640w'
+			);
+		});
+
+		it('does not render srcset when a srcset function returns an empty value', () => {
+			const rendered = render(<Image alt="image" src={src} srcset={() => ''} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).not.toHaveAttribute('srcset');
+		});
+
+		it('does not call the srcset function or render srcset when src is empty and the fallback is displayed', () => {
+			const srcsetMock = jest.fn(srcsetFunction);
+			const rendered = render(<Image alt="image" src="" srcset={srcsetMock} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(srcsetMock).not.toHaveBeenCalled();
+			expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);
+			expect(imageElement).not.toHaveAttribute('srcset');
+		});
+
+		it('can set a srcset function and sizes through the theme', () => {
+			const globalTheme = {
+				components: {
+					image: {
+						srcset: srcsetFunction,
+						sizes,
+					},
+				},
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<Image alt="image" src={src} />
+				</ThemeProvider>
+			);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).toHaveAttribute(
+				'srcset',
+				'https://cdn.example.com/image.jpg?width=320 320w, https://cdn.example.com/image.jpg?width=640 640w'
+			);
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+		});
+
+		it('retries with src when a srcset candidate fails to load', () => {
+			const onErrorFunc = jest.fn();
+			const rendered = render(<Image alt="image" src={src} srcset={srcset} sizes={sizes} onError={onErrorFunc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+
+			fireEvent.error(imageElement);
+			expect(onErrorFunc).toHaveBeenCalledTimes(1);
+			expect(imageElement).toHaveAttribute('src', src);
+			expect(imageElement).not.toHaveAttribute('srcset');
+			expect(imageElement).toHaveAttribute('sizes', sizes);
+		});
+
+		it('displays the fallback when src also fails to load after the srcset retry', () => {
+			const onErrorFunc = jest.fn();
+			const rendered = render(<Image alt="image" src={src} srcset={srcset} onError={onErrorFunc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+
+			fireEvent.error(imageElement);
+			fireEvent.error(imageElement);
+			expect(onErrorFunc).toHaveBeenCalledTimes(2);
+			expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);
+			expect(imageElement).not.toHaveAttribute('srcset');
+		});
+
+		it('displays the fallback on the first error when there is no srcset', () => {
+			const onErrorFunc = jest.fn();
+			const rendered = render(<Image alt="image" src={src} onError={onErrorFunc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+
+			fireEvent.error(imageElement);
+			expect(onErrorFunc).toHaveBeenCalledTimes(1);
+			expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);
 		});
 	});
 
