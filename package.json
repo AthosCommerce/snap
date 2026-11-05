@@ -41,7 +41,7 @@
   },
   "prettier": "@searchspring/prettier",
   "devDependencies": {
-    "@athoscommerce/snapi-types": "1.0.12",
+    "@athoscommerce/snapi-types": "1.0.13",
     "@searchspring/prettier": "1.0.2",
     "@testing-library/jest-dom": "6.2.0",
     "@testing-library/preact": "3.2.4",

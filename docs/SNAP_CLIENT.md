@@ -87,6 +87,30 @@ Also, for unexpected API response status codes, the client will retry failed req
 Both caching and retries can be disabled or configured for each endpoint in the `ClientConfig` object.
 
 
+## Opting out of API tracking
+
+Requests made by the `search`, `category`, `finder`, `autocomplete` and `recommend` methods are tracked by the API by default. To opt a `search`, `category`, `finder` or `autocomplete` request out of API tracking, set `tracking.beacon` to `false` in its parameters; the request is then sent with `beacon=false`. For `autocomplete`, this applies to the autocomplete request, not the suggest request made before it.
+
+To opt a `recommend` request out, set `beacon` to `false` in its parameters; the request is then sent with `beacon: false`.
+
+Responses to requests that opt out are cached separately from tracked responses. Recommendation requests with `beacon: false` are batched separately from tracked requests, since the opt-out applies to the whole batch.
+
+Controllers opt their requests out when their `beacon.enabled` config is not `true`, so a controller with `beacon: { enabled: false }` makes untracked requests.
+
+```js
+const { meta, search }: { meta: MetaResponseModel; search: SearchResponseModel } = await client.search({
+	search: {
+		query: {
+			string: 'search query',
+		},
+	},
+	tracking: {
+		beacon: false,
+	},
+});
+```
+
+
 ## API Types
 
 The client uses the [@athoscommerce/snapi-types](https://www.npmjs.com/package/@athoscommerce/snapi-types) package to define the API types.

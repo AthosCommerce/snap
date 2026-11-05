@@ -207,6 +207,7 @@ transformSearchRequest.tracking = (request: SearchRequestModel | AutocompleteReq
 		domain?: string;
 		sessionId?: string;
 		pageLoadId?: string;
+		beacon?: boolean;
 	} = {};
 
 	if (reqTracking.userId) {
@@ -220,6 +221,10 @@ transformSearchRequest.tracking = (request: SearchRequestModel | AutocompleteReq
 	}
 	if (reqTracking.pageLoadId) {
 		params.pageLoadId = reqTracking.pageLoadId;
+	}
+	// Athos APIs track requests by default, so `beacon=false` opts the request out of API tracking
+	if (typeof reqTracking.beacon === 'boolean') {
+		params.beacon = reqTracking.beacon;
 	}
 
 	return params;
