@@ -5,13 +5,8 @@ describe('bigcommerce/getVariantId', () => {
 		expect(getVariantId({ uid: '19936_20252', parentId: '19936' })).toBe('20252');
 	});
 
-	it('accepts a numeric parentId', () => {
-		expect(getVariantId({ uid: '19936_20252', parentId: 19936 })).toBe('20252');
-	});
-
 	it('returns undefined for a product without options, whose uid is its parentId', () => {
 		expect(getVariantId({ uid: '22585', parentId: '22585' })).toBeUndefined();
-		expect(getVariantId({ uid: 22585, parentId: 22585 })).toBeUndefined();
 	});
 
 	it('returns undefined when the uid prefix is not the parentId', () => {
@@ -30,6 +25,6 @@ describe('bigcommerce/getVariantId', () => {
 		expect(getVariantId({ uid: '19936_20252' })).toBeUndefined();
 		expect(getVariantId({ parentId: '19936' })).toBeUndefined();
 		expect(getVariantId({ uid: '19936_20252', parentId: '' })).toBeUndefined();
-		expect(getVariantId({ uid: null, parentId: null })).toBeUndefined();
+		expect(getVariantId({ uid: '', parentId: '19936' })).toBeUndefined();
 	});
 });

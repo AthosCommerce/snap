@@ -379,6 +379,17 @@ describe('addToCart', () => {
 			expect(fetchMock).toHaveBeenLastCalledWith(CART_EXISTS_ROUTE, cartPost([{ productId: 777, quantity: 1 }]));
 		});
 
+		it('skips an item whose idFieldName value is not a BigCommerce product id', async () => {
+			const item = athosProduct({ uid: '22585', parentId: '22585', sku: 'FB-9B-BWH' });
+
+			await addToCart([item], { redirect: false, idFieldName: 'display.mappings.core.sku' });
+
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(errMock).toHaveBeenCalledWith(
+				"bigcommerce/addToCart: 'FB-9B-BWH' is not a BigCommerce product id. Please verify 'idFieldName' in the config."
+			);
+		});
+
 		it('adds composite and plain items in one request', async () => {
 			const items = [athosProduct({ uid: '19936_20252', parentId: '19936' }), athosProduct({ uid: '22585', parentId: '22585' }, { quantity: 3 })];
 

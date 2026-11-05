@@ -6,18 +6,16 @@ export type BigCommerceAddToCartConfig = {
 	idFieldName?: string; // display.mappings.core.id
 };
 
-type BigCommerceId = number | string;
-
-// a Storefront Cart API line item - https://docs.bigcommerce.com/docs/rest-storefront/carts/cart-items
+// a Storefront Cart API line item, whose ids are integers - https://docs.bigcommerce.com/docs/rest-storefront/carts/cart-items
 type LineItem = {
-	productId: BigCommerceId;
+	productId: number;
 	quantity: number;
-	variantId?: BigCommerceId;
-	optionSelections?: { optionId: BigCommerceId; optionValue: BigCommerceId }[];
+	variantId?: number;
+	optionSelections?: { optionId: number; optionValue: number }[];
 };
 
-// BigCommerce ids are integers; anything else is passed through for the API to report
-const toId = (value: unknown): BigCommerceId => (typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : (value as BigCommerceId));
+// ids arrive from the feed as strings
+const toId = (value: string): number | undefined => (/^\d+$/.test(value) ? Number(value) : undefined);
 
 export const addToCart = async (items: Product[], config?: BigCommerceAddToCartConfig) => {
 	if (!items) {
@@ -29,7 +27,7 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 
 	items.map((item) => {
 		const core = item?.display?.mappings?.core;
-		let id: unknown = core?.uid;
+		let id: string | undefined = core?.uid;
 
 		// try to find custom field in data
 		if (config?.idFieldName) {
@@ -46,7 +44,7 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 			});
 
 			if (level && level !== item) {
-				id = level;
+				id = String(level);
 			}
 		}
 
@@ -56,13 +54,22 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 		const parentId = item.mappings?.core?.parentId ?? core?.parentId;
 		const variantId = config?.idFieldName ? undefined : getVariantId({ uid: core?.uid, parentId });
 
-		if (variantId && parentId !== undefined) {
-			lineItems.push({ productId: toId(parentId), quantity: item.quantity, variantId: toId(variantId) });
+		if (variantId && parentId) {
+			const productId = toId(parentId);
+			if (productId !== undefined) {
+				lineItems.push({ productId, quantity: item.quantity, variantId: Number(variantId) });
+				return;
+			}
+		}
+
+		const productId = toId(id);
+		if (productId === undefined) {
+			console.error(`bigcommerce/addToCart: '${id}' is not a BigCommerce product id. Please verify 'idFieldName' in the config.`);
 			return;
 		}
 
 		const lineItem: LineItem = {
-			productId: toId(id),
+			productId,
 			quantity: item.quantity,
 		};
 
@@ -71,11 +78,11 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 		if (options) {
 			lineItem.optionSelections = [];
 			Object.keys(options).forEach((option) => {
-				const optionId = options[option].optionId;
-				const optionValue = options[option].optionValue;
-
-				if (optionId && optionValue) {
-					lineItem.optionSelections?.push({ optionId: toId(optionId), optionValue: toId(optionValue) });
+				const { optionId, optionValue } = options[option];
+				const selectionId = optionId ? toId(optionId) : undefined;
+				const selectionValue = optionValue ? toId(optionValue) : undefined;
+				if (selectionId !== undefined && selectionValue !== undefined) {
+					lineItem.optionSelections?.push({ optionId: selectionId, optionValue: selectionValue });
 				}
 			});
 		}
