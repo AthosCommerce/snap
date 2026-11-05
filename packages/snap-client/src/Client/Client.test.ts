@@ -469,13 +469,7 @@ describe('Snap Client', () => {
 			const chatRequesterSpy = jest.spyOn(chatRequester, 'request' as never);
 
 			// siteId is not required — it is merged in from the client globals
-			await client.chatStatus({
-				tracking: {
-					pageUrl: 'https://example.com',
-					sessionId: 'tracker-session-1',
-					pageLoadId: 'page-load-1',
-				},
-			});
+			await client.chatStatus({});
 
 			const statusRequest = {
 				path: '/v1/chat/status',
@@ -483,9 +477,6 @@ describe('Snap Client', () => {
 				headers: {},
 				query: {
 					siteId: '8uyt2m',
-					pageUrl: 'https://example.com',
-					sessionId: 'tracker-session-1',
-					pageLoadId: 'page-load-1',
 				},
 			};
 
@@ -512,11 +503,6 @@ describe('Snap Client', () => {
 				userId: 'user-1',
 				languageCode: 'en',
 				searchConfig: { sessionId: 'search-session-1' },
-				tracking: {
-					pageUrl: 'https://example.com',
-					sessionId: 'tracker-session-1',
-					pageLoadId: 'page-load-1',
-				},
 			};
 
 			// siteId is not required — it is merged in from the client globals
@@ -528,11 +514,12 @@ describe('Snap Client', () => {
 				headers: { 'Content-Type': 'application/json' },
 				query: {
 					siteId: '8uyt2m',
-					pageUrl: 'https://example.com',
-					sessionId: 'tracker-session-1',
-					pageLoadId: 'page-load-1',
 				},
-				body: { siteId: '8uyt2m', ...initParams },
+				body: {
+					userId: 'user-1',
+					languageCode: 'en',
+					searchConfig: { sessionId: 'search-session-1' },
+				},
 			};
 
 			expect(chatRequesterSpy).toHaveBeenCalledTimes(1);

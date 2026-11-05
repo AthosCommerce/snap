@@ -189,7 +189,7 @@ export class ChatController extends AbstractController {
 
 	checkChatStatus = async (): Promise<boolean> => {
 		try {
-			const response = await this.client.chatStatus({ siteId: this.client.siteId, tracking: this.getChatTrackingContext() });
+			const response = await this.client.chatStatus({ siteId: this.client.siteId });
 			return this.store.handleChatStatusResponse(response);
 		} catch (err) {
 			// disable in memory only — a transient failure must not be persisted,
@@ -230,7 +230,6 @@ export class ChatController extends AbstractController {
 					shopper: shopperId,
 					...(bgFilters ? { bgFilters } : {}),
 				},
-				tracking: this.getChatTrackingContext(),
 			});
 			if (response) {
 				const sessionEndTime = response.sessionEndTime ? new Date(response.sessionEndTime) : undefined;
@@ -245,10 +244,20 @@ export class ChatController extends AbstractController {
 			}
 		} catch (e) {
 			this.log.error('Error starting new chat:', e);
-			this.store.error = {
-				message: "We couldn't start a new chat just now. Please try again in a moment.",
-				type: ErrorType.ERROR,
-			};
+			const errorCode = (e as { responseBody?: { errorCode?: string } } | undefined)?.responseBody?.errorCode;
+			if (errorCode === CHAT_ERROR_CODES.QUOTA_LIMIT) {
+				// the monthly session quota won't reset within a retry window — disable in memory, like a failed status check
+				this.store.chatEnabled = false;
+				this.store.error = {
+					type: ErrorType.WARNING,
+					message: CHAT_DISABLED_MESSAGE,
+				};
+			} else {
+				this.store.error = {
+					message: "We couldn't start a new chat just now. Please try again in a moment.",
+					type: ErrorType.ERROR,
+				};
+			}
 		} finally {
 			this.store.initChatLoading = false;
 		}
@@ -256,7 +265,7 @@ export class ChatController extends AbstractController {
 	};
 
 	get params(): ChatRequestModel {
-		const { userId, shopperId } = this.tracker.getContext();
+		const { userId } = this.tracker.getContext();
 		const tracking = this.getChatTrackingContext();
 
 		const productsToCompare = (this.store.currentChat?.comparisons.compared || [])
@@ -397,12 +406,6 @@ export class ChatController extends AbstractController {
 				userId,
 			},
 		};
-
-		if (shopperId) {
-			request.personalization = {
-				shopper: shopperId,
-			};
-		}
 
 		return deepmerge(request, this.config.globals || {});
 	}
@@ -934,13 +937,7 @@ export class ChatController extends AbstractController {
 			this.store.currentChat?.setPendingRequest(null);
 			if (err) {
 				if (err.err && err.fetchDetails) {
-					if (err.responseBody?.errorCode === CHAT_ERROR_CODES.QUOTA_LIMIT) {
-						// quota limit reached — not retried by the client, and won't clear within a retry window
-						this.store.error = {
-							type: ErrorType.WARNING,
-							message: 'Chat is temporarily unavailable. Please try again later.',
-						};
-					} else if (err.responseBody?.errorCode === CHAT_ERROR_CODES.SESSION_LIMIT) {
+					if (err.responseBody?.errorCode === CHAT_ERROR_CODES.SESSION_LIMIT) {
 						// session limit exceeded — flag the current chat so the UI can show a banner
 						if (this.store.currentChat) {
 							this.store.currentChat.sessionLimitReached = true;
@@ -1012,7 +1009,7 @@ export class ChatController extends AbstractController {
 		const pending = migratePendingRequest(this.store.currentChat?.pendingRequest);
 		if (!pending || this.store.loading || this.store.currentChat?.isExpired) return;
 
-		const { userId, shopperId } = this.tracker.getContext();
+		const { userId } = this.tracker.getContext();
 		const params: ChatRequestModel = {
 			context: {
 				sessionId: this.store.currentChat?.sessionId,
@@ -1023,9 +1020,6 @@ export class ChatController extends AbstractController {
 				userId,
 			},
 		};
-		if (shopperId) {
-			params.personalization = { shopper: shopperId };
-		}
 
 		this.store.error = undefined;
 		await this.send(params);

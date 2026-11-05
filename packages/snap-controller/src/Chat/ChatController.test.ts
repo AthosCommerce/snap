@@ -220,6 +220,25 @@ describe('Chat Controller', () => {
 			expect(controller.store.error!.message).toBe("We couldn't start a new chat just now. Please try again in a moment.");
 			logSpy.mockClear();
 		});
+
+		it('disables chat when chatInit returns the quota limit error (CS_002)', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = null;
+			controller.client.chatInit = jest.fn().mockRejectedValue({
+				err: new Error('Quota limit reached'),
+				fetchDetails: { status: 429, url: 'test.com' },
+				responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
+			});
+
+			const chat = await controller.startNewChat();
+
+			expect(chat).toBeUndefined();
+			expect(controller.store.chatEnabled).toBe(false);
+			expect(controller.store.error).toStrictEqual({
+				type: 'warning',
+				message: 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!',
+			});
+		});
 	});
 
 	describe('search', () => {
@@ -307,32 +326,6 @@ describe('Chat Controller', () => {
 			handleError.mockClear();
 		});
 
-		it('displays a try-again-later message for quota limit errors (CS_002)', async () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-			controller.store.chatEnabled = true;
-			controller.store.inputValue = 'test message';
-			const handleError = jest.spyOn(controller, 'handleError');
-			const error = new Error('Quota limit reached');
-
-			controller.client.chat = jest.fn(() => {
-				throw {
-					err: error,
-					fetchDetails: { status: 429, url: 'test.com' },
-					responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
-				};
-			});
-
-			await controller.search();
-
-			expect(controller.store.error).toStrictEqual({
-				type: 'warning',
-				message: 'Chat is temporarily unavailable. Please try again later.',
-			});
-			expect(handleError).toHaveBeenCalledWith(error, { status: 429, url: 'test.com' });
-			handleError.mockClear();
-		});
-
 		it('handles 500 server error', async () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
@@ -365,7 +358,7 @@ describe('Chat Controller', () => {
 			controller.client.chat = jest.fn(() => {
 				throw {
 					err: new Error('Session limit exceeded'),
-					fetchDetails: { status: 400, url: 'test.com' },
+					fetchDetails: { status: 200, url: 'test.com' },
 					responseBody: { errorCode: 'CS_003' },
 				};
 			});
@@ -538,15 +531,22 @@ describe('Chat Controller', () => {
 			expect(params.tracking.pageUrl).toBe(window.location.href);
 		});
 
-		it('constructs request with personalization when shopperId exists', () => {
+		it('keeps the Beacon userId and sends the shopper ID only as shopperId when a shopper is logged in', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
-			const shopper = { id: 'shopper123' };
-			controller.tracker.track.shopper.login(shopper);
+			controller.tracker.track.shopper.login({ id: 'shopper123' });
+			const { userId, sessionId, pageLoadId } = controller.tracker.getContext();
 
 			const params = controller.params;
 
-			expect(params.personalization?.shopper).toBe('shopper123');
+			expect(params).not.toHaveProperty('personalization');
+			expect(params.tracking).toEqual({
+				pageUrl: window.location.href,
+				sessionId,
+				pageLoadId,
+				shopperId: 'shopper123',
+				userId,
+			});
 		});
 
 		it('constructs productQuery params with a productIdentity from the attached product', () => {
@@ -1852,6 +1852,23 @@ describe('Chat Controller', () => {
 			expect(controller.store.currentChat?.pendingRequest).toBeNull();
 		});
 
+		it('re-sends a pending request with the Beacon userId when a shopper is logged in', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			controller.tracker.track.shopper.login({ id: 'shopper123' });
+			const { userId } = controller.tracker.getContext();
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect(chatSpy.mock.calls[0][0]).not.toHaveProperty('personalization');
+			expect(chatSpy.mock.calls[0][0].tracking.userId).toBe(userId);
+			expect(chatSpy.mock.calls[0][0].tracking.shopperId).toBe('shopper123');
+		});
+
 		it('re-sends a pending request when the chat is opened via the bubble toggle', async () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
@@ -2099,18 +2116,21 @@ describe('Chat Controller', () => {
 	});
 
 	describe('config globals', () => {
-		it('merges config.globals into the request params', () => {
-			const controller = createController({ globals: { personalization: { shopper: 'global-shopper' } } });
+		const currencyGlobals = { tracking: { currency: 'EUR' } } as Partial<ChatRequestModel>;
+
+		it('deep merges config.globals into the request params', () => {
+			const controller = createController({ globals: currencyGlobals });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.inputValue = 'hello';
 
 			const params = controller.params;
 
-			expect(params.personalization?.shopper).toBe('global-shopper');
+			expect(params.tracking.currency).toBe('EUR');
+			expect(params.tracking.pageUrl).toBe(window.location.href);
 		});
 
 		it('passes config.globals through to the chat API request', async () => {
-			const controller = createController({ globals: { personalization: { shopper: 'global-shopper' } } });
+			const controller = createController({ globals: currencyGlobals });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
 			controller.store.inputValue = 'hello';
@@ -2118,7 +2138,7 @@ describe('Chat Controller', () => {
 
 			await controller.search();
 
-			expect(chatSpy).toHaveBeenCalledWith(expect.objectContaining({ personalization: { shopper: 'global-shopper' } }));
+			expect(chatSpy).toHaveBeenCalledWith(expect.objectContaining({ tracking: expect.objectContaining({ currency: 'EUR' }) }));
 			chatSpy.mockClear();
 		});
 	});
@@ -2208,7 +2228,7 @@ describe('Chat Controller', () => {
 			controller.client.chat = jest.fn(() => {
 				throw {
 					err: new Error('Session limit exceeded'),
-					fetchDetails: { status: 400, url: 'test.com' },
+					fetchDetails: { status: 200, url: 'test.com' },
 					responseBody: { errorCode: 'CS_003' },
 				};
 			});

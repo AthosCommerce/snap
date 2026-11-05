@@ -38,7 +38,7 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 		const unknownError: ChatResponseErrorData = {
 			messageType: 'errorResponse',
 			id: '',
-			errorMessage: 'An unknown error has occurred',
+			errorMessage: 'Something went wrong. Please try again.',
 		};
 
 		return {

@@ -303,7 +303,7 @@ export type RecommendCombinedResponseModel = ProfileResponseModel & { results: S
 	responseId: string;
 };
 
-/** Tracking values sent as query params on every chat backend request.
+/** Tracking values sent as query params on chat send requests.
  * `sessionId` here is the tracker/browser session, not the chat session. */
 export type ChatTrackingContext = {
 	pageUrl: string;
@@ -315,7 +315,6 @@ export type ChatTrackingContext = {
 
 export type ChatStatusRequestModel = {
 	siteId?: string;
-	tracking: ChatTrackingContext;
 };
 
 export type ChatInitRequestModel = {
@@ -331,7 +330,6 @@ export type ChatInitRequestModel = {
 		excludedFacets?: string;
 		shopper?: string;
 	};
-	tracking: ChatTrackingContext;
 };
 
 export type ChatInitResponseModel = {
@@ -357,9 +355,6 @@ export type ChatRequestModel = {
 	tracking: ChatTrackingContext & {
 		userId: string;
 	};
-	personalization?: {
-		shopper: string;
-	};
 };
 
 export type ChatStatusResponseModel = {
@@ -367,12 +362,13 @@ export type ChatStatusResponseModel = {
 		status: {
 			enabled: boolean;
 			disableReason?: {
-				code: number;
+				/** e.g. `CS_004` (disabled for the site) or `CS_005` (not published on the storefront) */
+				code: string;
 				message: string;
 			};
 		};
-		suggestedQuestions: string[];
-		welcomeMessage: string;
+		suggestedQuestions?: string[];
+		welcomeMessage?: string;
 	};
 	features: {
 		imageSearch: { enabled: boolean };
@@ -595,8 +591,8 @@ export type MoiResponseModelError = BaseResponseProperties & {
 };
 
 export type ChatBadRequestResponseModel = {
-	errors: string[];
-	errorMessage: string;
+	errorCode: string;
+	errorMessage?: string;
 };
 
 export type ChatResponseModel = {

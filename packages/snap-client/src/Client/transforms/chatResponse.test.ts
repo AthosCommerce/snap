@@ -275,7 +275,7 @@ describe('transformChatResponse', () => {
 		expect(result.data).toHaveLength(1);
 		const item = result.data[0] as any;
 		expect(item.messageType).toBe('errorResponse');
-		expect(item.errorMessage).toBe('An unknown error has occurred');
+		expect(item.errorMessage).toBe('Something went wrong. Please try again.');
 	});
 
 	it('returns unknownError fallback when data is missing', () => {
@@ -285,7 +285,7 @@ describe('transformChatResponse', () => {
 		expect(result.data).toHaveLength(1);
 		const item = result.data[0] as any;
 		expect(item.messageType).toBe('errorResponse');
-		expect(item.errorMessage).toBe('An unknown error has occurred');
+		expect(item.errorMessage).toBe('Something went wrong. Please try again.');
 	});
 });
 
