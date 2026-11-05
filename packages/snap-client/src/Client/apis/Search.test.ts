@@ -199,6 +199,44 @@ describe('Search Api', () => {
 		requestMock.mockReset();
 	});
 
+	it.each(['getSearch', 'getAutocomplete', 'getCategory', 'getFinder'] as const)(
+		'%s does not reuse the cached response when the lastSearches personalization param changes',
+		async (method) => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock.mock.calls[0][0]).toContain('lastSearches=shoes');
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'boots,shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+			expect(requestMock.mock.calls[1][0]).toContain('lastSearches=boots%2Cshoes');
+
+			await api[method]({
+				siteId: '8uyt2m',
+				search: { query: { string: 'dress' } },
+				personalization: { lastSearches: 'boots,shoes' },
+			});
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+
+			requestMock.mockReset();
+		}
+	);
+
 	it('can call getEndpoint', async () => {
 		const api = new SearchAPI(new ApiConfiguration({}));
 
@@ -247,5 +285,81 @@ describe('Search Api', () => {
 		);
 
 		requestMock.mockReset();
+	});
+
+	describe('tracking.beacon request parameter', () => {
+		const params = {
+			headers: {},
+			method: 'GET',
+		};
+
+		it.each([
+			['getSearch', 'search'],
+			['getCategory', 'category'],
+			['getFinder', 'finder'],
+			['getAutocomplete', 'autocomplete'],
+		] as const)('%s sends beacon=false when tracking.beacon is false', async (method, endpoint) => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			await api[method]({ siteId: '8uyt2m', search: { query: { string: 'untracked' } }, tracking: { beacon: false } });
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock).toHaveBeenCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/${endpoint}?beacon=false&siteId=8uyt2m&q=untracked&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			requestMock.mockReset();
+		});
+
+		it('sends beacon=true when tracking.beacon is true', async () => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			await api.getSearch({ siteId: '8uyt2m', search: { query: { string: 'tracked' } }, tracking: { beacon: true } });
+
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock).toHaveBeenCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/search?beacon=true&siteId=8uyt2m&q=tracked&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			requestMock.mockReset();
+		});
+
+		it('does not answer a tracked request from the cache entry of an untracked request', async () => {
+			const api = new SearchAPI(new ApiConfiguration({}));
+			const requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+			const request = { siteId: '8uyt2m', search: { query: { string: 'cached' } } };
+			const untrackedRequest = { ...request, tracking: { beacon: false } };
+
+			await api.getSearch(untrackedRequest);
+			await api.getSearch(untrackedRequest);
+
+			// repeated untracked request is served from the cache
+			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(requestMock).toHaveBeenLastCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/search?beacon=false&siteId=8uyt2m&q=cached&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			await api.getSearch(request);
+
+			expect(requestMock).toHaveBeenCalledTimes(2);
+			expect(requestMock).toHaveBeenLastCalledWith(
+				`https://8uyt2m.a.athoscommerce.net/v1/search?siteId=8uyt2m&q=cached&ajaxCatalog=snap%2Fclient%2F${version}&resultsFormat=native`,
+				params
+			);
+
+			requestMock.mockReset();
+		});
 	});
 });

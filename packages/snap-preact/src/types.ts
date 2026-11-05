@@ -6,6 +6,7 @@ import type {
 	FinderControllerConfig,
 	RecommendationControllerConfig,
 	ContextVariables,
+	QuickviewManager,
 } from '@athoscommerce/snap-controller';
 import type { SearchStore, AutocompleteStore, FinderStore, RecommendationStore } from '@athoscommerce/snap-store-mobx';
 import type { UrlManager, UrlTranslatorConfig, UrlState } from '@athoscommerce/snap-url-manager';
@@ -27,6 +28,7 @@ export type SnapControllerServices = {
 	profiler?: Profiler;
 	logger?: Logger;
 	tracker?: Tracker;
+	quickviewManager?: QuickviewManager;
 };
 
 type UrlParameterConfig<Type> = {
@@ -72,7 +74,12 @@ export type SnapSearchControllerConfig = {
 
 export type SnapAutocompleteControllerConfig = {
 	mode?: keyof typeof AppMode | AppMode;
-	url?: UrlTranslatorConfig;
+	url?: UrlTranslatorConfig & {
+		globals?: {
+			param: string;
+			value: string;
+		}[];
+	};
 	client?: {
 		globals: ClientGlobals;
 		config?: ClientConfig;
@@ -105,7 +112,14 @@ export type SnapRecommendationControllerConfig = {
 
 export type GlobalThemeStyleScript = (props: { name?: string; variables: ThemeVariables }) => CSSInterpolation;
 
-export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DeepPartial<T> = T extends (...args: any[]) => any
+	? T
+	: T extends readonly (infer U)[]
+	? Array<DeepPartial<U>>
+	: T extends object
+	? { [P in keyof T]?: DeepPartial<T[P]> }
+	: T;
 
 declare global {
 	interface Window {

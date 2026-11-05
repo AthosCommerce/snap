@@ -2,9 +2,9 @@ import { ThemeResponsiveComplete } from '../../../../providers';
 
 // MOLECULES Imports
 
-export const molecules: ThemeResponsiveComplete = {
+export const molecules = {
 	default: {},
 	mobile: {},
 	tablet: {},
 	desktop: {},
-};
+} as unknown as ThemeResponsiveComplete;

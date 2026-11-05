@@ -1,9 +1,11 @@
 import deepmerge from 'deepmerge';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 
 import { ErrorType } from '@athoscommerce/snap-store-mobx';
 
 import { AbstractController } from '../Abstract/AbstractController';
 import { getSearchParams } from '../utils/getParams';
+import { getLastSearchesParam } from '../utils/getLastSearchesParam';
 import { ControllerTypes } from '../types';
 import type { FinderStore } from '@athoscommerce/snap-store-mobx';
 import type { FinderControllerConfig, ControllerServices, ContextVariables } from '../types';
@@ -31,15 +33,11 @@ export class FinderController extends AbstractController {
 	declare store: FinderStore;
 	declare config: FinderControllerConfig;
 
-	constructor(
-		config: FinderControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
-		context?: ContextVariables
-	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+	constructor(config: FinderControllerConfig, services: ControllerServices, context?: ContextVariables) {
+		super(config, services, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 		this.store.setConfig(this.config);
 
 		// set the root URL on urlManager
@@ -76,7 +74,7 @@ export class FinderController extends AbstractController {
 		tracking.domain = window.location.href;
 
 		// get only the finder fields and disable auto drill down
-		const defaultParams = {
+		const defaultParams: Record<string, any> = {
 			facets: {
 				include: this.config.fields.map((fieldConfig) => fieldConfig.field),
 				autoDrillDown: false,
@@ -84,7 +82,19 @@ export class FinderController extends AbstractController {
 			tracking: tracking,
 		};
 
+		if (!this.config.globals?.personalization?.disabled) {
+			const lastSearches = getLastSearchesParam(this.tracker.cookies.searched.get(this.config.globals?.siteId));
+			if (lastSearches) {
+				defaultParams.personalization = { lastSearches };
+			}
+		}
+
 		const params: Record<string, any> = deepmerge({ ...getSearchParams(urlState) }, deepmerge(defaultParams, this.config.globals));
+
+		// opt the request out of API tracking when beacon is not enabled (after globals are merged, so they cannot override it)
+		if (!this.config.beacon?.enabled) {
+			params.tracking.beacon = false;
+		}
 
 		return params;
 	}

@@ -1,4 +1,5 @@
 export { addToCart, ShopifyAddToCartConfig as AddToCartConfig } from './addToCart';
+export { shopifyPriceFormat } from './shopifyPriceFormat';
 export {
 	pluginShopifyBackgroundFilters as pluginBackgroundFilters,
 	PluginShopifyBackgroundFiltersConfig as PluginBackgroundFiltersConfig,
@@ -13,4 +14,8 @@ export {
 	PluginShopifyMarketsConfig as PluginMarketsConfig,
 	SHOPIFY_GRAPHQL_API_PATH,
 } from './plugins/pluginShopifyMarkets';
-export { shopifyMarketsPriceFormat } from './shopifyMarketsPriceFormat';
+export {
+	pluginShopifyCurrency as pluginCurrency,
+	PluginShopifyCurrencyConfig as PluginCurrencyConfig,
+	PluginShopifyCurrencyStore as PluginCurrencyStore,
+} from './plugins/pluginShopifyCurrency';

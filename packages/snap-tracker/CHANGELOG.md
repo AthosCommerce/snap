@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
+
+### Bug Fixes
+
+- clear tracker last searches when search history terms are removed or reset ([a14d7e9](https://github.com/AthosCommerce/snap/commit/a14d7e9b3b853ebde2999535d8326c1915635d8d))
+- keep commas from splitting lastSearches terms and record searched terms with the controller tracker ([c930d42](https://github.com/AthosCommerce/snap/commit/c930d424be08e16a8194160a9d06a95b16000d91))
+
+### Features
+
+- add lastSearches url param to apis ([299d532](https://github.com/AthosCommerce/snap/commit/299d532260ad6e8020752b4851484807a09d1936))
+
+# [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
+
+**Note:** Version bump only for package @athoscommerce/snap-tracker
+
+# [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
+
+**Note:** Version bump only for package @athoscommerce/snap-tracker
+
+## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-tracker
+
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-tracker
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+**Note:** Version bump only for package @athoscommerce/snap-tracker
+
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- finalize quickview, add impression and clickThrough tracking, docs ([d20ac64](https://github.com/AthosCommerce/snap/commit/d20ac64e58f179f434e5e85d39a31247e3e6a04e))
+
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-tracker
+
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+
 ## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-tracker

@@ -160,6 +160,20 @@ The `rangeInputsInheritDefaultValues` prop enables the facet range input values 
 <Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsInheritDefaultValues={true}/>
 ```
 
+### rangeInputsSubmitOnBlur
+The `rangeInputsSubmitOnBlur` prop submits the range inputs when either input loses focus (blur).
+
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true}/>
+```
+
+### hideRangeInputsSubmitButton
+The `hideRangeInputsSubmitButton` prop hides the range inputs submit button.
+
+```tsx
+<Facet facet={controller.store.facets[0]} rangeInputs={true} rangeInputsSubmitOnBlur={true} hideRangeInputsSubmitButton={true}/>
+```
+
 ### showClearAllText
 The `showClearAllText` prop specifies if the clear all text should render.
 
@@ -259,6 +273,33 @@ const displayProp = {
 
 ```tsx
 <Facet facet={controller.store.facets[0]} display={displayProp} />
+```
+
+### displayType
+The `displayType` prop overrides the display type provided by the meta API, changing which options component the facet renders with. Accepts `'list'`, `'grid'`, or `'palette'` — only these display types are interchangeable. If the facet's API display type is not one of these (eg. `'slider'`, `'hierarchy'`), or the override value is not one of these, the prop is ignored and the API display type is used. Note that while a `'palette'` facet can be displayed as any of the other types, fields not intended for palette display may not render well as a palette (option values are used as swatch colors).
+
+```tsx
+<Facet facet={controller.store.facets[0]} displayType={'list'} />
+```
+
+When using Snap Templates, `displayType` can be set via theme overrides — including responsively per breakpoint and scoped to a specific component tree. For example, to render autocomplete facets as a list across all breakpoints while keeping the API display type (eg. `palette`) on desktop and everywhere in search:
+
+```typescript
+new SnapTemplates({
+	config: {
+		theme: {
+			extends: 'pike',
+			overrides: {
+				default: {
+					'autocompleteFixed facet': {
+						displayType: 'list',
+					},
+				},
+			},
+		},
+	},
+	// ...
+});
 ```
 
 ### optionsSlot

@@ -54,6 +54,51 @@ describe('Finder Controller', () => {
 				config.id = uuidv4().split('-').join('');
 			});
 
+			it.each([
+				{ name: 'by default', beacon: undefined, expected: undefined },
+				{ name: 'when beacon is disabled', beacon: { enabled: false }, expected: false },
+				{ name: 'when beacon.enabled is null', beacon: { enabled: null as unknown as boolean }, expected: false },
+				{ name: 'when beacon.enabled is undefined', beacon: { enabled: undefined as unknown as boolean }, expected: false },
+			])('passes tracking.beacon: $expected to the client $name', async ({ beacon, expected }) => {
+				if (beacon) config = { ...config, beacon };
+
+				const controller = new FinderController(config, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(config, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+				const finderfn = jest.spyOn(controller.client, 'finder');
+
+				await controller.search();
+
+				expect(finderfn).toHaveBeenCalledTimes(1);
+				expect(finderfn.mock.calls[0][0]?.tracking?.beacon).toBe(expected);
+			});
+
+			it('opts the request out of tracking when beacon is disabled even if globals set tracking.beacon', async () => {
+				config = { ...config, beacon: { enabled: false }, globals: { ...config.globals, tracking: { beacon: true } } };
+
+				const controller = new FinderController(config, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(config, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+				const finderfn = jest.spyOn(controller.client, 'finder');
+
+				await controller.search();
+
+				expect(finderfn).toHaveBeenCalledTimes(1);
+				expect(finderfn.mock.calls[0][0]?.tracking?.beacon).toBe(false);
+			});
+
 			it(`can persist selections`, async () => {
 				config = {
 					...config,
@@ -124,6 +169,76 @@ describe('Finder Controller', () => {
 					include: config.fields.map((field: any) => field.field),
 					autoDrillDown: false,
 				});
+			});
+
+			it(`sets personalization lastSearches param with the most recent term first`, async () => {
+				const controller = new FinderController(config, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(config, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.add(['shoes']);
+				controller.tracker.cookies.searched.add(['boots']);
+
+				expect(controller.params.personalization).toStrictEqual({ lastSearches: 'boots,shoes' });
+
+				controller.tracker.cookies.searched.clear();
+				expect(controller.params.personalization).toBeUndefined();
+			});
+
+			it(`sets personalization lastSearches param for the siteId in the controller globals`, async () => {
+				const siteConfig: FinderControllerConfig = { ...config, globals: { siteId: 'at5678' } };
+				const controller = new FinderController(siteConfig, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(siteConfig, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.clear('at5678');
+				controller.tracker.cookies.searched.add(['boots'], 'at5678');
+				controller.tracker.cookies.searched.add(['shoes']);
+
+				expect(controller.params.personalization).toStrictEqual({ lastSearches: 'boots' });
+
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.clear('at5678');
+			});
+
+			it(`does not set personalization lastSearches param when personalization is disabled`, async () => {
+				const disabledConfig = {
+					...config,
+					globals: {
+						personalization: {
+							disabled: true,
+						},
+					},
+				};
+				const controller = new FinderController(disabledConfig, {
+					client: new MockClient(globals, {}),
+					store: new FinderStore(disabledConfig, services),
+					urlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+
+				controller.tracker.cookies.searched.clear();
+				controller.tracker.cookies.searched.add(['shoes']);
+
+				expect(controller.params.personalization?.lastSearches).toBeUndefined();
+
+				controller.tracker.cookies.searched.clear();
 			});
 
 			it(`allows for config globals to overwrite / merge with default parameters`, async () => {
@@ -281,7 +396,7 @@ describe('Finder Controller', () => {
 				window.location = {
 					...window.location,
 					href: '', // jest does not support window location changes
-				};
+				} as unknown as string & Location;
 
 				const beforeFindfn = jest.spyOn(controller.eventManager, 'fire');
 				await controller.find();

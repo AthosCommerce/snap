@@ -70,10 +70,9 @@ When `unlocked: true`, you can define custom plugins under `plugins.custom`. Cus
 Each custom plugin requires a `function` property that receives the controller instance and can register event handlers. You can optionally pass additional arguments via the `args` array:
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfigUnlocked = {
+const config = validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -104,7 +103,7 @@ const config: SnapTemplatesConfigUnlocked = {
 		extends: 'pike',
 	},
 	// ...
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -125,10 +124,9 @@ const createFilterPlugin = (controller, filterField, filterValues) => {
 	});
 };
 
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfigUnlocked = {
+const config = validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -149,7 +147,7 @@ const config: SnapTemplatesConfigUnlocked = {
 	theme: {
 		extends: 'pike',
 	},
-};
+});
 
 new SnapTemplates(config);
 ```
@@ -157,10 +155,9 @@ new SnapTemplates(config);
 Custom plugins can also be defined at the feature level (search, autocomplete, recommendation) to only apply to specific controllers:
 
 ```tsx
-import { SnapTemplates } from '@athoscommerce/snap-preact';
-import type { SnapTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
+import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
 
-const config: SnapTemplatesConfigUnlocked = {
+const config = validateTemplatesConfigUnlocked({
 	unlocked: true,
 	config: {
 		siteId: '8uyt2m',
@@ -188,7 +185,7 @@ const config: SnapTemplatesConfigUnlocked = {
 		},
 	},
 	// ...
-};
+});
 
 new SnapTemplates(config);
 ```

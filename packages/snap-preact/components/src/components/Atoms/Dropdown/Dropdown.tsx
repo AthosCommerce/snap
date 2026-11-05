@@ -1,6 +1,6 @@
 import { ComponentChildren, h } from 'preact';
 import { createPortal } from 'preact/compat';
-import { useState, StateUpdater, MutableRef, useRef, useEffect, Dispatch } from 'preact/hooks';
+import { useState, StateUpdater, MutableRef, useRef, useLayoutEffect, Dispatch } from 'preact/hooks';
 
 import { jsx, css } from '@emotion/react';
 import classnames from 'classnames';
@@ -105,10 +105,16 @@ export const Dropdown = observer((properties: DropdownProps) => {
 					onToggle && onToggle(e, false);
 				}
 			}
-		});
+			// capture phase so outside clicks close the dropdown even inside the quickview wrapper,
+			// which stops click propagation; the contentRef guard above covers the portaled options
+		}, true);
 	}
 
-	useEffect(() => {
+	// Position the portal BEFORE the browser paints — with a regular effect the dropdown
+	// options would flash at (0,0) until the effect runs and computes the real button position.
+	// Resize / scroll listeners stay on a regular effect — they only need to run after
+	// the initial layout pass is committed.
+	useLayoutEffect(() => {
 		if (usePortal && dropdownOpen) {
 			const updateCoords = () => {
 				if (buttonRef.current) {
@@ -234,19 +240,23 @@ export const Dropdown = observer((properties: DropdownProps) => {
 					? (content || children) && contentElement
 					: (content || children) &&
 					  createPortal(
-							<div
-								className={classnames('ss__dropdown__portal', className, internalClassName, { 'ss__dropdown__portal--open': dropdownOpen })}
-								css={styling.css}
-								style={{
-									position: 'absolute',
-									top: coords.top,
-									left: coords.left,
-									width: coords.width,
-									zIndex: 9999,
-									pointerEvents: dropdownOpen ? 'auto' : 'none',
-								}}
-							>
-								{contentElement}
+							<div className={globalTheme.name ? `ss__theme__${globalTheme.name}` : 'ss__theme__global'}>
+								<div
+									className={classnames('ss__dropdown__portal', className, internalClassName, { 'ss__dropdown__portal--open': dropdownOpen })}
+									css={styling.css}
+									style={{
+										position: 'absolute',
+										top: coords.top,
+										left: coords.left,
+										width: coords.width,
+										// 10007: above the quickview modal content (10006) so variant dropdowns paint over it,
+										// below the Gallery lightbox (10010). Full ladder: see QuickviewModal defaultStyles.
+										zIndex: 10007,
+										pointerEvents: dropdownOpen ? 'auto' : 'none',
+									}}
+								>
+									{contentElement}
+								</div>
 							</div>,
 							document.body
 					  )}

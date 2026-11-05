@@ -151,9 +151,13 @@ export const NoResults = observer((properties: NoResultsProps) => {
 	};
 
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller: controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller: controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return (
 		<div className={classnames('ss__no-results', className, internalClassName)} {...styling}>

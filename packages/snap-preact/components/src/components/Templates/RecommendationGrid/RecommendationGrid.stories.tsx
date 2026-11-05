@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { RecommendationGrid, RecommendationGridProps } from './RecommendationGrid';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 
 import Readme from './readme.md';
@@ -12,23 +10,11 @@ import type { RecommendationController } from '@athoscommerce/snap-controller';
 export default {
 	title: 'Templates/RecommendationGrid',
 	component: RecommendationGrid,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [(Story: any) => <Story />],
@@ -41,7 +27,7 @@ export default {
 				},
 			},
 			type: { required: true },
-			control: { type: 'none' },
+			control: false,
 		},
 		title: {
 			description: 'Recommendation title',
@@ -62,7 +48,7 @@ export default {
 					summary: 'Results store object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		resultComponent: {
 			description: 'Slot for custom result component',
@@ -137,7 +123,7 @@ export default {
 					summary: 'object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 
 		...componentArgs,
@@ -146,45 +132,49 @@ export default {
 
 const snapInstance = Snapify.recommendation({ id: 'RecommendationList', tag: 'trending', globals: { siteId: 'atkzs2' } });
 
-export const List = (args: RecommendationGridProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return (
-		<div style={{ maxWidth: '1200px' }}>
-			<RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />
-		</div>
-	);
-};
-
-List.args = {
-	columns: 10,
-	rows: 1,
-};
-
-List.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const List = {
+	render: (args: RecommendationGridProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
+		return (
+			<div style={{ maxWidth: '1200px' }}>
+				<RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />
+			</div>
+		);
 	},
-];
 
-export const Grid = (args: RecommendationGridProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
-	return (
-		<div style={{ maxWidth: '1200px' }}>
-			<RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />
-		</div>
-	);
-};
-
-Grid.args = {
-	columns: 4,
-};
-
-Grid.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+	args: {
+		columns: 10,
+		rows: 1,
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
+
+export const Grid = {
+	render: (args: RecommendationGridProps, { loaded: { controller } }: { loaded: { controller: RecommendationController } }) => {
+		return (
+			<div style={{ maxWidth: '1200px' }}>
+				<RecommendationGrid {...args} controller={controller} results={controller?.store?.results} />
+			</div>
+		);
+	},
+
+	args: {
+		columns: 4,
+	},
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};

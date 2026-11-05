@@ -59,7 +59,9 @@ The `_` module is used a seperator module to center|left|right justify the other
 
 available modules to use in the layout are 
 
-`c1`, `c2`, `c3`, `c4`,`TermsList`, `Terms.history`, `Terms.trending`, `Terms.suggestions`, `Facets`, `FacetsHorizontal`, `Button.see-more`, `Content`, `_`, `Banner.left`, `Banner.banner`, `Banner.footer`, `Banner.header`.
+`c1`, `c2`, `c3`, `c4`, `termsList`, `terms.history`, `terms.trending`, `terms.suggestions`, `facets`, `facetsHorizontal`, `button.see-more`, `content`, `no-results`, `tabSelection`, `searchInput`, `_`, `banner.left`, `banner.banner`, `banner.footer`, `banner.header`
+
+The `searchInput` module positions the rendered search input (see `renderInput` below).
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} layout={[['c1','c2','c3']]}/>
@@ -70,12 +72,12 @@ The `column1` prop specifies the layout to render in the `c1` module. Takes an o
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
-`layout` which specifies an array of modules to render in the column. Defaults to `['TermsList']`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+`layout` which specifies an array of modules to render in the column. Defaults to `['termsList']`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column1={{
     width: '150px',
-    layout: ['Terms.history', 'Terms.trending']
+    layout: ['terms.history', 'terms.trending']
 }}/>
 ```
 
@@ -84,12 +86,12 @@ The `column2` prop specifies a layout array to render in the `c2` module. Takes 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
-`layout` which specifies an array of modules to render in the column. Defaults to `['Facets']`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+`layout` which specifies an array of modules to render in the column. Defaults to `['facets']`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column2={{
     width: '150px',
-    layout: ['Facets']
+    layout: ['facets']
 }}/>
 ```
 
@@ -98,12 +100,12 @@ The `column3` prop specifies a layout array to render in the `c3` module. Takes 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
-`layout` which specifies an array of modules to render in the column. Defaults to `[['Content'], ['_', 'Button.see-more']]`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+`layout` which specifies an array of modules to render in the column. Defaults to `[['tabSelection'], ['content'], ['_', 'button.see-more']]`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column3={{
     width: '150px',
-    layout: [['Content', ['_', 'Button.see-more', '_']]]
+    layout: [['content'], ['_', 'button.see-more', '_']]
 }}/>
 ```
 
@@ -117,7 +119,7 @@ The `column4` prop specifies a layout array to render in the `c4` module. Takes 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column4={{
 width: '150px',
-layout: ['Facets']
+layout: ['facets']
 }}/>
 ```
 
@@ -133,6 +135,19 @@ The `renderInput` prop specifies whether the Search Input should be rendered.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} renderInput={false} />
+```
+
+#### Positioning the search input
+By default the rendered search input sits above the layout. Add the `searchInput` module to the `layout` prop (or to one of the column layouts) to render the input at that position instead. The layout stays rendered while the component is open so the input is never lost, while the other modules still only render once the input is focused and there are terms or results to show. `renderInput={false}` disables the rendered input in both cases.
+
+```tsx
+<AutocompleteModal
+	controller={controller}
+	input={'#searchInput'}
+	layout={[['c1', 'c3']]}
+	column1={{ width: '40%', layout: [['searchInput'], ['terms.history', 'terms.trending']] }}
+	column3={{ width: 'auto', layout: ['content'] }}
+/>
 ```
 
 ### width

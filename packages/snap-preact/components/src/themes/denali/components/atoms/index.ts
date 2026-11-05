@@ -11,7 +11,7 @@ import { searchHeader } from './searchHeader';
 import { skeleton } from './skeleton';
 import { calloutBadge } from './calloutBadge';
 
-export const atoms: ThemeResponsiveComplete = {
+export const atoms = {
 	default: {
 		...button.default,
 		...dropdown.default,
@@ -55,4 +55,4 @@ export const atoms: ThemeResponsiveComplete = {
 		...skeleton.desktop,
 		...calloutBadge.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

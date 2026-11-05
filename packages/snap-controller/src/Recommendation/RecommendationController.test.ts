@@ -1,7 +1,7 @@
 import 'whatwg-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
-import { RecommendationStore, RecommendationStoreConfig } from '@athoscommerce/snap-store-mobx';
+import { Product, RecommendationStore, RecommendationStoreConfig } from '@athoscommerce/snap-store-mobx';
 import { UrlManager, QueryStringTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
 import { Tracker } from '@athoscommerce/snap-tracker';
 import { EventManager } from '@athoscommerce/snap-event-manager';
@@ -65,6 +65,54 @@ describe('Recommendation Controller', () => {
 				tracker: new Tracker(globals),
 			});
 		}).toThrow();
+	});
+
+	it.each([
+		{ name: 'by default', beacon: undefined, expected: undefined },
+		{ name: 'when beacon is disabled', beacon: { enabled: false }, expected: false },
+		{ name: 'when beacon.enabled is null', beacon: { enabled: null as unknown as boolean }, expected: false },
+		{ name: 'when beacon.enabled is undefined', beacon: { enabled: undefined as unknown as boolean }, expected: false },
+	])('passes beacon: $expected to the client $name', async ({ beacon, expected }) => {
+		const config: RecommendationStoreConfig = beacon ? { ...recommendConfig, beacon } : recommendConfig;
+
+		const controller = new RecommendationController(config, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const recommendfn = jest.spyOn(controller.client, 'recommend');
+
+		await controller.search();
+
+		expect(recommendfn).toHaveBeenCalledTimes(1);
+		expect(recommendfn.mock.calls[0][0].beacon).toBe(expected);
+	});
+
+	it('does not modify the globals config when opting the request out of tracking', async () => {
+		const configGlobals = { ...recommendConfig.globals, beacon: true };
+		const config: RecommendationStoreConfig = { ...recommendConfig, beacon: { enabled: false }, globals: configGlobals };
+
+		const controller = new RecommendationController(config, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const recommendfn = jest.spyOn(controller.client, 'recommend');
+
+		await controller.search();
+
+		expect(recommendfn).toHaveBeenCalledTimes(1);
+		expect(recommendfn.mock.calls[0][0].beacon).toBe(false);
+		expect(configGlobals).toStrictEqual({ product: mockSkus[0], beacon: true });
+		expect(controller.config.globals?.beacon).toBe(true);
 	});
 
 	const events = ['beforeSearch', 'afterSearch', 'afterStore'];
@@ -471,6 +519,74 @@ describe('Recommendation Controller', () => {
 		clickfn.mockClear();
 	});
 
+	it('passes quickView override through track.product methods and addToCart to beacon events', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const impressionfn = jest.spyOn(controller.tracker.events.recommendations, 'impression');
+		const clickThroughfn = jest.spyOn(controller.tracker.events.recommendations, 'clickThrough');
+		const addToCartfn = jest.spyOn(controller.tracker.events.recommendations, 'addToCart');
+
+		await controller.search();
+
+		const results = controller.store.results;
+
+		controller.track.product.impression(results[0], { quickView: true });
+		controller.track.product.clickThrough(new MouseEvent('click'), results[0], { quickView: true });
+		controller.track.product.addToCart(results[0] as Product, { quickView: true });
+		await controller.addToCart(results[1] as Product, { quickView: true });
+
+		const withQuickView = expect.objectContaining({ data: expect.objectContaining({ quickView: true }) });
+		expect(impressionfn).toHaveBeenCalledWith(withQuickView);
+		expect(clickThroughfn).toHaveBeenCalledWith(withQuickView);
+		expect(addToCartfn).toHaveBeenNthCalledWith(1, withQuickView);
+		expect(addToCartfn).toHaveBeenNthCalledWith(2, withQuickView);
+
+		controller.track.product.clickThrough(new MouseEvent('click'), results[2]);
+		expect(clickThroughfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.not.objectContaining({ quickView: true }) }));
+
+		controller.tracker.cookies.cart.clear();
+		impressionfn.mockClear();
+		clickThroughfn.mockClear();
+		addToCartfn.mockClear();
+	});
+
+	it('dedupes quickView impressions separately from regular impressions', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		const impressionfn = jest.spyOn(controller.tracker.events.recommendations, 'impression');
+
+		await controller.search();
+
+		const result = controller.store.results[0];
+
+		// a regular impression must not suppress the quickview impression (and vice versa)
+		controller.track.product.impression(result);
+		controller.track.product.impression(result, { quickView: true });
+		expect(impressionfn).toHaveBeenCalledTimes(2);
+		expect(impressionfn).toHaveBeenLastCalledWith(expect.objectContaining({ data: expect.objectContaining({ quickView: true }) }));
+
+		// repeat impressions of either kind are deduped
+		controller.track.product.impression(result, { quickView: true });
+		controller.track.product.impression(result);
+		expect(impressionfn).toHaveBeenCalledTimes(2);
+
+		impressionfn.mockClear();
+	});
+
 	it('can set lastViewed param', async () => {
 		const controller = new RecommendationController(recommendConfig, {
 			client: new MockClient(globals, {}),
@@ -486,6 +602,68 @@ describe('Recommendation Controller', () => {
 		controller.tracker.track.product.view(product);
 
 		expect(controller.params.lastViewed).toEqual([product.sku]);
+	});
+
+	it('can set lastSearches param with the most recent term first', async () => {
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.add(['shoes']);
+		controller.tracker.cookies.searched.add(['boots']);
+
+		expect(controller.params.lastSearches).toEqual(['boots', 'shoes']);
+
+		controller.tracker.cookies.searched.clear();
+	});
+
+	it('sets lastSearches param for the siteId in the controller globals', async () => {
+		const config: RecommendationStoreConfig = { ...recommendConfig, globals: { ...recommendConfig.globals, siteId: 'at5678' } };
+		const controller = new RecommendationController(config, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+		controller.tracker.cookies.searched.add(['boots'], 'at5678');
+		controller.tracker.cookies.searched.add(['shoes']);
+
+		expect(controller.params.lastSearches).toEqual(['boots']);
+
+		controller.tracker.cookies.searched.clear();
+		controller.tracker.cookies.searched.clear('at5678');
+	});
+
+	it('does not set cart or lastViewed params for a different siteId', async () => {
+		const config: RecommendationStoreConfig = { ...recommendConfig, globals: { ...recommendConfig.globals, siteId: 'at5678' } };
+		const controller = new RecommendationController(config, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(config, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+		});
+		controller.tracker.cookies.cart.set(['sku1']);
+		controller.tracker.track.product.view({ sku: 'sku2' });
+
+		expect(controller.params.cart).toBeUndefined();
+		expect(controller.params.lastViewed).toBeUndefined();
+
+		controller.tracker.cookies.cart.clear();
 	});
 
 	it('can set shopper param', async () => {
@@ -667,5 +845,35 @@ describe('Recommendation Controller', () => {
 
 		expect(handleError).toHaveBeenCalledWith(error, { status: 500, url: 'test.com' });
 		handleError.mockClear();
+	});
+});
+
+describe('Recommendation Controller quickview', () => {
+	beforeEach(() => {
+		recommendConfig.id = uuidv4().split('-').join('');
+	});
+
+	it('quickview forwards the result and itself to the quickview manager', async () => {
+		const show = jest.fn();
+		const controller = new RecommendationController(recommendConfig, {
+			client: new MockClient(globals, {}),
+			store: new RecommendationStore(recommendConfig, services),
+			urlManager,
+			eventManager: new EventManager(),
+			profiler: new Profiler(),
+			logger: new Logger(),
+			tracker: new Tracker(globals),
+			quickviewManager: { show } as any,
+		});
+
+		const result: any = { id: 'rec-child-1', mappings: { core: { parentId: 'rec-parent-1' } } };
+		await controller.quickview(result);
+
+		expect(show).toHaveBeenCalledWith(result, expect.objectContaining({ controller }));
+
+		const fallbackResult: any = { id: 'rec-1' };
+		await controller.quickview(fallbackResult);
+
+		expect(show).toHaveBeenCalledWith(fallbackResult, expect.objectContaining({ controller }));
 	});
 });

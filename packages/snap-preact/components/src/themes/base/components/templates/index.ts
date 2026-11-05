@@ -15,7 +15,7 @@ import { autocompleteSlideout } from './autocompleteSlideout';
 import { autocompleteModal } from './autocompleteModal';
 import { autocompleteFixed } from './autocompleteFixed';
 
-export const templates: ThemeResponsiveComplete = {
+export const templates = {
 	default: {
 		...autocompleteSlideout.default,
 		...autocompleteModal.default,
@@ -76,4 +76,4 @@ export const templates: ThemeResponsiveComplete = {
 		...searchCollapsible.desktop,
 		...searchHorizontal.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

@@ -4,5 +4,6 @@
 	"description": "Snap Common Platform Library",
 	"main": "../dist/cjs/common/src/index.js",
 	"module": "../dist/esm/common/src/index.js",
+	"types": "../dist/esm/common/src/index.d.ts",
 	"sideEffects": false
 }

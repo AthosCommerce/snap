@@ -17,6 +17,19 @@ describe('search request transformer', () => {
 
 		expect(Object.keys(searchRequest)).toEqual(['q', 'sort.name']);
 	});
+
+	it('does not add the beacon param when tracking.beacon is not set', () => {
+		const expected = { q: 'red dress', 'sort.name': ['asc'] };
+
+		expect(transformSearchRequest(mockRequest)).toEqual(expected);
+		expect(transformSearchRequest({ ...mockRequest, tracking: {} })).toEqual(expected);
+	});
+
+	it.each([false, true])('passes tracking.beacon: %s through as the beacon param', (beacon) => {
+		const searchRequest = transformSearchRequest({ ...mockRequest, tracking: { beacon } });
+
+		expect(searchRequest).toEqual({ q: 'red dress', 'sort.name': ['asc'], beacon });
+	});
 });
 
 describe('search request sort transform', () => {
@@ -402,5 +415,43 @@ describe('request facets transform', () => {
 		});
 
 		expect(params).toEqual({});
+	});
+});
+
+describe('search request personalization transform', () => {
+	it('returns empty object if request missing', () => {
+		const params = transformSearchRequest.personalization();
+
+		expect(params).toEqual({});
+	});
+
+	it('generates personalization params', () => {
+		const params = transformSearchRequest.personalization({
+			personalization: {
+				disabled: true,
+				cart: 'sku1,sku2',
+				lastViewed: 'sku3,sku4',
+				lastSearches: 'boots,shoes',
+				shopper: 'shopper123',
+			},
+		});
+
+		expect(params).toEqual({
+			skipPersonalization: true,
+			cart: 'sku1,sku2',
+			lastViewed: 'sku3,sku4',
+			lastSearches: 'boots,shoes',
+			shopper: 'shopper123',
+		});
+	});
+
+	it('omits lastSearches when not provided', () => {
+		const params = transformSearchRequest.personalization({
+			personalization: {
+				lastViewed: 'sku3',
+			},
+		});
+
+		expect(params).toEqual({ lastViewed: 'sku3' });
 	});
 });

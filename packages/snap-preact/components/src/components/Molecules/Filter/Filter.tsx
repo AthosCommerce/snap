@@ -97,10 +97,14 @@ export const Filter = observer((properties: FilterProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		label,
-		value,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			label,
+			value,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return value ? (
 		<CacheProvider>
@@ -113,7 +117,7 @@ export const Filter = observer((properties: FilterProps) => {
 				}}
 				href={link?.href}
 				tabIndex={0}
-				{...mergedLang.filter?.all}
+				{...mergedLang.filter?.attributes}
 			>
 				<Button {...subProps.button}>
 					<Icon {...subProps.icon} {...(typeof icon == 'string' ? { icon: icon } : (icon as Partial<IconProps>))} />
@@ -123,7 +127,9 @@ export const Filter = observer((properties: FilterProps) => {
 							{separator && <span className="ss__filter__label__separator">{separator}</span>}
 						</span>
 					)}
-					<span className="ss__filter__value">{value}</span>
+					<span className="ss__filter__value" {...mergedLang.filter?.value}>
+						{value}
+					</span>
 				</Button>
 			</a>
 		</CacheProvider>

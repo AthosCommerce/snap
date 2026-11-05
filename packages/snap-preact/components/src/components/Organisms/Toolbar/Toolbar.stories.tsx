@@ -1,8 +1,6 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import { Snapify } from '../../../utilities/snapify';
 import Readme from './readme.md';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -11,23 +9,11 @@ import { Toolbar, ToolbarProps } from './Toolbar';
 export default {
 	title: 'Organisms/Toolbar',
 	component: Toolbar,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -50,7 +36,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		layout: {
 			description: 'array of modules to render in specified layout',
@@ -86,18 +72,21 @@ const snapInstance = Snapify.search({
 	},
 });
 
-export const Default = (args: ToolbarProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	return <Toolbar {...args} controller={controller} />;
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (args: ToolbarProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		return <Toolbar {...args} controller={controller} />;
 	},
-];
-Default.args = {
-	layout: [['filterSummary', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']],
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+
+	args: {
+		layout: [['filterSummary', 'paginationInfo', '_', 'sortBy', 'perPage', 'pagination']],
+	},
 };

@@ -29,7 +29,6 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 	public sorting!: SearchSortingStore;
 	public storage: StorageStore;
 	public history: SearchHistoryStore;
-
 	constructor(config: SearchStoreConfig, services: StoreServices) {
 		super(config);
 
@@ -57,6 +56,10 @@ export class SearchStore extends AbstractStore<SearchStoreConfig> {
 			pagination: observable,
 			sorting: observable,
 		});
+	}
+
+	public setService<Name extends keyof StoreServices>(name: Name, service: StoreServices[Name]): void {
+		this.services[name] = service;
 	}
 
 	public reset(): void {

@@ -25,7 +25,7 @@ console.log(store.toJSON());
 Used to update the store with trending terms data
 
 ## `setService` method
-Used to update any services on the store
+Used to update the `urlManager` service on the store
 
 ## `reset` method
 Reset store to the initial state by clearing data and locks
@@ -110,6 +110,15 @@ console.log(lock.locked) // true
 Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Storage)
 
 <!-- TODO: update link -->
+
+## Quickview
+
+The quickview modal state does not live on `AutocompleteStore` — it is held by the `QuickviewStore`, the store of the shared `QuickviewManager`, reached via any controller at `controller.quickviewManager.store`:
+
+- Observable fields: `product?: Product`, `isOpen: boolean`, `loading: boolean`, `resolvedConfig?: QuickviewConfig`, `error?: QuickviewError`.
+- Actions: `update({ result, productsData?, config?, storeConfig?, meta? })` and `reset()`. Closing lives on the manager (`quickviewManager.close()`); `isOpen`, `loading`, and `error` are driven by the `QuickviewManager`.
+
+`AutocompleteController` exposes a `quickview(result)` method that forwards to the `QuickviewManager`. See the [AutocompleteController README](https://github.com/athoscommerce/snap/tree/main/packages/snap-controller/src/Autocomplete) for the full usage, and the [QuickviewStore README](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/QuickView) for the complete observable surface.
 
 ## `merchandising` property
 Contains redirect and banner merchandising data that the Search API returned. See [SearchStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Search) `merchandising` property

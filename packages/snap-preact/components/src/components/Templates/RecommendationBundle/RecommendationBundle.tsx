@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite';
 import deepmerge from 'deepmerge';
 import { Carousel, CarouselProps as CarouselProps } from '../../Molecules/Carousel';
 import { Result, ResultProps } from '../../Molecules/Result';
-import { cloneWithProps, defined, mergeProps, mergeStyles } from '../../../utilities';
+import { cloneWithProps, defined, lazyRenderMinSize, mergeProps, mergeStyles } from '../../../utilities';
 import { Theme, useTheme, CacheProvider, useTreePath, ThemeComplete, useSnap } from '../../../providers';
 import { ComponentProps, BreakpointsProps, StyleScript, BreakpointsEntry, JSXComponent } from '../../../types';
 import { useDisplaySettings } from '../../../hooks/useDisplaySettings';
@@ -41,6 +41,8 @@ const defaultStyles: StyleScript<RecommendationBundleProps & { hasSeed: boolean;
 	const slidesPerView = carousel?.slidesPerView!;
 
 	return css({
+		...lazyRenderMinSize,
+
 		[`.${classNamePrefix}__wrapper`]: {
 			display: 'flex',
 			maxWidth: '100%',
@@ -562,6 +564,7 @@ export const RecommendationBundle = observer((properties: RecommendationBundlePr
 		<CacheProvider>
 			<div
 				{...styling}
+				style={disableStyles ? lazyRenderMinSize : undefined}
 				ref={recsRef}
 				className={classnames(classNamePrefix, { [`${classNamePrefix}--stacked`]: !ctaInline }, className, internalClassName)}
 			>

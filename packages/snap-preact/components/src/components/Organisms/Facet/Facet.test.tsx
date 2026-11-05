@@ -121,6 +121,108 @@ describe('Facet Component', () => {
 		});
 	});
 
+	describe('displayType prop', () => {
+		it('overrides the API display type', () => {
+			const args: FacetProps = {
+				facet: { ...paletteFacetMock, display: 'palette' } as ValueFacet,
+				displayType: 'list',
+			};
+			// @ts-ignore - readonly
+			args.facet.refinedValues = (args.facet as ValueFacet).values;
+			const rendered = render(<Facet {...args} />);
+			const facetElement = rendered.container.querySelector('.ss__facet');
+			expect(facetElement).toHaveClass('ss__facet--list');
+			expect(facetElement).not.toHaveClass('ss__facet--palette');
+			const count = rendered.container.querySelectorAll('.ss__facet-list-options__option').length;
+			expect(count).toEqual((args.facet as ValueFacet).values.length);
+			expect(rendered.container.querySelector('.ss__facet-palette-options')).not.toBeInTheDocument();
+		});
+
+		it('cannot override a hierarchy display and falls back to the API display', () => {
+			const args: FacetProps = {
+				facet: { ...hierarchyFacetMock, display: 'hierarchy' } as ValueFacet,
+				displayType: 'palette',
+			};
+			args.facet.collapsed = false;
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--hierarchy');
+			expect(rendered.container.querySelector('.ss__facet-hierarchy-options')).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__facet-palette-options')).not.toBeInTheDocument();
+		});
+
+		it('cannot override to a hierarchy display and falls back to the API display', () => {
+			const args: FacetProps = {
+				facet: { ...listFacetMock, display: 'list' } as ValueFacet,
+				//@ts-ignore - hierarchy is not an allowed displayType, testing runtime fallback for untyped theme configs
+				displayType: 'hierarchy',
+			};
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--list');
+			expect(rendered.container.querySelector('.ss__facet-list-options')).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__facet-hierarchy-options')).not.toBeInTheDocument();
+		});
+
+		it('cannot override a slider display', () => {
+			const args: FacetProps = {
+				//@ts-ignore - mock data type
+				facet: { ...sliderFacetMock, display: 'slider' } as RangeFacet,
+				displayType: 'list',
+			};
+			args.facet.collapsed = false;
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--slider');
+			expect(rendered.container.querySelector('.ss__facet-slider')).toBeInTheDocument();
+			expect(rendered.container.querySelector('.ss__facet-list-options')).not.toBeInTheDocument();
+		});
+
+		it('applies display keyed props using the overridden display type', () => {
+			const args: FacetProps = {
+				facet: { ...facetOverflowMock, display: 'list' } as ValueFacet,
+				displayType: 'grid',
+				disableOverflow: true,
+				display: {
+					grid: { limit: 3 },
+					list: { limit: 1 },
+				},
+			};
+			const rendered = render(<Facet {...args} />);
+			const count = rendered.container.querySelectorAll('.ss__facet-grid-options__option').length;
+			expect(count).toEqual(3);
+		});
+
+		it('can be set per field via the fields prop', () => {
+			const args: FacetProps = {
+				facet: { ...paletteFacetMock, display: 'palette' } as ValueFacet,
+				fields: {
+					[paletteFacetMock.field!]: { displayType: 'grid' },
+				},
+			};
+			const rendered = render(<Facet {...args} />);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--grid');
+			expect(rendered.container.querySelector('.ss__facet-grid-options')).toBeInTheDocument();
+		});
+
+		it('is themeable', () => {
+			const globalTheme = {
+				components: {
+					facet: {
+						displayType: 'list' as const,
+					},
+				},
+			};
+			const args: FacetProps = {
+				facet: { ...paletteFacetMock, display: 'palette' } as ValueFacet,
+			};
+			const rendered = render(
+				<ThemeProvider theme={globalTheme}>
+					<Facet {...args} />
+				</ThemeProvider>
+			);
+			expect(rendered.container.querySelector('.ss__facet')).toHaveClass('ss__facet--list');
+			expect(rendered.container.querySelector('.ss__facet-list-options')).toBeInTheDocument();
+		});
+	});
+
 	describe('Facet props', () => {
 		it('color prop', () => {
 			const args = {
@@ -459,6 +561,119 @@ describe('Facet Component', () => {
 			// Check that inputs are initialized with the facet's range values
 			expect(lowInput.value).toBe(args.facet.range?.low?.toString());
 			expect(highInput.value).toBe(args.facet.range?.high?.toString());
+		});
+
+		it('rangeInputsSubmitOnBlur prop submits the range when an input is blurred', async () => {
+			const urlManager = { remove: jest.fn().mockReturnThis(), set: jest.fn().mockReturnThis(), go: jest.fn() };
+
+			const args = {
+				facet: {
+					...sliderFacetMock,
+					display: 'slider',
+					collapsed: false,
+					type: 'range',
+					field: 'price',
+					range: { low: 10, high: 100 },
+					active: { low: undefined, high: undefined },
+					services: { urlManager },
+				} as unknown as RangeFacet,
+				rangeInputs: true,
+				rangeInputsSubmitOnBlur: true,
+			};
+
+			const rendered = render(<Facet {...args} />);
+			const rangeInputsElement = rendered.container.querySelector('.ss__facet__range-inputs')!;
+
+			const submitButton = rangeInputsElement.querySelector('.ss__facet__range-input__button--submit');
+			expect(submitButton).toBeInTheDocument();
+
+			const lowInput = rangeInputsElement.querySelector('.ss__facet__range-input--low .ss__facet__range-input__input') as HTMLInputElement;
+			const highInput = rangeInputsElement.querySelector('.ss__facet__range-input--high .ss__facet__range-input__input') as HTMLInputElement;
+
+			await userEvent.type(lowInput, '20');
+			await userEvent.type(highInput, '80');
+			highInput.focus();
+			highInput.blur();
+
+			expect(urlManager.set).toHaveBeenCalledWith('filter.price', { low: 20, high: 80 });
+			expect(urlManager.go).toHaveBeenCalled();
+		});
+
+		it('submits the range with the Enter key even when rangeInputsSubmitButtonText is an empty string', async () => {
+			const urlManager = { remove: jest.fn().mockReturnThis(), set: jest.fn().mockReturnThis(), go: jest.fn() };
+
+			const args = {
+				facet: {
+					...sliderFacetMock,
+					display: 'slider',
+					collapsed: false,
+					type: 'range',
+					field: 'price',
+					range: { low: 10, high: 100 },
+					active: { low: undefined, high: undefined },
+					services: { urlManager },
+				} as unknown as RangeFacet,
+				rangeInputs: true,
+				rangeInputsSubmitButtonText: '',
+			};
+
+			const rendered = render(<Facet {...args} />);
+			const rangeInputsElement = rendered.container.querySelector('.ss__facet__range-inputs')!;
+
+			// the submit button doesn't render since it has no text/icon/content
+			const submitButton = rangeInputsElement.querySelector('.ss__facet__range-input__button--submit');
+			expect(submitButton).not.toBeInTheDocument();
+
+			const lowInput = rangeInputsElement.querySelector('.ss__facet__range-input--low .ss__facet__range-input__input') as HTMLInputElement;
+			const highInput = rangeInputsElement.querySelector('.ss__facet__range-input--high .ss__facet__range-input__input') as HTMLInputElement;
+
+			await userEvent.type(lowInput, '20');
+			await userEvent.type(highInput, '80');
+			await userEvent.type(highInput, '{Enter}');
+
+			expect(urlManager.set).toHaveBeenCalledWith('filter.price', { low: 20, high: 80 });
+			expect(urlManager.go).toHaveBeenCalled();
+		});
+
+		it('hideRangeInputsSubmitButton prop hides the submit button', async () => {
+			const urlManager = { remove: jest.fn().mockReturnThis(), set: jest.fn().mockReturnThis(), go: jest.fn() };
+
+			const args = {
+				facet: {
+					...sliderFacetMock,
+					display: 'slider',
+					collapsed: false,
+					type: 'range',
+					field: 'price',
+					range: { low: 10, high: 100 },
+					active: { low: undefined, high: undefined },
+					services: { urlManager },
+				} as unknown as RangeFacet,
+				rangeInputs: true,
+				rangeInputsSubmitOnBlur: true,
+				hideRangeInputsSubmitButton: true,
+			};
+
+			const rendered = render(<Facet {...args} />);
+			const rangeInputsElement = rendered.container.querySelector('.ss__facet__range-inputs')!;
+
+			const submitButton = rangeInputsElement.querySelector('.ss__facet__range-input__button--submit');
+			expect(submitButton).not.toBeInTheDocument();
+
+			const buttonWrapper = rangeInputsElement.querySelector('.ss__facet__range-inputs__row--button-wrapper');
+			expect(buttonWrapper).not.toBeInTheDocument();
+
+			// submission still works via blur even though the button is hidden
+			const lowInput = rangeInputsElement.querySelector('.ss__facet__range-input--low .ss__facet__range-input__input') as HTMLInputElement;
+			const highInput = rangeInputsElement.querySelector('.ss__facet__range-input--high .ss__facet__range-input__input') as HTMLInputElement;
+
+			await userEvent.type(lowInput, '20');
+			await userEvent.type(highInput, '80');
+			highInput.focus();
+			highInput.blur();
+
+			expect(urlManager.set).toHaveBeenCalledWith('filter.price', { low: 20, high: 80 });
+			expect(urlManager.go).toHaveBeenCalled();
 		});
 	});
 

@@ -7,15 +7,18 @@ import type { RecommendPostRequestModel } from '../../types';
 
 const mockData = new MockData();
 
-const wait = (time?: number) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time);
-	});
-};
-
 const apiConfig: ApiConfigurationParameters = { cache: { enabled: false } };
 
 describe('Recommend Api', () => {
+	beforeEach(() => {
+		jest.useFakeTimers({ doNotFake: ['performance'] });
+	});
+
+	afterEach(() => {
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
+	});
+
 	it('has expected default functions', () => {
 		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
 
@@ -150,14 +153,76 @@ describe('Recommend Api', () => {
 			.spyOn(global.window, 'fetch')
 			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve([mockData.recommend()]) } as Response));
 
-		await api.batchRecommendations({
+		const recommendPromise = api.batchRecommendations({
 			siteId: '8uyt2m',
 			tag: 'similar',
 		});
-		//add delay for paramBatch.timeout
-		await wait(250);
+
+		await jest.runAllTimersAsync();
+		await recommendPromise;
 
 		expect(requestMock).toHaveBeenCalledWith(requestUrl, params);
+		requestMock.mockReset();
+	});
+
+	it.each([false, true])('batchRecommendations passes beacon: %s through as the beacon param', async (beacon) => {
+		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
+
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve([mockData.recommend()]) } as Response));
+
+		const recommendPromise = api.batchRecommendations({
+			siteId: '8uyt2m',
+			tag: 'similar',
+			beacon,
+		});
+
+		await jest.runAllTimersAsync();
+		await recommendPromise;
+
+		expect(requestMock).toHaveBeenCalledTimes(1);
+		expect(requestMock).toHaveBeenCalledWith('https://8uyt2m.a.p13n.athoscommerce.net/v1/recommend', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+			body: `{"profiles":[{"tag":"similar"}],"siteId":"8uyt2m","beacon":${beacon}}`,
+		});
+		requestMock.mockReset();
+	});
+
+	it('batchRecommendations batches requests with beacon false separately from tracked requests', async () => {
+		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
+
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() =>
+				Promise.resolve({ status: 200, json: () => Promise.resolve([mockData.recommend(), mockData.recommend()]) } as Response)
+			);
+
+		api.batchRecommendations({ siteId: '8uyt2m', tag: 'similar', batched: true });
+		api.batchRecommendations({ siteId: '8uyt2m', tag: 'hidden', batched: true, beacon: false });
+		api.batchRecommendations({ siteId: '8uyt2m', tag: 'crossSell', batched: true });
+
+		await jest.runAllTimersAsync();
+
+		const POSTParams = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+		};
+
+		expect(requestMock).toHaveBeenCalledTimes(2);
+		expect(requestMock).toHaveBeenCalledWith('https://8uyt2m.a.p13n.athoscommerce.net/v1/recommend', {
+			...POSTParams,
+			body: `{"profiles":[{"tag":"similar"},{"tag":"crossSell"}],"siteId":"8uyt2m"}`,
+		});
+		expect(requestMock).toHaveBeenCalledWith('https://8uyt2m.a.p13n.athoscommerce.net/v1/recommend', {
+			...POSTParams,
+			body: `{"profiles":[{"tag":"hidden"}],"siteId":"8uyt2m","beacon":false}`,
+		});
 		requestMock.mockReset();
 	});
 
@@ -208,8 +273,7 @@ describe('Recommend Api', () => {
 			...batchParams,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -256,8 +320,7 @@ describe('Recommend Api', () => {
 			...batchParams,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -297,8 +360,7 @@ describe('Recommend Api', () => {
 			...batchParams,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -335,8 +397,7 @@ describe('Recommend Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -380,8 +441,7 @@ describe('Recommend Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const firstBatchPOSTParams = {
 			method: 'POST',
@@ -432,8 +492,7 @@ describe('Recommend Api', () => {
 			},
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -475,8 +534,7 @@ describe('Recommend Api', () => {
 			},
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams8uyt2m = {
 			method: 'POST',
@@ -551,8 +609,7 @@ describe('Recommend Api', () => {
 			body: `{"profiles":[{"tag":"andanother","categories":["pants"],"limit":10},{"tag":"another","limit":10},{"tag":"similar","categories":["shirts"],"limit":14},{"tag":"other","limit":10}],"siteId":"8uyt2m","products":["marnie-runner-2-7x10"],"lastViewed":["marnie-runner-2-7x10","ruby-runner-2-7x10","abbie-runner-2-7x10","riley-4x6","joely-5x8","helena-4x6","kwame-4x6","sadie-4x6","candice-runner-2-7x10","esmeray-4x6","camilla-230x160","candice-4x6","sahara-4x6","dayna-4x6","moema-4x6"]}`,
 		};
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		expect(requestMock).toHaveBeenCalledWith(RequestUrl, POSTParams);
 		requestMock.mockReset();
@@ -584,8 +641,7 @@ describe('Recommend Api', () => {
 			...batchParams,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -635,8 +691,7 @@ describe('Recommend Api', () => {
 			...batchParams,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -676,8 +731,7 @@ describe('Recommend Api', () => {
 			...batchParams,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 		const POSTParams = {
 			method: 'POST',
 			headers: {
@@ -699,8 +753,7 @@ describe('Recommend Api', () => {
 
 		api.batchRecommendations({ tag: 'crossSell', products: ['some_sku', 'some_sku2'], ...batchParams });
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -708,6 +761,29 @@ describe('Recommend Api', () => {
 				'Content-Type': 'text/plain',
 			},
 			body: `{"profiles":[{"tag":"crossSell"}],"siteId":"8uyt2m","products":["some_sku","some_sku2","marnie-runner-2-7x10"],"lastViewed":["marnie-runner-2-7x10","ruby-runner-2-7x10","abbie-runner-2-7x10","riley-4x6","joely-5x8","helena-4x6","kwame-4x6","sadie-4x6","candice-runner-2-7x10","esmeray-4x6","camilla-230x160","candice-4x6","sahara-4x6","dayna-4x6","moema-4x6"]}`,
+		};
+
+		expect(requestMock).toHaveBeenCalledWith(RequestUrl, POSTParams);
+		requestMock.mockReset();
+	});
+
+	it('batchRecommendations will utilize the `lastSearches` parameter when provided', async () => {
+		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
+
+		const requestMock = jest
+			.spyOn(global.window, 'fetch')
+			.mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve([mockData.recommend()]) } as Response));
+
+		api.batchRecommendations({ tag: 'crossSell', lastSearches: ['boots', 'shoes'], ...batchParams });
+
+		await jest.runAllTimersAsync();
+
+		const POSTParams = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+			body: `{"profiles":[{"tag":"crossSell"}],"siteId":"8uyt2m","products":["marnie-runner-2-7x10"],"lastViewed":["marnie-runner-2-7x10","ruby-runner-2-7x10","abbie-runner-2-7x10","riley-4x6","joely-5x8","helena-4x6","kwame-4x6","sadie-4x6","candice-runner-2-7x10","esmeray-4x6","camilla-230x160","candice-4x6","sahara-4x6","dayna-4x6","moema-4x6"],"lastSearches":["boots","shoes"]}`,
 		};
 
 		expect(requestMock).toHaveBeenCalledWith(RequestUrl, POSTParams);
@@ -723,8 +799,7 @@ describe('Recommend Api', () => {
 
 		api.batchRecommendations({ tag: 'crossSell', blockedItems: ['blocked_sku1', 'blocked_sku2'], ...batchParams });
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -840,8 +915,7 @@ describe('Recommend Api', () => {
 			batched: true,
 		});
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		expect(POSTRequestMock).toHaveBeenCalledWith(POSTRequestUrl, POSTParams);
 		POSTRequestMock.mockReset();
@@ -919,8 +993,7 @@ describe('Recommend Api', () => {
 			});
 		}
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		expect(POSTRequestMock).toHaveBeenCalledWith(POSTRequestUrl, POSTParams);
 		POSTRequestMock.mockReset();
@@ -1010,8 +1083,7 @@ describe('Recommend Api', () => {
 			});
 		}
 
-		//add delay for paramBatch.timeout
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		expect(POSTRequestMock).toHaveBeenCalledWith(POSTRequestUrl, POSTParams);
 		POSTRequestMock.mockReset();
@@ -1030,7 +1102,7 @@ describe('Recommend Api', () => {
 			withRecInfo: true,
 		});
 
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -1056,7 +1128,7 @@ describe('Recommend Api', () => {
 			siteId: '8uyt2m',
 		});
 
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',
@@ -1095,7 +1167,7 @@ describe('Recommend Api', () => {
 			batched: true,
 		});
 
-		await wait(250);
+		await jest.runAllTimersAsync();
 
 		const POSTParams = {
 			method: 'POST',

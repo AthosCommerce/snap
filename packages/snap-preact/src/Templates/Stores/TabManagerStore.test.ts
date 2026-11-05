@@ -1,0 +1,390 @@
+import 'whatwg-fetch';
+
+import { SearchStore, AutocompleteStore } from '@athoscommerce/snap-store-mobx';
+import { SearchController, AutocompleteController } from '@athoscommerce/snap-controller';
+import type { AutocompleteTabConfig, SearchTabConfig } from '@athoscommerce/snap-controller';
+import { UrlManager, UrlTranslator, reactLinker } from '@athoscommerce/snap-url-manager';
+import { EventManager } from '@athoscommerce/snap-event-manager';
+import { Profiler } from '@athoscommerce/snap-profiler';
+import { Logger } from '@athoscommerce/snap-logger';
+import { Tracker } from '@athoscommerce/snap-tracker';
+import { MockClient } from '@athoscommerce/snap-shared';
+
+import { TabManagerStore, TAB_ID_DEFAULT_PARAM } from './TabManagerStore';
+
+const globals = { siteId: 'ga9kq2' };
+const TAB_PARAM = TAB_ID_DEFAULT_PARAM;
+
+// mocks fetch so the beacon client does not make network requests
+jest.spyOn(global.window, 'fetch').mockImplementation(() => Promise.resolve({ status: 200, json: () => Promise.resolve({}) } as Response));
+
+// detached url managers keep `go()` out of jsdom navigation and let a starting url be seeded
+const createUrlManager = (url = '', tabParam = TAB_PARAM) => {
+	const translator = new UrlTranslator({ parameters: { custom: { [tabParam]: { type: 'query' } } } });
+	return new UrlManager(translator, reactLinker, undefined, undefined, undefined, [], { url });
+};
+
+// attached to the jsdom url so that popstate reaches the url manager subscriptions
+const createLiveUrlManager = (tabParam = TAB_PARAM) => {
+	const translator = new UrlTranslator({ parameters: { custom: { [tabParam]: { type: 'query' } } } });
+	return new UrlManager(translator, reactLinker);
+};
+
+const createController = (id: string, urlManager: UrlManager) => {
+	const config = { id, globals: {}, settings: {} };
+
+	return new SearchController(config, {
+		client: new MockClient(globals, {}),
+		store: new SearchStore(config, { urlManager }),
+		urlManager,
+		eventManager: new EventManager(),
+		profiler: new Profiler(),
+		logger: new Logger(),
+		tracker: new Tracker(globals),
+	});
+};
+
+const setup = (tabs: SearchTabConfig[], startingUrl = '') => {
+	const controllers = tabs.map((tab) => createController(tab.id, createUrlManager(startingUrl)));
+	const searchSpies = controllers.map((controller) => jest.spyOn(controller, 'search').mockResolvedValue(undefined as any));
+
+	return { controllers, searchSpies };
+};
+
+const createAutocompleteController = (id: string, urlManager: UrlManager) => {
+	const config = { id, selector: `#${id}`, action: '', globals: {}, settings: {} };
+
+	return new AutocompleteController(config, {
+		client: new MockClient(globals, {}),
+		store: new AutocompleteStore(config, { urlManager }),
+		urlManager,
+		eventManager: new EventManager(),
+		profiler: new Profiler(),
+		logger: new Logger(),
+		tracker: new Tracker(globals),
+	});
+};
+
+const setupAutocomplete = (tabs: AutocompleteTabConfig[]) => tabs.map((tab) => createAutocompleteController(tab.id, createUrlManager()));
+
+describe('TabManagerStore', () => {
+	const tabs: SearchTabConfig[] = [
+		{ id: 'Products', siteId: 'abc123', param: 'prod' },
+		{ id: 'Blog', siteId: 'xyz789', param: 'blog' },
+	];
+
+	describe('tab construction', () => {
+		it('builds a tab for each config', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.tabs).toHaveLength(2);
+			expect(tabManager.tabs.map((tab) => tab.id)).toEqual(['Products', 'Blog']);
+			expect(tabManager.tabs[0].siteId).toBe('abc123');
+		});
+
+		it('uses the configured param as the tab param value', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.param).toBe(TAB_ID_DEFAULT_PARAM);
+			expect(tabManager.tabs.map((tab) => tab.param)).toEqual(['prod', 'blog']);
+		});
+
+		it('carries the label through from config', () => {
+			const labelled: SearchTabConfig[] = [
+				{ id: 'Products', siteId: 'abc123', param: 'prod', label: 'Shop' },
+				{ id: 'Blog', siteId: 'xyz789', param: 'blog' },
+			];
+			const { controllers } = setup(labelled);
+			const tabManager = new TabManagerStore(labelled, controllers);
+
+			expect(tabManager.tabs[0].label).toBe('Shop');
+			expect(tabManager.tabs[1].label).toBeUndefined();
+		});
+
+		it('skips a tab config with no matching controller', () => {
+			const { controllers } = setup(tabs);
+			const withExtra: SearchTabConfig[] = [...tabs, { id: 'Missing', siteId: 'nomatch', param: 'missing' }];
+			const tabManager = new TabManagerStore(withExtra, controllers);
+
+			expect(tabManager.tabs).toHaveLength(2);
+			expect(tabManager.getTab('Missing')).toBeUndefined();
+		});
+	});
+
+	describe('active tab resolution', () => {
+		it('activates the first tab by default', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.active?.id).toBe('Products');
+		});
+
+		it('activates the tab flagged as default', () => {
+			const withDefault: SearchTabConfig[] = [
+				{ id: 'Products', siteId: 'abc123', param: 'prod' },
+				{ id: 'Blog', siteId: 'xyz789', param: 'blog', default: true },
+			];
+			const { controllers } = setup(withDefault);
+			const tabManager = new TabManagerStore(withDefault, controllers);
+
+			expect(tabManager.active?.id).toBe('Blog');
+		});
+
+		it('activates the tab matching the url param value', () => {
+			const { controllers } = setup(tabs, '?tab=blog');
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.active?.id).toBe('Blog');
+		});
+
+		it('falls back to the default tab when the url value matches no tab', () => {
+			const { controllers } = setup(tabs, '?tab=nothing');
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.active?.id).toBe('Products');
+		});
+	});
+
+	describe('setActive', () => {
+		it('changes the active tab', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			tabManager.setActive('Blog');
+
+			expect(tabManager.active?.id).toBe('Blog');
+		});
+
+		it('writes the tab param value to the url', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			tabManager.setActive('Blog');
+
+			// the newly active tab's own url manager holds the state
+			expect(controllers[1].urlManager.detached?.url).toContain(`${TAB_PARAM}=blog`);
+		});
+
+		it('ignores an unknown tab id', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			tabManager.setActive('Nope');
+
+			expect(tabManager.active?.id).toBe('Products');
+		});
+
+		it('is a no-op when the tab is already active', () => {
+			const { controllers, searchSpies } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			searchSpies.forEach((spy) => spy.mockClear());
+			tabManager.setActive('Products');
+
+			expect(controllers[0].urlManager.detached?.url).toBe('');
+			expect(searchSpies[0]).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('back/forward navigation', () => {
+		beforeEach(() => {
+			window.history.replaceState(null, '', '/');
+		});
+
+		it('activates the tab from the url without pushing another history entry', () => {
+			const controllers = tabs.map((tab) => createController(tab.id, createLiveUrlManager()));
+			controllers.forEach((controller) => jest.spyOn(controller, 'search').mockResolvedValue(undefined as any));
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			tabManager.setActive('Blog');
+			expect(window.location.search).toBe(`?${TAB_PARAM}=blog`);
+
+			const pushState = jest.spyOn(window.history, 'pushState');
+
+			// browser back to the entry without a tab param
+			window.history.replaceState(null, '', '/');
+			window.dispatchEvent(new PopStateEvent('popstate'));
+
+			expect(tabManager.active?.id).toBe('Products');
+			expect(pushState).not.toHaveBeenCalled();
+			expect(window.location.search).toBe('');
+
+			pushState.mockRestore();
+		});
+	});
+
+	describe('prefetch', () => {
+		it('searches every tab by default', () => {
+			const { controllers, searchSpies } = setup(tabs);
+			new TabManagerStore(tabs, controllers);
+
+			expect(searchSpies[0]).toHaveBeenCalled();
+			expect(searchSpies[1]).toHaveBeenCalled();
+		});
+
+		it('does not search a tab that opts out of prefetching', () => {
+			const noPrefetch: SearchTabConfig[] = [
+				{ id: 'Products', siteId: 'abc123', param: 'prod' },
+				{ id: 'Blog', siteId: 'xyz789', param: 'blog', prefetch: false },
+			];
+			const { controllers, searchSpies } = setup(noPrefetch);
+			new TabManagerStore(noPrefetch, controllers);
+
+			expect(searchSpies[0]).toHaveBeenCalled();
+			expect(searchSpies[1]).not.toHaveBeenCalled();
+		});
+
+		it('always searches the active tab even when it opts out of prefetching', () => {
+			const noPrefetch: SearchTabConfig[] = [
+				{ id: 'Products', siteId: 'abc123', param: 'prod', prefetch: false },
+				{ id: 'Blog', siteId: 'xyz789', param: 'blog', prefetch: false, default: true },
+			];
+			const { controllers, searchSpies } = setup(noPrefetch);
+			new TabManagerStore(noPrefetch, controllers);
+
+			expect(searchSpies[0]).not.toHaveBeenCalled();
+			expect(searchSpies[1]).toHaveBeenCalled();
+		});
+
+		it('searches a deferred tab when it becomes active', () => {
+			const noPrefetch: SearchTabConfig[] = [
+				{ id: 'Products', siteId: 'abc123', param: 'prod' },
+				{ id: 'Blog', siteId: 'xyz789', param: 'blog', prefetch: false },
+			];
+			const { controllers, searchSpies } = setup(noPrefetch);
+			const tabManager = new TabManagerStore(noPrefetch, controllers);
+
+			expect(searchSpies[1]).not.toHaveBeenCalled();
+
+			tabManager.setActive('Blog');
+
+			expect(searchSpies[1]).toHaveBeenCalled();
+		});
+	});
+
+	describe('lookups', () => {
+		it('finds a tab by id and by param', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.getTab('Blog')?.id).toBe('Blog');
+			expect(tabManager.getTabByParam('blog')?.id).toBe('Blog');
+			expect(tabManager.getTab('blog')).toBeUndefined();
+			expect(tabManager.getTabByParam('Blog')).toBeUndefined();
+		});
+	});
+
+	describe('redirects', () => {
+		it('leaves redirects enabled on the active tab and disables them everywhere else', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			expect(tabManager.active?.id).toBe('Products');
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+		});
+
+		it('moves the enabled redirects along with the active tab', () => {
+			const { controllers } = setup(tabs);
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			tabManager.setActive('Blog');
+
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+		});
+
+		it('restores the tab specific configured values rather than a blanket enable', () => {
+			const { controllers } = setup(tabs);
+			controllers[1].config.settings!.redirects = { merchandising: true, singleResult: false };
+			const tabManager = new TabManagerStore(tabs, controllers);
+
+			tabManager.setActive('Blog');
+
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: true, singleResult: false });
+		});
+
+		it('disables redirects on inactive autocomplete tabs', () => {
+			const acTabs: AutocompleteTabConfig[] = [
+				{ id: 'ACProducts', siteId: 'abc123', param: 'prod' },
+				{ id: 'ACBlog', siteId: 'xyz789', param: 'blog' },
+			];
+			const controllers = setupAutocomplete(acTabs);
+			controllers.forEach((controller) => (controller.config.settings!.redirects = { merchandising: true, singleResult: true }));
+
+			const tabManager = new TabManagerStore(acTabs, controllers);
+
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+
+			tabManager.setActive('ACBlog');
+
+			expect(controllers[0].config.settings?.redirects).toEqual({ merchandising: false, singleResult: false });
+			expect(controllers[1].config.settings?.redirects).toEqual({ merchandising: true, singleResult: true });
+		});
+	});
+
+	describe('autocomplete tabs', () => {
+		const acTabs: AutocompleteTabConfig[] = [
+			{ id: 'ACProducts', siteId: 'abc123', param: 'prod' },
+			{ id: 'ACBlog', siteId: 'xyz789', param: 'blog' },
+		];
+
+		const createForm = () => {
+			const form = document.createElement('form');
+			const input = document.createElement('input');
+			input.name = 'q';
+			form.append(input);
+			document.body.append(form);
+
+			return { form, input };
+		};
+
+		afterEach(() => {
+			document.body.innerHTML = '';
+		});
+
+		it('adds a hidden input carrying the active tab on submit', async () => {
+			const controllers = setupAutocomplete(acTabs);
+			new TabManagerStore(acTabs, controllers);
+			const { form, input } = createForm();
+
+			await controllers[0].eventManager.fire('beforeSubmit', { controller: controllers[0], input });
+
+			const hidden = form.querySelector('input[type="hidden"]') as HTMLInputElement;
+
+			expect(hidden).toBeTruthy();
+			expect(hidden.name).toBe(TAB_PARAM);
+			expect(hidden.value).toBe('prod');
+		});
+
+		it('updates the existing hidden input rather than appending another', async () => {
+			const controllers = setupAutocomplete(acTabs);
+			const tabManager = new TabManagerStore(acTabs, controllers);
+			const { form, input } = createForm();
+
+			await controllers[0].eventManager.fire('beforeSubmit', { controller: controllers[0], input });
+
+			tabManager.setActive('ACBlog');
+
+			await controllers[0].eventManager.fire('beforeSubmit', { controller: controllers[0], input });
+
+			const hidden = form.querySelectorAll('input[type="hidden"]');
+
+			expect(hidden).toHaveLength(1);
+			expect((hidden[0] as HTMLInputElement).value).toBe('blog');
+		});
+
+		it('does nothing when the input has no form', async () => {
+			const controllers = setupAutocomplete(acTabs);
+			new TabManagerStore(acTabs, controllers);
+			const input = document.createElement('input');
+
+			await controllers[0].eventManager.fire('beforeSubmit', { controller: controllers[0], input });
+
+			expect(document.querySelectorAll('input[type="hidden"]')).toHaveLength(0);
+		});
+	});
+});

@@ -61,6 +61,7 @@ The `serialize` and `deserialize` methods are abstracted away by the `UrlManager
 |---|---|:---:|
 | urlRoot | used to redirect to other URLs | ➖ |
 | settings.corePrefix | specify a prefix to all core parameters | ➖ |
+| settings.corePrefixParams | limit `corePrefix` to specific core parameters | all core parameters |
 | settings.coreType | quickly change the type of all core parameters | ➖ |
 | settings.customType | specify how custom parameters should be serialized | 'hash' |
 | settings.serializeUrlRoot | sets parameters found within urlRoot to global state in UrlManager | true |
@@ -118,7 +119,7 @@ const urlManager = new UrlManager(
 		urlRoot: '/search.html',
 		settings: {
 			coreType: 'hash',
-			corePrefix: 'ss-',
+			corePrefix: 'athos-',
 		},
 		parameters: {
 			core: {
@@ -131,7 +132,28 @@ const urlManager = new UrlManager(
 
 const setUrlManager = urlManager.set({ query: 'bright', page: 3, filter: { color: ['blue'] } });
 
-console.log(setUrlManager.href); // /search.html#/ss-que:bright/ss-p:3/ss-filter:color:blue
+console.log(setUrlManager.href); // /search.html#/athos-que:bright/athos-p:3/athos-filter:color:blue
+
+```
+
+The `settings.corePrefixParams` configuration narrows the prefix to the named core parameters, leaving the rest unprefixed. This is useful when some state should be namespaced while other state stays shared - for example, tabbed search namespaces each catalog's refinement and pagination state but shares a single query across every tab.
+
+```js
+import { UrlManager, UrlTranslator } from '@athoscommerce/snap-url-manager';
+
+const urlManager = new UrlManager(
+	new UrlTranslator({
+		urlRoot: '/search.html',
+		settings: {
+			corePrefix: 'ss-',
+			corePrefixParams: ['filter', 'sort'],
+		},
+	})
+);
+
+const setUrlManager = urlManager.set({ query: 'bright', page: 3, filter: { color: ['blue'] } });
+
+console.log(setUrlManager.href); // /search.html?q=bright&page=3#/ss-filter:color:blue
 
 ```
 

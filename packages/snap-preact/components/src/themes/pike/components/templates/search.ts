@@ -8,8 +8,6 @@ import { custom } from '../../custom';
 const searchStyleScript = (props: SearchProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const mobileBp = variables?.breakpoints?.mobile as number;
-	const tabletBp = variables?.breakpoints?.tablet as number;
 
 	// search styles
 	const searchStyles = css({
@@ -21,7 +19,8 @@ const searchStyleScript = (props: SearchProps) => {
 			'.ss__search__sidebar, .ss__search__content': {
 				minWidth: '1px',
 			},
-			'.ss__search__sidebar': {
+			// direct child only - the mobile slideout also wraps its sidebar in `__sidebar` and sizes it itself
+			'& > .ss__search__sidebar': {
 				flex: '0 1 auto',
 				'.ss__sidebar': {
 					width: '250px',
@@ -33,9 +32,6 @@ const searchStyleScript = (props: SearchProps) => {
 			},
 			'.ss__toolbar': {
 				'.ss__layout__row': {
-					'&:has(.ss__pagination-info:last-child)': {
-						flexDirection: 'row-reverse',
-					},
 					'.ss__layout__sidebar-toggle-button-wrapper': {
 						'.ss__button': {
 							width: '100%',
@@ -46,52 +42,16 @@ const searchStyleScript = (props: SearchProps) => {
 			'.ss__search__content__toolbar--bottom-toolbar': {
 				marginTop: `40px`,
 			},
+
+			'.ss__pagination-info': {
+				textAlign: 'right',
+			},
 		},
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__search__main-section': {
 				'.ss__toolbar': {
 					'.ss__layout__sidebar-toggle-button-wrapper': {
 						minWidth: '200px',
-					},
-				},
-			},
-		},
-		[`${custom.utils.getBp(mobileBp)}`]: {
-			'.ss__search__main-section': {
-				'.ss__toolbar': {
-					'.ss__layout__row': {
-						'&:has(.ss__select)': {
-							'.ss__layout__separator': {
-								display: 'none',
-							},
-						},
-						'.ss__select': {
-							flex: '1 1 0%',
-						},
-						'.ss__pagination-info': {
-							flex: '1 1 100%',
-							order: -1,
-						},
-					},
-				},
-			},
-		},
-		[`${custom.utils.getBp(tabletBp)}`]: {
-			'.ss__search__main-section': {
-				'.ss__toolbar': {
-					'.ss__layout__row': {
-						'&:has(.ss__select)': {
-							'.ss__layout__separator': {
-								display: 'block',
-							},
-						},
-						'.ss__select': {
-							flex: '0 1 auto',
-						},
-						'.ss__pagination-info': {
-							flex: '1 1 0%',
-							order: 0,
-						},
 					},
 				},
 			},
@@ -108,7 +68,6 @@ export const search: ThemeComponent<'search', SearchProps, SearchTemplatesLegalP
 		search: {
 			...(searchThemeComponentProps.default?.['search'] || {}),
 			themeStyleScript: searchStyleScript,
-			mobileDisplayAt: `${custom.breakpoints.mobile}px`,
 		},
 	},
 	mobile: {

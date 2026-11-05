@@ -6,6 +6,7 @@
 		"toolbox/src"
 	],
 	"compilerOptions": {
+		"rootDir": ".",
 		"outDir": "./dist/cjs",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@emotion/react",

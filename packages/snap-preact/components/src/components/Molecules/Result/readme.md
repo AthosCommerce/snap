@@ -3,10 +3,11 @@
 Renders a single product card. 
 
 ## Sub-components
-- Badge
+- OverlayBadge
 - CalloutBadge
 - Rating
 - Button
+- Icon
 - VariantSelection
 - Price
 - Image
@@ -96,6 +97,25 @@ The `addToCartButtonSuccessTimeout` prop specifies the number of ms to show the 
 
 ```tsx
 <Result result={controller.store.results[0]} addToCartButtonText={'Add To Cart'} addToCartButtonSuccessText={'added!'} addToCartButtonSuccessTimeout={4000} />
+```
+
+### hideQuickviewButton
+The `hideQuickviewButton` prop prevents the quickview `<Button />` (with an eye `<Icon />`) from being rendered overlaid on the product image. Clicking the button (or pressing Enter/Space while focused) invokes `controller.quickview(result)`. Defaults to `true`. The button only renders when a `controller` prop has also been provided and the image is not hidden.
+
+```tsx
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} />
+```
+
+### onQuickviewClick
+The `onQuickviewClick` prop is a function to be called on quickview button click. In addition to the built in quickview function on the controller.
+
+```tsx
+
+const clickFunc = (e, result) => {
+	console.log('quickview!', e, result);
+}
+
+<Result result={controller.store.results[0]} controller={controller} hideQuickviewButton={false} onQuickviewClick={clickFunc} />
 ```
 
 ### hideImage

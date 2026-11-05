@@ -1,31 +1,17 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { BadgeTextProps, BadgeText } from './BadgeText';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { BadgeText } from './BadgeText';
+import { componentArgs } from '../../../utilities';
 import Readme from '../BadgeText/readme.md';
 
 export default {
 	title: 'Atoms/BadgeText',
 	component: BadgeText,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -79,8 +65,9 @@ export default {
 	},
 };
 
-export const Default = (args: BadgeTextProps) => <BadgeText {...args} />;
-Default.args = {
-	value: '30% Off',
-	colorText: '#000000',
+export const Default = {
+	args: {
+		value: '30% Off',
+		colorText: '#000000',
+	},
 };

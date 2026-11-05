@@ -27,7 +27,7 @@ const BATCH_TIMEOUT = 150;
 export class RecommendAPI extends API<RecommendRequesterPaths> {
 	private batches: {
 		[key: string]: {
-			timeout: number | NodeJS.Timeout;
+			timeout: number | ReturnType<typeof setTimeout>;
 			request: RecommendPostRequestModel;
 			entries: BatchEntry[];
 		};
@@ -53,7 +53,9 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 		const batchId = parameters.batchId || 1;
 
 		// set up batch key and deferred promises
-		const key = parameters.batched ? `${parameters.profile?.siteId || parameters.siteId}:${batchId}` : `${Math.random()}:${batchId}`;
+		// the beacon param applies to the whole batch, so requests opting out of tracking are batched separately
+		const beaconKey = parameters.beacon === false ? ':beacon=false' : '';
+		const key = (parameters.batched ? `${parameters.profile?.siteId || parameters.siteId}:${batchId}` : `${Math.random()}:${batchId}`) + beaconKey;
 		const batch = (this.batches[key] = this.batches[key] || { timeout: null, request: { profiles: [] }, entries: [] });
 		const deferred = new Deferred();
 
@@ -121,7 +123,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 				}
 
 				// parameters used globally
-				const { products, blockedItems, filters, test, cart, lastViewed, shopper, withRecInfo } = entry.request;
+				const { products, blockedItems, filters, test, cart, lastViewed, lastSearches, shopper, withRecInfo, beacon } = entry.request;
 
 				// merge and de-dupe global array fields
 				const dedupedProducts = Array.from(new Set((batch.request.products || []).concat(products || [])));
@@ -143,8 +145,10 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 						test,
 						cart,
 						lastViewed,
+						lastSearches,
 						shopper,
 						withRecInfo: mergedWithRecInfo,
+						beacon,
 					}),
 				};
 				if (this.configuration.mode == AppMode.development) {

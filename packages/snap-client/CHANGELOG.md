@@ -3,6 +3,58 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
+
+### Bug Fixes
+
+- remove lastSearches from cache key, encode terms, searchController to call setService for tracker ([de6c49e](https://github.com/AthosCommerce/snap/commit/de6c49e81f194f5b6521cc14595d402e128eea10))
+- replace commas within lastSearches terms with spaces instead of encoding them ([b9404ca](https://github.com/AthosCommerce/snap/commit/b9404caae063c0e61d19bdfb533d27696f15e845))
+- send lastSearches as one query param per term ([8320c61](https://github.com/AthosCommerce/snap/commit/8320c611b3b77845282b1809295671ac23beab6d))
+
+### Features
+
+- add lastSearches url param to apis ([299d532](https://github.com/AthosCommerce/snap/commit/299d532260ad6e8020752b4851484807a09d1936))
+
+# [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+# [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+### Bug Fixes
+
+- pr review ([4fb4efe](https://github.com/AthosCommerce/snap/commit/4fb4efe01bbf738f9af7ea69b18a0d8cecc3759f))
+
+### Features
+
+- initial quickview ([b89cc1a](https://github.com/AthosCommerce/snap/commit/b89cc1a9f1998b1f08bd2dca0460a4ecf113d9e4))
+
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-client
+
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+### Performance Improvements
+
+- **build:** skip type-check and declaration emit on cjs pass, remove redundant theme aggregate checks ([53db26c](https://github.com/AthosCommerce/snap/commit/53db26c6e99956bb720030d2002cadaeaa65a6cf))
+
 ## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-client

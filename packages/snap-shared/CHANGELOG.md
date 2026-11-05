@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
+# [1.15.0](https://github.com/AthosCommerce/snap/compare/v1.14.0...v1.15.0) (2026-10-30)
+
+### Bug Fixes
+
+- **searchcontroller:** bugfix for single result redirect when banners are in result set ([a7881f6](https://github.com/AthosCommerce/snap/commit/a7881f63d518bb37227a36c3121ac1f09bd5874f))
+
+# [1.14.0](https://github.com/AthosCommerce/snap/compare/v1.13.2...v1.14.0) (2026-10-14)
+
+### Bug Fixes
+
+- **preact:** key the early search on the documented page.type context variable ([af0b5eb](https://github.com/AthosCommerce/snap/commit/af0b5ebed13eda544f62953b05c2358f768878b8))
+
+## [1.13.2](https://github.com/AthosCommerce/snap/compare/v1.13.1...v1.13.2) (2026-09-23)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
+## [1.13.1](https://github.com/AthosCommerce/snap/compare/v1.13.0...v1.13.1) (2026-09-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
+# [1.13.0](https://github.com/AthosCommerce/snap/compare/v1.12.0...v1.13.0) (2026-09-17)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
+# [1.12.0](https://github.com/AthosCommerce/snap/compare/v1.11.0...v1.12.0) (2026-08-28)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
+# [1.11.0](https://github.com/AthosCommerce/snap/compare/v1.10.0...v1.11.0) (2026-08-18)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
+# [1.10.0](https://github.com/AthosCommerce/snap/compare/v1.9.1...v1.10.0) (2026-07-31)
+
+**Note:** Version bump only for package @athoscommerce/snap-shared
+
 ## [1.9.1](https://github.com/AthosCommerce/snap/compare/v1.9.0...v1.9.1) (2026-07-23)
 
 **Note:** Version bump only for package @athoscommerce/snap-shared

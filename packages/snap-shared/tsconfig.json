@@ -4,6 +4,9 @@
 		"src",
 	],
 	"compilerOptions": {
+		"rootDir": "./src",
 		"outDir": "./dist/esm",
+		// MockData reads fixture files with fs/__dirname (node-only usage)
+		"types": ["node"]
 	}
 }

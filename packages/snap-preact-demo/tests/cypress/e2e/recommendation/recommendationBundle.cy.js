@@ -70,13 +70,17 @@ describe('BundledRecommendations', () => {
 		});
 
 		it('renders cta section', function () {
+			let initialCartCount;
+
 			cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
 				cy.get(config?.selectors?.recommendation.cta).should('exist');
+
+				initialCartCount = store.cart.count;
 
 				//title
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__title`)
 					.should('exist')
-					.should('have.text', 'Subtotal for 4 items');
+					.should('have.text', `Subtotal for ${initialCartCount} items`);
 
 				//price
 				cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__price .ss__price`)
@@ -98,10 +102,13 @@ describe('BundledRecommendations', () => {
 				.click({ force: true })
 				.then(() => {
 					cy.snapController(config?.selectors?.recommendation.controller).then(({ store }) => {
+						//unchecking the seed item should remove exactly one item from the cart
+						expect(store.cart.count).to.equal(initialCartCount - 1);
+
 						//title
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__recommendation-bundle__wrapper__cta__subtotal__title`)
 							.should('exist')
-							.should('have.text', 'Subtotal for 3 items');
+							.should('have.text', `Subtotal for ${store.cart.count} items`);
 						//strike
 						cy.get(`${config?.selectors?.recommendation.cta} .ss__price--strike`).should('exist').contains(`$${store.cart.msrp}`);
 
@@ -126,18 +133,24 @@ describe('BundledRecommendations', () => {
 					cy.get(config?.selectors?.recommendation.activeSlide).should('exist');
 
 					//get the initial active product
-					const intialActive = doc.querySelector(
+					const initialActiveLink = doc.querySelector(
 						`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-					).innerHTML;
+					);
+					expect(initialActiveLink).to.exist;
+					const initialActive = initialActiveLink.textContent.trim();
+					expect(initialActive).to.not.be.empty;
 					let newActive;
 					//click the next button
 					cy.get(config?.selectors?.recommendation.nextArrow)
 						.click({ force: true })
 						.then(($button) => {
 							//get the new active product
-							newActive = doc.querySelector(
+							const newActiveLink = doc.querySelector(
 								`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-							).innerHTML;
+							);
+							expect(newActiveLink).to.exist;
+							newActive = newActiveLink.textContent.trim();
+							expect(newActive).to.not.be.empty;
 
 							//get the new active again
 
@@ -145,7 +158,7 @@ describe('BundledRecommendations', () => {
 							const storeTitle = store.results[parseInt(newerActiveIndex)].display.mappings.core.name;
 
 							//should have changed
-							expect(newActive).to.not.equal(intialActive);
+							expect(newActive).to.not.equal(initialActive);
 							expect(newActive).to.equal(storeTitle);
 						});
 				});
@@ -161,20 +174,26 @@ describe('BundledRecommendations', () => {
 					cy.get(config?.selectors?.recommendation.activeSlide).should('exist');
 
 					//get the initial active product
-					const intialActive = doc.querySelector(
+					const initialActiveLink = doc.querySelector(
 						`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-					).innerHTML;
+					);
+					expect(initialActiveLink).to.exist;
+					const initialActive = initialActiveLink.textContent.trim();
+					expect(initialActive).to.not.be.empty;
 
 					//click the prev button
 					cy.get(config?.selectors?.recommendation.prevArrow)
 						.click({ force: true })
 						.then(($button) => {
-							const newerActiveTitle = doc.querySelector(
+							const newerActiveLink = doc.querySelector(
 								`${config?.selectors?.recommendation.activeSlide} ${config?.selectors?.recommendation.result} .ss__result__details__title a`
-							).innerHTML;
+							);
+							expect(newerActiveLink).to.exist;
+							const newerActiveTitle = newerActiveLink.textContent.trim();
+							expect(newerActiveTitle).to.not.be.empty;
 
 							//these should not match
-							expect(newerActiveTitle).to.not.equal(intialActive);
+							expect(newerActiveTitle).to.not.equal(initialActive);
 						});
 				});
 			});

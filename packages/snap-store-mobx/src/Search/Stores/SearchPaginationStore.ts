@@ -21,13 +21,14 @@ export class SearchPaginationStore {
 	public pageSizeOptions: PageSizeOption[];
 	public defaultPageSize: number;
 	public totalResults: number;
+	public totalInlineBanners: number;
 	public totalPages: number;
 	public controllerConfig?: SearchStoreConfig;
 
 	constructor(params: SearchPaginationStoreConfig) {
 		const { services, data, config } = params || {};
 		const { search, meta } = data || {};
-		const { pagination } = search || {};
+		const { pagination, merchandising } = search || {};
 
 		const paginationSettings = config?.settings?.pagination;
 
@@ -37,6 +38,8 @@ export class SearchPaginationStore {
 		this.page = pagination?.page!;
 		this.pageSize = pagination?.pageSize!;
 		this.totalResults = pagination?.totalResults!;
+		// the API counts every inline banner in the campaign as a result
+		this.totalInlineBanners = merchandising?.content?.inline?.length ?? 0;
 		this.defaultPageSize = meta?.pagination?.defaultPageSize!;
 		this.totalPages = pagination?.totalPages!;
 
@@ -72,7 +75,9 @@ export class SearchPaginationStore {
 			page: observable,
 			pageSize: observable,
 			totalResults: observable,
+			totalInlineBanners: observable,
 			totalPages: observable,
+			totalProducts: computed,
 			begin: computed,
 			end: computed,
 			multiplePages: computed,
@@ -84,6 +89,10 @@ export class SearchPaginationStore {
 			getPages: action,
 			setPageSize: action,
 		});
+	}
+
+	public get totalProducts(): number {
+		return this.totalResults - this.totalInlineBanners;
 	}
 
 	public get begin(): number {

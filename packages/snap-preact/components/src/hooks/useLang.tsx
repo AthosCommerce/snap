@@ -1,3 +1,5 @@
+import type { ResponsiveKeys } from '../providers/theme';
+
 export type LangAttributesObj = {
 	[textId: string]: LangAttributesObjAttributes;
 };
@@ -21,7 +23,11 @@ export type LangAttributesObjAttributes = {
 	all?: Partial<ValType> & Partial<AttType> & { 'ss-lang': string };
 };
 
-export type LangType<P> = string | ((data: P) => string);
+export type AdditionalLangData = {
+	activeBreakpoint?: ResponsiveKeys;
+};
+
+export type LangType<P> = string | ((data: P & AdditionalLangData) => string);
 
 export interface LangObjType {
 	[name: string]: Lang<any>;
@@ -55,7 +61,9 @@ export interface LangAttributes<T> {
 	};
 }
 
-export const useLang = (lang: LangObjType, data?: any): LangAttributesObj => {
+export const useLang = (lang: LangObjType, data?: any, additionalData?: AdditionalLangData): LangAttributesObj => {
+	const enrichedData = additionalData ? { ...data, ...additionalData } : data;
+
 	const returnObj: LangAttributesObj = {};
 
 	Object.keys(lang).forEach((key: string) => {
@@ -68,7 +76,7 @@ export const useLang = (lang: LangObjType, data?: any): LangAttributesObj => {
 				if (typeof currentLangSettings.value == 'function') {
 					currentObj.value = {
 						'ss-lang': key,
-						dangerouslySetInnerHTML: { __html: currentLangSettings.value(data) },
+						dangerouslySetInnerHTML: { __html: currentLangSettings.value(enrichedData) },
 					};
 				} else {
 					currentObj.value = {
@@ -84,35 +92,35 @@ export const useLang = (lang: LangObjType, data?: any): LangAttributesObj => {
 				};
 				if (currentLangSettings?.attributes?.['aria-label']) {
 					if (typeof currentLangSettings.attributes?.['aria-label'] == 'function') {
-						currentObj.attributes!['aria-label'] = currentLangSettings.attributes['aria-label'](data);
+						currentObj.attributes!['aria-label'] = currentLangSettings.attributes['aria-label'](enrichedData);
 					} else {
 						currentObj.attributes!['aria-label'] = currentLangSettings.attributes['aria-label'];
 					}
 				}
 				if (currentLangSettings?.attributes?.['aria-valuetext']) {
 					if (typeof currentLangSettings.attributes?.['aria-valuetext'] == 'function') {
-						currentObj.attributes!['aria-valuetext'] = currentLangSettings.attributes['aria-valuetext'](data);
+						currentObj.attributes!['aria-valuetext'] = currentLangSettings.attributes['aria-valuetext'](enrichedData);
 					} else {
 						currentObj.attributes!['aria-valuetext'] = currentLangSettings.attributes['aria-valuetext'];
 					}
 				}
 				if (currentLangSettings?.attributes?.title) {
 					if (typeof currentLangSettings.attributes?.title == 'function') {
-						currentObj.attributes!['title'] = currentLangSettings.attributes['title'](data);
+						currentObj.attributes!['title'] = currentLangSettings.attributes['title'](enrichedData);
 					} else {
 						currentObj.attributes!['title'] = currentLangSettings.attributes['title'];
 					}
 				}
 				if (currentLangSettings?.attributes?.alt) {
 					if (typeof currentLangSettings.attributes?.alt == 'function') {
-						currentObj.attributes!['alt'] = currentLangSettings.attributes['alt'](data);
+						currentObj.attributes!['alt'] = currentLangSettings.attributes['alt'](enrichedData);
 					} else {
 						currentObj.attributes!['alt'] = currentLangSettings.attributes['alt'];
 					}
 				}
 				if (currentLangSettings?.attributes?.placeholder) {
 					if (typeof currentLangSettings.attributes?.placeholder == 'function') {
-						currentObj.attributes!['placeholder'] = currentLangSettings.attributes['placeholder'](data);
+						currentObj.attributes!['placeholder'] = currentLangSettings.attributes['placeholder'](enrichedData);
 					} else {
 						currentObj.attributes!['placeholder'] = currentLangSettings.attributes['placeholder'];
 					}

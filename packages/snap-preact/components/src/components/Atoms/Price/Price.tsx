@@ -48,6 +48,8 @@ export const Price = observer((properties: PriceProps) => {
 		thousandsSeparator,
 		decimalSeparator,
 		symbolAfter,
+		code,
+		showCode,
 		raw,
 		className,
 		internalClassName,
@@ -83,6 +85,14 @@ export const Price = observer((properties: PriceProps) => {
 					{!format && symbol && !symbolAfter ? <span className={'ss__price__symbol'}>{symbol}</span> : <></>}
 					<span className={'ss__price__value'}>{formattedPrice}</span>
 					{!format && symbol && symbolAfter ? <span className={'ss__price__symbol'}>{symbol}</span> : <></>}
+					{!format && showCode && code ? (
+						<>
+							{'\u00A0'}
+							<span className={'ss__price__code'}>{code}</span>
+						</>
+					) : (
+						<></>
+					)}
 				</span>
 			</CacheProvider>
 		);
@@ -96,6 +106,8 @@ export interface PriceTemplatesLegalProps extends Omit<FormattedNumberProps, 'va
 	value?: number;
 	lineThrough?: boolean;
 	format?: (number: number | string) => string;
+	code?: string;
+	showCode?: boolean;
 }
 
 export type PriceNames = 'price' | 'msrp' | 'bundle-price' | 'bundle-msrp';

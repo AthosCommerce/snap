@@ -224,6 +224,36 @@ describe('Abstract Api', () => {
 		expect(params.url).toBe('https://athoscommerce.com/v1/autocomplete?key=value');
 	});
 
+	it('does not require siteId when a per-request origin is provided', () => {
+		const api = new API(new ApiConfiguration({ fetchApi: global.window.fetch }));
+
+		const context = {
+			origin: 'https://8uyt2m.a.athoscommerce.net',
+			path: '/v1/products/12345',
+			method: 'GET' as const,
+			headers: {},
+		};
+
+		// @ts-ignore - createFetchParams is private
+		const fetchParams = api.createFetchParams(context);
+		expect(fetchParams.url).toBe('https://8uyt2m.a.athoscommerce.net/v1/products/12345');
+	});
+
+	it('still throws when siteId and per-request origin are both missing', () => {
+		const api = new API(new ApiConfiguration({ origin: 'https://athoscommerce.com', fetchApi: global.window.fetch }));
+
+		const context = {
+			path: '/v1/products/12345',
+			method: 'GET' as const,
+			headers: {},
+			body: {},
+		};
+
+		// configuration.origin is set but must NOT satisfy the guard — only a per-request context.origin does
+		// @ts-ignore - createFetchParams is private
+		expect(() => api.createFetchParams(context)).toThrowError(`Request failed. Missing "siteId" parameter.`);
+	});
+
 	it('can handle subDomain parameter in createFetchParams', async () => {
 		const config: ApiConfigurationParameters = {
 			fetchApi: global.window.fetch,

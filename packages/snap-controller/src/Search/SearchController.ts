@@ -1,10 +1,12 @@
 import deepmerge from 'deepmerge';
+import { mergeControllerConfig } from '../utils/mergeControllerConfig';
 import cssEscape from 'css.escape';
 
 import { AbstractController } from '../Abstract/AbstractController';
 import { ErrorType, MerchandisingContentBanner } from '@athoscommerce/snap-store-mobx';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
 import { getSearchParams } from '../utils/getParams';
+import { getLastSearchesParam } from '../utils/getLastSearchesParam';
 import { ControllerTypes, PageContextVariable } from '../types';
 
 import type { Product, Banner, SearchStore, ValueFacet, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
@@ -17,6 +19,7 @@ import type {
 	RestorePositionObj,
 	ElementPositionObj,
 	BeforeSearchObj,
+	TrackEventOverrides,
 } from '../types';
 import type { Next } from '@athoscommerce/snap-event-manager';
 import {
@@ -80,10 +83,10 @@ type SearchTrackMethods = {
 		impression: (merchandisingBanner: MerchandisingContentBanner) => void;
 	};
 	product: {
-		clickThrough: (e: MouseEvent, result: Product | Banner) => void;
-		click: (e: MouseEvent, result: Product | Banner) => void;
-		impression: (result: Product | Banner) => void;
-		addToCart: (results: Product) => void;
+		clickThrough: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		click: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		impression: (result: Product | Banner, overrides?: TrackEventOverrides) => void;
+		addToCart: (results: Product, overrides?: TrackEventOverrides) => void;
 	};
 	redirect: ({ redirectURL, responseId }: { redirectURL: string; responseId: string }) => void;
 };
@@ -104,6 +107,7 @@ export class SearchController extends AbstractController {
 					inlineBannerClickThrough?: boolean;
 					productClickThrough?: boolean;
 					impression?: boolean;
+					quickviewImpression?: boolean;
 					render?: boolean;
 				};
 			};
@@ -116,15 +120,11 @@ export class SearchController extends AbstractController {
 		};
 	} = {};
 
-	constructor(
-		config: SearchControllerConfig,
-		{ client, store, urlManager, eventManager, profiler, logger, tracker }: ControllerServices,
-		context?: ContextVariables
-	) {
-		super(config, { client, store, urlManager, eventManager, profiler, logger, tracker }, context);
+	constructor(config: SearchControllerConfig, services: ControllerServices, context?: ContextVariables) {
+		super(config, services, context);
 
 		// deep merge config with defaults
-		this.config = deepmerge(defaultConfig, this.config);
+		this.config = mergeControllerConfig(defaultConfig, this.config);
 
 		if (
 			this.config.settings?.infinite &&
@@ -148,6 +148,11 @@ export class SearchController extends AbstractController {
 		}
 
 		this.store.setConfig(this.config);
+
+		// the history store records searched terms with the tracker - use the controller tracker when the store was not given one
+		if (!this.store.services.tracker) {
+			this.store.setService('tracker', this.tracker);
+		}
 
 		this.storage = new StorageStore({
 			type: 'session',
@@ -289,7 +294,7 @@ export class SearchController extends AbstractController {
 				if (
 					config?.settings?.redirects?.singleResult &&
 					response.search?.query &&
-					response.pagination?.totalResults === 1 &&
+					controller.store.pagination.totalProducts === 1 &&
 					!nonBackgroundFilters?.length &&
 					singleResultUrl
 				) {
@@ -463,7 +468,7 @@ export class SearchController extends AbstractController {
 			},
 		},
 		product: {
-			clickThrough: (e: MouseEvent, result: Product | Banner): void => {
+			clickThrough: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.clickThrough');
 					return;
@@ -522,11 +527,12 @@ export class SearchController extends AbstractController {
 				const data: ClickthroughSchemaData = {
 					responseId,
 					results: [item],
+					...(overrides?.quickView ? { quickView: true } : {}),
 				};
 				this.eventManager.fire('track.product.clickThrough', { controller: this, event: e, product: result, trackEvent: data });
 				this.config.beacon?.enabled && this.tracker.events[this.page.type].clickThrough({ data, siteId: this.config.globals?.siteId });
 			},
-			click: (e: MouseEvent, result: Product | Banner): void => {
+			click: (e: MouseEvent, result: Product | Banner, overrides?: TrackEventOverrides): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.click');
 					return;
@@ -543,7 +549,7 @@ export class SearchController extends AbstractController {
 					if (this.events?.[responseId]?.product[result.id]?.inlineBannerClickThrough) {
 						return;
 					}
-					this.track.product.clickThrough(e, result as Banner);
+					this.track.product.clickThrough(e, result as Banner, overrides);
 					this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
 					this.events[responseId].product[result.id].inlineBannerClickThrough = true;
 					setTimeout(() => {
@@ -553,7 +559,7 @@ export class SearchController extends AbstractController {
 					if (this.events?.[responseId]?.product[result.id]?.productClickThrough) {
 						return;
 					}
-					this.track.product.clickThrough(e, result as Product);
+					this.track.product.clickThrough(e, result as Product, overrides);
 					this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
 					this.events[responseId].product[result.id].productClickThrough = true;
 					setTimeout(() => {
@@ -561,7 +567,7 @@ export class SearchController extends AbstractController {
 					}, CLICK_DUPLICATION_TIMEOUT);
 				}
 			},
-			impression: (result: Product | Banner): void => {
+			impression: (result: Product | Banner, overrides?: TrackEventOverrides): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.impression');
 					return;
@@ -569,10 +575,14 @@ export class SearchController extends AbstractController {
 
 				const responseId = result.responseId;
 
+				// quickview impressions dedup separately so opening the quickview still sends an
+				// impression for a product whose grid impression was already tracked (and vice versa)
+				const impressionFlag = overrides?.quickView ? 'quickviewImpression' : 'impression';
+
 				if (!this.events[responseId]) {
 					this.log.warn('No responseId found in controller, ensure correct controller is used');
 					return;
-				} else if (this.events[responseId]?.product[result.id]?.impression) {
+				} else if (this.events[responseId]?.product[result.id]?.[impressionFlag]) {
 					return;
 				}
 				const type = (['product', 'banner'].includes(result.type) ? result.type : 'product') as ResultProductType;
@@ -590,13 +600,14 @@ export class SearchController extends AbstractController {
 					responseId,
 					results: [item],
 					banners: [],
+					...(overrides?.quickView ? { quickView: true } : {}),
 				};
 				this.eventManager.fire('track.product.impression', { controller: this, product: result, trackEvent: data });
 				this.config.beacon?.enabled && this.tracker.events[this.page.type].impression({ data, siteId: this.config.globals?.siteId });
 				this.events[responseId].product[result.id] = this.events[responseId].product[result.id] || {};
-				this.events[responseId].product[result.id].impression = true;
+				this.events[responseId].product[result.id][impressionFlag] = true;
 			},
-			addToCart: (result: Product): void => {
+			addToCart: (result: Product, overrides?: TrackEventOverrides): void => {
 				if (!result) {
 					this.log.warn('No result provided to track.product.addToCart');
 					return;
@@ -619,6 +630,7 @@ export class SearchController extends AbstractController {
 				const data: AddtocartSchemaData = {
 					responseId,
 					results: [product],
+					...(overrides?.quickView ? { quickView: true } : {}),
 				};
 				this.eventManager.fire('track.product.addToCart', { controller: this, product: result, trackEvent: data });
 				this.config.beacon?.enabled && this.tracker.events[this.page.type].addToCart({ data, siteId: this.config.globals?.siteId });
@@ -650,6 +662,10 @@ export class SearchController extends AbstractController {
 
 		params.tracking = params.tracking || {};
 		params.tracking.domain = window.location.href;
+		// opt the request out of API tracking when beacon is not enabled
+		if (!this.config.beacon?.enabled) {
+			params.tracking.beacon = false;
+		}
 
 		const { userId, sessionId, pageLoadId, shopperId } = this.tracker.getContext();
 		if (userId) {
@@ -677,6 +693,12 @@ export class SearchController extends AbstractController {
 				params.personalization.lastViewed = lastViewedItems.join(',');
 			}
 
+			const lastSearches = getLastSearchesParam(this.tracker.cookies.searched.get(this.config.globals?.siteId));
+			if (lastSearches) {
+				params.personalization = params.personalization || {};
+				params.personalization.lastSearches = lastSearches;
+			}
+
 			if (shopperId) {
 				params.personalization = params.personalization || {};
 				params.personalization.shopper = shopperId;
@@ -693,10 +715,6 @@ export class SearchController extends AbstractController {
 			}
 			const params = this.params;
 
-			if (params.search?.query?.string && params.search?.query?.string.length) {
-				// save it to the history store
-				this.store.history.save(params.search.query.string);
-			}
 			this.store.loading = true;
 
 			try {
@@ -719,6 +737,11 @@ export class SearchController extends AbstractController {
 			if (this.store.loaded && stringyParams === prevStringyParams) {
 				// no param change - not searching
 				return;
+			}
+
+			if (params.search?.query?.string && params.search?.query?.string.length) {
+				// save it to the history store (also records it as a last search)
+				this.store.history.save(params.search.query.string);
 			}
 
 			const searchProfile = this.profiler.create({ type: 'event', name: 'search', context: params }).start();
@@ -913,14 +936,14 @@ export class SearchController extends AbstractController {
 		}
 	};
 
-	addToCart = async (_products: Product[] | Product): Promise<void> => {
+	addToCart = async (_products: Product[] | Product, overrides?: TrackEventOverrides): Promise<void> => {
 		const products = typeof (_products as Product[])?.slice == 'function' ? (_products as Product[]).slice() : [_products];
 		if (!_products || products.length === 0) {
 			this.log.warn('No products provided to search controller.addToCart');
 			return;
 		}
 		(products as Product[]).forEach((product) => {
-			this.track.product.addToCart(product);
+			this.track.product.addToCart(product, overrides);
 		});
 		if (products.length > 0) {
 			await this.eventManager.fire('addToCart', { controller: this, products });

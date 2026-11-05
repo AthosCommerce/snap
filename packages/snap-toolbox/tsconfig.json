@@ -4,6 +4,7 @@
 		"src",
 	],
 	"compilerOptions": {
+		"rootDir": "./src",
 		"outDir": "./dist/esm",
 	}
 }

@@ -1,32 +1,22 @@
 import { h } from 'preact';
+import { fn } from 'storybook/test';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
-import { Overlay, OverlayProps } from './Overlay';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { Overlay } from './Overlay';
+import { componentArgs } from '../../../utilities';
 import Readme from '../Overlay/readme.md';
 
 export default {
 	title: 'Atoms/Overlay',
 	component: Overlay,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
+	},
+	args: {
+		onClick: fn(),
 	},
 	argTypes: {
 		active: {
@@ -75,14 +65,14 @@ export default {
 				},
 				category: 'Templates Legal',
 			},
-			control: { type: 'none' },
-			action: 'onClick',
+			control: false,
 		},
 		...componentArgs,
 	},
 };
 
-export const Default = (args: OverlayProps) => <Overlay {...args} />;
-Default.args = {
-	active: true,
+export const Default = {
+	args: {
+		active: true,
+	},
 };

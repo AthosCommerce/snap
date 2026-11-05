@@ -185,9 +185,13 @@ export const ErrorHandler = observer((properties: ErrorHandlerProps) => {
 
 	//deep merge with props.lang
 	const lang = deepmerge(defaultLang, props.lang || {});
-	const mergedLang = useLang(lang as any, {
-		controller,
-	});
+	const mergedLang = useLang(
+		lang as any,
+		{
+			controller,
+		},
+		{ activeBreakpoint: globalTheme?.activeBreakpoint }
+	);
 
 	return Object.values(ErrorType).includes(errorObject?.type!) && errorObject?.message ? (
 		<CacheProvider>

@@ -235,36 +235,97 @@ describe('Tracker', () => {
 	});
 
 	it('will make preflight request when there are cart products set', async () => {
-		const tracker = new Tracker(globals, config);
-		const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
-		// simulate product cart tracking
-		const productData = [{ parentId: 'product123', uid: 'product123', sku: 'product123', qty: 1, price: 10.99 }];
-		tracker.storage.cart.set(productData);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		jest.useFakeTimers();
 
-		expect(sendPreflight).toHaveBeenCalledTimes(1);
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			// simulate product cart tracking
+			const productData = [{ parentId: 'product123', uid: 'product123', sku: 'product123', qty: 1, price: 10.99 }];
+			tracker.storage.cart.set(productData);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('will make preflight request when there are viewed products set', async () => {
-		const tracker = new Tracker(globals, config);
-		const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
-		// simulate product view tracking
-		const productData = { sku: 'product123' };
-		tracker.track.product.view(productData);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		jest.useFakeTimers();
 
-		expect(sendPreflight).toHaveBeenCalledTimes(1);
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			// simulate product view tracking
+			const productData = { sku: 'product123' };
+			tracker.track.product.view(productData);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
+	});
+
+	it('will make preflight request when there are searched terms set', async () => {
+		jest.useFakeTimers();
+
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			tracker.cookies.searched.add(['shoes']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
+	});
+
+	it('will make preflight request when a searched term is removed', async () => {
+		jest.useFakeTimers();
+
+		try {
+			const tracker = new Tracker(globals, config);
+			tracker.cookies.searched.add(['shoes', 'boots']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			tracker.cookies.searched.remove(['boots']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+
+			tracker.cookies.searched.remove(['not-searched']);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('will make preflight request when there is a shopperId set', async () => {
-		const tracker = new Tracker(globals, config);
-		const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
-		// simulate shopper login
-		const shopperData = { id: 'shopper123' };
-		tracker.track.shopper.login(shopperData);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		jest.useFakeTimers();
 
-		expect(sendPreflight).toHaveBeenCalledTimes(1);
+		try {
+			const tracker = new Tracker(globals, config);
+			const sendPreflight = jest.spyOn(tracker, 'sendPreflight');
+			// simulate shopper login
+			const shopperData = { id: 'shopper123' };
+			tracker.track.shopper.login(shopperData);
+			await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
+
+			expect(sendPreflight).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.runOnlyPendingTimers();
+			jest.useRealTimers();
+		}
 	});
 
 	it('can retarget DOM elements', () => {
@@ -447,6 +508,141 @@ describe('Tracker', () => {
 
 		expect(viewedProducts).toContain('viewed-product-123');
 	});
+
+	it('can add and get searched terms with the most recent first', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.add(['boots']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['boots', 'shoes']);
+	});
+
+	it('moves a repeated search term to the front instead of duplicating it', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.add(['boots']);
+		tracker.cookies.searched.add(['shoes']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['shoes', 'boots']);
+	});
+
+	it('keeps only the 10 most recent searched terms', () => {
+		const tracker = new Tracker(globals, config);
+
+		for (let i = 1; i <= 12; i++) {
+			tracker.cookies.searched.add([`term${i}`]);
+		}
+
+		const searched = tracker.cookies.searched.get();
+		expect(searched).toHaveLength(10);
+		expect(searched[0]).toBe('term12');
+		expect(searched[9]).toBe('term3');
+	});
+
+	it('stores searched queries with a timestamp', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+
+		const stored = JSON.parse(localStorageMock.getItem('ssSearchedQueries-xxxzzz') || '{}').value;
+		expect(stored).toHaveLength(1);
+		expect(stored[0].query).toBe('shoes');
+		expect(new Date(stored[0].timestamp).toISOString()).toBe(stored[0].timestamp);
+	});
+
+	it('stores and returns searched terms with special characters unchanged', () => {
+		const tracker = new Tracker(globals, config);
+		const term = 'red & blue, 50% off';
+
+		tracker.cookies.searched.add([term]);
+
+		const stored = JSON.parse(localStorageMock.getItem('ssSearchedQueries-xxxzzz') || '{}').value;
+		expect(stored[0].query).toBe(term);
+		expect(tracker.cookies.searched.get()).toEqual([term]);
+	});
+
+	it('can clear searched terms', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.clear();
+
+		expect(tracker.cookies.searched.get()).toEqual([]);
+	});
+
+	it('can remove searched terms', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.add(['boots']);
+		tracker.cookies.searched.add(['sandals']);
+		tracker.cookies.searched.remove(['boots', 'not-searched']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['sandals', 'shoes']);
+	});
+
+	it('removes searched terms regardless of case and surrounding whitespace', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['Shoes']);
+		tracker.cookies.searched.remove([' shoes ']);
+
+		expect(tracker.cookies.searched.get()).toEqual([]);
+	});
+
+	it('keeps the timestamps of the remaining searched terms when removing', () => {
+		const tracker = new Tracker(globals, config);
+		const older = { query: 'shoes', timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() };
+		const newer = { query: 'boots', timestamp: new Date().toISOString() };
+		localStorageMock.setItem('ssSearchedQueries-xxxzzz', JSON.stringify({ value: [newer, older] }));
+
+		tracker.cookies.searched.remove(['boots']);
+
+		expect(JSON.parse(localStorageMock.getItem('ssSearchedQueries-xxxzzz') || '{}').value).toEqual([older]);
+	});
+
+	it('only removes searched terms for the given siteId', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['boots'], 'other1');
+		tracker.cookies.searched.add(['boots']);
+		tracker.cookies.searched.remove(['boots'], 'other1');
+
+		expect(tracker.cookies.searched.get('other1')).toEqual([]);
+		expect(tracker.cookies.searched.get()).toEqual(['boots']);
+	});
+
+	it('keeps searched terms for each siteId separate', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['boots'], 'other1');
+		tracker.cookies.searched.add(['shoes']);
+
+		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+		expect(tracker.cookies.searched.get('other1')).toEqual(['boots']);
+	});
+
+	it('only clears searched terms for the given siteId', () => {
+		const tracker = new Tracker(globals, config);
+
+		tracker.cookies.searched.add(['boots'], 'other1');
+		tracker.cookies.searched.add(['shoes']);
+		tracker.cookies.searched.clear('other1');
+
+		expect(tracker.cookies.searched.get('other1')).toEqual([]);
+		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+	});
+
+	it('only returns searched terms from the past 2 weeks', () => {
+		const tracker = new Tracker(globals, config);
+		const recent = { query: 'shoes', timestamp: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString() };
+		const expired = { query: 'boots', timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() };
+		localStorageMock.setItem('ssSearchedQueries-xxxzzz', JSON.stringify({ value: [recent, expired] }));
+
+		expect(tracker.cookies.searched.get()).toEqual(['shoes']);
+	});
 });
 
 describe('Cart inferance from context', () => {
@@ -454,6 +650,8 @@ describe('Cart inferance from context', () => {
 	let config: TrackerConfig & BeaconConfig;
 	let mockFetchApi: jest.Mock;
 	beforeEach(() => {
+		// installed before the Tracker is constructed so its deferred constructor work is faked too
+		jest.useFakeTimers();
 		jest.clearAllMocks();
 		resetAllCookies();
 		localStorageMock.clear();
@@ -463,6 +661,11 @@ describe('Cart inferance from context', () => {
 		} as Response);
 		config = { mode: 'development', apis: { fetch: mockFetchApi } };
 		tracker = new Tracker(globals, config);
+	});
+
+	afterEach(() => {
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
 	});
 
 	it('empty cart should not trigger any requests', async () => {
@@ -475,7 +678,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, 0));
+		await jest.advanceTimersByTimeAsync(0);
 		expect(mockFetchApi).not.toHaveBeenCalled();
 	});
 	it('can set current cart from globals', async () => {
@@ -491,7 +694,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 
 		expect(tracker.storage.cart.get()).toEqual(cart);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/add'), expect.any(Object));
@@ -509,7 +712,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart2);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/add'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -525,7 +728,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart3);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/add'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -541,7 +744,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart4);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/remove'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -557,7 +760,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart4); // should be previous cart
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/log/snap'), expect.any(Object));
 		expect(mockFetchApi).not.toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -573,7 +776,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart6);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/remove'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));
@@ -590,7 +793,7 @@ describe('Cart inferance from context', () => {
 			},
 			config
 		);
-		await new Promise((resolve) => setTimeout(resolve, PREFLIGHT_DEBOUNCE_TIMEOUT));
+		await jest.advanceTimersByTimeAsync(PREFLIGHT_DEBOUNCE_TIMEOUT);
 		expect(tracker.storage.cart.get()).toEqual(cart7);
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/cart/remove'), expect.any(Object));
 		expect(mockFetchApi).toHaveBeenCalledWith(expect.stringContaining('/v1/preflight'), expect.any(Object));

@@ -1,4 +1,8 @@
 describe('Category', () => {
+	beforeEach(() => {
+		cy.clearAllSessionStorage();
+	});
+
 	it('runs the category search', () => {
 		cy.on('window:before:load', (win) => {
 			win.mergeSnapConfig = {

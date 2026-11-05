@@ -3,7 +3,7 @@ import { autocomplete } from './autocomplete';
 
 // ORGANISMS Imports
 
-export const organisms: ThemeResponsiveComplete = {
+export const organisms = {
 	default: {
 		...autocomplete.default,
 	},
@@ -16,4 +16,4 @@ export const organisms: ThemeResponsiveComplete = {
 	desktop: {
 		...autocomplete.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

@@ -4,6 +4,8 @@ import { ThemeResponsiveComplete } from '../../../../providers';
 import { autocompleteFixed } from './autocompleteFixed';
 import { autocompleteModal } from './autocompleteModal';
 import { autocompleteSlideout } from './autocompleteSlideout';
+import { quickviewModal } from './quickviewModal';
+import { quickviewSlideout } from './quickviewSlideout';
 import { recommendation } from './recommendation';
 import { recommendationBundle } from './recommendationBundle';
 import { recommendationBundleEasyAdd } from './recommendationBundleEasyAdd';
@@ -15,11 +17,13 @@ import { search } from './search';
 import { searchHorizontal } from './searchHorizontal';
 import { searchCollapsible } from './searchCollapsible';
 
-export const templates: ThemeResponsiveComplete = {
+export const templates = {
 	default: {
 		...autocompleteFixed.default,
 		...autocompleteModal.default,
 		...autocompleteSlideout.default,
+		...quickviewModal.default,
+		...quickviewSlideout.default,
 		...recommendation.default,
 		...recommendationBundle.default,
 		...recommendationBundleEasyAdd.default,
@@ -35,6 +39,8 @@ export const templates: ThemeResponsiveComplete = {
 		...autocompleteFixed.mobile,
 		...autocompleteModal.mobile,
 		...autocompleteSlideout.mobile,
+		...quickviewModal.mobile,
+		...quickviewSlideout.mobile,
 		...recommendation.mobile,
 		...recommendationBundle.mobile,
 		...recommendationBundleEasyAdd.mobile,
@@ -50,6 +56,8 @@ export const templates: ThemeResponsiveComplete = {
 		...autocompleteFixed.tablet,
 		...autocompleteModal.tablet,
 		...autocompleteSlideout.tablet,
+		...quickviewModal.tablet,
+		...quickviewSlideout.tablet,
 		...recommendation.tablet,
 		...recommendationBundle.tablet,
 		...recommendationBundleEasyAdd.tablet,
@@ -65,6 +73,8 @@ export const templates: ThemeResponsiveComplete = {
 		...autocompleteFixed.desktop,
 		...autocompleteModal.desktop,
 		...autocompleteSlideout.desktop,
+		...quickviewModal.desktop,
+		...quickviewSlideout.desktop,
 		...recommendation.desktop,
 		...recommendationBundle.desktop,
 		...recommendationBundleEasyAdd.desktop,
@@ -76,4 +86,4 @@ export const templates: ThemeResponsiveComplete = {
 		...searchCollapsible.desktop,
 		...searchHorizontal.desktop,
 	},
-};
+} as unknown as ThemeResponsiveComplete;

@@ -1,9 +1,7 @@
 import { h } from 'preact';
 
-import { ArgsTable, PRIMARY_STORY, Markdown } from '@storybook/blocks';
-
 import { ResultTracker, ResultTrackerProps } from './ResultTracker';
-import { componentArgs, highlightedCode } from '../../../utilities';
+import { componentArgs } from '../../../utilities';
 import Readme from '../ResultTracker/readme.md';
 import { Snapify } from '../../../utilities/snapify';
 import type { SearchController } from '@athoscommerce/snap-controller';
@@ -13,23 +11,11 @@ import { Product } from '@athoscommerce/snap-store-mobx';
 export default {
 	title: 'Trackers/ResultTracker',
 	component: ResultTracker,
-	tags: ['autodocs'],
 	parameters: {
 		docs: {
-			page: () => (
-				<div>
-					<Markdown
-						options={{
-							overrides: {
-								code: highlightedCode,
-							},
-						}}
-					>
-						{Readme}
-					</Markdown>
-					<ArgsTable story={PRIMARY_STORY} />
-				</div>
-			),
+			description: {
+				component: Readme,
+			},
 		},
 	},
 	decorators: [
@@ -48,7 +34,7 @@ export default {
 					summary: 'Controller',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 		result: {
 			description: 'Result store Product reference',
@@ -58,7 +44,7 @@ export default {
 					summary: 'result store Product object',
 				},
 			},
-			control: { type: 'none' },
+			control: false,
 		},
 
 		...componentArgs,
@@ -67,20 +53,22 @@ export default {
 
 const snapInstance = Snapify.search({ id: 'SearchResultTracker', globals: { siteId: 'atkzs2', search: { query: { string: '*' } } } });
 
-export const Default = (props: ResultTrackerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
-	const firstResult = controller?.store?.results[0] as Product;
-	return (
-		<ResultTracker {...props} controller={controller} result={firstResult}>
-			<Result result={firstResult} />
-		</ResultTracker>
-	);
-};
-
-Default.loaders = [
-	async () => {
-		await snapInstance.search();
-		return {
-			controller: snapInstance,
-		};
+export const Default = {
+	render: (props: ResultTrackerProps, { loaded: { controller } }: { loaded: { controller: SearchController } }) => {
+		const firstResult = controller?.store?.results[0] as Product;
+		return (
+			<ResultTracker {...props} controller={controller} result={firstResult}>
+				<Result result={firstResult} />
+			</ResultTracker>
+		);
 	},
-];
+
+	loaders: [
+		async () => {
+			await snapInstance.search();
+			return {
+				controller: snapInstance,
+			};
+		},
+	],
+};
