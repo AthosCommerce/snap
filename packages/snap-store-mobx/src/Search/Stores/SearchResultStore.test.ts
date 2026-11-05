@@ -2035,6 +2035,22 @@ describe('SearchResultStore', () => {
 					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']);
 				});
 
+				it('links in a group that shares no values with the largest group through a later group', () => {
+					const mask = new ProductMask();
+					// Bay Leaf shares no sizes with Snow Marle - only the smaller Clay group says that M comes before L
+					const variantData: VariantData[] = [
+						...['L', 'XL', 'XXL', '3XL'].map((size) => sizeVariant('Snow Marle', size)),
+						...['XS', 'S', 'M'].map((size) => sizeVariant('Bay Leaf', size)),
+						...['M', 'L'].map((size) => sizeVariant('Clay', size)),
+					];
+
+					const variants = new Variants({ data: { mask, variants: variantData, meta } });
+					const sizeSelection = variants.selections.find((selection) => selection.field === 'size');
+
+					// NOT L, XL, XXL, 3XL, XS, S, M from appending Bay Leaf before Clay links it in
+					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']);
+				});
+
 				it('sorts the values of the first option before any selections are made', () => {
 					const mask = new ProductMask();
 					// size is the first option, so its selection is created before the colour selection exists
