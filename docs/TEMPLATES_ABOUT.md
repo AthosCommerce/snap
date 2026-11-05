@@ -26,7 +26,6 @@ Snap Templates:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
-import { Content, Sidebar } from './components';
 import { globalStyles } from './styles';
 
 const templatesConfig = validateTemplatesConfig({
@@ -68,7 +67,7 @@ const templatesConfig = validateTemplatesConfig({
 	autocomplete: {
 		targets: [
 			{
-				selector: 'input.athos-ac',
+				inputSelector: 'input.athos-ac',
 				component: 'AutocompleteFixed',
 			},
 		]
@@ -91,6 +90,8 @@ SnapHybrid bridges the gap between Snap Templates and standard Snap by:
 - **Retaining custom components**: Custom result and badge components remain available
 - **Enabling full Snap control**: You gain complete control over controllers, targets, and the component tree
 
+Components you render from the standard Snap configuration need a small wrapper to use the templates theme, translations and custom components - see the note after the example below.
+
 ### When to Use SnapHybrid
 
 Consider transitioning to SnapHybrid when you need to:
@@ -101,10 +102,11 @@ Consider transitioning to SnapHybrid when you need to:
 - Add multiple search or autocomplete controllers
 - Integrate with advanced features not supported in Snap Templates
 
-### Basic Usage
+### SnapHybrid Basic Usage
 
 ```tsx
 import { SnapHybrid, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+import type { SnapConfig } from '@athoscommerce/snap-preact';
 import { Content, Sidebar } from './components';
 import { globalStyles } from './styles';
 
@@ -154,7 +156,7 @@ const templatesConfig = validateTemplatesConfig({
 });
 
 // Standard Snap configuration for full control
-const snapConfig = {
+const snapConfig: SnapConfig = {
 	client: {
 		globals: {
 			siteId: 'atkzs2',
@@ -172,7 +174,7 @@ const snapConfig = {
 						},
 					},
 				},
-				targets: [
+				targeters: [
 					{
 						selector: '#athos-content',
 						component: () => Content,
@@ -196,13 +198,17 @@ const snap = new SnapHybrid({
 });
 ```
 
+Templates targets (the `search`, `autocomplete` and `recommendation` features of `templatesConfig`) are rendered with the templates theme, translations and custom components automatically. Components you render from `snapConfig` targeters are not. To give them access, wrap the component's output in `SnapProvider` (with the `snap` prop it receives) and `ThemeProvider` with `snap.templates.themes.local.global.theme`, the theme built from `templatesConfig`. That theme is created asynchronously, so provide a fallback (such as `defaultTheme`) until it exists.
+
+Both configs are merged, with arrays concatenated. If `templatesConfig` also has a `search` or `autocomplete` feature, its controller uses the id `search` or `autocomplete` (or the tab ids when tabs are configured), so give your `snapConfig` controllers different ids - a controller with a duplicate id is not created.
+
 ### Configuration Structure
 
 The `SnapHybrid` constructor accepts an object with the following properties:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `templatesConfig` | `SnapTemplatesConfig` | Your existing Snap Templates configuration |
+| `templatesConfig` | `SnapTemplatesConfig` or `SnapTemplatesConfigUnlocked` | Your existing Snap Templates configuration |
 | `snapConfig` | `SnapConfig` | Standard Snap configuration for controllers, targets, etc. |
 | `services` | `SnapServices` (optional) | Custom services to override defaults |
 

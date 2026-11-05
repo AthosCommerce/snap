@@ -54,21 +54,40 @@ The tab `label` is what shoppers see. When no `label` is set the tab `id` is dis
 `default` selects which tab is active on first load. Without it, the first tab in the array is used.
 
 > [!IMPORTANT]
-> Tab `id` values **must be unique across the entire configuration**, including between search tabs and autocomplete tabs. The `id` becomes the controller id, and controllers share a single registry - a duplicate id is silently skipped, so the affected tab simply never renders.
+> Tab `id` values **must be unique across the entire configuration**, including between search tabs and autocomplete tabs. The `id` becomes the controller id, and controllers share a single registry - the controller for a duplicate id is not created (Snap logs `Controller with id '<id>' is already defined`), so that tab has no controller of its own.
+
+Within a feature, every tab must have its own `siteId` and its own `param`. This is not enforced at runtime or by TypeScript; the `snap-config/tabs` ESLint rule reports duplicates (see [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md#setting-up-the-eslint-rules)).
+
+When tabs are configured, no untabbed controller is created, so adding tabs does not produce an additional request. Search targets are attached to the controller of the tab that is active on page load (from the `tab` URL parameter, otherwise the default tab), and autocomplete targets are attached to the default tab's controller.
 
 ### Rendering the Tabs
 
-The `tabSelection` module is already present in the default layouts, so no theme changes are needed to make the tabs appear. On the Search template it sits in the middle toolbar, and in `AutocompleteLayout` it sits above the content column.
+The `tabSelection` module is already present in some default layouts, so no theme changes are needed to make the tabs appear there. On the `Search` template it sits in the middle toolbar, and in `AutocompleteLayout` it sits above the content in the default `column3` layout (used by the default, `desktop` and `tablet` autocomplete layouts).
 
-To move it, include `'tabSelection'` in a different toolbar or column `layout` array:
+It is not in the default layouts of `SearchHorizontal` or `SearchCollapsible`, or in the prebuilt `mobile` and `terms` autocomplete layouts. Both `base` and `pike` use the `mobile` autocomplete layout at the mobile breakpoint, for all three autocomplete templates; at other widths `AutocompleteSlideout`'s own default layout includes `tabSelection`. In those cases, add `'tabSelection'` to a `layout` array yourself.
+
+To move it, include `'tabSelection'` in a different toolbar or column `layout` array. On the `Search` template, also override the middle toolbar layout without it, or the tabs render twice. The middle toolbar uses a different default layout below `mobileDisplayAt` (the tablet breakpoint by default), with the sidebar toggle, so it is overridden at both `mobile` and `tablet` too:
 
 ```tsx
 theme: {
 	extends: 'pike',
 	overrides: {
 		default: {
-			'toolbar.top': {
-				layout: [['banner.header'], ['tabSelection'], ['searchHeader', '_', 'sortBy']],
+			'search toolbar.top': {
+				layout: [['banner.header'], ['tabSelection'], ['searchHeader', '_']],
+			},
+			'search toolbar.middle': {
+				layout: [['sortBy', 'perPage', '_', 'paginationInfo'], ['banner.banner']],
+			},
+		},
+		mobile: {
+			'search toolbar.middle': {
+				layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
+			},
+		},
+		tablet: {
+			'search toolbar.middle': {
+				layout: [['paginationInfo', '_'], ['button.sidebar-toggle', '_', 'sortBy'], ['banner.banner']],
 			},
 		},
 	},
@@ -92,7 +111,7 @@ search: {
 With the above, browsing the blog tab with a colour refinement produces:
 
 ```
-/search.html?q=winter&tab=blog#/blogfilter:color:Black
+/search.html?tab=blog&q=winter#/blogfilter:color:Black
 ```
 
 The URL parameter holding the active tab is always `tab` and is not configurable.
@@ -134,9 +153,9 @@ Submitting from the `ACBlog` tab writes `tab=blog` and the results page opens on
 
 ### Deferring Requests with prefetch
 
-By default every search tab issues its request on page load so that each tab can display a result count immediately. On sites with many tabs this can be more requests than you want.
+By default every search tab issues its request as soon as the tabbed search renders, so that each tab can display a result count immediately. On sites with many tabs this can be more requests than you want.
 
-Setting `prefetch: false` defers a tab's request until it is selected. That tab shows no result count until then, and is never treated as empty.
+Setting `prefetch: false` defers a tab's request until it is selected. That tab shows no result count until then, and is not treated as empty before it has loaded.
 
 ```tsx
 search: {
@@ -150,17 +169,17 @@ search: {
 
 `prefetch` applies to search tabs only - autocomplete has nothing to fetch until the shopper types.
 
-Be aware that this also changes what reporting sees for that tab's `siteId`. A deferred tab only records a search when a shopper actually selects it, so its search volume will be far lower than a prefetched tab's, and its impression and click-through rates will be correspondingly higher. Metrics are not comparable across the default tab's `siteId` and a `prefetch: false` tab's `siteId`.
+Be aware that this also changes what reporting sees for that tab's `siteId`. A deferred tab only records a search when a shopper actually selects it, so its search volume is likely to be far lower than a prefetched tab's, and its impression and click-through rates correspondingly higher. Metrics are not comparable across the default tab's `siteId` and a `prefetch: false` tab's `siteId`.
 
 ### Per-Tab Globals, Settings and Plugins
 
-Each tab accepts `globals`, `settings` and `plugins` that apply to that tab alone. This is how you give one catalog a background filter, a different page size, or its own plugin set. `settings` and `globals` are merged over the feature level values; `plugins` apply to the tab only.
+Each tab accepts `globals`, `settings` and `plugins` that apply to that tab alone. This is how you give one catalog a background filter, a different page size, or its own plugin set. `settings` and `globals` are merged over the feature level values; `plugins` apply to the tab only. Tab `globals` are not type-checked.
 
 ```tsx
 search: {
 	plugins: {
 		common: {
-			myPlugin: { function: myPluginFunction },
+			scrollToTop: { options: { behavior: 'smooth' } },
 		},
 	},
 	tabs: [
@@ -195,7 +214,7 @@ search: {
 ```
 
 > [!IMPORTANT]
-> `tabs[].plugins` **replaces** the feature level `plugins` for that tab rather than merging with them. A tab without a `plugins` key inherits the feature level plugins; a tab with an empty `plugins` object runs none.
+> `tabs[].plugins` **replaces** the top-level and feature level `plugins` for that tab rather than merging with them. A tab without a `plugins` key inherits the top-level and feature level plugins; a tab with an empty `plugins` object runs none. A built-in plugin only runs on the tab when its config object has at least one key (for example `{ enabled: true }`).
 
 ### Tab-Specific Theme Overrides
 
@@ -267,25 +286,22 @@ theme: {
 
 By default a tab whose controller returned zero results is rendered disabled, so shoppers are not sent to an empty result set. The currently active tab is never disabled, and tabs that have not loaded yet are not treated as empty.
 
-Tab text and accessibility attributes are customizable through `lang`:
+Tab text and accessibility attributes are customizable through the top-level `translations` key, per language (`lang` is not accepted in `theme.overrides`):
 
 ```tsx
-theme: {
-	extends: 'pike',
-	overrides: {
-		default: {
-			tabSelection: {
-				lang: {
-					tabButton: {
-						attributes: {
-							'aria-label': (data) => `${data.tab.label || data.tab.id}, ${data.resultCount} results`,
-						},
-					},
+translations: {
+	EN: {
+		tabSelection: {
+			tabButton: {
+				attributes: {
+					'aria-label': (data) => `${data.tab.label || data.tab.id}, ${data.resultCount} results`,
 				},
 			},
 		},
 	},
 }
 ```
+
+`data.resultCount` is `undefined` until that tab's search has loaded.
 
 See the [TabSelection component documentation](https://github.com/athoscommerce/snap/tree/main/packages/snap-preact/components/src/components/Molecules/TabSelection) for the full prop and lang reference.

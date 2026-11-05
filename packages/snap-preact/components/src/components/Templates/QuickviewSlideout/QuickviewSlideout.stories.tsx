@@ -115,7 +115,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 			},
 			control: 'none',
@@ -125,7 +125,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 			},
 			control: 'none',
@@ -135,7 +135,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 			},
 			control: 'none',
@@ -145,7 +145,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 			},
 			control: 'none',
