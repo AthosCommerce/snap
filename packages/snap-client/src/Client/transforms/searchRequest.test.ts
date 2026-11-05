@@ -1,6 +1,6 @@
 import { SearchRequestModelFilterValue, SearchRequestModelFilterRange, SearchRequestModelFilter } from '@athoscommerce/snapi-types';
 
-import { BEACON_PARAM, transformSearchRequest } from './searchRequest';
+import { transformSearchRequest } from './searchRequest';
 
 const mockRequest = {
 	sorts: [{ field: 'name', direction: 'asc' as any }],
@@ -18,18 +18,17 @@ describe('search request transformer', () => {
 		expect(Object.keys(searchRequest)).toEqual(['q', 'sort.name']);
 	});
 
-	it('does not add the beacon param when tracking.beacon is not false', () => {
+	it('does not add the beacon param when tracking.beacon is not set', () => {
 		const expected = { q: 'red dress', 'sort.name': ['asc'] };
 
 		expect(transformSearchRequest(mockRequest)).toEqual(expected);
 		expect(transformSearchRequest({ ...mockRequest, tracking: {} })).toEqual(expected);
-		expect(transformSearchRequest({ ...mockRequest, tracking: { beacon: true } })).toEqual(expected);
 	});
 
-	it('adds the beacon param as false when tracking.beacon is false', () => {
-		const searchRequest = transformSearchRequest({ ...mockRequest, tracking: { beacon: false } });
+	it.each([false, true])('passes tracking.beacon: %s through as the beacon param', (beacon) => {
+		const searchRequest = transformSearchRequest({ ...mockRequest, tracking: { beacon } });
 
-		expect(searchRequest).toEqual({ q: 'red dress', 'sort.name': ['asc'], [BEACON_PARAM]: false });
+		expect(searchRequest).toEqual({ q: 'red dress', 'sort.name': ['asc'], beacon });
 	});
 });
 

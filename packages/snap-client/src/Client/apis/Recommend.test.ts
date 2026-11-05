@@ -165,7 +165,7 @@ describe('Recommend Api', () => {
 		requestMock.mockReset();
 	});
 
-	it('batchRecommendations sends the beacon param as false when beacon is false', async () => {
+	it.each([false, true])('batchRecommendations passes beacon: %s through as the beacon param', async (beacon) => {
 		const api = new RecommendAPI(new ApiConfiguration(apiConfig));
 
 		const requestMock = jest
@@ -175,7 +175,7 @@ describe('Recommend Api', () => {
 		const recommendPromise = api.batchRecommendations({
 			siteId: '8uyt2m',
 			tag: 'similar',
-			beacon: false,
+			beacon,
 		});
 
 		await jest.runAllTimersAsync();
@@ -187,7 +187,7 @@ describe('Recommend Api', () => {
 			headers: {
 				'Content-Type': 'text/plain',
 			},
-			body: `{"profiles":[{"tag":"similar"}],"siteId":"8uyt2m","beacon":false}`,
+			body: `{"profiles":[{"tag":"similar"}],"siteId":"8uyt2m","beacon":${beacon}}`,
 		});
 		requestMock.mockReset();
 	});

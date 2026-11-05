@@ -1,7 +1,7 @@
 import { API } from './Abstract';
 import { HTTPHeaders, RecommendPostRequestProfileModel, RecommendRequesterPaths } from '../../types';
 import { AppMode } from '@athoscommerce/snap-toolbox';
-import { BEACON_PARAM, beaconParams, transformRecommendationFiltersPost } from '../transforms';
+import { transformRecommendationFiltersPost } from '../transforms';
 import { ProfileRequestModel, ProfileResponseModel, RecommendResponseModel, RecommendRequestModel, RecommendPostRequestModel } from '../../types';
 import { DEVELOPMENT_MODE_PARAM } from './Search';
 
@@ -54,7 +54,7 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 
 		// set up batch key and deferred promises
 		// the beacon param applies to the whole batch, so requests opting out of tracking are batched separately
-		const beaconKey = parameters.beacon === false ? `:${BEACON_PARAM}=false` : '';
+		const beaconKey = parameters.beacon === false ? ':beacon=false' : '';
 		const key = (parameters.batched ? `${parameters.profile?.siteId || parameters.siteId}:${batchId}` : `${Math.random()}:${batchId}`) + beaconKey;
 		const batch = (this.batches[key] = this.batches[key] || { timeout: null, request: { profiles: [] }, entries: [] });
 		const deferred = new Deferred();
@@ -148,8 +148,8 @@ export class RecommendAPI extends API<RecommendRequesterPaths> {
 						lastSearches,
 						shopper,
 						withRecInfo: mergedWithRecInfo,
+						beacon,
 					}),
-					...beaconParams(beacon),
 				};
 				if (this.configuration.mode == AppMode.development) {
 					batch.request[DEVELOPMENT_MODE_PARAM] = true;

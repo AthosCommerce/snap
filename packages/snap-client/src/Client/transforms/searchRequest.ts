@@ -10,14 +10,6 @@ import {
 	AutocompleteRequestModelSearch,
 } from '@athoscommerce/snapi-types';
 
-// Athos APIs track requests by default; this param is sent as false when a request opts out of API tracking
-// (`tracking.beacon: false` in search requests, `beacon: false` in recommendation requests)
-export const BEACON_PARAM = 'beacon';
-
-export function beaconParams(beacon?: boolean): { [BEACON_PARAM]?: boolean } {
-	return beacon === false ? { [BEACON_PARAM]: false } : {};
-}
-
 export function transformSearchRequest(request: SearchRequestModel | AutocompleteRequestModel): any {
 	const data = mergeParams(
 		transformSearchRequest.sorts(request),
@@ -31,7 +23,7 @@ export function transformSearchRequest(request: SearchRequestModel | Autocomplet
 		transformSearchRequest.personalization(request)
 	);
 
-	return { ...data, ...beaconParams(request.tracking?.beacon) };
+	return data;
 }
 
 transformSearchRequest.sorts = (request: SearchRequestModel | AutocompleteRequestModel = {}) => {
@@ -215,6 +207,7 @@ transformSearchRequest.tracking = (request: SearchRequestModel | AutocompleteReq
 		domain?: string;
 		sessionId?: string;
 		pageLoadId?: string;
+		beacon?: boolean;
 	} = {};
 
 	if (reqTracking.userId) {
@@ -228,6 +221,10 @@ transformSearchRequest.tracking = (request: SearchRequestModel | AutocompleteReq
 	}
 	if (reqTracking.pageLoadId) {
 		params.pageLoadId = reqTracking.pageLoadId;
+	}
+	// Athos APIs track requests by default, so `beacon=false` opts the request out of API tracking
+	if (typeof reqTracking.beacon === 'boolean') {
+		params.beacon = reqTracking.beacon;
 	}
 
 	return params;
