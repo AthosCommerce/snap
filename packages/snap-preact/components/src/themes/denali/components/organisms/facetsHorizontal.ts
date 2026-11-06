@@ -1,9 +1,10 @@
 import { css } from '@emotion/react';
 import type { FacetsHorizontalProps, FacetsHorizontalTemplatesLegalProps } from '../../../../components/Organisms/FacetsHorizontal';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the Facets component
 const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = theme?.variables;
 
 	return css({
@@ -14,13 +15,23 @@ const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
 			'& .ss__facets-horizontal__header__dropdown': {
 				margin: '0',
 
-				'& .ss__icon': {
-					transition: 'transform ease .5s',
-				},
-
 				'& .ss__dropdown__button__heading': {
 					color: variables?.colors?.secondary,
 					fontWeight: 'bold',
+
+					'& .ss__icon': {
+						transition: 'transform ease .5s',
+						...custom.styles.indicator(variables?.colors?.accent),
+					},
+				},
+				// a text action, not a pill button
+				'& .ss__facet__header__clear-all': {
+					color: 'inherit',
+					'&, &:hover, &:not(.ss__button--disabled):hover': {
+						padding: 0,
+						border: 0,
+						backgroundColor: 'transparent',
+					},
 				},
 
 				'&.ss__dropdown--open': {
@@ -60,10 +71,6 @@ export const facetsHorizontal: ThemeComponent<'facetsHorizontal', FacetsHorizont
 			themeStyleScript: facetsHorizontalStyleScript,
 			iconCollapse: 'angle-down',
 			limit: 9,
-		},
-
-		'facetsHorizontal sidebar': {
-			layout: ['facets'],
 		},
 	},
 	mobile: {

@@ -1,24 +1,24 @@
 import { css } from '@emotion/react';
 import type { VariantSelectionProps, VariantSelectionTemplatesLegalProps } from '../../../../components/Molecules/VariantSelection';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
 
 // CSS in JS style script for the VariantSelection component
 const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 	const variables = theme?.variables;
 
 	return css({
-		// Button styling (applies from root div context)
 		'.ss__variant-selection__dropdown': {
 			'.ss__dropdown__button': {
 				borderRadius: '25px',
 				fontWeight: 'initial',
 				padding: '10px 5px 10px 15px',
 				boxShadow: 'none',
-				background: variables?.colors?.accent,
-				color: variables?.colors?.primary,
+				background: custom.colors.gray01,
+				color: 'inherit',
 
 				'&:hover': {
-					background: variables?.colors?.accent,
+					background: custom.colors.gray01,
 				},
 			},
 			'&.ss__dropdown--open .ss__dropdown__button': {
@@ -30,13 +30,14 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 			'.ss__variant-selection__icon': {
 				marginLeft: '15px',
 				marginRight: '5px',
+				...custom.styles.indicator(variables?.colors?.accent),
 			},
 		},
 
 		'&.ss__variant-selection__options': {
 			margin: '0',
 			padding: '0',
-			background: 'white',
+			background: custom.colors.white,
 			border: 'none',
 			borderRadius: '0 0 25px 25px',
 			boxShadow: '0 6px 12px 1px #0000001f',
@@ -44,15 +45,15 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 			'.ss__variant-selection__option': {
 				padding: '6px 15px',
 				listStyle: 'none',
-				color: variables?.colors?.secondary,
-				background: 'white',
+				color: 'inherit',
+				background: custom.colors.white,
 
 				'&.ss__variant-selection__option--selected': {
-					fontWeight: 'bold',
-					background: variables?.colors?.accent,
+					...custom.styles.activeText(variables?.colors?.primary),
+					background: custom.colors.gray01,
 				},
 				'&:hover': {
-					background: variables?.colors?.accent,
+					background: custom.colors.gray01,
 				},
 			},
 		},

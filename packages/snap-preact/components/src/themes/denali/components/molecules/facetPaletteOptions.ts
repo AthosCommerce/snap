@@ -1,8 +1,12 @@
 import { css } from '@emotion/react';
 import type { FacetPaletteOptionsProps, FacetPaletteOptionsTemplatesLegalProps } from '../../../../components/Molecules/FacetPaletteOptions';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the FacetPaletteOptions component
-const facetPaletteStyleScript = ({}: FacetPaletteOptionsProps) => {
+const facetPaletteStyleScript = ({ theme }: FacetPaletteOptionsProps) => {
+	const variables = theme?.variables;
+
 	return css({
 		'.ss__facet-palette-options__option': {
 			'&:hover': {
@@ -21,12 +25,19 @@ const facetPaletteStyleScript = ({}: FacetPaletteOptionsProps) => {
 			},
 
 			'.ss__facet-palette-options__option__palette': {
-				border: '2px solid #e6e6e6',
+				border: `2px solid ${custom.colors.controlBorder}`,
 				'.ss__facet-palette-options__icon': {
 					opacity: 1,
 					stroke: 'gray',
 					strokeWidth: '2px',
 				},
+			},
+
+			'&.ss__facet-palette-options__option--filtered .ss__facet-palette-options__option__value': {
+				...custom.styles.activeText(variables?.colors?.primary),
+			},
+			'.ss__facet-palette-options__option__value__count': {
+				color: custom.colors.gray03,
 			},
 		},
 
@@ -46,7 +57,7 @@ const facetPaletteStyleScript = ({}: FacetPaletteOptionsProps) => {
 					aspectRatio: '1 / 1',
 
 					'.ss__facet-palette-options__option__palette': {
-						border: '2px solid #e6e6e6',
+						border: `2px solid ${custom.colors.controlBorder}`,
 						aspectRatio: '1 / 1',
 					},
 				},

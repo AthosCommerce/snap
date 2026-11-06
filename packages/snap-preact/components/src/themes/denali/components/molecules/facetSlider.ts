@@ -1,6 +1,8 @@
 import { css } from '@emotion/react';
 import type { FacetSliderProps, FacetSliderTemplatesLegalProps } from '../../../../components/Molecules/FacetSlider';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the FacetSlider component
 const facetSliderStyleScript = ({
 	railColor,
@@ -13,32 +15,32 @@ const facetSliderStyleScript = ({
 	theme,
 }: FacetSliderProps) => {
 	const variables = theme?.variables;
+	const activeColors = custom.utils.activeColors(handleColor || variables?.colors?.secondary || custom.colors.black);
 
 	return css({
 		marginBottom: showTicks && stickyHandleLabel ? '22px' : showTicks || stickyHandleLabel ? '10px' : '5px',
-		color: variables?.colors?.secondary,
 
 		'& .ss__facet-slider__slider': {
 			height: '5px',
 		},
 
 		'& .ss__facet-slider__rail': {
-			background: railColor || variables?.colors?.secondary || '#333',
+			background: railColor || variables?.colors?.accent,
 		},
 
 		'& .ss__facet-slider__segment': {
-			background: trackColor || '#f2f2f2',
+			background: trackColor || custom.colors.gray01,
 			borderRadius: '3px',
 		},
 
 		'& .ss__facet-slider__handles': {
 			'& button': {
 				'& .ss__facet-slider__handle': {
-					background: handleColor || variables?.colors?.secondary || '#333',
-					color: valueTextColor || variables?.colors?.secondary || 'initial',
+					background: activeColors[0],
+					color: valueTextColor || 'inherit',
 
 					'&.ss__facet-slider__handle--active': {
-						background: handleDraggingColor || handleColor || variables?.colors?.secondary || '#000',
+						background: handleDraggingColor || activeColors[0],
 					},
 				},
 				'& .ss__facet-slider__handle:after': {
@@ -48,7 +50,7 @@ const facetSliderStyleScript = ({
 		},
 
 		'& .ss__facet-slider__labels': {
-			color: variables?.colors?.secondary || valueTextColor,
+			color: valueTextColor || 'inherit',
 		},
 	});
 };
@@ -58,8 +60,6 @@ export const facetSlider: ThemeComponent<'facetSlider', FacetSliderProps, FacetS
 	default: {
 		facetSlider: {
 			themeStyleScript: facetSliderStyleScript,
-			handleColor: 'black',
-			handleDraggingColor: 'black',
 		},
 	},
 };

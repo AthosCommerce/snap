@@ -1,34 +1,44 @@
 import { css } from '@emotion/react';
 import type { LayoutSelectorProps, LayoutSelectorTemplatesLegalProps } from '../../../../components/Molecules/LayoutSelector';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the LayoutSelector component
 const layoutSelectorStyleScript = ({ theme }: LayoutSelectorProps) => {
 	const variables = theme?.variables;
+	const secondary = variables?.colors?.secondary || custom.colors.black;
+	const activeColors = custom.utils.activeColors(secondary);
+
 	return css({
 		'.ss__button__content': {
 			gap: '7px',
 		},
 
+		// inactive options are muted - ring and icon in the same gray
 		'.ss__list__option': {
 			padding: '10px',
 			borderRadius: '50%',
-			color: variables?.colors.secondary,
-			border: `2px solid ${variables?.colors.secondary}`,
-			opacity: 0.7,
+			color: custom.colors.gray03,
+			border: `2px solid ${custom.colors.gray03}`,
+			backgroundColor: custom.colors.white,
 
 			'.ss__icon': {
-				fill: variables?.colors.secondary,
-				stroke: variables?.colors.secondary,
+				fill: 'currentColor',
+				stroke: 'currentColor',
 			},
 		},
 
-		'.ss__list__option--selected': {
-			color: variables?.colors.secondary,
-			border: `3px solid ${variables?.colors.secondary}`,
-			opacity: 1,
+		// out-specify the list's selected text color (primary) - the fill needs its contrast color
+		'.ss__list__option.ss__list__option--selected': {
+			'&, &:hover': {
+				color: activeColors[1],
+				borderColor: activeColors[0],
+				backgroundColor: activeColors[0],
+			},
 			'.ss__icon': {
-				fill: variables?.colors.secondary,
-				stroke: variables?.colors.secondary,
+				color: activeColors[1],
+				fill: activeColors[1],
+				stroke: activeColors[1],
 			},
 		},
 	});
@@ -44,7 +54,7 @@ export const layoutSelector: ThemeComponent<'layoutSelector', LayoutSelectorProp
 			hideOptionLabels: true,
 		},
 		'layoutSelector icon': {
-			size: '5px',
+			size: '12px',
 		},
 	},
 };

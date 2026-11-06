@@ -541,25 +541,26 @@ fieldset {
 	}
 }
 
-.ss__pike .ss__demo .ss__demo__theme input, .ss__pike .ss__demo .ss__demo__theme select, .ss__pike .ss__demo .ss__demo__theme .ss__demo__button {
+/* the demo's own inputs - Snap component inputs (ss__* classes other than ss__demo*) keep their theme styling */
+.ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__pike .ss__demo .ss__demo__theme select, .ss__pike .ss__demo .ss__demo__theme .ss__demo__button {
 	-moz-border-radius: 0;
 	border-radius: 0;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input, .ss__pike .ss__demo .ss__demo__theme select {
+.ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__pike .ss__demo .ss__demo__theme select {
 	color: #515151;
 	border: 2px solid #00aeef;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input::-webkit-input-placeholder, .ss__pike .ss__demo .ss__demo__theme input :focus::-webkit-input-placeholder {
+.ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"]))::-webkit-input-placeholder, .ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])):focus::-webkit-input-placeholder {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input::-ms-input-placeholder, .ss__pike .ss__demo .ss__demo__theme input :focus::-ms-input-placeholder {
+.ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"]))::-ms-input-placeholder, .ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])):focus::-ms-input-placeholder {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input::placeholder, .ss__pike .ss__demo .ss__demo__theme input :focus::placeholder {
+.ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"]))::placeholder, .ss__pike .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])):focus::placeholder {
 	color: #515151;
 }
 

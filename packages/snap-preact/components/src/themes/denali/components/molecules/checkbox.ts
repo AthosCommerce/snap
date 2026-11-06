@@ -1,22 +1,18 @@
 import { css } from '@emotion/react';
 import type { CheckboxProps, CheckboxTemplatesLegalProps } from '../../../../components/Molecules/Checkbox';
-import { colord } from 'colord';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the Checkbox component
-const checkboxStyleScript = ({ color, theme }: CheckboxProps) => {
+const checkboxStyleScript = ({ color, iconColor, theme }: CheckboxProps) => {
 	const variables = theme?.variables;
-	const backgroundColorObj = colord(color || variables?.colors?.primary || '#000');
-	const backgroundTextColorObj = backgroundColorObj.isDark() ? colord('#fff') : colord('#000');
 
 	return css({
-		border: `2px solid ${backgroundColorObj.toHex()}`,
+		border: `2px solid ${color || custom.colors.controlBorder}`,
 		borderRadius: '3px',
-		'&.ss__checkbox--active': {
-			backgroundColor: backgroundColorObj.toHex(),
-			'.ss__icon': {
-				fill: backgroundTextColorObj.toHex(),
-				stroke: backgroundTextColorObj.toHex(),
-			},
+		backgroundColor: custom.colors.white,
+		'.ss__checkbox__icon': {
+			...custom.styles.indicator(iconColor || variables?.colors?.accent),
 		},
 		'&.ss__checkbox--disabled': {
 			opacity: 0.3,

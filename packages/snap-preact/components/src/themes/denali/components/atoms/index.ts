@@ -1,6 +1,7 @@
 import { ThemeResponsiveComplete } from '../../../../providers';
 
 // ATOMS Imports
+import { breadcrumbs } from './breadcrumbs';
 import { button } from './button';
 import { dropdown } from './dropdown';
 import { icon } from './icon';
@@ -9,10 +10,10 @@ import { loadingBar } from './loadingBar';
 import { price } from './price';
 import { searchHeader } from './searchHeader';
 import { skeleton } from './skeleton';
-import { calloutBadge } from './calloutBadge';
 
 export const atoms = {
 	default: {
+		...breadcrumbs.default,
 		...button.default,
 		...dropdown.default,
 		...icon.default,
@@ -21,9 +22,9 @@ export const atoms = {
 		...price.default,
 		...searchHeader.default,
 		...skeleton.default,
-		...calloutBadge.default,
 	},
 	mobile: {
+		...breadcrumbs.mobile,
 		...button.mobile,
 		...dropdown.mobile,
 		...icon.mobile,
@@ -32,9 +33,10 @@ export const atoms = {
 		...price.mobile,
 		...searchHeader.mobile,
 		...skeleton.mobile,
-		...calloutBadge.mobile,
 	},
 	tablet: {
+		...breadcrumbs.tablet,
+		...button.tablet,
 		...dropdown.tablet,
 		...icon.tablet,
 		...image.tablet,
@@ -42,9 +44,9 @@ export const atoms = {
 		...price.tablet,
 		...searchHeader.tablet,
 		...skeleton.tablet,
-		...calloutBadge.tablet,
 	},
 	desktop: {
+		...breadcrumbs.desktop,
 		...button.desktop,
 		...dropdown.desktop,
 		...icon.desktop,
@@ -53,6 +55,5 @@ export const atoms = {
 		...price.desktop,
 		...searchHeader.desktop,
 		...skeleton.desktop,
-		...calloutBadge.desktop,
 	},
 } as unknown as ThemeResponsiveComplete;

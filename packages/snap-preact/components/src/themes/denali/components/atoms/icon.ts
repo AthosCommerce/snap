@@ -3,12 +3,9 @@ import type { IconProps, IconTemplatesLegalProps } from '../../../../components/
 import { ThemeComponent } from '../../../../providers';
 
 // CSS in JS style script for the Icon component
-const iconStyleScript = ({ color, height, width, size, theme }: IconProps) => {
-	const variables = theme?.variables;
-
+const iconStyleScript = ({ height, width, size }: IconProps) => {
 	return css({
-		fill: color || variables?.colors?.primary,
-		stroke: color || variables?.colors?.primary,
+		stroke: 'currentColor',
 		width: width || size,
 		height: height || size,
 	});
@@ -19,6 +16,7 @@ export const icon: ThemeComponent<'icon', IconProps, IconTemplatesLegalProps> = 
 	default: {
 		icon: {
 			themeStyleScript: iconStyleScript,
+			color: 'currentColor',
 		},
 	},
 };

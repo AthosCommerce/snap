@@ -1,19 +1,11 @@
 import { css } from '@emotion/react';
 import type { LoadMoreProps, LoadMoreTemplatesLegalProps } from '../../../../components/Molecules/LoadMore';
-import { colord } from 'colord';
 import { ThemeComponent } from '../../../../providers';
-
-const setLightness = (colorValue: string, lightness: number) => {
-	const hsl = colord(colorValue).toHsl();
-	return colord({ ...hsl, l: lightness });
-};
+import { custom } from '../../custom';
 
 // CSS in JS style script for the LoadMore component
-const loadMoreStyleScript = ({ color, backgroundColor, theme }: LoadMoreProps) => {
+const loadMoreStyleScript = ({ color, theme }: LoadMoreProps) => {
 	const variables = theme?.variables;
-
-	const barColour = colord(color || variables?.colors?.accent || '#000');
-	const backgroundColour = backgroundColor ? colord(backgroundColor || '#fff') : setLightness(barColour.toHex(), 90);
 
 	return css({
 		'.ss__button': {
@@ -24,12 +16,13 @@ const loadMoreStyleScript = ({ color, backgroundColor, theme }: LoadMoreProps) =
 			},
 		},
 
-		'.ss__load-more__progress': {
-			'.ss__load-more__progress__indicator': {
-				background: backgroundColour.toHex(),
-				'.ss__load-more__progress__indicator__bar': {
-					background: barColour.toHex(),
-				},
+		// the track comes from the `backgroundColor` prop - the component's own selector outweighs this script
+		'&.ss__load-more .ss__load-more__progress .ss__load-more__progress__indicator': {
+			borderRadius: '2em',
+			overflow: 'hidden',
+			'.ss__load-more__progress__indicator__bar': {
+				background: color || variables?.colors?.accent,
+				borderRadius: '2em',
 			},
 		},
 	});
@@ -40,6 +33,7 @@ export const loadMore: ThemeComponent<'loadMore', LoadMoreProps, LoadMoreTemplat
 	default: {
 		loadMore: {
 			themeStyleScript: loadMoreStyleScript,
+			backgroundColor: custom.colors.gray01,
 		},
 	},
 };

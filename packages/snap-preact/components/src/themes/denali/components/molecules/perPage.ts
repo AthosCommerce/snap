@@ -1,9 +1,12 @@
 import { css } from '@emotion/react';
 import type { PerPageProps, PerPageTemplatesLegalProps } from '../../../../components/Molecules/PerPage';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the PerPage component
 const perPageStyleScript = ({ theme }: PerPageProps) => {
 	const variables = theme?.variables;
+
 	return css({
 		'.ss__button__content': {
 			gap: '7px',
@@ -15,7 +18,7 @@ const perPageStyleScript = ({ theme }: PerPageProps) => {
 				position: 'relative',
 			},
 			'.ss__dropdown__content': {
-				backgroundColor: variables?.colors.accent,
+				backgroundColor: custom.colors.gray01,
 			},
 		},
 		'.ss__dropdown': {
@@ -31,18 +34,19 @@ const perPageStyleScript = ({ theme }: PerPageProps) => {
 				fontWeight: 'initial',
 				padding: '10px 5px 10px 15px',
 				boxShadow: 'none',
-				background: variables?.colors.accent,
-				color: variables?.colors.primary,
+				background: custom.colors.gray01,
+				color: 'inherit',
 
 				'&:hover': {
-					background: variables?.colors.accent,
+					background: custom.colors.gray01,
 				},
 
 				'.ss__select__dropdown__button__icon': {
-					background: 'white',
+					background: custom.colors.white,
 					padding: '5px',
 					borderRadius: '50%',
 					marginLeft: '15px',
+					...custom.styles.indicator(variables?.colors?.accent),
 				},
 			},
 		},

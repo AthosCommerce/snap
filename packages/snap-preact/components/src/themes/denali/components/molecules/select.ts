@@ -2,35 +2,24 @@ import { css } from '@emotion/react';
 import type { SelectProps, SelectTemplatesLegalProps } from '../../../../components/Molecules/Select';
 import { colord } from 'colord';
 import { ThemeComponent } from '../../../../providers';
-
-const setLightness = (colorValue: string, lightness: number) => {
-	const hsl = colord(colorValue).toHsl();
-	return colord({ ...hsl, l: lightness });
-};
+import { custom } from '../../custom';
 
 // CSS in JS style script for the Select component
 const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 	const variables = theme?.variables;
-	const baseSecondary = colord(theme?.variables?.colors?.secondary || '#000');
-	const transparentSecondary = baseSecondary.alpha(Math.min(baseSecondary.alpha() + 0.2, 1));
-	const transparentSecondaryHover = setLightness(transparentSecondary.toHex(), 95).toRgbString();
+	// hovered/selected rows tint a passed background
+	const rowFill = backgroundColor ? (colord(backgroundColor).isDark() ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.06)') : custom.colors.gray01;
+
 	return css({
 		'.ss__dropdown': {
 			'.ss__select__dropdown__button': {
 				border: 'none',
 				padding: '6px 30px',
 				fontWeight: 'bold',
-				'&:hover': {
-					backgroundColor: 'initial',
-					color: variables?.colors?.primary,
-					'.ss__icon': {
-						fill: variables?.colors?.primary,
-						stroke: variables?.colors?.primary,
-					},
-				},
 				'.ss__select__dropdown__button__icon': {
 					marginLeft: '5px',
 					transition: 'transform 0.25s ease 0s',
+					...custom.styles.indicator(variables?.colors?.accent),
 				},
 			},
 			'&.ss__dropdown--open': {
@@ -43,7 +32,7 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 					},
 				},
 				'.ss__dropdown__content': {
-					backgroundColor: backgroundColor || '#fff',
+					backgroundColor: backgroundColor || custom.colors.white,
 					boxShadow: '0 6px 12px 1px #0000001f',
 					borderBottomLeftRadius: '3px',
 					borderBottomRightRadius: '3px',
@@ -64,12 +53,13 @@ const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 				listStyle: 'none',
 				padding: '6px 30px',
 				gap: '6px',
-				color: variables?.colors?.secondary,
-				'&.ss__select__select__option--selected': {
-					backgroundColor: transparentSecondaryHover || `rgba(109,113,117,.06)`,
-				},
+				color: 'inherit',
 				'&:hover': {
-					backgroundColor: transparentSecondaryHover || `rgba(109,113,117,.06)`,
+					backgroundColor: rowFill,
+				},
+				'&.ss__select__select__option--selected': {
+					...custom.styles.activeText(variables?.colors?.primary),
+					backgroundColor: rowFill,
 				},
 			},
 		},

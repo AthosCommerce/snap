@@ -2,15 +2,15 @@ import { css } from '@emotion/react';
 import type { RecommendationProps, RecommendationTemplatesLegalProps } from '../../../../components/Templates/Recommendation';
 import { recommendationThemeComponentProps } from '../../../themeComponents/recommendation';
 import { ThemeComponent } from '../../../../providers';
+
 // CSS in JS style script for the Recommendation component
 const recommendationStyleScript = ({ theme }: RecommendationProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = theme?.variables;
 
 	return css({
 		margin: '20px 0',
 		'& .ss__recommendation__title': {
-			color: variables?.colors?.primary,
+			color: variables?.colors?.secondary,
 		},
 	});
 };

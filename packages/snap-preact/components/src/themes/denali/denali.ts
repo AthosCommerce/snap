@@ -2,6 +2,7 @@ import { ThemeComplete, ThemeVariables } from '../../providers';
 import { components } from './components';
 import { responsive } from './responsive';
 
+// monochrome by default - every color follows the page color (see custom.ts for what each drives)
 const denaliVariables: ThemeVariables = {
 	breakpoints: {
 		mobile: 767,
@@ -10,8 +11,8 @@ const denaliVariables: ThemeVariables = {
 	},
 	colors: {
 		primary: 'currentColor',
-		secondary: '#000000',
-		accent: '#efefef',
+		secondary: 'currentColor',
+		accent: 'currentColor',
 	},
 };
 

@@ -1,23 +1,25 @@
 import { css } from '@emotion/react';
 import type { FacetGridOptionsProps, FacetGridOptionsTemplatesLegalProps } from '../../../../components/Molecules/FacetGridOptions';
-import { colord } from 'colord';
 import { ThemeComponent } from '../../../../providers';
+import { custom } from '../../custom';
+
 // CSS in JS style script for the FacetGridOptions component
 const facetGridOptionsStyleScript = ({ theme }: FacetGridOptionsProps) => {
 	const variables = theme?.variables;
-	const backgroundColorObj = colord(variables?.colors?.primary || '#000');
-	const colorObj = backgroundColorObj.isDark() ? colord('#fff') : colord('#000');
+	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.black);
 
 	return css({
 		'& .ss__facet-grid-options__option': {
-			border: `1px solid ${backgroundColorObj.toHex()}`,
+			border: `1px solid ${custom.colors.controlBorder}`,
 			borderRadius: '3px',
 			'&.ss__facet-grid-options__option--filtered': {
-				background: backgroundColorObj.toHex(),
-				color: colorObj.toHex(),
+				background: activeColors[0],
+				borderColor: activeColors[0],
+				...custom.styles.activeText(activeColors[1]),
 			},
 			'&:hover:not(.ss__facet-grid-options__option--filtered)': {
 				cursor: 'pointer',
+				background: custom.colors.gray01,
 			},
 		},
 	});
