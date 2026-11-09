@@ -1,5 +1,6 @@
 import { Swatches } from '../../../../src/components/Molecules/Swatches';
 import { mount } from 'cypress/react';
+import type { ComponentChildren } from 'preact';
 import { ThemeProvider } from '../../../../src/providers';
 
 const theme = {
@@ -21,10 +22,19 @@ const options = [
 	{ value: 'White', label: 'White', disabled: false },
 ];
 
+// Slideshow only renders prev/next while more slides exist than fit in its measured container. At full width
+// every swatch fits, so the navigation unmounts as soon as the ResizeObserver reports the width and assertions
+// on it race that measurement. This wrapper fits 2 swatches, so 8 or more always need the navigation.
+const NarrowWrapper = ({ children }: { children: ComponentChildren }) => <div style={{ width: '120px' }}>{children}</div>;
+
 describe('Swatches Component', () => {
 	describe('slideshow swatches', () => {
 		it('renders as slideshow by default', () => {
-			mount(<Swatches options={options} />);
+			mount(
+				<NarrowWrapper>
+					<Swatches options={options} />
+				</NarrowWrapper>
+			);
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('exist');
 			cy.get('.ss__slideshow__next').should('exist');
@@ -32,7 +42,11 @@ describe('Swatches Component', () => {
 		});
 
 		it('renders swatch background colors', () => {
-			mount(<Swatches options={options} />);
+			mount(
+				<NarrowWrapper>
+					<Swatches options={options} />
+				</NarrowWrapper>
+			);
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('exist');
 			cy.get('.ss__slideshow__next').should('exist');
@@ -77,7 +91,11 @@ describe('Swatches Component', () => {
 				{ value: 'White', label: 'White', disabled: false },
 			];
 
-			mount(<Swatches options={optionsWithGradient} />);
+			mount(
+				<NarrowWrapper>
+					<Swatches options={optionsWithGradient} />
+				</NarrowWrapper>
+			);
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('exist');
 			cy.get('.ss__slideshow__next').should('exist');
@@ -103,6 +121,7 @@ describe('Swatches Component', () => {
 				{ value: 'Tan', label: 'Tan', available: true },
 			];
 
+			// full width on purpose: all 5 swatches fit, so there is no navigation
 			mount(<Swatches options={optionsWithGradient} />);
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('not.exist');
@@ -114,7 +133,11 @@ describe('Swatches Component', () => {
 		});
 
 		it('renders without labels when using hideLabels', () => {
-			mount(<Swatches options={options} hideLabels={true} />);
+			mount(
+				<NarrowWrapper>
+					<Swatches options={options} hideLabels={true} />
+				</NarrowWrapper>
+			);
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('exist');
 			cy.get('.ss__slideshow__next').should('exist');
@@ -123,7 +146,11 @@ describe('Swatches Component', () => {
 		});
 
 		it('renders as slideshow with type', () => {
-			mount(<Swatches options={options} type="slideshow" />);
+			mount(
+				<NarrowWrapper>
+					<Swatches options={options} type="slideshow" />
+				</NarrowWrapper>
+			);
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('exist');
 			cy.get('.ss__slideshow__next').should('exist');
@@ -131,7 +158,11 @@ describe('Swatches Component', () => {
 		});
 
 		it('can pass selected option', () => {
-			mount(<Swatches options={options} selected={options[3]} />);
+			mount(
+				<NarrowWrapper>
+					<Swatches options={options} selected={options[3]} />
+				</NarrowWrapper>
+			);
 
 			cy.get('.ss__swatches').should('exist');
 			cy.get('.ss__slideshow__prev').should('exist');
