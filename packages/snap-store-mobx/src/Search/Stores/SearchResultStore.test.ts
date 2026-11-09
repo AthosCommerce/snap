@@ -2051,6 +2051,35 @@ describe('SearchResultStore', () => {
 					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']);
 				});
 
+				it('keeps the order of every group, including groups whose values are all ordered already', () => {
+					const mask = new ProductMask();
+					// Bay Leaf only says that XS comes before L - Clay says it also comes before S
+					const variantData: VariantData[] = [
+						...['S', 'M', 'L'].map((size) => sizeVariant('Snow Marle', size)),
+						...['XS', 'L'].map((size) => sizeVariant('Bay Leaf', size)),
+						...['XS', 'S'].map((size) => sizeVariant('Clay', size)),
+					];
+
+					const variants = new Variants({ data: { mask, variants: variantData, meta } });
+					const sizeSelection = variants.selections.find((selection) => selection.field === 'size');
+
+					// NOT S, M, XS, L from slotting XS in before L and then skipping Clay
+					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['XS', 'S', 'M', 'L']);
+				});
+
+				it('follows the largest group when groups disagree on the order', () => {
+					const mask = new ProductMask();
+					const variantData: VariantData[] = [
+						...['S', 'M', 'L'].map((size) => sizeVariant('Snow Marle', size)),
+						...['M', 'S'].map((size) => sizeVariant('Bay Leaf', size)),
+					];
+
+					const variants = new Variants({ data: { mask, variants: variantData, meta } });
+					const sizeSelection = variants.selections.find((selection) => selection.field === 'size');
+
+					expect(sizeSelection!.values.map((value) => value.value)).toStrictEqual(['S', 'M', 'L']);
+				});
+
 				it('sorts the values of the first option before any selections are made', () => {
 					const mask = new ProductMask();
 					// size is the first option, so its selection is created before the colour selection exists
