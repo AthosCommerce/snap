@@ -44,6 +44,12 @@ Make the `Price` component's symbol and number format follow the Shopify storefr
 
 See [Using the Shopify Currency Plugin](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_SHOPIFY_CURRENCY.md).
 
+### Using the Swym Wishlist Plugin
+
+Add Swym Wishlist Plus buttons to your result component and have them add, remove and show the added state like the theme's own wishlist buttons.
+
+See [Using the Swym Wishlist Plugin](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_SWYM_WISHLIST.md).
+
 ### Per Currency Overrides
 
 Change how one currency is displayed (for example `$1,099.99 USD` instead of `$1,099.99`) with the top level `currencies` config.

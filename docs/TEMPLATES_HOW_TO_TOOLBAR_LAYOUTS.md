@@ -22,9 +22,10 @@ The `_` token is a flex spacer: each `_` grows to fill the free space in its row
 | `banner.footer` | Footer banner slot |
 | `facetsHorizontal` | Horizontal facet bar (used by SearchHorizontal's default middle toolbar) |
 | `tabSelection` | Tab selection for tabbed search |
+| `searchInput` | Search input holding the current query - submitting searches the new query from page one without filters |
 | `_` | Flex spacer / alignment separator |
 
-Every module except the banners, `searchHeader`, `tabSelection` and `_` renders only when the search has results.
+Every module except the banners, `searchHeader`, `tabSelection`, `searchInput` and `_` renders only when the search has results.
 
 Toolbar layouts are configured via `theme.overrides` breakpoint keys, for example `theme.overrides.default['toolbar.top']`, `theme.overrides.default['toolbar.middle']`, or `theme.overrides.default['toolbar.bottom']`. An unscoped selector such as `'toolbar.top'` applies to that toolbar in every search template (`Search`, `SearchCollapsible` and `SearchHorizontal`) and takes priority over the theme's own per-template toolbar layouts at every breakpoint. To target one template, start the selector with the template name: `'search toolbar.top'` targets only `Search`, `'searchHorizontal toolbar.top'` only `SearchHorizontal`.
 

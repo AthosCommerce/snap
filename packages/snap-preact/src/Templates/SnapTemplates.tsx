@@ -49,6 +49,8 @@ import {
 	PluginLoggerConfig,
 	pluginKlaviyoEvents,
 	PluginKlaviyoEventsConfig,
+	pluginSwymWishlist,
+	PluginSwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/common';
 import {
 	pluginBackgroundFilters as pluginShopifyBackgroundFilters,
@@ -194,6 +196,7 @@ type TemplatePlugins =
 	| [typeof pluginLogger, PluginLoggerConfig]
 	| [typeof pluginAddToCart, PluginAddToCartConfig]
 	| [typeof pluginKlaviyoEvents, PluginKlaviyoEventsConfig]
+	| [typeof pluginSwymWishlist, PluginSwymWishlistConfig]
 	// shopify
 	| [typeof pluginShopifyBackgroundFilters, PluginShopifyBackgroundFiltersConfig]
 	| [typeof pluginShopifyMutateResults, PluginShopifyMutateResultsConfig]
@@ -451,7 +454,7 @@ export function createQuickviewTargeters(templateConfig: SnapTemplatesConfig, te
 			// component render through TemplateSelect — the same wrapper used by search/autocomplete — which
 			// provides the global templates ThemeProvider. Without it the quickview renders outside the
 			// templates theme, falling back to production-mode prop merging where theme overrides (e.g.
-			// `quickviewLayout`) are silently dropped.
+			// `quickviewSlideout`) are silently dropped.
 			const target = new TargetStore({
 				target: { type: 'quickview' as TemplateTypes, selector: targetConfig.selector || 'body', component: targetConfig.component, index },
 			});
@@ -808,6 +811,10 @@ export function createPlugins(
 	const klaviyoEventsConfig = deepmerge(templateConfig.plugins?.common?.klaviyoEvents || {}, controllerConfig?.plugins?.common?.klaviyoEvents || {});
 	if (klaviyoEventsConfig?.enabled === true) {
 		plugins.push([templatesStore.library.import.plugins.common.klaviyoEvents, klaviyoEventsConfig]);
+	}
+	const swymWishlistConfig = deepmerge(templateConfig.plugins?.common?.swymWishlist || {}, controllerConfig?.plugins?.common?.swymWishlist || {});
+	if (swymWishlistConfig?.enabled === true) {
+		plugins.push([templatesStore.library.import.plugins.common.swymWishlist, swymWishlistConfig]);
 	}
 
 	switch (templatesStore.platform) {

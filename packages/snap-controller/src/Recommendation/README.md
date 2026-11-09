@@ -11,6 +11,7 @@ The `RecommendationController` is used when making queries to the API `recommend
 | realtime | update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#cart-attribute-tracking)) | ➖ |   |
 | batched | batch multiple recommendations into a single network request | true |   |
 | globals | keys defined here will be passed to the API request (can overwrite global config)| ➖ |   |
+| beacon.enabled | enables beacon tracking for this controller. When `false`, beacon events are not sent and the controller's API requests opt out of tracking by sending `beacon: false` (see [Opting out of API tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md#opting-out-of-api-tracking)) | true |   |
 | settings.searchOnPageShow | causes a search to be conducted when returning using browser back/forward cache | true |   | 
 | settings.variants.showDisabledSelectionValues | determines if completely out of stock (disabled) options should appear in variant selections | false |   | 
 | settings.variants.realtime.enabled | enable real time variant updates | ➖ |   | 

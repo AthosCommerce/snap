@@ -11,6 +11,7 @@ Plugins provide functionality to tie into various events within the Snap control
 | `plugins.common.logger` | Logs the controller store at debug level after each store update | Object | Enabled |
 | `plugins.common.klaviyoEvents` | Klaviyo events for search and autocomplete | Object | Disabled (set `enabled: true`) |
 | `plugins.common.addToCart` | Configuration for add to cart function; only used when `config.platform` is `'other'`, and requires a `function` | Object | Enabled when `config.platform` is `'other'` (the default platform) |
+| `plugins.common.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results - see [Using the Swym Wishlist Plugin](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_SWYM_WISHLIST.md) | Object | Disabled (set `enabled: true`) |
 
 
 > [!NOTE]

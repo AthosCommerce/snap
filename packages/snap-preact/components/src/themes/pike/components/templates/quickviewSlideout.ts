@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import type { QuickviewSlideoutProps } from '../../../../components/Templates/QuickviewSlideout';
+import type { QuickviewSlideoutProps, QuickviewSlideoutTemplatesLegalProps } from '../../../../components/Templates/QuickviewSlideout';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 import { quickviewSharedStyleScript } from './quickviewShared';
@@ -13,7 +13,7 @@ const quickviewSlideoutStyleScript = (props: QuickviewSlideoutProps) => {
 };
 
 // QuickviewSlideout component props
-export const quickviewSlideout: ThemeComponent<'quickviewSlideout', QuickviewSlideoutProps, Partial<QuickviewSlideoutProps>> = {
+export const quickviewSlideout: ThemeComponent<'quickviewSlideout', QuickviewSlideoutProps, QuickviewSlideoutTemplatesLegalProps> = {
 	default: {
 		quickviewSlideout: {
 			themeStyleScript: quickviewSlideoutStyleScript,

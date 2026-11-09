@@ -246,6 +246,13 @@ var documents = [
 						searchable: true,
 					},
 					{
+						label: 'Using the Swym Wishlist Plugin',
+						route: '/templates-how-to-swym-wishlist',
+						type: 'markdown',
+						url: './docs/TEMPLATES_HOW_TO_SWYM_WISHLIST.md',
+						searchable: true,
+					},
+					{
 						label: 'Language Translations',
 						route: '/templates-how-to-translations',
 						type: 'markdown',

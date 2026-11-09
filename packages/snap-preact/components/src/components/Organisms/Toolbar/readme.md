@@ -13,7 +13,9 @@ Renders a search results toolbar.
 - PaginationInfo
 - Button
 - Banner
-- FacetsHorizontal;
+- FacetsHorizontal
+- TabSelection
+- SearchInput
 
 
 ## Usage
@@ -32,7 +34,7 @@ The `_` module is used a seperator module to center,left,right justify the other
 
 available modules to use in the layout are 
 
-`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
+`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `tabSelection`, `searchInput`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
 
 
 ```tsx

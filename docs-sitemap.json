@@ -133,6 +133,10 @@
 			"url": "/templates-how-to-shopify-currency",
 			"title": "Using the Shopify Currency Plugin"
 		},
+		"docs/TEMPLATES_HOW_TO_SWYM_WISHLIST.md": {
+			"url": "/templates-how-to-swym-wishlist",
+			"title": "Using the Swym Wishlist Plugin"
+		},
 		"docs/TEMPLATES_HOW_TO_TRANSLATIONS.md": {
 			"url": "/templates-how-to-translations",
 			"title": "Language Translations"

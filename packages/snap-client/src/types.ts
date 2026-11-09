@@ -154,6 +154,8 @@ export type RecommendRequestGlobalsModel = {
 	batchId?: number;
 	test?: boolean;
 	withRecInfo?: boolean;
+	// false opts the request out of API tracking (sent as `beacon: false`)
+	beacon?: boolean;
 };
 
 export type RecommendRequestOptionsModel = {
@@ -184,6 +186,7 @@ export type RecommendPostRequestModel = {
 	withRecInfo?: boolean;
 	blockedItems?: string[];
 	filters?: RecommendPostRequestFiltersModel[];
+	beacon?: boolean;
 };
 
 export type RecommendPostRequestProfileModel = {

@@ -20,6 +20,13 @@ The `value` prop sets the input value if externally managed.
 <SearchInput value={'dress'} placeholderText={"placeholder text"} />
 ```
 
+### defaultValue
+The `defaultValue` prop sets the initial value of an internally managed input. It is read when the component mounts and ignored when `value` is provided. To reset the input to a new `defaultValue`, change the component's `key`.
+
+```tsx
+<SearchInput defaultValue={'dress'} />
+```
+
 ### placeholderText
 The `placeholderText` prop sets the input placeholder text. 
 
@@ -62,8 +69,19 @@ The `onClick` prop is invoked on click of anything in the component. Wrapper, in
 <SearchInput onClick={handleChange} />
 ```
 
+### onSubmit
+The `onSubmit` prop is invoked when Enter is pressed in the input, or when the submit search button is clicked. It receives the triggering event and the input's current value. An Enter that confirms an IME composition does not submit, and the submit button does not submit while `disabled` is set. The event's default action is not prevented.
+
+```tsx
+const handleSubmit = (e, value) => {
+    window.location.href = `/search?q=${encodeURIComponent(value)}`;
+};
+
+<SearchInput onSubmit={handleSubmit} />
+```
+
 ### submitSearchButton
-The `submitSearchButton` prop specifies props to pass to the submit search button component. Takes any `Button` component props. 
+The `submitSearchButton` prop specifies props to pass to the submit search button component. Takes any `Button` component props. Its `onClick` runs before `onSubmit`.
 
 ```tsx
 
