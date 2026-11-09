@@ -233,6 +233,17 @@ export const Layout = observer((properties: LayoutProps) => {
 				if (query) {
 					// matches the url of SearchQueryStore queries (e.g. didYouMean): a new query starts on page one without filters
 					controller.urlManager.remove('page').remove('filter').set('query', query).go();
+
+					// tabs share the query, but go() only notifies the active tab's url manager - the other tabs read the new url
+					// and search it so their result counts stay current. a deferred tab that has not loaded waits until it is selected
+					tabManager?.tabs.forEach((tab) => {
+						if (tab.controller == controller || (!tab.prefetch && !tab.controller.store.loaded)) {
+							return;
+						}
+
+						tab.controller.urlManager.refresh();
+						tab.controller.search();
+					});
 				}
 			},
 			// inherited props
