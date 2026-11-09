@@ -704,7 +704,7 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 
 If you need a custom formatter, you can still set `theme.overrides.default.price.format` in your template config; it takes precedence over the currency locale.
 												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifymarkets).
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](reference-platforms-shopify#pluginshopifymarkets).
 
 ---
 
@@ -742,7 +742,69 @@ Each locale carries the `symbol`, `decimalPlaces`, `thousandsSeparator`, `decima
 
 The currency is read at load time. Shopify's currency and market selectors reload the page, so a currency change is picked up on the next load. The currency can also be changed at any time with `window.athos.templates.setCurrency('EUR')`.
 
-For detailed configuration options, see the [Shopify Currency plugin documentation](https://athoscommerce.github.io/snap/reference-platforms-shopify#pluginshopifycurrency).
+For detailed configuration options, see the [Shopify Currency plugin documentation](reference-platforms-shopify#pluginshopifycurrency).
+
+---
+
+### Using the Swym Wishlist Plugin
+
+The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It is configured under `plugins.common.swymWishlist` and can be used on every platform by setting `enabled: true`:
+
+```tsx
+const config = validateTemplatesConfig({
+	config: {
+		siteId: 'your-site-id',
+		platform: 'shopify',
+	},
+	plugins: {
+		common: {
+			swymWishlist: {
+				enabled: true,
+			},
+		},
+	},
+	components: {
+		result: {
+			WishlistResult: async () => (await import('./components/WishlistResult')).WishlistResult,
+		},
+	},
+	theme: {
+		extends: 'pike',
+		globalResultComponent: 'WishlistResult',
+	},
+	search: {
+		targets: [{ selector: '#search', component: 'Search' }],
+	},
+});
+
+new SnapTemplates(config);
+```
+
+In your result component, render the button with the attributes from `swymWishlistButtonProps`. It returns `undefined` when the result has no resolvable id or product URL.
+
+```tsx
+import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
+import { swymWishlistButtonProps } from '@athoscommerce/snap-platforms/common';
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
+
+export const WishlistResult = observer(({ result }: ResultProps) => {
+	const core = result.display.mappings.core;
+	const wishlistButton = swymWishlistButtonProps(result);
+	return (
+		<article>
+			<h2>{core?.name}</h2>
+			{wishlistButton && (
+				<button type="button" {...wishlistButton}>
+					<span className="swym-wishlist-cta">Add to Wishlist</span>
+				</button>
+			)}
+		</article>
+	);
+});
+```
+
+The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. For how the plugin works, how product and variant ids are resolved, and platform notes, see the [Swym Wishlist plugin documentation](package-platforms-common#pluginswymwishlist).
 
 ---
 

@@ -1,15 +1,21 @@
 import type { Product } from '@athoscommerce/snap-store-mobx';
+import { getVariantId } from './getVariantId';
 
 export type BigCommerceAddToCartConfig = {
 	redirect?: boolean | string;
 	idFieldName?: string; // display.mappings.core.id
 };
 
+// a Storefront Cart API line item, whose ids are integers - https://docs.bigcommerce.com/docs/rest-storefront/carts/cart-items
 type LineItem = {
-	product_id: string;
+	productId: number;
 	quantity: number;
-	optionSelections?: { optionId?: string; optionValue?: string }[];
+	variantId?: number;
+	optionSelections?: { optionId: number; optionValue: number }[];
 };
+
+// ids arrive from the feed as strings
+const toId = (value: string): number | undefined => (/^\d+$/.test(value) ? Number(value) : undefined);
 
 export const addToCart = async (items: Product[], config?: BigCommerceAddToCartConfig) => {
 	if (!items) {
@@ -20,7 +26,8 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 	const lineItems: LineItem[] = [];
 
 	items.map((item) => {
-		let id = item?.display?.mappings?.core?.uid;
+		const core = item?.display?.mappings?.core;
+		let id: string | undefined = core?.uid;
 
 		// try to find custom field in data
 		if (config?.idFieldName) {
@@ -37,31 +44,50 @@ export const addToCart = async (items: Product[], config?: BigCommerceAddToCartC
 			});
 
 			if (level && level !== item) {
-				id = level;
+				id = String(level);
 			}
 		}
 
-		if (id && item.quantity) {
-			const productDetails: LineItem = {
-				product_id: id,
-				quantity: item.quantity,
-			};
+		if (!id || !item.quantity) return;
 
-			const options = item.variants?.active?.options;
-			if (options) {
-				productDetails.optionSelections = [];
-				Object.keys(options).forEach((option) => {
-					const optionId = options[option].optionId;
-					const optionValue = options[option].optionValue;
+		// a product with options in an Athos feed is identified as `{parentId}_{variantId}`
+		const parentId = core?.parentId;
+		const variantId = config?.idFieldName ? undefined : getVariantId({ uid: core?.uid, parentId });
 
-					if (optionId && optionValue) {
-						productDetails.optionSelections?.push({ optionId, optionValue });
-					}
-				});
+		if (variantId && parentId) {
+			const productId = toId(parentId);
+			if (productId !== undefined) {
+				lineItems.push({ productId, quantity: item.quantity, variantId: Number(variantId) });
+				return;
 			}
-
-			lineItems.push(productDetails);
 		}
+
+		const productId = toId(id);
+		if (productId === undefined) {
+			console.error(`bigcommerce/addToCart: '${id}' is not a BigCommerce product id. Please verify 'idFieldName' in the config.`);
+			return;
+		}
+
+		const lineItem: LineItem = {
+			productId,
+			quantity: item.quantity,
+		};
+
+		// feeds whose variants carry the product id identify the variant through its option selections
+		const options = item.variants?.active?.options;
+		if (options) {
+			lineItem.optionSelections = [];
+			Object.keys(options).forEach((option) => {
+				const { optionId, optionValue } = options[option];
+				const selectionId = optionId ? toId(optionId) : undefined;
+				const selectionValue = optionValue ? toId(optionValue) : undefined;
+				if (selectionId !== undefined && selectionValue !== undefined) {
+					lineItem.optionSelections?.push({ optionId: selectionId, optionValue: selectionValue });
+				}
+			});
+		}
+
+		lineItems.push(lineItem);
 	});
 
 	if (lineItems.length) {
