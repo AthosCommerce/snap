@@ -176,7 +176,7 @@ theme: {
 
 ### Customizing the Layout
 
-Both containers render the [QuickviewLayout](https://athoscommerce.github.io/snap/reference-quickview-layout) organism, which arranges named **modules** via a `layout` prop - the same pattern as `AutocompleteLayout`. The theme selectors are `quickviewModal`, `quickviewSlideout` and `quickviewLayout`.
+Both containers render the [QuickviewLayout](https://athoscommerce.github.io/snap/reference-quickview-layout) organism, which arranges named **modules** via a `layout` prop - the same pattern as `AutocompleteLayout`. Set `layout` and `column1`-`column4` on the container you target (`quickviewModal` or `quickviewSlideout`), which passes them down to `QuickviewLayout` - like `AutocompleteLayout`, `quickviewLayout` is not an override selector of its own. Every column needs a `width` (a CSS width or `'auto'`).
 
 Available modules include `slideshow`, `calloutBadge` (or `calloutBadge.<tag>` for a custom badge tag), `variantSelections` (or a single `variantSelection.<field>`), `productDetail.<path>` (any product field by dot-path, e.g. `productDetail.mappings.core.name`), `button.add-to-cart`, `button.more-info`, `quantityPicker`, `productDetailTable` (driven by `displayFields`), `recommendation.<profile>` (a recommendation carousel seeded with the viewed product), the `_` separator, and columns `c1`-`c4` which recurse into `column1`-`column4` configs.
 
@@ -185,7 +185,7 @@ theme: {
 	extends: 'pike',
 	overrides: {
 		default: {
-			quickviewLayout: {
+			quickviewModal: {
 				layout: [['c1', 'c2']],
 				column1: {
 					layout: ['slideshow'],
