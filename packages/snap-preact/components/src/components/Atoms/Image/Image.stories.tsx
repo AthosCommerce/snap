@@ -74,6 +74,16 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		title: {
+			description: 'Image title attribute',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
 		height: {
 			description: 'Image height',
 			table: {
@@ -92,7 +102,7 @@ export default {
 					summary: 'string',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: 'string' },
+				defaultValue: { summary: FALLBACK_IMAGE_URL },
 			},
 			control: { type: 'text' },
 		},

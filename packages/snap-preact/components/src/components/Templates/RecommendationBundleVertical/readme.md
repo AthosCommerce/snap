@@ -7,9 +7,6 @@ Vertically renders a recommended bundle of products with seed, recommendations a
 
 ## Usage
 
-Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper Component Props</a> can be specified, but may need to be camelCased where appropriate.
-Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via the `modules` prop; these may need additional props and or stylesheets.
-
 ### controller
 The required `controller` prop specifies a reference to the RecommendationController
 
@@ -18,7 +15,7 @@ The required `controller` prop specifies a reference to the RecommendationContro
 ```
 
 ### onAddToCart 
-the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed an array of selected item ids and their quantities. 
+the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed the click event and an array of the selected products. 
 
 ```tsx
 <RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} />
@@ -44,6 +41,13 @@ The `title` prop specifies the bundle title
 
 ```tsx
 <RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} title={'Recommended Bundle'} />
+```
+
+### description
+The `description` prop specifies the bundle description
+
+```tsx
+<RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} description={'Recommended Bundle products are so awesome!'} />
 ```
 
 ### resultComponent
@@ -105,7 +109,7 @@ The `ctaSlot` prop allows for a custom add to cart cta component to be rendered.
 ```
 
 ### preselectedCount
-The `preselectedCount` prop specifies how many products in the bundle will be preselected. This number will include the seed. Example `preselectedCount={3}` would be `seed` + 2 preselected items. If not provided, this will default to however many products are initially visible. 
+The `preselectedCount` prop specifies how many products in the bundle will be preselected. This number will include the seed. Example `preselectedCount={3}` would be `seed` + 2 preselected items. If not provided, all products will be preselected.
 
 ```tsx
 <RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} preselectedCount={4} />
@@ -133,6 +137,20 @@ The `separatorIconSeedOnly` prop specifies if the seperator Icon should only be 
 ```
 
 
+### hideSeedText
+The `hideSeedText` prop specifies if the seed product badge text should be rendered or not.
+
+```tsx
+<RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} hideSeedText={true} />
+```
+
+### limit
+The `limit` prop limits the number of products rendered.
+
+```tsx
+<RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} limit={3} />
+```
+
 ### hideCheckboxes
 The `hideCheckboxes` prop specifies if the bundle checkboxes should be rendered. 
 
@@ -140,16 +158,8 @@ The `hideCheckboxes` prop specifies if the bundle checkboxes should be rendered.
 <RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} hideCheckboxes={true} />
 ```
 
-### modules
-The `modules` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include `Navigation` and `Pagination` modules by default.
-
-```tsx
-import { Scrollbar } from 'swiper';
-<RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} modules={[Scrollbar]} scrollbar={{ draggable: true }} />
-```
-
 ### lazyRender 
-The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enable` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
+The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enabled` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
 
 ```tsx
 const customLazyRenderProps = {
@@ -188,3 +198,26 @@ const customRecommendationBreakpoints = {
 <RecommendationBundleVertical controller={controller} onAddToCart={(e, items)=>{console.log(items)}} breakpoints={customRecommendationBreakpoints} />
 ```
 
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the RecommendationBundleVertical component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `seedText` | Seed product label text | _(none)_ |
+| `ctaButtonText` | Add to cart CTA button text | _(none)_ |
+| `ctaButtonSuccessText` | CTA button text after successful add | _(none)_ |
+| `ctaSubtotalTitle` | Subtotal section title | `cartStore` (CartStore) |
+
+### Example
+
+```tsx
+<RecommendationBundleVertical
+	controller={controller}
+	lang={{
+		ctaButtonText: {
+			value: 'Add Bundle to Cart',
+		},
+	}}
+/>
+```

@@ -31,14 +31,12 @@ export default {
 	},
 	argTypes: {
 		value: {
-			defaultValue: '',
-			type: { required: true },
+			type: { required: false },
 			description: 'sets the value for the input',
 			table: {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '' },
 			},
 			control: { type: 'text' },
 		},
@@ -56,7 +54,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.ChangeEvent<HTMLInputElement>) => void',
 				},
 			},
 			control: false,
@@ -66,7 +64,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.KeyboardEvent<HTMLInputElement>) => void',
 				},
 			},
 			control: false,
@@ -76,7 +74,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.KeyboardEvent<HTMLInputElement>) => void',
 				},
 			},
 			control: false,
@@ -86,7 +84,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent) => void',
 				},
 			},
 			control: false,
@@ -106,8 +104,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: `{ icon: 'search-thin' }`,
+					summary: 'Partial<ButtonProps>',
 				},
+				defaultValue: { summary: `{ icon: 'search-thin' }` },
 			},
 			control: { type: 'object' },
 		},
@@ -116,8 +115,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: `{ icon: 'close-thin' }`,
+					summary: 'Partial<ButtonProps>',
 				},
+				defaultValue: { summary: `{ icon: 'close-thin' }` },
 			},
 			control: { type: 'object' },
 		},
@@ -126,7 +126,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: `{}`,
+					summary: 'Partial<ButtonProps>',
 				},
 			},
 			control: { type: 'object' },

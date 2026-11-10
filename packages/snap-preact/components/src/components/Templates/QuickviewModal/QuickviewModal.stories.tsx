@@ -92,6 +92,7 @@ export default {
 				type: {
 					summary: 'ModuleNamesWithColumns[]',
 				},
+				defaultValue: { summary: "[['c1', 'c2']]" },
 			},
 			control: 'none',
 		},
@@ -113,6 +114,7 @@ export default {
 				type: {
 					summary: '{ layout, width, alignContent? }',
 				},
+				defaultValue: { summary: "{ layout: ['slideshow'], width: '45%' }" },
 			},
 			control: 'none',
 		},
@@ -122,6 +124,10 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary: '{ layout, width, alignContent? }',
+				},
+				defaultValue: {
+					summary:
+						"{ layout: [['productDetail.mappings.core.name'], ['calloutBadge'], ['variantSelections'], ['quantityPicker'], ['button.add-to-cart'], ['productDetail.mappings.core.description'], ['productDetailTable'], ['button.more-info']], width: 'auto' }",
 				},
 			},
 			control: 'none',

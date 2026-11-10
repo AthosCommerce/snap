@@ -72,7 +72,7 @@ export default {
 				type: {
 					summary: 'string | JSX Element',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.title' },
 			},
 			control: { type: 'text' },
 		},
@@ -83,7 +83,7 @@ export default {
 				type: {
 					summary: 'string | JSX Element',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.description' },
 			},
 			control: { type: 'text' },
 		},
@@ -92,7 +92,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: MouseEvent, items: Product[]) => void | Promise<void>',
 				},
 			},
 		},
@@ -111,13 +111,15 @@ export default {
 			defaultValue: {
 				enabled: true,
 				loop: false,
+				spaceBetween: 10,
 			},
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary:
+						"{ controller?: RecommendationController, enabled?: boolean, seedInCarousel?: boolean, slidesPerView?: number } & Partial<Omit<CarouselProps, 'slidesPerView'>>",
 				},
-				defaultValue: { summary: 'Carousel settings object' },
+				defaultValue: { summary: '{ enabled: true, loop: false, spaceBetween: 10 }' },
 			},
 			control: { type: 'object' },
 		},
@@ -150,7 +152,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'Seed Product' },
+				defaultValue: { summary: 'This Product' },
 			},
 			control: { type: 'text' },
 		},
@@ -190,14 +192,14 @@ export default {
 			control: { type: 'boolean' },
 		},
 		separatorIcon: {
-			defaultValue: 'plus',
+			defaultValue: 'plus-thin',
 			description: 'Icon to render between results',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
-				defaultValue: { summary: 'plus' },
+				defaultValue: { summary: 'plus-thin' },
 			},
 			control: {
 				type: 'select',
@@ -216,11 +218,11 @@ export default {
 			control: { type: 'text' },
 		},
 		ctaIcon: {
-			desciption: 'The `ctaIcon` prop specifies the icon to render in the CTA. Takes an object with `Icon` component props or a string.',
+			description: 'The `ctaIcon` prop specifies the icon to render in the CTA. Takes an object with `Icon` component props or a string.',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				defaultValue: { summary: 'bag' },
 			},
@@ -248,11 +250,12 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 2000 },
 			},
 			control: { type: 'number' },
 		},
 		ctaInline: {
-			description: 'boolean to enable the stacked add to cart button display',
+			description: 'boolean to render the add to cart display inline with the carousel (false stacks it below)',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -271,6 +274,28 @@ export default {
 				},
 			},
 		},
+		vertical: {
+			defaultValue: false,
+			description: 'Carousel vertical slide direction',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		slidesPerView: {
+			description: 'Number of results to display per page; overridden by breakpoints values when breakpoints are in use',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'number',
+				},
+			},
+			control: { type: 'number' },
+		},
 		lazyRender: {
 			description: 'Lazy render settings object',
 			defaultValue: {
@@ -280,15 +305,15 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ enabled: boolean, offset?: string }',
 				},
-				defaultValue: { summary: 'Lazy render settings object' },
+				defaultValue: { summary: "{ enabled: true, offset: '10%' }" },
 			},
 			control: { type: 'object' },
 		},
 		breakpoints: {
 			defaultValue: undefined,
-			description: 'Recommendation title',
+			description: 'Responsive props keyed by viewport width',
 			table: {
 				type: {
 					summary: 'object',
@@ -297,14 +322,15 @@ export default {
 			},
 			control: { type: 'object' },
 		},
-		modules: {
-			description: 'additional swiper modules to use',
+		lang: {
+			description: 'Custom language keys (`seedText`, `ctaButtonText`, `ctaButtonSuccessText`, `ctaSubtotalTitle`)',
 			table: {
-				type: { summary: 'object' },
+				type: {
+					summary: 'Partial<RecommendationBundleLang>',
+				},
 			},
 			control: { type: 'object' },
 		},
-
 		...componentArgs,
 	},
 };

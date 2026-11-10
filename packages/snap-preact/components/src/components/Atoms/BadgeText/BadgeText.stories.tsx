@@ -36,7 +36,6 @@ export default {
 					summary: 'string',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: '' },
 			},
 			control: { type: 'text' },
 		},

@@ -19,7 +19,6 @@ export default {
 	argTypes: {
 		content: {
 			description: 'Banner content store reference',
-			type: { required: true },
 			table: {
 				type: {
 					summary: 'banner content store object',
@@ -33,7 +32,7 @@ export default {
 			type: { required: true },
 			table: {
 				type: {
-					summary: 'string',
+					summary: "'header' | 'banner' | 'footer' | 'left' | 'inline'",
 				},
 				category: 'Templates Legal',
 			},

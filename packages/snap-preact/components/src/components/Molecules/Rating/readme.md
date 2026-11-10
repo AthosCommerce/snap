@@ -50,7 +50,7 @@ The `fullIcon` prop specifies a path within the `Icon` component to use for the 
 ```
 
 ### emptyIcon
-The `emptyIcon` prop specifies a path within the `Icon` component to use for the "full icons". The default value is `star-o`.
+The `emptyIcon` prop specifies a path within the `Icon` component to use for the "empty icons". The default value is `star-o`.
 
 ```tsx
 <Rating value={4} emptyIcon="heart-o" />
