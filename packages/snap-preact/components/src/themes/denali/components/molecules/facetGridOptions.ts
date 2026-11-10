@@ -10,6 +10,8 @@ const facetGridOptionsStyleScript = ({ theme }: FacetGridOptionsProps) => {
 
 	return css({
 		'& .ss__facet-grid-options__option': {
+			// options are links - keep the site's link color off them
+			color: 'inherit',
 			border: `1px solid ${custom.colors.controlBorder}`,
 			borderRadius: '3px',
 			'&.ss__facet-grid-options__option--filtered': {
@@ -30,8 +32,10 @@ export const facetGridOptions: ThemeComponent<'facetGridOptions', FacetGridOptio
 	default: {
 		facetGridOptions: {
 			themeStyleScript: facetGridOptionsStyleScript,
-			gapSize: '5px',
-			columns: 5,
+			// auto-fill: as many 44px+ columns as the container fits (sidebar, slideout or dropdown)
+			columns: 0,
+			gridSize: '44px',
+			gapSize: '6px',
 		},
 	},
 };

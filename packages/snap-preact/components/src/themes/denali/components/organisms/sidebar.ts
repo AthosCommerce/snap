@@ -30,6 +30,7 @@ export const sidebar: ThemeComponent<'sidebar', SidebarProps, SidebarTemplatesLe
 		sidebar: {
 			themeStyleScript: sidebarStyleScript,
 			hideTitleText: true,
+			hideClearButtonWithoutFilters: true,
 		},
 	},
 	mobile: {

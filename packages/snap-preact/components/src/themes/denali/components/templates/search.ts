@@ -18,6 +18,10 @@ export const search: ThemeComponent<'search', SearchProps, SearchTemplatesLegalP
 			...(searchThemeComponentProps.default?.['search'] || {}),
 			themeStyleScript: searchStyleScript,
 		},
+		// a wider mobile facet slideout (the component caps it at 90% of the viewport)
+		'search slideout': {
+			width: '400px',
+		},
 	},
 	mobile: searchThemeComponentProps.mobile,
 	desktop: searchThemeComponentProps.desktop,

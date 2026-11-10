@@ -32,7 +32,7 @@ const perPageStyleScript = ({ theme }: PerPageProps) => {
 			'.ss__select__dropdown__button': {
 				borderRadius: '25px',
 				fontWeight: 'initial',
-				padding: '10px 5px 10px 15px',
+				padding: '10px 12px 10px 15px',
 				boxShadow: 'none',
 				background: custom.colors.gray01,
 				color: 'inherit',

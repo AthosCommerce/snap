@@ -22,6 +22,10 @@ export const searchHorizontal: ThemeComponent<'searchHorizontal', SearchHorizont
 			...(searchHorizontalThemeComponentProps.default?.['searchHorizontal'] || {}),
 			themeStyleScript: searchHorizontalStyleScript,
 		},
+		// a wider mobile facet slideout (the component caps it at 90% of the viewport)
+		'searchHorizontal slideout': {
+			width: '400px',
+		},
 		'searchHorizontal results': {
 			columns: 5,
 		},

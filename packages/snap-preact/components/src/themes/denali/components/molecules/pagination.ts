@@ -8,11 +8,19 @@ const paginationStyleScript = ({ theme }: PaginationProps) => {
 	const variables = theme?.variables;
 
 	return css({
+		// every chip (numbers and arrows) is the same height, its content centered
 		'& .ss__pagination__page': {
+			display: 'inline-flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			boxSizing: 'border-box',
+			height: '33px',
+			minWidth: '33px',
+			verticalAlign: 'middle',
 			border: `1px solid ${custom.colors.gray02}`,
 			borderRadius: '10px',
 			background: custom.colors.white,
-			padding: '5px 10px',
+			padding: '0 10px',
 			margin: '0px 5px',
 			color: 'inherit',
 
@@ -25,9 +33,6 @@ const paginationStyleScript = ({ theme }: PaginationProps) => {
 			},
 		},
 		'& .ss__pagination__page--previous, & .ss__pagination__page--next': {
-			display: 'inline-flex',
-			alignItems: 'center',
-			verticalAlign: 'top',
 			'.ss__icon': {
 				...custom.styles.indicator(variables?.colors?.accent),
 			},
@@ -43,7 +48,7 @@ export const pagination: ThemeComponent<'pagination', PaginationProps, Paginatio
 			hideFirst: true,
 			hideLast: true,
 			hideEllipsis: true,
-			pages: 1,
+			pages: 3,
 		},
 		'pagination icon': {
 			size: '12px',

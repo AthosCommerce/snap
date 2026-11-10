@@ -23,7 +23,7 @@ const termsStyleScript = ({ theme }: TermsProps) => {
 		'& .ss__terms__options': {
 			gap: '5px',
 			flexDirection: 'row',
-			justifyContent: 'space-evenly',
+			justifyContent: 'flex-start',
 		},
 	});
 };

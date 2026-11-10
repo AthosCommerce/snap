@@ -33,7 +33,34 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 			},
 		},
 	});
-	const swatchesCarouselStyles = css([sharedStyles]);
+	const swatchesCarouselStyles = css([
+		sharedStyles,
+		{
+			'.ss__slideshow': {
+				display: 'flex',
+				alignItems: 'center',
+				gap: `${swatchesSpacing}px`,
+				'.ss__slideshow__container': {
+					flex: '1 1 0%',
+					minWidth: 0,
+					width: 'auto',
+				},
+				'.ss__slideshow__navigation--prev, .ss__slideshow__navigation--next': {
+					position: 'static',
+					flex: '0 0 auto',
+					transform: 'none',
+					'.ss__button': {
+						width: '16px',
+						height: `${defaultSwatchesSize}px`,
+						justifyContent: 'center',
+					},
+				},
+				'.ss__slideshow__navigation--prev': {
+					order: -1,
+				},
+			},
+		},
+	]);
 	const swatchesGridStyles = css([
 		sharedStyles,
 		{

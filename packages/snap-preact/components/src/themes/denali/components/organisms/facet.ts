@@ -37,7 +37,7 @@ const facetStyleScript = ({ color, theme }: FacetProps) => {
 		},
 		'& .ss__facet__header': {
 			color: color || variables?.colors?.secondary,
-			fontWeight: 'initial',
+			fontWeight: 'bold',
 			borderBottom: '0px',
 			// a text action, not a pill button
 			'& .ss__facet__header__clear-all': {

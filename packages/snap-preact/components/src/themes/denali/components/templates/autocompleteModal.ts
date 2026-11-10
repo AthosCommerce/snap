@@ -1,37 +1,13 @@
 import { css } from '@emotion/react';
 import { autocompleteModalThemeComponentProps } from '../../../themeComponents/autocompleteModal';
 import { ThemeComponent } from '../../../../providers';
+import { autocompleteSharedStyles } from './autocompleteShared';
 import { AutocompleteModalProps, AutocompleteModalTemplatesLegalProps } from '../../../../components/Templates/AutocompleteModal';
 
 // CSS in JS style script for the Search component
 const autocompleteModalStyleScript = ({}: AutocompleteModalProps) => {
 	return css({
-		'& .ss__facets__facet': {
-			marginBottom: '10px',
-		},
-		// half the component's facet header/options gap (out-specify the facet's own styles)
-		'& .ss__facet .ss__facet__header': {
-			paddingBottom: '3px',
-		},
-		'& .ss__facet .ss__facet__options': {
-			marginTop: '4px',
-		},
-		// the first list option sits as close to the header as the palette's first swatch
-		'& .ss__facet .ss__facet-list-options__option:first-child, & .ss__facet .ss__facet-hierarchy-options__option:first-child': {
-			paddingTop: 0,
-			marginTop: 0,
-		},
-		'& .ss__dropdown.ss__facet__dropdown': {
-			padding: '5px',
-			borderRadius: '12px',
-		},
-		'.ss__autocomplete__facets-wrapper': {
-			'.ss__facet-grid-options__option': {
-				'.ss__facet-grid-options__option__value.ss__facet-grid-options__option__value--smaller': {
-					fontSize: '60%',
-				},
-			},
-		},
+		...autocompleteSharedStyles,
 		'.ss__autocomplete__button--see-more': {
 			margin: '10px',
 		},

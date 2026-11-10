@@ -22,6 +22,10 @@ export const searchCollapsible: ThemeComponent<'searchCollapsible', SearchCollap
 			...(searchCollapsibleThemeComponentProps.default?.['searchCollapsible'] || {}),
 			themeStyleScript: searchCollapsibleStyleScript,
 		},
+		// a wider mobile facet slideout (the component caps it at 90% of the viewport)
+		'searchCollapsible slideout': {
+			width: '400px',
+		},
 	},
 	mobile: searchCollapsibleThemeComponentProps.mobile,
 	desktop: searchCollapsibleThemeComponentProps.desktop,

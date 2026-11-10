@@ -71,9 +71,11 @@ export const facetPaletteOptions: ThemeComponent<'facetPaletteOptions', FacetPal
 	default: {
 		facetPaletteOptions: {
 			themeStyleScript: facetPaletteStyleScript,
-			gapSize: '3px',
+			// auto-fill: as many 44px+ columns as the container fits (sidebar, slideout or dropdown)
+			columns: 0,
+			gridSize: '44px',
+			gapSize: '6px',
 			hideLabel: true,
-			columns: 5,
 			hideIcon: false,
 		},
 
