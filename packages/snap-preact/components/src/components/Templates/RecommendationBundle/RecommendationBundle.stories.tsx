@@ -116,7 +116,8 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ enabled?: boolean, seedInCarousel?: boolean, slidesPerView?: number } & Partial<CarouselProps>',
+					summary:
+						"{ controller?: RecommendationController, enabled?: boolean, seedInCarousel?: boolean, slidesPerView?: number } & Partial<Omit<CarouselProps, 'slidesPerView'>>",
 				},
 				defaultValue: { summary: '{ enabled: true, loop: false, spaceBetween: 10 }' },
 			},
@@ -318,13 +319,6 @@ export default {
 					summary: 'object',
 				},
 				defaultValue: { summary: 'Breakpoint object' },
-			},
-			control: { type: 'object' },
-		},
-		modules: {
-			description: 'additional swiper modules to use',
-			table: {
-				type: { summary: 'object' },
 			},
 			control: { type: 'object' },
 		},

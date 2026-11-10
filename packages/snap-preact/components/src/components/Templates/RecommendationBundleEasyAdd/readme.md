@@ -114,6 +114,13 @@ The `seedText` prop specifies text to be rendered as a badge in the seed product
 <RecommendationBundleEasyAdd controller={controller} onAddToCart={(e, items)=>{console.log(items)}} seedText={"Main Product"} />
 ```
 
+### hideSeedText
+The `hideSeedText` prop specifies if the seed product badge text should be rendered or not.
+
+```tsx
+<RecommendationBundleEasyAdd controller={controller} onAddToCart={(e, items)=>{console.log(items)}} hideSeedText={true} />
+```
+
 ### vertical
 The `vertical` prop sets the carousel scroll direction to vertical.
 

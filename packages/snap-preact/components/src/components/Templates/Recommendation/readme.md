@@ -132,7 +132,7 @@ The `modules` prop accepts additional <a target="_blank" rel="noopener noreferre
 
 ```tsx
 import { Scrollbar } from 'swiper';
-<Recommendation controller={controller} modules={[Scrollbar]} scrollbar={{ draggable: true }} />
+<Recommendation controller={controller} modules={[Scrollbar]} scrollbar={true} />
 ```
 
 ### lazyRender 

@@ -42,7 +42,7 @@ const breadcrumbsFunction = (controller) => {
 ```
 
 ### controller
-The `controller` prop specifies a reference to the search controller. When provided, it is passed to a `data` function, and the default `data` becomes a `Search` crumb followed by a `Results for "<query>"` crumb (without a controller the default is a single `Search` crumb).
+The `controller` prop specifies a reference to the search controller. When provided, it is passed to a `data` function, and the default `data` becomes a `Search` crumb followed by a `Results for "<query>"` crumb (`Results` when there is no query; without a controller the default is a single `Search` crumb).
 
 ```tsx
 <Breadcrumbs controller={controller} />

@@ -159,7 +159,7 @@ By default the rendered search input sits above the layout. Add the `searchInput
 ```
 
 ### width
-The `width` prop specifies a width for the overall component. The default value is '100%'.
+The `width` prop specifies a width for the overall component. The default value is '950px'.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} width="800px" />

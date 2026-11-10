@@ -94,7 +94,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'theme.variables.colors.primary' },
+				defaultValue: { summary: 'theme.variables.colors.primary (#ccc without a theme)' },
 			},
 			control: { type: 'color' },
 		},
@@ -105,7 +105,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'theme.variables.colors.secondary' },
+				defaultValue: { summary: 'theme.variables.colors.secondary (#f8f8f8 without a theme)' },
 			},
 			control: { type: 'color' },
 		},

@@ -13,7 +13,9 @@ Renders a search results toolbar.
 - PaginationInfo
 - Button
 - Banner
-- FacetsHorizontal;
+- FacetsHorizontal
+- TabSelection
+- SearchInput
 
 
 ## Usage
@@ -32,7 +34,7 @@ The `_` module is used a seperator module to center,left,right justify the other
 
 available modules to use in the layout are 
 
-`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `tabSelection`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
+`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `tabSelection`, `searchInput`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
 
 
 ```tsx
@@ -40,7 +42,7 @@ available modules to use in the layout are
 ```
 
 ### toggleSideBarButton
-The `toggleSideBarButton` prop specifies `Button` props for the sidebar toggle button. This button will render in the layout as `button.sidebar-toggle`. If it is not provided in the layout, the button will not render.
+The `toggleSideBarButton` prop specifies `Button` props for the sidebar toggle button. This button renders in the layout as `button.sidebar-toggle` (included in the default layout). The button only renders when both the `toggleSideBarButton` prop is provided and `button.sidebar-toggle` is present in the layout.
 
 ```tsx
 <Toolbar controller={controller} toggleSideBarButton={{ content: 'Toggle Sidebar' }} layout={['button.sidebar-toggle']}/>

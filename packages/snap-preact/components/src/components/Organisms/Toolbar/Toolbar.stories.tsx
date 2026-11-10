@@ -44,7 +44,7 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						'[`searchHeader` | `breadcrumbs` | `filterSummary` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `tabSelection` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
+						'[`searchHeader` | `breadcrumbs` | `filterSummary` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `tabSelection` | `searchInput` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
 				},
 				defaultValue: { summary: "['button.sidebar-toggle', 'filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']" },
 			},
@@ -55,7 +55,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: 'Partial<ButtonProps>',
 				},
 			},
 			control: { type: 'object' },

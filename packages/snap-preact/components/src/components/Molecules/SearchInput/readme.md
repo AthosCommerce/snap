@@ -35,7 +35,7 @@ The `inputName` prop sets the input name attribute value.
 ```
 
 ### disabled
-The `disabled` prop sets the `disabled` attribute on the input and prevents the `onClick` callback from being invoked.
+The `disabled` prop sets the `disabled` attribute on the input and prevents the `onClick` and `onSubmit` callbacks from being invoked.
 
 ```tsx
 <SearchInput disabled={true} />

@@ -107,6 +107,17 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		hideSeedText: {
+			description: 'Hide seed product badge text',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		ctaButtonText: {
 			description: 'text to render in add to cart button',
 			table: {

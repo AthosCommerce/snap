@@ -43,7 +43,6 @@ export default {
 			control: false,
 		},
 		hideCheckbox: {
-			defaultValue: false,
 			description: 'Hide facet option checkbox',
 			table: {
 				category: 'Templates Legal',

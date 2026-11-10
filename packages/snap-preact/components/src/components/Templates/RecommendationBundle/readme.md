@@ -12,7 +12,7 @@ import { RecommendationBundle } from '@athoscommerce/snap-preact/components';
 ```
 
 Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper Component Props</a> can be specified, but may need to be camelCased where appropriate.
-Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via the `modules` prop; these may need additional props and or stylesheets.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via `carousel.modules`; these may need additional props and or stylesheets.
 
 ### controller
 The required `controller` prop specifies a reference to the RecommendationController
@@ -40,10 +40,11 @@ The `carousel` prop specifies an object of carousel settings. These settings wil
 
 ```tsx
 type BundleCarouselProps = {
+	controller?: RecommendationController;
 	enabled?: boolean;
 	seedInCarousel?: boolean;
 	slidesPerView?: number;
-} & Partial<CarouselProps>
+} & Partial<Omit<CarouselProps, 'slidesPerView'>>
 
 // defaults
 const defaultCarouselProps = {
@@ -247,12 +248,12 @@ The `limit` prop limits the number of products rendered.
 <RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} vertical={true} limit={5} />
 ```
 
-### modules
-The `modules` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include `Navigation`, `Pagination`, `Scrollbar` and `A11y` modules by default.
+### carousel.modules
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> are passed through the `carousel` prop as `modules` - these may need additional props and or stylesheets to function. The `Navigation`, `Pagination`, `Scrollbar` and `A11y` modules are included by default.
 
 ```tsx
-import { Scrollbar } from 'swiper';
-<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} modules={[Scrollbar]} scrollbar={{ draggable: true }} />
+import { Scrollbar } from 'swiper/modules';
+<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} carousel={{ modules: [Scrollbar], scrollbar: { draggable: true } }} />
 ```
 
 ### slidesPerView

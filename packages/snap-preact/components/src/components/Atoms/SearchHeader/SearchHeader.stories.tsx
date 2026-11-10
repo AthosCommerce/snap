@@ -70,7 +70,7 @@ export default {
 				},
 				category: 'Templates Legal',
 				defaultValue: {
-					summary: 'Search results',
+					summary: 'Search result(s) for "<span class="ss__search-header__results-query">{query}</span>"',
 				},
 			},
 			control: { type: 'text' },
@@ -106,7 +106,7 @@ export default {
 					summary: 'string | ((data: { pagination, search }) => string)',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: '<span>No results found.</span>' },
+				defaultValue: { summary: '<span>No results for "<span class="ss__search-header__results-query">{query}</span>" found.</span>' },
 			},
 			control: { type: 'text' },
 		},

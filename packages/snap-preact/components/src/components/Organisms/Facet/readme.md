@@ -261,7 +261,7 @@ const fieldsProp = {
 		disableOverflow: true,
 		disableCollapse: true,
 	}
-},
+};
 ```
 
 ```tsx
@@ -286,7 +286,7 @@ const displayProp = {
 	palette: {
 		limit: 20
 	}
-},
+};
 ```
 
 ```tsx
