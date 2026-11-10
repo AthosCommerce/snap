@@ -5,6 +5,9 @@ on:
     branches:
       - 'main'
       - 'beta'
+    # workflow-only changes don't need a release
+    paths-ignore:
+      - '.github/**'
   workflow_dispatch:
     inputs:
       resume:
@@ -52,6 +55,14 @@ jobs:
 
       - name: Install packages
         run: npm ci
+
+      # lerna gives Rekor 5s then retries - the retry 409s on the entry the first attempt created
+      # fetch that entry instead of failing (npm/cli#10078) - the grep fails the job if sigstore changes this line
+      - name: Recover from duplicate Rekor entries
+        run: |
+          f=node_modules/sigstore/dist/config.js
+          grep -q 'fetchOnConflict: false' "$f"
+          sed -i 's/fetchOnConflict: false/fetchOnConflict: true/' "$f"
 
       - name: Build
         run: |
