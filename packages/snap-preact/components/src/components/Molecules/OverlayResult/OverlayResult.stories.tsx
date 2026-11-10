@@ -149,6 +149,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'Add To Cart' },
 			},
 			control: { type: 'text' },
 		},
@@ -159,6 +160,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'Added!' },
 			},
 			control: { type: 'text' },
 		},
@@ -169,6 +171,7 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 2000 },
 			},
 			control: { type: 'number' },
 		},
@@ -177,9 +180,8 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent, result: Product) => void',
 				},
-				defaultValue: { summary: 'Add To Cart' },
 			},
 			control: false,
 		},
@@ -188,7 +190,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'JSX.Element | JSX.Element[]',
 				},
 			},
 			control: { type: 'text' },
@@ -211,7 +213,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ limit: number, append?: string }',
 				},
 			},
 			control: {
@@ -223,7 +225,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent) => void',
 				},
 			},
 			control: false,

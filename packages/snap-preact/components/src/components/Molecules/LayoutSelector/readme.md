@@ -46,7 +46,7 @@ const layoutOptions = [
 ```
 
 ### onSelect
-The required `onSelect` sets the callback function for when a selection has been made. the function will be passed the click event and the selected option. 
+The `onSelect` prop sets the callback function for when a selection has been made. the function will be passed the click event and the selected option. 
 
 ```tsx
 

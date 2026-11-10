@@ -30,7 +30,6 @@ export default {
 	argTypes: {
 		height: {
 			description: 'CSS sizing to set the height of the Skeleton',
-			defaultValue: '100px',
 			type: { required: true },
 			table: {
 				type: {
@@ -42,7 +41,6 @@ export default {
 		},
 		width: {
 			description: 'CSS sizing to set the width of the Skeleton',
-			defaultValue: '100px',
 			type: { required: true },
 			table: {
 				type: {

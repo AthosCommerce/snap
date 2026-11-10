@@ -16,7 +16,6 @@ export default {
 	},
 	argTypes: {
 		active: {
-			defaultValue: false,
 			description: 'LoadingBar is displayed',
 			type: { required: true },
 			table: {
@@ -24,7 +23,6 @@ export default {
 					summary: 'boolean',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},

@@ -35,8 +35,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: "'grid' | 'list'",
 				},
+				defaultValue: { summary: 'grid' },
 			},
 			options: [ResultsLayout.grid, ResultsLayout.list],
 			control: {
@@ -78,12 +79,13 @@ export default {
 			control: { type: 'text' },
 		},
 		breakpoints: {
-			defaultValue: { summary: 'Breakpoint object' },
+			defaultValue: undefined,
 			description: 'Breakpoints options object',
 			table: {
 				type: {
 					summary: 'object',
 				},
+				defaultValue: { summary: 'Breakpoint object' },
 			},
 			control: false,
 		},

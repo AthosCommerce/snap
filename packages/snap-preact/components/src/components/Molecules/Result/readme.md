@@ -24,6 +24,13 @@ The required `result` prop specifies a reference to a product object from the `r
 <Result result={controller.store.results[0]} />
 ```
 
+### controller
+The `controller` prop specifies a reference to the Search, Autocomplete or Recommendation controller. It is used by the add to cart button (`controller.addToCart`), the quickview button (`controller.quickview`) and the badges.
+
+```tsx
+<Result result={controller.store.results[0]} controller={controller} />
+```
+
 ### hideBadge
 The `hideBadge` prop will prevent the `<OverlayBadge />` and `<CalloutBadge />` components from rendering.
 
@@ -167,6 +174,13 @@ The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to
 ```tsx
 <Result result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
 ```
+
+### onClick
+The `onClick` prop is a function to be called when the result image or title link is clicked.
+
+```tsx
+<Result result={controller.store.results[0]} onClick={(e) => console.log(e)} />
+```
 ## Lang
 
 The `lang` prop allows you to override translatable text strings used by the Result component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
@@ -175,6 +189,7 @@ The `lang` prop allows you to override translatable text strings used by the Res
 |---|---|---|
 | `addToCartButtonText` | Add to cart button text | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
 | `addToCartButtonSuccessText` | Text shown after item is added to cart | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
+| `quickviewButtonText` | Quickview button text/attributes (default `aria-label`: "Quick View") | `result` (Product), `controller` (SearchController \| AutocompleteController \| RecommendationController) |
 
 ### Example
 

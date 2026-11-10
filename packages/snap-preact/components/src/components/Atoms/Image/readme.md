@@ -21,6 +21,13 @@ The required `alt` prop is the image `alt` attribute.
 <Image src={searchResponse.results.mappings.core.imageUrl} alt='image' />
 ```
 
+### title
+The `title` prop specifies the image `title` attribute. If not provided, the `alt` prop value is used.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' title='image title' />
+```
+
 ### fallback
 The `fallback` prop specifies the URL of the fallback image to render if the primary image fails to load.
 

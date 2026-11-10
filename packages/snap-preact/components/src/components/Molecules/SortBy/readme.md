@@ -38,11 +38,11 @@ The `hideLabel` prop hides the header title label
 ```
 
 ### type
-The `type` prop specifies which type of SortBy component to render. You can choose from 1 of 3 options - "Dropdown" | "List" | "Radio".
-By default "Dropdown" is used. and will render a dropdown using the Select component. "Radio" will render a RadioSelect component, and "List" will render a RadioSelect component with radios disabled.
+The `type` prop specifies which type of SortBy component to render. You can choose from 1 of 3 options - "dropdown" | "list" | "radio".
+By default "dropdown" is used. and will render a dropdown using the Select component. "radio" will render a RadioList component, and "list" will render a List component.
 
 ```tsx
-<SortBy controller={controller} type={'Radio'} label={'Sort By'}/>
+<SortBy controller={controller} type={'radio'} label={'Sort By'}/>
 ```
 
 ## Lang

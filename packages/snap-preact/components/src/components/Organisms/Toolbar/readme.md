@@ -24,7 +24,7 @@ Renders a search results toolbar.
 The required `controller` prop specifies a reference to the search controller.
 
 ```tsx
-<Toolbar controller={controller.store.results} />
+<Toolbar controller={controller} />
 ```
 
 ### layout
@@ -38,18 +38,14 @@ available modules to use in the layout are
 
 
 ```tsx
-<Toolbar controller={controller.store.results} layout={['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>
+<Toolbar controller={controller} layout={['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>
 ```
 
 ### toggleSideBarButton
-The `toggleSideBarButton` prop specifies an element to be used as the toggleSideBarButton. This element will render in the layout as `button.sidebar-toggle`. If it is not provided in the layout, the button will not render.
+The `toggleSideBarButton` prop specifies `Button` props for the sidebar toggle button. This button renders in the layout as `button.sidebar-toggle` (included in the default layout). The button only renders when both the `toggleSideBarButton` prop is provided and `button.sidebar-toggle` is present in the layout.
 
 ```tsx
-
-const button = () => {
-    return <div>Toggle Sidebar</div>
-}
-<Toolbar controller={controller.store.results} toggleSideBarButton={button} layout={[`button.sidebar-toggle`]}/>
+<Toolbar controller={controller} toggleSideBarButton={{ content: 'Toggle Sidebar' }} layout={['button.sidebar-toggle']}/>
 ```
 
 

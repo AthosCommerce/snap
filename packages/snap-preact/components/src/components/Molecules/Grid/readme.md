@@ -14,7 +14,7 @@ import { Grid } from '@athoscommerce/snap-preact/components';
 The required `options` prop specifies an array of options to render.
 
 ```tsx
-const options: SwatchOption = [
+const options: SwatchOption[] = [
 		{
 			value: 'one',
 			disabled: true,
@@ -31,10 +31,10 @@ const options: SwatchOption = [
 ```
 
 ### gapSize
-The optional `gapsize` props specifies the gap size between rows and columns.
+The optional `gapSize` props specifies the gap size between rows and columns.
 
 ```tsx
-<Grid options={options} gapsize={'15px'} />
+<Grid options={options} gapSize={'15px'} />
 ```
 
 ### columns
@@ -59,13 +59,13 @@ The optional `disableOverflowAction` prop will disable the overflow action from 
 ```
 
 ### overflowButton
-The optional `overflowButton` prop accepts a custom JSX element to render instead of the default overflow button. The custom component will be passed the current expanded state of the grid, as well as the number of options hidden 
+The optional `overflowButton` prop accepts a custom JSX element to render instead of the default overflow button. The custom component will be passed a `limited` prop (whether the overflow options are currently hidden), as well as a `remainder` prop (the number of options hidden) 
 
 ```tsx
 
-const overflowButton = (expanded, remainder) => {
+const OverflowButton = ({ limited, remainder }) => {
     return (
-       expanded ? (
+       limited ? (
             <span>
                 show {remainder} more
             </span>
@@ -77,7 +77,7 @@ const overflowButton = (expanded, remainder) => {
     )
 }
 
-<Grid options={options} rows={2} overflowButton={overflowButton}/>
+<Grid options={options} rows={2} overflowButton={<OverflowButton />}/>
 ```
 
 ### overflowButtonInGrid
@@ -91,8 +91,8 @@ The optional `overflowButtonInGrid` prop specifies if the overflow button should
 The optional `onOverflowButtonClick` prop specifies to custom function to call onClick of the overflow button. 
 
 ```tsx
-const onOverflowButtonClick = (expandedState: boolean, remainder: number) => {
-    console.log(expandedState, remainder);
+const onOverflowButtonClick = (e: MouseEvent, limited: boolean, remainder: number) => {
+    console.log(e, limited, remainder);
 }
 
 <Grid options={options} onOverflowButtonClick={onOverflowButtonClick} />
@@ -112,11 +112,11 @@ The optional `hideShowLess` prop specifies if show less button should be hidden.
 <Grid options={options} hideShowLess={true} />
 ```
 
-### multiselect
-The optional `multiselect` prop specifies if more than a single option can be selected at once. 
+### multiSelect
+The optional `multiSelect` prop specifies if more than a single option can be selected at once. 
 
 ```tsx
-<Grid options={options} multiselect={true} />
+<Grid options={options} multiSelect={true} />
 ```
 
 ### onSelect
@@ -142,13 +142,27 @@ The optional `selected` prop specifies the selected option(s) if the selected st
 
 ```tsx
 
-const selectedOption: SwatchOption = [
+const selectedOption: SwatchOption[] = [
     {
         value: 'two',
     },
 ]
 
 <Grid options={options} selected={selectedOption} />
+```
+
+### disabled
+The optional `disabled` prop will put the grid in a disabled state, preventing options from being selected.
+
+```tsx
+<Grid options={options} disabled={true} />
+```
+
+### disableA11y
+The optional `disableA11y` prop specifies a boolean to disable the autoset ally properties on the overflow button.
+
+```tsx
+<Grid options={options} rows={2} disableA11y={true} />
 ```
 
 

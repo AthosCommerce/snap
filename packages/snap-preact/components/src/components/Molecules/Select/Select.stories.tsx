@@ -155,7 +155,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'string, JSX',
 				},
 				defaultValue: { summary: ': ' },
 			},
@@ -200,7 +200,6 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '#333' },
 			},
 			control: { type: 'color' },
 		},
@@ -210,7 +209,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'angle-down' },
 			},
@@ -225,7 +224,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'angle-up' },
 			},
@@ -287,7 +286,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: Event, option?: ListOption) => void',
 				},
 			},
 		},

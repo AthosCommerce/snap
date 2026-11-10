@@ -43,14 +43,13 @@ export default {
 			control: false,
 		},
 		hideCheckbox: {
-			defaultValue: false,
 			description: 'Hide facet option checkbox',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
+				defaultValue: { summary: 'false (true when horizontal)' },
 			},
 			control: { type: 'boolean' },
 		},
