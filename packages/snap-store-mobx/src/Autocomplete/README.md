@@ -107,7 +107,7 @@ console.log(lock.locked) // true
 ```
 
 ## `storage` property
-Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Storage)
+Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap/blob/main/packages/snap-toolbox/src/StorageStore/README.md)
 
 <!-- TODO: update link -->
 

@@ -36,13 +36,13 @@ See [SearchStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-
 A reference to the `FinderStoreConfig` object that was provided to instantiate the FinderStore
 
 ## `data` property
-A reference to the data stored in the [StorageStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Storage) for this selection
+A reference to the data stored in the [StorageStore](https://github.com/athoscommerce/snap/blob/main/packages/snap-toolbox/src/StorageStore/README.md) for this selection
 
 ## `storage` property
-A reference to the [StorageStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Storage)
+A reference to the [StorageStore](https://github.com/athoscommerce/snap/blob/main/packages/snap-toolbox/src/StorageStore/README.md)
 
 ## `persistedStorage` property
-A reference to the [StorageStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Storage) used for persisting finder selections (requires `config.persist.enabled` to be `true`)
+A reference to the [StorageStore](https://github.com/athoscommerce/snap/blob/main/packages/snap-toolbox/src/StorageStore/README.md) used for persisting finder selections (requires `config.persist.enabled` to be `true`)
 
 ## `persisted` property
 The `persisted` property is used to determine if finder selections have been persisted. (requires `config.persist.enabled` to be `true`)
