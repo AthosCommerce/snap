@@ -76,6 +76,7 @@ export const Image = observer((properties: ImageProps) => {
 
 	const [visibile, setVisibile] = useState(false);
 	const [isHovering, setHover] = useState(false);
+	const [srcsetFailed, setSrcsetFailed] = useState(false);
 
 	const prevSrcRef = useRef('');
 	useEffect(() => {
@@ -83,20 +84,22 @@ export const Image = observer((properties: ImageProps) => {
 	});
 	if (prevSrcRef.current && prevSrcRef.current != src) {
 		setVisibile(false);
+		setSrcsetFailed(false);
 	}
 
 	const styling = mergeStyles<ImageProps>(props, defaultStyles);
 
 	// a srcset function is applied to `hoverSrc` while hovering, a srcset string is removed while hovering so that `hoverSrc` is displayed
-	const srcsetAttribute = resolveSrcset(src, srcset);
-	const hoverSrcsetAttribute = typeof srcset == 'function' ? resolveSrcset(hoverSrc, srcset) : undefined;
+	// a srcset that has failed to load is not set again until `src` changes
+	const srcsetAttribute =
+		srcsetFailed || (isHovering && typeof srcset != 'function') ? undefined : resolveSrcset(isHovering ? hoverSrc : src, srcset);
 
 	return (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__image', { 'ss__image--hidden': !visibile }, className, internalClassName)}>
 				<img
 					src={(isHovering ? hoverSrc : src) || fallback}
-					srcSet={isHovering ? hoverSrcsetAttribute : srcsetAttribute}
+					srcSet={srcsetAttribute}
 					sizes={sizes}
 					alt={alt}
 					title={title || alt}
@@ -107,12 +110,11 @@ export const Image = observer((properties: ImageProps) => {
 					}}
 					onClick={(e: React.MouseEvent<HTMLImageElement>) => onClick && onClick(e)}
 					onError={(e: React.MouseEvent<HTMLImageElement>) => {
-						const imageElement = e.target as HTMLImageElement;
-						if (imageElement.getAttribute('srcset')) {
-							// srcset candidates take precedence over src, so remove the srcset to retry with src before falling back
-							imageElement.removeAttribute('srcset');
+						if (srcsetAttribute) {
+							// srcset candidates take precedence over src, so stop rendering the srcset to retry with src before falling back
+							setSrcsetFailed(true);
 						} else {
-							imageElement.src = fallback || '';
+							(e.target as HTMLImageElement).src = fallback || '';
 						}
 						onError && onError(e);
 					}}

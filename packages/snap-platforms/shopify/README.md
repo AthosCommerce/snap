@@ -47,7 +47,7 @@ export const AddToCart = (props) => {
 ```
 
 ## shopifyImageSrcset
-The `shopifyImageSrcset` function builds a `srcset` for a Shopify CDN image at each of the given widths, for use with the `srcset` prop of the `Image` component. The legacy size suffix (eg. `_600x600`, `_grande`) is removed from the URL first, since the Shopify CDN ignores the `width` query parameter when the filename has one, and the `width` query parameter is then set for each width.
+The `shopifyImageSrcset` function builds a `srcset` for a Shopify CDN image at each of the given widths, for use with the `srcset` prop of the `Image` component. The legacy size suffix (eg. `_600x600`, `_grande`) is removed from the URL first, since the Shopify CDN ignores the `width` query parameter when the filename has one, and the `width` query parameter is then set for each width. An empty string is returned for cropped images (eg. `_300x150_crop_center`), as the resized original would be a different image, so those stay on their `src`.
 
 > [!NOTE]
 > The size suffix is matched by its shape at the end of the filename, so an original filename that happens to end in a size-like suffix (eg. `banner_1920x1080.jpg`) is also altered.
@@ -63,25 +63,34 @@ export const CustomResult = (props) => {
 		<Image
 			src={core.thumbnailImageUrl}
 			srcset={shopifyImageSrcset(core.thumbnailImageUrl, [320, 640, 960])}
-			sizes='(min-width: 991px) 200px, 50vw'
+			sizes='auto, (min-width: 991px) 200px, 50vw'
 			alt={core.name}
 		/>
 	);
 };
 ```
 
-The `srcset` prop also accepts a function of the image URL, so the helper can be applied to every image through the theme:
+The `srcset` prop also accepts a function of the image URL, so the helper can be applied through the theme. Scope it to the result image rather than every `Image` component - in Snap Templates:
 
 ```tsx
-theme: {
-	components: {
-		image: {
-			srcset: (src) => shopifyImageSrcset(src, [320, 640, 960]),
-			sizes: '(min-width: 991px) 200px, 50vw',
+new SnapTemplates(validateTemplatesConfig({
+	...
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'result image': {
+					srcset: (src) => shopifyImageSrcset(src, [320, 640, 960]),
+					sizes: 'auto, (min-width: 991px) 200px, 50vw',
+				},
+			},
 		},
 	},
-}
+	...
+}));
 ```
+
+`auto` lets supporting browsers choose a candidate from the rendered width of lazy loaded images; the rest of the list is the fallback.
 
 ## Plugins
 

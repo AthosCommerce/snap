@@ -197,24 +197,56 @@ describe('image Component', () => {
 			expect(imageElement).toHaveAttribute('sizes', sizes);
 		});
 
-		it('retries with src when a srcset candidate fails to load', () => {
+		it('retries with src when a srcset candidate fails to load', async () => {
 			const onErrorFunc = jest.fn();
 			const rendered = render(<Image alt="image" src={src} srcset={srcset} sizes={sizes} onError={onErrorFunc} />);
 			const imageElement = rendered.container.querySelector('.ss__image img')!;
 
 			fireEvent.error(imageElement);
 			expect(onErrorFunc).toHaveBeenCalledTimes(1);
+			await waitFor(() => expect(imageElement).not.toHaveAttribute('srcset'));
 			expect(imageElement).toHaveAttribute('src', src);
-			expect(imageElement).not.toHaveAttribute('srcset');
 			expect(imageElement).toHaveAttribute('sizes', sizes);
 		});
 
-		it('displays the fallback when src also fails to load after the srcset retry', () => {
+		it('does not set a failed srcset again after hovering', async () => {
+			const rendered = render(<Image alt="image" src={src} srcset={srcset} hoverSrc={hoverSrc} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')! as HTMLImageElement;
+
+			fireEvent.error(imageElement);
+			await waitFor(() => expect(imageElement).not.toHaveAttribute('srcset'));
+
+			await userEvent.hover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', hoverSrc));
+			await userEvent.unhover(imageElement);
+			await waitFor(() => expect(imageElement).toHaveAttribute('src', src));
+			expect(imageElement.srcset).toBe('');
+		});
+
+		it('sets the srcset again after a failure when src changes', async () => {
+			const newSrc = 'https://cdn.example.com/new.jpg';
+			const rendered = render(<Image alt="image" src={src} srcset={srcsetFunction} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+
+			fireEvent.error(imageElement);
+			await waitFor(() => expect(imageElement).not.toHaveAttribute('srcset'));
+
+			rendered.rerender(<Image alt="image" src={newSrc} srcset={srcsetFunction} />);
+			await waitFor(() =>
+				expect(imageElement).toHaveAttribute(
+					'srcset',
+					'https://cdn.example.com/new.jpg?width=320 320w, https://cdn.example.com/new.jpg?width=640 640w'
+				)
+			);
+		});
+
+		it('displays the fallback when src also fails to load after the srcset retry', async () => {
 			const onErrorFunc = jest.fn();
 			const rendered = render(<Image alt="image" src={src} srcset={srcset} onError={onErrorFunc} />);
 			const imageElement = rendered.container.querySelector('.ss__image img')!;
 
 			fireEvent.error(imageElement);
+			await waitFor(() => expect(imageElement).not.toHaveAttribute('srcset'));
 			fireEvent.error(imageElement);
 			expect(onErrorFunc).toHaveBeenCalledTimes(2);
 			expect(imageElement).toHaveAttribute('src', FALLBACK_IMAGE_URL);

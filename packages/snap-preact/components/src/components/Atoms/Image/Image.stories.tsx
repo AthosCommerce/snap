@@ -289,13 +289,13 @@ export const Srcset = {
 	args: {
 		src: searchResponse.product1.image,
 		srcset: storySrcset,
-		sizes: '(max-width: 600px) 100vw, 300px',
+		sizes: 'auto, (max-width: 600px) 100vw, 300px',
 		alt: searchResponse.product1.name,
 		hoverSrc: searchResponse.product2.image,
 	},
 };
 
-// the only candidate fails to load, so the srcset is removed and the browser retries with the src
+// the only candidate fails to load, so the srcset is removed and the browser retries with the src (it is not set again after hovering)
 export const SrcsetRetry = {
 	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
 
@@ -304,5 +304,6 @@ export const SrcsetRetry = {
 		srcset: 'intentionally_broken_candidate.jpg 320w',
 		sizes: '300px',
 		alt: searchResponse.product1.name,
+		hoverSrc: searchResponse.product2.image,
 	},
 };

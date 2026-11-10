@@ -1,7 +1,10 @@
 // matches Shopify's legacy size suffix at the end of a filename
-// eg. `_600x600`, `_600x`, `_x600`, `_grande`, `_600x600_crop_center`, `_600x600@2x`, `_600x.progressive`
+// eg. `_600x600`, `_600x`, `_x600`, `_grande`, `_600x600@2x`, `_600x.progressive`
 const SHOPIFY_SIZE_SUFFIX =
-	/_(?:\d+x\d*|x\d+|pico|icon|thumb|small|compact|medium|large|grande|original|master)(?:_crop_[a-z]+)?(?:@\d+x)?(?:\.progressive)?(?=\.[a-z0-9]+$)/i;
+	/_(?:\d+x\d*|x\d+|pico|icon|thumb|small|compact|medium|large|grande|original|master)(?:@\d+x)?(?:\.progressive)?(?=\.[a-z0-9]+$)/i;
+
+// matches a crop suffix at the end of a filename (eg. `_300x150_crop_center`) - the crop changes the image itself, not just its size
+const SHOPIFY_CROP_SUFFIX = /_crop_[a-z]+(?:@\d+x)?(?:\.progressive)?\.[a-z0-9]+$/i;
 
 // removes the legacy size suffix from a Shopify CDN image url - the CDN ignores the `width` query parameter when the filename has one
 const stripSizeSuffix = (url: string): string => {
@@ -27,6 +30,9 @@ const setWidth = (url: string, width: number): string => {
 // eg. `shirt_600x600.jpg?v=1` at `[320, 640]` becomes `shirt.jpg?v=1&width=320 320w, shirt.jpg?v=1&width=640 640w`
 export const shopifyImageSrcset = (url: string | undefined, widths: number[]): string => {
 	if (!url) return '';
+
+	// resized candidates of a cropped image would be the uncropped original, so no srcset is built and the image stays on its `src`
+	if (SHOPIFY_CROP_SUFFIX.test(url.split(/[?#]/)[0])) return '';
 
 	const originalUrl = stripSizeSuffix(url);
 	// whitespace separates a candidate url from its descriptor, so it must be encoded within the url

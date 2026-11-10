@@ -19,17 +19,17 @@ describe('shopifyImageSrcset', () => {
 		);
 	});
 
-	it('removes numeric, named, crop, density and progressive size suffix variants', () => {
-		[
-			'shirt_600x.jpg',
-			'shirt_x600.jpg',
-			'shirt_grande.jpg',
-			'shirt_master.jpg',
-			'shirt_600x600_crop_center.jpg',
-			'shirt_600x600@2x.jpg',
-			'shirt_600x.progressive.jpg',
-		].forEach((file) => {
-			expect(shopifyImageSrcset(`${base}${file}`, [320])).toBe(`${base}shirt.jpg?width=320 320w`);
+	it('removes numeric, named, density and progressive size suffix variants', () => {
+		['shirt_600x.jpg', 'shirt_x600.jpg', 'shirt_grande.jpg', 'shirt_master.jpg', 'shirt_600x600@2x.jpg', 'shirt_600x.progressive.jpg'].forEach(
+			(file) => {
+				expect(shopifyImageSrcset(`${base}${file}`, [320])).toBe(`${base}shirt.jpg?width=320 320w`);
+			}
+		);
+	});
+
+	it('returns an empty string for cropped images, as resizing the original would change the image', () => {
+		['shirt_300x150_crop_center.jpg', 'shirt_300x150_crop_top@2x.jpg', 'shirt_300x150_crop_center.progressive.jpg'].forEach((file) => {
+			expect(shopifyImageSrcset(`${base}${file}?v=123`, [320, 640])).toBe('');
 		});
 	});
 

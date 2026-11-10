@@ -44,12 +44,12 @@ A string is set on the attribute as-is, and may use width (`w`) or pixel density
 <Image
 	src={searchResponse.results.mappings.core.imageUrl}
 	srcset={`${searchResponse.results.mappings.core.thumbnailImageUrl} 400w, ${searchResponse.results.mappings.core.imageUrl} 1200w`}
-	sizes='(max-width: 600px) 100vw, 400px'
+	sizes='auto, (max-width: 600px) 100vw, 400px'
 	alt='image'
 />
 ```
 
-A function is called with the `src`, and with the `hoverSrc` while hovering, so a single theme setting can apply to every image. Platform packages provide helpers for their image CDN - for Shopify, use `shopifyImageSrcset` from `@athoscommerce/snap-platforms/shopify` to generate candidates at a list of widths.
+A function is called with the `src`, and with the `hoverSrc` while hovering, so it can be set once through the theme - for example on the result image (`'result image'`). Platform packages provide helpers for their image CDN - for Shopify, use `shopifyImageSrcset` from `@athoscommerce/snap-platforms/shopify` to generate candidates at a list of widths.
 
 ```tsx
 import { shopifyImageSrcset } from '@athoscommerce/snap-platforms/shopify';
@@ -57,18 +57,20 @@ import { shopifyImageSrcset } from '@athoscommerce/snap-platforms/shopify';
 <Image
 	src={searchResponse.results.mappings.core.imageUrl}
 	srcset={(src) => shopifyImageSrcset(src, [320, 640, 960, 1280])}
-	sizes='(max-width: 600px) 100vw, 400px'
+	sizes='auto, (max-width: 600px) 100vw, 400px'
 	alt='image'
 />
 ```
 
-The `src` is used by browsers that do not support `srcset`. If a `srcset` candidate fails to load, the `srcset` is removed so that the browser retries with the `src`. If that also fails, the `fallback` image is displayed.
+The `src` is used by browsers that do not support `srcset`. If a `srcset` candidate fails to load, the `srcset` is removed so that the browser retries with the `src`, and it is not set again until the `src` changes. If that also fails, the `fallback` image is displayed.
 
 ### sizes
 The `sizes` prop sets the image `sizes` attribute - a comma-separated list of media conditions and the width the image will be displayed at when each condition matches. It is used by the browser to choose between `srcset` candidates that use width (`w`) descriptors. Without it, browsers assume the image is displayed at the full viewport width.
 
+Start the list with `auto` so that browsers that support it use the rendered width of the image to choose a candidate. `auto` only applies to lazy loaded images (see the `lazy` prop, enabled by default); the rest of the list is used otherwise.
+
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} srcset={srcset} sizes='(max-width: 600px) 100vw, 400px' alt='image' />
+<Image src={searchResponse.results.mappings.core.imageUrl} srcset={srcset} sizes='auto, (max-width: 600px) 100vw, 400px' alt='image' />
 ```
 
 ### height
