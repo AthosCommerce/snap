@@ -7,6 +7,7 @@ import { dropdown } from './dropdown';
 import { icon } from './icon';
 import { image } from './image';
 import { loadingBar } from './loadingBar';
+import { paginationInfo } from './paginationInfo';
 import { price } from './price';
 import { searchHeader } from './searchHeader';
 import { skeleton } from './skeleton';
@@ -19,6 +20,7 @@ export const atoms = {
 		...icon.default,
 		...image.default,
 		...loadingBar.default,
+		...paginationInfo.default,
 		...price.default,
 		...searchHeader.default,
 		...skeleton.default,
@@ -30,6 +32,7 @@ export const atoms = {
 		...icon.mobile,
 		...image.mobile,
 		...loadingBar.mobile,
+		...paginationInfo.mobile,
 		...price.mobile,
 		...searchHeader.mobile,
 		...skeleton.mobile,
@@ -41,6 +44,7 @@ export const atoms = {
 		...icon.tablet,
 		...image.tablet,
 		...loadingBar.tablet,
+		...paginationInfo.tablet,
 		...price.tablet,
 		...searchHeader.tablet,
 		...skeleton.tablet,
@@ -52,6 +56,7 @@ export const atoms = {
 		...icon.desktop,
 		...image.desktop,
 		...loadingBar.desktop,
+		...paginationInfo.desktop,
 		...price.desktop,
 		...searchHeader.desktop,
 		...skeleton.desktop,

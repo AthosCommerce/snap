@@ -14,12 +14,16 @@ import { searchCollapsible } from './searchCollapsible';
 import { autocompleteSlideout } from './autocompleteSlideout';
 import { autocompleteModal } from './autocompleteModal';
 import { autocompleteFixed } from './autocompleteFixed';
+import { quickviewModal } from './quickviewModal';
+import { quickviewSlideout } from './quickviewSlideout';
 
 export const templates = {
 	default: {
 		...autocompleteSlideout.default,
 		...autocompleteModal.default,
 		...autocompleteFixed.default,
+		...quickviewModal.default,
+		...quickviewSlideout.default,
 		...recommendation.default,
 		...recommendationBundle.default,
 		...recommendationBundleEasyAdd.default,
@@ -35,6 +39,8 @@ export const templates = {
 		...autocompleteSlideout.mobile,
 		...autocompleteModal.mobile,
 		...autocompleteFixed.mobile,
+		...quickviewModal.mobile,
+		...quickviewSlideout.mobile,
 		...recommendation.mobile,
 		...recommendationBundle.mobile,
 		...recommendationBundleEasyAdd.mobile,
@@ -50,6 +56,8 @@ export const templates = {
 		...autocompleteSlideout.tablet,
 		...autocompleteModal.tablet,
 		...autocompleteFixed.tablet,
+		...quickviewModal.tablet,
+		...quickviewSlideout.tablet,
 		...recommendation.tablet,
 		...recommendationBundle.tablet,
 		...recommendationBundleEasyAdd.tablet,
@@ -65,6 +73,8 @@ export const templates = {
 		...autocompleteSlideout.desktop,
 		...autocompleteModal.desktop,
 		...autocompleteFixed.desktop,
+		...quickviewModal.desktop,
+		...quickviewSlideout.desktop,
 		...recommendation.desktop,
 		...recommendationBundle.desktop,
 		...recommendationBundleEasyAdd.desktop,

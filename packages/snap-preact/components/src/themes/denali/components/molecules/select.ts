@@ -1,6 +1,5 @@
 import { css } from '@emotion/react';
 import type { SelectProps, SelectTemplatesLegalProps } from '../../../../components/Molecules/Select';
-import { colord } from 'colord';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
@@ -8,7 +7,7 @@ import { custom } from '../../custom';
 const selectStyleScript = ({ backgroundColor, theme }: SelectProps) => {
 	const variables = theme?.variables;
 	// hovered/selected rows tint a passed background
-	const rowFill = backgroundColor ? (colord(backgroundColor).isDark() ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.06)') : custom.colors.gray01;
+	const rowFill = backgroundColor ? custom.utils.rowTint(backgroundColor) : custom.colors.gray01;
 
 	return css({
 		'.ss__dropdown': {

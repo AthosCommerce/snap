@@ -40,10 +40,11 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 				display: 'flex',
 				alignItems: 'center',
 				gap: `${swatchesSpacing}px`,
+				// width 0 (not auto) so the swatches never set the card's min width - they overflow into the arrows
 				'.ss__slideshow__container': {
 					flex: '1 1 0%',
 					minWidth: 0,
-					width: 'auto',
+					width: 0,
 				},
 				'.ss__slideshow__navigation--prev, .ss__slideshow__navigation--next': {
 					position: 'static',

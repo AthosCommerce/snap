@@ -31,5 +31,12 @@ export const custom = {
 			const fill = parsed.isValid() ? parsed : colord('#000000');
 			return [fill.toHex().toLowerCase(), fill.isDark() ? '#ffffff' : '#000000'];
 		},
+		// a hover/selected row tint over a background - a neutral gray when the color cannot be resolved
+		// at style time (`currentColor`, CSS variables), since it works on light and dark backgrounds
+		rowTint: (background: string): string => {
+			const parsed = colord(background);
+			if (!parsed.isValid()) return 'rgba(128, 128, 128, 0.15)';
+			return parsed.isDark() ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.06)';
+		},
 	},
 };

@@ -65,7 +65,6 @@ export const sortBy: ThemeComponent<'sortBy', SortByProps, SortByTemplatesLegalP
 			icon: 'angle-down',
 		},
 	},
-	tablet: {},
 	mobile: {
 		'sortBy select': {
 			separator: '',
