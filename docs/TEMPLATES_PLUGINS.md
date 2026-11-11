@@ -39,7 +39,7 @@ When `config.platform` is `magento2`, the following plugins are available:
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
-| `plugins.magento2.base` | Magento2 base setup: tracks the logged-in shopper and adds form key, uenc and wishlist/compare/add to cart action data to `store.custom` and `result.custom` | Object | Enabled |
+| `plugins.magento2.base` | Magento2 base setup: tracks the logged-in shopper (requires the [Athos Commerce Magento2 module](https://github.com/AthosCommerce/magento2-module)) and adds form key, uenc and wishlist/compare/add to cart action data to `store.custom` and `result.custom` - see [pluginBase](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/magento2/README.md#pluginbase) | Object | Enabled |
 | `plugins.magento2.addToCart` | Magento2 add to cart function configuration | Object | Enabled |
 | `plugins.magento2.backgroundFilters` | Background filter configurations | Object | Enabled |
 
