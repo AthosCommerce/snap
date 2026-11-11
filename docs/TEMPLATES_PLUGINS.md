@@ -35,6 +35,7 @@ When `config.platform` is `magento2`, the following plugins are available:
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
+| `plugins.magento2.base` | Magento2 base configuration (shopper id tracking, form key, uenc and result action values) | Object | Enabled |
 | `plugins.magento2.addToCart` | Magento2 add to cart function configuration | Object | Enabled |
 | `plugins.magento2.backgroundFilters` | Background filter configurations | Object | Enabled |
 
