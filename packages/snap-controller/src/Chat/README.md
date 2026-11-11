@@ -50,6 +50,18 @@ input.addEventListener('change', (e) => {
 });
 ```
 
+When an upload fails, the image attachment moves to an error state with a shopper-facing message based on the response:
+
+| Response | Message |
+|----------|---------|
+| `errorCode` `VS_001` or `VS_004` (file or dimensions below the minimum) | This image is too small. Please choose a larger one. |
+| HTTP 413 | This image is too large. Please choose a smaller one. |
+| HTTP 415 | This file type is not supported |
+| Any other HTTP 422 | We couldn't read this image. Please try a different one. |
+| HTTP 403 | Image search isn't available right now. |
+| Any other HTTP 400 with an `errorMessage` | The server's `errorMessage`, followed by "Please try again." |
+| Anything else | Something went wrong behind the scenes. Please give it another shot in a moment. |
+
 ## ProductQuickView
 Pushes a `productQuery` message into the side-chat panel and opens the product quickview within the chat through the controller's [QuickviewManager](../Quickview/README.md) (`quickviewManager.show()` — products fetch, clone, variant build). The manager's store drives the panel: `store.isOpen` is the secondary window's visibility flag for product queries, and `ChatQuickview` renders a `QuickviewLayout` inline from `store.product`. Drops any prior `productQuery` attachment for a different product so the previous discussion target doesn't remain alongside the newly focused product.
 

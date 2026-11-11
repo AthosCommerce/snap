@@ -468,10 +468,19 @@ export class ChatController extends AbstractController {
 				});
 			} catch (err: any) {
 				const status = err?.fetchDetails?.status;
+				const errorCode = err?.responseBody?.errorCode;
 				const serverMessage = err?.responseBody?.errorMessage;
 				let errorMessage: string;
-				if (status === 415) {
+				if (errorCode === CHAT_ERROR_CODES.IMAGE_FILE_TOO_SMALL || errorCode === CHAT_ERROR_CODES.IMAGE_DIMENSIONS_TOO_SMALL) {
+					errorMessage = 'This image is too small. Please choose a larger one.';
+				} else if (status === 413) {
+					errorMessage = 'This image is too large. Please choose a smaller one.';
+				} else if (status === 415) {
 					errorMessage = 'This file type is not supported';
+				} else if (status === 422) {
+					errorMessage = "We couldn't read this image. Please try a different one.";
+				} else if (status === 403) {
+					errorMessage = "Image search isn't available right now.";
 				} else if (status === 400 && serverMessage) {
 					errorMessage = `${serverMessage}. Please try again.`;
 				} else {

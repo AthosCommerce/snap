@@ -25,6 +25,8 @@ export const CHAT_ERROR_CODES = {
 	QUOTA_LIMIT: 'CS_002',
 	SESSION_LIMIT: 'CS_003',
 	CONTENT_POLICY: 'CS_006',
+	IMAGE_FILE_TOO_SMALL: 'VS_001',
+	IMAGE_DIMENSIONS_TOO_SMALL: 'VS_004',
 } as const;
 
 const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> => {

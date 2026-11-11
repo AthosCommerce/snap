@@ -2417,6 +2417,56 @@ describe('Chat Controller', () => {
 			handleError.mockClear();
 		});
 
+		it.each([
+			{
+				scenario: 'a 400 file-size-below-minimum (VS_001)',
+				status: 400,
+				responseBody: { errorCode: 'VS_001', errorMessage: 'Image file is below the minimum allowed size' },
+				expected: 'This image is too small. Please choose a larger one.',
+			},
+			{
+				scenario: 'a 413 file-size-above-maximum (VS_002)',
+				status: 413,
+				responseBody: { errorCode: 'VS_002', errorMessage: 'Image exceeds the maximum allowed file size' },
+				expected: 'This image is too large. Please choose a smaller one.',
+			},
+			{
+				scenario: 'a 422 dimensions-below-minimum (VS_004)',
+				status: 422,
+				responseBody: { errorCode: 'VS_004', errorMessage: 'Image dimensions are below the minimum required' },
+				expected: 'This image is too small. Please choose a larger one.',
+			},
+			{
+				scenario: 'a 422 corrupted image (VS_005)',
+				status: 422,
+				responseBody: { errorCode: 'VS_005', errorMessage: 'Image file is corrupted or cannot be decoded' },
+				expected: "We couldn't read this image. Please try a different one.",
+			},
+			{
+				scenario: 'a 403 image search disabled (VS_007)',
+				status: 403,
+				responseBody: { errorCode: 'VS_007', errorMessage: 'Image search is not enabled for this site' },
+				expected: "Image search isn't available right now.",
+			},
+		])('sets a specific message on the attachment for $scenario response and reports the error', async ({ status, responseBody, expected }) => {
+			const controller = createController();
+			const handleError = jest.spyOn(controller, 'handleError');
+			const error = new Error('upload failed');
+			controller.client.uploadImage = jest.fn().mockRejectedValue({
+				err: error,
+				fetchDetails: { status, url: 'test.com' },
+				responseBody,
+			});
+
+			await controller.upload(asFileList([new File(['a'], 'photo.png', { type: 'image/png' })]));
+
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.state).toBe('error');
+			expect(attachment.error?.message).toBe(expected);
+			expect(handleError).toHaveBeenCalledWith(error, { status, url: 'test.com' });
+			handleError.mockClear();
+		});
+
 		it('continues uploading remaining files when one file fails', async () => {
 			const controller = createController();
 			controller.client.uploadImage = jest
