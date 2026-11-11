@@ -197,6 +197,26 @@ describe('image Component', () => {
 			expect(imageElement).toHaveAttribute('sizes', sizes);
 		});
 
+		it('sets the loading attribute before src so that auto in sizes applies to lazy images', () => {
+			const rendered = render(<Image alt="image" src={src} srcset={srcset} sizes={`auto, ${sizes}`} />);
+			const attributeNames = rendered.container.querySelector('.ss__image img')!.getAttributeNames();
+			expect(attributeNames[0]).toBe('loading');
+			expect(attributeNames.indexOf('loading')).toBeLessThan(attributeNames.indexOf('src'));
+		});
+
+		it('sets the srcset again after a failure when src changes from empty', async () => {
+			const rendered = render(<Image alt="image" src="" srcset={srcset} />);
+			const imageElement = rendered.container.querySelector('.ss__image img')!;
+			expect(imageElement).toHaveAttribute('srcset', srcset);
+
+			fireEvent.error(imageElement);
+			await waitFor(() => expect(imageElement).not.toHaveAttribute('srcset'));
+
+			rendered.rerender(<Image alt="image" src={src} srcset={srcset} />);
+			await waitFor(() => expect(imageElement).toHaveAttribute('srcset', srcset));
+			expect(imageElement).toHaveAttribute('src', src);
+		});
+
 		it('retries with src when a srcset candidate fails to load', async () => {
 			const onErrorFunc = jest.fn();
 			const rendered = render(<Image alt="image" src={src} srcset={srcset} sizes={sizes} onError={onErrorFunc} />);

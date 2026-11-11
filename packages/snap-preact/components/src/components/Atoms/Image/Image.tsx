@@ -78,11 +78,11 @@ export const Image = observer((properties: ImageProps) => {
 	const [isHovering, setHover] = useState(false);
 	const [srcsetFailed, setSrcsetFailed] = useState(false);
 
-	const prevSrcRef = useRef('');
+	const prevSrcRef = useRef(src);
 	useEffect(() => {
 		prevSrcRef.current = src;
 	});
-	if (prevSrcRef.current && prevSrcRef.current != src) {
+	if (prevSrcRef.current != src) {
 		setVisibile(false);
 		setSrcsetFailed(false);
 	}
@@ -98,12 +98,13 @@ export const Image = observer((properties: ImageProps) => {
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__image', { 'ss__image--hidden': !visibile }, className, internalClassName)}>
 				<img
+					// `loading` must stay the first attribute - attributes are set in order, and `auto` in `sizes` is only used when the image is already lazy as `src` is set
+					loading={lazy ? 'lazy' : undefined}
 					src={(isHovering ? hoverSrc : src) || fallback}
 					srcSet={srcsetAttribute}
 					sizes={sizes}
 					alt={alt}
 					title={title || alt}
-					loading={lazy ? 'lazy' : undefined}
 					onLoad={(e: React.MouseEvent<HTMLImageElement>) => {
 						setVisibile(true);
 						onLoad && onLoad(e);
