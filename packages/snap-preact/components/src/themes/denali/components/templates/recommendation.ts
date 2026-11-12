@@ -1,0 +1,30 @@
+import { css } from '@emotion/react';
+import type { RecommendationProps, RecommendationTemplatesLegalProps } from '../../../../components/Templates/Recommendation';
+import { recommendationThemeComponentProps } from '../../../themeComponents/recommendation';
+import { ThemeComponent } from '../../../../providers';
+
+// CSS in JS style script for the Recommendation component
+const recommendationStyleScript = ({ theme }: RecommendationProps) => {
+	const variables = theme?.variables;
+
+	return css({
+		margin: '20px 0',
+		'& .ss__recommendation__title': {
+			color: variables?.colors?.secondary,
+		},
+	});
+};
+
+// Recommendation component props come from Template export
+export const recommendation: ThemeComponent<'recommendation', RecommendationProps, RecommendationTemplatesLegalProps> = {
+	default: {
+		...recommendationThemeComponentProps.default,
+		recommendation: {
+			...(recommendationThemeComponentProps.default?.['recommendation'] || {}),
+			themeStyleScript: recommendationStyleScript,
+		},
+	},
+	mobile: recommendationThemeComponentProps.mobile,
+	desktop: recommendationThemeComponentProps.desktop,
+	tablet: recommendationThemeComponentProps.tablet,
+};

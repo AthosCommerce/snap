@@ -1,0 +1,89 @@
+import { ThemeResponsiveComplete } from '../../../../providers';
+
+// TEMPLATES
+import { recommendation } from './recommendation';
+import { recommendationBundle } from './recommendationBundle';
+import { recommendationBundleEasyAdd } from './recommendationBundleEasyAdd';
+import { recommendationBundleList } from './recommendationBundleList';
+import { recommendationBundleVertical } from './recommendationBundleVertical';
+import { recommendationGrid } from './recommendationGrid';
+import { recommendationEmail } from './recommendationEmail';
+import { search } from './search';
+import { searchHorizontal } from './searchHorizontal';
+import { searchCollapsible } from './searchCollapsible';
+import { autocompleteSlideout } from './autocompleteSlideout';
+import { autocompleteModal } from './autocompleteModal';
+import { autocompleteFixed } from './autocompleteFixed';
+import { quickviewModal } from './quickviewModal';
+import { quickviewSlideout } from './quickviewSlideout';
+
+export const templates = {
+	default: {
+		...autocompleteSlideout.default,
+		...autocompleteModal.default,
+		...autocompleteFixed.default,
+		...quickviewModal.default,
+		...quickviewSlideout.default,
+		...recommendation.default,
+		...recommendationBundle.default,
+		...recommendationBundleEasyAdd.default,
+		...recommendationBundleList.default,
+		...recommendationBundleVertical.default,
+		...recommendationGrid.default,
+		...recommendationEmail.default,
+		...search.default,
+		...searchCollapsible.default,
+		...searchHorizontal.default,
+	},
+	mobile: {
+		...autocompleteSlideout.mobile,
+		...autocompleteModal.mobile,
+		...autocompleteFixed.mobile,
+		...quickviewModal.mobile,
+		...quickviewSlideout.mobile,
+		...recommendation.mobile,
+		...recommendationBundle.mobile,
+		...recommendationBundleEasyAdd.mobile,
+		...recommendationBundleList.mobile,
+		...recommendationBundleVertical.mobile,
+		...recommendationGrid.mobile,
+		...recommendationEmail.mobile,
+		...search.mobile,
+		...searchCollapsible.mobile,
+		...searchHorizontal.mobile,
+	},
+	tablet: {
+		...autocompleteSlideout.tablet,
+		...autocompleteModal.tablet,
+		...autocompleteFixed.tablet,
+		...quickviewModal.tablet,
+		...quickviewSlideout.tablet,
+		...recommendation.tablet,
+		...recommendationBundle.tablet,
+		...recommendationBundleEasyAdd.tablet,
+		...recommendationBundleList.tablet,
+		...recommendationBundleVertical.tablet,
+		...recommendationGrid.tablet,
+		...recommendationEmail.tablet,
+		...search.tablet,
+		...searchCollapsible.tablet,
+		...searchHorizontal.tablet,
+	},
+	desktop: {
+		...autocompleteSlideout.desktop,
+		...autocompleteModal.desktop,
+		...autocompleteFixed.desktop,
+		...quickviewModal.desktop,
+		...quickviewSlideout.desktop,
+		...recommendation.desktop,
+		...recommendationBundle.desktop,
+		...recommendationBundleEasyAdd.desktop,
+		...recommendationBundleList.desktop,
+		...recommendationBundleVertical.desktop,
+		...recommendationGrid.desktop,
+		...recommendationEmail.desktop,
+		...search.desktop,
+		...searchCollapsible.desktop,
+		...searchHorizontal.desktop,
+	},
+} as unknown as ThemeResponsiveComplete;

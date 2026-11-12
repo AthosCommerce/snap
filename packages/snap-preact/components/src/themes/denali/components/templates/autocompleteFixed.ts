@@ -1,0 +1,33 @@
+import { css } from '@emotion/react';
+import { autocompleteFixedThemeComponentProps } from '../../../themeComponents/autocompleteFixed';
+import { ThemeComponent } from '../../../../providers';
+import { autocompleteSharedStyles } from './autocompleteShared';
+import { AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps } from '../../../../components/Templates/AutocompleteSlideout';
+
+// CSS in JS style script for the Search component
+const autocompleteFixedStyleScript = ({}: AutocompleteSlideoutProps) => {
+	return css({
+		...autocompleteSharedStyles,
+		'.ss__autocomplete__button--see-more': {
+			margin: '10px',
+		},
+	});
+};
+
+export const autocompleteFixed: ThemeComponent<'autocompleteFixed', AutocompleteSlideoutProps, AutocompleteSlideoutTemplatesLegalProps> = {
+	default: {
+		...autocompleteFixedThemeComponentProps.default,
+		autocompleteFixed: {
+			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed'] || {}),
+			themeStyleScript: autocompleteFixedStyleScript,
+		},
+
+		'autocompleteFixed recommendationGrid': {
+			columns: 4,
+			rows: 2,
+		},
+	},
+	mobile: autocompleteFixedThemeComponentProps.mobile,
+	desktop: autocompleteFixedThemeComponentProps.desktop,
+	tablet: autocompleteFixedThemeComponentProps.tablet,
+};
