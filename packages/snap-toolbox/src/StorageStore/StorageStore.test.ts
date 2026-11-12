@@ -230,7 +230,7 @@ describe('Storage Store', () => {
 		});
 
 		it('keeps session state in memory', () => {
-			const storage = new StorageStore({ type: StorageType.session, key: 'ss-blocked' });
+			const storage = new StorageStore({ type: StorageType.session, key: 'athos-blocked' });
 
 			// @ts-ignore - private property
 			expect(storage.type).toBe(null);
@@ -245,15 +245,32 @@ describe('Storage Store', () => {
 		});
 
 		it('still uses localStorage for local storage', () => {
-			const storage = new StorageStore({ type: StorageType.local, key: 'ss-blocked-local' });
+			const storage = new StorageStore({ type: StorageType.local, key: 'athos-blocked-local' });
 			storage.set('some.path', 'value');
 
 			// @ts-ignore - private property
 			expect(storage.type).toBe(StorageType.local);
-			expect(window.localStorage.getItem('ss-blocked-local')).toBe(JSON.stringify({ some: { path: 'value' } }));
+			expect(window.localStorage.getItem('athos-blocked-local')).toBe(JSON.stringify({ some: { path: 'value' } }));
 
 			storage.clear();
 		});
+	});
+
+	it('keeps session state in memory when the stored entry is not valid JSON', () => {
+		window.sessionStorage.setItem('athos-unreadable', '{"unterminated":');
+
+		try {
+			const storage = new StorageStore({ type: StorageType.session, key: 'athos-unreadable' });
+
+			// @ts-ignore - private property
+			expect(storage.type).toBe(null);
+			expect(storage.state).toStrictEqual({});
+
+			storage.set('some.path', 'value');
+			expect(storage.get('some.path')).toBe('value');
+		} finally {
+			window.sessionStorage.removeItem('athos-unreadable');
+		}
 	});
 
 	describe('Storage Store sets custom config', () => {

@@ -558,6 +558,47 @@ describe('Network Cache', () => {
 		});
 	});
 
+	describe('when sessionStorage cannot be used', () => {
+		let warnSpy: jest.SpyInstance;
+
+		beforeEach(() => {
+			warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+		});
+
+		afterEach(() => {
+			warnSpy.mockRestore();
+		});
+
+		it('keeps caching in memory when sessionStorage does not exist', () => {
+			const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage')!;
+			Object.defineProperty(window, 'sessionStorage', { configurable: true, get: () => null });
+
+			try {
+				const cache = new NetworkCache();
+				cache.set('missingStorageKey', typedResponse);
+
+				expect(cache.get('missingStorageKey')).toEqual(typedResponse);
+			} finally {
+				Object.defineProperty(window, 'sessionStorage', originalDescriptor);
+			}
+		});
+
+		it('keeps caching in memory when the stored cache is not valid JSON', () => {
+			mockStorage[CACHE_STORAGE_KEY] = '{"unterminated":';
+
+			let cache: NetworkCache | undefined;
+			expect(() => {
+				cache = new NetworkCache();
+			}).not.toThrow();
+
+			cache!.set('corruptStorageKey', typedResponse);
+			expect(cache!.get('corruptStorageKey')).toEqual(typedResponse);
+
+			// the unreadable entry is left alone rather than overwritten
+			expect(mockStorage[CACHE_STORAGE_KEY]).toBe('{"unterminated":');
+		});
+	});
+
 	describe('when sessionStorage is blocked', () => {
 		const storageError = new DOMException('Access is denied', 'SecurityError');
 		const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage')!;
@@ -607,7 +648,7 @@ describe('Network Cache', () => {
 			expect(storageGetter).toHaveBeenCalledTimes(2);
 
 			expect(warnSpy).toHaveBeenCalledTimes(1);
-			expect(warnSpy).toHaveBeenCalledWith('sessionStorage is unavailable, network cache falling back to memory: ', storageError);
+			expect(warnSpy).toHaveBeenCalledWith('network cache could not load from sessionStorage, falling back to memory: ', storageError);
 		});
 
 		it('never touches sessionStorage when type is memory', () => {

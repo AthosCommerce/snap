@@ -283,7 +283,7 @@ describe('Snap Preact', () => {
 					...generateBaseConfig(),
 					controllers: {
 						search: [{ config: { id: 'search' } }],
-						autocomplete: [{ config: { id: 'ac', selector: '.ss-ac-input' } }],
+						autocomplete: [{ config: { id: 'ac', selector: '.athos-ac-input' } }],
 					},
 				},
 				{ logger }

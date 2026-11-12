@@ -35,22 +35,18 @@ export class NetworkCache {
 	public load(): void {
 		// initialize cache from session storage
 		if (this.config.type === 'sessionStorage' && typeof window !== 'undefined') {
-			let stored: string | null | undefined;
 			try {
-				stored = window.sessionStorage?.getItem(CACHE_STORAGE_KEY);
+				const stored = window.sessionStorage.getItem(CACHE_STORAGE_KEY);
+				this.memoryCache = (stored && JSON.parse(stored)) || {};
 			} catch (e) {
-				// reading sessionStorage throws when the browser blocks site data - fall back to an in-memory cache
+				// sessionStorage is blocked (browsers throw when site data is blocked), missing, or holds an unreadable cache - keep the cache in memory
 				this.config.type = 'memory';
 
 				// every requester has its own cache - warn once per page rather than once per cache
 				if (!warnedStorageUnavailable) {
 					warnedStorageUnavailable = true;
-					console.warn('sessionStorage is unavailable, network cache falling back to memory: ', e);
+					console.warn('network cache could not load from sessionStorage, falling back to memory: ', e);
 				}
-			}
-
-			if (this.config.type === 'sessionStorage') {
-				this.memoryCache = stored ? { ...JSON.parse(stored) } : {};
 			}
 		}
 
