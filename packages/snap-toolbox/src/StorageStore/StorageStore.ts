@@ -29,7 +29,16 @@ export class StorageStore {
 				case StorageType.session: {
 					this.type = featureFlags.storage ? (config.type as StorageType) : null;
 					if (this.type) {
-						this.state = JSON.parse(window.sessionStorage.getItem(this.key) || '{}');
+						let stored: string | null;
+						try {
+							stored = window.sessionStorage.getItem(this.key);
+						} catch {
+							// featureFlags.storage only probes localStorage - sessionStorage can be blocked on its own, so keep state in memory
+							this.type = null;
+							break;
+						}
+
+						this.state = JSON.parse(stored || '{}');
 						window.sessionStorage.setItem(this.key, JSON.stringify(this.state));
 					}
 					break;

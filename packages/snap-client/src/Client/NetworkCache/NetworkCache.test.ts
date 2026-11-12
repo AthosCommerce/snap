@@ -557,4 +557,68 @@ describe('Network Cache', () => {
 			expect(cache.get(`key${i}`)).toEqual(largeResponse);
 		});
 	});
+
+	describe('when sessionStorage is blocked', () => {
+		const storageError = new DOMException('Access is denied', 'SecurityError');
+		const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage')!;
+		let storageGetter: jest.Mock;
+		let warnSpy: jest.SpyInstance;
+
+		beforeEach(() => {
+			// browsers that block site data throw on the property access itself - jsdom swallows errors thrown from window getters,
+			// so the blocked storage is simulated by throwing from its methods while the getter counts every access
+			const throwStorageError = () => {
+				throw storageError;
+			};
+			storageGetter = jest.fn(() => ({ getItem: throwStorageError, setItem: throwStorageError }));
+			Object.defineProperty(window, 'sessionStorage', { configurable: true, get: storageGetter });
+			warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+		});
+
+		afterEach(() => {
+			Object.defineProperty(window, 'sessionStorage', originalDescriptor);
+			warnSpy.mockRestore();
+		});
+
+		it('falls back to an in-memory cache and warns once per page with the original error', () => {
+			// the "already warned" state lives in the module, so load a fresh copy of it
+			let IsolatedNetworkCache!: typeof NetworkCache;
+			jest.isolateModules(() => {
+				IsolatedNetworkCache = require('../NetworkCache/NetworkCache').NetworkCache;
+			});
+
+			let cache: NetworkCache | undefined;
+			expect(() => {
+				cache = new IsolatedNetworkCache();
+			}).not.toThrow();
+
+			cache!.set('blockedKey', typedResponse);
+			expect(cache!.get('blockedKey')).toEqual(typedResponse);
+			cache!.clear();
+			expect(cache!.get('blockedKey')).toBeUndefined();
+
+			// sessionStorage is read once, then left alone
+			expect(storageGetter).toHaveBeenCalledTimes(1);
+
+			// a second cache falls back too, without warning again
+			const secondCache = new IsolatedNetworkCache();
+			secondCache.set('secondKey', typedResponse);
+			expect(secondCache.get('secondKey')).toEqual(typedResponse);
+			expect(storageGetter).toHaveBeenCalledTimes(2);
+
+			expect(warnSpy).toHaveBeenCalledTimes(1);
+			expect(warnSpy).toHaveBeenCalledWith('sessionStorage is unavailable, network cache falling back to memory: ', storageError);
+		});
+
+		it('never touches sessionStorage when type is memory', () => {
+			const cache = new NetworkCache({ type: 'memory' });
+
+			cache.set('memoryKey', typedResponse);
+			expect(cache.get('memoryKey')).toEqual(typedResponse);
+			cache.clear();
+
+			expect(storageGetter).not.toHaveBeenCalled();
+			expect(warnSpy).not.toHaveBeenCalled();
+		});
+	});
 });
