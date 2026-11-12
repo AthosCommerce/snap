@@ -12,7 +12,7 @@ export const StoreProvider = ({ children, store }: { children: ComponentChildren
 
 export const useStore = () => useContext(StoreContext);
 
-export function withStore<C extends ComponentType>(Component: C): C {
+export function withStore<C extends ComponentType<any>>(Component: C): C {
 	return ((props: any) => {
 		const Comp = Component as JSXComponent;
 		return <Comp store={useStore()} {...props} />;
