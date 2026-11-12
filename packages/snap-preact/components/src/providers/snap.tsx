@@ -12,7 +12,7 @@ export const SnapProvider = ({ children, snap }: { children: ComponentChildren; 
 
 export const useSnap = () => useContext(SnapContext);
 
-export function withSnap<C extends ComponentType>(Component: C): C {
+export function withSnap<C extends ComponentType<any>>(Component: C): C {
 	return ((props: any) => {
 		const Comp = Component as JSXComponent;
 		return <Comp snap={useSnap()} {...props} />;
