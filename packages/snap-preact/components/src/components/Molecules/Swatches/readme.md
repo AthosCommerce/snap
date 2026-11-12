@@ -4,7 +4,7 @@ Renders a swatch component.
 
 ## Components Used
 - Slideshow
-- Swatches
+- Grid
 - Image
 
 ## Usage
@@ -55,16 +55,15 @@ const options: SwatchOption = [
 ```
 
 ### type
-The optional `type` prop specifies if what the swatch options should be rendered as. Type options are `carousel` or `grid`, with `carousel` as default. When a type is set, you can optionally pass additional child props to be spread in to each sub component. 
+The optional `type` prop specifies if what the swatch options should be rendered as. Type options are `slideshow` or `grid`, with `slideshow` as default. When a type is set, you can optionally pass additional child props (`slideshow` or `grid`) to be spread in to each sub component. 
 
 ```tsx
-const carouselProps: Partial<CarouselProps> = {
+const slideshowProps: Partial<SlideshowProps> = {
     loop: true,
-    nextButton: 'Next',
-    prevButton: "Prev"
+    gap: 4,
 }
 
-<Swatches options={options} type={"carousel"} carousel={carouselProps}/>
+<Swatches options={options} type={"slideshow"} slideshow={slideshowProps}/>
 ```
 or
 ```tsx
@@ -94,11 +93,11 @@ const onSelectFunc = (event, clickedOption) => {
 <Swatches options={options} onSelect={onSelectFunc} />
 ```
 
-### titleText
-The optional `titleText` prop specifies the text to be rendered in the Swatches title. 
+### disabled
+The optional `disabled` prop prevents option selection and the `onSelect` callback from being invoked.
 
 ```tsx
-<Swatches options={options} titleText={"Swatches Title"} />
+<Swatches options={options} disabled={true} />
 ```
 
 ### selected
@@ -117,66 +116,51 @@ An object that modifies the responsive behavior of the swatches at various viewp
 
 The object key specified the viewport for when the parameters will be applied. 
 
-Depending on the `type` prop passed, the default configuration contains the following properties, however **`any swatches props`**, can be specified. 
+When the `type` prop is `slideshow`, the default configuration contains the following properties (there is no default for `grid`), however **`any swatches props`**, can be specified. 
 
 ```js
     const defaultCarouselBreakpoints = {
 		0: {
-			carousel: {
-				slidesPerView: 2,
-				slidesPerGroup: 2,
-				spaceBetween: 10,
-			}
-		},
-		768: {
 			carousel: {
 				slidesPerView: 3,
 				slidesPerGroup: 3,
 				spaceBetween: 10,
 			}
 		},
-		1200: {
+		768: {
 			carousel: {
 				slidesPerView: 4,
 				slidesPerGroup: 4,
 				spaceBetween: 10,
 			}
 		},
-	};
-
-	const defaultGridBreakpoints = {
-		0: {
-			grid: {
-				rows: 1, 
-				columns: 5,
-				overflowButtonInGrid: true,
-				disableOverflowAction: true,
+		1200: {
+			carousel: {
+				slidesPerView: 5,
+				slidesPerGroup: 5,
+				spaceBetween: 10,
 			}
 		},
 	};
 
     const customBreakpoints = {
         0: {
-            type={'carousel'}
-			carousel: {
-				slidesPerView: 2,
-				slidesPerGroup: 2,
-				spaceBetween: 10,
+            type: 'slideshow',
+			slideshow: {
+				gap: 4,
 			},
             hideLabels: true,
             
 		},
 		768: {
-            type={'carousel'}
-			carousel: {
-				slidesPerView: 3,
-				slidesPerGroup: 3,
-				spaceBetween: 10,
+            type: 'slideshow',
+			slideshow: {
+				gap: 8,
 			},
             hideLabels: true,
 		},
 		1200: {
-            type={'grid'}
+            type: 'grid',
 			grid: {
 				rows: 1, 
 				columns: 5,

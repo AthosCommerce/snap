@@ -66,7 +66,11 @@ The `iconColor` prop sets the icon color and overwrites the `color` prop. It wil
 <Checkbox iconColor={'#ffff00'} />
 ```
 ### icon
-The `icon` prop specifies a path within the `Icon` component paths (see Icon Gallery). This only applies if using a custom checkbox `native={false}`.
+The `icon` prop specifies a path within the `Icon` component paths (see Icon Gallery), or an object of `Icon` component props. This only applies if using a custom checkbox `native={false}`.
+
+```tsx
+<Checkbox icon={'check-thin'} />
+```
 
 
 ### Events

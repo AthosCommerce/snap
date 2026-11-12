@@ -44,20 +44,19 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						'[`searchHeader` | `breadcrumbs` | `filterSummary` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
+						'[`searchHeader` | `breadcrumbs` | `filterSummary` | `layoutSelector` | `perPage` | `sortBy` | `pagination` | `paginationInfo` | `tabSelection` | `searchInput` | `_` | `button.sidebar-toggle` | `banner.header` | `banner.banner` | `banner.footer` | `facetsHorizontal`]',
 				},
-				defaultValue: { summary: "['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']" },
+				defaultValue: { summary: "['button.sidebar-toggle', 'filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']" },
 			},
 			control: 'none',
 		},
 		toggleSideBarButton: {
-			description: 'specifies an element to be used as the toggleSideBarButton',
+			description: 'specifies Button props for the sidebar toggle button',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: 'Partial<ButtonProps>',
 				},
-				defaultValue: { summary: '' },
 			},
 			control: { type: 'object' },
 		},

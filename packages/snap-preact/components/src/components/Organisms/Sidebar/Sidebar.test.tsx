@@ -284,6 +284,25 @@ describe('Sidebar Component', () => {
 			expect(clearButton).toBeInTheDocument();
 		});
 
+		it('renders clear button without filters by default', () => {
+			expect(controller.urlManager.state.filter).toBeUndefined();
+			const rendered = render(<Sidebar controller={controller} hideClearButton={false} />);
+			expect(rendered.container.querySelector('.ss__sidebar__footer__clear-button')).toBeInTheDocument();
+		});
+
+		it('hides clear button without filters when hideClearButtonWithoutFilters is true', () => {
+			expect(controller.urlManager.state.filter).toBeUndefined();
+			const rendered = render(<Sidebar controller={controller} hideClearButton={false} hideClearButtonWithoutFilters={true} />);
+			expect(rendered.container.querySelector('.ss__sidebar__footer__clear-button')).not.toBeInTheDocument();
+		});
+
+		it('renders clear button with filters when hideClearButtonWithoutFilters is true', () => {
+			// url state carries every applied filter, including hierarchy filters the API never returns
+			controller.urlManager = controller.urlManager.set('filter', { ss_hierarchy: 'Activity' });
+			const rendered = render(<Sidebar controller={controller} hideClearButton={false} hideClearButtonWithoutFilters={true} />);
+			expect(rendered.container.querySelector('.ss__sidebar__footer__clear-button')).toBeInTheDocument();
+		});
+
 		it('hides clear button when hideClearButton is true', () => {
 			const rendered = render(<Sidebar controller={controller} hideClearButton={true} />);
 			const clearButton = rendered.container.querySelector('.ss__sidebar__footer__clear-button');

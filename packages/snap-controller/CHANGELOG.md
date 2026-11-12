@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.17.0](https://github.com/AthosCommerce/snap/compare/v1.16.0...v1.17.0) (2026-11-12)
+
+### Bug Fixes
+
+- **beacon:** opt requests out of API tracking when controller beacon is disabled ([96114f3](https://github.com/AthosCommerce/snap/commit/96114f333983a7da66f214814c1c901d07ad133b))
+- **beacon:** send beacon false to the recommend API and keep opt-outs from being overridden ([5147874](https://github.com/AthosCommerce/snap/commit/51478746bb53cfd7a2fda8808093e198e873398a)), closes [searchspring/snap#1492](https://github.com/searchspring/snap/issues/1492)
+
 # [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
 
 ### Bug Fixes

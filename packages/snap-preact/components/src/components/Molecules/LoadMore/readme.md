@@ -4,6 +4,7 @@ Renders a "Load More" button that displays the next page of results. Recommended
 
 ## Sub-components
 - Button
+- Icon
 
 ## Usage
 
@@ -112,6 +113,10 @@ The `loadingIcon` prop defines the icon used when loading. Default: `spinner`
 
 ### loadingLocation
 The `loadingLocation` prop defines the location of the loading icon. Default: `button` will be displayed within the "Load More" button. Alternative value of `outside` will display the loading icon in place of the button.
+
+```tsx
+<LoadMore pagination={controller.store.pagination} loadingLocation={'outside'} />
+```
 
 ### onClick
 The `onClick` prop allows for a custom callback function for when the button is clicked.

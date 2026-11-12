@@ -26,7 +26,7 @@ The `facet` prop specifies the reference to the facet object in the store.
 ```
 
 ### hideCheckbox
-The `hideCheckbox` prop will disable the facet checkbox. Typically used if the facet can only have a single value selected at a time.
+The `hideCheckbox` prop will disable the facet checkbox. Typically used if the facet can only have a single value selected at a time. Defaults to `true` when the `horizontal` prop is set.
 
 ```tsx
 <FacetListOptions values={listFacet.values} hideCheckbox={true} />
@@ -36,7 +36,7 @@ The `hideCheckbox` prop will disable the facet checkbox. Typically used if the f
 The `respectSingleSelect` prop will render radios instead of checkboxes if `facet.multiple == single`
 
 ```tsx
-<FacetListOptions values={listFacet.values} respectSingleSelect={true} />
+<FacetListOptions facet={listFacet} respectSingleSelect={true} />
 ```
 
 ### hideCount
@@ -92,10 +92,6 @@ const valueProps = {
 ```tsx
 <FacetListOptions values={listFacet.values} valueProps={valueProps} />
 ```
-
-### checkbox
-The `checkbox` prop specifies an object with `Checkbox` component props. See `Checkbox` component documentation for further details.
-
 
 ### Events
 

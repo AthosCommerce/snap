@@ -65,6 +65,10 @@ export default {
 				type: {
 					summary: 'string[]',
 				},
+				defaultValue: {
+					summary:
+						'[`Check for misspellings.`, `Remove possible redundant keywords (ie. "products").`, `Use other words to describe what you are searching for.`]',
+				},
 			},
 			control: { type: 'object', defaultValue: [] },
 		},
@@ -108,7 +112,6 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: `Still can't find what you're looking for? <a href="/contact-us">Contact us</a>.` },
 			},
 			control: { type: 'text' },
 		},
@@ -126,7 +129,8 @@ export default {
 			description: 'templates to render',
 			table: {
 				category: 'Templates Legal',
-				type: { summary: 'object' },
+				type: { summary: '{ recommendation?: { enabled: boolean, component?: string, resultComponent?: string, config?: object } }' },
+				defaultValue: { summary: '{ recommendation: { enabled: true } }' },
 			},
 			control: { type: 'object' },
 		},

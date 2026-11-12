@@ -46,6 +46,13 @@ The `slidesToShow` prop specifies the number of slides visible at once in the sl
 <Slideshow slides={slidesArray} slidesToShow={4} />
 ```
 
+### slideWidth
+The `slideWidth` prop sets a fixed width (in pixels) for each slide. When provided, the number of visible slides is calculated from the container width and `slidesToShow` is no longer defaulted to `4`.
+
+```tsx
+<Slideshow slides={slidesArray} slideWidth={200} />
+```
+
 ### slidesToMove
 The `slidesToMove` prop specifies the number of slides to advance when using navigation controls.
 
@@ -160,7 +167,7 @@ The `ariaLabelledBy` prop references the ID of an element that labels the slides
 ```
 
 ### alwaysShowNavigation
-The `alwaysShowNavigation` prop ensures navigation buttons are always displayed and take up space, even when the number of slides is below the `slidesPerView` threshold. This is particularly useful when using the slideshow in a grid of product cards to maintain consistent layout and height across all cards.
+The `alwaysShowNavigation` prop ensures navigation buttons are always displayed and take up space, even when the number of slides is below the `slidesToShow` threshold. This is particularly useful when using the slideshow in a grid of product cards to maintain consistent layout and height across all cards.
 
 ```tsx
 <Slideshow slides={slidesArray} alwaysShowNavigation={true} />

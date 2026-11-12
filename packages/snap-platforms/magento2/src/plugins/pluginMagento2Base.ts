@@ -25,7 +25,7 @@ export const pluginMagento2Base = (cntrlr: AbstractController, config?: PluginMa
 		cntrlr.log.warn('Failed to parse mage-cache-storage from localStorage', e);
 	}
 
-	const shopperId = mageCacheStorage?.customer?.data_id ? mageCacheStorage.customer.data_id : false;
+	const shopperId = mageCacheStorage?.['athoscommerce-tracking']?.shopper_id ? mageCacheStorage['athoscommerce-tracking'].shopper_id : false;
 
 	// track shopperId
 	if (shopperId) {

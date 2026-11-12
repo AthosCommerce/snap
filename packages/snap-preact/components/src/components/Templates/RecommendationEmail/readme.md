@@ -17,7 +17,7 @@ The `controller` prop specifies a reference to the RecommendationController.
 ```
 
 ### results
-Alternatively if a `controller` prop is not provided, the `results` prop specifies a reference to the results store array to use instead.
+The `results` prop specifies a reference to the results store array to use instead of `controller.store.results`. It can also be used without a `controller` prop.
 
 ```tsx
 <RecommendationEmail results={controller.store.results} />

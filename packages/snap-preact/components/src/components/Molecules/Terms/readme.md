@@ -46,18 +46,18 @@ The `limit` prop is used to determine the number of terms to render. Please note
 
 ### previewOnHover
 
-The `previewOnFocus` prop will invoke the `term.preview()` method when the value has been hovered over.
+The `previewOnHover` prop will invoke the `term.preview()` method when the value has been hovered over.
 
 ```tsx
 <Terms controller={controller} terms={terms} previewOnHover={true}/>
 ```
 
-### emify
+### emIfy
 
-The `emify` will automatically wrap non-matching characters within the term with an `<em>` element for different styling purposes. 
+The `emIfy` prop will automatically wrap non-matching characters within the term with an `<em>` element for different styling purposes. 
 
 ```tsx
-<Terms controller={controller} terms={terms} emify={true}/>
+<Terms controller={controller} terms={terms} emIfy={true}/>
 ```
 
 ### onTermClick

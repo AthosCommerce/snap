@@ -27,7 +27,6 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -59,7 +58,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'bullet' },
 			},
@@ -73,7 +72,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'bullet-o' },
 			},
@@ -120,7 +119,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent) => void',
 				},
 			},
 			control: false,

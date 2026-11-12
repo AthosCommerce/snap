@@ -35,6 +35,7 @@ import type {
 	PluginKlaviyoEventsConfig,
 	PluginLoggerConfig,
 	PluginScrollToTopConfig,
+	PluginSwymWishlistConfig,
 } from '@athoscommerce/snap-platforms/common';
 import type {
 	ThemeResponsiveComplete,
@@ -147,6 +148,7 @@ export type CommonPlugins = {
 	logger?: PluginLoggerConfig;
 	addToCart?: PluginAddToCartConfig;
 	klaviyoEvents?: PluginKlaviyoEventsConfig;
+	swymWishlist?: PluginSwymWishlistConfig;
 };
 export type ShopifyPlugins = {
 	backgroundFilters?: PluginShopifyBackgroundFiltersConfig;
@@ -236,7 +238,7 @@ export type TemplatesStoreConfigLocked = {
 		bundle?: {
 			[profileComponentName: string]: RecommendationBundleTargetConfig;
 		};
-		settings?: Omit<RecommendationInstantiatorConfigSettings, 'settings'>;
+		settings?: Partial<Omit<RecommendationInstantiatorConfigSettings, 'settings'>>;
 		plugins?: PluginsConfigsLocked;
 	};
 };

@@ -40,9 +40,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'selection type',
+					summary: '"dropdown" | "swatches" | "list"',
 				},
-				defaultValue: { summary: 'dropdown' },
+				defaultValue: { summary: "'swatches' when selection.type is 'swatch', otherwise 'dropdown'" },
 			},
 			// control: {
 			// 	type: 'select',

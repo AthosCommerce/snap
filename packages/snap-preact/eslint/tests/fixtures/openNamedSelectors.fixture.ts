@@ -33,6 +33,18 @@ export const invalidOnADifferentOpenNamedComponent: SnapTemplatesConfig = {
 	},
 };
 
+export const invalidOnCalloutBadgeAndProductDetail: SnapTemplatesConfig = {
+	theme: {
+		extends: 'base',
+		overrides: {
+			default: {
+				'calloutBadge.sale': { fakeCalloutProp: 'nonsense' },
+				'productDetail.specs': { fakeDetailProp: 'nonsense' },
+			},
+		},
+	},
+};
+
 export const customComponentEscapeHatchNotFlagged: SnapTemplatesConfig = {
 	theme: {
 		extends: 'base',

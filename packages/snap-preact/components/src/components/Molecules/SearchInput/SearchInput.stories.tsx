@@ -27,17 +27,25 @@ export default {
 		onKeyUp: fn(),
 		onKeyDown: fn(),
 		onClick: fn(),
+		onSubmit: fn(),
 	},
 	argTypes: {
 		value: {
-			defaultValue: '',
-			type: { required: true },
+			type: { required: false },
 			description: 'sets the value for the input',
 			table: {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '' },
+			},
+			control: { type: 'text' },
+		},
+		defaultValue: {
+			description: 'sets the initial value when value is not provided',
+			table: {
+				type: {
+					summary: 'string',
+				},
 			},
 			control: { type: 'text' },
 		},
@@ -46,7 +54,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.ChangeEvent<HTMLInputElement>) => void',
 				},
 			},
 			control: false,
@@ -56,7 +64,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.KeyboardEvent<HTMLInputElement>) => void',
 				},
 			},
 			control: false,
@@ -66,7 +74,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.KeyboardEvent<HTMLInputElement>) => void',
 				},
 			},
 			control: false,
@@ -76,7 +84,17 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent) => void',
+				},
+			},
+			control: false,
+		},
+		onSubmit: {
+			description: 'Invoked with the event and input value on Enter or submit search button click',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: '(e, value: string) => void',
 				},
 			},
 			control: false,
@@ -86,8 +104,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: `{ icon: 'search-thin' }`,
+					summary: 'Partial<ButtonProps>',
 				},
+				defaultValue: { summary: `{ icon: 'search-thin' }` },
 			},
 			control: { type: 'object' },
 		},
@@ -96,8 +115,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: `{ icon: 'close-thin' }`,
+					summary: 'Partial<ButtonProps>',
 				},
+				defaultValue: { summary: `{ icon: 'close-thin' }` },
 			},
 			control: { type: 'object' },
 		},
@@ -106,7 +126,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: `{}`,
+					summary: 'Partial<ButtonProps>',
 				},
 			},
 			control: { type: 'object' },

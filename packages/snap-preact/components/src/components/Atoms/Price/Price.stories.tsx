@@ -17,7 +17,6 @@ export default {
 	argTypes: {
 		value: {
 			description: 'Numeric value to be formatted',
-			type: { required: true },
 			table: {
 				type: {
 					summary: 'number',
@@ -49,6 +48,17 @@ export default {
 				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
+		},
+		format: {
+			description:
+				'Custom format function - receives the value and returns the entire formatted string (number formatting, symbol and code props are ignored)',
+			table: {
+				type: {
+					summary: '(number: number | string) => string',
+				},
+				category: 'Templates Legal',
+			},
+			control: false,
 		},
 		code: {
 			description: 'ISO currency code rendered after the amount - supplied by the active currency locale in Snap Templates',

@@ -28,7 +28,7 @@ export default {
 	argTypes: {
 		options: {
 			description: 'list of options to display',
-			type: { required: false },
+			type: { required: true },
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -75,7 +75,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string | number',
+					summary: 'ListOption | ListOption[]',
 				},
 			},
 			control: false,
@@ -154,7 +154,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: true },
+				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -175,6 +175,28 @@ export default {
 					summary: 'function',
 				},
 			},
+		},
+		disabled: {
+			description: 'boolean to set the grid in a disabled state',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		disableA11y: {
+			description: 'boolean to disable autoset ally properties on the overflow button',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
 		},
 		...componentArgs,
 	},

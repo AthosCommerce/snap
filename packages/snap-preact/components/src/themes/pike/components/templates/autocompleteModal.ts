@@ -82,7 +82,6 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.default?.['autocompleteModal'] || {}),
 			themeStyleScript: autocompleteModalStyleScript,
-			layout: 'desktop',
 			width: '90vw',
 			contentTitle: 'Product Suggestions',
 		},
@@ -137,7 +136,6 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		...autocompleteModalThemeComponentProps.mobile,
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.mobile?.['autocompleteModal'] || {}),
-			layout: 'mobile',
 		},
 		'autocompleteModal terms': {
 			vertical: false,
@@ -159,7 +157,6 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		...autocompleteModalThemeComponentProps.tablet,
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.tablet?.['autocompleteModal'] || {}),
-			layout: 'desktop',
 		},
 		'autocompleteModal terms': {
 			vertical: false,
@@ -197,7 +194,6 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 		...autocompleteModalThemeComponentProps.desktop,
 		autocompleteModal: {
 			...(autocompleteModalThemeComponentProps.desktop?.['autocompleteModal'] || {}),
-			layout: 'desktop',
 		},
 		'autocompleteModal terms': {
 			vertical: false,

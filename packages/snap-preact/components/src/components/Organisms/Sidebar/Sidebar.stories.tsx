@@ -88,6 +88,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: { summary: 'number' },
+				defaultValue: { summary: 0 },
 			},
 			control: { type: 'number' },
 		},
@@ -145,7 +146,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'close-thin' },
 			},
@@ -204,7 +205,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 			},
 			options: [...Object.keys(iconPaths)],
@@ -220,6 +221,17 @@ export default {
 					summary: 'boolean',
 				},
 				defaultValue: { summary: true },
+			},
+			control: { type: 'boolean' },
+		},
+		hideClearButtonWithoutFilters: {
+			description: 'hides the clear all filters button when no filters are applied',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -240,7 +252,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 			},
 			options: [...Object.keys(iconPaths)],

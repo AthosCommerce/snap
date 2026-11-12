@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.17.0](https://github.com/AthosCommerce/snap/compare/v1.16.0...v1.17.0) (2026-11-12)
+
+### Bug Fixes
+
+- **searchresultstore:** keep every variant group's value order ([6b71cd7](https://github.com/AthosCommerce/snap/commit/6b71cd7f2b48e96518cd150d3659199d2fa7c194))
+- **searchresultstore:** link variant groups in through later groups and use JSON group keys ([c54acc7](https://github.com/AthosCommerce/snap/commit/c54acc7fc5c96f8a3469bf1d447a6a51c0c6d3b3))
+- **searchresultstore:** sort variant selection values into a consistent order ([76be9e5](https://github.com/AthosCommerce/snap/commit/76be9e57475c7756cb9de0fc6bc9d29790e1a43d)), closes [searchspring/snap#1473](https://github.com/searchspring/snap/issues/1473)
+
 # [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
 
 ### Bug Fixes
