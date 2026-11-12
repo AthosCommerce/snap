@@ -7,7 +7,6 @@ import type {
 	SearchResponseModelResultCoreMappings,
 	SearchResponseModelResultVariants,
 	SearchResponseModelResultBadges,
-	SearchResponseModelFacet,
 } from '@athoscommerce/snapi-types';
 
 export type HTTPHeaders = { [key: string]: string };
@@ -440,7 +439,7 @@ export type MoiRequestModelContent = {
 	message: string;
 };
 
-// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, inspirationResult, content, errorResponse, topicDrift, actions
+// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, inspirationResult, content, errorResponse, topicDrift
 export type MoiResponseModel = {
 	responseId: string;
 	context: {
@@ -453,7 +452,6 @@ export type MoiResponseModel = {
 		| MoiResponseModelInspirationResult
 		| MoiResponseModelProductAnswer
 		| MoiResponseModelProductComparison
-		| MoiResponseModelActions
 		| MoiResponseModelProductRecommendation
 		| MoiResponseModelTopicDrift
 		| MoiResponseModelError
@@ -477,19 +475,6 @@ export type MoiResponseModelSearchResult = {
 	pagination: {
 		totalResults: number;
 	};
-	facets: {
-		field: string;
-		label: string;
-		type: string;
-		multiple: string;
-		values: {
-			value: string;
-			type: string;
-			label: string;
-			count: number;
-			active: boolean;
-		}[];
-	}[];
 	sorting: {
 		options: {
 			field: string;
@@ -561,14 +546,6 @@ export type MoiResponseModelTopicDrift = BaseResponseProperties & {
 	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
 };
 
-export type MoiResponseModelActions = {
-	messageType: 'actions';
-	actions: {
-		message: string;
-		request: MoiRequestModel;
-	}[];
-};
-
 export type MoiResponseModelProductRecommendation = BaseResponseProperties & {
 	messageType: 'productRecommendation';
 	recommendationResult: {
@@ -599,7 +576,6 @@ export type ChatResponseModel = {
 	data: (
 		| ChatResponseTextData
 		| ChatResponseContentData
-		| ChatResponseActionsData
 		| ChatResponseProductSearchResultData
 		| ChatResponseInspirationResultData
 		| ChatResponseProductAnswerData
@@ -630,16 +606,10 @@ export type ChatResponseTopicDriftData = BaseResponseProperties & {
 	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
 };
 
-export type ChatResponseActionsData = {
-	messageType: 'actions';
-	actions: MoiResponseModelActions['actions']; // no change
-};
-
 export type ChatResponseProductSearchResultData = BaseResponseProperties & {
 	messageType: 'productSearchResult';
 	text: string;
 	results: SearchResponseModelResult[];
-	facets: SearchResponseModelFacet[];
 	filterSummary: ChatFilterSummaryEntry[];
 };
 

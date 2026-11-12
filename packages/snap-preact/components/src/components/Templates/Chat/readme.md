@@ -23,7 +23,6 @@ The template re-exports the same `ChatTemplatesLegalProps` as the organism:
 
 - `logo`, `title`, `subtitle`
 - `offset`, `position`
-- `multiselectFacets`
 - `disableBubbleSuggestedQuestions`
 - `primaryColorBg`, `primaryColorFg`
 - `primaryAccentColorBg`, `primaryAccentColorFg`

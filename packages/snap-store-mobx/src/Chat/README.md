@@ -1,5 +1,5 @@
 # ChatStore
-The ChatStore holds the chat session state, conversation history, attachment data, product quickview state, and the active facets display. It extends `AbstractStore` and manages one or more `ChatSessionStore` instances that represent individual chat conversations. Chat history is persisted in local storage and capped at 10 sessions (oldest pruned).
+The ChatStore holds the chat session state, conversation history, attachment data, and product quickview state. It extends `AbstractStore` and manages one or more `ChatSessionStore` instances that represent individual chat conversations. Chat history is persisted in local storage and capped at 10 sessions (oldest pruned).
 
 ## `open` property
 Boolean indicating whether the chat UI is currently open.
@@ -54,15 +54,6 @@ Returns an array of chat session IDs.
 ## `blocked` getter
 Returns `true` when the chat input should be blocked — when `loading` is true or when an image attachment is still uploading.
 
-## `urlManager` property
-A detached `UrlManager` that holds the in-progress facet selection for the active facets display. Detached so that `.go()` updates state without navigating the page.
-
-## `facets` property
-A `SearchFacetStore` reflecting the facets on the current `productSearchResult` message. Rebuilt automatically when the active message changes; selections feed the next `productSearch` request.
-
-## `urlVersion` property
-A counter that bumps on every `urlManager` state change so observers re-evaluate `isFacetSelected` (mobx can't subscribe to the underlying UrlManager directly).
-
 ## `error` property
 An error object (inherited from `AbstractStore`) set when a chat request fails. Contains the following properties:
 
@@ -111,23 +102,8 @@ Adds a product to the comparison set on the current chat session.
 ### `sendProductQuery(result, options)`
 Attaches a product to the current chat context for discussion. The `options.requestType` determines how the product is used (`'productQuery'`, `'productSimilar'`, or `'productComparison'`). For `productQuery` it also pushes a `productQuery` message so the side-chat panel opens immediately.
 
-### `setActiveFacets(facets, messageId)`
-Resets the detached `urlManager`, seeds it with the API-reported filtered values from the message's facets, and rebuilds the root `SearchFacetStore`. Called automatically when the active message changes.
-
-### `addFacet(facet)`
-Selects a facet value on the detached `urlManager`. Accepts `{ key, value }` where `value` is a `ChatFacetValue` — either a plain option string or a range as `{ low, high }`.
-
-### `removeFacet(key, value)`
-Removes a specific facet selection by key and `ChatFacetValue`.
-
-### `clearPendingFacets()`
-Clears all selected facet filters from the detached `urlManager`.
-
-### `isFacetSelected(key, value)`
-Returns `true` if the specified facet filter is currently selected on the detached `urlManager`. Takes the same `ChatFacetValue` shape as `addFacet`.
-
 ### `request(request)`
-Snapshots the current facet labels and forwards the outgoing chat request to the current `ChatSessionStore` so it can render the user-facing message text. Called internally before a search.
+Forwards the outgoing chat request to the current `ChatSessionStore` so it can render the user-facing message text. Called internally before a search.
 
 ### `update(data)`
 Updates the store with a chat API response. Hydrates results into `Product`/`SearchResultStore` instances, refreshes `meta`, and appends the assistant message(s) to the current session's conversation history.
@@ -144,13 +120,12 @@ Each chat session is represented by a `ChatSessionStore` instance, accessible vi
 | `id` | Local identifier (uuid) for the session — used as the storage key and for `currentChatId` |
 | `sessionId` | The unique session identifier assigned by the API (`chatInit` response) |
 | `chat` | Array of message objects (user, assistant, and `productQuery` placeholder messages) in the conversation |
-| `actions` | Suggested follow-up actions returned with the most recent assistant response |
 | `requestType` | Request type of the most recent outgoing message |
 | `pendingRequest` | Request data (`MoiRequestModel`) awaiting a response, or `null`. Persisted so an unanswered message survives navigation and can be re-sent when the chat reopens (see `ChatController.resumePendingRequest`) |
 | `activeMessage` (getter) | Currently displayed assistant message — honors the `activeMessageId` override and skips `topicDrift` / `productAnswer` |
 | `activeMessageId` | Override id used when the user navigates back to a historical message |
 | `dismissedSideChatMessageId` | Id of a message whose side-chat panel the user has explicitly dismissed |
-| `attachments` | `ChatAttachmentStore` managing image, product, and facet attachments |
+| `attachments` | `ChatAttachmentStore` managing image and product attachments |
 | `comparisons` | `ChatCompareStore` managing the in-progress and committed product comparison sets |
 | `feedback` | Session feedback state: `rating` (`'UP'` / `'DOWN'` / `null`), `dismissed` (prompt dismissed), and `justGiven` (transient flag driving the brief "thank you" UI — never persisted) |
 | `sessionLimitReached` | Boolean flag set when the API rejects a request with `CS_003` |
@@ -186,8 +161,8 @@ Removes any `topicDrift` messages from the conversation.
 ### `handleTopicDrift()`
 Removes any `topicDrift` messages and the user message that triggered the drift, returning the original user message text so the caller can re-prompt or restore it to the input.
 
-### `request(request, filterLabels?)`
-Appends a user message to the conversation for the outgoing request, activating any matching attachments and committing comparison products as needed. The optional `filterLabels` map supplies human-readable facet labels for `productSearch` requests.
+### `request(request)`
+Appends a user message to the conversation for the outgoing request, activating any matching attachments and committing comparison products as needed. For a `productSearch` request, the message text is the `searchTerm` or, if there is no `searchTerm`, the `message`.
 
 ### `update(data)`
 Hydrates results in the chat response into `Product` / `SearchResultStore` instances and appends the assistant message(s) to the conversation, then persists.
@@ -199,10 +174,10 @@ Re-wraps raw stored results in this session as `Product` / `SearchResultStore` i
 Sets `pendingRequest` to the given request data (or `null` to clear it) and immediately persists the session. Used by the controller to record an in-flight request so it can be resumed after navigation.
 
 ### `reset()`
-Clears the conversation, attachments, actions, and feedback on this session.
+Clears the conversation, attachments, and feedback on this session.
 
 ### `ChatSessionStore.pruneStoredSessions(storage, maxSessions = 10)` (static)
 Removes the oldest stored sessions when the count in storage exceeds `maxSessions`, and returns an array of the pruned session ids (oldest first; empty when nothing was pruned). Called by `ChatStore.createChat` before adding a new session, which uses the returned ids to clean up their `impressionStorage` entries.
 
 ### `dispose()`
-Tears down the constructor reactions, the detached `urlManager` subscription and any pending debounced session saves. Call this when discarding a chat controller (for example on an SPA route change) so reactions and timers are not leaked.
+Stops all pending debounced session saves. Call this when you discard a chat controller (for example on an SPA route change), so that timers do not leak.

@@ -106,9 +106,6 @@ function getRequestTypeLangKey(chatItem: ChatMessageUserItem): RequestTypeLangKe
 		case 'productComparison':
 			return 'requestTypeProductComparison';
 		case 'productSearch':
-			if (chatItem.request?.searchFilters?.length && !chatItem.request?.searchTerm) {
-				return 'requestTypeProductFilter';
-			}
 			return 'requestTypeProductSearch';
 		case 'imageSearch':
 			return 'requestTypeImageSearch';
@@ -199,8 +196,7 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 	};
 
 	const resolved = (chatItem.attachments || []).map((id: string) => store.currentChat?.attachments.get(id)).filter(Boolean);
-	// Facets are no longer chat attachments — they live on the request that was
-	// stored on the message, derived from urlManager filter state at send-time.
+	// filters render from the searchFilters on the stored request (e.g. an inspiration query click)
 	const filterOptions: ChatMessageUserFilterOption[] = [];
 	const searchFilters = chatItem.request?.searchFilters as
 		| { key: string; options?: ({ key: string } | { low: string; high: string })[] }[]
@@ -227,9 +223,6 @@ export const ChatMessageUser = observer((properties: ChatMessageUserProps) => {
 		},
 		requestTypeProductComparison: {
 			value: 'Comparing products',
-		},
-		requestTypeProductFilter: {
-			value: 'Filtering products',
 		},
 		requestTypeProductSearch: {
 			value: 'Searching products',
@@ -401,7 +394,6 @@ export type ChatMessageUserAttachmentLangData = ChatMessageUserLangData & {
 export interface ChatMessageUserLang {
 	requestTypeProductQuery?: Lang<never>;
 	requestTypeProductComparison?: Lang<never>;
-	requestTypeProductFilter?: Lang<never>;
 	requestTypeProductSearch?: Lang<never>;
 	requestTypeImageSearch?: Lang<never>;
 	requestTypeProductSimilar?: Lang<never>;

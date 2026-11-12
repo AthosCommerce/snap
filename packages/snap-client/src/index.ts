@@ -37,7 +37,6 @@ export {
 	ChatResponseTextData,
 	ChatResponseContentData,
 	ChatResponseTopicDriftData,
-	ChatResponseActionsData,
 	ChatResponseProductSearchResultData,
 	ChatResponseInspirationResultData,
 	ChatResponseProductAnswerData,

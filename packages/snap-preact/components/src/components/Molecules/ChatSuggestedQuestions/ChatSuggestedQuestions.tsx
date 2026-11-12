@@ -10,7 +10,6 @@ import { useCustomComponentOverride } from '../../../hooks';
 import { Button, ButtonProps } from '../../Atoms/Button';
 import { Icon, IconProps } from '../../Atoms/Icon';
 import type { ChatController } from '@athoscommerce/snap-controller';
-import type { ChatResponseActionsData } from '@athoscommerce/snap-client';
 
 const defaultStyles: StyleScript<ChatSuggestedQuestionsProps> = ({ primaryColor, theme }) => {
 	const colorPrimary = primaryColor || Colour.concrete(theme?.variables?.colors?.primary) || '#253B80';
@@ -79,7 +78,7 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 
 	const props = mergeProps('chatSuggestedQuestions', globalTheme, defaultProps, properties);
 
-	const { controller, questions, actions, disableStyles, className, internalClassName, treePath } = props;
+	const { controller, questions, disableStyles, className, internalClassName, treePath } = props;
 
 	const { overrideElement, shouldRenderDefault } = useCustomComponentOverride('chatSuggestedQuestions', props);
 
@@ -87,7 +86,7 @@ export const ChatSuggestedQuestions = observer((properties: ChatSuggestedQuestio
 		return overrideElement;
 	}
 
-	const items: string[] = questions ?? actions?.map((action: { message: string }) => action.message) ?? [];
+	const items: string[] = questions ?? [];
 
 	if (items.length === 0) {
 		return null;
@@ -139,7 +138,6 @@ interface ChatSuggestedQuestionsSubProps {
 export type ChatSuggestedQuestionsProps = {
 	controller: ChatController;
 	questions?: string[];
-	actions?: ChatResponseActionsData['actions'];
 } & ChatSuggestedQuestionsTemplatesLegalProps &
 	ComponentProps<ChatSuggestedQuestionsProps>;
 

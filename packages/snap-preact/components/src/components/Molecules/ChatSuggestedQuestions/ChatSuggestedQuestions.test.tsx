@@ -22,12 +22,9 @@ describe('ChatSuggestedQuestions Component', () => {
 		expect(rendered.container.querySelectorAll('.ss__chat-suggested-questions__item').length).toBe(3);
 	});
 
-	it('falls back to actions when questions is omitted', () => {
-		const rendered = render(
-			<ChatSuggestedQuestions controller={makeController()} actions={[{ message: 'Action A' } as any, { message: 'Action B' } as any]} />
-		);
-		expect(rendered.getByText('Action A')).toBeInTheDocument();
-		expect(rendered.getByText('Action B')).toBeInTheDocument();
+	it('renders nothing when questions is omitted', () => {
+		const rendered = render(<ChatSuggestedQuestions controller={makeController()} />);
+		expect(rendered.container.querySelector('.ss__chat-suggested-questions')).toBeNull();
 	});
 
 	it('renders nothing when there are no items', () => {

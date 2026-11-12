@@ -17,8 +17,6 @@ describe('Chat Template', () => {
 				blocked: false,
 				inputValue: '',
 				suggestedQuestions: [],
-				facets: [],
-				hasPendingFacetChanges: false,
 				features: {
 					imageSearch: { enabled: false },
 					similarProducts: { enabled: false },

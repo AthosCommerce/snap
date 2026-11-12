@@ -15,13 +15,7 @@ import type {
 	ChatResponseTopicDriftData,
 	MoiRequestModel,
 } from '@athoscommerce/snap-client';
-import {
-	ChatAttachmentAddAttachment,
-	ChatAttachmentFacet,
-	ChatAttachmentImage,
-	ChatAttachmentProduct,
-	ChatAttachmentStore,
-} from '../Stores/ChatAttachmentStore';
+import { ChatAttachmentAddAttachment, ChatAttachmentImage, ChatAttachmentProduct, ChatAttachmentStore } from '../Stores/ChatAttachmentStore';
 import type { StorageStore } from '@athoscommerce/snap-toolbox';
 import { MetaResponseModel, SearchResponseModelResult, SearchResponseModelResultCoreMappings } from '@athoscommerce/snapi-types';
 import { ChatCompareStore, ChatCompareItem } from './ChatCompareStore';
@@ -109,7 +103,7 @@ function serializeProduct(product: Product | SerializedProduct): SerializedProdu
 }
 
 /** Serialize attachments for localStorage. Strips base64 from images (kept only at runtime). */
-function serializeAttachmentsForStorage(items: (ChatAttachmentImage | ChatAttachmentProduct | ChatAttachmentFacet)[]): ChatAttachmentAddAttachment[] {
+function serializeAttachmentsForStorage(items: (ChatAttachmentImage | ChatAttachmentProduct)[]): ChatAttachmentAddAttachment[] {
 	return items.map((item) => {
 		if (item.type === 'image') {
 			return {
@@ -123,28 +117,15 @@ function serializeAttachmentsForStorage(items: (ChatAttachmentImage | ChatAttach
 				error: item.error,
 			};
 		}
-		if (item.type === 'product') {
-			return {
-				type: 'product',
-				id: item.id,
-				productId: item.productId,
-				parentId: item.parentId,
-				variantUid: item.variantUid,
-				thumbnailUrl: item.thumbnailUrl,
-				name: item.name,
-				requestType: item.requestType,
-				state: item.state,
-				error: item.error,
-			};
-		}
 		return {
-			type: 'facet',
+			type: 'product',
 			id: item.id,
-			key: item.key,
-			facetLabel: item.facetLabel,
-			value: item.value,
-			label: item.label,
-			count: item.count,
+			productId: item.productId,
+			parentId: item.parentId,
+			variantUid: item.variantUid,
+			thumbnailUrl: item.thumbnailUrl,
+			name: item.name,
+			requestType: item.requestType,
 			state: item.state,
 			error: item.error,
 		};
@@ -250,7 +231,6 @@ type ChatSessionStoreConfig = {
 		sessionId?: string;
 		chat?: ChatMessage[];
 		attachments?: ChatAttachmentAddAttachment[];
-		actions?: ChatActions;
 		feedback?: { rating?: 'UP' | 'DOWN' | null; dismissed?: boolean };
 		createdAt?: Date;
 		sessionEndTime?: Date;
@@ -263,19 +243,8 @@ type ChatSessionStoreConfig = {
 	};
 };
 
-export type ActionsData = {
-	type: 'actions';
-	// data: ChatResponseActionsData['actions'];
-	data: any;
-};
-export type ChatActions = ActionsData[];
-
-/** Snapshot of facet labels keyed by field — used to render the user message text for a productSearch request. */
-export type FilterLabelMap = Record<string, { facetLabel: string; values: Record<string, string> }>;
-
 export class ChatSessionStore {
 	public chat: ChatMessage[] = [];
-	public actions: ChatActions = [];
 	public id: string;
 	public sessionId?: string;
 	public attachments: ChatAttachmentStore;
@@ -297,8 +266,7 @@ export class ChatSessionStore {
 	private storeConfig?: ChatStoreConfig;
 
 	constructor(params: ChatSessionStoreConfig) {
-		const { id, sessionId, chat, attachments, actions, feedback, createdAt, sessionEndTime, committedComparisons, pendingRequest } =
-			params.data || {};
+		const { id, sessionId, chat, attachments, feedback, createdAt, sessionEndTime, committedComparisons, pendingRequest } = params.data || {};
 		const { stores } = params;
 		this.id = id || uuidv4();
 		this.sessionId = sessionId;
@@ -306,7 +274,6 @@ export class ChatSessionStore {
 		this.storeConfig = params.config;
 		this.comparisons = new ChatCompareStore(params.config);
 		this.attachments = new ChatAttachmentStore(this.comparisons.maxItems);
-		this.actions = actions || [];
 		this.createdAt = createdAt ? new Date(createdAt) : new Date();
 		this.sessionEndTime = sessionEndTime ? new Date(sessionEndTime) : undefined;
 		this.pendingRequest = pendingRequest || null;
@@ -362,7 +329,6 @@ export class ChatSessionStore {
 			hydrated: observable,
 			requestType: observable,
 			pendingRequest: observable,
-			actions: observable,
 			attachments: observable,
 			comparisons: observable,
 			feedback: observable,
@@ -523,7 +489,6 @@ export class ChatSessionStore {
 	public reset(): void {
 		this.attachments.reset();
 		this.chat = [];
-		this.actions = [];
 		this.feedback = { rating: null, dismissed: false, justGiven: false };
 	}
 
@@ -538,7 +503,6 @@ export class ChatSessionStore {
 			sessionId: this.sessionId,
 			chat: serializeChatForStorage(this.chat),
 			attachments: serializeAttachmentsForStorage(this.attachments.items),
-			actions: this.actions,
 			feedback: { rating: this.feedback.rating, dismissed: this.feedback.dismissed },
 			createdAt: this.createdAt,
 			sessionEndTime: this.sessionEndTime,
@@ -666,9 +630,7 @@ export class ChatSessionStore {
 		return { ids, names };
 	}
 
-	public request(request: ChatRequestModel, filterLabels?: FilterLabelMap): void {
-		// clear the questions on new request
-		this.actions = [];
+	public request(request: ChatRequestModel): void {
 		this.requestType = request.data.requestType;
 		this.activeMessageId = null;
 
@@ -678,51 +640,13 @@ export class ChatSessionStore {
 
 		const attachments: string[] = [];
 		if (request.data.requestType === 'productSearch') {
-			const searchFilters = request.data.searchFilters;
-			const message = 'message' in request.data ? (request.data as { message?: string }).message : undefined;
-			if (request.data.searchTerm) {
-				// for when a query is clicked from ChatInspirationResultMessage — the
-				// query text is the message even when section filters are attached
+			// a query clicked in ChatInspirationResultMessage sends its text as the searchTerm
+			const text = request.data.searchTerm || request.data.message;
+			if (text) {
 				this.chat.push({
 					id: uuidv4(),
 					messageType: 'user',
-					text: request.data.searchTerm,
-					requestType: request.data.requestType,
-					request: request.data, // request is added here to conditionally display different text in MessageUser
-				});
-			} else if (message) {
-				// facet changes promote a typed message to productSearch (possibly with
-				// searchFilters: [] when all filters were cleared) — the typed text is
-				// the message; any filters still render from the attached request
-				this.chat.push({
-					id: uuidv4(),
-					messageType: 'user',
-					text: message,
-					requestType: request.data.requestType,
-					request: request.data, // request is added here to conditionally display different text in MessageUser
-				});
-			} else if (searchFilters && searchFilters.length > 0) {
-				const filterTextArray: string[] = [];
-
-				searchFilters.forEach((filter) => {
-					const labelEntry = filterLabels?.[filter.key];
-					filter.options?.forEach((option) => {
-						const facetLabel = labelEntry?.facetLabel || filter.key;
-						if ('low' in option || 'high' in option) {
-							const low = (option as { low: string }).low ?? '*';
-							const high = (option as { high: string }).high ?? '*';
-							filterTextArray.push(`${facetLabel} ${low}-${high}`);
-						} else {
-							const key = (option as { key: string }).key;
-							const optionLabel = labelEntry?.values[key] || key;
-							filterTextArray.push(`${facetLabel} ${optionLabel}`);
-						}
-					});
-				});
-				this.chat.push({
-					id: uuidv4(),
-					messageType: 'user',
-					text: `Filter by ${filterTextArray.join(' and ')}`,
+					text,
 					requestType: request.data.requestType,
 					request: request.data, // request is added here to conditionally display different text in MessageUser
 				});
@@ -799,15 +723,6 @@ export class ChatSessionStore {
 		const meta = data.meta;
 
 		data.chat.data.forEach((messageData) => {
-			// check if the data has questions?
-			if (messageData.messageType === 'actions') {
-				this.actions.push({
-					type: 'actions',
-					data: messageData.actions,
-				});
-				return;
-			}
-
 			// convert raw results to Product instances (via SearchResultStore) so
 			// display components can use result.display for mask-aware rendering
 			if (messageData.messageType === 'productSearchResult' && messageData.results?.length) {

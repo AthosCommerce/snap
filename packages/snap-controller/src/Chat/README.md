@@ -23,7 +23,7 @@ chatController.init();
 ```
 
 ## Search
-Sends a chat message. The request is constructed from the current input value, attached images, attached products, active comparisons, and any selected facet filters on the active facets display. The request type is automatically determined based on context. The input value is HTML-stripped at submit time to prevent tag injection in both the API request and the rendered user message.
+Sends a chat message. The request is constructed from the current input value, attached images, attached products, and active comparisons. The request type is automatically determined based on context. The input value is HTML-stripped at submit time to prevent tag injection in both the API request and the rendered user message.
 
 Before the request is sent, the message field is finalized to mirror the backend's per-`requestType` rules:
 
@@ -170,7 +170,7 @@ The controller automatically determines the request type based on the current co
 | `productQuery` | A single product is attached for discussion |
 | `productSimilar` | A product is attached with the "find similar" intent |
 | `productComparison` | Two or more products are in the comparison set, or a committed comparison is still active |
-| `productSearch` | Facet filters are selected on the active facets display |
+| `productSearch` | A search query is clicked in an inspiration result. The request sends the section's filters as `searchFilters` |
 
 ## Events
 

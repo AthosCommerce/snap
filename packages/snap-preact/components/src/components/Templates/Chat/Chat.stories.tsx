@@ -48,11 +48,6 @@ export default {
 			table: { category: 'Templates Legal', type: { summary: 'string | number' } },
 			control: { type: 'text' },
 		},
-		multiselectFacets: {
-			description: 'batch facet changes behind an Apply button',
-			table: { category: 'Templates Legal', type: { summary: 'boolean' } },
-			control: { type: 'boolean' },
-		},
 		disableBubbleSuggestedQuestions: {
 			description: 'hide suggested questions above the closed bubble',
 			table: { category: 'Templates Legal', type: { summary: 'boolean' } },

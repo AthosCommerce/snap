@@ -250,15 +250,6 @@ export const zh: LangComponents = {
 		newSessionButton: {
 			value: '新会话',
 		},
-		facetsTitle: {
-			value: '筛选条件：',
-		},
-		facetsApplyButton: {
-			value: (data) => `应用 (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: '清除筛选条件',
-		},
 		attachmentCompareTitle: {
 			value: '比较这些产品',
 		},
@@ -440,9 +431,6 @@ export const zh: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: '正在比较产品',
-		},
-		requestTypeProductFilter: {
-			value: '正在筛选产品',
 		},
 		requestTypeProductSearch: {
 			value: '正在搜索产品',

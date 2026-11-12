@@ -109,10 +109,6 @@ export type ChatStoreConfig = StoreConfig & {
 	siteId?: string;
 };
 
-/** A chat facet selection: a plain option value, or the bounds of a range bucket.
- * Callers pass the shape directly — the store never infers one from the other. */
-export type ChatFacetValue = string | { low?: number; high?: number };
-
 export type ChatStoreConfigSettings = {
 	/** CSS selector used by focusInput to locate the chat text input. */
 	inputSelector?: string;

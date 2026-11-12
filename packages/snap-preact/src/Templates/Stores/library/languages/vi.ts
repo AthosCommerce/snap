@@ -250,15 +250,6 @@ export const vi: LangComponents = {
 		newSessionButton: {
 			value: 'Phiên mới',
 		},
-		facetsTitle: {
-			value: 'Lọc theo:',
-		},
-		facetsApplyButton: {
-			value: (data) => `Áp dụng (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'Xóa bộ lọc',
-		},
 		attachmentCompareTitle: {
 			value: 'So sánh các sản phẩm này',
 		},
@@ -440,9 +431,6 @@ export const vi: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'Đang so sánh sản phẩm',
-		},
-		requestTypeProductFilter: {
-			value: 'Đang lọc sản phẩm',
 		},
 		requestTypeProductSearch: {
 			value: 'Đang tìm sản phẩm',

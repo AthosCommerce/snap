@@ -250,15 +250,6 @@ export const ar: LangComponents = {
 		newSessionButton: {
 			value: 'جلسة جديدة',
 		},
-		facetsTitle: {
-			value: 'تصفية حسب:',
-		},
-		facetsApplyButton: {
-			value: (data) => `تطبيق (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'مسح الفلاتر',
-		},
 		attachmentCompareTitle: {
 			value: 'مقارنة هذه المنتجات',
 		},
@@ -440,9 +431,6 @@ export const ar: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'مقارنة المنتجات',
-		},
-		requestTypeProductFilter: {
-			value: 'تصفية المنتجات',
 		},
 		requestTypeProductSearch: {
 			value: 'البحث عن منتجات',

@@ -25,11 +25,6 @@ export default {
 			table: { category: 'Templates Legal', type: { summary: 'string[]' } },
 			control: { type: 'object' },
 		},
-		actions: {
-			description: 'response actions used as suggestions when `questions` is omitted',
-			table: { category: 'Templates Legal', type: { summary: "ChatResponseActionsData['actions']" } },
-			control: { type: 'object' },
-		},
 		primaryColor: {
 			description: 'accent color for the badge + focus ring',
 			table: { category: 'Templates Legal', type: { summary: 'string' } },

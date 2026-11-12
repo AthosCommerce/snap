@@ -283,11 +283,6 @@ export class ChatController extends AbstractController {
 			.filter((attachment) => attachment.type === 'product' && (attachment as ChatAttachmentProduct).requestType !== 'productComparison')
 			.map((attachment) => productIdentityFromAttachment(attachment as ChatAttachmentProduct));
 
-		// Only emit when the user has actually changed the facets; the urlManager is
-		// seeded from the active productSearchResult's filtered values, so an untouched
-		// facet bar would otherwise promote every follow-up message to productSearch.
-		const searchFilters = this.store.hasPendingFacetChanges ? this.store.searchFilters : [];
-
 		const attachedImageId = attachedImageIds.length > 0 ? attachedImageIds[0] : undefined;
 		const similarProducts = this.store.currentChat?.attachments.attached.filter(
 			(attachment) => attachment.type === 'product' && attachment.requestType === 'productSimilar'
@@ -369,24 +364,6 @@ export class ChatController extends AbstractController {
 					};
 				}
 			}
-		}
-
-		if (this.store.hasPendingFacetChanges && chatRequest.requestType !== 'productComparison') {
-			// `searchFilters` only lives on productSearch in the API model — promote
-			// to productSearch when the user has changed the facet selection, but
-			// preserve the user's typed message so a follow-up like "show me jackets"
-			// doesn't get silently dropped. An empty `searchFilters: []` is intentional
-			// when the user cleared all previously-applied filters — the backend needs
-			// to see the cleared state.
-			// Comparison requests skip this promotion: a Compare click is an explicit
-			// user intent that takes priority over the in-progress facet selection,
-			// and `searchFilters` cannot be attached to a productComparison anyway.
-			const message = this.store.inputValue?.trim();
-			chatRequest = {
-				requestType: 'productSearch',
-				...(message ? { message } : {}),
-				searchFilters,
-			};
 		}
 
 		if (similarProducts?.length === 1) {
@@ -808,8 +785,7 @@ export class ChatController extends AbstractController {
 
 		this.store.error = undefined;
 		// an override array replaces rather than appends — deepmerge's default concat
-		// would send every `searchFilters` entry twice when the params getter and the
-		// caller both derive them from the same pending facet selection
+		// would add the caller's entries (e.g. productIdentities) to the store-derived ones
 		const params = deepmerge(this.params, overrides || {}, { arrayMerge: (destinationArray, sourceArray) => sourceArray });
 
 		const finalizedData = this.finalizeRequestData(params.data);

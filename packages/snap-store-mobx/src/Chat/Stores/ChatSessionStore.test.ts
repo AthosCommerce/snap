@@ -105,7 +105,7 @@ describe('ChatSessionStore productSearch request messages', () => {
 		expect((store.chat[0] as any).text).toBe('short modern bench for dog to reach the bed');
 	});
 
-	it('uses the "Filter by" text when only searchFilters are present', () => {
+	it('does not push a message when only searchFilters are present', () => {
 		const store = createStore();
 		store.request({
 			context: {},
@@ -116,20 +116,16 @@ describe('ChatSessionStore productSearch request messages', () => {
 			tracking: {},
 		} as any);
 
-		expect(store.chat.length).toBe(1);
-		expect((store.chat[0] as any).text).toBe('Filter by product_type Benches');
+		expect(store.chat).toEqual([]);
 	});
 
-	it('uses the typed message as the text when searchFilters are empty', () => {
+	it('uses the message as the text when there is no searchTerm', () => {
 		const store = createStore();
-		// clearing all applied filters promotes the request to productSearch with
-		// searchFilters: [] while preserving the user's typed message
 		store.request({
 			context: {},
 			data: {
 				requestType: 'productSearch',
 				message: 'show me jackets',
-				searchFilters: [],
 			},
 			tracking: {},
 		} as any);
@@ -139,7 +135,7 @@ describe('ChatSessionStore productSearch request messages', () => {
 		expect((store.chat[0] as any).text).toBe('show me jackets');
 	});
 
-	it('uses the typed message as the text when searchFilters are also present', () => {
+	it('uses the message as the text when searchFilters are also present', () => {
 		const store = createStore();
 		store.request({
 			context: {},

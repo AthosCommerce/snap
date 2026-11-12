@@ -72,7 +72,6 @@ import type { ChatOrganismProps, ChatTemplatesLegalProps } from '../components/O
 import type { ChatButtonOrganismProps, ChatButtonTemplatesLegalProps } from '../components/Organisms/ChatButton';
 import type { ChatComparisonsTrayProps } from '../components/Organisms/Chat/components/ChatComparisonsTray';
 import type { ChatComposerProps } from '../components/Organisms/Chat/components/ChatComposer';
-import type { ChatFacetsBarProps } from '../components/Organisms/Chat/components/ChatFacetsBar';
 import type { ChatHistoryProps } from '../components/Organisms/Chat/components/ChatHistory';
 import type { ChatMessagesProps } from '../components/Organisms/Chat/components/ChatMessages';
 import type { ChatSessionFeedbackProps } from '../components/Organisms/Chat/components/ChatSessionFeedback';
@@ -267,7 +266,6 @@ export const ALL_CUSTOM_COMPONENT_TYPES = [
 	'chatButton',
 	'chatComparisonsTray',
 	'chatComposer',
-	'chatFacetsBar',
 	'chatHistory',
 	'chatMessages',
 	'chatSessionFeedback',
@@ -376,7 +374,6 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComposer'>]?: Partial<ChatComposerProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatHistory'>]?: Partial<ChatHistoryProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessages'>]?: Partial<ChatMessagesProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> } &
@@ -395,7 +392,6 @@ export type ThemeComponents =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComposer'>]?: Partial<ChatComposerProps> } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatHistory'>]?: Partial<ChatHistoryProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessages'>]?: Partial<ChatMessagesProps> } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> } &
@@ -669,7 +665,6 @@ type ThemeComponentsRestrictedWithCustomComponentNamed =
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSuggestedQuestions'>]?: ThemeComponentCascade<ChatSuggestedQuestionsTemplatesLegalProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComparisonsTray'>]?: ThemeComponentCascade<ChatComparisonsTrayProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatComposer'>]?: ThemeComponentCascade<ChatComposerProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
-	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatFacetsBar'>]?: ThemeComponentCascade<ChatFacetsBarProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatHistory'>]?: ThemeComponentCascade<ChatHistoryProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatMessages'>]?: ThemeComponentCascade<ChatMessagesProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
 	{ [K in ThemeComponentOverridesUnNamedSelectors<'chatSessionFeedback'>]?: ThemeComponentCascade<ChatSessionFeedbackProps, ThemeComponentsRestrictedWithCustomComponent> & WithCustomComponent } &
@@ -981,7 +976,6 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatSuggestedQuestions'>]?: Partial<ChatSuggestedQuestionsTemplatesLegalProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatComparisonsTray'>]?: Partial<ChatComparisonsTrayProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatComposer'>]?: Partial<ChatComposerProps> } &
-	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatFacetsBar'>]?: Partial<ChatFacetsBarProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatHistory'>]?: Partial<ChatHistoryProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatMessages'>]?: Partial<ChatMessagesProps> } &
 	{ [K in ThemeComponentUnNamedSelectorsStartingWithTemplate<Template,'chatSessionFeedback'>]?: Partial<ChatSessionFeedbackProps> } &
@@ -1089,7 +1083,6 @@ export type ComponentTypePropsMap = {
 	chatSuggestedQuestions: ChatSuggestedQuestionsProps;
 	chatComparisonsTray: ChatComparisonsTrayProps;
 	chatComposer: ChatComposerProps;
-	chatFacetsBar: ChatFacetsBarProps;
 	chatHistory: ChatHistoryProps;
 	chatMessages: ChatMessagesProps;
 	chatSessionFeedback: ChatSessionFeedbackProps;
