@@ -1,6 +1,6 @@
 # RecommendationController
 
-The `RecommendationController` is used when making queries to the API `recommend` endpoint. It can also bind events to DOM elements to handle user input of queries.
+The `RecommendationController` is used when making queries to the API `recommend` endpoint.
 
 ## RecommendationControllerConfig
 
@@ -8,13 +8,11 @@ The `RecommendationController` is used when making queries to the API `recommend
 |---|---|:---:|:---:|
 | id | unique identifier for this controller | ➖ | ✔️ |
 | tag | unique name of the recommendations profile | ➖ | ✔️ |
-| realtime | update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/tree/main/docs/SNAP_TRACKING.md#cart-attribute-tracking)) | ➖ |   |
+| realtime | update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#cart-attribute-tracking)) | ➖ |   |
 | batched | batch multiple recommendations into a single network request | true |   |
-| limit | maximum number of results to display, can also be set globally via globals | 20 |  |
 | globals | keys defined here will be passed to the API request (can overwrite global config)| ➖ |   |
 | beacon.enabled | enables beacon tracking for this controller. When `false`, beacon events are not sent and the controller's API requests opt out of tracking by sending `beacon: false` (see [Opting out of API tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md#opting-out-of-api-tracking)) | true |   |
 | settings.searchOnPageShow | causes a search to be conducted when returning using browser back/forward cache | true |   | 
-| settings.variants.field | used to set the field in which to grab the variant data from | ➖ |   | 
 | settings.variants.showDisabledSelectionValues | determines if completely out of stock (disabled) options should appear in variant selections | false |   | 
 | settings.variants.realtime.enabled | enable real time variant updates | ➖ |   | 
 | settings.variants.realtime.filters | specify which filters to use to determine which results are updated | ➖ |   | 
@@ -85,20 +83,18 @@ Call the QuickviewManager close method `controller.quickviewManager.close()` to 
 ### afterSearch
 - Called with `eventData` = { controller, request, response }
 - Always invoked after an API request is made 
-- Sets `controller.store.loading = false`
-- Cancels search if input doesn't match current urlManager input state
 
 ### afterStore
 - Called with `eventData` = { controller, request, response }
 - Always invoked after data has been stored in mobx store
 
 ### track.product.clickThrough
-- Called with `eventData` = { controller, event, result, trackEvent } 
+- Called with `eventData` = { controller, event, product, trackEvent } 
 - Always invoked after `track.product.clickThrough()` or `track.product.click()` method has been invoked
 - Allows for adding custom product click events (ie. Google Analytics)
 
 ### track.product.impression
-- Called with `eventData` = { controller, result, trackEvent } 
+- Called with `eventData` = { controller, product, trackEvent } 
 - Always invoked after `track.product.impression()` method has been invoked
 
 ### track.product.addToCart

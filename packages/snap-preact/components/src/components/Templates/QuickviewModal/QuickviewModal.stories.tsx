@@ -112,7 +112,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 				defaultValue: { summary: "{ layout: ['slideshow'], width: '45%' }" },
 			},
@@ -123,7 +123,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 				defaultValue: {
 					summary:
@@ -137,7 +137,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 			},
 			control: 'none',
@@ -147,7 +147,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: '{ layout?, width?, alignContent? }',
+					summary: '{ layout, width, alignContent? }',
 				},
 			},
 			control: 'none',

@@ -6,8 +6,8 @@ Background filters allow a page to be refined without displaying the active filt
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
 | `field` | string | ✔️ | The field name to filter on (e.g., 'collection_handle', 'category', 'brand') |
-| `value` | string \| number \| array | ✔️ | The value(s) to filter by. Can be a single value or array of values (if type is 'range'). For multiple 'value' type filters provide an entry for each value as a new background filter object. |
-| `type` | string | ✔️ | Filter type. Common values: 'value', 'range' |
+| `value` | string \| number \| object | ✔️ | The value to filter by: a string or number for type 'value', or `{ low, high }` for type 'range'. For multiple 'value' type filters provide an entry for each value as a new background filter object. |
+| `type` | string | ✔️ | Filter type. Supported values: 'value', 'range' |
 | `background` | boolean | ✔️ | Must be set to `true` to indicate this is a background filter |
 
 
@@ -61,3 +61,18 @@ const config = {
 
 const snap = new Snap(config);
 ```
+
+---
+## Troubleshooting FAQ
+
+**Q: My filter shows up as a normal, removable filter instead of being invisible to the shopper. Why?**
+<br>
+**A:** Confirm `background: true` is set on the filter object — it's a required field, and without it Snap treats the object as a regular, shopper-visible filter.
+
+**Q: My background filter is unexpectedly applying to every controller, not just the one I configured it on. Why?**
+<br>
+**A:** Confirm the filter is set on that specific controller's `config.globals.filters`, not on `client.globals.filters` — the latter applies to all services in the Snap instance, not just one controller.
+
+**Q: `context.collection` (or whichever variable I'm filtering on) comes back `undefined`. Why?**
+<br>
+**A:** Confirm the storefront platform/theme is actually injecting that key into the script tag context object, and that the key requested in `getContext([...])` matches it exactly.

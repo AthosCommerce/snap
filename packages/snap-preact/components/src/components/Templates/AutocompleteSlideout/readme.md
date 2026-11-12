@@ -153,7 +153,7 @@ The `renderInput` prop specifies whether the Search Input should be rendered.
 ```
 
 #### Positioning the search input
-By default the rendered search input sits above the layout. Add the `searchInput` module to the `layout` prop (or to one of the column layouts) to render the input at that position instead. The layout stays rendered while the component is open so the input is never lost, while the other modules still only render once the input is focused and there are terms or results to show.
+By default the rendered search input sits above the layout. Add the `searchInput` module to the `layout` prop (or to one of the column layouts) to render the input at that position instead. The layout stays rendered while the component is open so the input is never lost, while the other modules (except `_` spacers) still only render once the input is focused and there are terms to show or a search has loaded.
 ```tsx
 <AutocompleteSlideout
 	controller={controller}
