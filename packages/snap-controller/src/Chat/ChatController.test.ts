@@ -221,7 +221,7 @@ describe('Chat Controller', () => {
 			logSpy.mockClear();
 		});
 
-		it('disables chat when chatInit returns the quota limit error (CS_002)', async () => {
+		it('keeps chat enabled when chatInit returns the quota limit error (CS_002)', async () => {
 			const controller = createController();
 			controller.store.chatEnabled = null;
 			controller.client.chatInit = jest.fn().mockRejectedValue({
@@ -233,11 +233,38 @@ describe('Chat Controller', () => {
 			const chat = await controller.startNewChat();
 
 			expect(chat).toBeUndefined();
-			expect(controller.store.chatEnabled).toBe(false);
+			expect(controller.store.chatEnabled).toBe(true);
 			expect(controller.store.error).toStrictEqual({
 				type: 'warning',
 				message: 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!',
 			});
+		});
+
+		it('lets a chat that has a session keep sending after chatInit returns the quota limit error (CS_002)', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = true;
+			const existingChat = controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.createChat();
+			controller.client.chatInit = jest.fn().mockRejectedValue({
+				err: new Error('Quota limit reached'),
+				fetchDetails: { status: 429, url: 'test.com' },
+				responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
+			});
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			controller.store.inputValue = 'start a new chat';
+			await controller.search();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(controller.store.error?.type).toBe('warning');
+
+			controller.store.switchChat(existingChat.id);
+			controller.store.inputValue = 'continue the existing chat';
+			await controller.search();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect(chatSpy.mock.calls[0][0].context.sessionId).toBe('test-session-001');
+			expect(controller.store.error).toBeUndefined();
 		});
 	});
 

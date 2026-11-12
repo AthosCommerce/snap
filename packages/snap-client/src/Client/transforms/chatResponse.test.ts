@@ -259,16 +259,22 @@ describe('transformChatResponse', () => {
 		expect(result.data).toEqual([{ messageType: 'text', id: 'msg-text-001', text: 'hello' }]);
 	});
 
-	it('returns empty data when all messageTypes are unknown', () => {
+	it('returns unknownError fallback when all messageTypes are dropped', () => {
 		const response = {
 			responseId: 'resp-006',
 			context: minimalContext,
-			data: [{ messageType: 'someFutureType', id: 'future-1' }],
+			data: [
+				{ messageType: 'someFutureType', id: 'future-1' },
+				{ messageType: 'actions', actions: [{ message: 'Show me dresses', request: { requestType: 'general', message: 'Show me dresses' } }] },
+			],
 		} as unknown as MoiResponseModel;
 
 		const result = transformChatResponse(response);
 
-		expect(result.data).toEqual([]);
+		expect(result).toEqual({
+			data: [{ messageType: 'errorResponse', id: '', errorMessage: 'Something went wrong. Please try again.' }],
+			context: minimalContext,
+		});
 	});
 
 	it('returns unknownError fallback when data is empty array', () => {

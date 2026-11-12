@@ -246,8 +246,7 @@ export class ChatController extends AbstractController {
 			this.log.error('Error starting new chat:', e);
 			const errorCode = (e as { responseBody?: { errorCode?: string } } | undefined)?.responseBody?.errorCode;
 			if (errorCode === CHAT_ERROR_CODES.QUOTA_LIMIT) {
-				// the monthly session quota won't reset within a retry window — disable in memory, like a failed status check
-				this.store.chatEnabled = false;
+				// the quota blocks only new sessions — keep chat enabled so chats that already have a session can still send
 				this.store.error = {
 					type: ErrorType.WARNING,
 					message: CHAT_DISABLED_MESSAGE,

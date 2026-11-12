@@ -25,22 +25,9 @@ import type {
 import { SearchResponseType, transformSearchResponse } from './searchResponse';
 
 export function transformChatResponse(response: MoiResponseModel): ChatResponseModel {
-	if (!response.data || response.data.length === 0) {
-		const unknownError: ChatResponseErrorData = {
-			messageType: 'errorResponse',
-			id: '',
-			errorMessage: 'Something went wrong. Please try again.',
-		};
-
-		return {
-			data: [unknownError],
-			context: response.context,
-		};
-	}
-
 	const responseId = response.responseId || '';
 
-	const transformedData = response.data
+	const transformedData = (response.data || [])
 		.map((data) => {
 			if (data.messageType === 'text') {
 				return transformChatResponse.text(data);
@@ -66,6 +53,20 @@ export function transformChatResponse(response: MoiResponseModel): ChatResponseM
 			}
 		})
 		.filter((data): data is ChatResponseModel['data'][number] => data !== undefined);
+
+	// checked after the filter so a response with only dropped messageTypes still gets a reply
+	if (transformedData.length === 0) {
+		const unknownError: ChatResponseErrorData = {
+			messageType: 'errorResponse',
+			id: '',
+			errorMessage: 'Something went wrong. Please try again.',
+		};
+
+		return {
+			data: [unknownError],
+			context: response.context,
+		};
+	}
 
 	return {
 		data: transformedData,

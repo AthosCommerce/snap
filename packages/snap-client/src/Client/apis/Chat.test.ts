@@ -1,6 +1,8 @@
 import 'whatwg-fetch';
 import { ApiConfiguration, ApiConfigurationParameters } from './Abstract';
 import { ChatAPI } from './Chat';
+import { transformChatResponse } from '../transforms/chatResponse';
+import type { MoiResponseModel } from '../../types';
 import { MockData } from '@athoscommerce/snap-shared';
 
 const mockData = new MockData({ siteId: '8uyt2m' });
@@ -83,6 +85,25 @@ describe('Chat Api', () => {
 				responseBody: { errorCode: 'CS_003' },
 				fetchDetails: { status: 200 },
 			});
+		});
+
+		it('resolves a successful response that has a null errorCode', async () => {
+			const fixture = mockData.chat('default');
+			requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() =>
+					Promise.resolve({ status: 200, json: () => Promise.resolve({ ...fixture, errorCode: null }), headers: new Headers() } as Response)
+				);
+
+			const api = new ChatAPI(new ApiConfiguration(apiConfig));
+			const result = await api.postMessage({
+				siteId: '8uyt2m',
+				context: { sessionId: 's1' },
+				tracking: baseTracking,
+				data: { requestType: 'general', message: 'hello' },
+			});
+
+			expect(result).toEqual(transformChatResponse(fixture as MoiResponseModel));
 		});
 
 		it('rejects with reshaped error when HTTP 400 response', async () => {

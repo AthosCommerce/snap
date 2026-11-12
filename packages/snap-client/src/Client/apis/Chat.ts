@@ -39,6 +39,10 @@ const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> =>
 	});
 };
 
+// a body with a null or empty errorCode is not an error
+const isChatErrorBody = (response: MoiResponseModel | ChatBadRequestResponseModel): response is ChatBadRequestResponseModel =>
+	'errorCode' in response && !!response.errorCode;
+
 export class ChatAPI extends API<ChatRequesterPaths> {
 	// a quota limit (CS_002) will not clear within the retry window, so retrying only delays surfacing the error
 	protected shouldRetry(responseJSON: Json): boolean {
@@ -92,7 +96,7 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 		// some error conditions (session limit CS_003, content policy CS_006) are returned as a
 		// 200 response with an errorCode body — surface as a thrown error so
 		// the controller's existing error handling can react
-		if ('errorCode' in response) {
+		if (isChatErrorBody(response)) {
 			throw {
 				err: new Error(response.errorMessage || 'Bad Request'),
 				fetchDetails: { status: 200, message: 'OK' },

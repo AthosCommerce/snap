@@ -65,7 +65,7 @@ An error object (inherited from `AbstractStore`) set when a chat request fails. 
 
 Session-limit-exceeded responses (`CS_003`) are flagged on `currentChat.sessionLimitReached` instead of populating `error`.
 
-Quota-limit responses (HTTP 429 with `errorCode` `CS_002`) come only from the status and init requests, and are not retried by the client. Chat is disabled in memory (`chatEnabled` is set to `false` without persisting the status), and `error` is populated with a `warning` and no `code`, so no immediate retry is offered.
+Quota-limit responses (HTTP 429 with `errorCode` `CS_002`) come only from the status and init requests, and are not retried by the client. A quota limit on the status request disables chat in memory (`chatEnabled` is set to `false` without persisting the status). A quota limit on the init request leaves `chatEnabled` unchanged, so chats that already have a session can still send messages, and populates `error` with a `warning` and no `code`, so no immediate retry is offered.
 
 ## `impressionStorage` property
 A `StorageStore` (local storage) recording which products have already fired a chat impression, keyed `chatId` → `responseId` → `productId`. Because it is persisted, a product impressed on one page is not re-impressed when the chat reopens on a later page. Entries for a chat are dropped when that chat is pruned during `createChat`.
