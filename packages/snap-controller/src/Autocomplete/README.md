@@ -10,6 +10,7 @@ The `AutocompleteController` is used when making queries to the API `autocomplet
 | selector | css selector for input elements that DOM events should be bound to | ➖ | ✔️ |
 | action | optional way to override the form action or provide one when it does not exist | ➖ |   |
 | globals | keys defined here will be passed to the API request (can overwrite global config)| ➖ |   |
+| beacon.enabled | enables beacon tracking for this controller. When `false`, beacon events are not sent and the controller's API requests opt out of tracking by sending `tracking.beacon: false` (see [Opting out of API tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md#opting-out-of-api-tracking)) | true |   |
 | settings.initializeFromUrl | initialize the controller with query parameter from URL (pre-fill input with current search) | true |   |
 | settings.disableClickOutside | prevent the autocomplete from closing on clicks to the document | false |   |
 | settings.syncInputs | if the selector targets multiple inputs, the value of those inputs will be synced | true |   |

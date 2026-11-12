@@ -136,7 +136,7 @@ layout of Search (all breakpoints), so those merchandising banners returned by t
 API will not render. Add them to this layout or another layout of the template.
 ```
 
-Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads (including a spread after a property, which may replace it), variables, a `customComponent` override, a target `component` or tab `id` that isn't a string literal, and `layoutOptions` whose `overrides` change a layout or hide prop (which option is selected decides what renders). When the rules can't tell which theme `theme.extends` names (a variable, or a spread in `theme` that may set it), they skip the config entirely, because each theme has its own default layouts. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
+Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads (including a spread after a property, which may replace it), variables, a `customComponent` override, a target `component` or tab `id` that isn't a string literal, and `layoutOptions` whose `overrides` change a layout or hide prop (which option is selected decides what renders). When the rules can't tell which theme `theme.extends` names (a variable, or a spread in `theme` that may set it), they skip the config entirely, because they can't tell which theme's defaults to compare against. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
 
 ### Checking limitations
 

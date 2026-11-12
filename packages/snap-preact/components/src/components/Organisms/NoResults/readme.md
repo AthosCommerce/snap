@@ -69,7 +69,7 @@ The `contactsTitleText` prop allows you to set the inner text contacts title.
 ```
 
 ### templates
-The `templates` prop allows you to configure and display product recommendations when no search results are found. This prop accepts an object with a recommendation key, which can enable or customize the recommendation module.
+The `templates` prop allows you to configure and display product recommendations when no search results are found. This prop accepts an object with a recommendation key, which can enable or customize the recommendation module. Recommendations are enabled by default (`{ recommendation: { enabled: true } }`), using the `no-results` tag on the `production` branch unless `config` overrides them.
 
 Example usage:
 

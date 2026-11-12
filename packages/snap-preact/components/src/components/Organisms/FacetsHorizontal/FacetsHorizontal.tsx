@@ -260,6 +260,8 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 			treePath,
 		},
 		toggleSidebarButton: {
+			// default props
+			name: 'sidebar-toggle',
 			// inherited props
 			...defined({
 				disableStyles,
@@ -360,7 +362,16 @@ export const FacetsHorizontal = observer((properties: FacetsHorizontalProps) => 
 				internalClassName="ss__facets-horizontal__header__toggle-sidebar"
 				onClick={() => setSidebarOpenState(!sidebarOpenState)}
 			>
-				<span {...mergedLang.toggleSidebarButtonText.all}></span>
+				{/* the open state is exposed as an attribute (as the search templates do) so themes can style the toggle */}
+				<div
+					className={classnames('ss__facets-horizontal__header__toggle-sidebar__inner', {
+						'ss__facets-horizontal__header__toggle-sidebar__inner--open': sidebarOpenState,
+					})}
+					// @ts-ignore - this is fine.
+					active={sidebarOpenState}
+				>
+					<span {...mergedLang.toggleSidebarButtonText.all}></span>
+				</div>
 			</Button>
 		);
 	};

@@ -42,7 +42,7 @@ const defaultStyles: StyleScript<SearchProps> = (props) => {
 			gap: '20px',
 		},
 
-		'.ss__sidebar': {
+		[`.${classNamePrefix}__sidebar .ss__sidebar`]: {
 			flex: '0 1 auto',
 			width: props.sidebarWidth,
 			'&:empty': {

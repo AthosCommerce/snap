@@ -68,11 +68,13 @@ The `searchInput` module positions the rendered search input (see `renderInput` 
 ```
 
 ### column1
-The `column1` prop specifies the layout to render in the `c1` module. Takes an object with two properties, 
+The `column1` prop specifies the layout to render in the `c1` module. Takes an object with the following properties, 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `['termsList']`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+
+`alignContent` (optional) which sets the CSS `align-content` of the column. Available values are `center`, `flex-start`, `flex-end` & `space-between`.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column1={{
@@ -82,11 +84,13 @@ The `column1` prop specifies the layout to render in the `c1` module. Takes an o
 ```
 
 ### column2
-The `column2` prop specifies a layout array to render in the `c2` module. Takes an object with two properties, 
+The `column2` prop specifies a layout array to render in the `c2` module. Takes an object with the following properties, 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `['facets']`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+
+`alignContent` (optional) which sets the CSS `align-content` of the column. Available values are `center`, `flex-start`, `flex-end` & `space-between`.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column2={{
@@ -96,11 +100,13 @@ The `column2` prop specifies a layout array to render in the `c2` module. Takes 
 ```
 
 ### column3
-The `column3` prop specifies a layout array to render in the `c3` module. Takes an object with two properties, 
+The `column3` prop specifies a layout array to render in the `c3` module. Takes an object with the following properties, 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
 `layout` which specifies an array of modules to render in the column. Defaults to `[['tabSelection'], ['content'], ['_', 'button.see-more']]`. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+
+`alignContent` (optional) which sets the CSS `align-content` of the column. Available values are `center`, `flex-start`, `flex-end` & `space-between`. Defaults to `space-between`.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column3={{
@@ -110,11 +116,13 @@ The `column3` prop specifies a layout array to render in the `c3` module. Takes 
 ```
 
 ### column4
-The `column4` prop specifies a layout array to render in the `c4` module. Takes an object with two properties, 
+The `column4` prop specifies a layout array to render in the `c4` module. Takes an object with the following properties, 
 
 `width` which specifies how wide the the column should be. This can be a string - `150px` or `auto`. If set to auto, the column will automatically grow and shrink based on its surroundings. 
 
 `layout` which specifies an array of modules to render in the column. All layout modules are available to use with the exception of the `cx` modules. Additional arrays for new rows are also supported.
+
+`alignContent` (optional) which sets the CSS `align-content` of the column. Available values are `center`, `flex-start`, `flex-end` & `space-between`.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} column4={{
@@ -151,10 +159,17 @@ By default the rendered search input sits above the layout. Add the `searchInput
 ```
 
 ### width
-The `width` prop specifies a width for the overall component. The default value is '100%'.
+The `width` prop specifies a width for the overall component. The default value is '950px'.
 
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} width="800px" />
+```
+
+### height
+The `height` prop specifies a height for the modal content.
+
+```tsx
+<AutocompleteModal controller={controller} input={'#searchInput'} height="600px" />
 ```
 
 ### excludeBanners
@@ -184,3 +199,40 @@ The `overlayColor` prop specifies the color of the overlay.
 ```tsx
 <AutocompleteModal controller={controller} input={'#searchInput'} overlayColor={'rgba(0,0,0,0.8)'} />
 ```
+
+### viewportMaxHeight
+The `viewportMaxHeight` prop will restrict autocomplete from overflowing the viewport. The max height of autocomplete will always be visible in the viewport. 
+
+```tsx
+<AutocompleteModal controller={controller} input={'#searchInput'} viewportMaxHeight={true} />
+```
+
+### resultComponent
+The `resultComponent` prop specifies a custom result component to render.
+
+```tsx
+const CustomResult = ({ controller, result, theme }) => {
+	return <div>{result.mappings.core?.name}</div>
+};
+
+<AutocompleteModal controller={controller} input={'#searchInput'} resultComponent={CustomResult} />
+```
+
+### templates
+The `templates` prop configures recommendations that render in the content area when a search has no results. It is only used in Snap Templates. `templates.recommendation.enabled` defaults to `true` (and is always `false` when `layout` is `'terms'`). The optional `component` (`'Recommendation'` or `'RecommendationGrid'`, defaults to `'RecommendationGrid'`) and `resultComponent` (defaults to `'Result'`) name the template components to use, and `config` is merged into the recommendation controller config (defaults to the `'no-results'` tag).
+
+```tsx
+<AutocompleteModal controller={controller} input={'#searchInput'} templates={{ recommendation: { enabled: true, component: 'Recommendation', config: { tag: 'no-results' } } }} />
+```
+
+## Lang
+
+The `lang` prop is forwarded to `AutocompleteLayout` and allows you to override its translatable text strings. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `facetsTitle` | Facets section title | `controller` (AutocompleteController) |
+| `contentTitle` | Content/results section title | `controller` (AutocompleteController) |
+| `closeButton` | Close button text | `controller` (AutocompleteController) |
+| `noResultsText` | No results message | `controller` (AutocompleteController) |
+| `seeMoreButton` | See more results button text | `controller` (AutocompleteController) |

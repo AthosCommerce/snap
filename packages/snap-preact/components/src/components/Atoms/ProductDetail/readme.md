@@ -35,6 +35,13 @@ When `html` is true the resolved value is rendered via `dangerouslySetInnerHTML`
 <ProductDetail result={product} field={'mappings.core.description'} html={true} />
 ```
 
+### tag
+The `tag` prop adds an extra identifying `ss__product-detail--<tag>` classname modifier.
+
+```tsx
+<ProductDetail result={product} field={'attributes.brand'} tag={'featured'} />
+```
+
 ### name
 The optional `name` prop drives the `productDetail.<name>` theme selector (the `${module}.${name}` pattern) and the `ss__product-detail--<name>` classname modifier. When omitted the field path's final segment is used, normalized to its component-name form (underscores become dashes, lowercased — e.g. `color_family` → `color-family`).
 

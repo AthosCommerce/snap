@@ -11,7 +11,7 @@ Renders a List of results utilizing `<Result />` components.
 The `controller` prop specifies a reference to the recommendation controller.
 
 ```tsx
-<RecommendationGrid controller={controller.store.results} />
+<RecommendationGrid controller={controller} />
 ```
 
 ### results
@@ -58,7 +58,7 @@ The `gapSize` prop specifies the gap size between each result.
 
 
 ### lazyRender 
-The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enable` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
+The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enabled` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
 
 ```tsx
 const customLazyRenderProps = {
@@ -72,12 +72,12 @@ const customLazyRenderProps = {
 ### breakpoints
 An object that modifies the responsive behavior of the `<Result />` component.
 
-Each entry within the breakpoints object contains a numeric key of the viewport when the sub-object of props will take effect. Any props listed above can be specified. (ie. columns, rows, layout, gapSize)
+Each entry within the breakpoints object contains a numeric key of the viewport when the sub-object of props will take effect. Any props listed above can be specified. (ie. columns, rows, gapSize)
 
 Typically used to adjust the layout and how many products are shown at any screen size. There is no limit to how many breakpoints settings you can pass in.
 
 
-Default Results `breakpoints` object:
+Example `breakpoints` object (there are no default breakpoints):
 
 ```typescript
 const breakpoints = {

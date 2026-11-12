@@ -53,6 +53,10 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 					height: 'auto',
 				},
 			},
+			// the component mutes term titles - Pike headers use the text color (a `currentColor` header would inherit the gray)
+			'.ss__autocomplete__title--trending, .ss__autocomplete__title--history, .ss__autocomplete__title--terms': {
+				color: 'inherit',
+			},
 			[headerSelectors]: {
 				padding: 0,
 				...custom.styles.headerText(variables?.colors?.secondary, '14px'),
@@ -176,6 +180,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						margin: 0,
 					},
 					'.ss__icon': {
+						...custom.styles.indicator(variables?.colors?.accent),
 						position: 'absolute',
 						top: 0,
 						bottom: 0,

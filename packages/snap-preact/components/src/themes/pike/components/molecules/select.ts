@@ -37,12 +37,17 @@ const selectStyleScript = (props: SelectProps) => {
 							'.ss__select__selection__icon': {
 								margin: 0,
 							},
+							'.ss__select__label': {
+								flex: '0 1 auto',
+								maxWidth: '50%',
+							},
 							'.ss__select__selection': {
 								flex: '1 1 0%',
 								paddingRight: `${custom.spacing.x1}px`,
 								fontWeight: 'normal',
 							},
 							[dropdownIcon]: {
+								...custom.styles.indicator(variables?.colors?.accent),
 								transition: 'transform ease 0.5s',
 								marginLeft: 'auto',
 							},
@@ -51,7 +56,7 @@ const selectStyleScript = (props: SelectProps) => {
 				},
 				'.ss__dropdown__content': {
 					backgroundColor: props?.backgroundColor ? props?.backgroundColor : custom.colors.gray01,
-					border: `1px solid ${props?.borderColor ? props?.borderColor : custom.colors.gray02}`,
+					border: `1px solid ${props?.borderColor ? props?.borderColor : custom.colors.controlBorder}`,
 					marginTop: `${custom.spacing.x1}px`,
 					'.ss__select__select': {
 						margin: 0,
@@ -102,7 +107,7 @@ const selectStyleScript = (props: SelectProps) => {
 			gap: `${custom.spacing.x1}px`,
 			padding: `0 ${custom.spacing.x2}px`,
 			backgroundColor: props?.backgroundColor ? props?.backgroundColor : custom.colors.gray01,
-			border: `1px solid ${props?.borderColor ? props?.borderColor : custom.colors.gray02}`,
+			border: `1px solid ${props?.borderColor ? props?.borderColor : custom.colors.controlBorder}`,
 			height: `${custom.sizes.height}px`,
 			lineHeight: `${custom.sizes.height}px`,
 			color: props?.color,
@@ -110,10 +115,14 @@ const selectStyleScript = (props: SelectProps) => {
 				fontSize: '14px',
 			},
 			'.ss__select__label': {
+				flex: '0 1 auto',
+				maxWidth: '50%',
 				fontWeight: custom.fonts.weight01,
+				...custom.styles.textOverflow(),
 			},
 			'.ss__select__select': {
 				flex: '1 1 0%',
+				minWidth: 0,
 				padding: `0 ${custom.spacing.x1}px 0 0`,
 				backgroundColor: 'transparent',
 				height: '100%',
@@ -139,9 +148,8 @@ export const select: ThemeComponent<'select', SelectProps, SelectTemplatesLegalP
 			themeStyleScript: selectStyleScript,
 			iconOpen: custom.icons.arrowDown,
 			iconClose: custom.icons.arrowDown,
-			color: custom.colors.text,
 			backgroundColor: custom.colors.gray01,
-			borderColor: custom.colors.gray02,
+			borderColor: custom.colors.controlBorder,
 		},
 		'select icon.open': {
 			size: `${custom.sizes.icon12}px`,

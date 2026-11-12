@@ -276,6 +276,11 @@ export class RecommendationController extends AbstractController {
 			params.lastSearches = lastSearches;
 		}
 
+		// opt the request out of API tracking when beacon is not enabled
+		if (!this.config.beacon?.enabled) {
+			params.beacon = false;
+		}
+
 		return params as RecommendRequestModel;
 	}
 

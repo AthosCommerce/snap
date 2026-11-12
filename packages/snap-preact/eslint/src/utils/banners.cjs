@@ -118,31 +118,8 @@ const SHARED_THEME_SELECTORS = {
 
 // components/src/themes/<theme>/components/templates/*.ts - per-theme changes to the shared
 // selectors above, merged over them per selector. Themes not listed only use the shared ones.
-const THEME_SELECTORS = {
-	pike: {
-		default: {
-			search: { mobileDisplayAt: { upTo: 'mobile' } },
-			autocompleteFixed: { layout: 'desktop' },
-			autocompleteModal: { layout: 'desktop' },
-			autocompleteSlideout: { layout: 'mobile' },
-		},
-		mobile: {
-			autocompleteFixed: { layout: 'mobile' },
-			autocompleteModal: { layout: 'mobile' },
-			autocompleteSlideout: { layout: 'mobile' },
-		},
-		tablet: {
-			autocompleteFixed: { layout: 'desktop' },
-			autocompleteModal: { layout: 'desktop' },
-			autocompleteSlideout: { layout: 'mobile' },
-		},
-		desktop: {
-			autocompleteFixed: { layout: 'desktop' },
-			autocompleteModal: { layout: 'desktop' },
-			autocompleteSlideout: { layout: 'mobile' },
-		},
-	},
-};
+// Themes shouldn't change layouts, so this is empty - layoutBannerDefaults.test.ts fails if one does.
+const THEME_SELECTORS = {};
 
 const SEARCH_TEMPLATE_PROPS = ['hideSidebar', 'hideTopToolbar', 'hideMiddleToolbar', 'hideBottomToolbar', 'mobileDisplayAt'];
 const SEARCH_SLOT_PROPS = ['layout', 'customComponent'];
@@ -178,7 +155,7 @@ function validateLayoutBanners(configObjectExpression, context, kind) {
 	const userLayers = collectUserLayers(overrides);
 	if (!userLayers) return;
 
-	// themes differ in their default layouts, so without knowing which one there's nothing to compare against
+	// without knowing which theme is extended there are no defaults to compare against
 	const themeName = extendedThemeName(theme);
 	if (themeName === UNKNOWN) return;
 	const baseLayers = buildBaseLayers(themeName);

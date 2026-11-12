@@ -50,7 +50,7 @@ export default {
 			description: 'Separator Icon name',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				category: 'Templates Legal',
 			},

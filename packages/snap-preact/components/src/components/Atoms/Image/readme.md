@@ -21,6 +21,13 @@ The required `alt` prop is the image `alt` attribute.
 <Image src={searchResponse.results.mappings.core.imageUrl} alt='image' />
 ```
 
+### title
+The `title` prop specifies the image `title` attribute. If not provided, the `alt` prop value is used.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' title='image title' />
+```
+
 ### fallback
 The `fallback` prop specifies the URL of the fallback image to render if the primary image fails to load.
 
@@ -29,10 +36,48 @@ The `fallback` prop specifies the URL of the fallback image to render if the pri
 ```
 
 ### hoverSrc
-The `hoverSrc` prop specifiesthe URL of the alternative image to display on hover.
+The `hoverSrc` prop specifies the URL of the alternative image to display on hover.
 
 ```tsx
 <Image src={searchResponse.results.mappings.core.imageUrl} hoverSrc={searchResponse.results.mappings.core.hoverImg} alt='image' />
+```
+
+### srcset
+The `srcset` prop sets the image `srcset` attribute. It accepts either a `srcset` string, or a function that receives an image URL and returns the `srcset` for it.
+
+A string is set on the attribute as-is, and may use width (`w`) or pixel density (`x`) descriptors. While hovering it is removed so that the `hoverSrc` image is displayed.
+
+```tsx
+<Image
+	src={searchResponse.results.mappings.core.imageUrl}
+	srcset={`${searchResponse.results.mappings.core.thumbnailImageUrl} 400w, ${searchResponse.results.mappings.core.imageUrl} 1200w`}
+	sizes='auto, (max-width: 600px) 100vw, 400px'
+	alt='image'
+/>
+```
+
+A function is called with the `src`, and with the `hoverSrc` while hovering, so it can be set once through the theme - for example on the result image (`'result image'`). Platform packages provide helpers for their image CDN - for Shopify, use `shopifyImageSrcset` from `@athoscommerce/snap-platforms/shopify` to generate candidates at a list of widths.
+
+```tsx
+import { shopifyImageSrcset } from '@athoscommerce/snap-platforms/shopify';
+
+<Image
+	src={searchResponse.results.mappings.core.imageUrl}
+	srcset={(src) => shopifyImageSrcset(src, [320, 640, 960, 1280])}
+	sizes='auto, (max-width: 600px) 100vw, 400px'
+	alt='image'
+/>
+```
+
+The `src` is used by browsers that do not support `srcset`. If a `srcset` candidate fails to load, the `srcset` is removed so that the browser retries with the `src`, and it is not set again until the `src` changes. If that also fails, the `fallback` image is displayed.
+
+### sizes
+The `sizes` prop sets the image `sizes` attribute - a comma-separated list of media conditions and the width the image will be displayed at when each condition matches. It is used by the browser to choose between `srcset` candidates that use width (`w`) descriptors. Without it, browsers assume the image is displayed at the full viewport width.
+
+Start the list with `auto` so that browsers that support it use the rendered width of the image to choose a candidate. `auto` only applies to lazy loaded images (see the `lazy` prop, enabled by default); the rest of the list is used otherwise.
+
+```tsx
+<Image src={searchResponse.results.mappings.core.imageUrl} srcset={srcset} sizes='auto, (max-width: 600px) 100vw, 400px' alt='image' />
 ```
 
 ### height
@@ -101,7 +146,7 @@ The `onPointerLeave` prop allows for a custom callback function when a pointer l
 ```
 
 #### onError
-The `onError` prop allows for a custom callback function when the image has encountered an error.
+The `onError` prop allows for a custom callback function when the image has encountered an error. It is invoked for each failed load, so when a `srcset` candidate fails and the `src` is retried it may be called twice.
 
 ```tsx
 <Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onError={(e)=>{console.log(e)}} />
