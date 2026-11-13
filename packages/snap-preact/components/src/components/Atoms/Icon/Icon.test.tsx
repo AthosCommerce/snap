@@ -45,6 +45,14 @@ describe('Icon Component', () => {
 		expect(iconElement?.classList.length).toBe(3);
 	});
 
+	it('renders the filters icon as two lines and two circles', () => {
+		const rendered = render(<Icon icon="filters" />);
+
+		const elements = [...rendered.container.querySelectorAll('.ss__icon > *')].map((element) => element.tagName);
+
+		expect(elements).toEqual(['line', 'line', 'circle', 'circle']);
+	});
+
 	it('renders with title', () => {
 		const icon = 'cog';
 		const title = 'custom title';
