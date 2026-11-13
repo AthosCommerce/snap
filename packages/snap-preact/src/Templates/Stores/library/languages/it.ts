@@ -292,13 +292,10 @@ export const it: LangComponents = {
 			value: 'Chiedi informazioni sui prodotti confrontati...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Chiedi informazioni su questa immagine...',
+			value: 'Scrivi un messaggio da inviare con la tua immagine...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Aggiungi un altro prodotto da confrontare...',
-		},
-		imageMessageRequiredText: {
-			value: 'Scrivi un messaggio da inviare con la tua immagine',
 		},
 		uploadImageButton: {
 			attributes: {

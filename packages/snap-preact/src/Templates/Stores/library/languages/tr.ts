@@ -292,13 +292,10 @@ export const tr: LangComponents = {
 			value: 'Karşılaştırılan ürünler hakkında soru sorun...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Bu görsel hakkında soru sorun...',
+			value: 'Görselinizle birlikte göndermek için bir mesaj yazın...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Karşılaştırmak için başka bir ürün ekleyin...',
-		},
-		imageMessageRequiredText: {
-			value: 'Görselinizle birlikte göndermek için bir mesaj yazın',
 		},
 		uploadImageButton: {
 			attributes: {

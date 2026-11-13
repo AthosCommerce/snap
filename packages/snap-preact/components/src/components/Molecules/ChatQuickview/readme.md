@@ -54,7 +54,7 @@ With the default `layout`, the component fills the chat's secondary window and t
 
 The chat presentation is supplied by this component rather than by the layout:
 - `variantDropdownType` defaults to `'list'`, so non-swatch selections render as selectable tiles instead of a dropdown.
-- The theme gives the `button.add-to-cart` / `button.more-info` / `button.similar` / `button.discuss` buttons their `cart` / `info` / `search-thin` / `chat` icons (named selectors, so they apply with Snap Templates theming), and `swatches` `hideLabels: false` so each swatch shows its value label beneath it. The base theme's swatch styles (`themeStyleScript`) are not applied, so swatch tiles look the same in every theme.
+- The theme gives the `button.add-to-cart` / `button.more-info` / `button.similar` / `button.discuss` buttons their `cart` / `info` / `search-thin` / `chat` icons (named selectors, so they apply with Snap Templates theming), and `swatches` `hideLabels: false` so each swatch shows its value label beneath it. The `pike` theme does not apply its product card swatch styles (`themeStyleScript`) in the chat quickview. A project `themeStyleScript` override on `swatches` still applies.
 
 Swatch tiles show variant thumbnails when the chat controller's variant options are configured with `thumbnailBackgroundImages` (e.g. `settings.variants.options.color.thumbnailBackgroundImages: true`); values without a background render as text tiles.
 

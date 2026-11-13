@@ -298,13 +298,10 @@ export const fr: LangComponents = {
 			value: 'Posez une question sur les produits comparés...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Posez une question sur cette image...',
+			value: 'Saisissez un message à envoyer avec votre image...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Ajoutez un autre produit à comparer...',
-		},
-		imageMessageRequiredText: {
-			value: 'Saisissez un message à envoyer avec votre image',
 		},
 		uploadImageButton: {
 			attributes: {

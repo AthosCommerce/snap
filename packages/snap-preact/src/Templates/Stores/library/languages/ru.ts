@@ -294,13 +294,10 @@ export const ru: LangComponents = {
 			value: 'Спросите о сравниваемых товарах...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Спросите об этом изображении...',
+			value: 'Введите сообщение, чтобы отправить его вместе с изображением...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Добавьте ещё один товар для сравнения...',
-		},
-		imageMessageRequiredText: {
-			value: 'Введите сообщение, чтобы отправить его вместе с изображением',
 		},
 		uploadImageButton: {
 			attributes: {

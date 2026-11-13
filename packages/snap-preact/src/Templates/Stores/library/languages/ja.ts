@@ -292,13 +292,10 @@ export const ja: LangComponents = {
 			value: '比較中の商品について質問...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'この画像について質問...',
+			value: '画像と一緒に送信するメッセージを入力してください...',
 		},
 		inputPlaceholderAddCompare: {
 			value: '比較する商品をもう1つ追加...',
-		},
-		imageMessageRequiredText: {
-			value: '画像と一緒に送信するメッセージを入力してください',
 		},
 		uploadImageButton: {
 			attributes: {

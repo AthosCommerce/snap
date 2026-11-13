@@ -292,13 +292,10 @@ export const ko: LangComponents = {
 			value: '비교 중인 제품에 대해 질문하세요...',
 		},
 		inputPlaceholderAskImage: {
-			value: '이 이미지에 대해 질문하세요...',
+			value: '이미지와 함께 보낼 메시지를 입력하세요...',
 		},
 		inputPlaceholderAddCompare: {
 			value: '비교할 제품을 하나 더 추가하세요...',
-		},
-		imageMessageRequiredText: {
-			value: '이미지와 함께 보낼 메시지를 입력하세요',
 		},
 		uploadImageButton: {
 			attributes: {

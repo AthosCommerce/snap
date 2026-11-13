@@ -292,13 +292,10 @@ export const vi: LangComponents = {
 			value: 'Hỏi về các sản phẩm đang so sánh...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Hỏi về hình ảnh này...',
+			value: 'Nhập tin nhắn để gửi cùng hình ảnh của bạn...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Thêm một sản phẩm khác để so sánh...',
-		},
-		imageMessageRequiredText: {
-			value: 'Nhập tin nhắn để gửi cùng hình ảnh của bạn',
 		},
 		uploadImageButton: {
 			attributes: {

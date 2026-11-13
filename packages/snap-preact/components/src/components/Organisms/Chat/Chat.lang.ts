@@ -63,7 +63,6 @@ export interface ChatLang {
 	inputPlaceholderComparedProducts: Lang<never>;
 	inputPlaceholderAskImage: Lang<never>;
 	inputPlaceholderAddCompare: Lang<never>;
-	imageMessageRequiredText: Lang<never>;
 	uploadImageButton: Lang<never>;
 	sendMessageButton: Lang<never>;
 	dropOverlayText: Lang<never>;
@@ -152,9 +151,8 @@ export const chatDefaultLang: Partial<ChatLang> = {
 	inputPlaceholderAskProduct: { value: 'Ask about this product...' },
 	inputPlaceholderCompare: { value: 'What would you like to compare?' },
 	inputPlaceholderComparedProducts: { value: 'Ask about the compared products...' },
-	inputPlaceholderAskImage: { value: 'Ask about this image...' },
+	inputPlaceholderAskImage: { value: 'Type a message to send with your image...' },
 	inputPlaceholderAddCompare: { value: 'Add another product to compare...' },
-	imageMessageRequiredText: { value: 'Type a message to send with your image' },
 	uploadImageButton: {
 		attributes: { 'aria-label': 'Upload Image', title: 'Upload Image' },
 	},

@@ -292,13 +292,10 @@ export const ar: LangComponents = {
 			value: 'اسأل عن المنتجات المُقارنة...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'اسأل عن هذه الصورة...',
+			value: 'اكتب رسالة لإرسالها مع صورتك...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'أضف منتجاً آخر للمقارنة...',
-		},
-		imageMessageRequiredText: {
-			value: 'اكتب رسالة لإرسالها مع صورتك',
 		},
 		uploadImageButton: {
 			attributes: {
