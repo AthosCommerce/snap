@@ -532,7 +532,8 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 
 	// legacy chat presentation, injected through the theme so the children apply it via their own
 	// prop pipeline (the incoming theme wins on conflict): the action buttons carry icons, and swatch
-	// tiles show their value label beneath (the Swatches default hides labels).
+	// tiles show their value label beneath (the Swatches default hides labels). The base theme's
+	// swatch styles are dropped because they size and label the tiles for a product card.
 	const themePresentationProps: Theme = {
 		components: {
 			'button.add-to-cart': {
@@ -549,6 +550,7 @@ export const ChatQuickview = observer((properties: ChatQuickviewProps) => {
 			},
 			swatches: {
 				hideLabels: false,
+				themeStyleScript: undefined,
 			},
 		},
 	};
