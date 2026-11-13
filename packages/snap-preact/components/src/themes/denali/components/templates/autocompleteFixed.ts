@@ -11,6 +11,11 @@ const autocompleteFixedStyleScript = ({}: AutocompleteSlideoutProps) => {
 		'.ss__autocomplete__button--see-more': {
 			margin: '10px',
 		},
+		// the results column of a fixed panel is narrow - the text uses the full card width
+		'.ss__autocomplete__content .ss__results .ss__result__details': {
+			paddingLeft: 0,
+			paddingRight: 0,
+		},
 	});
 };
 
@@ -26,8 +31,21 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 			columns: 4,
 			rows: 2,
 		},
+		// the layout's default 3 columns overflow the results column of a fixed panel (it is as wide as the input)
+		'autocompleteFixed results': {
+			columns: 2,
+			rows: 2,
+			gapSize: '10px',
+		},
 	},
 	mobile: autocompleteFixedThemeComponentProps.mobile,
 	desktop: autocompleteFixedThemeComponentProps.desktop,
-	tablet: autocompleteFixedThemeComponentProps.tablet,
+	tablet: {
+		...autocompleteFixedThemeComponentProps.tablet,
+		// the shared tablet props set no grid here, and the default layer's 4 columns overflow the tablet panel
+		'autocompleteFixed recommendationGrid': {
+			columns: 3,
+			rows: 2,
+		},
+	},
 };

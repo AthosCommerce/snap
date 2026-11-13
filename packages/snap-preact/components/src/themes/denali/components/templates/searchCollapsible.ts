@@ -3,14 +3,25 @@ import type { SearchCollapsibleProps, SearchCollapsibleTemplatesLegalProps } fro
 import { searchCollapsibleThemeComponentProps } from '../../../themeComponents/searchCollapsible';
 import { ThemeComponent } from '../../../../providers';
 // CSS in JS style script for the Search component
-const searchCollapsibleStyleScript = ({ sidebarWidth }: SearchCollapsibleProps) => {
-	const _sidebarWidth = sidebarWidth ? `calc(${sidebarWidth} + 1.5em)` : undefined;
+const searchCollapsibleStyleScript = ({ sidebarWidth, mobileDisplayAt }: SearchCollapsibleProps) => {
+	// the toggle's column ends where the results start, so the pagination info lines up with the first result:
+	// the sidebar's 40px margin and the 20px content gap, less the toolbar row's own 10px gap
+	const _sidebarWidth = sidebarWidth ? `calc(${sidebarWidth} + 50px)` : undefined;
 
 	return css({
 		'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': {
 			marginRight: _sidebarWidth ? 'inherit' : 'auto',
 			width: _sidebarWidth ? _sidebarWidth : 'inherit',
 		},
+		// the sidebar is a slideout below `mobileDisplayAt` - there is no sidebar column to line up with, and the
+		// reserved width would push the sort by onto its own row
+		...(typeof mobileDisplayAt == 'string' && {
+			[`@media (max-width: ${mobileDisplayAt})`]: {
+				'.ss__toolbar .ss__layout__sidebar-toggle-button-wrapper': {
+					width: 'auto',
+				},
+			},
+		}),
 	});
 };
 
@@ -25,6 +36,10 @@ export const searchCollapsible: ThemeComponent<'searchCollapsible', SearchCollap
 		// a wider mobile facet slideout (the component caps it at 90% of the viewport)
 		'searchCollapsible slideout': {
 			width: '400px',
+		},
+		// the slideout sidebar keeps its title at every breakpoint the slideout is used (`mobileDisplayAt`)
+		'searchCollapsible slideout sidebar': {
+			hideTitleText: false,
 		},
 	},
 	mobile: searchCollapsibleThemeComponentProps.mobile,

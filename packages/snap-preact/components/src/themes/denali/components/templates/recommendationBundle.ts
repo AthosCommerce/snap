@@ -3,23 +3,16 @@ import type { RecommendationBundleProps, RecommendationBundleTemplatesLegalProps
 import { recommendationBundleThemeComponentProps } from '../../../themeComponents/recommendationBundle';
 import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
+import { bundleSelectorSharedStyles } from './recommendationBundleShared';
 
 // CSS in JS style script for the RecommendationBundle component
 const recommendationBundleStyleScript = ({ theme }: RecommendationBundleProps) => {
 	const variables = theme?.variables;
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.black);
 
 	return css({
 		margin: '20px 0',
 
-		'.ss__recommendation-bundle__wrapper__selector': {
-			'& .ss__recommendation-bundle__wrapper__selector__result-wrapper__seed-badge': {
-				backgroundColor: activeColors[0],
-				color: activeColors[1],
-				padding: '0px 5px',
-				borderRadius: '3px',
-			},
-		},
+		...bundleSelectorSharedStyles('ss__recommendation-bundle', theme),
 
 		// cards fill their slide (the carousel equalizes slides to the tallest) with the variant selections
 		// pinned to the bottom, so every card and the CTA share one bottom edge
