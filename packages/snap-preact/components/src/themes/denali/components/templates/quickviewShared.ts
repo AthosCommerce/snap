@@ -15,6 +15,10 @@ export const quickviewSharedStyles = (theme?: Theme): CSSObject => {
 			'.ss__quickview__variant-title': {
 				textTransform: 'capitalize',
 			},
+			// rows stacked directly in the content (the slideout's single column) get the gap the layout's columns have
+			'.ss__quickview__content > .ss__quickview__row + .ss__quickview__row': {
+				marginTop: '12px',
+			},
 			// a quiet icon button, not a pill
 			'.ss__button.ss__quickview__close': {
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
