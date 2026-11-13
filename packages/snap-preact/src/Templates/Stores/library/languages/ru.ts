@@ -299,6 +299,9 @@ export const ru: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'Добавьте ещё один товар для сравнения...',
 		},
+		imageMessageRequiredText: {
+			value: 'Введите сообщение, чтобы отправить его вместе с изображением',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'Загрузить изображение',

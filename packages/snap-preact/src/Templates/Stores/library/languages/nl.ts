@@ -297,6 +297,9 @@ export const nl: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'Voeg nog een product toe om te vergelijken...',
 		},
+		imageMessageRequiredText: {
+			value: 'Typ een bericht om met je afbeelding te verzenden',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'Afbeelding uploaden',

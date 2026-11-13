@@ -297,6 +297,9 @@ export const tr: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'Karşılaştırmak için başka bir ürün ekleyin...',
 		},
+		imageMessageRequiredText: {
+			value: 'Görselinizle birlikte göndermek için bir mesaj yazın',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'Görsel yükle',

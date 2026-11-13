@@ -297,6 +297,9 @@ export const pt: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'Adicione outro produto para comparar...',
 		},
+		imageMessageRequiredText: {
+			value: 'Digite uma mensagem para enviar com a sua imagem',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'Enviar imagem',

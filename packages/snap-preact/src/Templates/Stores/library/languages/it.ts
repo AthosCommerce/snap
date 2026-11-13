@@ -297,6 +297,9 @@ export const it: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'Aggiungi un altro prodotto da confrontare...',
 		},
+		imageMessageRequiredText: {
+			value: 'Scrivi un messaggio da inviare con la tua immagine',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'Carica immagine',

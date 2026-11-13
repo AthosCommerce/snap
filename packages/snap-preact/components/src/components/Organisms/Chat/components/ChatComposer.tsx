@@ -1,4 +1,5 @@
 import { h, RefObject } from 'preact';
+import { useId } from 'preact/hooks';
 
 import { css } from '@emotion/react';
 import classnames from 'classnames';
@@ -24,6 +25,10 @@ const defaultStyles: StyleScript<ChatComposerProps> = ({ primaryColorBg, primary
 		flexDirection: 'column',
 		gap: '8px',
 		flexShrink: 0,
+		'.ss__chat__composer__hint': {
+			fontSize: '0.8em',
+			padding: '0 1em',
+		},
 		'.ss__chat__input': {
 			display: 'flex',
 			justifyContent: 'space-between',
@@ -91,7 +96,7 @@ const defaultStyles: StyleScript<ChatComposerProps> = ({ primaryColorBg, primary
 					cursor: 'pointer',
 					justifyContent: 'center',
 					boxSizing: 'border-box',
-					'&:disabled': {
+					'&.ss__button--disabled': {
 						opacity: 0.5,
 						cursor: 'not-allowed',
 					},
@@ -156,14 +161,23 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 		return langTextOf(lang.inputPlaceholder);
 	})();
 
-	const hasImageAttachment = (store.currentChat?.attachments.attached || []).some((item) => item.type === 'image' && !item.error);
+	const hasReadyImageAttachment = (store.currentChat?.attachments.attached || []).some(
+		(item) => item.type === 'image' && !item.error && (item.state === 'attached' || item.state === 'active')
+	);
 	const messageEmpty = !controller.store.inputValue.trim();
-	const sendDisabled =
-		store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false || (hasImageAttachment && messageEmpty) || messageEmpty;
+	const sendDisabled = store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false || messageEmpty;
+
+	const hintId = useId();
+	const showImageMessageHint = hasReadyImageAttachment && messageEmpty && !inputDisabled;
 
 	return (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__chat__composer', className, internalClassName)}>
+				{showImageMessageHint && (
+					<div id={hintId} className={'ss__chat__composer__hint'} role="status">
+						{langTextOf(lang.imageMessageRequiredText)}
+					</div>
+				)}
 				<div className={'ss__chat__input'}>
 					<div className={'ss__chat__input__input'}>
 						<input
@@ -172,6 +186,7 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 							maxLength={CHAT_MAX_MESSAGE_LENGTH}
 							disabled={inputDisabled}
 							placeholder={placeholder}
+							aria-describedby={showImageMessageHint ? hintId : undefined}
 							onInput={(e) => controller.handlers.input.input(e as unknown as Event)}
 							onKeyDown={(e) => {
 								controller.handlers.input.enterKey(e as unknown as KeyboardEvent);

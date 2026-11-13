@@ -297,6 +297,9 @@ export const ar: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'أضف منتجاً آخر للمقارنة...',
 		},
+		imageMessageRequiredText: {
+			value: 'اكتب رسالة لإرسالها مع صورتك',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'رفع صورة',

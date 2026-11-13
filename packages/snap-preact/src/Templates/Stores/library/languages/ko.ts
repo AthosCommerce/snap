@@ -297,6 +297,9 @@ export const ko: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: '비교할 제품을 하나 더 추가하세요...',
 		},
+		imageMessageRequiredText: {
+			value: '이미지와 함께 보낼 메시지를 입력하세요',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': '이미지 업로드',

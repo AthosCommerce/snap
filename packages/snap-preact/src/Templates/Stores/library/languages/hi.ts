@@ -297,6 +297,9 @@ export const hi: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'तुलना के लिए एक और उत्पाद जोड़ें...',
 		},
+		imageMessageRequiredText: {
+			value: 'अपनी छवि के साथ भेजने के लिए एक संदेश लिखें',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'छवि अपलोड करें',

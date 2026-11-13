@@ -297,6 +297,9 @@ export const zh: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: '再添加一件产品进行比较...',
 		},
+		imageMessageRequiredText: {
+			value: '请输入要与图片一起发送的消息',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': '上传图片',

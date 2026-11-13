@@ -297,6 +297,9 @@ export const vi: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: 'Thêm một sản phẩm khác để so sánh...',
 		},
+		imageMessageRequiredText: {
+			value: 'Nhập tin nhắn để gửi cùng hình ảnh của bạn',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': 'Tải ảnh lên',

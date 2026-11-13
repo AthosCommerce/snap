@@ -297,6 +297,9 @@ export const ja: LangComponents = {
 		inputPlaceholderAddCompare: {
 			value: '比較する商品をもう1つ追加...',
 		},
+		imageMessageRequiredText: {
+			value: '画像と一緒に送信するメッセージを入力してください',
+		},
 		uploadImageButton: {
 			attributes: {
 				'aria-label': '画像をアップロード',

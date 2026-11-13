@@ -150,6 +150,75 @@ describe('ChatOrganism Component', () => {
 		expect(rendered.container.querySelector('.ss__chat__input__counter')?.textContent).toBe('200/256');
 	});
 
+	describe('image attachment message hint', () => {
+		const imageAttachment = (overrides: any = {}) => ({ id: 'img-1', type: 'image', state: 'attached', fileName: 'shoe.png', ...overrides });
+		const chatWithImage = (overrides: any = {}) => makeCurrentChat({ attachments: { attached: [imageAttachment(overrides)], remove: () => {} } });
+		const hintOf = (container: Element) => container.querySelector('.ss__chat__composer__hint');
+		const sendButtonOf = (container: Element) => container.querySelector('.ss__chat__send-button') as HTMLElement;
+
+		it('shows the hint and disables send when an image is attached and the input is empty', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: chatWithImage() })} />);
+
+			const hint = hintOf(rendered.container) as HTMLElement;
+			expect(hint.textContent).toBe('Type a message to send with your image');
+			expect(sendButtonOf(rendered.container)).toHaveAttribute('aria-disabled', 'true');
+
+			const input = rendered.container.querySelector('input[name="ss-chat-input"]') as HTMLInputElement;
+			expect(input).toHaveAttribute('aria-describedby', hint.id);
+		});
+
+		it('hides the hint and enables send after a message is typed', () => {
+			const currentChat = chatWithImage();
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat })} />);
+			expect(hintOf(rendered.container)).toBeInTheDocument();
+			expect(sendButtonOf(rendered.container)).toHaveAttribute('aria-disabled', 'true');
+
+			rendered.rerender(<ChatOrganism controller={makeController({ open: true, currentChat, inputValue: 'find similar shoes' })} />);
+
+			expect(hintOf(rendered.container)).toBeNull();
+			expect(sendButtonOf(rendered.container)).not.toHaveAttribute('aria-disabled', 'true');
+			expect(rendered.container.querySelector('input[name="ss-chat-input"]')).not.toHaveAttribute('aria-describedby');
+		});
+
+		it('keeps the hint when the input contains only whitespace', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: chatWithImage(), inputValue: '   ' })} />);
+			expect(hintOf(rendered.container)).toBeInTheDocument();
+			expect(sendButtonOf(rendered.container)).toHaveAttribute('aria-disabled', 'true');
+		});
+
+		it('does not show the hint without an image attachment', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: makeCurrentChat() })} />);
+			expect(hintOf(rendered.container)).toBeNull();
+		});
+
+		it('does not show the hint while the image uploads or when the upload failed', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: chatWithImage({ state: 'loading' }) })} />);
+			expect(hintOf(rendered.container)).toBeNull();
+
+			rendered.rerender(
+				<ChatOrganism
+					controller={makeController({ open: true, currentChat: chatWithImage({ state: 'error', error: { message: 'Upload failed' } }) })}
+				/>
+			);
+			expect(hintOf(rendered.container)).toBeNull();
+		});
+
+		it('does not show the hint when the input is disabled', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, loading: true, currentChat: chatWithImage() })} />);
+			expect(hintOf(rendered.container)).toBeNull();
+		});
+
+		it('uses the imageMessageRequiredText lang override', () => {
+			const rendered = render(
+				<ChatOrganism
+					controller={makeController({ open: true, currentChat: chatWithImage() })}
+					lang={{ imageMessageRequiredText: { value: 'Add a question first' } }}
+				/>
+			);
+			expect(hintOf(rendered.container)?.textContent).toBe('Add a question first');
+		});
+	});
+
 	it('renders messages from the current chat when open', () => {
 		const currentChat = makeCurrentChat({
 			chat: [
