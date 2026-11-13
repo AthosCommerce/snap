@@ -150,6 +150,57 @@ describe('ChatOrganism Component', () => {
 		expect(rendered.container.querySelector('.ss__chat__input__counter')?.textContent).toBe('200/256');
 	});
 
+	describe('image attachment message requirement', () => {
+		const imageAttachment = (overrides: any = {}) => ({ id: 'img-1', type: 'image', state: 'attached', fileName: 'shoe.png', ...overrides });
+		const chatWithImage = (overrides: any = {}) => makeCurrentChat({ attachments: { attached: [imageAttachment(overrides)], remove: () => {} } });
+		const inputOf = (container: Element) => container.querySelector('input[name="ss-chat-input"]') as HTMLInputElement;
+		const sendButtonOf = (container: Element) => container.querySelector('.ss__chat__send-button') as HTMLElement;
+
+		it('asks for a message in the placeholder and disables send when an image is attached and the input is empty', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: chatWithImage() })} />);
+
+			expect(inputOf(rendered.container)).toHaveAttribute('placeholder', 'Type a message to send with your image...');
+			expect(sendButtonOf(rendered.container)).toHaveAttribute('aria-disabled', 'true');
+		});
+
+		it('enables send after a message is typed', () => {
+			const currentChat = chatWithImage();
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat })} />);
+			expect(sendButtonOf(rendered.container)).toHaveAttribute('aria-disabled', 'true');
+
+			rendered.rerender(<ChatOrganism controller={makeController({ open: true, currentChat, inputValue: 'find similar shoes' })} />);
+
+			expect(sendButtonOf(rendered.container)).not.toHaveAttribute('aria-disabled', 'true');
+		});
+
+		it('keeps send disabled when the input contains only whitespace', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: chatWithImage(), inputValue: '   ' })} />);
+			expect(sendButtonOf(rendered.container)).toHaveAttribute('aria-disabled', 'true');
+		});
+
+		it('keeps the default placeholder while the image uploads or when the upload failed', () => {
+			const rendered = render(<ChatOrganism controller={makeController({ open: true, currentChat: chatWithImage({ state: 'loading' }) })} />);
+			expect(inputOf(rendered.container)).toHaveAttribute('placeholder', 'Type your message...');
+
+			rendered.rerender(
+				<ChatOrganism
+					controller={makeController({ open: true, currentChat: chatWithImage({ state: 'error', error: { message: 'Upload failed' } }) })}
+				/>
+			);
+			expect(inputOf(rendered.container)).toHaveAttribute('placeholder', 'Type your message...');
+		});
+
+		it('uses the inputPlaceholderAskImage lang override', () => {
+			const rendered = render(
+				<ChatOrganism
+					controller={makeController({ open: true, currentChat: chatWithImage() })}
+					lang={{ inputPlaceholderAskImage: { value: 'Add a question first' } }}
+				/>
+			);
+			expect(inputOf(rendered.container)).toHaveAttribute('placeholder', 'Add a question first');
+		});
+	});
+
 	it('renders messages from the current chat when open', () => {
 		const currentChat = makeCurrentChat({
 			chat: [

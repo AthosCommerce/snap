@@ -292,7 +292,7 @@ export const hi: LangComponents = {
 			value: 'तुलना किए गए उत्पादों के बारे में पूछें...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'इस छवि के बारे में पूछें...',
+			value: 'अपनी छवि के साथ भेजने के लिए एक संदेश लिखें...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'तुलना के लिए एक और उत्पाद जोड़ें...',

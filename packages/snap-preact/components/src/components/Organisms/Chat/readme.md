@@ -70,6 +70,8 @@ When false (default), the side-chat affordance for inspiration and comparison me
 
 The text input is capped at `CHAT_MAX_MESSAGE_LENGTH` (256 characters, from `@athoscommerce/snap-client`) via the native `maxLength` attribute, matching the controller's server-side limit. Once the input reaches 200 characters a small `.ss__chat__input__counter` element appears showing `<count>/256` so the user can see how much room is left.
 
+The send button is disabled until the input contains text. An image search request must include a message. When an image is attached and the input is empty, the input placeholder tells the user to type a message. The text comes from the `inputPlaceholderAskImage` lang key.
+
 ## Accessibility
 
 - The chat bubble is a real `<button>` with `aria-label` and `aria-expanded`.

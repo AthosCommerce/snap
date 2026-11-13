@@ -65,9 +65,6 @@ const defaultStyles: StyleScript<ChatComposerProps> = ({ primaryColorBg, primary
 					'&:hover': {
 						backgroundColor: 'transparent',
 					},
-					'&:disabled': {
-						backgroundColor: 'transparent',
-					},
 				},
 				'input[type="file"]': {
 					display: 'none',
@@ -91,7 +88,7 @@ const defaultStyles: StyleScript<ChatComposerProps> = ({ primaryColorBg, primary
 					cursor: 'pointer',
 					justifyContent: 'center',
 					boxSizing: 'border-box',
-					'&:disabled': {
+					'&.ss__button--disabled': {
 						opacity: 0.5,
 						cursor: 'not-allowed',
 					},
@@ -156,10 +153,8 @@ export const ChatComposer = observer((properties: ChatComposerProps): JSX.Elemen
 		return langTextOf(lang.inputPlaceholder);
 	})();
 
-	const hasImageAttachment = (store.currentChat?.attachments.attached || []).some((item) => item.type === 'image' && !item.error);
 	const messageEmpty = !controller.store.inputValue.trim();
-	const sendDisabled =
-		store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false || (hasImageAttachment && messageEmpty) || messageEmpty;
+	const sendDisabled = store.blocked || store.currentChat?.sessionLimitReached || store.chatEnabled === false || messageEmpty;
 
 	return (
 		<CacheProvider>

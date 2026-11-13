@@ -15,6 +15,11 @@ const styleSelector = '&[style], &:has(.ss__image)';
 
 // CSS in JS style script for the Swatches component
 const swatchesStyleScript = (props: SwatchesProps) => {
+	// the chat quickview has its own tile presentation - the product card tile styles do not apply there
+	if (/\bchatQuickview\b/.test(props?.treePath || '')) {
+		return css({});
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
 

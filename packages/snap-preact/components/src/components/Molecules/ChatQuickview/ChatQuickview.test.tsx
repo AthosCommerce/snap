@@ -9,7 +9,14 @@ jest.mock('../../Molecules/Slideshow', () => ({
 }));
 
 jest.mock('../../Molecules/VariantSelection', () => ({
-	VariantSelection: ({ selection, type }: any) => <div className="ss__variant-selection-mock" data-field={selection?.field} data-type={type ?? ''} />,
+	VariantSelection: ({ selection, type, theme, treePath }: any) => {
+		const { Swatches } = jest.requireActual('../../Molecules/Swatches');
+		return (
+			<div className="ss__variant-selection-mock" data-field={selection?.field} data-type={type ?? ''}>
+				{type == 'swatches' && <Swatches options={selection.values} theme={theme} treePath={treePath} />}
+			</div>
+		);
+	},
 }));
 
 jest.mock('../../Molecules/OverlayBadge', () => ({
@@ -23,6 +30,9 @@ jest.mock('../../Molecules/CalloutBadge', () => ({
 import { ThemeProvider } from '../../../providers';
 import { chatAccentThemeComponents } from '../../Organisms/Chat/components/chatAccentTheme';
 import { ChatQuickview } from './ChatQuickview';
+import { Swatches } from '../../Molecules/Swatches';
+import { css } from '@emotion/react';
+import { pike } from '../../../themes';
 
 describe('ChatQuickview Component', () => {
 	const makeController = (storeOverrides: any = {}, chatOverrides: any = {}) => {
@@ -189,6 +199,45 @@ describe('ChatQuickview Component', () => {
 		expect(rendered.container.querySelector('.ss__quickview__add-to-cart .ss__icon--cart')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__quickview__similar .ss__icon--search-thin')).not.toBeNull();
 		expect(rendered.container.querySelector('.ss__quickview__discuss .ss__icon--chat')).not.toBeNull();
+	});
+
+	describe('swatch theme styles', () => {
+		const values = [{ value: 'black' }, { value: 'brown' }];
+		const markerStyleScript = () => css({ outline: '1px solid rgb(255, 0, 0)' });
+		const swatchesOutlineOf = (container: Element) => getComputedStyle(container.querySelector('.ss__swatches')!).outline;
+
+		const renderQuickview = (theme: any) => {
+			const product = makeProduct({
+				variants: { selections: [{ field: 'color', label: 'Color', type: 'swatches', values, select: jest.fn() }] },
+			});
+			return render(
+				<ThemeProvider theme={theme}>
+					<ChatQuickview
+						chatItem={{ id: '1', messageType: 'productQuery', sourceProduct: { id: 'prod1' } } as any}
+						controller={makeController({ product })}
+					/>
+				</ThemeProvider>
+			);
+		};
+
+		it('does not apply the pike theme swatch styles in the chat quickview', () => {
+			const pikeStyleScript = (pike.components!.swatches as any).themeStyleScript;
+
+			expect(pikeStyleScript({ treePath: 'search results result variantSelection swatches' }).styles).toContain('.ss__slideshow');
+			expect(pikeStyleScript({ treePath: 'chat chatQuickview quickviewLayout variantSelection swatches' }).styles).toBe(css({}).styles);
+		});
+
+		it('applies a project themeStyleScript override for swatches in the chat quickview', () => {
+			const theme = {
+				type: 'templates',
+				components: {
+					'*swatches': pike.components!.swatches,
+					swatches: { themeStyleScript: markerStyleScript },
+				},
+			} as any;
+
+			expect(swatchesOutlineOf(renderQuickview(theme).container)).toBe('1px solid rgb(255, 0, 0)');
+		});
 	});
 
 	it('lets the Chat accent theme recolor the action buttons', () => {
