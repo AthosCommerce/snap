@@ -29,7 +29,6 @@ import { ChatSideChat, ChatSideChatProps } from './components/ChatSideChat';
 import { ChatMessages, ChatMessagesProps } from './components/ChatMessages';
 import { ChatSessionFeedback, ChatSessionFeedbackProps } from './components/ChatSessionFeedback';
 import { ChatComparisonsTray, ChatComparisonsTrayProps } from './components/ChatComparisonsTray';
-import { ChatFacetsBar, ChatFacetsBarProps } from './components/ChatFacetsBar';
 import { ChatAttachments, ChatAttachmentsProps } from './components/ChatAttachments';
 import { ChatTopicDrift, ChatTopicDriftProps } from './components/ChatTopicDrift';
 import { ChatComposer, ChatComposerProps } from './components/ChatComposer';
@@ -410,7 +409,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		logo: 'https://cdn.athoscommerce.net/snap/images/Athos%20Commerce_Icon_white.svg',
 		title: 'Athos Conversational Assistant',
 		subtitle: 'Your Guided Discovery Expert',
-		multiselectFacets: false,
 		disableBubbleSuggestedQuestions: isMobile ? true : false,
 		primaryColorBg: Colour.concrete(globalTheme?.variables?.colors?.primary) || '#253B80',
 		primaryColorFg: '#fff',
@@ -435,7 +433,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		title,
 		subtitle,
 		avatar,
-		multiselectFacets,
 		disableBubbleSuggestedQuestions,
 		primaryColorBg,
 		primaryColorFg,
@@ -667,7 +664,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 		},
 		sessionFeedback: { ...inheritedProps, ...primaryColors },
 		comparisonsTray: { ...inheritedProps, ...primaryColors },
-		facetsBar: { ...inheritedProps, ...primaryColors },
 		attachments: { ...inheritedProps },
 		topicDrift: { ...inheritedProps, ...primaryColors },
 		composer: { ...inheritedProps, ...primaryColors, poweredByText, privacyPolicyUrl },
@@ -814,7 +810,6 @@ export const ChatOrganism = observer((properties: ChatOrganismProps) => {
 											<div className="ss__chat__error">{store.error?.message || langTextOf(lang.chatUnavailableMessage)}</div>
 										)}
 										<ChatTopicDrift {...subProps.topicDrift} controller={controller} variant="sessionLimit" />
-										<ChatFacetsBar {...subProps.facetsBar} controller={controller} chatRef={chatRef} multiselectFacets={multiselectFacets} />
 										<ChatAttachments
 											{...subProps.attachments}
 											controller={controller}
@@ -878,7 +873,6 @@ export type ChatTemplatesLegalProps = {
 	subtitle?: string;
 	avatar?: string;
 	offset?: string | number;
-	multiselectFacets?: boolean;
 	disableBubbleSuggestedQuestions?: boolean;
 	/** Overrides the built-in bubble launcher (and its suggested-question chips) visibility.
 	 * `true` always hides it, `false` always shows it — including alongside an inline
@@ -903,7 +897,6 @@ interface ChatSubProps {
 	messages: Partial<ChatMessagesProps>;
 	sessionFeedback: Partial<ChatSessionFeedbackProps>;
 	comparisonsTray: Partial<ChatComparisonsTrayProps>;
-	facetsBar: Partial<ChatFacetsBarProps>;
 	attachments: Partial<ChatAttachmentsProps>;
 	topicDrift: Partial<ChatTopicDriftProps>;
 	composer: Partial<ChatComposerProps>;

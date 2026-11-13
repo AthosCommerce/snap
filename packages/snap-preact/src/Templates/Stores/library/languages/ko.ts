@@ -250,15 +250,6 @@ export const ko: LangComponents = {
 		newSessionButton: {
 			value: '새 세션',
 		},
-		facetsTitle: {
-			value: '필터 기준:',
-		},
-		facetsApplyButton: {
-			value: (data) => `적용 (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: '필터 지우기',
-		},
 		attachmentCompareTitle: {
 			value: '이 제품들 비교하기',
 		},
@@ -440,9 +431,6 @@ export const ko: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: '제품 비교 중',
-		},
-		requestTypeProductFilter: {
-			value: '제품 필터링 중',
 		},
 		requestTypeProductSearch: {
 			value: '제품 검색 중',

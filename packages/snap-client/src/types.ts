@@ -7,7 +7,6 @@ import type {
 	SearchResponseModelResultCoreMappings,
 	SearchResponseModelResultVariants,
 	SearchResponseModelResultBadges,
-	SearchResponseModelFacet,
 } from '@athoscommerce/snapi-types';
 
 export type HTTPHeaders = { [key: string]: string };
@@ -303,7 +302,7 @@ export type RecommendCombinedResponseModel = ProfileResponseModel & { results: S
 	responseId: string;
 };
 
-/** Tracking values sent as query params on every chat backend request.
+/** Tracking values sent as query params on chat send requests.
  * `sessionId` here is the tracker/browser session, not the chat session. */
 export type ChatTrackingContext = {
 	pageUrl: string;
@@ -315,7 +314,6 @@ export type ChatTrackingContext = {
 
 export type ChatStatusRequestModel = {
 	siteId?: string;
-	tracking: ChatTrackingContext;
 };
 
 export type ChatInitRequestModel = {
@@ -331,7 +329,6 @@ export type ChatInitRequestModel = {
 		excludedFacets?: string;
 		shopper?: string;
 	};
-	tracking: ChatTrackingContext;
 };
 
 export type ChatInitResponseModel = {
@@ -357,9 +354,6 @@ export type ChatRequestModel = {
 	tracking: ChatTrackingContext & {
 		userId: string;
 	};
-	personalization?: {
-		shopper: string;
-	};
 };
 
 export type ChatStatusResponseModel = {
@@ -367,12 +361,13 @@ export type ChatStatusResponseModel = {
 		status: {
 			enabled: boolean;
 			disableReason?: {
-				code: number;
+				/** e.g. `CS_004` (disabled for the site) or `CS_005` (not published on the storefront) */
+				code: string;
 				message: string;
 			};
 		};
-		suggestedQuestions: string[];
-		welcomeMessage: string;
+		suggestedQuestions?: string[];
+		welcomeMessage?: string;
 	};
 	features: {
 		imageSearch: { enabled: boolean };
@@ -444,7 +439,7 @@ export type MoiRequestModelContent = {
 	message: string;
 };
 
-// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, inspirationResult, content, errorResponse, topicDrift, actions
+// DISCRIMINATOR: "messageType" === text, productAnswer, productRecommendation, productComparison, productSearchResult, inspirationResult, content, errorResponse, topicDrift
 export type MoiResponseModel = {
 	responseId: string;
 	context: {
@@ -457,7 +452,6 @@ export type MoiResponseModel = {
 		| MoiResponseModelInspirationResult
 		| MoiResponseModelProductAnswer
 		| MoiResponseModelProductComparison
-		| MoiResponseModelActions
 		| MoiResponseModelProductRecommendation
 		| MoiResponseModelTopicDrift
 		| MoiResponseModelError
@@ -481,19 +475,6 @@ export type MoiResponseModelSearchResult = {
 	pagination: {
 		totalResults: number;
 	};
-	facets: {
-		field: string;
-		label: string;
-		type: string;
-		multiple: string;
-		values: {
-			value: string;
-			type: string;
-			label: string;
-			count: number;
-			active: boolean;
-		}[];
-	}[];
 	sorting: {
 		options: {
 			field: string;
@@ -565,14 +546,6 @@ export type MoiResponseModelTopicDrift = BaseResponseProperties & {
 	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
 };
 
-export type MoiResponseModelActions = {
-	messageType: 'actions';
-	actions: {
-		message: string;
-		request: MoiRequestModel;
-	}[];
-};
-
 export type MoiResponseModelProductRecommendation = BaseResponseProperties & {
 	messageType: 'productRecommendation';
 	recommendationResult: {
@@ -595,15 +568,14 @@ export type MoiResponseModelError = BaseResponseProperties & {
 };
 
 export type ChatBadRequestResponseModel = {
-	errors: string[];
-	errorMessage: string;
+	errorCode: string;
+	errorMessage?: string;
 };
 
 export type ChatResponseModel = {
 	data: (
 		| ChatResponseTextData
 		| ChatResponseContentData
-		| ChatResponseActionsData
 		| ChatResponseProductSearchResultData
 		| ChatResponseInspirationResultData
 		| ChatResponseProductAnswerData
@@ -634,16 +606,10 @@ export type ChatResponseTopicDriftData = BaseResponseProperties & {
 	recommendedAction: 'SCOPE_REDIRECT' | 'CATEGORY_SWITCH_CONFIRM' | 'CONTINUE';
 };
 
-export type ChatResponseActionsData = {
-	messageType: 'actions';
-	actions: MoiResponseModelActions['actions']; // no change
-};
-
 export type ChatResponseProductSearchResultData = BaseResponseProperties & {
 	messageType: 'productSearchResult';
 	text: string;
 	results: SearchResponseModelResult[];
-	facets: SearchResponseModelFacet[];
 	filterSummary: ChatFilterSummaryEntry[];
 };
 

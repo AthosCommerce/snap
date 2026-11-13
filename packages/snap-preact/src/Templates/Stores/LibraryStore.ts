@@ -120,7 +120,6 @@ export type LibraryImports = {
 		chatSuggestedQuestions: LibraryComponentImport;
 		chatComparisonsTray: LibraryComponentImport;
 		chatComposer: LibraryComponentImport;
-		chatFacetsBar: LibraryComponentImport;
 		chatHistory: LibraryComponentImport;
 		chatMessages: LibraryComponentImport;
 		chatSessionFeedback: LibraryComponentImport;
@@ -248,7 +247,6 @@ export class LibraryStore {
 		chatSuggestedQuestions: LibraryComponentMap;
 		chatComparisonsTray: LibraryComponentMap;
 		chatComposer: LibraryComponentMap;
-		chatFacetsBar: LibraryComponentMap;
 		chatHistory: LibraryComponentMap;
 		chatMessages: LibraryComponentMap;
 		chatSessionFeedback: LibraryComponentMap;
@@ -343,7 +341,6 @@ export class LibraryStore {
 		chatSuggestedQuestions: {},
 		chatComparisonsTray: {},
 		chatComposer: {},
-		chatFacetsBar: {},
 		chatHistory: {},
 		chatMessages: {},
 		chatSessionFeedback: {},
@@ -613,7 +610,6 @@ export class LibraryStore {
 			chatSuggestedQuestions: {},
 			chatComparisonsTray: {},
 			chatComposer: {},
-			chatFacetsBar: {},
 			chatHistory: {},
 			chatMessages: {},
 			chatSessionFeedback: {},

@@ -31,7 +31,6 @@ describe('LibraryStore', () => {
 			chatButton: {},
 			chatComparisonsTray: {},
 			chatComposer: {},
-			chatFacetsBar: {},
 			chatHistory: {},
 			chatInspirationResultMessage: {},
 			chatLoadingIndicator: {},

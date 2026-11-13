@@ -32,21 +32,6 @@ describe('ChatMessageUser Component', () => {
 		expect(rendered.getByText('Searching products')).toBeInTheDocument();
 	});
 
-	it('renders the "Filtering products" label when the request has only searchFilters', () => {
-		const rendered = render(
-			<ChatMessageUser
-				chatItem={{
-					id: '1',
-					text: 'Filter by product_type Benches',
-					requestType: 'productSearch',
-					request: { requestType: 'productSearch', searchFilters: [{ key: 'product_type', options: [{ key: 'Benches' }] }] },
-				}}
-				controller={makeController()}
-			/>
-		);
-		expect(rendered.getByText('Filtering products')).toBeInTheDocument();
-	});
-
 	it('renders the "Searching products" label when the request has a searchTerm alongside searchFilters', () => {
 		const rendered = render(
 			<ChatMessageUser

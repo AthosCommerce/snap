@@ -5,7 +5,7 @@ const createStore = () => new ChatAttachmentStore();
 describe('ChatAttachmentStore remove()', () => {
 	it('does not throw when removing a nonexistent id', () => {
 		const store = createStore();
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+		store.add({ type: 'image', fileName: 'photo.jpg' });
 
 		expect(() => store.remove('nonexistent-id')).not.toThrow();
 		expect(store.items.length).toBe(1);
@@ -13,7 +13,7 @@ describe('ChatAttachmentStore remove()', () => {
 
 	it('leaves items unchanged when removing a nonexistent id', () => {
 		const store = createStore();
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
+		store.add({ type: 'image', fileName: 'photo.jpg' });
 		const idBefore = store.items[0].id;
 
 		store.remove('nonexistent-id');
@@ -26,8 +26,8 @@ describe('ChatAttachmentStore remove()', () => {
 describe('ChatAttachmentStore add() image branch', () => {
 	it('removes ALL existing attachments when adding an image (no skips while splicing)', () => {
 		const store = createStore();
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'blue', label: 'Blue', count: 3 });
+		store.add({ type: 'product', productId: 'prod-1', name: 'Product prod-1', requestType: 'productComparison' });
+		store.add({ type: 'product', productId: 'prod-2', name: 'Product prod-2', requestType: 'productComparison' });
 		expect(store.items.length).toBe(2);
 
 		store.add({ type: 'image', fileName: 'photo.jpg' });
@@ -55,15 +55,15 @@ describe('ChatAttachmentStore add() product branch', () => {
 		requestType,
 	});
 
-	it('productSimilar replaces ALL existing attachments including multiple facets', () => {
+	it('productSimilar replaces ALL existing attachments', () => {
 		const store = createStore();
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'blue', label: 'Blue', count: 3 });
+		store.add(productConfig('prod-1'));
+		store.add(productConfig('prod-2'));
 
-		store.add(productConfig('prod-1', 'productSimilar'));
+		store.add(productConfig('prod-3', 'productSimilar'));
 
 		expect(store.items.length).toBe(1);
-		expect((store.items[0] as any).productId).toBe('prod-1');
+		expect((store.items[0] as any).productId).toBe('prod-3');
 	});
 
 	it('dedupes an already-attached product and updates its requestType', () => {
@@ -89,36 +89,16 @@ describe('ChatAttachmentStore add() product branch', () => {
 	});
 });
 
-describe('ChatAttachmentStore add() facet dedup', () => {
-	it('returns the existing attachment for the same facet key/value', () => {
-		const store = createStore();
-		const first = store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
-		const second = store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
-
-		expect(second).toBe(first);
-		expect(store.items.length).toBe(1);
-	});
-
-	it('removes non-facet attachments when adding a facet', () => {
-		const store = createStore();
-		store.add({ type: 'image', fileName: 'photo.jpg' });
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
-
-		expect(store.items.length).toBe(1);
-		expect(store.items[0].type).toBe('facet');
-	});
-});
-
 describe('ChatAttachmentStore add() product requestType stamp', () => {
 	it('does not set requestType on surviving non-product attachments when adding a product', () => {
 		const store = createStore();
 
-		store.add({ type: 'facet', key: 'color', facetLabel: 'Color', value: 'red', label: 'Red', count: 5 });
-		const facetItem = store.items[0];
+		store.add({ type: 'image', fileName: 'photo.jpg' });
+		const imageItem = store.items[0];
 
-		// Force the facet into 'active' state so remove() calls save() instead of splicing it out,
+		// Force the image into 'active' state so remove() calls save() instead of splicing it out,
 		// meaning it survives in store.items through the product-add pass.
-		(facetItem as any).state = 'active';
+		(imageItem as any).state = 'active';
 
 		store.add({
 			type: 'product',
@@ -128,8 +108,8 @@ describe('ChatAttachmentStore add() product requestType stamp', () => {
 			requestType: 'productComparison',
 		});
 
-		expect(store.items).toContain(facetItem);
-		expect((facetItem as any).requestType).toBeUndefined();
+		expect(store.items).toContain(imageItem);
+		expect((imageItem as any).requestType).toBeUndefined();
 	});
 
 	it('updates requestType only on existing product attachments', () => {

@@ -250,15 +250,6 @@ export const it: LangComponents = {
 		newSessionButton: {
 			value: 'Nuova sessione',
 		},
-		facetsTitle: {
-			value: 'Filtra per:',
-		},
-		facetsApplyButton: {
-			value: (data) => `Applica (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'Cancella filtri',
-		},
 		attachmentCompareTitle: {
 			value: 'Confronta questi prodotti',
 		},
@@ -440,9 +431,6 @@ export const it: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'Confronto prodotti',
-		},
-		requestTypeProductFilter: {
-			value: 'Filtro prodotti',
 		},
 		requestTypeProductSearch: {
 			value: 'Ricerca prodotti',

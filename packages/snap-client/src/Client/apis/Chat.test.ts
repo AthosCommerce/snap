@@ -1,6 +1,8 @@
 import 'whatwg-fetch';
 import { ApiConfiguration, ApiConfigurationParameters } from './Abstract';
 import { ChatAPI } from './Chat';
+import { transformChatResponse } from '../transforms/chatResponse';
+import type { MoiResponseModel } from '../../types';
 import { MockData } from '@athoscommerce/snap-shared';
 
 const mockData = new MockData({ siteId: '8uyt2m' });
@@ -44,6 +46,27 @@ describe('Chat Api', () => {
 			expect((result as any).data[0].messageType).toBe('text');
 		});
 
+		it('sends the tracking userId as userId and the shopper ID only as shopperId', async () => {
+			requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() =>
+					Promise.resolve({ status: 200, json: () => Promise.resolve(mockData.chat('default')), headers: new Headers() } as Response)
+				);
+
+			const api = new ChatAPI(new ApiConfiguration(apiConfig));
+			await api.postMessage({
+				siteId: '8uyt2m',
+				context: { sessionId: 's1' },
+				tracking: { ...baseTracking, shopperId: 'shopper-1' },
+				data: { requestType: 'general', message: 'hello' },
+			});
+
+			const [calledUrl] = requestMock.mock.calls[0] as [string];
+			const query = new URL(calledUrl).searchParams;
+			expect(query.get('userId')).toBe('user-1');
+			expect(query.get('shopperId')).toBe('shopper-1');
+		});
+
 		it('rejects with errorCode-on-200 shaped error when response has errorCode', async () => {
 			const errorBody = { errorCode: 'CS_003', errorMessage: 'Session limit exceeded' };
 			requestMock = jest
@@ -64,26 +87,23 @@ describe('Chat Api', () => {
 			});
 		});
 
-		it('does not retry a 429 response with quota limit errorCode CS_002', async () => {
-			const errorBody = { errorCode: 'CS_002', errorMessage: 'Quota limit reached' };
+		it('resolves a successful response that has a null errorCode', async () => {
+			const fixture = mockData.chat('default');
 			requestMock = jest
 				.spyOn(global.window, 'fetch')
-				.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve(errorBody), headers: new Headers() } as Response));
+				.mockImplementation(() =>
+					Promise.resolve({ status: 200, json: () => Promise.resolve({ ...fixture, errorCode: null }), headers: new Headers() } as Response)
+				);
 
-			const api = new ChatAPI(new ApiConfiguration({ ...apiConfig, maxRetry: 3 }));
-			await expect(
-				api.postMessage({
-					siteId: '8uyt2m',
-					context: { sessionId: 's1' },
-					tracking: baseTracking,
-					data: { requestType: 'general', message: 'hello' },
-				})
-			).rejects.toMatchObject({
-				fetchDetails: { status: 429 },
-				responseBody: { errorCode: 'CS_002' },
+			const api = new ChatAPI(new ApiConfiguration(apiConfig));
+			const result = await api.postMessage({
+				siteId: '8uyt2m',
+				context: { sessionId: 's1' },
+				tracking: baseTracking,
+				data: { requestType: 'general', message: 'hello' },
 			});
 
-			expect(requestMock).toHaveBeenCalledTimes(1);
+			expect(result).toEqual(transformChatResponse(fixture as MoiResponseModel));
 		});
 
 		it('rejects with reshaped error when HTTP 400 response', async () => {
@@ -231,7 +251,7 @@ describe('Chat Api', () => {
 			});
 			expect((requestMock.mock.calls[0] as [string])[0]).toContain('/custom/send');
 
-			await api.getStatus({ siteId: '8uyt2m', tracking: baseTracking });
+			await api.getStatus({ siteId: '8uyt2m' });
 			expect((requestMock.mock.calls[1] as [string])[0]).toContain('/custom/status');
 
 			await api.postInit({
@@ -239,7 +259,6 @@ describe('Chat Api', () => {
 				userId: 'user-1',
 				languageCode: 'en',
 				searchConfig: { sessionId: 'search-session-1' },
-				tracking: baseTracking,
 			});
 			expect((requestMock.mock.calls[2] as [string])[0]).toContain('/custom/init');
 
@@ -258,7 +277,6 @@ describe('Chat Api', () => {
 			const api = new ChatAPI(new ApiConfiguration(apiConfig));
 			const result = await api.getStatus({
 				siteId: '8uyt2m',
-				tracking: baseTracking,
 			});
 
 			const [calledUrl, calledInit] = requestMock.mock.calls[0] as [string, RequestInit];
@@ -282,13 +300,49 @@ describe('Chat Api', () => {
 				userId: 'user-1',
 				languageCode: 'en',
 				searchConfig: { sessionId: 'search-session-1' },
-				tracking: baseTracking,
 			});
 
 			const [calledUrl] = (requestMock.mock.calls[0] as [string]) || [];
 			expect(calledUrl).toContain('/v1/chat/init');
 			expect(calledUrl).toContain('siteId=8uyt2m');
 			expect(result).toEqual(fixture);
+		});
+	});
+
+	describe('quota limit (CS_002)', () => {
+		const quotaErrorBody = { errorCode: 'CS_002', errorMessage: 'The site has exceeded the maximum number of sessions allowed.' };
+
+		beforeEach(() => {
+			requestMock = jest
+				.spyOn(global.window, 'fetch')
+				.mockImplementation(() => Promise.resolve({ status: 429, json: () => Promise.resolve(quotaErrorBody), headers: new Headers() } as Response));
+		});
+
+		it('does not retry a 429 quota limit response from getStatus', async () => {
+			const api = new ChatAPI(new ApiConfiguration({ ...apiConfig, maxRetry: 3 }));
+
+			await expect(api.getStatus({ siteId: '8uyt2m' })).rejects.toMatchObject({
+				fetchDetails: { status: 429 },
+				responseBody: quotaErrorBody,
+			});
+			expect(requestMock).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not retry a 429 quota limit response from postInit', async () => {
+			const api = new ChatAPI(new ApiConfiguration({ ...apiConfig, maxRetry: 3 }));
+
+			await expect(
+				api.postInit({
+					siteId: '8uyt2m',
+					userId: 'user-1',
+					languageCode: 'en',
+					searchConfig: { sessionId: 'search-session-1' },
+				})
+			).rejects.toMatchObject({
+				fetchDetails: { status: 429 },
+				responseBody: quotaErrorBody,
+			});
+			expect(requestMock).toHaveBeenCalledTimes(1);
 		});
 	});
 

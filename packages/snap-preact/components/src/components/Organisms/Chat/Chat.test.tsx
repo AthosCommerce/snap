@@ -32,8 +32,6 @@ describe('ChatOrganism Component', () => {
 				error: undefined,
 				inputValue: '',
 				suggestedQuestions: [],
-				facets: [],
-				hasPendingFacetChanges: false,
 				features: {
 					imageSearch: { enabled: false },
 					similarProducts: { enabled: false },

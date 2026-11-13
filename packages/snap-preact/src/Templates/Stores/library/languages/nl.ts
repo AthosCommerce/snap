@@ -250,15 +250,6 @@ export const nl: LangComponents = {
 		newSessionButton: {
 			value: 'Nieuwe sessie',
 		},
-		facetsTitle: {
-			value: 'Filteren op:',
-		},
-		facetsApplyButton: {
-			value: (data) => `Toepassen (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'Filters wissen',
-		},
 		attachmentCompareTitle: {
 			value: 'Deze producten vergelijken',
 		},
@@ -440,9 +431,6 @@ export const nl: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'Producten vergelijken',
-		},
-		requestTypeProductFilter: {
-			value: 'Producten filteren',
 		},
 		requestTypeProductSearch: {
 			value: 'Producten zoeken',

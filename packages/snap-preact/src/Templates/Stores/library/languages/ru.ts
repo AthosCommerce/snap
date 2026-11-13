@@ -252,15 +252,6 @@ export const ru: LangComponents = {
 		newSessionButton: {
 			value: 'Новая сессия',
 		},
-		facetsTitle: {
-			value: 'Фильтровать по:',
-		},
-		facetsApplyButton: {
-			value: (data) => `Применить (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'Очистить фильтры',
-		},
 		attachmentCompareTitle: {
 			value: 'Сравнить эти товары',
 		},
@@ -442,9 +433,6 @@ export const ru: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'Сравнение товаров',
-		},
-		requestTypeProductFilter: {
-			value: 'Фильтрация товаров',
 		},
 		requestTypeProductSearch: {
 			value: 'Поиск товаров',

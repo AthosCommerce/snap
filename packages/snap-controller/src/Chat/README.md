@@ -23,7 +23,7 @@ chatController.init();
 ```
 
 ## Search
-Sends a chat message. The request is constructed from the current input value, attached images, attached products, active comparisons, and any selected facet filters on the active facets display. The request type is automatically determined based on context. The input value is HTML-stripped at submit time to prevent tag injection in both the API request and the rendered user message.
+Sends a chat message. The request is constructed from the current input value, attached images, attached products, and active comparisons. The request type is automatically determined based on context. The input value is HTML-stripped at submit time to prevent tag injection in both the API request and the rendered user message.
 
 Before the request is sent, the message field is finalized to mirror the backend's per-`requestType` rules:
 
@@ -49,6 +49,18 @@ input.addEventListener('change', (e) => {
     chatController.upload(e.target.files);
 });
 ```
+
+When an upload fails, the image attachment moves to an error state with a shopper-facing message based on the response:
+
+| Response | Message |
+|----------|---------|
+| `errorCode` `VS_001` or `VS_004` (file or dimensions below the minimum) | This image is too small. Please choose a larger one. |
+| HTTP 413 | This image is too large. Please choose a smaller one. |
+| HTTP 415 | This file type is not supported |
+| Any other HTTP 422 | We couldn't read this image. Please try a different one. |
+| HTTP 403 | Image search isn't available right now. |
+| Any other HTTP 400 with an `errorMessage` | The server's `errorMessage`, followed by "Please try again." |
+| Anything else | Something went wrong behind the scenes. Please give it another shot in a moment. |
 
 ## ProductQuickView
 Pushes a `productQuery` message into the side-chat panel and opens the product quickview within the chat through the controller's [QuickviewManager](../Quickview/README.md) (`quickviewManager.show()` — products fetch, clone, variant build). The manager's store drives the panel: `store.isOpen` is the secondary window's visibility flag for product queries, and `ChatQuickview` renders a `QuickviewLayout` inline from `store.product`. Drops any prior `productQuery` attachment for a different product so the previous discussion target doesn't remain alongside the newly focused product.
@@ -158,7 +170,7 @@ The controller automatically determines the request type based on the current co
 | `productQuery` | A single product is attached for discussion |
 | `productSimilar` | A product is attached with the "find similar" intent |
 | `productComparison` | Two or more products are in the comparison set, or a committed comparison is still active |
-| `productSearch` | Facet filters are selected on the active facets display |
+| `productSearch` | A search query is clicked in an inspiration result. The request sends the section's filters as `searchFilters` |
 
 ## Events
 

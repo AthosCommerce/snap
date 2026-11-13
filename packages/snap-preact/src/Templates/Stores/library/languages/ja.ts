@@ -250,15 +250,6 @@ export const ja: LangComponents = {
 		newSessionButton: {
 			value: '新しいセッション',
 		},
-		facetsTitle: {
-			value: '絞り込み条件：',
-		},
-		facetsApplyButton: {
-			value: (data) => `適用 (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'フィルターをクリア',
-		},
 		attachmentCompareTitle: {
 			value: 'これらの商品を比較',
 		},
@@ -440,9 +431,6 @@ export const ja: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: '商品を比較中',
-		},
-		requestTypeProductFilter: {
-			value: '商品を絞り込み中',
 		},
 		requestTypeProductSearch: {
 			value: '商品を検索中',

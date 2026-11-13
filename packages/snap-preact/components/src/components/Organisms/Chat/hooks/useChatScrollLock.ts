@@ -91,7 +91,7 @@ export const useChatScrollLock = ({ open, chatRef }: UseChatScrollLockOptions): 
 			}
 			// Inside a scrollable container — only block when at the edge in the
 			// swipe direction, so internal scrolling continues to work. Detect the
-			// dominant axis so horizontally-scrollable rows (e.g. the facets row)
+			// dominant axis so horizontally-scrollable rows (e.g. product carousels)
 			// also get to handle their own touch gestures.
 			const currentX = e.touches[0]?.clientX ?? startX;
 			const currentY = e.touches[0]?.clientY ?? startY;

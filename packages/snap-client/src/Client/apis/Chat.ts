@@ -25,6 +25,8 @@ export const CHAT_ERROR_CODES = {
 	QUOTA_LIMIT: 'CS_002',
 	SESSION_LIMIT: 'CS_003',
 	CONTENT_POLICY: 'CS_006',
+	IMAGE_FILE_TOO_SMALL: 'VS_001',
+	IMAGE_DIMENSIONS_TOO_SMALL: 'VS_004',
 } as const;
 
 const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> => {
@@ -36,6 +38,10 @@ const trackingQuery = (tracking: ChatTrackingContext): Record<string, string> =>
 		currency: tracking.currency,
 	});
 };
+
+// a body with a null or empty errorCode is not an error
+const isChatErrorBody = (response: MoiResponseModel | ChatBadRequestResponseModel): response is ChatBadRequestResponseModel =>
+	'errorCode' in response && !!response.errorCode;
 
 export class ChatAPI extends API<ChatRequesterPaths> {
 	// a quota limit (CS_002) will not clear within the retry window, so retrying only delays surfacing the error
@@ -66,12 +72,12 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 	}
 
 	async postMessage(requestParameters: ChatRequestModel & ClientGlobals): Promise<ChatResponseModel> {
-		const userId = requestParameters.personalization?.shopper || requestParameters.tracking.userId;
+		const { userId } = requestParameters.tracking;
 		const chatSessionId = requestParameters.context?.sessionId;
 
-		let response: MoiResponseModel;
+		let response: MoiResponseModel | ChatBadRequestResponseModel;
 		try {
-			response = await this.request<MoiResponseModel>({
+			response = await this.request<MoiResponseModel | ChatBadRequestResponseModel>({
 				path: this.configuration.paths.send || '/v1/chat/send',
 				method: 'POST',
 				headers: JSON_HEADERS,
@@ -87,15 +93,14 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 			this.handleError(err);
 		}
 
-		// some error conditions (e.g. session limit CS_003) are returned as a
+		// some error conditions (session limit CS_003, content policy CS_006) are returned as a
 		// 200 response with an errorCode body — surface as a thrown error so
 		// the controller's existing error handling can react
-		const errorBody = response as unknown as ChatBadRequestResponseModel & { errorCode?: string };
-		if (errorBody?.errorCode) {
+		if (isChatErrorBody(response)) {
 			throw {
-				err: new Error(errorBody.errorMessage || 'Bad Request'),
+				err: new Error(response.errorMessage || 'Bad Request'),
 				fetchDetails: { status: 200, message: 'OK' },
-				responseBody: errorBody,
+				responseBody: response,
 			};
 		}
 
@@ -110,7 +115,6 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 				headers: {},
 				query: {
 					siteId: queryParameters.siteId,
-					...trackingQuery(queryParameters.tracking),
 				},
 			});
 
@@ -121,6 +125,7 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 	}
 
 	async postInit(queryParameters: ChatInitRequestModel & ClientGlobals): Promise<ChatInitResponseModel> {
+		const { userId, languageCode, searchConfig } = queryParameters;
 		try {
 			const response = await this.request<ChatInitResponseModel>({
 				path: this.configuration.paths.init || '/v1/chat/init',
@@ -128,9 +133,8 @@ export class ChatAPI extends API<ChatRequesterPaths> {
 				headers: JSON_HEADERS,
 				query: {
 					siteId: queryParameters.siteId,
-					...trackingQuery(queryParameters.tracking),
 				},
-				body: queryParameters,
+				body: { userId, languageCode, searchConfig },
 			});
 
 			return response;

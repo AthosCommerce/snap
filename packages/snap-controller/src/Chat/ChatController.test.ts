@@ -220,6 +220,52 @@ describe('Chat Controller', () => {
 			expect(controller.store.error!.message).toBe("We couldn't start a new chat just now. Please try again in a moment.");
 			logSpy.mockClear();
 		});
+
+		it('keeps chat enabled when chatInit returns the quota limit error (CS_002)', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = null;
+			controller.client.chatInit = jest.fn().mockRejectedValue({
+				err: new Error('Quota limit reached'),
+				fetchDetails: { status: 429, url: 'test.com' },
+				responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
+			});
+
+			const chat = await controller.startNewChat();
+
+			expect(chat).toBeUndefined();
+			expect(controller.store.chatEnabled).toBe(true);
+			expect(controller.store.error).toStrictEqual({
+				type: 'warning',
+				message: 'Service is temporarily unavailable. In the meantime, feel free to use the search bar above to find what you need!',
+			});
+		});
+
+		it('lets a chat that has a session keep sending after chatInit returns the quota limit error (CS_002)', async () => {
+			const controller = createController();
+			controller.store.chatEnabled = true;
+			const existingChat = controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.createChat();
+			controller.client.chatInit = jest.fn().mockRejectedValue({
+				err: new Error('Quota limit reached'),
+				fetchDetails: { status: 429, url: 'test.com' },
+				responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
+			});
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			controller.store.inputValue = 'start a new chat';
+			await controller.search();
+
+			expect(chatSpy).not.toHaveBeenCalled();
+			expect(controller.store.error?.type).toBe('warning');
+
+			controller.store.switchChat(existingChat.id);
+			controller.store.inputValue = 'continue the existing chat';
+			await controller.search();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect(chatSpy.mock.calls[0][0].context.sessionId).toBe('test-session-001');
+			expect(controller.store.error).toBeUndefined();
+		});
 	});
 
 	describe('search', () => {
@@ -307,32 +353,6 @@ describe('Chat Controller', () => {
 			handleError.mockClear();
 		});
 
-		it('displays a try-again-later message for quota limit errors (CS_002)', async () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-			controller.store.chatEnabled = true;
-			controller.store.inputValue = 'test message';
-			const handleError = jest.spyOn(controller, 'handleError');
-			const error = new Error('Quota limit reached');
-
-			controller.client.chat = jest.fn(() => {
-				throw {
-					err: error,
-					fetchDetails: { status: 429, url: 'test.com' },
-					responseBody: { errorCode: 'CS_002', errorMessage: 'Quota limit reached' },
-				};
-			});
-
-			await controller.search();
-
-			expect(controller.store.error).toStrictEqual({
-				type: 'warning',
-				message: 'Chat is temporarily unavailable. Please try again later.',
-			});
-			expect(handleError).toHaveBeenCalledWith(error, { status: 429, url: 'test.com' });
-			handleError.mockClear();
-		});
-
 		it('handles 500 server error', async () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
@@ -365,7 +385,7 @@ describe('Chat Controller', () => {
 			controller.client.chat = jest.fn(() => {
 				throw {
 					err: new Error('Session limit exceeded'),
-					fetchDetails: { status: 400, url: 'test.com' },
+					fetchDetails: { status: 200, url: 'test.com' },
 					responseBody: { errorCode: 'CS_003' },
 				};
 			});
@@ -538,15 +558,22 @@ describe('Chat Controller', () => {
 			expect(params.tracking.pageUrl).toBe(window.location.href);
 		});
 
-		it('constructs request with personalization when shopperId exists', () => {
+		it('keeps the Beacon userId and sends the shopper ID only as shopperId when a shopper is logged in', () => {
 			const controller = createController();
 			controller.store.createChat({ sessionId: 'test-session-001' });
-			const shopper = { id: 'shopper123' };
-			controller.tracker.track.shopper.login(shopper);
+			controller.tracker.track.shopper.login({ id: 'shopper123' });
+			const { userId, sessionId, pageLoadId } = controller.tracker.getContext();
 
 			const params = controller.params;
 
-			expect(params.personalization?.shopper).toBe('shopper123');
+			expect(params).not.toHaveProperty('personalization');
+			expect(params.tracking).toEqual({
+				pageUrl: window.location.href,
+				sessionId,
+				pageLoadId,
+				shopperId: 'shopper123',
+				userId,
+			});
 		});
 
 		it('constructs productQuery params with a productIdentity from the attached product', () => {
@@ -1594,94 +1621,6 @@ describe('Chat Controller', () => {
 		});
 	});
 
-	describe('params with facet filters', () => {
-		it('includes searchFilters when hasPendingFacetChanges is true', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-
-			const params = controller.params;
-
-			expect(params.data.requestType).toBe('productSearch');
-			expect((params.data as any).searchFilters).toEqual([{ key: 'color', options: [{ key: 'red' }] }]);
-		});
-
-		it('includes multiple values for the same field', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-			controller.store.addFacet({ key: 'color', value: 'blue' });
-
-			const params = controller.params;
-			const colorFilter = (params.data as any).searchFilters.find((f: any) => f.key === 'color');
-
-			expect(colorFilter.options).toEqual(expect.arrayContaining([{ key: 'red' }, { key: 'blue' }]));
-		});
-
-		it('includes range-bucket filter as low/high', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			// Use non-zero low to avoid UrlManager falsy-value serialization issue
-			controller.store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
-
-			const params = controller.params;
-			const priceFilter = (params.data as any).searchFilters.find((f: any) => f.key === 'price');
-
-			expect(priceFilter.options).toEqual([{ low: '10', high: '50' }]);
-		});
-
-		it('does not include searchFilters when there are no pending changes', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-			controller.store.inputValue = 'show me jackets';
-
-			const params = controller.params;
-
-			expect(params.data.requestType).toBe('general');
-			expect((params.data as any).searchFilters).toBeUndefined();
-		});
-
-		it('sends empty searchFilters when all seeded facets are removed', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-
-			controller.store.setActiveFacets(
-				[
-					{
-						field: 'color',
-						type: 'value',
-						values: [{ value: 'red', label: 'Red', count: 5, filtered: true }],
-					} as any,
-				],
-				'msg-1'
-			);
-
-			controller.store.removeFacet('color', 'red');
-
-			const params = controller.params;
-
-			expect(params.data.requestType).toBe('productSearch');
-			expect((params.data as any).searchFilters).toEqual([]);
-		});
-
-		it('preserves user message when promoting to productSearch', () => {
-			const controller = createController();
-			controller.store.createChat({ sessionId: 'test-session-001' });
-			controller.store.inputValue = 'show me jackets';
-
-			controller.store.addFacet({ key: 'color', value: 'red' });
-
-			const params = controller.params;
-
-			expect(params.data.requestType).toBe('productSearch');
-			expect((params.data as any).message).toBe('show me jackets');
-			expect((params.data as any).searchFilters).toEqual([{ key: 'color', options: [{ key: 'red' }] }]);
-		});
-	});
-
 	describe('request validation', () => {
 		it('drops general requests with a blank message and warns', async () => {
 			const controller = createController();
@@ -1850,6 +1789,23 @@ describe('Chat Controller', () => {
 			const userMessages = controller.store.currentChat?.chat.filter((m) => m.messageType === 'user') || [];
 			expect(userMessages.length).toBe(0);
 			expect(controller.store.currentChat?.pendingRequest).toBeNull();
+		});
+
+		it('re-sends a pending request with the Beacon userId when a shopper is logged in', async () => {
+			const controller = createController();
+			controller.store.createChat({ sessionId: 'test-session-001' });
+			controller.store.chatEnabled = true;
+			controller.store.currentChat?.setPendingRequest({ requestType: 'general', message: 'lost message' });
+			controller.tracker.track.shopper.login({ id: 'shopper123' });
+			const { userId } = controller.tracker.getContext();
+			const chatSpy = jest.spyOn(controller.client, 'chat');
+
+			await controller.resumePendingRequest();
+
+			expect(chatSpy).toHaveBeenCalledTimes(1);
+			expect(chatSpy.mock.calls[0][0]).not.toHaveProperty('personalization');
+			expect(chatSpy.mock.calls[0][0].tracking.userId).toBe(userId);
+			expect(chatSpy.mock.calls[0][0].tracking.shopperId).toBe('shopper123');
 		});
 
 		it('re-sends a pending request when the chat is opened via the bubble toggle', async () => {
@@ -2099,18 +2055,21 @@ describe('Chat Controller', () => {
 	});
 
 	describe('config globals', () => {
-		it('merges config.globals into the request params', () => {
-			const controller = createController({ globals: { personalization: { shopper: 'global-shopper' } } });
+		const currencyGlobals = { tracking: { currency: 'EUR' } } as Partial<ChatRequestModel>;
+
+		it('deep merges config.globals into the request params', () => {
+			const controller = createController({ globals: currencyGlobals });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.inputValue = 'hello';
 
 			const params = controller.params;
 
-			expect(params.personalization?.shopper).toBe('global-shopper');
+			expect(params.tracking.currency).toBe('EUR');
+			expect(params.tracking.pageUrl).toBe(window.location.href);
 		});
 
 		it('passes config.globals through to the chat API request', async () => {
-			const controller = createController({ globals: { personalization: { shopper: 'global-shopper' } } });
+			const controller = createController({ globals: currencyGlobals });
 			controller.store.createChat({ sessionId: 'test-session-001' });
 			controller.store.chatEnabled = true;
 			controller.store.inputValue = 'hello';
@@ -2118,7 +2077,7 @@ describe('Chat Controller', () => {
 
 			await controller.search();
 
-			expect(chatSpy).toHaveBeenCalledWith(expect.objectContaining({ personalization: { shopper: 'global-shopper' } }));
+			expect(chatSpy).toHaveBeenCalledWith(expect.objectContaining({ tracking: expect.objectContaining({ currency: 'EUR' }) }));
 			chatSpy.mockClear();
 		});
 	});
@@ -2208,7 +2167,7 @@ describe('Chat Controller', () => {
 			controller.client.chat = jest.fn(() => {
 				throw {
 					err: new Error('Session limit exceeded'),
-					fetchDetails: { status: 400, url: 'test.com' },
+					fetchDetails: { status: 200, url: 'test.com' },
 					responseBody: { errorCode: 'CS_003' },
 				};
 			});
@@ -2394,6 +2353,56 @@ describe('Chat Controller', () => {
 			expect(attachment.state).toBe('error');
 			expect(attachment.error?.message).toBe('This file type is not supported');
 			expect(handleError).toHaveBeenCalledWith(error, { status: 415, url: 'test.com' });
+			handleError.mockClear();
+		});
+
+		it.each([
+			{
+				scenario: 'a 400 file-size-below-minimum (VS_001)',
+				status: 400,
+				responseBody: { errorCode: 'VS_001', errorMessage: 'Image file is below the minimum allowed size' },
+				expected: 'This image is too small. Please choose a larger one.',
+			},
+			{
+				scenario: 'a 413 file-size-above-maximum (VS_002)',
+				status: 413,
+				responseBody: { errorCode: 'VS_002', errorMessage: 'Image exceeds the maximum allowed file size' },
+				expected: 'This image is too large. Please choose a smaller one.',
+			},
+			{
+				scenario: 'a 422 dimensions-below-minimum (VS_004)',
+				status: 422,
+				responseBody: { errorCode: 'VS_004', errorMessage: 'Image dimensions are below the minimum required' },
+				expected: 'This image is too small. Please choose a larger one.',
+			},
+			{
+				scenario: 'a 422 corrupted image (VS_005)',
+				status: 422,
+				responseBody: { errorCode: 'VS_005', errorMessage: 'Image file is corrupted or cannot be decoded' },
+				expected: "We couldn't read this image. Please try a different one.",
+			},
+			{
+				scenario: 'a 403 image search disabled (VS_007)',
+				status: 403,
+				responseBody: { errorCode: 'VS_007', errorMessage: 'Image search is not enabled for this site' },
+				expected: "Image search isn't available right now.",
+			},
+		])('sets a specific message on the attachment for $scenario response and reports the error', async ({ status, responseBody, expected }) => {
+			const controller = createController();
+			const handleError = jest.spyOn(controller, 'handleError');
+			const error = new Error('upload failed');
+			controller.client.uploadImage = jest.fn().mockRejectedValue({
+				err: error,
+				fetchDetails: { status, url: 'test.com' },
+				responseBody,
+			});
+
+			await controller.upload(asFileList([new File(['a'], 'photo.png', { type: 'image/png' })]));
+
+			const attachment = controller.store.currentChat!.attachments.items.find((item) => item.type === 'image') as any;
+			expect(attachment.state).toBe('error');
+			expect(attachment.error?.message).toBe(expected);
+			expect(handleError).toHaveBeenCalledWith(error, { status, url: 'test.com' });
 			handleError.mockClear();
 		});
 

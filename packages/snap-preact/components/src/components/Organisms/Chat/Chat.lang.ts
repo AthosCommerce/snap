@@ -45,10 +45,6 @@ export interface ChatLang {
 	highVolumeMessage: Lang<never>;
 	highVolumeSubMessage: Lang<never>;
 	newSessionButton: Lang<never>;
-	// facets
-	facetsTitle: Lang<never>;
-	facetsApplyButton: Lang<{ count: number }>;
-	facetsClearButton: Lang<never>;
 	// attachment context titles
 	attachmentCompareTitle: Lang<never>;
 	attachmentAskProductTitle: Lang<never>;
@@ -140,9 +136,6 @@ export const chatDefaultLang: Partial<ChatLang> = {
 	highVolumeMessage: { value: 'Chat is currently unavailable due to high volume.' },
 	highVolumeSubMessage: { value: 'In the meantime, feel free to use the search bar above to find what you need!' },
 	newSessionButton: { value: 'New Session' },
-	facetsTitle: { value: 'Filter by:' },
-	facetsApplyButton: { value: (data) => `Apply (${data?.count ?? 0})` },
-	facetsClearButton: { value: 'Clear facets' },
 	attachmentCompareTitle: { value: 'Compare these products' },
 	attachmentAskProductTitle: { value: 'Ask about this product' },
 	attachmentImageSimilarTitle: { value: 'Find products similar to this image:' },

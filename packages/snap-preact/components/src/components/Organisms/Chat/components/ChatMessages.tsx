@@ -330,9 +330,6 @@ export const ChatMessages = observer((properties: ChatMessagesProps): JSX.Elemen
 							</div>
 						);
 					})}
-				{store.currentChat?.actions?.map((action, index) => (
-					<ChatSuggestedQuestions {...subProps.suggestedQuestions} key={`actions-${index}`} actions={action.data} controller={controller} />
-				))}
 				<div className="ss__chat__messages__end" ref={messagesEndRef} />
 				{showNewMessages && messagesOverflow && (
 					<div

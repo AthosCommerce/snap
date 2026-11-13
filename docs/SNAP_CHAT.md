@@ -114,7 +114,6 @@ The `Chat` component accepts the following props. The `controller` prop is injec
 | `subtitle` | `string` | `'Your Guided Discovery Expert'` | Secondary header title. |
 | `position` | `'left' \| 'right'` | `'right'` | Which side of the viewport the chat panel and launcher bubble anchor to. |
 | `offset` | `string \| number` | `'20px'` (set by the shipped themes) | Distance from the top of the viewport before the chat starts (e.g. to clear a fixed site header). A number is treated as pixels; a string is used as-is (`'80px'`, `'4rem'`, etc.). |
-| `multiselectFacets` | `boolean` | `false` | When `true`, facet selections in chat are batched and applied via an "Apply" button. When `false`, each selection sends a new request immediately. |
 | `disableBubbleSuggestedQuestions` | `boolean` | `false` | Hide the suggested-question chips that appear on the launcher bubble before the chat has been opened. |
 | `hideBubble` | `boolean` | unset | Overrides the built-in floating bubble launcher (and its suggested-question chips). Left unset, the bubble hides itself automatically while a `ChatButton` is mounted. `true` suppresses it unconditionally; `false` keeps it visible alongside a `ChatButton` so both launchers are available (see [Inline launcher](#inline-launcher-chatbutton)). |
 | `primaryColorBg` | `string` | `'#253B80'` | Primary brand colour — background of headers, buttons, and accents. |
@@ -247,7 +246,6 @@ const snap = new Snap({
                             logo: 'https://acme.example.com/assets/chat-logo.svg',
                             position: 'left',
                             offset: 64,
-                            multiselectFacets: false,
                             primaryColorBg: '#0f172a',
                             primaryColorFg: '#ffffff',
                             primaryAccentColorBg: '#fbbf24',
@@ -315,7 +313,7 @@ The Chat controller automatically determines the request type based on the curre
 | `productQuery` | A single product is attached for discussion |
 | `productSimilar` | A product is attached with the "find similar" intent |
 | `productComparison` | Two or more products are in the comparison set, or a committed comparison is still active |
-| `productSearch` | Facet filters are selected on the active facets display |
+| `productSearch` | A search query is clicked in an inspiration result. The request sends the section's filters as `searchFilters` |
 
 
 ## Tracking

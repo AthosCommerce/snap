@@ -3,7 +3,6 @@ import { MockData } from '@athoscommerce/snap-shared';
 import type { SearchResponseModelResult } from '@athoscommerce/snapi-types';
 import type {
 	MoiResponseModel,
-	MoiResponseModelActions,
 	MoiResponseModelContent,
 	MoiResponseModelError,
 	MoiResponseModelProductRecommendation,
@@ -28,7 +27,7 @@ describe('transformChatResponse', () => {
 		expect(item.text).toBeDefined();
 	});
 
-	it('transforms a productSearchResult — maps products and facets', () => {
+	it('transforms a productSearchResult — maps products', () => {
 		const response: MoiResponseModel = {
 			responseId: 'resp-001',
 			context: minimalContext,
@@ -55,15 +54,6 @@ describe('transformChatResponse', () => {
 							},
 						],
 						pagination: { totalResults: 1 },
-						facets: [
-							{
-								field: 'color_family',
-								label: 'Color',
-								type: 'value',
-								multiple: 'or',
-								values: [{ value: 'White', label: 'White', count: 15, active: false, type: 'value' }],
-							},
-						],
 						sorting: { options: [] },
 						filterSummary: [],
 					},
@@ -79,8 +69,6 @@ describe('transformChatResponse', () => {
 		expect(item.results).toHaveLength(1);
 		// uid becomes the result id via mapProductToSearchResultProduct
 		expect(item.results[0].id).toBe('182146');
-		expect(item.facets).toBeDefined();
-		expect(item.facets.length).toBeGreaterThan(0);
 		expect(result.context.sessionId).toBe('test-session-001');
 	});
 
@@ -256,16 +244,37 @@ describe('transformChatResponse', () => {
 		expect(result.data[0].messageType).toBe('text');
 	});
 
-	it('returns empty data when all messageTypes are unknown', () => {
+	it('drops actions messages', () => {
 		const response = {
-			responseId: 'resp-006',
+			responseId: 'resp-007',
 			context: minimalContext,
-			data: [{ messageType: 'someFutureType', id: 'future-1' }],
+			data: [
+				{ messageType: 'actions', actions: [{ message: 'Show me dresses', request: { requestType: 'general', message: 'Show me dresses' } }] },
+				{ messageType: 'text', id: 'msg-text-001', text: 'hello' },
+			],
 		} as unknown as MoiResponseModel;
 
 		const result = transformChatResponse(response);
 
-		expect(result.data).toEqual([]);
+		expect(result.data).toEqual([{ messageType: 'text', id: 'msg-text-001', text: 'hello' }]);
+	});
+
+	it('returns unknownError fallback when all messageTypes are dropped', () => {
+		const response = {
+			responseId: 'resp-006',
+			context: minimalContext,
+			data: [
+				{ messageType: 'someFutureType', id: 'future-1' },
+				{ messageType: 'actions', actions: [{ message: 'Show me dresses', request: { requestType: 'general', message: 'Show me dresses' } }] },
+			],
+		} as unknown as MoiResponseModel;
+
+		const result = transformChatResponse(response);
+
+		expect(result).toEqual({
+			data: [{ messageType: 'errorResponse', id: '', errorMessage: 'Something went wrong. Please try again.' }],
+			context: minimalContext,
+		});
 	});
 
 	it('returns unknownError fallback when data is empty array', () => {
@@ -275,7 +284,7 @@ describe('transformChatResponse', () => {
 		expect(result.data).toHaveLength(1);
 		const item = result.data[0] as any;
 		expect(item.messageType).toBe('errorResponse');
-		expect(item.errorMessage).toBe('An unknown error has occurred');
+		expect(item.errorMessage).toBe('Something went wrong. Please try again.');
 	});
 
 	it('returns unknownError fallback when data is missing', () => {
@@ -285,7 +294,7 @@ describe('transformChatResponse', () => {
 		expect(result.data).toHaveLength(1);
 		const item = result.data[0] as any;
 		expect(item.messageType).toBe('errorResponse');
-		expect(item.errorMessage).toBe('An unknown error has occurred');
+		expect(item.errorMessage).toBe('Something went wrong. Please try again.');
 	});
 });
 
@@ -329,32 +338,6 @@ describe('transformChatResponse.topicDrift', () => {
 			recommendedAction: 'CATEGORY_SWITCH_CONFIRM',
 		});
 		expect(result).not.toBe(data);
-	});
-});
-
-describe('transformChatResponse.actions', () => {
-	it('passes actions through', () => {
-		const data: MoiResponseModelActions = {
-			messageType: 'actions',
-			actions: [
-				{ message: 'Show me dresses', request: { requestType: 'productSearch', searchTerm: 'dresses' } },
-				{
-					message: 'Compare these',
-					request: {
-						requestType: 'productComparison',
-						productIdentities: [
-							{ parentId: 'parent-1', productId: '1' },
-							{ parentId: 'parent-2', productId: '2' },
-						],
-					},
-				},
-			],
-		};
-
-		const result = transformChatResponse.actions(data);
-
-		expect(result.messageType).toBe('actions');
-		expect(result.actions).toEqual(data.actions);
 	});
 });
 
@@ -444,252 +427,38 @@ describe('transformChatResponse.productRecommendation', () => {
 	});
 });
 
-describe('transformChatResponse.productData facets', () => {
-	const buildSearchResultData = (facets: any[]): MoiResponseModelProductSearchResult => ({
+describe('transformChatResponse.productData', () => {
+	const buildSearchResultData = (): MoiResponseModelProductSearchResult => ({
 		messageType: 'productSearchResult',
 		id: 'msg-search-001',
 		text: 'results',
 		searchResult: {
 			results: [],
 			pagination: { totalResults: 0 },
-			facets,
 			sorting: { options: [] },
 			filterSummary: [],
 		},
 	});
 
-	it('transforms a slider facet with tuple range/active payloads', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'slider',
-					multiple: '',
-					range: ['0', '100'],
-					active: ['20', '80'],
-					step: 5,
-					values: [],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets).toEqual([
+	it('drops searchResult.facets', () => {
+		const data = buildSearchResultData();
+		(data.searchResult as any).facets = [
 			{
-				field: 'price',
-				label: 'Price',
-				type: 'range',
-				range: { low: 0, high: 100 },
-				active: { low: 20, high: 80 },
-				step: 5,
-				filtered: true,
-			},
-		]);
-	});
-
-	it('transforms a slider facet with object range payloads and defaults active to range', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'slider',
-					multiple: '',
-					range: { low: '10', high: '200' },
-					values: [],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets).toEqual([
-			{
-				field: 'price',
-				label: 'Price',
-				type: 'range',
-				range: { low: 10, high: 200 },
-				active: { low: 10, high: 200 },
-				step: 1,
-				filtered: false,
-			},
-		]);
-	});
-
-	it('fills open-ended active bounds from the range when active contains `*` sentinels', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'slider',
-					multiple: '',
-					range: ['0', '100'],
-					active: ['*', '80'],
-					values: [],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets[0]).toMatchObject({
-			type: 'range',
-			range: { low: 0, high: 100 },
-			active: { low: 0, high: 80 },
-			filtered: true,
-		});
-	});
-
-	it('falls through when a slider has unusable bounds (`*` range)', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'slider',
-					multiple: '',
-					range: ['*', '100'],
-					values: [],
-				},
-			]),
-			'resp-1'
-		);
-
-		// no usable slider bounds and no values — plain value facet without options
-		expect(result.facets).toEqual([{ field: 'price', label: 'Price', type: 'value', filtered: false }]);
-	});
-
-	it('falls through when a slider has no range payload at all', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'slider',
-					multiple: '',
-					values: [],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets).toEqual([{ field: 'price', label: 'Price', type: 'value', filtered: false }]);
-	});
-
-	it('synthesizes a slider from price range buckets', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'range',
-					multiple: '',
-					values: [
-						{ type: 'range', low: '0', high: '50', label: '$0 - $50', count: 10, active: false },
-						{ type: 'range', low: '50', high: '100', label: '$50 - $100', count: 5, active: true },
-						{ type: 'range', low: '100', high: '*', label: '$100+', count: 2, active: false },
-					],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets).toEqual([
-			{
-				field: 'price',
-				label: 'Price',
-				type: 'range',
-				range: { low: 0, high: 100 },
-				active: { low: 50, high: 100 },
-				step: 1,
-				filtered: true,
-			},
-		]);
-	});
-
-	it('defaults synthesized price slider active to the full range when no buckets are active', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'price',
-					label: 'Price',
-					type: 'range',
-					multiple: '',
-					values: [
-						{ type: 'range', low: '0', high: '50', label: '$0 - $50', count: 10, active: false },
-						{ type: 'range', low: '50', high: '100', label: '$50 - $100', count: 5, active: false },
-					],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets[0]).toMatchObject({
-			type: 'range',
-			range: { low: 0, high: 100 },
-			active: { low: 0, high: 100 },
-			filtered: false,
-		});
-	});
-
-	it('transforms non-price range buckets to range-buckets with `*` mapped to undefined', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'weight',
-					label: 'Weight',
-					type: 'range',
-					multiple: '',
-					values: [
-						{ type: 'range', low: '*', high: '10', label: 'Under 10', count: 3, active: false },
-						{ type: 'range', low: '10', high: '*', label: '10+', count: 7, active: true },
-					],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets).toEqual([
-			{
-				field: 'weight',
-				label: 'Weight',
-				type: 'range-buckets',
-				filtered: true,
-				values: [
-					{ filtered: false, low: undefined, high: 10, label: 'Under 10', count: 3 },
-					{ filtered: true, low: 10, high: undefined, label: '10+', count: 7 },
-				],
-			},
-		]);
-	});
-
-	it('transforms hierarchy facets to value facets', () => {
-		const result = transformChatResponse.productData(
-			buildSearchResultData([
-				{
-					field: 'category',
-					label: 'Category',
-					type: 'hierarchy',
-					multiple: '',
-					values: [{ value: 'Dresses', label: 'Dresses', count: 20, active: true, type: 'value' }],
-				},
-			]),
-			'resp-1'
-		);
-
-		expect(result.facets).toEqual([
-			{
-				field: 'category',
-				label: 'Category',
+				field: 'color_family',
+				label: 'Color',
 				type: 'value',
-				filtered: true,
-				values: [{ filtered: true, value: 'Dresses', label: 'Dresses', count: 20 }],
+				multiple: 'or',
+				values: [{ value: 'White', label: 'White', count: 15, active: false, type: 'value' }],
 			},
-		]);
+		];
+
+		const result = transformChatResponse.productData(data, 'resp-1');
+
+		expect(result).toEqual({ messageType: 'productSearchResult', id: 'msg-search-001', text: 'results', results: [], filterSummary: [] });
 	});
 
 	it('passes filterSummary through and maps results with the responseId', () => {
-		const data = buildSearchResultData([]);
+		const data = buildSearchResultData();
 		data.searchResult.filterSummary = [{ field: 'color', value: 'Blue', label: 'Color: Blue', filterLabel: 'Color', filterValue: 'Blue' }];
 		data.searchResult.results = [
 			{

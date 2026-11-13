@@ -2,14 +2,14 @@ import { reaction } from 'mobx';
 
 import { UrlManager, UrlTranslator } from '@athoscommerce/snap-url-manager';
 import { StorageStore } from '@athoscommerce/snap-toolbox';
-import type { MetaResponseModel, SearchResponseModelFacet } from '@athoscommerce/snapi-types';
+import type { MetaResponseModel } from '@athoscommerce/snapi-types';
 
 import { ChatStore } from './ChatStore';
 import { ChatStoreConfig } from '../types';
 import { MetaStore } from '../Meta/MetaStore';
 import { ChatSessionStore } from './Stores/ChatSessionStore';
 import { ChatAttachmentProduct } from './Stores/ChatAttachmentStore';
-import { Product, RangeFacet, ValueFacet } from '../Search/Stores';
+import { Product } from '../Search/Stores';
 
 const createServices = () => ({
 	urlManager: new UrlManager(new UrlTranslator()),
@@ -36,29 +36,6 @@ const createProduct = (id: string, name = `Product ${id}`) =>
 		position: 1,
 		responseId: 'resp-1',
 	});
-
-const createChatFacets = (): SearchResponseModelFacet[] =>
-	[
-		{
-			field: 'color_family',
-			type: 'value',
-			label: 'Color',
-			filtered: true,
-			values: [
-				{ value: 'Blue', label: 'Blue', count: 10, filtered: true },
-				{ value: 'Red', label: 'Red', count: 5, filtered: false },
-			],
-		},
-		{
-			field: 'price',
-			type: 'range',
-			label: 'Price',
-			filtered: false,
-			step: 1,
-			range: { low: 0, high: 100 },
-			active: { low: 0, high: 100 },
-		},
-	] as unknown as SearchResponseModelFacet[];
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
 // StorageStore uses window.localStorage keyed by `ss-${siteId}-${id}`.
@@ -544,158 +521,6 @@ describe('ChatStore — external launcher registration', () => {
 		stop();
 
 		expect(seen).toEqual([true, false]);
-	});
-});
-
-describe('ChatStore — facets and detached urlManager', () => {
-	beforeEach(() => {
-		window.localStorage.clear();
-		window.sessionStorage.clear();
-	});
-
-	it('setActiveFacets builds the facet store and seeds the applied selection', () => {
-		const store = createStore();
-		store.setActiveFacets(createChatFacets(), 'msg-1');
-
-		expect(store.facets.length).toBe(2);
-		const [colorFacet, priceFacet] = store.facets;
-		expect(colorFacet).toBeInstanceOf(ValueFacet);
-		expect(colorFacet.display).toBe('list');
-		expect(priceFacet).toBeInstanceOf(RangeFacet);
-		expect(priceFacet.display).toBe('slider');
-
-		// the API-reported filtered value is seeded into the detached urlManager
-		expect(store.isFacetSelected('color_family', 'Blue')).toBe(true);
-		expect(store.isFacetSelected('color_family', 'Red')).toBe(false);
-		expect(store.pendingFacetCount).toBe(1);
-		expect(store.searchFilters).toEqual([{ key: 'color_family', options: [{ key: 'Blue' }] }]);
-		expect(store.hasPendingFacetChanges).toBe(false);
-	});
-
-	it('addFacet/removeFacet toggle pending state against the applied snapshot', () => {
-		const store = createStore();
-		store.setActiveFacets(createChatFacets(), 'msg-1');
-
-		store.addFacet({ key: 'color_family', value: 'Red' });
-		expect(store.isFacetSelected('color_family', 'Red')).toBe(true);
-		expect(store.pendingFacetCount).toBe(2);
-		expect(store.hasPendingFacetChanges).toBe(true);
-
-		store.removeFacet('color_family', 'Red');
-		expect(store.isFacetSelected('color_family', 'Red')).toBe(false);
-		expect(store.pendingFacetCount).toBe(1);
-		expect(store.hasPendingFacetChanges).toBe(false);
-	});
-
-	it('supports range values in addFacet, searchFilters and isFacetSelected', () => {
-		const store = createStore();
-		store.setActiveFacets(createChatFacets(), 'msg-1');
-
-		store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
-
-		expect(store.isFacetSelected('price', { low: 10, high: 50 })).toBe(true);
-		expect(store.searchFilters).toContainEqual({ key: 'price', options: [{ low: '10', high: '50' }] });
-		expect(store.hasPendingFacetChanges).toBe(true);
-	});
-
-	it('clearPendingFacets clears the selection and flags pending changes', () => {
-		const store = createStore();
-		store.setActiveFacets(createChatFacets(), 'msg-1');
-
-		store.clearPendingFacets();
-
-		expect(store.pendingFacetCount).toBe(0);
-		expect(store.searchFilters).toEqual([]);
-		// applied snapshot still contains Blue — clearing is a pending change
-		expect(store.hasPendingFacetChanges).toBe(true);
-	});
-
-	it('hasPendingFacetChanges reflects manual additions before any facets are seeded', () => {
-		const store = createStore();
-		expect(store.hasPendingFacetChanges).toBe(false);
-
-		store.addFacet({ key: 'color_family', value: 'Red' });
-		expect(store.hasPendingFacetChanges).toBe(true);
-	});
-
-	it('hasPendingFacetChanges settles for observers when setActiveFacets replaces a pending selection', () => {
-		const store = createStore();
-		store.setActiveFacets(createChatFacets(), 'msg-1');
-
-		const observed: boolean[] = [];
-		const dispose = reaction(
-			() => store.hasPendingFacetChanges,
-			(value) => observed.push(value)
-		);
-
-		store.addFacet({ key: 'color_family', value: 'Red' });
-		expect(store.hasPendingFacetChanges).toBe(true);
-
-		// applying facets that match the pending selection clears the pending state —
-		// even while a reaction is actively observing the computed
-		const appliedFacets = createChatFacets();
-		(appliedFacets[0] as any).values[1].filtered = true;
-		store.setActiveFacets(appliedFacets, 'msg-2');
-
-		expect(store.hasPendingFacetChanges).toBe(false);
-		expect(observed[observed.length - 1]).toBe(false);
-
-		dispose();
-	});
-
-	it('builds facets from the active productSearchResult message and clears them on other messages', () => {
-		const store = createStore();
-		const chat = store.createChat();
-
-		chat.chat.push({
-			id: 'msg-1',
-			messageType: 'productSearchResult',
-			text: '',
-			results: [],
-			facets: createChatFacets(),
-			filterSummary: [],
-		} as any);
-
-		expect(store.facets.length).toBe(2);
-		expect(store.isFacetSelected('color_family', 'Blue')).toBe(true);
-
-		chat.chat.push({ id: 'msg-2', messageType: 'text', text: 'hello' } as any);
-
-		expect(store.facets.length).toBe(0);
-		expect(store.pendingFacetCount).toBe(0);
-	});
-
-	it('keeps the carousel facets visible while a productQuery side chat is active', () => {
-		const store = createStore();
-		const chat = store.createChat();
-
-		chat.chat.push({
-			id: 'msg-1',
-			messageType: 'productSearchResult',
-			text: '',
-			results: [],
-			facets: createChatFacets(),
-			filterSummary: [],
-		} as any);
-		expect(store.facets.length).toBe(2);
-
-		chat.pushProductQueryMessage(createProduct('prod-1'));
-
-		expect(chat.activeMessage?.messageType).toBe('productQuery');
-		expect(store.facets.length).toBe(2);
-	});
-
-	it('mirrors pending range filters into the RangeFacet active values', () => {
-		const store = createStore();
-		store.setActiveFacets(createChatFacets(), 'msg-1');
-
-		store.addFacet({ key: 'price', value: { low: 10, high: 50 } });
-
-		const priceFacet = store.facets.find((facet: any) => facet.field === 'price') as RangeFacet;
-		expect(priceFacet.active).toEqual({ low: 10, high: 50 });
-
-		store.removeFacet('price', { low: 10, high: 50 });
-		expect(priceFacet.active).toEqual({ low: 0, high: 100 });
 	});
 });
 

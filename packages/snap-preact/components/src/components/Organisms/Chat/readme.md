@@ -11,7 +11,6 @@ Internal (in `./components/`):
 - ChatMessages (message thread, welcome state, new-messages pill)
 - ChatSessionFeedback (thumbs up/down strip)
 - ChatComparisonsTray (compare-products tray)
-- ChatFacetsBar (footer facet dropdowns incl. range slider)
 - ChatAttachments (attachment context strips)
 - ChatTopicDrift (topic-drift and high-volume banners)
 - ChatComposer (input + upload + send + disclaimer)
@@ -25,7 +24,7 @@ Molecules/Atoms:
 - ChatInspirationResultMessage
 - ChatProductComparisonMessage
 - ChatQuickview
-- Button, Image, Icon, Overlay, Dropdown, FacetSlider
+- Button, Image, Icon, Overlay, Dropdown
 
 ## Usage
 ```tsx
@@ -49,9 +48,6 @@ Optional string used to render a round avatar next to each system (non-user) mes
 ### offset
 Optional horizontal-anchor offset. Accepts a CSS length or a number (treated as px).
 
-### multiselectFacets
-When true (default), facets in the chat footer batch their changes behind an "Apply" button. When false, each facet toggle re-runs the search immediately.
-
 ### disableBubbleSuggestedQuestions
 When true, the suggested-question chips don't render above the chat bubble while the panel is closed. Defaults to true on mobile.
 
@@ -62,7 +58,7 @@ Templates-legal color tokens. Drive the bubble background, header strip, user-me
 Disclaimer line under the composer. `poweredByText` replaces the leading "Powered by Athos Commerce." text (which otherwise comes from the `poweredByText` lang key), and `privacyPolicyUrl` changes the privacy policy link target. The rest of the disclaimer copy is translatable via the `disclaimerText` and `privacyPolicyLinkText` lang keys.
 
 ### lang
-All user-facing strings (header buttons, history popup, loading verbs, feedback strip, comparisons tray, facet bar, topic-drift banners, composer placeholders, disclaimer, expired message, and aria-labels) are overridable via the `lang` prop — see `ChatLang` in `Chat.lang.ts` for the full key list and English defaults.
+All user-facing strings (header buttons, history popup, loading verbs, feedback strip, comparisons tray, topic-drift banners, composer placeholders, disclaimer, expired message, and aria-labels) are overridable via the `lang` prop — see `ChatLang` in `Chat.lang.ts` for the full key list and English defaults.
 
 ### hideMessageTypeIndicatorText
 When true, the request-type indicator text above a user message (e.g. "Searching products", "Comparing products") is not rendered. Defaults to false.

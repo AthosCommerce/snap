@@ -250,15 +250,6 @@ export const tr: LangComponents = {
 		newSessionButton: {
 			value: 'Yeni oturum',
 		},
-		facetsTitle: {
-			value: 'Filtrele:',
-		},
-		facetsApplyButton: {
-			value: (data) => `Uygula (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'Filtreleri temizle',
-		},
 		attachmentCompareTitle: {
 			value: 'Bu ürünleri karşılaştır',
 		},
@@ -440,9 +431,6 @@ export const tr: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'Ürünler karşılaştırılıyor',
-		},
-		requestTypeProductFilter: {
-			value: 'Ürünler filtreleniyor',
 		},
 		requestTypeProductSearch: {
 			value: 'Ürünler aranıyor',

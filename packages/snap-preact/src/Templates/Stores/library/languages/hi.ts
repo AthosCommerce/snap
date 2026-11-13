@@ -250,15 +250,6 @@ export const hi: LangComponents = {
 		newSessionButton: {
 			value: 'नया सत्र',
 		},
-		facetsTitle: {
-			value: 'फ़िल्टर करें:',
-		},
-		facetsApplyButton: {
-			value: (data) => `लागू करें (${data?.count ?? 0})`,
-		},
-		facetsClearButton: {
-			value: 'फ़िल्टर साफ़ करें',
-		},
 		attachmentCompareTitle: {
 			value: 'इन उत्पादों की तुलना करें',
 		},
@@ -440,9 +431,6 @@ export const hi: LangComponents = {
 		},
 		requestTypeProductComparison: {
 			value: 'उत्पादों की तुलना कर रहे हैं',
-		},
-		requestTypeProductFilter: {
-			value: 'उत्पाद फ़िल्टर कर रहे हैं',
 		},
 		requestTypeProductSearch: {
 			value: 'उत्पाद खोज रहे हैं',
