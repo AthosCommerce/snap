@@ -48,6 +48,8 @@ export const Image = observer((properties: ImageProps) => {
 	const {
 		alt,
 		src,
+		srcset,
+		sizes,
 		fallback,
 		title,
 		hoverSrc,
@@ -74,32 +76,47 @@ export const Image = observer((properties: ImageProps) => {
 
 	const [visibile, setVisibile] = useState(false);
 	const [isHovering, setHover] = useState(false);
+	const [srcsetFailed, setSrcsetFailed] = useState(false);
 
-	const prevSrcRef = useRef('');
+	const prevSrcRef = useRef(src);
 	useEffect(() => {
 		prevSrcRef.current = src;
 	});
-	if (prevSrcRef.current && prevSrcRef.current != src) {
+	if (prevSrcRef.current != src) {
 		setVisibile(false);
+		setSrcsetFailed(false);
 	}
 
 	const styling = mergeStyles<ImageProps>(props, defaultStyles);
+
+	// a srcset function is applied to `hoverSrc` while hovering, a srcset string is removed while hovering so that `hoverSrc` is displayed
+	// a srcset that has failed to load is not set again until `src` changes
+	const srcsetAttribute =
+		srcsetFailed || (isHovering && typeof srcset != 'function') ? undefined : resolveSrcset(isHovering ? hoverSrc : src, srcset);
 
 	return (
 		<CacheProvider>
 			<div {...styling} className={classnames('ss__image', { 'ss__image--hidden': !visibile }, className, internalClassName)}>
 				<img
+					// `loading` must stay the first attribute - attributes are set in order, and `auto` in `sizes` is only used when the image is already lazy as `src` is set
+					loading={lazy ? 'lazy' : undefined}
 					src={(isHovering ? hoverSrc : src) || fallback}
+					srcSet={srcsetAttribute}
+					sizes={sizes}
 					alt={alt}
 					title={title || alt}
-					loading={lazy ? 'lazy' : undefined}
 					onLoad={(e: React.MouseEvent<HTMLImageElement>) => {
 						setVisibile(true);
 						onLoad && onLoad(e);
 					}}
 					onClick={(e: React.MouseEvent<HTMLImageElement>) => onClick && onClick(e)}
 					onError={(e: React.MouseEvent<HTMLImageElement>) => {
-						(e.target as HTMLImageElement).src = fallback || '';
+						if (srcsetAttribute) {
+							// srcset candidates take precedence over src, so stop rendering the srcset to retry with src before falling back
+							setSrcsetFailed(true);
+						} else {
+							(e.target as HTMLImageElement).src = fallback || '';
+						}
 						onError && onError(e);
 					}}
 					onMouseOver={(e: React.MouseEvent<HTMLImageElement>) => {
@@ -129,11 +146,23 @@ export const Image = observer((properties: ImageProps) => {
 	);
 });
 
+// a srcset attribute value, or a function that builds one from an image url (called with `src`, and with `hoverSrc` while hovering)
+export type ImageSrcset = string | ((src: string) => string | undefined);
+
+const resolveSrcset = (src: string | undefined, srcset: ImageSrcset | undefined): string | undefined => {
+	if (typeof srcset == 'function') {
+		return (src && srcset(src)) || undefined;
+	}
+	return srcset;
+};
+
 export type ImageProps = ImageTemplatesLegalProps & ComponentProps<ImageProps>;
 
 export type ImageTemplatesLegalProps = {
 	alt: string;
 	src: string;
+	srcset?: ImageSrcset;
+	sizes?: string;
 	title?: string;
 	fallback?: string;
 	height?: string;

@@ -11,7 +11,7 @@ export const TreePathProvider = ({ children, path }: { children: ComponentChildr
 
 export const useTreePath = () => useContext(TreePathContext) || undefined;
 
-export function withTreePath<C extends ComponentType>(Component: C): C {
+export function withTreePath<C extends ComponentType<any>>(Component: C): C {
 	return ((props: any) => {
 		const Comp = Component as JSXComponent;
 		const treePath = useTreePath();

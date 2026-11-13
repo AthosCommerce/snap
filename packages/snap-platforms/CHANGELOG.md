@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.17.0](https://github.com/AthosCommerce/snap/compare/v1.16.0...v1.17.0) (2026-11-12)
+
+### Bug Fixes
+
+- **bigcommerce:** adding new getVariantId function for bigCommerce plugins to use to get actual variantId for 3rd party scripts and addtocart ([0dcf660](https://github.com/AthosCommerce/snap/commit/0dcf66076f3b21375bec2c8b29cb0fe54719ae1f))
+- **image:** keep srcset failure in state, skip cropped shopify urls and scope docs examples ([886be9a](https://github.com/AthosCommerce/snap/commit/886be9acde3a6b0c0610fb737b1bc90b5fb1147c))
+- magento2 shopper id from athoscommerce-tracking ([a92dcc6](https://github.com/AthosCommerce/snap/commit/a92dcc6c57169c082013287f38c25e28e4c786ed))
+
+### Features
+
+- **image:** add srcset and sizes props ([3809fb6](https://github.com/AthosCommerce/snap/commit/3809fb6df387196f0082e88fbc100b4ae9642a64)), closes [#447](https://github.com/AthosCommerce/snap/issues/447)
+- **swym-wishlists-plugin:** first pass on swym wishlists plugins for each platform ([b92d898](https://github.com/AthosCommerce/snap/commit/b92d8984d310ffc3b8f72e02253671bbd5af7d9e))
+
 # [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
 
 **Note:** Version bump only for package @athoscommerce/snap-platforms

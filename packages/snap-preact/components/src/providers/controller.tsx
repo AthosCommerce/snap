@@ -12,7 +12,7 @@ export const ControllerProvider = ({ children, controller }: { children: Compone
 
 export const useController = () => useContext(ControllerContext);
 
-export function withController<C extends ComponentType>(Component: C): C {
+export function withController<C extends ComponentType<any>>(Component: C): C {
 	return ((props: any) => {
 		const Comp = Component as JSXComponent;
 		return <Comp controller={useController()} {...props} />;
