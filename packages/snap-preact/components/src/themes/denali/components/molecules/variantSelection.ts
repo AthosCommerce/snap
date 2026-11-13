@@ -20,6 +20,19 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 				'&:hover': {
 					background: custom.colors.gray01,
 				},
+
+				// a long selection truncates rather than wrapping the pill onto a second line
+				'.ss__dropdown__button-wrapper': {
+					minWidth: 0,
+					whiteSpace: 'nowrap',
+					'.ss__dropdown__button-wrapper__selection': {
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+					},
+				},
+				'.ss__variant-selection__icon': {
+					flex: '0 0 auto',
+				},
 			},
 			'&.ss__dropdown--open .ss__dropdown__button': {
 				borderRadius: '25px 25px 0 0',

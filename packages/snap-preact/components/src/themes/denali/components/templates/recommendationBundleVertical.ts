@@ -5,12 +5,12 @@ import type {
 } from '../../../../components/Templates/RecommendationBundleVertical';
 import { recommendationBundleVerticalThemeComponentProps } from '../../../themeComponents/recommendationBundleVertical';
 import { ThemeComponent } from '../../../../providers';
+import { bundleSelectorSharedStyles } from './recommendationBundleShared';
 // CSS in JS style script for the RecommendationBundle component
 const recommendationBundleVerticalStyleScript = ({ theme }: RecommendationBundleVerticalProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const variables = theme?.variables;
-
-	return css({});
+	return css({
+		...bundleSelectorSharedStyles('ss__recommendation-bundle-vertical', theme),
+	});
 };
 
 // RecommendationBundleVertical component props come from Template export
