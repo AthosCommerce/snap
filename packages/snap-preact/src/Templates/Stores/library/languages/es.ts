@@ -307,7 +307,7 @@ export const es: LangComponents = {
 			value: 'Pregunta sobre los productos comparados...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Pregunta sobre esta imagen...',
+			value: 'Escribe un mensaje para enviarlo con tu imagen...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Agrega otro producto para comparar...',

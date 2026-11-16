@@ -292,7 +292,7 @@ export const pt: LangComponents = {
 			value: 'Pergunte sobre os produtos comparados...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Pergunte sobre esta imagem...',
+			value: 'Digite uma mensagem para enviar com a sua imagem...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Adicione outro produto para comparar...',

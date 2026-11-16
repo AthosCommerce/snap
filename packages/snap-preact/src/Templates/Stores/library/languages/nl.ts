@@ -292,7 +292,7 @@ export const nl: LangComponents = {
 			value: 'Stel een vraag over de vergeleken producten...',
 		},
 		inputPlaceholderAskImage: {
-			value: 'Stel een vraag over deze afbeelding...',
+			value: 'Typ een bericht om met uw afbeelding te verzenden...',
 		},
 		inputPlaceholderAddCompare: {
 			value: 'Voeg nog een product toe om te vergelijken...',

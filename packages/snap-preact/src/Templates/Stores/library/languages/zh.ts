@@ -292,7 +292,7 @@ export const zh: LangComponents = {
 			value: '咨询正在比较的产品...',
 		},
 		inputPlaceholderAskImage: {
-			value: '咨询此图片...',
+			value: '请输入要与图片一起发送的消息...',
 		},
 		inputPlaceholderAddCompare: {
 			value: '再添加一件产品进行比较...',
