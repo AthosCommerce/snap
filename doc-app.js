@@ -75,6 +75,8 @@ import('./docs/documents.js').then(function (_) {
 			{ a: '(https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)', b: '(./reference-variants)' },
 		]);
 
+	const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+
 	const modifyLinks = (markdown) => {
 		replaces.forEach(function (replace) {
 			markdown = markdown.replaceAll(replace.a, replace.b);
@@ -85,16 +87,22 @@ import('./docs/documents.js').then(function (_) {
 		data() {
 			return {
 				documents,
-				darkMode: localStorage.getItem('darkMode') === 'true',
+				// an explicit choice from the toggle wins, otherwise follow the system setting
+				darkMode: localStorage.getItem('darkMode') !== null ? localStorage.getItem('darkMode') === 'true' : systemDarkMode.matches,
 				latestVersion: null,
 				showVersionModal: false,
 				versionCommandCopied: false,
 			};
 		},
 		mounted() {
-			if (this.darkMode) {
-				document.body.classList.add('dark-mode');
-			}
+			this.applyDarkMode();
+
+			// keep following the system setting until the toggle is used
+			systemDarkMode.addEventListener('change', (e) => {
+				if (localStorage.getItem('darkMode') !== null) return;
+				this.darkMode = e.matches;
+				this.applyDarkMode();
+			});
 
 			fetch('https://registry.npmjs.org/@athoscommerce/snap-preact/latest')
 				.then((response) => response.json())
@@ -115,11 +123,11 @@ import('./docs/documents.js').then(function (_) {
 			toggleDarkMode() {
 				this.darkMode = !this.darkMode;
 				localStorage.setItem('darkMode', this.darkMode);
-				if (this.darkMode) {
-					document.body.classList.add('dark-mode');
-				} else {
-					document.body.classList.remove('dark-mode');
-				}
+				this.applyDarkMode();
+			},
+			applyDarkMode() {
+				document.body.classList.toggle('dark-mode', this.darkMode);
+				window.renderMermaid?.({ redraw: true });
 			},
 			dismissVersionModal() {
 				this.showVersionModal = false;
@@ -509,6 +517,9 @@ import('./docs/documents.js').then(function (_) {
 			}
 		}
 
+		// render ```mermaid blocks as diagrams (before highlighting, which would otherwise color them as code)
+		renderMermaid();
+
 		// highlight code blocks
 		document.querySelectorAll('pre code').forEach((block) => {
 			hljs.highlightElement(block);
@@ -707,6 +718,30 @@ import('./docs/documents.js').then(function (_) {
 			timeout = setTimeout(later, wait);
 		};
 	}
+
+	// converts `pre > code.language-mermaid` blocks into diagrams, keeping the source so they can be redrawn for a theme change
+	function renderMermaid({ redraw = false } = {}) {
+		if (!window.mermaid) return;
+
+		document.querySelectorAll('#markdown pre > code.language-mermaid').forEach((code) => {
+			const diagram = document.createElement('div');
+			diagram.className = 'mermaid';
+			diagram.dataset.source = code.textContent;
+			diagram.textContent = code.textContent;
+			code.parentElement.replaceWith(diagram);
+		});
+
+		const diagrams = Array.from(document.querySelectorAll('#markdown .mermaid')).filter((diagram) => redraw || !diagram.dataset.processed);
+		if (!diagrams.length) return;
+
+		diagrams.forEach((diagram) => {
+			diagram.removeAttribute('data-processed');
+			diagram.textContent = diagram.dataset.source;
+		});
+		window.mermaid.initialize({ startOnLoad: false, theme: document.body.classList.contains('dark-mode') ? 'dark' : 'default' });
+		window.mermaid.run({ nodes: diagrams }).catch((err) => console.error('mermaid render failed', err));
+	}
+	window.renderMermaid = renderMermaid;
 
 	function createHeadingId(heading) {
 		return heading.id || 'id-' + heading.textContent.toLowerCase().replace(/ /g, '-');

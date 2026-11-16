@@ -5,7 +5,20 @@ Snap is built using the Model View Controller (MVC) pattern. When constructing a
 > [!TIP]
 > This page walks through the architecture of a full **Snap Integration** — controllers, stores, and hand-built Preact components. Building with **Snap Templates** instead? Pre-built templates and themes already handle this wiring for you, so head over to [Snap Templates Integration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md) for a faster path. Working directly against the Athos APIs? You can skip the component layer entirely — jump to [API Integration](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md).
 
-<img src='/images/snap-search-lifecycle.svg'/>
+```mermaid
+flowchart LR
+	config["Config<br/>controller list"] --> controller["Controller<br/>runs search()"]
+	controller --> api["Athos API<br/>returns data"]
+	api --> store["Store<br/>controller.store"]
+	store --> component["Component<br/>renders from store"]
+	component --> interaction["Interaction<br/>click → new state"]
+	interaction -->|urlManager update| controller
+
+	classDef data fill:#E6F1FB,stroke:#185FA5,color:#0C447C
+	classDef view fill:#EEEDFE,stroke:#534AB7,color:#3C3489
+	class config,controller,api,store data
+	class component,interaction view
+```
 
  
 **1. Config → controllers.**

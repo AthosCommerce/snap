@@ -1,11 +1,10 @@
 # Search
 >[!IMPORTANT]
-> If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers. 
+> If you have not yet initialized your Snap project, follow the steps in the [Setup guide](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) before continuing with Feature controllers.
 
 ## Search Controller
 Search pages render product results for a shopper's query. In the Snap ecosystem this is powered by Snap's `SearchController`. To get started with search results you **must define a search controller** in your Snap configuration; see [SearchController reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-controller/src/Search/README.md) for all available configuration options.
 
-### Minimum Viable Controller
 The bare minimum configuration to create a **search controller** and render a root level `Content` component into it is covered in [Setup > Minimum Viable Controller](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md#minimum-viable-controller).
 
 >[!NOTE]

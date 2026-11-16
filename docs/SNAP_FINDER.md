@@ -1,12 +1,12 @@
 # Finder
 
 >[!IMPORTANT]
->If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
+> If you have not yet initialized your Snap project, follow the steps in the [Setup guide](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) before continuing with Feature controllers.
 
 ## What is a Finder
 A Finder is a guided-selling experience that narrows down products through a sequence of dropdown selections, rather than a shopper-entered query — for example, a wheel finder that walks through Year, Make, Model, and Wheel Size to land on the exact fitting part. It's distinct from [Search](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md): Search assumes the shopper already knows roughly what they're looking for, while Finder is built for structured, sequential narrowing when they don't.
 
-<img src='/images/finder-example.png'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/finder-example.png?raw=true" alt="A finder with dropdown selections and Find and Reset buttons" />
 
 ---
 

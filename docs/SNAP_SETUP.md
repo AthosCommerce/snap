@@ -11,7 +11,7 @@ Snapfu is a CLI for creating a Snap project from a template. You do **NOT** need
 ```sh
 npm install -g snapfu
 ```
-<img src='/images/setup-install.gif'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/setup-install.gif?raw=true" alt="Installing the Snapfu CLI with npm" />
 
 > [!TIP]
 > We recommend using Node v24 or higher and npm v10 or higher.
@@ -29,7 +29,7 @@ This will create a new project with a git repo from a list of available scaffold
 
 During this you will also be prompted for your **Site ID and secret key**, which you find in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
 
-<img src='/images/setup-initialize.gif'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/setup-initialize.gif?raw=true" alt="Initializing a new project with snapfu init" />
 
 ---
 ## Development
@@ -39,6 +39,8 @@ npm run dev
 ```
 
 This will start the local development server and serve the project build files and the contents of the `public` directory.
+
+<img src="https://github.com/athoscommerce/snap/blob/main/images/setup-development.gif?raw=true" alt="Running npm run dev and the webpack dev server starting on https://localhost:3333" />
 
 
 | File/Resource                | URL                                                      |

@@ -1,7 +1,7 @@
 # Recommendations
 
 >[!IMPORTANT]
->If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
+> If you have not yet initialized your Snap project, follow the steps in the [Setup guide](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) before continuing with Feature controllers.
 
 >[!NOTE]
 > While it is possible to construct recommendation controllers via the Snap configuration, it is recommended to utilize the [RecommendationInstantiator config](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md#recommendationinstantiatorconfig) instead for integration of recommendations. The `RecommendationInstantiator` will only create recommendation controllers if the page contains recommendation profiles.
@@ -61,7 +61,7 @@ Any profile configured in the Athos Search & Product Discovery Console (ASD) wit
 
 ### Recommendation Component
 
-<img src='/images/recs-default-example.png'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/recs-default-example.png?raw=true" alt="A default recommendations carousel" />
 
 In this example, the `Recs` component is a wrapper around the `Recommendation` component from the `@athoscommerce/snap-preact/components` package. See [Components Preact > Recommendation](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Ftemplates-recommendation--default) for more details.
 
@@ -156,7 +156,7 @@ The following example assumes a `bundle` profile has been configured in the Atho
 
 ### Bundle Component
 
-<img src='/images/recs-bundle-example.gif'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/recs-bundle-example.gif?raw=true" alt="A bundle recommendation with selectable items and a subtotal" />
 
 >[!TIP]
 >Deselecting an item updates the subtotal and excludes it from the add to cart button ("Add All To Cart" by default) — this selection state is handled entirely by the `RecommendationBundle` component below.

@@ -24,11 +24,11 @@ This documentation is organized into three sections: Snap Integration, Snap Temp
 
 ### Quick Reference: Choosing an Integration Path
 
-| Path | Best for | Uses | Effort |
+| Path | Best for | Uses | What you build |
 |---|---|---|---|
-| **Snap Integration** | Teams with solid JS/TS proficiency who want full control over markup, styling, and behavior | `Snap` export from `@athoscommerce/snap-preact` | Highest — full custom markup and plugins |
-| **Snap Templates Integration** | Teams who want a fast, configuration-driven integration with lighter dev effort | `SnapTemplates` export from `@athoscommerce/snap-preact` | Medium — prebuilt templates/themes, limited config |
-| **API Integration** | Teams building a fully custom or headless storefront, working directly against Athos APIs | `@athoscommerce/snap-client` (recommended, not required) | Lowest abstraction — no component layer, most manual work |
+| **Snap Integration** | Teams with solid JS/TS proficiency who want full control over markup, styling, and behavior | `Snap` export from `@athoscommerce/snap-preact` | Your own Preact components and plugins, on top of Snap's controllers and stores |
+| **Snap Templates Integration** | Teams who want a fast, configuration-driven integration with lighter dev effort | `SnapTemplates` export from `@athoscommerce/snap-preact` | Configuration and theme overrides only - the templates provide the components, so this is the quickest path |
+| **API Integration** | Teams building a fully custom or headless storefront, working directly against Athos APIs | `@athoscommerce/snap-client` (recommended, not required) | Everything - requests, state and UI, with no component layer |
 ---
 
 ### Snap Integration
@@ -85,8 +85,7 @@ Snap is modular — depending on your project's architecture, you can adopt it a
 Snap is open source, and we'd love your help making it better.
 
 - **Explore the code** — the full repository lives on [Github](https://github.com/athoscommerce/snap).
-- **Report a bug or request a feature** — open a [Github issue](https://github.com/athoscommerce/snap/issues).
-- **Ask a question or share an idea** — start a [Github discussion](https://github.com/athoscommerce/snap/discussions).
+- **Get help or report a problem** — contact support through the [Help Center](https://searchspring.my.site.com/support/s/).
 - **Submit a fix or feature** — open a pull request.
 
 Before contributing, please review Athos's [Community Contribution Guidelines](https://github.com/searchspring/community/blob/main/CONTRIBUTING.md).

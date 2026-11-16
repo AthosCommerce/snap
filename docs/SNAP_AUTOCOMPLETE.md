@@ -1,7 +1,7 @@
 # Autocomplete
 
 >[!IMPORTANT]
->If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
+> If you have not yet initialized your Snap project, follow the steps in the [Setup guide](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) before continuing with Feature controllers.
 
 ## Autocomplete Controller
 To set up Autocomplete using Snap, we'll need to define an autocomplete controller in our Snap configuration. 
@@ -72,7 +72,7 @@ The following properties are specific to an Autocomplete Store via an Autocomple
 
 The `terms` property contains an array of autocomplete terms relevant to the query. Each term has a `preview` method, invoked on the `onFocus` event of a term value — this locks the current terms and unlocks the previous facets (if changing terms with a facet filter applied), so the store update for the new term doesn't change the original terms.
 
-<img src='/images/autocomplete-term-preview.gif'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-term-preview.gif?raw=true" alt="Hovering suggested terms in autocomplete updates the previewed results" />
 
 >[!TIP]
 >For the full breakdown of `Term` object properties, see the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#term-object).
@@ -107,7 +107,7 @@ export const Terms = observer((props) => {
 
 The `trending` property contains an array of trending terms — generated from collected reporting data rather than the current query. It's recommended as a starting point shown when the `<input/>` is focused and empty. Must be enabled by setting **`settings.trending.limit`** to a positive number in the AutocompleteController config.
 
-<img src='/images/autocomplete-trending-preview.gif'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-trending-preview.gif?raw=true" alt="Trending terms shown when the search input is focused and empty" />
 
 >[!TIP]
 >Renders with the same `Terms` component shown above — pass `controller.store.trending` as the `terms` prop.
@@ -116,7 +116,7 @@ The `trending` property contains an array of trending terms — generated from c
 
 The `history` property contains an array of previously searched terms, stored in localStorage. Can be shown in place of, or alongside, trending and suggested terms. Must be enabled by setting **`settings.history.limit`** to a positive number in the AutocompleteController config.
 
-<img src='/images/autocomplete-history-preview.gif'/>
+<img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-history-preview.gif?raw=true" alt="Previously searched terms shown in autocomplete" />
 
 >[!TIP]
 >Renders with the same `Terms` component shown above — pass `controller.store.history` as the `terms` prop.

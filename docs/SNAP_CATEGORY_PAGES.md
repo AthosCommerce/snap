@@ -1,7 +1,7 @@
 # Category Pages
 
 > [!IMPORTANT]
-> Category pages use the **same** `SearchController` and `SearchStore` as a standard search page. **Snap doesn't have a separate category controller**. The rest of this page covers how to build a category page by applying the category as a **Background Filter** in your search controller's config.
+> Category pages use the **same** `SearchController` and `SearchStore` as a standard search page. **Snap doesn't have a separate category controller**. The rest of this page covers how to build a category page by applying the category as a **Background Filter** in your search controller's config. If you have not yet initialized your Snap project, follow the steps in the [Setup guide](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) first.
 
 ## What is a Category page
 A category (or collection) page displays search results scoped to a specific category rather than a shopper-entered query — for example, a "Shirts" collection page showing every shirt in that category. 
