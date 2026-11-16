@@ -1,12 +1,12 @@
 ## Templates
 
-Snap Templates is an alternative method of creating a Athos integration. The documentation in this 'Templates' section is only applicable if you are utilizing the `SnapTemplates` export. While there is overlap across other pages in the documentation, this section aims to outline the differences.
+Snap Templates is an alternative method of creating an Athos integration. The documentation in this 'Templates' section is only applicable if you are utilizing the `SnapTemplates` export. While there is overlap across other pages in the documentation, this section aims to outline the differences.
 
 ```tsx
 import { SnapTemplates } from '@athoscommerce/snap-preact';
 ```
 
-Snap and Snap Templates offer different approaches to creating a Athos integration. While Snap offers more flexibility, Snap Templates provides a streamlined solution for those seeking a faster integration process with pre-designed, customizable templates.
+Snap and Snap Templates offer different approaches to creating an Athos integration. While Snap offers more flexibility, Snap Templates provides a streamlined solution for those seeking a faster integration process with pre-designed, customizable templates.
 
 Standard Snap:
   - Provides full control over the configuration and component tree
@@ -79,7 +79,7 @@ new SnapTemplates(templatesConfig);
 
 ## Transitioning from Templates to Standard Snap (SnapHybrid)
 
-As your integration needs grow, you may find that you need more control than what Snap Templates provides. The `SnapHybrid` class allows you to transition from a Snap Templates integration to a standard Snap integration while preserving all the work you've done in your templates configuration—including themes, variables, translations, and custom components.
+As your integration needs grow, you may find that you need more control than what Snap Templates provides. The `SnapHybrid` class allows you to transition from a Snap Templates integration to a standard Snap integration while preserving all the work you've done in your templates configuration—including themes, variables, translations, and custom components (with one exception for `theme.globalResultComponent`, noted below).
 
 ### Why Use SnapHybrid?
 
@@ -87,7 +87,7 @@ SnapHybrid bridges the gap between Snap Templates and standard Snap by:
 
 - **Preserving your theme work**: All theme variables, colors, breakpoints, and style overrides continue to work
 - **Keeping your translations**: Language translations defined in your templates config are maintained
-- **Retaining custom components**: Custom result and badge components remain available
+- **Retaining custom components**: Custom result and badge components remain available. `theme.globalResultComponent` is not applied by `SnapHybrid`, so set `resultComponent` on the template overrides instead (for example `search`, `autocompleteFixed` or a recommendation template)
 - **Enabling full Snap control**: You gain complete control over controllers, targets, and the component tree
 
 Components you render from the standard Snap configuration need a small wrapper to use the templates theme, translations and custom components - see the note after the example below.

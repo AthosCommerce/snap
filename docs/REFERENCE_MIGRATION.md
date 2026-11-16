@@ -226,8 +226,8 @@ The Swatches component has moved away from using `swiper.js` and now uses the bu
 
 Athos Snap no longer supports passing in a field to configure variants. If your integration relies on field-based variant configuration, you will need to update your implementation to use the current variants API.
 
-See the [Variants reference](https://athoscommerce.github.io/snap/reference-variants) for the supported configuration options.
+See the [Variants reference](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md) for the supported configuration options.
 
 ### 10. Recommendation Profile Tracker
 
-The Recommendation Profile Tracker has been deprecated in Athos Snap. If your integration uses the profile tracker or has styles associated with it, you should remove that code and any related CSS/SCSS and move to new [standardized tracking](https://athoscommerce.github.io/snap/snap-tracking).
+The Recommendation Profile Tracker has been deprecated in Athos Snap. If your integration uses the profile tracker or has styles associated with it, you should remove that code and any related CSS/SCSS and move to new [standardized tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING.md).

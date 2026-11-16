@@ -2,9 +2,9 @@
 
 Before diving into your implementation, let's get familiar with some of the common Snap terminology used throughout these docs.
 
-- **Athos Search & Product Discovery Console** — The web console (`console.athoscommerce.net`) used to configure your site's search behavior — sorting, facet display, merchandising campaigns — and to find your `siteId` and secret key.
+- **Athos Search & Product Discovery Console (ASD)** — The web console (`console.athoscommerce.net`) used to configure your site's search behavior — sorting, facet display, merchandising campaigns — and to find your `siteId` and secret key.
 
-- **Background Filter** — A filter applied to a request without displaying it to the shopper as an active, removable filter. Used to scope [Category Pages](https://athoscommerce.github.io/snap/snap-category-pages) or restrict visibility to a user group. See [Background Filters](https://athoscommerce.github.io/snap/snap-background-filters).
+- **Background Filter** — A filter applied to a request without displaying it to the shopper as an active, removable filter. Used to scope [Category Pages](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CATEGORY_PAGES.md) or restrict visibility to a user group. See [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md).
 
 - **Client** — The `@athoscommerce/snap-client` service that makes requests to the Athos API on behalf of a controller. A single client instance is shared across all controllers in a Snap instance.
 
@@ -18,9 +18,9 @@ Before diving into your implementation, let's get familiar with some of the comm
 
 - **Finder** — A controller type for building custom guided-selling / product finder experiences, distinct from Search.
 
-- **Foreground Filter** — A filter pre-applied to the URL on page load, visible and removable like any other applied filter (unlike a Background Filter). Only usable with a SearchController. See [Foreground Filters](https://athoscommerce.github.io/snap/snap-foreground-filters).
+- **Foreground Filter** — A filter pre-applied to the URL on page load, visible and removable like any other applied filter (unlike a Background Filter). Only usable with a SearchController. See [Foreground Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_FOREGROUND_FILTERS.md).
 
-- **Instantiator** — Used with Recommendation controllers to create and manage multiple recommendation instances found on a page (one per script tag), configured via `instantiators.recommendation` and accessible via `snap.getInstantiator('recommendation')`.
+- **Instantiator** — Used with Recommendation controllers to create and manage multiple recommendation instances found on a page (one controller per profile), configured via `instantiators.recommendation` and accessible via `snap.getInstantiator('recommendation')`.
 
 - **Middleware** — A function attached to a controller event (e.g. `beforeSearch`, `afterSearch`) via `controller.on()`, used to hook custom logic into the search lifecycle.
 

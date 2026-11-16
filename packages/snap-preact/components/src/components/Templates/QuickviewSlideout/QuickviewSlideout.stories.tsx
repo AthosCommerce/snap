@@ -6,23 +6,26 @@ import Readme from '../../Organisms/QuickviewLayout/readme.md';
 
 // Build a fresh mock quickview manager per story so each Storybook story renders independently.
 function buildMockController(overrides: any = {}): any {
-	const base: any = {
+	// Shallow-merge store overrides onto the defaults so partial overrides preserve them.
+	const store = {
+		meta: undefined,
+		isOpen: true,
+		loading: false,
+		product: undefined,
+		resolvedConfig: undefined,
+		error: undefined,
+		...(overrides.store || {}),
+	};
+	// Like QuickviewManager, dismissal lives on the manager (`close()`), not on the store.
+	const manager: any = {
 		type: 'quickview',
-		store: {
-			meta: undefined,
-			isOpen: true,
-			loading: false,
-			product: undefined,
-			resolvedConfig: undefined,
-			error: undefined,
-			close: () => {
-				base.store.isOpen = false;
-			},
+		...overrides,
+		store,
+		close: () => {
+			manager.store.isOpen = false;
 		},
 	};
-	// Shallow-merge store overrides onto base so partial overrides preserve defaults.
-	const mergedStore = { ...base.store, ...(overrides.store || {}) };
-	return { ...base, ...overrides, store: mergedStore };
+	return manager;
 }
 
 const sampleProduct = {
@@ -50,8 +53,8 @@ const loadingController = buildMockController({
 	store: {
 		isOpen: true,
 		loading: true,
-		// During loading the store holds the source result as `product` (set by setLoading).
-		product: { id: 'sample', mappings: { core: { name: 'Sample Widget' } }, attributes: {} },
+		// While loading, QuickviewManager.show() has cleared `product`, `resolvedConfig` and `error`.
+		product: undefined,
 	},
 });
 
@@ -76,7 +79,7 @@ export default {
 	},
 	argTypes: {
 		quickviewManager: {
-			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, resolvedConfig, error, close }); dismiss via `store.close()`',
+			description: 'QuickviewManager exposing `store` ({ isOpen, product, loading, resolvedConfig, error }); dismiss via `quickviewManager.close()`',
 			type: { required: true },
 			table: {
 				type: {
@@ -153,12 +156,13 @@ export default {
 		recommendation: {
 			description:
 				'Config for `recommendation.<profile>` modules: `{ component?, resultComponent?, config? }`. Profile/tag comes from the module name.',
-			table: { type: { summary: '{ component?, resultComponent?, config? }' } },
+			table: { category: 'Templates Legal', type: { summary: '{ component?, resultComponent?, config? }' } },
 			control: { type: 'object' },
 		},
 		slideDirection: {
 			description: 'Direction the slideout enters from',
 			table: {
+				category: 'Templates Legal',
 				type: {
 					summary: "'left' | 'right' | 'top' | 'bottom'",
 				},
@@ -170,6 +174,7 @@ export default {
 		width: {
 			description: 'Width of the slideout panel',
 			table: {
+				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},
@@ -180,6 +185,7 @@ export default {
 		overlayColor: {
 			description: 'Color of the overlay behind the slideout',
 			table: {
+				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},

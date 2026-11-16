@@ -1,8 +1,8 @@
 # Automatic Tracking
 
-Product clicks and impressions are tracked out of the box when using the default `Result`/Autocomplete components, and search terms are recorded by the search controller whichever components are used — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md).
+Product clicks and impressions are tracked out of the box when using the `Results` component, the Autocomplete components or the Recommendation templates, and search terms are recorded by the search controller whichever components are used — nothing further to wire up. For events that require explicit instrumentation, see [Manual Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md).
 
-### Product Click
+## Product Click
 Tracks product click events. Not required when using `withTracking` or `ResultTracker`. It is recommended to invoke on each product `onmousedown` or `onClick` event via the `controller.track.product.click()` method available on Search, Autocomplete and Recommendation controllers.
 
 ```tsx
@@ -17,18 +17,22 @@ controller.store.results.map(result => {
 })
 ```
 
-### Impressions
+## Impressions
 Impression tracking occurs when products come into the viewport. It is recommended to use the `withTracking` higher-order component within custom product result cards to track impressions. Alternatively, the `ResultTracker` component can be used to track impressions as well - be aware that this component adds an additional wrapping element. 
 
 >[!NOTE]
->This does not need to be implemented if using the default `Result` component from `@athoscommerce/snap-preact/components` or default Autocomplete component without custom result cards.
+>This does not need to be implemented if using the `Results` component, the Autocomplete components or the Recommendation templates from `@athoscommerce/snap-preact/components`, including custom result components passed to them as `resultComponent`. Custom result components in Snap Templates are tracked the same way and need no wrapper. The `Result` component does not track on its own - when mapping results from the store to `Result` or to your own cards, wrap each one with `withTracking` or `ResultTracker`.
 
 ### Typical Tracking Integration Example
+
+The examples below use `withController`, which reads the controller from a `ControllerProvider` ancestor. Snap passes the controller to the components it renders as a `controller` prop but does not provide it, so wrap your root component's children in `ControllerProvider` (see [Minimum Viable Controller](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md#minimum-viable-controller)).
+
 ```tsx
 import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
 import { withController, withTracking } from '@athoscommerce/snap-preact/components';
 
-const Results = withController((props) => {
+const Results = withController(observer((props) => {
 	const { controller } = props;
 
 	return (
@@ -42,7 +46,7 @@ const Results = withController((props) => {
 		}
 		</div>
 	)
-});
+}));
 
 
 const CustomResult = withController(withTracking((props) => {
@@ -70,9 +74,10 @@ Note that a `key` is required on the custom result component to ensure that the 
 
 ```tsx
 import { h } from 'preact';
+import { observer } from 'mobx-react-lite';
 import { withController, ResultTracker } from '@athoscommerce/snap-preact/components';
 
-const Results = withController((props) => {
+const Results = withController(observer((props) => {
 	const { controller } = props;
 
 	return (
@@ -96,10 +101,10 @@ const Results = withController((props) => {
 			}
 		</div>
 	)
-});
+}));
 ```
 
-### Search Terms
+## Search Terms
 Each search query saved to the `SearchController` history store (`controller.store.history.save`) is also recorded as a searched term, including when the history `max` setting is `0`. The controller saves the query once the `beforeSearch` middleware has passed and the request is about to be made, so cancelled searches and re-renders with unchanged parameters are not recorded. The 10 most recent terms from the past 2 weeks are stored in local storage per siteId (most recent first) and sent as the `lastSearches` personalization parameter on search, autocomplete, finder and recommendation requests. Search, autocomplete and finder requests send the terms as a comma separated list, so commas within a term are replaced with spaces. Controllers configured with a `globals.siteId` record and send the terms of that siteId.
 
 The tracker also includes the terms of its own siteId on preflight requests, and sends a new preflight request whenever those terms change. Terms recorded for other siteIds are not included in these preflight requests; they are sent by the controllers configured with that siteId.
@@ -129,6 +134,6 @@ athos.tracker.cookies.searched.get('at1234'); // ['bottes']
 ---
 ## Troubleshooting FAQ
 
-**Q: I'm using the default `Result`/Autocomplete components and don't see any tracking calls. Do I need to add anything?**
+**Q: I'm using the default components and don't see any tracking calls. Do I need to add anything?**
 <br>
-**A:** No — the default components already wire up click and impression tracking internally. You only need to build `Product Click`/`Impressions` yourself when using custom result cards.
+**A:** Not when using the `Results` component, the Autocomplete components or the Recommendation templates — they already wire up click and impression tracking internally, including for a custom `resultComponent` and for custom result components in Snap Templates. The `Result` component does not track on its own, so when mapping results from the store to `Result` (or to your own cards) yourself, wrap each card with `withTracking` or `ResultTracker`.

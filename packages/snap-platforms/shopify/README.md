@@ -2,27 +2,12 @@
 This platform library gives you helper functions and plugins to use with the Shopify platform. 
 
 ## Functions
+To use the platform library, import what you wish to use from `@athoscommerce/snap-platforms/shopify`.
 
-## Usage 
-To use the platform library, simply import what you wish to use from `@athoscommerce/snap-platforms/shopify`.
-
-```tsx
-import { addToCart } from '@athoscommerce/snap-platforms/shopify';
-
-export const AddToCart = (props) => {
-    const { result } = props;
-    const config = {
-        idFieldName: `display.mappings.core.sku`,
-    }
-
-    return (
-        <div onClick={() => addToCart([result], config)}>Add To Cart</div>
-    )
-};
-```
-
-## addToCart
+### addToCart
 The `addToCart` function will automatically add products to the cart and then redirect to the cart page (`/cart`). The function is async, and takes an array of products (Result Store References) to add, and an optional config. The optional config can take two optional properties, `redirect` and `idFieldName`. Snap variants must be enabled for full functionality.
+
+Products are added through the Shopify Ajax Cart API (`cart/add.js`), and the redirect only happens once the cart responds successfully.
 
 The `redirect` property can be set to `false` or supplied with an alternate redirect URL instead of the default (`/cart`). 
 
@@ -32,39 +17,44 @@ The `idFieldName` property takes a stringified path in the result reference, to 
 > The `Shopify` object needs to be available on the window.
 
 ```tsx
+import { h } from 'preact';
 import { addToCart } from '@athoscommerce/snap-platforms/shopify';
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
 
-export const AddToCart = (props) => {
-	const { result } = props;
+export const AddToCart = ({ result }: ResultProps) => {
 	const config = {
-		idFieldName: `display.mappings.core.sku`,
-	}
+		idFieldName: 'display.mappings.core.sku',
+	};
 
 	return (
 		<div onClick={() => addToCart([result], config)}>Add To Cart</div>
-	)
+	);
 };
 ```
 
-## shopifyImageSrcset
+### shopifyImageSrcset
 The `shopifyImageSrcset` function builds a `srcset` for a Shopify CDN image at each of the given widths, for use with the `srcset` prop of the `Image` component. The legacy size suffix (eg. `_600x600`, `_grande`) is removed from the URL first, since the Shopify CDN ignores the `width` query parameter when the filename has one, and the `width` query parameter is then set for each width. An empty string is returned for cropped images (eg. `_300x150_crop_center`), as the resized original would be a different image, so those stay on their `src`.
 
 > [!NOTE]
 > The size suffix is matched by its shape at the end of the filename, so an original filename that happens to end in a size-like suffix (eg. `banner_1920x1080.jpg`) is also altered.
 
 ```tsx
+import { h } from 'preact';
 import { Image } from '@athoscommerce/snap-preact/components';
+import type { ResultProps } from '@athoscommerce/snap-preact/components';
 import { shopifyImageSrcset } from '@athoscommerce/snap-platforms/shopify';
 
-export const CustomResult = (props) => {
-	const core = props.result.mappings.core;
+export const CustomResult = ({ result }: ResultProps) => {
+	const core = result.display.mappings.core;
+	// an empty `src` renders the Image component's fallback image
+	const src = core?.thumbnailImageUrl || '';
 
 	return (
 		<Image
-			src={core.thumbnailImageUrl}
-			srcset={shopifyImageSrcset(core.thumbnailImageUrl, [320, 640, 960])}
+			src={src}
+			srcset={shopifyImageSrcset(src, [320, 640, 960])}
 			sizes='auto, (min-width: 991px) 200px, 50vw'
-			alt={core.name}
+			alt={core?.name || ''}
 		/>
 	);
 };
@@ -95,7 +85,7 @@ new SnapTemplates(validateTemplatesConfig({
 ## Plugins
 
 ### pluginAddToCart
-Plugin to attach a custom function to the addToCart controller event.
+Plugin that adds products to the Shopify cart with the [`addToCart`](#addtocart) function whenever the controller's `addToCart` event fires (for example from the add to cart button of the `Result` component). Like the function, it redirects to the cart page (`/cart`) after a successful add unless `redirect` is configured, and requires the `Shopify` object on the window.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
@@ -115,7 +105,7 @@ const addToCartConfig = {
 Plugin to set up background filters for Shopify. Script context is used to automatically apply best practice Shopify background filtering. Background filtering in this plugin only applies to search controllers.
 
 > [!NOTE]
-> If you need to customize background filters beyond what is available in the configuration, you will need to utilize the the common backgroundFilters plugin.
+> If you need to customize background filters beyond what is available in the configuration, you will need to utilize the common backgroundFilters plugin.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
@@ -151,13 +141,14 @@ Collection Page with Tags:
 ```
 
 ### pluginMutateResults
-Enables updating the URL for products within search results; product URLs will be prefixed with their category route. It only applies to search controllers, and requires the `collection.handle` and `page.type: 'category'` context variables.
+Enables updating the URL for products within search results; product URLs will be prefixed with their category route. It only applies to search controllers, and requires the `collection.handle` and `page.type: 'category'` context variables. Only results with an `attributes.handle` value are updated - the product handle is used to build the new URL (`/collections/{collection handle}/products/{product handle}`).
 
 > [!IMPORTANT]
 > Requires that the `Shopify` object is available on the window.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
+| enabled | configuration to allow for disabling the plugin | boolean | true | ➖ |
 | mutations | Shopify results mutations configuration object | object | ➖ | ➖ |
 | mutations.collectionInUrl | collection in URL Mutation configuration object | object | ➖ | ➖ |
 | mutations.collectionInUrl.enabled | enables the mutation | boolean | false | ➖ |
@@ -178,15 +169,15 @@ plugins: {
 }
 ```
 
-### pluginShopifyMarkets
+### pluginMarkets
 
 The **Markets plugin** fetches region-specific product pricing from the Shopify Storefront API and writes it onto the results. It's designed for storefronts that use Shopify Markets. When a customer's active market (country) differs from the store's base market, the plugin queries the GraphQL API to fetch localized prices and MSRPs, then updates the results' `mappings.core.price` and `mappings.core.msrp`; otherwise the indexed prices are kept. Country — not currency — is what decides whether a fetch is needed, since Shopify Markets can price two countries differently even when they share a currency (for example, two countries settling in the same currency but with different price lists).
 
-The Markets plugin localizes the price *values*. Displaying them correctly also needs the matching currency locale, so configuring `markets` with a non-empty `token` automatically enables [`pluginShopifyCurrency`](#pluginshopifycurrency) — no separate opt in is required. Set `currency.enabled: false` to suppress that if you are formatting prices some other way. Without a `token`, the Markets plugin is not registered at all.
+The Markets plugin localizes the price *values*. Displaying them correctly also needs the matching currency locale, so configuring `markets` with a non-empty `token` automatically enables [`pluginCurrency`](#plugincurrency) — no separate opt in is required. Set `currency.enabled: false` to suppress that if you are formatting prices some other way. Without a `token`, the Markets plugin is not registered at all.
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
-| token | Shopify Storefront Access Token | string | — | ✅ |
+| token | Shopify Storefront Access Token | string | — | ✔️ |
 | baseCountry | Your store's base/catalog market (uppercase country code) | `ShopifyCountryCode` | `'US'` | ➖ |
 | baseUrl | Optional override for store URL | string | — | ➖ |
 | path | Optional override for GraphQL API path | string | `'/api/2026-07/graphql.json'` | ➖ |
@@ -234,7 +225,7 @@ new SnapTemplates(config);
 5. Caches results in an in-memory price cache local to the plugin instance, segmented per country, so switching between two non-base markets never reuses another market's cached prices
 6. When a quickview is opened, the same localized pricing (product and variant level) is applied to the quickview product — its variants are repopulated from `/v1/products` in the base currency, so the plugin re-applies cached prices (fetching them first if not already cached)
 
-Price *formatting* is not handled by this plugin. Use [`pluginShopifyCurrency`](#pluginshopifycurrency) instead, which applies the correct locale for the active currency. The `format` prop and `theme.overrides.default.price.format` are still supported for bespoke formatting.
+Price *formatting* is not handled by this plugin. Use [`pluginCurrency`](#plugincurrency) instead, which applies the correct locale for the active currency. The `format` prop and `theme.overrides.default.price.format` are still supported for bespoke formatting.
 
 #### Using in Your Result Component
 
@@ -302,9 +293,12 @@ theme: {
 
 `shopifyPriceFormat` takes the raw number and a Shopify money format string, and returns the formatted string — it does not read `shop.money_format` itself, so pass it in from wherever your theme exposes it (e.g. script context, a data attribute, or a hardcoded value).
 
-### pluginShopifyCurrency
+### pluginCurrency
 
-The **Currency plugin** reads the storefront's active currency from `Shopify.currency.active` and applies it to the Snap Templates currency locale, so the `Price` component's symbol, decimal places and separators follow the market the shopper is browsing in. It pairs with [`pluginShopifyMarkets`](#pluginshopifymarkets), which localizes the price *values* — this plugin localizes how those values are *displayed*.
+> [!NOTE]
+> This plugin is only available in Snap Templates - it applies the currency through the Snap Templates store, and does nothing (other than log a warning) without it.
+
+The **Currency plugin** reads the storefront's active currency from `Shopify.currency.active` and applies it to the Snap Templates currency locale, so the `Price` component's symbol, decimal places and separators follow the market the shopper is browsing in. It pairs with [`pluginMarkets`](#pluginmarkets), which localizes the price *values* — this plugin localizes how those values are *displayed*.
 
 The currency locales ship with Snap Templates (`Uppercase<CurrencyCodes>`, ISO 4217 codes in a list intended to match the currencies Shopify supports - see [Supported Currencies](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-currencies)), so no currency table needs to be defined per site. Each locale sets the `symbol` for that currency, plus `decimalPlaces`, `thousandsSeparator`, `decimalSeparator` and `symbolAfter` where they differ from the `Price` defaults (`2`, `','`, `'.'`, `false`), and the active currency's ISO code is passed to the `Price` component's `code` prop. Per-site adjustments are made through `theme.overrides.default.price`.
 
@@ -325,18 +319,18 @@ theme: {
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
-| enabled | Registers the plugin. Required when used on its own, since the plugin overrides `config.currency` — but the [Markets plugin](#pluginshopifymarkets) enables it automatically, and `false` opts back out | boolean | `false` | ➖ |
+| enabled | Registers the plugin. Required when used on its own, since the plugin overrides `config.currency` — but the [Markets plugin](#pluginmarkets) enables it automatically, and `false` opts back out | boolean | `false` | ➖ |
 
 #### Setup
 
-```tsx
-import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+Enable the plugin under `plugins.shopify.currency` in the Snap Templates config, and set `config.currency` to the currency to use until the plugin resolves the storefront currency (it is kept if the plugin can't):
 
+```tsx
 const config = validateTemplatesConfig({
 	config: {
 		siteId: 'your-site-id',
 		platform: 'shopify',
-		currency: 'USD', // applied until the plugin resolves the storefront currency, and kept if it can't
+		currency: 'USD',
 	},
 	plugins: {
 		shopify: {
@@ -345,16 +339,11 @@ const config = validateTemplatesConfig({
 			},
 		},
 	},
-	theme: {
-		extends: 'pike',
-	},
-	search: {
-		targets: [{ selector: '#search', component: 'Search' }],
-	},
+	...
 });
-
-new SnapTemplates(config);
 ```
+
+For a step-by-step setup, see [Using the Shopify Currency Plugin](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_SHOPIFY_CURRENCY.md).
 
 #### How It Works
 

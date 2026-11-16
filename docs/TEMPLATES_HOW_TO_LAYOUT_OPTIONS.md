@@ -145,4 +145,4 @@ new SnapTemplates(validateTemplatesConfig({
 ```
 
 > [!NOTE]
-> The user's selected layout option is persisted in the controller's storage (`sessionStorage`), so their preference is remembered across page navigations within the same browser session. The stored option is matched by `value`; if it is not in the current breakpoint's `layoutOptions`, the option marked `default` is selected instead.
+> The user's selected layout option is persisted in the controller's storage, so when `sessionStorage` is available their preference is remembered across page navigations within the same browser session. When `sessionStorage` is blocked, the selection is kept in memory for the current page only. The stored option is matched by `value`; if it is not in the current breakpoint's `layoutOptions`, the option marked `default` is selected instead.

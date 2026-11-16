@@ -1,6 +1,8 @@
 ## Using the Swym Wishlist Plugin
 
-The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It is configured under `plugins.common.swymWishlist` and can be used on every platform by setting `enabled: true`:
+The **Swym Wishlist plugin** connects the Swym Wishlist Plus app to Snap results. After each search it registers the results in Swym's product data and initializes the wishlist buttons rendered in your result component through the Swym SDK, so they add, remove and show the added state exactly as the theme's own buttons do. It can be used on every platform, and requires the Swym Wishlist Plus app to be installed on the store so that the Swym SDK loads on the page.
+
+Enable the plugin under `plugins.common.swymWishlist`, and register the result component that renders the wishlist button:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
@@ -58,4 +60,4 @@ export const WishlistResult = observer(({ result }: ResultProps) => {
 });
 ```
 
-The Swym Wishlist Plus app must be installed on the store so that the Swym SDK loads on the page. For how the plugin works, how product and variant ids are resolved, and platform notes, see the [Swym Wishlist plugin documentation](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/common/README.md#pluginswymwishlist).
+For the configuration options, how the plugin works, how product and variant ids are resolved, and platform notes, see the [Swym Wishlist plugin documentation](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/common/README.md#pluginswymwishlist).

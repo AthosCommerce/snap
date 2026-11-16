@@ -3,17 +3,17 @@
 > [!NOTE]
 > Foreground filters are only usable with a `SearchController`.
 
-**Foreground filters** pre-apply a filter on page load. Unlike a [Background Filter](https://athoscommerce.github.io/snap/snap-background-filters), a foreground filter is applied to the URL and shows up as a normal, removable filter — the shopper can see it and clear it just like any filter they'd select themselves. Foreground filtering is accomplished by setting the **initial `UrlManager` state**; this can be used for setting various states, but only filtering will be covered in this document.
+**Foreground filters** pre-apply a filter on page load. Unlike a [Background Filter](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md), a foreground filter is applied to the URL and shows up as a normal, removable filter — the shopper can see it and clear it just like any filter they'd select themselves. Foreground filtering is accomplished by setting the **initial `UrlManager` state**; this can be used for setting various states, but only filtering will be covered in this document.
 
 >[!TIP]
->Need the filter to be invisible and non-removable instead (e.g. a category page)? Use a [Background Filter](https://athoscommerce.github.io/snap/snap-background-filters#background-filter-object) instead.
+>Need the filter to be invisible and non-removable instead (e.g. a category page)? Use a [Background Filter](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md#background-filter-object) instead.
 
 ## Foreground Filter Configuration
 
 | Property | Type | Required | Default | Description |
 |----------|------|----------|---------|-------------|
 | `initial.settings` | Object | ➖ | - | Global configuration settings for initial state |
-| `initial.settings.ignoreParameters` | string[] | ➖ | `['query', 'tag', 'fallbackQuery']` | Parameters to ignore when determining whether to apply initial state |
+| `initial.settings.ignoreParameters` | string[] | ➖ | `[]` | Additional parameters to ignore when determining whether to apply initial state. When `useDefaultIgnoreParameters` is `true`, `['query', 'tag', 'fallbackQuery']` are added to this list |
 | `initial.settings.useDefaultIgnoreParameters` | boolean | ➖ | `true` | Whether to use the default ignore parameters list |
 | `initial.parameters` | Object | ✔️ | - | UrlManager state parameters to set initially |
 | `initial.parameters.filter` | Object | ➖ | - | Filter state configuration |
@@ -32,6 +32,8 @@
 In the simplified example below, a foreground filter is used to pre-apply a filter for the `on_sale` field.
 
 ```js
+import { Snap } from '@athoscommerce/snap-preact';
+
 const config = {
 	client: {
 		globals: {
@@ -69,12 +71,14 @@ The `initial.parameters` object is keyed by **`UrlManager` state parameters** - 
 ---
 ## Ignoring Existing Parameters
 
-There is also an optional `ignoreParameters` param you can set on the `initial.settings` object - this allows for specifying additional UrlManager state parameters to be added to the ignore list. In the example below, the `initial.state` filter `on_sale:yes` will be set even if there are other `filter` params present in the UrlManager state. The default values in `ignoreParameters` are `query`, `tag`, and `fallbackQuery`.
+There is also an optional `ignoreParameters` param you can set on the `initial.settings` object - this allows for specifying additional UrlManager state parameters to be added to the ignore list. In the example below, the `initial.parameters.filter.state` filter `on_sale:yes` will be set even if there are other `filter` params present in the UrlManager state. Unless `useDefaultIgnoreParameters` is set to `false`, `query`, `tag`, and `fallbackQuery` are always added to the ignore list.
 
 >[!NOTE]
 >`ignoreParameters` determines whether or not to apply the initial state at all - if the UrlManager state contains any states that are **not** being ignored, the initial state will not be applied.
 
 ```js
+import { Snap } from '@athoscommerce/snap-preact';
+
 const config = {
 	client: {
 		globals: {
@@ -121,6 +125,8 @@ More configuration can be made within each `initial.parameter` object:
 Example using advanced configurations shown below:
 
 ```js
+import { Snap } from '@athoscommerce/snap-preact';
+
 const config = {
 	client: {
 		globals: {
@@ -163,7 +169,7 @@ const snap = new Snap(config);
 
 **Q: My initial filter isn't being applied on page load. Why?**
 <br>
-**A:** Confirm the UrlManager state doesn't already contain a non-ignored parameter - the presence of anything not in `ignoreParameters` (default: `query`, `tag`, `fallbackQuery`) will block the initial state from applying entirely. Also confirm the filter is set under `url.initial.parameters`, not `config.globals.filters` (that's for [Background Filters](https://athoscommerce.github.io/snap/snap-background-filters)).
+**A:** Confirm the UrlManager state doesn't already contain a non-ignored parameter - the presence of anything not in `ignoreParameters` (default: `query`, `tag`, `fallbackQuery`) will block the initial state from applying entirely. Also confirm the filter is set under `url.initial.parameters`, not `config.globals.filters` (that's for [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md)).
 
 **Q: My foreground filter is being wiped out when I navigate with an existing `filter` param in the URL. Why?**
 <br>

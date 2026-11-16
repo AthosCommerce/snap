@@ -1,6 +1,6 @@
 # Custom Templates
 
-Let's look at how to setup a custom recommendation template using the Snapfu CLI. See [Getting Started > Setup](https://athoscommerce.github.io/snap/snap-setup) for installing Snapfu.
+Let's look at how to setup a custom recommendation template using the Snapfu CLI. See [Getting Started > Setup](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) for installing Snapfu.
 
 There are three steps required for adding recommendations:
 - Creating the local template files
@@ -52,7 +52,7 @@ Syncing custom templates to Athos' Search & Product Discovery Console is require
 
 Templates also support branching. For production-ready templates, please ensure you are on the repository's default branch (typically `production`) before running `snapfu recs sync`
 
-If you are using Snap's Github action, merges into the `production` branch will execute the sync command within the action to ensure your templates are always synced. See [Reference > Build & Deploy > Github Action](https://athoscommerce.github.io/snap/build-deploy#github-action) for Github Actions usage. 
+If you are using Snap's Github action, merges into the `production` branch will execute the sync command within the action to ensure your templates are always synced. See [Reference > Build & Deploy > Github Action](https://github.com/athoscommerce/snap/blob/main/docs/BUILD_DEPLOY.md#github-action) for Github Actions usage. 
 
 To sync templates, run the follow at the root of the project.
 
@@ -63,4 +63,4 @@ snapfu recs sync
 #### Syncing to multiple accounts
 To sync the template(s) to multiple accounts, multiple siteIds must be defined in the project's package.json file
 
-See [Reference > Build & Deploy > Project package.json configuration](https://athoscommerce.github.io/snap/build-deploy#project-packagejson-configuration)
+See [Reference > Build & Deploy > Project package.json configuration](https://github.com/athoscommerce/snap/blob/main/docs/BUILD_DEPLOY.md#project-packagejson-configuration)

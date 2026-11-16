@@ -1,5 +1,5 @@
 # AutocompleteStore
-The autocomplete store is meant to hold the suggest and search API response and associated state. It extends the AbstractStore and the recommend response by adding several additional properties and methods to make working with the data easier.
+The autocomplete store is meant to hold the suggest and search API response and associated state. It extends the AbstractStore and the autocomplete response by adding several additional properties and methods to make working with the data easier.
 
 ```js
 import { AutocompleteStore } from '@athoscommerce/snap-store-mobx'
@@ -35,10 +35,19 @@ store.reset()
 ```
 
 ## `resetTerms` method
+Sets all term suggestions, trending terms and history terms to inactive (calls `resetSuggestions`, `resetTrending` and `resetHistory`)
+
+## `resetSuggestions` method
 Sets all term suggestions to inactive
 
 ## `resetTrending` method
 Sets all trending term suggestions to inactive
+
+## `resetHistory` method
+Sets all history terms to inactive
+
+## `initHistory` method
+Populates the `history` property from previously stored search queries. History is only populated when `settings.history.limit` is set to a positive number and `settings.history.enabled` is not `false` - otherwise `history` is an empty array
 
 ## `meta` property
 The meta property is an object containing the meta data retrieved from the Athos Meta API
@@ -50,9 +59,7 @@ A "lock" refers to a locked state of a certain component of autocomplete. There 
 
 `state.locks.terms` - this becomes locked when a term's `preview` method is called, resulting in the terms not changing while the user interacts with the facets and results for the locked term. Without locking, Autocomplete API requests from user interaction would cause the terms to change unexpectedly
 
-`state.locks.facets`, similar to the terms lock, this prevents facets from changing when interacting with other facets
-
-<!-- TODO: explain locks better? -->
+`state.locks.facets`, similar to the terms lock, this prevents facets from changing when interacting with other facets. It becomes locked when a facet value's `preview` method is called, and is unlocked when a term's `preview` method is called
 
 
 ### `locks` property
@@ -69,10 +76,10 @@ Contains a reference to the current focused `HTMLInputElement`
 Contains the currently focused input value being searched
 
 ### `url` property
-Contains a reference to the [UrlManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-url-manager) that was linked using the `link` method
+Contains a reference to the [UrlManager](https://github.com/athoscommerce/snap/tree/main/packages/snap-url-manager) from the store's `urlManager` service. It is replaced when a new `urlManager` is provided via the `setService` method
 
 ## `Lock` object
-A `Lock` object contains a private boolean state. The initial state can be defined in the constructor, default is `false`
+A `Lock` object contains a private boolean state. The `state.locks.terms` and `state.locks.facets` locks both start unlocked (`false`), and `reset` returns them to that state. The `Lock` class is not exported - use the instances on `store.state.locks`
 
 ### `reset` method
 Sets lock state to the original starting state when the Lock was constructed
@@ -87,29 +94,22 @@ Sets lock state to `false`
 Boolean `true` if the Lock state is locked
 
 ```js
-let lock;
-lock = new Lock()
+const lock = store.state.locks.terms;
 console.log(lock.locked) // false
 
-lock = new Lock(false)
-console.log(lock.locked) // false
 lock.lock()
 console.log(lock.locked) // true
-lock.reset();
-console.log(lock.locked) // false
 
-lock = new Lock(true)
-console.log(lock.locked) // true
 lock.unlock()
 console.log(lock.locked) // false
+
+lock.lock()
 lock.reset();
-console.log(lock.locked) // true
+console.log(lock.locked) // false
 ```
 
 ## `storage` property
 Contains a reference to the [StorageStore](https://github.com/athoscommerce/snap/blob/main/packages/snap-toolbox/src/StorageStore/README.md)
-
-<!-- TODO: update link -->
 
 ## Quickview
 
@@ -128,7 +128,13 @@ Contains an object with the following properties:
 
 `query` - query that was searched
 
-`originalQuery` - Original query if spell correction occurred
+`correctedQuery` - corrected query if spell correction occurred
+
+`subject` - the search subject returned by the API
+
+`matchType` - the match type returned by the API
+
+Each query (`query`, `correctedQuery` and `subject`) is an object with a `string` value and a `url` UrlManager instance
 
 ## `terms` property
 An array of `Term` objects.
@@ -159,10 +165,10 @@ This will also lock the term state, and unlock facets state.
 ## `facets` property
 An array of facets. See [SearchStore](https://github.com/athoscommerce/snap/tree/main/packages/snap-store-mobx/src/Search) `facets` property
 
-In addition to all the search facets functionally, the Autocomplete facets will have an added `preview` method
+In addition to all the search facets functionally, the values of Autocomplete facets will have an added `preview` method
 
 ### `preview` method
-See `terms.preview` for `facets.preview` usage
+Each facet value has a `preview` method. It marks the facet and value as filtered, locks the facets state (`state.locks.facets`) and queries the API for the value's filter. Unlike `terms.preview`, it does not change the terms lock or term active states
 
 
 ## `filters` property

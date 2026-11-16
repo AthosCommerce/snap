@@ -79,6 +79,9 @@ columns: 4, rows: 1  →  [ result ][ result ][ result ][ result ]   (4 products
 
 The default desktop layout places terms in the left column, facets in the middle, and results with a see-more link on the right.
 
+> [!NOTE]
+> Any `theme.overrides.default` entry outranks the extended theme's own `mobile` and `tablet` overrides, which give the autocomplete templates a `'mobile'` layout on mobile, a `[['c1', 'c3']]` layout on tablet and a smaller result grid on both. When you set `layout` or the `results` grid under `default`, set them again in `mobile` and `tablet` (as the examples below do), or those breakpoints use your `default` values.
+
 ```tsx
 new SnapTemplates(validateTemplatesConfig({
 	...
@@ -86,7 +89,7 @@ new SnapTemplates(validateTemplatesConfig({
 		extends: 'pike',
 		overrides: {
 			default: {
-				// Three-column layout: c1 contains terms | c2 contains facets | c3 contains results and see more button. 
+				// Three-column layout: c1 contains terms | c2 contains facets | c3 contains results and see more button.
 				autocompleteFixed: {
 					layout: [['c1', 'c2', 'c3']],
 				},
@@ -100,6 +103,11 @@ new SnapTemplates(validateTemplatesConfig({
 				// Collapse to the single-column 'mobile' layout (terms, results, see more)
 				autocompleteFixed: {
 					layout: 'mobile',
+				},
+				// 2x1 result grid
+				'autocompleteFixed results': {
+					columns: 2,
+					rows: 1,
 				},
 			},
 			tablet: {
@@ -159,6 +167,25 @@ new SnapTemplates(validateTemplatesConfig({
 					rows: 3,
 				},
 			},
+			// restore the theme's mobile and tablet layouts and result grids
+			mobile: {
+				autocompleteFixed: {
+					layout: 'mobile',
+				},
+				'autocompleteFixed results': {
+					columns: 2,
+					rows: 1,
+				},
+			},
+			tablet: {
+				autocompleteFixed: {
+					layout: [['c1', 'c3']],
+				},
+				'autocompleteFixed results': {
+					columns: 3,
+					rows: 1,
+				},
+			},
 		},
 	},
 	...
@@ -192,6 +219,12 @@ new SnapTemplates(validateTemplatesConfig({
 						width: 'auto',
 						layout: ['content'],
 					},
+				},
+			},
+			// restore the theme's single-column mobile layout (its tablet layout is already [['c1', 'c3']])
+			mobile: {
+				autocompleteModal: {
+					layout: 'mobile',
 				},
 			},
 		},

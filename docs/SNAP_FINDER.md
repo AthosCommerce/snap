@@ -4,7 +4,7 @@
 >If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
 
 ## What is a Finder
-A Finder is a guided-selling experience that narrows down products through a sequence of dropdown selections, rather than a shopper-entered query — for example, a wheel finder that walks through Year, Make, Model, and Wheel Size to land on the exact fitting part. It's distinct from [Search](https://athoscommerce.github.io/snap/snap-search): Search assumes the shopper already knows roughly what they're looking for, while Finder is built for structured, sequential narrowing when they don't.
+A Finder is a guided-selling experience that narrows down products through a sequence of dropdown selections, rather than a shopper-entered query — for example, a wheel finder that walks through Year, Make, Model, and Wheel Size to land on the exact fitting part. It's distinct from [Search](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md): Search assumes the shopper already knows roughly what they're looking for, while Finder is built for structured, sequential narrowing when they don't.
 
 <img src='/images/finder-example.png'/>
 
@@ -14,7 +14,7 @@ A Finder is a guided-selling experience that narrows down products through a seq
 To set up a product Finder using Snap, we'll need to define a finder controller in our Snap configuration.
 
 >[!TIP]
->See [FinderController reference](https://athoscommerce.github.io/snap/reference-controller-finder) for all available configuration options.
+>See [FinderController reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-controller/src/Finder/README.md) for all available configuration options.
 
 ## Configuration
 There are two types of Finder configurations, a **Hierarchy** and **Non-Hierarchy**. The difference is the type of field being used and how it is configured in the Athos Search & Product Discovery Console.
@@ -29,6 +29,8 @@ To use a Hierarchy configuration, ensure that the config's `fields` array contai
 
 ```js
 // src/index.js
+
+import { Snap } from '@athoscommerce/snap-preact';
 
 const snap = new Snap({
 	client: {
@@ -67,6 +69,8 @@ To use a Non-Hierarchy configuration, multiple `fields` are specified. The field
 
 ```js
 // src/index.js
+
+import { Snap } from '@athoscommerce/snap-preact';
 
 const snap = new Snap({
 	client: {
@@ -184,7 +188,7 @@ export const Finder = observer((props) => {
 
 **Q: Finder renders nothing — no dropdowns show up at all. Why?**
 <br>
-**A:** Confirm the field is marked for 'Filter' on the [Field Settings page](https://console.athoscommerce.net/data-configurations/field-settings) in the Athos Search & Product Discovery Console — without that, the API returns no facet for it, so its dropdown stays disabled with only the placeholder option (and a hierarchy field without `levels` renders no dropdowns at all).
+**A:** Confirm the field is marked for 'Filter' on the [Field Settings page](https://console.athoscommerce.net/data-configurations/field-settings) in the Athos Search & Product Discovery Console — without that, the API returns no facet for it, so its dropdown renders with only the placeholder option (and a hierarchy field without `levels` renders no dropdowns at all).
 
 **Q: My hierarchy dropdowns don't cascade in order — they all show unselected values at once instead of enforcing a sequence. Why?**
 <br>

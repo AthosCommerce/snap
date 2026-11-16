@@ -37,7 +37,7 @@ A "Snap Integration" is a project that uses the `Snap` export from the `@athosco
 
 An example Snap Integration project can be found [here](https://github.com/snap-implementations/demo.shopify).
 
-Continue by referencing the [Snap Setup](https://athoscommerce.github.io/snap/snap-setup) section.
+Continue by referencing the [Snap Setup](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) section.
 
 ### Snap Templates Integration
 
@@ -45,13 +45,13 @@ A "Snap Templates Integration" is a project that uses the `SnapTemplates` export
 
 Instead, it is based on choosing an optimized and prebuilt template and theme while only customizing slight layout changes, theme variables, result card markup, and general style declarations. This integration type allows for a rapid integration of Athos to your storefront.
 
-Continue by referencing the [Snap Templates Integration](https://athoscommerce.github.io/snap/templates-about) documentation.
+Continue by referencing the [Snap Templates Integration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md) documentation.
 
 ### API Integration
 
 An "API Integration" is a project that utilizes the Athos APIs directly to integrate into your custom storefront project. Although not required, we recommend using just the `@athoscommerce/snap-client` package to fetch data from Athos APIs. 
 
-Continue by referencing the [API Integration](https://athoscommerce.github.io/snap/snap-client) section.
+Continue by referencing the [API Integration](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md) section.
 
 ---
 ## Packages
@@ -63,19 +63,19 @@ Snap is modular — depending on your project's architecture, you can adopt it a
 
 ### Data Layer: Snap Client
 
-[`@athoscommerce/snap-client`](https://athoscommerce.github.io/snap/snap-client) is a lightweight wrapper around the Search, Autocomplete, and Recommendations APIs. It handles network requests, query parameter construction, and response parsing.
+[`@athoscommerce/snap-client`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md) is a lightweight wrapper around the Search, Autocomplete, and Recommendations APIs. It handles network requests, query parameter construction, and response parsing.
 
 **Best for:** custom headless builds, mobile apps, server-side rendering (SSR), or any TypeScript/JavaScript runtime doing a pure API Integration.
 
 ### Logic Layer: Snap Controller
 
-[`@athoscommerce/snap-controller`](https://athoscommerce.github.io/snap/reference-controllers) sits on top of the Client and manages state — active filters, current page, sorting, event tracking, and cookie management — exposing a store your UI can listen to. It's primarily used internally by Snap Preact, but is also published standalone for teams who want Snap's state management without adopting its UI layer.
+[`@athoscommerce/snap-controller`](https://github.com/athoscommerce/snap/blob/main/packages/snap-controller/README.md) sits on top of the Client and manages state — active filters, current page, sorting, event tracking, and cookie management — exposing a store your UI can listen to. It's primarily used internally by Snap Preact, but is also published standalone for teams who want Snap's state management without adopting its UI layer.
 
 **Best for:** apps where you want to own the UI (Vue, Angular, vanilla JS) but don't want to write your own filtering or pagination logic.
 
 ### UI Layer: Snap Preact
 
-[`@athoscommerce/snap-preact`](https://athoscommerce.github.io/snap/reference-snap-preact) combines the Client and Controller with a library of Preact components, so you can build a full search and recommendation experience with minimal boilerplate while still being able to swap out any component for custom markup.
+[`@athoscommerce/snap-preact`](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/README.md) combines the Client and Controller with a library of Preact components, so you can build a full search and recommendation experience with minimal boilerplate while still being able to swap out any component for custom markup.
 
 **Best for:** fast, high-performance storefront integrations where Snap handles the UI.
 

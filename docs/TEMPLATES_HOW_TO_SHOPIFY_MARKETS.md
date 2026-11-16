@@ -54,5 +54,5 @@ export const CustomResult = observer(({ result, treePath }: ResultProps) => {
 ```
 
 If you need a custom formatter, you can still set `theme.overrides.default.price.format` in your template config; it takes precedence over the currency locale. When `format` is set, the `Price` component renders only the string it returns - the locale's `symbol` and `showCode` are not applied.
-												
-For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#pluginshopifymarkets).
+
+For detailed configuration options, troubleshooting, and advanced usage, see the [Shopify Markets plugin documentation](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#pluginmarkets).

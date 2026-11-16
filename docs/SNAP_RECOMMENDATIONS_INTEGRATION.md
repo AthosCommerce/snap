@@ -1,14 +1,14 @@
 # Profile Setup
 
 >[!WARNING]
-> Changes to the recommendation integration scripts were made in Snap `v0.60.0`. Legacy Recommendation Integrations docs can still be found [`here`](https://athoscommerce.github.io/snap/snap-recommendations-legacy)
+> This page covers the grouped `athos/recommendations` script block. Legacy Recommendation Integrations docs (per-profile `athos/personalized-recommendations` script blocks) can still be found [`here`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_RECOMMENDATIONS_LEGACY.md)
 
 ## Profile Prerequisites
 
 Profiles must be setup in the Athos Search & Product Discovery Console (ASD) and have associated Snap templates selected. The template selected contains a `component` that will be used to render the recommendations profile. This component must be configured in your `RecommendationInstantiator`.
 
 >[!TIP]
-> See [Recommendations](https://athoscommerce.github.io/snap/snap-recommendations) for setting up the Default/Bundle templates before continuing here.
+> See [Recommendations](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_RECOMMENDATIONS.md) for setting up the Default/Bundle templates before continuing here.
 ---
 ## Installation
 
@@ -97,7 +97,7 @@ Global context variables are set via a `globals` object in the recommendations s
 | options.dedupe | boolean (default: `true`) | all | dedupe products across all profiles in the batch |   |
 | options.query | string | dynamic custom | query to search |   |
 | options.filters | array of filters | all | optional recommendation filters, scoped to this profile only |   |
-| options.realtime | boolean | all | optional update recommendations if cart contents change (requires [cart attribute tracking](https://athoscommerce.github.io/snap/snap-tracking-manual#cart-attribute-tracking)) |   |
+| options.realtime | boolean | all | optional update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#cart-attribute-tracking)) |   |
 | options.limit | number (default: 20, max: 20) | all | optional maximum number of results to display |   |
 
 >[!TIP]
@@ -136,8 +136,6 @@ While batching all profiles together is generally the most efficient approach, t
 	];
 </script>
 ```
->[!TIP]
->You can disable de-duplication for a specific profile by setting `dedupe: false` in its options, or create a separate batch by using an additional script tag.
 ---
 
 ## Deduping
@@ -188,11 +186,11 @@ Below is an example that demonstrates deduping:
 
 ## Additional Examples
 
-Each example below assumes a Snap `bundle.js` script exists on the page, already configured with a [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators).
+Each example below assumes a Snap `bundle.js` script exists on the page, already configured with a [`RecommendationInstantiator`](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md).
 
 ### Product Detail Page
 
-A typical "similar" profile displays products similar to the product passed in via the `products` global context variable. This assumes a `similar` profile has been setup in the Athos Search & Product Discovery Console (ASD).
+A typical "similar" profile displays products similar to the product passed in via the `products` global context variable. This assumes a `customers-also-viewed` profile has been setup in the Athos Search & Product Discovery Console (ASD).
 
 ```html
 <script type="athos/recommendations">

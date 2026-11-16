@@ -3,45 +3,13 @@
 > If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers. 
 
 ## Search Controller
-Search pages render product results for a shopper's query. In the Snap ecosystem this is powered by Snap's `SearchController`. To get started with search results you **must define a search controller** in your Snap configuration; see [SearchController reference](https://athoscommerce.github.io/snap/reference-controller-search) for all available configuration options.
+Search pages render product results for a shopper's query. In the Snap ecosystem this is powered by Snap's `SearchController`. To get started with search results you **must define a search controller** in your Snap configuration; see [SearchController reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-controller/src/Search/README.md) for all available configuration options.
 
 ### Minimum Viable Controller
-As already covered in our initial setup - the below example displays the bare minimum configuration to create a **search controller** and render a root level `Content` component into it.
-
-
-```js
-// src/index.js
-
-import { Snap } from '@athoscommerce/snap-preact';
-
-const snap = new Snap({
-	client: {
-		globals: {
-			siteId: 'REPLACE_WITH_YOUR_SITE_ID',
-		},
-	},
-	controllers: {
-		search: [
-			{
-				config: {
-					id: 'search',
-				},
-				targeters: [
-					{
-						selector: '#athos-content',
-						component: async () => {
-							return (await import('./components/Content/Content')).Content;
-						},
-					},
-				],
-			},
-		],
-	},
-});
-```
+The bare minimum configuration to create a **search controller** and render a root level `Content` component into it is covered in [Setup > Minimum Viable Controller](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md#minimum-viable-controller).
 
 >[!NOTE]
->**Search** is also the controller behind **category pages** — scoping results to a category without displaying an active filter to the shopper is done by applying a **Background Filter** to the search controller's `globals.filters` property. See [Category Pages](https://athoscommerce.github.io/snap/snap-category-pages) for the full walkthrough.
+>**Search** is also the controller behind **category pages** — scoping results to a category without displaying an active filter to the shopper is done by applying a **Background Filter** to the search controller's `globals.filters` property. See [Category Pages](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CATEGORY_PAGES.md) for the full walkthrough.
 
 ---
 ## Search Store
@@ -57,12 +25,12 @@ This section covers the properties available on the Search Store via a Search Co
 The `results` property contains an array of result objects for the current page — including `type`, `attributes`, `mappings.core`, `mask`/`display` (for temporary UI-only overrides), `variants`, and `custom`.
 
 > [!TIP]
-> For the full breakdown of result object properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#results-property).
+> For the full breakdown of result object properties, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#results-property).
 
 >[!NOTE]
->If you are creating a custom Result component, the `withTracking` hook is required to capture product impression and click analytics. See [Tracking](https://athoscommerce.github.io/snap/snap-tracking-automatic#impressions) for more information.
+>If you are creating a custom Result component, the `withTracking` higher order component is required to capture product impression and click analytics. See [Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#impressions) for more information.
 
-```tsx
+```jsx
 // src/components/Results/Results.jsx
 
 import { h } from 'preact';
@@ -110,18 +78,18 @@ const Result = withController(withTracking(observer((props) => {
 ```
 
 > [!NOTE]
-> When `pagination.totalResults` is `0`, render a `<NoResults/>` component instead of `<Results/>` — either the library's `NoResults` component or your own. See [Putting It Together](https://athoscommerce.github.io/snap/snap-search#putting-it-together) below for where it fits alongside everything else.
+> When `pagination.totalResults` is `0`, render a `<NoResults/>` component instead of `<Results/>` — either the library's `NoResults` component or your own. See [Putting It Together](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#putting-it-together) below for where it fits alongside everything else.
 
 ### SearchController.store.facets
 
 The `facets` property contains an array of facet objects for the current query — each with a `type` (`range`, `value`, or `range-buckets`) that determines which additional properties are available, plus common ones like `label`, `display`, `collapsed`, and `toggleCollapse()`.
 
 > [!TIP]
-> For the full breakdown of facet object properties per type, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#facets-property).
+> For the full breakdown of facet object properties per type, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#facets-property).
 
 The example below displays a custom `FacetOptionsList` component for facets with a display type of `list`. The `@athoscommerce/snap-preact/components` component library includes [`FacetListOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetlistoptions--default), [`FacetGridOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetgridoptions--default), [`FacetPaletteOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetpaletteoptions--default), [`FacetHierarchyOptions`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facethierarchyoptions--default), and [`FacetSlider`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/molecules-facetslider--price) — importable directly or usable as a reference for your own.
 
-```tsx
+```jsx
 // src/components/Facets/Facets.jsx
 
 import { h } from 'preact';
@@ -155,12 +123,12 @@ const Facet = withController(observer((props) => {
 				{facet.label}
 			</h5>
 			{['list', 'grid', 'palette'].includes(facet.display) && (
-				<SearchInput onChange={(e) => facet.search.input = e.target.value} placeholder={`Search ${facet.label}`} />
+				<SearchInput onChange={(e) => facet.search.input = e.target.value} placeholderText={`Search ${facet.label}`} />
 			)}
 			<div className="ss__facet__options">
 				{{
 					grid: <FacetGridOptions facet={facet} />,
-					palette: <FacetPaletteOptions facet={facet} />,
+					palette: <FacetPaletteOptions facet={facet} values={facet.refinedValues} />,
 					hierarchy: <FacetHierarchyOptions facet={facet} />,
 					slider: <FacetSlider facet={facet} />,
 				}[facet.display] || <FacetOptionsList facet={facet} />}
@@ -178,8 +146,8 @@ const FacetOptionsList = withController(observer((props) => {
 		<ul class="ss__facet__options__list">
 			{values.map((value) => {
 				return (
-					<li class={`ss__facet__options__list__option ${value.filtered ? 'ss__facet__options__list__option--active' : ''}`}>
-						<a {...value.url.link} title={`Remove filter ${value.label}`}>
+					<li class={`ss__facet__options__list__option ${value.filtered ? 'ss__facet__options__list__option--active' : ''}`} key={value.value}>
+						<a {...value.url.link} title={value.filtered ? `Remove filter ${value.label}` : `Apply filter ${value.label}`}>
 							{value.label}
 						</a>
 					</li>
@@ -198,9 +166,9 @@ The `filters` property contains an array of filters that are currently applied t
 Typically used to display a filter summary with options to remove filters.
 
 > [!TIP]
-> For the full breakdown of filter object properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#filters-property).
+> For the full breakdown of filter object properties, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#filters-property).
 
-```tsx
+```jsx
 // src/components/FilterSummary/FilterSummary.jsx
 
 import { h } from 'preact';
@@ -240,9 +208,9 @@ export const FilterSummary = withController(observer((props) => {
 The `pagination` property is not only used for information about the current query, but also contains everything needed for handling pagination of a query that yields multiple pages. Invoking the `getPages` method will retrieve the specified number of page objects.
 
 > [!TIP]
-> For the full breakdown of pagination properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#pagination-property).
+> For the full breakdown of pagination properties, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#pagination-property).
 
-```tsx
+```jsx
 // src/components/Pagination/Pagination.jsx
 
 import { h } from 'preact';
@@ -290,9 +258,9 @@ export const Pagination = withController(observer((props) => {
 The `search` property contains information about the current query, typically displayed above results and used in combination with the `store.pagination` data.
 
 > [!TIP]
-> For the full breakdown of search properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#search-property).
+> For the full breakdown of search properties, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#search-property).
 
-```tsx
+```jsx
 // src/components/SearchHeader/SearchHeader.jsx
 
 import { h } from 'preact';
@@ -353,9 +321,9 @@ The `sorting` property contains sorting options applicable to the current query.
 Sorting settings can be configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net)
 
 > [!TIP]
-> For the full breakdown of sorting properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#sorting-property).
+> For the full breakdown of sorting properties, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#sorting-property).
 
-```tsx
+```jsx
 // src/components/SortBy/SortBy.jsx
 
 import { h } from 'preact';
@@ -395,25 +363,27 @@ export const SortBy = withController(observer((props) => {
 The `merchandising` property contains **merchandising redirects** and **banner content**, both configured in the [Athos Search & Product Discovery Console](https://console.athoscommerce.net).
 
 > [!TIP]
-> For the full breakdown of merchandising properties, see the [SearchStore reference](https://athoscommerce.github.io/snap/reference-store-search#merchandising-property).
+> For the full breakdown of merchandising properties, see the [SearchStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Search/README.md#merchandising-property).
 
 > [!TIP]
 > Use the [`<Banner/>`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/atoms-banner--header) component from `@athoscommerce/snap-preact/components` to display banners — available types are `header`, `banner`, `footer`, `left`, and `inline`. Inline banners are the exception: use [`<InlineBanner/>`](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/atoms-inlinebanner--default) instead — see `store.results` above.
 
 ## Putting It Together
 
-With `results`, `facets`, `filters`, `pagination`, `search`, `sorting`, and `merchandising` each wired into their own component, the root `Content` component composes them into the full search page:
+With `results`, `facets`, `filters`, `pagination`, `search`, `sorting`, and `merchandising` each wired into their own component, the root `Content` component composes them into the full search page. `Banner` and `NoResults` come from the component library:
 
-```tsx
+```jsx
 // src/components/Content/Content.jsx
 
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { ControllerProvider, Banner } from '@athoscommerce/snap-preact/components';
+import { ControllerProvider, Banner, NoResults } from '@athoscommerce/snap-preact/components';
 import { Results } from '../Results/Results';
+import { Facets } from '../Facets/Facets';
+import { FilterSummary } from '../FilterSummary/FilterSummary';
 import { Pagination } from '../Pagination/Pagination';
-import { NoResults } from '../NoResults/NoResults';
 import { SearchHeader } from '../SearchHeader/SearchHeader';
+import { SortBy } from '../SortBy/SortBy';
 
 export const Content = observer((props) => {
 	const { controller } = props;
@@ -422,16 +392,24 @@ export const Content = observer((props) => {
 	return controller.store.loaded ? (
 		<ControllerProvider controller={controller}>
 			<div class="ss__content">
-				<Banner content={merchandising.content} type="header" />
-				<Banner content={merchandising.content} type="banner" />
-				<SearchHeader />
-				{
-					pagination.totalResults > 0
-						? (<Results />)
-						: (<NoResults />)
-				}
-				<Pagination />
-				<Banner content={merchandising.content} type="footer" />
+				<div class="ss__sidebar">
+					<Banner content={merchandising.content} type="left" />
+					<Facets />
+				</div>
+				<div class="ss__main">
+					<Banner content={merchandising.content} type="header" />
+					<SearchHeader />
+					<FilterSummary />
+					<SortBy />
+					<Banner content={merchandising.content} type="banner" />
+					{
+						pagination.totalResults > 0
+							? (<Results />)
+							: (<NoResults controller={controller} />)
+					}
+					<Pagination />
+					<Banner content={merchandising.content} type="footer" />
+				</div>
 			</div>
 		</ControllerProvider>
 	) : null;
@@ -451,11 +429,11 @@ export const Content = observer((props) => {
 
 **Q: Product clicks and impressions aren't showing up in tracking/analytics. Why?**
 <br>
-**A:** A custom `Result` component needs the `withTracking` HOC and its `trackingRef` attached to the result's root element — see the `Results.jsx` example above. Without it, Snap has no way to observe impressions or attribute clicks. See [Automatic Tracking](https://athoscommerce.github.io/snap/snap-tracking-automatic) for the full setup.
+**A:** A custom `Result` component needs the `withTracking` HOC and its `trackingRef` attached to the result's root element — see the `Results.jsx` example above. Without it, Snap has no way to observe impressions or attribute clicks. See [Automatic Tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md) for the full setup.
 
 **Q: My category page filter shows up as a normal, removable filter instead of being invisible to the shopper. Why?**
 <br>
-**A:** The filter object is missing `background: true`. Without that flag, Snap treats it as a regular filter rather than a Background Filter. See [Category Pages](https://athoscommerce.github.io/snap/snap-category-pages) for the full pattern.
+**A:** The filter object is missing `background: true`. Without that flag, Snap treats it as a regular filter rather than a Background Filter. See [Category Pages](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CATEGORY_PAGES.md) for the full pattern.
 
 **Q: The sort dropdown doesn't seem to reflect the option I selected. Why?**
 <br>

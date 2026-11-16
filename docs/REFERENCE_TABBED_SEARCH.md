@@ -1,4 +1,4 @@
-## Tabbed Search
+# Tabbed Search
 
 > [!IMPORTANT]
 > Tabbed search is currently available in **Snap Templates only**. It is driven entirely by Snap Templates configuration and is not available to standard Snap integrations.
@@ -9,7 +9,7 @@ This is useful when a site has more than one Athos catalog - a main product cata
 
 For the full list of configuration options see [Tabs](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#tabs) in the Templates Config documentation.
 
-### Defining Tabs
+## Defining Tabs
 
 Add a `tabs` array to `search` and/or `autocomplete`. Each tab needs an `id`, the `siteId` it queries, and the `param` that identifies its catalog in the URL.
 
@@ -60,7 +60,7 @@ Within a feature, every tab must have its own `siteId` and its own `param`. This
 
 When tabs are configured, no untabbed controller is created, so adding tabs does not produce an additional request. Search targets are attached to the controller of the tab that is active on page load (from the `tab` URL parameter, otherwise the default tab), and autocomplete targets are attached to the default tab's controller.
 
-### Rendering the Tabs
+## Rendering the Tabs
 
 The `tabSelection` module is already present in some default layouts, so no theme changes are needed to make the tabs appear there. On the `Search` template it sits in the middle toolbar, and in `AutocompleteLayout` it sits above the content in the default `column3` layout (used by the default, `desktop` and `tablet` autocomplete layouts).
 
@@ -94,7 +94,7 @@ theme: {
 }
 ```
 
-### Catalog URL Configuration
+## Catalog URL Configuration
 
 Each tab's `param` is its identity in the URL. It does two things: it is the value written to the `tab` query parameter when the tab is selected, and it namespaces that tab's parameters so two tabs can hold different refinements at the same time.
 
@@ -120,7 +120,7 @@ The `query` parameter stays unprefixed and is shared across every tab - a shoppe
 
 Keep `param` values short and URL safe - they are visible to shoppers and they prefix every namespaced parameter.
 
-### Matching Autocomplete Tabs to Search Tabs
+## Matching Autocomplete Tabs to Search Tabs
 
 A shopper who searches from the blog tab of a tabbed autocomplete should land on the blog tab of the results page. Submitting writes the autocomplete tab's `param` to the URL, and the results page selects the search tab configured with that same `param`.
 
@@ -151,7 +151,7 @@ new SnapTemplates(validateTemplatesConfig({
 
 Submitting from the `ACBlog` tab writes `tab=blog` and the results page opens on the `Blog` tab.
 
-### Deferring Requests with prefetch
+## Deferring Requests with prefetch
 
 By default every search tab issues its request as soon as the tabbed search renders, so that each tab can display a result count immediately. On sites with many tabs this can be more requests than you want.
 
@@ -171,7 +171,7 @@ search: {
 
 Be aware that this also changes what reporting sees for that tab's `siteId`. A deferred tab only records a search when a shopper actually selects it, so its search volume is likely to be far lower than a prefetched tab's, and its impression and click-through rates correspondingly higher. Metrics are not comparable across the default tab's `siteId` and a `prefetch: false` tab's `siteId`.
 
-### Per-Tab Globals, Settings and Plugins
+## Per-Tab Globals, Settings and Plugins
 
 Each tab accepts `globals`, `settings` and `plugins` that apply to that tab alone. This is how you give one catalog a background filter, a different page size, or its own plugin set. `settings` and `globals` are merged over the feature level values; `plugins` apply to the tab only. Tab `globals` are not type-checked.
 
@@ -216,7 +216,7 @@ search: {
 > [!IMPORTANT]
 > `tabs[].plugins` **replaces** the top-level and feature level `plugins` for that tab rather than merging with them. A tab without a `plugins` key inherits the top-level and feature level plugins; a tab with an empty `plugins` object runs none. A built-in plugin only runs on the tab when its config object has at least one key (for example `{ enabled: true }`).
 
-### Tab-Specific Theme Overrides
+## Tab-Specific Theme Overrides
 
 The active tab's `id` is applied to the rendered template as its component `name`, which makes it available as a named theme override selector. This allows a tab to be themed differently from its siblings - a different result component, a different grid, different toolbar layouts.
 
@@ -265,7 +265,7 @@ Two constraints are worth knowing:
 - A tab id only becomes a selector if it consists of letters, numbers and dashes.
 - An id containing spaces, underscores or dots produces no named selector, and the override is silently ignored.
 
-### Customizing the TabSelection Component
+## Customizing the TabSelection Component
 
 `tabSelection` is themed like any other component. Common options are a heading above the tabs, hiding result counts, and keeping empty tabs selectable.
 

@@ -40,13 +40,13 @@ new SnapTemplates(validateTemplatesConfig({
 		extends: 'pike',
 		overrides: {
 			default: {
-				'toolbar.top': {
+				'search toolbar.top': {
 					layout: [
 						['banner.header'],
 						['searchHeader', '_', 'sortBy', 'perPage', 'layoutSelector'],
 					],
 				},
-				'toolbar.middle': {
+				'search toolbar.middle': {
 					layout: [
 						['filterSummary'],
 						['button.sidebar-toggle', 'paginationInfo', '_'],
@@ -54,7 +54,7 @@ new SnapTemplates(validateTemplatesConfig({
 						['banner.banner'],
 					],
 				},
-				'toolbar.bottom': {
+				'search toolbar.bottom': {
 					layout: [
 						['banner.footer'],
 						['_', 'pagination', '_'],
@@ -67,7 +67,7 @@ new SnapTemplates(validateTemplatesConfig({
 }));
 ```
 
-The middle layout keeps `button.sidebar-toggle` and `tabSelection`: an unscoped toolbar override replaces every template's layout, and the sidebar toggle is how shoppers open the filters on `Search` below `mobileDisplayAt` and on `SearchCollapsible`, whose own toggle is in the top toolbar this example replaces.
+The selectors start with `search`, so only the `Search` template changes and `SearchCollapsible` and `SearchHorizontal` keep their own toolbars. An unscoped `'toolbar.middle'` would also replace `SearchHorizontal`'s middle toolbar, which holds its only desktop facets (`facetsHorizontal`), and an unscoped `'toolbar.top'` would drop the sidebar toggle from `SearchCollapsible`'s top toolbar. The middle layout keeps `button.sidebar-toggle`, which is how shoppers open the filters on `Search` below `mobileDisplayAt`, and `tabSelection`, which the default middle toolbar renders for tabbed search.
 
 ### Example: Responsive Toolbar Adjustments
 
@@ -80,29 +80,31 @@ new SnapTemplates(validateTemplatesConfig({
 		extends: 'pike',
 		overrides: {
 			default: {
-				'toolbar.top': {
+				'search toolbar.top': {
 					layout: [
 						['banner.header'],
 						['searchHeader', '_', 'button.sidebar-toggle'],
 					],
 				},
-				'toolbar.middle': {
+				'search toolbar.middle': {
 					layout: [
+						['tabSelection'],
 						['sortBy', 'perPage', '_', 'paginationInfo'],
 						['banner.banner'],
 					],
 				},
 			},
 			mobile: {
-				'toolbar.top': {
+				'search toolbar.top': {
 					layout: [
 						['banner.header'],
 						['_', 'searchHeader', '_'],
 						['banner.banner'],
 					],
 				},
-				'toolbar.middle': {
+				'search toolbar.middle': {
 					layout: [
+						['tabSelection'],
 						['button.sidebar-toggle', '_', 'paginationInfo'],
 						['sortBy', 'perPage'],
 					],

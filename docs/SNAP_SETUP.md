@@ -1,11 +1,11 @@
 # Setup
 
-This page walks through everything needed to go from an empty project to a MVP working Snap Integration: installing the Snapfu CLI, scaffolding a new project, running the local development server, connecting a mockup file (or the Snapfu Chrome extension) to preview it, and wiring up the minimum viable controller and components to get results on the page.
+This page walks through everything needed to go from an empty project to an MVP working Snap Integration: installing the Snapfu CLI, scaffolding a new project, running the local development server, connecting a mockup file (or the Snapfu Chrome extension) to preview it, and wiring up the minimum viable controller and components to get results on the page.
 
 ## Install
 To create a new project, we recommend using the [Snapfu CLI](https://www.npmjs.com/package/snapfu) to initialize a new project from a preconfigured scaffold. 
 
-Snapfu is a CLI interface for creating a Snap project from a template. You do **NOT** need to utilize Snapfu to develop using Snap, but it does simplify the process and provides additional features. 
+Snapfu is a CLI for creating a Snap project from a template. You do **NOT** need to utilize Snapfu to develop using Snap, but it does simplify the process and provides additional features. 
 
 
 ```sh
@@ -74,9 +74,9 @@ The minimal mockup below includes just the script tag and target elements needed
 		<div id="athos-header"></div>
 		<div id="athos-content"></div>
 		<div id="athos-sidebar"></div>
-	</body>
 
-	<script src="bundle.js" id="athos-context"></script>
+		<script src="bundle.js" id="athos-context"></script>
+	</body>
 </html>
 ```
 
@@ -135,7 +135,7 @@ The `Content` component is considered a root level component since it is being r
 
 To provide a reference to the controller via props to any subcomponents, we can utilize the `ControllerProvider` component from the `@athoscommerce/snap-preact/components` package.
 
-```tsx
+```jsx
 // src/components/Content/Content.jsx
 
 import { h } from 'preact';
@@ -158,12 +158,14 @@ Then from any subcomponent such as `Results` in this example, the `withControlle
 
 Finally, the `observer` higher order component is used to make the component reactive to changes in the store.
 
-```tsx
+The library `Result` component doesn't track on its own, so each one is wrapped in `ResultTracker` to send product impression and click tracking events.
+
+```jsx
 // src/components/Results/Results.jsx
 
 import { h } from 'preact';
 import { observer } from 'mobx-react-lite';
-import { withController, InlineBanner, Result } from '@athoscommerce/snap-preact/components';
+import { withController, InlineBanner, Result, ResultTracker } from '@athoscommerce/snap-preact/components';
 
 export const Results = withController(observer((props) => {
     const { controller } = props;
@@ -174,7 +176,11 @@ export const Results = withController(observer((props) => {
                 <li class="ss__result" key={result.id}>
                     {{
                         banner: <InlineBanner banner={result} />,
-                    }[result.type] || <Result result={result} />}
+                    }[result.type] || (
+                        <ResultTracker controller={controller} result={result}>
+                            <Result controller={controller} result={result} />
+                        </ResultTracker>
+                    )}
                 </li>
             ))}
         </ul>
@@ -182,7 +188,7 @@ export const Results = withController(observer((props) => {
 }));
 ```
 
-With that in place, `npm run dev` will render live search results into your mockup file. From here, see [Overview](https://athoscommerce.github.io/snap/snap-overview) for how the controller/store/component lifecycle works, or the [Preact Component Library](https://athoscommerce.github.io/snap/preact-components) for pre-built components you can use instead of writing your own.
+With that in place, `npm run dev` will render live search results into your mockup file. From here, see [Overview](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_OVERVIEW.md) for how the controller/store/component lifecycle works, or the [Preact Component Library](https://athoscommerce.github.io/snap/preact-components) for pre-built components you can use instead of writing your own.
 
 >[!TIP]
 >Continue to our **Features** section for more in depth details on setting up your Feature Controllers.

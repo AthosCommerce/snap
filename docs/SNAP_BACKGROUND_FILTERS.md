@@ -22,6 +22,7 @@ In this example, we'll retrieve the `collection` object from the context and app
 ```
 
 ```js
+import { Snap } from '@athoscommerce/snap-preact';
 import { getContext } from '@athoscommerce/snap-toolbox';
 
 const context = getContext(['collection']);

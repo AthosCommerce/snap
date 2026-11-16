@@ -8,12 +8,14 @@ The `RecommendationController` is used when making queries to the API `recommend
 |---|---|:---:|:---:|
 | id | unique identifier for this controller | ➖ | ✔️ |
 | tag | unique name of the recommendations profile | ➖ | ✔️ |
+| branch | template branch name sent with the recommendation request (see [Branching](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md#branching)) | 'production' |   |
 | realtime | update recommendations if cart contents change (requires [cart attribute tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#cart-attribute-tracking)) | ➖ |   |
 | batched | batch multiple recommendations into a single network request | true |   |
 | globals | keys defined here will be passed to the API request (can overwrite global config)| ➖ |   |
 | beacon.enabled | enables beacon tracking for this controller. When `false`, beacon events are not sent and the controller's API requests opt out of tracking by sending `beacon: false` (see [Opting out of API tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_CLIENT.md#opting-out-of-api-tracking)) | true |   |
 | settings.searchOnPageShow | causes a search to be conducted when returning using browser back/forward cache | true |   | 
 | settings.variants.showDisabledSelectionValues | determines if completely out of stock (disabled) options should appear in variant selections | false |   | 
+| settings.variants.autoSelect | automatically selects a variant for each result when variants are loaded (the preselected options, or the first available value of each option). Always enabled for bundle profiles so a selection exists for add to cart | false |   | 
 | settings.variants.realtime.enabled | enable real time variant updates | ➖ |   | 
 | settings.variants.realtime.filters | specify which filters to use to determine which results are updated | ➖ |   | 
 | settings.variants.options | object keyed by individual option field values for configuration of any option settings  | ➖ |   | 
@@ -31,14 +33,14 @@ recommendationController.init();
 ```
 
 ## Search
-This will invoke a search request to Athos's search API and populate the store with the response.
+This will invoke a request to Athos's recommendations API (`client.recommend`) and populate the store with the response.
 
 ```js
 recommendationController.search();
 ```
 
 ## AddToCart
-This will invoke an addToCart event (see below). Takes an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewManager` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
+This will invoke an addToCart event (see below). Takes a Product or an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewManager` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
 
 ```js
 recommendationController.addToCart([recommendationController.store.results[0]]);
@@ -46,7 +48,7 @@ recommendationController.addToCart([recommendationController.store.results[0]]);
 
 ## Quickview
 
-The Recommendation controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `RecommendationController` — it is owned by the `QuickviewManager` (see `snap-controller`), exposed on the controller as `controller.quickviewManager`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: the Snap framework injects it into `<body>` — there is no per-result modal.
+The Recommendation controller exposes a `quickview` method for opening the product quickview modal. The modal state does not live on `RecommendationController` — it is owned by the `QuickviewManager` (see `snap-controller`), exposed on the controller as `controller.quickviewManager`, whose `store` is a `QuickviewStore`. A single quickview component is rendered once: Snap renders it into the elements matched by the `config.quickview.targeters` selectors (Snap Templates defaults the target to `<body>`) — there is no per-result modal.
 
 ### `quickview(result, config?, productsData?)`
 
@@ -90,7 +92,7 @@ Call the QuickviewManager close method `controller.quickviewManager.close()` to 
 
 ### track.product.clickThrough
 - Called with `eventData` = { controller, event, product, trackEvent } 
-- Always invoked after `track.product.clickThrough()` or `track.product.click()` method has been invoked
+- Invoked when `track.product.clickThrough()` sends a click event. `track.product.click()` only calls it for clicks within the product link (or on an inline banner), and repeat clicks on the same result are deduped
 - Allows for adding custom product click events (ie. Google Analytics)
 
 ### track.product.impression
@@ -125,4 +127,4 @@ controller.on('quickview', async ({ product }, next) => {
 ```
 
 ## Variants
-For variant integration details, see [Variant Integration Docs](https://github.com/athoscommerce/snap/blob/main/docs/INTEGRATION_VARIANTS.md)
+For variant integration details, see [Variant Integration Docs](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_VARIANTS.md)

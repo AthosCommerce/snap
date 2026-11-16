@@ -4,19 +4,18 @@
 >If you have not yet initialized your snap project, please make sure to follow the steps in the Setup guide before continuing with Feature controllers.
 
 >[!NOTE]
-> While it is possible to construct recommendation controllers via the Snap configuration, it is recommended to utilize the [RecommendationInstantiator config](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators#recommendationinstantiatorconfig) instead for integration of recommendations. The `RecommendationInstantiator` will only create recommendation controllers if the page contains recommendation profiles.
+> While it is possible to construct recommendation controllers via the Snap configuration, it is recommended to utilize the [RecommendationInstantiator config](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md#recommendationinstantiatorconfig) instead for integration of recommendations. The `RecommendationInstantiator` will only create recommendation controllers if the page contains recommendation profiles.
 
 ## Recommendation Types
-There are three types of recommendations that Athos offers:
+This guide covers the following types of recommendations that Athos offers:
 
 - Product Recommendations / Personalized Recommendations
 - Bundle Recommendations
-- Email Recommendations (documentation coming soon)
 
-This guide will cover usage of the **Default templates** that are available in the Athos Search & Product Discovery Console. If you are looking to create a custom template, please refer to the [Custom Templates reference](https://athoscommerce.github.io/snap/reference-custom-recommendation-templates)
+This guide will cover usage of the **Default templates** that are available in the Athos Search & Product Discovery Console. If you are looking to create a custom template, please refer to the [Custom Templates reference](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md)
 
 >[!TIP]
->See [Recommendations Controller reference](https://athoscommerce.github.io/snap/reference-controller-recommendation) for all available context variables, plus more on batching, ordering, deduplication, filtering, and examples.
+>See [Recommendations Controller reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-controller/src/Recommendation/README.md) for all available context variables, plus more on batching, ordering, deduplication, filtering, and examples.
 ---
 
 ## Product Recommendations / Personalized Recommendations
@@ -41,6 +40,9 @@ const snap = new Snap({
 					return (await import('./components/Recommendations/Recs')).Recs;
 				},
 			},
+			config: {
+				branch: 'production',
+			},
 		},
 	},
 });
@@ -49,27 +51,13 @@ const snap = new Snap({
 >[!NOTE]
 > Note that the component is not required to be named `Default`, however `instantiators.recommendation.components` must contain the `Default` key as seen in the example above.
 
+>[!NOTE]
+> `instantiators.recommendation.config.branch` is required. Set it to the template repository's default branch (typically `production`), or to the current git branch when using template branching - see [Branching](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md#branching).
 
-The following example assumes a `recently-viewed` profile has been configured in the Athos Search & Product Discovery Console (ASD) with the `Default` template selected. The profile (specified via the `tag` property) will render inside the `.ss__recs__recently-viewed` element below the script block. While the target element can be placed anywhere on the page, it's recommended to group elements with their corresponding script blocks for easier integration management. The component configuration is handled within the [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators).
-
-```html
-<script type="athos/recommendations">
-	profiles = [
-		{
-			tag: 'recently-viewed',
-			selector: '.ss__recs__recently-viewed',
-			options: {
-				limit: 5
-			}
-		}
-	];
-</script>
-
-<div class="ss__recs__recently-viewed"><!-- recommendations will render here --></div>
-```
+Any profile configured in the Athos Search & Product Discovery Console (ASD) with the `Default` template selected renders with this component. Profiles are placed on the page with a recommendations script block and a target element - see [Script Blocks](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_RECOMMENDATIONS_INTEGRATION.md#script-blocks) on the Profile Setup page for an example. The component configuration is handled within the [`RecommendationInstantiator`](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md).
 
 >[!TIP]
->For the full list of profile-level and global context variables (like `options.filters`, `options.dedupe`, `shopper.id`), see [Recommendation Context Variables](https://athoscommerce.github.io/snap/snap-recommendations-integration#recommendation-context-variables) on the Profile Setup page.
+>For the full list of profile-level and global context variables (like `options.filters`, `options.dedupe`, `shopper.id`), see [Recommendation Context Variables](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_RECOMMENDATIONS_INTEGRATION.md#recommendation-context-variables) on the Profile Setup page.
 
 ### Recommendation Component
 
@@ -131,6 +119,9 @@ const snap = new Snap({
 					return (await import('./components/Recommendations/Bundled')).Bundled;
 				},
 			},
+			config: {
+				branch: 'production',
+			},
 		},
 	},
 });
@@ -139,7 +130,7 @@ const snap = new Snap({
 >[!NOTE]
 > Note that the component is not required to be named `Bundle`, however `instantiators.recommendation.components` must contain the `Bundle` key as seen in the example above.
 
-The following example assumes a `bundle` profile has been configured in the Athos Search & Product Discovery Console (ASD) with the `Bundle` template selected. The profile (specified via the `tag` property) will render inside the `.ss__recs__bundle` element below the script block. While the target element can be placed anywhere on the page, it's recommended to group elements with their corresponding script blocks for easier integration management. The component configuration is handled within the [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators). 
+The following example assumes a `bundle` profile has been configured in the Athos Search & Product Discovery Console (ASD) with the `Bundle` template selected. The profile (specified via the `tag` property) will render inside the `.ss__recs__bundle` element below the script block. While the target element can be placed anywhere on the page, it's recommended to group elements with their corresponding script blocks for easier integration management. The component configuration is handled within the [`RecommendationInstantiator`](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md). 
 
 >[!IMPORTANT]
 > The `products` global context variable is required for bundle recommendations to specify the sku of the currently viewed product.
@@ -168,7 +159,7 @@ The following example assumes a `bundle` profile has been configured in the Atho
 <img src='/images/recs-bundle-example.gif'/>
 
 >[!TIP]
->Deselecting an item updates the subtotal and excludes it from "Add Selected" — this selection state is handled entirely by the `RecommendationBundle` component below.
+>Deselecting an item updates the subtotal and excludes it from the add to cart button ("Add All To Cart" by default) — this selection state is handled entirely by the `RecommendationBundle` component below.
 
 The example `Bundled` component below uses the `RecommendationBundle` component imported from the snap component library. See [Components Preact > RecommendationBundle](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Ftemplates-recommendationbundle--default) for more details. 
 
@@ -226,7 +217,7 @@ export const Bundled = observer((props) => {
 
 **Q: I have `options.dedupe` enabled but I'm still seeing the same product in two different recommendation carousels. Why?**
 <br>
-**A:** Deduping only applies within a single batch — profiles grouped in the *same* `<script type="athos/recommendations">` block. Profiles split across separate script blocks are fetched as separate batches and won't dedupe against each other.
+**A:** Deduping only applies within a single batch - see [Deduping](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_RECOMMENDATIONS_INTEGRATION.md#deduping) on the Profile Setup page.
 
 **Q: Recommendations aren't personalized to the shopper. Why?**
 <br>

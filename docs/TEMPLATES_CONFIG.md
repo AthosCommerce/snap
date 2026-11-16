@@ -1,4 +1,4 @@
-## Templates Config
+# Templates Config
 
 Snap templates is configuration based. The configuration defines which features are enabled and which template and theme they utilize. A configuration will consist of several top level groups that together define the template.
 
@@ -53,7 +53,7 @@ new SnapTemplates(templatesConfig);
 ```
 
 
-### Templates Config
+## Global Config
 
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|:---------:|:---------:|
@@ -79,11 +79,11 @@ It is possible to switch language and currency at run-time using methods on the 
 - `window.athos.templates.setLanguage('fr')`
 
 
-### Unlocked Configuration
+## Unlocked Configuration
 
 By default, Snap Templates operates in "locked" mode, which provides a curated set of configuration options suitable for most integrations. When you need advanced customization capabilities, you can enable "unlocked" mode by wrapping your config in `validateTemplatesConfigUnlocked` and setting the `unlocked` setting to `true`.
 
-#### Locked Mode (Default)
+### Locked Mode (Default)
 
 In locked mode, no `unlocked` flag is used — just wrap your config in `validateTemplatesConfig`. This mode is recommended for most integrations as it limits the configuration to the curated set of options.
 
@@ -104,7 +104,7 @@ const config = validateTemplatesConfig({
 new SnapTemplates(config);
 ```
 
-#### Unlocked Mode
+### Unlocked Mode
 
 To enable unlocked mode you must:
 
@@ -113,7 +113,7 @@ To enable unlocked mode you must:
 
 This makes additional configuration capabilities available:
 
-1. **Custom Component Prop in Theme Overrides for almost all components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. The one exception is `result`, which never supports `customComponent` (locked or unlocked) — use `resultComponent` or `globalResultComponent` to customize result rendering instead. A component used as a `customComponent` must be registered under `components.<componentType>` (see [Registering additional components](#registering-additional-components)).
+1. **Custom Component Prop in Theme Overrides for most components** - Ability to use the `customComponent` prop when customizing theme overrides, to completely replace what renders for a specific component. `result` and the template components (such as `search` or `autocompleteFixed`) do not support it - see [The `customComponent` Override Prop](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md#the-customcomponent-override-prop). A component used as a `customComponent` must be registered under `components.<componentType>` (see [Registering additional components](#registering-additional-components)).
 
 2. **Custom Plugins** - Ability to define and register custom plugin functions (under `plugins.custom`) that integrate with the controller lifecycle.
 
@@ -135,37 +135,22 @@ const config = validateTemplatesConfigUnlocked({
 new SnapTemplates(config);
 ```
 
-### Configuration Validation
+## Configuration Validation
 
 Wrapping the config in `validateTemplatesConfig` (or `validateTemplatesConfigUnlocked`) makes TypeScript check the configuration: unknown keys, wrong value types, and invalid theme override selectors and props. Write the config object inside the `validateTemplatesConfig(...)` call - the result can then be passed straight to `new SnapTemplates(...)` or assigned to a variable first. Some mistakes are flagged on the line where you make them; mistakes inside `theme.overrides` that your IDE cannot see while you type are reported where the config is passed to `new SnapTemplates(...)`, as an `InvalidThemeOverrides<...>` error. A few values are not checked at all.
 
 > [!IMPORTANT]
 > Enable the Snap config ESLint rules with typed linting (both prewired in snapfu-scaffolded projects) — they mark configuration mistakes on the exact line, and many of their messages list the valid options. See [Config Validation & Linting](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_CONFIG_VALIDATION.md) for which mistake is reported where, the exact error messages, the checking limitations, and the linter setup.
 
-### Per Currency Overrides
+## Per Currency Overrides
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `currencies` | Per currency component overrides | Object | ➖ |
-| `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ |
-| `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ |
 
-Where a currency has more than one accepted presentation (`$` or `USD`, symbol leading or trailing), the top-level `currencies` key overrides component props for that one currency, layered on top of its built-in locale. The value accepts the same selectors and props as `theme.overrides.default` (props under open-named selectors such as `facet.<field>` are not type-checked here).
+The top-level `currencies` key overrides component props for a single currency (for example, placing the symbol after the value), layered on top of that currency's built-in locale and applied only while that currency is active. See [Per Currency Overrides](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the configuration options, an example and the full layer order.
 
-```tsx
-currencies: {
-	AED: {
-		price: {
-			symbol: ' د.إ', // leading non-breaking space - a symbol placed after the value gets no space of its own
-			symbolAfter: true,
-		},
-	},
-},
-```
-
-The overrides follow the active currency, including when it changes at run-time via `setCurrency()`. See [Per Currency Overrides](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#per-currency-overrides) for the full layer order.
-
-### Language Translations
+## Language Translations
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
@@ -173,16 +158,16 @@ The overrides follow the active currency, including when it changes at run-time 
 | `translations[languageCode]` | Translation overrides for specific language code | Object | ➖ |
 | `translations[languageCode][componentName]` | Translations for a specific component | Component Lang Object | ➖ |
 
-When defining a supported `config.language`, text translations are applied accross components in each template. It is possible to override these default text translations by using the top-level `translations` key. Only the overrides for the active language are applied.
+When defining a supported `config.language`, text translations are applied across components in each template. It is possible to override these default text translations by using the top-level `translations` key. Only the overrides for the active language are applied.
 
 See [Supported Languages](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_LOCALIZATION.md#supported-languages) for the full list of available language codes.
 
-Translations overrides can be provided in two ways:
+Translation overrides can be provided in two ways:
 
 1. Simple translations: Use a string value for straightforward text replacements.
 2. Complex translations: Utilize functions to access component props and apply logic for dynamic text generation.
 
-When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_TRANSLATIONS.md#responsive-translations) for an example.
+When using a function, Snap Templates provides an `activeBreakpoint` value on the `data` argument (`'default' | 'desktop' | 'tablet' | 'mobile'`), so translations can vary by screen size — see [Responsive Translations](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_TRANSLATIONS.md#responsive-translations) for an example. The `gallery`, `quickviewLayout`, `quickviewModal` and `quickviewSlideout` lang entries are the exception and do not receive it.
 
 The example below demonstrates both approaches for French language translations:
 - The `FilterSummary` component uses a simple string translation.
@@ -217,8 +202,8 @@ new SnapTemplates(validateTemplatesConfig({
 ```
 
 
-### Registering additional components
-Snap Templates was built to intentionally not support custom Preact components composing the search experience and layouts. Snap Templates supports customization of the Result component and support for custom badge components. Custom result and badge components must first be registered via the top-level `components` key before they can be applied to a feature target. In an [unlocked configuration](#unlocked-mode), `components` also accepts other component types, which can then be used with the `customComponent` override prop. Component registration can be defined as synchronously or asynchronously function imports.
+## Registering additional components
+Snap Templates was built to intentionally not support custom Preact components composing the search experience and layouts. Snap Templates supports customization of the Result component and support for custom badge components. Custom result and badge components must first be registered via the top-level `components` key before they can be applied to a feature target. In an [unlocked configuration](#unlocked-mode), `components` also accepts other component types, which can then be used with the `customComponent` override prop. Component registration can be defined as synchronous or asynchronous function imports. Asynchronous `import()` functions are recommended, so components are code-split and only loaded when they first render.
 
 `resultComponent` and `customComponent` do not resolve names the same way:
 
@@ -227,9 +212,9 @@ Snap Templates was built to intentionally not support custom Preact components c
 
 `globalResultComponent` utilizes `resultComponent` name resolution for result rendering and applies that selection globally across templates.
 
-> [!IMPORTANT]
-> `result` does not support the `customComponent` override prop, even in an unlocked configuration. Use `resultComponent` (on `search`, `autocompleteFixed`, a recommendation template, etc.) or `globalResultComponent` to customize result rendering instead.
+Custom result components don't need `withTracking` or `ResultTracker`. The templates render each `resultComponent` inside a `ResultTracker`, so product impressions and clicks are tracked automatically.
 
+`result` does not support `customComponent`, even in an unlocked configuration - see [The `customComponent` Override Prop](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md#the-customcomponent-override-prop).
 
 
 | Configuration Option | Description | Type | Default |
@@ -241,14 +226,16 @@ Snap Templates was built to intentionally not support custom Preact components c
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
-import { SychronousCustomResult } from './components/Result';
+import { SynchronousCustomResult } from './components/Result';
 
 new SnapTemplates(validateTemplatesConfig({
 	...
 	components: {
 		result: {
-			SychronousCustomResult: () => SychronousCustomResult,
+			// recommended - dynamic import, loaded when first rendered
 			DynamicCustomResult: async () => (await import('./components/Result')).DynamicCustomResult,
+			// synchronous - bundled with the initial script
+			SynchronousCustomResult: () => SynchronousCustomResult,
 		},
 		badge: {
 			CustomPill: async () => (await import('./components/Badges')).CustomPill,
@@ -258,7 +245,7 @@ new SnapTemplates(validateTemplatesConfig({
 }));
 ```
 
-### URL Translator Configuration
+## URL Translator Configuration
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
@@ -267,7 +254,7 @@ new SnapTemplates(validateTemplatesConfig({
 See [UrlTranslator configuration](https://github.com/athoscommerce/snap/tree/main/packages/snap-url-manager/src/Translators/Url) for more documentation
 
 
-### Templates Theming
+## Templates Theming
 Theming in Snap Templates is the primary method of customizing a template. 
 
 See [Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md) for more extensive documentation.
@@ -277,7 +264,7 @@ See [Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THE
 | `theme` | Theme configurations | Object | Required |
 
 
-### Feature Targets
+## Feature Targets
 
 Feature targets are used to enable and configure various Athos features in a Snap Templates integration. Each feature target specifies where and how a component should be rendered on the page, along with any custom configurations or themes.
 
@@ -287,7 +274,7 @@ Each target across all features contains the following common properties:
 
 `component` - The template component name to render in the target selector
 
-#### Search
+### Search
 
 In addition to the common target properties, the following properties apply to the search target(s):
 
@@ -307,7 +294,7 @@ In addition to the common target properties, the following properties apply to t
 | `search.targets[].component` | Component to use for search - `'Search'`, `'SearchCollapsible'` or `'SearchHorizontal'` | String | Required |
 | `search.targets[].emptyTarget` | Remove the target's existing content when it is found; set to `false` to keep it until the search components render | Boolean | true |
 
-##### Keeping a loading skeleton
+#### Keeping a loading skeleton
 
 By default the content of a search target is removed as soon as the target is found, which leaves the element empty while the search request, theme and components load. To show a loading skeleton for that time instead, place the skeleton markup inside the target element and set `emptyTarget: false`:
 
@@ -345,7 +332,7 @@ new SnapTemplates(templatesConfig);
 
 With `emptyTarget: false` the target renders once the search response has returned and the theme has loaded, and the existing content is then replaced in full - nothing inside the target is kept alongside the search components. An inline `min-height` on the target is still removed as soon as the target is found, so give the skeleton itself the height you want to reserve.
 
-#### Autocomplete
+### Autocomplete
 
 In addition to the common target properties, the following properties apply to the autocomplete target(s):
 
@@ -366,7 +353,7 @@ In addition to the common target properties, the following properties apply to t
 | `autocomplete.targets[].selector` | DOM selector of the element the component is injected after; defaults to `inputSelector` | String | ➖ |
 | `autocomplete.targets[].component` | Component to use for autocomplete - `'AutocompleteFixed'`, `'AutocompleteModal'` or `'AutocompleteSlideout'` | String | Required |
 
-#### Tabs
+### Tabs
 
 Tabs allow a single search or autocomplete experience to span multiple catalogs. Each tab is backed by its own controller, scoped to its own `siteId`, and shoppers switch between them with the `tabSelection` component.
 
@@ -374,7 +361,7 @@ Tabs are supported for the `search` and `autocomplete` features. A minimum of tw
 
 See [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md) for a complete walkthrough.
 
-##### Tab configuration
+#### Tab configuration
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
@@ -396,7 +383,7 @@ Every tab `id` must be unique across the entire configuration, including between
 > [!NOTE]
 > For how tabs work - what happens to a duplicate `id`, how `param` namespaces the URL, how `plugins` replacement and `prefetch` behave, and which controller the targets attach to - see [Tabbed Search](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_TABBED_SEARCH.md).
 
-#### Recommendation
+### Recommendation
 In addition to the recommendation targets, the recommendation configuration also contains the following properties:
 
 `settings` - Recommendation Instantiator config settings. 

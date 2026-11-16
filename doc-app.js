@@ -434,6 +434,8 @@ import('./docs/documents.js').then(function (_) {
 
 	const routes = [
 		{ path: '/', component: app.component('Content') },
+		// previously misspelled route, kept so existing links still resolve
+		{ path: '/build-deploy-ckecklist', redirect: '/build-deploy-checklist' },
 		{ path: '/:path', component: app.component('Content') },
 		{ path: '/:pathMatch(.*)', component: app.component('Content') },
 	];

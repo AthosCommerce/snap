@@ -1,4 +1,4 @@
-## Config Validation & Linting
+# Config Validation & Linting
 
 Snap Templates configurations are verified by two cooperating layers:
 
@@ -7,7 +7,7 @@ Snap Templates configurations are verified by two cooperating layers:
 
 This page is the reference for how each layer works, how to read the errors, and how to set up the linter. For guide-level usage, see [Templates Config](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md) and [Templates Theming](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_THEMING.md).
 
-### How the compiler checks the config
+## How the compiler checks the config
 
 Wrapping the config in `validateTemplatesConfig` makes TypeScript verify the configuration. Write the config as an object literal inside the `validateTemplatesConfig(...)` call; the result can then be passed straight to `new SnapTemplates(...)` or assigned to a variable first — both report the same errors in the same places. The checking happens at two moments:
 
@@ -34,7 +34,7 @@ Errors can arrive in two rounds. When a breakpoint map (`default`, `mobile`, ...
 
 Why two moments: each breakpoint map under `theme.overrides` is inferred by the function, which is what keeps its checking off the editor's completion path and typing fast. Inferred values do not receive TypeScript's excess-property checking, so their keys are verified through the function's return type instead. Everything else in the config is an ordinary concrete type and is checked the ordinary way. A config or `theme.overrides` object built in a separate variable and then passed in is checked differently — see [Checking limitations](#checking-limitations).
 
-### Reading the type errors
+## Reading the type errors
 
 An invalid `theme.overrides` collapses the config's type into an error carrier, and the `new SnapTemplates(config)` line reports it. The carrier names what failed. Read the errors inside-out: the object inside the carrier mirrors your overrides' structure (breakpoint, then selector, then props), but only contains the breakpoints and selectors that failed. When the config is assigned to a variable, that variable has the carrier type, so hovering over it in your IDE shows the carrier too.
 
@@ -64,7 +64,7 @@ error TS2345: Argument of type 'InvalidThemeOverrides<{ default: { 'search, sear
 'SnapTemplatesConfigLocked | SnapTemplatesConfigUnlocked'.
 ```
 
-### Setting up the ESLint rules
+## Setting up the ESLint rules
 
 > [!TIP]
 > Projects initialized with `snapfu` come with all of this prewired. The [preact-templates scaffold](https://github.com/AthosCommerce/snapfu-scaffold-preact-templates) enables the recommended rules on all TypeScript files, and typed linting for the config entry point. The setup below is only needed for projects configured by hand.
@@ -139,12 +139,12 @@ Example messages (copied from ESLint's JSON output):
 > [!NOTE]
 > Typed linting makes ESLint build a TypeScript program from your `tsconfig.json`, which is slower than plain linting, so scope it to the few files that actually author the config rather than your whole project.
 
-### Layout banner check
+## Layout banner check
 
 Merchandising banners returned by the API render only where a template's layouts place them:
 
 - **Search templates:** `banner.header`, `banner.banner` and `banner.footer` go in the toolbar layouts, and `banner.left` goes in the sidebar layout.
-- **Autocomplete templates:** the `content` module renders the header, banner and footer banners, and `facets` renders the left banner. Explicit `banner.*` modules can be placed anywhere.
+- **Autocomplete templates:** the `content` module renders the header, banner and footer banners, and `facets` and `facetsHorizontal` render the left banner. Explicit `banner.*` modules can be placed anywhere.
 
 The default layouts already place the banners. A `layout` set in `theme.overrides` replaces the default for that toolbar, sidebar or template, so it can leave a banner with nowhere to render.
 
@@ -169,7 +169,7 @@ API will not render. Add them to this layout or another layout of the template.
 
 Values the rules can't read from the code are assumed to keep every banner, so they are never reported. That covers spreads (including a spread after a property, which may replace it), variables, a `customComponent` on a search toolbar or sidebar (it is assumed to render every banner, so a banner dropped from the template's other toolbars or sidebar isn't reported either; a `customComponent` on the template itself is not treated this way), a target `component` or tab `id` that isn't a string literal, and `layoutOptions` whose `overrides` change a layout or hide prop (which option is selected decides what renders). When the rules can't tell which theme `theme.extends` names (a variable, or a spread in `theme` that may set it), they skip the config entirely, because they can't tell which theme's defaults to compare against. Custom template components registered in `components.search` or `components.autocomplete` are not checked either.
 
-### Checking limitations
+## Checking limitations
 
 - Only the last segment of a tree path selector determines which component is checked — a typo in an earlier segment (e.g. `'facett.price facetSlider'`) is not caught.
 - Open-named selectors like `facet.price` do not get IDE autocompletion for their props, because their names are site-specific. If you get a prop wrong, the compiler error names the bad prop, and the ESLint rule (with typed linting) also lists the valid props; they are also documented in the Storybook component library.
@@ -179,7 +179,7 @@ Values the rules can't read from the code are assumed to keep every banner, so t
 - Overrides under the top-level `currencies` key are checked as ordinary types, so props under open-named selectors there are not checked.
 - Inside `layoutOptions` (on the search templates), each option and its `overrides.components` are checked the same way as `theme.overrides`, with the same exceptions - a typo in an earlier segment of a selector there (`'serch results'`) is not caught either.
 - The layout banner checks don't compare a `mobileDisplayAt` width (such as `'991px'`) against the breakpoints. When it's set, an override that only targets the mobile slideout sidebar (`slideout sidebar`) isn't checked.
-- The ESLint rules only read a config written as an object literal inside `validateTemplatesConfig(...)` or `validateTemplatesConfigUnlocked(...)`, passed inline to `new SnapTemplates(...)`, or assigned to a variable annotated `: SnapTemplatesConfig`. They don't read a `theme.overrides` object kept in a separate variable, or a config variable written with `satisfies`.
+- The ESLint rules only read a config written as an object literal inside `validateTemplatesConfig(...)` or `validateTemplatesConfigUnlocked(...)`, passed inline to `new SnapTemplates(...)` or `new SnapHybrid(...)`, or assigned to a variable annotated `: SnapTemplatesConfig`, `: SnapTemplatesConfigLocked` or `: SnapTemplatesConfigUnlocked`. They don't read a `theme.overrides` object kept in a separate variable, or a config variable written with `satisfies`.
 - The full compiler checks need the config object written inside the `validateTemplatesConfig(...)` call. A config object (or `theme.overrides` object) assigned to a plain variable first and then passed in is checked differently:
   - Unknown keys outside `theme.overrides`, and unknown breakpoint names, are not flagged.
   - String values are widened to `string`, so valid values of props that only accept certain strings are rejected — for example `'facet.price': { clearAllIcon: 'cog' }` errors at `new SnapTemplates(...)`, and `facet: { clearAllIcon: 'cog' }` errors where the variable is passed in.
@@ -199,11 +199,11 @@ Values the rules can't read from the code are assumed to keep every banner, so t
   new SnapTemplates(validateTemplatesConfig(templatesConfig));
   ```
 
-### Error message reference
+## Error message reference
 
 Exact messages, so you can search this page for an error you got. TypeScript messages are copied from `tsc` output with the file name and position removed; the types inside them come from the probe configs and will show your own selectors and props. Where TypeScript truncates a type, the message contains `...` exactly as shown.
 
-#### TypeScript errors at `new SnapTemplates(...)`
+### TypeScript errors at `new SnapTemplates(...)`
 
 All of these are `TS2345` errors whose argument type starts with `InvalidThemeOverrides<`. See [Reading the type errors](#reading-the-type-errors) for the long `facet.price` and mixed-group examples.
 
@@ -221,7 +221,7 @@ error TS2345: Argument of type 'InvalidThemeOverrides<{ default: { sortBy: { hid
 
 The last one is `customComponent` in a locked config (`validateTemplatesConfig`); `validateTemplatesConfigUnlocked` reports the same marker for `customComponent` on `result`.
 
-#### TypeScript errors on the line of the mistake
+### TypeScript errors on the line of the mistake
 
 ```
 error TS2353: Object literal may only specify known properties, and 'bogusTop' does not exist in type 'SnapTemplatesConfigInput<Partial<ThemeComponentsRestricted>, Partial<ThemeComponentsRestricted>, Partial<ThemeComponentsRestricted>, Partial<...>>'.
@@ -241,7 +241,7 @@ error TS2322: Type '"blank"' is not assignable to type '"base" | "pike"'.
 
 In order: an unknown top-level key, an unknown `theme` key, an unknown breakpoint name (the `default?:` part shows your own `default` map), an override object whose only prop is unknown, a wrong value type (`image: { lazy: 'yes' }`), a misspelled icon name, and an unknown `theme.extends` value.
 
-#### ESLint messages
+### ESLint messages
 
 Each rule's messages, with the parts that change shown as `{{ name }}` placeholders exactly as they appear in the rule source:
 

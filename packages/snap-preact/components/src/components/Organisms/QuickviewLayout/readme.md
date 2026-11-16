@@ -4,14 +4,14 @@
 
 It is composed inside a presentation container that owns the open/close shell:
 
-- **`QuickviewModal`** (`Templates/QuickviewModal`) — renders `QuickviewLayout` inside a centered `Modal`. This is the default variant injected by Snap templates.
+- **`QuickviewModal`** (`Templates/QuickviewModal`) — renders `QuickviewLayout` inside a centered `Modal`.
 - **`QuickviewSlideout`** (`Templates/QuickviewSlideout`) — renders `QuickviewLayout` inside a side-panel `Slideout`.
 
-The state half of the feature lives on `QuickviewManager` (`@athoscommerce/snap-controller`) and its `QuickviewStore` (`@athoscommerce/snap-store-mobx`). A quickview is opened by calling `quickview(result)` on a source controller (`SearchController`, `AutocompleteController`, or `RecommendationController`) — the `Result` molecule's quickview button does this — which forwards to the shared `QuickviewManager` the controller received as its `quickview` service.
+The state half of the feature lives on `QuickviewManager` (`@athoscommerce/snap-controller`) and its `QuickviewStore` (`@athoscommerce/snap-store-mobx`). A quickview is opened by calling `quickview(result)` on a source controller (`SearchController`, `AutocompleteController`, or `RecommendationController`) — the `Result` molecule's quickview button does this — which forwards to the shared `QuickviewManager` the controller received as its `quickviewManager` service.
 
 ## Usage
 
-When using Snap templates a quickview controller is always created and a single container is injected into `<body>` (in a `#athos-quickview` element). `QuickviewModal` is the default; supply a `quickview` controller definition that resolves `QuickviewSlideout` from the library to use the slide-out instead.
+When using Snap templates, a `QuickviewManager` is only created when the config has a `quickview` section. Its `targets[].component` is required and picks the container - `'QuickviewModal'` or `'QuickviewSlideout'` - which is injected into a `#athos-quickview` element appended to `targets[].selector` (default `body`).
 
 ```tsx
 // Default (centered modal)
@@ -121,16 +121,16 @@ Generic click tracking is disabled inside the quickview (`track: { click: false 
 
 ## Styling & containers
 
-`QuickviewModal` positions the `Modal` content `fixed` and centered (`translate(-50%, -50%)`, with `!important` so theme overrides cannot re-anchor it to the source `Result` tile). The z-index hierarchy is: autocomplete (`10002`) < overlay (`10005`) < content (`10006`) < dropdown portals (`10007`), so the quickview paints above an open autocomplete while variant `<select>` lists still paint above it. The container wrapper is taken out of flow (`position: absolute`, zero size) so mounting inside a CSS grid doesn't shift layout, and scroll lock is disabled so opening doesn't reflow the page.
+`QuickviewModal` positions the `Modal` content `fixed` and centered (`translate(-50%, -50%)`, with `!important` so theme overrides cannot re-anchor it to the source `Result` tile). The z-index hierarchy is: autocomplete (`10002`) < overlay (`10005`) < content (`10006`) < dropdown portals (`10007`), so the quickview paints above an open autocomplete while variant `<select>` lists still paint above it. The container wrapper is taken out of flow (`position: absolute`, zero size) so mounting inside a CSS grid doesn't shift layout, and the `Modal`'s scroll lock applies (`lockScroll` defaults to `true`), so the page behind it does not scroll while the quickview is open.
 
-`QuickviewSlideout` keeps the same z-index ladder and syncs an overlay dismiss back to `store.close()` via the `Slideout`'s `onChange` callback, so `store.isOpen` stays the single source of truth.
+`QuickviewSlideout` keeps the same z-index ladder and syncs an overlay dismiss back to `quickviewManager.close()` via the `Slideout`'s `onChange` callback, so `store.isOpen` stays the single source of truth.
 
 ## Accessibility
 
 - The content is a dialog (`role="dialog"`, `aria-modal="true"`, `aria-label` via `lang.quickview`) with a `useA11y` focus trap (same pattern as `AutocompleteModal`/`AutocompleteSlideout`): `Tab`/`Shift+Tab` cycle within the content, and `Escape` fires the trap's callback.
 - Error branch has `role="alert"`.
 - Close button is a `Button` (keyboard focusable, `Space`/`Enter` activation via `useA11y`) with `aria-label="Close quickview"` via `lang.closeButton`.
-- Clicking the overlay invokes `store.close()`.
+- Clicking the overlay invokes `quickviewManager.close()`.
 - `Escape` closes the quickview — unless the fullscreen gallery is open, in which case it closes the gallery first. Handled by the `useA11y` escape callback when focus is inside the content, with a window `keydown` fallback when it is not.
 - Focus management lives in the container (always mounted): on open, focus moves to the close button; on close, focus is restored to the previously focused element.
 

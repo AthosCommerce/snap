@@ -353,7 +353,7 @@ var documents = [
 			},
 			{
 				label: 'QA Checklist',
-				route: '/build-deploy-ckecklist',
+				route: '/build-deploy-checklist',
 				type: 'markdown',
 				url: './docs/BUILD_DEPLOY_CHECKLIST.md',
 				searchable: true,

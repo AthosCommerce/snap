@@ -182,7 +182,7 @@
 			"title": "Integration"
 		},
 		"docs/BUILD_DEPLOY_CHECKLIST.md": {
-			"url": "/build-deploy-ckecklist",
+			"url": "/build-deploy-checklist",
 			"title": "QA Checklist"
 		},
 		"docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md": {

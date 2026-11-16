@@ -228,8 +228,8 @@ new SnapTemplates(validateTemplatesConfig({
 | `currencies[currencyCode]` | Overrides applied only while that currency is active | Object | ➖ | ➖ |
 | `currencies[currencyCode][componentName]` | Props for a specific component | Component Props Object | ➖ | ➖ |
 
-Any component props are accepted, not just `price` - the value uses the same type as `theme.overrides.default` (component names and treePath selectors such as `'result price'`).
+Any component props are accepted, not just `price` - the value uses the same type as `theme.overrides.default` (component names and treePath selectors such as `'result price'`). Props under open-named selectors such as `facet.<field>` are not type-checked here.
 
 The theme is built from layers merged in this order, later layers winning for the same selector: the extended theme, the currency locale, `currencies` for the active currency, the language locale, `translations` for the active language, then `theme.overrides` (`default`, then the active breakpoint). A prop set for the same selector in `theme.overrides` therefore wins over `currencies`.
 
-Only the block for the active currency is applied (looked up by the lowercase code, then the uppercase code), and it follows the currency: when the currency changes at run-time - via `window.athos.templates.setCurrency()`, or by the [Shopify Currency plugin](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#pluginshopifycurrency) - the previous currency's overrides are dropped and the new currency's are applied.
+Only the block for the active currency is applied (looked up by the lowercase code, then the uppercase code), and it follows the currency: when the currency changes at run-time - via `window.athos.templates.setCurrency()`, or by the [Shopify Currency plugin](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/shopify/README.md#plugincurrency) - the previous currency's overrides are dropped and the new currency's are applied.

@@ -12,7 +12,7 @@
 
 - [Result impression tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#impressions) has been added. Confirm via browser dev tools network tab that beacon impression events are being sent for results in Search, Category, Autocomplete, and Recommendations
 
-- [Result click tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#product-click) has been added. (not required if using `withTracking` or `ResultTracker` as this functionallity is handled by those components)
+- [Result click tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_AUTOMATIC.md#product-click) has been added. (not required if using `withTracking` or `ResultTracker`, or with Snap Templates result components, as this functionality is handled by those components)
 
 - [Result add to cart tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#product-add-to-cart) has been added. Confirm via browser dev tools network tab that beacon add to cart events are being sent for results in Search, Category, Autocomplete, and Recommendations
 

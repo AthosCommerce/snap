@@ -69,24 +69,16 @@ new SnapTemplates(validateTemplatesConfig({
 ```
 
 ### Theme `style`
-Specifies a function that returns [emotion object styles](https://emotion.sh/docs/object-styles). This function receives an object with the theme `variables` (its `breakpoints` and `colors`) and allows you to create styles that respond to specific breakpoints. The resulting styles are injected into the document's `<head>` element, nested under the `.ss__theme__global` class that wraps Snap's rendered templates, so they only match elements inside those templates (`'.ss__result'` below becomes `.ss__theme__global .ss__result`). Type the function as `GlobalThemeStyleScript`.
+Specifies a function that returns [emotion object styles](https://emotion.sh/docs/object-styles). This function receives an object with the theme `name` and `variables` (including its `breakpoints` and `colors`), so styles can use theme colors and respond to specific breakpoints. The resulting styles are injected into the document's `<head>` element, nested under the `.ss__theme__global` class that wraps Snap's rendered templates, so they only match elements inside those templates (`'.ss__result'` below becomes `.ss__theme__global .ss__result`). Type the function as `GlobalThemeStyleScript`.
 
 ```tsx
 import type { GlobalThemeStyleScript } from '@athoscommerce/snap-preact';
 
-const globalStyles: GlobalThemeStyleScript = (theme) => {
-	const { variables } = theme;
-	return {
-		'.ss__result': {
-			background: variables.colors.primary,
-		},
-		[`@media (max-width: ${variables.breakpoints.tablet}px)`]: {
-			'.ss__result': {
-				background: variables.colors.secondary,
-			},
-		},
-	};
-};
+const globalStyles: GlobalThemeStyleScript = ({ variables }) => ({
+	'.ss__result': {
+		background: variables.colors.primary,
+	},
+});
 
 new SnapTemplates(validateTemplatesConfig({
 	...
@@ -97,6 +89,8 @@ new SnapTemplates(validateTemplatesConfig({
 	...
 }));
 ```
+
+See [Using Theme Variables in Styles](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_THEME_VARIABLES.md) for a worked example that builds media queries from `variables.breakpoints`.
 
 ### Theme `globalResultComponent`
 
@@ -365,7 +359,7 @@ new SnapTemplates(validateTemplatesConfig({
 
 ##### The `customComponent` Override Prop
 
-Most Atom, Molecule and Organism components support a `customComponent` prop (the `result` override and the template components, such as `search` or `autocompleteFixed`, do not) that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
+Most Atom, Molecule and Organism components support a `customComponent` prop that allows you to completely replace a component with your own custom implementation. This is particularly useful when you need more control than what standard prop overrides provide.
 
 The `customComponent` prop accepts a string that references a component registered in your configuration's `components` section. When specified, the entire component is replaced with your custom component, which receives all of the original component's props.
 
@@ -375,11 +369,13 @@ Unlike `resultComponent`, `customComponent` does not use built-in fallback names
 > When using a locked configuration (the default), only the `resultComponent` prop is available. To use `customComponent`, you must use an unlocked configuration. See [Unlocked Configuration](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#unlocked-configuration) for more details.
 
 > [!IMPORTANT]
-> `result` does **not** accept `customComponent` as an override, in locked or unlocked configurations — To swap out result rendering, use [`resultComponent`](#the-resultcomponent-override-prop) on a parent (`search`, `autocompleteFixed`, a recommendation template, etc.) or the `globalResultComponent` theme setting instead.
+> These components do **not** accept `customComponent` as an override, in locked or unlocked configurations:
+> - `result` - to swap out result rendering, use [`resultComponent`](#the-resultcomponent-override-prop) on a parent template (`search`, `autocompleteFixed`, a recommendation template, etc.) or the [`globalResultComponent`](#theme-globalresultcomponent) theme setting instead.
+> - The template components themselves (`search`, `searchCollapsible`, `searchHorizontal`, `autocompleteFixed`, `autocompleteModal`, `autocompleteSlideout`, the recommendation templates and the quickview templates) and the `autocompleteLayout` component.
 
 **Usage Example:**
 
-First, register your custom component in the configuration:
+Register your custom component under its component type in `components`, then reference it with `customComponent`:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfigUnlocked } from '@athoscommerce/snap-preact';
@@ -407,7 +403,7 @@ new SnapTemplates(validateTemplatesConfigUnlocked({
 }));
 ```
 
-You can also target specific instances using more specific selectors:
+`resultComponent` and `customComponent` can be used together in the same overrides - template components take `resultComponent`, and the other components take `customComponent`:
 
 ```tsx
 new SnapTemplates(validateTemplatesConfigUnlocked({
@@ -416,29 +412,21 @@ new SnapTemplates(validateTemplatesConfigUnlocked({
 	components: {
 		result: {
 			SearchResult: async () => (await import('./components/Result')).SearchResult,
-			AutocompleteResult: async () => (await import('./components/Result')).AutocompleteResult,
 		},
 		sortBy: {
 			CustomSortBy: async () => (await import('./components/SortBy')).CustomSortBy,
-		}
+		},
 	},
 	theme: {
 		extends: 'base',
 		overrides: {
 			default: {
-				// Use different custom components in different contexts
-
-				// Top-level template components (Search, AutocompleteFixed, etc.) use resultComponent.
-				'search': {
+				search: {
 					resultComponent: 'SearchResult',
 				},
-				'autocompleteFixed': {
-					resultComponent: 'AutocompleteResult',
-				},
-				// Other component overrides use customComponent.
-				'sortBy': {
+				sortBy: {
 					customComponent: 'CustomSortBy',
-				}
+				},
 			},
 		},
 	},
@@ -446,36 +434,7 @@ new SnapTemplates(validateTemplatesConfigUnlocked({
 }));
 ```
 
-**Custom Component Props:**
-
-Your custom component will receive all the same props that the original component would receive (with `customComponent` itself removed). For example, a custom SortBy component rendered in a search toolbar receives:
-
-- `controller` - The controller instance (read the sorting store from `controller.store.sorting`, as the example below does)
-- `theme` - The current theme configuration
-- `treePath` - The component tree path for cascading props
-- The original component's default props (for SortBy, `label` and `type`)
-- Plus any additional props passed through overrides
-
-The toolbar does not pass a `sorting` prop, so don't rely on `props.sorting` in a template.
-
-```tsx
-// CustomSortBy.tsx
-import type { SortByProps } from '@athoscommerce/snap-preact/components';
-export const CustomSortBy = (props: SortByProps) => {
-	const { controller } = props;
-	const sorting = controller?.store?.sorting;
-
-	return (
-		<div className="my-custom-sort-by">
-			{sorting?.options?.map((option) => (
-				<button key={option.value} onClick={() => option.url?.go()}>
-					{option.label}
-				</button>
-			))}
-		</div>
-	);
-};
-```
+See [Custom Component Overrides](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_CUSTOM_COMPONENTS.md) for a full walkthrough, including writing the custom component, which props it receives, and targeting specific instances.
 
 
 #### Responsive Theme Overrides

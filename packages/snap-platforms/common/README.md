@@ -27,7 +27,7 @@ const scrollToTopConfig = {
 ```
 
 ### Snap Templates
-To use a common plugin in [SnapTemplates](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md), it can be defined and configured in the `config.plugins.common` section (no import necessary).
+To use a common plugin in [SnapTemplates](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_ABOUT.md), it can be defined and configured in the top-level `plugins.common` section (no import necessary).
 
 ```tsx
 const scrollToTopConfig = {
@@ -66,7 +66,7 @@ Plugin to attach a custom function to the addToCart controller event.
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
 | enabled | Configuration to allow for disabling the plugin | boolean | true | ➖ |
-| function | Function to invoke with product and/or controller when and addToCart event occurs | (products, controller) => void \| Promise\<void\> | ➖ | ✔️ |
+| function | Function to invoke with product and/or controller when an addToCart event occurs | (products, controller) => void \| Promise\<void\> | ➖ | ✔️ |
 
 ```tsx
 const addToCartConfig = {
@@ -89,7 +89,7 @@ Plugin to set up background filters. You can configure background filters for ta
 | filters[] | Background filter definitions | array | ➖ | ➖ |
 | filters[].type | Defines if filter should be 'value' or 'range' type | 'value' \| 'range' | ➖ | ✔️ |
 | filters[].field | Defines filter field name | string | ➖ | ✔️ |
-| filters[].value | Defines filter value. If `type` is 'value', this must be a string, otherwise if `type` is 'range', this must be an object with `low` and `high` properties | string \| { low: number, high: number } | ➖ | ✔️ |
+| filters[].value | Defines filter value. If `type` is 'value', this must be a string or number, otherwise if `type` is 'range', this must be an object with `low` and `high` properties | string \| number \| { low: number, high: number } | ➖ | ✔️ |
 | filters[].controllerIds | Defines which controllers the filter should apply to | (string \| regexp)[]  | ➖ | ➖ |
 | filters[].controllerTypes | Defines which controller types the filter should apply to | (string)[] | ➖ | ➖ |
 
@@ -129,7 +129,7 @@ The above example shows a config that can be applied to the plugin directly. Thi
 </script>
 ```
 
-Additionaly, if not all controllers should have a specific background filter applied, there is support to apply each filter to specific controllers via `controllerIds` and `controllerTypes` configurations. When using `controllerIds` specific controller ids can be supplied or regex can be used to match on multiple controllers. The `controllerTypes` uses the `controller.type` property to filter out controllers; valid types are `search`, `autocomplete`, `recommendation`, and `finder`. The example bellow will apply the background filter to any controllers that are of type `search`.
+Additionally, if not all controllers should have a specific background filter applied, there is support to apply each filter to specific controllers via `controllerIds` and `controllerTypes` configurations. When using `controllerIds` specific controller ids can be supplied or regex can be used to match on multiple controllers. The `controllerTypes` uses the `controller.type` property to filter out controllers; valid types are `search`, `autocomplete`, `recommendation`, and `finder`. The example below will apply the background filter to any controllers that are of type `search`.
 
 ```html
 <script id="athos-context" src="bundle.js">
@@ -198,7 +198,7 @@ When a product clickthrough occurs, the plugin pushes a Klaviyo `track` event na
 | product | details of the clicked product |
 | results | details of the other products in the results (clicked product excluded) |
 
-Product details (for both `product` and entries in `results`) contain the following properties from the product core mappings: `id`, `name`, `url`, `thumbnailImageUrl`, `imageUrl`, `price` and `msrp`.
+Product details (for both `product` and entries in `results`) contain the result `id`, along with the following properties from the product core mappings: `name`, `url`, `thumbnailImageUrl`, `imageUrl`, `price` and `msrp`.
 
 ```json
 {
@@ -259,38 +259,16 @@ After each search the plugin does two things:
 
 #### Setup
 
-1. Enable the plugin. In SnapTemplates it is configured under `plugins.common.swymWishlist` on every platform:
+1. Enable the plugin. In SnapTemplates it is configured under `plugins.common.swymWishlist` on every platform (for a complete Snap Templates configuration, including registering the result component, see [Using the Swym Wishlist Plugin](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_HOW_TO_SWYM_WISHLIST.md)):
 
 ```tsx
-import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
-
-const config = validateTemplatesConfig({
-	config: {
-		siteId: 'your-site-id',
-		platform: 'shopify',
-	},
-	plugins: {
-		common: {
-			swymWishlist: {
-				enabled: true,
-			},
+plugins: {
+	common: {
+		swymWishlist: {
+			enabled: true,
 		},
 	},
-	components: {
-		result: {
-			WishlistResult: async () => (await import('./components/WishlistResult')).WishlistResult,
-		},
-	},
-	theme: {
-		extends: 'pike',
-		globalResultComponent: 'WishlistResult',
-	},
-	search: {
-		targets: [{ selector: '#search', component: 'Search' }],
-	},
-});
-
-new SnapTemplates(config);
+},
 ```
 
 With Snap it is attached to a controller through the controller `plugins` configuration:
@@ -370,16 +348,19 @@ Swym identifies a wishlisted item by its product id (`empi`), variant id (`epi`)
 - Swym replaces the content of the `swym-wishlist-cta` element with its own label, so render only the static label text in it and keep any icon or other markup outside of it.
 - Keep the button's `className` stable between renders. Swym adds its own state classnames (`swym-added`, `swym-loaded`) to the element, and a `className` that changes with component state would overwrite them. Additional classnames can be appended to the ones `swymWishlistButtonProps` returns.
 
-### scrollToTop
+### pluginScrollToTop
 Configures the behavior of scrolling to the top of the page after a search has occurred.
 
 > [!IMPORTANT]
 > This plugin only applies to search and category pages (controllers of type `search`).
 
+> [!NOTE]
+> The plugin does not scroll when infinite scroll is enabled (`settings.infinite`), or when the controller is restoring the scroll position to an element (for example when returning to the results from a product page).
+
 | Configuration Option | Description | Type | Default | Required |
 |----------------------|-------------|------|---------|----------|
 | enabled | Configuration to allow for disabling the plugin | boolean | true | ➖ |
-| selector | Query selector to scroll to | string | 'body' | ➖ |
+| selector | Query selector of the element to scroll to; when not provided, the page is scrolled to `options.top` | string | ➖ | ➖ |
 | options | [`window.scroll` options configuration](https://developer.mozilla.org/en-US/docs/Web/API/Window/scroll#options) | Object | { top: 0, left: 0, behavior: 'smooth' } | ➖ |
 
 ```tsx
@@ -389,7 +370,7 @@ const scrollToTopConfig = {
 	options: {
 		top: 0,
 		left: 0,
-		behavior: "auto" | "instant" | "smooth"
+		behavior: 'smooth', // 'auto' | 'instant' | 'smooth'
 	}
 }
 ```
