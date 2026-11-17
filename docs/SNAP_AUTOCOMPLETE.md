@@ -64,6 +64,9 @@ const snap = new Snap({
 
 The following properties are specific to an Autocomplete Store via an Autocomplete Controller. This section will start with what's unique to Autocomplete, then cover the properties shared with `SearchController`.
 
+>[!TIP]
+>Each section below covers what you need to build a component. For every property and method, see the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md).
+
 >[!NOTE]
 > If you are using Snap Components in your integration we recommend utilizing the [Autocomplete](https://athoscommerce.github.io/snap/preact-components?params=?path=/story/organisms-autocomplete--default) component from `@athoscommerce/snap-preact/components` to display Autocomplete.
 
@@ -73,9 +76,6 @@ The following properties are specific to an Autocomplete Store via an Autocomple
 The `terms` property contains an array of autocomplete terms relevant to the query. Each term has a `preview` method, invoked on the `onFocus` event of a term value — this locks the current terms and unlocks the previous facets (if changing terms with a facet filter applied), so the store update for the new term doesn't change the original terms.
 
 <img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-term-preview.gif?raw=true" alt="Hovering suggested terms in autocomplete updates the previewed results" />
-
->[!TIP]
->For the full breakdown of `Term` object properties, see the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#term-object).
 
 ```tsx
 // src/components/Terms/Terms.jsx
@@ -109,70 +109,31 @@ The `trending` property contains an array of trending terms — generated from c
 
 <img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-trending-preview.gif?raw=true" alt="Trending terms shown when the search input is focused and empty" />
 
->[!TIP]
->Renders with the same `Terms` component shown above — pass `controller.store.trending` as the `terms` prop.
-
 ### AutocompleteController.store.history
 
 The `history` property contains an array of previously searched terms, stored in localStorage. Can be shown in place of, or alongside, trending and suggested terms. Must be enabled by setting **`settings.history.limit`** to a positive number in the AutocompleteController config.
 
 <img src="https://github.com/athoscommerce/snap/blob/main/images/autocomplete-history-preview.gif?raw=true" alt="Previously searched terms shown in autocomplete" />
 
->[!TIP]
->Renders with the same `Terms` component shown above — pass `controller.store.history` as the `terms` prop.
-
 ---
 
-The properties below are shared with `SearchController` — see [Search](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md) for their full descriptions and worked examples.
+The remaining properties are shared with `SearchController`. These are identical, so see [Search](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md) for their descriptions and worked examples:
 
-### AutocompleteController.store.merchandising
+- [`merchandising`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoremerchandising)
+- [`filters`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstorefilters)
+- [`results`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoreresults)
+- [`pagination`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstorepagination)
+- [`sorting`](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoresorting)
 
-Identical to `SearchController.store.merchandising`.
-
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#merchandising-property) for the full property breakdown.
+`search` and `facets` differ slightly:
 
 ### AutocompleteController.store.search
 
 Same shape as `SearchController.store.search`, except that it does not contain a `didYouMean` query and adds a `correctedQuery`.
 
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#search-property) for the full property breakdown.
-
 ### AutocompleteController.store.facets
 
 Same shape as `SearchController.store.facets`, with one addition: each facet value also has a `preview` method — invoked on `onFocus`, it marks the value as filtered and locks the facets (so they don't change while the shopper previews other values). Unlike `terms.preview`, it does not lock or change the terms.
-
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#facets-property) for the full property breakdown.
-
-### AutocompleteController.store.filters
-
-Identical to `SearchController.store.filters`.
-
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#filters-property) for the full property breakdown.
-
-### AutocompleteController.store.results
-
-Identical to `SearchController.store.results`.
-
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#results-property) for the full property breakdown.
-
-### AutocompleteController.store.pagination
-
-Identical to `SearchController.store.pagination`.
-
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#pagination-property) for the full property breakdown.
-
-### AutocompleteController.store.sorting
-
-Identical to `SearchController.store.sorting`.
-
->[!TIP]
->See the [AutocompleteStore reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-store-mobx/src/Autocomplete/README.md#sorting-property) for the full property breakdown.
 
 ## Putting It Together
 
