@@ -77,11 +77,20 @@ import('./docs/documents.js').then(function (_) {
 
 	const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
 
+	// where this site's own files are served from - same base the router uses (`/snap/` on GitHub Pages, `/` locally)
+	const siteSegment = window.location.hostname !== 'localhost' ? window.location.pathname.split('/')[1] : '';
+	const siteRoot = `${window.location.origin}/${siteSegment ? `${siteSegment}/` : ''}`;
+
+	// images are referenced by their GitHub URL so they also render on GitHub - serve them from this site's
+	// own copy instead, so the docs site shows the images of the checkout it was built from (dev, branch or main)
+	const imageUrl =
+		/https:\/\/(?:github\.com\/athoscommerce\/snap\/(?:blob|raw)\/main|raw\.githubusercontent\.com\/athoscommerce\/snap\/main|athoscommerce\.github\.io\/snap)\/images\/([^"'\s)?]+)(?:\?raw=true)?/gi;
+
 	const modifyLinks = (markdown) => {
 		replaces.forEach(function (replace) {
 			markdown = markdown.replaceAll(replace.a, replace.b);
 		});
-		return markdown;
+		return markdown.replace(imageUrl, (_, path) => `${siteRoot}images/${path}`);
 	};
 	const App = {
 		data() {
