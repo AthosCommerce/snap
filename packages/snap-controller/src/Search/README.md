@@ -53,6 +53,8 @@ This will invoke a search request to Athos's search API and populate the store w
 searchController.search();
 ```
 
+If the requested page is beyond the last page of results (for example, a stale or hand-edited URL), the controller will not update the store and instead replaces the URL with the last page, which triggers a new search. This does not apply to searches with no results or to infinite scroll requests.
+
 ## AddToCart
 This will invoke an addToCart event (see below). Takes an array of Products as a parameter, and an optional `TrackEventOverrides` object (`{ quickView?: boolean }`) as a second parameter — passed as `{ quickView: true }` by the `QuickviewManager` when delegating, so the resulting beacon event is flagged as having occurred within the quickview modal.
 
