@@ -15,6 +15,18 @@ export const quickviewSharedStyles = (theme?: Theme): CSSObject => {
 			'.ss__quickview__variant-title': {
 				textTransform: 'capitalize',
 			},
+			// a dropdown's pill already names the selection ("Size (XS)") - no heading above it
+			'.ss__quickview__variant:has(.ss__variant-selection__dropdown) > .ss__quickview__variant-title': {
+				display: 'none',
+			},
+			'.ss__quickview__price': {
+				fontSize: '20px',
+				fontWeight: 'bold',
+			},
+			// the quantity picker sits close to its add to cart button
+			'.ss__quickview__row:has(> .ss__quickview__add-to-cart)': {
+				gap: '12px',
+			},
 			// rows stacked directly in the content (the slideout's single column) get the gap the layout's columns have
 			'.ss__quickview__content > .ss__quickview__row + .ss__quickview__row': {
 				marginTop: '12px',

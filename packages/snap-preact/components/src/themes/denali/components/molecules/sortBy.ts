@@ -17,8 +17,22 @@ const sortByStyleScript = ({ theme }: SortByProps) => {
 				zIndex: '10001',
 				position: 'relative',
 			},
-			'.ss__dropdown__content': {
-				backgroundColor: custom.colors.gray01,
+		},
+		// the open list is one rounded card under the pill, with inset rows (out-specifies the select's own open state)
+		'&.ss__select .ss__dropdown.ss__dropdown--open .ss__dropdown__content': {
+			backgroundColor: custom.colors.gray01,
+			borderRadius: '20px',
+			boxShadow: 'none',
+			padding: '44px 8px 8px',
+			'.ss__select__select': {
+				backgroundColor: 'transparent',
+				'.ss__select__select__option': {
+					borderRadius: '14px',
+					padding: '6px 22px',
+					'&:hover, &.ss__select__select__option--selected': {
+						backgroundColor: custom.colors.white,
+					},
+				},
 			},
 		},
 		'.ss__dropdown': {

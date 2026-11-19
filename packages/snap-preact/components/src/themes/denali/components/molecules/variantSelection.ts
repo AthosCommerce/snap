@@ -25,6 +25,10 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 				'.ss__dropdown__button-wrapper': {
 					minWidth: 0,
 					whiteSpace: 'nowrap',
+					// the label is the field name ("color") - capitalized like a heading
+					'.ss__dropdown__button-wrapper__label': {
+						textTransform: 'capitalize',
+					},
 					'.ss__dropdown__button-wrapper__selection': {
 						overflow: 'hidden',
 						textOverflow: 'ellipsis',
@@ -44,30 +48,6 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 				marginLeft: '15px',
 				marginRight: '5px',
 				...custom.styles.indicator(variables?.colors?.accent),
-			},
-		},
-
-		'&.ss__variant-selection__options': {
-			margin: '0',
-			padding: '0',
-			background: custom.colors.white,
-			border: 'none',
-			borderRadius: '0 0 25px 25px',
-			boxShadow: '0 6px 12px 1px #0000001f',
-
-			'.ss__variant-selection__option': {
-				padding: '6px 15px',
-				listStyle: 'none',
-				color: 'inherit',
-				background: custom.colors.white,
-
-				'&.ss__variant-selection__option--selected': {
-					...custom.styles.activeText(variables?.colors?.primary),
-					background: custom.colors.gray01,
-				},
-				'&:hover': {
-					background: custom.colors.gray01,
-				},
 			},
 		},
 	});

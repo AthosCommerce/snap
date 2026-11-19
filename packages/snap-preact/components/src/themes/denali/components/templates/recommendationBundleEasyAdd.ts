@@ -5,12 +5,12 @@ import type {
 } from '../../../../components/Templates/RecommendationBundleEasyAdd';
 import { recommendationBundleEasyAddThemeComponentProps } from '../../../themeComponents/recommendationBundleEasyAdd';
 import { ThemeComponent } from '../../../../providers';
+import { bundleListRowSharedStyles } from './recommendationBundleShared';
 // CSS in JS style script for the RecommendationBundle component
 const recommendationBundleEasyAddStyleScript = ({ theme }: RecommendationBundleEasyAddProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const variables = theme?.variables;
-
-	return css({});
+	return css({
+		...bundleListRowSharedStyles('ss__recommendation-bundle-easy-add', theme),
+	});
 };
 
 // RecommendationBundleEasyAdd component props come from Template export
@@ -24,6 +24,10 @@ export const recommendationBundleEasyAdd: ThemeComponent<
 		recommendationBundleEasyAdd: {
 			...(recommendationBundleEasyAddThemeComponentProps.default?.['recommendationBundleEasyAdd'] || {}),
 			themeStyleScript: recommendationBundleEasyAddStyleScript,
+		},
+		// image left, details right - a grid card fills the full width with a full-width square image
+		'recommendationBundleEasyAdd result': {
+			layout: 'list',
 		},
 	},
 	mobile: recommendationBundleEasyAddThemeComponentProps.mobile,

@@ -42,3 +42,50 @@ export const bundleSelectorSharedStyles = (prefix: string, theme?: Theme): CSSOb
 		},
 	};
 };
+
+// list-row bundles (`ss__recommendation-bundle-vertical`, `ss__recommendation-bundle-easy-add`): image left and capped,
+// details right, and the CTA as the same gray rounded card as the carousel and list bundles
+export const bundleListRowSharedStyles = (prefix: string, theme?: Theme): CSSObject => {
+	const variables = theme?.variables;
+
+	return {
+		margin: '20px 0',
+		[`.${prefix}__title`]: {
+			color: variables?.colors?.secondary,
+		},
+		'.ss__result.ss__result--list': {
+			alignItems: 'center',
+			'.ss__result__image-wrapper': {
+				maxWidth: '240px',
+			},
+		},
+		[`.${prefix}__wrapper__cta`]: {
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: '15px',
+			boxSizing: 'border-box',
+			marginTop: '15px',
+			padding: '20px',
+			backgroundColor: custom.colors.gray01,
+			borderRadius: '30px',
+			[`.${prefix}__wrapper__cta__subtotal`]: {
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				gap: '5px',
+				[`.${prefix}__wrapper__cta__subtotal__title`]: {
+					color: variables?.colors?.secondary,
+				},
+				[`.${prefix}__wrapper__cta__subtotal__price`]: {
+					fontSize: '18px',
+					fontWeight: 'bold',
+				},
+				[`.${prefix}__wrapper__cta__subtotal__strike`]: {
+					color: custom.colors.gray03,
+				},
+			},
+		},
+	};
+};
