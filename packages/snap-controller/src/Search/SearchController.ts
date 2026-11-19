@@ -219,7 +219,7 @@ export class SearchController extends AbstractController {
 			const requestedPage = search.request.pagination?.page;
 			const totalPages = search.response.search.pagination?.totalPages ?? 0;
 
-			// with no results there is no last page to send the shopper to
+			// no results (or no pagination) means there is no last page to send the shopper to - so 0 rather than 1
 			if (!this.config.settings?.infinite?.enabled && requestedPage !== undefined && totalPages > 0 && requestedPage > totalPages) {
 				this.log.warn(`requested page ${requestedPage} exceeds the last page (${totalPages}) - redirecting to page ${totalPages}`);
 				this.urlManager.set('page', totalPages).go({ history: 'replace' });
