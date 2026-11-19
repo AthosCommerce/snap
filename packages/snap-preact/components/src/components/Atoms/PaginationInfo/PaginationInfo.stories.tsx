@@ -42,7 +42,7 @@ export default {
 			description: 'Pagination info text to display',
 			table: {
 				type: {
-					summary: 'string, ()=>string',
+					summary: 'string | ((data: { pagination }) => string)',
 				},
 				category: 'Templates Legal',
 			},

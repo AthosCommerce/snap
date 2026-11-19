@@ -41,7 +41,7 @@ export default {
 			description: 'Error object containing message and type',
 			table: {
 				type: {
-					summary: 'Error object',
+					summary: '{ code?: number; type: ErrorType; message: string }',
 				},
 			},
 			control: { type: 'object' },

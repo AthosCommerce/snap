@@ -17,6 +17,14 @@ The `lineThrough` prop will style the formatted number with a line-through.
 ```
 Formatted output from above properties: ~~`1.099,99 €`~~
 
+### format
+The `format` prop specifies a custom function to format the value. It is passed the `value` and returns the entire formatted string, so the number formatting, `symbol` and `code` props are not applied.
+
+```tsx
+<Price value={1099.99} format={(value) => `USD ${value}`} />
+```
+Formatted output from above properties: `USD 1099.99`
+
 ### code
 The `code` prop sets the ISO currency code rendered after the amount. In Snap Templates this is supplied automatically by the active currency locale, so it rarely needs to be set by hand.
 

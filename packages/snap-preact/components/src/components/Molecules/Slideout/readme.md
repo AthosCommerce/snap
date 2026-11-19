@@ -138,3 +138,14 @@ The `buttonSelector` prop specifies a selector of an element to query for, to li
 	<div>Hello World</div>
 </Slideout>
 ```
+
+### Events
+
+#### onChange
+The `onChange` prop is called with the new `active` state whenever the slideout is toggled.
+
+```tsx
+<Slideout buttonContent={'click me'} onChange={(active) => console.log(active)}>
+	<div>slideout content</div>
+</Slideout>
+```

@@ -13,7 +13,9 @@ Renders a search results toolbar.
 - PaginationInfo
 - Button
 - Banner
-- FacetsHorizontal;
+- FacetsHorizontal
+- TabSelection
+- SearchInput
 
 
 ## Usage
@@ -22,7 +24,7 @@ Renders a search results toolbar.
 The required `controller` prop specifies a reference to the search controller.
 
 ```tsx
-<Toolbar controller={controller.store.results} />
+<Toolbar controller={controller} />
 ```
 
 ### layout
@@ -32,22 +34,18 @@ The `_` module is used a seperator module to center,left,right justify the other
 
 available modules to use in the layout are 
 
-`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
+`searchHeader`, `filterSummary`,  `breadcrumbs`, `layoutSelector`, `perPage`, `sortBy`, `pagination`, `paginationInfo`, `tabSelection`, `searchInput`, `_`, `button.sidebar-toggle`, `banner.header`, `banner.banner`, `banner.footer`, `facetsHorizontal`;
 
 
 ```tsx
-<Toolbar controller={controller.store.results} layout={['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>
+<Toolbar controller={controller} layout={['filterSummary', 'paginationInfo', 'sortBy', 'perPage', 'pagination']}/>
 ```
 
 ### toggleSideBarButton
-The `toggleSideBarButton` prop specifies an element to be used as the toggleSideBarButton. This element will render in the layout as `button.sidebar-toggle`. If it is not provided in the layout, the button will not render.
+The `toggleSideBarButton` prop specifies `Button` props for the sidebar toggle button. This button renders in the layout as `button.sidebar-toggle` (included in the default layout). The button only renders when both the `toggleSideBarButton` prop is provided and `button.sidebar-toggle` is present in the layout.
 
 ```tsx
-
-const button = () => {
-    return <div>Toggle Sidebar</div>
-}
-<Toolbar controller={controller.store.results} toggleSideBarButton={button} layout={[`button.sidebar-toggle`]}/>
+<Toolbar controller={controller} toggleSideBarButton={{ content: 'Toggle Sidebar' }} layout={['button.sidebar-toggle']}/>
 ```
 
 

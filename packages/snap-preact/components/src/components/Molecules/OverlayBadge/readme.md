@@ -103,5 +103,9 @@ The overlay badge will by default only render a single badge per overlay slot (l
     limit={3}
     controller={controller}
     result={result}
-/>
+>
+    <div>
+        <img src="/images/example.png"/>
+    </div>
+</OverlayBadge>
 ```

@@ -13,7 +13,7 @@ The required `controller` prop specifies a reference to the RecommendationContro
 ```
 
 ### onAddToCart 
-the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed an array of selected item ids and their quantities. 
+the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed the click event and an array of the selected products. 
 
 ```tsx
 <RecommendationBundleList controller={controller} onAddToCart={(e, items)=>{console.log(items)}} />
@@ -49,6 +49,13 @@ The `resultComponent` prop allows for a custom result component to be rendered. 
 <RecommendationBundleList controller={controller} onAddToCart={(e, items)=>{console.log(items)}} resultComponent={<ResultSlot />} />
 ```
 
+
+### description
+The `description` prop specifies the bundle description
+
+```tsx
+<RecommendationBundleList controller={controller} onAddToCart={(e, items)=>{console.log(items)}} description={'Recommended Bundle products are so awesome!'} />
+```
 
 ### hideSeed
 The `hideSeed` prop specifies if the seed result should be rendered or not.  
@@ -108,14 +115,14 @@ The `ctaSlot` prop allows for a custom add to cart cta component to be rendered.
 ```
 
 ### limit
-The `limit` prop limits the number of results rendered
+The `limit` prop limits the number of results rendered. Defaults to `5`.
 
 ```tsx
 <RecommendationBundleList controller={controller} onAddToCart={(e, items)=>{console.log(items)}} limit={5} />
 ```
 
 ### separatorIcon
-The `separatorIcon` prop specifies the icon to render between products. Takes an object with `Icon` component props or a string.     
+The `separatorIcon` prop specifies the icon to render between products. Takes an object with `Icon` component props or a string. Defaults to `false` (no icon).
 
 ```tsx
 <RecommendationBundleList controller={controller} onAddToCart={(e, items)=>{console.log(items)}} separatorIcon={'cog'} />
@@ -129,14 +136,14 @@ The `separatorIconSeedOnly` prop specifies if the seperator Icon should only be 
 ```
 
 ### preselectedCount
-The `preselectedCount` prop specifies how many products in the bundle will be preselected. This number will include the seed. Example `preselectedCount={3}` would be `seed` + 2 preselected items. If not provided, this will default to however many products are initially visible. 
+The `preselectedCount` prop specifies how many products in the bundle will be preselected. This number will include the seed. Example `preselectedCount={3}` would be `seed` + 2 preselected items. Defaults to `2`.
 
 ```tsx
 <RecommendationBundleList controller={controller} onAddToCart={(e, items)=>{console.log(items)}} preselectedCount={4} />
 ```
 
 ### lazyRender 
-The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enable` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
+The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enabled` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
 
 ```tsx
 const customLazyRenderProps = {
@@ -147,3 +154,26 @@ const customLazyRenderProps = {
 <RecommendationBundleList controller={controller} lazyRender={ customLazyRenderProps } onAddToCart={(e, items)=>{console.log(items)}} />
 ```
 
+## Lang
+
+The `lang` prop allows you to override translatable text strings used by the RecommendationBundleList component. All lang entries support a `value` (static string or function) and `attributes` (e.g. `aria-label`).
+
+| Lang Key | Description | Data Provided |
+|---|---|---|
+| `seedText` | Seed product label text | _(none)_ |
+| `ctaButtonText` | Add to cart CTA button text | _(none)_ |
+| `ctaButtonSuccessText` | CTA button text after successful add | _(none)_ |
+| `ctaSubtotalTitle` | Subtotal section title | `cartStore` (CartStore) |
+
+### Example
+
+```tsx
+<RecommendationBundleList
+	controller={controller}
+	lang={{
+		ctaButtonText: {
+			value: 'Add Bundle to Cart',
+		},
+	}}
+/>
+```

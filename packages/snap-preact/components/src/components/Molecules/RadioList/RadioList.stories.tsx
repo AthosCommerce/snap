@@ -23,7 +23,7 @@ export default {
 	argTypes: {
 		options: {
 			description: 'list of options to display',
-			type: { required: false },
+			type: { required: true },
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -104,7 +104,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent, option: ListOption) => void',
 				},
 			},
 			control: false,
@@ -136,7 +136,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string | number',
+					summary: 'ListOption',
 				},
 			},
 			control: false,

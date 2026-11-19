@@ -12,21 +12,21 @@ The `controller` prop specifies a reference to the search controller.
 ```
 
 ### Store Props
-Alternatively to using the `controller` prop, you can pass each of the required stores individually as props. The `query` prop specifies a reference to the SearchQueryStore, the `pagination` prop specifies a reference to the SearchPaginationStore, and the `merchandisingStore` prop specifies a reference to the SearchMerchandisingStore. 
+Alternatively to using the `controller` prop, you can pass each of the required stores individually as props. The `query` prop specifies a reference to the SearchQueryStore, the `pagination` prop specifies a reference to the SearchPaginationStore, and the `merchandising` prop specifies a reference to the SearchMerchandisingStore. 
 
 ```tsx
 <SearchHeader query={SearchQueryStore} pagination={SearchPaginationStore} merchandising={SearchMerchandisingStore} />
 ```
 
 ### titleText
-The `titleText` prop specifies the text to render in the title. This can be either a string, or a function that returns a string, functions are passed the controller.
+The `titleText` prop specifies the text to render in the title. This can be either a string, or a function that returns a string, functions are passed the pagination and query store for reference to build out custom text.
 
 ```tsx
 <SearchHeader controller={controller} titleText={'Search Results'}/>
 ```
 
 ### subtitleText
-The `subtitleText` prop specifies an optional subtitle to render under the the rest of the headings. This can be either a string, or a function that returns a string, functions are passed the controller.
+The `subtitleText` prop specifies an optional subtitle to render under the the rest of the headings. This can be either a string, or a function that returns a string, functions are passed the pagination and query store for reference to build out custom text.
 
 ```tsx
 <SearchHeader controller={controller} subtitleText={'Narrow your search!'} />
@@ -36,8 +36,8 @@ The `subtitleText` prop specifies an optional subtitle to render under the the r
 The `correctedQueryText` prop specifies the text to show when there is an originalQuery. This can be either a string, or a function that returns a string, functions are passed the pagination and query store for reference to build out custom text.
 
 ```tsx
-const getCorrected = (controller) => {
-	const { pagination, search } = controller.store;
+const getCorrected = (data) => {
+	const { pagination, search } = data;
 	return `<div class="ss__search-header__corrected">No results found for "<em>${search?.originalQuery?.string}</em>", showing results for "<em>${search?.query?.string}</em>" instead.</div>`
 }
 <SearchHeader controller={controller} correctedQueryText={getCorrected} />
@@ -55,8 +55,8 @@ The `noResultsText` prop specifies the text to show when the totalResults count 
 The `didYouMeanText` prop specifies the text to show when there is a "didYouMean" query. This can be either a string, or a function that returns a string, functions are passed the pagination and query store for reference to build out custom text.
 
 ```tsx
-const getDym = (controller) => {
-	const { search } = controller.store;
+const getDym = (data) => {
+	const { search } = data;
 	return `<div class="ss__search-header__dym">Sorry, but did you mean "<em><a href=${search?.didYouMean?.url.href}>${search?.didYouMean?.string}</a></em>"</div>`
 }
 <SearchHeader controller={controller} didYouMeanText={getDym} />

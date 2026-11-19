@@ -56,7 +56,7 @@ Each module returns `null` when it has nothing to show (no description, no displ
 |---|---|:---:|---|
 | `quickviewManager` | `QuickviewManager` | ✔️ | The component subscribes to `quickviewManager.store`. Renders `null` (with a console warning) when missing. |
 | `onClose` | `() => void` | | Hook into the quickview close. Will always call `quickviewManager.close()` in addition. |
-| `layout` | `ModuleNamesWithColumns[]` | | The module/column arrangement (see Layout). |
+| `layout` | `ModuleNamesWithColumns[]` | ✔️ | The module/column arrangement (see Layout). |
 | `hideBadge` | `boolean` | | Defaults to `false`. When `true`, the `slideshow` module renders without the `OverlayBadge` wrapper. |
 | `column1`–`column4` | `Column` | | `{ layout, width, alignContent }` configs for the `c1`–`c4` columns. |
 | `recommendation` | `{ component?, resultComponent?, config? }` | | Config for every `recommendation.<profile>` module (see Recommendations). |
@@ -123,7 +123,7 @@ Generic click tracking is disabled inside the quickview (`track: { click: false 
 
 `QuickviewModal` positions the `Modal` content `fixed` and centered (`translate(-50%, -50%)`, with `!important` so theme overrides cannot re-anchor it to the source `Result` tile). The z-index hierarchy is: autocomplete (`10002`) < overlay (`10005`) < content (`10006`) < dropdown portals (`10007`), so the quickview paints above an open autocomplete while variant `<select>` lists still paint above it. The container wrapper is taken out of flow (`position: absolute`, zero size) so mounting inside a CSS grid doesn't shift layout, and scroll lock is disabled so opening doesn't reflow the page.
 
-`QuickviewSlideout` keeps the same z-index ladder and syncs an overlay dismiss back to `store.close()` via the `Slideout`'s `onToggle` callback, so `store.isOpen` stays the single source of truth.
+`QuickviewSlideout` keeps the same z-index ladder and syncs an overlay dismiss back to `store.close()` via the `Slideout`'s `onChange` callback, so `store.isOpen` stays the single source of truth.
 
 ## Accessibility
 

@@ -20,7 +20,7 @@ Or alternatively as children:
 <Dropdown>Hello World!</Dropdown>
 ```
 
-Note you can only render either the content, or the children, if both are passed in, it will default to the content prop. 
+Note if both the content and children are passed in, both are rendered (content first). 
 
 
 ### button

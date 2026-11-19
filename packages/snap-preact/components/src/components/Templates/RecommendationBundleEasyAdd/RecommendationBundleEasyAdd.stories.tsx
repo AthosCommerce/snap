@@ -72,7 +72,18 @@ export default {
 				type: {
 					summary: 'string | JSX Element',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.title' },
+			},
+			control: { type: 'text' },
+		},
+		description: {
+			description: 'recommendation bundle description',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string | JSX Element',
+				},
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.description' },
 			},
 			control: { type: 'text' },
 		},
@@ -81,7 +92,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: MouseEvent, items: Product[]) => void | Promise<void>',
 				},
 			},
 		},
@@ -92,9 +103,20 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'Seed Product' },
+				defaultValue: { summary: "''" },
 			},
 			control: { type: 'text' },
+		},
+		hideSeedText: {
+			description: 'Hide seed product badge text',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
 		},
 		ctaButtonText: {
 			description: 'text to render in add to cart button',
@@ -103,16 +125,16 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'Add All To Cart' },
+				defaultValue: { summary: 'Add Both' },
 			},
 			control: { type: 'text' },
 		},
 		ctaIcon: {
-			desciption: 'The `ctaIcon` prop specifies the icon to render in the CTA. Takes an object with `Icon` component props or a string.',
+			description: 'The `ctaIcon` prop specifies the icon to render in the CTA. Takes an object with `Icon` component props or a string.',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				defaultValue: { summary: 'bag' },
 			},
@@ -140,17 +162,18 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 2000 },
 			},
 			control: { type: 'number' },
 		},
 		ctaInline: {
-			description: 'boolean to enable the stacked add to cart button display',
+			description: 'boolean to render the add to cart display inline with the bundle (false stacks it below)',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: true },
+				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -163,6 +186,18 @@ export default {
 				},
 			},
 		},
+		vertical: {
+			defaultValue: false,
+			description: 'Carousel vertical slide direction',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		lazyRender: {
 			description: 'Lazy render settings object',
 			defaultValue: {
@@ -172,9 +207,18 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ enabled: boolean, offset?: string }',
 				},
-				defaultValue: { summary: 'Lazy render settings object' },
+				defaultValue: { summary: "{ enabled: true, offset: '10%' }" },
+			},
+			control: { type: 'object' },
+		},
+		lang: {
+			description: 'Custom language keys (`seedText`, `ctaButtonText`, `ctaButtonSuccessText`, `ctaSubtotalTitle`)',
+			table: {
+				type: {
+					summary: 'Partial<RecommendationBundleLang>',
+				},
 			},
 			control: { type: 'object' },
 		},

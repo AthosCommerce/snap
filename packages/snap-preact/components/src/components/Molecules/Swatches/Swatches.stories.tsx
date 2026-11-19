@@ -31,14 +31,14 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent, option: SwatchOption) => void',
 				},
 			},
 			control: false,
 		},
 		options: {
 			description: 'list of options to display',
-			type: { required: false },
+			type: { required: true },
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -85,14 +85,45 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'swatches type',
+					summary: '"slideshow" | "grid"',
 				},
-				defaultValue: { summary: 'carousel' },
+				defaultValue: { summary: 'slideshow' },
 			},
-			options: ['carousel', 'grid'],
+			options: ['slideshow', 'grid'],
 			control: {
 				type: 'select',
 			},
+		},
+		disabled: {
+			description: 'disable option selection',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		slideshow: {
+			description: 'Slideshow component props (used when type is slideshow)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'Partial<SlideshowProps>',
+				},
+			},
+			control: { type: 'object' },
+		},
+		grid: {
+			description: 'Grid component props (used when type is grid)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'Partial<GridProps>',
+				},
+			},
+			control: { type: 'object' },
 		},
 		...componentArgs,
 	},
@@ -203,10 +234,6 @@ export const Images = {
 	},
 
 	args: {
-		carousel: {
-			slidesPerView: 3,
-			spaceBetween: 10,
-		},
 		breakpoints: {},
 		options: [
 			{

@@ -56,6 +56,21 @@ const addToCartConfig = {
 }
 ```
 
+### pluginBase
+Plugin providing common Magento2 functionality for a controller:
+
+- tracks the shopper id (`tracker.track.shopper.login`) when a customer is logged in
+- sets `domain`, `formKey` and `uenc` on `controller.store.custom.m2`
+- adds `wishlist`, `compare` and `addToCart` values to `result.custom` for each result, for use in results display
+
+The shopper id is read from `shopper_id` in the `athoscommerce-tracking` section of the `mage-cache-storage` localStorage entry, which is set by the [Athos Commerce Magento2 module](https://github.com/AthosCommerce/magento2-module). Without the module installed, the shopper id is not tracked.
+
+| Configuration Option | Description | Type | Default | Required |
+|----------------------|-------------|------|---------|----------|
+| enabled | configuration to allow for disabling the plugin | boolean | true | ➖ |
+| formKey | formKey to set on `controller.store.custom.m2`, this will be grabbed from the 'form_key' cookie by default | string | ➖ | ➖ |
+| uenc | uenc to set on `controller.store.custom.m2`, this will use the current url by default | string | ➖ | ➖ |
+
 ### pluginBackgroundFilters
 Plugin to set up background filters for Magento2. Script context is used to automatically apply best practice Magento2 background filtering. Product visibility is handled by default using the `visibility` field with a value of `Search` on search requests, and `Catalog` when displaying category data. Background filtering in this plugin applies to search (category and visibility) and autocomplete (visibility only) controllers.
 

@@ -23,7 +23,7 @@ export default {
 			description: 'Icon name',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'IconType | false',
 				},
 				category: 'Templates Legal',
 			},

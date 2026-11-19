@@ -67,3 +67,11 @@ The `symbolAfter` prop specifies if the provided `symbol` prop should be placed 
 <FormattedNumber value={999.999} symbol={'km'} symbolAfter={true} /> 
 ```
 Formatted output from above properties: `999.999km`
+
+### raw
+The `raw` prop returns the formatted number as a plain string, without the wrapping `<span>` element.
+
+```tsx
+<FormattedNumber value={99.99} raw={true} />
+```
+Formatted output from above properties: `99.990`

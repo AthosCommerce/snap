@@ -71,14 +71,13 @@ export default {
 			control: { type: 'boolean' },
 		},
 		tickSize: {
-			defaultValue: 20,
 			description: 'distance between ticks',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'number',
 				},
-				defaultValue: { summary: 20 },
+				defaultValue: { summary: 'facet.step * 10 (20 when facet has no step)' },
 			},
 			control: { type: 'number' },
 		},

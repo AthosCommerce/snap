@@ -65,7 +65,7 @@ export default {
 			description: 'optional function to run on remove button click',
 			table: {
 				type: {
-					summary: '(e: Event, name: string) => void',
+					summary: '(e: Event, branch: string) => void',
 				},
 			},
 			control: false,

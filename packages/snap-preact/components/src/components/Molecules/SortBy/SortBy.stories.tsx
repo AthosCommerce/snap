@@ -18,7 +18,7 @@ export default {
 	argTypes: {
 		sorting: {
 			description: 'reference to the SearchSortingStore',
-			type: { required: true },
+			type: { required: false },
 			table: {
 				type: {
 					summary: 'reference to the SearchSortingStore',
@@ -42,6 +42,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'Sort By' },
 			},
 			control: { type: 'text' },
 		},

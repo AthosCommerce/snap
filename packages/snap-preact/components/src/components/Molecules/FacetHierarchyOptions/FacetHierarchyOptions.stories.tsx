@@ -29,7 +29,7 @@ export default {
 			type: { required: false },
 			table: {
 				type: {
-					summary: 'object',
+					summary: 'facet values store array',
 				},
 			},
 			control: false,
@@ -49,7 +49,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 			},
 			options: [...Object.keys(iconPaths)],

@@ -21,11 +21,11 @@ On the [Field Settings page](https://console.athoscommerce.net/data-configuratio
 
 If settings are changed, perform an [Update Index](https://console.athoscommerce.net/data-sync).
 
-## Add IntelliSuggest Tracking
+## Add Tracking
 
-Have the client install the following IntelliSuggest tracking module: [github.com/SearchSpring/magento2-searchspring-tracking](https://github.com/SearchSpring/magento2-searchspring-tracking).
+Have the client install the [Athos Commerce Magento2 module](https://github.com/AthosCommerce/magento2-module). The module adds the Athos tracking scripts to the product detail, cart and checkout success pages, and stores the logged in customer's id for shopper tracking.
 
-Notify the client which site id to use for the section "How to Install", step 4, point iii.
+Set the "AthosCommerce Site ID" in the module's configuration, found in Magento 2 Admin > Stores > Configuration > AthosCommerce > Settings > Athoscommerce Tracking.
 
 ## Create a Category Search Page
 
@@ -230,71 +230,23 @@ Up until this point, we've added the Athos integration to the theme and category
 
 Now we'll ensure our integration code captures the context variables and sets up the necessary configuration.
 
-### Create Magento2 Plugin
+### Add Magento2 Plugin
 
-In the `src/scripts` folder, create a plugin called `magento2.js` and add the below code. This snippet will provide tracking for shopper id; setting form key and uenc; and a few common pieces of Magento 2 logic used in results display.
+The `@athoscommerce/snap-platforms` package provides a Magento2 base plugin. The plugin tracks the shopper id, sets the form key and uenc on `controller.store.custom.m2`, and adds the `wishlist`, `compare` and `addToCart` values used in results display to each `result.custom`.
+
+```sh
+npm install --save @athoscommerce/snap-platforms
+```
 
 ```js
-// src/scripts/magento2.js
-import { cookies } from '@athoscommerce/snap-toolbox';
-
-export const magento2 = (controller) => {
-	// get shopper id from magento cache
-	const mageCacheStorage = JSON.parse(localStorage.getItem('mage-cache-storage'));
-	let shopperId = (mageCacheStorage?.customer?.data_id) ? mageCacheStorage.customer.data_id : false;
-
-	// track shopperId
-	if (shopperId) {
-		controller.tracker.track.shopper.login({
-			id: shopperId
-		});
-	}
-
-	// magento2 configs
-	controller.store.custom.m2 = {
-		domain: window.location.hostname,
-		formKey: cookies.get('form_key'),
-		uenc: typeof btoa == 'function' ? btoa(window.location.href) : '',
-	};
-	
-	controller.on('afterStore', async ({ controller }, next) => {
-		const store = controller.store;
-		const { pagination, results } = store;
-		const customM2 = store.custom.m2;
-		customM2.uenc = typeof btoa == 'function' ? btoa(window.location.href) : '';
-
-		if (pagination.totalResults) {
-			results.forEach((result) => {
-				const core = result.mappings.core;
-				const custom = result.custom;
-
-				// shared magento2 action config
-				const sharedData = {
-					data: {
-						product: core.uid,
-						uenc: customM2.uenc,
-					},
-				};
-
-				// magento2 wishlist action
-				let wishlistData = sharedData;
-				wishlistData.action = '//' + customM2.domain + '/wishlist/index/add/';
-				custom.wishlist = JSON.stringify(wishlistData).replace(/\//g, '\\/');
-
-				// magento2 compare action
-				let compareData = sharedData;
-				compareData.action = '//' + customM2.domain + '/catalog/product_compare/add/';
-				custom.compare = JSON.stringify(compareData).replace(/\//g, '\\/');
-
-				// magento2 Add to Cart action
-				custom.addToCart = '//' + customM2.domain + '/checkout/cart/add/uenc/' + customM2.uenc + '/product/' + core.uid + '/';
-			});
-		}
-
-		await next();
-	});
-};
+// src/index.js
+import { pluginBase } from '@athoscommerce/snap-platforms/magento2';
 ```
+
+> [!NOTE]
+> Shopper id tracking relies on the Athos Commerce Magento2 module installed in [Add Tracking](#add-tracking), which stores the logged in customer's id as `shopper_id` under the `athoscommerce-tracking` section of `mage-cache-storage`. Without the module installed, the shopper id is not tracked.
+
+See the [Magento2 platform reference](https://athoscommerce.github.io/snap/reference-platforms-magento2) for plugin configuration.
 
 ### Search Only Integration
 
@@ -315,11 +267,11 @@ visibilityFilters.push({
 });
 ```
 
-In the search controller config object, add the magento2 plugin and filters:
+In the search controller config object, add the `pluginBase` plugin and filters:
 
 ```js
 // src/index.js
-import { magento2 } from './scripts/magento2';
+import { pluginBase } from '@athoscommerce/snap-platforms/magento2';
 const snap = new Snap({
 	client: {
 		globals: {
@@ -331,7 +283,7 @@ const snap = new Snap({
 			{
 				config: {
 					id: 'search',
-					plugins: [[magento2]],
+					plugins: [[pluginBase]],
 					settings: {
 						redirects: {
 							singleResult: true,
@@ -355,7 +307,7 @@ const snap = new Snap({
 			{
 				config: {
 					id: 'autocomplete',
-					plugins: [[magento2]],
+					plugins: [[pluginBase]],
 					globals: {
 						filters: visibilityFilters,
 						pagination: {
@@ -425,7 +377,7 @@ To attach the `backgroundFilters` and `visibilityFilters` to a `search` controll
 
 ```js
 // src/index.js
-import { magento2 } from './scripts/magento2';
+import { pluginBase } from '@athoscommerce/snap-platforms/magento2';
 const snap = new Snap({
 	client: {
 		globals: {
@@ -437,7 +389,7 @@ const snap = new Snap({
 			{
 				config: {
 					id: 'search',
-					plugins: [[magento2]],
+					plugins: [[pluginBase]],
 					settings: {
 						redirects: {
 							singleResult: true,
@@ -461,7 +413,7 @@ const snap = new Snap({
 			{
 				config: {
 					id: 'autocomplete',
-					plugins: [[magento2]],
+					plugins: [[pluginBase]],
 					globals: {
 						filters: visibilityFilters,
 						pagination: {

@@ -72,7 +72,18 @@ export default {
 				type: {
 					summary: 'string | JSX Element',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.title' },
+			},
+			control: { type: 'text' },
+		},
+		description: {
+			description: 'recommendation bundle description',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string | JSX Element',
+				},
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.description' },
 			},
 			control: { type: 'text' },
 		},
@@ -81,7 +92,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: MouseEvent, items: Product[]) => void | Promise<void>',
 				},
 			},
 		},
@@ -92,6 +103,7 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 5 },
 			},
 			control: { type: 'number' },
 		},
@@ -120,6 +132,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: { summary: 'boolean' },
+				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -135,14 +148,13 @@ export default {
 			control: { type: 'boolean' },
 		},
 		separatorIcon: {
-			defaultValue: 'plus',
 			description: 'Icon to render between results',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
-				defaultValue: { summary: 'plus' },
+				defaultValue: { summary: false },
 			},
 			control: {
 				type: 'select',
@@ -156,6 +168,7 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 2 },
 			},
 			control: { type: 'number' },
 		},
@@ -178,6 +191,7 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 2000 },
 			},
 			control: { type: 'number' },
 		},
@@ -199,6 +213,7 @@ export default {
 				type: {
 					summary: 'component',
 				},
+				defaultValue: { summary: 'CTASlot' },
 			},
 		},
 		lazyRender: {
@@ -210,9 +225,18 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ enabled: boolean, offset?: string }',
 				},
-				defaultValue: { summary: 'Lazy render settings object' },
+				defaultValue: { summary: "{ enabled: true, offset: '10%' }" },
+			},
+			control: { type: 'object' },
+		},
+		lang: {
+			description: 'Custom language keys (`seedText`, `ctaButtonText`, `ctaButtonSuccessText`, `ctaSubtotalTitle`)',
+			table: {
+				type: {
+					summary: 'Partial<RecommendationBundleLang>',
+				},
 			},
 			control: { type: 'object' },
 		},

@@ -39,9 +39,10 @@ export default {
 			defaultValue: ResultsLayout.grid,
 			table: {
 				type: {
-					summary: 'string',
+					summary: "'grid' | 'list'",
 				},
 				category: 'Templates Legal',
+				defaultValue: { summary: 'grid' },
 			},
 			options: [ResultsLayout.grid, ResultsLayout.list],
 			control: {
@@ -55,6 +56,7 @@ export default {
 					summary: 'string',
 				},
 				category: 'Templates Legal',
+				defaultValue: { summary: 'auto' },
 			},
 			control: { type: 'text' },
 		},
@@ -67,6 +69,17 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
+		},
+		disableA11y: {
+			description: 'boolean to disable autoset ally properties',
+			table: {
+				type: {
+					summary: 'boolean',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
 		},
 		...componentArgs,
 	},

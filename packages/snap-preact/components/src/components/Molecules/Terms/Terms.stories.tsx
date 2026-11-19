@@ -93,7 +93,7 @@ export default {
 			description: 'custom onClick event handler for Terms',
 			table: {
 				type: {
-					summary: 'function',
+					summary: '(e: React.MouseEvent, term: Term) => void',
 				},
 				category: 'Templates Legal',
 			},

@@ -11,6 +11,13 @@ Renders a facet filter.
 import { Filter } from '@athoscommerce/snap-preact/components';
 ```
 
+### filter
+The `filter` prop specifies a reference to a filter object from the `filters` store array. When provided, its facet label, value label and url are used in place of the `facetLabel`, `valueLabel` and `url` props.
+
+```tsx
+<Filter filter={filter} />
+```
+
 ### facetLabel
 The `facetLabel` prop specifies the filter label. Typically set to the facet label.
 

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.17.0](https://github.com/AthosCommerce/snap/compare/v1.16.0...v1.17.0) (2026-11-12)
+
+### Bug Fixes
+
+- fall back to memory when stored session data is unreadable or sessionStorage is missing ([36edf25](https://github.com/AthosCommerce/snap/commit/36edf25e0bc5180796297b578a7e92f376667f19))
+- keep snap running when sessionStorage is blocked ([4f57b43](https://github.com/AthosCommerce/snap/commit/4f57b43e86d23f3b9ba99c3ce859c897913adc33))
+
 # [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
 
 **Note:** Version bump only for package @athoscommerce/snap-toolbox

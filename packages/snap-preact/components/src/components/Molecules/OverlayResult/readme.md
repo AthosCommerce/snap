@@ -3,7 +3,7 @@
 Renders a single product card with details overlaid on top of the product image.
 
 ## Sub-components
-- Badge
+- OverlayBadge
 - CalloutBadge
 - Rating
 - Button
@@ -21,6 +21,13 @@ The required `result` prop specifies a reference to a product object from the `r
 
 ```tsx
 <OverlayResult result={controller.store.results[0]} />
+```
+
+### controller
+The `controller` prop specifies a reference to the Search, Autocomplete or Recommendation controller. It is used by the add to cart button (`controller.addToCart`) and the badges.
+
+```tsx
+<OverlayResult result={controller.store.results[0]} controller={controller} />
 ```
 
 ### disableSlide
@@ -156,6 +163,13 @@ The `truncateTitle` prop utililizes the truncate filter from the snap-toolbox to
 
 ```tsx
 <OverlayResult result={controller.store.results[0]} truncateTitle={{ limit: 5, append: '...' }} />
+```
+
+### onClick
+The `onClick` prop is a function to be called when the result image or title link is clicked.
+
+```tsx
+<OverlayResult result={controller.store.results[0]} onClick={(e) => console.log(e)} />
 ```
 ## Lang
 

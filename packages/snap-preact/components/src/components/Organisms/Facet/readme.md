@@ -8,7 +8,6 @@ Renders a single complete facet. This includes determining the correct options t
 - FacetGridOptions
 - FacetListOptions
 - FacetPaletteOptions
-- FacetToggle
 - FacetSlider
 - Icon
 - SearchInput
@@ -46,6 +45,27 @@ The `limit` prop sets the number of options to display before the remaining opti
 
 ```tsx
 <Facet facet={controller.store.facets[0]} limit={10} />
+```
+
+### disableOverflow
+The `disableOverflow` prop disables the overflow (show more/less) button. Options are still limited by the `limit` prop.
+
+```tsx
+<Facet facet={controller.store.facets[0]} disableOverflow={true} />
+```
+
+### statefulOverflow
+The `statefulOverflow` prop tracks the overflow (show more/less) state within the component instead of using the facet store's `overflow`.
+
+```tsx
+<Facet facet={controller.store.facets[0]} statefulOverflow={true} />
+```
+
+### searchable
+The `searchable` prop renders a SearchInput above the facet options to filter them. Only applies to `list`, `grid` and `palette` facets, and not within Autocomplete.
+
+```tsx
+<Facet facet={controller.store.facets[0]} searchable={true} />
 ```
 
 ### previewOnFocus
@@ -104,7 +124,7 @@ The `showLessText` prop contains the text to display in the facet overflow butto
 <Facet facet={controller.store.facets[0]} showLessText={'Show Less'} />
 ```
 
-## hideShowMoreLessText
+### hideShowMoreLessText
 The `hideShowMoreLessText` prop hides the show more / show less text.
 
 ```tsx
@@ -241,7 +261,7 @@ const fieldsProp = {
 		disableOverflow: true,
 		disableCollapse: true,
 	}
-},
+};
 ```
 
 ```tsx
@@ -254,21 +274,19 @@ The `display` prop allows you to manually change prop values on a per-facet disp
 
 ```typescript
 const displayProp = {
-	display: {
-		list: {
-			limit: 5,
-		},
-		hierarchy: {
-			limit: 3
-		},
-		grid: {
-			limit: 10
-		},
-		palette: {
-			limit: 20
-		}
+	list: {
+		limit: 5,
+	},
+	hierarchy: {
+		limit: 3
+	},
+	grid: {
+		limit: 10
+	},
+	palette: {
+		limit: 20
 	}
-},
+};
 ```
 
 ```tsx

@@ -22,6 +22,7 @@ export default {
 	argTypes: {
 		images: {
 			description: 'Array of image URLs to display in the gallery',
+			type: { required: true },
 			table: {
 				type: {
 					summary: 'string[]',
@@ -31,11 +32,11 @@ export default {
 		},
 		open: {
 			description: 'Controls visibility of the gallery overlay',
+			type: { required: true },
 			table: {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},

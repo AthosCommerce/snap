@@ -259,13 +259,12 @@ export default {
 			control: { type: 'text' },
 		},
 		seeMoreButtonText: {
-			defaultValue: 'See ${pagination.totalResults} results for "${search.query?.string}"',
 			description: 'Text to render in the see more button',
 			table: {
 				type: {
-					summary: 'string || function',
+					summary: 'string | ((controller: AutocompleteController) => string)',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'See ${pagination.totalResults} [filtered] result(s) for "${search.query.string}"' },
 			},
 			control: { type: 'text' },
 		},
@@ -273,8 +272,9 @@ export default {
 			description: 'See more button Icon',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | boolean',
 				},
+				defaultValue: { summary: 'angle-right' },
 			},
 			options: [...Object.keys(iconPaths)],
 			control: {

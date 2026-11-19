@@ -58,7 +58,7 @@ describe('magento2/pluginMagento2Base', () => {
 
 	it('reads shopperId from localStorage and calls tracker login', () => {
 		const shopperId = '12345';
-		localStorage.setItem('mage-cache-storage', JSON.stringify({ customer: { data_id: shopperId } }));
+		localStorage.setItem('mage-cache-storage', JSON.stringify({ 'athoscommerce-tracking': { shopper_id: shopperId } }));
 
 		const loginSpy = jest.spyOn(controller.tracker.track.shopper, 'login');
 

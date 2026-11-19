@@ -9,6 +9,7 @@ Plugins provide functionality to tie into various events within the Snap control
 | `plugins.common.backgroundFilters` | Background filter configurations | Object | Enabled |
 | `plugins.common.scrollToTop` | Configuration for scrolling to top after search | Object | Enabled |
 | `plugins.common.addToCart` | Configuration for add to cart function | Object | Disabled |
+| `plugins.common.swymWishlist` | Swym Wishlist Plus integration for wishlist buttons rendered in results | Object | Disabled |
 
 
 > [!NOTE]
@@ -34,6 +35,7 @@ When `config.platform` is `magento2`, the following plugins are available:
 
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
+| `plugins.magento2.base` | Magento2 base configuration (shopper id tracking, form key, uenc and result action values) | Object | Enabled |
 | `plugins.magento2.addToCart` | Magento2 add to cart function configuration | Object | Enabled |
 | `plugins.magento2.backgroundFilters` | Background filter configurations | Object | Enabled |
 

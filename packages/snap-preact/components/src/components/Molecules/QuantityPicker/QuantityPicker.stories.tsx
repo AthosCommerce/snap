@@ -34,7 +34,7 @@ export default {
 				type: {
 					summary: 'number',
 				},
-				defaultValue: { summary: 1 },
+				defaultValue: { summary: 'min' },
 			},
 			control: { type: 'number' },
 		},
@@ -109,7 +109,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: Event, value: number) => void',
 				},
 			},
 			control: { type: 'none' },

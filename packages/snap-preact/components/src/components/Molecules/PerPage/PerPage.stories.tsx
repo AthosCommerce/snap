@@ -19,10 +19,10 @@ export default {
 	argTypes: {
 		pagination: {
 			description: 'reference to the SearchPaginationStore',
-			type: { required: true },
+			type: { required: false },
 			table: {
 				type: {
-					summary: 'reference to the SearchSortingStore',
+					summary: 'reference to the SearchPaginationStore',
 				},
 			},
 			control: false,
@@ -43,6 +43,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
+				defaultValue: { summary: 'Per Page' },
 			},
 			control: { type: 'text' },
 		},

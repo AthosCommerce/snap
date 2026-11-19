@@ -1,6 +1,6 @@
 # ResultTracker
 
-Adds impression, render and click tracking to an individual result within a controller. When using the Results component, it will already contain this component.
+Adds impression and click tracking to an individual result within a controller. When using the Results component, it will already contain this component.
 
 This component is used for Beacon 2.0 tracking and replaces the need for using the `RecommendationResultTracker` as well as the `RecommendationProfileTracker`.
 
@@ -39,10 +39,10 @@ The required `result` prop specifies a reference to a product object from the `r
 ```
 
 ### track
-The `track` prop is an object that allows for the disabling of parts of the tracking functionality. The keys are `render`, `impression` and `click` - setting them to false prevents the tracking event for the result. The following example would disable all events except for the click tracking.
+The `track` prop is an object that allows for the disabling of parts of the tracking functionality. The keys are `impression` and `click` - setting them to false prevents the tracking event for the result. The following example would disable all events except for the click tracking.
 
 ```tsx
-<ResultTracker controller={controller} result={result} track={{ render: false, impression: false }}>
+<ResultTracker controller={controller} result={result} track={{ impression: false }}>
 	<Result result={result}></Result>
 </ResultTracker>
 ```

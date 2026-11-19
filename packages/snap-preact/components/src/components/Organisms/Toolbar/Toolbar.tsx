@@ -87,6 +87,7 @@ export type ModuleNames =
 	| 'paginationInfo'
 	| 'breadcrumbs'
 	| 'tabSelection'
+	| 'searchInput'
 	| '_'
 	| 'button.sidebar-toggle'
 	| 'banner.header'

@@ -97,7 +97,7 @@ With the above, browsing the blog tab with a colour refinement produces:
 
 The URL parameter holding the active tab is always `tab` and is not configurable.
 
-The `query` parameter stays unprefixed and is shared across every tab - a shopper searches once and every tab searches the same term. The `filter`, `sort`, `pageSize`, `rq`, and `page` parameters are namespaced per tab, so each tab keeps its own refinements and pagination position while you switch between them.
+The `query` parameter stays unprefixed and is shared across every tab - a shopper searches once and every tab searches the same term. A query submitted from the `searchInput` toolbar module is searched by every prefetched tab, along with any deferred tab that has already loaded. The `filter`, `sort`, `pageSize`, `rq`, and `page` parameters are namespaced per tab, so each tab keeps its own refinements and pagination position while you switch between them.
 
 Keep `param` values short and URL safe - they are visible to shoppers and they prefix every namespaced parameter.
 

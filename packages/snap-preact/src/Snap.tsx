@@ -483,7 +483,6 @@ export class Snap {
 			// feature check block
 			configureSnapFeatures(this.config);
 
-			this.client = services?.client || new Client(this.config.client!.globals as ClientGlobals, this.config.client!.config);
 			this.logger =
 				services?.logger ||
 				new Logger({
@@ -496,6 +495,8 @@ export class Snap {
 					}`,
 					mode: this.mode,
 				});
+
+			this.client = services?.client || new Client(this.config.client!.globals as ClientGlobals, this.config.client!.config);
 
 			// create tracker
 			let trackerGlobals = this.config.tracker?.globals || (this.config.client!.globals as ClientGlobals);

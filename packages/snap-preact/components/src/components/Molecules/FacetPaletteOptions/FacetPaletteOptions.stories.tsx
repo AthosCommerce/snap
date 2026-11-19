@@ -75,7 +75,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '8px' },
+				defaultValue: { summary: "8px (2px when layout is 'list')" },
 			},
 			control: { type: 'text' },
 		},
@@ -118,8 +118,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: "'list' | 'grid'",
 				},
+				defaultValue: { summary: 'grid' },
 			},
 			options: ['grid', 'list'],
 			control: {
@@ -186,7 +187,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ [name: string]: { label?: string; background?: string; backgroundImageUrl?: string } }',
 				},
 				defaultValue: { summary: '{}' },
 			},

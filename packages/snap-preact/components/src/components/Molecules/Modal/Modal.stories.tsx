@@ -35,7 +35,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string, JSX',
+					summary: 'string, Element',
 				},
 			},
 			control: { type: 'text' },
@@ -48,7 +48,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'rgba(0,0,0,0.0)' },
+				defaultValue: { summary: 'rgba(0,0,0,0.8)' },
 			},
 			control: { type: 'color' },
 		},

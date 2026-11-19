@@ -8,7 +8,7 @@ Renders a button and a modal. Clicking the button toggles modal visibility. By d
 ## Usage
 
 ### content
-The `content` prop specifies the modal contents. This can be a string or a JSX element. The Modal component also passes the current open state to the JSX component under the prop showContent: boolean. 
+The `content` prop specifies the modal contents. This can be a string or a JSX element. The Modal component also passes the current open state to the JSX component under the prop `open: boolean`, and a function to toggle it under the prop `toggleOpen`. 
 
 ```tsx
 <Modal content={"Hello World!"} />
@@ -30,7 +30,7 @@ The `button` prop specifies the Modal trigger button. This button toggles the vi
 or alternatively you can use the `buttonSelector` prop 
 
 ### buttonSelector
-The `buttonSelector` prop allows you to define a selector that identifies an element to listen for click events, which will trigger the modal to open.
+The `buttonSelector` prop allows you to define a selector (or an `Element`) that identifies an element to listen for click events, which will trigger the modal to open.
 
 ```tsx
 <Modal buttonSelector={'#someExistingButton'}>Hello World!</Modal>
@@ -67,10 +67,10 @@ The `onOverlayClick` prop specifies the a function to call on clicking of the ov
 ```
 
 ### lockScroll
-The `lockScroll` prop will lock the scroll on the body of the page while the modal is open. 
+The `lockScroll` prop will lock the scroll on the body of the page while the modal is open. Defaults to `true`.
 
 ```tsx
-<Modal lockScroll={true}>Hello World!</Modal>
+<Modal lockScroll={false}>Hello World!</Modal>
 ```
 
 ### disabled

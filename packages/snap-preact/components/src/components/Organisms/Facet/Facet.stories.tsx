@@ -49,9 +49,21 @@ export default {
 			},
 			control: { type: 'number' },
 		},
+		statefulOverflow: {
+			defaultValue: false,
+			description: 'Track the overflow (show more/less) state within the component instead of the facet store',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
 		disableOverflow: {
 			defaultValue: false,
-			description: 'Enable the use of an overflow (show more/less)',
+			description: 'Disable the overflow (show more/less) button',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -171,7 +183,6 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '#333' },
 			},
 			control: { type: 'color' },
 		},
@@ -224,9 +235,8 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
-				defaultValue: { summary: '' },
 			},
 			options: [...Object.keys(iconPaths)],
 			control: {
@@ -250,7 +260,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'angle-down' },
 			},
@@ -265,7 +275,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'angle-up' },
 			},
@@ -316,7 +326,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'plus' },
 			},
@@ -331,7 +341,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'minus' },
 			},
@@ -402,7 +412,6 @@ export default {
 				type: {
 					summary: 'object',
 				},
-				defaultValue: { summary: '{}' },
 			},
 			control: { type: 'object' },
 		},
@@ -438,7 +447,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: "'list' | 'grid' | 'palette'",
 				},
 			},
 			control: {

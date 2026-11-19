@@ -74,7 +74,7 @@ export default {
 			description: 'Button Icon name',
 			table: {
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | boolean',
 				},
 				category: 'Templates Legal',
 			},

@@ -33,8 +33,8 @@ The `limit` prop will limit the maximum number of facets to display.
 
 
 ### onFacetOptionClick
-The `onFacetOptionClick` prop takes a callback function for when a facet option is clicked.
+The `onFacetOptionClick` prop takes a callback function for when a facet option is clicked. The function is passed the click event.
 
 ```tsx
-<Facets controller={controller} facets={facets} limit={3}/>
+<Facets controller={controller} onFacetOptionClick={(e) => { console.log(e) }}/>
 ```

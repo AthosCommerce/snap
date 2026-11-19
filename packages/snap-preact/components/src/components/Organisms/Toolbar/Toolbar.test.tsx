@@ -5,6 +5,7 @@ import { Toolbar } from './Toolbar';
 import { v4 as uuidv4 } from 'uuid';
 import { SearchStore, SearchStoreConfig } from '@athoscommerce/snap-store-mobx';
 import { SearchController, SearchControllerConfig } from '@athoscommerce/snap-controller';
+import type { SearchTabConfig } from '@athoscommerce/snap-controller';
 import { EventManager } from '@athoscommerce/snap-event-manager';
 import { Profiler } from '@athoscommerce/snap-profiler';
 import { Logger } from '@athoscommerce/snap-logger';
@@ -12,6 +13,7 @@ import { Tracker } from '@athoscommerce/snap-tracker';
 import { MockClient } from '@athoscommerce/snap-shared';
 import { QueryStringTranslator, UrlManager, reactLinker } from '@athoscommerce/snap-url-manager';
 import userEvent from '@testing-library/user-event';
+import { TabManagerStore } from '../../../../../src/Templates/Stores/TabManagerStore';
 
 const globals = { siteId: '8uyt2m' };
 
@@ -177,6 +179,177 @@ describe('Toolbar Component', () => {
 		expect(toggleButtonElement).toHaveTextContent(button.content);
 		await userEvent.click(toggleButtonElement!);
 		expect(func).toHaveBeenCalled();
+	});
+
+	describe('searchInput module', () => {
+		let goStates: UrlManager['state'][];
+		let goSpy: jest.SpyInstance;
+
+		const createController = async (state: Record<string, unknown>) => {
+			const stateUrlManager = urlManager.set(state);
+			const stateController = new SearchController(searchConfig, {
+				client: mockClient,
+				store: new SearchStore(searchConfig, { urlManager: stateUrlManager }),
+				urlManager: stateUrlManager,
+				eventManager: new EventManager(),
+				profiler: new Profiler(),
+				logger: new Logger(),
+				tracker: new Tracker(globals),
+			});
+			await stateController.search();
+			return stateController;
+		};
+
+		beforeEach(() => {
+			goStates = [];
+			// record the state each navigation would load instead of changing the jsdom location shared by every test
+			goSpy = jest.spyOn(UrlManager.prototype, 'go').mockImplementation(function (this: UrlManager) {
+				goStates.push(this.state);
+			});
+		});
+
+		afterEach(() => {
+			goSpy.mockRestore();
+		});
+
+		it('renders a search input holding the current query', async () => {
+			const queryController = await createController({ query: 'dress' });
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input.ss__search-input .ss__search-input__input')!;
+			expect(input).toBeInTheDocument();
+			expect(input.value).toBe('dress');
+		});
+
+		it('searches the submitted query on page one without filters', async () => {
+			const queryController = await createController({
+				query: 'dress',
+				page: 3,
+				filter: { color: ['red'] },
+				sort: { field: 'price', direction: 'asc' },
+			});
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, ' shoes {Enter}');
+
+			expect(goStates).toEqual([{ query: 'shoes', sort: { field: 'price', direction: 'asc' } }]);
+		});
+
+		it('searches the submitted query from the submit button', async () => {
+			const queryController = await createController({ query: 'dress', page: 2 });
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+			const submitButton = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__button--submit-search-button')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, 'shoes');
+			await userEvent.click(submitButton);
+
+			expect(goStates).toEqual([{ query: 'shoes' }]);
+		});
+
+		it('does not search a blank query', async () => {
+			const queryController = await createController({ query: 'dress' });
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, '   {Enter}');
+
+			expect(goSpy).not.toHaveBeenCalled();
+		});
+
+		it('can replace the submit behavior with a themed onSubmit', async () => {
+			const onSubmit = jest.fn();
+			const queryController = await createController({ query: 'dress' });
+			const theme = {
+				components: {
+					searchInput: {
+						onSubmit,
+					},
+				},
+			};
+			const rendered = render(<Toolbar controller={queryController} layout={['searchInput']} theme={theme} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.type(input, 'es{Enter}');
+
+			expect(onSubmit).toHaveBeenCalledTimes(1);
+			expect(onSubmit.mock.calls[0][1]).toBe('dresses');
+			expect(goSpy).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('searchInput module with tabs', () => {
+		const tabs: SearchTabConfig[] = [
+			{ id: 'products', siteId: '8uyt2m', param: 'prod' },
+			{ id: 'blog', siteId: '8uyt2m', param: 'blog' },
+			{ id: 'pages', siteId: '8uyt2m', param: 'pages', prefetch: false },
+		];
+
+		// every tab has its own url manager on the shared page url, as SnapTemplates sets them up
+		const setupTabs = () => {
+			const controllers = tabs.map((tab) => {
+				const tabConfig = { ...searchConfigDefault, id: tab.id };
+				const tabUrlManager = new UrlManager(new QueryStringTranslator(), reactLinker);
+
+				return new SearchController(tabConfig, {
+					client: mockClient,
+					store: new SearchStore(tabConfig, { urlManager: tabUrlManager }),
+					urlManager: tabUrlManager,
+					eventManager: new EventManager(),
+					profiler: new Profiler(),
+					logger: new Logger(),
+					tracker: new Tracker(globals),
+				});
+			});
+			const searchSpies = controllers.map((tabController) => jest.spyOn(tabController, 'search').mockResolvedValue(undefined));
+			const tabManager = new TabManagerStore(tabs, controllers);
+			searchSpies.forEach((spy) => spy.mockClear());
+
+			return { controllers, searchSpies, tabManager };
+		};
+
+		const submitQuery = async (activeController: SearchController, tabManager: TabManagerStore, query: string) => {
+			const rendered = render(<Toolbar controller={activeController} tabManager={tabManager} layout={['searchInput']} />);
+			const input: HTMLInputElement = rendered.container.querySelector('.ss__layout__search-input .ss__search-input__input')!;
+
+			await userEvent.clear(input);
+			await userEvent.type(input, `${query}{Enter}`);
+		};
+
+		beforeEach(() => {
+			window.history.replaceState(null, '', '/?q=dress');
+		});
+
+		afterEach(() => {
+			window.history.replaceState(null, '', '/');
+		});
+
+		it('searches the other tabs with the submitted query', async () => {
+			const { controllers, searchSpies, tabManager } = setupTabs();
+
+			await submitQuery(controllers[0], tabManager, 'shoes');
+
+			expect(controllers[1].urlManager.state.query).toBe('shoes');
+			expect(searchSpies[1]).toHaveBeenCalledTimes(1);
+
+			// the active tab searches from its own url change, and a deferred tab that has not loaded waits until it is selected
+			expect(searchSpies[0]).not.toHaveBeenCalled();
+			expect(searchSpies[2]).not.toHaveBeenCalled();
+		});
+
+		it('searches a deferred tab that has already loaded', async () => {
+			const { controllers, searchSpies, tabManager } = setupTabs();
+			controllers[2].store.loaded = true;
+
+			await submitQuery(controllers[0], tabManager, 'shoes');
+
+			expect(controllers[2].urlManager.state.query).toBe('shoes');
+			expect(searchSpies[2]).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	it('renders with classname', () => {

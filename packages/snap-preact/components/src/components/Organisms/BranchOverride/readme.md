@@ -2,7 +2,7 @@
 
 Renders a popup to show when a branch override is in place.
 Executes `onRemoveClick` prop when the remove button is clicked.
-Must have `name` and either `details` or `error` props to render.
+Must have `branch` and either `details` or `error` props to render.
 
 ## Components Used
 - Icon
@@ -12,11 +12,11 @@ Must have `name` and either `details` or `error` props to render.
 import { BranchOverride } from '@athoscommerce/snap-preact/components';
 ```
 
-### name
-The required `name` prop expects a string containing the name of the override branch.
+### branch
+The required `branch` prop expects a string containing the name of the override branch.
 
 ```tsx
-<BranchOverride name="testing" />
+<BranchOverride branch="testing" />
 ```
 
 ### details
@@ -28,7 +28,7 @@ const details = {
 	lastModified: '1 Feb 2022 1:02:03 GMT'
 };
 
-<BranchOverride name="testing" details={details} />
+<BranchOverride branch="testing" details={details} />
 ```
 
 ### error
@@ -40,18 +40,18 @@ const error = {
 	description: 'Incorrect branch name or branch no longer exists.'
 };
 
-<BranchOverride name="next" error={error} />
+<BranchOverride branch="next" error={error} />
 ```
 
 ### onRemoveClick
 The `onRemoveClick` prop is a function to be called when the 'remove' button is clicked
 
 ```tsx
-const whenRemoved = (e, name) => {
-	console.log(`remove clicked in the override for the '${name}' branch`);
+const whenRemoved = (e, branch) => {
+	console.log(`remove clicked in the override for the '${branch}' branch`);
 };
 
-<BranchOverride name="testing" onRemoveClick={whenRemoved} />
+<BranchOverride branch="testing" onRemoveClick={whenRemoved} />
 ```
 
 ### darkMode
@@ -63,5 +63,5 @@ const details = {
 	lastModified: '1 Feb 2022 1:02:03 GMT'
 };
 
-<BranchOverride next="testing" details={details} darkMode={false} />
+<BranchOverride branch="testing" details={details} darkMode={false} />
 ```

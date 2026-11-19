@@ -12,7 +12,7 @@ import { RecommendationBundle } from '@athoscommerce/snap-preact/components';
 ```
 
 Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/react#swiper-props">Swiper Component Props</a> can be specified, but may need to be camelCased where appropriate.
-Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via the `modules` prop; these may need additional props and or stylesheets.
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> can be provided via `carousel.modules`; these may need additional props and or stylesheets.
 
 ### controller
 The required `controller` prop specifies a reference to the RecommendationController
@@ -22,7 +22,7 @@ The required `controller` prop specifies a reference to the RecommendationContro
 ```
 
 ### onAddToCart 
-the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed an array of selected item ids and their quantities. 
+the `onAddToCart` prop sets a the callback function for when a add to cart button is clicked. This function will be passed the click event and an array of the selected products. 
 
 ```tsx
 <RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} />
@@ -40,9 +40,18 @@ The `carousel` prop specifies an object of carousel settings. These settings wil
 
 ```tsx
 type BundleCarouselProps = {
-	enabled: boolean;
+	controller?: RecommendationController;
+	enabled?: boolean;
 	seedInCarousel?: boolean;
-} & CarouselProps
+	slidesPerView?: number;
+} & Partial<Omit<CarouselProps, 'slidesPerView'>>
+
+// defaults
+const defaultCarouselProps = {
+	enabled: true,
+	loop: false,
+	spaceBetween: 10,
+}
 
 const customCarouselProps = {
 	enabled: true,
@@ -239,16 +248,23 @@ The `limit` prop limits the number of products rendered.
 <RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} vertical={true} limit={5} />
 ```
 
-### modules
-The `modules` prop accepts additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> - these may need additional props and or stylesheets to function. We include `Navigation` and `Pagination` modules by default.
+### carousel.modules
+Additional <a target="_blank" rel="noopener noreferrer" href="https://swiperjs.com/swiper-api#modules">Swiper Modules</a> are passed through the `carousel` prop as `modules` - these may need additional props and or stylesheets to function. The `Navigation`, `Pagination`, `Scrollbar` and `A11y` modules are included by default.
 
 ```tsx
-import { Scrollbar } from 'swiper';
-<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} modules={[Scrollbar]} scrollbar={{ draggable: true }} />
+import { Scrollbar } from 'swiper/modules';
+<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} carousel={{ modules: [Scrollbar], scrollbar: { draggable: true } }} />
+```
+
+### slidesPerView
+The `slidesPerView` prop specifies the number of products to display per page when the carousel is enabled (defaults to `2`). `carousel.slidesPerView` takes precedence, and values from `breakpoints` override it when breakpoints are in use.
+
+```tsx
+<RecommendationBundle controller={controller} onAddToCart={(e, items)=>{console.log(items)}} slidesPerView={3} />
 ```
 
 ### lazyRender 
-The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enable` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
+The `lazyRender` prop specifies an object of lazy rendering settings. The settings include an `enabled` toggle (defaults to `true`) as well as an `offset` (default `"10%"`) to specify at what distance the component should start rendering relative to the bottom of the viewport.
 
 ```tsx
 const customLazyRenderProps = {
@@ -275,17 +291,12 @@ The default configuration contains the following properties, however **`any Bund
 ```js
 const defaultRecommendationBreakpoints = {
 	0: {
-		carousel: {
-			enabled: false,
-		},
-		limit: 2
+		slidesPerView: 2,
+		slidesPerGroup: 2,
+		spaceBetween: 10,
+		ctaInline: false,
 	},
 	768: {
-		slidesPerView: 3,
-		slidesPerGroup: 3,
-		spaceBetween: 10,
-	},
-	1024: {
 		slidesPerView: 3,
 		slidesPerGroup: 3,
 		spaceBetween: 10,

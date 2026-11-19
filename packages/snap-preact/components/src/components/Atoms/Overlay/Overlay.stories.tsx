@@ -27,7 +27,6 @@ export default {
 					summary: 'boolean',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: false },
 			},
 			control: {
 				type: 'boolean',
@@ -66,6 +65,17 @@ export default {
 				category: 'Templates Legal',
 			},
 			control: false,
+		},
+		disableA11y: {
+			description: 'boolean to disable autoset ally properties',
+			table: {
+				type: {
+					summary: 'boolean',
+				},
+				category: 'Templates Legal',
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
 		},
 		...componentArgs,
 	},

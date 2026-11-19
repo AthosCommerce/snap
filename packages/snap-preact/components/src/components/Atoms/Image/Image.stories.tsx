@@ -19,6 +19,9 @@ const searchResponse = {
 
 import Readme from '../Image/readme.md';
 
+// builds a width descriptor srcset from the story's Shopify CDN urls (sites use the srcset helper from their platform package)
+const storySrcset = (src: string) => [320, 640, 960, 1280, 1920].map((width) => `${src.replace(/width=\d+/, `width=${width}`)} ${width}w`).join(', ');
+
 export default {
 	title: 'Atoms/Image',
 	component: Image,
@@ -74,6 +77,16 @@ export default {
 			},
 			control: { type: 'text' },
 		},
+		title: {
+			description: 'Image title attribute',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
 		height: {
 			description: 'Image height',
 			table: {
@@ -92,7 +105,7 @@ export default {
 					summary: 'string',
 				},
 				category: 'Templates Legal',
-				defaultValue: { summary: 'string' },
+				defaultValue: { summary: FALLBACK_IMAGE_URL },
 			},
 			control: { type: 'text' },
 		},
@@ -110,6 +123,26 @@ export default {
 		},
 		hoverSrc: {
 			description: 'Image onHover url',
+			table: {
+				type: {
+					summary: 'string',
+				},
+				category: 'Templates Legal',
+			},
+			control: { type: 'text' },
+		},
+		srcset: {
+			description: 'Image srcset attribute, or a function that builds it from the image url (src, or hoverSrc while hovering)',
+			table: {
+				type: {
+					summary: 'string | function',
+				},
+				category: 'Templates Legal',
+			},
+			control: false,
+		},
+		sizes: {
+			description: 'Image sizes attribute',
 			table: {
 				type: {
 					summary: 'string',
@@ -255,6 +288,31 @@ export const onhover = {
 
 	args: {
 		src: searchResponse.product1.image,
+		alt: searchResponse.product1.name,
+		hoverSrc: searchResponse.product2.image,
+	},
+};
+
+export const Srcset = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: searchResponse.product1.image,
+		srcset: storySrcset,
+		sizes: 'auto, (max-width: 600px) 100vw, 300px',
+		alt: searchResponse.product1.name,
+		hoverSrc: searchResponse.product2.image,
+	},
+};
+
+// the only candidate fails to load, so the srcset is removed and the browser retries with the src (it is not set again after hovering)
+export const SrcsetRetry = {
+	render: (args: ImageProps) => <Image {...args} style={{ width: '100%' }} />,
+
+	args: {
+		src: searchResponse.product1.image,
+		srcset: 'intentionally_broken_candidate.jpg 320w',
+		sizes: '300px',
 		alt: searchResponse.product1.name,
 		hoverSrc: searchResponse.product2.image,
 	},

@@ -48,7 +48,7 @@ export default {
 				type: {
 					summary: 'string | JSX Element',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.title' },
 			},
 			control: { type: 'text' },
 		},
@@ -69,9 +69,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string | JSX Element',
+					summary: 'string',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.description' },
 			},
 			control: { type: 'text' },
 		},
@@ -112,7 +112,7 @@ export default {
 				type: {
 					summary: 'SwiperModule[]',
 				},
-				defaultValue: { summary: '[Navigation, Pagination]' },
+				defaultValue: { summary: '[Navigation, Pagination, Scrollbar, A11y]' },
 			},
 			control: false,
 		},
@@ -131,6 +131,18 @@ export default {
 		scrollbar: {
 			defaultValue: false,
 			description: 'Display scrollbar',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		vertical: {
+			defaultValue: false,
+			description: 'Carousel vertical slide direction',
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -181,15 +193,15 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ enabled: boolean, offset?: string }',
 				},
-				defaultValue: { summary: 'Lazy render settings object' },
+				defaultValue: { summary: "{ enabled: true, offset: '10%' }" },
 			},
 			control: { type: 'object' },
 		},
 		breakpoints: {
 			defaultValue: undefined,
-			description: 'Recommendation title',
+			description: 'Responsive props keyed by viewport width',
 			table: {
 				type: {
 					summary: 'object',
@@ -197,6 +209,25 @@ export default {
 				defaultValue: { summary: 'Breakpoint object' },
 			},
 			control: false,
+		},
+		slidesPerView: {
+			description: 'Number of results to display per page; overridden by breakpoints values when breakpoints are in use',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: "number | 'auto'",
+				},
+			},
+			control: { type: 'number' },
+		},
+		lang: {
+			description: 'Custom language keys (`titleText`)',
+			table: {
+				type: {
+					summary: 'Partial<RecommendationLang>',
+				},
+			},
+			control: { type: 'object' },
 		},
 		...componentArgs,
 	},

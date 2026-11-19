@@ -14,6 +14,7 @@ import { pluginMutateResults as shopifyPluginMutateResults } from './library/plu
 import { pluginAddToCart as shopifyPluginAddToCart } from './library/plugins/shopify/pluginAddToCart';
 import { pluginMarkets as shopifyPluginMarkets } from './library/plugins/shopify/pluginMarkets';
 import { pluginCurrency as shopifyPluginCurrency } from './library/plugins/shopify/pluginCurrency';
+import { pluginSwymWishlist } from './library/plugins/common/pluginSwymWishlist';
 import { pluginAddToCart as bigCommercePluginAddToCart } from './library/plugins/bigCommerce/pluginAddToCart';
 import { pluginAddToCart as magento2PluginAddToCart } from './library/plugins/magento2/pluginAddToCart';
 import { pluginAddToCart as commonPluginAddToCart } from './library/plugins/common/pluginAddToCart';
@@ -68,6 +69,7 @@ export type LibraryImports = {
 			logger: typeof pluginLogger;
 			addToCart: typeof commonPluginAddToCart;
 			klaviyoEvents: typeof pluginKlaviyoEvents;
+			swymWishlist: typeof pluginSwymWishlist;
 		};
 		custom?: {
 			[name: string]: PluginFunction;
@@ -413,6 +415,7 @@ export class LibraryStore {
 				logger: pluginLogger,
 				addToCart: commonPluginAddToCart,
 				klaviyoEvents: pluginKlaviyoEvents,
+				swymWishlist: pluginSwymWishlist,
 			},
 		},
 		component: {

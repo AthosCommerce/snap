@@ -21,7 +21,7 @@ export default {
 	argTypes: {
 		buttonContent: {
 			description: 'Slideout button content (children), appended to buttonText',
-			type: { required: true },
+			type: { required: false },
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -47,7 +47,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: '"top" | "right" | "bottom" | "left"',
 				},
 				defaultValue: { summary: 'left' },
 			},
@@ -119,7 +119,7 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
+				defaultValue: { summary: true },
 			},
 			control: { type: 'boolean' },
 		},
@@ -128,7 +128,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string, jsx',
+					summary: 'string, Element',
 				},
 			},
 			control: { type: 'text' },

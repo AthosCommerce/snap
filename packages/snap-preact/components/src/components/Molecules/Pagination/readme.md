@@ -11,10 +11,17 @@ import { Pagination } from '@athoscommerce/snap-preact/components';
 ```
 
 ### pagination
-The required `pagination` prop specifies a reference to the pagination store object.
+The `pagination` prop specifies a reference to the pagination store object. Either `pagination` or `controller` must be provided.
 
 ```tsx
 <Pagination pagination={controller.store.pagination} />
+```
+
+### controller
+The `controller` prop specifies a reference to the Search Controller. When `pagination` is not provided, `controller.store.pagination` is used.
+
+```tsx
+<Pagination controller={controller} />
 ```
 
 ### pages
@@ -28,14 +35,14 @@ The `pages` prop specifies the number of pages to retrieve. This value is passed
 The `pagesLeft` prop specifies the number of pages to retrieve before the current page. This value is passed to the `store.pagination.getPages()` method along with `pagesRight`. Must be used with `pagesRight` prop.
 
 ```tsx
-<Pagination pagination={controller.store.pagination} pagesLeft={2} />
+<Pagination pagination={controller.store.pagination} pagesLeft={2} pagesRight={2} />
 ```
 
 ### pagesRight
-The `pagesLeft` prop specifies the number of pages to retrieve after the current page. This value is passed to the `store.pagination.getPages()` method along with `pagesLeft`. Must be used with `pagesLeft` prop.
+The `pagesRight` prop specifies the number of pages to retrieve after the current page. This value is passed to the `store.pagination.getPages()` method along with `pagesLeft`. Must be used with `pagesLeft` prop.
 
 ```tsx
-<Pagination pagination={controller.store.pagination} pagesRight={2} />
+<Pagination pagination={controller.store.pagination} pagesLeft={2} pagesRight={2} />
 ```
 
 ### hideFirst

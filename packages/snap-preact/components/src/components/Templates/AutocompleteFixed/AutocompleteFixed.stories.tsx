@@ -69,14 +69,14 @@ export default {
 			control: false,
 		},
 		overlayColor: {
-			defaultValue: 'rgba(0,0,0,0.0)',
+			defaultValue: '',
 			description: 'Autocomplete overlay color',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'rgba(0,0,0,0.0)' },
+				defaultValue: { summary: "''" },
 			},
 			control: { type: 'color' },
 		},
@@ -85,7 +85,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string, jsx',
+					summary: 'string | Element',
 				},
 			},
 			control: { type: 'text' },
@@ -120,7 +120,7 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
+						"{width: string, layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header'], alignContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between'}",
 				},
 				defaultValue: {
 					summary: `{
@@ -137,7 +137,7 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
+						"{width: string, layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header'], alignContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between'}",
 				},
 				defaultValue: {
 					summary: `{
@@ -154,12 +154,13 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
+						"{width: string, layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header'], alignContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between'}",
 				},
 				defaultValue: {
 					summary: `{
 					layout: [['tabSelection'], ['content'], ['_', 'button.see-more']],
-					width: 'auto'
+					width: 'auto',
+					alignContent: 'space-between'
 				}`,
 				},
 			},
@@ -171,7 +172,7 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary:
-						"{width: '150px', layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header']}",
+						"{width: string, layout: ['termsList' | 'terms.history' | 'terms.trending' | 'terms.suggestions' | 'facets' | 'facetsHorizontal' | 'button.see-more' | 'content' | 'no-results' | 'tabSelection' | 'searchInput' | '_' | 'banner.left' | 'banner.banner' | 'banner.footer' | 'banner.header'], alignContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between'}",
 				},
 			},
 			control: 'none',
@@ -180,19 +181,17 @@ export default {
 			description: 'specifies the offset of the autocomplete',
 			table: {
 				category: 'Templates Legal',
-				type: { summary: 'object' },
+				type: { summary: '{ top?: number, left?: number, width?: number }' },
 			},
 			control: { type: 'object' },
 		},
 		width: {
-			defaultValue: '500px',
 			description: 'Change width of the component',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: '500px' },
 			},
 			control: { type: 'text' },
 		},
@@ -250,6 +249,28 @@ export default {
 				category: 'Templates Legal',
 				type: {
 					summary: 'JSX.Element',
+				},
+			},
+			control: { type: 'object' },
+		},
+		templates: {
+			description: 'Recommendations to render when a search has no results (Snap Templates only)',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary:
+						"{ recommendation?: { enabled: boolean, component?: 'Recommendation' | 'RecommendationGrid', resultComponent?: string, config?: Partial<RecommendationControllerConfig> } }",
+				},
+				defaultValue: { summary: '{ recommendation: { enabled: true } }' },
+			},
+			control: { type: 'object' },
+		},
+		lang: {
+			description:
+				'Custom language keys forwarded to `AutocompleteLayout` (`facetsTitle`, `contentTitle`, `closeButton`, `noResultsText`, `seeMoreButton`)',
+			table: {
+				type: {
+					summary: 'Partial<AutocompleteLayoutLang>',
 				},
 			},
 			control: { type: 'object' },

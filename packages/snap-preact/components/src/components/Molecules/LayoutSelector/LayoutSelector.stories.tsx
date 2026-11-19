@@ -22,7 +22,7 @@ export default {
 	argTypes: {
 		options: {
 			description: 'layoutOptions to render',
-			type: { required: true },
+			type: { required: false },
 			table: {
 				type: {
 					summary: 'layoutOptions to render',
@@ -32,7 +32,7 @@ export default {
 		},
 		onSelect: {
 			description: 'onSelect event handler',
-			type: { required: true },
+			type: { required: false },
 			table: {
 				category: 'Templates Legal',
 				type: {
@@ -60,8 +60,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string, JSX',
+					summary: 'string',
 				},
+				defaultValue: { summary: 'Layout' },
 			},
 			control: { type: 'text' },
 		},
@@ -95,6 +96,7 @@ export default {
 				type: {
 					summary: 'Option object',
 				},
+				defaultValue: { summary: 'options[0]' },
 			},
 			control: false,
 		},

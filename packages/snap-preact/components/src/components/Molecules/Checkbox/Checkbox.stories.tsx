@@ -27,7 +27,6 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -48,7 +47,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'string | number',
 				},
 				defaultValue: { summary: '12px' },
 			},
@@ -60,7 +59,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps>',
 				},
 				defaultValue: { summary: 'check-thin' },
 			},

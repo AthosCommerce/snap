@@ -4,6 +4,8 @@ Renders a grid of facet palette options.
 
 ## Sub-components
 - Icon
+- Checkbox
+- Image
 
 ## Usage
 ```tsx
@@ -60,23 +62,23 @@ The `hideIcon` prop will disable the facet icon from being rendered.
 ```
 
 ### hideCount
-The `hideCount` prop will disable the facet option counts from being rendered.
+The `hideCount` prop will disable the facet option counts from being rendered. Defaults to `true`.
 
 ```tsx
-<FacetPaletteOptions values={paletteFacet.values} hideCount={true} />
+<FacetPaletteOptions values={paletteFacet.values} hideCount={false} />
 ```
 
 ### hideCheckbox
-The `hideCheckbox` prop will disable the facet option checkboxes from being rendered.
+The `hideCheckbox` prop will disable the facet option checkboxes from being rendered. Defaults to `true`.
 
 ```tsx
-<FacetPaletteOptions values={paletteFacet.values} hideCheckbox={true} />
+<FacetPaletteOptions values={paletteFacet.values} hideCheckbox={false} />
 ```
 
 ### layout
 The `layout` prop determines if the options should render as a `list` or `grid`. By default `grid` will be used.
 ```tsx
-<FacetPaletteOptions values={paletteFacet.values} hideCheckbox={true} />
+<FacetPaletteOptions values={paletteFacet.values} layout={'list'} />
 ```
 
 ### horizontal
@@ -117,9 +119,6 @@ const valueProps = {
 ```tsx
 <FacetPaletteOptions values={paletteFacet.values} valueProps={valueProps} />
 ```
-
-### icon
-The `icon` prop specifiesan object with `Icon` component props. 
 
 ### Events
 

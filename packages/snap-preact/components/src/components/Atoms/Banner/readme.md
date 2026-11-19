@@ -10,7 +10,7 @@ import { Banner } from '@athoscommerce/snap-preact/components';
 ```
 
 ### content
-The required `content` prop specifies an object of banners returned from the athos API.
+The `content` prop specifies an object of banners returned from the athos API. If not provided, the `controller` prop's `store.merchandising.content` is used.
 
 ```tsx
 <Banner content={controller?.store?.merchandising?.content} type={'header'} />
@@ -35,4 +35,11 @@ Banner Types include `header`, `footer`, `left`, and `banner`.
 
 ```tsx
 <Banner content={controller?.store?.merchandising?.content} type={'banner'} />
+```
+
+### controller
+The `controller` prop specifies a reference to the search or autocomplete controller. Its `store.merchandising.content` is used when the `content` prop is not provided.
+
+```tsx
+<Banner controller={controller} type={'header'} />
 ```

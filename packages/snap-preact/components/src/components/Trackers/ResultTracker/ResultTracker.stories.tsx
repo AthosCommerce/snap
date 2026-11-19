@@ -41,10 +41,20 @@ export default {
 			type: { required: true },
 			table: {
 				type: {
-					summary: 'result store Product object',
+					summary: 'result store Product or Banner object',
 				},
 			},
 			control: false,
+		},
+		track: {
+			description: 'Enable or disable impression and click tracking',
+			table: {
+				type: {
+					summary: '{ impression?: boolean, click?: boolean }',
+				},
+				defaultValue: { summary: '{ impression: true, click: true }' },
+			},
+			control: { type: 'object' },
 		},
 
 		...componentArgs,

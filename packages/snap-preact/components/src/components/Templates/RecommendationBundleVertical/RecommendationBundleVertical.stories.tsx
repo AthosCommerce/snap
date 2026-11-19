@@ -72,7 +72,18 @@ export default {
 				type: {
 					summary: 'string | JSX Element',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.title' },
+			},
+			control: { type: 'text' },
+		},
+		description: {
+			description: 'recommendation bundle description',
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'string | JSX Element',
+				},
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.description' },
 			},
 			control: { type: 'text' },
 		},
@@ -81,7 +92,7 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'function',
+					summary: '(e: MouseEvent, items: Product[]) => void | Promise<void>',
 				},
 			},
 		},
@@ -124,7 +135,7 @@ export default {
 				type: {
 					summary: 'string',
 				},
-				defaultValue: { summary: 'Seed Product' },
+				defaultValue: { summary: 'This Product' },
 			},
 			control: { type: 'text' },
 		},
@@ -135,7 +146,19 @@ export default {
 				type: {
 					summary: 'boolean',
 				},
-				defaultValue: { summary: true },
+				defaultValue: { summary: false },
+			},
+			control: { type: 'boolean' },
+		},
+		hideSeedText: {
+			description: 'Hide seed product badge text',
+			defaultValue: false,
+			table: {
+				category: 'Templates Legal',
+				type: {
+					summary: 'boolean',
+				},
+				defaultValue: { summary: false },
 			},
 			control: { type: 'boolean' },
 		},
@@ -151,14 +174,13 @@ export default {
 			control: { type: 'boolean' },
 		},
 		separatorIcon: {
-			defaultValue: 'plus',
 			description: 'Icon to render between results',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
-				defaultValue: { summary: 'plus' },
+				defaultValue: { summary: false },
 			},
 			control: {
 				type: 'select',
@@ -177,11 +199,11 @@ export default {
 			control: { type: 'text' },
 		},
 		ctaIcon: {
-			desciption: 'The `ctaIcon` prop specifies the icon to render in the CTA. Takes an object with `Icon` component props or a string.',
+			description: 'The `ctaIcon` prop specifies the icon to render in the CTA. Takes an object with `Icon` component props or a string.',
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string',
+					summary: 'IconType | Partial<IconProps> | false',
 				},
 				defaultValue: { summary: 'bag' },
 			},
@@ -209,6 +231,7 @@ export default {
 				type: {
 					summary: 'number',
 				},
+				defaultValue: { summary: 2000 },
 			},
 			control: { type: 'number' },
 		},
@@ -230,21 +253,30 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ enabled: boolean, offset?: string }',
 				},
-				defaultValue: { summary: 'Lazy render settings object' },
+				defaultValue: { summary: "{ enabled: true, offset: '10%' }" },
 			},
 			control: { type: 'object' },
 		},
 		breakpoints: {
 			defaultValue: undefined,
-			description: 'Recommendation title',
+			description: 'Responsive props keyed by viewport width',
 			table: {
 				category: 'Templates Legal',
 				type: {
 					summary: 'object',
 				},
 				defaultValue: { summary: 'Breakpoint object' },
+			},
+			control: { type: 'object' },
+		},
+		lang: {
+			description: 'Custom language keys (`seedText`, `ctaButtonText`, `ctaButtonSuccessText`, `ctaSubtotalTitle`)',
+			table: {
+				type: {
+					summary: 'Partial<RecommendationBundleLang>',
+				},
 			},
 			control: { type: 'object' },
 		},

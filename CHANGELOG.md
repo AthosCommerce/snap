@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.17.0](https://github.com/AthosCommerce/snap/compare/v1.16.0...v1.17.0) (2026-11-12)
+
+### Bug Fixes
+
+- adding optional chain to resolve bug when no history terms are available ([882d94c](https://github.com/AthosCommerce/snap/commit/882d94c25f8c311e6ef340c6ded02e6fa102d040))
+- **beacon:** opt requests out of API tracking when controller beacon is disabled ([96114f3](https://github.com/AthosCommerce/snap/commit/96114f333983a7da66f214814c1c901d07ad133b))
+- **beacon:** opt search requests out of API tracking with beacon=false ([a31a8b7](https://github.com/AthosCommerce/snap/commit/a31a8b768a5d53cac1106495786736351a055832))
+- **beacon:** send beacon false to the recommend API and keep opt-outs from being overridden ([5147874](https://github.com/AthosCommerce/snap/commit/51478746bb53cfd7a2fda8808093e198e873398a)), closes [searchspring/snap#1492](https://github.com/searchspring/snap/issues/1492)
+- **bigcommerce:** adding new getVariantId function for bigCommerce plugins to use to get actual variantId for 3rd party scripts and addtocart ([0dcf660](https://github.com/AthosCommerce/snap/commit/0dcf66076f3b21375bec2c8b29cb0fe54719ae1f))
+- fall back to memory when stored session data is unreadable or sessionStorage is missing ([36edf25](https://github.com/AthosCommerce/snap/commit/36edf25e0bc5180796297b578a7e92f376667f19))
+- **gallery:** render a registered customComponent ([5ff7d86](https://github.com/AthosCommerce/snap/commit/5ff7d868f0a3334689e39cbe0d64f9b399e9073b))
+- **image:** keep srcset failure in state, skip cropped shopify urls and scope docs examples ([886be9a](https://github.com/AthosCommerce/snap/commit/886be9acde3a6b0c0610fb737b1bc90b5fb1147c))
+- **image:** set loading before src and reset srcset failure when src changes from empty ([e477aa6](https://github.com/AthosCommerce/snap/commit/e477aa63511f0fdbfb0e30a3155edcc36cce3ac2))
+- keep snap running when sessionStorage is blocked ([4f57b43](https://github.com/AthosCommerce/snap/commit/4f57b43e86d23f3b9ba99c3ce859c897913adc33))
+- **layout-options:** match toolbar keys under tabs and breakpoint prefixes ([f7d455d](https://github.com/AthosCommerce/snap/commit/f7d455d3f1a1e8c068feca155334f2e8d7bafa08))
+- magento2 shopper id from athoscommerce-tracking ([a92dcc6](https://github.com/AthosCommerce/snap/commit/a92dcc6c57169c082013287f38c25e28e4c786ed))
+- pike review fixes for facets horizontal, sidebar and autocomplete ([fb6954b](https://github.com/AthosCommerce/snap/commit/fb6954b96f1037087a49726bd7bfd857f3bb2b86))
+- **pike:** horizontal list label overflow and overlay result button contrast ([9c8ef30](https://github.com/AthosCommerce/snap/commit/9c8ef30bf969426bc3de7effbbdcfbaa0a4c6984))
+- **preact/components:** accept components with required props in provider hocs ([0e6b512](https://github.com/AthosCommerce/snap/commit/0e6b5126fe9e63e73559c629ac9be2301bceee7b))
+- **searchinput:** keep hook order when value toggles and skip IME composing Enter ([b053e57](https://github.com/AthosCommerce/snap/commit/b053e57d0d6bba0cf3c0ea1f2ed65b81e95ea12e))
+- **searchresultstore:** keep every variant group's value order ([6b71cd7](https://github.com/AthosCommerce/snap/commit/6b71cd7f2b48e96518cd150d3659199d2fa7c194))
+- **searchresultstore:** link variant groups in through later groups and use JSON group keys ([c54acc7](https://github.com/AthosCommerce/snap/commit/c54acc7fc5c96f8a3469bf1d447a6a51c0c6d3b3))
+- **searchresultstore:** sort variant selection values into a consistent order ([76be9e5](https://github.com/AthosCommerce/snap/commit/76be9e57475c7756cb9de0fc6bc9d29790e1a43d)), closes [searchspring/snap#1473](https://github.com/searchspring/snap/issues/1473)
+- **templates:** make recommendation settings branch optional ([f13711d](https://github.com/AthosCommerce/snap/commit/f13711d1db60786cd42aaa98215942ff67a3048d))
+- **templates:** skip custom plugins in locked configs ([9fccd8b](https://github.com/AthosCommerce/snap/commit/9fccd8b7624e5fa1c28a57e597e4a2e4c13b1823))
+- **themestore:** flatten $children in currency overrides ([c7c2b9d](https://github.com/AthosCommerce/snap/commit/c7c2b9d5a4831acf38f4d2fa83c0638d8882e30a))
+- **toolbar:** search every tab when the searchInput module submits ([05d9645](https://github.com/AthosCommerce/snap/commit/05d964535c0b825a5190455a381b07f3795e3cd5))
+- type quickview theme override selectors like autocomplete ([a231275](https://github.com/AthosCommerce/snap/commit/a231275bb62fd51e723464a7d1cd2052d42311d1))
+- **validate-config:** check calloutBadge and productDetail override props ([1cc8d16](https://github.com/AthosCommerce/snap/commit/1cc8d1656e941de344daadb7f9cb26d1c76961df))
+- **validate-config:** check keys inside layoutOptions ([7c09662](https://github.com/AthosCommerce/snap/commit/7c09662b90b93cbf5cc78463669e3a659ea16f7e))
+
+### Features
+
+- **image:** add srcset and sizes props ([3809fb6](https://github.com/AthosCommerce/snap/commit/3809fb6df387196f0082e88fbc100b4ae9642a64)), closes [#447](https://github.com/AthosCommerce/snap/issues/447)
+- **swym-wishlists-plugin:** first pass on swym wishlists plugins for each platform ([b92d898](https://github.com/AthosCommerce/snap/commit/b92d8984d310ffc3b8f72e02253671bbd5af7d9e))
+- **toolbar:** adding searchInput to toolbar layouts ([c1fd3bc](https://github.com/AthosCommerce/snap/commit/c1fd3bc66be98565572cda2f998c55247393e990))
+
 # [1.16.0](https://github.com/AthosCommerce/snap/compare/v1.15.0...v1.16.0) (2026-10-30)
 
 ### Bug Fixes

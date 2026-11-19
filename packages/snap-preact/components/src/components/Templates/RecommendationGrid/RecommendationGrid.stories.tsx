@@ -34,9 +34,9 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'string | JSX Element',
+					summary: 'string',
 				},
-				defaultValue: { summary: '' },
+				defaultValue: { summary: 'controller.store.profile.display.templateParameters.title' },
 			},
 			control: { type: 'text' },
 		},
@@ -47,6 +47,7 @@ export default {
 				type: {
 					summary: 'Results store object',
 				},
+				defaultValue: { summary: 'controller.store.results' },
 			},
 			control: false,
 		},
@@ -109,14 +110,13 @@ export default {
 			table: {
 				category: 'Templates Legal',
 				type: {
-					summary: 'object',
+					summary: '{ enabled: boolean, offset?: string }',
 				},
-				defaultValue: { summary: 'Lazy render settings object' },
+				defaultValue: { summary: "{ enabled: true, offset: '10%' }" },
 			},
 			control: { type: 'object' },
 		},
 		breakpoints: {
-			defaultValue: { summary: 'Breakpoint object' },
 			description: 'Breakpoints options object',
 			table: {
 				type: {
