@@ -19,7 +19,7 @@ const quantityPickerStyleScript = ({}: QuantityPickerProps) => {
 				height: '32px',
 				padding: '0 5px',
 				border: `1px solid ${custom.colors.controlBorder}`,
-				borderRadius: '3px',
+				borderRadius: '16px',
 				backgroundColor: custom.colors.white,
 				color: 'inherit',
 				// the number input's spin buttons reserve width and push the centered value left

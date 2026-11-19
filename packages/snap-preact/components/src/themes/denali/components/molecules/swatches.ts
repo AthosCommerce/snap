@@ -14,7 +14,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 	const sharedStyles = css({
 		'.ss__swatches__slideshow__swatch': {
 			border: `1px solid ${custom.colors.controlBorder}`,
-			borderRadius: '3px',
+			borderRadius: '50%',
 			overflow: 'hidden',
 			'&.ss__swatches__slideshow__swatch--selected': {
 				border: `2px solid ${variables?.colors?.secondary}`,
@@ -79,6 +79,7 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 					flex: '0 0 auto',
 					width: `${defaultSwatchesSize}px`,
 					margin: 0,
+					borderRadius: '50%',
 				},
 			},
 		},

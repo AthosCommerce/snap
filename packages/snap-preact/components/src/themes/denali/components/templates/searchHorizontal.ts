@@ -26,6 +26,10 @@ export const searchHorizontal: ThemeComponent<'searchHorizontal', SearchHorizont
 		'searchHorizontal slideout': {
 			width: '400px',
 		},
+		// the slideout sidebar keeps its title at every breakpoint the slideout is used (`mobileDisplayAt`)
+		'searchHorizontal slideout sidebar': {
+			hideTitleText: false,
+		},
 		'searchHorizontal results': {
 			columns: 5,
 		},

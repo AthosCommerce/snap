@@ -22,6 +22,8 @@ const buttonStyleScript = ({ backgroundColor, borderColor, color, theme }: Butto
 		'.ss__icon': {
 			fill: 'currentColor',
 			stroke: 'currentColor',
+			// an svg is a shrinkable flex item - keep the icon at its size (the filters toggle squeezed it to ~12px wide)
+			flexShrink: 0,
 		},
 
 		'&:not(.ss__button--disabled):hover': {

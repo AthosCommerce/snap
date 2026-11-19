@@ -369,6 +369,86 @@ describe('OverlayResult Component', () => {
 		expect(variantSelectionElements).toHaveLength(2);
 	});
 
+	it('renders each variant selection as the type the API sends', () => {
+		const mockVariantData: SearchResponseModelResultVariants = {
+			data: [
+				{
+					mappings: {
+						core: {
+							uid: 'variant1',
+							available: true,
+							name: 'Blue Variant',
+							imageUrl: 'https://example.com/blue.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'blue',
+						},
+						size: {
+							value: 'large',
+						},
+					},
+				},
+				{
+					mappings: {
+						core: {
+							uid: 'variant2',
+							available: true,
+							name: 'Red Variant',
+							imageUrl: 'https://example.com/red.jpg',
+						},
+					},
+					badges: [],
+					options: {
+						color: {
+							value: 'red',
+						},
+						size: {
+							value: 'medium',
+						},
+					},
+				},
+			],
+			optionConfig: {
+				color: {
+					id: 123,
+					type: 'swatches',
+				},
+				size: {
+					id: 456,
+					type: 'list',
+				},
+			},
+		};
+		const searchResponseClone = { ...searchResponse };
+		const resultWithVariants = searchResponseClone.search.results![0];
+		resultWithVariants.variants = mockVariantData;
+
+		const mockResultsWithVariants = new SearchResultStore({
+			config: { id: 'test' },
+			state: { loaded: false },
+			data: {
+				search: searchResponse.search,
+				meta: searchResponse.meta,
+			},
+		});
+
+		const rendered = render(<OverlayResult result={mockResultsWithVariants[0] as Product} />);
+
+		const colorSelection = rendered.container.querySelector('.ss__overlay-result__variant-selection.ss__variant-selection--color');
+		const sizeSelection = rendered.container.querySelector('.ss__overlay-result__variant-selection.ss__variant-selection--size');
+
+		// without a type, VariantSelection falls back to a dropdown for both
+		expect(colorSelection).toHaveClass('ss__variant-selection--swatches');
+		expect(colorSelection).not.toHaveClass('ss__variant-selection--dropdown');
+		expect(colorSelection?.querySelector('.ss__swatches')).toBeInTheDocument();
+		expect(sizeSelection).toHaveClass('ss__variant-selection--list');
+		expect(sizeSelection).not.toHaveClass('ss__variant-selection--dropdown');
+		expect(sizeSelection?.querySelector('.ss__list')).toBeInTheDocument();
+	});
+
 	it('renders variant selections by default', () => {
 		const mockVariantData: SearchResponseModelResultVariants = {
 			data: [

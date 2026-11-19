@@ -28,6 +28,20 @@ export const autocompleteSlideout: ThemeComponent<'autocompleteSlideout', Autoco
 		},
 	},
 	mobile: autocompleteSlideoutThemeComponentProps.mobile,
-	desktop: autocompleteSlideoutThemeComponentProps.desktop,
-	tablet: autocompleteSlideoutThemeComponentProps.tablet,
+	desktop: {
+		...autocompleteSlideoutThemeComponentProps.desktop,
+		// the shared desktop props set 3 columns - keep the slideout's 2 columns at every width above mobile
+		'autocompleteSlideout recommendationGrid': {
+			columns: 2,
+			rows: 2,
+		},
+	},
+	tablet: {
+		...autocompleteSlideoutThemeComponentProps.tablet,
+		// the shared tablet props set no grid here - keep the default layer's grid over the theme's tablet `recommendationGrid` columns
+		'autocompleteSlideout recommendationGrid': {
+			columns: 2,
+			rows: 2,
+		},
+	},
 };

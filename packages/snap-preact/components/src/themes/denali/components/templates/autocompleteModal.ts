@@ -28,5 +28,12 @@ export const autocompleteModal: ThemeComponent<'autocompleteModal', Autocomplete
 	},
 	mobile: autocompleteModalThemeComponentProps.mobile,
 	desktop: autocompleteModalThemeComponentProps.desktop,
-	tablet: autocompleteModalThemeComponentProps.tablet,
+	tablet: {
+		...autocompleteModalThemeComponentProps.tablet,
+		// the shared tablet props set no grid here - keep the default layer's grid over the theme's tablet `recommendationGrid` columns
+		'autocompleteModal recommendationGrid': {
+			columns: 4,
+			rows: 2,
+		},
+	},
 };

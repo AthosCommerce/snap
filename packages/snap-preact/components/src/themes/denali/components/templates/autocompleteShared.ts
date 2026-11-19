@@ -31,6 +31,23 @@ export const autocompleteSharedStyles: CSSObject = {
 		{
 			fontSize: '60%',
 		},
+	// result columns never grow past their share of a narrow panel (a fixed panel is only as wide as the input) -
+	// long titles break and a sale price wraps under its strike price instead of widening the column
+	'.ss__autocomplete__content .ss__results': {
+		'& > *, .ss__result': {
+			minWidth: 0,
+		},
+		'.ss__result__details__title': {
+			overflowWrap: 'anywhere',
+		},
+		'.ss__result__details__pricing': {
+			display: 'flex',
+			flexWrap: 'wrap',
+			justifyContent: 'center',
+			alignItems: 'baseline',
+			columnGap: '5px',
+		},
+	},
 	// the label wraps on its own and the icon stays vertically centered beside it
 	'.ss__autocomplete__button--see-more .ss__button__content': {
 		display: 'flex',

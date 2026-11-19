@@ -22,6 +22,10 @@ export const search: ThemeComponent<'search', SearchProps, SearchTemplatesLegalP
 		'search slideout': {
 			width: '400px',
 		},
+		// the slideout sidebar keeps its title at every breakpoint the slideout is used (`mobileDisplayAt`)
+		'search slideout sidebar': {
+			hideTitleText: false,
+		},
 	},
 	mobile: searchThemeComponentProps.mobile,
 	desktop: searchThemeComponentProps.desktop,

@@ -16,6 +16,13 @@ const sidebarStyleScript = ({ theme }: SidebarProps) => {
 		},
 
 		'& .ss__sidebar__header': {
+			alignItems: 'center',
+
+			// even space above and below the header row (margins sit on the children so an empty header collapses)
+			'& .ss__sidebar__title, & .ss__sidebar__header__close-button': {
+				margin: '5px 0 15px',
+			},
+
 			'& .ss__sidebar__header__close-button': {
 				lineHeight: '0px',
 				padding: '10px',
@@ -32,12 +39,6 @@ export const sidebar: ThemeComponent<'sidebar', SidebarProps, SidebarTemplatesLe
 			hideTitleText: true,
 			hideClearButtonWithoutFilters: true,
 		},
-	},
-	mobile: {
-		sidebar: {
-			hideTitleText: false,
-		},
-
 		'sidebar button.close icon': {
 			size: 10,
 		},

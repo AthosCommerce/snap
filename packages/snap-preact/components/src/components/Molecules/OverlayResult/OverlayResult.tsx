@@ -383,7 +383,9 @@ export const OverlayResult = observer((properties: OverlayResultProps) => {
 							{!hideVariantSelections && result.variants?.selections.length ? (
 								<div className="ss__overlay-result__details__variant-selection">
 									{result.variants?.selections.map((selection) => {
-										return <VariantSelection {...subProps.variantSelection} selection={selection} />;
+										return (
+											<VariantSelection {...subProps.variantSelection} type={selection.type as VariantSelectionProps['type']} selection={selection} />
+										);
 									})}
 								</div>
 							) : null}

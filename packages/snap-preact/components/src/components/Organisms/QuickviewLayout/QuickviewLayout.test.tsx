@@ -64,8 +64,8 @@ import { QuickviewLayout, QuickviewLayoutProps } from './QuickviewLayout';
 import { useSnap } from '../../../providers';
 import { useComponent, useCreateController } from '../../../hooks';
 
-// `layout` is a required prop (templates always provide one) — these mirror the standard
-// two-column quickview layout the tests were written against.
+// `layout` is a required prop (templates always provide one) — the two-column layout these
+// tests were written against; the templates' own defaults are tested in their suites.
 const defaultLayoutProps: Pick<QuickviewLayoutProps, 'layout' | 'column1' | 'column2'> = {
 	layout: [['c1', 'c2']],
 	column1: {

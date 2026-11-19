@@ -16,6 +16,7 @@ import { layoutSelector } from './layoutSelector';
 import { list } from './list';
 import { loadMore } from './loadMore';
 import { overlayBadge } from './overlayBadge';
+import { overlayResult } from './overlayResult';
 import { pagination } from './pagination';
 import { perPage } from './perPage';
 import { quantityPicker } from './quantityPicker';
@@ -50,6 +51,7 @@ export const molecules = {
 		...list.default,
 		...loadMore.default,
 		...overlayBadge.default,
+		...overlayResult.default,
 		...pagination.default,
 		...perPage.default,
 		...quantityPicker.default,
@@ -83,6 +85,7 @@ export const molecules = {
 		...list.mobile,
 		...loadMore.mobile,
 		...overlayBadge.mobile,
+		...overlayResult.mobile,
 		...pagination.mobile,
 		...perPage.mobile,
 		...quantityPicker.mobile,
@@ -116,6 +119,7 @@ export const molecules = {
 		...list.tablet,
 		...loadMore.tablet,
 		...overlayBadge.tablet,
+		...overlayResult.tablet,
 		...pagination.tablet,
 		...perPage.tablet,
 		...quantityPicker.tablet,
@@ -149,6 +153,7 @@ export const molecules = {
 		...list.desktop,
 		...loadMore.desktop,
 		...overlayBadge.desktop,
+		...overlayResult.desktop,
 		...pagination.desktop,
 		...perPage.desktop,
 		...quantityPicker.desktop,
