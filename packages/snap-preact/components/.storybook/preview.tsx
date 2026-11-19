@@ -8,7 +8,7 @@ import { AutodocsPage } from './AutodocsPage';
 import { preserveArgTypesOrder } from './preserveArgTypesOrder';
 import { SnapTemplates, TemplatesStore } from '../../src';
 import { ThemeComplete, ThemeProvider } from '../src/providers/theme';
-import { base, bocachica, pike, denali, snapnco } from '../src/themes';
+import { base, pike, denali } from '../src/themes';
 
 // custom styles for storybook
 import './styles.scss';
@@ -27,9 +27,7 @@ const snapTemplates = new SnapTemplates({
 
 // need to add each theme synchronously
 addTheme(snapTemplates, 'base', base);
-addTheme(snapTemplates, 'bocachica', bocachica);
 addTheme(snapTemplates, 'pike', pike);
-addTheme(snapTemplates, 'snapnco', snapnco);
 addTheme(snapTemplates, 'denali', denali);
 
 // color keys that map to theme variables.colors
