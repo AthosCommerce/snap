@@ -77,6 +77,50 @@
 			"url": "/snap-tracking-events",
 			"title": "Event Reference"
 		},
+		"docs/SNAP_CUSTOMIZATION.md": {
+			"url": "/snap-customization",
+			"title": "Customization"
+		},
+		"docs/REFERENCE_VARIANTS.md": {
+			"url": "/reference-variants",
+			"title": "Variants"
+		},
+		"docs/REFERENCE_QUICKVIEW.md": {
+			"url": "/reference-quickview",
+			"title": "Quickview"
+		},
+		"packages/snap-controller/src/Quickview/README.md": {
+			"url": "/reference-quickview-manager",
+			"title": "QuickviewManager"
+		},
+		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
+			"url": "/reference-quickview-layout",
+			"title": "Layout"
+		},
+		"docs/SNAP_BADGES.md": {
+			"url": "/snap-badges",
+			"title": "Badges"
+		},
+		"docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md": {
+			"url": "/reference-custom-badge-templates",
+			"title": "Custom Badge Templates"
+		},
+		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
+			"url": "/reference-custom-recommendation-templates",
+			"title": "Custom Recommendation Templates"
+		},
+		"docs/REFERENCE_ADVANCED_FILTERING.md": {
+			"url": "/reference-advanced-filtering",
+			"title": "Advanced Filtering"
+		},
+		"docs/SNAP_BACKGROUND_FILTERS.md": {
+			"url": "/snap-background-filters",
+			"title": "Background Filters"
+		},
+		"docs/SNAP_FOREGROUND_FILTERS.md": {
+			"url": "/snap-foreground-filters",
+			"title": "Foreground Filters"
+		},
 		"docs/SNAP_INTEGRATION_CHECKLIST.md": {
 			"url": "/snap-integration-checklist",
 			"title": "Integration Checklist"
@@ -100,6 +144,34 @@
 		"docs/TEMPLATES_PLUGINS.md": {
 			"url": "/templates-plugins",
 			"title": "Plugins"
+		},
+		"docs/TEMPLATES_CUSTOMIZATION.md": {
+			"url": "/templates-customization",
+			"title": "Customization"
+		},
+		"docs/TEMPLATES_VARIANTS.md": {
+			"url": "/templates-variants",
+			"title": "Variants"
+		},
+		"docs/TEMPLATES_QUICKVIEW.md": {
+			"url": "/templates-quickview",
+			"title": "Quickview"
+		},
+		"docs/TEMPLATES_BADGES.md": {
+			"url": "/templates-badges",
+			"title": "Badges"
+		},
+		"docs/TEMPLATES_BACKGROUND_FILTERS.md": {
+			"url": "/templates-background-filters",
+			"title": "Background Filters"
+		},
+		"docs/REFERENCE_TABBED_SEARCH.md": {
+			"url": "/reference-tabbed-search",
+			"title": "Tabbed Search"
+		},
+		"docs/REFERENCE_CONFIG_VALIDATION.md": {
+			"url": "/reference-config-validation",
+			"title": "Config Validation & Linting"
 		},
 		"docs/TEMPLATES_HOW_TO.md": {
 			"url": "/templates-how-tos",
@@ -188,54 +260,6 @@
 		"docs/BUILD_DEPLOY_PERFORMANCE_OPTIMIZATION.md": {
 			"url": "/build-deploy-performance-optimization",
 			"title": "Performance Optimization"
-		},
-		"docs/REFERENCE_VARIANTS.md": {
-			"url": "/reference-variants",
-			"title": "Variants"
-		},
-		"docs/REFERENCE_CONFIG_VALIDATION.md": {
-			"url": "/reference-config-validation",
-			"title": "Config Validation & Linting"
-		},
-		"docs/REFERENCE_TABBED_SEARCH.md": {
-			"url": "/reference-tabbed-search",
-			"title": "Tabbed Search"
-		},
-		"docs/REFERENCE_QUICKVIEW.md": {
-			"url": "/reference-quickview",
-			"title": "Quickview"
-		},
-		"packages/snap-controller/src/Quickview/README.md": {
-			"url": "/reference-quickview-manager",
-			"title": "QuickviewManager"
-		},
-		"packages/snap-preact/components/src/components/Organisms/QuickviewLayout/readme.md": {
-			"url": "/reference-quickview-layout",
-			"title": "Layout"
-		},
-		"docs/REFERENCE_CUSTOM_RECOMMENDATION_TEMPLATES.md": {
-			"url": "/reference-custom-recommendation-templates",
-			"title": "Custom Recommendation Templates"
-		},
-		"docs/REFERENCE_ADVANCED_FILTERING.md": {
-			"url": "/reference-advanced-filtering",
-			"title": "Advanced Filtering"
-		},
-		"docs/SNAP_BACKGROUND_FILTERS.md": {
-			"url": "/snap-background-filters",
-			"title": "Background Filters"
-		},
-		"docs/SNAP_FOREGROUND_FILTERS.md": {
-			"url": "/snap-foreground-filters",
-			"title": "Foreground Filters"
-		},
-		"docs/SNAP_BADGES.md": {
-			"url": "/snap-badges",
-			"title": "Badges"
-		},
-		"docs/REFERENCE_CUSTOM_BADGE_TEMPLATES.md": {
-			"url": "/reference-custom-badge-templates",
-			"title": "Custom Badge Templates"
 		},
 		"packages/snap-preact/README.md": {
 			"url": "/reference-snap-preact",

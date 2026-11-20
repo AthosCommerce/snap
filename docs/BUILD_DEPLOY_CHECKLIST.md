@@ -2,9 +2,9 @@
 
 ## Integration Code Checklist
 
-- [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md) are being read from script context and applied on the search controller's `config.globals.filters` to handle Category pages.
+- [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md) are being read from script context and applied on the search controller's `config.globals.filters` to handle Category pages. In Snap Templates, the platform plugin applies them from the script context - see [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BACKGROUND_FILTERS.md) for Templates.
 
-- (If applicable) [Foreground Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_FOREGROUND_FILTERS.md) are configured via the search controller's `url.initial.parameters` to handle custom filtering (ie. only show results in stock)
+- (If applicable) [Foreground Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_FOREGROUND_FILTERS.md) are configured via the search controller's `url.initial.parameters` to handle custom filtering (ie. only show results in stock). Standard Snap only.
 
 - Merchandising [Banner](https://athoscommerce.github.io/snap/preact-components?params=%3Fpath%3D%2Fstory%2Fatoms-banner--footer) components have been added for all banner locations: `header`, `banner`, `footer`, `left`. See [Search > Search Store Merchandising](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SEARCH.md#searchcontrollerstoremerchandising)
 
@@ -16,7 +16,7 @@
 
 - [Result add to cart tracking](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_TRACKING_MANUAL.md#product-add-to-cart) has been added. Confirm via browser dev tools network tab that beacon add to cart events are being sent for results in Search, Category, Autocomplete, and Recommendations
 
-- (If enabled) Self-configured [Badges](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BADGES.md) are added to your Result component
+- (If enabled) Self-configured [Badges](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BADGES.md) are added to your Result component. Snap Templates results render them by default - see [Badges](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BADGES.md) for Templates.
 
 - No Results component text has been personalized for your store (ie. contains support contact and storefront address information)
 

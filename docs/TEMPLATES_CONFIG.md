@@ -15,7 +15,7 @@ Snap templates is configuration based. The configuration defines which features 
 | `search` | Search feature target declarations |
 | `autocomplete` | Autocomplete feature target declarations |
 | `recommendation` | Recommendation feature target declarations |
-| `quickview` | Quickview feature target declarations - see [Quickview](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_QUICKVIEW.md) |
+| `quickview` | Quickview feature target declarations - see [Quickview](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_QUICKVIEW.md) |
 
 Here is a minimal example starting configuration to enable search and autocomplete using the `pike` theme.
 
@@ -406,6 +406,8 @@ Each `[profileComponentName]` key is matched against the template component name
 - default: `SnapTemplatesRecommendationCarousel` (`Recommendation`), `SnapTemplatesRecommendationGrid` (`RecommendationGrid`)
 - bundle: `SnapTemplatesBundleDefault` (`RecommendationBundle`), `SnapTemplatesBundleEasyAdd` (`RecommendationBundleEasyAdd`), `SnapTemplatesBundleList` (`RecommendationBundleList`), `SnapTemplatesBundleVertical` (`RecommendationBundleVertical`)
 - email: `SnapTemplatesEmailDefault` (`RecommendationEmail`)
+
+A recommendation template synced with `snapfu recs sync` can be used the same way - add its name under the matching type and map it to one of the built-in components (for example `recommendation.default.MyTemplate: { component: 'RecommendationGrid' }`). Snap Templates always renders with the built-in components, so the template's own `.jsx` component is not used. To change how its results render, set a `resultComponent` on the recommendation template in the theme overrides.
 
 
 #### Default Recommendations

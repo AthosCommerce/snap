@@ -1,5 +1,8 @@
 # Badges
 
+> [!NOTE]
+> This page covers standard Snap integrations. For Snap Templates, see [Badges](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BADGES.md) under Templates Integration.
+
 Badges are self-configured in the Athos Search & Product Discovery Console. 
 
 > [!NOTE]

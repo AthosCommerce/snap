@@ -1,5 +1,8 @@
 # Custom Badge Templates
 
+> [!NOTE]
+> The badge template files and the `snapfu badges` commands are the same for Snap and Snap Templates. Only [Using Custom Badges](#using-custom-badges) is specific to standard Snap - in Snap Templates, register the component instead (see [Custom Badge Components](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BADGES.md#custom-badge-components)).
+
 Custom Badge Templates can be created and sync to the Athos Search & Product Discovery Console using the Snapfu CLI. See [Welcome > Setup](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) for installing Snapfu
 
 ## Initialize Custom Badges

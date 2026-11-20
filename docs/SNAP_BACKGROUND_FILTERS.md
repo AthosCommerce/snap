@@ -1,4 +1,7 @@
 # Background Filters
+
+> [!NOTE]
+> This page covers standard Snap integrations. For Snap Templates, see [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BACKGROUND_FILTERS.md) under Templates Integration.
 Background filters allow a page to be refined without displaying the active filter to the end-user. This is primarily used for category pages, although can also be used for custom functionality such as restricting visibility of products to user groups. The filter value is commonly retrieved from a context variable and applied as a background filter within the Snap config object. Background filters could also be applied to all services by setting `client.globals.filters` in the Snap config instead of on a per-controller basis.
 
 ## Background Filter Object

@@ -34,7 +34,7 @@ A step-by-step checklist for a **base level Snap Integration** — check off the
 - [ ] History enabled via a positive `settings.history.limit`, if used — see [store.history](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_AUTOCOMPLETE.md#autocompletecontrollerstorehistory)
 
 ## Quickview
-- [ ] `quickview` configured at the top level of the Snap config, not nested under `controllers` — see [Setup with Snap](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_QUICKVIEW.md#setup-with-snap-standard-integrations)
+- [ ] `quickview` configured at the top level of the Snap config, not nested under `controllers` — see [Setup with Snap](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_QUICKVIEW.md#setup)
 - [ ] `QuickviewModal` or `QuickviewSlideout` targeted somewhere on the page — see [Modal or Slideout](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_QUICKVIEW.md#modal-or-slideout)
 - [ ] Trigger wired — either `hideQuickviewButton: false` on the library Result, or a custom [`controller.quickview(result)`](https://github.com/athoscommerce/snap/blob/main/docs/REFERENCE_QUICKVIEW.md#opening-a-quickview-programmatically) call
 

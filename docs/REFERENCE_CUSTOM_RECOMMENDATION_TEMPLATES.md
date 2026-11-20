@@ -1,11 +1,14 @@
-# Custom Templates
+# Custom Recommendation Templates
+
+> [!NOTE]
+> This page covers standard Snap integrations. Snap Templates renders recommendations with its built-in templates - a profile's template name is mapped to one of them in the [recommendation config](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_CONFIG.md#recommendation).
 
 Let's look at how to setup a custom recommendation template using the Snapfu CLI. See [Getting Started > Setup](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_SETUP.md) for installing Snapfu.
 
 There are three steps required for adding recommendations:
 - Creating the local template files
 - Syncing the template to the Athos Search & Product Discovery Console
-- Updating our Snap config (see instantiator config above)
+- Mapping the template to its component in the `RecommendationInstantiator` config (see [Recommendations](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_RECOMMENDATIONS.md))
 
 ### Creating a new recommendation template
 To generate a new template, run the following at the root of the project. This command will prompt you to provide various inputs such as the template type, template name, an optional description, and the path to the component.

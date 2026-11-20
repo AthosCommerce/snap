@@ -1,6 +1,9 @@
 # Foreground Filters
 
 > [!NOTE]
+> This page covers standard Snap integrations. Foreground filters are not available in Snap Templates.
+
+> [!NOTE]
 > Foreground filters are only usable with a `SearchController`.
 
 **Foreground filters** pre-apply a filter on page load. Unlike a [Background Filter](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md), a foreground filter is applied to the URL and shows up as a normal, removable filter — the shopper can see it and clear it just like any filter they'd select themselves. Foreground filtering is accomplished by setting the **initial `UrlManager` state**; this can be used for setting various states, but only filtering will be covered in this document.

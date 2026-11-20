@@ -1,5 +1,8 @@
 # Advanced Filtering
 
+> [!NOTE]
+> This page covers standard Snap integrations. For Snap Templates, see [Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/TEMPLATES_BACKGROUND_FILTERS.md) under Templates Integration.
+
 Snap supports two ways to pre-apply a filter without the shopper explicitly selecting it — pick the one that matches whether the filter should be visible and removable, or invisible and locked in.
 
 - **[Background Filters](https://github.com/athoscommerce/snap/blob/main/docs/SNAP_BACKGROUND_FILTERS.md)** — invisible to the shopper and cannot be removed. Best for category pages or restricting product visibility by user group.
