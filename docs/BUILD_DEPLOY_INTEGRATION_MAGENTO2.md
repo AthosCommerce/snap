@@ -246,7 +246,7 @@ import { pluginBase } from '@athoscommerce/snap-platforms/magento2';
 > [!NOTE]
 > Shopper id tracking relies on the Athos Commerce Magento2 module installed in [Add Tracking](#add-tracking), which stores the logged in customer's id as `shopper_id` under the `athoscommerce-tracking` section of `mage-cache-storage`. Without the module installed, the shopper id is not tracked.
 
-See the [Magento2 platform reference](https://athoscommerce.github.io/snap/reference-platforms-magento2) for plugin configuration.
+See the [Magento2 platform reference](https://github.com/athoscommerce/snap/blob/main/packages/snap-platforms/magento2/README.md) for plugin configuration.
 
 ### Search Only Integration
 

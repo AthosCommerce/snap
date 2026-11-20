@@ -48,7 +48,7 @@ type RequesterConfig<RequestType, PathConfigurationType> = {
 	cache?: {
 		enabled?: boolean; // default: true - enables caching
 		ttl?: number; // default: 300000 (5 minutes) - time in milliseconds to store a response in the cache
-		maxSize?: number; // default: 200 - maximum size in KB to store in sessionStorage
+		maxSize?: number; // default: 1000 - maximum size in KB to store in sessionStorage
 		purgeable?: boolean; // default: true - allows the cache to be purged from sessionStorage when maxSize is reached (with exception when used for meta)
 		entries?: { [key: string]: Response }; // default: undefined - allows for pre-populating the cache with entries, primarily used for email recommendations
 	};
@@ -71,7 +71,7 @@ const client = new Client({
 		cache: {
 			enabled: true,
 			ttl: 300000,
-			maxSize: 100,
+			maxSize: 1000,
 			purgeable: true,
 		},
 	},

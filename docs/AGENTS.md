@@ -16,6 +16,10 @@ Applies to `docs/*.md`, package READMEs and component `readme.md` files. These p
 - **One canonical place per topic.** Link to the section that covers it rather than repeating its steps. Internal links point at the markdown file.
 - **Obvious placeholders.** Make placeholder values clearly placeholders, and spell out steps a newcomer could miss.
 
+## Images
+
+Put images in the root `images/` folder and reference them by their GitHub URL: `<img src="https://github.com/athoscommerce/snap/blob/main/images/<file>?raw=true" alt="..." />`. That renders on GitHub, and the docs app maps it to the site's own `images/` folder, so `npm run dev:docs` previews images from your checkout before they reach `main`. Don't use root-relative paths (`/images/...`), which break under the `/snap/` base path on GitHub Pages.
+
 ## Adding a page
 
 Register new pages in `docs/documents.js`, then run `npm run build:sitemap` and commit `docs-sitemap.json`. CI fails when the sitemap is stale. The sitemap also picks up Storybook docs pages (each story's readme import and title) and TypeDoc package READMEs, so changes to those need a regenerated sitemap too.

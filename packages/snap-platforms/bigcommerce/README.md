@@ -74,7 +74,7 @@ Plugin to set up background filters for BigCommerce. Script context is used to a
 | enabled | configuration to allow for disabling the plugin | boolean | true | ➖ |
 | fieldNames | object used to set custom field names for background filtering | object | ➖ | ➖ |
 | fieldNames.brand | Name of the field use for brand background filter | string | 'brand' | ➖ |
-| fieldNames.category | Name of the field use for brand background filter | string | 'categories_hierarchy' | ➖ |
+| fieldNames.category | Name of the field used for the category background filter | string | 'categories_hierarchy' | ➖ |
 
 This plugin relies on specific BigCommerce script context variables for creating background filters via the integration script context. Both category and brand background filter are supported, and special characters will be automatically handled. See the examples below:
 

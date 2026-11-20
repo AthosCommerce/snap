@@ -81,7 +81,7 @@ Plugin to set up background filters for Magento2. Script context is used to auto
 |----------------------|-------------|------|---------|----------|
 | enabled | configuration to allow for disabling the plugin | boolean | true | ➖ |
 | fieldNames | object used to set custom field names for background filtering | object | ➖ | ➖ |
-| fieldNames.category | name of the field use for brand background filter | string | 'categories_hierarchy' | ➖ |
+| fieldNames.category | name of the field used for the category background filter | string | 'category_hierarchy' | ➖ |
 | fieldNames.visibility | name of the field use for visibility background filter | string | 'visibility' | ➖ |
 
 This plugin relies on specific Magento2 script context variables for creating background filters via the integration script context. Category and visibility background filtering are supported, and special characters will be automatically handled. See the examples below:

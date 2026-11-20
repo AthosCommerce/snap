@@ -1,12 +1,12 @@
 ## Templates
 
-Snap Templates is an alternative method of creating a Athos integration. The documentation in this 'Templates' section is only applicable if you are utilizing the `SnapTemplates` export. While there is overlap across other pages in the documentation, this section aims to outline the differences.
+Snap Templates is an alternative method of creating an Athos integration. The documentation in this 'Templates' section is only applicable if you are utilizing the `SnapTemplates` export. While there is overlap across other pages in the documentation, this section aims to outline the differences.
 
 ```tsx
 import { SnapTemplates } from '@athoscommerce/snap-preact';
 ```
 
-Snap and Snap Templates offer different approaches to creating a Athos integration. While Snap offers more flexibility, Snap Templates provides a streamlined solution for those seeking a faster integration process with pre-designed, customizable templates.
+Snap and Snap Templates offer different approaches to creating an Athos integration. While Snap offers more flexibility, Snap Templates provides a streamlined solution for those seeking a faster integration process with pre-designed, customizable templates.
 
 Standard Snap:
   - Provides full control over the configuration and component tree
@@ -26,7 +26,6 @@ Snap Templates:
 
 ```tsx
 import { SnapTemplates, validateTemplatesConfig } from '@athoscommerce/snap-preact';
-import { Content, Sidebar } from './components';
 import { globalStyles } from './styles';
 
 const templatesConfig = validateTemplatesConfig({
@@ -68,7 +67,7 @@ const templatesConfig = validateTemplatesConfig({
 	autocomplete: {
 		targets: [
 			{
-				selector: 'input.athos-ac',
+				inputSelector: 'input.athos-ac',
 				component: 'AutocompleteFixed',
 			},
 		]
@@ -80,7 +79,7 @@ new SnapTemplates(templatesConfig);
 
 ## Transitioning from Templates to Standard Snap (SnapHybrid)
 
-As your integration needs grow, you may find that you need more control than what Snap Templates provides. The `SnapHybrid` class allows you to transition from a Snap Templates integration to a standard Snap integration while preserving all the work you've done in your templates configuration—including themes, variables, translations, and custom components.
+As your integration needs grow, you may find that you need more control than what Snap Templates provides. The `SnapHybrid` class allows you to transition from a Snap Templates integration to a standard Snap integration while preserving all the work you've done in your templates configuration—including themes, variables, translations, and custom components (with one exception for `theme.globalResultComponent`, noted below).
 
 ### Why Use SnapHybrid?
 
@@ -88,8 +87,10 @@ SnapHybrid bridges the gap between Snap Templates and standard Snap by:
 
 - **Preserving your theme work**: All theme variables, colors, breakpoints, and style overrides continue to work
 - **Keeping your translations**: Language translations defined in your templates config are maintained
-- **Retaining custom components**: Custom result and badge components remain available
+- **Retaining custom components**: Custom result and badge components remain available. `theme.globalResultComponent` is not applied by `SnapHybrid`, so set `resultComponent` on the template overrides instead (for example `search`, `autocompleteFixed` or a recommendation template)
 - **Enabling full Snap control**: You gain complete control over controllers, targets, and the component tree
+
+Components you render from the standard Snap configuration need a small wrapper to use the templates theme, translations and custom components - see the note after the example below.
 
 ### When to Use SnapHybrid
 
@@ -101,10 +102,11 @@ Consider transitioning to SnapHybrid when you need to:
 - Add multiple search or autocomplete controllers
 - Integrate with advanced features not supported in Snap Templates
 
-### Basic Usage
+### SnapHybrid Basic Usage
 
 ```tsx
 import { SnapHybrid, validateTemplatesConfig } from '@athoscommerce/snap-preact';
+import type { SnapConfig } from '@athoscommerce/snap-preact';
 import { Content, Sidebar } from './components';
 import { globalStyles } from './styles';
 
@@ -154,7 +156,7 @@ const templatesConfig = validateTemplatesConfig({
 });
 
 // Standard Snap configuration for full control
-const snapConfig = {
+const snapConfig: SnapConfig = {
 	client: {
 		globals: {
 			siteId: 'atkzs2',
@@ -172,7 +174,7 @@ const snapConfig = {
 						},
 					},
 				},
-				targets: [
+				targeters: [
 					{
 						selector: '#athos-content',
 						component: () => Content,
@@ -196,13 +198,17 @@ const snap = new SnapHybrid({
 });
 ```
 
+Templates targets (the `search`, `autocomplete` and `recommendation` features of `templatesConfig`) are rendered with the templates theme, translations and custom components automatically. Components you render from `snapConfig` targeters are not. To give them access, wrap the component's output in `SnapProvider` (with the `snap` prop it receives) and `ThemeProvider` with `snap.templates.themes.local.global.theme`, the theme built from `templatesConfig`. That theme is created asynchronously, so provide a fallback (such as `defaultTheme`) until it exists.
+
+Both configs are merged, with arrays concatenated. If `templatesConfig` also has a `search` or `autocomplete` feature, its controller uses the id `search` or `autocomplete` (or the tab ids when tabs are configured), so give your `snapConfig` controllers different ids - a controller with a duplicate id is not created.
+
 ### Configuration Structure
 
 The `SnapHybrid` constructor accepts an object with the following properties:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `templatesConfig` | `SnapTemplatesConfig` | Your existing Snap Templates configuration |
+| `templatesConfig` | `SnapTemplatesConfig` or `SnapTemplatesConfigUnlocked` | Your existing Snap Templates configuration |
 | `snapConfig` | `SnapConfig` | Standard Snap configuration for controllers, targets, etc. |
 | `services` | `SnapServices` (optional) | Custom services to override defaults |
 

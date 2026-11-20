@@ -47,7 +47,7 @@ Optional. [`UrlTranslator` config](https://github.com/athoscommerce/snap/tree/ma
 
 | Option | Type | Description |
 |---|---|---|
-| instantiators | `{ recommendation?: RecommendationInstantiatorConfig }` | Optional. Custom instantiators for advanced controller/component instantiation, such as recommendations. See [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators) for more information. |
+| instantiators | `{ recommendation?: RecommendationInstantiatorConfig }` | Optional. Custom instantiators for advanced controller/component instantiation, such as recommendations. See [`RecommendationInstantiator`](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md) for more information. |
 
 ## Controllers
 
@@ -95,7 +95,7 @@ snap.getControllers('search', 'autocomplete').then(([search, autocomplete]) => {
 ### getInstantiator
 
 
-Snap also provides a method to retrieve instantiators. Instantiatiors are used to create instances of the [`RecommendationInstantiator`](https://athoscommerce.github.io/snap/reference-snap-preact-instantiators) class, which is responsible for instantiating recommendations.
+Snap also provides a method to retrieve instantiators. Instantiatiors are used to create instances of the [`RecommendationInstantiator`](https://github.com/athoscommerce/snap/blob/main/packages/snap-preact/src/Instantiators/README.md) class, which is responsible for instantiating recommendations.
 
 ```js
 const snap = new Snap(config);

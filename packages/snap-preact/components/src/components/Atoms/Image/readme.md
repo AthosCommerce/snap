@@ -7,39 +7,50 @@ Renders an Image with fallback and rollover functionality.
 import { Image } from '@athoscommerce/snap-preact/components';
 ```
 
+The examples below use a `result` from the controller store results (`controller.store.results`). Core mappings are optional, so default the image URL to a string:
+
+```tsx
+const imageUrl = result.mappings.core?.imageUrl || '';
+```
+
 ### src
 The required `src` prop specifies the URL of the image to render.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' />
+<Image src={imageUrl} alt='image' />
 ```
 
 ### alt
 The required `alt` prop is the image `alt` attribute.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' />
+<Image src={imageUrl} alt='image' />
 ```
 
 ### title
 The `title` prop specifies the image `title` attribute. If not provided, the `alt` prop value is used.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' title='image title' />
+<Image src={imageUrl} alt='image' title='image title' />
 ```
 
 ### fallback
-The `fallback` prop specifies the URL of the fallback image to render if the primary image fails to load.
+The `fallback` prop specifies the URL of the fallback image to render if the primary image fails to load, or when `src` is empty. The default fallback image is `//cdn.athoscommerce.net/snap/images/fallback.png`.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} fallback='https://www.example.com/image.jpg' alt='image' />
+<Image src={imageUrl} fallback='https://www.example.com/image.jpg' alt='image' />
 ```
 
 ### hoverSrc
-The `hoverSrc` prop specifies the URL of the alternative image to display on hover.
+The `hoverSrc` prop specifies the URL of the alternative image to display on hover. In this example the hover image comes from a `hoverImage` attribute (a placeholder - use the field your data provides).
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} hoverSrc={searchResponse.results.mappings.core.hoverImg} alt='image' />
+const hoverImage = result.attributes.hoverImage;
+const hoverImageUrl = typeof hoverImage == 'string' ? hoverImage : undefined;
+```
+
+```tsx
+<Image src={imageUrl} hoverSrc={hoverImageUrl} alt='image' />
 ```
 
 ### srcset
@@ -48,9 +59,11 @@ The `srcset` prop sets the image `srcset` attribute. It accepts either a `srcset
 A string is set on the attribute as-is, and may use width (`w`) or pixel density (`x`) descriptors. While hovering it is removed so that the `hoverSrc` image is displayed.
 
 ```tsx
+const thumbnailUrl = result.mappings.core?.thumbnailImageUrl;
+
 <Image
-	src={searchResponse.results.mappings.core.imageUrl}
-	srcset={`${searchResponse.results.mappings.core.thumbnailImageUrl} 400w, ${searchResponse.results.mappings.core.imageUrl} 1200w`}
+	src={imageUrl}
+	srcset={thumbnailUrl ? `${thumbnailUrl} 400w, ${imageUrl} 1200w` : undefined}
 	sizes='auto, (max-width: 600px) 100vw, 400px'
 	alt='image'
 />
@@ -62,7 +75,7 @@ A function is called with the `src`, and with the `hoverSrc` while hovering, so 
 import { shopifyImageSrcset } from '@athoscommerce/snap-platforms/shopify';
 
 <Image
-	src={searchResponse.results.mappings.core.imageUrl}
+	src={imageUrl}
 	srcset={(src) => shopifyImageSrcset(src, [320, 640, 960, 1280])}
 	sizes='auto, (max-width: 600px) 100vw, 400px'
 	alt='image'
@@ -77,28 +90,28 @@ The `sizes` prop sets the image `sizes` attribute - a comma-separated list of me
 Start the list with `auto` so that browsers that support it use the rendered width of the image to choose a candidate. `auto` only applies to lazy loaded images (see the `lazy` prop, enabled by default); the rest of the list is used otherwise.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} srcset={srcset} sizes='auto, (max-width: 600px) 100vw, 400px' alt='image' />
+<Image src={imageUrl} srcset={srcset} sizes='auto, (max-width: 600px) 100vw, 400px' alt='image' />
 ```
 
 ### height
 The `height` prop is used to set a height on the image. 
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} height={'250px'} alt='image' />
+<Image src={imageUrl} height={'250px'} alt='image' />
 ```
 
 ### lazy
 The `lazy` prop is used to disable the lazy loading feature. Enabled by default. 
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} lazy={false} alt='image' />
+<Image src={imageUrl} lazy={false} alt='image' />
 ```
 
 ### draggable
 The `draggable` prop sets the `draggable` attribute on the image element.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} draggable={false} alt='image' />
+<Image src={imageUrl} draggable={false} alt='image' />
 ```
 
 ### Events
@@ -107,61 +120,61 @@ The `draggable` prop sets the `draggable` attribute on the image element.
 The `onMouseOver` prop allows for a custom callback function when the mouse cursor enters the image.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onMouseOver={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onMouseOver={(e)=>{console.log(e)}} />
 ```
 
 #### onMouseOut
 The `onMouseOut` prop allows for a custom callback function when the mouse cursor leaves the image.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onMouseOut={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onMouseOut={(e)=>{console.log(e)}} />
 ```
 
 #### onPointerDown
 The `onPointerDown` prop allows for a custom callback function when a pointer becomes active on the image.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerDown={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onPointerDown={(e)=>{console.log(e)}} />
 ```
 
 #### onPointerMove
 The `onPointerMove` prop allows for a custom callback function when a pointer moves over the image.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerMove={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onPointerMove={(e)=>{console.log(e)}} />
 ```
 
 #### onPointerUp
 The `onPointerUp` prop allows for a custom callback function when a pointer is released on the image.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerUp={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onPointerUp={(e)=>{console.log(e)}} />
 ```
 
 #### onPointerLeave
 The `onPointerLeave` prop allows for a custom callback function when a pointer leaves the image.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onPointerLeave={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onPointerLeave={(e)=>{console.log(e)}} />
 ```
 
 #### onError
 The `onError` prop allows for a custom callback function when the image has encountered an error. It is invoked for each failed load, so when a `srcset` candidate fails and the `src` is retried it may be called twice.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onError={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onError={(e)=>{console.log(e)}} />
 ```
 
 #### onLoad
 The `onLoad` prop allows for a custom callback function when the image has finished loading.
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onLoad={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onLoad={(e)=>{console.log(e)}} />
 ```
 
 #### onClick
 The `onClick` prop allows for a custom callback function when the image is clicked. 
 
 ```tsx
-<Image src={searchResponse.results.mappings.core.imageUrl} alt='image' onClick={(e)=>{console.log(e)}} />
+<Image src={imageUrl} alt='image' onClick={(e)=>{console.log(e)}} />
 ```
