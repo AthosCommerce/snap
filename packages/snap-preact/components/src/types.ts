@@ -3,6 +3,7 @@ import { h } from 'preact';
 import type { ThemeMinimal, Theme } from './providers/theme';
 import type { AbstractController } from '@athoscommerce/snap-controller';
 import type { UrlManager } from '@athoscommerce/snap-url-manager';
+import type { ResultBadge } from '@athoscommerce/snap-store-mobx';
 import { IconProps, IconType } from './components/Atoms/Icon';
 import { MutableRef } from 'preact/hooks';
 import type { Snap, SnapTemplates } from '../../src';
@@ -108,4 +109,10 @@ export type JSXComponent = (props: any) => h.JSX.Element | null;
 
 export type ComponentMap = {
 	[componentName: string]: (args?: any) => Promise<JSXComponent> | JSXComponent;
+};
+
+// props `OverlayBadge` and `CalloutBadge` pass to a badge component: the badge data, each template parameter spread as its own prop, and `treePath`
+// template parameters are not known here, so a component declares the ones it reads as optional props
+export type BadgeComponentProps = ResultBadge & {
+	treePath?: string;
 };
