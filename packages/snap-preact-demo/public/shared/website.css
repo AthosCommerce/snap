@@ -417,24 +417,24 @@ h5, h6 {
 /* DEMO - TYPOGRAPHY
 ========================================================================== */
 
-.ss__pike {
+.ss__demo-site {
 	font-family: "Roboto", Helvetica, Arial;
 }
 
-.ss__pike .ss__demo .ss__demo__theme {
+.ss__demo-site .ss__demo .ss__demo__theme {
 	color: #515151;
 }
 
-.ss__pike h1, .ss__pike h2,
-.ss__pike h3, .ss__pike h4,
-.ss__pike h5, .ss__pike h6 {
+.ss__demo-site h1, .ss__demo-site h2,
+.ss__demo-site h3, .ss__demo-site h4,
+.ss__demo-site h5, .ss__demo-site h6 {
 	font-family: "Roboto", Helvetica, Arial;
 	font-weight: 700;
 }
 
-.ss__pike .ss__demo .ss__demo__theme h1, .ss__pike .ss__demo .ss__demo__theme h2,
-.ss__pike .ss__demo .ss__demo__theme h3, .ss__pike .ss__demo .ss__demo__theme h4,
-.ss__pike .ss__demo .ss__demo__theme h5, .ss__pike .ss__demo .ss__demo__theme h6 {
+.ss__demo-site .ss__demo .ss__demo__theme h1, .ss__demo-site .ss__demo .ss__demo__theme h2,
+.ss__demo-site .ss__demo .ss__demo__theme h3, .ss__demo-site .ss__demo .ss__demo__theme h4,
+.ss__demo-site .ss__demo .ss__demo__theme h5, .ss__demo-site .ss__demo .ss__demo__theme h6 {
 	color: #1d4990;
 }
 
@@ -541,29 +541,30 @@ fieldset {
 	}
 }
 
-.ss__pike .ss__demo .ss__demo__theme input, .ss__pike .ss__demo .ss__demo__theme select, .ss__pike .ss__demo .ss__demo__theme .ss__demo__button {
+/* the demo's own inputs - Snap component inputs (ss__* classes other than ss__demo*) keep their theme styling */
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme select, .ss__demo-site .ss__demo .ss__demo__theme .ss__demo__button {
 	-moz-border-radius: 0;
 	border-radius: 0;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input, .ss__pike .ss__demo .ss__demo__theme select {
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])), .ss__demo-site .ss__demo .ss__demo__theme select {
 	color: #515151;
 	border: 2px solid #00aeef;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input::-webkit-input-placeholder, .ss__pike .ss__demo .ss__demo__theme input :focus::-webkit-input-placeholder {
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"]))::-webkit-input-placeholder, .ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])):focus::-webkit-input-placeholder {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input::-ms-input-placeholder, .ss__pike .ss__demo .ss__demo__theme input :focus::-ms-input-placeholder {
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"]))::-ms-input-placeholder, .ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])):focus::-ms-input-placeholder {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme input::placeholder, .ss__pike .ss__demo .ss__demo__theme input :focus::placeholder {
+.ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"]))::placeholder, .ss__demo-site .ss__demo .ss__demo__theme input:not([class^="ss__"]:not([class^="ss__demo"])):focus::placeholder {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__button {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__button {
 	background-color: #00aeef;
 	color: #ffffff;
 	font-family: "Roboto", Helvetica, Arial;
@@ -600,15 +601,15 @@ fieldset {
 	height: 100%;
 }
 
-.ss__pike .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__background {
+.ss__demo-site .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__background {
 	fill: #1d4990;
 }
 
-.ss__pike .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__top_triangle {
+.ss__demo-site .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__top_triangle {
 	stroke: #00aeef;
 }
 
-.ss__pike .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__bottom_triangle {
+.ss__demo-site .ss__demo .ss__demo__background .ss__demo__svg .ss__demo__svg__bottom_triangle {
 	stroke: #ffffff;
 }
 
@@ -857,16 +858,16 @@ fieldset {
 	}
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__button .ss__demo__icon {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__search .ss__demo__search__form .ss__demo__search__button .ss__demo__icon {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button .ss__demo__cart__count {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button .ss__demo__cart__count {
 	background-color: #00aeef;
 	border: 1px solid #00aeef;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button:hover .ss__demo__cart__count {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__header .ss__demo__store-icons .ss__demo__column--cart .ss__demo__slideout__button:hover .ss__demo__cart__count {
 	color: #00aeef;
 	background-color: #ffffff;
 }
@@ -918,13 +919,13 @@ fieldset {
 	}
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a {
 	font-family: "Roboto", Helvetica, Arial;
 	font-weight: 700;
 	color: #ffffff;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a:hover {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__navigation .ss__demo__list li a:hover {
 	color: #00aeef;
 }
 
@@ -1119,19 +1120,19 @@ fieldset {
 	}
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__footer {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__footer {
 	background-color: #1d4990;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__footer a:hover {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__footer a:hover {
 	color: #00aeef;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__title {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__title {
 	border-bottom: 2px solid #00aeef;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__information .ss__demo__social a {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__footer .ss__demo__information .ss__demo__social a {
 	background-color: #00aeef;
 }
 
@@ -1357,19 +1358,19 @@ fieldset {
 	line-height: 46px;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing span {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing span {
 	color: #515151;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__msrp {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__msrp {
 	color: #737373;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price {
 	font-weight: 700;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price--on-sale {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__result .ss__result__side > .ss__result__details .ss__result__pricing .ss__result__price--on-sale {
 	color: #00aeef;
 }
 
@@ -1498,7 +1499,7 @@ fieldset {
 	line-height: 46px;
 }
 
-.ss__pike .ss__demo .ss__demo__theme .ss__demo__cart__products .ss__demo__cart__product .ss__demo__cart__product__details .ss__demo__cart__product__pricing {
+.ss__demo-site .ss__demo .ss__demo__theme .ss__demo__cart__products .ss__demo__cart__product .ss__demo__cart__product__details .ss__demo__cart__product__pricing {
 	font-weight: 700;
 	color: #00aeef;
 }

@@ -92,6 +92,10 @@ const defaultStyles: StyleScript<QuickviewLayoutProps> = ({ column1, column2, co
 		'& .ss__quickview__slideshow': {
 			marginBottom: 0,
 		},
+		// the quantity picker and add to cart share a row in the default layouts - center them on each other
+		'& .ss__quickview__row > .ss__quickview__quantity-picker, & .ss__quickview__row > .ss__quickview__add-to-cart': {
+			alignSelf: 'center',
+		},
 		'& .ss__quickview__title': {
 			fontSize: '1.4em',
 			paddingRight: '32px', // leave room for the close button

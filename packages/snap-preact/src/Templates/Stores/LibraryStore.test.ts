@@ -120,6 +120,19 @@ describe('LibraryStore', () => {
 		// expect(store.components.badge['Badge']).toStrictEqual(() => {})
 	});
 
+	it('offers the base, pike and denali library themes', async () => {
+		const store = new LibraryStore();
+
+		expect(Object.keys(store.import.theme)).toStrictEqual(['base', 'pike', 'denali']);
+
+		expect(store.themes.denali).toBeUndefined();
+		const denali = await store.import.theme.denali();
+		expect(store.themes.denali).toBe(denali);
+		expect(denali.name).toBe('denali');
+		expect(denali.type).toBe('templates');
+		expect(denali.variables.colors).toStrictEqual({ primary: 'currentColor', secondary: 'currentColor', accent: 'currentColor' });
+	});
+
 	it('can import and register library components', async () => {
 		const store = new LibraryStore();
 

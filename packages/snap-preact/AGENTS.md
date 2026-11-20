@@ -97,7 +97,7 @@ Merchandising banners only render where a layout puts them. There is no TypeScri
   - `content` implicitly renders header, banner and footer.
   - `facets` and `facetsHorizontal` implicitly render left.
   - `excludeBanners` turns off the implicit banners. Explicit `banner.*` modules still render.
-- **FacetsHorizontal has its own overflow sidebar** at `… facetsHorizontal sidebar`. It shows `banner.left` by default, and snappy removes it. That sidebar only renders when the facets overflow, so the lint rule doesn't count it as a place where banners render.
+- **FacetsHorizontal has its own overflow sidebar** at `… facetsHorizontal sidebar`. It shows `banner.left` by default. That sidebar only renders when the facets overflow, so the lint rule doesn't count it as a place where banners render.
 - **Not every shipped default renders every banner.** SearchHorizontal hides the sidebar, and with it `left`, except on mobile. The autocomplete `mobile` layout and the shared tablet `[['c1', 'c3']]` layout have no `facets`, so they render no `left`. AutocompleteSlideout never renders `left`.
 
 **Keep the lint rules in sync.** The default-layout tables in `eslint/src/utils/banners.cjs` mirror the sources listed above. Update them in the same PR whenever a template's default layout or a `themeComponents` layout changes.

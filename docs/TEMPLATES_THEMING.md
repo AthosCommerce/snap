@@ -46,6 +46,16 @@ The project theme contains the following properties:
 ### Theme `extends`
 The `extends` property is the base theme name to start from and will already contain variables, breakpoint overrides, and component props by default (unless choosing a blank theme)
 
+The library themes are:
+
+| Theme | Look |
+|-------|------|
+| `base` | Minimal component styling, a starting point for fully custom designs |
+| `pike` | Square corners, bordered controls and neutral gray surfaces |
+| `denali` | Rounded: pill buttons and chips, circular controls, and rounded facet cards and images |
+
+`pike` and `denali` use the theme colors the same way (`secondary` for titles and control outlines or fills, `primary` for emphasized text such as selected options and sale prices, `accent` for indicators such as chevrons and check marks), so switching `extends` between them keeps the meaning of a site's colors. Both default every color to `currentColor`, so they follow the page's text color until `theme.variables.colors` are set.
+
 
 ### Theme `variables`
 Each theme includes a common set of shared variables (for example, colors and breakpoints) that remain compatible when switching between themes.

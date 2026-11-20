@@ -50,10 +50,10 @@ export const QuickviewSlideout = observer((properties: QuickviewSlideoutProps) =
 		layout: [
 			['slideshow'],
 			['productDetail.mappings.core.name'],
+			['productDetail.mappings.core.price'],
 			['calloutBadge'],
 			['variantSelections'],
-			['quantityPicker'],
-			['button.add-to-cart'],
+			['quantityPicker', 'button.add-to-cart'],
 			['productDetail.mappings.core.description'],
 			['productDetailTable'],
 			['button.more-info'],
