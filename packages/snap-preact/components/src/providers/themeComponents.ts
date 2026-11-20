@@ -93,7 +93,7 @@ import type { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } fro
 import type { QuickviewModalProps, QuickviewModalTemplatesLegalProps } from '../components/Templates/QuickviewModal';
 import type { QuickviewSlideoutProps, QuickviewSlideoutTemplatesLegalProps } from '../components/Templates/QuickviewSlideout';
 import type { SlideshowProps, SlideshowTemplatesLegalProps } from '../components/Molecules/Slideshow';
-import type { LayoutSelectorOption, StyleScript } from '../types';
+import type { BadgeComponentProps, LayoutSelectorOption, StyleScript } from '../types';
 
 export type ThemeComponentProps<ComponentProps> = {
 	default: Partial<ComponentProps>;
@@ -900,7 +900,7 @@ export type ThemeComponentTemplateOverrides<Template extends string, Props, Lega
 // Component type to props mapping for typed component config
 export type ComponentTypePropsMap = {
 	result: ResultProps;
-	badge: OverlayBadgeProps;
+	badge: BadgeComponentProps;
 	overlayResult: OverlayResultProps;
 	badgeImage: BadgeImageProps;
 	badgePill: BadgePillProps;

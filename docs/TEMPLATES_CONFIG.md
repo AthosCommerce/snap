@@ -232,7 +232,7 @@ Snap Templates was built to intentionally not support custom Preact components c
 | Configuration Option | Description | Type | Default |
 |----------------------|-------------|------|---------|
 | `components` | Custom component definitions | Object | ➖ |
-| `components.badge[name]` | Custom badge component definition | Function (component) | ➖ |
+| `components.badge[name]` | Custom badge component definition. The component receives `BadgeComponentProps` (from `@athoscommerce/snap-preact/components`) plus each badge template parameter as an optional prop | Function (component) | ➖ |
 | `components.result[name]` | Custom result component definition | Function (component) | ➖ |
 
 ```tsx
