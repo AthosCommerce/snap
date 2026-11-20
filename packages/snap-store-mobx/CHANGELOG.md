@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.17.1](https://github.com/AthosCommerce/snap/compare/v1.17.0...v1.17.1) (2026-11-20)
+
+**Note:** Version bump only for package @athoscommerce/snap-store-mobx
+
 # [1.17.0](https://github.com/AthosCommerce/snap/compare/v1.16.0...v1.17.0) (2026-11-12)
 
 ### Bug Fixes
