@@ -118,8 +118,22 @@ const SHARED_THEME_SELECTORS = {
 
 // components/src/themes/<theme>/components/templates/*.ts - per-theme changes to the shared
 // selectors above, merged over them per selector. Themes not listed only use the shared ones.
-// Themes shouldn't change layouts, so this is empty - layoutBannerDefaults.test.ts fails if one does.
-const THEME_SELECTORS = {};
+// Themes don't change which modules a layout renders or where, so entries here only resize what the
+// shared defaults lay out - layoutBannerDefaults.test.ts fails if a theme drifts from this table.
+const DENALI_AUTOCOMPLETE_COLUMNS = {
+	// the shared columns' modules, 180px wide instead of the component's 150px
+	column1: { layout: ['termsList'], width: '180px' },
+	column2: { layout: ['facets'], width: '180px' },
+};
+const THEME_SELECTORS = {
+	denali: {
+		default: {
+			autocompleteFixed: DENALI_AUTOCOMPLETE_COLUMNS,
+			autocompleteModal: DENALI_AUTOCOMPLETE_COLUMNS,
+			autocompleteSlideout: DENALI_AUTOCOMPLETE_COLUMNS,
+		},
+	},
+};
 
 const SEARCH_TEMPLATE_PROPS = ['hideSidebar', 'hideTopToolbar', 'hideMiddleToolbar', 'hideBottomToolbar', 'mobileDisplayAt'];
 const SEARCH_SLOT_PROPS = ['layout', 'customComponent'];

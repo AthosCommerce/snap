@@ -8,8 +8,14 @@ const searchHorizontalStyleScript = ({ theme }: SearchHorizontalProps) => {
 	const variables = theme?.variables;
 
 	return css({
+		// room between the title and the facet bar beneath it
 		'& .ss__search-horizontal__header-section': {
-			marginBottom: '0px',
+			marginBottom: '15px',
+			// the shared layout centers the title between two spacers - without the leading one it sits on the left
+			// edge, in line with the facet bar and result count below it
+			'.ss__layout__row:has(.ss__search-header) > .ss__layout__separator:first-child': {
+				display: 'none',
+			},
 		},
 	});
 };

@@ -9,6 +9,7 @@ export const custom = {
 		gray02: '#e6e6e6', // decorative rule: chip and page outlines
 		controlBorder: '#cccccc', // control boundary: checkbox/radio boxes, swatch outlines, bullets, empty stars
 		gray03: '#959595', // muted text: counts, strike prices, placeholders, inactive tabs
+		gray04: '#767676', // label text: small titles that still need to be read (4.5:1 on white)
 	},
 	styles: {
 		// active/selected text - bold in the primary color

@@ -39,14 +39,18 @@ const variantSelectionStyleScript = ({ theme }: VariantSelectionProps) => {
 				},
 			},
 			'&.ss__dropdown--open .ss__dropdown__button': {
+				// the top corners keep the closed pill's radius, so only the bottom edge changes on open
 				borderRadius: '25px 25px 0 0',
-				boxShadow: '0 6px 12px 1px #0000001f',
 				zIndex: '10001',
 				position: 'relative',
 			},
 			'.ss__variant-selection__icon': {
 				marginLeft: '15px',
-				marginRight: '5px',
+				marginRight: '7px',
+				// a white disc behind the chevron, like the sort by pill
+				background: custom.colors.white,
+				padding: '5px',
+				borderRadius: '50%',
 				...custom.styles.indicator(variables?.colors?.accent),
 			},
 		},
@@ -58,6 +62,10 @@ export const variantSelection: ThemeComponent<'variantSelection', VariantSelecti
 	default: {
 		variantSelection: {
 			themeStyleScript: variantSelectionStyleScript,
+		},
+		'variantSelection icon': {
+			// the same rendered size as the sort by chevron disc
+			size: '17px',
 		},
 	},
 };

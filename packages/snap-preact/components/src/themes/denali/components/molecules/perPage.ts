@@ -19,17 +19,21 @@ const perPageStyleScript = ({ theme }: PerPageProps) => {
 			},
 		},
 		// the open list is one rounded card under the pill, with inset rows (out-specifies the select's own open state)
+		// - it floats over the results, so a soft shadow lifts it
 		'&.ss__select .ss__dropdown.ss__dropdown--open .ss__dropdown__content': {
 			backgroundColor: custom.colors.gray01,
 			borderRadius: '20px',
-			boxShadow: 'none',
+			boxShadow: '0 6px 12px 1px #0000001f',
 			padding: '44px 8px 8px',
 			'.ss__select__select': {
 				backgroundColor: 'transparent',
 				'.ss__select__select__option': {
 					borderRadius: '14px',
 					padding: '6px 22px',
-					'&:hover, &.ss__select__select__option--selected': {
+					'&:hover': {
+						backgroundColor: custom.colors.gray02,
+					},
+					'&.ss__select__select__option--selected': {
 						backgroundColor: custom.colors.white,
 					},
 				},

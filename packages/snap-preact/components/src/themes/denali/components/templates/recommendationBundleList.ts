@@ -28,7 +28,8 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 			color: variables?.colors?.secondary,
 		},
 
-		// the selected products and the subtotal are one card, its images capped so they stay a preview
+		// the selected products and the subtotal are one card, its images a fixed-size preview - they wrap rather than
+		// shrink, so the card does not resize as products are checked and unchecked
 		[`${prefix}__wrapper__cta`]: {
 			display: 'flex',
 			flexDirection: 'column',
@@ -43,15 +44,13 @@ const recommendationBundleListStyleScript = ({ theme }: RecommendationBundleList
 			},
 			[`${prefix}__wrapper__cta__inner__images`]: {
 				display: 'flex',
+				flexWrap: 'wrap',
 				justifyContent: 'center',
-				gap: '30px',
-				maxWidth: '560px',
+				gap: '15px 30px',
 				margin: '0 auto 15px',
 				[`${prefix}__wrapper__cta__inner__image-wrapper`]: {
 					position: 'relative',
-					flex: '1 1 0%',
-					minWidth: 0,
-					maxWidth: '200px',
+					flex: '0 0 90px',
 					padding: 0,
 					'.ss__icon': {
 						...custom.styles.indicator(variables?.colors?.accent),

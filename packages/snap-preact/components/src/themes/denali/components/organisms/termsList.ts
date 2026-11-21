@@ -1,22 +1,24 @@
 import { css } from '@emotion/react';
 import type { TermsListProps, TermsListTemplatesLegalProps } from '../../../../components/Organisms/TermsList';
 import { ThemeComponent } from '../../../../providers';
-// CSS in JS style script for the Terms component
-const termsListStyleScript = ({ theme }: TermsListProps) => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const variables = theme?.variables;
 
+// CSS in JS style script for the TermsList component
+const termsListStyleScript = ({}: TermsListProps) => {
 	return css({
-		[`@media (max-width: ${variables?.breakpoints.mobile}px)`]: {
-			'&.ss__terms-list .ss__terms__options': {
-				margin: '10px',
-				marginTop: '0px',
-			},
+		// no fill of its own - the term cards sit on the panel with a gap, like the facet cards beside them
+		background: 'none',
+		boxSizing: 'border-box',
+		gap: '10px',
+		padding: '10px',
+		// each card fills its row
+		'.ss__terms-list__row .ss__terms': {
+			flex: '1 1 0%',
+			minWidth: 0,
 		},
 	});
 };
 
-// Terms component props
+// TermsList component props
 export const termsList: ThemeComponent<'termsList', TermsListProps, TermsListTemplatesLegalProps> = {
 	default: {
 		termsList: {

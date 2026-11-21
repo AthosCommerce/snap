@@ -16,6 +16,7 @@ const filterSummaryStyleScript = ({ theme }: FilterSummaryProps) => {
 
 		'& .ss__filter-summary__filters': {
 			margin: '0px',
+			gap: '6px',
 		},
 
 		'&.ss__filter-summary--list .ss__filter-summary__filters .ss__filter .ss__filter__button .ss__button__content': {

@@ -82,7 +82,7 @@ A component's effective default layout comes from two places, and both need chec
    - The `defaultProps.layout` of each template.
 2. **`themes/themeComponents/*.ts`**: per-template, per-breakpoint layouts and `hideSidebar` toggles. Every theme spreads these.
 
-Themes don't change layouts. Per-theme files style components but leave layout, hide props and `mobileDisplayAt` to the shared defaults above, so every theme renders the same modules and banners in the same places.
+Themes don't change layouts. Per-theme files style components but leave layout, hide props and `mobileDisplayAt` to the shared defaults above, so every theme renders the same modules and banners in the same places. The point is that switching themes never changes what a layout contains or where it sits. Sizing is not content: a theme may resize what the shared defaults lay out, such as Denali's 180px autocomplete columns, as long as the modules stay the same. Because `column1`–`column4` carry their `layout` with their `width`, a resized column restates the shared `layout` unchanged.
 
 ### Banners in layouts
 
@@ -102,7 +102,7 @@ Merchandising banners only render where a layout puts them. There is no TypeScri
 
 **Keep the lint rules in sync.** The default-layout tables in `eslint/src/utils/banners.cjs` mirror the sources listed above. Update them in the same PR whenever a template's default layout or a `themeComponents` layout changes.
 
-- `components/src/themes/layoutBannerDefaults.test.ts` fails when a theme drifts from the tables. With the per-theme table (`THEME_SELECTORS`) empty, that includes any theme setting a layout or hide prop of its own.
+- `components/src/themes/layoutBannerDefaults.test.ts` fails when a theme drifts from the tables, which includes any theme setting a layout or hide prop of its own. The per-theme table (`THEME_SELECTORS`) holds the sizing-only exceptions described above; adding a theme's entry there is the deliberate step that lets one through.
 - Template internals such as `Search.tsx` `subProps` and the `AutocompleteLayout` defaults are not covered by that test, so check them by hand.
 
 ## The lint plugin (`eslint/`)

@@ -4,19 +4,22 @@ import { ThemeComponent } from '../../../../providers';
 import { custom } from '../../custom';
 
 // CSS in JS style script for the FacetPaletteOptions component
-const facetPaletteStyleScript = ({ theme }: FacetPaletteOptionsProps) => {
+const facetPaletteStyleScript = ({ theme, hideIcon }: FacetPaletteOptionsProps) => {
 	const variables = theme?.variables;
 
 	return css({
 		'.ss__facet-palette-options__option': {
+			// options are links - keep the site's link color off them (the selected ring is `currentColor`)
+			color: 'inherit',
 			'&:hover': {
 				cursor: 'pointer',
 				'.ss__facet-palette-options__option__palette': {
 					opacity: 0.7,
 				},
-				'.ss__facet-palette-options__option__wrapper': {
-					borderColor: 'transparent !important',
-				},
+			},
+			// no hover ring - a ring means selected
+			'&:hover:not(.ss__facet-palette-options__option--filtered) .ss__facet-palette-options__option__wrapper': {
+				borderColor: 'transparent !important',
 			},
 			'.ss__facet-palette-options__option__wrapper': {
 				borderRadius: '50%',
@@ -28,9 +31,15 @@ const facetPaletteStyleScript = ({ theme }: FacetPaletteOptionsProps) => {
 				border: `2px solid ${custom.colors.controlBorder}`,
 				'.ss__facet-palette-options__icon': {
 					opacity: 1,
-					stroke: 'gray',
 					strokeWidth: '2px',
+					// the check contrasts with its swatch - black on light colors, white on dark ones
+					...custom.styles.indicator(custom.colors.black),
+					stroke: custom.colors.black,
 				},
+			},
+			'&.ss__facet-palette-options__option--dark .ss__facet-palette-options__icon': {
+				...custom.styles.indicator(custom.colors.white),
+				stroke: custom.colors.white,
 			},
 
 			'&.ss__facet-palette-options__option--filtered .ss__facet-palette-options__option__value': {
@@ -51,9 +60,18 @@ const facetPaletteStyleScript = ({ theme }: FacetPaletteOptionsProps) => {
 				},
 			},
 
+			// without the check (`hideIcon`, e.g. the small autocomplete swatches) the selected swatch sits in a
+			// white ring with a dark outline, like the selected swatch on a result card
 			'.ss__facet-palette-options__option--filtered': {
 				'.ss__facet-palette-options__option__wrapper': {
-					border: '0px',
+					...(hideIcon
+						? {
+								// important, to hold against the component's hover ring color
+								border: `2px solid ${variables?.colors?.secondary} !important`,
+								padding: '2px',
+								backgroundColor: custom.colors.white,
+						  }
+						: { border: '0px' }),
 					aspectRatio: '1 / 1',
 
 					'.ss__facet-palette-options__option__palette': {

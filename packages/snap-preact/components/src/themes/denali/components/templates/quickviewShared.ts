@@ -5,6 +5,7 @@ import { custom } from '../../custom';
 // the quickview layout inside both quickview templates (QuickviewLayout itself is not themed directly)
 export const quickviewSharedStyles = (theme?: Theme): CSSObject => {
 	const variables = theme?.variables;
+	const moreInfoColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.black);
 
 	// nested under `.ss__quickview` to out-specify the layout's own (later inserted) rules
 	return {
@@ -30,6 +31,26 @@ export const quickviewSharedStyles = (theme?: Theme): CSSObject => {
 			// rows stacked directly in the content (the slideout's single column) get the gap the layout's columns have
 			'.ss__quickview__content > .ss__quickview__row + .ss__quickview__row': {
 				marginTop: '12px',
+			},
+			// more info is the quickview's closing action, like the sidebar's Apply - a filled bar across its row
+			'.ss__quickview__row:has(> .ss__quickview__go-to-product)': {
+				paddingTop: '20px',
+				'.ss__quickview__go-to-product': {
+					flex: '1 1 0%',
+					padding: '12px 15px',
+					textAlign: 'center',
+					'&, &:not(.ss__button--disabled):hover': {
+						backgroundColor: moreInfoColors[0],
+						borderColor: moreInfoColors[0],
+						color: moreInfoColors[1],
+					},
+					'&:not(.ss__button--disabled):hover': {
+						opacity: 0.8,
+					},
+					'.ss__button__content': {
+						justifyContent: 'center',
+					},
+				},
 			},
 			// a quiet icon button, not a pill
 			'.ss__button.ss__quickview__close': {

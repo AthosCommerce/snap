@@ -7,10 +7,15 @@ const filterStyleScript = ({}: FilterProps) => {
 	return css({
 		// the chip is a link - keep the site's link color off it so the pill follows the page color
 		color: 'inherit',
-		'& .ss__filter__button .ss__filter__button__icon': {
-			margin: '0 10px 0 0',
-			fill: 'currentColor',
-			stroke: 'currentColor',
+		// a compact chip - a thinner outline and tighter padding than an action button, so a row of them wraps less
+		'& .ss__filter__button': {
+			padding: '6px 12px',
+			borderWidth: '2px',
+			'.ss__filter__button__icon': {
+				margin: '0 6px 0 0',
+				fill: 'currentColor',
+				stroke: 'currentColor',
+			},
 		},
 	});
 };

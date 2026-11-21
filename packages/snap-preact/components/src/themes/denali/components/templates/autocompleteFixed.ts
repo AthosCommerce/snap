@@ -1,20 +1,20 @@
 import { css } from '@emotion/react';
 import { autocompleteFixedThemeComponentProps } from '../../../themeComponents/autocompleteFixed';
 import { ThemeComponent } from '../../../../providers';
-import { autocompleteSharedStyles } from './autocompleteShared';
+import { autocompleteSeeMoreStyles, autocompleteSharedStyles } from './autocompleteShared';
 import { AutocompleteFixedProps, AutocompleteFixedTemplatesLegalProps } from '../../../../components/Templates/AutocompleteFixed';
 
 // CSS in JS style script for the Search component
-const autocompleteFixedStyleScript = ({ width }: AutocompleteFixedProps) => {
+const autocompleteFixedStyleScript = ({ width, theme }: AutocompleteFixedProps) => {
 	return css({
 		...autocompleteSharedStyles,
-		'.ss__autocomplete__button--see-more': {
-			margin: '10px',
-		},
-		// the panel hangs from the store's input - round only its bottom corners
+		...autocompleteSeeMoreStyles(theme?.variables?.colors?.secondary),
+		// the panel's corners are concentric with the 20px cards inset 10px inside it
 		'.ss__autocomplete-fixed__inner .ss__autocomplete': {
-			borderRadius: '20px',
+			borderRadius: '30px',
 			overflow: 'hidden',
+			// the same shadow as the open sort by and facet dropdowns, lifting the panel off the page
+			boxShadow: '0 6px 12px 1px #0000001f',
 		},
 		// the results column of a fixed panel is narrow - the text uses the full card width
 		'.ss__autocomplete__content .ss__results .ss__result__details': {
@@ -44,9 +44,30 @@ export const autocompleteFixed: ThemeComponent<'autocompleteFixed', Autocomplete
 		autocompleteFixed: {
 			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed'] || {}),
 			themeStyleScript: autocompleteFixedStyleScript,
+			// wider terms and facets columns than the component's 150px, so the term cards' titles and the facet
+			// options beside their checkboxes fit on one line. only the width differs from the shared columns - their
+			// modules are the same (mirrored in THEME_SELECTORS in eslint/src/utils/banners.cjs)
+			column1: {
+				layout: ['termsList'],
+				width: '180px',
+			},
+			column2: {
+				layout: ['facets'],
+				width: '180px',
+			},
 			width: '940px',
 		},
 
+		// list options show their checkboxes, as in the sidebar - a checked box marks a selected option
+		'autocompleteFixed facetListOptions': {
+			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed facetListOptions'] || {}),
+			hideCheckbox: false,
+		},
+		// the swatches are too small for a check - the selected one gets a ring instead
+		'autocompleteFixed facetPaletteOptions': {
+			...(autocompleteFixedThemeComponentProps.default?.['autocompleteFixed facetPaletteOptions'] || {}),
+			hideIcon: true,
+		},
 		'autocompleteFixed recommendationGrid': {
 			columns: 4,
 			rows: 2,

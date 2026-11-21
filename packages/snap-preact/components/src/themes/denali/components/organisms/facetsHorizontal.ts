@@ -88,14 +88,35 @@ const facetsHorizontalStyleScript = ({ theme }: FacetsHorizontalProps) => {
 					},
 				},
 
-				// a gray rounded card under the pill, like the sidebar facets and the open sort by list
+				// a gray rounded card under the pill, like the sidebar facets and the open sort by list - it floats over
+				// the results, so a soft shadow lifts it off the gray product images beneath
 				'.ss__dropdown__content': {
 					backgroundColor: custom.colors.gray01,
 					borderRadius: '20px',
-					boxShadow: 'none',
+					boxShadow: '0 6px 12px 1px #0000001f',
 					marginTop: '8px',
 					'.ss__checkbox': {
 						backgroundColor: custom.colors.white,
+					},
+				},
+				// grids, palettes and sliders have no width of their own - without one the card shrinks to two tiles across
+				'&:has(.ss__facet-grid-options, .ss__facet-palette-options, .ss__facet-slider) .ss__dropdown__content': {
+					boxSizing: 'border-box',
+					width: '260px',
+					maxWidth: 'calc(100vw - 40px)',
+				},
+				// list and hierarchy options are inset rows with a hover fill, like the rows of the open sort by list
+				// (the options container clips its overflow, so it is the container that widens to inset the rows)
+				'.ss__facet__options:has(.ss__facet-list-options, .ss__facet-hierarchy-options)': {
+					marginLeft: '-12px',
+					marginRight: '-12px',
+				},
+				'.ss__facet-list-options__option, .ss__facet-hierarchy-options__option': {
+					margin: '0 0 2px',
+					padding: '6px 12px',
+					borderRadius: '14px',
+					'&:hover': {
+						backgroundColor: custom.colors.gray02,
 					},
 				},
 				'.ss__facet': {

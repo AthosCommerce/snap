@@ -13,7 +13,8 @@ const facetGridOptionsStyleScript = ({ theme }: FacetGridOptionsProps) => {
 			// options are links - keep the site's link color off them
 			color: 'inherit',
 			border: `1px solid ${custom.colors.controlBorder}`,
-			borderRadius: '3px',
+			borderRadius: '10px',
+			// selected tiles are filled, like the theme's primary buttons (Apply, See more, More info)
 			'&.ss__facet-grid-options__option--filtered': {
 				background: activeColors[0],
 				borderColor: activeColors[0],
@@ -21,7 +22,7 @@ const facetGridOptionsStyleScript = ({ theme }: FacetGridOptionsProps) => {
 			},
 			'&:hover:not(.ss__facet-grid-options__option--filtered)': {
 				cursor: 'pointer',
-				background: custom.colors.gray01,
+				background: custom.colors.gray02,
 			},
 		},
 	});

@@ -28,8 +28,9 @@ const facetSliderStyleScript = ({
 			background: railColor || variables?.colors?.accent,
 		},
 
+		// the unselected ends of the track - a gray that still shows on the facet card
 		'& .ss__facet-slider__segment': {
-			background: trackColor || custom.colors.gray01,
+			background: trackColor || custom.colors.controlBorder,
 			borderRadius: '3px',
 		},
 

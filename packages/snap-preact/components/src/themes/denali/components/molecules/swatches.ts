@@ -18,6 +18,19 @@ const swatchesStyleScript = (props: SwatchesProps) => {
 			overflow: 'hidden',
 			'&.ss__swatches__slideshow__swatch--selected': {
 				border: `2px solid ${variables?.colors?.secondary}`,
+				// a white gap inside the ring, so it reads on swatches as dark as the ring
+				'.ss__swatches__slideshow__swatch__inner': {
+					boxSizing: 'border-box',
+					border: `2px solid ${custom.colors.white}`,
+					borderRadius: '50%',
+				},
+			},
+			// dark swatches turn their text white - keep that on the label, so the ring (`currentColor`) stays dark
+			'&.ss__swatches__slideshow__swatch--dark': {
+				color: 'inherit',
+				'.ss__swatches__slideshow__swatch__value': {
+					color: custom.colors.white,
+				},
 			},
 			'.ss__image': {
 				borderRadius: 'inherit',
