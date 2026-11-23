@@ -10,6 +10,7 @@ const lightGray = custom.colors.gray03;
 const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -32,11 +33,11 @@ const facetHierarchyOptionsStyleScript = (props: FacetHierarchyOptionsProps) => 
 		'.ss__facet-hierarchy-options__option.ss__facet-hierarchy-options__option--return': {
 			'.ss__icon': {
 				padding: 0,
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(roles.structure),
 			},
 		},
 		'.ss__facet-hierarchy-options__option.ss__facet-hierarchy-options__option--filtered': {
-			...custom.styles.activeText(variables?.colors?.primary),
+			...custom.styles.activeText(roles.brand),
 		},
 	});
 

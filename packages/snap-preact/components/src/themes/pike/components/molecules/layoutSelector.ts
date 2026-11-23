@@ -7,8 +7,9 @@ import { custom } from '../../custom';
 const layoutSelectorStyleScript = (props: LayoutSelectorProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = roles.brandFill;
 	const activeColor = activeColors[0];
 	const activeIconColor = activeColors[1];
 

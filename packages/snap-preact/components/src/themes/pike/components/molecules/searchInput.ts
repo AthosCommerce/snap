@@ -11,8 +11,9 @@ const lightGray = custom.colors.gray03;
 const searchInputStyleScript = (props: SearchInputProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	// the icon buttons are secondary-filled - the 1px seam between them is a darker shade of that fill
-	const buttonColor = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary)[0];
+	const buttonColor = roles.structureFill[0];
 	const seamColor = custom.utils.darkenColor(buttonColor, 0.15);
 
 	// search input styles

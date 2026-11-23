@@ -33,10 +33,11 @@ const handlesInset = slider.handles / 2 + 4;
 const facetSliderStyleScript = (props: FacetSliderProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const hasTicks = props?.showTicks ? true : false;
 	const hasStickyHandles = props?.stickyHandleLabel ? true : false;
 	const trackBorderColor = props?.trackColor != custom.colors.gray01 ? custom.utils.darkenColor(props.trackColor, 0.25) : custom.colors.controlBorder;
-	const activeColors = custom.utils.activeColors(props?.handleColor || variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = props?.handleColor ? custom.utils.activeColors(props.handleColor) : roles.brandFill;
 
 	// values font styles
 	const valuesStyles = css({
@@ -83,7 +84,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 			},
 			'.ss__facet-slider__rail': {
 				// the selected range is a position indicator (the component colors it primary)
-				backgroundColor: props?.railColor || variables?.colors?.accent,
+				backgroundColor: props?.railColor || roles.brand,
 				...custom.styles.borderRadius(slider.bar),
 			},
 			'.ss__facet-slider__handles': {
@@ -97,7 +98,7 @@ const facetSliderStyleScript = (props: FacetSliderProps) => {
 						},
 					},
 					'.ss__facet-slider__handle': {
-						// a filled control - secondary with a contrast dot (the component defaults the fill to primary)
+						// a selected-range handle - filled with primary and a contrast dot
 						backgroundColor: activeColors[0],
 						'&.ss__facet-slider__handle--active': {
 							backgroundColor: props?.handleDraggingColor || activeColors[0],

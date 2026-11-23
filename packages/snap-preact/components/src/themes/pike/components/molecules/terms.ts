@@ -7,6 +7,7 @@ import { custom } from '../../custom';
 const termsStyleScript = (props: TermsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const desktopBp = variables?.breakpoints?.desktop as number;
 
 	// shared styles
@@ -17,7 +18,7 @@ const termsStyleScript = (props: TermsProps) => {
 				padding: 0,
 			},
 			h5: {
-				...custom.styles.headerText(variables?.colors?.secondary, '14px'),
+				...custom.styles.headerText(roles.structure, '14px'),
 				lineHeight: 1.2,
 			},
 		},
@@ -28,7 +29,7 @@ const termsStyleScript = (props: TermsProps) => {
 				margin: 0,
 			},
 			'.ss__terms__option': {
-				// plain text - only the active term takes the primary (active text) color
+				// plain text - only the active term takes the primary (active text) color, and the untyped part of a suggestion the accent
 				'&, a': {
 					color: 'inherit',
 				},
@@ -43,9 +44,13 @@ const termsStyleScript = (props: TermsProps) => {
 			},
 			'.ss__terms__option--active': {
 				'a, a em': {
-					...custom.styles.activeText(variables?.colors?.primary),
+					...custom.styles.activeText(roles.brand),
 				},
 			},
+		},
+		// the untyped part of each autocomplete suggestion is a highlight - popular and recent terms have nothing typed to complete
+		'&.ss__terms-list__terms--suggestions .ss__terms__options .ss__terms__option:not(.ss__terms__option--active) a em': {
+			color: roles.highlight,
 		},
 		[`${custom.utils.getBp(desktopBp)}`]: {
 			'.ss__terms__title h5, .ss__terms__options .ss__terms__option a': {

@@ -8,6 +8,7 @@ import { custom } from '../../custom';
 const recommendationGridStyleScript = (props: RecommendationGridProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const tabletBp = variables?.breakpoints?.tablet as number;
 	const hasOverflow = props?.rows == 1 ? true : false;
 
@@ -17,7 +18,7 @@ const recommendationGridStyleScript = (props: RecommendationGridProps) => {
 		maxHeight: 'none',
 		'.ss__recommendation-grid__title': {
 			margin: `0 0 ${custom.spacing.x4}px 0`,
-			...custom.styles.headerText(variables?.colors?.secondary, '18px'),
+			...custom.styles.headerText(roles.structure, '18px'),
 		},
 		[`${custom.utils.getBp(custom.breakpoints.small)}`]: {
 			'.ss__recommendation-grid__title': {

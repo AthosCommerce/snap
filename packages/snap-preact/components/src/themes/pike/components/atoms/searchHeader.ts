@@ -7,6 +7,7 @@ import { custom } from '../../custom';
 const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// search header styles
 	const searchHeaderStyles = css({
@@ -15,7 +16,7 @@ const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 		},
 		'.ss__search-header__title': {
 			margin: 0,
-			...custom.styles.headerText(variables?.colors?.secondary, '22px'),
+			...custom.styles.headerText(roles.structure, '22px'),
 			'& ~ .ss__search-header__subtitle': {
 				marginTop: `${custom.spacing.x2}px`,
 			},
@@ -25,11 +26,11 @@ const searchHeaderStyleScript = (props: SearchHeaderProps) => {
 			fontSize: '16px',
 			fontWeight: 400,
 			a: {
-				color: variables?.colors?.primary,
+				color: roles.structure,
 			},
 		},
-		'.ss__search-header__results-query': {
-			color: variables?.colors?.primary,
+		'.ss__search-header__results-query, .ss__search-header__subtitle em': {
+			color: roles.highlight,
 		},
 	});
 

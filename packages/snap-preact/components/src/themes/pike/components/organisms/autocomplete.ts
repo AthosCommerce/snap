@@ -14,6 +14,7 @@ const activeSelectors =
 const autocompleteStyleScript = (props: AutocompleteProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const desktopBp = variables?.breakpoints?.desktop as number;
 	const tabletBp = variables?.breakpoints?.tablet as number;
 	const mobileBp = variables?.breakpoints?.mobile as number;
@@ -59,7 +60,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 			},
 			[headerSelectors]: {
 				padding: 0,
-				...custom.styles.headerText(variables?.colors?.secondary, '14px'),
+				...custom.styles.headerText(roles.structure, '14px'),
 				lineHeight: 1.2,
 			},
 			'.ss__autocomplete__facets .ss__facets .ss__facet .ss__facet__header, .ss__autocomplete__content__results .ss__autocomplete__title h5, .ss__autocomplete__content__info a, .ss__no-results__recommendations h3':
@@ -67,7 +68,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 					margin: `0 0 ${custom.spacing.x4}px 0`,
 				},
 			[activeSelectors]: {
-				...custom.styles.activeText(variables?.colors?.primary),
+				...custom.styles.activeText(roles.brand),
 			},
 			'& > div': {
 				minWidth: '1px',
@@ -87,6 +88,10 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 			},
 			'.ss__autocomplete__terms': {
 				backgroundColor: 'transparent',
+				// the untyped part of each suggestion is a highlight - trending and history terms have nothing typed to complete
+				'.ss__autocomplete__terms__suggestions .ss__autocomplete__terms__option:not(.ss__autocomplete__terms__option--active) a em': {
+					color: roles.highlight,
+				},
 				'& > div': {
 					'.ss__autocomplete__title': {
 						padding: 0,
@@ -102,7 +107,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						},
 						'.ss__autocomplete__terms__option--active a': {
 							'&, & em': {
-								...custom.styles.activeText(variables?.colors?.primary),
+								...custom.styles.activeText(roles.brand),
 							},
 						},
 					},
@@ -180,7 +185,7 @@ const autocompleteStyleScript = (props: AutocompleteProps) => {
 						margin: 0,
 					},
 					'.ss__icon': {
-						...custom.styles.indicator(variables?.colors?.accent),
+						...custom.styles.indicator(roles.structure),
 						position: 'absolute',
 						top: 0,
 						bottom: 0,

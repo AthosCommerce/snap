@@ -15,6 +15,7 @@ const plusIconSize = custom.sizes.icon12;
 const recommendationBundleListStyleScript = (props: RecommendationBundleListProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// bundle list shared styles
 	const sharedStyles = css({
@@ -35,7 +36,7 @@ const recommendationBundleListStyleScript = (props: RecommendationBundleListProp
 			},
 		},
 		'.ss__recommendation-bundle-list__title': {
-			...custom.styles.headerText(variables?.colors?.secondary, '16px'),
+			...custom.styles.headerText(roles.structure, '16px'),
 		},
 		'.ss__recommendation-bundle-list__wrapper': {
 			flexFlow: 'row wrap',
@@ -101,8 +102,8 @@ const recommendationBundleListStyleScript = (props: RecommendationBundleListProp
 						minWidth: '1px',
 						padding: 0,
 						'.ss__icon': {
-							// the "plus" joining the bundle images is an indicator
-							...custom.styles.indicator(variables?.colors?.accent),
+							// the "plus" joining the bundle images is a structural icon
+							...custom.styles.indicator(roles.structure),
 							top: 0,
 							bottom: 0,
 							right: `-${custom.spacing.x2 + plusIconSize}px`,

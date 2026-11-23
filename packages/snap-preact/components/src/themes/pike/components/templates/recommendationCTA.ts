@@ -14,6 +14,7 @@ const lightGray = custom.colors.gray03;
 export const recommendationCTAStyleScript = (props: CTAProps, handle: string, spacing?: string) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const recommendationHandle = `.ss__recommendation-${handle}__wrapper`;
 
 	// shared styles
@@ -44,14 +45,14 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 			},
 			[`${recommendationHandle}__cta__subtotal__icon__wrapper`]: {
 				lineHeight: 1,
-				// the "plus" joining the bundle is an indicator
+				// the "plus" joining the bundle is a structural icon
 				'.ss__icon': {
-					...custom.styles.indicator(variables?.colors?.accent),
+					...custom.styles.indicator(roles.structure),
 				},
 			},
 			[`${recommendationHandle}__cta__subtotal__title`]: {
 				display: 'block',
-				...custom.styles.headerText(variables?.colors?.secondary, '16px'),
+				...custom.styles.headerText(roles.structure, '16px'),
 			},
 			[`${recommendationHandle}__cta__subtotal__prices`]: {
 				label: {
@@ -65,10 +66,10 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 					'&, span': {
 						color: lightGray,
 					},
-					// a discounted subtotal is a sale price - emphasized text, like result sale prices
+					// a discounted subtotal is a sale price - a highlight, like result sale prices
 					[`& ~ ${recommendationHandle}__cta__subtotal__price`]: {
 						'&, span': {
-							color: variables?.colors?.primary,
+							color: roles.highlight,
 						},
 					},
 				},
@@ -80,7 +81,13 @@ export const recommendationCTAStyleScript = (props: CTAProps, handle: string, sp
 				},
 			},
 		},
+		// add to cart is the bundle's main action - filled with the brand color, like Apply and More info
 		[`${recommendationHandle}__cta__button`]: {
+			'&, &:hover, &:not(.ss__button--disabled):hover': {
+				backgroundColor: roles.brandFill[0],
+				borderColor: roles.brandFill[0],
+				color: roles.brandFill[1],
+			},
 			flexWrap: 'nowrap',
 			textOverflow: 'ellipsis',
 			whiteSpace: 'nowrap',

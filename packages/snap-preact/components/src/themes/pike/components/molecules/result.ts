@@ -11,17 +11,18 @@ const quickviewSize = 32;
 const resultStyleScript = (props: ResultProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const quickviewColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const roles = custom.utils.colorRoles(variables);
+	const quickviewColors = roles.structureFill;
 
 	// result styles
 	const resultStyles = css({
-		// a sale price is emphasized text, like any other active text
+		// a sale price is a highlight
 		'&.ss__result--sale': {
 			'.ss__result__details': {
 				'.ss__result__details__pricing': {
 					'.ss__result__price:not(.ss__price--strike)': {
 						'&, span': {
-							color: variables?.colors?.primary,
+							color: roles.highlight,
 						},
 					},
 				},
@@ -40,7 +41,7 @@ const resultStyleScript = (props: ResultProps) => {
 				flex: '0 1 auto',
 				border: `1px solid ${custom.colors.gray02}`,
 				// quiet white square over the image, revealed on hover/keyboard focus (always shown on touch
-				// devices, which cannot hover) - it fills with the secondary color while hovered itself
+				// devices, which cannot hover) - it fills with the secondary (structure) color while hovered itself
 				'.ss__button.ss__result__quickview': {
 					// same inset as the overlay badges
 					right: `${custom.spacing.x1}px`,

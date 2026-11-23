@@ -12,6 +12,7 @@ const activeSelectors =
 export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, template: string) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const desktopBp = variables?.breakpoints?.desktop as number;
 	const tabletBp = variables?.breakpoints?.tablet as number;
 	const mobileBp = variables?.breakpoints?.mobile as number;
@@ -54,16 +55,16 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 		[headerSelectors]: {
 			margin: `0 0 ${custom.spacing.x4}px 0`,
 			padding: 0,
-			...custom.styles.headerText(variables?.colors?.secondary, '14px'),
+			...custom.styles.headerText(roles.structure, '14px'),
 			lineHeight: 1.2,
 		},
 		[activeSelectors]: {
-			...custom.styles.activeText(variables?.colors?.primary),
+			...custom.styles.activeText(roles.brand),
 		},
 		// the terms title is an h5 - keep it the same color as the other section titles (site heading
 		// styles otherwise out-specify the terms component's own rule)
 		'.ss__terms__title h5': {
-			color: variables?.colors?.secondary,
+			color: roles.structure,
 		},
 	});
 
@@ -233,7 +234,7 @@ export const autocompleteSharedStyleScript = (props: AutocompleteLayoutProps, te
 				margin: 0,
 			},
 			'.ss__icon': {
-				...custom.styles.indicator(variables?.colors?.accent),
+				...custom.styles.indicator(roles.structure),
 			},
 		},
 	});

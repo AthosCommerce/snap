@@ -68,6 +68,16 @@ new SnapTemplates(validateTemplatesConfig({
 }));
 ```
 
+The three colors each have one job, and the library themes use them the same way:
+
+| Color | Role | Used for |
+|-------|------|----------|
+| `primary` | Brand | Filled main actions (the filters' Apply, the quickview's More info, a bundle's add to cart) and every selected, active or current state - selected options and their checks, the current page, crumb, tab and term, selected tiles and swatches, and the price slider |
+| `secondary` | Structure | Titles, icons and chevrons, text actions and links (show more, no results), and every other button |
+| `accent` | Highlight | The query in the results header and in a spelling correction, the untyped part of each autocomplete suggestion, sale prices and rating stars |
+
+Every color defaults to `currentColor`, so a theme follows the page's text color until these are set. Setting `primary` alone brands every action and selection. A color too light to read as text, an outline or an icon on white is darkened, keeping its hue, wherever it is used that way; filled controls keep the color and switch their text to black or white.
+
 ### Theme `style`
 Specifies a function that returns [emotion object styles](https://emotion.sh/docs/object-styles). This function receives theme variables as props and allows you to create styles that respond to specific breakpoints. The resulting styles are injected into the document's `<head>` element.
 

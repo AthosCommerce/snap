@@ -7,6 +7,7 @@ import { custom } from '../../custom';
 const noResultsStyleScript = (props: NoResultsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// no results styles
 	const noResultsStyles = css({
@@ -15,13 +16,13 @@ const noResultsStyleScript = (props: NoResultsProps) => {
 				margin: `0 0 ${custom.spacing.x4}px 0`,
 			},
 			'h1, h2, h3, h4, h5, h6, .ss__no-results__recommendations .ss__recommendation .ss__recommendation__title': {
-				...custom.styles.headerText(variables?.colors?.secondary, '20px'),
+				...custom.styles.headerText(roles.structure, '20px'),
 			},
 			'ul li, p': {
 				...custom.styles.baseText(),
 			},
 			a: {
-				color: variables?.colors?.primary,
+				color: roles.structure,
 			},
 			ul: {
 				padding: 0,

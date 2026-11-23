@@ -13,8 +13,9 @@ const slideshowPaginationSpacing = slideshowSpacing + slideshowPaginationSize;
 const slideshowStyleScript = (props: SlideshowProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = roles.structureFill;
 	const buttonColor = activeColors[0];
 	const fontColor = activeColors[1];
 
@@ -81,7 +82,7 @@ const slideshowStyleScript = (props: SlideshowProps) => {
 				minWidth: '1px',
 				margin: 0,
 				padding: 0,
-				// a `currentColor` accent must resolve to the page color, not the button's contrast text color
+				// a `currentColor` primary must resolve to the page color, not the button's contrast text color
 				color: 'inherit',
 				...custom.styles.borderRadius(0),
 				'&, &:hover, &:not(.ss__button--disabled):hover': {
@@ -90,8 +91,8 @@ const slideshowStyleScript = (props: SlideshowProps) => {
 				},
 				'&.ss__slideshow__dot--active': {
 					'&, &:hover, &:not(.ss__button--disabled):hover': {
-						backgroundColor: variables?.colors?.accent,
-						borderColor: variables?.colors?.accent,
+						backgroundColor: roles.brand,
+						borderColor: roles.brand,
 					},
 				},
 			},

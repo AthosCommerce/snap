@@ -7,6 +7,7 @@ import { custom } from '../../custom';
 const dropdownStyleScript = (props: DropdownProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// disabled styles
 	const disabled = props?.disabled
@@ -62,7 +63,7 @@ const dropdownStyleScript = (props: DropdownProps) => {
 					},
 				},
 				'.ss__select__select .ss__select__select__option--selected, .ss__variant-selection__options .ss__variant-selection__option--selected': {
-					...custom.styles.activeText(variables?.colors?.primary),
+					...custom.styles.activeText(roles.brand),
 				},
 				'.ss__select__select .ss__select__select__option----unavailable, .ss__select__select .ss__select__select__option--disabled, .ss__variant-selection__options .ss__variant-selection__option--unavailable, .ss__variant-selection__options .ss__variant-selection__option--disabled':
 					{

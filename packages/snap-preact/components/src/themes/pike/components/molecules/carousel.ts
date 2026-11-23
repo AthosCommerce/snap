@@ -15,9 +15,10 @@ const carouselOptions = {
 const carouselStyleScript = (props: CarouselProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 	const isDraggable = typeof props?.scrollbar == 'object' && props?.scrollbar?.draggable ? true : false;
 
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = roles.structureFill;
 	const buttonColor = activeColors[0];
 	const fontColor = activeColors[1];
 
@@ -100,8 +101,8 @@ const carouselStyleScript = (props: CarouselProps) => {
 					...custom.styles.borderRadius(0),
 				},
 				'.swiper-pagination-bullet-active': {
-					backgroundColor: variables?.colors?.accent,
-					borderColor: variables?.colors?.accent,
+					backgroundColor: roles.brand,
+					borderColor: roles.brand,
 				},
 			},
 			'& > .swiper-scrollbar': {
@@ -125,7 +126,7 @@ const carouselStyleScript = (props: CarouselProps) => {
 				},
 				'.swiper-scrollbar-drag': {
 					zIndex: 2,
-					backgroundColor: variables?.colors?.accent,
+					backgroundColor: roles.brand,
 				},
 			},
 		},

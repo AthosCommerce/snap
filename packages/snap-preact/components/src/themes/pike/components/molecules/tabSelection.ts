@@ -11,14 +11,14 @@ const underline = 2; // matches the facet header underline
 const tabSelectionStyleScript = (props: TabSelectionProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const primary = variables?.colors?.primary;
-	const activeColor = primary && primary != 'currentColor' ? primary : 'inherit';
+	const roles = custom.utils.colorRoles(variables);
+	const activeColor = roles.brand && roles.brand != 'currentColor' ? roles.brand : 'inherit';
 
 	// tabs are text on a light rule - the active tab is bold with the Pike header underline
 	const tabSelectionStyles = css({
 		'.ss__tab-selection__title': {
 			margin: `0 0 ${custom.spacing.x2}px 0`,
-			...custom.styles.headerText(variables?.colors?.secondary, '16px'),
+			...custom.styles.headerText(roles.structure, '16px'),
 		},
 		'.ss__tab-selection__tabs': {
 			flexWrap: 'wrap',
@@ -45,8 +45,8 @@ const tabSelectionStyleScript = (props: TabSelectionProps) => {
 					fontWeight: custom.fonts.weight01,
 					// inactive tabs are muted, so a `currentColor` primary must inherit the page color instead
 					color: activeColor,
-					// the section rule, in the accent color like facet headers
-					borderBottomColor: variables?.colors?.accent || 'currentColor',
+					// the current tab's rule, in the brand color like every other current state
+					borderBottomColor: roles.brand || 'currentColor',
 				},
 			},
 			'.ss__tab-selection__button__count': {

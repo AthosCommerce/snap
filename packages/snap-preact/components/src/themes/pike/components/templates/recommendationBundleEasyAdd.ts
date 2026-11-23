@@ -12,6 +12,7 @@ import { custom } from '../../custom';
 const recommendationBundleEasyAddStyleScript = (props: RecommendationBundleEasyAddProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// bundle easy add shared styles
 	const sharedStyles = css({
@@ -32,7 +33,7 @@ const recommendationBundleEasyAddStyleScript = (props: RecommendationBundleEasyA
 			},
 		},
 		'.ss__recommendation-bundle-easy-add__title': {
-			...custom.styles.headerText(variables?.colors?.secondary, '16px'),
+			...custom.styles.headerText(roles.structure, '16px'),
 		},
 		'.ss__recommendation-bundle-easy-add__wrapper': {
 			display: 'block',

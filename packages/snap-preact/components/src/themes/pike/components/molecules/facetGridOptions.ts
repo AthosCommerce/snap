@@ -7,8 +7,9 @@ import { custom } from '../../custom';
 const facetGridOptionsStyleScript = (props: FacetGridOptionsProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
-	const activeColors = custom.utils.activeColors(variables?.colors?.secondary || custom.colors.secondary);
+	const activeColors = roles.brandFill;
 	const activeColor = activeColors[0];
 	const fontColor = activeColors[1];
 

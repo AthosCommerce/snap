@@ -9,7 +9,7 @@ const priceStyleScript = (props: PriceProps) => {
 	const variables = props?.theme?.variables;
 
 	// price styles - the component colors every price with `primary`; Pike prices are plain text and the
-	// owning component marks sale prices with the accent color (e.g. `.ss__result--sale`)
+	// owning component marks sale prices with the accent (highlight) color (e.g. `.ss__result--sale`)
 	const priceStyles = css({
 		color: 'inherit',
 		'&.ss__price--strike': {

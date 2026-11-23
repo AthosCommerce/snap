@@ -10,7 +10,8 @@ const buttonDisabledSelectors = '&.ss__button--disabled';
 const buttonStyleScript = (props: ButtonProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
-	const activeColors = custom.utils.activeColors(props?.backgroundColor || variables?.colors?.secondary || custom.colors.secondary);
+	const roles = custom.utils.colorRoles(variables);
+	const activeColors = props?.backgroundColor ? custom.utils.activeColors(props.backgroundColor) : roles.structureFill;
 	const buttonColor = activeColors[0];
 	const borderColor = props?.borderColor ? props.borderColor : activeColors[0];
 	const fontColor = props?.color ? props.color : activeColors[1];

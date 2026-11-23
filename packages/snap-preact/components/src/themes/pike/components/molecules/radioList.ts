@@ -10,6 +10,7 @@ const radioSpacing = custom.sizes.icon16 + custom.spacing.x2;
 const radioListStyleScript = (props: RadioListProps) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const variables = props?.theme?.variables;
+	const roles = custom.utils.colorRoles(variables);
 
 	// shared styles
 	const sharedStyles = css({
@@ -24,7 +25,7 @@ const radioListStyleScript = (props: RadioListProps) => {
 		},
 		'.ss__radio-list__title': {
 			margin: `0 0 ${custom.spacing.x2}px 0`,
-			...custom.styles.headerText(variables?.colors?.secondary, '14px'),
+			...custom.styles.headerText(roles.structure, '14px'),
 		},
 		'.ss__radio-list__options-wrapper': {
 			'.ss__radio-list__option': {
@@ -49,7 +50,7 @@ const radioListStyleScript = (props: RadioListProps) => {
 				...custom.styles.disabled(),
 			},
 			'.ss__radio-list__option--selected': {
-				...custom.styles.activeText(variables?.colors?.primary),
+				...custom.styles.activeText(roles.brand),
 			},
 			// icon-only options have no checkbox, label or bold text to show selection - mute the rest
 			...(props?.hideOptionRadios && props?.hideOptionLabels
